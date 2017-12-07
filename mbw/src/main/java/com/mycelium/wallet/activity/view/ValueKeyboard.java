@@ -8,6 +8,7 @@ import android.widget.GridLayout;
 import android.widget.TextView;
 
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
 
 import java.math.BigDecimal;
 
@@ -77,7 +78,7 @@ public class ValueKeyboard extends GridLayout {
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        for (int i = 0; i < getChildCount() - 1; i++) {
+        for (int i = 0; i < getChildCount(); i++) {
             View view = getChildAt(i);
             view.setOnClickListener(new OnClickListener() {
                 @Override
@@ -91,7 +92,7 @@ public class ValueKeyboard extends GridLayout {
                     } else if (view.getId() == R.id.btn_done) {
                         done();
                     } else if (view.getId() == R.id.btn_copy) {
-//                    value.setEntry(BigDecimal(Util.fromClipboard(context)), maxDecimals)
+                        value.setEntry(new BigDecimal(Utils.getClipboardString(getContext())), maxDecimals);
                     } else if (view instanceof TextView) {
                         value.clicked(Integer.parseInt(((TextView) view).getText().toString()));
                     }

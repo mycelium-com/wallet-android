@@ -79,75 +79,30 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <!--<TextView-->
-        <!--android:id="@+id/tvChangellyMain"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_gravity="left"-->
-        <!--android:gravity="left"-->
-        <!--android:text="@string/changelly_choose_your_currency"-->
-        <!--android:textSize="20sp" />-->
-
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="@dimen/margin_large"
-            android:text="@string/amount_to_exchange"
-            android:textColor="@color/white"
-            android:textSize="21sp" />
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginBottom="@dimen/margin_medium"
-            android:layout_marginEnd="@dimen/margin_medium"
-            android:layout_marginStart="@dimen/margin_medium"
-            android:layout_marginTop="@dimen/margin_large"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/fromCurrency"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
-                android:layout_marginRight="@dimen/margin_small"
-                android:text="BCH"
-                android:textColor="@color/white"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/fromValue"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:layout_gravity="bottom"
-                android:layout_weight="1"
-                android:background="@drawable/underline"
-                android:gravity="center"
-                android:hint="@string/zero"
-                android:paddingEnd="@dimen/margin_medium"
-                android:paddingStart="@dimen/margin_medium"
-                android:text="0"
-                android:textColor="@color/white"
-                android:textSize="20sp" />
-        </LinearLayout>
+            android:layout_marginTop="@dimen/margin_medium"
+            android:layout_marginBottom="@dimen/margin_small"
+            android:gravity="center"
+            android:text="@string/changelly_choose_your_currency"
+            android:textColor="@color/white"
+            android:textSize="18sp" />
 
         <TextView
-            android:id="@+id/tvMinAmountValue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="left"
-            android:layout_marginBottom="@dimen/margin_small"
-            android:layout_marginEnd="10dp"
-            android:layout_marginRight="10dp"
-            android:gravity="left"
-            android:text="@string/changelly_min_amount"
-            android:textSize="16sp" />
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginBottom="@dimen/margin_medium"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="Choose the currency and BTC receive account"
+            android:textColor="@color/white"
+            android:textSize="14sp" />
 
         <com.mycelium.wallet.activity.send.view.SelectableRecyclerView
             android:id="@+id/currencySelector"
@@ -164,21 +119,88 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="@dimen/margin_large"
-            android:text="@string/amount_to_receive"
+            android:layout_gravity="center"
+            android:layout_marginTop="@dimen/margin_medium"
+            android:gravity="center"
+            android:text="@string/enter_exchange_amount"
             android:textColor="@color/white"
-            android:textSize="21sp" />
+            android:textSize="18sp" />
 
-        <LinearLayout
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
             android:layout_gravity="center"
+            android:gravity="center"
+            android:text="Due to high cryptocurrencies volatility, the final rate may be slightly higher or lower than estimated here."
+            android:textColor="@color/red"
+            android:textSize="12sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="@dimen/margin_medium"
+            android:text="@string/amount_to_exchange"
+            android:textColor="@color/white"
+            android:textSize="18sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/margin_medium"
             android:layout_marginEnd="@dimen/margin_medium"
             android:layout_marginStart="@dimen/margin_medium"
-            android:layout_marginTop="@dimen/margin_large"
+            android:layout_marginTop="@dimen/margin_small"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/fromCurrency"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:layout_marginRight="@dimen/margin_small"
+                android:text="BCH"
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/fromValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_gravity="bottom"
+                android:layout_weight="1"
+                android:background="@drawable/underline"
+                android:hint="@string/zero"
+                android:paddingEnd="@dimen/margin_medium"
+                android:paddingStart="@dimen/margin_medium"
+                android:text="0"
+                android:textColor="@color/white"
+                android:textSize="20sp" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="@dimen/margin_medium"
+            android:text="@string/amount_to_receive"
+            android:textColor="@color/white"
+            android:textSize="18sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/margin_medium"
+            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginTop="@dimen/margin_small"
             android:orientation="horizontal">
 
             <TextView
@@ -188,18 +210,16 @@
                 android:layout_marginRight="@dimen/margin_small"
                 android:text="BTC"
                 android:textColor="@color/white"
-                android:textSize="20sp"
+                android:textSize="18sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/toValue"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
                 android:layout_gravity="bottom"
                 android:layout_weight="1"
                 android:background="@drawable/underline"
-                android:gravity="center"
                 android:hint="@string/zero"
                 android:paddingEnd="@dimen/margin_medium"
                 android:paddingStart="@dimen/margin_medium"
@@ -209,12 +229,27 @@
 
         </LinearLayout>
 
+        <TextView
+            android:id="@+id/tvMinAmountValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:layout_marginBottom="@dimen/margin_small"
+            android:layout_marginRight="@dimen/margin_medium"
+            android:layout_marginEnd="@dimen/margin_medium"
+            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginTop="@dimen/margin_medium"
+            android:textColor="@color/red"
+            android:gravity="left"
+            android:text="@string/changelly_min_amount"
+            android:textSize="12sp" />
+
         <Button
             android:id="@+id/btChangellyCreateTransaction"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="@dimen/margin_large"
+            android:layout_marginTop="@dimen/margin_medium"
             android:paddingEnd="@dimen/margin_large"
             android:paddingStart="@dimen/margin_large"
             android:text="@string/changelly_take_offer"

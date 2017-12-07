@@ -21,7 +21,6 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.send.event.SelectListener;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
 import com.mycelium.wallet.activity.view.ValueKeyboard;
-import com.mycelium.wallet.external.changelly.ChangellyAPIService.ChangellyTransactionOffer;
 import com.mycelium.wapi.wallet.WalletAccount;
 
 import java.util.ArrayList;
@@ -36,6 +35,7 @@ import static butterknife.OnTextChanged.Callback.AFTER_TEXT_CHANGED;
 import static com.mycelium.wallet.external.changelly.ChangellyService.INFO_ERROR;
 
 public class ChangellyActivity extends Activity {
+    public static final int REQUEST_OFFER = 100;
     private static String TAG = "ChangellyActivity";
 
     public enum ChangellyUITypes {
@@ -44,15 +44,17 @@ public class ChangellyActivity extends Activity {
         Main
     }
 
-    private TextView tvMinAmountValue;
+    @BindView(R.id.tvMinAmountValue)
+    TextView tvMinAmountValue;
+
     @BindView(R.id.fromValue)
-    TextView etAmount;
+    TextView fromValue;
 
     @BindView(R.id.fromCurrency)
     TextView fromCurrency;
 
     @BindView(R.id.toValue)
-    TextView tvOfferValue;
+    TextView toValue;
 
     @BindView(R.id.btChangellyCreateTransaction)
     Button btTakeOffer;
@@ -71,22 +73,24 @@ public class ChangellyActivity extends Activity {
     private Receiver receiver;
     private MbwManager mbwManager;
 
+    private Double minAmount;
+
     private void requestOfferFunction() {
-        String txtMinAmount = tvMinAmountValue.getText().toString();
-        String txtAmount = etAmount.getText().toString();
-        Double dblMinAmount;
         Double dblAmount;
+        String amount = fromValue.getText().toString();
+        if (amount.isEmpty()) {
+            return;
+        }
         try {
-            dblMinAmount = Double.parseDouble(txtMinAmount);
-            dblAmount = Double.parseDouble(txtAmount);
+            dblAmount = Double.parseDouble(amount);
         } catch (NumberFormatException e) {
             Toast.makeText(ChangellyActivity.this, "Error parsing double values", Toast.LENGTH_SHORT).show();
             return;
         }
-        if (txtMinAmount.compareToIgnoreCase(getString(R.string.changelly_loading)) == 0) {
+        if (minAmount == 0) {
             Toast.makeText(ChangellyActivity.this, "Please wait while loading minimum amount information.", Toast.LENGTH_SHORT).show();
             return;
-        } else if (dblAmount.compareTo(dblMinAmount) < 0) {
+        } else if (dblAmount.compareTo(minAmount) < 0) {
             toast("Error, amount is lower than minimum required.");
             return;
         } // TODO: compare with maximum
@@ -97,14 +101,13 @@ public class ChangellyActivity extends Activity {
                 .putExtra(ChangellyService.TO, ChangellyService.BTC)
                 .putExtra(ChangellyService.AMOUNT, dblAmount);
         startService(changellyServiceIntent);
-        toast("Waiting for offer...");
     }
 
     private void requestReversOfferFunction() {
-        String txtAmount = tvOfferValue.getText().toString();
         Double dblAmount;
+        String amount = toValue.getText().toString();
         try {
-            dblAmount = Double.parseDouble(txtAmount);
+            dblAmount = Double.parseDouble(amount);
         } catch (NumberFormatException e) {
             Toast.makeText(ChangellyActivity.this, "Error parsing double values", Toast.LENGTH_SHORT).show();
             return;
@@ -116,7 +119,6 @@ public class ChangellyActivity extends Activity {
                 .putExtra(ChangellyService.FROM, ChangellyService.BTC)
                 .putExtra(ChangellyService.AMOUNT, dblAmount);
         startService(changellyServiceIntent);
-        toast("Waiting for offer...");
     }
 
     @Override
@@ -125,8 +127,6 @@ public class ChangellyActivity extends Activity {
         setContentView(R.layout.changelly_activity);
         ButterKnife.bind(this);
         mbwManager = MbwManager.getInstance(this);
-
-        tvMinAmountValue = (TextView) findViewById(R.id.tvMinAmountValue);
 
         tvMinAmountValue.setVisibility(View.GONE); // cannot edit field before selecting a currency
 
@@ -153,10 +153,10 @@ public class ChangellyActivity extends Activity {
                 CurrencyAdapter.Item item = currencyAdapter.getItem(position);
                 if (item != null) {
                     fromCurrency.setText(item.currency);
-                    etAmount.setText(null);
-                    tvMinAmountValue.setText(R.string.changelly_loading);
-                    tvOfferValue.setText("");
-                    tvMinAmountValue.setVisibility(View.VISIBLE);
+                    fromValue.setText(null);
+                    minAmount = 0.0;
+                    toValue.setText("");
+
                     // load min amount
                     Intent changellyServiceIntent = new Intent(ChangellyActivity.this, ChangellyService.class)
                             .setAction(ChangellyService.ACTION_GET_MIN_EXCHANGE)
@@ -189,6 +189,12 @@ public class ChangellyActivity extends Activity {
         Intent changellyServiceIntent = new Intent(this, ChangellyService.class)
                 .setAction(ChangellyService.ACTION_GET_CURRENCIES);
         startService(changellyServiceIntent);
+    }
+
+    @Override
+    protected void onDestroy() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver);
+        super.onDestroy();
     }
 
     private void toast(String msg) {
@@ -225,68 +231,107 @@ public class ChangellyActivity extends Activity {
 
     private boolean avoidTextChangeEvent = false;
 
-    @OnTextChanged(value=R.id.fromValue,callback = AFTER_TEXT_CHANGED)
-    public void afterEditTextInputFrom(Editable editable){
-        if(!avoidTextChangeEvent) {
+    @OnTextChanged(value = R.id.fromValue, callback = AFTER_TEXT_CHANGED)
+    public void afterEditTextInputFrom(Editable editable) {
+        if (!avoidTextChangeEvent && isValueForOfferOk()) {
             requestOfferFunction();
+            if (fromValue.getText().toString().isEmpty()) {
+                avoidTextChangeEvent = true;
+                toValue.setText(null);
+                avoidTextChangeEvent = false;
+            }
         }
     }
 
-    @OnTextChanged(value=R.id.toValue,callback = AFTER_TEXT_CHANGED)
-    public void afterEditTextInputTo(Editable editable){
-        if(!avoidTextChangeEvent) {
+    @OnTextChanged(value = R.id.toValue, callback = AFTER_TEXT_CHANGED)
+    public void afterEditTextInputTo(Editable editable) {
+        if (!avoidTextChangeEvent && isValueForOfferOk()) {
             requestReversOfferFunction();
+            if (toValue.getText().toString().isEmpty()) {
+                avoidTextChangeEvent = true;
+                fromValue.setText(null);
+                avoidTextChangeEvent = false;
+            }
         }
     }
 
     @OnClick(R.id.fromValue)
     void clickFromValue() {
         valueKeyboard.setVisibility(View.VISIBLE);
-        valueKeyboard.setInputTextView(etAmount);
-        valueKeyboard.setEntry(etAmount.getText().toString());
+        valueKeyboard.setInputTextView(fromValue);
+        valueKeyboard.setEntry(fromValue.getText().toString());
+        currencySelector.setVisibility(View.GONE);
+        accountSelector.setVisibility(View.GONE);
     }
 
     @OnClick(R.id.toValue)
     void clickToValue() {
         valueKeyboard.setVisibility(View.VISIBLE);
-        valueKeyboard.setInputTextView(tvOfferValue);
-        valueKeyboard.setEntry(tvOfferValue.getText().toString());
+        valueKeyboard.setInputTextView(toValue);
+        valueKeyboard.setEntry(toValue.getText().toString());
         currencySelector.setVisibility(View.GONE);
         accountSelector.setVisibility(View.GONE);
     }
 
     @OnClick(R.id.btChangellyCreateTransaction)
     void offerClick() {
-        String txtMinAmount = tvMinAmountValue.getText().toString();
-        String txtAmount = etAmount.getText().toString();
-        Double dblMinAmount;
+        String txtAmount = fromValue.getText().toString();
         Double dblAmount;
-
         try {
-            dblMinAmount = Double.parseDouble(txtMinAmount);
             dblAmount = Double.parseDouble(txtAmount);
-//                    dblOffer = Double.parseDouble(txtOffer);
         } catch (NumberFormatException e) {
-            toast("Error parsing double values");
+            toast("Error exchanging value");
+            btTakeOffer.setEnabled(false);
             return;
         }
-        if (txtMinAmount.compareToIgnoreCase(getString(R.string.changelly_loading)) == 0) {
-            toast("Please wait while loading minimum amount information.");
-            return;
-        } else if (dblAmount.compareTo(dblMinAmount) < 0) {
-            toast("Error, amount is lower than minimum required.");
-            return;
-        } // TODO: compare with maximum
         CurrencyAdapter.Item item = currencyAdapter.getItem(currencySelector.getSelectedItem());
         WalletAccount walletAccount = accountAdapter.getItem(accountSelector.getSelectedItem()).account;
-        Intent changellyServiceIntent = new Intent(ChangellyActivity.this, ChangellyService.class)
-                .setAction(ChangellyService.ACTION_CREATE_TRANSACTION)
+        startActivityForResult(new Intent(ChangellyActivity.this, ChangellyOfferActivity.class)
                 .putExtra(ChangellyService.FROM, item.currency)
                 .putExtra(ChangellyService.TO, ChangellyService.BTC)
                 .putExtra(ChangellyService.AMOUNT, dblAmount)
-                .putExtra(ChangellyService.DESTADDRESS, walletAccount.getReceivingAddress().get().toString());
-        startService(changellyServiceIntent);
-        toast("Accepted offer...");
+                .putExtra(ChangellyService.DESTADDRESS, walletAccount.getReceivingAddress().get().toString()), REQUEST_OFFER);
+    }
+
+
+    boolean isValueForOfferOk() {
+        tvMinAmountValue.setVisibility(View.GONE);
+        String txtAmount = fromValue.getText().toString();
+        if (txtAmount.isEmpty()) {
+            btTakeOffer.setEnabled(false);
+            return false;
+        }
+        Double dblAmount;
+        try {
+            dblAmount = Double.parseDouble(txtAmount);
+        } catch (NumberFormatException e) {
+            toast("Error exchanging value");
+            btTakeOffer.setEnabled(false);
+            return false;
+        }
+
+        if (minAmount == 0) {
+            btTakeOffer.setEnabled(false);
+            toast("Please wait while loading minimum amount information.");
+            return false;
+        } else if (dblAmount.compareTo(minAmount) < 0) {
+            btTakeOffer.setEnabled(false);
+            toast("Error, amount is lower than minimum required.");
+            tvMinAmountValue.setVisibility(View.VISIBLE);
+            return false;
+        } // TODO: compare with maximum
+        btTakeOffer.setEnabled(true);
+        return true;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == REQUEST_OFFER) {
+            if(resultCode == ChangellyOfferActivity.RESULT_FINISH) {
+                finish();
+            }
+        }
     }
 
     class Receiver extends BroadcastReceiver {
@@ -296,7 +341,7 @@ public class ChangellyActivity extends Activity {
         @Override
         public void onReceive(Context context, Intent intent) {
             String from, to;
-            double amount;
+            String amount;
 
             switch (intent.getAction()) {
                 case ChangellyService.INFO_CURRENCIES:
@@ -320,51 +365,34 @@ public class ChangellyActivity extends Activity {
                 case ChangellyService.INFO_MIN_AMOUNT:
                     from = intent.getStringExtra(ChangellyService.FROM);
                     to = intent.getStringExtra(ChangellyService.TO);
-                    amount = intent.getDoubleExtra(ChangellyService.AMOUNT, 0);
+                    amount = intent.getStringExtra(ChangellyService.AMOUNT);
                     CurrencyAdapter.Item item = currencyAdapter.getItem(currencySelector.getSelectedItem());
                     if (from != null && to != null && to.compareToIgnoreCase(ChangellyService.BTC) == 0
                             && from.compareToIgnoreCase(item.currency) == 0) {
                         Log.d(TAG, "Received minimum amount: " + amount + " " + from);
-                        tvMinAmountValue.setText(Double.toString(amount));
+                        minAmount = Double.parseDouble(amount);
+                        tvMinAmountValue.setText("Minimum amount to be exchanged is " + amount + " " + item.currency);
                     }
                     break;
                 case ChangellyService.INFO_EXCH_AMOUNT:
                     from = intent.getStringExtra(ChangellyService.FROM);
                     to = intent.getStringExtra(ChangellyService.TO);
-                    amount = intent.getDoubleExtra(ChangellyService.AMOUNT, 0);
+                    amount = intent.getStringExtra(ChangellyService.AMOUNT);
                     item = currencyAdapter.getItem(currencySelector.getSelectedItem());
                     if (from != null && to != null) {
                         avoidTextChangeEvent = true;
                         if (to.equalsIgnoreCase(ChangellyService.BTC)
                                 && from.equalsIgnoreCase(item.currency)) {
                             Log.d(TAG, "Received offer: " + amount + " " + to);
-                            tvOfferValue.setText(Double.toString(amount));
+                            toValue.setText(amount);
                         } else if (from.equalsIgnoreCase(ChangellyService.BTC)
                                 && to.equalsIgnoreCase(item.currency)) {
                             Log.d(TAG, "Received offer: " + amount + " " + to);
-                            etAmount.setText(Double.toString(amount));
+                            fromValue.setText(amount);
                         }
                         avoidTextChangeEvent = false;
                     }
                     //TODO: enable request offer
-                    break;
-                case ChangellyService.INFO_TRANSACTION:
-                    ChangellyTransactionOffer offer = (ChangellyTransactionOffer) intent.getSerializableExtra(ChangellyService.OFFER);
-                    String txtOffer = tvOfferValue.getText().toString();
-                    Double dblOffer;
-                    try {
-                        dblOffer = Double.parseDouble(txtOffer);
-
-                    } catch (NumberFormatException e) {
-                        Toast.makeText(ChangellyActivity.this,
-                                "Service unavailable",
-                                Toast.LENGTH_LONG).show();
-                        return;
-                    }
-                    offer.amountTo = dblOffer;
-                    Intent offerIntent = new Intent(ChangellyActivity.this, ChangellyOfferActivity.class)
-                            .putExtra(ChangellyService.OFFER, offer);
-                    startActivity(offerIntent);
                     break;
                 case INFO_ERROR:
                     Toast.makeText(ChangellyActivity.this,
