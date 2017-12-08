@@ -90,7 +90,6 @@ public class MbwProdEnvironment extends MbwEnvironment {
       return prodnetLtEndpoints;
    }
 
-
    /**
     * Wapi
     */

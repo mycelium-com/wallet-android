@@ -311,7 +311,6 @@ public class ChangellyActivity extends Activity {
             return false;
         } else if (checkMin && dblAmount.compareTo(minAmount) < 0) {
             btTakeOffer.setEnabled(false);
-            toast("Error, amount is lower than minimum required.");
             tvMinAmountValue.setVisibility(View.VISIBLE);
             return false;
         } // TODO: compare with maximum
