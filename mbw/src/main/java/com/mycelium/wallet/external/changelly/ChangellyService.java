@@ -123,7 +123,7 @@ public class ChangellyService extends IntentService {
         Log.i(LOG_TAG, "onHandleIntent: ${intent?.action}");
         if (intent != null && intent.getAction() != null) {
             String from, to, destAddress;
-            double min, amount, offer;
+            double amount;
             switch(intent.getAction()) {
                 case ACTION_GET_CURRENCIES:
                     if(currencies == null) { // TODO: check freshness || dateCurrencies.before(new Date())) {
@@ -146,7 +146,7 @@ public class ChangellyService extends IntentService {
                 case ACTION_GET_MIN_EXCHANGE:
                     from = intent.getStringExtra(FROM);
                     to = intent.getStringExtra(TO);
-                    min = getMinAmount(from, to);
+                    double min = getMinAmount(from, to);
                     if(min == -1) {
                         // service unavailable
                         Intent errorIntent = new Intent(ChangellyService.INFO_ERROR, null,
@@ -166,7 +166,7 @@ public class ChangellyService extends IntentService {
                     from = intent.getStringExtra(FROM);
                     to = intent.getStringExtra(TO);
                     amount = intent.getDoubleExtra(AMOUNT, 0);
-                    offer = getExchangeAmount(from, to, amount);
+                    double offer = getExchangeAmount(from, to, amount);
                     if(offer == -1) {
                         // service unavailable
                         Intent errorIntent = new Intent(ChangellyService.INFO_ERROR, null,

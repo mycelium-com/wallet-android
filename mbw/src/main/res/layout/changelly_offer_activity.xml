@@ -2,118 +2,107 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="@dimen/margin_medium">
 
     <TextView
-        android:id="@+id/tvChangellyMain"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:layout_marginBottom="@dimen/margin_medium"
+        android:layout_marginTop="@dimen/margin_medium"
         android:gravity="center"
-        android:paddingBottom="12dp"
         android:text="@string/changelly_offer_title"
-        android:textSize="20sp"
-        android:textStyle="bold" />
-
-
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <TextView
-            android:id="@+id/tvFrom"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="left"
-            android:gravity="left"
-            android:paddingRight="12dp"
-            android:text="@string/changelly_convert_from"
-            android:textSize="20sp" />
-
-        <TextView
-            android:id="@+id/tvFromAmount"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="right"
-            android:gravity="right"
-            android:text="@string/zero"
-            android:textSize="20sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/tvFromCurr"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="right"
-            android:gravity="right"
-            android:paddingLeft="12dp"
-            android:text="@string/changelly_bch"
-            android:textSize="20sp"
-            android:textStyle="bold" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <TextView
-            android:id="@+id/tvTo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="left"
-            android:gravity="left"
-            android:paddingRight="12dp"
-            android:text="@string/changelly_estimated_to"
-            android:textSize="20sp" />
-
-        <TextView
-            android:id="@+id/tvToAmount"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="right"
-            android:gravity="right"
-            android:text="@string/zero"
-            android:textSize="20sp" />
-
-        <TextView
-            android:id="@+id/tvToCurr"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="right"
-            android:gravity="right"
-            android:paddingLeft="12dp"
-            android:text="@string/changelly_btc"
-            android:textSize="20sp" />
-    </LinearLayout>
-
-    <TextView
-        android:id="@+id/tvSendTo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="left"
-        android:gravity="left"
-        android:text="@string/changelly_please_send_funds"
+        android:textColor="@color/white"
         android:textSize="20sp" />
 
     <TextView
-        android:id="@+id/tvSendToAddress"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="right"
-        android:gravity="right"
-        android:paddingTop="12dp"
+        android:layout_gravity="center"
+        android:layout_marginBottom="@dimen/margin_medium"
+        android:text="@string/exchange_in_order_to_complete"
+        android:textColor="@color/white"
+        android:textSize="@dimen/exchange_offer_text_size" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="@dimen/margin_medium"
+        android:text="@string/exchange_to_do_so"
+        android:textColor="@color/white"
+        android:textSize="@dimen/exchange_offer_text_size" />
+
+    <TextView
+        android:id="@+id/tvSendToAddress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/margin_medium"
+        android:layout_marginTop="12dp"
+        android:ellipsize="middle"
+        android:singleLine="true"
+        android:paddingStart="@dimen/margin_medium"
+        android:paddingEnd="@dimen/margin_medium"
+        android:paddingTop="@dimen/margin_small"
+        android:paddingBottom="@dimen/margin_small"
         android:text=""
-        android:textIsSelectable="true"
-        android:textSize="20sp"
+        android:background="@drawable/background_sell_order_card"
+        android:drawableRight="@drawable/ic_content_copy_white"
+        android:textSize="18sp"
         android:textStyle="bold" />
 
+    <TextView
+        android:id="@+id/tvFromAmount"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-medium"
+        android:lineSpacingExtra="11sp"
+        android:paddingStart="@dimen/margin_medium"
+        android:paddingEnd="@dimen/margin_medium"
+        android:paddingTop="@dimen/margin_small"
+        android:paddingBottom="@dimen/margin_small"
+        android:background="@drawable/background_sell_order_card"
+        android:text=""
+        android:textColor="@color/white"
+        android:drawableRight="@drawable/ic_content_copy_white"
+        android:textSize="18sp"
+        android:textStyle="normal" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="@dimen/margin_medium"
+        android:layout_marginBottom="@dimen/margin_medium"
+        android:text="@string/exchange_after_transaction"
+        android:textColor="@color/white"
+        android:textSize="@dimen/exchange_offer_text_size" />
+
+
     <Button
-        android:id="@+id/btChangellyCopy"
+        android:id="@+id/exchange_more"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="16px"
-        android:text="@string/changelly_copy_to_clipboard" />
+        android:layout_marginTop="@dimen/margin_medium"
+        android:text="Exchange more"
+        android:textSize="18sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="@dimen/margin_small"
+        android:text="or"
+        android:textColor="@color/white"
+        android:textSize="16sp" />
+
+    <Button
+        android:id="@+id/check_balance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="Check your balance"
+        android:textSize="18sp" />
 </LinearLayout>

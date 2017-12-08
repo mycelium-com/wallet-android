@@ -40,7 +40,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 
 import com.google.common.base.Preconditions;
@@ -48,34 +47,33 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.external.BuySellSelectFragment;
 import com.mycelium.wallet.external.BuySellServiceDescriptor;
-import com.squareup.otto.Subscribe;
+import com.mycelium.wallet.external.changelly.ChangellyActivity;
 
 import javax.annotation.Nullable;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class BuySellFragment extends Fragment {
     private MbwManager _mbwManager;
     private View _root;
-    private View btBuySell;
+    @BindView(R.id.btBuySellBitcoin)
+    View btBuySell;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         _root = Preconditions.checkNotNull(inflater.inflate(R.layout.main_buy_sell_fragment, container, false));
-        btBuySell = _root.findViewById(R.id.btBuySellBitcoin);
+        ButterKnife.bind(this, _root);
         boolean showButton = Iterables.any(_mbwManager.getEnvironmentSettings().getBuySellServices(), new Predicate<BuySellServiceDescriptor>() {
             @Override
             public boolean apply(@Nullable BuySellServiceDescriptor input) {
                 return input.isEnabled(_mbwManager);
             }
         });
-        if (showButton) {
-            btBuySell.setVisibility(View.VISIBLE);
-            btBuySell.setOnClickListener(buySellOnClickListener);
-        } else {
-            btBuySell.setVisibility(View.GONE);
-        }
+        btBuySell.setVisibility(showButton ? View.VISIBLE : View.GONE);
         return _root;
     }
 
@@ -90,12 +88,14 @@ public class BuySellFragment extends Fragment {
         super.onAttach(activity);
         _mbwManager = MbwManager.getInstance(activity);
     }
+    @OnClick(R.id.btExchangeAltcoins)
+    void clickExchangeAltcoins() {
+        startActivity(new Intent(getActivity(), ChangellyActivity.class));
+    }
 
-    OnClickListener buySellOnClickListener = new OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            Intent intent = new Intent(getActivity(), BuySellSelectFragment.class);
-            startActivity(intent);
-        }
-    };
+    @OnClick(R.id.btBuySellBitcoin)
+    void clickBuySell() {
+        Intent intent = new Intent(getActivity(), BuySellSelectFragment.class);
+        startActivity(intent);
+    }
 }

@@ -29,7 +29,6 @@ import javax.annotation.Nullable;
 
 
 public class BuySellSelectFragment extends FragmentActivity {
-   private GlideraService glideraService;
 
    @Override
    protected void onCreate(Bundle savedInstanceState) {

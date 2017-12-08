@@ -42,6 +42,9 @@ public class SelectableRecyclerView extends RecyclerView {
     }
 
     public void setSelectedItem(int selectedItem) {
+        if(getAdapter() == null) {
+            return;
+        }
         ((Adapter) getAdapter()).setSelectedItem(selectedItem);
         scrollListToPosition(selectedItem);
         if (selectListener != null) {
@@ -90,8 +93,10 @@ public class SelectableRecyclerView extends RecyclerView {
         if (changed && oldWidth != getWidth()) {
             itemWidth = getResources().getDimensionPixelSize(R.dimen.item_dob_width);
             padding = (getWidth() - itemWidth) / 2;
-            getAdapter().notifyDataSetChanged();
-            scrollListToPosition(getSelectedItem());
+            if(getAdapter() != null) {
+                getAdapter().notifyDataSetChanged();
+                scrollListToPosition(getSelectedItem());
+            }
             oldWidth = getWidth();
         }
     }
@@ -101,7 +106,7 @@ public class SelectableRecyclerView extends RecyclerView {
 
         if (expectedPosition < 1) {
             expectedPosition = 1;
-        } else if (expectedPosition > getAdapter().getItemCount() - 2) {
+        } else if (getAdapter() != null && expectedPosition > getAdapter().getItemCount() - 2) {
             expectedPosition = getAdapter().getItemCount() - 2;
         }
         setSelectedItem(expectedPosition);

@@ -495,10 +495,10 @@ public class Utils {
       }
    }
 
-   public static String getClipboardString(Activity activity) {
+   public static String getClipboardString(Context context) {
       try {
          @SuppressWarnings("deprecation")
-         ClipboardManager clipboard = (ClipboardManager) activity.getSystemService(Context.CLIPBOARD_SERVICE);
+         ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
          CharSequence content = clipboard.getText();
          if (content == null) {
             return "";
@@ -508,11 +508,11 @@ public class Utils {
          //some devices reported java.lang.SecurityException: Permission Denial:
          // reading com.android.providers.media.MediaProvider uri content://media/external/file/6595
          // it appears as if we have a file in clipboard that the system is trying to read. we don't want to do that anyways, so lets ignore it.
-         Toast.makeText(activity, activity.getString(R.string.unable_to_get_clipboard), Toast.LENGTH_LONG).show();
+         Toast.makeText(context, context.getString(R.string.unable_to_get_clipboard), Toast.LENGTH_LONG).show();
          return "";
       } catch (NullPointerException ex) {
-         MbwManager.getInstance(activity).reportIgnoredException(new RuntimeException(ex.getMessage()));
-         Toast.makeText(activity, activity.getString(R.string.unable_to_get_clipboard), Toast.LENGTH_LONG).show();
+         MbwManager.getInstance(context).reportIgnoredException(new RuntimeException(ex.getMessage()));
+         Toast.makeText(context, context.getString(R.string.unable_to_get_clipboard), Toast.LENGTH_LONG).show();
          return "";
       }
    }

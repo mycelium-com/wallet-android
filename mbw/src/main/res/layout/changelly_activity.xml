@@ -1,20 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-android:orientation="vertical" android:layout_width="match_parent"
-android:layout_height="match_parent">
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <LinearLayout
         android:id="@+id/llChangellyValidationWait"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center_vertical"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:visibility="gone">
 
         <ProgressBar
             android:id="@+id/pbChangellyWait"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"/>
+            android:layout_gravity="center" />
 
         <TextView
             android:id="@+id/tvChangellyWait"
@@ -23,7 +25,7 @@ android:layout_height="match_parent">
             android:layout_gravity="center"
             android:gravity="center"
             android:text="@string/changelly_loading_currencies"
-            android:textSize="20sp"/>
+            android:textSize="20sp" />
 
     </LinearLayout>
 
@@ -31,17 +33,18 @@ android:layout_height="match_parent">
         android:id="@+id/llChangellyLoadingProgress"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:visibility="gone">
 
         <ImageView
             android:id="@+id/ivChangellyLogo"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:scaleType="fitXY"
             android:layout_gravity="center_vertical"
-            android:src="@drawable/simplex"
+            android:layout_marginRight="@dimen/activity_vertical_margin"
             android:contentDescription="@string/changelly"
-            android:layout_marginRight="@dimen/activity_vertical_margin"/>
+            android:scaleType="fitXY"
+            android:src="@drawable/simplex" />
     </LinearLayout>
 
     <LinearLayout
@@ -49,7 +52,8 @@ android:layout_height="match_parent">
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center_vertical"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:visibility="gone">
 
         <TextView
             android:id="@+id/tvSimplexError"
@@ -57,15 +61,15 @@ android:layout_height="match_parent">
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:gravity="center"
-            android:textSize="20sp"/>
+            android:textSize="20sp" />
 
         <Button
             android:id="@+id/btChangellyRetry"
-            android:layout_marginTop="16px"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:text="@string/changelly_retry"/>
+            android:layout_marginTop="@dimen/margin_large"
+            android:text="@string/changelly_retry" />
 
     </LinearLayout>
 
@@ -73,157 +77,190 @@ android:layout_height="match_parent">
         android:id="@+id/llChangellyMain"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center_vertical"
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/tvChangellyMain"
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="@dimen/margin_medium"
+            android:layout_marginBottom="@dimen/margin_small"
+            android:gravity="center"
+            android:text="@string/changelly_choose_your_currency"
+            android:textColor="@color/white"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/subtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginBottom="@dimen/margin_medium"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="Choose the currency and BTC receive account"
+            android:textColor="@color/white"
+            android:textSize="14sp" />
+
+        <com.mycelium.wallet.activity.send.view.SelectableRecyclerView
+            android:id="@+id/currencySelector"
+            android:layout_width="match_parent"
+            android:layout_height="75dp"
+            android:background="#4d5e66" />
+
+        <com.mycelium.wallet.activity.send.view.SelectableRecyclerView
+            android:id="@+id/accountSelector"
+            android:layout_width="match_parent"
+            android:layout_height="75dp"
+            android:background="@color/sender_recyclerview_background2" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="@dimen/margin_medium"
+            android:gravity="center"
+            android:text="@string/enter_exchange_amount"
+            android:textColor="@color/white"
+            android:textSize="18sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="Due to high cryptocurrencies volatility, the final rate may be slightly higher or lower than estimated here."
+            android:textColor="@color/red"
+            android:textSize="12sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="@dimen/margin_medium"
+            android:text="@string/amount_to_exchange"
+            android:textColor="@color/white"
+            android:textSize="18sp" />
+        <TextView
+            android:id="@+id/tvMinAmountValue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="left"
+            android:layout_marginBottom="@dimen/margin_small"
+            android:layout_marginRight="@dimen/margin_medium"
+            android:layout_marginEnd="@dimen/margin_medium"
+            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginTop="@dimen/margin_small"
+            android:textColor="@color/red"
             android:gravity="left"
-            android:text="@string/changelly_choose_your_currency"
-            android:textSize="20sp"/>
-
-
+            android:text="@string/changelly_min_amount"
+            android:textSize="12sp"
+            android:visibility="invisible"/>
         <LinearLayout
-            android:id="@+id/llChangellyCurrInfo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="vertical">
-
-
-            <LinearLayout
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <TextView
-                android:id="@+id/tvSelectedCurr"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="left"
-                android:gravity="left"
-                android:text="@string/changelly_selected_currency"
-                    android:layout_marginEnd="10sp"
-                android:textSize="20sp"/>
-
-                <TextView
-                android:id="@+id/tvSelectedCurrValue"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="right"
-                android:gravity="right"
-                android:textSize="20sp"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                android:id="@+id/tvMinAmount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="left"
-                android:gravity="left"
-                android:text="@string/changelly_min_amount"
-                    android:layout_marginEnd="10sp"
-                android:textSize="20sp"/>
-                <TextView
-                    android:id="@+id/tvMinAmountValue"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="right"
-                    android:gravity="right"
-                    android:text="@string/zero"
-                    android:textSize="20sp"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/tvAmount"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="left"
-                    android:gravity="left"
-                    android:text="@string/changelly_amount"
-                    android:textSize="20sp"/>
-                <EditText
-                    android:id="@+id/tvAmountValue"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="right"
-                    android:gravity="right"
-                    android:inputType="numberDecimal"
-                    android:hint="@string/zero"
-                    android:textSize="20sp"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
+            android:layout_marginBottom="@dimen/margin_medium"
+            android:layout_marginEnd="@dimen/margin_medium"
+            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginTop="@dimen/margin_small"
+            android:orientation="horizontal">
 
             <TextView
-                android:id="@+id/tvOffer"
+                android:id="@+id/fromCurrency"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="left"
-                android:gravity="left"
-                android:text="@string/changelly_offer"
-                android:layout_marginEnd="10sp"
-                android:textSize="20sp"/>
-            <TextView
-                android:id="@+id/tvOfferValue"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="right"
-                android:gravity="right"
-                android:text="@string/zero"
-                android:textSize="20sp"/>
-            </LinearLayout>
-            <LinearLayout
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:layout_gravity="bottom"
+                android:layout_marginRight="@dimen/margin_small"
+                android:text="BCH"
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                android:textStyle="bold" />
 
-                <CheckBox
-                    android:id="@+id/cbTandC"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="left"
-                    android:gravity="left"
-                    android:textSize="20sp"
-                    />
-                <TextView
-                    android:id="@+id/tvTandC"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="right"
-                    android:gravity="right"
-                    android:text="@string/changelly_tandc"
-                    android:textSize="20sp"/>
-            </LinearLayout>
+            <TextView
+                android:id="@+id/fromValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_gravity="bottom"
+                android:minEms="5"
+                android:background="@drawable/underline"
+                android:hint="@string/zero"
+                android:paddingEnd="@dimen/margin_medium"
+                android:paddingStart="@dimen/margin_medium"
+                android:text="0"
+                android:textColor="@color/white"
+                android:textSize="20sp" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="@dimen/margin_medium"
+            android:text="@string/amount_to_receive"
+            android:textColor="@color/white"
+            android:textSize="18sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/margin_medium"
+            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginTop="@dimen/margin_small"
+            android:layout_marginBottom="@dimen/margin_medium"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:layout_marginRight="@dimen/margin_small"
+                android:text="BTC"
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/toValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:minEms="5"
+                android:background="@drawable/underline"
+                android:hint="@string/zero"
+                android:paddingEnd="@dimen/margin_medium"
+                android:paddingStart="@dimen/margin_medium"
+                android:text="0"
+                android:textColor="@color/white"
+                android:textSize="20sp" />
 
         </LinearLayout>
 
         <Button
             android:id="@+id/btChangellyCreateTransaction"
-            android:layout_marginTop="16px"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:text="@string/changelly_take_offer"/>
+            android:layout_marginTop="@dimen/margin_large"
+            android:layout_marginBottom="@dimen/margin_small"
+            android:paddingEnd="@dimen/margin_large"
+            android:paddingStart="@dimen/margin_large"
+            android:text="@string/changelly_take_offer"
+            android:textSize="18sp" />
 
-        <ListView android:id="@+id/list"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent" />
     </LinearLayout>
 
-</LinearLayout>
+    <include
+        layout="@layout/layout_value_keyboard"
+        android:visibility="gone" />
+</FrameLayout>
