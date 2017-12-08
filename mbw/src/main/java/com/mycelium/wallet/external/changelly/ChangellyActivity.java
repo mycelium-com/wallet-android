@@ -114,7 +114,7 @@ public class ChangellyActivity extends Activity {
         ButterKnife.bind(this);
         mbwManager = MbwManager.getInstance(this);
 
-        tvMinAmountValue.setVisibility(View.GONE); // cannot edit field before selecting a currency
+        tvMinAmountValue.setVisibility(View.INVISIBLE); // cannot edit field before selecting a currency
 
         valueKeyboard.setMaxDecimals(8);
         valueKeyboard.setInputListener(new ValueKeyboard.SimpleInputListener() {
@@ -289,9 +289,8 @@ public class ChangellyActivity extends Activity {
                 .putExtra(ChangellyService.DESTADDRESS, walletAccount.getReceivingAddress().get().toString()), REQUEST_OFFER);
     }
 
-
     boolean isValueForOfferOk(boolean checkMin) {
-        tvMinAmountValue.setVisibility(View.GONE);
+        tvMinAmountValue.setVisibility(View.INVISIBLE);
         String txtAmount = fromValue.getText().toString();
         if (txtAmount.isEmpty()) {
             btTakeOffer.setEnabled(false);

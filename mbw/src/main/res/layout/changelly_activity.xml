@@ -150,7 +150,21 @@
             android:text="@string/amount_to_exchange"
             android:textColor="@color/white"
             android:textSize="18sp" />
-
+        <TextView
+            android:id="@+id/tvMinAmountValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:layout_marginBottom="@dimen/margin_small"
+            android:layout_marginRight="@dimen/margin_medium"
+            android:layout_marginEnd="@dimen/margin_medium"
+            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginTop="@dimen/margin_small"
+            android:textColor="@color/red"
+            android:gravity="left"
+            android:text="@string/changelly_min_amount"
+            android:textSize="12sp"
+            android:visibility="invisible"/>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -196,22 +210,6 @@
             android:text="@string/amount_to_receive"
             android:textColor="@color/white"
             android:textSize="18sp" />
-
-        <TextView
-            android:id="@+id/tvMinAmountValue"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="left"
-            android:layout_marginBottom="@dimen/margin_small"
-            android:layout_marginRight="@dimen/margin_medium"
-            android:layout_marginEnd="@dimen/margin_medium"
-            android:layout_marginStart="@dimen/margin_medium"
-            android:layout_marginTop="@dimen/margin_medium"
-            android:textColor="@color/red"
-            android:gravity="left"
-            android:text="@string/changelly_min_amount"
-            android:textSize="12sp"
-            android:visibility="gone"/>
 
         <LinearLayout
             android:layout_width="match_parent"
