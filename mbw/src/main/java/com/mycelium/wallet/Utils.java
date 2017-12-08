@@ -48,7 +48,6 @@ import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.Build;
 import android.support.annotation.StringRes;
 import android.text.ClipboardManager;
 import android.text.format.DateFormat;
@@ -240,9 +239,6 @@ public class Utils {
     * For ru locale pretty time library have problem, if(locale == "ru") fix this problem
     * for ru locale Duration should be not in past and not in future
     * otherwise library add "через" or "назад"
-    * @param context
-    * @param blocks
-    * @return
     */
    public static String formatBlockcountAsApproxDuration(final Context context, final int blocks) {
       MbwManager mbwManager = MbwManager.getInstance(context);
@@ -499,10 +495,10 @@ public class Utils {
       }
    }
 
-   public static String getClipboardString(Activity activity) {
+   public static String getClipboardString(Context context) {
       try {
          @SuppressWarnings("deprecation")
-         ClipboardManager clipboard = (ClipboardManager) activity.getSystemService(Context.CLIPBOARD_SERVICE);
+         ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
          CharSequence content = clipboard.getText();
          if (content == null) {
             return "";
@@ -512,11 +508,11 @@ public class Utils {
          //some devices reported java.lang.SecurityException: Permission Denial:
          // reading com.android.providers.media.MediaProvider uri content://media/external/file/6595
          // it appears as if we have a file in clipboard that the system is trying to read. we don't want to do that anyways, so lets ignore it.
-         Toast.makeText(activity, activity.getString(R.string.unable_to_get_clipboard), Toast.LENGTH_LONG).show();
+         Toast.makeText(context, context.getString(R.string.unable_to_get_clipboard), Toast.LENGTH_LONG).show();
          return "";
       } catch (NullPointerException ex) {
-         MbwManager.getInstance(activity).reportIgnoredException(new RuntimeException(ex.getMessage()));
-         Toast.makeText(activity, activity.getString(R.string.unable_to_get_clipboard), Toast.LENGTH_LONG).show();
+         MbwManager.getInstance(context).reportIgnoredException(new RuntimeException(ex.getMessage()));
+         Toast.makeText(context, context.getString(R.string.unable_to_get_clipboard), Toast.LENGTH_LONG).show();
          return "";
       }
    }
@@ -753,15 +749,6 @@ public class Utils {
     * Prevent the OS from taking screenshots for the specified activity
     */
    public static void preventScreenshots(Activity activity) {
-      // looks like gingerbread devices have this issue more commonly than
-      // thought.
-      // future: make a setting for this, and somehow gather feedback what
-      // works,
-      // and a positive list of devices.
-      if (android.os.Build.VERSION.SDK_INT == android.os.Build.VERSION_CODES.GINGERBREAD
-            || android.os.Build.VERSION.SDK_INT == Build.VERSION_CODES.GINGERBREAD_MR1) {
-         return;
-      }
       activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
    }
 

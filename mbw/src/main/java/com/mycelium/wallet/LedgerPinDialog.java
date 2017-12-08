@@ -40,7 +40,6 @@ import android.widget.TextView;
 import com.google.common.base.Strings;
 
 public class LedgerPinDialog extends PinDialog {
-
    public static final int MAX_PIN_LENGTH = 32;
    private TextView pinDisp;
 
@@ -75,7 +74,6 @@ public class LedgerPinDialog extends PinDialog {
       });
    }
 
-
    @Override
    protected void updatePinDisplay() {
       pinDisp.setText(
@@ -84,14 +82,10 @@ public class LedgerPinDialog extends PinDialog {
       checkPin();
    }
 
-
    @Override
    protected void checkPin() {
       if (enteredPin.length() >= MAX_PIN_LENGTH) {
          acceptPin();
       }
    }
-
-
 }
-

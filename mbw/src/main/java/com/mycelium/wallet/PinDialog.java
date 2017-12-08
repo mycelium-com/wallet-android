@@ -39,6 +39,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 import com.google.common.base.Strings;
@@ -47,7 +48,6 @@ import com.mycelium.wallet.activity.util.Pin;
 import java.util.ArrayList;
 
 public class PinDialog extends Dialog {
-
    public static final String PLACEHOLDER_TYPED = "\u25CF"; // Unicode Character 'BLACK CIRCLE' (which is a white circle in our dark theme)
    public static final String PLACEHOLDER_NOT_TYPED = "\u25CB"; // Unicode Character 'WHITE CIRCLE' (which is a black circle)
    public static final String PLACEHOLDER_SMALL = "\u2022"; // Unicode Character  'BULLET'
@@ -69,9 +69,9 @@ public class PinDialog extends Dialog {
       this.onPinValid = _onPinValid;
    }
 
-
    public PinDialog(Context context, boolean hidden, boolean cancelable) {
       super(context);
+      getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
       this.hidden = hidden;
       setCancelable(cancelable);
       setCanceledOnTouchOutside(false);
@@ -188,7 +188,6 @@ public class PinDialog extends Dialog {
       delayHandler.sendMessage(delayHandler.obtainMessage());
    }
 
-
    /**
     * Trick to make the last digit update before the dialog is disabled
     */
@@ -203,7 +202,5 @@ public class PinDialog extends Dialog {
    protected Pin getPin() {
       return new Pin(enteredPin);
    }
-
-
 }
 
