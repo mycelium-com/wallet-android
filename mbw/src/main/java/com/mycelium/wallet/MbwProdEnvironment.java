@@ -154,6 +154,7 @@ public class MbwProdEnvironment extends MbwEnvironment {
          add(new SimplexServiceDescription());
          // add(new CreditCardBuyServiceDescription());
          add(new LocalTraderServiceDescription());
+         add(new ChangellyServiceDescription());
          add(new GlideraServiceDescription());
       }};
    }
