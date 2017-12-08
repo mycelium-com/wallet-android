@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="2.9.10" versioncode="2091000">
+        <change>Receive other coins into your Bitcoin accounts through Changelly</change>
+        <change>Bugfix: improved startup performance</change>
+    </release>
     <release version="2.9.9.0" versioncode="2090900">
         <change>Improved RMC integration</change>
     </release>
