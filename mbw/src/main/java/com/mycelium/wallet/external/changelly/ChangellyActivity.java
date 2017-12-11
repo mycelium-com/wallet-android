@@ -114,7 +114,7 @@ public class ChangellyActivity extends Activity {
         ButterKnife.bind(this);
         mbwManager = MbwManager.getInstance(this);
 
-        tvMinAmountValue.setVisibility(View.INVISIBLE); // cannot edit field before selecting a currency
+        tvMinAmountValue.setVisibility(View.GONE); // cannot edit field before selecting a currency
 
         valueKeyboard.setMaxDecimals(8);
         valueKeyboard.setInputListener(new ValueKeyboard.SimpleInputListener() {
@@ -158,6 +158,7 @@ public class ChangellyActivity extends Activity {
         accountAdapter = new AccountAdapter(mbwManager
                 , mbwManager.getWalletManager(false).getActiveAccounts(), firstItemWidth);
         accountSelector.setAdapter(accountAdapter);
+        accountSelector.setSelectedItem(mbwManager.getSelectedAccount());
 
         //display the loading spinner
         setLayout(ChangellyActivity.ChangellyUITypes.Loading);
@@ -290,7 +291,7 @@ public class ChangellyActivity extends Activity {
     }
 
     boolean isValueForOfferOk(boolean checkMin) {
-        tvMinAmountValue.setVisibility(View.INVISIBLE);
+        tvMinAmountValue.setVisibility(View.GONE);
         String txtAmount = fromValue.getText().toString();
         if (txtAmount.isEmpty()) {
             btTakeOffer.setEnabled(false);
@@ -362,7 +363,7 @@ public class ChangellyActivity extends Activity {
                     to = intent.getStringExtra(ChangellyService.TO);
                     amount = intent.getDoubleExtra(ChangellyService.AMOUNT, 0);
                     CurrencyAdapter.Item item = currencyAdapter.getItem(currencySelector.getSelectedItem());
-                    if (from != null && to != null && to.equalsIgnoreCase(ChangellyService.BTC)
+                    if (item != null && from != null && to != null && to.equalsIgnoreCase(ChangellyService.BTC)
                             && from.equalsIgnoreCase(item.currency)) {
                         Log.d(TAG, "Received minimum amount: " + amount + " " + from);
                         minAmount = amount;
@@ -375,7 +376,7 @@ public class ChangellyActivity extends Activity {
                     to = intent.getStringExtra(ChangellyService.TO);
                     amount = intent.getDoubleExtra(ChangellyService.AMOUNT, 0);
                     item = currencyAdapter.getItem(currencySelector.getSelectedItem());
-                    if (from != null && to != null) {
+                    if (item != null && from != null && to != null) {
                         Log.d(TAG, "Received offer: " + amount + " " + to);
                         avoidTextChangeEvent = true;
                         if (to.equalsIgnoreCase(ChangellyService.BTC)
