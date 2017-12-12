@@ -9,6 +9,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
@@ -28,7 +29,7 @@ import okhttp3.Response;
 public class ChangellyHeaderInterceptor implements Interceptor {
     private static final String apiKeyData = "8fb168fe8b6b4656867c846be47dccce";
     private static final String apiSecret = "ec97042bcfba5d43f4741dbb3da9861cc59fb7c8d6123333d7823e4c7810d6c0";
-    private static final byte[] apiSecretBytes = apiSecret.getBytes(StandardCharsets.US_ASCII);
+    private static final byte[] apiSecretBytes = apiSecret.getBytes(Charset.forName("US-ASCII"));
 
     @Override
     public Response intercept(@NonNull Chain chain) throws IOException {

@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="large_qrcode">256dp</dimen>
+    <dimen name="margin_medium">4dp</dimen>
+    <dimen name="margin_large">8dp</dimen>
 </resources>
