@@ -166,6 +166,7 @@
             android:textSize="12sp"
             android:visibility="gone"/>
         <LinearLayout
+            android:id="@+id/fromLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/margin_medium"
@@ -180,6 +181,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
                 android:layout_marginRight="@dimen/margin_small"
+                android:minEms="4"
                 android:text="BCH"
                 android:textColor="@color/white"
                 android:textSize="18sp"
@@ -212,6 +214,7 @@
             android:textSize="18sp" />
 
         <LinearLayout
+            android:id="@+id/toLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/margin_medium"
@@ -225,6 +228,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
                 android:layout_marginRight="@dimen/margin_small"
+                android:minEms="4"
                 android:text="BTC"
                 android:textColor="@color/white"
                 android:textSize="18sp"
