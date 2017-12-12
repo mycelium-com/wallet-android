@@ -39,7 +39,7 @@ import static com.mycelium.wallet.external.changelly.ChangellyService.INFO_ERROR
 
 public class ChangellyActivity extends Activity {
     public static final int REQUEST_OFFER = 100;
-    public static final float INACTIVE_ALPHA = 0.7f;
+    public static final float INACTIVE_ALPHA = 0.6f;
     public static final float ACTIVE_ALPHA = 1f;
     private static String TAG = "ChangellyActivity";
     private static DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols() {
