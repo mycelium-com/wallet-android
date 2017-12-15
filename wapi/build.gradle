@@ -8,20 +8,21 @@ repositories {
 }
 
 dependencies {
-    implementation project(includePrefix + ':bitlib')
-    implementation project(includePrefix + ':mbwlib')
-    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.5.1'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.5.1'
-    implementation 'com.squareup.okhttp:okhttp:2.7.4'
-    implementation guavaArtifact
-    implementation 'com.google.code.findbugs:annotations:3.0.1'
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    compile project(includePrefix + ':bitlib')
+    compile project(includePrefix + ':mbwlib')
 
-    testImplementation "junit:junit:$junitVersion"
-    testImplementation "org.mockito:mockito-core:2.0.44-beta"
+    testCompile "junit:junit:$junitVersion"
+    testCompile "org.mockito:mockito-core:2.0.44-beta"
+    compile 'com.fasterxml.jackson.core:jackson-annotations:2.5.1'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.5.1'
+    compile 'com.squareup.okhttp:okhttp:2.7.4'
+    compile guavaArtifact
+    compile 'com.google.code.findbugs:annotations:3.0.1'
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 }
 
 buildscript {
+    ext.kotlin_version = '1.2.10'
     repositories {
         mavenCentral()
     }
