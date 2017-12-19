@@ -41,6 +41,7 @@ public class ChangellyService extends IntentService {
     public static final String DESTADDRESS = "DESTADDRESS";
     public static final String TXID = "TXID";
     public static final String OFFER = "OFFER";
+    public static final String FROM_AMOUNT = "FROM_AMOUNT";
 
     private ChangellyAPIService changellyAPIService = ChangellyAPIService.retrofit.create(ChangellyAPIService.class);
 
@@ -179,6 +180,7 @@ public class ChangellyService extends IntentService {
                             this, ChangellyService.class);
                     exchangeAmountIntent.putExtra(FROM, from);
                     exchangeAmountIntent.putExtra(TO, to);
+                    exchangeAmountIntent.putExtra(FROM_AMOUNT, amount);
                     exchangeAmountIntent.putExtra(AMOUNT, offer);
                     LocalBroadcastManager.getInstance(this).sendBroadcast(exchangeAmountIntent);
                     break;

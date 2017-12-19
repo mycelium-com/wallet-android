@@ -132,7 +132,7 @@ public final class ViewfinderView extends View {
          // Top left vertical
          canvas.drawRect(left, top + thickness, left + thickness, top + length, paint);
          // Top right vertical
-         canvas.drawRect(right, top + thickness, right - thickness, top + length, paint);
+         canvas.drawRect(right - thickness, top + thickness, right, top + length, paint);
          // Bottom left vertical
          canvas.drawRect(left, bottom - length, left + thickness, bottom - thickness, paint);
          // Bottom right vertical

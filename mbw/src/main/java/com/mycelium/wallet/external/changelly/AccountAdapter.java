@@ -56,7 +56,13 @@ public class AccountAdapter extends SelectableRecyclerView.Adapter<RecyclerView.
 
     @Override
     public int findIndex(Object selected) {
-        return 0;
+        for (int i = 0; i < items.size(); i++) {
+            Item item = items.get(i);
+            if (item.account != null && item.account == selected) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     @Override

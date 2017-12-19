@@ -28,7 +28,6 @@ import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -40,6 +39,8 @@ import static com.mycelium.wallet.external.changelly.ChangellyService.INFO_ERROR
 
 public class ChangellyActivity extends Activity {
     public static final int REQUEST_OFFER = 100;
+    public static final float INACTIVE_ALPHA = 0.6f;
+    public static final float ACTIVE_ALPHA = 1f;
     private static String TAG = "ChangellyActivity";
     private static DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols() {
         {
@@ -57,11 +58,17 @@ public class ChangellyActivity extends Activity {
     @BindView(R.id.tvMinAmountValue)
     TextView tvMinAmountValue;
 
+    @BindView(R.id.fromLayout)
+    View fromLayout;
+
     @BindView(R.id.fromValue)
     TextView fromValue;
 
     @BindView(R.id.fromCurrency)
     TextView fromCurrency;
+
+    @BindView(R.id.toLayout)
+    View toLayout;
 
     @BindView(R.id.toValue)
     TextView toValue;
@@ -114,7 +121,7 @@ public class ChangellyActivity extends Activity {
         ButterKnife.bind(this);
         mbwManager = MbwManager.getInstance(this);
 
-        tvMinAmountValue.setVisibility(View.INVISIBLE); // cannot edit field before selecting a currency
+        tvMinAmountValue.setVisibility(View.GONE); // cannot edit field before selecting a currency
 
         valueKeyboard.setMaxDecimals(8);
         valueKeyboard.setInputListener(new ValueKeyboard.SimpleInputListener() {
@@ -124,8 +131,12 @@ public class ChangellyActivity extends Activity {
                 accountSelector.setVisibility(View.VISIBLE);
                 titleView.setVisibility(View.VISIBLE);
                 subtitleView.setVisibility(View.VISIBLE);
+                fromLayout.setAlpha(INACTIVE_ALPHA);
+                toLayout.setAlpha(INACTIVE_ALPHA);
             }
         });
+        fromLayout.setAlpha(INACTIVE_ALPHA);
+        toLayout.setAlpha(INACTIVE_ALPHA);
 
         currencySelector.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         accountSelector.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
@@ -158,6 +169,7 @@ public class ChangellyActivity extends Activity {
         accountAdapter = new AccountAdapter(mbwManager
                 , mbwManager.getWalletManager(false).getActiveAccounts(), firstItemWidth);
         accountSelector.setAdapter(accountAdapter);
+        accountSelector.setSelectedItem(mbwManager.getSelectedAccount());
 
         //display the loading spinner
         setLayout(ChangellyActivity.ChangellyUITypes.Loading);
@@ -247,7 +259,7 @@ public class ChangellyActivity extends Activity {
         }
     }
 
-    @OnClick(R.id.fromValue)
+    @OnClick(R.id.fromLayout)
     void clickFromValue() {
         valueKeyboard.setVisibility(View.VISIBLE);
         valueKeyboard.setInputTextView(fromValue);
@@ -256,9 +268,12 @@ public class ChangellyActivity extends Activity {
         accountSelector.setVisibility(View.GONE);
         titleView.setVisibility(View.GONE);
         subtitleView.setVisibility(View.GONE);
+        fromLayout.setAlpha(ACTIVE_ALPHA);
+        toLayout.setAlpha(INACTIVE_ALPHA);
+
     }
 
-    @OnClick(R.id.toValue)
+    @OnClick(R.id.toLayout)
     void clickToValue() {
         valueKeyboard.setVisibility(View.VISIBLE);
         valueKeyboard.setInputTextView(toValue);
@@ -267,6 +282,9 @@ public class ChangellyActivity extends Activity {
         accountSelector.setVisibility(View.GONE);
         titleView.setVisibility(View.GONE);
         subtitleView.setVisibility(View.GONE);
+        fromLayout.setAlpha(INACTIVE_ALPHA);
+        toLayout.setAlpha(ACTIVE_ALPHA);
+
     }
 
     @OnClick(R.id.btChangellyCreateTransaction)
@@ -290,7 +308,7 @@ public class ChangellyActivity extends Activity {
     }
 
     boolean isValueForOfferOk(boolean checkMin) {
-        tvMinAmountValue.setVisibility(View.INVISIBLE);
+        tvMinAmountValue.setVisibility(View.GONE);
         String txtAmount = fromValue.getText().toString();
         if (txtAmount.isEmpty()) {
             btTakeOffer.setEnabled(false);
@@ -311,7 +329,6 @@ public class ChangellyActivity extends Activity {
             return false;
         } else if (checkMin && dblAmount.compareTo(minAmount) < 0) {
             btTakeOffer.setEnabled(false);
-            toast("Error, amount is lower than minimum required.");
             tvMinAmountValue.setVisibility(View.VISIBLE);
             return false;
         } // TODO: compare with maximum
@@ -362,7 +379,7 @@ public class ChangellyActivity extends Activity {
                     to = intent.getStringExtra(ChangellyService.TO);
                     amount = intent.getDoubleExtra(ChangellyService.AMOUNT, 0);
                     CurrencyAdapter.Item item = currencyAdapter.getItem(currencySelector.getSelectedItem());
-                    if (from != null && to != null && to.equalsIgnoreCase(ChangellyService.BTC)
+                    if (item != null && from != null && to != null && to.equalsIgnoreCase(ChangellyService.BTC)
                             && from.equalsIgnoreCase(item.currency)) {
                         Log.d(TAG, "Received minimum amount: " + amount + " " + from);
                         minAmount = amount;
@@ -373,17 +390,25 @@ public class ChangellyActivity extends Activity {
                 case ChangellyService.INFO_EXCH_AMOUNT:
                     from = intent.getStringExtra(ChangellyService.FROM);
                     to = intent.getStringExtra(ChangellyService.TO);
+                    double fromAmount = intent.getDoubleExtra(ChangellyService.FROM_AMOUNT, 0);
                     amount = intent.getDoubleExtra(ChangellyService.AMOUNT, 0);
                     item = currencyAdapter.getItem(currencySelector.getSelectedItem());
-                    if (from != null && to != null) {
+                    if (item != null && from != null && to != null) {
                         Log.d(TAG, "Received offer: " + amount + " " + to);
                         avoidTextChangeEvent = true;
-                        if (to.equalsIgnoreCase(ChangellyService.BTC)
-                                && from.equalsIgnoreCase(item.currency)) {
-                            toValue.setText(decimalFormat.format(amount));
-                        } else if (from.equalsIgnoreCase(ChangellyService.BTC)
-                                && to.equalsIgnoreCase(item.currency)) {
-                            fromValue.setText(decimalFormat.format(amount));
+                        try {
+                            if (to.equalsIgnoreCase(ChangellyService.BTC)
+                                    && from.equalsIgnoreCase(item.currency)
+                                    && fromAmount == Double.parseDouble(fromValue.getText().toString())) {
+                                toValue.setText(decimalFormat.format(amount));
+                            } else if (from.equalsIgnoreCase(ChangellyService.BTC)
+                                    && to.equalsIgnoreCase(item.currency)
+                                    && fromAmount == Double.parseDouble(toValue.getText().toString())) {
+                                fromValue.setText(decimalFormat.format(amount));
+                            }
+                            isValueForOfferOk(true);
+
+                        } catch (NumberFormatException ignore) {
                         }
                         avoidTextChangeEvent = false;
                     }
