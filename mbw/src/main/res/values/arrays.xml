@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="changelly_skip_currencies">
+        <item>AEON</item>
+        <item>ARDR</item>
+        <item>DCT</item>
+        <item>GBG</item>
+        <item>GOLOS</item>
+        <item>NXT</item>
+        <item>SBD</item>
+        <item>STEEM</item>
+        <item>STR</item>
+        <item>XDN</item>
+        <item>XEM</item>
+        <item>XMR</item>
+        <item>XRP</item>
+    </string-array>
+</resources>
