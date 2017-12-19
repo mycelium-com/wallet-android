@@ -15,6 +15,7 @@ import com.mycelium.wallet.activity.rmc.BtcPoolStatisticsManager;
 import com.mycelium.wallet.activity.rmc.view.ProfitMeterView;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.colu.json.AssetMetadata;
+import com.mycelium.wapi.wallet.WalletAccount;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
@@ -31,6 +32,8 @@ public class AddressWidgetAdapter extends PagerAdapter {
     private static final BigDecimal BLOCK_REWARD = BigDecimal.valueOf(1250000000);
     public static final String PREFERENCE_RMC_PROFIT_METER = "rmc_profit_meter";
     private static final DecimalFormat adoFormat = new DecimalFormat("#.####");
+    public static final String ADOANGLE = "adoangle";
+    public static final String ADOTIME = "adotime";
 
     private Context context;
     private MbwManager mbwManager;
@@ -47,17 +50,20 @@ public class AddressWidgetAdapter extends PagerAdapter {
         this.context = context;
         this.mbwManager = mbwManager;
         sharedPreferences = context.getSharedPreferences(PREFERENCE_RMC_PROFIT_METER, Context.MODE_PRIVATE);
-        coluAccount = (ColuAccount) mbwManager.getSelectedAccount();
+        WalletAccount account = mbwManager.getSelectedAccount();
+        if(account instanceof ColuAccount) {
+            coluAccount = (ColuAccount) mbwManager.getSelectedAccount();
 
 
-        poolStatisticInfo = new BtcPoolStatisticsManager.PoolStatisticInfo(
-                sharedPreferences.getLong(TOTAL_RMC_HASHRATE, 0)
-                , sharedPreferences.getLong(YOUR_RMC_HASHRATE + coluAccount.getAddress().toString(), 0));
-        poolStatisticInfo.difficulty = sharedPreferences.getLong(DIFFICULTY, 0);
-        accrued = new BigDecimal(sharedPreferences.getString(ACCRUED_INCOME + coluAccount.getAddress().toString(), "0"));
+            poolStatisticInfo = new BtcPoolStatisticsManager.PoolStatisticInfo(
+                    sharedPreferences.getLong(TOTAL_RMC_HASHRATE, 0)
+                    , sharedPreferences.getLong(YOUR_RMC_HASHRATE + coluAccount.getAddress().toString(), 0));
+            poolStatisticInfo.difficulty = sharedPreferences.getLong(DIFFICULTY, 0);
+            accrued = new BigDecimal(sharedPreferences.getString(ACCRUED_INCOME + coluAccount.getAddress().toString(), "0"));
 
-        BtcPoolStatisticsTask task = new BtcPoolStatisticsTask(coluAccount);
-        task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            BtcPoolStatisticsTask task = new BtcPoolStatisticsTask(coluAccount);
+            task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        }
     }
 
     @Override
@@ -131,6 +137,9 @@ public class AddressWidgetAdapter extends PagerAdapter {
 
         public ProfitMeterHolder(View view) {
             ButterKnife.bind(this, view);
+            if(coluAccount == null) {
+                return;
+            }
             BigDecimal rmc = coluAccount.getCurrencyBasedBalance().confirmed.getExactValue().getValue();
             String[] split = rmc.setScale(4, BigDecimal.ROUND_DOWN).toPlainString().split("\\.");
             rmcValue.setText(split[0]);
@@ -138,6 +147,12 @@ public class AddressWidgetAdapter extends PagerAdapter {
             if (poolStatisticInfo != null && poolStatisticInfo.yourRmcHashrate != 0 && poolStatisticInfo.difficulty != 0) {
                 satPerSec = BigDecimal.valueOf(poolStatisticInfo.yourRmcHashrate).multiply(BLOCK_REWARD)
                         .divide(BigDecimal.valueOf(poolStatisticInfo.difficulty).multiply(POW_2_32), 4, BigDecimal.ROUND_UP);
+                long adotime = sharedPreferences.getLong(ADOTIME + coluAccount.getAddress().toString(), 0);
+                if(adotime != 0) {
+                    angle = (int) (sharedPreferences.getInt(ADOANGLE + coluAccount.getAddress().toString(), 0)
+                                                                    + 6 * (System.currentTimeMillis() - adotime) / 1000);
+                    value = angle / 6 * satPerSec.floatValue();
+                }
                 speed.setText(context.getString(R.string.n_sat_min, (long) (satPerSec.floatValue() * 60)));
                 accruedValue.setText(accrued.stripTrailingZeros().toPlainString() + " BTC");
                 if (updateAdo == null) {
@@ -145,16 +160,18 @@ public class AddressWidgetAdapter extends PagerAdapter {
                         @Override
                         public void run() {
                             angle = (angle + 6) % 360;
+                            SharedPreferences.Editor editor = sharedPreferences.edit();
                             if (angle == 0) {
                                 accrued = accrued.add(BigDecimal.valueOf(value).movePointLeft(8)).setScale(8, BigDecimal.ROUND_UP);
-                                sharedPreferences.edit()
-                                        .putString(ACCRUED_INCOME + coluAccount.getAddress().toString(), accrued.toPlainString())
-                                        .apply();
+                                editor.putString(ACCRUED_INCOME + coluAccount.getAddress().toString(), accrued.toPlainString());
                                 accruedValue.setText(accrued.stripTrailingZeros().toPlainString() + " BTC");
                                 value = 0;
                             } else {
                                 value += satPerSec.floatValue();
                             }
+                            editor.putLong(ADOTIME + coluAccount.getAddress().toString(), System.currentTimeMillis());
+                            editor.putInt(ADOANGLE + coluAccount.getAddress().toString(), angle);
+                            editor.apply();
                             adometr.setText("+" + (Math.round(value) > 0 ?
                                     String.valueOf(Math.round(value)) : adoFormat.format(value)));
                             profitMeterView.setAngle(angle);
