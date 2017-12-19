@@ -1,0 +1,6 @@
+[submodule "modulespvcontract"]
+	path = modulespvcontract
+	url = git@github.com:mycelium-com/wallet-android-spvmodule-contract.git
+[submodule "modulespvbch"]
+	path = modulespvbch
+	url = git@github.com:mycelium-com/wallet-android-spvmodule-bch.git
