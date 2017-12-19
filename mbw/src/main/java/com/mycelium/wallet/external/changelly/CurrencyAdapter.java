@@ -25,7 +25,11 @@ public class CurrencyAdapter extends SelectableRecyclerView.Adapter<RecyclerView
     }
 
     public Item getItem(int position) {
-        return items.get(position);
+        Item item = null;
+        if (position < items.size()) {
+            item = items.get(position);
+        }
+        return item;
     }
 
     public void setItems(List<Item> items) {
