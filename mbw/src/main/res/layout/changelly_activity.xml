@@ -173,7 +173,7 @@
                 android:visibility="gone" />
 
             <LinearLayout
-            android:id="@+id/fromLayout"
+                android:id="@+id/fromLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/margin_medium"
@@ -188,7 +188,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
                 android:layout_marginRight="@dimen/margin_small"
-                android:minEms="4"android:text="BCH"
+                android:minEms="4"
+                android:text="BCH"
                 android:textColor="@color/white"
                 android:textSize="18sp"
                 android:textStyle="bold" />
@@ -223,10 +224,10 @@
             android:id="@+id/toLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/margin_medium"android:layout_marginEnd="@dimen/margin_medium"
+            android:layout_marginBottom="@dimen/margin_medium"
+            android:layout_marginEnd="@dimen/margin_medium"
             android:layout_marginStart="@dimen/margin_medium"
             android:layout_marginTop="@dimen/margin_small"
-
             android:orientation="horizontal">
 
             <TextView
