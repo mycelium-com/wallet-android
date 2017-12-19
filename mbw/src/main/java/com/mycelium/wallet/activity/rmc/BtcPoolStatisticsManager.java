@@ -19,6 +19,8 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
+import retrofit.RetrofitError;
+
 public class BtcPoolStatisticsManager {
 
     public static final String TAG = "RMCStatistic";
@@ -55,6 +57,12 @@ public class BtcPoolStatisticsManager {
         long yourRmcHashrate = -1;
         try {
             yourRmcHashrate = service.getHashrate(address);
+        } catch (RetrofitError e) {
+            if (e.getResponse() != null && e.getResponse().getStatus() == 404) {
+                yourRmcHashrate = 0;
+            } else {
+                Log.e(TAG, "service.getHashrate", e);
+            }
         } catch (Exception e) {
             Log.e(TAG, "service.getHashrate", e);
         }
@@ -62,6 +70,12 @@ public class BtcPoolStatisticsManager {
         long accruedIncome = -1;
         try {
             accruedIncome = service.getBalance(address);
+        } catch (RetrofitError e) {
+            if (e.getResponse() != null && e.getResponse().getStatus() == 404) {
+                accruedIncome = 0;
+            } else {
+                Log.e(TAG, "service.getBalance", e);
+            }
         } catch (Exception e) {
             Log.e(TAG, "service.getBalance", e);
         }
