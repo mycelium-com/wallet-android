@@ -346,6 +346,15 @@ public class ChangellyActivity extends Activity {
         }
     }
 
+    public boolean containsCaseInsensitive(String str, String[] strings) {
+        for (String string : strings) {
+            if (string.equalsIgnoreCase(str)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     class Receiver extends BroadcastReceiver {
         private Receiver() {
         }  // prevents instantiation
@@ -364,8 +373,10 @@ public class ChangellyActivity extends Activity {
                         Collections.sort(currenciesRes);
                         List<CurrencyAdapter.Item> itemList = new ArrayList<>();
                         itemList.add(new CurrencyAdapter.Item(null, CurrencyAdapter.VIEW_TYPE_PADDING));
+                        String[] skipCurrencies = getResources().getStringArray(R.array.changelly_skip_currencies);
                         for (String curr : currenciesRes) {
-                            if (!curr.equalsIgnoreCase("btc")) {
+                            if (!curr.equalsIgnoreCase("btc") &&
+                                    !containsCaseInsensitive(curr, skipCurrencies)) {
                                 itemList.add(new CurrencyAdapter.Item(curr.toUpperCase(), CurrencyAdapter.VIEW_TYPE_ITEM));
                             }
                         }
