@@ -45,6 +45,9 @@
             backward-compatibility can go here.
 
         -->
+        <item name="colorPrimary">@color/transparent</item>
+        <item name="colorAccent">@color/color_accent</item>
+        <item name="android:windowBackground">@drawable/background_window</item>
     </style>
 
     <style name="MyceliumLauncher" parent="MyceliumModern">
@@ -57,9 +60,12 @@
         <item name="android:windowBackground">@drawable/background_witherrors_centered</item>-->
     </style>
 
-    <!-- Application theme. Theme.AppCompat.Base.CompactMenu.Dialog -->
-    <style name="MyceliumModern.Dialog" parent="Theme.AppCompat.CompactMenu.Dialog">
+    <style name="MyceliumSettings" parent="MyceliumModern">
+        <item name="colorAccent">@color/lightgrey</item>
+    </style>
 
+    <!-- Application theme. Theme.AppCompat.Base.CompactMenu.Dialog -->
+    <style name="MyceliumModern.Dialog" parent="Theme.AppCompat.Dialog">
         <item name="android:actionButtonStyle" tools:ignore="NewApi">@style/ActionButtonStyle</item>
         <item name="actionButtonStyle">@style/ActionButtonStyle</item>
         <item name="android:buttonStyle">@style/MyceliumButton</item>
@@ -72,13 +78,39 @@
         <!--   <item name="android:windowActionBar">false</item>
            <item name="windowActionBar">false</item>-->
         <!--<item name="android:windowNoTitle">true</item>-->
-        <item name="android:popupBackground">@drawable/abc_menu_dropdown_panel_holo_dark</item>
+        <item name="android:popupBackground">@drawable/semi_black</item>
 
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
         <item name="android:actionButtonStyle" tools:ignore="NewApi">@style/ActionButtonStyle</item>
         <item name="actionButtonStyle">@style/ActionButtonStyle</item>
         <item name="android:buttonStyle">@style/MyceliumButton</item>
         <item name="android:textViewStyle">@style/MyceliumText</item>
+
+        <item name="actionBarTabStyle">@style/MyceliumTabStyle</item>
+        <item name="actionBarTabBarStyle">@style/MyceliumTabBarStyle</item>
+        <item name="actionBarTabTextStyle">@style/MyceliumTabTextStyle</item>
+
+        <item name="android:actionModeBackground">@color/selectedrecord</item>
+
+        <item name="android:dropDownListViewStyle">@style/DropDownListViewStyle</item>
+        <item name="dropDownListViewStyle">@style/DropDownListViewStyle</item>
+
+    </style>
+
+    <style name="MyceliumTabStyle" parent="Widget.AppCompat.Light.ActionBar.TabView">
+        <item name="android:background">@drawable/tab_indicator_material</item>
+    </style>
+    <style name="MyceliumTabBarStyle" parent="Widget.AppCompat.Light.ActionBar.TabBar">
+        <item name="android:background">@drawable/action_bar_tab_bar_bg</item>
+    </style>
+
+    <style name="MyceliumTabTextStyle" parent="Widget.AppCompat.Light.ActionBar.TabText">
+        <item name="textAllCaps">false</item>
+    </style>
+
+    <style name="DropDownListViewStyle" parent="@style/Widget.AppCompat.ListView.DropDown">
+        <item name="android:divider">@color/grey</item>
+        <item name="android:dividerHeight">0.5dp</item>
     </style>
 
     <style name="MyceliumSlimButton" parent="android:style/Widget.Button">

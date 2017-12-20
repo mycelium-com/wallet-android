@@ -89,7 +89,7 @@ public class NetworkParameters implements Serializable {
    private final byte[] _packetMagicBytes;
    private final NetworkType _networkType;
 
-   private enum NetworkType {
+   public enum NetworkType {
       PRODNET, TESTNET, REGTEST
    }
 

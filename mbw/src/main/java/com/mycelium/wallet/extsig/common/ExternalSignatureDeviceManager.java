@@ -71,7 +71,6 @@ import com.satoshilabs.trezor.protobuf.TrezorMessage.SignTx;
 import com.satoshilabs.trezor.protobuf.TrezorMessage.TxRequest;
 import com.satoshilabs.trezor.protobuf.TrezorType;
 import com.squareup.otto.Bus;
-import org.bitcoinj.core.*;
 import org.bitcoinj.script.*;
 
 import java.util.UUID;

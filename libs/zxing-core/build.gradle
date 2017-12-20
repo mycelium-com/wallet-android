@@ -1,5 +1,7 @@
 apply plugin: 'java'
 
 repositories {
-    mavenCentral()
+    google()
+    mavenLocal()
+    jcenter()
 }

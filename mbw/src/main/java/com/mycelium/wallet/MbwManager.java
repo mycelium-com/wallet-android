@@ -45,6 +45,7 @@ import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.StrictMode;
 import android.os.Vibrator;
 import android.support.annotation.Nullable;
 import android.util.DisplayMetrics;
@@ -75,9 +76,11 @@ import com.mrd.bitlib.util.CoinUtil.Denomination;
 import com.mrd.bitlib.util.HashUtils;
 import com.mycelium.WapiLogger;
 import com.mycelium.lt.api.LtApiClient;
+import com.mycelium.modularizationtools.CommunicationManager;
 import com.mycelium.net.ServerEndpointType;
 import com.mycelium.net.TorManager;
 import com.mycelium.net.TorManagerOrbot;
+import com.mycelium.spvmodule.IntentContract;
 import com.mycelium.wallet.activity.rmc.RmcApiClient;
 import com.mycelium.wallet.activity.util.BlockExplorer;
 import com.mycelium.wallet.activity.util.BlockExplorerManager;
@@ -169,7 +172,13 @@ public class MbwManager {
 
    public static synchronized MbwManager getInstance(Context context) {
       if (_instance == null) {
-         _instance = new MbwManager(context);
+         if(BuildConfig.DEBUG) {
+            StrictMode.ThreadPolicy threadPolicy = StrictMode.allowThreadDiskReads();
+            _instance = new MbwManager(context);
+            StrictMode.setThreadPolicy(threadPolicy);
+         } else {
+            _instance = new MbwManager(context);
+         }
       }
       return _instance;
    }
@@ -333,6 +342,15 @@ public class MbwManager {
             addExtraAccounts(_coluManager.get());
          }
       }
+   }
+
+   void setSpvMode(boolean spvMode) {
+      Log.d(TAG, "setSpvMode: " + (spvMode ? "on" : "off"));
+      //_useSpvModule = spvMode;
+   }
+
+   public boolean isSpvMode() {
+      return false; //_useSpvModule;
    }
 
    public void addExtraAccounts(AccountProvider accounts) {
@@ -645,7 +663,6 @@ public class MbwManager {
       walletManager.disableTransactionHistorySynchronization();
       return walletManager;
    }
-
 
    public String getFiatCurrency() {
       return _currencySwitcher.getCurrentFiatCurrency();
@@ -1058,14 +1075,14 @@ public class MbwManager {
       this._language = _language;
       SharedPreferences.Editor editor = getEditor();
       editor.putString(Constants.LANGUAGE_SETTING, _language);
-      editor.commit();
+      editor.apply();
    }
 
    public void setTorMode(ServerEndpointType.Types torMode) {
       this._torMode = torMode;
       SharedPreferences.Editor editor = getEditor();
       editor.putString(Constants.TOR_MODE, torMode.toString());
-      editor.commit();
+      editor.apply();
 
       ServerEndpointType serverEndpointType = ServerEndpointType.fromType(torMode);
       if (serverEndpointType.mightUseTor()) {

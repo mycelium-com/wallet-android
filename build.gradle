@@ -31,7 +31,3 @@ try {
 props.each {
     key, val -> extensions."$key" = val
 }
-
-repositories {
-    google()
-}

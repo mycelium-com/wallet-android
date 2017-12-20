@@ -46,7 +46,7 @@
                 android:orientation="horizontal"
                 android:padding="@dimen/half_padding"
                 android:baselineAligned="true"
-                android:background="@drawable/abc_ab_stacked_transparent_dark_holo">
+                android:background="@drawable/semi_black">
             <TextView
                     android:id="@+id/tvClickButtonToShowFirstWord"
                     android:layout_width="match_parent"
@@ -78,7 +78,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textVisiblePassword"
-                android:popupBackground="@drawable/abc_menu_dropdown_panel_holo_dark"
+                android:popupBackground="@drawable/semi_black"
                 android:visibility="gone"/>
 
         <View

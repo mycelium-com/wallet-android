@@ -549,6 +549,11 @@
     <string name="title_upgrade_info">Welcome to Mycelium 2.0</string>
     <string name="button_continue">Continue</string>
     <string name="butto_show_release_notes">Show Details</string>
+    <string name="title_no_spvmodule_warning">No SPV Module found</string>
+    <string name="message_no_spvmodule_warning">Please install the %s spv module from Google Play.</string>
+    <string name="no_spvmodule_warning_install">Install</string>
+    <string name="no_spvmodule_warning_ignore">Close the wallet</string>
+    <string name="google_play_not_found">Google Play not found</string>
     <string name="word_does_not_exist_in_wordlist">The word you typed does not exist in the word list</string>
     <string name="pref_legacy_backup_title">Legacy Backup</string>
     <string name="pref_legacy_backup_summary">Create a legacy backup, containing your single address accounts.</string>
@@ -866,7 +871,7 @@
     <string name="warning_reason_rbf">RBF</string>
     <string name="warning_reason_unconfirmed_parent">Unconfirmed parent</string>
     <string name="warning_reason_doublespend">Doublespend detected</string>
-    <string name="opening_url_in_browser">Opening URL in Browser...</string>
+    <string name="opening_url_in_browser">Opening URL in Browser…</string>
     <string name="incoming_payment">"Incoming payment: "</string>
     <string name="warning_amount_does_not_match">Warning: amount does not match!</string>
     <string name="mycelium_terms_of_use">Mycelium Terms Of Use</string>
@@ -945,7 +950,7 @@
     <string name="buy_with_cc_spend_only_warning">The current selected account is receive-only.\n\nAre you sure you want to use this account to buy your bitcoin?</string>
     <string name="requires_btc_amount">Colored Coin transaction can not be done. You need to have some small amount of BTC to pay miners fee. Please fund one of you Bitcoin addresses and then try again.</string>
     <string name="colu_rmc_tokens">RMC</string>
-
+    <string name="spv_sync_progress">SPV-synced to %s</string>
     <string name="gd_buy_sell_rmc_button">Buy RMC</string>
     <string name="learn_more_rmc"><u>Learn more about RMC</u></string>
     <string name="mycelium_no_responaility_rmc">If you continue, you agree to proceed to RMC, a third party service. All your interactions with RMC are outside of Mycelium\'s control and are subjects to RMC\'s User Agreement,  Terms of Use and Privacy Policy. Please read them carefully. No personal information  will be collected,  stored or used by Mycelium.\n\nMYCELIUM ACCEPTS NO RESPONSIBILITY AND WILL NOT BE LIABLE FOR ANY LOSS OR DAMAGE WHATSOEVER SUFFERED AS A RESULT OF ACCESSING, USE OF, OR RELIANCE UPON RMC ISSUER\'S INFORMATION AND SERVICES</string>
@@ -1106,6 +1111,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="exchange_minimum_amount">(Min. amount is %1$s %2$s)</string>
     <string name="choose_the_currency_and_btc_receiving_account">Choose the currency and BTC receiving account</string>
     <string name="due_to_high_cryptocurrencies_volatility">Due to high cryptocurrencies volatility, the final rate may be slightly higher or lower than estimated here.</string>
+    <string name="no_connected_modules">No connected modules</string>
     <plurals name="account_label">
         <item quantity="one">Account label:\n%s</item>
         <item quantity="other">Accounts labels:\n%s</item>
