@@ -50,6 +50,12 @@
                 android:title="@string/pref_pin_require_on_startup"/>
     </PreferenceCategory>
 
+    <!--Modules-->
+    <PreferenceCategory
+        android:title="Modules"
+        android:key="modulesPrefs">
+    </PreferenceCategory>
+
     <!-- Local Trader Settings -->
 
     <PreferenceCategory

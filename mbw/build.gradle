@@ -1,21 +1,37 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 
 repositories {
-    mavenCentral()
+    google()
+    mavenLocal()
+    jcenter()
 }
 
 buildscript {
     repositories {
-        mavenCentral()
+        google()
+        mavenLocal()
+        jcenter()
     }
 
     dependencies {
         classpath androidBuildArtifact
+        classpath ("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version") {
+            exclude(group: 'org.jetbrains', module: 'annotations')
+        }
     }
 }
 
 configurations {
     compile.exclude group: 'org.apache.httpcomponents', module: 'httpclient'
+    compile.exclude group: 'org.jetbrains' , module:'annotations'
+}
+
+kapt {
+    javacOptions {
+        option("-Xmaxerrs", 500)
+    }
 }
 
 dependencies {
@@ -55,8 +71,8 @@ dependencies {
     // https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.1.0'
     compile 'com.squareup:otto:1.3.4'
-    compile 'com.android.support:appcompat-v7:19.1.0'
-    compile 'com.android.support:support-v4:19.1.0'
+    compile "com.android.support:appcompat-v7:$androidSupportVersion"
+    compile "com.android.support:support-v4:$androidSupportVersion"
     compile 'com.android.support:recyclerview-v7:22.2.0'
     compile 'org.ocpsoft.prettytime:prettytime:3.2.5.Final'
     compile 'de.cketti.library.changelog:ckchangelog:1.2.2'
@@ -80,9 +96,6 @@ android {
         javaMaxHeapSize "4g"
         jumboMode = true
     }
-    lintOptions {
-        //gradle build complains about com.android.support:support-v4:22.2.0 not being compatible
-    }
 
     packagingOptions {
         exclude 'META-INF/LICENSE'
@@ -97,6 +110,7 @@ android {
         targetCompatibility = 'VERSION_1_7'
     }
 
+    compileSdkVersion androidCompileSdkVersion
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
@@ -135,7 +149,7 @@ android {
                     def file = output.outputFile
                     if (file != null && file.name.endsWith('.apk')) {
                         def versionExtension = "-" + defaultConfig.versionName + "build" + defaultConfig.versionCode + ".apk"
-                        output.outputFile = new File(file.parent, file.name.replace(".apk", versionExtension))
+                        output.outputFileName = new File(file.parent, file.name.replace(".apk", versionExtension))
                     }
                 }
             }
@@ -145,6 +159,7 @@ android {
             debuggable true
         }
     }
+    flavorDimensions "flavor"
 
     productFlavors {
         prodnet {
@@ -237,10 +252,12 @@ android {
     }
 }
 
+// use the keystore file from the local repository, so that we share the same
+// signatures while developing
 if (commonDebugKeystore.exists()) {
     android.buildTypes.debug.signingConfig = android.signingConfigs.commonDebug
     android.productFlavors.dev.signingConfig = android.signingConfigs.commonDebug
-    logger.info("keytore_debug detected")
+    logger.info("Using common debug.keystore " + commonDebugKeystore)
 }
 
 if (project.hasProperty('prodKeyStore') &&

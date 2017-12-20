@@ -74,5 +74,4 @@ public class ScriptOutputStandard extends ScriptOutput implements Serializable {
    public Address getAddress(NetworkParameters network) {
       return Address.fromStandardBytes(getAddressBytes(), network);
    }
-
 }

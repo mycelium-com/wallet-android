@@ -24,7 +24,6 @@ import com.mrd.bitlib.util.Sha256Hash;
 import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
 
 public class Block {
-
    public static class BlockParsingException extends Exception {
       private static final long serialVersionUID = 1L;
 
@@ -120,11 +119,9 @@ public class Block {
 
    @Override
    public String toString() {
-      StringBuilder sb = new StringBuilder();
-      sb.append("Hash: ").append(getHash().toString());
-      sb.append(" PrevHash: ").append(prevBlockHash.toString());
-      sb.append(" #Tx: ").append(transactions.length);
-      return sb.toString();
+      return "Hash: " + getHash().toString() +
+              " PrevHash: " + prevBlockHash.toString() +
+              " #Tx: " + transactions.length;
    }
 
    @Override
@@ -139,5 +136,4 @@ public class Block {
       }
       return getHash().equals(((Block) other).getHash());
    }
-
 }

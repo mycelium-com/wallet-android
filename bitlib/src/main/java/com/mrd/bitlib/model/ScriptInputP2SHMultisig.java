@@ -82,7 +82,6 @@ public class ScriptInputP2SHMultisig extends ScriptInput {
       if (scriptChunks.length < 4) {
          return false;
       }
-
       //starts with an extra op cause of a bug in OP_CHECKMULTISIG
       if (!Script.isOP(chunks[0], OP_0)) {
          return false;
@@ -110,14 +109,11 @@ public class ScriptInputP2SHMultisig extends ScriptInput {
          if (n != scriptChunks.length - 3) {
             return false;
          }
-
-      }catch(IllegalStateException ex){
+      } catch(IllegalStateException ex) {
          //should hopefully not happen, since we check length before evaluating m and n
          //but its better to not risk BQS stopping in case something weird happens
          return false;
       }
-
-
       return true;
    }
 
@@ -139,5 +135,4 @@ public class ScriptInputP2SHMultisig extends ScriptInput {
       }
       return writer.toBytes();
    }
-
 }

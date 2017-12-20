@@ -33,5 +33,4 @@ public class ScriptOutputStrange extends ScriptOutput implements Serializable {
       // We cannot determine the address from scripts we do not understand
       return Address.getNullAddress(network);
    }
-
 }

@@ -16,27 +16,15 @@
 
 package com.mrd.bitlib.model;
 
-import java.io.Serializable;
-
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
 import com.mrd.bitlib.util.ByteWriter;
 import com.mrd.bitlib.util.HexUtils;
 
+import java.io.Serializable;
+
 public class TransactionOutput implements Serializable {
    private static final long serialVersionUID = 1L;
-
-   public static class TransactionOutputParsingException extends Exception {
-      private static final long serialVersionUID = 1L;
-
-      public TransactionOutputParsingException(byte[] script) {
-         super("Unable to parse transaction output: " + HexUtils.toHex(script));
-      }
-
-      public TransactionOutputParsingException(String message) {
-         super(message);
-      }
-   }
 
    public long value;
    public ScriptOutput script;
@@ -73,9 +61,18 @@ public class TransactionOutput implements Serializable {
 
    @Override
    public String toString() {
-      StringBuilder sb = new StringBuilder();
-      sb.append("value: ").append(value).append(" script: ").append(script.dump());
-      return sb.toString();
+      return "value: " + value + " script: " + script.dump();
    }
 
+   public static class TransactionOutputParsingException extends Exception {
+      private static final long serialVersionUID = 1L;
+
+      public TransactionOutputParsingException(byte[] script) {
+         super("Unable to parse transaction output: " + HexUtils.toHex(script));
+      }
+
+      public TransactionOutputParsingException(String message) {
+         super(message);
+      }
+   }
 }
