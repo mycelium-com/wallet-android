@@ -1,4 +1,4 @@
-package com.mycelium.wallet.activity.exchange;
+package com.mycelium.wallet.external.changelly.bch;
 
 
 import android.app.Fragment;

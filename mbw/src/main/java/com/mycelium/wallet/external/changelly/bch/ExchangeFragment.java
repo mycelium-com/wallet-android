@@ -1,4 +1,4 @@
-package com.mycelium.wallet.activity.exchange;
+package com.mycelium.wallet.external.changelly.bch;
 
 
 import android.app.Fragment;
@@ -15,6 +15,7 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.exchange.adapter.ExchangeAccountAdapter;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
+import com.mycelium.wallet.external.changelly.AccountAdapter;
 import com.mycelium.wapi.wallet.WalletManager;
 
 import butterknife.BindView;
@@ -39,7 +40,8 @@ public class ExchangeFragment extends Fragment {
 
     private MbwManager mbwManager;
     private WalletManager walletManager;
-    private ExchangeAccountAdapter toAccountAdapter;
+    private AccountAdapter toAccountAdapter;
+    private AccountAdapter fromAccountAdapter;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -59,9 +61,13 @@ public class ExchangeFragment extends Fragment {
         int senderFinalWidth = getActivity().getWindowManager().getDefaultDisplay().getWidth();
         int firstItemWidth = (senderFinalWidth - getResources().getDimensionPixelSize(R.dimen.item_dob_width)) / 2;
 
-        toAccountAdapter = new ExchangeAccountAdapter(mbwManager
-                , walletManager.getActiveAccounts(), firstItemWidth);
+        toAccountAdapter = new AccountAdapter(mbwManager, walletManager.getActiveAccounts(), firstItemWidth);
+        toAccountAdapter.setAccountUseType(AccountAdapter.AccountUseType.IN);
         toRecyclerView.setAdapter(toAccountAdapter);
+
+        fromAccountAdapter = new AccountAdapter(mbwManager, walletManager.getActiveAccounts(), firstItemWidth);
+        fromAccountAdapter.setAccountUseType(AccountAdapter.AccountUseType.OUT);
+        fromRecyclerView.setAdapter(fromAccountAdapter);
 
         valueKeyboard.setVisibility(android.view.View.GONE);
         return view;

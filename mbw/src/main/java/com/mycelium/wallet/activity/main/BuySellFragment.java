@@ -47,7 +47,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.activity.exchange.ExchangeActivity;
+import com.mycelium.wallet.external.changelly.bch.ExchangeActivity;
 import com.mycelium.wallet.external.BuySellSelectFragment;
 import com.mycelium.wallet.external.BuySellServiceDescriptor;
 import com.mycelium.wallet.external.changelly.ChangellyActivity;
