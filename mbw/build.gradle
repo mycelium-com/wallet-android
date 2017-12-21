@@ -126,7 +126,7 @@ android {
         versionName '2.9.10.5'
         multiDexEnabled true
 
-        minSdkVersion 14
+        minSdkVersion 19
         targetSdkVersion 23
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
