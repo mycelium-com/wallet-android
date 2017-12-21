@@ -79,7 +79,8 @@ import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.squareup.otto.Bus;
-import com.subgraph.orchid.encoders.Hex;
+
+import org.spongycastle.util.encoders.Hex;
 
 import java.io.IOException;
 import java.math.BigDecimal;
