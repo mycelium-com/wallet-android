@@ -155,7 +155,7 @@ android {
                     def file = output.outputFile
                     if (file != null && file.name.endsWith('.apk')) {
                         def versionExtension = "-" + defaultConfig.versionName + "build" + defaultConfig.versionCode + ".apk"
-                        output.outputFileName = new File(file.parent, file.name.replace(".apk", versionExtension))
+                        //output.outputFile = new File(file.parent, file.name.replace(".apk", versionExtension))
                     }
                 }
             }
