@@ -161,7 +161,6 @@ android {
             }
         }
         debug {
-            applicationIdSuffix '.debug'
             debuggable true
         }
     }
@@ -184,16 +183,16 @@ android {
             }
         }
         dev {
-            // if we are not on master, include the branchname in appId
-            def appId = 'com.mycelium.devwallet';
+            buildToolsVersion androidSdkBuildVersion
+
+            // if we are not on master, include the branchname in versionName
             def branch = getGitBranch()
 
             if (branch != "" && branch != "master") {
-                appId = appId + "_" + branch.replaceAll("-", "_")
                 versionName = defaultConfig.versionName + "-DEV_" + branch
             }
 
-            applicationId appId
+            applicationId 'com.mycelium.devwallet_spore'
             signingConfig signingConfigs.debug
 
             ext {
