@@ -127,7 +127,7 @@ public class Bip44AccountKeyManager {
    public InMemoryPrivateKey getPrivateKey(boolean isChangeChain, int index, KeyCipher cipher) throws KeyCipher.InvalidKeyCipher {
       // Load the encrypted chain node from the secure storage
       byte[] chainNodeId = getChainNodeId(_network, _accountIndex, isChangeChain);
-      byte[] chainNodeBytes = _secureKeyValueStore.getEncryptedValue(chainNodeId, cipher);
+      byte[] chainNodeBytes = _secureKeyValueStore.getDecryptedValue(chainNodeId, cipher);
       HdKeyNode chainNode;
       try {
          chainNode = HdKeyNode.fromCustomByteformat(chainNodeBytes);
@@ -248,7 +248,7 @@ public class Bip44AccountKeyManager {
 
    public HdKeyNode getPrivateAccountRoot(KeyCipher cipher) throws KeyCipher.InvalidKeyCipher {
       try {
-         return HdKeyNode.fromCustomByteformat(_secureKeyValueStore.getEncryptedValue(getAccountNodeId(_network, _accountIndex), cipher));
+         return HdKeyNode.fromCustomByteformat(_secureKeyValueStore.getDecryptedValue(getAccountNodeId(_network, _accountIndex), cipher));
       } catch (ByteReader.InsufficientBytesException e) {
          throw new RuntimeException(e);
       }

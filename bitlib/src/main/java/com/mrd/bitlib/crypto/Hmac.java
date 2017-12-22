@@ -92,6 +92,7 @@ public class Hmac {
       return digest.digest();
    }
 
+   // TODO: 30.06.17 move to unit test
    /**
     * Run test vectors from RFC-4231
     * 

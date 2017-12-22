@@ -9,14 +9,16 @@ compileTestJava {
 }
 
 repositories {
-    mavenCentral()
+    google()
+    mavenLocal()
+    jcenter()
 }
 
 dependencies {
-    compile 'com.google.protobuf:protobuf-java:2.5.0@jar'
-    compile 'com.fasterxml.jackson.core:jackson-annotations:2.5.1'
-    compile 'com.fasterxml.jackson.core:jackson-databind:2.5.1'
-    testCompile "junit:junit:$junitVersion"
-    compile guavaArtifact
-    compile 'org.bitcoinj:bitcoinj-core:0.14.4'
+    implementation 'com.google.protobuf:protobuf-java:2.5.0@jar'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.5.1'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.5.1'
+    testImplementation "junit:junit:$junitVersion"
+    implementation guavaArtifact
+    implementation 'org.bitcoinj:bitcoinj-core:0.15-SNAPSHOT'
 }

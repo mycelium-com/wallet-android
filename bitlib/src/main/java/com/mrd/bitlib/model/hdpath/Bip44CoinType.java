@@ -16,7 +16,6 @@ public class Bip44CoinType extends Bip44Purpose  {
       return new Bip44Account(this, UnsignedInteger.valueOf(id), true);
    }
 
-
    public boolean isTestnet(){
       Optional<Bip44CoinType> coinType = findPartOf(Bip44CoinType.class);
       if (coinType.isPresent()) {

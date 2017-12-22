@@ -93,7 +93,7 @@ public class ManualAddressEntry extends Activity {
    @Override
    public void onSaveInstanceState(Bundle savedInstanceState) {
       super.onSaveInstanceState(savedInstanceState);
-      savedInstanceState.putSerializable("entered", findViewById(R.id.etAddress).toString());
+      savedInstanceState.putSerializable("entered", ((EditText) findViewById(R.id.etAddress)).getText().toString());
    }
 
    OnClickListener okClickListener = new OnClickListener() {

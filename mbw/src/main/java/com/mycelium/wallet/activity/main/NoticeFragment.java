@@ -204,7 +204,6 @@ public class NoticeFragment extends Fragment {
    }
 
    private OnClickListener noticeClickListener = new OnClickListener() {
-
       @Override
       public void onClick(View v) {
          switch (_notice) {
@@ -225,7 +224,6 @@ public class NoticeFragment extends Fragment {
                break;
          }
       }
-
    };
 
    private void showPinResetWarning() {
@@ -238,7 +236,7 @@ public class NoticeFragment extends Fragment {
 
       if (resetPinRemainingBlocksCount.get()==0){
          // delay is done
-         _mbwManager.showClearPinDialog(this.getActivity(), Optional.<Runnable>of(new Runnable() {
+         _mbwManager.showClearPinDialog(getActivity(), Optional.<Runnable>of(new Runnable() {
             @Override
             public void run() {
                recheckNotice();
@@ -248,9 +246,9 @@ public class NoticeFragment extends Fragment {
       }
 
       // delay is still remaining, provide option to abort
-      String remaining = Utils.formatBlockcountAsApproxDuration(this.getActivity(), resetPinRemainingBlocksCount.or(1));
-      new AlertDialog.Builder(this.getActivity())
-            .setMessage(String.format(this.getActivity().getString(R.string.pin_forgotten_abort_pin_reset), remaining))
+      String remaining = Utils.formatBlockcountAsApproxDuration(getActivity(), resetPinRemainingBlocksCount.or(1));
+      new AlertDialog.Builder(getActivity())
+            .setMessage(String.format(getActivity().getString(R.string.pin_forgotten_abort_pin_reset), remaining))
             .setTitle(this.getActivity().getString(R.string.pin_forgotten_reset_pin_dialog_title))
             .setPositiveButton(this.getActivity().getString(R.string.yes), new DialogInterface.OnClickListener() {
                @Override
@@ -269,7 +267,6 @@ public class NoticeFragment extends Fragment {
    }
 
    private OnClickListener warningClickListener = new OnClickListener() {
-
       @Override
       public void onClick(View v) {
          if (!shouldWarnAboutHeartbleedBug()) {

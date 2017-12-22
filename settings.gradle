@@ -1,9 +1,8 @@
-include "bitlib"
-include "mbwapi"
-include "libs:zxing-core"
-include "lt-api"
-include "wapi"
-include "mbwlib"
+include 'bitlib'
+include 'libs:zxing-core'
+include 'lt-api'
+include 'wapi'
+include 'mbwlib'
 include 'backuputil'
 
 //on the servers, we don't want to build android projects
@@ -11,16 +10,17 @@ include 'backuputil'
 //      export MYCELIUM_BUILD_SYSTEM=server
 
 if (System.getenv()['MYCELIUM_BUILD_SYSTEM'] == 'server') {
-    getLogger().warn("MYCELIUM_BUILD_SYSTEM==server - disabling Android projects ")
+    getLogger().warn('MYCELIUM_BUILD_SYSTEM==server - disabling Android projects ')
 } else {
-    include "mbw"
-    include "libs:zxing-android"
-    include "trezor"
-    include "libs:nordpol"
-    include "btchip"
-    include "coinapult"
+    include 'myceliummodularizationtools'
+    include 'modulespvcontract'
+    include 'modulespvbch'
+    include 'mbw'
+    include 'libs:zxing-android'
+    include 'trezor'
+    include 'libs:nordpol'
+    include 'btchip'
+    include 'coinapult'
     include 'LVL'
     include 'backuputil'
 }
-
-

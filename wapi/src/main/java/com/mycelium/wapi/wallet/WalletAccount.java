@@ -42,6 +42,15 @@ public interface WalletAccount {
 
    enum BroadcastResult { SUCCESS, REJECTED, NO_SERVER_CONNECTION}
 
+   enum Type {
+      BTCSINGLEADDRESS, BTCBIP44,
+      BCHSINGLEADDRESS, BCHBIP44,
+      COINAPULT, COLU, UNKNOWN,
+      DASH,
+   }
+
+   Type getType();
+
    /**
     * Get the network that this account is for.
     *

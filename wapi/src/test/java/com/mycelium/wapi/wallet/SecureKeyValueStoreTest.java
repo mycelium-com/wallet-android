@@ -33,7 +33,7 @@ public class SecureKeyValueStoreTest {
       SecureKeyValueStore store = new SecureKeyValueStore(new InMemoryWalletManagerBacking(), new MyRandomSource());
       KeyCipher cipher = AesKeyCipher.defaultKeyCipher();
       store.encryptAndStoreValue(ID_1, VALUE_1, cipher);
-      byte[] result = store.getEncryptedValue(ID_1, cipher);
+      byte[] result = store.getDecryptedValue(ID_1, cipher);
       assertTrue(BitUtils.areEqual(result, VALUE_1));
    }
 

@@ -24,6 +24,13 @@ public abstract class SynchronizeAbleWalletAccount implements WalletAccount {
    );
    protected final HashMap<SyncMode.Mode, Date> _lastSync = new HashMap<SyncMode.Mode, Date>(SyncMode.Mode.values().length);
 
+   protected Type type = Type.UNKNOWN;
+
+   @Override
+   public Type getType() {
+      return type;
+   }
+
    /**
     * Checks if the account needs to be synchronized, according to the provided SyncMode
     *

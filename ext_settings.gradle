@@ -1,10 +1,14 @@
 // keep that file in sync with ext_settings.gradle in the internal big repository
 ext {
-    guavaArtifact = 'com.google.guava:guava:18.0'
-    androidBuildArtifact = 'com.android.tools.build:gradle:2.3.0'
+    guavaArtifact = 'com.google.guava:guava:23.0-android'
+    androidBuildArtifact = 'com.android.tools.build:gradle:3.0.1'
     slf4jVersion = '1.7.2'
-    androidSdkBuildVersion = "25.0.0"
+    androidCompileSdkVersion = 25
+    androidSdkBuildVersion = '27.0.2'
+    androidSupportVersion = '25.3.1'
     junitVersion = '4.12'
+    kotlin_version = '1.2.10'
+
     projectRootDir = project.rootDir.getPath()
     commonDebugKeystore = rootProject.file('debug.keystore')
 

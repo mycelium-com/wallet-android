@@ -24,10 +24,9 @@ import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
 
 /**
- * Used for representing Bitcoin's compact size.
+ * Used for representing Bitcoin's compact size integers as described [here](https://bitcoin.org/en/developer-reference#compactsize-unsigned-integers)
  */
 public class CompactInt {
-
    /**
     * Read a CompactInt from a byte buffer.
     * 
@@ -38,7 +37,7 @@ public class CompactInt {
     */
    public static long fromByteBuffer(ByteBuffer buf) {
       if (buf.remaining() < 1) {
-         // XXX make all callers check for -1
+         // TODO: make all callers check for -1
          return -1;
       }
       long first = 0x00000000000000FFL & ((long) buf.get());
@@ -136,5 +135,4 @@ public class CompactInt {
    private static boolean isLessThan(long n1, long n2) {
       return (n1 < n2) ^ ((n1 < 0) != (n2 < 0));
    }
-
 }

@@ -2,7 +2,9 @@ apply plugin: 'com.android.library'
 
 buildscript {
     repositories {
-        mavenCentral()
+        google()
+        mavenLocal()
+        jcenter()
     }
 
     dependencies {
@@ -12,11 +14,11 @@ buildscript {
 
 
 dependencies {
-    compile project(includePrefix +':libs:zxing-core')
+    implementation project(includePrefix +':libs:zxing-core')
 }
 
 android {
-    compileSdkVersion 19
+    compileSdkVersion androidCompileSdkVersion
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {

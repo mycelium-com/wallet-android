@@ -15,6 +15,8 @@
     <color name="mycelium_midblue">#3e9bd3</color>
     <color name="mycelium_brightblue">#5fcbf2</color>
 
+    <color name="color_accent">#31b7e4</color>
+
     <color name="greenblue">#0FF</color>
     <color name="darkgrey">#444</color>
     <color name="darkdarkgrey">#222</color>

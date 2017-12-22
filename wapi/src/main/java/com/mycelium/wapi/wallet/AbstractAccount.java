@@ -74,7 +74,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
    protected Balance _cachedBalance;
 
    private EventHandler _eventHandler;
-   private AccountBacking _backing;
+   private final AccountBacking _backing;
 
    protected AbstractAccount(AccountBacking backing, NetworkParameters network, Wapi wapi) {
       _network = network;

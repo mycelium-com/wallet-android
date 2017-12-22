@@ -34,19 +34,57 @@
 
 package com.mycelium.wallet;
 
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
+import android.content.Intent;
 import android.content.res.Configuration;
+import android.os.StrictMode;
+import android.support.annotation.NonNull;
 import android.support.multidex.MultiDexApplication;
 import android.util.Log;
 
-public class WalletApplication extends MultiDexApplication {
+import com.mycelium.modularizationtools.CommunicationManager;
+import com.mycelium.modularizationtools.ModuleMessageReceiver;
+import com.mycelium.wapi.wallet.WalletAccount;
+
+public class WalletApplication extends MultiDexApplication implements ModuleMessageReceiver {
+   private ModuleMessageReceiver moduleMessageReceiver;
+   private static WalletApplication INSTANCE;
+
+   private static Map<WalletAccount.Type, String> spvModulesMapping = initTrustedSpvModulesMapping();
+
+   public static WalletApplication getInstance() {
+      if (INSTANCE == null) {
+         throw new IllegalStateException();
+      }
+      return INSTANCE;
+   }
 
    @Override
    public void onCreate() {
-      String lang = MbwManager.getInstance(this).getLanguage();
-      applyLanguageChange(lang);
+      INSTANCE = this;
+      if (BuildConfig.DEBUG) {
+         StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
+                 .detectAll()
+                 .penaltyLog()
+                 .build());
+      }
       super.onCreate();
+      boolean paired = pairSpvModules(CommunicationManager.getInstance(this));
+      moduleMessageReceiver = new MbwMessageReceiver(this);
+      MbwManager mbwManager = MbwManager.getInstance(this);
+      mbwManager.setSpvMode(paired);
+      applyLanguageChange(mbwManager.getLanguage());
+   }
+
+   private boolean pairSpvModules(CommunicationManager communicationManager) {
+      boolean paired = false;
+      for (Map.Entry<WalletAccount.Type, String> entry : spvModulesMapping.entrySet()) {
+         paired |= communicationManager.requestPair(entry.getValue());
+      }
+      return paired;
    }
 
    @Override
@@ -82,5 +120,48 @@ public class WalletApplication extends MultiDexApplication {
          default:
             return new Locale(lang);
       }
+   }
+
+   @Override
+   public void onMessage(@NonNull String callingPackageName, @NonNull Intent intent) {
+      moduleMessageReceiver.onMessage(callingPackageName, intent);
+   }
+
+   public static String getSpvModuleName() {
+      WalletAccount selectedAccount = MbwManager.getInstance(INSTANCE).getSelectedAccount();
+      return getSpvModuleName(selectedAccount.getType());
+   }
+
+   public static String getSpvModuleName(WalletAccount.Type selectedAccountType) {
+      if (spvModulesMapping.containsKey(selectedAccountType)) {
+         return spvModulesMapping.get(selectedAccountType);
+      } else {
+         throw new RuntimeException("No spv module defined for account type " + selectedAccountType);
+      }
+   }
+
+   public static void sendToSpv(Intent intent) {
+      CommunicationManager.getInstance(INSTANCE).send(getSpvModuleName(), intent);
+   }
+
+   private static Map<WalletAccount.Type, String> initTrustedSpvModulesMapping() {
+      Map<WalletAccount.Type, String> spvModulesMapping = new HashMap<>();
+      switch(BuildConfig.APPLICATION_ID) {
+         case "com.mycelium.testnetdigitalassets":{
+            spvModulesMapping.put(WalletAccount.Type.BTCBIP44, "com.mycelium.spvmodule_testrelease");
+            spvModulesMapping.put(WalletAccount.Type.BCHSINGLEADDRESS, "com.mycelium.spvmodule_testrelease");
+            spvModulesMapping.put(WalletAccount.Type.DASH, "org.dash.mycelium.spvdashmodule.testnet");
+            break;
+         }
+         case "com.mycelium.devwallet_spore": {
+            spvModulesMapping.put(WalletAccount.Type.BTCBIP44, "com.mycelium.spvmodule.test");
+            spvModulesMapping.put(WalletAccount.Type.DASH, "org.dash.mycelium.spvdashmodule.testnet.debug");
+            break;
+         }
+         default:{
+            throw new RuntimeException("No spv module defined for BuildConfig " + BuildConfig.APPLICATION_ID);
+         }
+      }
+      return spvModulesMapping;
    }
 }

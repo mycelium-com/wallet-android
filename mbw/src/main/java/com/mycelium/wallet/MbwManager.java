@@ -45,6 +45,7 @@ import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.StrictMode;
 import android.os.Vibrator;
 import android.support.annotation.Nullable;
 import android.util.DisplayMetrics;
@@ -75,9 +76,11 @@ import com.mrd.bitlib.util.CoinUtil.Denomination;
 import com.mrd.bitlib.util.HashUtils;
 import com.mycelium.WapiLogger;
 import com.mycelium.lt.api.LtApiClient;
+import com.mycelium.modularizationtools.CommunicationManager;
 import com.mycelium.net.ServerEndpointType;
 import com.mycelium.net.TorManager;
 import com.mycelium.net.TorManagerOrbot;
+import com.mycelium.spvmodule.IntentContract;
 import com.mycelium.wallet.activity.rmc.RmcApiClient;
 import com.mycelium.wallet.activity.util.BlockExplorer;
 import com.mycelium.wallet.activity.util.BlockExplorerManager;
@@ -98,6 +101,7 @@ import com.mycelium.wallet.extsig.keepkey.KeepKeyManager;
 import com.mycelium.wallet.extsig.ledger.LedgerManager;
 import com.mycelium.wallet.extsig.trezor.TrezorManager;
 import com.mycelium.wallet.lt.LocalTraderManager;
+import com.mycelium.wallet.modularisation.SpvBalanceFetcherImpl;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.persistence.TradeSessionDb;
 import com.mycelium.wallet.wapi.SqliteWalletManagerBackingWrapper;
@@ -108,6 +112,7 @@ import com.mycelium.wapi.wallet.IdentityAccountKeyManager;
 import com.mycelium.wapi.wallet.InMemoryWalletManagerBacking;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SecureKeyValueStore;
+import com.mycelium.wapi.wallet.SpvBalanceFetcher;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
@@ -169,7 +174,13 @@ public class MbwManager {
 
    public static synchronized MbwManager getInstance(Context context) {
       if (_instance == null) {
-         _instance = new MbwManager(context);
+         if(BuildConfig.DEBUG) {
+            StrictMode.ThreadPolicy threadPolicy = StrictMode.allowThreadDiskReads();
+            _instance = new MbwManager(context);
+            StrictMode.setThreadPolicy(threadPolicy);
+         } else {
+            _instance = new MbwManager(context);
+         }
       }
       return _instance;
    }
@@ -209,6 +220,7 @@ public class MbwManager {
 
    private EvictingQueue<LogEntry> _wapiLogs = EvictingQueue.create(100);
    private Cache<String, Object> _semiPersistingBackgroundObjects = CacheBuilder.newBuilder().maximumSize(10).build();
+   private SpvBalanceFetcher _spvBalanceFetcher;
 
    private MbwManager(Context evilContext) {
       _applicationContext = Preconditions.checkNotNull(evilContext.getApplicationContext());
@@ -264,6 +276,8 @@ public class MbwManager {
       _storage = new MetadataStorage(_applicationContext);
       _language = preferences.getString(Constants.LANGUAGE_SETTING, Locale.getDefault().getLanguage());
       _versionManager = new VersionManager(_applicationContext, _language, new AndroidAsyncApi(_wapi, _eventBus), version, _eventBus);
+
+      _spvBalanceFetcher = new SpvBalanceFetcherImpl(_applicationContext.getContentResolver());
 
       Set<String> currencyList = getPreferences().getStringSet(Constants.SELECTED_CURRENCIES, null);
       //TODO: get it through coluManager instead ?
@@ -333,6 +347,15 @@ public class MbwManager {
             addExtraAccounts(_coluManager.get());
          }
       }
+   }
+
+   void setSpvMode(boolean spvMode) {
+      Log.d(TAG, "setSpvMode: " + (spvMode ? "on" : "off"));
+      //_useSpvModule = spvMode;
+   }
+
+   public boolean isSpvMode() {
+      return false; //_useSpvModule;
    }
 
    public void addExtraAccounts(AccountProvider accounts) {
@@ -615,7 +638,7 @@ public class MbwManager {
 
       // Create and return wallet manager
       WalletManager walletManager = new WalletManager(secureKeyValueStore,
-              backing, environment.getNetwork(), _wapi, externalSignatureProviderProxy);
+              backing, environment.getNetwork(), _wapi, externalSignatureProviderProxy, _spvBalanceFetcher);
 
       // notify the walletManager about the current selected account
       UUID lastSelectedAccountId = getLastSelectedAccountId();
@@ -640,12 +663,11 @@ public class MbwManager {
 
       // Create and return wallet manager
       WalletManager walletManager = new WalletManager(secureKeyValueStore,
-              backing, environment.getNetwork(), _wapi, null);
+              backing, environment.getNetwork(), _wapi, null, _spvBalanceFetcher);
 
       walletManager.disableTransactionHistorySynchronization();
       return walletManager;
    }
-
 
    public String getFiatCurrency() {
       return _currencySwitcher.getCurrentFiatCurrency();
@@ -1058,14 +1080,14 @@ public class MbwManager {
       this._language = _language;
       SharedPreferences.Editor editor = getEditor();
       editor.putString(Constants.LANGUAGE_SETTING, _language);
-      editor.commit();
+      editor.apply();
    }
 
    public void setTorMode(ServerEndpointType.Types torMode) {
       this._torMode = torMode;
       SharedPreferences.Editor editor = getEditor();
       editor.putString(Constants.TOR_MODE, torMode.toString());
-      editor.commit();
+      editor.apply();
 
       ServerEndpointType serverEndpointType = ServerEndpointType.fromType(torMode);
       if (serverEndpointType.mightUseTor()) {

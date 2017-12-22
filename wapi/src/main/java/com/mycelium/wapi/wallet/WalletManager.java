@@ -48,7 +48,7 @@ import static com.mycelium.wapi.wallet.bip44.Bip44AccountContext.*;
  * Allows you to manage a wallet that contains multiple HD accounts and
  * 'classic' single address accounts.
  */
-//TODO we might optimize away full TX history for cold storage spending
+// TODO: we might optimize away full TX history for cold storage spending
 public class WalletManager {
    private static final byte[] MASTER_SEED_ID = HexUtils.toBytes("D64CA2B680D8C8909A367F28EB47F990");
    // maximum age where we say a fetched fee estimation is valid
@@ -74,7 +74,7 @@ public class WalletManager {
    private IdentityAccountKeyManager _identityAccountKeyManager;
    private volatile UUID _activeAccountId;
    private FeeEstimation _lastFeeEstimations = FeeEstimation.DEFAULT;
-
+   private SpvBalanceFetcher _spvBalanceFetcher;
    /**
     * Create a new wallet manager instance
     *
@@ -83,7 +83,7 @@ public class WalletManager {
     * @param wapi    the Wapi instance to use
     */
    public WalletManager(SecureKeyValueStore secureKeyValueStore, WalletManagerBacking backing,
-                        NetworkParameters network, Wapi wapi, ExternalSignatureProviderProxy signatureProviders) {
+                        NetworkParameters network, Wapi wapi, ExternalSignatureProviderProxy signatureProviders, SpvBalanceFetcher spvBalanceFetcher) {
       _secureKeyValueStore = secureKeyValueStore;
       _backing = backing;
       _network = network;
@@ -95,6 +95,7 @@ public class WalletManager {
       _state = State.READY;
       _accountEventManager = new AccountEventManager();
       _observers = new LinkedList<>();
+      _spvBalanceFetcher = spvBalanceFetcher;
       loadAccounts();
    }
 
@@ -699,9 +700,7 @@ public class WalletManager {
                }
 
                // Synchronize selected accounts with the blockchain
-               if (!synchronize()) {
-                  return;
-               }
+               synchronize();
             }
          } finally {
             _synchronizationThread = null;
@@ -799,7 +798,7 @@ public class WalletManager {
     * @throws InvalidKeyCipher if the cipher is invalid
     */
    public Bip39.MasterSeed getMasterSeed(KeyCipher cipher) throws InvalidKeyCipher {
-      byte[] binaryMasterSeed = _secureKeyValueStore.getEncryptedValue(MASTER_SEED_ID, cipher);
+      byte[] binaryMasterSeed = _secureKeyValueStore.getDecryptedValue(MASTER_SEED_ID, cipher);
       Optional<Bip39.MasterSeed> masterSeed = Bip39.MasterSeed.fromBytes(binaryMasterSeed, false);
       if (!masterSeed.isPresent()) {
          throw new RuntimeException();
@@ -905,6 +904,9 @@ public class WalletManager {
       return filterAndConvert(MAIN_SEED_HD_ACCOUNT).size();
    }
 
+   /**
+    * this is part of a bugfix for where the wallet skipped accounts in conflict with BIP44
+    */
    // not nice the unchecked cast, but we can be sure that MAIN_SEED_HD_ACCOUNT only returns Bip44Accounts
    // TODO: why is a double-cast needed?? Skipping the List<?> cast fails, although suggested by AS
    @SuppressWarnings({"unchecked", "RedundantCast"})
@@ -927,10 +929,12 @@ public class WalletManager {
             gaps.add(lastIndex - 1);
          }
       }
-
       return gaps;
    }
 
+   /**
+    * this is part of a bugfix for where the wallet skipped accounts in conflict with BIP44
+    */
    public List<Address> getGapAddresses(KeyCipher cipher) throws InvalidKeyCipher {
       final List<Integer> gaps = getGapsBug();
       // Get the master seed
