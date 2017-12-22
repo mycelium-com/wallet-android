@@ -3,6 +3,7 @@
     <string-array name="changelly_skip_currencies">
         <item>AEON</item>
         <item>ARDR</item>
+        <item>BCH</item>
         <item>DCT</item>
         <item>GBG</item>
         <item>GOLOS</item>

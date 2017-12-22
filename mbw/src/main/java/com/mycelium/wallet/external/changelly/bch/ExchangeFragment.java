@@ -29,6 +29,8 @@ import com.mycelium.wallet.external.changelly.Constants;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 
+import java.math.BigDecimal;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -39,7 +41,6 @@ import static com.mycelium.wallet.external.changelly.ChangellyService.INFO_ERROR
 import static com.mycelium.wallet.external.changelly.Constants.decimalFormat;
 
 public class ExchangeFragment extends Fragment {
-    public static final int REQUEST_OFFER = 100;
     private static String TAG = "ChangellyActivity";
 
     @BindView(R.id.from_account_list)
@@ -63,12 +64,14 @@ public class ExchangeFragment extends Fragment {
     @BindView(R.id.toValueLayout)
     View toLayout;
 
-
     @BindView(R.id.tvMinAmountValue)
     TextView tvMinAmountValue;
 
     @BindView(R.id.buttonContinue)
     Button buttonContinue;
+
+    @BindView(R.id.exchange_rate)
+    TextView exchangeRate;
 
     private MbwManager mbwManager;
     private WalletManager walletManager;
@@ -93,6 +96,16 @@ public class ExchangeFragment extends Fragment {
             IntentFilter intentFilter = new IntentFilter(action);
             LocalBroadcastManager.getInstance(getActivity()).registerReceiver(receiver, intentFilter);
         }
+        getActivity().startService(new Intent(getActivity(), ChangellyService.class)
+                .setAction(ChangellyService.ACTION_GET_MIN_EXCHANGE)
+                .putExtra(ChangellyService.FROM, ChangellyService.BCH)
+                .putExtra(ChangellyService.TO, ChangellyService.BTC));
+        Intent changellyServiceIntent = new Intent(getActivity(), ChangellyService.class)
+                .setAction(ChangellyService.ACTION_GET_EXCHANGE_AMOUNT)
+                .putExtra(ChangellyService.FROM, ChangellyService.BCH)
+                .putExtra(ChangellyService.TO, ChangellyService.BTC)
+                .putExtra(ChangellyService.AMOUNT, 1.0);
+        getActivity().startService(changellyServiceIntent);
     }
 
     @Nullable
@@ -127,6 +140,7 @@ public class ExchangeFragment extends Fragment {
         toLayout.setAlpha(Constants.INACTIVE_ALPHA);
 
         valueKeyboard.setVisibility(android.view.View.GONE);
+        buttonContinue.setEnabled(false);
         return view;
     }
 
@@ -144,11 +158,13 @@ public class ExchangeFragment extends Fragment {
         }
         Fragment fragment = new ConfirmExchangeFragment();
         Bundle bundle = new Bundle();
-        bundle.putDouble(ChangellyService.AMOUNT, dblAmount);
+        bundle.putDouble(Constants.FROM_AMOUNT, dblAmount);
         WalletAccount toAccount = toAccountAdapter.getItem(toRecyclerView.getSelectedItem()).account;
-        bundle.putSerializable(ChangellyService.DESTADDRESS, toAccount.getId());
+        bundle.putSerializable(Constants.DESTADDRESS, toAccount.getId());
         WalletAccount fromAccount = fromAccountAdapter.getItem(fromRecyclerView.getSelectedItem()).account;
-        bundle.putSerializable(ChangellyService.FROM_AMOUNT, fromAccount.getId());
+        bundle.putSerializable(Constants.FROM_ADDRESS, fromAccount.getId());
+
+        fragment.setArguments(bundle);
         getFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, fragment, "ConfirmExchangeFragment")
                 .addToBackStack("ConfirmExchangeFragment")
@@ -163,6 +179,7 @@ public class ExchangeFragment extends Fragment {
         toRecyclerView.setVisibility(View.GONE);
         toLayout.setAlpha(Constants.ACTIVE_ALPHA);
         fromLayout.setAlpha(Constants.INACTIVE_ALPHA);
+        valueKeyboard.setMaxValue(BigDecimal.ZERO);
     }
 
     @OnClick(R.id.fromValueLayout)
@@ -171,6 +188,14 @@ public class ExchangeFragment extends Fragment {
         valueKeyboard.setVisibility(View.VISIBLE);
         fromLayout.setAlpha(Constants.ACTIVE_ALPHA);
         toLayout.setAlpha(Constants.INACTIVE_ALPHA);
+        AccountAdapter.Item item = fromAccountAdapter.getItem(fromRecyclerView.getSelectedItem());
+        valueKeyboard.setMaxValue(item.account.getCurrencyBasedBalance().confirmed.getValue());
+    }
+
+    @OnClick(R.id.use_all_funds)
+    void useAllFundsClick() {
+        AccountAdapter.Item item = fromAccountAdapter.getItem(fromRecyclerView.getSelectedItem());
+        fromValue.setText(item.account.getCurrencyBasedBalance().confirmed.getValue().toPlainString());
     }
 
     @OnTextChanged(value = R.id.fromValue, callback = AFTER_TEXT_CHANGED)
@@ -213,10 +238,6 @@ public class ExchangeFragment extends Fragment {
                 .putExtra(ChangellyService.TO, toCurrency)
                 .putExtra(ChangellyService.AMOUNT, dblAmount);
         getActivity().startService(changellyServiceIntent);
-        getActivity().startService(new Intent(getActivity(), ChangellyService.class)
-                .setAction(ChangellyService.ACTION_GET_MIN_EXCHANGE)
-                .putExtra(ChangellyService.FROM, ChangellyService.BCH)
-                .putExtra(ChangellyService.TO, ChangellyService.BTC));
 
     }
 
@@ -286,6 +307,7 @@ public class ExchangeFragment extends Fragment {
                         Log.d(TAG, "Received offer: " + amount + " " + to);
                         avoidTextChangeEvent = true;
                         try {
+
                             if (to.equalsIgnoreCase(ChangellyService.BTC)
                                     && from.equalsIgnoreCase(ChangellyService.BCH)
                                     && fromAmount == Double.parseDouble(fromValue.getText().toString())) {
@@ -294,6 +316,13 @@ public class ExchangeFragment extends Fragment {
                                     && to.equalsIgnoreCase(ChangellyService.BCH)
                                     && fromAmount == Double.parseDouble(toValue.getText().toString())) {
                                 fromValue.setText(decimalFormat.format(amount));
+                            }
+
+                            if (to.equalsIgnoreCase(ChangellyService.BTC)
+                                    && from.equalsIgnoreCase(ChangellyService.BCH)
+                                    && fromAmount == 1) {
+                                 exchangeRate.setVisibility(View.VISIBLE);
+                                exchangeRate.setText("1 BCH ~ " + decimalFormat.format(amount) + " BTC");
                             }
                             isValueForOfferOk(true);
 

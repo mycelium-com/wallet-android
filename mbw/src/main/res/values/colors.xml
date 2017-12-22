@@ -46,7 +46,7 @@
     <color name="fee_recycler_item">#2c3239</color>
     <color name="sender_recyclerview_background_red">#fb746d</color>
     <color name="sender_recyclerview_background_selected_red">#fb827b</color>
-    <color name="sender_recyclerview_background2">#61b687</color>
+    <color name="sender_recyclerview_background_green">#61b687</color>
     <color name="sender_recyclerview_background_selected2">#84c8a2</color>
 
     <fraction name="background_alpha">50%</fraction>

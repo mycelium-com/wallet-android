@@ -15,4 +15,6 @@ public class Constants {
     public static DecimalFormat decimalFormat = new DecimalFormat("#.########", otherSymbols);
     public static final String DESTADDRESS = "DESTADDRESS";
     public static final String FROM_ADDRESS = "FROM_ADDRESS";
+    public static final String FROM_AMOUNT = "from_amount";
+    public static final String TO_AMOUNT = "to_amount";
 }

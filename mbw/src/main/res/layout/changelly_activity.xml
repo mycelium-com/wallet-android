@@ -121,7 +121,7 @@
                 android:id="@+id/accountSelector"
                 android:layout_width="match_parent"
                 android:layout_height="75dp"
-                android:background="@color/sender_recyclerview_background2" />
+                android:background="@color/sender_recyclerview_background_green" />
 
             <TextView
                 android:layout_width="wrap_content"
