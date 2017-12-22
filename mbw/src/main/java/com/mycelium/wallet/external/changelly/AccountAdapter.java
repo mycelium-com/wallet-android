@@ -75,8 +75,8 @@ public class AccountAdapter extends SelectableRecyclerView.Adapter<RecyclerView.
             this.account = account;
         }
 
-        int type;
-        WalletAccount account;
+        public int type;
+        public WalletAccount account;
     }
 
     @Override

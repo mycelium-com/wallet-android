@@ -23,8 +23,6 @@ import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
 import com.mycelium.wallet.activity.view.ValueKeyboard;
 import com.mycelium.wapi.wallet.WalletAccount;
 
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -36,18 +34,11 @@ import butterknife.OnTextChanged;
 
 import static butterknife.OnTextChanged.Callback.AFTER_TEXT_CHANGED;
 import static com.mycelium.wallet.external.changelly.ChangellyService.INFO_ERROR;
+import static com.mycelium.wallet.external.changelly.Constants.decimalFormat;
 
 public class ChangellyActivity extends Activity {
     public static final int REQUEST_OFFER = 100;
-    public static final float INACTIVE_ALPHA = 0.5f;
-    public static final float ACTIVE_ALPHA = 1f;
     private static String TAG = "ChangellyActivity";
-    private static DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols() {
-        {
-            setDecimalSeparator('.');
-        }
-    };
-    private static DecimalFormat decimalFormat = new DecimalFormat("#.########", otherSymbols);
 
     public enum ChangellyUITypes {
         Loading,
@@ -131,12 +122,12 @@ public class ChangellyActivity extends Activity {
                 accountSelector.setVisibility(View.VISIBLE);
                 titleView.setVisibility(View.VISIBLE);
                 subtitleView.setVisibility(View.VISIBLE);
-                fromLayout.setAlpha(INACTIVE_ALPHA);
-                toLayout.setAlpha(INACTIVE_ALPHA);
+                fromLayout.setAlpha(Constants.INACTIVE_ALPHA);
+                toLayout.setAlpha(Constants.INACTIVE_ALPHA);
             }
         });
-        fromLayout.setAlpha(INACTIVE_ALPHA);
-        toLayout.setAlpha(INACTIVE_ALPHA);
+        fromLayout.setAlpha(Constants.INACTIVE_ALPHA);
+        toLayout.setAlpha(Constants.INACTIVE_ALPHA);
 
         currencySelector.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         accountSelector.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
@@ -268,8 +259,8 @@ public class ChangellyActivity extends Activity {
         accountSelector.setVisibility(View.GONE);
         titleView.setVisibility(View.GONE);
         subtitleView.setVisibility(View.GONE);
-        fromLayout.setAlpha(ACTIVE_ALPHA);
-        toLayout.setAlpha(INACTIVE_ALPHA);
+        fromLayout.setAlpha(Constants.ACTIVE_ALPHA);
+        toLayout.setAlpha(Constants.INACTIVE_ALPHA);
 
     }
 
@@ -282,8 +273,8 @@ public class ChangellyActivity extends Activity {
         accountSelector.setVisibility(View.GONE);
         titleView.setVisibility(View.GONE);
         subtitleView.setVisibility(View.GONE);
-        fromLayout.setAlpha(INACTIVE_ALPHA);
-        toLayout.setAlpha(ACTIVE_ALPHA);
+        fromLayout.setAlpha(Constants.INACTIVE_ALPHA);
+        toLayout.setAlpha(Constants.ACTIVE_ALPHA);
 
     }
 

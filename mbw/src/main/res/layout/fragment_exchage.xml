@@ -19,7 +19,24 @@
             android:textColor="?exchange_text_color"
             android:textSize="21sp" />
 
+        <TextView
+            android:id="@+id/tvMinAmountValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:layout_marginBottom="@dimen/margin_small"
+            android:layout_marginEnd="@dimen/margin_medium"
+            android:layout_marginRight="@dimen/margin_medium"
+            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginTop="@dimen/margin_small"
+            android:gravity="left"
+            android:text="@string/changelly_min_amount"
+            android:textColor="@color/red"
+            android:textSize="12sp"
+            android:visibility="gone" />
+
         <RelativeLayout
+            android:id="@+id/fromValueLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/margin_large"
@@ -51,6 +68,8 @@
                 android:layout_centerHorizontal="true"
                 android:layout_gravity="bottom"
                 android:layout_marginEnd="@dimen/margin_small"
+                android:minEms="4"
+                android:background="@drawable/underline"
                 android:layout_marginStart="@dimen/margin_small"
                 android:layout_weight="1"
                 android:gravity="center"
@@ -96,6 +115,7 @@
             android:textSize="21sp" />
 
         <RelativeLayout
+            android:id="@+id/toValueLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/margin_medium"
@@ -122,8 +142,10 @@
                 android:layout_gravity="bottom"
                 android:layout_marginEnd="@dimen/margin_small"
                 android:layout_marginStart="@dimen/margin_small"
+                android:minEms="4"
                 android:layout_weight="1"
                 android:gravity="center"
+                android:background="@drawable/underline"
                 android:hint="@string/zero"
                 android:text="0"
                 android:textColor="?exchange_text_color"
