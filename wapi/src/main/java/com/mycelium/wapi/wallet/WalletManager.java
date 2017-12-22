@@ -74,7 +74,7 @@ public class WalletManager {
    private IdentityAccountKeyManager _identityAccountKeyManager;
    private volatile UUID _activeAccountId;
    private FeeEstimation _lastFeeEstimations = FeeEstimation.DEFAULT;
-
+   private SpvBalanceFetcher _spvBalanceFetcher;
    /**
     * Create a new wallet manager instance
     *
@@ -83,7 +83,7 @@ public class WalletManager {
     * @param wapi    the Wapi instance to use
     */
    public WalletManager(SecureKeyValueStore secureKeyValueStore, WalletManagerBacking backing,
-                        NetworkParameters network, Wapi wapi, ExternalSignatureProviderProxy signatureProviders) {
+                        NetworkParameters network, Wapi wapi, ExternalSignatureProviderProxy signatureProviders, SpvBalanceFetcher spvBalanceFetcher) {
       _secureKeyValueStore = secureKeyValueStore;
       _backing = backing;
       _network = network;
@@ -95,6 +95,7 @@ public class WalletManager {
       _state = State.READY;
       _accountEventManager = new AccountEventManager();
       _observers = new LinkedList<>();
+      _spvBalanceFetcher = spvBalanceFetcher;
       loadAccounts();
    }
 
