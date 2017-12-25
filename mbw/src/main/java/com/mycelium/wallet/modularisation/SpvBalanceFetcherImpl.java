@@ -1,11 +1,15 @@
 package com.mycelium.wallet.modularisation;
 
 import android.content.ContentResolver;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 
+import com.mycelium.spvmodule.IntentContract;
 import com.mycelium.spvmodule.providers.TransactionContract;
+import com.mycelium.wallet.WalletApplication;
 import com.mycelium.wapi.wallet.SpvBalanceFetcher;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
@@ -77,5 +81,15 @@ public class SpvBalanceFetcherImpl implements SpvBalanceFetcher {
             }
         }
         return balance;
+    }
+
+    public void getTransactions(int accountId) {
+        Intent service = IntentContract.ReceiveTransactions.createIntent(accountId);
+        WalletApplication.sendToSpv(service);
+    }
+
+    public void getTransactionsFromSingleAddressAccount(String guid) {
+        Intent service = IntentContract.ReceiveTransactionsSingleAddress.createIntent(guid);
+        WalletApplication.sendToSpv(service);
     }
 }

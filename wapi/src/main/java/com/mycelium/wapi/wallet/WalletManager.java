@@ -38,6 +38,7 @@ import com.mycelium.wapi.wallet.bip44.*;
 import com.mycelium.wapi.wallet.single.PublicPrivateKeyStore;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.single.SingleAddressAccountContext;
+import com.mycelium.wapi.wallet.single.SingleAddressBCHAccount;
 
 import java.util.*;
 
@@ -738,7 +739,13 @@ public class WalletManager {
       private boolean synchronize() {
          if (syncMode.onlyActiveAccount) {
             if (currentAccount != null && !currentAccount.isArchived()) {
-               return currentAccount.synchronize(syncMode);
+               if (currentAccount instanceof Bip44BCHAccount) {
+                  _spvBalanceFetcher.getTransactions(((Bip44Account)currentAccount).getAccountIndex());
+               } else if (currentAccount instanceof SingleAddressBCHAccount) {
+                  _spvBalanceFetcher.getTransactionsFromSingleAddressAccount(currentAccount.getId().toString());
+               } else {
+                  return currentAccount.synchronize(syncMode);
+               }
             }
          } else {
             for (WalletAccount account : getAllAccounts()) {
