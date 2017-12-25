@@ -19,6 +19,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.mycelium.wallet.AccountManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
@@ -30,6 +31,9 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -122,7 +126,10 @@ public class ExchangeFragment extends Fragment {
         toAccountAdapter.setAccountUseType(AccountAdapter.AccountUseType.IN);
         toRecyclerView.setAdapter(toAccountAdapter);
 
-        fromAccountAdapter = new AccountAdapter(mbwManager, walletManager.getActiveAccounts(), firstItemWidth);
+        List<WalletAccount> fromAccounts = new ArrayList<>();
+        fromAccounts.addAll(filterAccount(AccountManager.INSTANCE.getBCHBip44Accounts().values()));
+        fromAccounts.addAll(filterAccount(AccountManager.INSTANCE.getBCHSingleAddressAccounts().values()));
+        fromAccountAdapter = new AccountAdapter(mbwManager, fromAccounts, firstItemWidth);
         fromAccountAdapter.setAccountUseType(AccountAdapter.AccountUseType.OUT);
         fromRecyclerView.setAdapter(fromAccountAdapter);
 
@@ -142,6 +149,16 @@ public class ExchangeFragment extends Fragment {
         valueKeyboard.setVisibility(android.view.View.GONE);
         buttonContinue.setEnabled(false);
         return view;
+    }
+
+    private List<WalletAccount> filterAccount(Collection<WalletAccount> accounts) {
+        List<WalletAccount> result = new ArrayList();
+        for (WalletAccount walletAccount : accounts) {
+            if (walletAccount.canSpend() /*TODO uncoment && walletAccount.getCurrencyBasedBalance().confirmed.isZero()*/) {
+                result.add(walletAccount);
+            }
+        }
+        return result;
     }
 
 
@@ -321,7 +338,7 @@ public class ExchangeFragment extends Fragment {
                             if (to.equalsIgnoreCase(ChangellyService.BTC)
                                     && from.equalsIgnoreCase(ChangellyService.BCH)
                                     && fromAmount == 1) {
-                                 exchangeRate.setVisibility(View.VISIBLE);
+                                exchangeRate.setVisibility(View.VISIBLE);
                                 exchangeRate.setText("1 BCH ~ " + decimalFormat.format(amount) + " BTC");
                             }
                             isValueForOfferOk(true);

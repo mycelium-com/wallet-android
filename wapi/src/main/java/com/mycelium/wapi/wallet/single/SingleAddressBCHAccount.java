@@ -6,6 +6,8 @@ import com.mycelium.wapi.wallet.SingleAddressAccountBacking;
 import com.mycelium.wapi.wallet.SpvBalanceFetcher;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 
+import java.util.UUID;
+
 public class SingleAddressBCHAccount extends SingleAddressAccount {
 
     private SpvBalanceFetcher spvBalanceFetcher;
@@ -19,5 +21,10 @@ public class SingleAddressBCHAccount extends SingleAddressAccount {
     @Override
     public CurrencyBasedBalance getCurrencyBasedBalance() {
         return spvBalanceFetcher.retrieveBySingleAddressAccountId(getId().toString());
+    }
+
+    @Override
+    public UUID getId() {
+        return UUID.nameUUIDFromBytes(("BCH" + super.getId().toString()).getBytes());
     }
 }

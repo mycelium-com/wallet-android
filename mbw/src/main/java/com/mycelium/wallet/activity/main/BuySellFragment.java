@@ -47,10 +47,15 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.external.changelly.bch.ExchangeActivity;
+import com.mycelium.wallet.event.AccountChanged;
+import com.mycelium.wallet.event.BalanceChanged;
+import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.external.BuySellSelectFragment;
 import com.mycelium.wallet.external.BuySellServiceDescriptor;
 import com.mycelium.wallet.external.changelly.ChangellyActivity;
+import com.mycelium.wallet.external.changelly.bch.ExchangeActivity;
+import com.mycelium.wapi.wallet.WalletAccount;
+import com.squareup.otto.Subscribe;
 
 import javax.annotation.Nullable;
 
@@ -63,6 +68,9 @@ public class BuySellFragment extends Fragment {
     private View _root;
     @BindView(R.id.btBuySellBitcoin)
     View btBuySell;
+
+    @BindView(R.id.btExchangeAltcoins)
+    View btExchangeAltcoins;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -89,19 +97,45 @@ public class BuySellFragment extends Fragment {
         super.onAttach(activity);
         _mbwManager = MbwManager.getInstance(activity);
     }
+
+    @Override
+    public void onResume() {
+        _mbwManager.getEventBus().register(this);
+        super.onResume();
+        updateUI();
+    }
+
+    @Override
+    public void onPause() {
+        _mbwManager.getEventBus().unregister(this);
+        super.onPause();
+    }
+
     @OnClick(R.id.btExchangeAltcoins)
     void clickExchangeAltcoins() {
         startActivity(new Intent(getActivity(), ChangellyActivity.class));
     }
 
-    @OnClick(R.id.btShiftBchToBtc)
-    void clickShiftBch() {
-        startActivity(new Intent(getActivity(), ExchangeActivity.class));
-    }
 
     @OnClick(R.id.btBuySellBitcoin)
     void clickBuySell() {
         Intent intent = new Intent(getActivity(), BuySellSelectFragment.class);
         startActivity(intent);
+    }
+
+    void updateUI() {
+        WalletAccount walletAccount = _mbwManager.getSelectedAccount();
+        if (walletAccount.getType() == WalletAccount.Type.BCHBIP44 || walletAccount.getType() == WalletAccount.Type.BCHSINGLEADDRESS) {
+            btBuySell.setVisibility(View.GONE);
+            btExchangeAltcoins.setVisibility(View.GONE);
+        } else {
+            btBuySell.setVisibility(View.VISIBLE);
+            btExchangeAltcoins.setVisibility(View.VISIBLE);
+        }
+    }
+
+    @Subscribe
+    public void selectedAccountChanged(SelectedAccountChanged event) {
+        updateUI();
     }
 }

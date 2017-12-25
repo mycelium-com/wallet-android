@@ -170,10 +170,15 @@ public class AddressFragment extends Fragment {
    private class QrClickListener implements OnClickListener {
       @Override
       public void onClick(View v) {
-         Optional<Address> receivingAddress = _mbwManager.getSelectedAccount().getReceivingAddress();
+         WalletAccount account = _mbwManager.getSelectedAccount();
+         if(account.getType() == WalletAccount.Type.BCHSINGLEADDRESS
+                 || account.getType() == WalletAccount.Type.BCHBIP44) {
+            return;
+         }
+         Optional<Address> receivingAddress = account.getReceivingAddress();
          if (receivingAddress.isPresent()) {
             ReceiveCoinsActivity.callMe(AddressFragment.this.getActivity(),
-                  receivingAddress.get(), _mbwManager.getSelectedAccount().canSpend());
+                  receivingAddress.get(), account.canSpend());
          }
       }
    }

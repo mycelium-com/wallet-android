@@ -131,6 +131,7 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/action_layout"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="5dp"
@@ -163,6 +164,16 @@
             android:text="@string/receive"
             android:textSize="20sp" />
     </LinearLayout>
+
+    <Button
+        android:id="@+id/btShiftBchToBtc"
+        style="@style/MyceliumButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="16dp"
+        android:text="Shift BCH to BTC"
+        android:textSize="20sp" />
 
     <TextView
         android:id="@+id/tvBtcRate"

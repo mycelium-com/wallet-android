@@ -6,6 +6,8 @@ import com.mycelium.wapi.wallet.Bip44AccountBacking;
 import com.mycelium.wapi.wallet.SpvBalanceFetcher;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 
+import java.util.UUID;
+
 public class Bip44BCHAccount extends Bip44Account {
 
     private SpvBalanceFetcher spvBalanceFetcher;
@@ -19,5 +21,10 @@ public class Bip44BCHAccount extends Bip44Account {
     @Override
     public CurrencyBasedBalance getCurrencyBasedBalance() {
         return spvBalanceFetcher.retrieveByHdAccountIndex(getId().toString(), getAccountIndex());
+    }
+
+    @Override
+    public UUID getId() {
+        return UUID.nameUUIDFromBytes(("BCH" + super.getId().toString()).getBytes());
     }
 }

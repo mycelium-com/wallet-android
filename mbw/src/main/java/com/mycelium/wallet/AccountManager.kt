@@ -9,16 +9,13 @@ import com.mycelium.wapi.wallet.WalletManager
 import java.util.*
 import kotlin.collections.HashMap
 
-/**
- * Created by Nelson on 15/12/2017.
- */
 object AccountManager : AccountProvider {
+    val accounts: HashMap<UUID, WalletAccount>  = hashMapOf()
     init {
         val mbwManager = MbwManager
                 .getInstance(WalletApplication.getInstance())
-        val coinapultManager : CoinapultManager = mbwManager.coinapultManager
-        val coluManager : ColuManager = mbwManager.coluManager
-        val accounts: HashMap<UUID, WalletAccount>  = hashMapOf()
+//        val coinapultManager : CoinapultManager = mbwManager.coinapultManager
+//        val coluManager : ColuManager = mbwManager.coluManager
         val walletManager : WalletManager = mbwManager.getWalletManager(false)
         accounts.putAll(walletManager.activeAccounts)
     }
