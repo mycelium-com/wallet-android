@@ -38,6 +38,7 @@ import com.mycelium.wapi.wallet.bip44.*;
 import com.mycelium.wapi.wallet.single.PublicPrivateKeyStore;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.single.SingleAddressAccountContext;
+import com.mycelium.wapi.wallet.single.SingleAddressBCHAccount;
 
 import java.util.*;
 
@@ -445,6 +446,40 @@ public class WalletManager {
    }
 
    /**
+    * Get a wallet account
+    *
+    * @param index the index of the account to get
+    * @return a wallet account
+    */
+   public Bip44Account getBip44Account(int index) {
+      Bip44Account result = null;
+      for (Bip44Account bip44Account:
+          _bip44Accounts) {
+         if(bip44Account.getAccountIndex() == index) {
+            result = bip44Account;
+            break;
+         }
+      }
+      return Preconditions.checkNotNull(result);
+   }
+
+   /**
+    * Checks if the account is already created.
+    *
+    * @param index the index of the account to get
+    * @return a wallet account
+    */
+   public boolean doesBip44AccountExists(int index) {
+      for (Bip44Account bip44Account:
+          _bip44Accounts) {
+         if(bip44Account.getAccountIndex() == index) {
+            return true;
+         }
+      }
+      return false;
+   }
+
+   /**
     * Make the wallet manager synchronize all its active accounts.
     * <p>
     * Synchronization occurs in the background. To get feedback register an
@@ -738,7 +773,13 @@ public class WalletManager {
       private boolean synchronize() {
          if (syncMode.onlyActiveAccount) {
             if (currentAccount != null && !currentAccount.isArchived()) {
-               return currentAccount.synchronize(syncMode);
+               if (currentAccount instanceof Bip44BCHAccount) {
+                  _spvBalanceFetcher.getTransactions(((Bip44Account)currentAccount).getAccountIndex());
+               } else if (currentAccount instanceof SingleAddressBCHAccount) {
+                  _spvBalanceFetcher.getTransactionsFromSingleAddressAccount(currentAccount.getId().toString());
+               } else {
+                  return currentAccount.synchronize(syncMode);
+               }
             }
          } else {
             for (WalletAccount account : getAllAccounts()) {
@@ -959,7 +1000,7 @@ public class WalletManager {
       return addresses;
    }
 
-   public UUID createArchivedGapFiller(KeyCipher cipher, Integer accountIndex) throws InvalidKeyCipher {
+   public UUID createArchivedGapFiller(KeyCipher cipher, Integer accountIndex, boolean archived) throws InvalidKeyCipher {
       // Get the master seed
       Bip39.MasterSeed masterSeed = getMasterSeed(cipher);
 
@@ -986,7 +1027,9 @@ public class WalletManager {
             // Finally persist context and add account
             context.persist(accountBacking);
             _backing.setTransactionSuccessful();
-            account.archiveAccount();
+            if (archived) {
+               account.archiveAccount();
+            }
 
             addAccount(account);
             _bip44Accounts.add(account);

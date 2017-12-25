@@ -148,13 +148,13 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
       Map<WalletAccount.Type, String> spvModulesMapping = new HashMap<>();
       switch(BuildConfig.APPLICATION_ID) {
          case "com.mycelium.testnetdigitalassets":{
-            spvModulesMapping.put(WalletAccount.Type.BTCBIP44, "com.mycelium.spvmodule_testrelease");
+            spvModulesMapping.put(WalletAccount.Type.BCHBIP44, "com.mycelium.spvmodule_testrelease");
             spvModulesMapping.put(WalletAccount.Type.BCHSINGLEADDRESS, "com.mycelium.spvmodule_testrelease");
             spvModulesMapping.put(WalletAccount.Type.DASH, "org.dash.mycelium.spvdashmodule.testnet");
             break;
          }
          case "com.mycelium.devwallet_spore": {
-            spvModulesMapping.put(WalletAccount.Type.BTCBIP44, "com.mycelium.spvmodule.test");
+            spvModulesMapping.put(WalletAccount.Type.BCHBIP44, "com.mycelium.spvbchmodule.test");
             spvModulesMapping.put(WalletAccount.Type.DASH, "org.dash.mycelium.spvdashmodule.testnet.debug");
             break;
          }

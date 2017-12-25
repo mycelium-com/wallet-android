@@ -630,7 +630,7 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
     }
 
     @Override
-    protected void setBlockChainHeight(int blockHeight) {
+    public void setBlockChainHeight(int blockHeight) {
         checkNotArchived();
         _context.setBlockHeight(blockHeight);
     }
