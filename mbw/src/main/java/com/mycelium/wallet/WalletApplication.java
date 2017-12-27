@@ -34,10 +34,6 @@
 
 package com.mycelium.wallet;
 
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.StrictMode;
@@ -48,6 +44,10 @@ import android.util.Log;
 import com.mycelium.modularizationtools.CommunicationManager;
 import com.mycelium.modularizationtools.ModuleMessageReceiver;
 import com.mycelium.wapi.wallet.WalletAccount;
+
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 
 public class WalletApplication extends MultiDexApplication implements ModuleMessageReceiver {
    private ModuleMessageReceiver moduleMessageReceiver;
@@ -146,22 +146,24 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
 
    private static Map<WalletAccount.Type, String> initTrustedSpvModulesMapping() {
       Map<WalletAccount.Type, String> spvModulesMapping = new HashMap<>();
-      switch(BuildConfig.APPLICATION_ID) {
-         case "com.mycelium.testnetdigitalassets":{
+      switch (BuildConfig.APPLICATION_ID) {
+         case "com.mycelium.wallet":
+            spvModulesMapping.put(WalletAccount.Type.BCHBIP44, "com.mycelium.module.spvbch");
+            spvModulesMapping.put(WalletAccount.Type.BCHSINGLEADDRESS, "com.mycelium.module.spvbch");
+            spvModulesMapping.put(WalletAccount.Type.DASH, "org.dash.mycelium.spvdashmodule");
+            break;
+         case "com.mycelium.testnetdigitalassets":
             spvModulesMapping.put(WalletAccount.Type.BCHBIP44, "com.mycelium.spvmodule_testrelease");
             spvModulesMapping.put(WalletAccount.Type.BCHSINGLEADDRESS, "com.mycelium.spvmodule_testrelease");
             spvModulesMapping.put(WalletAccount.Type.DASH, "org.dash.mycelium.spvdashmodule.testnet");
             break;
-         }
-         case "com.mycelium.devwallet_spore": {
+         case "com.mycelium.devwallet_spore":
             spvModulesMapping.put(WalletAccount.Type.BCHBIP44, "com.mycelium.spvbchmodule.test");
             spvModulesMapping.put(WalletAccount.Type.BCHSINGLEADDRESS, "com.mycelium.spvbchmodule.test");
             spvModulesMapping.put(WalletAccount.Type.DASH, "org.dash.mycelium.spvdashmodule.testnet.debug");
             break;
-         }
-         default:{
+         default:
             throw new RuntimeException("No spv module defined for BuildConfig " + BuildConfig.APPLICATION_ID);
-         }
       }
       return spvModulesMapping;
    }
