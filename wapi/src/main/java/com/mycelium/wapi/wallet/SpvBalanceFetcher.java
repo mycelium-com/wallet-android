@@ -7,4 +7,5 @@ public interface SpvBalanceFetcher {
     CurrencyBasedBalance retrieveBySingleAddressAccountId(String id);
     void getTransactions(int accountId);
     void getTransactionsFromSingleAddressAccount(String guid);
+    boolean isActive();
 }

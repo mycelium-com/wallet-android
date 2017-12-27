@@ -805,23 +805,44 @@ public class WalletManager {
       }
 
       private boolean synchronize() {
-         if (syncMode.onlyActiveAccount) {
-            if (currentAccount != null && !currentAccount.isArchived()) {
-               if (currentAccount instanceof Bip44BCHAccount) {
-                  _spvBalanceFetcher.getTransactions(((Bip44Account)currentAccount).getAccountIndex());
-               } else if (currentAccount instanceof SingleAddressBCHAccount) {
-                  _spvBalanceFetcher.getTransactionsFromSingleAddressAccount(currentAccount.getId().toString());
+         if(_spvBalanceFetcher.isActive()) {
+            //If using SPV module, enters this condition.
+            // Get adresses from all accounts
+            if(currentAccount instanceof Bip44BCHAccount) {
+               _spvBalanceFetcher.getTransactions(((Bip44BCHAccount) currentAccount).getAccountIndex());
+            }
+
+            if (currentAccount instanceof SingleAddressBCHAccount) {
+               _spvBalanceFetcher.getTransactionsFromSingleAddressAccount(currentAccount.getId().toString());
+            }
+
+            for(WalletAccount account : getAllAccounts()) {
+               if(account instanceof Bip44Account) {
+                  //_transactionFetcher.getTransactions(((Bip44Account) account).getAccountIndex());
                } else {
-                  return currentAccount.synchronize(syncMode);
+                  // TODO: 28.09.17 sync single address accounts using spv, too.
+                  if (!account.isArchived()) {
+                     if (!account.synchronize(syncMode)) {
+                        // We failed to sync due to API error, we will have to try
+                        // again later
+                        return false;
+                     }
+                  }
                }
             }
          } else {
-            for (WalletAccount account : getAllAccounts()) {
-               if (!account.isArchived()) {
-                  if (!account.synchronize(syncMode)) {
-                     // We failed to sync due to API error, we will have to try
-                     // again later
-                     return false;
+            if (syncMode.onlyActiveAccount) {
+               if (currentAccount != null && !currentAccount.isArchived()) {
+                  return currentAccount.synchronize(syncMode);
+               }
+            } else {
+               for (WalletAccount account : getAllAccounts()) {
+                  if (!account.isArchived()) {
+                     if (!account.synchronize(syncMode)) {
+                        // We failed to sync due to API error, we will have to try
+                        // again later
+                        return false;
+                     }
                   }
                }
             }
