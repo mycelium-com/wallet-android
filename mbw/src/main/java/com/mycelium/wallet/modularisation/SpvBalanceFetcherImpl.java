@@ -11,6 +11,7 @@ import com.mycelium.spvmodule.IntentContract;
 import com.mycelium.spvmodule.providers.TransactionContract;
 import com.mycelium.wallet.WalletApplication;
 import com.mycelium.wapi.wallet.SpvBalanceFetcher;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
@@ -39,7 +40,7 @@ public class SpvBalanceFetcherImpl implements SpvBalanceFetcher {
     @Override
     public CurrencyBasedBalance retrieveByHdAccountIndex(String id, int accountIndex) {
         CurrencyBasedBalance balance = CurrencyBasedBalance.ZERO_BITCOIN_CASH_BALANCE;
-        Uri uri = TransactionContract.AccountBalance.CONTENT_URI(getSpvModuleName()).buildUpon().appendEncodedPath(id).build();
+        Uri uri = TransactionContract.AccountBalance.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHBIP44)).buildUpon().appendEncodedPath(id).build();
         String selection = TransactionContract.AccountBalance.SELECTION_ACCOUNT_INDEX;
         String[] selectionArgs = new String[]{Integer.toString(accountIndex)};
         Cursor cursor = null;
@@ -65,7 +66,7 @@ public class SpvBalanceFetcherImpl implements SpvBalanceFetcher {
         CurrencyBasedBalance balance = CurrencyBasedBalance.ZERO_BITCOIN_CASH_BALANCE;
         String selection = TransactionContract.AccountBalance.SELECTION_SINGLE_ADDRESS_ACCOUNT_GUID;
         String[] selectionArgs = new String[]{id};
-        Uri uri = TransactionContract.AccountBalance.CONTENT_URI(getSpvModuleName()).buildUpon().appendEncodedPath(id).build();
+        Uri uri = TransactionContract.AccountBalance.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHSINGLEADDRESS)).buildUpon().appendEncodedPath(id).build();
 
         Cursor cursor = null;
 
