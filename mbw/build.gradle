@@ -129,15 +129,31 @@ android {
         minSdkVersion 19
         targetSdkVersion 23
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        vectorDrawables.useSupportLibrary = true
+        vectorDrawables.useSupportLibrary true
     }
 
     signingConfigs {
         release {
-            keyAlias = ''
+            if (project.hasProperty('prodKeyStore') &&
+                    project.hasProperty('prodKeyAlias') &&
+                    project.hasProperty('prodKeyStorePassword') &&
+                    project.hasProperty('prodKeyAliasPassword')) {
+                storeFile file('../../' + prodKeyStore)
+                keyAlias prodKeyAlias
+                storePassword prodKeyStorePassword
+                keyPassword prodKeyAliasPassword
+            }
         }
         btctestnet {
-            keyAlias = ''
+            if (project.hasProperty('testKeyStore') &&
+                    project.hasProperty('testKeyAlias') &&
+                    project.hasProperty('testKeyStorePassword') &&
+                    project.hasProperty('testKeyAliasPassword')) {
+                storeFile file('../../' + testKeyStore)
+                keyAlias testKeyAlias
+                storePassword testKeyStorePassword
+                keyPassword testKeyAliasPassword
+            }
         }
         commonDebug {
             storeFile commonDebugKeystore
@@ -152,6 +168,8 @@ android {
             minifyEnabled false
         }
         debug {
+            applicationIdSuffix '.debug'
+            signingConfig signingConfigs.commonDebug
             debuggable true
         }
     }
@@ -172,45 +190,7 @@ android {
                 ColuBlockExplorerApiURLs = '{"https://coloredcoins.gear.mycelium.com/api/", "https://explorer.coloredcoins.org/api/"}'
                 RMCChangeAddress = "18c91fJmVg7btPjxpwrhgwd37GkVghq9me"
             }
-        }
-        dev {
-            buildToolsVersion androidSdkBuildVersion
-
-            // if we are not on master, include the branchname in versionName
-            def branch = getGitBranch()
-
-            if (branch != "" && branch != "master") {
-                versionName = defaultConfig.versionName + "-DEV_" + branch
-            }
-
-            applicationId 'com.mycelium.devwallet_spore'
-            signingConfig signingConfigs.debug
-
-            ext {
-                MTAssetID = "La3JCiNMGmc74rcfYiBAyTUstFgmGDRDkGGCRM"
-                MassAssetID = "La4szjzKfJyHQ75qgDEnbzp4qY8GQeDR5Z7h2W"
-                RMCAssetID = "La8yFVyKmHGf4KWjcPqATZeTrSxXyzB3JRPxDc"
-                RMCApiClientURL = "https://rmc-ico-test.gear.mycelium.com/api/"
-                ColoredCoinsApiURLs = '{"http://testnet.api.coloredcoins.org/v3/"}'
-                ColuBlockExplorerApiURLs = '{"http://testnet.explorer.coloredcoins.org/api/"}'
-                RMCChangeAddress = "mx92L6iuCfxQUz4cLNU4jJpfWbavVHgYj9"
-            }
-        }
-        devprod {
-            buildToolsVersion androidSdkBuildVersion
-
-            applicationId 'com.mycelium.devprodwallet'
-            signingConfig signingConfigs.debug
-
-            ext {
-                MTAssetID = "LaA8aiRBha2BcC6PCqMuK8xzZqdA3Lb6VVv41K"
-                MassAssetID = "La4szjzKfJyHQ75qgDEnbzp4qY8GQeDR5Z7h2W"
-                RMCAssetID = "La3bgndN7QSYqV8pWuuqbfBPyHMZRK14Tb2BPg"
-                RMCApiClientURL = "https://rmc-ico-stg.gear.mycelium.com/api/"
-                ColoredCoinsApiURLs = '{"https://coloredcoinsd.gear.mycelium.com/v3/", "https://api.coloredcoins.org/v3/"}'
-                ColuBlockExplorerApiURLs = '{"https://coloredcoins.gear.mycelium.com/api/", "https://explorer.coloredcoins.org/api/"}'
-                RMCChangeAddress = "18c91fJmVg7btPjxpwrhgwd37GkVghq9me"
-            }
+            logger.info("Signing config is ", signingConfig)
         }
         btctestnet {
             applicationId 'com.mycelium.testnetwallet'
@@ -226,6 +206,7 @@ android {
                 ColuBlockExplorerApiURLs = '{"http://testnet.explorer.coloredcoins.org/api/"}'
                 RMCChangeAddress = "mx92L6iuCfxQUz4cLNU4jJpfWbavVHgYj9"
             }
+            logger.info("Signing config is ", signingConfig)
         }
     }
 
@@ -243,36 +224,4 @@ android {
     testOptions {
         unitTests.returnDefaultValues = true
     }
-}
-
-// use the keystore file from the local repository, so that we share the same
-// signatures while developing
-if (commonDebugKeystore.exists()) {
-    android.buildTypes.debug.signingConfig = android.signingConfigs.commonDebug
-    android.productFlavors.dev.signingConfig = android.signingConfigs.commonDebug
-    logger.info("Using common debug.keystore " + commonDebugKeystore)
-}
-
-if (project.hasProperty('prodKeyStore') &&
-        project.hasProperty('prodKeyAlias') &&
-        project.hasProperty('prodKeyStorePassword') &&
-        project.hasProperty('prodKeyAliasPassword')) {
-    android.signingConfigs.release.storeFile = file('../../' + prodKeyStore)
-    android.signingConfigs.release.keyAlias = prodKeyAlias
-    android.signingConfigs.release.storePassword = prodKeyStorePassword
-    android.signingConfigs.release.keyPassword = prodKeyAliasPassword
-} else {
-    android.productFlavors.prodnet.signingConfig = null
-}
-
-if (project.hasProperty('testKeyStore') &&
-        project.hasProperty('testKeyAlias') &&
-        project.hasProperty('testKeyStorePassword') &&
-        project.hasProperty('testKeyAliasPassword')) {
-    android.signingConfigs.btctestnet.storeFile = file('../../' + testKeyStore)
-    android.signingConfigs.btctestnet.keyAlias = testKeyAlias
-    android.signingConfigs.btctestnet.storePassword = testKeyStorePassword
-    android.signingConfigs.btctestnet.keyPassword = testKeyAliasPassword
-} else {
-    android.productFlavors.btctestnet.signingConfig = null
 }

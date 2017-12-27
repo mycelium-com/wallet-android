@@ -152,14 +152,19 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
             spvModulesMapping.put(WalletAccount.Type.BCHSINGLEADDRESS, "com.mycelium.module.spvbch");
             spvModulesMapping.put(WalletAccount.Type.DASH, "org.dash.mycelium.spvdashmodule");
             break;
-         case "com.mycelium.testnetdigitalassets":
-            spvModulesMapping.put(WalletAccount.Type.BCHBIP44, "com.mycelium.spvmodule_testrelease");
-            spvModulesMapping.put(WalletAccount.Type.BCHSINGLEADDRESS, "com.mycelium.spvmodule_testrelease");
+         case "com.mycelium.wallet.debug":
+            spvModulesMapping.put(WalletAccount.Type.BCHBIP44, "com.mycelium.module.spvbch.debug");
+            spvModulesMapping.put(WalletAccount.Type.BCHSINGLEADDRESS, "com.mycelium.module.spvbch.debug");
+            spvModulesMapping.put(WalletAccount.Type.DASH, "org.dash.mycelium.spvdashmodule.debug");
+            break;
+         case "com.mycelium.testnetwallet":
+            spvModulesMapping.put(WalletAccount.Type.BCHBIP44, "com.mycelium.module.spvbch.testnet");
+            spvModulesMapping.put(WalletAccount.Type.BCHSINGLEADDRESS, "com.mycelium.module.spvbch.testnet");
             spvModulesMapping.put(WalletAccount.Type.DASH, "org.dash.mycelium.spvdashmodule.testnet");
             break;
-         case "com.mycelium.devwallet_spore":
-            spvModulesMapping.put(WalletAccount.Type.BCHBIP44, "com.mycelium.spvbchmodule.test");
-            spvModulesMapping.put(WalletAccount.Type.BCHSINGLEADDRESS, "com.mycelium.spvbchmodule.test");
+         case "com.mycelium.testnetwallet.debug":
+            spvModulesMapping.put(WalletAccount.Type.BCHBIP44, "com.mycelium.module.spvbch.testnet.debug");
+            spvModulesMapping.put(WalletAccount.Type.BCHSINGLEADDRESS, "com.mycelium.module.spvbch.testnet.debug");
             spvModulesMapping.put(WalletAccount.Type.DASH, "org.dash.mycelium.spvdashmodule.testnet.debug");
             break;
          default:
