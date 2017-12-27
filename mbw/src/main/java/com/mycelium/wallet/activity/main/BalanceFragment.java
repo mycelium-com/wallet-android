@@ -37,6 +37,7 @@ package com.mycelium.wallet.activity.main;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -67,6 +68,7 @@ import com.mycelium.wallet.event.RefreshingExchangeRatesFailed;
 import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wallet.event.SyncStopped;
+import com.mycelium.wallet.external.changelly.bch.ExchangeActivity;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
@@ -85,6 +87,12 @@ public class BalanceFragment extends Fragment {
    private Double _exchangeRatePrice;
    private Toaster _toaster;
    @BindView(R.id.tcdFiatDisplay) ToggleableCurrencyButton _tcdFiatDisplay;
+
+   @BindView(R.id.action_layout) View actionLayout;
+
+   @BindView(R.id.btShiftBchToBtc)
+   View btShiftBchToBtc;
+
 
    @Override
    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -166,6 +174,12 @@ public class BalanceFragment extends Fragment {
       ScanActivity.callMe(BalanceFragment.this.getActivity(), ModernMain.GENERIC_SCAN_REQUEST, config);
    }
 
+   @OnClick(R.id.btShiftBchToBtc)
+   void clickShiftBch() {
+      startActivity(new Intent(getActivity(), ExchangeActivity.class));
+   }
+
+
    @Override
    public void onPause() {
       _mbwManager.getEventBus().unregister(this);
@@ -180,6 +194,16 @@ public class BalanceFragment extends Fragment {
          return;
       }
       WalletAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
+      if(account.getType() == WalletAccount.Type.BCHSINGLEADDRESS
+              || account.getType() == WalletAccount.Type.BCHBIP44) {
+         _tcdFiatDisplay.setVisibility(View.GONE);
+         actionLayout.setVisibility(View.GONE);
+         btShiftBchToBtc.setVisibility(View.VISIBLE);
+      } else{
+         _tcdFiatDisplay.setVisibility(View.VISIBLE);
+         actionLayout.setVisibility(View.VISIBLE);
+         btShiftBchToBtc.setVisibility(View.GONE);
+      }
       CurrencyBasedBalance balance;
       try {
          balance = Preconditions.checkNotNull(account.getCurrencyBasedBalance());

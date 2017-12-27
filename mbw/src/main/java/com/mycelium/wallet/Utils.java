@@ -942,7 +942,7 @@ public class Utils {
       if (val == null) {
          return "";
       }
-      if (value.isBtc()) {
+      if (value.isBtc() || value.isBch()) {
          return CoinUtil.valueString(val, denomination, false);
       } else {
 
@@ -979,8 +979,10 @@ public class Utils {
          return "";
       }
 
-      if (value.isBtc()) {
+      if (value.isBtc() ) {
          return getFormattedValueWithUnit((BitcoinValue) value, denomination);
+      } else if(value.isBch()) {
+        return value.getValue() + " " + value.getCurrency();
       } else {
          BigDecimal val = value.getValue();
          if (val == null) {

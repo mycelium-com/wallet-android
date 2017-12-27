@@ -3,10 +3,12 @@ package com.mycelium.wallet.activity.modern.adapter;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.mycelium.wallet.AccountManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
@@ -104,18 +106,26 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         WalletManager walletManager = mbwManager.getWalletManager(false);
         MetadataStorage storage = mbwManager.getMetadataStorage();
 
-        List<WalletAccount> activeHdRecords = walletManager.getActiveMasterseedAccounts();
-        itemList.addAll(buildGroup(activeHdRecords, storage
-                , context.getString(R.string.active_hd_accounts_name), GROUP_TITLE_TYPE));
+        List<WalletAccount> activeHdRecords = new ArrayList<>(AccountManager.INSTANCE.getBTCBip44Accounts().values());
+        itemList.addAll(buildGroup(activeHdRecords, storage, context.getString(R.string.active_hd_accounts_name), GROUP_TITLE_TYPE));
+
+        List<WalletAccount> bitcoinSAAccounts = new ArrayList<>(AccountManager.INSTANCE.getBTCSingleAddressAccounts().values());
+        itemList.addAll(buildGroup(bitcoinSAAccounts, storage, "Bitcoin SA", GROUP_TITLE_TYPE));
+
+        List<WalletAccount> bitcoinCashHDAccounts = new ArrayList<>(AccountManager.INSTANCE.getBCHBip44Accounts().values());
+        itemList.addAll(buildGroup(bitcoinCashHDAccounts, storage, context.getString(R.string.bitcoin_cash_hd), GROUP_TITLE_TYPE));
+
+        List<WalletAccount> bitcoinCashSAAccounts = new ArrayList<>(AccountManager.INSTANCE.getBCHSingleAddressAccounts().values());
+        itemList.addAll(buildGroup(bitcoinCashSAAccounts, storage, context.getString(R.string.bitcoin_cash_sa), GROUP_TITLE_TYPE));
 
         List<WalletAccount> accounts = walletManager.getActiveOtherAccounts();
-        List<WalletAccount> saAccounts = new ArrayList<>();
+
         List<WalletAccount> coluAccounts = new ArrayList<>();
         List<WalletAccount> other = new ArrayList<>();
         for (WalletAccount account : accounts) {
             if (account instanceof SingleAddressAccount) {
                 if (!Utils.checkIsLinked(account, accounts)) {
-                    saAccounts.add(account);
+//                    saAccounts.add(account);
                 }
             } else if (account instanceof ColuAccount) {
                 coluAccounts.add(account);
@@ -125,10 +135,8 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             }
         }
 
-        itemList.addAll(buildGroup(saAccounts, storage, "Bitcoin SA", GROUP_TITLE_TYPE));
         itemList.addAll(buildGroup(coluAccounts, storage, "Digital Assets", GROUP_TITLE_TYPE));
-        itemList.addAll(buildGroup(other, storage
-                , context.getString(R.string.active_other_accounts_name), GROUP_TITLE_TYPE));
+        itemList.addAll(buildGroup(other, storage, context.getString(R.string.active_other_accounts_name), GROUP_TITLE_TYPE));
 
         List<WalletAccount> allAccount = new ArrayList<>();
         allAccount.addAll(activeHdRecords);
@@ -207,7 +215,7 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             });
         } else if (viewType == GROUP_TITLE_TYPE || viewType == GROUP_ARCHIVED_TITLE_TYPE) {
             GroupTitleViewHolder groupHolder = (GroupTitleViewHolder) holder;
-            groupHolder.tvTitle.setText(item.title);
+            groupHolder.tvTitle.setText(Html.fromHtml(item.title));
             int count = item.walletAccountList.size();
             groupHolder.tvAccountsCount.setVisibility(count > 0 ? View.VISIBLE : View.GONE);
             groupHolder.tvAccountsCount.setText("(" + count + ")");

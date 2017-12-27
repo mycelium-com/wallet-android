@@ -23,4 +23,6 @@
             android:layout_marginBottom="16dp"
             android:text="@string/exchange_altcoins_to_btc"
             android:textSize="20sp" />
+
+
 </LinearLayout>

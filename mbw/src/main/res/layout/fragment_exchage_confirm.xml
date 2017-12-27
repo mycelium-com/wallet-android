@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="@dimen/margin_large"
+        android:text="@string/confirmation"
+        android:textColor="?exchange_text_color"
+        android:textSize="21sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:alpha="0.7"
+        android:text="@string/press_exchange_button_below_to_confirm"
+        android:textColor="?exchange_text_color"
+        android:textSize="14sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="@dimen/margin_large">
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Spending"
+            android:textColor="@color/sender_recyclerview_background_red"
+            android:textSize="17sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:layout_weight="1"
+            android:gravity="end"
+            android:text="Receiving"
+            android:textColor="@color/sender_recyclerview_background_green"
+            android:textSize="17sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp">
+
+        <TextView
+            android:id="@+id/fromAmount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/margin_medium"
+            android:layout_weight="1"
+            android:fontFamily="sans-serif-medium"
+            android:lineSpacingExtra="11sp"
+            android:text="5.3092 BCH"
+            android:textColor="?exchange_text_color"
+            android:textSize="21sp"
+            android:textStyle="normal" />
+
+        <TextView
+            android:id="@+id/toAmount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:layout_marginLeft="@dimen/margin_medium"
+            android:layout_weight="1"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="end"
+            android:lineSpacingExtra="11sp"
+            android:text="1.2014 BTC"
+            android:textColor="?exchange_text_color"
+            android:textSize="21sp"
+            android:textStyle="normal" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp">
+
+        <TextView
+            android:id="@+id/fromLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/margin_medium"
+            android:layout_weight="1"
+            android:ellipsize="middle"
+            android:singleLine="true"
+            android:text="1p17cu…KNZa88"
+            android:textColor="?exchange_text_color"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/toLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:layout_marginLeft="@dimen/margin_medium"
+            android:layout_weight="1"
+            android:ellipsize="middle"
+            android:gravity="end"
+            android:singleLine="true"
+            android:text="4bYT8…KRp88"
+            android:textColor="?exchange_text_color"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/margin_large"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp">
+
+        <TextView
+            android:id="@+id/fromAddress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/margin_medium"
+            android:layout_weight="1"
+            android:ellipsize="middle"
+            android:singleLine="true"
+            android:text="1p17cu…KNZa88"
+            android:textColor="?exchange_text_color"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/toAddress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:layout_marginLeft="@dimen/margin_medium"
+            android:layout_weight="1"
+            android:ellipsize="middle"
+            android:gravity="end"
+            android:singleLine="true"
+            android:text="4bYT8…KRp88"
+            android:textColor="?exchange_text_color"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <!--<TextView--><!--android:layout_width="wrap_content"--><!--android:layout_height="wrap_content"--><!--android:layout_gravity="center"--><!--android:layout_marginTop="@dimen/margin_large"--><!--android:fontFamily="sans-serif"--><!--android:gravity="center_horizontal"--><!--android:lineSpacingExtra="11sp"--><!--android:text="@string/miner_fee_title"--><!--android:textColor="#ffffff"--><!--android:textSize="21sp"--><!--android:textStyle="normal" />-->
+
+    <com.mycelium.wallet.activity.send.view.SelectableRecyclerView
+        android:id="@+id/fee_list"
+        android:layout_width="match_parent"
+        android:layout_height="75dp"
+        android:layout_marginBottom="@dimen/margin_large"
+        android:layout_marginTop="@dimen/margin_large"
+        android:background="@color/fee_recycler_item" />
+
+
+    <Button
+        android:id="@+id/buttonContinue"
+        style="@style/MyceliumButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginEnd="@dimen/margin_medium"
+        android:layout_marginStart="@dimen/margin_medium"
+        android:layout_marginTop="@dimen/margin_large"
+        android:paddingEnd="@dimen/margin_large"
+        android:paddingStart="@dimen/margin_large"
+        android:text="Exchange"
+        android:textColor="@color/white"
+        android:textSize="18sp" />
+
+</LinearLayout>

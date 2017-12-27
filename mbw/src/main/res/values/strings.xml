@@ -1111,7 +1111,14 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="exchange_minimum_amount">(Min. amount is %1$s %2$s)</string>
     <string name="choose_the_currency_and_btc_receiving_account">Choose the currency and BTC receiving account</string>
     <string name="due_to_high_cryptocurrencies_volatility">Due to high cryptocurrencies volatility, the final rate may be slightly higher or lower than estimated here.</string>
+    <string name="use_all_funds">USE ALL\nFUNDS</string>
+    <string name="colorize">colorize</string>
+    <string name="excange_title">Exchange BCH to BTC</string>
+    <string name="press_exchange_button_below_to_confirm">Press Exchange button below to confirm</string>
+    <string name="confirmation">Confirmation</string>
     <string name="no_connected_modules">No connected modules</string>
+    <string name="bitcoin_cash_hd"><![CDATA[Bitcoin <font color="#f08c18">Cash</font> HD]]></string>
+    <string name="bitcoin_cash_sa"><![CDATA[Bitcoin <font color="#f08c18">Cash</font> SA]]></string>
     <plurals name="account_label">
         <item quantity="one">Account label:\n%s</item>
         <item quantity="other">Accounts labels:\n%s</item>
