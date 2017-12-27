@@ -224,6 +224,7 @@ public class MbwManager implements SpvBalanceFetcher {
 
    private EvictingQueue<LogEntry> _wapiLogs = EvictingQueue.create(100);
    private Cache<String, Object> _semiPersistingBackgroundObjects = CacheBuilder.newBuilder().maximumSize(10).build();
+   private boolean _useSpvModule = false;
 
    private MbwManager(Context evilContext) {
       _applicationContext = Preconditions.checkNotNull(evilContext.getApplicationContext());
@@ -352,11 +353,11 @@ public class MbwManager implements SpvBalanceFetcher {
 
    void setSpvMode(boolean spvMode) {
       Log.d(TAG, "setSpvMode: " + (spvMode ? "on" : "off"));
-      //_useSpvModule = spvMode;
+      _useSpvModule = spvMode;
    }
 
    public boolean isSpvMode() {
-      return false; //_useSpvModule;
+      return _useSpvModule;
    }
 
    public void addExtraAccounts(AccountProvider accounts) {
