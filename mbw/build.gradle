@@ -149,17 +149,7 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled !project.hasProperty('skipProguard')
-            proguardFile 'mbw.pro'
-            applicationVariants.all { variant ->
-                variant.outputs.each { output ->
-                    def file = output.outputFile
-                    if (file != null && file.name.endsWith('.apk')) {
-                        def versionExtension = "-" + defaultConfig.versionName + "build" + defaultConfig.versionCode + ".apk"
-                        //output.outputFile = new File(file.parent, file.name.replace(".apk", versionExtension))
-                    }
-                }
-            }
+            minifyEnabled false
         }
         debug {
             debuggable true
