@@ -23,7 +23,11 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.mrd.bitlib.crypto.*;
+import com.mrd.bitlib.crypto.Bip39;
+import com.mrd.bitlib.crypto.HdKeyNode;
+import com.mrd.bitlib.crypto.InMemoryPrivateKey;
+import com.mrd.bitlib.crypto.PublicKey;
+import com.mrd.bitlib.crypto.RandomSource;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.HexUtils;
@@ -34,16 +38,42 @@ import com.mycelium.wapi.api.WapiResponse;
 import com.mycelium.wapi.api.lib.FeeEstimation;
 import com.mycelium.wapi.api.response.MinerFeeEstimationResponse;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
-import com.mycelium.wapi.wallet.bip44.*;
+import com.mycelium.wapi.wallet.bip44.Bip44Account;
+import com.mycelium.wapi.wallet.bip44.Bip44AccountContext;
+import com.mycelium.wapi.wallet.bip44.Bip44AccountExternalSignature;
+import com.mycelium.wapi.wallet.bip44.Bip44AccountKeyManager;
+import com.mycelium.wapi.wallet.bip44.Bip44BCHAccount;
+import com.mycelium.wapi.wallet.bip44.Bip44PubOnlyAccount;
+import com.mycelium.wapi.wallet.bip44.Bip44PubOnlyAccountKeyManager;
+import com.mycelium.wapi.wallet.bip44.ExternalSignatureProvider;
+import com.mycelium.wapi.wallet.bip44.ExternalSignatureProviderProxy;
 import com.mycelium.wapi.wallet.single.PublicPrivateKeyStore;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.single.SingleAddressAccountContext;
 import com.mycelium.wapi.wallet.single.SingleAddressBCHAccount;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
-import static com.google.common.base.Predicates.*;
-import static com.mycelium.wapi.wallet.bip44.Bip44AccountContext.*;
+import static com.google.common.base.Predicates.and;
+import static com.google.common.base.Predicates.not;
+import static com.google.common.base.Predicates.or;
+import static com.mycelium.wapi.wallet.bip44.Bip44AccountContext.ACCOUNT_TYPE_FROM_MASTERSEED;
+import static com.mycelium.wapi.wallet.bip44.Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PRIV;
+import static com.mycelium.wapi.wallet.bip44.Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB;
+import static com.mycelium.wapi.wallet.bip44.Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY;
+import static com.mycelium.wapi.wallet.bip44.Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER;
+import static com.mycelium.wapi.wallet.bip44.Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR;
 
 /**
  * Allows you to manage a wallet that contains multiple HD accounts and
@@ -679,6 +709,8 @@ public class WalletManager {
 
          addAccount(account);
          _bip44Accounts.add(account);
+         //TODO remove this , just for test bch
+         addAccount(new Bip44BCHAccount(context, keyManager, _network, accountBacking, _wapi, _spvBalanceFetcher));
       }
    }
 
@@ -691,6 +723,8 @@ public class WalletManager {
          Preconditions.checkNotNull(accountBacking);
          SingleAddressAccount account = new SingleAddressAccount(context, store, _network, accountBacking, _wapi);
          addAccount(account);
+         //TODO remove this , just for test bch
+         addAccount(new SingleAddressBCHAccount(context, store, _network, accountBacking, _wapi, _spvBalanceFetcher));
       }
    }
 
