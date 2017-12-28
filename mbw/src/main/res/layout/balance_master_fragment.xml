@@ -12,6 +12,13 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
+            <FrameLayout
+                android:id="@+id/phFragmentNotice"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="5dp"
+                tools:layout="@layout/backup_verification_warning_dialog"/>
+
 
             <FrameLayout
                     android:layout_width="fill_parent"
@@ -26,18 +33,13 @@
                     android:paddingBottom="5dp"
                     tools:layout="@layout/main_balance_view"/>
 
-            <FrameLayout
-                    android:id="@+id/phFragmentNotice"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingBottom="5dp"
-                    tools:layout="@layout/backup_verification_warning_dialog"/>
 
             <FrameLayout
                     android:id="@+id/phFragmentGlidera"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:paddingBottom="10dp"
+                    android:paddingBottom="@dimen/margin_medium"
+                    android:layout_marginTop="@dimen/margin_medium"
                     tools:layout="@layout/main_buy_sell_fragment"/>
         </LinearLayout>
     </ScrollView>

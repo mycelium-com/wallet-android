@@ -65,6 +65,10 @@ import com.mycelium.wapi.wallet.bip44.Bip44Account;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.squareup.otto.Subscribe;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
 public class NoticeFragment extends Fragment {
 
    private enum Notice {
@@ -75,9 +79,16 @@ public class NoticeFragment extends Fragment {
    private View _root;
    private Notice _notice;
 
+   @BindView(R.id.tvBackupMissing)
+   TextView backupMissing;
+
+   @BindView(R.id.backup_missing_layout)
+   View backupMissingLayout;
+
    @Override
    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
       _root = Preconditions.checkNotNull(inflater.inflate(R.layout.main_notice_fragment, container, false));
+      ButterKnife.bind(this, _root);
       return _root;
    }
 
@@ -98,7 +109,6 @@ public class NoticeFragment extends Fragment {
       _mbwManager.getEventBus().register(this);
       _notice = determineNotice();
       _root.findViewById(R.id.btWarning).setOnClickListener(warningClickListener);
-      _root.findViewById(R.id.btBackupMissing).setOnClickListener(noticeClickListener);
       _root.findViewById(R.id.btPinResetNotice).setOnClickListener(noticeClickListener);
       updateUi();
       super.onResume();
@@ -201,6 +211,11 @@ public class NoticeFragment extends Fragment {
       }
 
       return Notice.NONE;
+   }
+
+   @OnClick(R.id.backup_missing_layout)
+   void backupMissingClick() {
+      noticeClickListener.onClick(null);
    }
 
    private OnClickListener noticeClickListener = new OnClickListener() {
@@ -342,9 +357,10 @@ public class NoticeFragment extends Fragment {
       _root.findViewById(R.id.btPinResetNotice).setVisibility(_notice == Notice.RESET_PIN_AVAILABLE || _notice == Notice.RESET_PIN_IN_PROGRESS ? View.VISIBLE : View.GONE);
 
       // Only show the "Secure My Funds" button when necessary
-      _root.findViewById(R.id.btBackupMissing).setVisibility(_notice == Notice.BACKUP_MISSING || _notice == Notice.SINGLEKEY_BACKUP_MISSING ? View.VISIBLE : View.GONE);
+      backupMissingLayout.setVisibility(_notice == Notice.BACKUP_MISSING || _notice == Notice.SINGLEKEY_BACKUP_MISSING ? View.VISIBLE : View.GONE);
       if(_notice == Notice.SINGLEKEY_BACKUP_MISSING) {
-         ((TextView)_root.findViewById(R.id.btBackupMissing)).setText(getString(R.string.create_backup));
+//         ((TextView)_root.findViewById(R.id.btBackupMissing)).setText(getString(R.string.create_backup));
+         backupMissing.setText(R.string.single_address_missing);
       }
 
       // Only show the heartbleed warning when necessary

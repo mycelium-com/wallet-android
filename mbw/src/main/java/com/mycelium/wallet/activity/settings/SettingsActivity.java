@@ -39,6 +39,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.CheckBoxPreference;
@@ -48,7 +49,9 @@ import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
+import android.text.Html;
 import android.text.InputType;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -64,6 +67,8 @@ import com.ledger.tbase.comm.LedgerTransportTEEProxyFactory;
 import com.mrd.bitlib.util.CoinUtil.Denomination;
 import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.lt.api.model.TraderInfo;
+import com.mycelium.modularizationtools.CommunicationManager;
+import com.mycelium.modularizationtools.model.Module;
 import com.mycelium.net.ServerEndpointType;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.ExchangeRateManager;
@@ -74,6 +79,7 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.WalletApplication;
 import com.mycelium.wallet.activity.export.VerifyBackupActivity;
 import com.mycelium.wallet.activity.modern.Toaster;
+import com.mycelium.wallet.activity.view.ButtonPreference;
 import com.mycelium.wallet.external.BuySellServiceDescriptor;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
@@ -82,6 +88,8 @@ import com.mycelium.wallet.lt.api.SetNotificationMail;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -502,6 +510,40 @@ public class SettingsActivity extends PreferenceActivity {
       initExternalSettings();
 
       // external Services
+
+      PreferenceCategory modulesPrefs = (PreferenceCategory) findPreference("modulesPrefs");
+      if (!CommunicationManager.getInstance(this).getPairedModules().isEmpty()) {
+         for (Module module : CommunicationManager.getInstance(this).getPairedModules()) {
+            Preference preference = new Preference(this);
+            preference.setTitle(module.getName());
+            preference.setSummary(module.getDescription());
+            modulesPrefs.addPreference(preference);
+         }
+      } else {
+         Preference preference = new Preference(this);
+         preference.setTitle(R.string.no_connected_modules);
+         modulesPrefs.addPreference(preference);
+      }
+
+      List<Module> availableModulesOnPlayStore = Arrays.asList(new Module("com.mycelium.module.spvbch"
+              , getString(R.string.bitcoin_cash_module), ""));
+      for (final Module module : availableModulesOnPlayStore) {
+         if(!CommunicationManager.getInstance(this).getPairedModules().contains(module)) {
+            ButtonPreference installPreference = new ButtonPreference(this);
+
+            installPreference.setButtonClickListener(new View.OnClickListener() {
+               @Override
+               public void onClick(View view) {
+                  Intent installIntent = new Intent(Intent.ACTION_VIEW);
+                  installIntent.setData(Uri.parse("https://play.google.com/store/apps/details?id=" +
+                          module.getModulePackage()));
+                  startActivity(installIntent);
+               }
+            });
+            installPreference.setTitle(Html.fromHtml(module.getName()));//getString(R.string.bitcoin_cash_module)
+            modulesPrefs.addPreference(installPreference);
+         }
+      }
    }
 
    void initExternalSettings() {

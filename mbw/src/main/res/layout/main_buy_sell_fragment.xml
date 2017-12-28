@@ -1,28 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/llGlidera"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="10dp"
-    android:orientation="vertical" >
-        <Button
-            android:id="@+id/btBuySellBitcoin"
-            style="@style/MyceliumButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="16dp"
-            android:text="@string/gd_buy_sell_button"
-            android:textSize="20sp" />
-        <Button
-            android:id="@+id/btExchangeAltcoins"
-            style="@style/MyceliumButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="16dp"
-            android:text="@string/exchange_altcoins_to_btc"
-            android:textSize="20sp" />
+    android:orientation="vertical">
 
+    <Button
+        android:id="@+id/action_button"
+        style="@style/MyceliumButtonModern"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:text="@string/gd_buy_sell_button"
+        android:textSize="16sp" />
 
-</LinearLayout>
+    <ImageView
+        android:id="@+id/rotate_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_gravity="end|center_vertical"
+        android:layout_toEndOf="@+id/action_button"
+        app:srcCompat="@drawable/ic_sync" />
+
+</RelativeLayout>

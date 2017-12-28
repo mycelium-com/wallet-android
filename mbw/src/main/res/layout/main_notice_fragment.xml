@@ -4,23 +4,35 @@
               android:layout_height="wrap_content"
               android:orientation="vertical" >
 
-    <TextView
-            android:id="@+id/btBackupMissing"
-            style="@style/MyceliumButton"
+    <LinearLayout
+        android:id="@+id/backup_missing_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/sender_recyclerview_background_red"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tvBackupMissing"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_margin="@dimen/margin_large"
+            android:text="@string/secure_my_funds"
+            android:textSize="13dp" />
+
+        <Button
+            style="@style/MyceliumButtonModern"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="10dp"
-            android:drawableLeft="@drawable/holo_dark_ic_action_warning_yellow"
-            android:gravity="center_vertical"
-            android:paddingBottom="7dp"
-            android:paddingLeft="5dp"
-            android:paddingRight="7dp"
-            android:paddingTop="8dp"
-            android:text="@string/secure_my_funds"
-            android:textSize="16sp"
-            android:visibility="gone"
-            />
+            android:layout_margin="@dimen/margin_large"
+            android:background="@drawable/background_backup"
+            android:paddingBottom="@dimen/margin_large"
+            android:paddingTop="@dimen/margin_large"
+            android:text="@string/backup"
+            android:textColor="@color/white" />
+    </LinearLayout>
+
 
     <Button
             android:id="@+id/btWarning"

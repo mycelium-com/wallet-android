@@ -2,10 +2,13 @@ package com.mycelium.wapi.wallet.single;
 
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wapi.api.Wapi;
+import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.SingleAddressAccountBacking;
 import com.mycelium.wapi.wallet.SpvBalanceFetcher;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 public class SingleAddressBCHAccount extends SingleAddressAccount {
@@ -26,5 +29,15 @@ public class SingleAddressBCHAccount extends SingleAddressAccount {
     @Override
     public UUID getId() {
         return UUID.nameUUIDFromBytes(("BCH" + super.getId().toString()).getBytes());
+    }
+
+    @Override
+    public List<TransactionSummary> getTransactionHistory(int offset, int limit) {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<TransactionSummary> getTransactionsSince(Long receivingSince) {
+        return Collections.emptyList();
     }
 }

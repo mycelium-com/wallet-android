@@ -50,6 +50,10 @@
     <color name="sender_recyclerview_background_selected_red">#fb827b</color>
     <color name="sender_recyclerview_background_green">#61b687</color>
     <color name="sender_recyclerview_background_selected2">#84c8a2</color>
+    <color name="scan_background">#3F4F57</color>
+    <color name="new_btn_text_color">#5d5d5d</color>
+    <color name="btn_text_color">#5aa7e6</color>
+    <color name="common_blue">#5aa7e6</color>
 
     <fraction name="background_alpha">50%</fraction>
 </resources>
