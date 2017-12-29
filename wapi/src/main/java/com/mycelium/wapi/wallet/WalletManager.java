@@ -716,7 +716,10 @@ public class WalletManager {
          addAccount(account);
          _bip44Accounts.add(account);
          //TODO remove this , just for test bch
-         addAccount(new Bip44BCHAccount(context, keyManager, _network, accountBacking, _wapi, _spvBalanceFetcher));
+         Bip44BCHAccount bchAccount = new Bip44BCHAccount(context, keyManager, _network, accountBacking, _wapi, _spvBalanceFetcher);
+         if(bchAccount.canSpend()) {
+            addAccount(bchAccount);
+         }
       }
    }
 
@@ -730,7 +733,10 @@ public class WalletManager {
          SingleAddressAccount account = new SingleAddressAccount(context, store, _network, accountBacking, _wapi);
          addAccount(account);
          //TODO remove this , just for test bch
-         addAccount(new SingleAddressBCHAccount(context, store, _network, accountBacking, _wapi, _spvBalanceFetcher));
+         SingleAddressBCHAccount bchAccount = new SingleAddressBCHAccount(context, store, _network, accountBacking, _wapi, _spvBalanceFetcher);
+         if (bchAccount.canSpend()) {
+            addAccount(bchAccount);
+         }
       }
    }
 

@@ -71,8 +71,9 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
+import com.mycelium.modularizationtools.CommunicationManager;
+import com.mycelium.modularizationtools.model.Module;
 import com.mycelium.net.ServerEndpointType;
-import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.DataExport;
 import com.mycelium.wallet.MbwManager;
@@ -90,11 +91,14 @@ import com.mycelium.wallet.activity.settings.SettingsActivity;
 import com.mycelium.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wallet.event.FeatureWarningsAvailable;
 import com.mycelium.wallet.event.NewWalletVersionAvailable;
+import com.mycelium.wallet.event.SpvSyncChanged;
 import com.mycelium.wallet.event.SyncFailed;
 import com.mycelium.wallet.event.SyncStarted;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.event.TorStateChanged;
 import com.mycelium.wallet.event.TransactionBroadcasted;
+import com.mycelium.wallet.modularisation.GooglePlayModuleCollection;
+import com.mycelium.wallet.modularisation.WelcomeDialogHelper;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.api.response.Feature;
 import com.mycelium.wapi.wallet.AesKeyCipher;
@@ -207,31 +211,7 @@ public class ModernMain extends ActionBarActivity {
          checkGapBug();
          _isAppStart = false;
       }
-      final SharedPreferences sharedPreferences = getSharedPreferences("first_page", MODE_PRIVATE);
-      if (!sharedPreferences.getBoolean("bch_first_update_page", false)) {
-         new AlertDialog.Builder(this)
-                 .setTitle(R.string.first_modulization_title)
-                 .setMessage(R.string.first_modulization_message)
-                 .setPositiveButton("Install BCH module", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                       Intent installIntent = new Intent(Intent.ACTION_VIEW);
-                       installIntent.setData(Uri.parse("https://play.google.com/store/apps/details?id=" +
-                               "com.mycelium.module.spvbch"
-                               + (BuildConfig.FLAVOR.equals("btctestnet") ? "testnet" : "")));
-                       startActivity(installIntent);
-                    }
-                 })
-                 .setOnDismissListener(new DialogInterface.OnDismissListener() {
-                    @Override
-                    public void onDismiss(DialogInterface dialogInterface) {
-                       sharedPreferences.edit().putBoolean("bch_first_update_page", true)
-                               .apply();
-                    }
-                 })
-                 .setNegativeButton("Continue without BCH", null)
-                 .create().show();
-      }
+      WelcomeDialogHelper.firstBCHPages(this);
    }
 
    private void checkGapBug() {
@@ -633,5 +613,11 @@ public class ModernMain extends ActionBarActivity {
    @Subscribe
    public void onNewVersion(final NewWalletVersionAvailable event) {
       _mbwManager.getVersionManager().showIfRelevant(event.versionInfo, this);
+   }
+
+   @Subscribe
+   public void onSpvSynced(SpvSyncChanged spvSyncChanged) {
+      WelcomeDialogHelper.bchSynced(this);
+
    }
 }

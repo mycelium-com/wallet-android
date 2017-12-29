@@ -1126,6 +1126,12 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="bch_module_description">Bitcoin Cash accounts support and exchange to BTC option</string>
     <string name="first_modulization_title">Congratulations!</string>
     <string name="first_modulization_message">You just got a new modular multiblockain version of Mycelium Wallet!\n\nDue to high demand, we have released Bitcoin Cash (BCH) module first.\n\nNow you can get your BCH and instantly and securely exchange it to BTC.\n\nTo do so, you need to install the BCH module or you can do it later from Settings -> Bitcoin Cash module section.</string>
+    <string name="install_bch_module">Install BCH module</string>
+    <string name="contunue_without_bch">Continue without BCH</string>
+    <string name="first_bch_installed_title">Mycelium BCH module has been installed!</string>
+    <string name="first_bch_installed_message">Now we need to sync it with the blockchain in order to retrieve your BCH balance.\n\nThis procedure takes some time and is performed in the background. We will inform you when it is done.\n\nYou can always check the sync progress here:  Settings -> BCH module.\n\nFor every BTC account with not retrieved BCH, corresponding BCH account will be created.\n\nGo to Balance tab of your BCH account to instantly  exchange it to BTC.</string>
+    <string name="bch_accounts_not_found">We have not found any BCH on your BTC accounts.\\nYou can always perform scan procedure again from Settings -> Bitcoin Cash module.</string>
+    <string name="bch_accounts_found">We have found %1$s BCH on your BTC accounts.\n\n%2$d corresponding BCH account(s) will be created. You will see BCH balance in Accounts tab.\n\nIf you have BCH you will also see this *BCH* icon in the Balance tab.\n\nGo to Balance tab of your BCH account to instantly  exchange it to BTC.</string>
     <plurals name="account_label">
         <item quantity="one">Account label:\n%s</item>
         <item quantity="other">Accounts labels:\n%s</item>
