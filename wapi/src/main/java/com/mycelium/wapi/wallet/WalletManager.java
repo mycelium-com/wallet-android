@@ -207,6 +207,8 @@ public class WalletManager {
             context.persist(accountBacking);
             _backing.setTransactionSuccessful();
             addAccount(account);
+            SingleAddressBCHAccount singleAddressBCHAccount = new SingleAddressBCHAccount(context, store, _network, accountBacking, _wapi, _spvBalanceFetcher);
+            addAccount(singleAddressBCHAccount);
          } finally {
             _backing.endTransaction();
          }
@@ -276,6 +278,10 @@ public class WalletManager {
             _backing.setTransactionSuccessful();
             addAccount(account);
             _bip44Accounts.add(account);
+
+            Bip44BCHAccount bip44BCHAccount = new Bip44BCHAccount(context, keyManager, _network, accountBacking, _wapi, _spvBalanceFetcher);
+            addAccount(bip44BCHAccount);
+
             return id;
          } finally {
             _backing.endTransaction();
@@ -1132,6 +1138,10 @@ public class WalletManager {
             _backing.setTransactionSuccessful();
             addAccount(account);
             _bip44Accounts.add(account);
+
+            Bip44BCHAccount bip44BCHAccount = new Bip44BCHAccount(context, keyManager, _network, accountBacking, _wapi, _spvBalanceFetcher);
+            addAccount(bip44BCHAccount);
+
             return account.getId();
          } finally {
             _backing.endTransaction();
