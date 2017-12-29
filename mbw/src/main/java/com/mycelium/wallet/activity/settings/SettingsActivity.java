@@ -70,6 +70,7 @@ import com.mycelium.lt.api.model.TraderInfo;
 import com.mycelium.modularizationtools.CommunicationManager;
 import com.mycelium.modularizationtools.model.Module;
 import com.mycelium.net.ServerEndpointType;
+import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wallet.MbwManager;
@@ -88,7 +89,6 @@ import com.mycelium.wallet.lt.api.SetNotificationMail;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -515,7 +515,7 @@ public class SettingsActivity extends PreferenceActivity {
       if (!CommunicationManager.getInstance(this).getPairedModules().isEmpty()) {
          for (Module module : CommunicationManager.getInstance(this).getPairedModules()) {
             Preference preference = new Preference(this);
-            preference.setTitle(module.getName());
+            preference.setTitle(Html.fromHtml(module.getName()));
             preference.setSummary(module.getDescription());
             modulesPrefs.addPreference(preference);
          }
@@ -525,8 +525,12 @@ public class SettingsActivity extends PreferenceActivity {
          modulesPrefs.addPreference(preference);
       }
 
-      List<Module> availableModulesOnPlayStore = Arrays.asList(new Module("com.mycelium.module.spvbch"
-              , getString(R.string.bitcoin_cash_module), ""));
+      List<Module> availableModulesOnPlayStore = Arrays.asList(
+              new Module("com.mycelium.module.spvbch"
+                      + (BuildConfig.FLAVOR.equals("btctestnet") ? ".testnet" : "")
+                      + (BuildConfig.DEBUG ? ".debug" : "")
+                      , getString(R.string.bitcoin_cash_module)
+                      , getString(R.string.bch_module_description)));
       for (final Module module : availableModulesOnPlayStore) {
          if(!CommunicationManager.getInstance(this).getPairedModules().contains(module)) {
             ButtonPreference installPreference = new ButtonPreference(this);
@@ -540,7 +544,8 @@ public class SettingsActivity extends PreferenceActivity {
                   startActivity(installIntent);
                }
             });
-            installPreference.setTitle(Html.fromHtml(module.getName()));//getString(R.string.bitcoin_cash_module)
+            installPreference.setTitle(Html.fromHtml(module.getName()));
+            installPreference.setSummary(module.getDescription());
             modulesPrefs.addPreference(installPreference);
          }
       }

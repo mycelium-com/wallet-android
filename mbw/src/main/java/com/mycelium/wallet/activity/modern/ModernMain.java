@@ -37,6 +37,7 @@ package com.mycelium.wallet.activity.modern;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
@@ -57,16 +58,26 @@ import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
 import android.util.Log;
-import android.view.*;
+import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
 import com.mycelium.net.ServerEndpointType;
-import com.mycelium.wallet.*;
+import com.mycelium.wallet.BuildConfig;
+import com.mycelium.wallet.Constants;
+import com.mycelium.wallet.DataExport;
+import com.mycelium.wallet.MbwManager;
+import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.AboutActivity;
 import com.mycelium.wallet.activity.MessageVerifyActivity;
 import com.mycelium.wallet.activity.ScanActivity;
@@ -77,15 +88,24 @@ import com.mycelium.wallet.activity.modern.adapter.TabsAdapter;
 import com.mycelium.wallet.activity.send.InstantWalletActivity;
 import com.mycelium.wallet.activity.settings.SettingsActivity;
 import com.mycelium.wallet.coinapult.CoinapultAccount;
-import com.mycelium.wallet.event.*;
+import com.mycelium.wallet.event.FeatureWarningsAvailable;
+import com.mycelium.wallet.event.NewWalletVersionAvailable;
+import com.mycelium.wallet.event.SyncFailed;
+import com.mycelium.wallet.event.SyncStarted;
+import com.mycelium.wallet.event.SyncStopped;
+import com.mycelium.wallet.event.TorStateChanged;
+import com.mycelium.wallet.event.TransactionBroadcasted;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.api.response.Feature;
-import com.mycelium.wapi.wallet.*;
+import com.mycelium.wapi.wallet.AesKeyCipher;
+import com.mycelium.wapi.wallet.KeyCipher;
+import com.mycelium.wapi.wallet.SyncMode;
+import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.WalletManager;
 import com.squareup.otto.Subscribe;
-import de.cketti.library.changelog.ChangeLog;
-import info.guardianproject.onionkit.ui.OrbotHelper;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
@@ -94,6 +114,9 @@ import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+
+import de.cketti.library.changelog.ChangeLog;
+import info.guardianproject.onionkit.ui.OrbotHelper;
 
 public class ModernMain extends ActionBarActivity {
    private static final int TAB_ID_ACCOUNTS = 0;
@@ -183,6 +206,31 @@ public class ModernMain extends ActionBarActivity {
          _mbwManager.getVersionManager().showFeatureWarningIfNeeded(this, Feature.APP_START);
          checkGapBug();
          _isAppStart = false;
+      }
+      final SharedPreferences sharedPreferences = getSharedPreferences("first_page", MODE_PRIVATE);
+      if (!sharedPreferences.getBoolean("bch_first_update_page", false)) {
+         new AlertDialog.Builder(this)
+                 .setTitle(R.string.first_modulization_title)
+                 .setMessage(R.string.first_modulization_message)
+                 .setPositiveButton("Install BCH module", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                       Intent installIntent = new Intent(Intent.ACTION_VIEW);
+                       installIntent.setData(Uri.parse("https://play.google.com/store/apps/details?id=" +
+                               "com.mycelium.module.spvbch"
+                               + (BuildConfig.FLAVOR.equals("btctestnet") ? "testnet" : "")));
+                       startActivity(installIntent);
+                    }
+                 })
+                 .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialogInterface) {
+                       sharedPreferences.edit().putBoolean("bch_first_update_page", true)
+                               .apply();
+                    }
+                 })
+                 .setNegativeButton("Continue without BCH", null)
+                 .create().show();
       }
    }
 
