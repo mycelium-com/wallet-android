@@ -524,6 +524,8 @@ public class AccountsFragment extends Fragment {
 
    private void updateIncludingMenus() {
       WalletAccount account = accountListAdapter.getFocusedAccount();
+      boolean isBch = account.getType() == WalletAccount.Type.BCHSINGLEADDRESS
+              || account.getType() == WalletAccount.Type.BCHBIP44;
 
       final List<Integer> menus = Lists.newArrayList();
       if(!(account instanceof ColuAccount)
@@ -545,19 +547,20 @@ public class AccountsFragment extends Fragment {
          menus.add(R.menu.record_options_menu_backup_verify);
       }
 
-      if (!account.isDerivedFromInternalMasterseed()) {
+      if (!account.isDerivedFromInternalMasterseed() && !isBch) {
          menus.add(R.menu.record_options_menu_delete);
       }
 
-      if (account.isActive() && account.canSpend() && !(account instanceof Bip44PubOnlyAccount)) {
+      if (account.isActive() && account.canSpend() && !(account instanceof Bip44PubOnlyAccount)
+              && !isBch) {
          menus.add(R.menu.record_options_menu_sign);
       }
 
-      if (account.isActive()) {
+      if (account.isActive() && !isBch) {
          menus.add(R.menu.record_options_menu_active);
       }
 
-      if (account.isActive() && !(account instanceof CoinapultAccount)) {
+      if (account.isActive() && !(account instanceof CoinapultAccount) && !isBch) {
          menus.add(R.menu.record_options_menu_outputs);
       }
 
@@ -569,12 +572,12 @@ public class AccountsFragment extends Fragment {
          menus.add(R.menu.record_options_menu_archive);
       }
 
-      if (account.isActive() && account instanceof ExportableAccount) {
+      if (account.isActive() && account instanceof ExportableAccount && !isBch) {
          menus.add(R.menu.record_options_menu_export);
       }
 
       if (account.isActive() && account instanceof Bip44Account && !(account instanceof Bip44PubOnlyAccount)
-              && walletManager.getActiveMasterseedAccounts().size() > 1) {
+              && walletManager.getActiveMasterseedAccounts().size() > 1 && !isBch) {
          if (!((Bip44Account) account).hasHadActivity()) {
             //only allow to remove unused HD acounts from the view
             menus.add(R.menu.record_options_menu_hide_unused);
