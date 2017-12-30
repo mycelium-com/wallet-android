@@ -205,20 +205,20 @@ public class ExchangeRateManager implements ExchangeRateProvider {
          }
 
          //get rates from gear
-         if(rmcApiClient != null) {
-            RmcApiClient rmcApiClient = new RmcApiClient(networkParameters);
-
-            Float rate = rmcApiClient.exchangeBtcUsdRate();
-
-            if (rate != null) {
-               rateBtcUsd = rate;
-            } else {
-               Optional<String> rateValue = storage.getExchangeRate("BTC", "USD", KRAKEN_MARKET_NAME);
-               if (rateValue.isPresent()) {
-                  rateBtcUsd = Float.parseFloat(rateValue.get());
-               }
-            }
-         }
+//         if(rmcApiClient != null) {
+//            RmcApiClient rmcApiClient = new RmcApiClient(networkParameters);
+//
+//            Float rate = rmcApiClient.exchangeBtcUsdRate();
+//
+//            if (rate != null) {
+//               rateBtcUsd = rate;
+//            } else {
+//               Optional<String> rateValue = storage.getExchangeRate("BTC", "USD", KRAKEN_MARKET_NAME);
+//               if (rateValue.isPresent()) {
+//                  rateBtcUsd = Float.parseFloat(rateValue.get());
+//               }
+//            }
+//         }
       }
    }
 

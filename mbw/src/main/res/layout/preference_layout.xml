@@ -40,7 +40,7 @@
                 android:ellipsize="marquee"
                 android:fadingEdge="horizontal"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:maxLines="1" />
+                android:singleLine="true" />
 
         <TextView
                 android:id="@android:id/summary"

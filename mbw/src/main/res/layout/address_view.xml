@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 xmlns:tools="http://schemas.android.com/tools"
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingTop="20dp"
                 android:paddingBottom="20dp"
@@ -10,7 +10,7 @@
     <FrameLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toLeftOf="@+id/flQr"
+            android:layout_toLeftOf="@+id/ivQR"
             android:layout_alignParentLeft="true"
             android:layout_marginLeft="20dp"
             android:layout_centerVertical="true">
@@ -47,37 +47,20 @@
             </LinearLayout>
 
             <TextView
-                    android:id="@+id/tvAddress1"
+                    android:id="@+id/tvAddress"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="0dp"
                     android:gravity="left"
+                    android:ellipsize="middle"
+                    android:singleLine="true"
                     android:textSize="15sp"
                     android:typeface="monospace"
+                    android:drawablePadding="@dimen/margin_medium"
+                    android:drawableRight="@drawable/ic_content_copy_white"
                     tools:text="1A1zP1eP5QG"
                     android:textColor="@color/lightgrey"/>
 
-            <TextView
-                    android:id="@+id/tvAddress2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="0dp"
-                    android:gravity="left"
-                    android:textSize="15sp"
-                    android:typeface="monospace"
-                    tools:text="efi2DMPTfTL"
-                    android:textColor="@color/lightgrey"/>
-
-            <TextView
-                    android:id="@+id/tvAddress3"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="0dp"
-                    android:gravity="left"
-                    android:textSize="15sp"
-                    android:typeface="monospace"
-                    tools:text="5SLmv7DivfNa"
-                    android:textColor="@color/lightgrey"/>
             <TextView
                     android:id="@+id/tvAddressPath"
                     android:layout_width="wrap_content"
@@ -91,21 +74,16 @@
         </LinearLayout>
     </FrameLayout>
 
-    <FrameLayout
-            android:id="@+id/flQr"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="20dp"
-            android:layout_width="@dimen/small_qrcode"
-            android:layout_height="@dimen/small_qrcode"
-            android:layout_alignParentRight="true"
-            >
 
-        <com.mycelium.wallet.activity.util.QrImageView
-                android:id="@+id/ivQR"
-                android:layout_width="@dimen/small_qrcode"
-                android:layout_height="@dimen/small_qrcode"
-                android:background="@color/white"
-                android:contentDescription="@string/qr_code"
-                android:longClickable="false" />
-    </FrameLayout>
+    <com.mycelium.wallet.activity.util.QrImageView
+        android:id="@+id/ivQR"
+        android:layout_width="@dimen/balance_qrcode"
+        android:layout_height="@dimen/balance_qrcode"
+        android:layout_alignParentRight="true"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="20dp"
+        android:background="@color/white"
+        android:contentDescription="@string/qr_code"
+        android:longClickable="false" />
+
 </RelativeLayout>

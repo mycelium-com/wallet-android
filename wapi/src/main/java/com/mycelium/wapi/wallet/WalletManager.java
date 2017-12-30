@@ -717,7 +717,7 @@ public class WalletManager {
          _bip44Accounts.add(account);
          //TODO remove this , just for test bch
          Bip44BCHAccount bchAccount = new Bip44BCHAccount(context, keyManager, _network, accountBacking, _wapi, _spvBalanceFetcher);
-         if(bchAccount.canSpend()) {
+         if(bchAccount.canSpend() && _spvBalanceFetcher != null) {
             addAccount(bchAccount);
          }
       }
@@ -734,7 +734,7 @@ public class WalletManager {
          addAccount(account);
          //TODO remove this , just for test bch
          SingleAddressBCHAccount bchAccount = new SingleAddressBCHAccount(context, store, _network, accountBacking, _wapi, _spvBalanceFetcher);
-         if (bchAccount.canSpend()) {
+         if (bchAccount.canSpend() && _spvBalanceFetcher != null) {
             addAccount(bchAccount);
          }
       }
@@ -817,7 +817,7 @@ public class WalletManager {
       }
 
       private boolean synchronize() {
-         if(_spvBalanceFetcher.isActive()) {
+         if(_spvBalanceFetcher != null) {
             //If using SPV module, enters this condition.
             // Get adresses from all accounts
             if(currentAccount instanceof Bip44BCHAccount) {
@@ -1145,8 +1145,10 @@ public class WalletManager {
             addAccount(account);
             _bip44Accounts.add(account);
 
-            Bip44BCHAccount bip44BCHAccount = new Bip44BCHAccount(context, keyManager, _network, accountBacking, _wapi, _spvBalanceFetcher);
-            addAccount(bip44BCHAccount);
+            if(_spvBalanceFetcher != null) {
+               Bip44BCHAccount bip44BCHAccount = new Bip44BCHAccount(context, keyManager, _network, accountBacking, _wapi, _spvBalanceFetcher);
+               addAccount(bip44BCHAccount);
+            }
 
             return account.getId();
          } finally {

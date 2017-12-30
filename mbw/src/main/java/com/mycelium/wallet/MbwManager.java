@@ -39,12 +39,9 @@ import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
@@ -78,11 +75,10 @@ import com.mrd.bitlib.util.CoinUtil.Denomination;
 import com.mrd.bitlib.util.HashUtils;
 import com.mycelium.WapiLogger;
 import com.mycelium.lt.api.LtApiClient;
+import com.mycelium.modularizationtools.CommunicationManager;
 import com.mycelium.net.ServerEndpointType;
 import com.mycelium.net.TorManager;
 import com.mycelium.net.TorManagerOrbot;
-import com.mycelium.spvmodule.IntentContract;
-import com.mycelium.spvmodule.providers.TransactionContract;
 import com.mycelium.wallet.activity.rmc.RmcApiClient;
 import com.mycelium.wallet.activity.util.BlockExplorer;
 import com.mycelium.wallet.activity.util.BlockExplorerManager;
@@ -103,6 +99,8 @@ import com.mycelium.wallet.extsig.keepkey.KeepKeyManager;
 import com.mycelium.wallet.extsig.ledger.LedgerManager;
 import com.mycelium.wallet.extsig.trezor.TrezorManager;
 import com.mycelium.wallet.lt.LocalTraderManager;
+import com.mycelium.wallet.modularisation.GooglePlayModuleCollection;
+import com.mycelium.wallet.modularisation.SpvBchFetcher;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.persistence.TradeSessionDb;
 import com.mycelium.wallet.wapi.SqliteWalletManagerBackingWrapper;
@@ -121,8 +119,6 @@ import com.mycelium.wapi.wallet.WalletManagerBacking;
 import com.mycelium.wapi.wallet.bip44.Bip44Account;
 import com.mycelium.wapi.wallet.bip44.Bip44AccountContext;
 import com.mycelium.wapi.wallet.bip44.ExternalSignatureProviderProxy;
-import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
-import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
@@ -147,10 +143,9 @@ import java.util.logging.Level;
 
 import static android.os.Build.VERSION.SDK_INT;
 import static android.os.Build.VERSION_CODES.GINGERBREAD;
-import static com.mycelium.wallet.WalletApplication.getSpvModuleName;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-public class MbwManager implements SpvBalanceFetcher {
+public class MbwManager {
    private static final String PROXY_HOST = "socksProxyHost";
    private static final String PROXY_PORT = "socksProxyPort";
    private static final String SELECTED_ACCOUNT = "selectedAccount";
@@ -638,16 +633,33 @@ public class MbwManager implements SpvBalanceFetcher {
               getLedgerManager()
       );
 
+      SpvBalanceFetcher spvBchFetcher = getSpvBchFether();
       // Create and return wallet manager
       WalletManager walletManager = new WalletManager(secureKeyValueStore,
-              backing, environment.getNetwork(), _wapi, externalSignatureProviderProxy, this);
+              backing, environment.getNetwork(), _wapi, externalSignatureProviderProxy, spvBchFetcher);
 
       // notify the walletManager about the current selected account
       UUID lastSelectedAccountId = getLastSelectedAccountId();
       if (lastSelectedAccountId != null) {
          walletManager.setActiveAccount(lastSelectedAccountId);
       }
+      if(spvBchFetcher != null) {
+         importLabelsToBch(walletManager);
+      }
       return walletManager;
+   }
+
+   private void importLabelsToBch(WalletManager walletManager) {
+      for (WalletAccount walletAccount : walletManager.getActiveAccounts()) {
+         if (walletAccount.getType() == WalletAccount.Type.BTCSINGLEADDRESS
+                 || walletAccount.getType() == WalletAccount.Type.BTCBIP44) {
+            UUID bchId = UUID.nameUUIDFromBytes(("BCH" + walletAccount.getId().toString()).getBytes());
+            String bchLabel = getMetadataStorage().getLabelByAccount(bchId);
+            if (bchLabel == null || bchLabel.isEmpty()) {
+               getMetadataStorage().storeAccountLabel(bchId, getMetadataStorage().getLabelByAccount(walletAccount.getId()));
+            }
+         }
+      }
    }
 
    /**
@@ -663,12 +675,21 @@ public class MbwManager implements SpvBalanceFetcher {
       // Create secure storage instance
       SecureKeyValueStore secureKeyValueStore = new SecureKeyValueStore(backing, new AndroidRandomSource());
 
+
       // Create and return wallet manager
       WalletManager walletManager = new WalletManager(secureKeyValueStore,
-              backing, environment.getNetwork(), _wapi, null, this);
+              backing, environment.getNetwork(), _wapi, null, getSpvBchFether());
 
       walletManager.disableTransactionHistorySynchronization();
       return walletManager;
+   }
+   private SpvBalanceFetcher getSpvBchFether() {
+      SpvBalanceFetcher result = null;
+      if (CommunicationManager.getInstance(_applicationContext).getPairedModules()
+              .contains(GooglePlayModuleCollection.getModules(_applicationContext).get("bch"))) {
+         result = new SpvBchFetcher(_applicationContext);
+      }
+      return result;
    }
 
    public String getFiatCurrency() {
@@ -1420,78 +1441,4 @@ public class MbwManager implements SpvBalanceFetcher {
       // also fetch a new exchange rate, if necessary
       getExchangeRateManager().requestOptionalRefresh();
    }
-
-   private CurrencyBasedBalance from(Cursor cursor) {
-      // String id = cursor.getString(cursor.getColumnIndex(TransactionContract.AccountBalance._ID));
-      Long confirmed = cursor.getLong(cursor.getColumnIndex(TransactionContract.AccountBalance.CONFIRMED));
-      Long receiving = cursor.getLong(cursor.getColumnIndex(TransactionContract.AccountBalance.RECEIVING));
-      Long sending = cursor.getLong(cursor.getColumnIndex(TransactionContract.AccountBalance.SENDING));
-
-      return new CurrencyBasedBalance(ExactBitcoinCashValue.from(confirmed),
-              ExactBitcoinCashValue.from(sending), ExactBitcoinCashValue.from(receiving));
-   }
-
-   @Override
-   public CurrencyBasedBalance retrieveByHdAccountIndex(String id, int accountIndex) {
-      CurrencyBasedBalance balance = CurrencyBasedBalance.ZERO_BITCOIN_CASH_BALANCE;
-      Uri uri = TransactionContract.AccountBalance.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHBIP44)).buildUpon().appendEncodedPath(id).build();
-      String selection = TransactionContract.AccountBalance.SELECTION_ACCOUNT_INDEX;
-      String[] selectionArgs = new String[]{Integer.toString(accountIndex)};
-      Cursor cursor = null;
-
-      try {
-         cursor = _applicationContext.getContentResolver().query(uri, null, selection, selectionArgs, null);
-         if (cursor != null) {
-            while (cursor.moveToNext()) {
-               balance = from(cursor);
-            }
-         }
-      } finally {
-         if (cursor != null) {
-            cursor.close();
-         }
-      }
-
-      return balance;
-   }
-
-   @Override
-   public CurrencyBasedBalance retrieveBySingleAddressAccountId(String id) {
-      CurrencyBasedBalance balance = CurrencyBasedBalance.ZERO_BITCOIN_CASH_BALANCE;
-      String selection = TransactionContract.AccountBalance.SELECTION_SINGLE_ADDRESS_ACCOUNT_GUID;
-      String[] selectionArgs = new String[]{id};
-      Uri uri = TransactionContract.AccountBalance.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHSINGLEADDRESS)).buildUpon().appendEncodedPath(id).build();
-
-      Cursor cursor = null;
-
-      try {
-         cursor = _applicationContext.getContentResolver().query(uri, null, selection, selectionArgs, null);
-         if (cursor != null) {
-            while (cursor.moveToNext()) {
-               balance = from(cursor);
-            }
-         }
-      } finally {
-         if (cursor != null) {
-            cursor.close();
-         }
-      }
-      return balance;
-   }
-
-   public void getTransactions(int accountId) {
-      Intent service = IntentContract.ReceiveTransactions.createIntent(accountId);
-      WalletApplication.sendToSpv(service);
-   }
-
-   public void getTransactionsFromSingleAddressAccount(String guid) {
-      Intent service = IntentContract.ReceiveTransactionsSingleAddress.createIntent(guid);
-      WalletApplication.sendToSpv(service);
-   }
-
-   @Override
-   public boolean isActive() {
-      return isSpvMode();
-   }
-
 }

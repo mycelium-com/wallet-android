@@ -43,6 +43,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -54,7 +55,6 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity;
 import com.mycelium.wallet.activity.util.QrImageView;
-import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.BalanceChanged;
 import com.mycelium.wallet.event.ReceivingAddressChanged;
@@ -62,18 +62,23 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
 public class AddressFragment extends Fragment {
 
    private View _root;
    private MbwManager _mbwManager;
    private boolean _showBip44Path;
+   @BindView(R.id.ivQR)
+   QrImageView qrButton;
 
    @Override
    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
       _root = Preconditions.checkNotNull(inflater.inflate(R.layout.address_view, container, false));
-      QrImageView qrButton = (QrImageView) Preconditions.checkNotNull(_root.findViewById(R.id.ivQR));
+      ButterKnife.bind(this, _root);
       qrButton.setTapToCycleBrightness(false);
-      qrButton.setOnClickListener(new QrClickListener());
       return _root;
    }
 
@@ -111,7 +116,6 @@ public class AddressFragment extends Fragment {
       }
 
       // Update QR code
-      QrImageView qrButton = (QrImageView) Preconditions.checkNotNull(_root.findViewById(R.id.ivQR));
 
       Optional<Address> receivingAddress = getAddress();
 
@@ -119,11 +123,9 @@ public class AddressFragment extends Fragment {
       if (receivingAddress.isPresent()) {
          // Set address
          qrButton.setVisibility(View.VISIBLE);
+         String address = receivingAddress.get().toString();
          qrButton.setQrCode(BitcoinUriWithAddress.fromAddress(receivingAddress.get()).toString());
-         String[] addressStrings = Utils.stringChopper(receivingAddress.get().toString(), 12);
-         ((TextView) _root.findViewById(R.id.tvAddress1)).setText(addressStrings[0]);
-         ((TextView) _root.findViewById(R.id.tvAddress2)).setText(addressStrings[1]);
-         ((TextView) _root.findViewById(R.id.tvAddress3)).setText(addressStrings[2]);
+         ((TextView) _root.findViewById(R.id.tvAddress)).setText(address);
          if (_showBip44Path && receivingAddress.get() instanceof HdDerivedAddress) {
             HdDerivedAddress hdAdr = (HdDerivedAddress) receivingAddress.get();
             ((TextView) _root.findViewById(R.id.tvAddressPath)).setText(hdAdr.getBip32Path().toString());
@@ -133,9 +135,7 @@ public class AddressFragment extends Fragment {
       } else {
          // No address available
          qrButton.setVisibility(View.INVISIBLE);
-         ((TextView) _root.findViewById(R.id.tvAddress1)).setText("");
-         ((TextView) _root.findViewById(R.id.tvAddress2)).setText("");
-         ((TextView) _root.findViewById(R.id.tvAddress3)).setText("");
+         ((TextView) _root.findViewById(R.id.tvAddress)).setText("");
          ((TextView) _root.findViewById(R.id.tvAddressPath)).setText("");
       }
 
@@ -163,23 +163,27 @@ public class AddressFragment extends Fragment {
 
    }
 
+   @OnClick(R.id.tvAddress)
+   void addressClick() {
+      Utils.setClipboardString(getAddress().get().toString(), getActivity());
+      Toast.makeText(getActivity(), R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
+   }
+
    public Optional<Address> getAddress() {
       return _mbwManager.getSelectedAccount().getReceivingAddress();
    }
 
-   private class QrClickListener implements OnClickListener {
-      @Override
-      public void onClick(View v) {
-         WalletAccount account = _mbwManager.getSelectedAccount();
-         if(account.getType() == WalletAccount.Type.BCHSINGLEADDRESS
-                 || account.getType() == WalletAccount.Type.BCHBIP44) {
-            return;
-         }
-         Optional<Address> receivingAddress = account.getReceivingAddress();
-         if (receivingAddress.isPresent()) {
-            ReceiveCoinsActivity.callMe(AddressFragment.this.getActivity(),
-                  receivingAddress.get(), account.canSpend());
-         }
+   @OnClick(R.id.ivQR)
+   void qrClick() {
+      WalletAccount account = _mbwManager.getSelectedAccount();
+      if(account.getType() == WalletAccount.Type.BCHSINGLEADDRESS
+              || account.getType() == WalletAccount.Type.BCHBIP44) {
+         return;
+      }
+      Optional<Address> receivingAddress = account.getReceivingAddress();
+      if (receivingAddress.isPresent()) {
+         ReceiveCoinsActivity.callMe(AddressFragment.this.getActivity(),
+                 receivingAddress.get(), account.canSpend());
       }
    }
 
