@@ -311,7 +311,7 @@ public class NoticeFragment extends Fragment {
       if(_notice == Notice.SINGLEKEY_BACKUP_MISSING) {
 //         ((TextView)_root.findViewById(R.id.btBackupMissing)).setText(getString(R.string.create_backup));
          backupMissing.setText(R.string.single_address_backup_missing);
-      } else if(_notice == Notice.SINGLEKEY_BACKUP_MISSING) {
+      } else if(_notice == Notice.BACKUP_MISSING) {
          backupMissing.setText(R.string.wallet_backup_missing);
       }
 
