@@ -37,9 +37,9 @@ package com.mycelium.wallet.activity.main;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -111,7 +111,8 @@ public class AddressFragment extends Fragment {
       if (!isAdded()) {
          return;
       }
-      if (_mbwManager.getSelectedAccount().isArchived()) {
+      WalletAccount account = _mbwManager.getSelectedAccount();
+      if (account.isArchived()) {
          return;
       }
 
@@ -143,16 +144,20 @@ public class AddressFragment extends Fragment {
       TextView tvAddressTitle = (TextView) _root.findViewById(R.id.tvAddressLabel);
       ImageView ivAccountType = (ImageView) _root.findViewById(R.id.ivAccountType);
 
-      String name = _mbwManager.getMetadataStorage().getLabelByAccount(_mbwManager.getSelectedAccount().getId());
+      String name = _mbwManager.getMetadataStorage().getLabelByAccount(account.getId());
+      if(account.getType() == WalletAccount.Type.BCHSINGLEADDRESS
+              || account.getType() == WalletAccount.Type.BCHBIP44) {
+         name = getString(R.string.bitcoin_cash) + " - " + name;
+      }
       if (name.length() == 0) {
          tvAddressTitle.setVisibility(View.GONE);
          ivAccountType.setVisibility(View.GONE);
       } else {
          tvAddressTitle.setVisibility(View.VISIBLE);
-         tvAddressTitle.setText(name);
+         tvAddressTitle.setText(Html.fromHtml(name));
 
          // show account type icon next to the name
-         Drawable drawableForAccount = Utils.getDrawableForAccount(_mbwManager.getSelectedAccount(), true, getResources());
+         Drawable drawableForAccount = Utils.getDrawableForAccount(account, true, getResources());
          if (drawableForAccount == null) {
             ivAccountType.setVisibility(View.GONE);
          } else {
