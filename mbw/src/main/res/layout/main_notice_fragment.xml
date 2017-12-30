@@ -28,6 +28,7 @@
             android:layout_margin="@dimen/margin_large"
             android:background="@drawable/background_backup"
             android:paddingBottom="@dimen/margin_large"
+            android:clickable="false"
             android:paddingTop="@dimen/margin_large"
             android:text="@string/backup"
             android:textColor="@color/white" />

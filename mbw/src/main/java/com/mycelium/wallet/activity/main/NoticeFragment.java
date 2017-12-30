@@ -120,56 +120,6 @@ public class NoticeFragment extends Fragment {
       super.onPause();
    }
 
-//   private Notice determineNotice() {
-//      List<WalletAccount> accounts = _mbwManager.getWalletManager(false).getActiveAccounts();
-//      MetadataStorage meta = _mbwManager.getMetadataStorage();
-//
-//      Optional<Integer> resetPinRemainingBlocksCount = _mbwManager.getResetPinRemainingBlocksCount();
-//      // Check first if a Pin-Reset is now possible
-//      if (resetPinRemainingBlocksCount.isPresent() && resetPinRemainingBlocksCount.get()==0){
-//         return Notice.RESET_PIN_AVAILABLE;
-//      }
-//
-//      // Then check if a Pin-Reset is in process
-//      if (resetPinRemainingBlocksCount.isPresent()){
-//         return Notice.RESET_PIN_IN_PROGRESS;
-//      }
-//
-//      // First check if we have HD accounts with funds, but have no master seed backup
-//      if (meta.getMasterSeedBackupState() != MetadataStorage.BackupState.VERIFIED) {
-//         for (WalletAccount account : accounts) {
-//            if (account instanceof Bip44Account) {
-//               Bip44Account ba = (Bip44Account) account;
-//               Balance balance = ba.getBalance();
-//               if (balance.getReceivingBalance() + balance.getSpendableBalance() > 0) {
-//                  // We have an HD account with funds, and no master seed backup, tell the user to act
-//                  return Notice.BACKUP_MISSING;
-//               }
-//            }
-//         }
-//      }
-//
-//      // Then check if there are some SingleAddressAccounts with funds on it
-//      for (WalletAccount account : accounts){
-//         if (account instanceof SingleAddressAccount && account.canSpend()){
-//            if (meta.getOtherAccountBackupState(account.getId()) != MetadataStorage.BackupState.VERIFIED){
-//               Balance balance = account.getBalance();
-//               if (balance.getReceivingBalance() + balance.getSpendableBalance() > 0){
-//                  return Notice.SINGLEKEY_BACKUP_MISSING;
-//               }
-//            }
-//         }
-//      }
-//
-//      // Second check whether to warn about legacy accounts with funds
-//      for (WalletAccount account : accounts) {
-//         if (RecordRowBuilder.showLegacyAccountWarning(account, _mbwManager)) {
-//            return Notice.MOVE_LEGACY_FUNDS;
-//         }
-//      }
-//
-//      return Notice.NONE;
-//   }
 
    private Notice determineNotice() {
       WalletAccount account = _mbwManager.getSelectedAccount();
@@ -360,7 +310,9 @@ public class NoticeFragment extends Fragment {
       backupMissingLayout.setVisibility(_notice == Notice.BACKUP_MISSING || _notice == Notice.SINGLEKEY_BACKUP_MISSING ? View.VISIBLE : View.GONE);
       if(_notice == Notice.SINGLEKEY_BACKUP_MISSING) {
 //         ((TextView)_root.findViewById(R.id.btBackupMissing)).setText(getString(R.string.create_backup));
-         backupMissing.setText(R.string.single_address_missing);
+         backupMissing.setText(R.string.single_address_backup_missing);
+      } else if(_notice == Notice.SINGLEKEY_BACKUP_MISSING) {
+         backupMissing.setText(R.string.wallet_backup_missing);
       }
 
       // Only show the heartbleed warning when necessary
