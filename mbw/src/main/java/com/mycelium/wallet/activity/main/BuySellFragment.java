@@ -121,6 +121,7 @@ public class BuySellFragment extends Fragment {
                 }
             }));
         }
+        current = 0;
     }
 
     @Override
