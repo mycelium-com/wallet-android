@@ -78,6 +78,11 @@ public class ScanActivity extends Activity {
    @Override
    public void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
+      boolean cameraAccess = Utils.hasOrRequestCameraAccess(this);
+      if(!cameraAccess) {
+         finish();
+         return;
+      }
       Intent intent = getIntent();
       _stringHandleConfig = Preconditions.checkNotNull((StringHandleConfig) intent.getSerializableExtra("request"));
       // Did we already launch the scanner?

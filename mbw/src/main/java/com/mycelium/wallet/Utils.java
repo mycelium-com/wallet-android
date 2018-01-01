@@ -34,6 +34,7 @@
 
 package com.mycelium.wallet;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -41,6 +42,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -49,6 +51,8 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.support.annotation.StringRes;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.text.ClipboardManager;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
@@ -1050,5 +1054,41 @@ public class Utils {
       } else {
          return false;
       }
+   }
+
+   public static final int REQUEST_CAMERA = 9465169;
+
+   /**
+    * Request camera access if not already granted
+    *
+    * @return true if write permission was already been granted
+    */
+   public static boolean hasOrRequestCameraAccess(Activity activity) {
+      return hasOrRequestAccess(activity, Manifest.permission.CAMERA, REQUEST_CAMERA);
+   }
+
+   public static final int REQUEST_LOCATION = 9465199;
+
+   /**
+    * Request camera access if not already granted
+    *
+    * @return true if write permission was already been granted
+    */
+   public static boolean hasOrRequestLocationAccess(Activity activity) {
+      return hasOrRequestAccess(activity, Manifest.permission.ACCESS_COARSE_LOCATION, REQUEST_LOCATION);
+   }
+
+   /**
+    * Request permission if not already granted
+    *
+    * @return true if write permission was already been granted
+    */
+   public static boolean hasOrRequestAccess(Activity activity, String permission, int requestCode) {
+      boolean hasPermission = (ContextCompat.checkSelfPermission(activity, permission)
+              == PackageManager.PERMISSION_GRANTED);
+      if (!hasPermission) {
+         ActivityCompat.requestPermissions(activity, new String[]{permission}, requestCode);
+      }
+      return hasPermission;
    }
 }
