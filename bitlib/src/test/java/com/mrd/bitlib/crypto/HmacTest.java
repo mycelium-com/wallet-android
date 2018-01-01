@@ -34,41 +34,32 @@
 
 package com.mrd.bitlib.crypto;
 
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
 
 import java.util.Arrays;
 
-import org.junit.Test;
+import static com.mrd.bitlib.util.HexUtils.toBytes;
+import static org.junit.Assert.assertTrue;
 
-import com.mrd.bitlib.util.HexUtils;
-
+/**
+ * This test uses BouncyCastle test vectors
+ * https://boredwookie.net/attachments-cc5/bc1.7-csharp/class_org_1_1_bouncy_castle_1_1_crypto_1_1_tests_1_1_sha512_h_mac_test.html
+ */
 public class HmacTest {
+    private static final String[] KEYS = {"0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b", "4a656665", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"};
+    private static final String[] DATA = {"4869205468657265", "7768617420646f2079612077616e7420666f72206e6f7468696e673f", "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"};
+    private static final String[] RESULTS_256 = {"b0344c61d8db38535ca8afceaf0bf12b881dc200c9833da726e9376c2e32cff7", "5bdcc146bf60754e6a042426089575c75a003f089d2739839dec58b964ec3843", "773ea91e36800e46854db8ebd09181a72959098b3ef8c122d9635514ced565fe"};
+    private static final String[] RESULTS_512 = {"87aa7cdea5ef619d4ff0b4241a1d6cb02379f4e2ce4ec2787ad0b30545e17cdedaa833b7d6b8a702038b274eaea3f4e4be9d914eeb61f1702e696c203a126854", "164b7a7bfcf819e2e395fbe73b56e0a387bd64222e831fd610270cd7ea2505549758bf75c05a994a6d034f65f8f0e6fdcaeab1a34d4a6b4b636e070a38bce737", "fa73b0089d56a284efb0f0756c890be9b1b5dbdd8ee81a3655f83e33b2279d39bf3e848279a722c806b485a47e67c807b946a337bee8942674278859e13292fb"};
 
-   private static final byte[] TEST_1_KEY = HexUtils.toBytes("0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b");
-   private static final byte[] TEST_1_DATA = HexUtils.toBytes("4869205468657265");
-   private static final byte[] TEST_1_RESULT = HexUtils
-         .toBytes("87aa7cdea5ef619d4ff0b4241a1d6cb0" + "2379f4e2ce4ec2787ad0b30545e17cde"
-               + "daa833b7d6b8a702038b274eaea3f4e4" + "be9d914eeb61f1702e696c203a126854");
-
-   private static final byte[] TEST_2_KEY = HexUtils.toBytes("4a656665");
-   private static final byte[] TEST_2_DATA = HexUtils.toBytes("7768617420646f2079612077616e7420"
-         + "666f72206e6f7468696e673f");
-   private static final byte[] TEST_2_RESULT = HexUtils
-         .toBytes("164b7a7bfcf819e2e395fbe73b56e0a3" + "87bd64222e831fd610270cd7ea250554"
-               + "9758bf75c05a994a6d034f65f8f0e6fd" + "caeab1a34d4a6b4b636e070a38bce737");
-
-   private static final byte[] TEST_3_KEY = HexUtils.toBytes("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-   private static final byte[] TEST_3_DATA = HexUtils.toBytes("dddddddddddddddddddddddddddddddd"
-         + "dddddddddddddddddddddddddddddddd" + "dddddddddddddddddddddddddddddddd" + "dddd");
-   private static final byte[] TEST_3_RESULT = HexUtils
-         .toBytes("fa73b0089d56a284efb0f0756c890be9" + "b1b5dbdd8ee81a3655f83e33b2279d39"
-               + "bf3e848279a722c806b485a47e67c807" + "b946a337bee8942674278859e13292fb");
-
-   @Test
-   public void hmacSha512Test() throws InterruptedException {
-      assertTrue(Arrays.equals(TEST_1_RESULT, Hmac.hmacSha512(TEST_1_KEY, TEST_1_DATA)));
-      assertTrue(Arrays.equals(TEST_2_RESULT, Hmac.hmacSha512(TEST_2_KEY, TEST_2_DATA)));
-      assertTrue(Arrays.equals(TEST_3_RESULT, Hmac.hmacSha512(TEST_3_KEY, TEST_3_DATA)));
-   }
-
+    @Test
+    public void hmacShaTest() throws InterruptedException {
+        for (int i = 0; i < 3; i++) {
+            byte[] key = toBytes(KEYS[i]);
+            byte[] message = toBytes(DATA[i]);
+            byte[] expected256 = toBytes(RESULTS_256[i]);
+            byte[] expected512 = toBytes(RESULTS_512[i]);
+            assertTrue(Arrays.equals(expected256, Hmac.hmacSha256(key, message)));
+            assertTrue(Arrays.equals(expected512, Hmac.hmacSha512(key, message)));
+        }
+    }
 }
