@@ -633,7 +633,7 @@ public class MbwManager {
               getLedgerManager()
       );
 
-      SpvBalanceFetcher spvBchFetcher = getSpvBchFether();
+      SpvBalanceFetcher spvBchFetcher = getSpvBchFetcher();
       // Create and return wallet manager
       WalletManager walletManager = new WalletManager(secureKeyValueStore,
               backing, environment.getNetwork(), _wapi, externalSignatureProviderProxy, spvBchFetcher);
@@ -678,12 +678,12 @@ public class MbwManager {
 
       // Create and return wallet manager
       WalletManager walletManager = new WalletManager(secureKeyValueStore,
-              backing, environment.getNetwork(), _wapi, null, getSpvBchFether());
+              backing, environment.getNetwork(), _wapi, null, getSpvBchFetcher());
 
       walletManager.disableTransactionHistorySynchronization();
       return walletManager;
    }
-   private SpvBalanceFetcher getSpvBchFether() {
+   private SpvBalanceFetcher getSpvBchFetcher() {
       SpvBalanceFetcher result = null;
       if (CommunicationManager.getInstance(_applicationContext).getPairedModules()
               .contains(GooglePlayModuleCollection.getModules(_applicationContext).get("bch"))) {
