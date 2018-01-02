@@ -271,7 +271,7 @@
         <activity android:name=".external.glidera.activities.GlideraMainActivity" />
         <activity android:name=".external.glidera.activities.GlideraTransaction" />
         <activity android:name=".activity.send.GetBtcAccountForFeeActivity" />
-        <activity android:name=".activity.MessageVerifyActivity"></activity>
+        <activity android:name=".activity.MessageVerifyActivity"/>
         <activity android:name=".external.changelly.bch.ExchangeActivity" />
     </application>
 
