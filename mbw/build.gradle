@@ -88,8 +88,8 @@ dependencies {
     implementation 'com.github.tony19:logback-android-core:1.1.1-6'
     implementation 'com.google.http-client:google-http-client-jackson2:1.19.0'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.8.4'
-    implementation 'com.madgag.spongycastle:core:1.54.0.0'
-    implementation 'com.madgag.spongycastle:prov:1.54.0.0'
+    implementation 'com.madgag.spongycastle:core:1.58.0.0'
+    implementation 'com.madgag.spongycastle:prov:1.58.0.0'
     implementation 'org.bitcoinj:bitcoinj-core:0.15-SNAPSHOT'
 }
 
