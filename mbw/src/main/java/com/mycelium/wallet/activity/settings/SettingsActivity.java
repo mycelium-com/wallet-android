@@ -512,10 +512,19 @@ public class SettingsActivity extends PreferenceActivity {
 
       PreferenceCategory modulesPrefs = (PreferenceCategory) findPreference("modulesPrefs");
       if (!CommunicationManager.getInstance(this).getPairedModules().isEmpty()) {
-         for (Module module : CommunicationManager.getInstance(this).getPairedModules()) {
+         for (final Module module : CommunicationManager.getInstance(this).getPairedModules()) {
             Preference preference = new Preference(this);
             preference.setTitle(Html.fromHtml(module.getName()));
             preference.setSummary(module.getDescription());
+            preference.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+               @Override
+               public boolean onPreferenceClick(Preference preference) {
+                  Intent intent = getPackageManager().getLaunchIntentForPackage(module.getModulePackage());
+                  intent.setAction(com.mycelium.modularizationtools.Constants.Companion.getSETTINGS());
+                  startActivity(intent);
+                  return true;
+               }
+            });
             modulesPrefs.addPreference(preference);
          }
       } else {
