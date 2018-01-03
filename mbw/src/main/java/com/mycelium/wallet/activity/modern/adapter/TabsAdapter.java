@@ -44,7 +44,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 
 import com.mycelium.wallet.MbwManager;
 
@@ -65,7 +65,7 @@ public class TabsAdapter extends FragmentPagerAdapter implements ActionBar.TabLi
       }
    }
 
-   public TabsAdapter(ActionBarActivity activity, ViewPager pager, MbwManager mbwManager) {
+   public TabsAdapter(AppCompatActivity activity, ViewPager pager, MbwManager mbwManager) {
       super(activity.getSupportFragmentManager());
       mContext = activity;
       _mbwManager = mbwManager;

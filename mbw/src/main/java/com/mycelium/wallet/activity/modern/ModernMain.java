@@ -53,7 +53,7 @@ import android.support.v4.content.FileProvider;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
@@ -122,7 +122,7 @@ import java.util.concurrent.ExecutionException;
 import de.cketti.library.changelog.ChangeLog;
 import info.guardianproject.onionkit.ui.OrbotHelper;
 
-public class ModernMain extends ActionBarActivity {
+public class ModernMain extends AppCompatActivity {
    private static final int TAB_ID_ACCOUNTS = 0;
    private static final int TAB_ID_BALANCE = 1;
    private static final int TAB_ID_HISTORY = 2;

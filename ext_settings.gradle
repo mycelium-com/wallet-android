@@ -3,9 +3,9 @@ ext {
     guavaArtifact = 'com.google.guava:guava:23.0-android'
     androidBuildArtifact = 'com.android.tools.build:gradle:3.0.1'
     slf4jVersion = '1.7.2'
-    androidCompileSdkVersion = 25
+    androidCompileSdkVersion = 27
     androidSdkBuildVersion = '27.0.2'
-    androidSupportVersion = '25.4.0'
+    androidSupportVersion = '27.0.2'
     junitVersion = '4.12'
     kotlin_version = '1.2.10'
 

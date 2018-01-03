@@ -3,7 +3,7 @@ package com.mycelium.wallet.external.changelly.bch;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -11,7 +11,7 @@ import android.view.View;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.view.ValueKeyboard;
 
-public class ExchangeActivity extends ActionBarActivity {
+public class ExchangeActivity extends AppCompatActivity {
 
     private static int theme = R.style.MyceliumModern_Light;
 

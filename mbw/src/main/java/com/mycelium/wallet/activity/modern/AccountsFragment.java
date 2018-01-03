@@ -44,7 +44,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
 import android.support.v7.view.ActionMode.Callback;
 import android.support.v7.widget.LinearLayoutManager;
@@ -592,7 +592,7 @@ public class AccountsFragment extends Fragment {
          menus.add(R.menu.record_options_menu_detach);
       }
 
-      ActionBarActivity parent = (ActionBarActivity) getActivity();
+      AppCompatActivity parent = (AppCompatActivity) getActivity();
 
       Callback actionMode = new Callback() {
          @Override

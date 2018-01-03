@@ -42,7 +42,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -258,12 +258,12 @@ public class TransactionHistoryFragment extends Fragment {
          }
 
          final TransactionSummary record = checkNotNull(getItem(position));
-         final ActionBarActivity actionBarActivity = (ActionBarActivity) getActivity();
+         final AppCompatActivity appCompatActivity = (AppCompatActivity) getActivity();
 
          rowView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View view) {
-               currentActionMode = actionBarActivity.startSupportActionMode(new ActionMode.Callback() {
+               currentActionMode = appCompatActivity.startSupportActionMode(new ActionMode.Callback() {
                   @Override
                   public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
                      actionMode.getMenuInflater().inflate(R.menu.transaction_history_context_menu, menu);

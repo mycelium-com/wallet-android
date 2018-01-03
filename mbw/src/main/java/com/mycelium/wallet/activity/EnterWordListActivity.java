@@ -41,7 +41,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.*;
@@ -59,7 +59,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-public class EnterWordListActivity extends ActionBarActivity implements WordAutoCompleterFragment.WordAutoCompleterListener {
+public class EnterWordListActivity extends AppCompatActivity implements WordAutoCompleterFragment.WordAutoCompleterListener {
    private static final String ONLY_SEED = "onlySeed";
    public static final String MASTERSEED = "masterseed";
    public static final String PASSWORD = "password";

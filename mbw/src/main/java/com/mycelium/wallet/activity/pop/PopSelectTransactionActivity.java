@@ -40,7 +40,7 @@ import android.os.Bundle;
 import android.support.v4.app.*;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -62,7 +62,7 @@ import java.util.Map;
  * filtered list of outgoing transactions that match the filter in the first tab and all outgoing
  * transactions in the second.
  */
-public class PopSelectTransactionActivity extends ActionBarActivity implements ActionBar.TabListener {
+public class PopSelectTransactionActivity extends AppCompatActivity implements ActionBar.TabListener {
    private PopRequest popRequest;
    private ViewPager viewPager;
 
