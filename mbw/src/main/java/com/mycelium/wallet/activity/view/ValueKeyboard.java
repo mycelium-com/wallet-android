@@ -4,7 +4,7 @@ package com.mycelium.wallet.activity.view;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
-import android.widget.GridLayout;
+import android.support.v7.widget.GridLayout;
 import android.widget.TextView;
 
 import com.mycelium.wallet.R;
@@ -12,7 +12,7 @@ import com.mycelium.wallet.Utils;
 
 import java.math.BigDecimal;
 
-public class ValueKeyboard extends android.support.v7.widget.GridLayout {
+public class ValueKeyboard extends GridLayout {
     public final static int DEL = -1;
     public final static int DOT = -2;
     public final static int MAX_DIGITS_BEFORE_DOT = 9;
@@ -96,7 +96,7 @@ public class ValueKeyboard extends android.support.v7.widget.GridLayout {
                         if (!clipboardString.isEmpty()) {
                             try {
                                 value.setEntry(new BigDecimal(clipboardString), maxDecimals);
-                            } catch (NumberFormatException ignre) {
+                            } catch (NumberFormatException ignore) {
                             }
                         }
                     } else if (view instanceof TextView) {

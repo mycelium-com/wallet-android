@@ -12,23 +12,19 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.mrd.bitlib.StandardTransactionBuilder;
+import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
+import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
+import com.mrd.bitlib.StandardTransactionBuilder.UnableToBuildTransactionException;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.Transaction;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.activity.send.BroadcastTransactionActivity;
-import com.mycelium.wallet.activity.send.adapter.FeeViewAdapter;
-import com.mycelium.wallet.activity.send.helper.ExponentialLowPrioAlgorithm;
-import com.mycelium.wallet.activity.send.helper.FeeItemsBuilder;
-import com.mycelium.wallet.activity.send.model.FeeItem;
-import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
 import com.mycelium.wallet.external.changelly.ChangellyAPIService;
 import com.mycelium.wallet.external.changelly.ChangellyService;
 import com.mycelium.wallet.external.changelly.Constants;
@@ -38,9 +34,7 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.UUID;
 
 import butterknife.BindView;
@@ -96,6 +90,7 @@ public class ConfirmExchangeFragment extends Fragment {
         }
         createOffer();
     }
+
     void createAndSignTransaction() {
         long fromValue = ExactBitcoinCashValue.from(BigDecimal.valueOf(offer.amountFrom)).getLongValue();
         try {
@@ -105,16 +100,11 @@ public class ConfirmExchangeFragment extends Fragment {
             Transaction transaction = fromAccount.signTransaction(unsignedTransaction, AesKeyCipher.defaultKeyCipher());
 
             //TODO braodcast BCH transaction
-        } catch (StandardTransactionBuilder.UnableToBuildTransactionException e) {
+        } catch (UnableToBuildTransactionException | InsufficientFundsException | OutputTooSmallException | KeyCipher.InvalidKeyCipher e) {
             e.printStackTrace();
-        } catch (StandardTransactionBuilder.InsufficientFundsException e) {
-            e.printStackTrace();
-        } catch (StandardTransactionBuilder.OutputTooSmallException e) {
-            e.printStackTrace();
-        } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
-            invalidKeyCipher.printStackTrace();
         }
     }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
