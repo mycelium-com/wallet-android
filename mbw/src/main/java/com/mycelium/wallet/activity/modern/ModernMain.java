@@ -367,7 +367,6 @@ public class ModernMain extends AppCompatActivity {
       inflater.inflate(R.menu.main_activity_options_menu, menu);
       addEnglishSetting(menu.findItem(R.id.miSettings));
       inflater.inflate(R.menu.refresh, menu);
-      inflater.inflate(R.menu.export_history, menu);
       inflater.inflate(R.menu.record_options_menu_global, menu);
       inflater.inflate(R.menu.addressbook_options_global, menu);
       inflater.inflate(R.menu.verify_message, menu);
@@ -409,9 +408,6 @@ public class ModernMain extends AppCompatActivity {
       refreshItem = Preconditions.checkNotNull(menu.findItem(R.id.miRefresh));
       refreshItem.setVisible(isBalanceTab || isHistoryTab || isAccountTab);
       setRefreshAnimation();
-
-      //export tx history
-      Preconditions.checkNotNull(menu.findItem(R.id.miExportHistory)).setVisible(isHistoryTab);
 
       Preconditions.checkNotNull(menu.findItem(R.id.miRescanTransactions)).setVisible(isHistoryTab);
 
@@ -479,9 +475,7 @@ public class ModernMain extends AppCompatActivity {
             _mbwManager.getWalletManager(false).startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
             _mbwManager.getColuManager().startSynchronization();
             break;
-         case R.id.miExportHistory:
-            shareTransactionHistory();
-            break;
+
          case R.id.miVerifyMessage:
             startActivity(new Intent(this, MessageVerifyActivity.class));
             break;
@@ -489,38 +483,6 @@ public class ModernMain extends AppCompatActivity {
       return super.onOptionsItemSelected(item);
    }
 
-   private void shareTransactionHistory() {
-      WalletAccount account = _mbwManager.getSelectedAccount();
-      MetadataStorage metaData = _mbwManager.getMetadataStorage();
-      try {
-         String fileName = "MyceliumExport_" + System.currentTimeMillis() + ".csv";
-         File historyData = DataExport.getTxHistoryCsv(account, metaData, getFileStreamPath(fileName));
-         PackageManager packageManager = Preconditions.checkNotNull(getPackageManager());
-         PackageInfo packageInfo = packageManager.getPackageInfo(getPackageName(), PackageManager.GET_PROVIDERS);
-         for (ProviderInfo info : packageInfo.providers) {
-            if (info.name.equals("android.support.v4.content.FileProvider")) {
-               String authority = info.authority;
-               Uri uri = FileProvider.getUriForFile(this, authority, historyData);
-               Intent intent = ShareCompat.IntentBuilder.from(this)
-                     .setStream(uri)  // uri from FileProvider
-                     .setType("text/plain")
-                     .setSubject(getResources().getString(R.string.transaction_history_title))
-                     .setText(getResources().getString(R.string.transaction_history_title))
-                     .getIntent()
-                     .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-               List<ResolveInfo> resInfoList = packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
-               for (ResolveInfo resolveInfo : resInfoList) {
-                  String packageName = resolveInfo.activityInfo.packageName;
-                  grantUriPermission(packageName, uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
-               }
-               startActivity(Intent.createChooser(intent, getResources().getString(R.string.share_transaction_history)));
-            }
-         }
-      } catch (IOException | PackageManager.NameNotFoundException e) {
-         _toaster.toast("Export failed. Check your logs", false);
-         e.printStackTrace();
-      }
-   }
 
    @Override
    protected void onActivityResult(int requestCode, int resultCode, Intent data) {

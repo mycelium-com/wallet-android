@@ -39,17 +39,28 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.ProviderInfo;
+import android.content.pm.ResolveInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.ShareCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
+import android.text.Html;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.commonsware.cwac.endless.EndlessAdapter;
@@ -61,6 +72,7 @@ import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
+import com.mycelium.wallet.DataExport;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.MinerFee;
 import com.mycelium.wallet.R;
@@ -78,7 +90,6 @@ import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.model.TransactionDetails;
-import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.AbstractAccount;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -87,10 +98,16 @@ import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.squareup.otto.Subscribe;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 import static android.app.Activity.RESULT_OK;
 import static android.widget.Toast.LENGTH_LONG;
@@ -105,12 +122,36 @@ public class TransactionHistoryFragment extends Fragment {
    private View _root;
    private ActionMode currentActionMode;
    private volatile Map<Address, String> _addressBook;
+   @BindView(R.id.no_transaction_message)
+   TextView noTransactionMessage;
+
+   @BindView(R.id.btRescan)
+   View btnReload;
+
+   private Wrapper wrapper;
 
    @Override
    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
       _root = inflater.inflate(R.layout.main_transaction_history_view, container, false);
-
-      _root.findViewById(R.id.btRescan).setOnClickListener(new View.OnClickListener() {
+      ButterKnife.bind(this, _root);
+      WalletAccount account = _mbwManager.getSelectedAccount();
+      if(account.getType() == WalletAccount.Type.BCHSINGLEADDRESS
+              ||  account.getType() == WalletAccount.Type.BCHBIP44) {
+         noTransactionMessage.setText(Html.fromHtml(getString(R.string.bch_technology_preview)
+                 + "<br/>" + getString(R.string.bch_you_can_transaction_on_explorer)));
+         noTransactionMessage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+               try {
+                  startActivity(Intent.parseUri("https://www.blocktrail.com/BCC", Intent.URI_INTENT_SCHEME));
+               } catch (URISyntaxException e) {
+                  Log.e("TransactionFragment", "start blocktrail", e);
+               }
+            }
+         });
+         btnReload.setVisibility(View.GONE);
+      }
+      btnReload.setOnClickListener(new View.OnClickListener() {
          @Override
          public void onClick(View view) {
             _mbwManager.getSelectedAccount().dropCachedData();
@@ -220,10 +261,11 @@ public class TransactionHistoryFragment extends Fragment {
       } else {
          _root.findViewById(R.id.llNoRecords).setVisibility(View.GONE);
          _root.findViewById(R.id.lvTransactionHistory).setVisibility(View.VISIBLE);
-         Wrapper wrapper = new Wrapper(getActivity(), history);
+         wrapper = new Wrapper(getActivity(), history);
          ((ListView) _root.findViewById(R.id.lvTransactionHistory)).setAdapter(wrapper);
          refreshList();
       }
+      getActivity().invalidateOptionsMenu();
    }
 
    @Override
@@ -238,6 +280,30 @@ public class TransactionHistoryFragment extends Fragment {
       if (currentActionMode != null) {
          currentActionMode.finish();
       }
+   }
+
+   @Override
+   public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+      super.onCreateOptionsMenu(menu, inflater);
+      if(wrapper != null && wrapper.getCount() > 0) {
+         inflater.inflate(R.menu.export_history, menu);
+      }
+   }
+
+   @Override
+   public void onPrepareOptionsMenu(Menu menu) {
+      super.onPrepareOptionsMenu(menu);
+   }
+
+   @Override
+   public boolean onOptionsItemSelected(MenuItem item) {
+      final int itemId = item.getItemId();
+      switch (itemId) {
+         case R.id.miExportHistory:
+            shareTransactionHistory();
+            return true;
+      }
+      return super.onOptionsItemSelected(item);
    }
 
    private class TransactionHistoryAdapter extends TransactionArrayAdapter {
@@ -557,4 +623,38 @@ public class TransactionHistoryFragment extends Fragment {
          }
       }
    }
+
+   private void shareTransactionHistory() {
+      WalletAccount account = _mbwManager.getSelectedAccount();
+      MetadataStorage metaData = _mbwManager.getMetadataStorage();
+      try {
+         String fileName = "MyceliumExport_" + System.currentTimeMillis() + ".csv";
+         File historyData = DataExport.getTxHistoryCsv(account, metaData, getActivity().getFileStreamPath(fileName));
+         PackageManager packageManager = Preconditions.checkNotNull(getActivity().getPackageManager());
+         PackageInfo packageInfo = packageManager.getPackageInfo(getActivity().getPackageName(), PackageManager.GET_PROVIDERS);
+         for (ProviderInfo info : packageInfo.providers) {
+            if (info.name.equals("android.support.v4.content.FileProvider")) {
+               String authority = info.authority;
+               Uri uri = FileProvider.getUriForFile(getActivity(), authority, historyData);
+               Intent intent = ShareCompat.IntentBuilder.from(getActivity())
+                       .setStream(uri)  // uri from FileProvider
+                       .setType("text/plain")
+                       .setSubject(getResources().getString(R.string.transaction_history_title))
+                       .setText(getResources().getString(R.string.transaction_history_title))
+                       .getIntent()
+                       .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+               List<ResolveInfo> resInfoList = packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+               for (ResolveInfo resolveInfo : resInfoList) {
+                  String packageName = resolveInfo.activityInfo.packageName;
+                  getActivity().grantUriPermission(packageName, uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+               }
+               startActivity(Intent.createChooser(intent, getResources().getString(R.string.share_transaction_history)));
+            }
+         }
+      } catch (IOException | PackageManager.NameNotFoundException e) {
+         new Toaster(getActivity()).toast("Export failed. Check your logs", false);
+         e.printStackTrace();
+      }
+   }
+
 }

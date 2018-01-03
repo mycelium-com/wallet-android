@@ -98,7 +98,7 @@ public class WelcomeDialogHelper {
 
     public static void bchDialog(Context context) {
         new AlertDialog.Builder(context)
-                .setMessage("Bitcoin Cash functionality is a technology preview of Mycelium Modular Architecture. You can only instantly exchange your BCH to BTC right in Mycelium so far. Fully functional BCH module will be available soon. Special thanks to all our contributors and beta  testers!")
+                .setMessage(R.string.bch_technology_preview)
                 .setPositiveButton(R.string.button_ok, null).create().show();
     }
 }
