@@ -12,7 +12,7 @@ import com.mycelium.wallet.Utils;
 
 import java.math.BigDecimal;
 
-public class ValueKeyboard extends GridLayout {
+public class ValueKeyboard extends android.support.v7.widget.GridLayout {
     public final static int DEL = -1;
     public final static int DOT = -2;
     public final static int MAX_DIGITS_BEFORE_DOT = 9;

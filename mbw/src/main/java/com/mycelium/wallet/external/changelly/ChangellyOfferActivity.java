@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,7 +24,7 @@ import butterknife.OnClick;
 
 import static com.mycelium.wallet.external.changelly.ChangellyService.INFO_ERROR;
 
-public class ChangellyOfferActivity extends Activity {
+public class ChangellyOfferActivity extends AppCompatActivity {
     public static final int RESULT_FINISH = 11;
     @BindView(R.id.tvFromAmount)
     TextView tvFromAmount;
