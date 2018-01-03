@@ -168,7 +168,7 @@ public class AddressFragment extends Fragment {
 
    }
 
-   @OnClick(R.id.tvAddress)
+   @OnClick(R.id.address_layout)
    void addressClick() {
       Utils.setClipboardString(getAddress().get().toString(), getActivity());
       Toast.makeText(getActivity(), R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
