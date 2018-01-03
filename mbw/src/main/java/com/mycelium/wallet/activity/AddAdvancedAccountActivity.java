@@ -60,6 +60,7 @@ import com.mycelium.wallet.colu.ColuManager;
 import com.mycelium.wallet.extsig.keepkey.activity.KeepKeyAccountImportActivity;
 import com.mycelium.wallet.extsig.ledger.activity.LedgerAccountImportActivity;
 import com.mycelium.wallet.extsig.trezor.activity.TrezorAccountImportActivity;
+import com.mycelium.wallet.modularisation.WelcomeDialogHelper;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
@@ -70,6 +71,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class AddAdvancedAccountActivity extends Activity {
    public static final String BUY_TREZOR_LINK = "https://buytrezor.com?a=mycelium.com";
@@ -97,6 +101,7 @@ public class AddAdvancedAccountActivity extends Activity {
       this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
       super.onCreate(savedInstanceState);
       setContentView(R.layout.add_advanced_account_activity);
+      ButterKnife.bind(this);
       final Activity activity = AddAdvancedAccountActivity.this;
       _mbwManager = MbwManager.getInstance(this);
       _network = _mbwManager.getNetwork();
@@ -159,6 +164,11 @@ public class AddAdvancedAccountActivity extends Activity {
             Utils.openWebsite(activity, BUY_LEDGER_LINK);
          }
       });
+   }
+
+   @OnClick(R.id.btGenerateNewBchSingleKey)
+   void onGenerateBchClick() {
+      WelcomeDialogHelper.bchDialog(this);
    }
 
    @Override

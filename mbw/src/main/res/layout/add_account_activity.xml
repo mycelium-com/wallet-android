@@ -57,6 +57,17 @@
                 android:paddingRight="30dp"
                 android:text="@string/hd_account"
                 android:layout_marginTop="25dp"
+                android:layout_marginBottom="@dimen/margin_medium"/>
+
+        <Button
+                android:id="@+id/btHdBchCreate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingLeft="30dp"
+                android:paddingRight="30dp"
+                android:text="@string/hd_account_bch"
+                android:layout_marginTop="@dimen/margin_medium"
                 android:layout_marginBottom="20dp"/>
 
         <TextView

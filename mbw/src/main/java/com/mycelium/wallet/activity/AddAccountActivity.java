@@ -49,6 +49,7 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.HdAccountCreated;
+import com.mycelium.wallet.modularisation.WelcomeDialogHelper;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
@@ -56,6 +57,9 @@ import com.mycelium.wapi.wallet.WalletManager;
 import com.squareup.otto.Bus;
 
 import java.util.UUID;
+
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class AddAccountActivity extends Activity {
    public static void callMe(Fragment fragment, int requestCode) {
@@ -77,6 +81,7 @@ public class AddAccountActivity extends Activity {
       this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
       super.onCreate(savedInstanceState);
       setContentView(R.layout.add_account_activity);
+      ButterKnife.bind(this);
       _mbwManager = MbwManager.getInstance(this);
       _toaster = new Toaster(this);
 
@@ -93,6 +98,11 @@ public class AddAccountActivity extends Activity {
       final View coluCreate = findViewById(R.id.btColuCreate);
       coluCreate.setOnClickListener(createColuAccount);
       _progress = new ProgressDialog(this);
+   }
+
+   @OnClick(R.id.btHdBchCreate)
+   void onAddBchHD(){
+      WelcomeDialogHelper.bchDialog(this);
    }
 
    View.OnClickListener advancedClickListener = new View.OnClickListener() {

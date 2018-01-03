@@ -18,8 +18,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.mrd.bitlib.StandardTransactionBuilder;
+import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.Transaction;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.activity.send.BroadcastTransactionActivity;
 import com.mycelium.wallet.activity.send.adapter.FeeViewAdapter;
 import com.mycelium.wallet.activity.send.helper.ExponentialLowPrioAlgorithm;
 import com.mycelium.wallet.activity.send.helper.FeeItemsBuilder;
@@ -28,9 +32,14 @@ import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
 import com.mycelium.wallet.external.changelly.ChangellyAPIService;
 import com.mycelium.wallet.external.changelly.ChangellyService;
 import com.mycelium.wallet.external.changelly.Constants;
+import com.mycelium.wapi.wallet.AesKeyCipher;
+import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -43,6 +52,7 @@ import static com.mycelium.wallet.external.changelly.ChangellyService.INFO_ERROR
 public class ConfirmExchangeFragment extends Fragment {
     public static final int MIN_FEE = 3000;
     public static final int MAX_FEE = 700000;
+    public static final int MINER_FEE = 450;
     @BindView(R.id.fee_list)
     SelectableRecyclerView feeList;
 
@@ -90,7 +100,25 @@ public class ConfirmExchangeFragment extends Fragment {
         }
         createOffer();
     }
+    void createAndSignTransaction() {
+        long fromValue = ExactBitcoinCashValue.from(BigDecimal.valueOf(offer.amountFrom)).getLongValue();
+        try {
+            StandardTransactionBuilder.UnsignedTransaction unsignedTransaction = fromAccount.createUnsignedTransaction(
+                    Arrays.asList(new WalletAccount.Receiver(Address.fromString(offer.payinAddress), fromValue))
+                    , MINER_FEE);
+            Transaction transaction = fromAccount.signTransaction(unsignedTransaction, AesKeyCipher.defaultKeyCipher());
 
+            //TODO braodcast BCH transaction
+        } catch (StandardTransactionBuilder.UnableToBuildTransactionException e) {
+            e.printStackTrace();
+        } catch (StandardTransactionBuilder.InsufficientFundsException e) {
+            e.printStackTrace();
+        } catch (StandardTransactionBuilder.OutputTooSmallException e) {
+            e.printStackTrace();
+        } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
+            invalidKeyCipher.printStackTrace();
+        }
+    }
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {

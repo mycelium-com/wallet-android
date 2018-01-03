@@ -67,6 +67,7 @@ import com.mycelium.wallet.event.RefreshingExchangeRatesFailed;
 import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wallet.event.SyncStopped;
+import com.mycelium.wallet.modularisation.WelcomeDialogHelper;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
@@ -135,7 +136,7 @@ public class BalanceFragment extends Fragment {
    @OnClick(R.id.btSend) void onClickSend() {
       if (_mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHBIP44
               || _mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHSINGLEADDRESS) {
-         bchDialog();
+         WelcomeDialogHelper.bchDialog(getActivity());
          return;
       }
       WalletAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
@@ -158,7 +159,7 @@ public class BalanceFragment extends Fragment {
    @OnClick(R.id.btReceive) void onClickReceive() {
       if (_mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHBIP44
               || _mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHSINGLEADDRESS) {
-         bchDialog();
+         WelcomeDialogHelper.bchDialog(getActivity());
          return;
       }
       Optional<Address> receivingAddress = _mbwManager.getSelectedAccount().getReceivingAddress();
@@ -171,7 +172,7 @@ public class BalanceFragment extends Fragment {
    @OnClick(R.id.btScan) void onClickScan() {
       if (_mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHBIP44
               || _mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHSINGLEADDRESS) {
-         bchDialog();
+         WelcomeDialogHelper.bchDialog(getActivity());
          return;
       }
       //perform a generic scan, act based upon what we find in the QR code
@@ -182,12 +183,6 @@ public class BalanceFragment extends Fragment {
          config.bitcoinUriWithAddressAction = StringHandleConfig.BitcoinUriWithAddressAction.SEND_COLU_ASSET;
       }
       ScanActivity.callMe(BalanceFragment.this.getActivity(), ModernMain.GENERIC_SCAN_REQUEST, config);
-   }
-
-   void bchDialog() {
-      new AlertDialog.Builder(getActivity())
-              .setMessage("Bitcoin Cash functionality is a technology preview of Mycelium Modular Architecture. You can only instantly exchange your BCH to BTC right in Mycelium so far. Fully functional BCH module will be available soon. Special thanks to all our contributors and beta  testers!")
-              .setPositiveButton(R.string.button_ok, null).create().show();
    }
 
    @Override

@@ -95,4 +95,10 @@ public class WelcomeDialogHelper {
             sharedPreferences.edit().putBoolean(AFTER_FIRST_SYNC, false).apply();
         }
     }
+
+    public static void bchDialog(Context context) {
+        new AlertDialog.Builder(context)
+                .setMessage("Bitcoin Cash functionality is a technology preview of Mycelium Modular Architecture. You can only instantly exchange your BCH to BTC right in Mycelium so far. Fully functional BCH module will be available soon. Special thanks to all our contributors and beta  testers!")
+                .setPositiveButton(R.string.button_ok, null).create().show();
+    }
 }
