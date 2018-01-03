@@ -54,15 +54,17 @@
 
                 <TextView
                     android:id="@+id/tvAddress"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginRight="@dimen/margin_medium"
                     android:ellipsize="middle"
+                    android:layout_weight="1"
                     android:singleLine="true"
                     android:textColor="@color/lightgrey"
                     android:textSize="15sp"
                     android:typeface="monospace"
-                    tools:text="1A1zP1eP5QG" />
+                    tools:text="1A1zP1ePsdfksdlfsldfkslasdasdasdasd" />
+
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
