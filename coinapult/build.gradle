@@ -15,9 +15,9 @@ dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-annotations:2.5.1'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.5.1'
     implementation 'com.google.http-client:google-http-client-jackson2:1.19.0'
-    implementation 'com.madgag.spongycastle:core:1.51.0.0'
-    implementation 'com.madgag.spongycastle:prov:1.51.0.0'
-    implementation 'com.madgag.spongycastle:pkix:1.51.0.0'
-    implementation 'com.madgag.spongycastle:pg:1.51.0.0'
+    implementation 'com.madgag.spongycastle:core:1.58.0.0'
+    implementation 'com.madgag.spongycastle:prov:1.58.0.0'
+    implementation 'com.madgag.spongycastle:pkix:1.54.0.0'
+    implementation 'com.madgag.spongycastle:pg:1.54.0.0'
     testImplementation "junit:junit:$junitVersion"
 }

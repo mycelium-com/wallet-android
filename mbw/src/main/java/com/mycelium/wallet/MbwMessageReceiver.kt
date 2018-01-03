@@ -34,7 +34,7 @@ import java.util.*
 import kotlin.collections.ArrayList
 import com.mycelium.wapi.wallet.WalletAccount.Type.BCHBIP44
 
-class MbwMessageReceiver constructor(private val context: Context) : ModuleMessageReceiver {
+class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
     private val eventBus: Bus = MbwManager.getInstance(context).eventBus
 
     override fun onMessage(callingPackageName: String, intent: Intent) {
@@ -181,7 +181,7 @@ class MbwMessageReceiver constructor(private val context: Context) : ModuleMessa
                 val satoshisSent = intent.getLongExtra(IntentContract.SATOSHIS_SENT, 0L)
                 val mds = MbwManager.getInstance(context).metadataStorage
                 val guid = intent.getStringExtra(IntentContract.SINGLE_ADDRESS_ACCOUNT_GUID)
-                var singleAddressAccount = walletManager.getAccount(UUID.fromString(guid))
+                val singleAddressAccount = walletManager.getAccount(UUID.fromString(guid))
                 notifySatoshisReceived(satoshisReceived, satoshisSent, mds, listOf(singleAddressAccount))
             }
 
@@ -223,11 +223,11 @@ class MbwMessageReceiver constructor(private val context: Context) : ModuleMessa
                 }
                 val cointypeLevelDeterministicKey =
                         HDKeyDerivation.deriveChildKey(bip44LevelDeterministicKey, ChildNumber(coinType, true))
-                val networkParameters : NetworkParameters = if (mbwManager.network.isTestnet) {
-                    NetworkParameters.fromID(NetworkParameters.ID_TESTNET)!!
+                val networkParameters = NetworkParameters.fromID(if (mbwManager.network.isTestnet) {
+                    NetworkParameters.ID_TESTNET
                 } else {
-                    NetworkParameters.fromID(NetworkParameters.ID_MAINNET)!!
-                }
+                    NetworkParameters.ID_MAINNET
+                })!!
                 //val bip39PassphraseList : ArrayList<String> = ArrayList(masterSeed.bip39WordList)
                 val service = IntentContract.RequestPrivateExtendedKeyCoinTypeToSPV.createIntent(
                         accountIndex,
@@ -238,8 +238,7 @@ class MbwMessageReceiver constructor(private val context: Context) : ModuleMessa
             "com.mycelium.wallet.requestSingleAddressPrivateKeyToMBW" -> {
                 val _mbwManager = MbwManager.getInstance(context)
                 val accountGuid = intent.getStringExtra(IntentContract.SINGLE_ADDRESS_ACCOUNT_GUID)
-                Log.d(TAG, "com.mycelium.wallet.requestSingleAddressPrivateKeyToMBW, " +
-                        "guid = " + accountGuid)
+                Log.d(TAG, "com.mycelium.wallet.requestSingleAddressPrivateKeyToMBW, guid = $accountGuid")
                 val account =_mbwManager.getWalletManager(false).getAccount(UUID.fromString(accountGuid)) as SingleAddressAccount
                 val privateKey = account.getPrivateKey(AesKeyCipher.defaultKeyCipher())
 
