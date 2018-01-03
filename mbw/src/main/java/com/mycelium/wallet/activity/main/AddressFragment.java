@@ -187,8 +187,7 @@ public class AddressFragment extends Fragment {
       }
       Optional<Address> receivingAddress = account.getReceivingAddress();
       if (receivingAddress.isPresent()) {
-         ReceiveCoinsActivity.callMe(AddressFragment.this.getActivity(),
-                 receivingAddress.get(), account.canSpend());
+         ReceiveCoinsActivity.callMe(getActivity(), receivingAddress.get(), account.canSpend());
       }
    }
 

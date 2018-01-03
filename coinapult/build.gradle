@@ -11,7 +11,7 @@ dependencies {
     implementation project(includePrefix +':mbwlib')
 
     implementation guavaArtifact
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.5.1'
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.5.1'
     implementation 'com.fasterxml.jackson.core:jackson-annotations:2.5.1'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.5.1'
     implementation 'com.google.http-client:google-http-client-jackson2:1.19.0'
