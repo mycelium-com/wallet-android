@@ -208,7 +208,9 @@ public class WalletManager {
             _backing.setTransactionSuccessful();
             addAccount(account);
             SingleAddressBCHAccount singleAddressBCHAccount = new SingleAddressBCHAccount(context, store, _network, accountBacking, _wapi, _spvBalanceFetcher);
-            addAccount(singleAddressBCHAccount);
+            if(singleAddressBCHAccount.canSpend() && _spvBalanceFetcher != null) {
+               addAccount(singleAddressBCHAccount);
+            }
          } finally {
             _backing.endTransaction();
          }
