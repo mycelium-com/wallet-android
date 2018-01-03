@@ -155,17 +155,6 @@
             android:textSize="14sp" />
     </LinearLayout>
 
-    <!--<TextView--><!--android:layout_width="wrap_content"--><!--android:layout_height="wrap_content"--><!--android:layout_gravity="center"--><!--android:layout_marginTop="@dimen/margin_large"--><!--android:fontFamily="sans-serif"--><!--android:gravity="center_horizontal"--><!--android:lineSpacingExtra="11sp"--><!--android:text="@string/miner_fee_title"--><!--android:textColor="#ffffff"--><!--android:textSize="21sp"--><!--android:textStyle="normal" />-->
-
-    <com.mycelium.wallet.activity.send.view.SelectableRecyclerView
-        android:id="@+id/fee_list"
-        android:layout_width="match_parent"
-        android:layout_height="75dp"
-        android:layout_marginBottom="@dimen/margin_large"
-        android:layout_marginTop="@dimen/margin_large"
-        android:background="@color/fee_recycler_item" />
-
-
     <Button
         android:id="@+id/buttonContinue"
         style="@style/MyceliumButton"

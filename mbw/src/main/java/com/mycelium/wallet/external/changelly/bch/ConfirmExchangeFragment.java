@@ -50,11 +50,7 @@ import static com.mrd.bitlib.StandardTransactionBuilder.estimateTransactionSize;
 import static com.mycelium.wallet.external.changelly.ChangellyService.INFO_ERROR;
 
 public class ConfirmExchangeFragment extends Fragment {
-    public static final int MIN_FEE = 3000;
-    public static final int MAX_FEE = 700000;
     public static final int MINER_FEE = 450;
-    @BindView(R.id.fee_list)
-    SelectableRecyclerView feeList;
 
     @BindView(R.id.fromAddress)
     TextView fromAddress;
@@ -130,18 +126,6 @@ public class ConfirmExchangeFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        feeList.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false));
-        int senderFinalWidth = getActivity().getWindowManager().getDefaultDisplay().getWidth();
-        int feeFirstItemWidth = (senderFinalWidth - getResources().getDimensionPixelSize(R.dimen.item_dob_width)) / 2;
-        FeeViewAdapter feeViewAdapter = new FeeViewAdapter(feeFirstItemWidth);
-        ExponentialLowPrioAlgorithm algorithm = new ExponentialLowPrioAlgorithm(MIN_FEE, MAX_FEE);
-        FeeItemsBuilder algorithmItemsBuilder = new FeeItemsBuilder(MbwManager.getInstance(getActivity()));
-        List<FeeItem> feeItems = new ArrayList<>();
-        feeItems.add(new FeeItem(0, null, null, FeeViewAdapter.VIEW_TYPE_PADDING));
-        algorithmItemsBuilder.addItemsInRange(feeItems, algorithm, estimateTxSize());
-        feeItems.add(new FeeItem(0, null, null, FeeViewAdapter.VIEW_TYPE_PADDING));
-        feeViewAdapter.setDataset(feeItems);
-        feeList.setAdapter(feeViewAdapter);
 
         fromAddress.setText(fromAccount.getReceivingAddress().get().toString());
         toAddress.setText(toAccount.getReceivingAddress().get().toString());
