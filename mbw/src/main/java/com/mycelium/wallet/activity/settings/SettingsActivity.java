@@ -37,6 +37,7 @@ package com.mycelium.wallet.activity.settings;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -519,8 +520,8 @@ public class SettingsActivity extends PreferenceActivity {
             preference.setOnPreferenceClickListener(new OnPreferenceClickListener() {
                @Override
                public boolean onPreferenceClick(Preference preference) {
-                  Intent intent = getPackageManager().getLaunchIntentForPackage(module.getModulePackage());
-                  intent.setAction(com.mycelium.modularizationtools.Constants.Companion.getSETTINGS());
+                  Intent intent = new Intent(com.mycelium.modularizationtools.Constants.Companion.getSETTINGS());
+                  intent.setPackage(module.getModulePackage());
                   startActivity(intent);
                   return true;
                }
