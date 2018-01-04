@@ -12,7 +12,6 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.view.ValueKeyboard;
 
 public class ExchangeActivity extends AppCompatActivity {
-
     private static int theme = R.style.MyceliumModern_Light;
 
     @Override
@@ -48,7 +47,7 @@ public class ExchangeActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        ValueKeyboard valueKeyboard = (ValueKeyboard) findViewById(R.id.numeric_keyboard);
+        ValueKeyboard valueKeyboard = findViewById(R.id.numeric_keyboard);
         if (valueKeyboard != null && valueKeyboard.getVisibility() == View.VISIBLE) {
             valueKeyboard.done();
         } else if (getFragmentManager().getBackStackEntryCount() > 1) {

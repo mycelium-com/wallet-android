@@ -171,9 +171,9 @@ public class TransactionHistoryFragment extends Fragment {
    }
 
    @Override
-   public void onAttach(Activity activity) {
-      super.onAttach(activity);
-      _mbwManager = MbwManager.getInstance(activity);
+   public void onAttach(Context context) {
+      super.onAttach(context);
+      _mbwManager = MbwManager.getInstance(context);
       _storage = _mbwManager.getMetadataStorage();
    }
 

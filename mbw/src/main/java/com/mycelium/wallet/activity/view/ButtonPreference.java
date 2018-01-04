@@ -3,24 +3,11 @@ package com.mycelium.wallet.activity.view;
 
 import android.content.Context;
 import android.preference.Preference;
-import android.text.Html;
-import android.util.AttributeSet;
 import android.view.View;
 
 import com.mycelium.wallet.R;
 
 public class ButtonPreference extends Preference {
-
-    public ButtonPreference(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-        setWidgetLayoutResource(R.layout.preference_button);
-    }
-
-    public ButtonPreference(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        setWidgetLayoutResource(R.layout.preference_button);
-    }
-
     public ButtonPreference(Context context) {
         super(context);
         setWidgetLayoutResource(R.layout.preference_button);
@@ -42,12 +29,9 @@ public class ButtonPreference extends Preference {
         });
     }
 
-
-
     private View.OnClickListener buttonClickListener;
 
     public void setButtonClickListener(View.OnClickListener buttonClickListener) {
         this.buttonClickListener = buttonClickListener;
     }
-
 }

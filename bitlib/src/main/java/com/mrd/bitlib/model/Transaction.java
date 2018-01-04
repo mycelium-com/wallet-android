@@ -97,7 +97,7 @@ public class Transaction implements Serializable {
                outputs[i] = TransactionOutput.fromByteReader(reader);
             } catch (TransactionOutputParsingException e) {
                throw new TransactionParsingException("Unable to parse transaction output at index " + i + ": "
-                     + e.getMessage(), e);
+                     + e.getMessage());
             }
          }
          int lockTime = reader.getIntLE();

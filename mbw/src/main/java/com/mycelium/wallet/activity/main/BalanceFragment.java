@@ -134,8 +134,7 @@ public class BalanceFragment extends Fragment {
    }
 
    @OnClick(R.id.btSend) void onClickSend() {
-      if (_mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHBIP44
-              || _mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHSINGLEADDRESS) {
+      if (isBCH()) {
          WelcomeDialogHelper.bchDialog(getActivity());
          return;
       }
@@ -157,8 +156,7 @@ public class BalanceFragment extends Fragment {
    }
 
    @OnClick(R.id.btReceive) void onClickReceive() {
-      if (_mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHBIP44
-              || _mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHSINGLEADDRESS) {
+      if (isBCH()) {
          WelcomeDialogHelper.bchDialog(getActivity());
          return;
       }
@@ -170,8 +168,7 @@ public class BalanceFragment extends Fragment {
    }
 
    @OnClick(R.id.btScan) void onClickScan() {
-      if (_mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHBIP44
-              || _mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHSINGLEADDRESS) {
+      if (isBCH()) {
          WelcomeDialogHelper.bchDialog(getActivity());
          return;
       }
@@ -189,6 +186,11 @@ public class BalanceFragment extends Fragment {
    public void onPause() {
       _mbwManager.getEventBus().unregister(this);
       super.onPause();
+   }
+
+   private boolean isBCH() {
+      return _mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHBIP44
+              || _mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHSINGLEADDRESS;
    }
 
    private void updateUi() {
@@ -266,8 +268,7 @@ public class BalanceFragment extends Fragment {
              tvBtcRate.setText(getResources().getString(R.string.btc_rate, currency, converted, _mbwManager.getExchangeRateManager().getCurrentExchangeSourceName()));
           }
       }
-      if(account.getType() == WalletAccount.Type.BCHSINGLEADDRESS
-              || account.getType() == WalletAccount.Type.BCHBIP44) {
+      if(isBCH()) {
          _tcdFiatDisplay.setVisibility(View.GONE);
          actionLayout.setAlpha(0.4f);
       } else{

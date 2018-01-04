@@ -104,12 +104,11 @@ public class ExchangeFragment extends Fragment {
                 .setAction(ChangellyService.ACTION_GET_MIN_EXCHANGE)
                 .putExtra(ChangellyService.FROM, ChangellyService.BCH)
                 .putExtra(ChangellyService.TO, ChangellyService.BTC));
-        Intent changellyServiceIntent = new Intent(getActivity(), ChangellyService.class)
+        getActivity().startService(new Intent(getActivity(), ChangellyService.class)
                 .setAction(ChangellyService.ACTION_GET_EXCHANGE_AMOUNT)
                 .putExtra(ChangellyService.FROM, ChangellyService.BCH)
                 .putExtra(ChangellyService.TO, ChangellyService.BTC)
-                .putExtra(ChangellyService.AMOUNT, 1.0);
-        getActivity().startService(changellyServiceIntent);
+                .putExtra(ChangellyService.AMOUNT, 1.0));
     }
 
     @Nullable
@@ -152,7 +151,7 @@ public class ExchangeFragment extends Fragment {
     }
 
     private List<WalletAccount> filterAccount(Collection<WalletAccount> accounts) {
-        List<WalletAccount> result = new ArrayList();
+        List<WalletAccount> result = new ArrayList<>();
         for (WalletAccount walletAccount : accounts) {
             if (walletAccount.canSpend() /*TODO uncoment && walletAccount.getCurrencyBasedBalance().confirmed.isZero()*/) {
                 result.add(walletAccount);
@@ -160,7 +159,6 @@ public class ExchangeFragment extends Fragment {
         }
         return result;
     }
-
 
     @OnClick(R.id.buttonContinue)
     void continueClick() {

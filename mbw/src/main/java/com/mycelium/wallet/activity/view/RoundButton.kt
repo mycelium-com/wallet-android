@@ -15,14 +15,13 @@ import kotlin.properties.Delegates
 
 
 class RoundButton(context: Context, attrs: AttributeSet) : ImageButton(context, attrs) {
-
     var circleColor: Int by Delegates.observable(0) { _, _, new ->
         val drawable: Drawable
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             drawable = resources.getDrawable(R.drawable.round_background, context.theme)
 
-            val bg = if (drawable is RippleDrawable)
-                drawable.getDrawable(0) as GradientDrawable else drawable as GradientDrawable
+            val bg = (if (drawable is RippleDrawable)
+                drawable.getDrawable(0) else drawable) as GradientDrawable
             bg.setColor(new)
         } else {
             val defaultDrawable = resources.getDrawable(R.drawable.round_background).mutate()
