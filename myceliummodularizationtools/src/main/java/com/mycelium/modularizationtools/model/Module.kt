@@ -13,7 +13,5 @@ class Module(val modulePackage: String, val name: String, val description: Strin
         return true
     }
 
-    override fun hashCode(): Int {
-        return modulePackage.hashCode()
-    }
+    override fun hashCode() = modulePackage.hashCode()
 }

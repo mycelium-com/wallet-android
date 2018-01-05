@@ -90,7 +90,7 @@ public class ExchangeFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mbwManager = MbwManager.getInstance(getActivity());
-        walletManager = MbwManager.getInstance(getActivity()).getWalletManager(false);
+        walletManager = mbwManager.getWalletManager(false);
         setRetainInstance(true);
         receiver = new Receiver();
         for (String action : new String[]{

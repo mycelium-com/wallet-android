@@ -127,21 +127,16 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
       moduleMessageReceiver.onMessage(callingPackageName, intent);
    }
 
-   public static String getSpvModuleName() {
-      WalletAccount selectedAccount = MbwManager.getInstance(INSTANCE).getSelectedAccount();
-      return getSpvModuleName(selectedAccount.getType());
-   }
-
-   public static String getSpvModuleName(WalletAccount.Type selectedAccountType) {
-      if (spvModulesMapping.containsKey(selectedAccountType)) {
-         return spvModulesMapping.get(selectedAccountType);
+   public static String getSpvModuleName(WalletAccount.Type accountType) {
+      if (spvModulesMapping.containsKey(accountType)) {
+         return spvModulesMapping.get(accountType);
       } else {
-         throw new RuntimeException("No spv module defined for account type " + selectedAccountType);
+         throw new RuntimeException("No spv module defined for account type " + accountType);
       }
    }
 
-   public static void sendToSpv(Intent intent) {
-      CommunicationManager.getInstance(INSTANCE).send(getSpvModuleName(), intent);
+   public static void sendToSpv(Intent intent, WalletAccount.Type accountType) {
+      CommunicationManager.getInstance(INSTANCE).send(getSpvModuleName(accountType), intent);
    }
 
    private static Map<WalletAccount.Type, String> initTrustedSpvModulesMapping() {

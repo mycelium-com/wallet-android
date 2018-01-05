@@ -21,6 +21,7 @@ import com.mycelium.wallet.event.SpvSyncChanged
 import com.mycelium.wallet.persistence.MetadataStorage
 import com.mycelium.wapi.model.TransactionEx
 import com.mycelium.wapi.wallet.*
+import com.mycelium.wapi.wallet.WalletAccount.Type.*
 import com.mycelium.wapi.wallet.bip44.Bip44Account
 import com.mycelium.wapi.wallet.single.SingleAddressAccount
 import com.squareup.otto.Bus
@@ -32,7 +33,7 @@ import org.bitcoinj.crypto.HDKeyDerivation
 import java.nio.ByteBuffer
 import java.util.*
 import kotlin.collections.ArrayList
-import com.mycelium.wapi.wallet.WalletAccount.Type.BCHBIP44
+import org.bitcoinj.core.TransactionConfidence.ConfidenceType.UNKNOWN
 
 class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
     private val eventBus: Bus = MbwManager.getInstance(context).eventBus
@@ -233,7 +234,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                         accountIndex,
                         cointypeLevelDeterministicKey.serializePrivB58(networkParameters),
                         1504664986L) //TODO Change value after test. Nelson
-                WalletApplication.sendToSpv(service)
+                WalletApplication.sendToSpv(service, BCHBIP44)
             }
             "com.mycelium.wallet.requestSingleAddressPrivateKeyToMBW" -> {
                 val _mbwManager = MbwManager.getInstance(context)
@@ -243,8 +244,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 val privateKey = account.getPrivateKey(AesKeyCipher.defaultKeyCipher())
 
                 val service = IntentContract.RequestSingleAddressPrivateKeyToSPV.createIntent(accountGuid, privateKey.privateKeyBytes)
-                WalletApplication.sendToSpv(service)
-            }
+                WalletApplication.sendToSpv(service, BCHSINGLEADDRESS)
             }
             null -> Log.w(TAG, "onMessage failed. No action defined.")
             else -> Log.e(TAG, "onMessage failed. Unknown action ${intent.action}")

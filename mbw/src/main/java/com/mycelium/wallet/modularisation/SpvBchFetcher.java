@@ -25,39 +25,23 @@ public class SpvBchFetcher implements SpvBalanceFetcher {
 
     @Override
     public CurrencyBasedBalance retrieveByHdAccountIndex(String id, int accountIndex) {
-        CurrencyBasedBalance balance = CurrencyBasedBalance.ZERO_BITCOIN_CASH_BALANCE;
         Uri uri = TransactionContract.AccountBalance.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHBIP44)).buildUpon().appendEncodedPath(id).build();
         String selection = TransactionContract.AccountBalance.SELECTION_ACCOUNT_INDEX;
-        String[] selectionArgs = new String[]{Integer.toString(accountIndex)};
-        Cursor cursor = null;
-
-        try {
-            cursor = context.getContentResolver().query(uri, null, selection, selectionArgs, null);
-            if (cursor != null) {
-                while (cursor.moveToNext()) {
-                    balance = from(cursor);
-                }
-            }
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-        }
-
-        return balance;
+        return retrieveBalance(uri, selection, "" + accountIndex);
     }
 
     @Override
     public CurrencyBasedBalance retrieveBySingleAddressAccountId(String id) {
-        CurrencyBasedBalance balance = CurrencyBasedBalance.ZERO_BITCOIN_CASH_BALANCE;
-        String selection = TransactionContract.AccountBalance.SELECTION_SINGLE_ADDRESS_ACCOUNT_GUID;
-        String[] selectionArgs = new String[]{id};
         Uri uri = TransactionContract.AccountBalance.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHSINGLEADDRESS)).buildUpon().appendEncodedPath(id).build();
+        String selection = TransactionContract.AccountBalance.SELECTION_SINGLE_ADDRESS_ACCOUNT_GUID;
+        return retrieveBalance(uri, selection, id);
+    }
 
+    private CurrencyBasedBalance retrieveBalance(Uri uri, String selection, String selectionArg) {
+        CurrencyBasedBalance balance = CurrencyBasedBalance.ZERO_BITCOIN_CASH_BALANCE;
         Cursor cursor = null;
-
         try {
-            cursor = context.getContentResolver().query(uri, null, selection, selectionArgs, null);
+            cursor = context.getContentResolver().query(uri, null, selection, new String[]{selectionArg}, null);
             if (cursor != null) {
                 while (cursor.moveToNext()) {
                     balance = from(cursor);
@@ -81,15 +65,13 @@ public class SpvBchFetcher implements SpvBalanceFetcher {
                 ExactBitcoinCashValue.from(sending), ExactBitcoinCashValue.from(receiving));
     }
 
-
     public void getTransactions(int accountId) {
         Intent service = IntentContract.ReceiveTransactions.createIntent(accountId);
-        WalletApplication.sendToSpv(service);
+        WalletApplication.sendToSpv(service, WalletAccount.Type.BCHBIP44);
     }
 
     public void getTransactionsFromSingleAddressAccount(String guid) {
         Intent service = IntentContract.ReceiveTransactionsSingleAddress.createIntent(guid);
-        WalletApplication.sendToSpv(service);
+        WalletApplication.sendToSpv(service, WalletAccount.Type.BCHSINGLEADDRESS);
     }
-
 }

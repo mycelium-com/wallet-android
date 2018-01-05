@@ -983,7 +983,7 @@ public class Utils {
          return "";
       }
 
-      if (value.isBtc() ) {
+      if (value.isBtc()) {
          return getFormattedValueWithUnit((BitcoinValue) value, denomination);
       } else if(value.isBch()) {
         return value.getValue() + " " + value.getCurrency();
