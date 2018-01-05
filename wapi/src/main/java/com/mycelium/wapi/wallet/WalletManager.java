@@ -282,9 +282,7 @@ public class WalletManager {
             _bip44Accounts.add(account);
 
             Bip44BCHAccount bip44BCHAccount = new Bip44BCHAccount(context, keyManager, _network, accountBacking, _wapi, _spvBalanceFetcher);
-
-            if (!bip44BCHAccount.getCurrencyBasedBalance().confirmed.isZero())
-               addAccount(bip44BCHAccount);
+            addAccount(bip44BCHAccount);
 
             return id;
          } finally {
@@ -721,7 +719,7 @@ public class WalletManager {
          _bip44Accounts.add(account);
          //TODO remove this , just for test bch
          Bip44BCHAccount bchAccount = new Bip44BCHAccount(context, keyManager, _network, accountBacking, _wapi, _spvBalanceFetcher);
-         if(bchAccount.canSpend() && !bchAccount.getCurrencyBasedBalance().confirmed.isZero() && _spvBalanceFetcher != null) {
+         if(bchAccount.canSpend() && _spvBalanceFetcher != null) {
             addAccount(bchAccount);
          }
       }
@@ -738,7 +736,7 @@ public class WalletManager {
          addAccount(account);
          //TODO remove this , just for test bch
          SingleAddressBCHAccount bchAccount = new SingleAddressBCHAccount(context, store, _network, accountBacking, _wapi, _spvBalanceFetcher);
-         if (bchAccount.canSpend() && !bchAccount.getCurrencyBasedBalance().confirmed.isZero() && _spvBalanceFetcher != null) {
+         if (bchAccount.canSpend() && _spvBalanceFetcher != null) {
             addAccount(bchAccount);
          }
       }
@@ -1151,8 +1149,7 @@ public class WalletManager {
 
             if(_spvBalanceFetcher != null) {
                Bip44BCHAccount bip44BCHAccount = new Bip44BCHAccount(context, keyManager, _network, accountBacking, _wapi, _spvBalanceFetcher);
-               if (!bip44BCHAccount.getCurrencyBasedBalance().confirmed.isZero())
-                  addAccount(bip44BCHAccount);
+               addAccount(bip44BCHAccount);
             }
 
             return account.getId();
