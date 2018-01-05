@@ -38,33 +38,21 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-public class PackageRemovedReceiver extends BroadcastReceiver {
+import com.mycelium.wapi.wallet.WalletAccount;
 
+public class PackageRemovedReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         if (intent.getData() != null) {
             String packageName = intent.getData().getEncodedSchemeSpecificPart();
-            String spvModuleName = WalletApplication.getSpvModuleName();
+            String spvModuleName = WalletApplication.getSpvModuleName(WalletAccount.Type.BCHBIP44);
             if (packageName.equals(spvModuleName)) {
-                String action = intent.getAction();
-                if (Intent.ACTION_PACKAGE_ADDED.equals(action)) {
-                    onSpvModuleInstalled();
-                } else if (Intent.ACTION_PACKAGE_REMOVED.equals(action)) {
-                    onSpvModuleUninstalled();
+                switch (intent.getAction()) {
+                    case Intent.ACTION_PACKAGE_ADDED:
+                    case Intent.ACTION_PACKAGE_REMOVED:
+                        Runtime.getRuntime().exit(0);
                 }
             }
         }
-    }
-
-    private void onSpvModuleInstalled() {
-        killTheApp();
-    }
-
-    private void onSpvModuleUninstalled() {
-        killTheApp();
-    }
-
-    private void killTheApp() {
-        Runtime.getRuntime().exit(0);
     }
 }
