@@ -150,22 +150,18 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
          case "com.mycelium.wallet":
             spvModulesMapping.put(WalletAccount.Type.BCHBIP44, "com.mycelium.module.spvbch");
             spvModulesMapping.put(WalletAccount.Type.BCHSINGLEADDRESS, "com.mycelium.module.spvbch");
-            spvModulesMapping.put(WalletAccount.Type.DASH, "org.dash.mycelium.spvdashmodule");
             break;
          case "com.mycelium.wallet.debug":
             spvModulesMapping.put(WalletAccount.Type.BCHBIP44, "com.mycelium.module.spvbch.debug");
             spvModulesMapping.put(WalletAccount.Type.BCHSINGLEADDRESS, "com.mycelium.module.spvbch.debug");
-            spvModulesMapping.put(WalletAccount.Type.DASH, "org.dash.mycelium.spvdashmodule.debug");
             break;
          case "com.mycelium.testnetwallet":
             spvModulesMapping.put(WalletAccount.Type.BCHBIP44, "com.mycelium.module.spvbch.testnet");
             spvModulesMapping.put(WalletAccount.Type.BCHSINGLEADDRESS, "com.mycelium.module.spvbch.testnet");
-            spvModulesMapping.put(WalletAccount.Type.DASH, "org.dash.mycelium.spvdashmodule.testnet");
             break;
          case "com.mycelium.testnetwallet.debug":
             spvModulesMapping.put(WalletAccount.Type.BCHBIP44, "com.mycelium.module.spvbch.testnet.debug");
             spvModulesMapping.put(WalletAccount.Type.BCHSINGLEADDRESS, "com.mycelium.module.spvbch.testnet.debug");
-            spvModulesMapping.put(WalletAccount.Type.DASH, "org.dash.mycelium.spvdashmodule.testnet.debug");
             break;
          default:
             throw new RuntimeException("No spv module defined for BuildConfig " + BuildConfig.APPLICATION_ID);

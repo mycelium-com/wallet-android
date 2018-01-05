@@ -245,20 +245,6 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 val service = IntentContract.RequestSingleAddressPrivateKeyToSPV.createIntent(accountGuid, privateKey.privateKeyBytes)
                 WalletApplication.sendToSpv(service)
             }
-            IntentContract.RequestWalletSeed.ACTION -> {
-                val mbwManager = MbwManager.getInstance(context)
-                val accountIndex = intent.getIntExtra(IntentContract.ACCOUNT_INDEX_EXTRA, -1)
-                Log.d(TAG, "${IntentContract.RequestWalletSeed.ACTION}, accountIndex = $accountIndex")
-                if (accountIndex == -1) {
-                    Log.e(TAG, "Account Index required!")
-                    return
-                }
-                val masterSeed = mbwManager.getWalletManager(false).getMasterSeed(AesKeyCipher.defaultKeyCipher())
-                val bip39PassphraseList : ArrayList<String> = ArrayList(masterSeed.bip39WordList)
-                val dashService = IntentContract.RequestWalletSeed.createIntent(
-                        accountIndex, bip39PassphraseList,
-                        1504664986L)
-                WalletApplication.sendToSpv(dashService)
             }
             null -> Log.w(TAG, "onMessage failed. No action defined.")
             else -> Log.e(TAG, "onMessage failed. Unknown action ${intent.action}")

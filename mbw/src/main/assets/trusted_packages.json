@@ -22,9 +22,5 @@
   {
     "name": "com.mycelium.module.spvbch.testnet.debug",
     "signature": "gz35r0bqdqhXMguVc8UR2+QRbboJFKgr/FzEKO5OoW8="
-  },
-  {
-    "name": "org.dash.mycelium.spvdashmodule.testnet.debug",
-    "signature": "4lo07M9YhEy7GFcZ60uOYhh+BCla/eqMdAeTs5YkPqw="
   }
 ]
