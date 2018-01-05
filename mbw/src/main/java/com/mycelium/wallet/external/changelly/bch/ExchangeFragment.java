@@ -153,7 +153,7 @@ public class ExchangeFragment extends Fragment {
     private List<WalletAccount> filterAccount(Collection<WalletAccount> accounts) {
         List<WalletAccount> result = new ArrayList<>();
         for (WalletAccount walletAccount : accounts) {
-            if (walletAccount.canSpend() /*TODO uncoment && walletAccount.getCurrencyBasedBalance().confirmed.isZero()*/) {
+            if (walletAccount.canSpend() && !walletAccount.getCurrencyBasedBalance().confirmed.isZero()) {
                 result.add(walletAccount);
             }
         }
@@ -204,13 +204,18 @@ public class ExchangeFragment extends Fragment {
         fromLayout.setAlpha(Constants.ACTIVE_ALPHA);
         toLayout.setAlpha(Constants.INACTIVE_ALPHA);
         AccountAdapter.Item item = fromAccountAdapter.getItem(fromRecyclerView.getSelectedItem());
-        valueKeyboard.setMaxValue(item.account.getCurrencyBasedBalance().confirmed.getValue());
+        valueKeyboard.setMaxValue(getMaxSpend(item.account));
     }
 
     @OnClick(R.id.use_all_funds)
     void useAllFundsClick() {
         AccountAdapter.Item item = fromAccountAdapter.getItem(fromRecyclerView.getSelectedItem());
-        fromValue.setText(item.account.getCurrencyBasedBalance().confirmed.getValue().toPlainString());
+        fromValue.setText(getMaxSpend(item.account).toPlainString());
+    }
+
+    private BigDecimal getMaxSpend(WalletAccount account) {
+        return account.getCurrencyBasedBalance().confirmed.getValue()
+                .add(BigDecimal.valueOf(ConfirmExchangeFragment.MINER_FEE).movePointLeft(8).negate());
     }
 
     @OnTextChanged(value = R.id.fromValue, callback = AFTER_TEXT_CHANGED)

@@ -71,6 +71,7 @@ import com.mycelium.wallet.modularisation.WelcomeDialogHelper;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
+import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 import com.squareup.otto.Subscribe;
 
@@ -217,9 +218,7 @@ public class BalanceFragment extends Fragment {
 
       TextView tvBtcRate = (TextView) _root.findViewById(R.id.tvBtcRate);
       // show / hide components depending on account type
-//      View coluSatoshiBalanceLayout = _root.findViewById(R.id.llColuSatoshiBalance);
       if(account instanceof ColuAccount) {
-//          coluSatoshiBalanceLayout.setVisibility(View.VISIBLE);
          tvBtcRate.setVisibility(View.VISIBLE);
          ColuAccount coluAccount = (ColuAccount) account;
           ColuAccount.ColuAssetType assetType = coluAccount.getColuAsset().assetType;
@@ -244,12 +243,13 @@ public class BalanceFragment extends Fragment {
             _tcdFiatDisplay.setVisibility(View.INVISIBLE);
             tvBtcRate.setText(getString(R.string.exchange_source_not_available, ((ColuAccount) account).getColuAsset().name));
          }
-//          TextView tvColuSatoshiBalance = (TextView) _root.findViewById(R.id.tvColuSatoshiBalance);
-//          ColuAccount coluAccount = (ColuAccount) account;
-//          tvColuSatoshiBalance.setText(String.valueOf(coluAccount.getSatoshiAmount()) + " sat");
+      } if(isBCH()) {
+         CurrencyValue fiatValue = CurrencyValue.fromValue(ExactBitcoinCashValue.from(BigDecimal.ONE)
+                 , _mbwManager.getFiatCurrency(), _mbwManager.getExchangeRateManager());
+         tvBtcRate.setText(getString(R.string.bch_rate, "BCH"
+                 , Utils.formatFiatWithUnit(fiatValue)));
       } else {
           // restore default settings if account is standard
-//          coluSatoshiBalanceLayout.setVisibility(View.GONE);
           tvBtcRate.setVisibility(View.VISIBLE);
           _tcdFiatDisplay.setVisibility(View.VISIBLE);
 
@@ -269,10 +269,8 @@ public class BalanceFragment extends Fragment {
           }
       }
       if(isBCH()) {
-         _tcdFiatDisplay.setVisibility(View.GONE);
          actionLayout.setAlpha(0.4f);
       } else{
-         _tcdFiatDisplay.setVisibility(View.VISIBLE);
          actionLayout.setAlpha(1f);
       }
    }

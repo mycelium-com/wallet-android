@@ -1060,6 +1060,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
 3) adjusting miner fee to fit in the network output limit.</string>
     <string name="verify_message">Verify Message</string>
     <string name="rmc_rate">1 %1$s ~ %2$s (BitFlip/%3$s)</string>
+    <string name="bch_rate">1 %1$s ~ %2$s (Changelly)</string>
     <string name="mss_rate">1 %1$s ~ %2$s</string>
     <string name="share_transaction_manually">Share Transaction manually</string>
     <string name="share_transaction_manually_title">Share Transaction Manually</string>

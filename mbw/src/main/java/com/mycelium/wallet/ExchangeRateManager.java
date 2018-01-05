@@ -35,8 +35,12 @@
 package com.mycelium.wallet;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.support.v4.content.LocalBroadcastManager;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
@@ -44,6 +48,7 @@ import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.activity.rmc.RmcApiClient;
 import com.mycelium.wallet.exchange.BitflipApi;
 import com.mycelium.wallet.exchange.Rate;
+import com.mycelium.wallet.external.changelly.ChangellyService;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiException;
@@ -72,6 +77,9 @@ public class ExchangeRateManager implements ExchangeRateProvider {
    private static final String KRAKEN_MARKET_NAME = "Kraken";
 
    private static final Pattern EXCHANGE_RATE_PATTERN;
+   public static final String CHANGELLY_MARKET = "Changelly";
+   public static final String BIT_FLIP_MARKET = "BitFlip";
+
    static {
       String regexKeyExchangeRate = "(.*)_(.*)_(.*)";
       EXCHANGE_RATE_PATTERN = Pattern.compile(regexKeyExchangeRate);
@@ -95,12 +103,13 @@ public class ExchangeRateManager implements ExchangeRateProvider {
 
    private RmcApiClient rmcApiClient;
    private float rateRmcBtc;
-   private Float rateBtcUsd;
+   private float rateBchBtc;
    // value hardcoded for now, but in future we need get from somewhere
    private static final float MSS_RATE = 3125f;
 
    private NetworkParameters networkParameters;
    private MetadataStorage storage;
+   private Receiver changellyReceiver;
 
    ExchangeRateManager(Context applicationContext, Wapi api, NetworkParameters networkParameters, MetadataStorage storage) {
       this.networkParameters = networkParameters;
@@ -113,6 +122,13 @@ public class ExchangeRateManager implements ExchangeRateProvider {
       _subscribers = new LinkedList<>();
       _latestRates = new HashMap<>();
       this.storage = storage;
+      applicationContext.startService(new Intent(applicationContext, ChangellyService.class)
+              .setAction(ChangellyService.ACTION_GET_EXCHANGE_AMOUNT)
+              .putExtra(ChangellyService.FROM, ChangellyService.BCH)
+              .putExtra(ChangellyService.TO, ChangellyService.BTC)
+              .putExtra(ChangellyService.AMOUNT, 1.0));
+      LocalBroadcastManager.getInstance(applicationContext).registerReceiver(changellyReceiver = new Receiver()
+              , new IntentFilter(ChangellyService.INFO_EXCH_AMOUNT));
    }
 
    public void setClient(RmcApiClient client) {
@@ -198,27 +214,15 @@ public class ExchangeRateManager implements ExchangeRateProvider {
                }
             }
          } else {
-            Optional<String> rate = storage.getExchangeRate("RMC", "BTC", "BitFlip");
+            Optional<String> rate = storage.getExchangeRate("RMC", "BTC", BIT_FLIP_MARKET);
             if (rate.isPresent()) {
                rateRmcBtc = Float.parseFloat(rate.get());
             }
          }
-
-         //get rates from gear
-//         if(rmcApiClient != null) {
-//            RmcApiClient rmcApiClient = new RmcApiClient(networkParameters);
-//
-//            Float rate = rmcApiClient.exchangeBtcUsdRate();
-//
-//            if (rate != null) {
-//               rateBtcUsd = rate;
-//            } else {
-//               Optional<String> rateValue = storage.getExchangeRate("BTC", "USD", KRAKEN_MARKET_NAME);
-//               if (rateValue.isPresent()) {
-//                  rateBtcUsd = Float.parseFloat(rateValue.get());
-//               }
-//            }
-//         }
+         Optional<String> rate = storage.getExchangeRate("BCH", "BTC", CHANGELLY_MARKET);
+         if (rate.isPresent()) {
+            rateBchBtc = Float.parseFloat(rate.get());
+         }
       }
    }
 
@@ -315,21 +319,11 @@ public class ExchangeRateManager implements ExchangeRateProvider {
    public synchronized ExchangeRate getExchangeRate(String currency) {
       // TODO need some refactoring for this
       String injectCurrency = null;
-      if(currency.equals("RMC")) {
-         injectCurrency = currency;
-         currency = "USD";
-      }
-      if(currency.equals("MSS")) {
+      if(currency.equals("RMC") || currency.equals("MSS") || currency.equals("BCH")) {
          injectCurrency = currency;
          currency = "USD";
       }
 
-      if (_latestRates == null || _latestRates.isEmpty() || !_latestRates.containsKey(currency))  {
-         if (currency.equals("USD") && (rateBtcUsd != null)) {
-            return getRMCExchangeRate(injectCurrency, new ExchangeRate(KRAKEN_MARKET_NAME, new Date().getTime(), rateBtcUsd, "USD"));
-         }
-         return null;
-      }
       if (_latestRatesTime + MAX_RATE_AGE_MS < System.currentTimeMillis()) {
          //rate is too old, source seems to not be available
          //we return a rate with null price to indicate there is something wrong with the exchange rate source
@@ -343,7 +337,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
                return ExchangeRate.missingRate(_currentExchangeSourceName, System.currentTimeMillis(),  currency);
             }
             //everything is fine, return the rate
-            return getRMCExchangeRate(injectCurrency, r);
+            return getOtherExchangeRate(injectCurrency, r);
          }
       }
       if (_currentExchangeSourceName != null) {
@@ -353,7 +347,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
       return null;
    }
 
-   private ExchangeRate getRMCExchangeRate(String injectCurrency, ExchangeRate r) {
+   private ExchangeRate getOtherExchangeRate(String injectCurrency, ExchangeRate r) {
       double rate = r.price;
       if ("RMC".equals(injectCurrency)) {
          if (rateRmcBtc != 0) {
@@ -364,6 +358,13 @@ public class ExchangeRateManager implements ExchangeRateProvider {
       }
       if ("MSS".equals(injectCurrency)) {
          rate = r.price * MSS_RATE;
+      }
+      if ("BCH".equals(injectCurrency)) {
+         if(rateBchBtc != 0) {
+            rate = 1 / rateBchBtc;
+         } else {
+            return ExchangeRate.missingRate(_currentExchangeSourceName, System.currentTimeMillis(), "BCH");
+         }
       }
       return new ExchangeRate(r.name, r.time, rate, injectCurrency);
    }
@@ -385,5 +386,35 @@ public class ExchangeRateManager implements ExchangeRateProvider {
       }
 
       requestRefresh();
+   }
+   class Receiver extends BroadcastReceiver {
+      private Receiver() {
+      }  // prevents instantiation
+
+      @Override
+      public void onReceive(Context context, Intent intent) {
+         String from, to;
+         double amount;
+
+         switch (intent.getAction()) {
+            case ChangellyService.INFO_EXCH_AMOUNT:
+               from = intent.getStringExtra(ChangellyService.FROM);
+               to = intent.getStringExtra(ChangellyService.TO);
+               double fromAmount = intent.getDoubleExtra(ChangellyService.FROM_AMOUNT, 0);
+               amount = intent.getDoubleExtra(ChangellyService.AMOUNT, 0);
+               if (from != null && to != null) {
+                  try {
+                     if (to.equalsIgnoreCase(ChangellyService.BTC)
+                             && from.equalsIgnoreCase(ChangellyService.BCH)
+                             && fromAmount == 1) {
+                        rateBchBtc = (float) amount;
+                        storage.storeExchangeRate("BCH", "BTC", CHANGELLY_MARKET, String.valueOf(rateBchBtc));
+                     }
+                  } catch (NumberFormatException ignore) {
+                  }
+               }
+               break;
+         }
+      }
    }
 }

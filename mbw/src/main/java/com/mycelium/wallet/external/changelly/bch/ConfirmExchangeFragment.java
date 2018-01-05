@@ -23,14 +23,17 @@ import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
 import com.mrd.bitlib.StandardTransactionBuilder.UnableToBuildTransactionException;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.Transaction;
+import com.mycelium.spvmodule.IntentContract;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.WalletApplication;
 import com.mycelium.wallet.external.changelly.ChangellyAPIService;
 import com.mycelium.wallet.external.changelly.ChangellyService;
 import com.mycelium.wallet.external.changelly.Constants;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.bip44.Bip44Account;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
 
 import java.math.BigDecimal;
@@ -39,6 +42,7 @@ import java.util.UUID;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 import static com.mrd.bitlib.StandardTransactionBuilder.estimateTransactionSize;
 import static com.mycelium.wallet.external.changelly.ChangellyService.INFO_ERROR;
@@ -90,7 +94,7 @@ public class ConfirmExchangeFragment extends Fragment {
         }
         createOffer();
     }
-
+    @OnClick(R.id.buttonContinue)
     void createAndSignTransaction() {
         long fromValue = ExactBitcoinCashValue.from(BigDecimal.valueOf(offer.amountFrom)).getLongValue();
         try {
@@ -99,7 +103,12 @@ public class ConfirmExchangeFragment extends Fragment {
                     , MINER_FEE);
             Transaction transaction = fromAccount.signTransaction(unsignedTransaction, AesKeyCipher.defaultKeyCipher());
 
-            //TODO braodcast BCH transaction
+            WalletAccount account = mbwManager.getSelectedAccount();
+            if (account.getType() == WalletAccount.Type.BCHBIP44) {
+                int accountIndex = ((Bip44Account) account).getAccountIndex();
+                Intent intent = IntentContract.BroadcastTransaction.createIntent(accountIndex, transaction.toBytes());
+                WalletApplication.sendToSpv(intent, account.getType());
+            }
         } catch (UnableToBuildTransactionException | InsufficientFundsException | OutputTooSmallException | KeyCipher.InvalidKeyCipher e) {
             e.printStackTrace();
         }
@@ -142,12 +151,6 @@ public class ConfirmExchangeFragment extends Fragment {
         progressDialog.setIndeterminate(true);
         progressDialog.setMessage("Waiting offer...");
         progressDialog.show();
-    }
-
-    private int estimateTxSize() {
-        int inCount = 1;
-        int outCount = 2;
-        return estimateTransactionSize(inCount, outCount);
     }
 
     private void updateUI() {
