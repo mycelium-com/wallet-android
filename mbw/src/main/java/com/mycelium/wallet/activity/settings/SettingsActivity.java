@@ -534,10 +534,10 @@ public class SettingsActivity extends PreferenceActivity {
          modulesPrefs.addPreference(preference);
       }
 
-      for (final Module module : GooglePlayModuleCollection.getModules(this).values()) {
+      for (final Module module : GooglePlayModuleCollection.INSTANCE.getModules(this).values()) {
          if (!CommunicationManager.getInstance(this).getPairedModules().contains(module)) {
             ButtonPreference installPreference = new ButtonPreference(this);
-
+            installPreference.setButtonText(getString(R.string.install));
             installPreference.setButtonClickListener(new View.OnClickListener() {
                @Override
                public void onClick(View view) {

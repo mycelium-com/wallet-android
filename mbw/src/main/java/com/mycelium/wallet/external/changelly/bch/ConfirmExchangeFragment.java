@@ -108,6 +108,8 @@ public class ConfirmExchangeFragment extends Fragment {
                 int accountIndex = ((Bip44Account) account).getAccountIndex();
                 Intent intent = IntentContract.BroadcastTransaction.createIntent(accountIndex, transaction.toBytes());
                 WalletApplication.sendToSpv(intent, account.getType());
+            } else if(account.getType() == WalletAccount.Type.BCHSINGLEADDRESS){
+                //TODO broadcast for SA account
             }
         } catch (UnableToBuildTransactionException | InsufficientFundsException | OutputTooSmallException | KeyCipher.InvalidKeyCipher e) {
             e.printStackTrace();

@@ -28,7 +28,7 @@ public class WelcomeDialogHelper {
     public static final String AFTER_FIRST_SYNC = "after_first_sync";
 
     public static void firstBCHPages(final Context context) {
-        final Module bchModule = GooglePlayModuleCollection.getModules(context).get("bch");
+        final Module bchModule = GooglePlayModuleCollection.INSTANCE.getModules(context).get("bch");
         final SharedPreferences sharedPreferences = context.getSharedPreferences(BCH_PREFS, MODE_PRIVATE);
         boolean moduleBCHInstalled = CommunicationManager.getInstance(context).getPairedModules().contains(bchModule);
         if (!sharedPreferences.getBoolean(BCH_FIRST_UPDATE, false) && !moduleBCHInstalled) {
