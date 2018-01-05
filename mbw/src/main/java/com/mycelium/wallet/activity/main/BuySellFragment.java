@@ -53,7 +53,6 @@ import com.mycelium.wallet.external.BuySellSelectFragment;
 import com.mycelium.wallet.external.BuySellServiceDescriptor;
 import com.mycelium.wallet.external.changelly.ChangellyActivity;
 import com.mycelium.wallet.external.changelly.bch.ExchangeActivity;
-import com.mycelium.wapi.wallet.WalletAccount;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
@@ -74,7 +73,7 @@ public class BuySellFragment extends Fragment {
     @BindView(R.id.rotate_button)
     View btRotate;
 
-    private List<Item> actions = new ArrayList<>();
+    private List<ActoinButton> actions = new ArrayList<>();
     private int current = 0;
 
     @Override
@@ -94,32 +93,33 @@ public class BuySellFragment extends Fragment {
                 return input.isEnabled(_mbwManager);
             }
         });
-        if (_mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BTCBIP44
-                || _mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BTCSINGLEADDRESS) {
-
-            if (showButton) {
-                actions.add(new Item(getString(R.string.gd_buy_sell_button), new Runnable() {
+        switch (_mbwManager.getSelectedAccount().getType()) {
+            case BTCBIP44:
+            case BTCSINGLEADDRESS:
+                if (showButton) {
+                    actions.add(new ActoinButton(getString(R.string.gd_buy_sell_button), new Runnable() {
+                        @Override
+                        public void run() {
+                            startActivity(new Intent(getActivity(), BuySellSelectFragment.class));
+                        }
+                    }));
+                }
+                actions.add(new ActoinButton(getString(R.string.exchange_altcoins_to_btc), new Runnable() {
                     @Override
                     public void run() {
-                        startActivity(new Intent(getActivity(), BuySellSelectFragment.class));
+                        startActivity(new Intent(getActivity(), ChangellyActivity.class));
                     }
                 }));
-            }
-            actions.add(new Item(getString(R.string.exchange_altcoins_to_btc), new Runnable() {
-                @Override
-                public void run() {
-                    startActivity(new Intent(getActivity(), ChangellyActivity.class));
-                }
-            }));
-        }
-        if (_mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHBIP44
-                || _mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHSINGLEADDRESS) {
-            actions.add(new Item(getString(R.string.exchange_bch_to_btc), new Runnable() {
-                @Override
-                public void run() {
-                    startActivity(new Intent(getActivity(), ExchangeActivity.class));
-                }
-            }));
+                break;
+            case BCHBIP44:
+            case BCHSINGLEADDRESS:
+                actions.add(new ActoinButton(getString(R.string.exchange_bch_to_btc), new Runnable() {
+                    @Override
+                    public void run() {
+                        startActivity(new Intent(getActivity(), ExchangeActivity.class));
+                    }
+                }));
+                break;
         }
         current = 0;
     }
@@ -176,8 +176,8 @@ public class BuySellFragment extends Fragment {
         updateUI();
     }
 
-    class Item {
-        public Item(String text, Runnable task) {
+    class ActoinButton {
+        public ActoinButton(String text, Runnable task) {
             this.text = text;
             this.task = task;
         }

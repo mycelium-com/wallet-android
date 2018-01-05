@@ -291,11 +291,6 @@ public class TransactionHistoryFragment extends Fragment {
    }
 
    @Override
-   public void onPrepareOptionsMenu(Menu menu) {
-      super.onPrepareOptionsMenu(menu);
-   }
-
-   @Override
    public boolean onOptionsItemSelected(MenuItem item) {
       final int itemId = item.getItemId();
       switch (itemId) {
