@@ -184,7 +184,7 @@ public class AddressFragment extends Fragment {
       WalletAccount account = _mbwManager.getSelectedAccount();
       if(account.getType() == WalletAccount.Type.BCHSINGLEADDRESS
               || account.getType() == WalletAccount.Type.BCHBIP44) {
-         WelcomeDialogHelper.bchTehnologyPreviewDialog(getActivity());
+         WelcomeDialogHelper.bchTechnologyPreviewDialog(getActivity());
          return;
       }
       Optional<Address> receivingAddress = account.getReceivingAddress();

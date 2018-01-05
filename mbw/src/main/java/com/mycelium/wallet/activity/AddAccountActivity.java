@@ -102,7 +102,7 @@ public class AddAccountActivity extends Activity {
 
    @OnClick(R.id.btHdBchCreate)
    void onAddBchHD(){
-      WelcomeDialogHelper.bchTehnologyPreviewDialog(this);
+      WelcomeDialogHelper.bchTechnologyPreviewDialog(this);
    }
 
    View.OnClickListener advancedClickListener = new View.OnClickListener() {
