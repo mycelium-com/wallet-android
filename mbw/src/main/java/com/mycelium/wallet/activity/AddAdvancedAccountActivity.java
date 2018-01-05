@@ -168,7 +168,7 @@ public class AddAdvancedAccountActivity extends Activity {
 
    @OnClick(R.id.btGenerateNewBchSingleKey)
    void onGenerateBchClick() {
-      WelcomeDialogHelper.bchDialog(this);
+      WelcomeDialogHelper.bchTehnologyPreviewDialog(this);
    }
 
    @Override

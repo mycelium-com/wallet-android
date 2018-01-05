@@ -58,6 +58,7 @@ import com.mycelium.wallet.activity.util.QrImageView;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.BalanceChanged;
 import com.mycelium.wallet.event.ReceivingAddressChanged;
+import com.mycelium.wallet.modularisation.WelcomeDialogHelper;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
@@ -183,6 +184,7 @@ public class AddressFragment extends Fragment {
       WalletAccount account = _mbwManager.getSelectedAccount();
       if(account.getType() == WalletAccount.Type.BCHSINGLEADDRESS
               || account.getType() == WalletAccount.Type.BCHBIP44) {
+         WelcomeDialogHelper.bchTehnologyPreviewDialog(getActivity());
          return;
       }
       Optional<Address> receivingAddress = account.getReceivingAddress();
