@@ -60,6 +60,8 @@ import com.squareup.otto.Subscribe;
 
 import java.util.UUID;
 
+import rx.Single;
+
 public class BroadcastTransactionActivity extends Activity {
    protected MbwManager _mbwManager;
    protected WalletAccount _account;
@@ -135,10 +137,16 @@ public class BroadcastTransactionActivity extends Activity {
                   WalletApplication.sendToSpv(intent, _mbwManager.getSelectedAccount().getType());
                   return WalletAccount.BroadcastResult.SUCCESS;
                }
-            } else {
-               return _account.broadcastTransaction(_transaction);
-            }
-            return WalletAccount.BroadcastResult.SUCCESS;
+
+               if (_mbwManager.getSelectedAccount() instanceof SingleAddressAccount) {
+                  Intent intent = IntentContract.BroadcastTransactionSingleAddress.createIntent(
+                          _mbwManager.getSelectedAccount().getId().toString(), _transaction.toBytes());
+                  WalletApplication.sendToSpv(intent, _mbwManager.getSelectedAccount().getType());
+                  return WalletAccount.BroadcastResult.SUCCESS;
+               }
+             }
+
+             return _account.broadcastTransaction(_transaction);
          }
 
          @Override
