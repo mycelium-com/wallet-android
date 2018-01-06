@@ -72,19 +72,16 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
                  .build());
       }
       super.onCreate();
-      boolean paired = pairSpvModules(CommunicationManager.getInstance(this));
+      pairSpvModules(CommunicationManager.getInstance(this));
       moduleMessageReceiver = new MbwMessageReceiver(this);
       MbwManager mbwManager = MbwManager.getInstance(this);
-      mbwManager.setSpvMode(paired);
       applyLanguageChange(mbwManager.getLanguage());
    }
 
-   private boolean pairSpvModules(CommunicationManager communicationManager) {
-      boolean paired = false;
+   private void pairSpvModules(CommunicationManager communicationManager) {
       for (Map.Entry<WalletAccount.Type, String> entry : spvModulesMapping.entrySet()) {
-         paired |= communicationManager.requestPair(entry.getValue());
+         communicationManager.requestPair(entry.getValue());
       }
-      return paired;
    }
 
    @Override

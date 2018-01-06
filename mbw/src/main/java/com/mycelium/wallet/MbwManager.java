@@ -219,7 +219,6 @@ public class MbwManager {
 
    private EvictingQueue<LogEntry> _wapiLogs = EvictingQueue.create(100);
    private Cache<String, Object> _semiPersistingBackgroundObjects = CacheBuilder.newBuilder().maximumSize(10).build();
-   private boolean _useSpvModule = false;
 
    private MbwManager(Context evilContext) {
       _applicationContext = Preconditions.checkNotNull(evilContext.getApplicationContext());
@@ -344,15 +343,6 @@ public class MbwManager {
             addExtraAccounts(_coluManager.get());
          }
       }
-   }
-
-   void setSpvMode(boolean spvMode) {
-      Log.d(TAG, "setSpvMode: " + (spvMode ? "on" : "off"));
-      _useSpvModule = spvMode;
-   }
-
-   public boolean isSpvMode() {
-      return _useSpvModule;
    }
 
    public void addExtraAccounts(AccountProvider accounts) {

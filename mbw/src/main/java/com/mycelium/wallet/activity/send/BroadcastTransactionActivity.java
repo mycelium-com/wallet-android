@@ -46,10 +46,12 @@ import android.widget.Toast;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.Sha256Hash;
+import com.mycelium.modularizationtools.CommunicationManager;
 import com.mycelium.spvmodule.IntentContract;
 import com.mycelium.wallet.*;
 import com.mycelium.wallet.event.SyncFailed;
 import com.mycelium.wallet.event.SyncStopped;
+import com.mycelium.wallet.modularisation.GooglePlayModuleCollection;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bip44.Bip44Account;
@@ -124,7 +126,8 @@ public class BroadcastTransactionActivity extends Activity {
       AsyncTask<Void, Integer, WalletAccount.BroadcastResult> task = new AsyncTask<Void, Integer, WalletAccount.BroadcastResult>() {
          @Override
          protected WalletAccount.BroadcastResult doInBackground(Void... args) {
-            if (_mbwManager.isSpvMode()) {
+            if (CommunicationManager.getInstance(getApplicationContext()).getPairedModules()
+                    .contains(GooglePlayModuleCollection.INSTANCE.getModules(getApplicationContext()).get("btc"))) {
                if (_mbwManager.getSelectedAccount() instanceof Bip44Account) {
                   int accountIndex = ((com.mycelium.wapi.wallet.bip44.Bip44Account) _mbwManager.getSelectedAccount()).getAccountIndex();
                   Intent intent = IntentContract.BroadcastTransaction.createIntent(
