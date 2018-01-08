@@ -122,8 +122,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 2091005
-        versionName '2.9.10.5'
+        versionCode 2100000
+        versionName '2.10.0.0'
         multiDexEnabled true
 
         minSdkVersion 19
