@@ -58,7 +58,9 @@ public class AccountAdapter extends SelectableRecyclerView.Adapter<RecyclerView.
         items.add(new Item(null, VIEW_TYPE_PADDING));
         accounts = Utils.sortAccounts(accounts, mbwManager.getMetadataStorage());
         for (WalletAccount account : accounts) {
-            if (account instanceof Bip44Account || account instanceof SingleAddressAccount) {
+            if (account.getType() == WalletAccount.Type.BTCBIP44
+                    || account.getType() == WalletAccount.Type.BTCSINGLEADDRESS
+                    || account.getType() == WalletAccount.Type.COINAPULT) {
                 items.add(new Item(account, VIEW_TYPE_ITEM));
             }
         }

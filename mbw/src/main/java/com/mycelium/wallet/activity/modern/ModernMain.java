@@ -145,6 +145,8 @@ public class ModernMain extends AppCompatActivity {
       ActionBar bar = getSupportActionBar();
       bar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
       bar.setDisplayShowTitleEnabled(false);
+      bar.setDisplayShowHomeEnabled(true);
+      bar.setIcon(R.drawable.mycelium_logo_transp_small);
 
       // Load the theme-background (usually happens in styles.xml) but use a lower
       // pixel format, this saves around 10MB of allocated memory
