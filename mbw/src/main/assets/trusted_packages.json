@@ -1,13 +1,5 @@
 [
   {
-    "name": "com.mycelium.spvmodule_testrelease",
-    "signature": "Ux+tW+lAkn01UG6h1e68dE8mGvLbKX6Eg+iVJXVbOq8="
-  },
-  {
-    "name": "com.mycelium.spvmodule.test",
-    "signature": "F6/t7Bj0qtPDmfNdjqReSIHxR6lrwNxaHtT5go6f7HI="
-  },
-  {
     "name": "com.mycelium.module.spvbch",
     "signature": "uOWdSmC2UpDvsnFjGeULlOKY16csdsIRnrfY06+sMC4="
   },
