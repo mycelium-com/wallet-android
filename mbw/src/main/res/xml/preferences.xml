@@ -32,7 +32,8 @@
 
     <!-- PIN Settings -->
 
-    <PreferenceCategory android:title="@string/pref_category_pin">
+    <PreferenceCategory android:title="@string/pref_category_pin"
+        android:layout="@layout/preference_category_layout">
         <Preference
                 android:key="clearPin"
                 android:layout="@layout/preference_layout"
@@ -53,14 +54,16 @@
     <!--Modules-->
     <PreferenceCategory
         android:title="Modules"
-        android:key="modulesPrefs">
+        android:key="modulesPrefs"
+        android:layout="@layout/preference_category_layout">
     </PreferenceCategory>
 
     <!-- Local Trader Settings -->
 
     <PreferenceCategory
             android:title="@string/lt_pref_category"
-            android:key="localtraderPrefs">
+            android:key="localtraderPrefs"
+        android:layout="@layout/preference_category_layout">
         <CheckBoxPreference
                 android:key="ltDisable"
                 android:layout="@layout/preference_layout"
@@ -92,7 +95,8 @@
 
     <PreferenceCategory
             android:key="advancedSettings"
-            android:title="@string/pref_advanced_settings">
+            android:title="@string/pref_advanced_settings"
+        android:layout="@layout/preference_category_layout">
 
         <CheckBoxPreference
                 android:key="showBip44Path"
@@ -110,7 +114,8 @@
 
     <PreferenceCategory
             android:key="legacy"
-            android:title="@string/pref_legacy_backup_title">
+            android:title="@string/pref_legacy_backup_title"
+        android:layout="@layout/preference_category_layout">
         <Preference
                 android:key="legacyBackup"
                 android:layout="@layout/preference_layout"
@@ -127,7 +132,8 @@
 
     <PreferenceCategory
             android:key="ledger"
-            android:title="@string/pref_ledger_title">
+            android:title="@string/pref_ledger_title"
+        android:layout="@layout/preference_category_layout">
         <CheckBoxPreference
                 android:key="ledgerDisableTee"
                 android:layout="@layout/preference_layout"
@@ -144,7 +150,8 @@
 
     <PreferenceCategory
             android:key="external"
-            android:title="External Services">
+            android:title="External Services"
+        android:layout="@layout/preference_category_layout">
     </PreferenceCategory>
 
 </PreferenceScreen>

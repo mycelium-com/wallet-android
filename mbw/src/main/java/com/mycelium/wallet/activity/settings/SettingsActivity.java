@@ -515,6 +515,7 @@ public class SettingsActivity extends PreferenceActivity {
       if (!CommunicationManager.getInstance(this).getPairedModules().isEmpty()) {
          for (final Module module : CommunicationManager.getInstance(this).getPairedModules()) {
             Preference preference = new Preference(this);
+            preference.setLayoutResource(R.layout.preference_layout);
             preference.setTitle(Html.fromHtml(module.getName()));
             preference.setSummary(module.getDescription());
             preference.setOnPreferenceClickListener(new OnPreferenceClickListener() {
