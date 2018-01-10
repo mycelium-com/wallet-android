@@ -59,7 +59,6 @@ import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.BalanceChanged;
 import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.persistence.MetadataStorage;
-import com.mycelium.wapi.model.Balance;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bip44.Bip44Account;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
@@ -139,12 +138,12 @@ public class NoticeFragment extends Fragment {
       // First check if we have HD accounts with funds, but have no master seed backup
       if (meta.getMasterSeedBackupState() != MetadataStorage.BackupState.VERIFIED) {
          if (account instanceof Bip44Account) {
-            Bip44Account ba = (Bip44Account) account;
-            Balance balance = ba.getBalance();
-            if (balance.getReceivingBalance() + balance.getSpendableBalance() > 0) {
-               // We have an HD account with funds, and no master seed backup, tell the user to act
-               return Notice.BACKUP_MISSING;
-            }
+            /*
+              We have an HD account and no master seed backup, tell the user to act
+              We shouldn't check balance, in security reason user should create backup
+              and then receive money otherwise he can lost money in case delete application or lost phone
+             */
+            return Notice.BACKUP_MISSING;
          }
       }
 

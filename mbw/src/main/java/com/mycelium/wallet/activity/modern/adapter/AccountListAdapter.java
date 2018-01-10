@@ -84,8 +84,9 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     }
 
     public void setFocusedAccount(WalletAccount focusedAccount) {
-        notifyItemChanged(findPosition(this.focusedAccount));
+        int oldFocusedPosition = findPosition(this.focusedAccount);
         this.focusedAccount = focusedAccount;
+        notifyItemChanged(oldFocusedPosition);
         notifyItemChanged(findPosition(this.focusedAccount));
     }
 

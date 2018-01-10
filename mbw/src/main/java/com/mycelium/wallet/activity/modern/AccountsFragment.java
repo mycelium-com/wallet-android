@@ -190,22 +190,9 @@ public class AccountsFragment extends Fragment {
          CoinapultAccount account = (CoinapultAccount) _mbwManager.getWalletManager(false).getAccount(accountId);
          _mbwManager.setSelectedAccount(accountId);
          accountListAdapter.setFocusedAccount(account);
-         update();
-         return;
-      }
+         updateIncludingMenus();
 
-    // TODO: refactor these RESULT_XXX constants in a common class ?
-
-//      if (requestCode == ADD_RECORD_RESULT_CODE && resultCode == AddColuAccountActivity.RESULT_COLU) {
-//         UUID accountId = (UUID) intent.getSerializableExtra(AddAccountActivity.RESULT_KEY);
-//         ColuAccount account = (ColuAccount) _mbwManager.getWalletManager(false).getAccount(accountId);
-//         _mbwManager.setSelectedAccount(accountId);
-//         _focusedAccount = account;
-//         update();
-//         return;
-//      }
-
-      if (requestCode == ADD_RECORD_RESULT_CODE && resultCode == Activity.RESULT_OK) {
+      } else if (requestCode == ADD_RECORD_RESULT_CODE && resultCode == Activity.RESULT_OK) {
          UUID accountid = (UUID) intent.getSerializableExtra(AddAccountActivity.RESULT_KEY);
          //check whether the account is active - we might have scanned the priv key for an archived watchonly
          WalletAccount account = _mbwManager.getWalletManager(false).getAccount(accountid);
@@ -213,7 +200,7 @@ public class AccountsFragment extends Fragment {
             _mbwManager.setSelectedAccount(accountid);
          }
          accountListAdapter.setFocusedAccount(account);
-         update();
+         updateIncludingMenus();
          if(!(account instanceof ColuAccount)) {
             setNameForNewAccount(account);
          }
@@ -681,7 +668,7 @@ public class AccountsFragment extends Fragment {
       // startSupportActionMode above, as it calls onDestroyActionMode when
       // starting for some reason, and this would clear the focus and force
       // an update.
-      accountListAdapter.setFocusedAccount(account);
+//      accountListAdapter.setFocusedAccount(account);
 
       update();
    }
