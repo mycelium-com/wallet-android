@@ -101,7 +101,6 @@ public class ExchangeRateManager implements ExchangeRateProvider {
    private final List<Observer> _subscribers;
    private String _currentExchangeSourceName;
 
-   private RmcApiClient rmcApiClient;
    private float rateRmcBtc;
    private float rateBchBtc;
    // value hardcoded for now, but in future we need get from somewhere
@@ -129,10 +128,6 @@ public class ExchangeRateManager implements ExchangeRateProvider {
               .putExtra(ChangellyService.AMOUNT, 1.0));
       LocalBroadcastManager.getInstance(applicationContext).registerReceiver(changellyReceiver = new Receiver()
               , new IntentFilter(ChangellyService.INFO_EXCH_AMOUNT));
-   }
-
-   public void setClient(RmcApiClient client) {
-      this.rmcApiClient = client;
    }
 
    public synchronized void subscribe(Observer subscriber) {
