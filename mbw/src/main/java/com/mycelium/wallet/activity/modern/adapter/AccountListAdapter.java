@@ -21,7 +21,6 @@ import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.currency.CurrencySum;
-import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -124,15 +123,19 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         List<WalletAccount> coluAccounts = new ArrayList<>();
         List<WalletAccount> other = new ArrayList<>();
         for (WalletAccount account : accounts) {
-            if (account instanceof SingleAddressAccount) {
-                if (!Utils.checkIsLinked(account, accounts)) {
-//                    saAccounts.add(account);
-                }
-            } else if (account instanceof ColuAccount) {
-                coluAccounts.add(account);
-                coluAccounts.add(((ColuAccount) account).getLinkedAccount());
-            } else {
-                other.add(account);
+            switch (account.getType()) {
+                case BTCSINGLEADDRESS:
+                case BTCBIP44:
+                case BCHSINGLEADDRESS:
+                case BCHBIP44:
+                    break;
+                case COLU:
+                    coluAccounts.add(account);
+                    coluAccounts.add(((ColuAccount) account).getLinkedAccount());
+                    break;
+                default:
+                    other.add(account);
+                    break;
             }
         }
 

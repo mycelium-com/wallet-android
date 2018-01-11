@@ -669,7 +669,7 @@ public class AccountsFragment extends Fragment {
       // startSupportActionMode above, as it calls onDestroyActionMode when
       // starting for some reason, and this would clear the focus and force
       // an update.
-
+      accountListAdapter.setFocusedAccount(account);
       update();
    }
 
