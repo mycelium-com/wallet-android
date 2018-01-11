@@ -1141,6 +1141,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="bch_technology_preview">Bitcoin Cash functionality is a technology preview of Mycelium Modular Architecture. You can only instantly exchange your BCH to BTC right in Mycelium so far. Fully functional BCH module will be available soon. Special thanks to all our contributors and beta  testers!</string>
     <string name="install">Install</string>
     <string name="no_spendable_accounts">No spendable accounts</string>
+    <string name="digital_assets">Digital Assets</string>
     <plurals name="account_label">
         <item quantity="one">Account label:\n%s</item>
         <item quantity="other">Accounts labels:\n%s</item>

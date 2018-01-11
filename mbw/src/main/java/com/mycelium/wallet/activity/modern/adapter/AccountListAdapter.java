@@ -106,8 +106,8 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         WalletManager walletManager = mbwManager.getWalletManager(false);
         MetadataStorage storage = mbwManager.getMetadataStorage();
 
-        List<WalletAccount> activeHdRecords = new ArrayList<>(AccountManager.INSTANCE.getBTCBip44Accounts().values());
-        itemList.addAll(buildGroup(activeHdRecords, storage, context.getString(R.string.active_hd_accounts_name), GROUP_TITLE_TYPE));
+        List<WalletAccount> bitcoinHdAccounts = new ArrayList<>(AccountManager.INSTANCE.getBTCBip44Accounts().values());
+        itemList.addAll(buildGroup(bitcoinHdAccounts, storage, context.getString(R.string.active_hd_accounts_name), GROUP_TITLE_TYPE));
 
         List<WalletAccount> bitcoinSAAccounts = new ArrayList<>(AccountManager.INSTANCE.getBTCSingleAddressAccounts().values());
         itemList.addAll(buildGroup(bitcoinSAAccounts, storage, "Bitcoin SA", GROUP_TITLE_TYPE));
@@ -118,9 +118,14 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         List<WalletAccount> bitcoinCashSAAccounts = new ArrayList<>(AccountManager.INSTANCE.getBCHSingleAddressAccounts().values());
         itemList.addAll(buildGroup(bitcoinCashSAAccounts, storage, context.getString(R.string.bitcoin_cash_sa), GROUP_TITLE_TYPE));
 
-        List<WalletAccount> accounts = walletManager.getActiveOtherAccounts();
-
         List<WalletAccount> coluAccounts = new ArrayList<>();
+        for (WalletAccount walletAccount : AccountManager.INSTANCE.getColuAccounts().values()) {
+            coluAccounts.add(walletAccount);
+            coluAccounts.add(((ColuAccount)walletAccount).getLinkedAccount());
+        }
+        itemList.addAll(buildGroup(coluAccounts, storage, context.getString(R.string.digital_assets), GROUP_TITLE_TYPE));
+
+        List<WalletAccount> accounts = walletManager.getActiveOtherAccounts();
         List<WalletAccount> other = new ArrayList<>();
         for (WalletAccount account : accounts) {
             switch (account.getType()) {
@@ -128,10 +133,7 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 case BTCBIP44:
                 case BCHSINGLEADDRESS:
                 case BCHBIP44:
-                    break;
                 case COLU:
-                    coluAccounts.add(account);
-                    coluAccounts.add(((ColuAccount) account).getLinkedAccount());
                     break;
                 default:
                     other.add(account);
@@ -139,13 +141,9 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             }
         }
 
-        itemList.addAll(buildGroup(coluAccounts, storage, "Digital Assets", GROUP_TITLE_TYPE));
         itemList.addAll(buildGroup(other, storage, context.getString(R.string.active_other_accounts_name), GROUP_TITLE_TYPE));
 
-        List<WalletAccount> allAccount = new ArrayList<>();
-        allAccount.addAll(activeHdRecords);
-        allAccount.addAll(accounts);
-        itemList.add(new Item(TOTAL_BALANCE_TYPE, "", allAccount));
+        itemList.add(new Item(TOTAL_BALANCE_TYPE, "", walletManager.getActiveAccounts()));
 
         itemList.addAll(buildGroup(walletManager.getArchivedAccounts(), storage
                 , context.getString(R.string.archive_name), GROUP_ARCHIVED_TITLE_TYPE));
