@@ -128,6 +128,10 @@ public class ExchangeFragment extends Fragment {
         List<WalletAccount> fromAccounts = new ArrayList<>();
         fromAccounts.addAll(filterAccount(AccountManager.INSTANCE.getBCHBip44Accounts().values()));
         fromAccounts.addAll(filterAccount(AccountManager.INSTANCE.getBCHSingleAddressAccounts().values()));
+        if (fromAccounts.isEmpty()) {
+            toast(getString(R.string.no_spendable_accounts));
+            getActivity().finish();
+        }
         fromAccountAdapter = new AccountAdapter(mbwManager, fromAccounts, firstItemWidth);
         fromAccountAdapter.setAccountUseType(AccountAdapter.AccountUseType.OUT);
         fromRecyclerView.setAdapter(fromAccountAdapter);
