@@ -194,6 +194,7 @@ public class ExchangeFragment extends Fragment {
     void toValueClick() {
         valueKeyboard.setInputTextView(toValue);
         valueKeyboard.setVisibility(View.VISIBLE);
+        valueKeyboard.setEntry(toValue.getText().toString());
         fromRecyclerView.setVisibility(View.GONE);
         toRecyclerView.setVisibility(View.GONE);
         toLayout.setAlpha(Constants.ACTIVE_ALPHA);
@@ -205,6 +206,7 @@ public class ExchangeFragment extends Fragment {
     void fromValueClick() {
         valueKeyboard.setInputTextView(fromValue);
         valueKeyboard.setVisibility(View.VISIBLE);
+        valueKeyboard.setEntry(fromValue.getText().toString());
         fromLayout.setAlpha(Constants.ACTIVE_ALPHA);
         toLayout.setAlpha(Constants.INACTIVE_ALPHA);
         AccountAdapter.Item item = fromAccountAdapter.getItem(fromRecyclerView.getSelectedItem());

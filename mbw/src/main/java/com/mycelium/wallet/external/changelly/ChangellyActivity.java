@@ -1,6 +1,5 @@
 package com.mycelium.wallet.external.changelly;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -17,6 +16,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.mycelium.wallet.AccountManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.send.event.SelectListener;
@@ -157,9 +157,11 @@ public class ChangellyActivity extends AppCompatActivity {
                 }
             }
         });
-
-        accountAdapter = new AccountAdapter(mbwManager
-                , mbwManager.getWalletManager(false).getActiveAccounts(), firstItemWidth);
+        List<WalletAccount> fromAccounts = new ArrayList<>();
+        fromAccounts.addAll(AccountManager.INSTANCE.getBTCBip44Accounts().values());
+        fromAccounts.addAll(AccountManager.INSTANCE.getBTCSingleAddressAccounts().values());
+        fromAccounts.addAll(AccountManager.INSTANCE.getCoinapultAccounts().values());
+        accountAdapter = new AccountAdapter(mbwManager, fromAccounts, firstItemWidth);
         accountSelector.setAdapter(accountAdapter);
         accountSelector.setSelectedItem(mbwManager.getSelectedAccount());
 
