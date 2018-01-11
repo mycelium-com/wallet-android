@@ -505,6 +505,7 @@ public class AccountsFragment extends Fragment {
             _mbwManager.setSelectedAccount(account.getId());
          }
          toastSelectedAccountChanged(account);
+         accountListAdapter.setFocusedAccount(account);
          updateIncludingMenus();
       }
    };
@@ -668,7 +669,6 @@ public class AccountsFragment extends Fragment {
       // startSupportActionMode above, as it calls onDestroyActionMode when
       // starting for some reason, and this would clear the focus and force
       // an update.
-//      accountListAdapter.setFocusedAccount(account);
 
       update();
    }
