@@ -105,7 +105,7 @@
     </style>
 
     <style name="MyceliumTabTextStyle" parent="Widget.AppCompat.Light.ActionBar.TabText">
-        <item name="textAllCaps">false</item>
+        <item name="textAllCaps">true</item>
     </style>
 
     <style name="DropDownListViewStyle" parent="@style/Widget.AppCompat.ListView.DropDown">
