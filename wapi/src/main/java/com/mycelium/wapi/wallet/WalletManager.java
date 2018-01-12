@@ -210,11 +210,8 @@ public class WalletManager {
 
             if (_spvBalanceFetcher != null) {
                SingleAddressBCHAccount singleAddressBCHAccount = new SingleAddressBCHAccount(context, store, _network, accountBacking, _wapi, _spvBalanceFetcher);
-               if (singleAddressBCHAccount.canSpend() && !singleAddressBCHAccount.getTransactionHistory(0, 1).isEmpty()) {
-                  addAccount(singleAddressBCHAccount);
-               } else {
-                  _spvBalanceFetcher.requestTransactionsFromSingleAddressAccountAsync(singleAddressBCHAccount.getId().toString());
-               }
+               _spvBalanceFetcher.requestTransactionsFromSingleAddressAccountAsync(singleAddressBCHAccount.getId().toString());
+               addAccount(singleAddressBCHAccount);
             }
          } finally {
             _backing.endTransaction();
@@ -288,12 +285,10 @@ public class WalletManager {
 
             if (_spvBalanceFetcher != null) {
                Bip44BCHAccount bip44BCHAccount = new Bip44BCHAccount(context, keyManager, _network, accountBacking, _wapi, _spvBalanceFetcher);
-               if (!bip44BCHAccount.getTransactionHistory(0, 1).isEmpty())
-                  addAccount(bip44BCHAccount);
-               else {
-                  _spvBalanceFetcher.requestTransactionsAsync(bip44BCHAccount.getAccountIndex());
-               }
+               _spvBalanceFetcher.requestTransactionsAsync(bip44BCHAccount.getAccountIndex());
+               addAccount(bip44BCHAccount);
             }
+
             return id;
          } finally {
             _backing.endTransaction();
@@ -730,11 +725,9 @@ public class WalletManager {
 
          if (_spvBalanceFetcher != null) {
             Bip44BCHAccount bchAccount = new Bip44BCHAccount(context, keyManager, _network, accountBacking, _wapi, _spvBalanceFetcher);
-
-            if (bchAccount.canSpend() && !bchAccount.getTransactionHistory(0, 1).isEmpty()) {
+            _spvBalanceFetcher.requestTransactionsAsync(bchAccount.getAccountIndex());
+            if (bchAccount.canSpend()) {
                addAccount(bchAccount);
-            } else {
-               _spvBalanceFetcher.requestTransactionsAsync(bchAccount.getAccountIndex());
             }
          }
       }
@@ -752,8 +745,7 @@ public class WalletManager {
 
          if (_spvBalanceFetcher != null) {
             SingleAddressBCHAccount bchAccount = new SingleAddressBCHAccount(context, store, _network, accountBacking, _wapi, _spvBalanceFetcher);
-
-            if (bchAccount.canSpend() && !bchAccount.getTransactionHistory(0, 1).isEmpty()) {
+            if (bchAccount.canSpend()) {
                addAccount(bchAccount);
             } else {
                _spvBalanceFetcher.requestTransactionsFromSingleAddressAccountAsync(bchAccount.getId().toString());
@@ -1169,12 +1161,8 @@ public class WalletManager {
 
             if(_spvBalanceFetcher != null) {
                Bip44BCHAccount bip44BCHAccount = new Bip44BCHAccount(context, keyManager, _network, accountBacking, _wapi, _spvBalanceFetcher);
-
-               if (!bip44BCHAccount.getTransactionHistory(0, 1).isEmpty()) {
-                  addAccount(bip44BCHAccount);
-               } else {
-                  _spvBalanceFetcher.requestTransactionsAsync(bip44BCHAccount.getAccountIndex());
-               }
+               _spvBalanceFetcher.requestTransactionsAsync(bip44BCHAccount.getAccountIndex());
+               addAccount(bip44BCHAccount);
             }
 
             return account.getId();
