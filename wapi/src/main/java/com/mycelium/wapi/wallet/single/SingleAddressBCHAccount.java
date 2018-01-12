@@ -33,11 +33,16 @@ public class SingleAddressBCHAccount extends SingleAddressAccount {
 
     @Override
     public List<TransactionSummary> getTransactionHistory(int offset, int limit) {
-        return Collections.emptyList();
+        return spvBalanceFetcher.retrieveTransactionSummaryBySingleAddressAccountId(getId().toString());
     }
 
     @Override
     public List<TransactionSummary> getTransactionsSince(Long receivingSince) {
-        return Collections.emptyList();
+        return spvBalanceFetcher.retrieveTransactionSummaryBySingleAddressAccountId(getId().toString());
+    }
+
+    @Override
+    public boolean isVisible() {
+        return spvBalanceFetcher.retrieveTransactionSummaryBySingleAddressAccountId(getId().toString()).isEmpty();
     }
 }

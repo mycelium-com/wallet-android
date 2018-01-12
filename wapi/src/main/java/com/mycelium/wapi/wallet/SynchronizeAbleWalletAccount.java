@@ -88,6 +88,10 @@ public abstract class SynchronizeAbleWalletAccount implements WalletAccount {
       }
    }
 
+   public boolean isVisible() {
+      return true;
+   }
+
    /**
     * Do the necessary steps to synchronize this account.
     * This function has to be implemented for the individual accounts and will only be called, if it is

@@ -823,11 +823,11 @@ public class WalletManager {
             //If using SPV module, enters this condition.
             // Get adresses from all accounts
             if(currentAccount instanceof Bip44BCHAccount) {
-               _spvBalanceFetcher.getTransactions(((Bip44BCHAccount) currentAccount).getAccountIndex());
+               _spvBalanceFetcher.requestTransactionsAsync(((Bip44BCHAccount) currentAccount).getAccountIndex());
             }
 
             if (currentAccount instanceof SingleAddressBCHAccount) {
-               _spvBalanceFetcher.getTransactionsFromSingleAddressAccount(currentAccount.getId().toString());
+               _spvBalanceFetcher.requestTransactionsFromSingleAddressAccountAsync(currentAccount.getId().toString());
             }
 
             for(WalletAccount account : getAllAccounts()) {

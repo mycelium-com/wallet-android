@@ -351,6 +351,12 @@ public interface WalletAccount {
     */
    String getAccountDefaultCurrency();
 
+
+   /**
+    * Is the account visible in UI
+    */
+   boolean isVisible();
+
    /**
     * Class representing a receiver of funds
     */

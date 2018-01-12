@@ -1,6 +1,7 @@
 package com.mycelium.wapi.wallet.bip44;
 
 import com.mrd.bitlib.model.NetworkParameters;
+import com.mrd.bitlib.model.Transaction;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.Bip44AccountBacking;
@@ -33,12 +34,17 @@ public class Bip44BCHAccount extends Bip44Account {
 
     @Override
     public List<TransactionSummary> getTransactionHistory(int offset, int limit) {
-        return Collections.emptyList();
+        return spvBalanceFetcher.retrieveTransactionSummaryByHdAccountIndex(getId().toString(), getAccountIndex());
     }
 
     @Override
     public List<TransactionSummary> getTransactionsSince(Long receivingSince) {
-        return Collections.emptyList();
+        return spvBalanceFetcher.retrieveTransactionSummaryByHdAccountIndex(getId().toString(), getAccountIndex());
+    }
+
+    @Override
+    public boolean isVisible() {
+        return !spvBalanceFetcher.retrieveTransactionSummaryByHdAccountIndex(getId().toString(), getAccountIndex()).isEmpty();
     }
 
 }
