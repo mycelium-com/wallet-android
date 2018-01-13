@@ -1,10 +1,15 @@
 package com.mycelium.wapi.wallet;
 
+import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
+
+import java.util.List;
 
 public interface SpvBalanceFetcher {
     CurrencyBasedBalance retrieveByHdAccountIndex(String id, int accountIndex);
     CurrencyBasedBalance retrieveBySingleAddressAccountId(String id);
-    void getTransactions(int accountId);
-    void getTransactionsFromSingleAddressAccount(String guid);
+    List<TransactionSummary> retrieveTransactionSummaryByHdAccountIndex(String id, int accountIndex);
+    List<TransactionSummary> retrieveTransactionSummaryBySingleAddressAccountId(String id);
+    void requestTransactionsAsync(int accountId);
+    void requestTransactionsFromSingleAddressAccountAsync(String guid);
 }
