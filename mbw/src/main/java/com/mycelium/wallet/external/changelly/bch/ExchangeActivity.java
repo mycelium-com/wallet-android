@@ -12,7 +12,7 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.view.ValueKeyboard;
 
 public class ExchangeActivity extends AppCompatActivity {
-    private static int theme = R.style.MyceliumModern_Light;
+    private static int theme = R.style.MyceliumModern_Dark;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

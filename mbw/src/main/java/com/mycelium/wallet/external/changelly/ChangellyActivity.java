@@ -157,11 +157,11 @@ public class ChangellyActivity extends AppCompatActivity {
                 }
             }
         });
-        List<WalletAccount> fromAccounts = new ArrayList<>();
-        fromAccounts.addAll(AccountManager.INSTANCE.getBTCBip44Accounts().values());
-        fromAccounts.addAll(AccountManager.INSTANCE.getBTCSingleAddressAccounts().values());
-        fromAccounts.addAll(AccountManager.INSTANCE.getCoinapultAccounts().values());
-        accountAdapter = new AccountAdapter(mbwManager, fromAccounts, firstItemWidth);
+        List<WalletAccount> toAccounts = new ArrayList<>();
+        toAccounts.addAll(AccountManager.INSTANCE.getBTCBip44Accounts().values());
+        toAccounts.addAll(AccountManager.INSTANCE.getBTCSingleAddressAccounts().values());
+        toAccounts.addAll(AccountManager.INSTANCE.getCoinapultAccounts().values());
+        accountAdapter = new AccountAdapter(mbwManager, toAccounts, firstItemWidth);
         accountSelector.setAdapter(accountAdapter);
         accountSelector.setSelectedItem(mbwManager.getSelectedAccount());
 

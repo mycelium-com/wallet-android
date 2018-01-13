@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 
 public class ExactBitcoinCashValue extends ExactBitcoinValue {
     public static final ExactCurrencyValue ZERO = from(0L);
+    public static final ExactCurrencyValue ONE = from(BigDecimal.ONE);
 
     public static ExactBitcoinCashValue from(BigDecimal value) {
         return new ExactBitcoinCashValue(value);

@@ -22,13 +22,18 @@ import android.widget.Toast;
 import com.mycelium.wallet.AccountManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
 import com.mycelium.wallet.activity.view.ValueKeyboard;
+import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.external.changelly.AccountAdapter;
 import com.mycelium.wallet.external.changelly.ChangellyService;
 import com.mycelium.wallet.external.changelly.Constants;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.WalletManager;
+import com.mycelium.wapi.wallet.currency.CurrencyValue;
+import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
+import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
+import com.squareup.otto.Subscribe;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -77,8 +82,10 @@ public class ExchangeFragment extends Fragment {
     @BindView(R.id.exchange_rate)
     TextView exchangeRate;
 
+    @BindView(R.id.exchange_fiat_rate)
+    TextView exchangeFiatRate;
+
     private MbwManager mbwManager;
-    private WalletManager walletManager;
     private AccountAdapter toAccountAdapter;
     private AccountAdapter fromAccountAdapter;
 
@@ -90,7 +97,6 @@ public class ExchangeFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mbwManager = MbwManager.getInstance(getActivity());
-        walletManager = mbwManager.getWalletManager(false);
         setRetainInstance(true);
         receiver = new Receiver();
         for (String action : new String[]{
@@ -104,11 +110,6 @@ public class ExchangeFragment extends Fragment {
                 .setAction(ChangellyService.ACTION_GET_MIN_EXCHANGE)
                 .putExtra(ChangellyService.FROM, ChangellyService.BCH)
                 .putExtra(ChangellyService.TO, ChangellyService.BTC));
-        getActivity().startService(new Intent(getActivity(), ChangellyService.class)
-                .setAction(ChangellyService.ACTION_GET_EXCHANGE_AMOUNT)
-                .putExtra(ChangellyService.FROM, ChangellyService.BCH)
-                .putExtra(ChangellyService.TO, ChangellyService.BTC)
-                .putExtra(ChangellyService.AMOUNT, 1.0));
     }
 
     @Nullable
@@ -121,7 +122,11 @@ public class ExchangeFragment extends Fragment {
         int senderFinalWidth = getActivity().getWindowManager().getDefaultDisplay().getWidth();
         int firstItemWidth = (senderFinalWidth - getResources().getDimensionPixelSize(R.dimen.item_dob_width)) / 2;
 
-        toAccountAdapter = new AccountAdapter(mbwManager, walletManager.getActiveAccounts(), firstItemWidth);
+        List<WalletAccount> toAccounts = new ArrayList<>();
+        toAccounts.addAll(AccountManager.INSTANCE.getBTCBip44Accounts().values());
+        toAccounts.addAll(AccountManager.INSTANCE.getBTCSingleAddressAccounts().values());
+        toAccounts.addAll(AccountManager.INSTANCE.getCoinapultAccounts().values());
+        toAccountAdapter = new AccountAdapter(mbwManager,toAccounts, firstItemWidth);
         toAccountAdapter.setAccountUseType(AccountAdapter.AccountUseType.IN);
         toRecyclerView.setAdapter(toAccountAdapter);
 
@@ -162,6 +167,18 @@ public class ExchangeFragment extends Fragment {
             }
         }
         return result;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mbwManager.getEventBus().register(this);
+    }
+
+    @Override
+    public void onPause() {
+        mbwManager.getEventBus().unregister(this);
+        super.onPause();
     }
 
     @OnClick(R.id.buttonContinue)
@@ -240,8 +257,10 @@ public class ExchangeFragment extends Fragment {
     @OnTextChanged(value = R.id.toValue, callback = AFTER_TEXT_CHANGED)
     public void afterEditTextInputTo(Editable editable) {
         if (!avoidTextChangeEvent && !toValue.getText().toString().isEmpty()) {
-            requestOfferFunction(toValue.getText().toString()
-                    , ChangellyService.BTC, ChangellyService.BCH);
+            avoidTextChangeEvent = true;
+            fromValue.setText(CurrencyValue.fromValue(ExactBitcoinValue.from(new BigDecimal(toValue.getText().toString()))
+                    , CurrencyValue.BCH, mbwManager.getExchangeRateManager()).getValue().toPlainString());
+            avoidTextChangeEvent = false;
         }
         if (!avoidTextChangeEvent && toValue.getText().toString().isEmpty()) {
             avoidTextChangeEvent = true;
@@ -296,6 +315,16 @@ public class ExchangeFragment extends Fragment {
         return true;
     }
 
+    private void updateUi() {
+        exchangeFiatRate.setText(Utils.formatFiatWithUnit(
+                mbwManager.getCurrencySwitcher().getAsFiatValue(
+                        ExactBitcoinValue.from(new BigDecimal(toValue.getText().toString())))));
+        exchangeFiatRate.setVisibility(View.VISIBLE);
+
+        exchangeRate.setText("1 BCH ~ " + CurrencyValue.fromValue(ExactBitcoinCashValue.ONE, "BTC", mbwManager.getExchangeRateManager()));
+        exchangeRate.setVisibility(View.VISIBLE);
+    }
+
     private void toast(String msg) {
         Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT).show();
     }
@@ -344,17 +373,12 @@ public class ExchangeFragment extends Fragment {
                                 fromValue.setText(decimalFormat.format(amount));
                             }
 
-                            if (to.equalsIgnoreCase(ChangellyService.BTC)
-                                    && from.equalsIgnoreCase(ChangellyService.BCH)
-                                    && fromAmount == 1) {
-                                exchangeRate.setVisibility(View.VISIBLE);
-                                exchangeRate.setText("1 BCH ~ " + decimalFormat.format(amount) + " BTC");
-                            }
                             isValueForOfferOk(true);
 
                         } catch (NumberFormatException ignore) {
                         }
                         avoidTextChangeEvent = false;
+                        updateUi();
                     }
                     break;
                 case INFO_ERROR:
@@ -362,5 +386,10 @@ public class ExchangeFragment extends Fragment {
                     break;
             }
         }
+    }
+
+    @Subscribe
+    public void exchangeRatesRefreshed(ExchangeRatesRefreshed event){
+        updateUi();
     }
 }
