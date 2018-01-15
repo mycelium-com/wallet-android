@@ -2,6 +2,7 @@ package com.mycelium.wallet
 
 import com.google.common.collect.ImmutableMap
 import com.mycelium.wallet.event.AccountChanged
+import com.mycelium.wallet.event.SelectedAccountChanged
 import com.mycelium.wapi.wallet.AccountProvider
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.WalletAccount.Type
@@ -12,6 +13,7 @@ import java.util.*
 
 object AccountManager : AccountProvider {
     val accounts: HashMap<UUID, WalletAccount> = hashMapOf()
+    val archivedAccounts: HashMap<UUID, WalletAccount> = hashMapOf()
 
     init {
         MbwManager.getInstance(WalletApplication.getInstance()).eventBus.register(this);
@@ -25,6 +27,8 @@ object AccountManager : AccountProvider {
         val walletManager: WalletManager = mbwManager.getWalletManager(false)
         accounts.clear()
         accounts.putAll(walletManager.activeAccounts)
+        archivedAccounts.clear();
+        archivedAccounts.putAll(walletManager.archivedAccounts)
     }
 
     override fun getAccounts(): ImmutableMap<UUID, WalletAccount> = ImmutableMap.copyOf<UUID, WalletAccount>(accounts)
@@ -45,6 +49,10 @@ object AccountManager : AccountProvider {
 
     fun getDashAccounts() = getAccountsByType(DASH)
 
+    fun getAllAccounts() = ImmutableMap.copyOf<UUID, WalletAccount>(accounts.filter {
+        it.value.isVisible
+    })
+
     private fun getAccountsByType(coinType: Type) = ImmutableMap.copyOf<UUID, WalletAccount>(accounts.filter {
         it.value.type == coinType && it.value.isVisible
     })
@@ -63,6 +71,11 @@ object AccountManager : AccountProvider {
 
     @Subscribe
     fun accountChanged(event: AccountChanged) {
+        fillAccounts()
+    }
+
+    @Subscribe
+    fun selectedAccountChanged(event: SelectedAccountChanged) {
         fillAccounts()
     }
 }

@@ -104,8 +104,6 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     public void updateData() {
         itemList.clear();
-        WalletManager walletManager = mbwManager.getWalletManager(false);
-        MetadataStorage storage = mbwManager.getMetadataStorage();
         AccountManager am = AccountManager.INSTANCE;
 
         addGroup(R.string.active_hd_accounts_name, GROUP_TITLE_TYPE, am.getBTCBip44Accounts().values());
@@ -114,13 +112,13 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         addGroup(R.string.bitcoin_cash_sa, GROUP_TITLE_TYPE, am.getBCHSingleAddressAccounts().values());
 
         List<WalletAccount> coluAccounts = new ArrayList<>();
-        for (WalletAccount walletAccount : AccountManager.INSTANCE.getColuAccounts().values()) {
+        for (WalletAccount walletAccount : am.getColuAccounts().values()) {
             coluAccounts.add(walletAccount);
             coluAccounts.add(((ColuAccount)walletAccount).getLinkedAccount());
         }
         addGroup(R.string.digital_assets, GROUP_TITLE_TYPE, coluAccounts);
 
-        List<WalletAccount> accounts = walletManager.getActiveOtherAccounts();
+        List<WalletAccount> accounts = am.getAllAccounts().values().asList();
         List<WalletAccount> other = new ArrayList<>();
         for (WalletAccount account : accounts) {
             switch (account.getType()) {
@@ -137,8 +135,8 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         }
         addGroup(R.string.active_other_accounts_name, GROUP_TITLE_TYPE, other);
 
-        itemList.add(new Item(TOTAL_BALANCE_TYPE, "", walletManager.getActiveAccounts()));
-        addGroup(R.string.archive_name, GROUP_ARCHIVED_TITLE_TYPE, walletManager.getArchivedAccounts());
+        itemList.add(new Item(TOTAL_BALANCE_TYPE, "", am.getAllAccounts().values().asList()));
+        addGroup(R.string.archive_name, GROUP_ARCHIVED_TITLE_TYPE, am.getArchivedAccounts().values());
         notifyDataSetChanged();
     }
 
