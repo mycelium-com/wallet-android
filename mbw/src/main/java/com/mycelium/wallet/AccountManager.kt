@@ -49,7 +49,7 @@ object AccountManager : AccountProvider {
 
     fun getDashAccounts() = getAccountsByType(DASH)
 
-    fun getAllAccounts() = ImmutableMap.copyOf<UUID, WalletAccount>(accounts.filter {
+    fun getActiveAccounts() = ImmutableMap.copyOf<UUID, WalletAccount>(accounts.filter {
         it.value.isVisible
     })
 

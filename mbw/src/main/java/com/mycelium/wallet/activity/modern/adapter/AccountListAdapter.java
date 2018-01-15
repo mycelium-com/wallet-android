@@ -19,7 +19,6 @@ import com.mycelium.wallet.activity.modern.adapter.holder.TotalViewHolder;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.currency.CurrencySum;
 
 import java.util.ArrayList;
@@ -118,7 +117,7 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         }
         addGroup(R.string.digital_assets, GROUP_TITLE_TYPE, coluAccounts);
 
-        List<WalletAccount> accounts = am.getAllAccounts().values().asList();
+        List<WalletAccount> accounts = am.getActiveAccounts().values().asList();
         List<WalletAccount> other = new ArrayList<>();
         for (WalletAccount account : accounts) {
             switch (account.getType()) {
@@ -135,7 +134,7 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         }
         addGroup(R.string.active_other_accounts_name, GROUP_TITLE_TYPE, other);
 
-        itemList.add(new Item(TOTAL_BALANCE_TYPE, "", am.getAllAccounts().values().asList()));
+        itemList.add(new Item(TOTAL_BALANCE_TYPE, "", am.getActiveAccounts().values().asList()));
         addGroup(R.string.archive_name, GROUP_ARCHIVED_TITLE_TYPE, am.getArchivedAccounts().values());
         notifyDataSetChanged();
     }
@@ -146,8 +145,7 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     private void addGroup(String title, int titleType, Collection<WalletAccount> accounts) {
         MetadataStorage storage = mbwManager.getMetadataStorage();
-        List<WalletAccount> bitcoinHdAccounts = new ArrayList<>(accounts);
-        itemList.addAll(buildGroup(bitcoinHdAccounts, storage, title, titleType));
+        itemList.addAll(buildGroup(new ArrayList<>(accounts), storage, title, titleType));
     }
 
     public List<Item> buildGroup(List<WalletAccount> accountList, MetadataStorage storage, String title, int type) {
