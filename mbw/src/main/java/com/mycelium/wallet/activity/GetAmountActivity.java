@@ -36,6 +36,7 @@ package com.mycelium.wallet.activity;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -89,6 +90,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
    @BindView(R.id.btMax) Button btMax;
    @BindView(R.id.btOk) Button btOk;
    @BindView(R.id.tvMaxAmount) TextView tvMaxAmount;
+   @BindView(R.id.tvHowIsItCalculated) TextView tvHowIsItCalculated;
    @BindView(R.id.tvAmount) TextView tvAmount;
    @BindView(R.id.tvAlternateAmount) TextView tvAlternateAmount;
 
@@ -161,6 +163,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
 
       // Max Button
       tvMaxAmount.setVisibility(View.VISIBLE);
+      tvHowIsItCalculated.setVisibility(View.VISIBLE);
       btMax.setVisibility(View.VISIBLE);
    }
 
@@ -267,6 +270,15 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       setEnteredAmount(clipboardValue);
 
       _numberEntry.setEntry(clipboardValue, isColu ? 4 : _mbwManager.getBitcoinDenomination().getDecimalPlaces());
+   }
+
+   @OnClick(R.id.tvHowIsItCalculated)
+   void howIsItCalculatedClick() {
+      new AlertDialog.Builder(this)
+              .setMessage(getString(R.string.how_is_it_calculated_text))
+              .setPositiveButton(R.string.button_ok, null)
+              .create()
+              .show();
    }
 
 
