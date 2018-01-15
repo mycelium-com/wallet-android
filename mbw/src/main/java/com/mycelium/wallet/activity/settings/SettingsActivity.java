@@ -521,7 +521,7 @@ public class SettingsActivity extends PreferenceActivity {
             preference.setOnPreferenceClickListener(new OnPreferenceClickListener() {
                @Override
                public boolean onPreferenceClick(Preference preference) {
-                  Intent intent = new Intent(com.mycelium.modularizationtools.Constants.Companion.getSETTINGS());
+                  Intent intent = new Intent(com.mycelium.modularizationtools.Constants.getSETTINGS());
                   intent.setPackage(module.getModulePackage());
                   startActivity(intent);
                   return true;
@@ -535,7 +535,7 @@ public class SettingsActivity extends PreferenceActivity {
          modulesPrefs.addPreference(preference);
       }
 
-      for (final Module module : GooglePlayModuleCollection.INSTANCE.getModules(this).values()) {
+      for (final Module module : GooglePlayModuleCollection.getModules(this).values()) {
          if (!CommunicationManager.getInstance(this).getPairedModules().contains(module)) {
             ButtonPreference installPreference = new ButtonPreference(this);
             installPreference.setButtonText(getString(R.string.install));

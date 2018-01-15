@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.UUID;
 
 public class Bip44BCHAccount extends Bip44Account {
-
     private SpvBalanceFetcher spvBalanceFetcher;
 
     public Bip44BCHAccount(Bip44AccountContext context, Bip44AccountKeyManager keyManager, NetworkParameters network, Bip44AccountBacking backing, Wapi wapi, SpvBalanceFetcher spvBalanceFetcher) {
@@ -46,5 +45,4 @@ public class Bip44BCHAccount extends Bip44Account {
     public boolean isVisible() {
         return !spvBalanceFetcher.retrieveTransactionSummaryByHdAccountIndex(getId().toString(), getAccountIndex()).isEmpty();
     }
-
 }

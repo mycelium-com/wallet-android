@@ -33,18 +33,16 @@ import com.mycelium.wallet.external.changelly.Constants;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.bip44.Bip44Account;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.UUID;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-import static com.mrd.bitlib.StandardTransactionBuilder.estimateTransactionSize;
 import static com.mycelium.wallet.external.changelly.ChangellyService.INFO_ERROR;
 
 public class ConfirmExchangeFragment extends Fragment {
@@ -99,7 +97,7 @@ public class ConfirmExchangeFragment extends Fragment {
         long fromValue = ExactBitcoinCashValue.from(BigDecimal.valueOf(offer.amountFrom)).getLongValue();
         try {
             StandardTransactionBuilder.UnsignedTransaction unsignedTransaction = fromAccount.createUnsignedTransaction(
-                    Arrays.asList(new WalletAccount.Receiver(Address.fromString(offer.payinAddress), fromValue))
+                    Collections.singletonList(new WalletAccount.Receiver(Address.fromString(offer.payinAddress), fromValue))
                     , MINER_FEE);
             Transaction transaction = fromAccount.signTransaction(unsignedTransaction, AesKeyCipher.defaultKeyCipher());
 

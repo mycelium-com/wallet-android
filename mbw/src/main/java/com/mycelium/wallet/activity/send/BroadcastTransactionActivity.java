@@ -54,13 +54,9 @@ import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.modularisation.GooglePlayModuleCollection;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.bip44.Bip44Account;
-import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.squareup.otto.Subscribe;
 
 import java.util.UUID;
-
-import rx.Single;
 
 public class BroadcastTransactionActivity extends Activity {
    protected MbwManager _mbwManager;
@@ -129,7 +125,7 @@ public class BroadcastTransactionActivity extends Activity {
          @Override
          protected WalletAccount.BroadcastResult doInBackground(Void... args) {
             if (CommunicationManager.getInstance(getApplicationContext()).getPairedModules()
-                    .contains(GooglePlayModuleCollection.INSTANCE.getModules(getApplicationContext()).get("btc"))) {
+                    .contains(GooglePlayModuleCollection.getModules(getApplicationContext()).get("btc"))) {
                   Intent intent = IntentContract.BroadcastTransaction.createIntent(_transaction.toBytes());
                   WalletApplication.sendToSpv(intent, _mbwManager.getSelectedAccount().getType());
                   return WalletAccount.BroadcastResult.SUCCESS;

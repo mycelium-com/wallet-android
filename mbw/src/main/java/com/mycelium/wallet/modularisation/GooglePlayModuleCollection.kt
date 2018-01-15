@@ -7,6 +7,7 @@ import com.mycelium.wallet.R
 
 
 object GooglePlayModuleCollection {
+    @JvmStatic
     fun getModules(context: Context): Map<String, Module> =
             hashMapOf("bch" to Module("com.mycelium.module.spvbch"
                     + (if (BuildConfig.FLAVOR == "btctestnet") ".testnet" else "")
