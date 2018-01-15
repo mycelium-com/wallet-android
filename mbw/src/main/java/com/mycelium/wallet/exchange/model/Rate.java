@@ -1,12 +1,8 @@
-package com.mycelium.wallet.exchange;
+package com.mycelium.wallet.exchange.model;
 
 import com.google.api.client.json.GenericJson;
 import com.google.api.client.json.JsonString;
 import com.google.api.client.util.Key;
-
-/**
- * Created by elvis on 10.10.17.
- */
 
 public class Rate extends GenericJson {
     @Key("pair")

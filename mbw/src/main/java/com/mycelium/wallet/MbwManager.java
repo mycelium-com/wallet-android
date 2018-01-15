@@ -78,7 +78,6 @@ import com.mycelium.lt.api.LtApiClient;
 import com.mycelium.net.ServerEndpointType;
 import com.mycelium.net.TorManager;
 import com.mycelium.net.TorManagerOrbot;
-import com.mycelium.wallet.activity.rmc.RmcApiClient;
 import com.mycelium.wallet.activity.util.BlockExplorer;
 import com.mycelium.wallet.activity.util.BlockExplorerManager;
 import com.mycelium.wallet.activity.util.Pin;
@@ -277,7 +276,6 @@ public class MbwManager {
       }
 
       _exchangeRateManager = new ExchangeRateManager(_applicationContext, _wapi, getNetwork(), getMetadataStorage());
-      _exchangeRateManager.setClient(new RmcApiClient(getNetwork()));
       _currencySwitcher = new CurrencySwitcher(
               _exchangeRateManager,
               fiatCurrencies,

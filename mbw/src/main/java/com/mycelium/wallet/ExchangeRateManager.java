@@ -41,9 +41,8 @@ import android.content.SharedPreferences;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.mrd.bitlib.model.NetworkParameters;
-import com.mycelium.wallet.activity.rmc.RmcApiClient;
-import com.mycelium.wallet.exchange.BitflipApi;
-import com.mycelium.wallet.exchange.Rate;
+import com.mycelium.wallet.exchange.CoinmarketcapApi;
+import com.mycelium.wallet.exchange.model.CoinmarketcapRate;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiException;
@@ -66,12 +65,11 @@ public class ExchangeRateManager implements ExchangeRateProvider {
    private static final int MAX_RATE_AGE_MS = 5 * 1000 * 60; /// 5 minutes
    private static final int MIN_RATE_AGE_MS = 5 * 1000; /// 5 seconds
    private static final String EXCHANGE_DATA = "wapi_exchange_rates";
-   private static final String USD_RMC = "usd_rmc";
    public static final String BTC = "BTC";
 
-   private static final String KRAKEN_MARKET_NAME = "Kraken";
-
    private static final Pattern EXCHANGE_RATE_PATTERN;
+   public static final String RMC_MARKET = "BitFlip";
+
    static {
       String regexKeyExchangeRate = "(.*)_(.*)_(.*)";
       EXCHANGE_RATE_PATTERN = Pattern.compile(regexKeyExchangeRate);
@@ -93,9 +91,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
    private final List<Observer> _subscribers;
    private String _currentExchangeSourceName;
 
-   private RmcApiClient rmcApiClient;
    private float rateRmcBtc;
-   private Float rateBtcUsd;
    // value hardcoded for now, but in future we need get from somewhere
    private static final float MSS_RATE = 3125f;
 
@@ -113,10 +109,6 @@ public class ExchangeRateManager implements ExchangeRateProvider {
       _subscribers = new LinkedList<>();
       _latestRates = new HashMap<>();
       this.storage = storage;
-   }
-
-   public void setClient(RmcApiClient client) {
-      this.rmcApiClient = client;
    }
 
    public synchronized void subscribe(Observer subscriber) {
@@ -188,37 +180,18 @@ public class ExchangeRateManager implements ExchangeRateProvider {
                }
             }
          }
-         //Get rates from bitflip
-         Rate[] rates = BitflipApi.getRates();
-         if (rates != null) {
-            for (Rate rate : rates) {
-               if(rate.pair.equals("RMC:BTC")) {
-                  rateRmcBtc = (rate.buy + rate.sell) / 2;
-                  storage.storeExchangeRate("RMC", "BTC", "BitFlip", String.valueOf(rateRmcBtc));
-               }
-            }
+         //Get rates from Coinmarket
+         CoinmarketcapRate rmcRate = CoinmarketcapApi.getRate();
+         if (rmcRate != null) {
+            rateRmcBtc = rmcRate.getPriceBtc();
+            storage.storeExchangeRate("RMC", "BTC", RMC_MARKET, String.valueOf(rateRmcBtc));
          } else {
-            Optional<String> rate = storage.getExchangeRate("RMC", "BTC", "BitFlip");
+            Optional<String> rate = storage.getExchangeRate("RMC", "BTC", RMC_MARKET);
             if (rate.isPresent()) {
                rateRmcBtc = Float.parseFloat(rate.get());
             }
          }
 
-         //get rates from gear
-         if(rmcApiClient != null) {
-            RmcApiClient rmcApiClient = new RmcApiClient(networkParameters);
-
-            Float rate = rmcApiClient.exchangeBtcUsdRate();
-
-            if (rate != null) {
-               rateBtcUsd = rate;
-            } else {
-               Optional<String> rateValue = storage.getExchangeRate("BTC", "USD", KRAKEN_MARKET_NAME);
-               if (rateValue.isPresent()) {
-                  rateBtcUsd = Float.parseFloat(rateValue.get());
-               }
-            }
-         }
       }
    }
 
@@ -324,12 +297,6 @@ public class ExchangeRateManager implements ExchangeRateProvider {
          currency = "USD";
       }
 
-      if (_latestRates == null || _latestRates.isEmpty() || !_latestRates.containsKey(currency))  {
-         if (currency.equals("USD") && (rateBtcUsd != null)) {
-            return getRMCExchangeRate(injectCurrency, new ExchangeRate(KRAKEN_MARKET_NAME, new Date().getTime(), rateBtcUsd, "USD"));
-         }
-         return null;
-      }
       if (_latestRatesTime + MAX_RATE_AGE_MS < System.currentTimeMillis()) {
          //rate is too old, source seems to not be available
          //we return a rate with null price to indicate there is something wrong with the exchange rate source
