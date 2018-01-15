@@ -14,7 +14,6 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class ButtonPreference extends Preference {
-
     @BindView(R.id.preference_button)
     Button button;
 

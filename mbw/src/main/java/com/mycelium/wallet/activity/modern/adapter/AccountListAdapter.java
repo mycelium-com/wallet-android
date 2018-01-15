@@ -23,6 +23,7 @@ import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.currency.CurrencySum;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -105,25 +106,19 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         itemList.clear();
         WalletManager walletManager = mbwManager.getWalletManager(false);
         MetadataStorage storage = mbwManager.getMetadataStorage();
+        AccountManager am = AccountManager.INSTANCE;
 
-        List<WalletAccount> bitcoinHdAccounts = new ArrayList<>(AccountManager.INSTANCE.getBTCBip44Accounts().values());
-        itemList.addAll(buildGroup(bitcoinHdAccounts, storage, context.getString(R.string.active_hd_accounts_name), GROUP_TITLE_TYPE));
-
-        List<WalletAccount> bitcoinSAAccounts = new ArrayList<>(AccountManager.INSTANCE.getBTCSingleAddressAccounts().values());
-        itemList.addAll(buildGroup(bitcoinSAAccounts, storage, "Bitcoin SA", GROUP_TITLE_TYPE));
-
-        List<WalletAccount> bitcoinCashHDAccounts = new ArrayList<>(AccountManager.INSTANCE.getBCHBip44Accounts().values());
-        itemList.addAll(buildGroup(bitcoinCashHDAccounts, storage, context.getString(R.string.bitcoin_cash_hd), GROUP_TITLE_TYPE));
-
-        List<WalletAccount> bitcoinCashSAAccounts = new ArrayList<>(AccountManager.INSTANCE.getBCHSingleAddressAccounts().values());
-        itemList.addAll(buildGroup(bitcoinCashSAAccounts, storage, context.getString(R.string.bitcoin_cash_sa), GROUP_TITLE_TYPE));
+        addGroup(R.string.active_hd_accounts_name, GROUP_TITLE_TYPE, am.getBTCBip44Accounts().values());
+        addGroup("Bitcoin SA", GROUP_TITLE_TYPE, am.getBTCSingleAddressAccounts().values());
+        addGroup(R.string.bitcoin_cash_hd, GROUP_TITLE_TYPE, am.getBCHBip44Accounts().values());
+        addGroup(R.string.bitcoin_cash_sa, GROUP_TITLE_TYPE, am.getBCHSingleAddressAccounts().values());
 
         List<WalletAccount> coluAccounts = new ArrayList<>();
         for (WalletAccount walletAccount : AccountManager.INSTANCE.getColuAccounts().values()) {
             coluAccounts.add(walletAccount);
             coluAccounts.add(((ColuAccount)walletAccount).getLinkedAccount());
         }
-        itemList.addAll(buildGroup(coluAccounts, storage, context.getString(R.string.digital_assets), GROUP_TITLE_TYPE));
+        addGroup(R.string.digital_assets, GROUP_TITLE_TYPE, coluAccounts);
 
         List<WalletAccount> accounts = walletManager.getActiveOtherAccounts();
         List<WalletAccount> other = new ArrayList<>();
@@ -140,15 +135,21 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     break;
             }
         }
-
-        itemList.addAll(buildGroup(other, storage, context.getString(R.string.active_other_accounts_name), GROUP_TITLE_TYPE));
+        addGroup(R.string.active_other_accounts_name, GROUP_TITLE_TYPE, other);
 
         itemList.add(new Item(TOTAL_BALANCE_TYPE, "", walletManager.getActiveAccounts()));
-
-        itemList.addAll(buildGroup(walletManager.getArchivedAccounts(), storage
-                , context.getString(R.string.archive_name), GROUP_ARCHIVED_TITLE_TYPE));
-
+        addGroup(R.string.archive_name, GROUP_ARCHIVED_TITLE_TYPE, walletManager.getArchivedAccounts());
         notifyDataSetChanged();
+    }
+
+    private void addGroup(int titleId, int titleType, Collection<WalletAccount> accounts) {
+        addGroup(context.getString(titleId), titleType, accounts);
+    }
+
+    private void addGroup(String title, int titleType, Collection<WalletAccount> accounts) {
+        MetadataStorage storage = mbwManager.getMetadataStorage();
+        List<WalletAccount> bitcoinHdAccounts = new ArrayList<>(accounts);
+        itemList.addAll(buildGroup(bitcoinHdAccounts, storage, title, titleType));
     }
 
     public List<Item> buildGroup(List<WalletAccount> accountList, MetadataStorage storage, String title, int type) {

@@ -54,12 +54,10 @@ public class ExchangeRate implements Serializable {
 
    @Override
    public String toString() {
-      StringBuilder sb = new StringBuilder();
-      sb.append("Name: ").append(name);
-      sb.append(" time: ").append(new Date(time));
-      sb.append(" currency: ").append(currency);
-      sb.append(" price: ").append(price == null ? "<Not available>" : price);
-      return sb.toString();
+      return "Name: " + name +
+              " time: " + new Date(time) +
+              " currency: " + currency +
+              " price: " + (price == null ? "<Not available>" : price);
    }
 
    @Override
@@ -78,5 +76,4 @@ public class ExchangeRate implements Serializable {
       ExchangeRate other = (ExchangeRate) obj;
       return other.time == time && other.name.equals(name) && other.currency.equals(currency);
    }
-
 }

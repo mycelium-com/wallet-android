@@ -55,6 +55,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.text.ClipboardManager;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -120,6 +121,8 @@ import java.util.List;
 import java.util.Locale;
 
 import javax.annotation.Nullable;
+
+import static com.mycelium.wallet.Constants.TAG;
 
 public class Utils {
    private static final DecimalFormat FIAT_FORMAT;
@@ -458,11 +461,15 @@ public class Utils {
    }
 
    public static String formatFiatWithUnit(CurrencyValue fiat) {
-      return FIAT_FORMAT.format(fiat.getValue()) + " " + fiat.getCurrency();
+      try {
+         return FIAT_FORMAT.format(fiat.getValue()) + " " + fiat.getCurrency();
+      } catch (Exception e) {
+         Log.e(TAG, e.getMessage());
+         return "???";
+      }
    }
 
    public static String getFiatValueAsString(long satoshis, Double oneBtcInFiat, int precision) {
-
       Double converted = getFiatValue(satoshis, oneBtcInFiat);
       if (converted == null) {
          return null;

@@ -1,8 +1,6 @@
 package com.mycelium.wapi.wallet.currency;
 
 
-import com.megiontechnologies.Bitcoins;
-
 import java.math.BigDecimal;
 
 public class ExactBitcoinCashValue extends ExactBitcoinValue {

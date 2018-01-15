@@ -83,10 +83,21 @@ public class ChangellyActivity extends AppCompatActivity {
     @BindView(R.id.subtitle)
     View subtitleView;
 
+    @BindView(R.id.llChangellyErrorWrapper)
+    View llChangellyErrorWrapper;
+
+    @BindView(R.id.llChangellyLoadingProgress)
+    View llChangellyLoadingProgress;
+
+    @BindView(R.id.llChangellyMain)
+    View llChangellyMain;
+
+    @BindView(R.id.llChangellyValidationWait)
+    View llChangellyValidationWait;
+
     private CurrencyAdapter currencyAdapter;
     private AccountAdapter accountAdapter;
     private Receiver receiver;
-    private MbwManager mbwManager;
 
     private Double minAmount;
 
@@ -111,7 +122,7 @@ public class ChangellyActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.changelly_activity);
         ButterKnife.bind(this);
-        mbwManager = MbwManager.getInstance(this);
+        MbwManager mbwManager = MbwManager.getInstance(this);
 
         tvMinAmountValue.setVisibility(View.GONE); // cannot edit field before selecting a currency
 
@@ -197,18 +208,18 @@ public class ChangellyActivity extends AppCompatActivity {
 
     /* Activity UI logic Start */
     private void setLayout(ChangellyUITypes uiType) {
-        findViewById(R.id.llChangellyValidationWait).setVisibility(View.GONE);
-        findViewById(R.id.llChangellyLoadingProgress).setVisibility(View.GONE); // always gone
-        findViewById(R.id.llChangellyErrorWrapper).setVisibility(View.GONE);
-        findViewById(R.id.llChangellyMain).setVisibility(View.GONE);
+        llChangellyValidationWait.setVisibility(View.GONE);
+        llChangellyLoadingProgress.setVisibility(View.GONE); // always gone
+        llChangellyErrorWrapper.setVisibility(View.GONE);
+        llChangellyMain.setVisibility(View.GONE);
         switch (uiType) {
             case Loading:
-                findViewById(R.id.llChangellyValidationWait).setVisibility(View.VISIBLE);
+                llChangellyValidationWait.setVisibility(View.VISIBLE);
                 break;
             case RetryLater:
-                findViewById(R.id.llChangellyErrorWrapper).setVisibility(View.VISIBLE);
+                llChangellyErrorWrapper.setVisibility(View.VISIBLE);
             case Main:
-                findViewById(R.id.llChangellyMain).setVisibility(View.VISIBLE);
+                llChangellyMain.setVisibility(View.VISIBLE);
         }
     }
 
