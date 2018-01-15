@@ -37,6 +37,7 @@ package com.mycelium.wallet.activity.settings;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -52,6 +53,7 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.text.Html;
 import android.text.InputType;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -523,7 +525,11 @@ public class SettingsActivity extends PreferenceActivity {
                public boolean onPreferenceClick(Preference preference) {
                   Intent intent = new Intent(com.mycelium.modularizationtools.Constants.getSETTINGS());
                   intent.setPackage(module.getModulePackage());
-                  startActivity(intent);
+                  try {
+                     startActivity(intent);
+                  } catch (ActivityNotFoundException e) {
+                     Log.e("SettingsActivity", "Something wrong with module", e);
+                  }
                   return true;
                }
             });
