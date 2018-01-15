@@ -46,7 +46,7 @@ object AccountManager : AccountProvider {
     fun getDashAccounts() = getAccountsByType(DASH)
 
     private fun getAccountsByType(coinType: Type) = ImmutableMap.copyOf<UUID, WalletAccount>(accounts.filter {
-        it.value.type == coinType
+        it.value.type == coinType && it.value.isVisible
     })
 
     override fun getAccount(uuid: UUID?): WalletAccount? = accounts.get(uuid)
