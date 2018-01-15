@@ -43,6 +43,6 @@ public class SingleAddressBCHAccount extends SingleAddressAccount {
 
     @Override
     public boolean isVisible() {
-        return spvBalanceFetcher.retrieveTransactionSummaryBySingleAddressAccountId(getId().toString()).isEmpty();
+        return !spvBalanceFetcher.retrieveTransactionSummaryBySingleAddressAccountId(getId().toString()).isEmpty();
     }
 }
