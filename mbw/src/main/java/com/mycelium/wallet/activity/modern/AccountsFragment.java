@@ -66,6 +66,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.mrd.bitlib.model.Address;
+import com.mycelium.wallet.AccountManager;
 import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -565,7 +566,8 @@ public class AccountsFragment extends Fragment {
       }
 
       if (account.isActive() && account instanceof Bip44Account && !(account instanceof Bip44PubOnlyAccount)
-              && walletManager.getActiveMasterseedAccounts().size() > 1 && !isBch) {
+              && AccountManager.INSTANCE.getBTCMasterSeedAccounts().size() > 1 && !isBch) {
+
          if (!((Bip44Account) account).hasHadActivity()) {
             //only allow to remove unused HD acounts from the view
             menus.add(R.menu.record_options_menu_hide_unused);
