@@ -93,6 +93,7 @@ public class WalletManager {
    private final SecureKeyValueStore _secureKeyValueStore;
    private WalletManagerBacking _backing;
    private final Map<UUID, WalletAccount> _walletAccounts;
+   private final Map<UUID, UUID> _btcToBchAccounts;
    private final List<Bip44Account> _bip44Accounts;
    private final Collection<Observer> _observers;
    private State _state;
@@ -127,6 +128,7 @@ public class WalletManager {
       _accountEventManager = new AccountEventManager();
       _observers = new LinkedList<>();
       _spvBalanceFetcher = spvBalanceFetcher;
+      _btcToBchAccounts = new HashMap<>();
       loadAccounts();
    }
 
@@ -212,6 +214,7 @@ public class WalletManager {
                SingleAddressBCHAccount singleAddressBCHAccount = new SingleAddressBCHAccount(context, store, _network, accountBacking, _wapi, _spvBalanceFetcher);
                _spvBalanceFetcher.requestTransactionsFromSingleAddressAccountAsync(singleAddressBCHAccount.getId().toString());
                addAccount(singleAddressBCHAccount);
+               _btcToBchAccounts.put(account.getId(), singleAddressBCHAccount.getId());
             }
          } finally {
             _backing.endTransaction();
@@ -287,6 +290,7 @@ public class WalletManager {
                Bip44BCHAccount bip44BCHAccount = new Bip44BCHAccount(context, keyManager, _network, accountBacking, _wapi, _spvBalanceFetcher);
                _spvBalanceFetcher.requestTransactionsAsync(bip44BCHAccount.getAccountIndex());
                addAccount(bip44BCHAccount);
+               _btcToBchAccounts.put(account.getId(), bip44BCHAccount.getId());
             }
 
             return id;
@@ -379,6 +383,11 @@ public class WalletManager {
             _bip44Accounts.remove(hdAccount);
             _backing.deleteBip44AccountContext(id);
             _walletAccounts.remove(id);
+         }
+
+         if (_btcToBchAccounts.containsKey(id)) {
+            _walletAccounts.remove(_btcToBchAccounts.get(id));
+            _btcToBchAccounts.remove(id);
          }
       }
    }
@@ -728,6 +737,7 @@ public class WalletManager {
             _spvBalanceFetcher.requestTransactionsAsync(bchAccount.getAccountIndex());
             if (bchAccount.canSpend()) {
                addAccount(bchAccount);
+               _btcToBchAccounts.put(account.getId(), bchAccount.getId());
             }
          }
       }
@@ -747,6 +757,7 @@ public class WalletManager {
             SingleAddressBCHAccount bchAccount = new SingleAddressBCHAccount(context, store, _network, accountBacking, _wapi, _spvBalanceFetcher);
             if (bchAccount.canSpend()) {
                addAccount(bchAccount);
+               _btcToBchAccounts.put(account.getId(), bchAccount.getId());
             } else {
                _spvBalanceFetcher.requestTransactionsFromSingleAddressAccountAsync(bchAccount.getId().toString());
             }
@@ -1163,6 +1174,7 @@ public class WalletManager {
                Bip44BCHAccount bip44BCHAccount = new Bip44BCHAccount(context, keyManager, _network, accountBacking, _wapi, _spvBalanceFetcher);
                _spvBalanceFetcher.requestTransactionsAsync(bip44BCHAccount.getAccountIndex());
                addAccount(bip44BCHAccount);
+               _btcToBchAccounts.put(account.getId(), bip44BCHAccount.getId());
             }
 
             return account.getId();
