@@ -56,6 +56,7 @@ import android.support.v4.content.ContextCompat;
 import android.text.ClipboardManager;
 import android.text.format.DateFormat;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -115,7 +116,6 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
@@ -176,7 +176,7 @@ public class Utils {
    }
 
    public static Bitmap getMinimalQRCodeBitmap(String url) {
-      Hashtable<EncodeHintType, Object> hints = new Hashtable<EncodeHintType, Object>();
+      Hashtable<EncodeHintType, Object> hints = new Hashtable<>();
       hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.M);
       hints.put(EncodeHintType.MARGIN, 5);
 
@@ -325,10 +325,10 @@ public class Utils {
       final View layout = inflater.inflate(R.layout.simple_message_dialog, null);
       AlertDialog.Builder builder = new AlertDialog.Builder(context).setView(layout);
       final AlertDialog dialog = builder.create();
-      TextView tvMessage = ((TextView) layout.findViewById(R.id.tvMessage));
+      TextView tvMessage = layout.findViewById(R.id.tvMessage);
       tvMessage.setText(message);
 
-      TextView okButton = (TextView) layout.findViewById(R.id.btOk);
+      TextView okButton = layout.findViewById(R.id.btOk);
       okButton.setText(okayButtonText);
       okButton.setOnClickListener(new OnClickListener() {
 
@@ -392,9 +392,9 @@ public class Utils {
       final View layout = inflater.inflate(R.layout.optional_message_dialog, null);
       AlertDialog.Builder builder = new AlertDialog.Builder(context).setView(layout);
       final AlertDialog dialog = builder.create();
-      TextView tvMessage = ((TextView) layout.findViewById(R.id.tvMessage));
+      TextView tvMessage = layout.findViewById(R.id.tvMessage);
       tvMessage.setText(message);
-      CheckBox cb = (CheckBox) layout.findViewById(R.id.checkbox);
+      CheckBox cb = layout.findViewById(R.id.checkbox);
       cb.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
          @Override
@@ -432,7 +432,6 @@ public class Utils {
       return Joiner.on(joiner).join(parts);
    }
 
-
    public static Double getFiatValue(long satoshis, Double oneBtcInFiat) {
       if (oneBtcInFiat == null) {
          return null;
@@ -448,7 +447,7 @@ public class Utils {
       return FIAT_FORMAT.format(converted);
    }
 
-   private static HashMap<Integer, DecimalFormat> formatCache = new HashMap<Integer, DecimalFormat>(2);
+   private static SparseArray<DecimalFormat> formatCache = new SparseArray<>(2);
 
    public static String formatFiatValueAsString(BigDecimal fiat) {
       return FIAT_FORMAT.format(fiat);
@@ -475,7 +474,7 @@ public class Utils {
          return null;
       }
 
-      if (!formatCache.containsKey(precision)) {
+      if (formatCache.get(precision) == null) {
          DecimalFormat fiatFormat = (DecimalFormat) FIAT_FORMAT.clone();
          fiatFormat.setMaximumFractionDigits(precision);
          formatCache.put(precision, fiatFormat);
@@ -787,7 +786,6 @@ public class Utils {
 
    public static List<WalletAccount> sortAccounts(final List<WalletAccount> accounts, final MetadataStorage storage) {
       Ordering<WalletAccount> type = Ordering.natural().onResultOf(new Function<WalletAccount, Integer>() {
-         @Nullable
          @Override
          public Integer apply(@Nullable WalletAccount input) {
             if (input instanceof Bip44Account) {
@@ -976,7 +974,7 @@ public class Utils {
                denomination, precision
          );
       } else {
-         if (!formatCache.containsKey(precision)) {
+         if (formatCache.get(precision) == null) {
             DecimalFormat fiatFormat = (DecimalFormat) FIAT_FORMAT.clone();
             fiatFormat.setMaximumFractionDigits(precision);
             formatCache.put(precision, fiatFormat);
@@ -1040,7 +1038,7 @@ public class Utils {
                      denomination, precision), denomination.getUnicodeName()
          );
       } else {
-         if (!formatCache.containsKey(precision)) {
+         if (formatCache.get(precision) == null) {
             DecimalFormat fiatFormat = (DecimalFormat) FIAT_FORMAT.clone();
             fiatFormat.setMaximumFractionDigits(precision);
             formatCache.put(precision, fiatFormat);

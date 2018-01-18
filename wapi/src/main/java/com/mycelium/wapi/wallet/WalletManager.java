@@ -862,20 +862,20 @@ public class WalletManager {
                   }
                }
             }
+         }
+         if (syncMode.onlyActiveAccount) {
+            if (currentAccount != null && !currentAccount.isArchived() && !(currentAccount instanceof Bip44BCHAccount || currentAccount instanceof SingleAddressBCHAccount)) {
+               return currentAccount.synchronize(syncMode);
+            }
          } else {
-            if (syncMode.onlyActiveAccount) {
-               if (currentAccount != null && !currentAccount.isArchived()) {
-                  return currentAccount.synchronize(syncMode);
+            for (WalletAccount account : getAllAccounts()) {
+               if (account.isArchived() || account instanceof Bip44BCHAccount || account instanceof SingleAddressBCHAccount) {
+                  continue;
                }
-            } else {
-               for (WalletAccount account : getAllAccounts()) {
-                  if (!account.isArchived()) {
-                     if (!account.synchronize(syncMode)) {
-                        // We failed to sync due to API error, we will have to try
-                        // again later
-                        return false;
-                     }
-                  }
+               if (!account.synchronize(syncMode)) {
+                  // We failed to sync due to API error, we will have to try
+                  // again later
+                  return false;
                }
             }
          }
