@@ -638,7 +638,7 @@ public class MbwManager {
       return walletManager;
    }
 
-   private void importLabelsToBch(WalletManager walletManager) {
+   public void importLabelsToBch(WalletManager walletManager) {
       for (WalletAccount walletAccount : walletManager.getActiveAccounts()) {
          if (walletAccount.getType() == WalletAccount.Type.BTCSINGLEADDRESS
                  || walletAccount.getType() == WalletAccount.Type.BTCBIP44) {
