@@ -249,7 +249,9 @@ public class TransactionHistoryFragment extends Fragment {
          return;
       }
       WalletAccount account = _mbwManager.getSelectedAccount();
-      if (account.isArchived()) {
+      if (account.isArchived()
+              || account.getType() == WalletAccount.Type.BCHSINGLEADDRESS
+              || account.getType() == WalletAccount.Type.BCHBIP44) {
          return;
       }
       List<TransactionSummary> history = account.getTransactionHistory(0, 20);
