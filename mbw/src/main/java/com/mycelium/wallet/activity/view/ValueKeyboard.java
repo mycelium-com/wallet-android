@@ -2,9 +2,9 @@ package com.mycelium.wallet.activity.view;
 
 
 import android.content.Context;
+import android.support.v7.widget.GridLayout;
 import android.util.AttributeSet;
 import android.view.View;
-import android.support.v7.widget.GridLayout;
 import android.widget.TextView;
 
 import com.mycelium.wallet.R;
@@ -40,11 +40,17 @@ public class ValueKeyboard extends GridLayout {
         updateDotBtn();
     }
 
-    BigDecimal maxValue = BigDecimal.ZERO;
+    BigDecimal spendableValue = BigDecimal.ZERO;
+
+    public void setSpendableValue(BigDecimal spendableValue) {
+        this.spendableValue = spendableValue;
+        updateMaxBtn();
+    }
+
+    BigDecimal maxValue;
 
     public void setMaxValue(BigDecimal maxValue) {
         this.maxValue = maxValue;
-        updateMaxBtn();
     }
 
     public void setInputTextView(TextView inputTextView) {
@@ -84,7 +90,7 @@ public class ValueKeyboard extends GridLayout {
                 @Override
                 public void onClick(View view) {
                     if (view.getId() == R.id.btn_max) {
-                        value.setEntry(maxValue, maxDecimals);
+                        value.setEntry(spendableValue, maxDecimals);
                     } else if (view.getId() == R.id.btn_backspace) {
                         value.clicked(DEL);
                     } else if (view.getId() == R.id.btn_dot) {
@@ -130,7 +136,7 @@ public class ValueKeyboard extends GridLayout {
     }
 
     private void updateMaxBtn() {
-        findViewById(R.id.btn_max).setVisibility(maxValue.equals(BigDecimal.ZERO) ? View.INVISIBLE : View.VISIBLE);
+        findViewById(R.id.btn_max).setVisibility(spendableValue.equals(BigDecimal.ZERO) ? View.INVISIBLE : View.VISIBLE);
     }
 
     public interface InputListener {
@@ -243,7 +249,9 @@ public class ValueKeyboard extends GridLayout {
                         return;
                     }
                 }
-                entry = entry + digit;
+                if (maxValue == null || new BigDecimal(entry + digit).compareTo(maxValue) <= 0) {
+                    entry = entry + digit;
+                }
             }
             entryChange.entryChange(entry, false);
         }

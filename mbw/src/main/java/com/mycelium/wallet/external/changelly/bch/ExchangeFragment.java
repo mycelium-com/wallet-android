@@ -50,6 +50,7 @@ import static com.mycelium.wallet.external.changelly.ChangellyService.INFO_ERROR
 import static com.mycelium.wallet.external.changelly.Constants.decimalFormat;
 
 public class ExchangeFragment extends Fragment {
+    public static final BigDecimal MAX_BITCOIN_VALUE = BigDecimal.valueOf(20999999);
     private static String TAG = "ChangellyActivity";
 
     @BindView(R.id.from_account_list)
@@ -162,7 +163,7 @@ public class ExchangeFragment extends Fragment {
     private List<WalletAccount> filterAccount(Collection<WalletAccount> accounts) {
         List<WalletAccount> result = new ArrayList<>();
         for (WalletAccount walletAccount : accounts) {
-            if (walletAccount.canSpend() && !walletAccount.getCurrencyBasedBalance().confirmed.isZero()) {
+            if (walletAccount.canSpend() /*&& !walletAccount.getCurrencyBasedBalance().confirmed.isZero()*/) {
                 result.add(walletAccount);
             }
         }
@@ -216,7 +217,8 @@ public class ExchangeFragment extends Fragment {
         toRecyclerView.setVisibility(View.GONE);
         toLayout.setAlpha(Constants.ACTIVE_ALPHA);
         fromLayout.setAlpha(Constants.INACTIVE_ALPHA);
-        valueKeyboard.setMaxValue(BigDecimal.ZERO);
+        valueKeyboard.setSpendableValue(BigDecimal.ZERO);
+        valueKeyboard.setMaxValue(MAX_BITCOIN_VALUE);
     }
 
     @OnClick(R.id.fromValueLayout)
@@ -227,7 +229,8 @@ public class ExchangeFragment extends Fragment {
         fromLayout.setAlpha(Constants.ACTIVE_ALPHA);
         toLayout.setAlpha(Constants.INACTIVE_ALPHA);
         AccountAdapter.Item item = fromAccountAdapter.getItem(fromRecyclerView.getSelectedItem());
-        valueKeyboard.setMaxValue(getMaxSpend(item.account));
+        valueKeyboard.setSpendableValue(getMaxSpend(item.account));
+        valueKeyboard.setMaxValue(MAX_BITCOIN_VALUE);
     }
 
     @OnClick(R.id.use_all_funds)
@@ -244,7 +247,12 @@ public class ExchangeFragment extends Fragment {
     @OnTextChanged(value = R.id.fromValue, callback = AFTER_TEXT_CHANGED)
     public void afterEditTextInputFrom(Editable editable) {
         if (!avoidTextChangeEvent && isValueForOfferOk(true)) {
-            requestOfferFunction(fromValue.getText().toString()
+            BigDecimal val = new BigDecimal(fromValue.getText().toString());
+            if (val.compareTo(MAX_BITCOIN_VALUE) > 0) {
+                val = MAX_BITCOIN_VALUE;
+                fromValue.setText(val.toPlainString());
+            }
+            requestOfferFunction(val.toPlainString()
                     , ChangellyService.BCH, ChangellyService.BTC);
         }
         if (!avoidTextChangeEvent && fromValue.getText().toString().isEmpty()) {
@@ -258,7 +266,12 @@ public class ExchangeFragment extends Fragment {
     public void afterEditTextInputTo(Editable editable) {
         if (!avoidTextChangeEvent && !toValue.getText().toString().isEmpty()) {
             avoidTextChangeEvent = true;
-            fromValue.setText(CurrencyValue.fromValue(ExactBitcoinValue.from(new BigDecimal(toValue.getText().toString()))
+            BigDecimal val = new BigDecimal(toValue.getText().toString());
+            if (val.compareTo(MAX_BITCOIN_VALUE) > 0) {
+                val = MAX_BITCOIN_VALUE;
+                toValue.setText(val.toPlainString());
+            }
+            fromValue.setText(CurrencyValue.fromValue(ExactBitcoinValue.from(val)
                     , CurrencyValue.BCH, mbwManager.getExchangeRateManager()).getValue().toPlainString());
             avoidTextChangeEvent = false;
         }
@@ -316,9 +329,12 @@ public class ExchangeFragment extends Fragment {
     }
 
     private void updateUi() {
-        exchangeFiatRate.setText(Utils.formatFiatWithUnit(
-                mbwManager.getCurrencySwitcher().getAsFiatValue(
-                        ExactBitcoinValue.from(new BigDecimal(toValue.getText().toString())))));
+        try {
+            exchangeFiatRate.setText(Utils.formatFiatWithUnit(
+                    mbwManager.getCurrencySwitcher().getAsFiatValue(
+                            ExactBitcoinValue.from(new BigDecimal(toValue.getText().toString())))));
+        } catch (NumberFormatException ignore) {
+        }
         exchangeFiatRate.setVisibility(View.VISIBLE);
 
         exchangeRate.setText("1 BCH ~ " + CurrencyValue.fromValue(ExactBitcoinCashValue.ONE, "BTC", mbwManager.getExchangeRateManager()));
