@@ -212,9 +212,9 @@ public class WalletManager {
 
             if (_spvBalanceFetcher != null) {
                SingleAddressBCHAccount singleAddressBCHAccount = new SingleAddressBCHAccount(context, store, _network, accountBacking, _wapi, _spvBalanceFetcher);
-               _spvBalanceFetcher.requestTransactionsFromSingleAddressAccountAsync(singleAddressBCHAccount.getId().toString());
                addAccount(singleAddressBCHAccount);
                _btcToBchAccounts.put(account.getId(), singleAddressBCHAccount.getId());
+               _spvBalanceFetcher.requestTransactionsFromSingleAddressAccountAsync(singleAddressBCHAccount.getId().toString());
             }
          } finally {
             _backing.endTransaction();
@@ -288,9 +288,9 @@ public class WalletManager {
 
             if (_spvBalanceFetcher != null) {
                Bip44BCHAccount bip44BCHAccount = new Bip44BCHAccount(context, keyManager, _network, accountBacking, _wapi, _spvBalanceFetcher);
-               _spvBalanceFetcher.requestTransactionsAsync(bip44BCHAccount.getAccountIndex());
                addAccount(bip44BCHAccount);
                _btcToBchAccounts.put(account.getId(), bip44BCHAccount.getId());
+               _spvBalanceFetcher.requestTransactionsAsync(bip44BCHAccount.getAccountIndex());
             }
 
             return id;
@@ -734,11 +734,9 @@ public class WalletManager {
 
          if (_spvBalanceFetcher != null) {
             Bip44BCHAccount bchAccount = new Bip44BCHAccount(context, keyManager, _network, accountBacking, _wapi, _spvBalanceFetcher);
+            addAccount(bchAccount);
+            _btcToBchAccounts.put(account.getId(), bchAccount.getId());
             _spvBalanceFetcher.requestTransactionsAsync(bchAccount.getAccountIndex());
-            if (bchAccount.canSpend()) {
-               addAccount(bchAccount);
-               _btcToBchAccounts.put(account.getId(), bchAccount.getId());
-            }
          }
       }
    }
@@ -755,12 +753,9 @@ public class WalletManager {
 
          if (_spvBalanceFetcher != null) {
             SingleAddressBCHAccount bchAccount = new SingleAddressBCHAccount(context, store, _network, accountBacking, _wapi, _spvBalanceFetcher);
-            if (bchAccount.canSpend()) {
-               addAccount(bchAccount);
-               _btcToBchAccounts.put(account.getId(), bchAccount.getId());
-            } else {
-               _spvBalanceFetcher.requestTransactionsFromSingleAddressAccountAsync(bchAccount.getId().toString());
-            }
+            addAccount(bchAccount);
+            _btcToBchAccounts.put(account.getId(), bchAccount.getId());
+            _spvBalanceFetcher.requestTransactionsFromSingleAddressAccountAsync(bchAccount.getId().toString());
          }
       }
    }
