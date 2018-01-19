@@ -1004,6 +1004,11 @@ public class WalletManager {
          _bip44Accounts.remove(last);
          _walletAccounts.remove(last.getId());
          _backing.deleteBip44AccountContext(last.getId());
+
+         if (_btcToBchAccounts.containsKey(last.getId())) {
+            _walletAccounts.remove(_btcToBchAccounts.get(last.getId()));
+            _btcToBchAccounts.remove(last.getId());
+         }
          return true;
       }
    }
