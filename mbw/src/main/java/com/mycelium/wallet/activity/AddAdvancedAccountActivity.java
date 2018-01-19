@@ -60,7 +60,7 @@ import com.mycelium.wallet.colu.ColuManager;
 import com.mycelium.wallet.extsig.keepkey.activity.KeepKeyAccountImportActivity;
 import com.mycelium.wallet.extsig.ledger.activity.LedgerAccountImportActivity;
 import com.mycelium.wallet.extsig.trezor.activity.TrezorAccountImportActivity;
-import com.mycelium.wallet.modularisation.WelcomeDialogHelper;
+import com.mycelium.wallet.modularisation.BCHHelper;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
@@ -168,7 +168,7 @@ public class AddAdvancedAccountActivity extends Activity {
 
    @OnClick(R.id.btGenerateNewBchSingleKey)
    void onGenerateBchClick() {
-      WelcomeDialogHelper.bchTechnologyPreviewDialog(this);
+      BCHHelper.bchTechnologyPreviewDialog(this);
    }
 
    @Override

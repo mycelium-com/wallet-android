@@ -49,7 +49,7 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.HdAccountCreated;
-import com.mycelium.wallet.modularisation.WelcomeDialogHelper;
+import com.mycelium.wallet.modularisation.BCHHelper;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
@@ -102,7 +102,7 @@ public class AddAccountActivity extends Activity {
 
    @OnClick(R.id.btHdBchCreate)
    void onAddBchHD(){
-      WelcomeDialogHelper.bchTechnologyPreviewDialog(this);
+      BCHHelper.bchTechnologyPreviewDialog(this);
    }
 
    View.OnClickListener advancedClickListener = new View.OnClickListener() {

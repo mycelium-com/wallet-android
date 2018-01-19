@@ -67,7 +67,7 @@ import com.mycelium.wallet.event.RefreshingExchangeRatesFailed;
 import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wallet.event.SyncStopped;
-import com.mycelium.wallet.modularisation.WelcomeDialogHelper;
+import com.mycelium.wallet.modularisation.BCHHelper;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
@@ -136,7 +136,7 @@ public class BalanceFragment extends Fragment {
 
    @OnClick(R.id.btSend) void onClickSend() {
       if (isBCH()) {
-         WelcomeDialogHelper.bchTechnologyPreviewDialog(getActivity());
+         BCHHelper.bchTechnologyPreviewDialog(getActivity());
          return;
       }
       WalletAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
@@ -158,7 +158,7 @@ public class BalanceFragment extends Fragment {
 
    @OnClick(R.id.btReceive) void onClickReceive() {
       if (isBCH()) {
-         WelcomeDialogHelper.bchTechnologyPreviewDialog(getActivity());
+         BCHHelper.bchTechnologyPreviewDialog(getActivity());
          return;
       }
       Optional<Address> receivingAddress = _mbwManager.getSelectedAccount().getReceivingAddress();
@@ -170,7 +170,7 @@ public class BalanceFragment extends Fragment {
 
    @OnClick(R.id.btScan) void onClickScan() {
       if (isBCH()) {
-         WelcomeDialogHelper.bchTechnologyPreviewDialog(getActivity());
+         BCHHelper.bchTechnologyPreviewDialog(getActivity());
          return;
       }
       //perform a generic scan, act based upon what we find in the QR code

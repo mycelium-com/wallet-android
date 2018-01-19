@@ -88,7 +88,7 @@ import com.mycelium.wallet.event.SyncStarted;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.event.TorStateChanged;
 import com.mycelium.wallet.event.TransactionBroadcasted;
-import com.mycelium.wallet.modularisation.WelcomeDialogHelper;
+import com.mycelium.wallet.modularisation.BCHHelper;
 import com.mycelium.wapi.api.response.Feature;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
@@ -199,7 +199,7 @@ public class ModernMain extends AppCompatActivity {
          checkGapBug();
          _isAppStart = false;
       }
-      WelcomeDialogHelper.firstBCHPages(this);
+      BCHHelper.firstBCHPages(this);
    }
 
    private void checkGapBug() {
@@ -567,7 +567,8 @@ public class ModernMain extends AppCompatActivity {
 
    @Subscribe
    public void onSpvSynced(SpvSyncChanged spvSyncChanged) {
-      WelcomeDialogHelper.bchSynced(this);
-
+      if(spvSyncChanged.chainDownloadPercentDone == 100) {
+         BCHHelper.bchSynced(this);
+      }
    }
 }

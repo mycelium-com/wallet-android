@@ -20,12 +20,13 @@ import java.util.List;
 
 import static android.content.Context.MODE_PRIVATE;
 
-public class WelcomeDialogHelper {
+public class BCHHelper {
 
     private static final String BCH_FIRST_UPDATE = "bch_first_update_page";
     private static final String BCH_FIRST_INSTALLED = "bch_first_installed_page";
     public static final String BCH_PREFS = "bch_prefs";
     public static final String AFTER_FIRST_SYNC = "after_first_sync";
+    public static final String BCH_SYNC_PROGRESS = "bch_sync_progress";
 
     public static void firstBCHPages(final Context context) {
         final Module bchModule = GooglePlayModuleCollection.getModules(context).get("bch");
@@ -94,6 +95,16 @@ public class WelcomeDialogHelper {
             builder.create().show();
             sharedPreferences.edit().putBoolean(AFTER_FIRST_SYNC, false).apply();
         }
+    }
+
+    public static void saveBCHSyncProgress(Context context, int progress) {
+        final SharedPreferences sharedPreferences = context.getSharedPreferences(BCH_PREFS, MODE_PRIVATE);
+        sharedPreferences.edit().putInt(BCH_SYNC_PROGRESS, progress).apply();
+    }
+
+    public static int getBCHSyncProgress(Context context) {
+        final SharedPreferences sharedPreferences = context.getSharedPreferences(BCH_PREFS, MODE_PRIVATE);
+        return sharedPreferences.getInt(BCH_SYNC_PROGRESS, 0);
     }
 
     public static void bchTechnologyPreviewDialog(Context context) {

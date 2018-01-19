@@ -8,7 +8,6 @@ import android.content.Intent
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import com.megiontechnologies.Bitcoins
 import com.mrd.bitlib.model.NetworkParameters.NetworkType.*
 import com.mrd.bitlib.model.OutPoint
 import com.mrd.bitlib.model.ScriptOutput
@@ -21,6 +20,7 @@ import com.mycelium.spvmodule.IntentContract
 import com.mycelium.wallet.WalletApplication.getSpvModuleName
 import com.mycelium.wallet.activity.modern.ModernMain
 import com.mycelium.wallet.event.SpvSyncChanged
+import com.mycelium.wallet.modularisation.BCHHelper
 import com.mycelium.wallet.persistence.MetadataStorage
 import com.mycelium.wapi.model.TransactionEx
 import com.mycelium.wapi.wallet.AesKeyCipher
@@ -197,6 +197,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 val chainDownloadPercentDone = intent.getIntExtra("chain_download_percent_done", 0)
                 // val replaying = intent.getBooleanExtra("replaying", true)
                 // val impediments = intent.getStringArrayExtra("impediment")
+                BCHHelper.saveBCHSyncProgress(context, chainDownloadPercentDone)
                 walletManager.activeAccounts
                         .filterIsInstance<Bip44Account?>()
                         .forEach {
