@@ -136,7 +136,8 @@
             android:layout_gravity="left"
             android:visibility="gone"
             android:text="@string/how_is_it_calculated"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            android:textColor="#4583de"/>
 
         <LinearLayout
             android:layout_width="250dp"

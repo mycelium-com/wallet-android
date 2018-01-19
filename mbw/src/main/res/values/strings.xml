@@ -1106,8 +1106,8 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="exchange_minimum_amount">(Min. amount is %1$s %2$s)</string>
     <string name="choose_the_currency_and_btc_receiving_account">Choose the currency and BTC receiving account</string>
     <string name="due_to_high_cryptocurrencies_volatility">Due to high cryptocurrencies volatility, the final rate may be slightly higher or lower than estimated here.</string>
-    <string name="how_is_it_calculated"><font color="#4583de">How is it calculated?</font></string>
-    <string name="how_is_it_calculated_text">A spendable amount is a sum of account\'s UTXOs values, limited by chosen miner fee, transaction size and minimal network spendable amount.\n\nIf you have a lot of small valued UTXOs, your spendable amount might be lower then account balance due to protocol limitations on transaction size.\n\nIn order to spend all your funds, please repeat sending procedure several times.</string>
+    <string name="how_is_it_calculated">How is it calculated?</string>
+    <string name="how_is_it_calculated_text">The \"Spendable Amount\" is the account\'s balance minus the cost to spend it.\n\nThe costs depend on the number of UTXOs and the miner fee level that you chose.\n\nYou can review your UTXO count in the Accounts tab, selecting your account and then using the context menu.\n\nIf you have more than 300 UTXOs, your spendable amount might further be limited by Bitcoin\'s transaction size limit. In this case you might need more than one transaction to spend all your funds.</string>
     <plurals name="account_label">
         <item quantity="one">Account label:\n%s</item>
         <item quantity="other">Accounts labels:\n%s</item>
