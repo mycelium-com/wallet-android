@@ -105,20 +105,26 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
 
    private boolean isColu;
 
-   public static void callMe(Activity currentActivity, int requestCode, UUID account, CurrencyValue amountToSend, Long kbMinerFee, boolean isColdStorage) {
-      Intent intent = new Intent(currentActivity, GetAmountActivity.class);
-      intent.putExtra(ACCOUNT, account);
-      intent.putExtra(ENTERED_AMOUNT, amountToSend);
-      intent.putExtra(KB_MINER_FEE, kbMinerFee);
-      intent.putExtra(IS_COLD_STORAGE, isColdStorage);
-      intent.putExtra(SEND_MODE, true);
+   /**
+    * Get Amount for spending
+    */
+   public static void callMeToSend(Activity currentActivity, int requestCode, UUID account, CurrencyValue amountToSend, Long kbMinerFee, boolean isColdStorage) {
+      Intent intent = new Intent(currentActivity, GetAmountActivity.class)
+              .putExtra(ACCOUNT, account)
+              .putExtra(ENTERED_AMOUNT, amountToSend)
+              .putExtra(KB_MINER_FEE, kbMinerFee)
+              .putExtra(IS_COLD_STORAGE, isColdStorage)
+              .putExtra(SEND_MODE, true);
       currentActivity.startActivityForResult(intent, requestCode);
    }
 
-   public static void callMe(Activity currentActivity, CurrencyValue amountToSend, int requestCode) {
-      Intent intent = new Intent(currentActivity, GetAmountActivity.class);
-      intent.putExtra(ENTERED_AMOUNT, amountToSend);
-      intent.putExtra(SEND_MODE, false);
+   /**
+    * Get Amount for receiving
+    */
+   public static void callMeToReceive(Activity currentActivity, CurrencyValue amountToReceive, int requestCode) {
+      Intent intent = new Intent(currentActivity, GetAmountActivity.class)
+              .putExtra(ENTERED_AMOUNT, amountToReceive)
+              .putExtra(SEND_MODE, false);
       currentActivity.startActivityForResult(intent, requestCode);
    }
 
