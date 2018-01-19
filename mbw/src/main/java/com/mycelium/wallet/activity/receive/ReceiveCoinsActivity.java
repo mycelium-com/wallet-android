@@ -45,6 +45,7 @@ import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.NfcEvent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.view.View;
@@ -174,7 +175,7 @@ public class ReceiveCoinsActivity extends Activity {
 
    protected void shareByNfc() {
       NfcAdapter nfc = NfcAdapter.getDefaultAdapter(this);
-      if (nfc != null && nfc.isNdefPushEnabled()) {
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN && nfc != null && nfc.isNdefPushEnabled()) {
          nfc.setNdefPushMessageCallback(new NfcAdapter.CreateNdefMessageCallback() {
             @Override
             public NdefMessage createNdefMessage(NfcEvent event) {
@@ -390,11 +391,11 @@ public class ReceiveCoinsActivity extends Activity {
    @OnClick(R.id.btEnterAmount)
    public void onEnterClick() {
       if (CurrencyValue.isNullOrZero(_amount)) {
-         GetAmountActivity.callMe(ReceiveCoinsActivity.this, ExactCurrencyValue.from(null, _mbwManager.getSelectedAccount().getAccountDefaultCurrency()), GET_AMOUNT_RESULT_CODE);
+         GetAmountActivity.callMeToReceive(this, ExactCurrencyValue.from(null, _mbwManager.getSelectedAccount().getAccountDefaultCurrency()), GET_AMOUNT_RESULT_CODE);
       } else {
          // call the amount activity with the exact amount, so that the user sees the same amount he had entered
          // it in non-BTC
-         GetAmountActivity.callMe(ReceiveCoinsActivity.this, _amount.getExactValueIfPossible(), GET_AMOUNT_RESULT_CODE);
+         GetAmountActivity.callMeToReceive(this, _amount.getExactValueIfPossible(), GET_AMOUNT_RESULT_CODE);
       }
    }
 
