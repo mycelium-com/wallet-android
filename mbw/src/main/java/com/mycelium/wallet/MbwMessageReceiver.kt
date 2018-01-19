@@ -242,7 +242,12 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 Log.d(TAG, "com.mycelium.wallet.requestSingleAddressPrivateKeyToMBW, guid = $accountGuid")
                 val account =_mbwManager.getWalletManager(false).getAccount(UUID.fromString(accountGuid)) as SingleAddressAccount
                 val privateKey = account.getPrivateKey(AesKeyCipher.defaultKeyCipher())
-
+                if (privateKey == null) {
+                    Log.w(TAG, "MbwMessageReceiver.onMessageFromSpvModuleBch, " +
+                            "com.mycelium.wallet.requestSingleAddressPrivateKeyToMBW, " +
+                            "privateKey must not be null.")
+                    return;
+                }
                 val service = IntentContract.RequestSingleAddressPrivateKeyToSPV.createIntent(accountGuid, privateKey.privateKeyBytes)
                 WalletApplication.sendToSpv(service, BCHSINGLEADDRESS)
             }
