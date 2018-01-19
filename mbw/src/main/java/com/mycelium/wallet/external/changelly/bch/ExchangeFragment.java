@@ -272,7 +272,8 @@ public class ExchangeFragment extends Fragment {
                 toValue.setText(val.toPlainString());
             }
             fromValue.setText(CurrencyValue.fromValue(ExactBitcoinValue.from(val)
-                    , CurrencyValue.BCH, mbwManager.getExchangeRateManager()).getValue().toPlainString());
+                    , CurrencyValue.BCH, mbwManager.getExchangeRateManager()).getValue()
+                    .setScale(8, BigDecimal.ROUND_HALF_UP).toPlainString());
             avoidTextChangeEvent = false;
         }
         if (!avoidTextChangeEvent && toValue.getText().toString().isEmpty()) {
