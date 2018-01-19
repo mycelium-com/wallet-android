@@ -5,7 +5,6 @@ import android.content.ContentValues
 import android.database.Cursor
 import android.database.MatrixCursor
 import android.net.Uri
-import android.util.Log
 
 /**
  * This ContentProvider serves to authenticate one app against another.
@@ -32,7 +31,6 @@ open class PairingProvider : ContentProvider() {
      */
     override fun query(uri: Uri, projection: Array<String>?, selection: String?, selectionArgs: Array<String>?, sortOrder: String?): Cursor? {
         val key = selection!!.toLong()
-        Log.d(LOG_TAG, "query($key, $callingPackage)")
         communicationManager!!.pair(key, callingPackage)
         val cursor = MatrixCursor(arrayOf("name", "description"))
         cursor.addRow(arrayOf(context.getString(R.string.module_name), context.getString(R.string.module_description)))
