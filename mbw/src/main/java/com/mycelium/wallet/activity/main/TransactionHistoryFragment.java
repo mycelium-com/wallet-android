@@ -252,6 +252,8 @@ public class TransactionHistoryFragment extends Fragment {
       if (account.isArchived()
               || account.getType() == WalletAccount.Type.BCHSINGLEADDRESS
               || account.getType() == WalletAccount.Type.BCHBIP44) {
+         _root.findViewById(R.id.llNoRecords).setVisibility(View.VISIBLE);
+         _root.findViewById(R.id.lvTransactionHistory).setVisibility(View.GONE);
          return;
       }
       List<TransactionSummary> history = account.getTransactionHistory(0, 20);
