@@ -163,7 +163,7 @@ public class ExchangeFragment extends Fragment {
     private List<WalletAccount> filterAccount(Collection<WalletAccount> accounts) {
         List<WalletAccount> result = new ArrayList<>();
         for (WalletAccount walletAccount : accounts) {
-            if (walletAccount.canSpend() /*&& !walletAccount.getCurrencyBasedBalance().confirmed.isZero()*/) {
+            if (walletAccount.canSpend() && !walletAccount.getCurrencyBasedBalance().confirmed.isZero()) {
                 result.add(walletAccount);
             }
         }
