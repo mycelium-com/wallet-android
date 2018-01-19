@@ -5,13 +5,16 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import com.megiontechnologies.Bitcoins
-import com.mrd.bitlib.model.*
 import com.mrd.bitlib.model.NetworkParameters.NetworkType.*
+import com.mrd.bitlib.model.OutPoint
+import com.mrd.bitlib.model.ScriptOutput
+import com.mrd.bitlib.model.Transaction
+import com.mrd.bitlib.model.TransactionOutput
+import com.mrd.bitlib.util.CoinUtil
 import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.modularizationtools.ModuleMessageReceiver
 import com.mycelium.spvmodule.IntentContract
@@ -20,9 +23,13 @@ import com.mycelium.wallet.activity.modern.ModernMain
 import com.mycelium.wallet.event.SpvSyncChanged
 import com.mycelium.wallet.persistence.MetadataStorage
 import com.mycelium.wapi.model.TransactionEx
-import com.mycelium.wapi.wallet.*
-import com.mycelium.wapi.wallet.WalletAccount.Type.*
+import com.mycelium.wapi.wallet.AesKeyCipher
+import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.WalletAccount.Type.BCHBIP44
+import com.mycelium.wapi.wallet.WalletAccount.Type.BCHSINGLEADDRESS
+import com.mycelium.wapi.wallet.WalletManager
 import com.mycelium.wapi.wallet.bip44.Bip44Account
+import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue
 import com.mycelium.wapi.wallet.single.SingleAddressAccount
 import com.squareup.otto.Bus
 import org.bitcoinj.core.NetworkParameters
@@ -32,8 +39,6 @@ import org.bitcoinj.crypto.DeterministicKey
 import org.bitcoinj.crypto.HDKeyDerivation
 import java.nio.ByteBuffer
 import java.util.*
-import kotlin.collections.ArrayList
-import org.bitcoinj.core.TransactionConfidence.ConfidenceType.UNKNOWN
 
 class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
     private val eventBus: Bus = MbwManager.getInstance(context).eventBus
@@ -280,12 +285,14 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
             mds.getLabelByAccount(affectedAccounts.toList()[0].id)
         }
         val receivingString = if (satoshisReceived > 0) {
-            context.getString(R.string.receiving, Bitcoins.valueOf(satoshisReceived).toCurrencyString())
+            val receiving = Utils.getFormattedValue(ExactBitcoinCashValue.from(satoshisReceived), CoinUtil.Denomination.BTC);
+            context.getString(R.string.receiving, receiving)
         } else {
             ""
         }
         val sendingString = if (satoshisSent > 0) {
-            context.getString(R.string.sending, Bitcoins.valueOf(satoshisSent).toCurrencyString())
+            val sending = Utils.getFormattedValue(ExactBitcoinCashValue.from(satoshisSent), CoinUtil.Denomination.BTC);
+            context.getString(R.string.sending, sending)
         } else {
             ""
         }
