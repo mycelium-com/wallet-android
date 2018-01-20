@@ -5,9 +5,11 @@
         <change>Explain why not all the balance is spendable in the amount entry screen</change>
         <change>Bugfixes</change>
     </release>
-    <release version="2.9.10" versioncode="2091000">
+    <release version="2.9.10" versioncode="2091006">
+        <change>SaferVPN Christmas promotion until January 3rd: 1 month USD 9.99/m, 1 year USD 4.49/m, 2 years USD 2.49/m</change>
         <change>Receive other coins into your Bitcoin accounts through Changelly</change>
         <change>Bugfix: improved startup performance</change>
+        <change>Bugfix: rare crash bugs and UI glitches were fixed</change>
     </release>
     <release version="2.9.9.0" versioncode="2090900">
         <change>Improved RMC integration</change>

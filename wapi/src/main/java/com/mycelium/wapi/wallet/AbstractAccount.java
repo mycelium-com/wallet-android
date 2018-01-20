@@ -861,6 +861,9 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
    public static final int COLU_MAX_DUST_OUTPUT_SIZE_MAINNET = 6000;
 
    private boolean isColuTransaction(Transaction tx) {
+      if (tx == null) {
+         return false;
+      }
       for(int i = 0 ; i < tx.outputs.length;i++) {
          TransactionOutput curOutput = tx.outputs[i];
          byte[] scriptBytes = curOutput.script.getScriptBytes();
