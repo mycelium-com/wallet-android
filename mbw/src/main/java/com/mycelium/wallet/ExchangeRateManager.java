@@ -191,7 +191,6 @@ public class ExchangeRateManager implements ExchangeRateProvider {
                rateRmcBtc = Float.parseFloat(rate.get());
             }
          }
-
       }
    }
 

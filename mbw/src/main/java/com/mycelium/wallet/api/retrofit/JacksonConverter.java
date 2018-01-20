@@ -36,7 +36,6 @@ public class JacksonConverter implements Converter {
       this.objectMapper = objectMapper;
    }
 
-
    @Override
    public Object fromBody(TypedInput body, Type type) throws ConversionException {
       InputStream in = null;
