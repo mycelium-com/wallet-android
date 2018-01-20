@@ -319,8 +319,8 @@ public class ExchangeRateManager implements ExchangeRateProvider {
          currency = "USD";
       }
 
-      if (_latestRatesTime + MAX_RATE_AGE_MS < System.currentTimeMillis()) {
-         //rate is too old, source seems to not be available
+      if (_latestRatesTime + MAX_RATE_AGE_MS < System.currentTimeMillis() || _latestRates.get(currency) == null) {
+         //rate is too old or does not exists, source seems to not be available
          //we return a rate with null price to indicate there is something wrong with the exchange rate source
          return ExchangeRate.missingRate(_currentExchangeSourceName, System.currentTimeMillis(),  currency);
       }
