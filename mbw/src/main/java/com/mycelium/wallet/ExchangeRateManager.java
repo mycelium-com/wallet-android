@@ -68,7 +68,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
    public static final String BTC = "BTC";
 
    private static final Pattern EXCHANGE_RATE_PATTERN;
-   public static final String RMC_MARKET = "BitFlip";
+   public static final String RMC_MARKET = "Coinmarketcap";
 
    static {
       String regexKeyExchangeRate = "(.*)_(.*)_(.*)";
