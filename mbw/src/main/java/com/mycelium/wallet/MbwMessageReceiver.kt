@@ -13,7 +13,6 @@ import com.mrd.bitlib.model.OutPoint
 import com.mrd.bitlib.model.ScriptOutput
 import com.mrd.bitlib.model.Transaction
 import com.mrd.bitlib.model.TransactionOutput
-import com.mrd.bitlib.util.CoinUtil
 import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.modularizationtools.ModuleMessageReceiver
 import com.mycelium.spvmodule.IntentContract
@@ -29,7 +28,7 @@ import com.mycelium.wapi.wallet.WalletAccount.Type.BCHBIP44
 import com.mycelium.wapi.wallet.WalletAccount.Type.BCHSINGLEADDRESS
 import com.mycelium.wapi.wallet.WalletManager
 import com.mycelium.wapi.wallet.bip44.Bip44Account
-import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue
+import com.mycelium.wapi.wallet.currency.CurrencyValue
 import com.mycelium.wapi.wallet.single.SingleAddressAccount
 import com.squareup.otto.Bus
 import org.bitcoinj.core.NetworkParameters
@@ -37,6 +36,7 @@ import org.bitcoinj.core.TransactionConfidence.ConfidenceType.*
 import org.bitcoinj.crypto.ChildNumber
 import org.bitcoinj.crypto.DeterministicKey
 import org.bitcoinj.crypto.HDKeyDerivation
+import java.math.BigDecimal
 import java.nio.ByteBuffer
 import java.util.*
 
@@ -281,30 +281,30 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 // TODO: bitcoin icon
                 .setSmallIcon(R.drawable.holo_dark_ic_action_new_usd_account)
                 .setContentTitle(context.getString(R.string.app_name))
-        val accountString: String = if (affectedAccounts.size > 1) {
-            "various accounts"
-        } else {
-            mds.getLabelByAccount(affectedAccounts.toList()[0].id)
+        var contentText = "";
+        for (account in AccountManager.getActiveAccounts().values) {
+            if (account.currencyBasedBalance.receiving.value.compareTo(BigDecimal.ZERO) > 0) {
+                contentText += buildLine(R.string.receiving, account.currencyBasedBalance.receiving
+                        , mds.getLabelByAccount(account.id))
+            }
+            if(account.currencyBasedBalance.sending.value.compareTo(BigDecimal.ZERO) > 0) {
+                contentText += buildLine(R.string.sending, account.currencyBasedBalance.sending
+                        , mds.getLabelByAccount(account.id))
+            }
         }
-        val receivingString = if (satoshisReceived > 0) {
-            val receiving = Utils.getFormattedValueWithUnit(ExactBitcoinCashValue.from(satoshisReceived));
-            context.getString(R.string.receiving, receiving)
-        } else {
-            ""
+        //something wrong if contentText empty, so shouldn't show anything for avoid crash or not correct work
+        if(contentText.isNotEmpty()) {
+            builder.setContentText(contentText.substring(0, contentText.length - 1))
+                    .setContentIntent(PendingIntent.getActivity(context, 0, Intent(context, ModernMain::class.java), 0))
+                    .setWhen(System.currentTimeMillis())
+            //TODO - return sound .setSound(Uri.parse("android.resource://${context.packageName}/${R.raw.coins_received}"))
+            val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            nm.notify(TRANSACTION_NOTIFICATION_ID, builder.build())
         }
-        val sendingString = if (satoshisSent > 0) {
-            val sending = Utils.getFormattedValueWithUnit(ExactBitcoinCashValue.from(satoshisSent));
-            context.getString(R.string.sending, sending)
-        } else {
-            ""
-        }
-        val contentText = "$receivingString $sendingString ($accountString)"
-        builder.setContentText(contentText)
-                .setContentIntent(PendingIntent.getActivity(context, 0, Intent(context, ModernMain::class.java), 0))
-                .setWhen(System.currentTimeMillis())
-                //TODO - return sound .setSound(Uri.parse("android.resource://${context.packageName}/${R.raw.coins_received}"))
-        val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        nm.notify(TRANSACTION_NOTIFICATION_ID, builder.build())
+    }
+
+    private fun buildLine(action: Int, value: CurrencyValue, label:String): String {
+        return context.getString(action, "${value.value.toPlainString()} ${value.currency} ($label)\n")
     }
 
     private fun bitcoinJ2Bitlib(bitcoinJConnectedOutputs: Map<String, ByteArray>, networkBJ: NetworkParameters): Map<OutPoint, TransactionOutput> {
