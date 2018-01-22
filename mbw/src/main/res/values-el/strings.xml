@@ -137,7 +137,7 @@
   <string name="active_accounts_empty">(Κενό)</string>
   <string name="activate_action">Ενεργοποίηση</string>
   <string name="archive_action">Αρχειοθέτηση</string>
-  <string name="question_archive_account">Οι Αρχειοθετημένοι Λογαριασμοί δεν παρακολουθούνται. Δε θα μπορείτε να δείτε την τρέχουσα αξία και τη διεύθυνση λήψης ή να δουλέψετε με το λογαριασμό\r\n\r\nΟι Αρχειοθετημένοι λογαριασμοί μπορούν να επανενεργοποιηθούν.\r\n\r\nΘέλετε να αρχειοθετήσετε αυτό το λογαριασμό;</string>
+  <string name="question_archive_account">Οι Αρχειοθετημένοι Λογαριασμοί δεν παρακολουθούνται. Δε θα μπορείτε να δείτε την τρέχουσα αξία και τη διεύθυνση λήψης ή να δουλέψετε με το λογαριασμό\n\nΟι Αρχειοθετημένοι λογαριασμοί μπορούν να επανενεργοποιηθούν.\n\nΘέλετε να αρχειοθετήσετε αυτό το λογαριασμό;</string>
   <string name="master_seed_configuration_title">Καλωσήρθατε στο Mycelium</string>
   <string name="master_seed_configuration_description">Θέλετε να επαναφέρετε αντίγραφο ασφαλείας, ή να δημιουργήσετε καινούριο πορτοφόλι;</string>
   <string name="master_seed_create_new_button">Δημιουργία Νέου</string>

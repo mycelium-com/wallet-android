@@ -137,7 +137,7 @@
   <string name="active_accounts_empty">(Leeg)</string>
   <string name="activate_action">Activeren</string>
   <string name="archive_action">Archiveren</string>
-  <string name="question_archive_account">Gearchiveerde accounts worden niet bijgehouden. U kunt het saldo niet zien en u kunt het account niet gebruiken.\r\n\r\nGearchiveerde accounts kunnen later weer geactiveerd worden. \r\n\r\nWilt u dit account archiveren?</string>
+  <string name="question_archive_account">Gearchiveerde accounts worden niet bijgehouden. U kunt het saldo niet zien en u kunt het account niet gebruiken.\n\nGearchiveerde accounts kunnen later weer geactiveerd worden. \n\nWilt u dit account archiveren?</string>
   <string name="master_seed_configuration_title">Welkom bij Mycelium</string>
   <string name="master_seed_configuration_description">Wilt u een back-up terugzetten, of een nieuwe portemonnee aanmaken?</string>
   <string name="master_seed_create_new_button">Nieuwe aanmaken</string>
