@@ -1045,7 +1045,7 @@ public class WalletManager {
    }
 
    private int getNextBip44Index() {
-      int maxIndex = 0;
+      int maxIndex = -1;
       for (Bip44Account walletAccount : _bip44Accounts) {
          maxIndex = Math.max(walletAccount.getAccountIndex(), maxIndex);
       }
