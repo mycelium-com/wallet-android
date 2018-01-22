@@ -101,6 +101,7 @@ import com.mycelium.wapi.wallet.bip44.Bip44AccountExternalSignature;
 import com.mycelium.wapi.wallet.bip44.Bip44PubOnlyAccount;
 import com.mycelium.wapi.wallet.currency.BitcoinValue;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
+import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 
@@ -1020,6 +1021,14 @@ public class Utils {
          return "";
       }
       return String.format("%s %s", CoinUtil.valueString(val, denomination, false), denomination.getUnicodeName());
+   }
+
+   public static String getFormattedValueWithUnit(ExactBitcoinCashValue value) {
+      BigDecimal val = value.getValue();
+      if (val == null) {
+         return "";
+      }
+      return String.format("%s %s", val.toPlainString(), value.getCurrency());
    }
 
 

@@ -287,13 +287,13 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
             mds.getLabelByAccount(affectedAccounts.toList()[0].id)
         }
         val receivingString = if (satoshisReceived > 0) {
-            val receiving = Utils.getFormattedValue(ExactBitcoinCashValue.from(satoshisReceived), CoinUtil.Denomination.BTC);
+            val receiving = Utils.getFormattedValueWithUnit(ExactBitcoinCashValue.from(satoshisReceived));
             context.getString(R.string.receiving, receiving)
         } else {
             ""
         }
         val sendingString = if (satoshisSent > 0) {
-            val sending = Utils.getFormattedValue(ExactBitcoinCashValue.from(satoshisSent), CoinUtil.Denomination.BTC);
+            val sending = Utils.getFormattedValueWithUnit(ExactBitcoinCashValue.from(satoshisSent));
             context.getString(R.string.sending, sending)
         } else {
             ""
