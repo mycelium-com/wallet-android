@@ -198,7 +198,6 @@ public class AccountsFragment extends Fragment {
          UUID accountid = (UUID) intent.getSerializableExtra(AddAccountActivity.RESULT_KEY);
          //check whether the account is active - we might have scanned the priv key for an archived watchonly
          WalletManager walletManager = _mbwManager.getWalletManager(false);
-         _mbwManager.importLabelsToBch(walletManager);
          WalletAccount account = walletManager.getAccount(accountid);
          if (account.isActive()) {
             _mbwManager.setSelectedAccount(accountid);
@@ -1249,6 +1248,7 @@ public class AccountsFragment extends Fragment {
    @Subscribe
    public void accountChanged(AccountChanged event) {
       update();
+      _mbwManager.importLabelsToBch(walletManager);
    }
 }
 
