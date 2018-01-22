@@ -12,4 +12,5 @@ public interface SpvBalanceFetcher {
     List<TransactionSummary> retrieveTransactionSummaryBySingleAddressAccountId(String id);
     void requestTransactionsAsync(int accountId);
     void requestTransactionsFromSingleAddressAccountAsync(String guid);
+    void requestSingleAddressWalletAccountRemoval(String guid);
 }

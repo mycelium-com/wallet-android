@@ -114,4 +114,9 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
         val service = IntentContract.ReceiveTransactionsSingleAddress.createIntent(guid)
         WalletApplication.sendToSpv(service, WalletAccount.Type.BCHSINGLEADDRESS)
     }
+
+    override fun requestSingleAddressWalletAccountRemoval(guid: String)  {
+        val service = IntentContract.RemoveSingleAddressWalletAccount.createIntent(guid)
+        WalletApplication.sendToSpv(service, WalletAccount.Type.BCHSINGLEADDRESS)
+    }
 }
