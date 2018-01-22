@@ -16,8 +16,6 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.bip44.Bip44Account;
-import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -106,9 +104,6 @@ public class AccountAdapter extends SelectableRecyclerView.Adapter<RecyclerView.
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_padding_sender,
                     parent, false);
             view.setBackgroundResource(accountUseType.background);
-            RecyclerView.LayoutParams layoutParams = (RecyclerView.LayoutParams) view.getLayoutParams();
-            layoutParams.width = paddingWidth;
-            view.setLayoutParams(layoutParams);
             return new ViewHolder(view);
         }
     }
@@ -124,6 +119,10 @@ public class AccountAdapter extends SelectableRecyclerView.Adapter<RecyclerView.
             CoinUtil.Denomination denomination = mbwManager.getBitcoinDenomination();
             viewHolder.itemTextView.setText(Utils.getFormattedValueWithUnit(item.account.getCurrencyBasedBalance().confirmed, denomination));
             viewHolder.valueTextView.setText(item.account.getReceivingAddress().get().toString());
+        } else {
+            RecyclerView.LayoutParams layoutParams = (RecyclerView.LayoutParams) holder.itemView.getLayoutParams();
+            layoutParams.width = paddingWidth;
+            holder.itemView.setLayoutParams(layoutParams);
         }
     }
 
