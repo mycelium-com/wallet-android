@@ -972,6 +972,15 @@ public class WalletManager {
       }
    };
 
+   private static final Predicate<WalletAccount> MAIN_SEED_BTC_HD_ACCOUNT = new Predicate<WalletAccount>() {
+      @Override
+      public boolean apply(WalletAccount input) {
+         // TODO: if relevant also check if this account is derived from the main-masterseed
+         return input.getType() == WalletAccount.Type.BTCBIP44 &&
+               input.isDerivedFromInternalMasterseed();
+      }
+   };
+
    private static final Predicate<WalletAccount> HAS_BALANCE = new Predicate<WalletAccount>() {
       @Override
       public boolean apply(WalletAccount input) {
@@ -1034,7 +1043,11 @@ public class WalletManager {
    }
 
    private int getNextBip44Index() {
-      return filterAndConvert(MAIN_SEED_HD_ACCOUNT).size();
+      int maxIndex = 0;
+      for (Bip44Account walletAccount : _bip44Accounts) {
+         maxIndex = Math.max(walletAccount.getAccountIndex(), maxIndex);
+      }
+      return maxIndex + 1;
    }
 
    /**
