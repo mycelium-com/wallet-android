@@ -80,7 +80,7 @@ public class ScanActivity extends Activity {
       super.onCreate(savedInstanceState);
       boolean cameraAccess = Utils.hasOrRequestCameraAccess(this);
       if(!cameraAccess) {
-         finish();
+         finishError(R.string.no_camera_permission);
          return;
       }
       Intent intent = getIntent();

@@ -252,6 +252,7 @@
     <string name="homepage_url">https://mycelium.com</string>
     <string name="company_header">This app is provided to you for free by</string>
     <string name="contact_email_label">Feedback</string>
+    <string name="no_camera_permission">No camera permission</string>
     <string name="cancelled">Cancelled</string>
     <string name="help_menu">Help</string>
     <string name="invalid_password">Invalid Password</string>
