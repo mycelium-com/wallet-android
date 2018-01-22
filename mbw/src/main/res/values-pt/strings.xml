@@ -138,7 +138,7 @@
   <string name="active_accounts_empty">(Vazio)</string>
   <string name="activate_action">Ativar</string>
   <string name="archive_action">Arquivar</string>
-  <string name="question_archive_account">Contas arquivadas não serão monitoradas. Você não poderá ver o saldo, nem o endereço de recebimento, assim como não poderá trabalhar com elas.\r\n\r\nAs contas arquivadas podem ser ativadas novamente no futuro.\r\n\r\nVocê quer arquivas essa conta?</string>
+  <string name="question_archive_account">Contas arquivadas não serão monitoradas. Você não poderá ver o saldo, nem o endereço de recebimento, assim como não poderá trabalhar com elas.\n\nAs contas arquivadas podem ser ativadas novamente no futuro.\n\nVocê quer arquivas essa conta?</string>
   <string name="master_seed_configuration_title">Bem-vindo(a) à Mycelium</string>
   <string name="master_seed_configuration_description">Você quer restaurar um backup ou criar uma nova carteira?</string>
   <string name="master_seed_create_new_button">Criar Nova</string>

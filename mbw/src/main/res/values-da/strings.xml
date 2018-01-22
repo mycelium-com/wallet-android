@@ -130,7 +130,7 @@
   <string name="active_accounts_empty">(Tom)</string>
   <string name="activate_action">Aktivér</string>
   <string name="archive_action">Arkiv</string>
-  <string name="question_archive_account">Arkiverede konti er ikke overvåget. Du kan ikke se balancen eller modtageradresse eller på anden måde bruge kontoen.\r\n\r\nArkiverede konti kan blive genaktiveret.\r\n\r\nØnsker du at genaktivere denne konto?</string>
+  <string name="question_archive_account">Arkiverede konti er ikke overvåget. Du kan ikke se balancen eller modtageradresse eller på anden måde bruge kontoen.\n\nArkiverede konti kan blive genaktiveret.\n\nØnsker du at genaktivere denne konto?</string>
   <string name="master_seed_configuration_title">Velkommen til Mycelium</string>
   <string name="master_seed_configuration_description">Vil du genskabe en sikkerhedskopi eller oprette en ny tegnebog?</string>
   <string name="master_seed_create_new_button">Opret ny</string>
