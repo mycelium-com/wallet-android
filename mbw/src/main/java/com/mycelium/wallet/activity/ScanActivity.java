@@ -37,9 +37,11 @@ package com.mycelium.wallet.activity;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
 import android.view.Surface;
@@ -57,6 +59,9 @@ import com.mycelium.wallet.activity.modern.Toaster;
  * to decode the result. This happens for instance when decrypting private keys.
  */
 public class ScanActivity extends Activity {
+
+   private boolean hasCameraPermission;
+
    public static void callMe(Activity currentActivity, int requestCode, StringHandleConfig stringHandleConfig) {
       Intent intent = new Intent(currentActivity, ScanActivity.class)
               .putExtra("request", stringHandleConfig);
@@ -78,10 +83,10 @@ public class ScanActivity extends Activity {
    @Override
    public void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
-      boolean cameraAccess = Utils.hasOrRequestCameraAccess(this);
-      if(!cameraAccess) {
-         finishError(R.string.no_camera_permission);
-         return;
+      hasCameraPermission = Utils.hasOrRequestCameraAccess(this);
+      if(!hasCameraPermission) {
+        // finishError(R.string.no_camera_permission);
+        return;
       }
       Intent intent = getIntent();
       _stringHandleConfig = Preconditions.checkNotNull((StringHandleConfig) intent.getSerializableExtra("request"));
@@ -108,7 +113,7 @@ public class ScanActivity extends Activity {
 
    @Override
    public void onResume() {
-      if (!_hasLaunchedScanner) {
+      if (!_hasLaunchedScanner && hasCameraPermission) {
          startScanner();
          _hasLaunchedScanner = true;
       }
@@ -180,6 +185,21 @@ public class ScanActivity extends Activity {
          }
       }
       return orientation;
+   }
+
+   @Override
+   public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+      switch (requestCode) {
+         case Utils.REQUEST_CAMERA: {
+            // If request is cancelled, the result arrays are empty.
+            if (grantResults.length > 0
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+               recreate();
+            } else {
+               finishError(R.string.no_camera_permission);
+            }
+         }
+      }
    }
 
    @Override
