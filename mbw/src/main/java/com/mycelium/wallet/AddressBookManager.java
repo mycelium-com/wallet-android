@@ -34,27 +34,16 @@
 
 package com.mycelium.wallet;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
-import android.content.Context;
-
 import android.graphics.drawable.Drawable;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import android.support.annotation.NonNull;
+
 import com.mrd.bitlib.model.Address;
 
 public class AddressBookManager {
-   private static final String ADDRESS_BOOK_FILE_NAME = "address-book.txt";
-
    public static class Entry implements Comparable<Entry> {
       private Address _address;
       private String _name;
@@ -73,7 +62,7 @@ public class AddressBookManager {
       }
 
       @Override
-      public int compareTo(Entry another) {
+      public int compareTo(@NonNull Entry another) {
          return _name.compareToIgnoreCase(another._name);
       }
 
@@ -90,7 +79,6 @@ public class AddressBookManager {
          Entry other = (Entry) obj;
          return _address.equals(other._address) && _name.equals(other._name);
       }
-
    }
 
    public static class IconEntry extends Entry{
@@ -114,180 +102,5 @@ public class AddressBookManager {
       public Drawable getIcon() {
          return _icon;
       }
-   }
-
-   private List<Entry> _entries;
-   private Map<Address, Entry> _addressMap;
-
-   public AddressBookManager(Context context) {
-      Context applicationContext = context.getApplicationContext();
-      List<Entry> entries = loadEntries(applicationContext);
-      _entries = Lists.newArrayList();
-      _addressMap = Maps.newHashMap();
-      for (Entry entry : entries) {
-         insertOrUpdateEntryInt(entry.getAddress(), entry.getName());
-      }
-      Collections.sort(_entries);
-   }
-
-   private void insertOrUpdateEntryInt(Address address, String name) {
-      Preconditions.checkNotNull(address,name);
-      name = name.trim();
-      if (name.length() == 0) {
-         // We don't want entries with blank names
-         return;
-      }
-
-      Entry entry = _addressMap.get(address);
-      if (entry == null) {
-         entry = new Entry(address, name);
-         _entries.add(new Entry(address, name));
-      } else {
-         _entries.remove(entry);
-         entry._name = name;
-         _entries.add(entry);
-      }
-      _addressMap.put(address, entry);
-   }
-
-   public List<Entry> getEntries() {
-      return Collections.unmodifiableList(_entries);
-   }
-
-   private static List<Entry> loadEntries(Context applicationContext) {
-      try {
-         List<Entry> entries = new ArrayList<Entry>();
-         BufferedReader stream;
-         try {
-            stream = new BufferedReader(new InputStreamReader(applicationContext.openFileInput(ADDRESS_BOOK_FILE_NAME)));
-         } catch (FileNotFoundException e) {
-            //todo insert uncaught error handler
-            // ignore and return an empty set of addresses
-            return entries;
-         }
-
-         while (true) {
-            String line = stream.readLine();
-            if (line == null) {
-               break;
-            }
-            List<String> list = stringToValueList(line);
-            String addressString = null;
-            if (list.size() > 0) {
-               addressString = decode(list.get(0));
-            }
-            String name = null;
-            if (list.size() > 1) {
-               name = decode(list.get(1));
-            }
-            Address address = Address.fromString(addressString);
-            if (address != null) {
-               entries.add(new Entry(address, name));
-            }
-         }
-         stream.close();
-         return entries;
-      } catch (Exception e) {
-         e.printStackTrace();
-         // ignore and return an empty set of addresses
-         return new ArrayList<Entry>();
-      }
-   }
-
-   private static List<String> stringToValueList(String string) {
-      int startIndex = 0;
-      List<String> values = new LinkedList<String>();
-      while (true) {
-         int separatorIndex = nextSeparator(string, startIndex);
-         if (separatorIndex == -1) {
-            // something wrong, return empty list
-            return new LinkedList<String>();
-         }
-         String value = string.substring(startIndex, separatorIndex);
-         startIndex = separatorIndex + 1;
-         values.add(value);
-         if (separatorIndex == string.length()) {
-            break;
-         }
-      }
-      return values;
-   }
-
-   /**
-    * Find the next ',' occurrence in a string where: we skip '/' followed by
-    * any char, skip anything in an opening parenthesis until we hit a matching
-    * closing parenthesis
-    * 
-    * @param s
-    *           the string to find the next ',' in
-    * @param startIndex
-    *           the start index where the search starts
-    * @return the resulting comma index or the length of the string
-    */
-   private static int nextSeparator(String s, int startIndex) {
-      boolean slash = false;
-      int pCounter = 0;
-      for (int i = startIndex; i < s.length(); i++) {
-         if (slash) {
-            slash = false;
-            continue;
-         }
-         char c = s.charAt(i);
-         if (c == '/') {
-            slash = true;
-            continue;
-         }
-         if (c == '(') {
-            pCounter++;
-            continue;
-         }
-         if (c == ')') {
-            if (pCounter < 0) {
-               return -1;
-            }
-            pCounter--;
-            continue;
-         }
-         if (pCounter > 0) {
-            continue;
-         }
-         if (c == ',') {
-            return i;
-         }
-      }
-      if (pCounter < 0) {
-         return -1;
-      }
-      return s.length();
-   }
-
-   private static String decode(String value) {
-      StringBuilder sb = new StringBuilder(value.length() + 1);
-      char[] chars = value.toCharArray();
-      boolean slash = false;
-      for (char c : chars) {
-         if (slash) {
-            slash = false;
-            if (c == '/') {
-               sb.append('/');
-            } else if (c == ',') {
-               sb.append(',');
-            } else if (c == '(') {
-               sb.append('(');
-            } else if (c == ')') {
-               sb.append(')');
-            }
-            // else {
-               // decode error, ignore this character
-            // }
-         } else {
-            if (c == '/') {
-               slash = true;
-            } else {
-               sb.append(c);
-            }
-         }
-      }
-      return sb.toString();
    }
 }
