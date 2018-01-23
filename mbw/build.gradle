@@ -100,8 +100,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 2091100
-        versionName '2.9.11.0'
+        versionCode 2091101
+        versionName '2.9.11.1'
         multiDexEnabled true
 
         minSdkVersion 14
@@ -128,8 +128,7 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled !project.hasProperty('skipProguard')
-            proguardFile 'mbw.pro'
+            minifyEnabled false
             applicationVariants.all { variant ->
                 variant.outputs.each { output ->
                     def file = output.outputFile
