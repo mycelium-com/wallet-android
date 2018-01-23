@@ -272,7 +272,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
 
    public synchronized void setCurrentExchangeSourceName(String name) {
       _currentExchangeSourceName = name;
-      getEditor().putString("currentRateName", _currentExchangeSourceName).commit();
+      getEditor().putString("currentRateName", _currentExchangeSourceName).apply();
    }
 
    /**
@@ -287,11 +287,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
    public synchronized ExchangeRate getExchangeRate(String currency) {
       // TODO need some refactoring for this
       String injectCurrency = null;
-      if(currency.equals("RMC")) {
-         injectCurrency = currency;
-         currency = "USD";
-      }
-      if(currency.equals("MSS")) {
+      if(currency.equals("RMC") || currency.equals("MSS")) {
          injectCurrency = currency;
          currency = "USD";
       }

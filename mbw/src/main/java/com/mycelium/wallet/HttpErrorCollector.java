@@ -45,13 +45,12 @@ import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.request.ErrorCollectorRequest;
 
 public class HttpErrorCollector implements Thread.UncaughtExceptionHandler {
-
    private final Thread.UncaughtExceptionHandler orig;
    private final Wapi api;
    private final String version;
    private final ErrorMetaData metaData;
 
-   public HttpErrorCollector(Thread.UncaughtExceptionHandler orig, Wapi api, String version, ErrorMetaData metaData) {
+   private HttpErrorCollector(Thread.UncaughtExceptionHandler orig, Wapi api, String version, ErrorMetaData metaData) {
       this.orig = orig;
       this.api = api;
       this.version = version;
@@ -65,7 +64,7 @@ public class HttpErrorCollector implements Thread.UncaughtExceptionHandler {
          return null;
       }
       Thread.UncaughtExceptionHandler orig = Thread.getDefaultUncaughtExceptionHandler();
-      if ((orig instanceof HttpErrorCollector)) {
+      if (orig instanceof HttpErrorCollector) {
          return (HttpErrorCollector) orig;
       }
       String version = VersionManager.determineVersion(applicationContext) + " / " + VersionManager.determineVersionCode(applicationContext);
@@ -73,7 +72,6 @@ public class HttpErrorCollector implements Thread.UncaughtExceptionHandler {
       HttpErrorCollector ret = new HttpErrorCollector(orig, wapi, version, buildMetaData(applicationContext));
       Thread.setDefaultUncaughtExceptionHandler(ret);
       return ret;
-
    }
 
    private static ErrorMetaData buildMetaData(Context applicationContext) {
@@ -95,8 +93,6 @@ public class HttpErrorCollector implements Thread.UncaughtExceptionHandler {
     * use this method, if we expect an error,
     * but we want to provide a meaningful error message instead of blowing up.
     * in most cases we should blow up, though.
-    *
-    * @param throwable
     */
    public void reportErrorToServer(final Throwable throwable) {
       new Thread() {

@@ -49,11 +49,10 @@ import android.os.RemoteException;
 import android.util.Log;
 
 public class TaskExecutionServiceController {
-
    public interface TaskExecutionServiceCallback {
-      public void onStatusReceived(ServiceTaskStatusEx status);
+      void onStatusReceived(ServiceTaskStatusEx status);
 
-      public void onResultReceived(ServiceTask<?> result);
+      void onResultReceived(ServiceTask<?> result);
    }
 
    @SuppressLint("HandlerLeak")
@@ -216,5 +215,4 @@ public class TaskExecutionServiceController {
       }
       _connection.terminate();
    }
-
 }
