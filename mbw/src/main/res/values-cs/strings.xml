@@ -138,7 +138,7 @@
   <string name="active_accounts_empty">(prázdný)</string>
   <string name="activate_action">Aktivovat</string>
   <string name="archive_action">Archivovat</string>
-  <string name="question_archive_account">Archivované účty nejsou monitorovány, nemúžete vidět zůstatek a adresu pro příjem a jakkoli s účtem pracovat.\r\n\r\nArchivované účty mohou být znovu aktivovány.\r\n\r\nChcete tento účet archivovat?</string>
+  <string name="question_archive_account">Archivované účty nejsou monitorovány, nemúžete vidět zůstatek a adresu pro příjem a jakkoli s účtem pracovat.\n\nArchivované účty mohou být znovu aktivovány.\n\nChcete tento účet archivovat?</string>
   <string name="master_seed_configuration_title">Vítejte v Myceliu</string>
   <string name="master_seed_configuration_description">Chcete obnovit zálohu, nebo vytvořit novou peněženku?</string>
   <string name="master_seed_create_new_button">Vytvořit nový</string>
@@ -197,7 +197,7 @@
   <string name="encrypted_pdf_backup_document_ready">PDF dokument vytvořen</string>
   <string name="encrypted_pdf_backup_sharing">Sdílím PDF dokument&#8230;</string>
   <string name="encrypted_pdf_backup_email_title">Záloha Mycelium Wallet</string>
-  <string name="encrypted_pdf_backup_email_text">Záloha vaší peněženky Mycelium je přiložena.\r\n\r\nPro zabezpečení vašich zdrojů udělejte následující:\r\n1. Vytiskněte PDF dokument.\r\n2. Opište 15znakové heslo z displeje vašeho zařízení do modrých chlívečků.\r\n3. Ověřte, že můžete soukromé klíče importovat do vaší peněženky Mycelium.\r\n4. Uschovejte výtisk na bezpečném místě.</string>
+  <string name="encrypted_pdf_backup_email_text">Záloha vaší peněženky Mycelium je přiložena.\n\nPro zabezpečení vašich zdrojů udělejte následující:\r\n1. Vytiskněte PDF dokument.\r\n2. Opište 15znakové heslo z displeje vašeho zařízení do modrých chlívečků.\r\n3. Ověřte, že můžete soukromé klíče importovat do vaší peněženky Mycelium.\r\n4. Uschovejte výtisk na bezpečném místě.</string>
   <string name="share_pdf">Sdílet PDF</string>
   <string name="share_with">Sdílet s&#8230;</string>
   <string name="import_decrypt_key_title">Dešifrování soukromého klíče</string>

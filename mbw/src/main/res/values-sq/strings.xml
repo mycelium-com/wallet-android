@@ -137,7 +137,7 @@
   <string name="active_accounts_empty">(Zbrazët)</string>
   <string name="activate_action">Aktivizo</string>
   <string name="archive_action">Arkivi</string>
-  <string name="question_archive_account">Llogaritë e arkivuara nuk monitorohen, nuk mund të shihni bilancin dhe adredat dhe nuk punojnë me llogarinë.\r\n\r\nLlogaritë e arkivuara mund të aktivizohen prapë.\r\n\r\nDoni të arkivoni këtë llogari?</string>
+  <string name="question_archive_account">Llogaritë e arkivuara nuk monitorohen, nuk mund të shihni bilancin dhe adredat dhe nuk punojnë me llogarinë.\n\nLlogaritë e arkivuara mund të aktivizohen prapë.\n\nDoni të arkivoni këtë llogari?</string>
   <string name="master_seed_configuration_title">Mirësevini në Mycelium</string>
   <string name="master_seed_configuration_description">Doni të riktheni një kopje rezervë, apo krijoni një kulet të re?</string>
   <string name="master_seed_create_new_button">Krijo të re</string>

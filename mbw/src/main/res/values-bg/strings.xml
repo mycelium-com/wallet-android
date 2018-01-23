@@ -138,7 +138,7 @@
   <string name="active_accounts_empty">(празно)</string>
   <string name="activate_action">Активирай</string>
   <string name="archive_action">Архивирай</string>
-  <string name="question_archive_account">Архивираните сметки не се наблюдават, няма да можете да виждате баланса и получаващите адреси и да работите със сметката.\r\n\r\nАрхивитаните сметки могат да бъдат активирани отново.\r\n\r\nЖелаете ли да архивирате тази сметка?</string>
+  <string name="question_archive_account">Архивираните сметки не се наблюдават, няма да можете да виждате баланса и получаващите адреси и да работите със сметката.\n\nАрхивитаните сметки могат да бъдат активирани отново.\n\nЖелаете ли да архивирате тази сметка?</string>
   <string name="master_seed_configuration_title">Добре дошли в Mycelium</string>
   <string name="master_seed_configuration_description">Желаете ли да възстановите резервно копие или да създадете нов портфейл?</string>
   <string name="master_seed_create_new_button">Създай нов</string>

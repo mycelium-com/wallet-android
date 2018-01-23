@@ -138,7 +138,7 @@
   <string name="active_accounts_empty">(Vide)</string>
   <string name="activate_action">Activer</string>
   <string name="archive_action">Archiver</string>
-  <string name="question_archive_account">Les comptes archivés ne sont pas surveillés, vous ne pouvez voir ni le solde ni l\'adresse de réception, et ne pouvez pas travailler avec ce compte.\r\n\r\nLes comptes archivés peuvent être activés de nouveau.\r\n\r\nSouhaitez-vous archiver ce compte ?</string>
+  <string name="question_archive_account">Les comptes archivés ne sont pas surveillés, vous ne pouvez voir ni le solde ni l\'adresse de réception, et ne pouvez pas travailler avec ce compte.\n\nLes comptes archivés peuvent être activés de nouveau.\n\nSouhaitez-vous archiver ce compte ?</string>
   <string name="master_seed_configuration_title">Bienvenue sur Mycelium</string>
   <string name="master_seed_configuration_description">Voulez-vous restaurer une sauvegarde, ou créer un nouveau portefeuille ?</string>
   <string name="master_seed_create_new_button">Créer</string>

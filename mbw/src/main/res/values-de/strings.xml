@@ -140,7 +140,7 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="active_accounts_empty">(Leer)</string>
   <string name="activate_action">Aktivieren</string>
   <string name="archive_action">Archivieren</string>
-  <string name="question_archive_account">Archivierte Konten werden nicht überwacht. Sie können weder Guthaben noch Ihre Empfangsadresse nicht sehen und nicht mit diesem Konto arbeiten.\r\n\r\nArchivierte Konten können jederzeit wieder aktiviert werden.\r\n\r\nMöchten Sie dieses Konto archivieren ?</string>
+  <string name="question_archive_account">Archivierte Konten werden nicht überwacht. Sie können weder Guthaben noch Ihre Empfangsadresse nicht sehen und nicht mit diesem Konto arbeiten.\n\nArchivierte Konten können jederzeit wieder aktiviert werden.\n\nMöchten Sie dieses Konto archivieren ?</string>
   <string name="master_seed_configuration_title">Willkommen bei Mycelium</string>
   <string name="master_seed_configuration_description">Möchten Sie ein Backup wiederherstellen oder eine neue Wallet erstellen?</string>
   <string name="master_seed_create_new_button">Neu erstellen</string>

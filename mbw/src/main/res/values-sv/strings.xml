@@ -137,7 +137,7 @@
   <string name="active_accounts_empty">(Tom)</string>
   <string name="activate_action">Aktivera</string>
   <string name="archive_action">Arkivera</string>
-  <string name="question_archive_account">Arkiverade konton är inte övervakade, du kan inte se saldot och mottagaradress och inte använda kontot överhuvudtaget.\r\n\r\nArkiverade konton kan aktiveras igen.\r\n\r\n.Vill du arkivera detta konto?</string>
+  <string name="question_archive_account">Arkiverade konton är inte övervakade, du kan inte se saldot och mottagaradress och inte använda kontot överhuvudtaget.\n\nArkiverade konton kan aktiveras igen.\n\n.Vill du arkivera detta konto?</string>
   <string name="master_seed_configuration_title">Välkommen till Mycelium</string>
   <string name="master_seed_configuration_description">Vill du återskapa en säkerhetskopia, eller skapa en ny plånbok?</string>
   <string name="master_seed_create_new_button">Skapa ny</string>

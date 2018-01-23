@@ -137,7 +137,7 @@
   <string name="active_accounts_empty">（真空）</string>
   <string name="activate_action">有効にする</string>
   <string name="archive_action">アドレスをアーカイブへ</string>
-  <string name="question_archive_account">アーカイブされたアカウントは監視されておらず、残高と受け取りアドレスが見えないため、このアカウントでは何も行えません。\r\n\r\nアーカイブされたアカウントは再度アクティブにすることができます。\r\n\r\nこのアカウントをアーカイブしますか？</string>
+  <string name="question_archive_account">アーカイブされたアカウントは監視されておらず、残高と受け取りアドレスが見えないため、このアカウントでは何も行えません。\n\nアーカイブされたアカウントは再度アクティブにすることができます。\n\nこのアカウントをアーカイブしますか？</string>
   <string name="master_seed_configuration_title">ようこそ！</string>
   <string name="master_seed_configuration_description">バックアップを復元しますか？または新しいウォレットを作成しますか？</string>
   <string name="master_seed_create_new_button">新規作成</string>

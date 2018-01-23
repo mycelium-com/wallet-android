@@ -138,7 +138,7 @@
   <string name="active_accounts_empty">(空)</string>
   <string name="activate_action">激活</string>
   <string name="archive_action">存檔</string>
-  <string name="question_archive_account">存檔帳戶沒有被監測、 你不能看到帳戶餘額和接收地址。請不要對這個帳戶進行操作.\r\n\r\n存檔帳戶可以被再次激活.\r\n\r\n您需要存檔該帳戶嗎？</string>
+  <string name="question_archive_account">存檔帳戶沒有被監測、 你不能看到帳戶餘額和接收地址。請不要對這個帳戶進行操作.\n\n存檔帳戶可以被再次激活.\n\n您需要存檔該帳戶嗎？</string>
   <string name="master_seed_configuration_title">歡迎來到Mycelium</string>
   <string name="master_seed_configuration_description">你想還原備份，還是創建一個新錢包？</string>
   <string name="master_seed_create_new_button">創建新的</string>
