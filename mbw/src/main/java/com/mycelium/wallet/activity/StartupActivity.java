@@ -79,6 +79,7 @@ import com.mycelium.wapi.wallet.bip44.Bip44Account;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.UUID;
 
@@ -132,7 +133,7 @@ public class StartupActivity extends Activity {
          //in case this is a fresh startup, import backup or create new seed
          if (_mbwManager.getWalletManager(false).getAccountIds().isEmpty()) {
             initMasterSeed();
-            //we return here, delayed finish will get posted once have our first account
+            //we return here, delayed finish will get posted once we have our first account
             return;
          } else if (!_mbwManager.getWalletManager(false).hasBip32MasterSeed()) {
             //user has accounts, but no seed. we just create one for him
@@ -216,15 +217,25 @@ public class StartupActivity extends Activity {
       _progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
       _progress.setMessage(getString(R.string.preparing_wallet_on_first_startup_info));
       _progress.show();
-      new ConfigureSeedAsyncTask().execute();
+      new ConfigureSeedAsyncTask(new WeakReference<>(this)).execute();
    }
 
-   private class ConfigureSeedAsyncTask extends AsyncTask<Void, Integer, UUID> {
+   private static class ConfigureSeedAsyncTask extends AsyncTask<Void, Integer, UUID> {
+      private WeakReference<StartupActivity> startupActivity;
+
+      ConfigureSeedAsyncTask(WeakReference<StartupActivity> startupActivity) {
+         this.startupActivity = startupActivity;
+      }
+
       @Override
       protected UUID doInBackground(Void... params) {
-         Bip39.MasterSeed masterSeed = Bip39.createRandomMasterSeed(_mbwManager.getRandomSource());
+         StartupActivity activity = this.startupActivity.get();
+         if(activity == null) {
+            return null;
+         }
+         Bip39.MasterSeed masterSeed = Bip39.createRandomMasterSeed(activity._mbwManager.getRandomSource());
          try {
-            WalletManager walletManager = _mbwManager.getWalletManager(false);
+            WalletManager walletManager = activity._mbwManager.getWalletManager(false);
             walletManager.configureBip32MasterSeed(masterSeed, AesKeyCipher.defaultKeyCipher());
             return walletManager.createAdditionalBip44Account(AesKeyCipher.defaultKeyCipher());
          } catch (KeyCipher.InvalidKeyCipher e) {
@@ -234,13 +245,17 @@ public class StartupActivity extends Activity {
 
       @Override
       protected void onPostExecute(UUID accountid) {
-         _progress.dismiss();
+         StartupActivity activity = this.startupActivity.get();
+         if(accountid == null || activity == null) {
+            return;
+         }
+         activity._progress.dismiss();
          //set default label for the created HD account
-         WalletAccount account = _mbwManager.getWalletManager(false).getAccount(accountid);
-         String defaultName = getString(R.string.account) + " " + (((Bip44Account) account).getAccountIndex() + 1);
-         _mbwManager.getMetadataStorage().storeAccountLabel(accountid, defaultName);
+         WalletAccount account = activity._mbwManager.getWalletManager(false).getAccount(accountid);
+         String defaultName = activity.getString(R.string.account) + " " + (((Bip44Account) account).getAccountIndex() + 1);
+         activity._mbwManager.getMetadataStorage().storeAccountLabel(accountid, defaultName);
          //finish initialization
-         delayedFinish.run();
+         activity.delayedFinish.run();
       }
    }
 

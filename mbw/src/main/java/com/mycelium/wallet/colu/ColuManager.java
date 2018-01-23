@@ -81,7 +81,6 @@ import java.util.Set;
 import java.util.UUID;
 
 public class ColuManager implements AccountProvider {
-
     private static final String TAG = "ColuManager";
     public static final int MAX_ACCOUNTS_NUMBER = 1000;
 
@@ -223,10 +222,7 @@ public class ColuManager implements AccountProvider {
         return false;
     }
 
-
-
     public Transaction signTransaction(ColuBroadcastTxHex.Json txid, ColuAccount coluAccount) {
-
         if (txid == null) {
             Log.e(TAG, "signTransaction: No transaction to sign !");
             return null;
@@ -371,7 +367,6 @@ public class ColuManager implements AccountProvider {
         }.execute();
     }
 
-
     class CreatedAccountInfo {
         public UUID id;
         public AccountBacking accountBacking;
@@ -383,7 +378,6 @@ public class ColuManager implements AccountProvider {
      * @param cipher     the cipher used to encrypt the private key. Must be the same
      *                   cipher as the one used by the secure storage instance
      * @return the ID of the new account
-     * @throws InvalidKeyCipher
      */
     public CreatedAccountInfo createSingleAddressAccount(InMemoryPrivateKey privateKey, KeyCipher cipher) throws InvalidKeyCipher {
         if (privateKey == null) {
@@ -622,7 +616,6 @@ public class ColuManager implements AccountProvider {
                     metadataStorage.storeAccountLabel(account.getId(), accountLabel + " Bitcoin");
                     break;
                 }
-
             }
         }
     }
@@ -664,6 +657,7 @@ public class ColuManager implements AccountProvider {
 
         return newAccount.getId();
     }
+
     // enables account associated with asset
     public UUID enableAsset(ColuAccount.ColuAsset coluAsset, InMemoryPrivateKey key) {
         //Make check to ensure the address is not in use
@@ -833,8 +827,9 @@ public class ColuManager implements AccountProvider {
         long satoshiBtcOnlyAmount = 0;
 
         for(Tx.Json tx : atInfo.transactions) {
-            if (tx.blockheight != -1)
+            if (tx.blockheight != -1) {
                 continue;
+            }
 
             boolean isInitiatedByMe = false;
 
@@ -848,8 +843,9 @@ public class ColuManager implements AccountProvider {
                 if (vout.scriptPubKey.addresses != null)
                     if (!account.ownAddress(vout.scriptPubKey.addresses)) {
                         for (Asset.Json asset : vout.assets) {
-                            if (!asset.assetId.equals(account.getColuAsset().id))
+                            if (!asset.assetId.equals(account.getColuAsset().id)) {
                                 continue;
+                            }
                             if (isInitiatedByMe) {
                                 assetSendingAmount += asset.amount;
                                 assetScale = asset.divisibility;
@@ -857,14 +853,13 @@ public class ColuManager implements AccountProvider {
                         }
                     } else {
                         for (Asset.Json asset : vout.assets) {
-                            if (!asset.assetId.equals(account.getColuAsset().id))
+                            if (!asset.assetId.equals(account.getColuAsset().id)) {
                                 continue;
-
+                            }
                             if (!isInitiatedByMe) {
                                 assetReceivingAmount += asset.amount;
                                 assetScale = asset.divisibility;
                             }
-
                         }
                     }
             }
@@ -953,7 +948,6 @@ public class ColuManager implements AccountProvider {
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected void onPreExecute() {
-                super.onPreExecute();
                 eventTranslator.onWalletStateChanged(null, state = WalletManager.State.SYNCHRONIZING);
             }
 
@@ -965,7 +959,6 @@ public class ColuManager implements AccountProvider {
 
             @Override
             protected void onPostExecute(Void aVoid) {
-                super.onPostExecute(aVoid);
                 eventBus.post(new BalanceChanged(null));
                 eventTranslator.onWalletStateChanged(null, state = WalletManager.State.READY);
             }

@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="2.9.11" versioncode="2091100">
+        <change>get RMC rate from coinmarketcap</change>
+        <change>Explain why not all the balance is spendable in the amount entry screen</change>
+        <change>Bugfixes</change>
+    </release>
     <release version="2.9.10" versioncode="2091006">
         <change>SaferVPN Christmas promotion until January 3rd: 1 month USD 9.99/m, 1 year USD 4.49/m, 2 years USD 2.49/m</change>
         <change>Receive other coins into your Bitcoin accounts through Changelly</change>
