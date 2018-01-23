@@ -37,6 +37,7 @@ package com.mycelium.wallet;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
@@ -60,6 +61,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import retrofit.RetrofitError;
 
 public class ExchangeRateManager implements ExchangeRateProvider {
    private static final int MAX_RATE_AGE_MS = 5 * 1000 * 60; /// 5 minutes
@@ -181,15 +184,19 @@ public class ExchangeRateManager implements ExchangeRateProvider {
             }
          }
          //Get rates from Coinmarket
-         CoinmarketcapRate rmcRate = CoinmarketcapApi.getRate();
-         if (rmcRate != null) {
-            rateRmcBtc = rmcRate.getPriceBtc();
-            storage.storeExchangeRate("RMC", "BTC", RMC_MARKET, String.valueOf(rateRmcBtc));
-         } else {
-            Optional<String> rate = storage.getExchangeRate("RMC", "BTC", RMC_MARKET);
-            if (rate.isPresent()) {
-               rateRmcBtc = Float.parseFloat(rate.get());
+         try {
+            CoinmarketcapRate rmcRate = CoinmarketcapApi.getRate();
+            if (rmcRate != null) {
+               rateRmcBtc = rmcRate.getPriceBtc();
+               storage.storeExchangeRate("RMC", "BTC", RMC_MARKET, String.valueOf(rateRmcBtc));
+            } else {
+               Optional<String> rate = storage.getExchangeRate("RMC", "BTC", RMC_MARKET);
+               if (rate.isPresent()) {
+                  rateRmcBtc = Float.parseFloat(rate.get());
+               }
             }
+         } catch (RetrofitError error) {
+            Log.e("ExcangeRateManager", "get rmc rate from Coinmarketcap ", error);
          }
       }
    }
