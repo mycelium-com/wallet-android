@@ -117,6 +117,10 @@ public class CreateTrader2Activity extends Activity {
          if (account instanceof Bip44Account && !account.isDerivedFromInternalMasterseed()) {
             continue;
          }
+         if (account.getType() == WalletAccount.Type.BCHBIP44
+                 || account.getType() == WalletAccount.Type.BCHSINGLEADDRESS) {
+            continue;
+         }
          if (!Utils.isAllowedForLocalTrader(account)) {
             continue;
          }
