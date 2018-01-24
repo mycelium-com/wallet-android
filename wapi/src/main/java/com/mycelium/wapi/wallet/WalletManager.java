@@ -17,7 +17,6 @@
 package com.mycelium.wapi.wallet;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
@@ -41,6 +40,9 @@ import com.mycelium.wapi.wallet.single.SingleAddressAccountContext;
 
 import java.util.*;
 
+import javax.annotation.Nonnull;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Predicates.*;
 import static com.mycelium.wapi.wallet.bip44.Bip44AccountContext.*;
 
@@ -58,7 +60,7 @@ public class WalletManager {
    public AccountScanManager accountScanManager;
    private final Set<AccountProvider> _extraAccountProviders = new HashSet<>();
    private final Set<String> _extraAccountsCurrencies = new HashSet<>();
-   private final HashMap<UUID, WalletAccount> _extraAccounts = new HashMap<>();
+   private final Map<UUID, WalletAccount> _extraAccounts = new HashMap<>();
    private final SecureKeyValueStore _secureKeyValueStore;
    private WalletManagerBacking _backing;
    private final Map<UUID, WalletAccount> _walletAccounts;
@@ -104,16 +106,16 @@ public class WalletManager {
    }
 
    public void refreshExtraAccounts() {
-         _extraAccounts.clear();
-         _extraAccountsCurrencies.clear();
-         for (AccountProvider accounts : _extraAccountProviders) {
-            for (WalletAccount account : accounts.getAccounts().values()) {
-               if (!_extraAccounts.containsKey(account.getId())) {
-                  _extraAccounts.put(account.getId(), account);
-                  _extraAccountsCurrencies.add(account.getAccountDefaultCurrency());
-               }
+      _extraAccounts.clear();
+      _extraAccountsCurrencies.clear();
+      for (AccountProvider accounts : _extraAccountProviders) {
+         for (WalletAccount account : accounts.getAccounts().values()) {
+            if (!_extraAccounts.containsKey(account.getId())) {
+               _extraAccounts.put(account.getId(), account);
+               _extraAccountsCurrencies.add(account.getAccountDefaultCurrency());
             }
          }
+      }
    }
 
    public Set<String> getAllActiveFiatCurrencies(){
@@ -168,8 +170,7 @@ public class WalletManager {
          try {
             SingleAddressAccountContext context = new SingleAddressAccountContext(id, address, false, 0);
             _backing.createSingleAddressAccountContext(context);
-            SingleAddressAccountBacking accountBacking = _backing.getSingleAddressAccountBacking(context.getId());
-            Preconditions.checkNotNull(accountBacking);
+            SingleAddressAccountBacking accountBacking = checkNotNull(_backing.getSingleAddressAccountBacking(context.getId()));
             PublicPrivateKeyStore store = new PublicPrivateKeyStore(_secureKeyValueStore);
             SingleAddressAccount account = new SingleAddressAccount(context, store, _network, accountBacking, _wapi);
             context.persist(accountBacking);
@@ -228,8 +229,7 @@ public class WalletManager {
             _backing.createBip44AccountContext(context);
 
             // Get the backing for the new account
-            Bip44AccountBacking accountBacking = _backing.getBip44AccountBacking(context.getId());
-            Preconditions.checkNotNull(accountBacking);
+            Bip44AccountBacking accountBacking = getBip44AccountBacking(context.getId());
 
             // Create actual account
             Bip44Account account;
@@ -271,8 +271,7 @@ public class WalletManager {
             _backing.createBip44AccountContext(context);
 
             // Get the backing for the new account
-            Bip44AccountBacking accountBacking = _backing.getBip44AccountBacking(context.getId());
-            Preconditions.checkNotNull(accountBacking);
+            Bip44AccountBacking accountBacking = getBip44AccountBacking(context.getId());
 
             // Create actual account
             Bip44Account account = new Bip44AccountExternalSignature(context, keyManager, _network, accountBacking, _wapi, externalSignatureProvider);
@@ -296,7 +295,6 @@ public class WalletManager {
     * @param cipher     the cipher used to encrypt the private key. Must be the same
     *                   cipher as the one used by the secure storage instance
     * @return the ID of the new account
-    * @throws InvalidKeyCipher
     */
    public UUID createSingleAddressAccount(InMemoryPrivateKey privateKey, KeyCipher cipher) throws InvalidKeyCipher {
       PublicKey publicKey = privateKey.getPublicKey();
@@ -440,7 +438,7 @@ public class WalletManager {
       if (normalAccount == null){
          normalAccount = _extraAccounts.get(id);
       }
-      return Preconditions.checkNotNull(normalAccount);
+      return checkNotNull(normalAccount);
    }
 
    /**
@@ -580,8 +578,7 @@ public class WalletManager {
          Bip44AccountKeyManager keyManager;
          Bip44Account account;
 
-         Bip44AccountBacking accountBacking = _backing.getBip44AccountBacking(context.getId());
-         Preconditions.checkNotNull(accountBacking);
+         Bip44AccountBacking accountBacking = getBip44AccountBacking(context.getId());
 
          switch (context.getAccountType()) {
             case ACCOUNT_TYPE_FROM_MASTERSEED:
@@ -651,8 +648,7 @@ public class WalletManager {
       List<SingleAddressAccountContext> contexts = _backing.loadSingleAddressAccountContexts();
       for (SingleAddressAccountContext context : contexts) {
          PublicPrivateKeyStore store = new PublicPrivateKeyStore(_secureKeyValueStore);
-         SingleAddressAccountBacking accountBacking = _backing.getSingleAddressAccountBacking(context.getId());
-         Preconditions.checkNotNull(accountBacking);
+         SingleAddressAccountBacking accountBacking = checkNotNull(_backing.getSingleAddressAccountBacking(context.getId()));
          SingleAddressAccount account = new SingleAddressAccount(context, store, _network, accountBacking, _wapi);
          addAccount(account);
       }
@@ -699,9 +695,7 @@ public class WalletManager {
                }
 
                // Synchronize selected accounts with the blockchain
-               if (!synchronize()) {
-                  return;
-               }
+               synchronize();
             }
          } finally {
             _synchronizationThread = null;
@@ -973,8 +967,7 @@ public class WalletManager {
             _backing.createBip44AccountContext(context);
 
             // Get the backing for the new account
-            Bip44AccountBacking accountBacking = _backing.getBip44AccountBacking(context.getId());
-            Preconditions.checkNotNull(accountBacking);
+            Bip44AccountBacking accountBacking = getBip44AccountBacking(context.getId());
 
             // Create actual account
             Bip44Account account = new Bip44Account(context, keyManager, _network, accountBacking, _wapi);
@@ -1018,9 +1011,7 @@ public class WalletManager {
             _backing.createBip44AccountContext(context);
 
             // Get the backing for the new account
-            Bip44AccountBacking accountBacking = _backing.getBip44AccountBacking(context.getId());
-            Preconditions.checkNotNull(accountBacking);
-
+            Bip44AccountBacking accountBacking = getBip44AccountBacking(context.getId());
 
             // Create actual account
             Bip44Account account = new Bip44Account(context, keyManager, _network, accountBacking, _wapi);
@@ -1035,6 +1026,11 @@ public class WalletManager {
             _backing.endTransaction();
          }
       }
+   }
+
+   @Nonnull
+   private Bip44AccountBacking getBip44AccountBacking(UUID id) {
+      return checkNotNull(_backing.getBip44AccountBacking(id));
    }
 
    public SecureKeyValueStore getSecureStorage() {
