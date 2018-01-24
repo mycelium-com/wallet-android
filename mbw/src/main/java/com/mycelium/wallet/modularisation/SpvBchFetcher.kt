@@ -85,7 +85,7 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
     private fun retrieveTransactionSummary(uri: Uri, selection: String, selectionArg: String): List<TransactionSummary> {
         val transactionSummariesList = ArrayList<TransactionSummary>()
         context.contentResolver.query(uri, null, selection, arrayOf(selectionArg), null).use {
-            while (it.moveToNext()) {
+            while (it?.moveToNext() == true) {
                 val txSummary = txSummaryFromCursor(it)
                 transactionSummariesList.add(txSummary)
             }
