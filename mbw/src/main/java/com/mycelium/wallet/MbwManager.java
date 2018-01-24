@@ -78,7 +78,6 @@ import com.mycelium.lt.api.LtApiClient;
 import com.mycelium.net.ServerEndpointType;
 import com.mycelium.net.TorManager;
 import com.mycelium.net.TorManagerOrbot;
-import com.mycelium.wallet.activity.rmc.RmcApiClient;
 import com.mycelium.wallet.activity.util.BlockExplorer;
 import com.mycelium.wallet.activity.util.BlockExplorerManager;
 import com.mycelium.wallet.activity.util.Pin;
@@ -255,7 +254,7 @@ public class MbwManager {
       WindowManager windowManager = (WindowManager) _applicationContext.getSystemService(Context.WINDOW_SERVICE);
       windowManager.getDefaultDisplay().getMetrics(dm);
 
-      _addressBookManager = new AddressBookManager(_applicationContext);
+      _addressBookManager = new AddressBookManager();
       _storage = new MetadataStorage(_applicationContext);
       _language = preferences.getString(Constants.LANGUAGE_SETTING, Locale.getDefault().getLanguage());
       _versionManager = new VersionManager(_applicationContext, _language, new AndroidAsyncApi(_wapi, _eventBus), version, _eventBus);
@@ -272,7 +271,6 @@ public class MbwManager {
       }
 
       _exchangeRateManager = new ExchangeRateManager(_applicationContext, _wapi, getNetwork(), getMetadataStorage());
-      _exchangeRateManager.setClient(new RmcApiClient(getNetwork()));
       _currencySwitcher = new CurrencySwitcher(
               _exchangeRateManager,
               fiatCurrencies,
@@ -543,8 +541,6 @@ public class MbwManager {
             }
          }
       }
-
-      migrateAddressAndAccountLabelsToMetadataStorage();
    }
 
    private List<Record> loadClassicRecords() {
@@ -567,24 +563,6 @@ public class MbwManager {
       // Sort all records
       Collections.sort(recordList);
       return recordList;
-   }
-
-   private void migrateAddressAndAccountLabelsToMetadataStorage() {
-      List<AddressBookManager.Entry> entries = _addressBookManager.getEntries();
-      for (AddressBookManager.Entry entry : entries) {
-
-         Address address = entry.getAddress();
-         String label = entry.getName();
-         //check whether this is actually an addressbook entry, or the name of an account
-         UUID accountid = SingleAddressAccount.calculateId(address);
-         if (_walletManager.getAccountIds().contains(accountid)) {
-            //its one of our accounts, so we name it
-            _storage.storeAccountLabel(accountid, label);
-         } else {
-            //we just put it into the addressbook
-            _storage.storeAddressLabel(address, label);
-         }
-      }
    }
 
    /**
@@ -1028,15 +1006,17 @@ public class MbwManager {
    }
 
    public void reportIgnoredException(Throwable e) {
-      if (_httpErrorCollector != null) {
-         RuntimeException msg = new RuntimeException("We caught an exception that we chose to ignore.\n", e);
-         _httpErrorCollector.reportErrorToServer(msg);
-      }
+      reportIgnoredException(null, e);
    }
 
-   public void reportIgnoredException(String Message, Throwable e) {
+   public void reportIgnoredException(String message, Throwable e) {
       if (_httpErrorCollector != null) {
-         RuntimeException msg = new RuntimeException("We caught an exception that we chose to ignore.\n" + Message + "\n", e);
+         if(null != message && message.length() > 0) {
+            message += "\n";
+         } else {
+            message = "";
+         }
+         RuntimeException msg = new RuntimeException("We caught an exception that we chose to ignore.\n" + message, e);
          _httpErrorCollector.reportErrorToServer(msg);
       }
    }

@@ -41,7 +41,6 @@ import android.widget.TextView;
 import com.mycelium.wallet.activity.util.Pin;
 
 public class NewPinDialog extends PinDialog {
-
    private final CheckBox cbResettablePin;
 
    public NewPinDialog(final Context context, boolean hidden) {

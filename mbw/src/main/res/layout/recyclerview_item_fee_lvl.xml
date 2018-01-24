@@ -28,6 +28,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
+            android:ellipsize="end"
+            android:singleLine="true"
             android:textColor="@color/horizontalpicker_text_color"
             android:textSize="14sp"
             tools:text="MRD" />
@@ -37,10 +39,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
-            android:lines="1"
+            android:ellipsize="middle"
             android:textColor="@color/horizontalpicker_text_color"
             android:textSize="10sp"
-            tools:text="0.5556 BTC" />
+            tools:text="0.5556 BTC"
+            android:singleLine="true" />
     </LinearLayout>
 
     <ImageView

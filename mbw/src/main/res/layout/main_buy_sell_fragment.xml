@@ -14,4 +14,13 @@
             android:layout_marginBottom="16dp"
             android:text="@string/gd_buy_sell_button"
             android:textSize="20sp" />
+        <Button
+            android:id="@+id/btExchangeAltcoins"
+            style="@style/MyceliumButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="16dp"
+            android:text="@string/exchange_altcoins_to_btc"
+            android:textSize="20sp" />
 </LinearLayout>

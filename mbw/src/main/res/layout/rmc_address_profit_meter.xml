@@ -10,6 +10,8 @@
         android:layout_height="wrap_content"
         android:background="@drawable/bg_rmc_profit_meter"
         android:orientation="horizontal"
+        android:clipChildren="false"
+        android:clipToPadding="false"
         android:padding="12dp">
 
         <TextView

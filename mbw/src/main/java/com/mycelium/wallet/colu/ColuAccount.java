@@ -349,10 +349,11 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
    @Override
    public List<TransactionSummary> getTransactionHistory(int offset, int limit) {
       if (historyTxList != null) {
-         List<TransactionSummary> list = getTransactionSummaries();
+         List<TransactionSummary> list = new ArrayList<>(getTransactionSummaries());
          ArrayList<TransactionSummary> result = new ArrayList<>();
          for (TransactionSummary transactionSummary : list) {
-            if(transactionSummary.value.getCurrency().equals(coluAsset.name)) {
+            if(transactionSummary != null
+                    && transactionSummary.value.getCurrency().equals(coluAsset.name)) {
                result.add(transactionSummary);
             }
          }
@@ -388,6 +389,7 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
 
          if (extendedInfo == null) {
             Log.d(TAG, "Extended info for hash " + hash + " not found !");
+            continue;
          }
 
          // is it a BTC transaction or an asset transaction ?
@@ -513,7 +515,13 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
 
       Collections.sort(allTransactionSummaries, new Comparator<TransactionSummary>(){
          public int compare(TransactionSummary p1, TransactionSummary p2){
-            return (int)(p2.time - p1.time);
+            if (p2 == null) {
+               return -1;
+            } else if (p1 == null) {
+               return 1;
+            } else {
+               return (int) (p2.time - p1.time);
+            }
          }
       });
 

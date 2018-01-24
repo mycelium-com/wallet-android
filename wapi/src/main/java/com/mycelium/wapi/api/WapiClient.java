@@ -225,15 +225,13 @@ public class WapiClient implements Wapi {
 
    @Override
    public WapiResponse<CheckTransactionsResponse> checkTransactions(CheckTransactionsRequest request) {
-      TypeReference<WapiResponse<CheckTransactionsResponse>> typeref = new TypeReference<WapiResponse<CheckTransactionsResponse>>() {
-      };
+      TypeReference<WapiResponse<CheckTransactionsResponse>> typeref = new TypeReference<WapiResponse<CheckTransactionsResponse>>() { };
       return sendRequest(Function.CHECK_TRANSACTIONS, request, typeref);
    }
 
    @Override
    public WapiResponse<QueryExchangeRatesResponse> queryExchangeRates(QueryExchangeRatesRequest request) {
-      TypeReference<WapiResponse<QueryExchangeRatesResponse>> typeref = new TypeReference<WapiResponse<QueryExchangeRatesResponse>>() {
-      };
+      TypeReference<WapiResponse<QueryExchangeRatesResponse>> typeref = new TypeReference<WapiResponse<QueryExchangeRatesResponse>>() { };
       return sendRequest(Function.QUERY_EXCHANGE_RATES, request, typeref);
    }
 

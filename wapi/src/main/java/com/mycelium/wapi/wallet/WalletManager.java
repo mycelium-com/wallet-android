@@ -104,7 +104,6 @@ public class WalletManager {
    }
 
    public void refreshExtraAccounts() {
-      synchronized (_walletAccounts) {
          _extraAccounts.clear();
          _extraAccountsCurrencies.clear();
          for (AccountProvider accounts : _extraAccountProviders) {
@@ -115,7 +114,6 @@ public class WalletManager {
                }
             }
          }
-      }
    }
 
    public Set<String> getAllActiveFiatCurrencies(){
