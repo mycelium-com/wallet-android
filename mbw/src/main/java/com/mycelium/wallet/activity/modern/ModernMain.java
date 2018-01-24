@@ -113,6 +113,7 @@ public class ModernMain extends ActionBarActivity {
    ViewPager mViewPager;
    TabsAdapter mTabsAdapter;
    ActionBar.Tab mBalanceTab;
+   ActionBar.Tab mNewsTab;
    ActionBar.Tab mAccountsTab;
    ActionBar.Tab mRecommendationsTab;
    private MenuItem refreshItem;
@@ -153,6 +154,8 @@ public class ModernMain extends ActionBarActivity {
       }
 
       mTabsAdapter = new TabsAdapter(this, mViewPager, _mbwManager);
+      mNewsTab = bar.newTab();
+      mTabsAdapter.addTab(mNewsTab.setText("News"), NewsFragment.class, null);
       mAccountsTab = bar.newTab();
       mTabsAdapter.addTab(mAccountsTab.setText(getString(R.string.tab_accounts)), AccountsFragment.class, null);
       mBalanceTab = bar.newTab();
