@@ -41,5 +41,4 @@ public class QueryExchangeRatesResponse implements Serializable {
       this.currency = currency;
       this.exchangeRates = exchangeRates;
    }
-
 }
