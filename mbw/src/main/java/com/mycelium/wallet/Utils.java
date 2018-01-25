@@ -918,7 +918,10 @@ public class Utils {
    }
 
    public static boolean isAllowedForLocalTrader(WalletAccount account) {
-      if (account instanceof CoinapultAccount) {
+      if (account instanceof CoinapultAccount
+              || account.getType() == WalletAccount.Type.BCHBIP44
+              || account.getType() == WalletAccount.Type.BCHSINGLEADDRESS
+              || account.getType() == WalletAccount.Type.COLU) {
          return false; //we do not support coinapult accs in lt (yet)
       }
       if (!account.getReceivingAddress().isPresent()) {
