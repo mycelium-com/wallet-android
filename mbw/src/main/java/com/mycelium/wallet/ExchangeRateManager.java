@@ -45,9 +45,8 @@ import android.support.v4.content.LocalBroadcastManager;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.mrd.bitlib.model.NetworkParameters;
-import com.mycelium.wallet.activity.rmc.RmcApiClient;
-import com.mycelium.wallet.exchange.BitflipApi;
-import com.mycelium.wallet.exchange.Rate;
+import com.mycelium.wallet.exchange.CoinmarketcapApi;
+import com.mycelium.wallet.exchange.model.CoinmarketcapRate;
 import com.mycelium.wallet.external.changelly.ChangellyService;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.api.Wapi;
@@ -71,14 +70,11 @@ public class ExchangeRateManager implements ExchangeRateProvider {
    private static final int MAX_RATE_AGE_MS = 5 * 1000 * 60; /// 5 minutes
    private static final int MIN_RATE_AGE_MS = 5 * 1000; /// 5 seconds
    private static final String EXCHANGE_DATA = "wapi_exchange_rates";
-   private static final String USD_RMC = "usd_rmc";
    public static final String BTC = "BTC";
-
-   private static final String KRAKEN_MARKET_NAME = "Kraken";
 
    private static final Pattern EXCHANGE_RATE_PATTERN;
    public static final String CHANGELLY_MARKET = "Changelly";
-   public static final String BIT_FLIP_MARKET = "BitFlip";
+   public static final String RMC_MARKET = "BitFlip";
 
    static {
       String regexKeyExchangeRate = "(.*)_(.*)_(.*)";
@@ -102,7 +98,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
    private String _currentExchangeSourceName;
 
    private float rateRmcBtc;
-   private float rateBchBtc;
+    private float rateBchBtc;
    // value hardcoded for now, but in future we need get from somewhere
    private static final float MSS_RATE = 3125f;
 
@@ -199,25 +195,21 @@ public class ExchangeRateManager implements ExchangeRateProvider {
                }
             }
          }
-         //Get rates from bitflip
-         Rate[] rates = BitflipApi.getRates();
-         if (rates != null) {
-            for (Rate rate : rates) {
-               if(rate.pair.equals("RMC:BTC")) {
-                  rateRmcBtc = (rate.buy + rate.sell) / 2;
-                  storage.storeExchangeRate("RMC", "BTC", "BitFlip", String.valueOf(rateRmcBtc));
-               }
-            }
+         //Get rates from Coinmarket
+         CoinmarketcapRate rmcRate = CoinmarketcapApi.getRate();
+         if (rmcRate != null) {
+            rateRmcBtc = rmcRate.getPriceBtc();
+            storage.storeExchangeRate("RMC", "BTC", RMC_MARKET, String.valueOf(rateRmcBtc));
          } else {
-            Optional<String> rate = storage.getExchangeRate("RMC", "BTC", BIT_FLIP_MARKET);
+            Optional<String> rate = storage.getExchangeRate("RMC", "BTC", RMC_MARKET);
             if (rate.isPresent()) {
                rateRmcBtc = Float.parseFloat(rate.get());
             }
          }
-         Optional<String> rate = storage.getExchangeRate("BCH", "BTC", CHANGELLY_MARKET);
-         if (rate.isPresent()) {
-            rateBchBtc = Float.parseFloat(rate.get());
-         }
+          Optional<String> rate = storage.getExchangeRate("BCH", "BTC", CHANGELLY_MARKET);
+          if (rate.isPresent()) {
+              rateBchBtc = Float.parseFloat(rate.get());
+          }
       }
    }
 

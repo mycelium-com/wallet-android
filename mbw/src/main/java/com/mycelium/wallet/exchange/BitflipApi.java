@@ -10,10 +10,7 @@ import com.google.api.client.http.HttpResponse;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonObjectParser;
 import com.google.api.client.json.jackson2.JacksonFactory;
-
-/**
- * Created by elvis on 10.10.17.
- */
+import com.mycelium.wallet.exchange.model.Rate;
 
 public class BitflipApi {
     private static final String API_RATES = "https://api.bitflip.cc/method/market.getRates";
