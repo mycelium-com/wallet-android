@@ -34,11 +34,18 @@
 
 package com.mycelium.wallet;
 
+import android.app.ActivityManager;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
+import com.mycelium.wallet.activity.RestartPopupActivity;
+import com.mycelium.wallet.activity.StartupActivity;
 import com.mycelium.wapi.wallet.WalletAccount;
+
+import java.util.List;
 
 public class PackageRemovedReceiver extends BroadcastReceiver {
     @Override
@@ -49,10 +56,52 @@ public class PackageRemovedReceiver extends BroadcastReceiver {
             if (packageName.equals(spvModuleName)) {
                 switch (intent.getAction()) {
                     case Intent.ACTION_PACKAGE_ADDED:
+                        if (isAppOnForeground(context)) {
+                            showRestartWarning(context, context.getString(R.string.first_modulization_restart_warning));
+                        } else {
+                            restart(context);
+                        }
+                        break;
                     case Intent.ACTION_PACKAGE_REMOVED:
-                        Runtime.getRuntime().exit(0);
+                        if (isAppOnForeground(context)) {
+                            showRestartWarning(context, context.getString(R.string.module_removed_restart_warning));
+                        } else {
+                            restart(context);
+                        }
                 }
             }
         }
+    }
+
+    private void showRestartWarning(Context context, String warningText) {
+        Intent newIntent = new Intent(context, RestartPopupActivity.class);
+        newIntent.putExtra(RestartPopupActivity.RESTART_WARNING_TEXT, warningText);
+        newIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(newIntent);
+    }
+
+    private boolean isAppOnForeground(Context context) {
+        ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningAppProcessInfo> appProcesses = activityManager.getRunningAppProcesses();
+        if (appProcesses == null) {
+            return false;
+        }
+        final String packageName = context.getPackageName();
+        for (ActivityManager.RunningAppProcessInfo appProcess : appProcesses) {
+            if (appProcess.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND
+                    && appProcess.processName.equals(packageName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void restart(Context context) {
+        Intent futureActivity = new Intent(context, StartupActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0,
+                futureActivity, PendingIntent.FLAG_CANCEL_CURRENT);
+        AlarmManager mgr = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 100, pendingIntent);
+        Runtime.getRuntime().exit(0);
     }
 }
