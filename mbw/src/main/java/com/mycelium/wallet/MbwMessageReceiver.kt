@@ -294,7 +294,9 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
         }
         //something wrong if contentText empty, so shouldn't show anything for avoid crash or not correct work
         if(contentText.isNotEmpty()) {
-            builder.setContentText(contentText.substring(0, contentText.length - 1))
+            contentText = contentText.substring(0, contentText.length - 1)
+            builder.setContentText(contentText)
+                    .setStyle(Notification.BigTextStyle().bigText(contentText))
                     .setContentIntent(PendingIntent.getActivity(context, 0, Intent(context, ModernMain::class.java), 0))
                     .setWhen(System.currentTimeMillis())
             //TODO - return sound .setSound(Uri.parse("android.resource://${context.packageName}/${R.raw.coins_received}"))
