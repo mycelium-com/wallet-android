@@ -2,56 +2,52 @@ package com.mycelium.wapi;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
-/*
-    ColuTransferInstructionsParser class provides parsing of Transfer instructions
-   that are placed inside Colu transaction's OP_RETURN output script
-   Transfer instructions binary format description can be found:
-   https://github.com/Colored-Coins/Colored-Coins-Protocol-Specification/wiki/Transfer%20Instructions
-   Amount is packed using SFFC format (https://github.com/Colored-Coins/SFFC)
-*/
-
+/**
+ * ColuTransferInstructionsParser class provides parsing of Transfer instructions
+ * that are placed inside Colu transaction's OP_RETURN output script
+ * Transfer instructions binary format description can be found:
+ * https://github.com/Colored-Coins/Colored-Coins-Protocol-Specification/wiki/Transfer%20Instructions
+ * Amount is packed using SFFC format (https://github.com/Colored-Coins/SFFC)
+ */
 public class ColuTransferInstructionsParser {
-
     private static final int OPCODE_OFFSET = 5;
     private static final int FLAG_MASK = 0xe0;
     private static final int RANGE_FLAG = 0x40;
     private static final int PERCENT_FLAG = 0x20;
 
-    private static final int SFFC_FLAG_TWO_BYTES = 0x20;
-    private static final int SFFC_FLAG_THREE_BYTES = 0x40;
-    private static final int SFFC_FLAG_FOUR_BYTES = 0x60;
-    private static final int SFFC_FLAG_FIVE_BYTES = 0x80;
-    private static final int SFFC_FLAG_SIX_BYTES = 0xa0;
-    private static final int SFFC_FLAG_SEVEN_BYTES = 0xc0;
+    static final Map<Byte, Integer> SFFC_FLAG_BYTES_MAP = new LinkedHashMap<Byte, Integer>(){{
+        put((byte)0x20, 2);
+        put((byte)0x40, 3);
+        put((byte)0x60, 4);
+        put((byte)0x80, 5);
+        put((byte)0xa0, 6);
+        put((byte)0xc0, 7);
+    }};
 
     private static final int TORRENT_HASH_LEN = 20;
     private static final int SHA2_LEN = 32;
 
-    public static final int OPCODE_ISSUANCE_TORRENT_METADATA = 0x01;
-    public static final int OPCODE_TRANSFER_TORRENT_METADATA = 0x10;
-    public static final int OPCODE_BURN_TRANSFER_METADATA = 0x20;
-    public static final int OPCODE_ISSUANCE_TORRENT_HASH_MS = 0x02;
-    public static final int OPCODE_ISSUANCE_TORRENT_HASH = 0x04;
-    public static final int OPCODE_TRANSFER_TORRENT_HASH = 0x13;
-    public static final int OPCODE_TRANSFER_TORRENT_HASH_NO_RULES = 0x14;
-    public static final int OPCODE_BURN_TORRENT_HASH = 0x23;
-    public static final int OPCODE_BURN_TORRENT_HASH_NO_RULES = 0x24;
+    private static final int OPCODE_ISSUANCE_TORRENT_METADATA = 0x01;
+    private static final int OPCODE_TRANSFER_TORRENT_METADATA = 0x10;
+    private static final int OPCODE_BURN_TRANSFER_METADATA = 0x20;
+    private static final int OPCODE_ISSUANCE_TORRENT_HASH_MS = 0x02;
+    private static final int OPCODE_ISSUANCE_TORRENT_HASH = 0x04;
+    private static final int OPCODE_TRANSFER_TORRENT_HASH = 0x13;
+    private static final int OPCODE_TRANSFER_TORRENT_HASH_NO_RULES = 0x14;
+    private static final int OPCODE_BURN_TORRENT_HASH = 0x23;
+    private static final int OPCODE_BURN_TORRENT_HASH_NO_RULES = 0x24;
 
-    private static int getAmountTotalBytesSFFC(byte flagByte) {
-        if ((flagByte & SFFC_FLAG_TWO_BYTES) == SFFC_FLAG_TWO_BYTES)
-            return 2;
-        if ((flagByte & SFFC_FLAG_THREE_BYTES) == SFFC_FLAG_THREE_BYTES)
-            return 3;
-        if ((flagByte & SFFC_FLAG_FOUR_BYTES) == SFFC_FLAG_FOUR_BYTES)
-            return 4;
-        if ((flagByte & SFFC_FLAG_FIVE_BYTES) == SFFC_FLAG_FIVE_BYTES)
-            return 5;
-        if ((flagByte & SFFC_FLAG_SIX_BYTES) == SFFC_FLAG_SIX_BYTES)
-            return 6;
-        if ((flagByte & SFFC_FLAG_SEVEN_BYTES) == SFFC_FLAG_SEVEN_BYTES)
-            return 7;
+    static int getAmountTotalBytesSFFC(byte flagByte) {
+        for(byte ssfcFlagByte : SFFC_FLAG_BYTES_MAP.keySet()) {
+            if(flagByte == ssfcFlagByte) {
+                return SFFC_FLAG_BYTES_MAP.get(ssfcFlagByte);
+            }
+        }
         return 1;
     }
 
