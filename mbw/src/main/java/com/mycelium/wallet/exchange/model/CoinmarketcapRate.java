@@ -16,9 +16,6 @@ public class CoinmarketcapRate {
     @JsonProperty("price_btc")
     private float priceBtc;
 
-    public CoinmarketcapRate() {
-    }
-
     public String getId() {
         return id;
     }

@@ -22,7 +22,6 @@ import java.security.Security;
 
 
 public class AdvancedHttpClient {
-
     private static final String TAG = "AdvancedHttpClient";
 
     private int DEFAULT_CONNECTION_TIMEOUT = 3000;
@@ -35,10 +34,6 @@ public class AdvancedHttpClient {
 
     public AdvancedHttpClient(String[] hostsList) {
         this.hostsList = hostsList;
-        initialize();
-    }
-
-    public void initialize() {
         Security.addProvider(new BouncyCastleProvider());
 
         this.requestFactory = new NetHttpTransport()
@@ -50,9 +45,9 @@ public class AdvancedHttpClient {
                 });
     }
 
-    public void setFailureRestrictions(HttpRequest request) {
-        request.setConnectTimeout(this.connectionTimeout);
-        request.setReadTimeout(this.readTimeout);
+    private void setFailureRestrictions(HttpRequest request) {
+        request.setConnectTimeout(connectionTimeout);
+        request.setReadTimeout(readTimeout);
         request.setUnsuccessfulResponseHandler(new HttpUnsuccessfulResponseHandler() {
             @Override
             public boolean handleResponse(HttpRequest request, HttpResponse response, boolean supportsRetry) throws IOException {
@@ -70,8 +65,7 @@ public class AdvancedHttpClient {
         for (String host : hostsList) {
             try {
                 GenericUrl url = new GenericUrl(host + endpoint);
-                T result = makePostRequest(t, url, headers, data);
-                return result;
+                return makePostRequest(t, url, headers, data);
             } catch (Exception ex) {
                 Log.e(TAG, "Failed to make POST request to host " + host + " : " + ex.getMessage());
             }
@@ -83,8 +77,7 @@ public class AdvancedHttpClient {
         for (String host : hostsList) {
             try {
                 GenericUrl url = new GenericUrl(host + endpoint);
-                T result = makeGetRequest(t, url);
-                return result;
+                return makeGetRequest(t, url);
             } catch (Exception ex) {
                 Log.e(TAG, "Failed to make GET request to host " + host + " : " + ex.getMessage());
             }

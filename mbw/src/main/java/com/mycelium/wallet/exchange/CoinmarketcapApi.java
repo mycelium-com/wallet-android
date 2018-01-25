@@ -13,10 +13,10 @@ public class CoinmarketcapApi {
     private static final String RMC_API_RATE = "https://api.coinmarketcap.com";
 
     public static CoinmarketcapRate getRate() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        objectMapper.configure(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT, true);
-        objectMapper.configure(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS, true);
+        ObjectMapper objectMapper = new ObjectMapper()
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                .configure(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT, true)
+                .configure(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS, true);
 
         RestAdapter restAdapter = new RestAdapter.Builder()
                 .setEndpoint(RMC_API_RATE)
@@ -29,6 +29,5 @@ public class CoinmarketcapApi {
                 })
                 .build();
         return restAdapter.create(CoinmarketcapService.class).getRmcRate();
-
     }
 }

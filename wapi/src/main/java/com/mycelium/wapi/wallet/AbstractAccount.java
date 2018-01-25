@@ -858,9 +858,12 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
    
    // TODO: 07.10.17 these values are subject to change and not a solid way to detect cc outputs.
    public static final int COLU_MAX_DUST_OUTPUT_SIZE_TESTNET = 600;
-   public static final int COLU_MAX_DUST_OUTPUT_SIZE_MAINNET = 6000;
+   public static final int COLU_MAX_DUST_OUTPUT_SIZE_MAINNET = 10000;
 
    private boolean isColuTransaction(Transaction tx) {
+      if (tx == null) {
+         return false;
+      }
       for(int i = 0 ; i < tx.outputs.length;i++) {
          TransactionOutput curOutput = tx.outputs[i];
          byte[] scriptBytes = curOutput.script.getScriptBytes();

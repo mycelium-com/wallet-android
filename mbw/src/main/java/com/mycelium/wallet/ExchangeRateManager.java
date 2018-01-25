@@ -41,6 +41,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
@@ -66,6 +67,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import retrofit.RetrofitError;
+
 public class ExchangeRateManager implements ExchangeRateProvider {
    private static final int MAX_RATE_AGE_MS = 5 * 1000 * 60; /// 5 minutes
    private static final int MIN_RATE_AGE_MS = 5 * 1000; /// 5 seconds
@@ -74,7 +77,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
 
    private static final Pattern EXCHANGE_RATE_PATTERN;
    public static final String CHANGELLY_MARKET = "Changelly";
-   public static final String RMC_MARKET = "BitFlip";
+   public static final String RMC_MARKET = "Coinmarketcap";
 
    static {
       String regexKeyExchangeRate = "(.*)_(.*)_(.*)";
@@ -196,15 +199,19 @@ public class ExchangeRateManager implements ExchangeRateProvider {
             }
          }
          //Get rates from Coinmarket
-         CoinmarketcapRate rmcRate = CoinmarketcapApi.getRate();
-         if (rmcRate != null) {
-            rateRmcBtc = rmcRate.getPriceBtc();
-            storage.storeExchangeRate("RMC", "BTC", RMC_MARKET, String.valueOf(rateRmcBtc));
-         } else {
-            Optional<String> rate = storage.getExchangeRate("RMC", "BTC", RMC_MARKET);
-            if (rate.isPresent()) {
-               rateRmcBtc = Float.parseFloat(rate.get());
+         try {
+            CoinmarketcapRate rmcRate = CoinmarketcapApi.getRate();
+            if (rmcRate != null) {
+               rateRmcBtc = rmcRate.getPriceBtc();
+               storage.storeExchangeRate("RMC", "BTC", RMC_MARKET, String.valueOf(rateRmcBtc));
+            } else {
+               Optional<String> rate = storage.getExchangeRate("RMC", "BTC", RMC_MARKET);
+               if (rate.isPresent()) {
+                  rateRmcBtc = Float.parseFloat(rate.get());
+               }
             }
+         } catch (RetrofitError error) {
+            Log.e("ExcangeRateManager", "get rmc rate from Coinmarketcap ", error);
          }
           Optional<String> rate = storage.getExchangeRate("BCH", "BTC", CHANGELLY_MARKET);
           if (rate.isPresent()) {
@@ -291,7 +298,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
 
    public synchronized void setCurrentExchangeSourceName(String name) {
       _currentExchangeSourceName = name;
-      getEditor().putString("currentRateName", _currentExchangeSourceName).commit();
+      getEditor().putString("currentRateName", _currentExchangeSourceName).apply();
    }
 
    /**

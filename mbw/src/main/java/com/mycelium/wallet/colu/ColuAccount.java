@@ -392,6 +392,7 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
 
          if (extendedInfo == null) {
             Log.d(TAG, "Extended info for hash " + hash + " not found !");
+            continue;
          }
 
          // is it a BTC transaction or an asset transaction ?
