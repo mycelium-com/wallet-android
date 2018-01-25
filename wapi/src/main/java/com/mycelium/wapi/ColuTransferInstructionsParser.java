@@ -40,17 +40,17 @@ public class ColuTransferInstructionsParser {
     public static final int OPCODE_BURN_TORRENT_HASH_NO_RULES = 0x24;
 
     private static int getAmountTotalBytesSFFC(byte flagByte) {
-        if ((flagByte & SFFC_FLAG_TWO_BYTES) == flagByte)
+        if ((flagByte & SFFC_FLAG_TWO_BYTES) == SFFC_FLAG_TWO_BYTES)
             return 2;
-        if ((flagByte & SFFC_FLAG_THREE_BYTES) == flagByte)
+        if ((flagByte & SFFC_FLAG_THREE_BYTES) == SFFC_FLAG_THREE_BYTES)
             return 3;
-        if ((flagByte & SFFC_FLAG_FOUR_BYTES) == flagByte)
+        if ((flagByte & SFFC_FLAG_FOUR_BYTES) == SFFC_FLAG_FOUR_BYTES)
             return 4;
-        if ((flagByte & SFFC_FLAG_FIVE_BYTES) == flagByte)
+        if ((flagByte & SFFC_FLAG_FIVE_BYTES) == SFFC_FLAG_FIVE_BYTES)
             return 5;
-        if ((flagByte & SFFC_FLAG_SIX_BYTES) == flagByte)
+        if ((flagByte & SFFC_FLAG_SIX_BYTES) == SFFC_FLAG_SIX_BYTES)
             return 6;
-        if ((flagByte & SFFC_FLAG_SEVEN_BYTES) == flagByte)
+        if ((flagByte & SFFC_FLAG_SEVEN_BYTES) == SFFC_FLAG_SEVEN_BYTES)
             return 7;
         return 1;
     }
