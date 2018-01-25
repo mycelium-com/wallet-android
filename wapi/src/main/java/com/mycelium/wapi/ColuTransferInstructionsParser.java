@@ -1,0 +1,116 @@
+package com.mycelium.wapi;
+
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+
+/*
+    ColuTransferInstructionsParser class provides parsing of Transfer instructions
+   that are placed inside Colu transaction's OP_RETURN output script
+   Transfer instructions binary format description can be found:
+   https://github.com/Colored-Coins/Colored-Coins-Protocol-Specification/wiki/Transfer%20Instructions
+   Amount is packed using SFFC format (https://github.com/Colored-Coins/SFFC)
+*/
+
+public class ColuTransferInstructionsParser {
+
+    private static final int OPCODE_OFFSET = 5;
+    private static final int FLAG_MASK = 0xe0;
+    private static final int RANGE_FLAG = 0x40;
+    private static final int PERCENT_FLAG = 0x20;
+
+    private static final int SFFC_FLAG_TWO_BYTES = 0x20;
+    private static final int SFFC_FLAG_THREE_BYTES = 0x40;
+    private static final int SFFC_FLAG_FOUR_BYTES = 0x60;
+    private static final int SFFC_FLAG_FIVE_BYTES = 0x80;
+    private static final int SFFC_FLAG_SIX_BYTES = 0xa0;
+    private static final int SFFC_FLAG_SEVEN_BYTES = 0xc0;
+
+    private static final int TORRENT_HASH_LEN = 20;
+    private static final int SHA2_LEN = 32;
+
+    public static final int OPCODE_ISSUANCE_TORRENT_METADATA = 0x01;
+    public static final int OPCODE_TRANSFER_TORRENT_METADATA = 0x10;
+    public static final int OPCODE_BURN_TRANSFER_METADATA = 0x20;
+    public static final int OPCODE_ISSUANCE_TORRENT_HASH_MS = 0x02;
+    public static final int OPCODE_ISSUANCE_TORRENT_HASH = 0x04;
+    public static final int OPCODE_TRANSFER_TORRENT_HASH = 0x13;
+    public static final int OPCODE_TRANSFER_TORRENT_HASH_NO_RULES = 0x14;
+    public static final int OPCODE_BURN_TORRENT_HASH = 0x23;
+    public static final int OPCODE_BURN_TORRENT_HASH_NO_RULES = 0x24;
+
+    private static int getAmountTotalBytesSFFC(byte flagByte) {
+        if ((flagByte & SFFC_FLAG_TWO_BYTES) == flagByte)
+            return 2;
+        if ((flagByte & SFFC_FLAG_THREE_BYTES) == flagByte)
+            return 3;
+        if ((flagByte & SFFC_FLAG_FOUR_BYTES) == flagByte)
+            return 4;
+        if ((flagByte & SFFC_FLAG_FIVE_BYTES) == flagByte)
+            return 5;
+        if ((flagByte & SFFC_FLAG_SIX_BYTES) == flagByte)
+            return 6;
+        if ((flagByte & SFFC_FLAG_SEVEN_BYTES) == flagByte)
+            return 7;
+        return 1;
+    }
+
+    public static List<Integer> retrieveOutputIndexesFromScript(byte []scriptBytes) {
+        List<Integer> indexes = new ArrayList<>();
+        int offset = OPCODE_OFFSET;
+
+        //we don't have issue byte in transfer and burn transactions
+        int issueByteLen = 0;
+
+        //Handle the case of issue transaction - it will contain issue byte at the end of OP_RETURN data
+        if (scriptBytes[offset] >= OPCODE_ISSUANCE_TORRENT_METADATA && scriptBytes[offset] <= 0x0F)
+            issueByteLen = 1;
+
+        //Analyze OP_CODE value to determine type of CC transaction
+        switch(scriptBytes[offset]) {
+            case OPCODE_ISSUANCE_TORRENT_METADATA:
+                offset += (TORRENT_HASH_LEN + SHA2_LEN + 1);
+                offset += getAmountTotalBytesSFFC(scriptBytes[offset]);
+                break;
+            case OPCODE_TRANSFER_TORRENT_METADATA:
+            case OPCODE_BURN_TRANSFER_METADATA:
+                offset += (TORRENT_HASH_LEN + SHA2_LEN + 1);
+                break;
+            case OPCODE_ISSUANCE_TORRENT_HASH_MS:
+            case OPCODE_ISSUANCE_TORRENT_HASH:
+            case OPCODE_TRANSFER_TORRENT_HASH:
+            case OPCODE_TRANSFER_TORRENT_HASH_NO_RULES:
+            case OPCODE_BURN_TORRENT_HASH:
+            case OPCODE_BURN_TORRENT_HASH_NO_RULES:
+                offset += (TORRENT_HASH_LEN + 1);
+                break;
+            default:
+                offset += 1;
+        }
+
+        while(offset < (scriptBytes.length - issueByteLen)) {
+            byte curByte = scriptBytes[offset];
+            if ((curByte & RANGE_FLAG) == RANGE_FLAG) {
+                //Range flag is set - output index is between 0..8191
+                int outputIndex = new BigInteger(new byte[]{ (byte)(curByte & (~FLAG_MASK)), scriptBytes[offset + 1]}).intValue();
+                indexes.add(outputIndex);
+                offset += 2;
+            } else {
+                //Range flag is not set - output index is between 0..31
+                indexes.add(curByte & (~FLAG_MASK));
+                offset += 1;
+            }
+
+            if ((curByte & PERCENT_FLAG) == PERCENT_FLAG) {
+                //Amount in percents consumes 1 byte
+                offset += 1;
+            } else {
+                //Number of units in SFFC format consumes totally 2 to 7 bytes
+                int amountTotalBytes = getAmountTotalBytesSFFC(scriptBytes[offset]);
+                offset += amountTotalBytes;
+            }
+        }
+
+        return indexes;
+    }
+}

@@ -30,6 +30,7 @@ import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.WapiLogger;
+import com.mycelium.wapi.ColuTransferInstructionsParser;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.api.WapiResponse;
@@ -860,29 +861,22 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
    public static final int COLU_MAX_DUST_OUTPUT_SIZE_TESTNET = 600;
    public static final int COLU_MAX_DUST_OUTPUT_SIZE_MAINNET = 10000;
    public static final int COLU_OP_RETURN_SCRIPTBYTES_MIN_SIZE = 8;
-   public static final int COLU_TRANSFER_INSTRUCTION_OFFSET = 6;
-   public static final int COLU_OUTPUT_FLAGMASK = 0xe0;
 
    //Retrieves indexes of colu outputs if the transaction is determined to be colu transaction
    //In the case of non-colu transaction returns empty list
    private List<Integer> getColuOutputIndexes(Transaction tx) {
-      List<Integer> indexes = new ArrayList<>();
-
       if (tx == null)
-         return indexes;
+         return new ArrayList<>();
 
       for(int i = 0 ; i < tx.outputs.length;i++) {
          TransactionOutput curOutput = tx.outputs[i];
          byte[] scriptBytes = curOutput.script.getScriptBytes();
          //Check the protocol identifier 0x4343 ASCII representation of the string CC ("Colored Coins")
          if (curOutput.value == 0 && scriptBytes.length >= COLU_OP_RETURN_SCRIPTBYTES_MIN_SIZE && scriptBytes[2] == 0x43 && scriptBytes[3] == 0x43) {
-            for(int k = COLU_TRANSFER_INSTRUCTION_OFFSET; k < scriptBytes.length; k += 2) {
-               indexes.add(scriptBytes[k] & (~COLU_OUTPUT_FLAGMASK));
-            }
-            break;
+            return ColuTransferInstructionsParser.retrieveOutputIndexesFromScript(scriptBytes);
          }
       }
-      return indexes;
+      return new ArrayList<>();
    }
 
    private boolean isColuTransaction(Transaction tx) {
