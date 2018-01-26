@@ -197,7 +197,6 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 val chainDownloadPercentDone = intent.getIntExtra("chain_download_percent_done", 0)
                 // val replaying = intent.getBooleanExtra("replaying", true)
                 // val impediments = intent.getStringArrayExtra("impediment")
-                BCHHelper.saveBCHSyncProgress(context, chainDownloadPercentDone)
                 walletManager.activeAccounts
                         .filterIsInstance<Bip44Account?>()
                         .forEach {

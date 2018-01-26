@@ -11,7 +11,9 @@ import android.net.Uri;
 import com.mycelium.modularizationtools.CommunicationManager;
 import com.mycelium.modularizationtools.model.Module;
 import com.mycelium.wallet.AccountManager;
+import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wapi.wallet.SpvBalanceFetcher;
 import com.mycelium.wapi.wallet.WalletAccount;
 
 import java.math.BigDecimal;
@@ -25,8 +27,8 @@ public class BCHHelper {
     private static final String BCH_FIRST_UPDATE = "bch_first_update_page";
     private static final String BCH_FIRST_INSTALLED = "bch_first_installed_page";
     public static final String BCH_PREFS = "bch_prefs";
-    public static final String AFTER_FIRST_SYNC = "after_first_sync";
-    public static final String BCH_SYNC_PROGRESS = "bch_sync_progress";
+    public static final String IS_FIRST_SYNC = "is_first_sync";
+    public static final String ALREADY_FOUND_ACCOUNT = "already_found_account";
 
     public static void firstBCHPages(final Context context) {
         final Module bchModule = GooglePlayModuleCollection.getModules(context).get("bch");
@@ -73,38 +75,42 @@ public class BCHHelper {
 
     public static void bchSynced(Context context) {
         final SharedPreferences sharedPreferences = context.getSharedPreferences(BCH_PREFS, MODE_PRIVATE);
-        if (sharedPreferences.getBoolean(AFTER_FIRST_SYNC, false)) {
-            List<WalletAccount> accounts = new ArrayList<>();
-            accounts.addAll(AccountManager.INSTANCE.getBCHSingleAddressAccounts().values());
-            accounts.addAll(AccountManager.INSTANCE.getBCHBip44Accounts().values());
-            BigDecimal sum = BigDecimal.ZERO;
-            for (WalletAccount account : accounts) {
+        List<WalletAccount> accounts = new ArrayList<>();
+        accounts.addAll(AccountManager.INSTANCE.getBCHSingleAddressAccounts().values());
+        accounts.addAll(AccountManager.INSTANCE.getBCHBip44Accounts().values());
+        BigDecimal sum = BigDecimal.ZERO;
+        int accountFounded = 0;
+        for (WalletAccount account : accounts) {
+            if (sharedPreferences.getBoolean(ALREADY_FOUND_ACCOUNT + account.getId().toString(), false)) {
                 sum = sum.add(account.getCurrencyBasedBalance().confirmed.getValue());
+                accountFounded++;
+                sharedPreferences.edit()
+                        .putBoolean(ALREADY_FOUND_ACCOUNT + account.getId().toString(), true)
+                        .apply();
             }
-            AlertDialog.Builder builder = new AlertDialog.Builder(context);
-            builder.setTitle("Scanning for BCH has been completed!");
-            if (sum.floatValue() > 0) {
-                builder.setMessage(context.getString(R.string.bch_accounts_found,
-                        sum.toPlainString()
-                        , accounts.size()));
-            } else {
-                builder.setMessage(R.string.bch_accounts_not_found);
-            }
-
-            builder.setPositiveButton(R.string.button_continue, null);
+        }
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle(R.string.scaning_complete);
+        builder.setPositiveButton(R.string.button_continue, null);
+        if (sum.floatValue() > 0) {
+            builder.setMessage(context.getString(R.string.bch_accounts_found,
+                    sum.toPlainString()
+                    , accountFounded));
             builder.create().show();
-            sharedPreferences.edit().putBoolean(AFTER_FIRST_SYNC, false).apply();
+        } else if (sharedPreferences.getBoolean(IS_FIRST_SYNC, true)) {
+            sharedPreferences.edit().putBoolean(IS_FIRST_SYNC, false).apply();
+            builder.setMessage(R.string.bch_accounts_not_found);
+            builder.create().show();
         }
     }
 
-    public static void saveBCHSyncProgress(Context context, int progress) {
-        final SharedPreferences sharedPreferences = context.getSharedPreferences(BCH_PREFS, MODE_PRIVATE);
-        sharedPreferences.edit().putInt(BCH_SYNC_PROGRESS, progress).apply();
-    }
-
     public static int getBCHSyncProgress(Context context) {
-        final SharedPreferences sharedPreferences = context.getSharedPreferences(BCH_PREFS, MODE_PRIVATE);
-        return sharedPreferences.getInt(BCH_SYNC_PROGRESS, 0);
+        SpvBalanceFetcher spvBalanceFetcher = MbwManager.getInstance(context).getSpvBchFetcher();
+        int result = 0;
+        if (spvBalanceFetcher != null) {
+            result = spvBalanceFetcher.getSyncProgressPercents();
+        }
+        return result;
     }
 
     public static void bchTechnologyPreviewDialog(Context context) {

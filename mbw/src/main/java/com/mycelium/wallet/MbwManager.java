@@ -651,7 +651,7 @@ public class MbwManager {
       walletManager.disableTransactionHistorySynchronization();
       return walletManager;
    }
-   private SpvBalanceFetcher getSpvBchFetcher() {
+   public SpvBalanceFetcher getSpvBchFetcher() {
       SpvBalanceFetcher result = null;
       if (CommunicationManager.getInstance(_applicationContext).getPairedModules()
               .contains(GooglePlayModuleCollection.getModules(_applicationContext).get("bch"))) {

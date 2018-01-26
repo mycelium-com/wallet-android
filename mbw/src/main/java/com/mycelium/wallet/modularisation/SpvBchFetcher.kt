@@ -124,8 +124,8 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
     override fun getSyncProgressPercents(): Int {
         val uri = GetSyncProgress.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHBIP44)).buildUpon().build()
         context.contentResolver.query(uri, null, null, null, null).use {
-            val syncProgressPercent = it.getInt(0)
-            return syncProgressPercent
+            it.moveToFirst()
+            return it.getInt(0)
         }
     }
 

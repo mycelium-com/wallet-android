@@ -534,6 +534,9 @@ public class ModernMain extends AppCompatActivity {
    @Subscribe
    public void syncStopped(SyncStopped event) {
       setRefreshAnimation();
+      if(BCHHelper.getBCHSyncProgress(this) == 100) {
+         BCHHelper.bchSynced(this);
+      }
    }
 
    @Subscribe
