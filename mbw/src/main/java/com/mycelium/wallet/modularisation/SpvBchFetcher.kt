@@ -11,6 +11,7 @@ import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.spvmodule.IntentContract
 import com.mycelium.spvmodule.providers.TransactionContract.AccountBalance
 import com.mycelium.spvmodule.providers.TransactionContract.TransactionSummary as SpvTxSummary
+import com.mycelium.spvmodule.providers.TransactionContract.GetSyncProgress
 import com.mycelium.wallet.WalletApplication
 import com.mycelium.wapi.model.TransactionSummary
 import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal
@@ -119,4 +120,13 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
         val service = IntentContract.RemoveSingleAddressWalletAccount.createIntent(guid)
         WalletApplication.sendToSpv(service, WalletAccount.Type.BCHSINGLEADDRESS)
     }
+
+    override fun getSyncProgressPercents(): Int {
+        val uri = GetSyncProgress.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHBIP44)).buildUpon().build()
+        context.contentResolver.query(uri, null, null, null, null).use {
+            val syncProgressPercent = it.getInt(0)
+            return syncProgressPercent
+        }
+    }
+
 }
