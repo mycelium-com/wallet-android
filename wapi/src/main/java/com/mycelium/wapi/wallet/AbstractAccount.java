@@ -30,6 +30,7 @@ import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.WapiLogger;
+import com.mycelium.wapi.ColuTransferInstructionsParser;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.api.WapiResponse;
@@ -860,31 +861,32 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
    public static final int COLU_MAX_DUST_OUTPUT_SIZE_TESTNET = 600;
    public static final int COLU_MAX_DUST_OUTPUT_SIZE_MAINNET = 10000;
 
-   private boolean isColuTransaction(Transaction tx) {
-      if (tx == null) {
-         return false;
-      }
+   //Retrieves indexes of colu outputs if the transaction is determined to be colu transaction
+   //In the case of non-colu transaction returns empty list
+   private List<Integer> getColuOutputIndexes(Transaction tx) {
+      if (tx == null)
+         return new ArrayList<>();
+
       for(int i = 0 ; i < tx.outputs.length;i++) {
          TransactionOutput curOutput = tx.outputs[i];
          byte[] scriptBytes = curOutput.script.getScriptBytes();
          //Check the protocol identifier 0x4343 ASCII representation of the string CC ("Colored Coins")
-         if (curOutput.value == 0 && scriptBytes.length >= 4 && scriptBytes[2] == 0x43 && scriptBytes[3] == 0x43) {
-            return true;
+         if (curOutput.value == 0 && ColuTransferInstructionsParser.isValidColuScript(scriptBytes)) {
+            return ColuTransferInstructionsParser.retrieveOutputIndexesFromScript(scriptBytes);
          }
       }
-      return false;
+      return new ArrayList<>();
+   }
+
+   private boolean isColuTransaction(Transaction tx) {
+      return !getColuOutputIndexes(tx).isEmpty();
    }
 
    private boolean isColuDustOutput(TransactionOutputEx output) {
-      boolean isColuTransaction = isColuTransaction(TransactionEx.toTransaction(_backing.getTransaction(output.outPoint.hash)));
-
-      if (isColuTransaction) {
-         int coluDustOutputSize = this._network.isTestnet() ? COLU_MAX_DUST_OUTPUT_SIZE_TESTNET : COLU_MAX_DUST_OUTPUT_SIZE_MAINNET;
-         if (output.value <= coluDustOutputSize) {
-            return true;
-         }
+      Transaction transaction = TransactionEx.toTransaction(_backing.getTransaction(output.outPoint.hash));
+      if (getColuOutputIndexes(transaction).contains(output.outPoint.index)) {
+         return true;
       }
-
       return false;
    }
 
