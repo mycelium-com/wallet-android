@@ -496,7 +496,7 @@ public class WalletManager {
       if (normalAccount == null){
          normalAccount = _extraAccounts.get(id);
       }
-      return Preconditions.checkNotNull(normalAccount);
+      return normalAccount;
    }
 
    /**

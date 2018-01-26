@@ -246,7 +246,12 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 val _mbwManager = MbwManager.getInstance(context)
                 val accountGuid = intent.getStringExtra(IntentContract.SINGLE_ADDRESS_ACCOUNT_GUID)
                 Log.d(TAG, "com.mycelium.wallet.requestSingleAddressPrivateKeyToMBW, guid = $accountGuid")
-                val account =_mbwManager.getWalletManager(false).getAccount(UUID.fromString(accountGuid)) as SingleAddressAccount
+                var account =_mbwManager.getWalletManager(false).getAccount(UUID.fromString(accountGuid)) as? SingleAddressAccount
+                if (account == null) {
+                    //This is a way to not to pass information that this is a cold storage to BCH module and back
+                    account =_mbwManager.getWalletManager(true).getAccount(UUID.fromString(accountGuid)) as SingleAddressAccount
+                }
+
                 val privateKey = account.getPrivateKey(AesKeyCipher.defaultKeyCipher())
                 if (privateKey == null) {
                     Log.w(TAG, "MbwMessageReceiver.onMessageFromSpvModuleBch, " +
