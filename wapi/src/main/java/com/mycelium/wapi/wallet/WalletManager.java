@@ -374,8 +374,9 @@ public class WalletManager {
             singleAddressAccount.forgetPrivateKey(cipher);
             _backing.deleteSingleAddressAccountContext(id);
             _walletAccounts.remove(id);
-            _spvBalanceFetcher.requestSingleAddressWalletAccountRemoval(id.toString());
-
+            if (_spvBalanceFetcher != null) {
+               _spvBalanceFetcher.requestSingleAddressWalletAccountRemoval(id.toString());
+            }
          } else if (account instanceof Bip44Account) {
             Bip44Account hdAccount = (Bip44Account) account;
             if (hdAccount.isDerivedFromInternalMasterseed()) {
