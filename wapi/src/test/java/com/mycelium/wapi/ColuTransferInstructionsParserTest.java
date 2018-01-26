@@ -37,4 +37,12 @@ public class ColuTransferInstructionsParserTest {
         assertEquals(5, (int)outputIndexes.get(1));
         assertEquals(0, (int)outputIndexes.get(2));
     }
+
+    @Test
+    public void retrieveOutputIndexesFromTooSmallScript() throws Exception {
+
+        byte[] script = {0x00, 0x00, 0x42, 0x40, 0x02};
+        List<Integer> outputIndexes = ColuTransferInstructionsParser.retrieveOutputIndexesFromScript(script);
+        assertEquals(0, outputIndexes.size());
+    }
 }

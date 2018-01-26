@@ -860,7 +860,6 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
    // TODO: 07.10.17 these values are subject to change and not a solid way to detect cc outputs.
    public static final int COLU_MAX_DUST_OUTPUT_SIZE_TESTNET = 600;
    public static final int COLU_MAX_DUST_OUTPUT_SIZE_MAINNET = 10000;
-   public static final int COLU_OP_RETURN_SCRIPTBYTES_MIN_SIZE = 8;
 
    //Retrieves indexes of colu outputs if the transaction is determined to be colu transaction
    //In the case of non-colu transaction returns empty list
@@ -872,7 +871,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
          TransactionOutput curOutput = tx.outputs[i];
          byte[] scriptBytes = curOutput.script.getScriptBytes();
          //Check the protocol identifier 0x4343 ASCII representation of the string CC ("Colored Coins")
-         if (curOutput.value == 0 && scriptBytes.length >= COLU_OP_RETURN_SCRIPTBYTES_MIN_SIZE && scriptBytes[2] == 0x43 && scriptBytes[3] == 0x43) {
+         if (curOutput.value == 0 && ColuTransferInstructionsParser.isValidColuScript(scriptBytes)) {
             return ColuTransferInstructionsParser.retrieveOutputIndexesFromScript(scriptBytes);
          }
       }

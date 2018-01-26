@@ -2,7 +2,6 @@ package com.mycelium.wapi;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +41,9 @@ public class ColuTransferInstructionsParser {
     private static final int OPCODE_BURN_TORRENT_HASH = 0x23;
     private static final int OPCODE_BURN_TORRENT_HASH_NO_RULES = 0x24;
 
+    private static final int PROTOCOL_IDENTIFIER_BYTE = 0x43;
+    public static final int SCRIPTBYTES_MIN_SIZE = 8;
+
     static int getAmountTotalBytesSFFC(byte flagByte) {
         for(byte ssfcFlagByte : SFFC_FLAG_BYTES_MAP.keySet()) {
             if(flagByte == ssfcFlagByte) {
@@ -51,8 +53,20 @@ public class ColuTransferInstructionsParser {
         return 1;
     }
 
+    //Checks the minimum length of script and protocol identifier
+    public static boolean isValidColuScript(byte []scriptBytes) {
+       return (scriptBytes.length >= SCRIPTBYTES_MIN_SIZE
+               && scriptBytes[2] == PROTOCOL_IDENTIFIER_BYTE
+               && scriptBytes[3] == PROTOCOL_IDENTIFIER_BYTE);
+    }
+
     public static List<Integer> retrieveOutputIndexesFromScript(byte []scriptBytes) {
         List<Integer> indexes = new ArrayList<>();
+
+        if (!isValidColuScript(scriptBytes)) {
+            return indexes;
+        }
+
         int offset = OPCODE_OFFSET;
 
         //we don't have issue byte in transfer and burn transactions
