@@ -8,6 +8,7 @@ import android.content.Intent
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import com.google.common.base.CharMatcher
 import com.mrd.bitlib.model.NetworkParameters.NetworkType.*
 import com.mrd.bitlib.model.OutPoint
 import com.mrd.bitlib.model.ScriptOutput
@@ -19,7 +20,6 @@ import com.mycelium.spvmodule.IntentContract
 import com.mycelium.wallet.WalletApplication.getSpvModuleName
 import com.mycelium.wallet.activity.modern.ModernMain
 import com.mycelium.wallet.event.SpvSyncChanged
-import com.mycelium.wallet.modularisation.BCHHelper
 import com.mycelium.wallet.persistence.MetadataStorage
 import com.mycelium.wapi.model.TransactionEx
 import com.mycelium.wapi.wallet.AesKeyCipher
@@ -299,8 +299,14 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
         //something wrong if contentText empty, so shouldn't show anything for avoid crash or not correct work
         if(contentText.isNotEmpty()) {
             contentText = contentText.substring(0, contentText.length - 1)
-            builder.setContentText(contentText)
-                    .setStyle(Notification.BigTextStyle().bigText(contentText))
+            val isBigText = CharMatcher.`is`('\n').countIn(contentText) > 0
+            val contentTextSmall = if (isBigText) contentText.substring(0, contentText.indexOf('\n')) + "..." else contentText
+            val contentTextBig = contentText
+            if(isBigText) {
+                builder.setStyle(Notification.BigTextStyle().bigText(contentTextBig))
+            }
+            builder.setContentText(contentTextSmall)
+
                     .setContentIntent(PendingIntent.getActivity(context, 0, Intent(context, ModernMain::class.java), 0))
                     .setWhen(System.currentTimeMillis())
             //TODO - return sound .setSound(Uri.parse("android.resource://${context.packageName}/${R.raw.coins_received}"))
