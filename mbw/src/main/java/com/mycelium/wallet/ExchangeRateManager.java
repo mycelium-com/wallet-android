@@ -298,7 +298,9 @@ public class ExchangeRateManager implements ExchangeRateProvider {
          injectCurrency = currency;
          currency = "USD";
       }
-
+      if (_latestRates == null || _latestRates.isEmpty() || !_latestRates.containsKey(currency)) {
+         return null;
+      }
       if (_latestRatesTime + MAX_RATE_AGE_MS < System.currentTimeMillis()) {
          //rate is too old, source seems to not be available
          //we return a rate with null price to indicate there is something wrong with the exchange rate source
