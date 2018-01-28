@@ -63,6 +63,7 @@ import static java.util.Collections.singletonList;
 public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
    private static final int COINBASE_MIN_CONFIRMATIONS = 100;
    private static final int MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY = 50;
+   private final ColuTransferInstructionsParser coluTransferInstructionsParser;
 
    public interface EventHandler {
       void onEvent(UUID accountId, Event event);
@@ -82,6 +83,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       _logger = wapi.getLogger();
       _wapi = wapi;
       _backing = backing;
+      coluTransferInstructionsParser = new ColuTransferInstructionsParser(_logger);
    }
 
    @Override
@@ -864,15 +866,16 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
    //Retrieves indexes of colu outputs if the transaction is determined to be colu transaction
    //In the case of non-colu transaction returns empty list
    private List<Integer> getColuOutputIndexes(Transaction tx) {
-      if (tx == null)
+      _logger.logInfo("getColuOutputIndexes(" + tx.getHash().toHex() + ")");
+      if (tx == null) {
          return new ArrayList<>();
-
+      }
       for(int i = 0 ; i < tx.outputs.length;i++) {
          TransactionOutput curOutput = tx.outputs[i];
          byte[] scriptBytes = curOutput.script.getScriptBytes();
          //Check the protocol identifier 0x4343 ASCII representation of the string CC ("Colored Coins")
-         if (curOutput.value == 0 && ColuTransferInstructionsParser.isValidColuScript(scriptBytes)) {
-            return ColuTransferInstructionsParser.retrieveOutputIndexesFromScript(scriptBytes);
+         if (curOutput.value == 0 && coluTransferInstructionsParser.isValidColuScript(scriptBytes)) {
+            return coluTransferInstructionsParser.retrieveOutputIndexesFromScript(scriptBytes);
          }
       }
       return new ArrayList<>();

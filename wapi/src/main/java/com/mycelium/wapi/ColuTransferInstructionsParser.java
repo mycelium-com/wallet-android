@@ -1,5 +1,8 @@
 package com.mycelium.wapi;
 
+import com.mrd.bitlib.util.HexUtils;
+import com.mycelium.WapiLogger;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -28,6 +31,8 @@ public class ColuTransferInstructionsParser {
         put((byte)0xc0, 7);
     }};
 
+    protected final WapiLogger logger;
+
     private static final int TORRENT_HASH_LEN = 20;
     private static final int SHA2_LEN = 32;
 
@@ -53,14 +58,18 @@ public class ColuTransferInstructionsParser {
         return 1;
     }
 
+    public ColuTransferInstructionsParser(WapiLogger logger) {
+        this.logger = logger;
+    }
+
     //Checks the minimum length of script and protocol identifier
-    public static boolean isValidColuScript(byte []scriptBytes) {
+    public boolean isValidColuScript(byte []scriptBytes) {
        return (scriptBytes.length >= SCRIPTBYTES_MIN_SIZE
                && scriptBytes[2] == PROTOCOL_IDENTIFIER_BYTE
                && scriptBytes[3] == PROTOCOL_IDENTIFIER_BYTE);
     }
 
-    public static List<Integer> retrieveOutputIndexesFromScript(byte []scriptBytes) {
+    public List<Integer> retrieveOutputIndexesFromScript(byte []scriptBytes) {
         List<Integer> indexes = new ArrayList<>();
 
         if (!isValidColuScript(scriptBytes)) {
@@ -97,28 +106,32 @@ public class ColuTransferInstructionsParser {
             default:
                 offset += 1;
         }
+        try {
+            while (offset < (scriptBytes.length - issueByteLen)) {
+                byte curByte = scriptBytes[offset];
+                if ((curByte & RANGE_FLAG) == RANGE_FLAG) {
+                    //Range flag is set - output index is between 0..8191
+                    int outputIndex = new BigInteger(new byte[]{(byte) (curByte & (~FLAG_MASK)), scriptBytes[offset + 1]}).intValue();
+                    indexes.add(outputIndex);
+                    offset += 2;
+                } else {
+                    //Range flag is not set - output index is between 0..31
+                    indexes.add(curByte & (~FLAG_MASK));
+                    offset += 1;
+                }
 
-        while(offset < (scriptBytes.length - issueByteLen)) {
-            byte curByte = scriptBytes[offset];
-            if ((curByte & RANGE_FLAG) == RANGE_FLAG) {
-                //Range flag is set - output index is between 0..8191
-                int outputIndex = new BigInteger(new byte[]{ (byte)(curByte & (~FLAG_MASK)), scriptBytes[offset + 1]}).intValue();
-                indexes.add(outputIndex);
-                offset += 2;
-            } else {
-                //Range flag is not set - output index is between 0..31
-                indexes.add(curByte & (~FLAG_MASK));
-                offset += 1;
+                if ((curByte & PERCENT_FLAG) == PERCENT_FLAG) {
+                    //Amount in percents consumes 1 byte
+                    offset += 1;
+                } else {
+                    //Number of units in SFFC format consumes totally 2 to 7 bytes
+                    int amountTotalBytes = getAmountTotalBytesSFFC(scriptBytes[offset]);
+                    offset += amountTotalBytes;
+                }
             }
-
-            if ((curByte & PERCENT_FLAG) == PERCENT_FLAG) {
-                //Amount in percents consumes 1 byte
-                offset += 1;
-            } else {
-                //Number of units in SFFC format consumes totally 2 to 7 bytes
-                int amountTotalBytes = getAmountTotalBytesSFFC(scriptBytes[offset]);
-                offset += amountTotalBytes;
-            }
+        } catch(IndexOutOfBoundsException ex) {
+            logger.logError("retrieveOutputIndexesFromScript(" + HexUtils.toHex(scriptBytes) + ") script could not be parsed. Assuming invalid script.");
+            return new ArrayList<>();
         }
 
         return indexes;
