@@ -48,7 +48,9 @@ public class CoinUtil {
    }
 
    public enum Denomination {
-      BTC(8, "BTC", "BTC", BTC_IN_SATOSHIS), mBTC(5, "mBTC", "mBTC", mBTC_IN_SATOSHIS), uBTC(2, "uBTC", "\u00B5BTC",
+      BTC(8, "BTC", "BTC", BTC_IN_SATOSHIS),
+      mBTC(5, "mBTC", "mBTC", mBTC_IN_SATOSHIS),
+      uBTC(2, "uBTC", "\u00B5BTC",
             uBTC_IN_SATOSHIS), BITS(2, "bits", "bits", BITS_IN_SATOSHIS);
 
       private final int _decimalPlaces;

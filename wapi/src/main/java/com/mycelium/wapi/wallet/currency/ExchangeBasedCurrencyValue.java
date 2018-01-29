@@ -67,7 +67,7 @@ public abstract class ExchangeBasedCurrencyValue extends CurrencyValue {
 
    // create an instance without any underlying exact value
    static public CurrencyValue from(BigDecimal value, String currency) {
-      if (currency.equals(CurrencyValue.BTC)) {
+      if (currency.equals(CurrencyValue.BTC) || currency.equals(CurrencyValue.BCH)) {
          return new ExchangeBasedBitcoinValue(currency, value);
       } else {
          return new ExchangeBasedFiatValue(currency, value);
@@ -85,7 +85,7 @@ public abstract class ExchangeBasedCurrencyValue extends CurrencyValue {
 
 
          if (fx.getSourcePrice() == null || fx.getTargetPrice() == null) {
-            if (targetCurrency.equals(CurrencyValue.BTC)) {
+            if (targetCurrency.equals(CurrencyValue.BTC) || targetCurrency.equals(CurrencyValue.BCH)) {
                return new ExchangeBasedBitcoinValue(targetCurrency, (Long) null, value.getExactValue());
             } else {
                return new ExchangeBasedFiatValue(targetCurrency, null, value.getExactValue());
@@ -97,7 +97,7 @@ public abstract class ExchangeBasedCurrencyValue extends CurrencyValue {
          if (fromValueDecimal != null) {
             newValue = fromValueDecimal.divide(fx.getSourcePrice(), 8, RoundingMode.HALF_UP).multiply(fx.getTargetPrice());
          }
-         if (targetCurrency.equals(CurrencyValue.BTC)) {
+         if (targetCurrency.equals(CurrencyValue.BTC) || targetCurrency.equals(CurrencyValue.BCH)) {
             return new ExchangeBasedBitcoinValue(targetCurrency, newValue, value.getExactValue());
          } else {
             return new ExchangeBasedFiatValue(targetCurrency, newValue, value.getExactValue());
@@ -113,7 +113,7 @@ public abstract class ExchangeBasedCurrencyValue extends CurrencyValue {
          GetExchangeRate fx = new GetExchangeRate(targetCurrency, sourceCurrency, exchangeRateManager).invoke();
 
          if (fx.getSourcePrice() == null || fx.getTargetPrice() == null) {
-            if (targetCurrency.equals(CurrencyValue.BTC)) {
+            if (targetCurrency.equals(CurrencyValue.BTC) || targetCurrency.equals(CurrencyValue.BCH)) {
                return new ExchangeBasedBitcoinValue(targetCurrency, (Long) null, exactValue);
             } else {
                return new ExchangeBasedFiatValue(targetCurrency, null, exactValue);
@@ -125,7 +125,7 @@ public abstract class ExchangeBasedCurrencyValue extends CurrencyValue {
          if (exactDecimal != null) {
             newValue = exactDecimal.multiply(fx.getRate());
          }
-         if (targetCurrency.equals(CurrencyValue.BTC)) {
+         if (targetCurrency.equals(CurrencyValue.BTC) || targetCurrency.equals(CurrencyValue.BCH)) {
             return new ExchangeBasedBitcoinValue(targetCurrency, newValue, exactValue);
          } else {
             return new ExchangeBasedFiatValue(targetCurrency, newValue, exactValue);

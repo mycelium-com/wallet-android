@@ -59,6 +59,7 @@ import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity;
 import com.mycelium.wallet.activity.send.SendInitializationActivity;
 import com.mycelium.wallet.activity.util.ToggleableCurrencyButton;
+import com.mycelium.wallet.activity.view.RoundButtonWithText;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.BalanceChanged;
@@ -88,7 +89,8 @@ public class BalanceFragment extends Fragment {
    private Toaster _toaster;
    @BindView(R.id.tcdFiatDisplay) ToggleableCurrencyButton _tcdFiatDisplay;
 
-   @BindView(R.id.action_layout) View actionLayout;
+   @BindView(R.id.btScan) RoundButtonWithText scanButton;
+   @BindView(R.id.btSend) RoundButtonWithText sendButton;
 
 
    @Override
@@ -157,10 +159,6 @@ public class BalanceFragment extends Fragment {
    }
 
    @OnClick(R.id.btReceive) void onClickReceive() {
-      if (isBCH()) {
-         BCHHelper.bchTechnologyPreviewDialog(getActivity());
-         return;
-      }
       Optional<Address> receivingAddress = _mbwManager.getSelectedAccount().getReceivingAddress();
       if (receivingAddress.isPresent()) {
          ReceiveCoinsActivity.callMe(getActivity(), receivingAddress.get(),
@@ -269,9 +267,11 @@ public class BalanceFragment extends Fragment {
           }
       }
       if(isBCH()) {
-         actionLayout.setAlpha(0.4f);
+         scanButton.setAlpha(0.4f);
+         sendButton.setAlpha(0.4f);
       } else{
-         actionLayout.setAlpha(1f);
+         scanButton.setAlpha(1f);
+         sendButton.setAlpha(1f);
       }
    }
 

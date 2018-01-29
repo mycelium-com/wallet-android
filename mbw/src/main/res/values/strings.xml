@@ -210,6 +210,8 @@
     <string name="encrypted_pdf_backup_email_text">Your Mycelium wallet backup is attached.\r\n\r\nFollow these simple steps to secure your funds:\r\n1. Print the PDF document.\r\n2. Write the 15-character password from the display of your Android device to the blue boxes of the printout.\r\n3. Verify that you can import the private keys to your Mycelium Wallet.\r\n4. Store the printout in a safe place.</string>
     <string name="share_pdf">Share PDF</string>
     <string name="share_with">Share with…</string>
+    <string name="bitcoin_name">Bitcoin</string>
+    <string name="bitcoin_cash_name">Bitcoin Cash</string>
     <string name="import_decrypt_key_title">Private Key Decryption</string>
     <string name="import_decrypt_key_description">You are about to decrypt a password protected private key.</string>
     <string name="import_decrypt_key_enter_password">Enter the 15 character password and checksum.</string>
@@ -873,7 +875,7 @@
     <string name="warning_reason_unconfirmed_parent">Unconfirmed parent</string>
     <string name="warning_reason_doublespend">Doublespend detected</string>
     <string name="opening_url_in_browser">Opening URL in Browser…</string>
-    <string name="incoming_payment">"Incoming payment: "</string>
+    <string name="incoming_payment">"Incoming payment: %s"</string>
     <string name="warning_amount_does_not_match">Warning: amount does not match!</string>
     <string name="mycelium_terms_of_use">Mycelium Terms Of Use</string>
 

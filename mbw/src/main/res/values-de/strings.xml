@@ -811,7 +811,7 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="warning_reason_unconfirmed_parent">Unbestätigte Vorgänger-Transaktion</string>
   <string name="warning_reason_doublespend">Konfliktzahlung erkannt</string>
   <string name="opening_url_in_browser">URL in Browser öffnen...</string>
-  <string name="incoming_payment">"Zahlungseingang: "</string>
+  <string name="incoming_payment">Zahlungseingang: %s</string>
   <string name="warning_amount_does_not_match">Warnung: Betrag stimmt nicht überein!</string>
   <string name="mycelium_terms_of_use">Mycelium Nutzungsbedingungen</string>
   <!-- Credit Card -->

@@ -797,7 +797,7 @@
   <string name="warning_reason_unconfirmed_parent">未經證實的父母</string>
   <string name="warning_reason_doublespend">檢測到雙重支付</string>
   <string name="opening_url_in_browser">在瀏覽器中打開 URL...</string>
-  <string name="incoming_payment">"收款: "</string>
+  <string name="incoming_payment">收款: %s</string>
   <string name="warning_amount_does_not_match">警告 ︰ 金額不符 ！</string>
   <string name="mycelium_terms_of_use">Mycelium使用條款</string>
   <!-- Credit Card -->

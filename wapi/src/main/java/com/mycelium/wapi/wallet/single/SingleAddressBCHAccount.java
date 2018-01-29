@@ -6,12 +6,17 @@ import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.SingleAddressAccountBacking;
 import com.mycelium.wapi.wallet.SpvBalanceFetcher;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
+import com.mycelium.wapi.wallet.currency.CurrencyValue;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
 public class SingleAddressBCHAccount extends SingleAddressAccount {
+    @Override
+    public String getAccountDefaultCurrency() {
+        return CurrencyValue.BCH;
+    }
 
     private SpvBalanceFetcher spvBalanceFetcher;
 
