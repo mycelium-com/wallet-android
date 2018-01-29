@@ -28,6 +28,7 @@ import com.mycelium.wapi.wallet.WalletAccount.Type.BCHBIP44
 import com.mycelium.wapi.wallet.WalletAccount.Type.BCHSINGLEADDRESS
 import com.mycelium.wapi.wallet.WalletManager
 import com.mycelium.wapi.wallet.bip44.Bip44Account
+import com.mycelium.wapi.wallet.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.currency.CurrencyValue
 import com.mycelium.wapi.wallet.single.SingleAddressAccount
 import com.squareup.otto.Bus
@@ -198,7 +199,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 // val replaying = intent.getBooleanExtra("replaying", true)
                 // val impediments = intent.getStringArrayExtra("impediment")
                 walletManager.activeAccounts
-                        .filterIsInstance<Bip44Account?>()
+                        .filterIsInstance<Bip44BCHAccount?>()
                         .forEach {
                             it!!.blockChainHeight = bestChainHeight
                         }
