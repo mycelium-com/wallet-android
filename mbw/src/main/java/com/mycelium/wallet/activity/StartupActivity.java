@@ -131,15 +131,8 @@ public class StartupActivity extends Activity {
          _mbwManager = MbwManager.getInstance(StartupActivity.this.getApplication());
 
          //in case this is a fresh startup, import backup or create new seed
-         if (_mbwManager.getWalletManager(false).getAccountIds().isEmpty()) {
+         if (!_mbwManager.getWalletManager(false).hasBip32MasterSeed()) {
             initMasterSeed();
-            //we return here, delayed finish will get posted once we have our first account
-            return;
-         } else if (!_mbwManager.getWalletManager(false).hasBip32MasterSeed()) {
-            //user has accounts, but no seed. we just create one for him
-            //first show an upgrade info, then make seed
-            showUpgradeInfo();
-            //the Asynctask will execute delayedfinish
             return;
          }
 
@@ -166,30 +159,6 @@ public class StartupActivity extends Activity {
          }
       }
    };
-
-   private void showUpgradeInfo() {
-      //show upgrade info
-      new AlertDialog.Builder(this)
-              .setTitle(R.string.title_upgrade_info)
-              .setMessage(R.string.release_notes_hd)
-              .setPositiveButton(R.string.button_continue, new DialogInterface.OnClickListener() {
-                 public void onClick(DialogInterface dialog, int which) {
-                    // continue with master seed init
-                    startMasterSeedTask();
-                 }
-              })
-              .setNegativeButton(R.string.butto_show_release_notes, new DialogInterface.OnClickListener() {
-                 public void onClick(DialogInterface dialog, int which) {
-                    // navigate to website
-                    Intent intent = new Intent(Intent.ACTION_VIEW);
-                    intent.setData(Uri.parse(Constants.MYCELIUM_2_RELEASE_NOTES_URL));
-                    startActivity(intent);
-                    //and get everything up while they read it :)
-                    startMasterSeedTask();
-                 }
-              })
-              .show();
-   }
 
    private void initMasterSeed() {
       new AlertDialog
