@@ -29,7 +29,6 @@ import java.util.HashMap;
  * satoshi == 0.000000001 BTC
  */
 public class CoinUtil {
-
    private static final BigDecimal BTC_IN_SATOSHIS = new BigDecimal(100000000);
    private static final BigDecimal mBTC_IN_SATOSHIS = new BigDecimal(100000);
    private static final BigDecimal uBTC_IN_SATOSHIS = new BigDecimal(100);
@@ -50,15 +49,15 @@ public class CoinUtil {
    public enum Denomination {
       BTC(8, "BTC", "BTC", BTC_IN_SATOSHIS),
       mBTC(5, "mBTC", "mBTC", mBTC_IN_SATOSHIS),
-      uBTC(2, "uBTC", "\u00B5BTC",
-            uBTC_IN_SATOSHIS), BITS(2, "bits", "bits", BITS_IN_SATOSHIS);
+      uBTC(2, "uBTC", "\u00B5BTC", uBTC_IN_SATOSHIS),
+      BITS(2, "bits", "bits", BITS_IN_SATOSHIS);
 
       private final int _decimalPlaces;
       private final String _asciiString;
       private final String _unicodeString;
       private final BigDecimal _oneUnitInSatoshis;
 
-      private Denomination(int decimalPlaces, String asciiString, String unicodeString, BigDecimal oneUnitInSatoshis) {
+      Denomination(int decimalPlaces, String asciiString, String unicodeString, BigDecimal oneUnitInSatoshis) {
          _decimalPlaces = decimalPlaces;
          _asciiString = asciiString;
          _unicodeString = unicodeString;
@@ -90,20 +89,20 @@ public class CoinUtil {
          if (string == null) {
             return BTC;
          }
-         if (string.equals("BTC")) {
-            return BTC;
-         } else if (string.equals("mBTC")) {
-            return mBTC;
-         } else if (string.equals("uBTC")) {
-            return uBTC;
-         } else if (string.equals("bits")) {
-            return BITS;
-         } else {
-            return BTC;
+         switch (string) {
+            case "BTC":
+               return BTC;
+            case "mBTC":
+               return mBTC;
+            case "uBTC":
+               return uBTC;
+            case "bits":
+               return BITS;
+            default:
+               return BTC;
          }
       }
-
-   };
+   }
 
    /**
     * Number of satoshis in a Bitcoin.
@@ -175,6 +174,8 @@ public class CoinUtil {
       return valueString(satoshis, denomination, withThousandSeparator);
    }
 
+   private static HashMap<Integer, DecimalFormat> formatCache = new HashMap<Integer, DecimalFormat>(2);
+
    /**
     * Get the given value in satoshis as a string on the form "10.12345" using
     * the specified denomination.
@@ -191,7 +192,6 @@ public class CoinUtil {
     *           max number of digits after the comma
     * @return The given value in satoshis as a string on the form "10.12345".
     */
-   private static HashMap<Integer, DecimalFormat> formatCache = new HashMap<Integer, DecimalFormat>(2);
    public static String valueString(long value, Denomination denomination, int precision) {
       BigDecimal d = BigDecimal.valueOf(value);
       d = d.divide(denomination.getOneUnitInSatoshis());

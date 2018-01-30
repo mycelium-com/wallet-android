@@ -226,7 +226,6 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       } else {
          _numberEntry = new NumberEntry(_mbwManager.getBitcoinDenomination().getDecimalPlaces(), this, this, amountString);
       }
-
    }
 
    @OnClick(R.id.btOk)
@@ -259,12 +258,8 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       }
    }
 
-
    @OnClick({R.id.btRight, R.id.btCurrency})
    void onSwitchCurrencyClick() {
-
-
-
       // if we have a fiat currency selected and the price is not available, switch on -> no point in showing it
       // if there is no exchange rate at all available, we will get to BTC and stay there
       // this does not apply to digital assets such as Colu for which we do not have a rate
@@ -279,7 +274,6 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
 
       updateUI();
    }
-
 
    @OnClick({R.id.btLeft, R.id.btPaste})
    void onPasteButtonClick() {
@@ -300,7 +294,6 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
               .create()
               .show();
    }
-
 
    private boolean enablePaste() {
       return getAmountFromClipboard() != null;

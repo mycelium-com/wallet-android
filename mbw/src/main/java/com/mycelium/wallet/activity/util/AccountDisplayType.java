@@ -12,27 +12,22 @@ public enum AccountDisplayType {
     COINAPULT_ACCOUNT,
     UNKNOWN_ACCOUNT;
 
-    AccountDisplayType() {
-    }
-
     public static AccountDisplayType getAccountType(WalletAccount account) {
-        if (account.getType() == WalletAccount.Type.BTCBIP44 ||
-                account.getType() == WalletAccount.Type.BTCSINGLEADDRESS) {
-            return BTC_ACCOUNT;
+        switch(account.getType()) {
+            case BTCBIP44:
+            case BTCSINGLEADDRESS:
+                return BTC_ACCOUNT;
+            case BCHBIP44:
+            case BCHSINGLEADDRESS:
+                return BCH_ACCOUNT;
+            case COINAPULT:
+                return COINAPULT_ACCOUNT;
+            case COLU:
+                return COLU_ACCOUNT;
+            case DASH:
+                return DASH_ACCOUNT;
+            default:
+                return UNKNOWN_ACCOUNT;
         }
-        if (account.getType() == WalletAccount.Type.BCHBIP44 ||
-                account.getType() == WalletAccount.Type.BCHSINGLEADDRESS) {
-            return BCH_ACCOUNT;
-        }
-        if (account.getType() == WalletAccount.Type.COINAPULT) {
-            return COINAPULT_ACCOUNT;
-        }
-        if (account.getType() == WalletAccount.Type.COLU) {
-            return COINAPULT_ACCOUNT;
-        }
-        if (account.getType() == WalletAccount.Type.DASH) {
-            return DASH_ACCOUNT;
-        }
-        return UNKNOWN_ACCOUNT;
     }
 }
