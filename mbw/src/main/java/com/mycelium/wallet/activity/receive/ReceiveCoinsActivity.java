@@ -438,6 +438,7 @@ public class ReceiveCoinsActivity extends Activity {
             Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
             NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext())
+                    .setSmallIcon(R.drawable.ic_launcher)
                     .setSound(soundUri, AudioManager.STREAM_NOTIFICATION); //This sets the sound to play
             notificationManager.notify(0, mBuilder.build());
 
