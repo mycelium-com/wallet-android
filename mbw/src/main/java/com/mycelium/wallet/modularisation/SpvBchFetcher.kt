@@ -125,6 +125,8 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
         val uri = GetSyncProgress.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHBIP44)).buildUpon().build()
         context.contentResolver.query(uri, null, null, null, null).use {
             it.moveToFirst()
+            if (it.columnCount == 0)
+                return 0
             return it.getInt(0)
         }
     }
