@@ -14,6 +14,7 @@ import java.util.UUID;
 
 public class Bip44BCHAccount extends Bip44Account {
     private SpvBalanceFetcher spvBalanceFetcher;
+    private int blockChainHeight;
 
     public Bip44BCHAccount(Bip44AccountContext context, Bip44AccountKeyManager keyManager, NetworkParameters network, Bip44AccountBacking backing, Wapi wapi, SpvBalanceFetcher spvBalanceFetcher) {
         super(context, keyManager, network, backing, wapi);
@@ -29,6 +30,17 @@ public class Bip44BCHAccount extends Bip44Account {
     @Override
     public UUID getId() {
         return UUID.nameUUIDFromBytes(("BCH" + super.getId().toString()).getBytes());
+    }
+
+    // need override because parent write it to context(bch and btc account have one context)
+    @Override
+    public void setBlockChainHeight(int blockHeight) {
+        blockChainHeight = blockHeight;
+    }
+
+    @Override
+    public int getBlockChainHeight() {
+        return blockChainHeight;
     }
 
     @Override
