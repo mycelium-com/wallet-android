@@ -4,6 +4,7 @@ import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.WapiLogger;
 
 import java.math.BigInteger;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -69,7 +70,7 @@ public class ColuTransferInstructionsParser {
                && scriptBytes[3] == PROTOCOL_IDENTIFIER_BYTE);
     }
 
-    public List<Integer> retrieveOutputIndexesFromScript(byte []scriptBytes) {
+    public List<Integer> retrieveOutputIndexesFromScript(byte []scriptBytes) throws ParseException {
         List<Integer> indexes = new ArrayList<>();
 
         if (!isValidColuScript(scriptBytes)) {
@@ -131,9 +132,9 @@ public class ColuTransferInstructionsParser {
             }
         } catch(IndexOutOfBoundsException ex) {
             logger.logError("retrieveOutputIndexesFromScript(" + HexUtils.toHex(scriptBytes) + ") script could not be parsed. Assuming invalid script.");
-            return new ArrayList<>();
+            throw new ParseException("Can't parse the script", offset);
+            // TODO: 30.01.18 make it not throw here. we throw as we are not 100% sure this is not a colored coind script.
         }
-
         return indexes;
     }
 }

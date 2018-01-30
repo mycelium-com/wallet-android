@@ -5,6 +5,7 @@ import com.subgraph.orchid.encoders.Hex;
 
 import org.junit.Test;
 
+import java.text.ParseException;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -39,7 +40,7 @@ public class ColuTransferInstructionsParserTest {
         assertEquals(0, outputIndexes.size());
     }
 
-    @Test
+    @Test(expected = ParseException.class)
     public void retrieveOutputFromCrashingScript() throws Exception {
         // Transaction 811ce060b88cec67e5066f7bb75cd8acef43c3f24c0787fb1fe426510d4fe38b contains the invalid script
         byte[] script = Hex.decode("6a 07 43 43 02 15 00 21 64");
