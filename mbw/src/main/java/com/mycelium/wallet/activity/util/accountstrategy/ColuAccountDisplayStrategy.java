@@ -1,9 +1,10 @@
-package com.mycelium.wallet.activity.util;
+package com.mycelium.wallet.activity.util.accountstrategy;
 
 import android.content.Context;
 
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.util.accountstrategy.AccountDisplayStrategy;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 

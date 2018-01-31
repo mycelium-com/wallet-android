@@ -1,16 +1,20 @@
 package com.mycelium.wallet.activity.util;
 
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.bip44.Bip44BCHAccount;
-import com.mycelium.wapi.wallet.single.SingleAddressBCHAccount;
 
 public enum AccountDisplayType {
-    BTC_ACCOUNT,
-    BCH_ACCOUNT,
-    DASH_ACCOUNT,
-    COLU_ACCOUNT,
-    COINAPULT_ACCOUNT,
-    UNKNOWN_ACCOUNT;
+    BTC_ACCOUNT("BTC"),
+    BCH_ACCOUNT("BCH"),
+    DASH_ACCOUNT("DASH"),
+    COLU_ACCOUNT("COLU"),
+    COINAPULT_ACCOUNT("COINAPULT"),
+    UNKNOWN_ACCOUNT("UNKNOWN");
+
+    private final String _accountLabel;
+
+    AccountDisplayType(String _accountLabel) {
+        this._accountLabel = _accountLabel;
+    }
 
     public static AccountDisplayType getAccountType(WalletAccount account) {
         switch(account.getType()) {
@@ -29,5 +33,9 @@ public enum AccountDisplayType {
             default:
                 return UNKNOWN_ACCOUNT;
         }
+    }
+
+    public String getAccountLabel() {
+        return _accountLabel;
     }
 }

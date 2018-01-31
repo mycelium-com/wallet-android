@@ -58,7 +58,7 @@ public class CurrencySwitcher {
 
    // the last shown currency (usually same as fiat currency, but in some spots we cycle through all currencies including Bitcoin)
    private String currentCurrency;
-   private boolean _useBch;
+   private String _defaultCurrency = CurrencyValue.BTC;
 
    public CurrencySwitcher(final ExchangeRateManager exchangeRateManager, final Set<String> fiatCurrencies, final String currentCurrency, final CoinUtil.Denomination bitcoinDenomination) {
       this.exchangeRateManager = exchangeRateManager;
@@ -150,17 +150,14 @@ public class CurrencySwitcher {
       this.fiatCurrencies = new ArrayList<String>(currencies);
    }
 
-   public void setUsingBCH(boolean useBch) {
+   public void setDefaultCurency(String curencyLabel) {
       Set<String> currencies = new HashSet<>(getCurrencyList());
-      if ((useBch != _useBch) && useBch) {
-         currencies.remove("BTC");
-         currencies.add("BCH");
-      } else if (useBch != _useBch) {
-         currencies.remove("BCH");
-         currencies.add("BTC");
+      if (!_defaultCurrency.equals(curencyLabel)) {
+         currencies.remove(_defaultCurrency);
+         currencies.add(curencyLabel);
       }
       setCurrencyList(currencies);
-      _useBch = useBch;
+      _defaultCurrency = curencyLabel;
    }
 
    public String getNextCurrency(boolean includeBitcoin) {
@@ -178,7 +175,7 @@ public class CurrencySwitcher {
          // we are at the end of the fiat-list. return BTC if we should include Bitcoin, otherwise wrap around
          if (includeBitcoin) {
             // only set currentCurrency, but leave currentFiat currency as it was
-            currentCurrency = _useBch ? CurrencyValue.BCH :CurrencyValue.BTC;
+            currentCurrency = _defaultCurrency;
          } else {
             index -= currencies.size(); //wrap around
             currentCurrency = currencies.get(index);

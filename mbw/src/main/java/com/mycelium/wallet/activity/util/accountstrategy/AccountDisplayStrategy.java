@@ -1,4 +1,4 @@
-package com.mycelium.wallet.activity.util;
+package com.mycelium.wallet.activity.util.accountstrategy;
 
 import com.mrd.bitlib.util.CoinUtil;
 import com.mycelium.wallet.MbwManager;

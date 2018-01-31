@@ -1,8 +1,9 @@
-package com.mycelium.wallet.activity.util;
+package com.mycelium.wallet.activity.util.accountstrategy;
 
 import android.content.Context;
 
 import com.mycelium.wallet.MbwManager;
+import com.mycelium.wallet.activity.util.accountstrategy.BTCAccountDisplayStrategy;
 import com.mycelium.wapi.wallet.WalletAccount;
 
 
