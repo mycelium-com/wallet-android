@@ -243,7 +243,9 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     private CurrencySum getSpendableBalance(List<WalletAccount> walletAccountList) {
         CurrencySum currencySum = new CurrencySum();
         for (WalletAccount account : walletAccountList) {
-            currencySum.add(account.getCurrencyBasedBalance().confirmed);
+            if(!account.isArchived()) {
+                currencySum.add(account.getCurrencyBasedBalance().confirmed);
+            }
         }
         return currencySum;
     }
