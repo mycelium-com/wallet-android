@@ -509,11 +509,7 @@
   <string name="decryption_password_hint">YOU RPA SSW ORD ABC D</string>
   <string name="dont_allow_archiving_unused_notification">未使用の階層的決定性アカウントはアーカイブできません。</string>
   <string name="newly_generated_coins_from_coinbase">新しいビットコイン</string>
-  <string name="release_notes_hd">世界で最高のモバイルウォレットが、さらによくなりました。\n\n安全なバック
-アップが簡単にできるようになり、階層的決定性（HD）アカウントにより今まで以上に匿名性が
-高くなりました！\n\n詳細はリリースノートをチェック！</string>
-  <string name="title_upgrade_info">ようこそ！</string>
-  <string name="button_continue">続ける</string>
+    <string name="button_continue">続ける</string>
   <string name="butto_show_release_notes">詳細へ</string>
   <string name="word_does_not_exist_in_wordlist">あなたが入力したワードは、ワードリストにはありません。</string>
   <string name="pref_legacy_backup_title">レガシー・バックアップ</string>

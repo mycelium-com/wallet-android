@@ -530,9 +530,7 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="title_wrong_password">Falsches Passwort, bitte versuchen Sie es erneut</string>
   <string name="dont_allow_archiving_unused_notification">Nicht verwendete HD-Konten können nicht archiviert werden</string>
   <string name="newly_generated_coins_from_coinbase">Neu generierte Bitcoins</string>
-  <string name="release_notes_hd">Die weltweit beste Bitcoin-Wallet für Mobiltelefone wurde noch weiter verbessert.\n\nEin sicheres Backup zu machen ist nun ein Kinderspiel und die neuen HD-Konten machen Sie noch anonymer im Umgang mit Bitcoins! \n\nFür weitere Details schauen sie sich die Versionshinweise an.</string>
-  <string name="title_upgrade_info">Willkommen zu Mycelium 2.0</string>
-  <string name="button_continue">Weiter</string>
+    <string name="button_continue">Weiter</string>
   <string name="butto_show_release_notes">Details anzeigen</string>
   <string name="word_does_not_exist_in_wordlist">Das von Ihnen eingegebene Wort existiert nicht in der Wortliste</string>
   <string name="pref_legacy_backup_title">Legacy Backup</string>
