@@ -52,6 +52,7 @@ import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 
 import java.nio.ByteBuffer;
+import java.text.ParseException;
 import java.util.*;
 
 import static com.mrd.bitlib.StandardTransactionBuilder.createOutput;
@@ -63,6 +64,7 @@ import static java.util.Collections.singletonList;
 public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
    private static final int COINBASE_MIN_CONFIRMATIONS = 100;
    private static final int MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY = 50;
+   private final ColuTransferInstructionsParser coluTransferInstructionsParser;
 
    public interface EventHandler {
       void onEvent(UUID accountId, Event event);
@@ -82,6 +84,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       _logger = wapi.getLogger();
       _wapi = wapi;
       _backing = backing;
+      coluTransferInstructionsParser = new ColuTransferInstructionsParser(_logger);
    }
 
    @Override
@@ -863,29 +866,45 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
 
    //Retrieves indexes of colu outputs if the transaction is determined to be colu transaction
    //In the case of non-colu transaction returns empty list
-   private List<Integer> getColuOutputIndexes(Transaction tx) {
-      if (tx == null)
+   private List<Integer> getColuOutputIndexes(Transaction tx) throws ParseException {
+      _logger.logInfo("getColuOutputIndexes(" + tx.getHash().toHex() + ")");
+      if (tx == null) {
          return new ArrayList<>();
-
+      }
       for(int i = 0 ; i < tx.outputs.length;i++) {
          TransactionOutput curOutput = tx.outputs[i];
          byte[] scriptBytes = curOutput.script.getScriptBytes();
          //Check the protocol identifier 0x4343 ASCII representation of the string CC ("Colored Coins")
-         if (curOutput.value == 0 && ColuTransferInstructionsParser.isValidColuScript(scriptBytes)) {
-            return ColuTransferInstructionsParser.retrieveOutputIndexesFromScript(scriptBytes);
+         if (curOutput.value == 0 && coluTransferInstructionsParser.isValidColuScript(scriptBytes)) {
+            return coluTransferInstructionsParser.retrieveOutputIndexesFromScript(scriptBytes);
          }
       }
       return new ArrayList<>();
    }
 
    private boolean isColuTransaction(Transaction tx) {
-      return !getColuOutputIndexes(tx).isEmpty();
+      try {
+         return !getColuOutputIndexes(tx).isEmpty();
+      } catch (ParseException e) {
+         // the current only use case is safe to be treated as not colored-coin even though we might misinterpret a colored-coin script.
+         return false;
+      }
    }
 
    private boolean isColuDustOutput(TransactionOutputEx output) {
       Transaction transaction = TransactionEx.toTransaction(_backing.getTransaction(output.outPoint.hash));
-      if (getColuOutputIndexes(transaction).contains(output.outPoint.index)) {
-         return true;
+      try {
+         if (getColuOutputIndexes(transaction).contains(output.outPoint.index)) {
+            return true;
+         }
+      } catch (ParseException e) {
+         // better safe than sorry:
+         // if we can't interpret the script, we assume it is a colore coin output as before introducing the script interpretation.
+         // usually we can read the script, so bigger colored coins txos get interpreted as such and smaller utxos are spendable
+         int coluDustOutputSize = _network.isTestnet() ? COLU_MAX_DUST_OUTPUT_SIZE_TESTNET : COLU_MAX_DUST_OUTPUT_SIZE_MAINNET;
+         if (output.value <= coluDustOutputSize) {
+            return true;
+         }
       }
       return false;
    }

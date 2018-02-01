@@ -33,7 +33,11 @@ public class ExchangeRate implements Serializable {
    @JsonProperty
    public final Double price; // null if price is not available
 
-   public ExchangeRate(@JsonProperty("name") String name, @JsonProperty("time") long time, @JsonProperty("price") double price, @JsonProperty("currency") String currency) {
+   public ExchangeRate(
+           @JsonProperty("name") String name,
+           @JsonProperty("time") long time,
+           @JsonProperty("price") double price,
+           @JsonProperty("currency") String currency) {
       this.name = name;
       this.time = time;
       this.currency = currency;
@@ -54,12 +58,10 @@ public class ExchangeRate implements Serializable {
 
    @Override
    public String toString() {
-      StringBuilder sb = new StringBuilder();
-      sb.append("Name: ").append(name);
-      sb.append(" time: ").append(new Date(time));
-      sb.append(" currency: ").append(currency);
-      sb.append(" price: ").append(price == null ? "<Not available>" : price);
-      return sb.toString();
+      return "Name: " + name +
+              " time: " + new Date(time) +
+              " currency: " + currency +
+              " price: " + (price == null ? "<Not available>" : price);
    }
 
    @Override
@@ -78,5 +80,4 @@ public class ExchangeRate implements Serializable {
       ExchangeRate other = (ExchangeRate) obj;
       return other.time == time && other.name.equals(name) && other.currency.equals(currency);
    }
-
 }
