@@ -34,6 +34,7 @@
 
 package com.mycelium.wallet;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.StrictMode;
@@ -75,7 +76,7 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
       pairSpvModules(CommunicationManager.getInstance(this));
       moduleMessageReceiver = new MbwMessageReceiver(this);
       MbwManager mbwManager = MbwManager.getInstance(this);
-      applyLanguageChange(mbwManager.getLanguage());
+      applyLanguageChange(getBaseContext(), mbwManager.getLanguage());
    }
 
    private void pairSpvModules(CommunicationManager communicationManager) {
@@ -88,26 +89,26 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
    public void onConfigurationChanged(Configuration newConfig) {
       String setLanguage = MbwManager.getInstance(this).getLanguage();
       if (!Locale.getDefault().getLanguage().equals(setLanguage)) {
-         applyLanguageChange(setLanguage);
+         applyLanguageChange(getBaseContext(), setLanguage);
       }
       super.onConfigurationChanged(newConfig);
    }
 
-   public void applyLanguageChange(String lang) {
+   public static void applyLanguageChange(Context context, String lang) {
       Log.i(Constants.TAG, "switching to lang " + lang);
-      Configuration config = getBaseContext().getResources().getConfiguration();
+      Configuration config = context.getResources().getConfiguration();
       if (!"".equals(lang)) {
          Locale locale = stringToLocale(lang);
-         if (!config.locale.equals(stringToLocale(lang))) {
+         if (!config.locale.equals(locale)) {
             Locale.setDefault(locale);
-            config.locale = locale;
-            getBaseContext().getResources().updateConfiguration(config,
-                  getBaseContext().getResources().getDisplayMetrics());
+            config.setLocale(locale);
+            context.getResources().updateConfiguration(config,
+                  context.getResources().getDisplayMetrics());
          }
       }
    }
 
-   private Locale stringToLocale(String lang) {
+   private static Locale stringToLocale(String lang) {
       switch (lang) {
          case "zh-CN":
          case "zh":

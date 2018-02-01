@@ -70,6 +70,7 @@ import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.WalletApplication;
 import com.mycelium.wallet.activity.AboutActivity;
 import com.mycelium.wallet.activity.MessageVerifyActivity;
 import com.mycelium.wallet.activity.ScanActivity;
@@ -139,6 +140,7 @@ public class ModernMain extends AppCompatActivity {
    public void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
       _mbwManager = MbwManager.getInstance(this);
+      WalletApplication.applyLanguageChange(getBaseContext(), _mbwManager.getLanguage());
       mViewPager = new ViewPager(this);
       mViewPager.setId(R.id.pager);
       setContentView(mViewPager);
