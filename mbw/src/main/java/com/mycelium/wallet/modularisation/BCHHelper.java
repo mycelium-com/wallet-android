@@ -81,7 +81,7 @@ public class BCHHelper {
         BigDecimal sum = BigDecimal.ZERO;
         int accountFounded = 0;
         for (WalletAccount account : accounts) {
-            if (sharedPreferences.getBoolean(ALREADY_FOUND_ACCOUNT + account.getId().toString(), false)) {
+            if (!sharedPreferences.getBoolean(ALREADY_FOUND_ACCOUNT + account.getId().toString(), false)) {
                 sum = sum.add(account.getCurrencyBasedBalance().confirmed.getValue());
                 accountFounded++;
                 sharedPreferences.edit()
