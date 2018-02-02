@@ -1,5 +1,6 @@
 package com.mycelium.wapi.wallet;
 
+import com.mrd.bitlib.model.Address;
 import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 
@@ -10,8 +11,10 @@ public interface SpvBalanceFetcher {
     CurrencyBasedBalance retrieveBySingleAddressAccountId(String id);
     List<TransactionSummary> retrieveTransactionSummaryByHdAccountIndex(String id, int accountIndex);
     List<TransactionSummary> retrieveTransactionSummaryBySingleAddressAccountId(String id);
-    void requestTransactionsAsync(int accountId);
+    void requestTransactionsAsync(int accountIndex);
+    void requestHdWalletAccountRemoval(int accountIndex);
     void requestTransactionsFromSingleAddressAccountAsync(String guid);
     void requestSingleAddressWalletAccountRemoval(String guid);
     int getSyncProgressPercents();
+    Address getCurrentReceiveAddress(int accountIndex);
 }

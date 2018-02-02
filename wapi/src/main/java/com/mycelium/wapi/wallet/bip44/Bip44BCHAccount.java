@@ -1,5 +1,7 @@
 package com.mycelium.wapi.wallet.bip44;
 
+import com.google.common.base.Optional;
+import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.Transaction;
 import com.mycelium.wapi.api.Wapi;
@@ -56,5 +58,10 @@ public class Bip44BCHAccount extends Bip44Account {
     @Override
     public boolean isVisible() {
         return !spvBalanceFetcher.retrieveTransactionSummaryByHdAccountIndex(getId().toString(), getAccountIndex()).isEmpty();
+    }
+
+    @Override
+    public Optional<Address> getReceivingAddress() {
+        return Optional.fromNullable(spvBalanceFetcher.getCurrentReceiveAddress(getAccountIndex()));
     }
 }
