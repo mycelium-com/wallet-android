@@ -14,6 +14,7 @@ import java.util.UUID;
 public class SingleAddressBCHAccount extends SingleAddressAccount {
 
     private SpvBalanceFetcher spvBalanceFetcher;
+    private boolean visible;
 
     public SingleAddressBCHAccount(SingleAddressAccountContext context, PublicPrivateKeyStore keyStore, NetworkParameters network, SingleAddressAccountBacking backing, Wapi wapi, SpvBalanceFetcher spvBalanceFetcher) {
         super(context, keyStore, network, backing, wapi);
@@ -43,6 +44,9 @@ public class SingleAddressBCHAccount extends SingleAddressAccount {
 
     @Override
     public boolean isVisible() {
-        return !spvBalanceFetcher.retrieveTransactionSummaryBySingleAddressAccountId(getId().toString()).isEmpty();
+        if (!visible) {
+            visible = !spvBalanceFetcher.retrieveTransactionSummaryBySingleAddressAccountId(getId().toString()).isEmpty();
+        }
+        return visible;
     }
 }
