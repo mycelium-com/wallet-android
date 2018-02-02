@@ -1146,7 +1146,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="install">Install</string>
     <string name="no_spendable_accounts">No spendable accounts</string>
     <string name="digital_assets">Digital Assets</string>
-    <string name="sync_progress">Sync progress %d %%</string>
+    <string name="sync_progress"><![CDATA[<font color="#f0c0">Sync progress: %d%%.</font>]]></string>
     <string name="how_is_it_calculated">How is it calculated?</string>
     <string name="how_is_it_calculated_text">The \"Spendable Amount\" is the account\'s balance minus the cost to spend it.\n\nThe costs depend on the number of UTXOs and the miner fee level that you chose.\n\nYou can review your UTXO count in the Accounts tab, selecting your account and then using the context menu.\n\nIf you have more than 300 UTXOs, your spendable amount might further be limited by Bitcoin\'s transaction size limit. In this case you might need more than one transaction to spend all your funds.</string>
     <string name="scaning_complete">Scanning for BCH has been completed!</string>

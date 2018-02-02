@@ -72,6 +72,7 @@ import com.mycelium.lt.api.model.TraderInfo;
 import com.mycelium.modularizationtools.CommunicationManager;
 import com.mycelium.modularizationtools.model.Module;
 import com.mycelium.net.ServerEndpointType;
+import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wallet.MbwManager;
@@ -82,6 +83,7 @@ import com.mycelium.wallet.WalletApplication;
 import com.mycelium.wallet.activity.export.VerifyBackupActivity;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.view.ButtonPreference;
+import com.mycelium.wallet.event.SpvSyncChanged;
 import com.mycelium.wallet.external.BuySellServiceDescriptor;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
@@ -91,6 +93,7 @@ import com.mycelium.wallet.modularisation.BCHHelper;
 import com.mycelium.wallet.modularisation.GooglePlayModuleCollection;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
+import com.squareup.otto.Subscribe;
 
 import java.util.List;
 import java.util.Locale;
@@ -519,9 +522,10 @@ public class SettingsActivity extends PreferenceActivity {
             Preference preference = new Preference(this);
             preference.setLayoutResource(R.layout.preference_layout);
             preference.setTitle(Html.fromHtml(module.getName()));
-            preference.setSummary(module.getDescription()
-                    + "\n"
-                    + getString(R.string.sync_progress, BCHHelper.getBCHSyncProgress(this)));
+            preference.setKey("Module_" + module.getModulePackage());
+            preference.setSummary(Html.fromHtml(module.getDescription()
+                    + "<br/>"
+                    + getString(R.string.sync_progress, BCHHelper.getBCHSyncProgress(this))));
             preference.setOnPreferenceClickListener(new OnPreferenceClickListener() {
                @Override
                public boolean onPreferenceClick(Preference preference) {
@@ -563,6 +567,28 @@ public class SettingsActivity extends PreferenceActivity {
       }
    }
 
+   @Subscribe
+   public void onSyncStateChanged(SpvSyncChanged spvSyncChanged) {
+      PreferenceCategory modulesPrefs = (PreferenceCategory) findPreference("modulesPrefs");
+      String bchPackage = "Module_" + "com.mycelium.module.spvbch";
+      if (BuildConfig.FLAVOR == "btctestnet") {
+         bchPackage += ".testnet";
+      } else {
+         bchPackage += "";
+      }
+      if (BuildConfig.DEBUG) {
+         bchPackage += ".debug";
+      } else {
+         bchPackage += "";
+      }
+      Preference preference = modulesPrefs.findPreference(bchPackage);
+      if (preference != null) {
+         preference.setSummary(Html.fromHtml(getApplicationContext().getString(R.string.bch_module_description)
+                 + "<br/>"
+                 + getString(R.string.sync_progress, BCHHelper.getBCHSyncProgress(this))));
+      }
+   }
+
    void initExternalSettings() {
       final PreferenceCategory external = (PreferenceCategory) findPreference("external");
       final List<BuySellServiceDescriptor> buySellServices = _mbwManager.getEnvironmentSettings().getBuySellServices();
@@ -596,11 +622,18 @@ public class SettingsActivity extends PreferenceActivity {
       setupLocalTraderSettings();
       showOrHideLegacyBackup();
       _localCurrency.setTitle(localCurrencyTitle());
+      _mbwManager.getEventBus().register(this);
       super.onResume();
    }
 
    private ProgressDialog pleaseWait;
 
+
+   @Override
+   protected void onPause() {
+      _mbwManager.getEventBus().unregister(this);
+      super.onPause();
+   }
 
    @SuppressWarnings("deprecation")
    private void setupLocalTraderSettings() {
