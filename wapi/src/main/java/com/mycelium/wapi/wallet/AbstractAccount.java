@@ -867,7 +867,6 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
    //Retrieves indexes of colu outputs if the transaction is determined to be colu transaction
    //In the case of non-colu transaction returns empty list
    private List<Integer> getColuOutputIndexes(Transaction tx) throws ParseException {
-      _logger.logInfo("getColuOutputIndexes(" + tx.getHash().toHex() + ")");
       if (tx == null) {
          return new ArrayList<>();
       }
@@ -992,12 +991,9 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
          stb.createUnsignedTransaction(spendableOutputs, getChangeAddress(), new PublicKeyRing(), _network, minerFeePerKbToUse);
          // We have enough to pay the fees, return the amount as the maximum
          return ExactBitcoinValue.from(satoshis);
-      } catch (InsufficientFundsException e) {
+      } catch (InsufficientFundsException | StandardTransactionBuilder.UnableToBuildTransactionException e) {
          // TODO: 25.06.17 here is where the loop was triggered, what I don't understand how another round could help in any case. Neither is there any tests. :(
          // We cannot send this amount, try again with a little higher fee continue
-         return ZERO;
-      } catch (StandardTransactionBuilder.UnableToBuildTransactionException e) {
-         // something unexpected happened while building the max-amount tx. be cautious here and don't allow spending
          return ZERO;
       }
    }
@@ -1262,7 +1258,6 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       return list;
    }
 
-
    protected boolean monitorYoungTransactions() {
       Collection<TransactionEx> list = _backing.getYoungTransactions(5, getBlockChainHeight());
       if (list.isEmpty()) {
@@ -1392,9 +1387,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
          }
          throw new RuntimeException("Unable to find private key for address " + address.toString());
       }
-
    }
-
 
    @Override
    public TransactionSummary getTransactionSummary(Sha256Hash txid) {
