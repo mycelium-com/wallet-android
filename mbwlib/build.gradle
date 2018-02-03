@@ -7,6 +7,7 @@ repositories {
 dependencies {
     compile project(includePrefix +':bitlib')
     compile guavaArtifact
+    // otto bus is deprecated in favor of rx but is cleaner with its annotations and type checking
     compile 'com.squareup:otto:1.3.4'
     compile 'com.squareup.okhttp:okhttp:2.7.4'
     compile 'com.squareup.wire:wire-runtime:1.6.1'
