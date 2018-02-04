@@ -410,8 +410,7 @@ public class SettingsActivity extends PreferenceActivity {
          public boolean onPreferenceChange(Preference preference, Object newValue) {
             String lang = newValue.toString();
             _mbwManager.setLanguage(lang);
-            WalletApplication app = (WalletApplication) getApplication();
-            app.applyLanguageChange(lang);
+            WalletApplication.applyLanguageChange(getBaseContext(), lang);
 
             restart();
 
