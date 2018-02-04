@@ -72,7 +72,6 @@ import com.mycelium.lt.api.model.TraderInfo;
 import com.mycelium.modularizationtools.CommunicationManager;
 import com.mycelium.modularizationtools.model.Module;
 import com.mycelium.net.ServerEndpointType;
-import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wallet.MbwManager;
@@ -525,7 +524,7 @@ public class SettingsActivity extends PreferenceActivity {
             preference.setKey("Module_" + module.getModulePackage());
             preference.setSummary(Html.fromHtml(module.getDescription()
                     + "<br/>"
-                    + getString(R.string.sync_progress, BCHHelper.getBCHSyncProgress(this))));
+                    + addColorHtmlTag(getString(R.string.sync_progress, BCHHelper.getBCHSyncProgress(this)), "#f0c0")));
             preference.setOnPreferenceClickListener(new OnPreferenceClickListener() {
                @Override
                public boolean onPreferenceClick(Preference preference) {
@@ -570,23 +569,18 @@ public class SettingsActivity extends PreferenceActivity {
    @Subscribe
    public void onSyncStateChanged(SpvSyncChanged spvSyncChanged) {
       PreferenceCategory modulesPrefs = (PreferenceCategory) findPreference("modulesPrefs");
-      String bchPackage = "Module_" + "com.mycelium.module.spvbch";
-      if (BuildConfig.FLAVOR == "btctestnet") {
-         bchPackage += ".testnet";
-      } else {
-         bchPackage += "";
-      }
-      if (BuildConfig.DEBUG) {
-         bchPackage += ".debug";
-      } else {
-         bchPackage += "";
-      }
+      String bchPackage = "Module_" + WalletApplication.getSpvModuleName(WalletAccount.Type.BCHBIP44);
+
       Preference preference = modulesPrefs.findPreference(bchPackage);
       if (preference != null) {
          preference.setSummary(Html.fromHtml(getApplicationContext().getString(R.string.bch_module_description)
                  + "<br/>"
-                 + getString(R.string.sync_progress, BCHHelper.getBCHSyncProgress(this))));
+                 + addColorHtmlTag(getString(R.string.sync_progress, BCHHelper.getBCHSyncProgress(this)), "#f0c0")));
       }
+   }
+
+   private String addColorHtmlTag(String input, String color) {
+      return "<![CDATA[<font color=\"" + color + "\">" + input + "</font>]]>";
    }
 
    void initExternalSettings() {
