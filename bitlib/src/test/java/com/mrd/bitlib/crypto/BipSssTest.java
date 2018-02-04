@@ -14,8 +14,6 @@ import java.util.Collection;
 import static org.junit.Assert.assertEquals;
 
 public class BipSssTest {
-
-
    /**
     * Secret: (empty)
     * 2 of 2 encoding; share set ID 5df6; share length 15
@@ -164,7 +162,6 @@ public class BipSssTest {
       assertResult(result1, HexUtils.toBytes("c71da0d239ee672c76b7ff8dec1c6b1b39b839fd22cde8732f0fa7e70f059ad2"));
    }
 
-
    /**
     * Secret: ea1bef413e406b7a39280a39bf8ea76b59a4543f3f1797cfb90d33492b3eb57cf05c9cbce61ecff3854028c045049cdf0ba97cd18cbfa76b58481a17ff19ca87
     * 2 of 4 encoding; share set ID e7bc; share length 102
@@ -202,7 +199,6 @@ public class BipSssTest {
       }
    }
 
-
    private Collection<Share> addShareWithId(String shareString, String shareId, Collection<Share> shares) {
       Share share = BipSss.Share.fromString(shareString);
       Assert.assertTrue(BitUtils.areEqual(share.id, HexUtils.toBytes(shareId)));
@@ -215,5 +211,4 @@ public class BipSssTest {
       Assert.assertNotNull(result);
       Assert.assertTrue(BitUtils.areEqual(result, expected));
    }
-
 }

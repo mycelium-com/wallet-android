@@ -34,8 +34,6 @@
 
 package com.mycelium.wallet;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.UUID;
 
 import android.graphics.drawable.Drawable;

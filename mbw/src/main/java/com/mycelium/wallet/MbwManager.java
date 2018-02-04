@@ -182,7 +182,6 @@ public class MbwManager {
    private final LtApiClient _ltApi;
    private Handler _torHandler;
    private Context _applicationContext;
-   private AddressBookManager _addressBookManager;
    private MetadataStorage _storage;
    private LocalTraderManager _localTraderManager;
    private Pin _pin;
@@ -232,11 +231,6 @@ public class MbwManager {
       _wapi = initWapi();
       _httpErrorCollector = HttpErrorCollector.registerInVM(_applicationContext, _wapi);
 
-      if (SDK_INT < GINGERBREAD) {
-         // Disable HTTP keep-alive on systems predating Gingerbread
-         System.setProperty("http.keepAlive", "false");
-      }
-
       _randomSource = new AndroidRandomSource();
 
       // Local Trader
@@ -259,7 +253,6 @@ public class MbwManager {
       WindowManager windowManager = (WindowManager) _applicationContext.getSystemService(Context.WINDOW_SERVICE);
       windowManager.getDefaultDisplay().getMetrics(dm);
 
-      _addressBookManager = new AddressBookManager();
       _storage = new MetadataStorage(_applicationContext);
       _language = preferences.getString(Constants.LANGUAGE_SETTING, Locale.getDefault().getLanguage());
       _versionManager = new VersionManager(_applicationContext, _language, new AndroidAsyncApi(_wapi, _eventBus), version, _eventBus);
@@ -392,11 +385,6 @@ public class MbwManager {
               _storage,
               _exchangeRateManager, // not sure we need this one for colu
               retainingWapiLogger));
-/*
-      } else {
-         return Optional.absent();
-      }
-      */
    }
 
    private void createTempWalletManager() {

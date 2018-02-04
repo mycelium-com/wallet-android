@@ -157,7 +157,7 @@ public class VersionManager {
    private Runnable backgroundCheck = new Runnable(){
       @Override
       public void run() {
-         if (isAppOnForeground(context)){
+         if (isAppOnForeground()){
             checkForUpdate();
          }
 
@@ -165,7 +165,7 @@ public class VersionManager {
          backgroundHandler.postDelayed(backgroundCheck, PERIODIC_BACKGROUND_CHECK_MS);
       }
 
-      private boolean isAppOnForeground(Context context) {
+      private boolean isAppOnForeground() {
          ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
          List<ActivityManager.RunningAppProcessInfo> appProcesses = activityManager.getRunningAppProcesses();
          if (appProcesses == null) {
@@ -202,12 +202,10 @@ public class VersionManager {
 
    private boolean isIgnored(String versionNumber) {
       return isSameVersion(versionNumber) || isIgnoredVersion(versionNumber);
-
    }
 
    @Subscribe
    public void getWalletVersionExResult(final WalletVersionExEvent result) {
-
       // if the last result had no featureWarnings and now we have some, broadcast them.
       if ((lastVersionResult == null || lastVersionResult.response.featureWarnings == null || lastVersionResult.response.featureWarnings.size() == 0)
             && (result.response.featureWarnings != null && result.response.featureWarnings.size() > 0) )
@@ -231,7 +229,6 @@ public class VersionManager {
          return null;
       }
    }
-
 
    @Produce
    public NewWalletVersionAvailable isWalletUpdateAvailable(){
@@ -275,10 +272,9 @@ public class VersionManager {
     * @param context calling context
     * @param forFeature check if we have a warning for this feature
     */
-   public boolean showFeatureWarningIfNeeded(Context context, Feature forFeature){
-      return showFeatureWarningIfNeeded(context, forFeature, false, null);
+   public void showFeatureWarningIfNeeded(Context context, Feature forFeature){
+      showFeatureWarningIfNeeded(context, forFeature, false, null);
    }
-
 
    /**
     * Check if we know about a warning for a certain feature/component of our app or external service
@@ -290,16 +286,13 @@ public class VersionManager {
     * @param forFeature check if we have a warning for this feature
     * @param allowBlocking set to false if this is a core function and should never get blocked, no matter what the server reports
     * @param runFeature this runnable gets called if there is no warning or the user accepts it
-    * @return true if there was a warning issued
     */
-   public boolean showFeatureWarningIfNeeded(final Context context, final Feature forFeature, final boolean allowBlocking, final Runnable runFeature){
-
+   public void showFeatureWarningIfNeeded(final Context context, final Feature forFeature, final boolean allowBlocking, final Runnable runFeature){
       final Optional<FeatureWarning> featureWarning = getFeatureWarning(forFeature);
       if (featureWarning.isPresent()){
-
          // if dialog is still shown, dont create a new one
          if (lastDialog != null && lastDialog.isShowing()){
-            return true;
+            return;
          }
 
          CharSequence msg = new SpannableString(featureWarning.get().warningMessage);
@@ -336,7 +329,6 @@ public class VersionManager {
 
             //text.setTextColor(context.getResources().getColor(R.color.red));
             dialog.setIcon(R.drawable.holo_dark_ic_action_warning_yellow);
-
          } else if (featureWarning.get().warningKind.equals(WarningKind.BLOCK)) {
             dialog.setTitle("Temporary deactivated");
          } else {
@@ -366,22 +358,17 @@ public class VersionManager {
             });
          }
 
-
          // set the content
          dialog.setView(text);
 
          // show dialog
          lastDialog = dialog.create();
          lastDialog.show();
-
-
-         return true;
       } else {
          // no warning issued - call runFeature unconditionally
-         if (runFeature != null){
+         if (runFeature != null) {
             runFeature.run();
          }
-         return false;
       }
    }
 
@@ -398,12 +385,11 @@ public class VersionManager {
    }
 
    public void ignoreVersion(String versionNumber) {
-      SharedPreferences.Editor editor = getEditor();
       ignoredVersions.add(versionNumber);
-      editor.putString(Constants.IGNORED_VERSIONS, Joiner.on("\n").join(ignoredVersions));
-      editor.commit();
+      getEditor()
+              .putString(Constants.IGNORED_VERSIONS, Joiner.on("\n").join(ignoredVersions))
+              .apply();
    }
-
 
    private boolean isIgnoredVersion(String versionNumber) {
       return ignoredVersions.contains(versionNumber);
@@ -419,6 +405,4 @@ public class VersionManager {
       }
       showVersionDialog(response, modernMain);
    }
-
-
 }

@@ -62,7 +62,6 @@ import com.mycelium.wapi.wallet.currency.CurrencySum;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 
 public class RecordRowBuilder {
-
    private final MbwManager mbwManager;
    private final Resources resources;
    private final LayoutInflater inflater;
@@ -71,10 +70,6 @@ public class RecordRowBuilder {
       this.mbwManager = mbwManager;
       this.resources = resources;
       this.inflater = inflater;
-   }
-
-   public View buildRecordView(ViewGroup parent, WalletAccount walletAccount, boolean isSelected, boolean hasFocus) {
-      return buildRecordView(parent, walletAccount, isSelected, hasFocus, null);
    }
 
    public View buildRecordView(ViewGroup parent, WalletAccount walletAccount, boolean isSelected, boolean hasFocus, View convertView) {
@@ -110,33 +105,24 @@ public class RecordRowBuilder {
          icon.setImageDrawable(drawableForAccount);
       }
 
-//      ImageView iconPrivKey = (ImageView) rowView.findViewById(R.id.ivIconPrivKey);
-//      if (walletAccount instanceof ColuAccount) {
-//         iconPrivKey.setVisibility(walletAccount.canSpend() ? View.VISIBLE : View.GONE);
-//      } else {
-//         iconPrivKey.setVisibility(View.GONE);
-//      }
-
       TextView tvLabel = ((TextView) rowView.findViewById(R.id.tvLabel));
       TextView tvWhatIsIt = ((TextView) rowView.findViewById(R.id.tvWhatIsIt));
       String name = mbwManager.getMetadataStorage().getLabelByAccount(walletAccount.getId());
       WalletAccount linked = Utils.getLinkedAccount(walletAccount, mbwManager.getColuManager().getAccounts().values());
-      if (linked != null && linked instanceof ColuAccount) {
-          if (((ColuAccount) linked).getColuAsset().assetType == ColuAccount.ColuAssetType.RMC) {
-              tvWhatIsIt.setOnClickListener(new View.OnClickListener() {
-                  @Override
-                  public void onClick(View view) {
-                      new AlertDialog.Builder(view.getContext())
-                              .setMessage(resources.getString(R.string.rmc_bitcoin_acc_what_is_it))
-                              .setPositiveButton(R.string.button_ok, null)
-                              .create()
-                              .show();
-                  }
-              });
-              tvWhatIsIt.setVisibility(View.VISIBLE);
-          } else {
-              tvWhatIsIt.setVisibility(View.GONE);
-          }
+      if (linked != null
+              && linked instanceof ColuAccount
+              && ((ColuAccount) linked).getColuAsset().assetType == ColuAccount.ColuAssetType.RMC) {
+          tvWhatIsIt.setOnClickListener(new View.OnClickListener() {
+              @Override
+              public void onClick(View view) {
+                  new AlertDialog.Builder(view.getContext())
+                          .setMessage(resources.getString(R.string.rmc_bitcoin_acc_what_is_it))
+                          .setPositiveButton(R.string.button_ok, null)
+                          .create()
+                          .show();
+              }
+          });
+          tvWhatIsIt.setVisibility(View.VISIBLE);
       } else {
           tvWhatIsIt.setVisibility(View.GONE);
       }
@@ -167,7 +153,6 @@ public class RecordRowBuilder {
                displayAddress = resources.getString(R.string.account_contains_one_key_info);
             }
          } else {
-
             Optional<Address> receivingAddress = walletAccount.getReceivingAddress();
             if (receivingAddress.isPresent()) {
                if (name.length() == 0) {
@@ -184,7 +169,6 @@ public class RecordRowBuilder {
       } else {
          displayAddress = ""; //dont show key count of archived accs
       }
-
 
       TextView tvAddress = ((TextView) rowView.findViewById(R.id.tvAddress));
       tvAddress.setText(displayAddress);
@@ -205,21 +189,14 @@ public class RecordRowBuilder {
          tvBalance.setText(balanceString);
          tvBalance.setTextColor(textColor);
 
-         // Show legacy account with funds warning if necessary
-//         boolean showLegacyAccountWarning = showLegacyAccountWarning(walletAccount, mbwManager);
-//         rowView.findViewById(R.id.tvLegacyAccountWarning).setVisibility(showLegacyAccountWarning ? View.VISIBLE : View.GONE);
-
-         // Show legacy account with funds warning if necessary
          boolean showBackupMissingWarning = showBackupMissingWarning(walletAccount, mbwManager);
          rowView.findViewById(R.id.tvBackupMissingWarning).setVisibility(showBackupMissingWarning ? View.VISIBLE : View.GONE);
 
       } else {
          // We don't show anything if the account is archived
          rowView.findViewById(R.id.tvBalance).setVisibility(View.GONE);
-//         rowView.findViewById(R.id.tvLegacyAccountWarning).setVisibility(View.GONE);
          rowView.findViewById(R.id.tvBackupMissingWarning).setVisibility(View.GONE);
       }
-
 
       // Show/hide trader account message
       if (walletAccount.getId().equals(mbwManager.getLocalTraderManager().getLocalTraderAccountId())) {
@@ -231,28 +208,18 @@ public class RecordRowBuilder {
       return rowView;
    }
 
-   public View buildTotalView(LinearLayout parent, CurrencySum balanceSum) {
-      View rowView = inflater.inflate(R.layout.record_row_total, parent, false);
-      ToggleableCurrencyButton tcdBalance = ((ToggleableCurrencyButton) rowView.findViewById(R.id.tcdBalance));
-      tcdBalance.setEventBus(mbwManager.getEventBus());
-      tcdBalance.setCurrencySwitcher(mbwManager.getCurrencySwitcher());
-      tcdBalance.setValue(balanceSum);
-      return rowView;
-   }
-
    public static boolean showLegacyAccountWarning(WalletAccount account, MbwManager mbwManager) {
       if (account.isArchived()) {
          return false;
       }
       Balance balance = account.getBalance();
-      boolean showLegacyAccountWarning = (account instanceof SingleAddressAccount) &&
-            balance.getReceivingBalance() + balance.getSpendableBalance() > 0 &&
-            account.canSpend() &&
-            !mbwManager.getMetadataStorage().getIgnoreLegacyWarning(account.getId());
-      return showLegacyAccountWarning;
+       return account instanceof SingleAddressAccount
+               && balance.getReceivingBalance() + balance.getSpendableBalance() > 0
+               && account.canSpend()
+               && !mbwManager.getMetadataStorage().getIgnoreLegacyWarning(account.getId());
    }
 
-   public static boolean showBackupMissingWarning(WalletAccount account, MbwManager mbwManager) {
+   private static boolean showBackupMissingWarning(WalletAccount account, MbwManager mbwManager) {
       if (account.isArchived()) {
          return false;
       }
@@ -269,7 +236,4 @@ public class RecordRowBuilder {
 
       return showBackupMissingWarning;
    }
-
-
-
 }
