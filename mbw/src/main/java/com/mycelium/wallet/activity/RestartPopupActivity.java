@@ -9,17 +9,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.view.MotionEvent;
 import android.view.Window;
 
 import com.mycelium.wallet.R;
 
-/**
- * Created by sergeylappo on 25.01.18.
- */
-
 public class RestartPopupActivity extends Activity {
-    public static final String RESTART_WARNING_TEXT = "RESTART_WARNING_TEXT";
+    public static final String RESTART_WARNING_HEADER = "RESTART_WARNING_HEADER";
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
@@ -27,8 +22,8 @@ public class RestartPopupActivity extends Activity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.popup_activity);
         AlertDialog.Builder Builder=new AlertDialog.Builder(this)
-                .setTitle(R.string.restart_warning)
-                .setMessage(getIntent().getExtras().getString(RESTART_WARNING_TEXT,""))
+                .setTitle(getIntent().getExtras().getString(RESTART_WARNING_HEADER,""))
+                .setMessage(R.string.configuration_change_restart_warning)
                 .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
