@@ -10,10 +10,10 @@ public enum AccountDisplayType {
     COINAPULT_ACCOUNT("COINAPULT"),
     UNKNOWN_ACCOUNT("UNKNOWN");
 
-    private final String _accountLabel;
+    private final String accountLabel;
 
-    AccountDisplayType(String _accountLabel) {
-        this._accountLabel = _accountLabel;
+    AccountDisplayType(String accountLabel) {
+        this.accountLabel = accountLabel;
     }
 
     public static AccountDisplayType getAccountType(WalletAccount account) {
@@ -36,6 +36,6 @@ public enum AccountDisplayType {
     }
 
     public String getAccountLabel() {
-        return _accountLabel;
+        return accountLabel;
     }
 }

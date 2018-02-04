@@ -4,7 +4,6 @@ import android.content.Context;
 
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.activity.util.accountstrategy.BTCAccountDisplayStrategy;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 
@@ -22,7 +21,7 @@ public class BCHAccountDisplayStrategy extends BTCAccountDisplayStrategy {
 
     @Override
     public String getCurrencyName() {
-        return _context.getString(R.string.bitcoin_cash_name);
+        return context.getString(R.string.bitcoin_cash_name);
     }
 
     @Override

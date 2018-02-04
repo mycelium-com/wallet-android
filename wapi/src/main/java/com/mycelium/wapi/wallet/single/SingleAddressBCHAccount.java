@@ -13,17 +13,17 @@ import java.util.List;
 import java.util.UUID;
 
 public class SingleAddressBCHAccount extends SingleAddressAccount {
-    @Override
-    public String getAccountDefaultCurrency() {
-        return CurrencyValue.BCH;
-    }
-
     private SpvBalanceFetcher spvBalanceFetcher;
 
     public SingleAddressBCHAccount(SingleAddressAccountContext context, PublicPrivateKeyStore keyStore, NetworkParameters network, SingleAddressAccountBacking backing, Wapi wapi, SpvBalanceFetcher spvBalanceFetcher) {
         super(context, keyStore, network, backing, wapi);
         this.spvBalanceFetcher = spvBalanceFetcher;
         this.type = Type.BCHSINGLEADDRESS;
+    }
+
+    @Override
+    public String getAccountDefaultCurrency() {
+        return CurrencyValue.BCH;
     }
 
     @Override

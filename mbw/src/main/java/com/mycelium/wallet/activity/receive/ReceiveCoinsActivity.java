@@ -69,7 +69,7 @@ import com.mycelium.wallet.activity.util.AccountDisplayType;
 import com.mycelium.wallet.activity.util.accountstrategy.BCHAccountDisplayStrategy;
 import com.mycelium.wallet.activity.util.accountstrategy.BTCAccountDisplayStrategy;
 import com.mycelium.wallet.activity.util.accountstrategy.CoinapultAccountDisplayStrategy;
-import com.mycelium.wallet.activity.util.accountstrategy.ColuAccountDisplayStrategy;
+import com.mycelium.wallet.activity.util.accountstrategy.CoCoAccountDisplayStrategy;
 import com.mycelium.wallet.activity.util.QrImageView;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.SyncFailed;
@@ -168,7 +168,7 @@ public class ReceiveCoinsActivity extends Activity {
             break;
          case COLU_ACCOUNT:
             accountDisplayType = AccountDisplayType.COLU_ACCOUNT;
-            accountDisplayStrategy = new ColuAccountDisplayStrategy((ColuAccount) selectedAccount, context);
+            accountDisplayStrategy = new CoCoAccountDisplayStrategy((ColuAccount) selectedAccount, context);
             break;
          case COINAPULT_ACCOUNT:
             accountDisplayType = AccountDisplayType.COINAPULT_ACCOUNT;
@@ -280,23 +280,13 @@ public class ReceiveCoinsActivity extends Activity {
          }
          tvAmountLabel.setText(R.string.optional_amount);
          tvAmount.setText("");
+         tvAmountFiat.setVisibility(GONE);
       } else {
          tvTitle.setText(R.string.payment_request);
          btShare.setText(R.string.share_payment_request);
          tvAmountLabel.setText(R.string.amount_title);
-         if(accountDisplayType == AccountDisplayType.COLU_ACCOUNT) {
-            tvAmount.setText(Utils.getColuFormattedValueWithUnit(_amount));
-         } else {
-            if (accountDisplayType == AccountDisplayType.BTC_ACCOUNT) {
-               tvAmount.setText(
-                       Utils.getFormattedValueWithUnit(getDefaultCurrencyAmount(), _mbwManager.getBitcoinDenomination())
-               );
-            } else {
-               tvAmount.setText(
-                       Utils.getFormattedValueWithUnit(getDefaultCurrencyAmount(), _mbwManager.getBitcoinDenomination()).replace("BTC", "BCH")
-               );
-            }
-         }
+
+         updateAmountText();
       }
 
       // QR code
@@ -317,23 +307,25 @@ public class ReceiveCoinsActivity extends Activity {
       updateAmount();
    }
 
+   private void updateAmountText() {
+      switch(accountDisplayType) {
+         case BTC_ACCOUNT:
+            tvAmount.setText(Utils.getFormattedValueWithUnit(getDefaultCurrencyAmount(), _mbwManager.getBitcoinDenomination()));
+            break;
+         case BCH_ACCOUNT:
+            tvAmount.setText(Utils.getFormattedValueWithUnit(getDefaultCurrencyAmount(), _mbwManager.getBitcoinDenomination()).replace("BTC", "BCH"));
+            break;
+         case COLU_ACCOUNT:
+            tvAmount.setText(Utils.getColuFormattedValueWithUnit(_amount));
+            break;
+         default:
+            Toast.makeText(this, "Can't handle account " + accountDisplayType.getAccountLabel(), Toast.LENGTH_LONG).show();
+            finish();
+      }
+   }
+
    private void updateAmount() {
-      if (CurrencyValue.isNullOrZero(_amount)) {
-         // No amount to show
-         tvAmount.setText("");
-         tvAmountFiat.setVisibility(GONE);
-      } else {
-         // Set Amount
-         if(accountDisplayType == AccountDisplayType.COLU_ACCOUNT) return;
-         if (accountDisplayType == AccountDisplayType.BTC_ACCOUNT) {
-            tvAmount.setText(
-                    Utils.getFormattedValueWithUnit(getDefaultCurrencyAmount(), _mbwManager.getBitcoinDenomination())
-            );
-         } else {
-            tvAmount.setText(
-                    Utils.getFormattedValueWithUnit(getDefaultCurrencyAmount(), _mbwManager.getBitcoinDenomination()).replace("BTC", "BCH")
-            );
-         }
+      if (!CurrencyValue.isNullOrZero(_amount)) {
          WalletAccount account = _mbwManager.getSelectedAccount();
          CurrencyValue primaryAmount = _amount;
          CurrencyValue alternativeAmount;

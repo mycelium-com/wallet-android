@@ -35,7 +35,6 @@
 package com.mycelium.wapi.wallet.currency;
 
 import com.megiontechnologies.BitcoinCash;
-import com.megiontechnologies.Bitcoins;
 
 import java.math.BigDecimal;
 
@@ -44,7 +43,7 @@ public class ExchangeBasedBitcoinCashValue extends ExchangeBasedCurrencyValue {
    private final BitcoinCash value;
 
    public static CurrencyValue fromValue(CurrencyValue currencyValue, ExchangeRateProvider exchangeRateManager) {
-      return ExchangeBasedCurrencyValue.fromValue(currencyValue, BTC, exchangeRateManager);
+      return ExchangeBasedCurrencyValue.fromValue(currencyValue, BCH, exchangeRateManager);
    }
 
    protected ExchangeBasedBitcoinCashValue(String currency, BigDecimal value) {
@@ -71,13 +70,13 @@ public class ExchangeBasedBitcoinCashValue extends ExchangeBasedCurrencyValue {
 
 
    // todo - optimize to bigdecimal/long ondemand caching
-   public BitcoinCash getAsBitcoin() {
+   public BitcoinCash getAsBitcoinCash() {
       return value;
    }
 
    @Override
    public long getLongValue() {
-      return getAsBitcoin().getLongValue();
+      return getAsBitcoinCash().getLongValue();
    }
 
    @Override
