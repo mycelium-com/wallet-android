@@ -1138,8 +1138,8 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="configuration_change_restart_warning">Application restart is required in order to apply configuration changes.</string>
     <string name="first_bch_installed_title">Mycelium BCH module has been installed!</string>
     <string name="first_bch_installed_message">Now we need to sync it with the blockchain in order to retrieve your BCH balance.\n\nThis procedure takes some time and is performed in the background. We will inform you when it is done.\n\nYou can always check the sync progress here:  Settings -> BCH module.\n\nFor every BTC account with not retrieved BCH, corresponding BCH account will be created.\n\nGo to Balance tab of your BCH account to instantly  exchange it to BTC.</string>
-    <string name="bch_accounts_not_found">We have not found any BCH on your BTC accounts.\\nYou can always perform scan procedure again from Settings -> Bitcoin Cash module.</string>
-    <string name="bch_accounts_found">We have found %1$s BCH on your BTC accounts.\n\n%2$d corresponding BCH account(s) will be created. You will see BCH balance in Accounts tab.\n\nIf you have BCH you will also see this *BCH* icon in the Balance tab.\n\nGo to Balance tab of your BCH account to instantly  exchange it to BTC.</string>
+    <string name="bch_accounts_not_found">We have not found any BCH on your BTC accounts.\nWe are continuously monitoring your BTC accounts and will inform you if BCH will be found.</string>
+    <string name="bch_accounts_found">We have found %1$s BCH on your BTC accounts.\n\n%2$d corresponding BCH account(s) will be created.\nBCH balance can be checked on the Accounts tab.\n\nNow you can go to the Balance tab of your BCH account(s) and instantly exchange it to BTC.</string>
     <string name="bitcoin_cash" ><![CDATA[Bitcoin <font color="#f08c18">Cash</font>]]></string>
     <string name="hd_account_bch">Add Bitcoin Cash HD Account</string>
     <string name="generate_new_bch_key">Generate Bitcoin Cash</string>
@@ -1151,7 +1151,8 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="sync_progress">Sync progress %d %%</string>
     <string name="how_is_it_calculated">How is it calculated?</string>
     <string name="how_is_it_calculated_text">The \"Spendable Amount\" is the account\'s balance minus the cost to spend it.\n\nThe costs depend on the number of UTXOs and the miner fee level that you chose.\n\nYou can review your UTXO count in the Accounts tab, selecting your account and then using the context menu.\n\nIf you have more than 300 UTXOs, your spendable amount might further be limited by Bitcoin\'s transaction size limit. In this case you might need more than one transaction to spend all your funds.</string>
-    <string name="scaning_complete">Scanning for BCH has been completed!</string>
+    <string name="scaning_complete_found">BCH has been found!</string>
+    <string name="scaning_complete_not_found">BCH has not been found!</string>
     <plurals name="account_label">
         <item quantity="one">Account label:\n%s</item>
         <item quantity="other">Accounts labels:\n%s</item>

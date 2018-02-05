@@ -90,15 +90,16 @@ public class BCHHelper {
             }
         }
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle(R.string.scaning_complete);
         builder.setPositiveButton(R.string.button_continue, null);
         if (sum.floatValue() > 0) {
+            builder.setTitle(R.string.scaning_complete_found);
             builder.setMessage(context.getString(R.string.bch_accounts_found,
                     sum.toPlainString()
                     , accountFounded));
             builder.create().show();
         } else if (sharedPreferences.getBoolean(IS_FIRST_SYNC, true)) {
             sharedPreferences.edit().putBoolean(IS_FIRST_SYNC, false).apply();
+            builder.setTitle(R.string.scaning_complete_not_found);
             builder.setMessage(R.string.bch_accounts_not_found);
             builder.create().show();
         }
