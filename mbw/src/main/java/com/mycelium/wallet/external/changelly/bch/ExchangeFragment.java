@@ -265,7 +265,6 @@ public class ExchangeFragment extends Fragment {
     @OnTextChanged(value = R.id.toValue, callback = AFTER_TEXT_CHANGED)
     public void afterEditTextInputTo(Editable editable) {
         if (!avoidTextChangeEvent && !toValue.getText().toString().isEmpty()) {
-            avoidTextChangeEvent = true;
             BigDecimal val = new BigDecimal(toValue.getText().toString());
             if (val.compareTo(MAX_BITCOIN_VALUE) > 0) {
                 val = MAX_BITCOIN_VALUE;
