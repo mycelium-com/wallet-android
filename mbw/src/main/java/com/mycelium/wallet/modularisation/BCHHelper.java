@@ -65,6 +65,8 @@ public class BCHHelper {
                     .setOnDismissListener(new DialogInterface.OnDismissListener() {
                         @Override
                         public void onDismiss(DialogInterface dialogInterface) {
+                            sharedPreferences.edit().putBoolean(BCH_FIRST_UPDATE, true)
+                                    .apply();
                             sharedPreferences.edit().putBoolean(BCH_FIRST_INSTALLED, true)
                                     .apply();
                         }
