@@ -243,11 +243,19 @@ public class BalanceFragment extends Fragment {
             _tcdFiatDisplay.setVisibility(View.INVISIBLE);
             tvBtcRate.setText(getString(R.string.exchange_source_not_available, ((ColuAccount) account).getColuAsset().name));
          }
-      } if(isBCH()) {
+      }
+
+      if(isBCH()) {
          CurrencyValue fiatValue = CurrencyValue.fromValue(ExactBitcoinCashValue.from(BigDecimal.ONE)
                  , _mbwManager.getFiatCurrency(), _mbwManager.getExchangeRateManager());
-         tvBtcRate.setText(getString(R.string.bch_rate, "BCH"
-                 , Utils.formatFiatWithUnit(fiatValue)));
+         if (_exchangeRatePrice == null) {
+            // We have no price, exchange not available
+            tvBtcRate.setVisibility(View.VISIBLE);
+            tvBtcRate.setText(getResources().getString(R.string.exchange_source_not_available, _mbwManager.getExchangeRateManager().getCurrentExchangeSourceName() ));
+         } else {
+            tvBtcRate.setText(getString(R.string.bch_rate, "BCH"
+                    , Utils.formatFiatWithUnit(fiatValue)));
+         }
       } else {
           // restore default settings if account is standard
           tvBtcRate.setVisibility(View.VISIBLE);
