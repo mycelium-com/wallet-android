@@ -12,6 +12,7 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,23 +31,32 @@ import com.mycelium.wallet.WalletApplication;
 import com.mycelium.wallet.external.changelly.ChangellyAPIService;
 import com.mycelium.wallet.external.changelly.ChangellyService;
 import com.mycelium.wallet.external.changelly.Constants;
+import com.mycelium.wallet.external.changelly.ExchangeLoggingService;
+import com.mycelium.wallet.external.changelly.model.Order;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
+import java.util.Date;
 import java.util.UUID;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import retrofit.RetrofitError;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import static com.mycelium.wallet.external.changelly.ChangellyService.INFO_ERROR;
 
 public class ConfirmExchangeFragment extends Fragment {
     public static final int MINER_FEE = 450;
+    public static final String TAG = "BCHExchange";
 
     @BindView(R.id.fromAddress)
     TextView fromAddress;
@@ -92,6 +102,7 @@ public class ConfirmExchangeFragment extends Fragment {
         }
         createOffer();
     }
+
     @OnClick(R.id.buttonContinue)
     void createAndSignTransaction() {
         long fromValue = ExactBitcoinCashValue.from(BigDecimal.valueOf(offer.amountFrom)).getLongValue();
@@ -104,9 +115,31 @@ public class ConfirmExchangeFragment extends Fragment {
             WalletAccount account = mbwManager.getSelectedAccount();
             Intent intent = IntentContract.BroadcastTransaction.createIntent(transaction.toBytes());
             WalletApplication.sendToSpv(intent, account.getType());
+            Order order = new Order();
+            order.transactionId = transaction.getHash().toString();
+            order.exchangingAmount = String.valueOf(offer.amountFrom);
+            order.exchangingCurrency = "BCH";
+            order.receivingAddress = toAccount.getReceivingAddress().get().toString();
+            order.receivingAmount = String.valueOf(offer.amountTo);
+            order.receivingCurrency = "BTC";
+            order.timestamp = SimpleDateFormat.getDateTimeInstance().format(new Date());
+
+            ExchangeLoggingService.exchangeLoggingService.saveOrder(order).enqueue(new Callback<Void>() {
+                @Override
+                public void onResponse(Call<Void> call, Response<Void> response) {
+                    Log.d(TAG, "logging success ");
+                }
+
+                @Override
+                public void onFailure(Call<Void> call, Throwable t) {
+                    Log.d(TAG, "logging failure", t);
+                }
+            });
 
         } catch (UnableToBuildTransactionException | InsufficientFundsException | OutputTooSmallException | KeyCipher.InvalidKeyCipher e) {
-            e.printStackTrace();
+            Log.e(TAG, "", e);
+        } catch (RetrofitError e) {
+            Log.e(TAG, "Excange logging error", e);
         }
     }
 
