@@ -98,11 +98,11 @@ public class BCHHelper {
                     , accountFounded));
             builder.create().show();
         } else if (sharedPreferences.getBoolean(IS_FIRST_SYNC, true)) {
-            sharedPreferences.edit().putBoolean(IS_FIRST_SYNC, false).apply();
             builder.setTitle(R.string.scaning_complete_not_found);
             builder.setMessage(R.string.bch_accounts_not_found);
             builder.create().show();
         }
+        sharedPreferences.edit().putBoolean(IS_FIRST_SYNC, false).apply();
     }
 
     public static int getBCHSyncProgress(Context context) {
