@@ -42,17 +42,14 @@ import android.support.multidex.MultiDexApplication;
 import android.util.Log;
 
 public class WalletApplication extends MultiDexApplication {
-   static {
-      int success = Security.insertProviderAt(new org.spongycastle.jce.provider.BouncyCastleProvider(), 1);
-      if(success == -1) {
+   @Override
+   public void onCreate() {
+      int loadedBouncy = Security.insertProviderAt(new org.spongycastle.jce.provider.BouncyCastleProvider(), 1);
+      if(loadedBouncy == -1) {
          Log.e("WalletApplication", "Failed to insert spongy castle provider");
       } else {
          Log.d("WalletApplication", "Inserted spongy castle provider");
       }
-   }
-
-   @Override
-   public void onCreate() {
       String lang = MbwManager.getInstance(this).getLanguage();
       applyLanguageChange(lang);
       super.onCreate();
