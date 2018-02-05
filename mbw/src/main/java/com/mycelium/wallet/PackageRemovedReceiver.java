@@ -56,26 +56,33 @@ public class PackageRemovedReceiver extends BroadcastReceiver {
             if (packageName.equals(spvModuleName)) {
                 switch (intent.getAction()) {
                     case Intent.ACTION_PACKAGE_ADDED:
-                        if (isAppOnForeground(context)) {
-                            showRestartWarning(context, context.getString(R.string.first_modulization_restart_warning));
-                        } else {
-                            restart(context);
+                        if (!intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
+                            initiateRestart(context, R.string.installed);
                         }
                         break;
+                    case Intent.ACTION_PACKAGE_REPLACED:
+                        initiateRestart(context, R.string.updated);
+                        break;
                     case Intent.ACTION_PACKAGE_REMOVED:
-                        if (isAppOnForeground(context)) {
-                            showRestartWarning(context, context.getString(R.string.module_removed_restart_warning));
-                        } else {
-                            restart(context);
+                        if (!intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
+                            initiateRestart(context, R.string.removed);
                         }
                 }
             }
         }
     }
 
-    private void showRestartWarning(Context context, String warningText) {
+    private void initiateRestart(Context context, int stringId) {
+        if (isAppOnForeground(context)) {
+            showRestartWarning(context, String.format(context.getString(R.string.bch_module_change), context.getString(stringId)));
+        } else {
+            restart(context);
+        }
+    }
+
+    private void showRestartWarning(Context context, String warningHeader) {
         Intent newIntent = new Intent(context, RestartPopupActivity.class);
-        newIntent.putExtra(RestartPopupActivity.RESTART_WARNING_TEXT, warningText);
+        newIntent.putExtra(RestartPopupActivity.RESTART_WARNING_HEADER, warningHeader);
         newIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(newIntent);
     }
