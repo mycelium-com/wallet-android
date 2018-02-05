@@ -271,10 +271,8 @@ public class ExchangeFragment extends Fragment {
                 val = MAX_BITCOIN_VALUE;
                 toValue.setText(val.toPlainString());
             }
-            fromValue.setText(CurrencyValue.fromValue(ExactBitcoinValue.from(val)
-                    , CurrencyValue.BCH, mbwManager.getExchangeRateManager()).getValue()
-                    .setScale(8, BigDecimal.ROUND_HALF_UP).toPlainString());
-            avoidTextChangeEvent = false;
+            requestOfferFunction(val.toPlainString()
+                    , ChangellyService.BTC, ChangellyService.BCH);
         }
         if (!avoidTextChangeEvent && toValue.getText().toString().isEmpty()) {
             avoidTextChangeEvent = true;
