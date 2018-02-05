@@ -1045,7 +1045,7 @@ public class WalletManager {
       if (_bip44Accounts.isEmpty()) {
          return;
       }
-      _bip44Accounts.get(0).activateAccount();
+      filterAndConvert(MAIN_SEED_BTC_HD_ACCOUNT).get(0).activateAccount();
    }
 
    private int getNextBip44Index() {

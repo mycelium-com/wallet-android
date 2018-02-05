@@ -17,6 +17,7 @@ import java.util.UUID;
 public class Bip44BCHAccount extends Bip44Account {
     private SpvBalanceFetcher spvBalanceFetcher;
     private int blockChainHeight;
+    private boolean visible;
 
     public Bip44BCHAccount(Bip44AccountContext context, Bip44AccountKeyManager keyManager, NetworkParameters network, Bip44AccountBacking backing, Wapi wapi, SpvBalanceFetcher spvBalanceFetcher) {
         super(context, keyManager, network, backing, wapi);
@@ -57,7 +58,10 @@ public class Bip44BCHAccount extends Bip44Account {
 
     @Override
     public boolean isVisible() {
-        return !spvBalanceFetcher.retrieveTransactionSummaryByHdAccountIndex(getId().toString(), getAccountIndex()).isEmpty();
+        if (!visible) {
+            visible = !spvBalanceFetcher.retrieveTransactionSummaryByHdAccountIndex(getId().toString(), getAccountIndex()).isEmpty();
+        }
+        return visible;
     }
 
     @Override
