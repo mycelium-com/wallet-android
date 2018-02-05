@@ -386,6 +386,9 @@ public class WalletManager {
             _bip44Accounts.remove(hdAccount);
             _backing.deleteBip44AccountContext(id);
             _walletAccounts.remove(id);
+            if (_spvBalanceFetcher != null) {
+               _spvBalanceFetcher.requestHdWalletAccountRemoval(((Bip44Account) account).getAccountIndex());
+            }
          }
 
          if (_btcToBchAccounts.containsKey(id)) {

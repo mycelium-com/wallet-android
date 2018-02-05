@@ -12,6 +12,8 @@ import com.mycelium.spvmodule.IntentContract
 import com.mycelium.spvmodule.providers.TransactionContract.AccountBalance
 import com.mycelium.spvmodule.providers.TransactionContract.TransactionSummary as SpvTxSummary
 import com.mycelium.spvmodule.providers.TransactionContract.GetSyncProgress
+import com.mycelium.spvmodule.providers.TransactionContract.CurrentReceiveAddress
+import com.mycelium.spvmodule.providers.TransactionContract.GetPrivateKeysCount
 import com.mycelium.wallet.WalletApplication
 import com.mycelium.wapi.model.TransactionSummary
 import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal
@@ -26,6 +28,7 @@ import java.util.ArrayList
 import com.mycelium.wallet.WalletApplication.getSpvModuleName
 
 class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
+
     override fun retrieveByHdAccountIndex(id: String, accountIndex: Int): CurrencyBasedBalance {
         val uri = AccountBalance.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHBIP44)).buildUpon().appendEncodedPath(id).build()
         val selection = AccountBalance.SELECTION_ACCOUNT_INDEX
@@ -116,6 +119,10 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
         WalletApplication.sendToSpv(service, WalletAccount.Type.BCHSINGLEADDRESS)
     }
 
+    override fun requestHdWalletAccountRemoval(accountIndex: Int) {
+        val service = IntentContract.RemoveHdWalletAccount.createIntent(accountIndex)
+        WalletApplication.sendToSpv(service, WalletAccount.Type.BCHBIP44)
+    }
     override fun requestSingleAddressWalletAccountRemoval(guid: String)  {
         val service = IntentContract.RemoveSingleAddressWalletAccount.createIntent(guid)
         WalletApplication.sendToSpv(service, WalletAccount.Type.BCHSINGLEADDRESS)
@@ -128,9 +135,35 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
                 it.moveToFirst()
                 return it.getInt(0)
             } else {
-                return 0;
+                return 0
             }
         }
     }
 
+    override fun getCurrentReceiveAddress(accountIndex: Int): Address? {
+        val uri = CurrentReceiveAddress.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHBIP44)).buildUpon().build()
+        val selection = AccountBalance.SELECTION_ACCOUNT_INDEX
+        context.contentResolver.query(uri, null, selection, arrayOf("" + accountIndex), null).use {
+            if (it != null && it.columnCount != 0) {
+                it.moveToFirst()
+                val address = it.getString(it.getColumnIndex(CurrentReceiveAddress.ADDRESS))
+                return Address.fromString(address)
+            } else {
+                return null
+            }
+        }
+    }
+
+    override fun getPrivateKeysCount(accountIndex: Int): Int {
+        val uri = GetPrivateKeysCount.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHBIP44)).buildUpon().build()
+        val selection = AccountBalance.SELECTION_ACCOUNT_INDEX
+        context.contentResolver.query(uri, null, selection, arrayOf("" + accountIndex), null).use {
+            if (it != null && it.columnCount != 0) {
+                it.moveToFirst()
+                return it.getInt(0)
+            } else {
+                return 0
+            }
+        }
+    }
 }
