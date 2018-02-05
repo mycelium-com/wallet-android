@@ -251,7 +251,7 @@ public class BalanceFragment extends Fragment {
          if (_exchangeRatePrice == null) {
             // We have no price, exchange not available
             tvBtcRate.setVisibility(View.VISIBLE);
-            tvBtcRate.setText(getResources().getString(R.string.exchange_source_not_available, _mbwManager.getExchangeRateManager().getCurrentExchangeSourceName() ));
+            tvBtcRate.setText(R.string.exchange_rate_unavailable);
          } else {
             tvBtcRate.setText(getString(R.string.bch_rate, "BCH"
                     , Utils.formatFiatWithUnit(fiatValue)));
