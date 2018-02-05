@@ -526,6 +526,7 @@ public class SettingsActivity extends PreferenceActivity {
                public boolean onPreferenceClick(Preference preference) {
                   Intent intent = new Intent(com.mycelium.modularizationtools.Constants.getSETTINGS());
                   intent.setPackage(module.getModulePackage());
+                  intent.putExtra("callingPackage", getPackageName());
                   try {
                      startActivity(intent);
                   } catch (ActivityNotFoundException e) {
