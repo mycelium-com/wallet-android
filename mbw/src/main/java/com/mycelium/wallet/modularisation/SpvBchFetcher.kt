@@ -13,7 +13,7 @@ import com.mycelium.spvmodule.providers.TransactionContract.AccountBalance
 import com.mycelium.spvmodule.providers.TransactionContract.TransactionSummary as SpvTxSummary
 import com.mycelium.spvmodule.providers.TransactionContract.GetSyncProgress
 import com.mycelium.spvmodule.providers.TransactionContract.CurrentReceiveAddress
-//import com.mycelium.spvmodule.providers.TransactionContract.GetPrivateKeysCount
+import com.mycelium.spvmodule.providers.TransactionContract.GetPrivateKeysCount
 import com.mycelium.wallet.WalletApplication
 import com.mycelium.wapi.model.TransactionSummary
 import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal
@@ -120,8 +120,8 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
     }
 
     override fun requestHdWalletAccountRemoval(accountIndex: Int) {
-//        val service = IntentContract.RemoveHdWalletAccount.createIntent(accountIndex)
-//        WalletApplication.sendToSpv(service, WalletAccount.Type.BCHBIP44)
+        val service = IntentContract.RemoveHdWalletAccount.createIntent(accountIndex)
+        WalletApplication.sendToSpv(service, WalletAccount.Type.BCHBIP44)
     }
     override fun requestSingleAddressWalletAccountRemoval(guid: String)  {
         val service = IntentContract.RemoveSingleAddressWalletAccount.createIntent(guid)
@@ -155,15 +155,15 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
     }
 
     override fun getPrivateKeysCount(accountIndex: Int): Int {
-//        val uri = GetPrivateKeysCount.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHBIP44)).buildUpon().build()
-//        val selection = AccountBalance.SELECTION_ACCOUNT_INDEX
-//        context.contentResolver.query(uri, null, selection, arrayOf("" + accountIndex), null).use {
-//            if (it != null && it.columnCount != 0) {
-//                it.moveToFirst()
-//                return it.getInt(0)
-//            } else {
+        val uri = GetPrivateKeysCount.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHBIP44)).buildUpon().build()
+        val selection = AccountBalance.SELECTION_ACCOUNT_INDEX
+        context.contentResolver.query(uri, null, selection, arrayOf("" + accountIndex), null).use {
+            if (it != null && it.columnCount != 0) {
+                it.moveToFirst()
+                return it.getInt(0)
+            } else {
                 return 0
-//            }
-//        }
+            }
+        }
     }
 }
