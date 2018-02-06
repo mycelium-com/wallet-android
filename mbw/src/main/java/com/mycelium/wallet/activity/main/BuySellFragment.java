@@ -35,6 +35,7 @@
 package com.mycelium.wallet.activity.main;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -116,7 +117,16 @@ public class BuySellFragment extends Fragment {
                 actions.add(new ActoinButton(getString(R.string.exchange_bch_to_btc), new Runnable() {
                     @Override
                     public void run() {
-                        startActivity(new Intent(getActivity(), ExchangeActivity.class));
+                        if (_mbwManager.getExchangeRateManager().getExchangeRate("BCH").price == null) {
+                            new AlertDialog.Builder(getActivity())
+                                    .setMessage(R.string.exchange_service_unavailable)
+                                    .setPositiveButton(R.string.button_ok, null)
+                                    .create()
+                                    .show();
+                            _mbwManager.getExchangeRateManager().requestRefresh();
+                        } else {
+                            startActivity(new Intent(getActivity(), ExchangeActivity.class));
+                        }
                     }
                 }));
                 break;
