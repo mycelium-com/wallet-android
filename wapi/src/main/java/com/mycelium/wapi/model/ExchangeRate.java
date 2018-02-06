@@ -33,7 +33,11 @@ public class ExchangeRate implements Serializable {
    @JsonProperty
    public final Double price; // null if price is not available
 
-   public ExchangeRate(@JsonProperty("name") String name, @JsonProperty("time") long time, @JsonProperty("price") double price, @JsonProperty("currency") String currency) {
+   public ExchangeRate(
+           @JsonProperty("name") String name,
+           @JsonProperty("time") long time,
+           @JsonProperty("price") double price,
+           @JsonProperty("currency") String currency) {
       this.name = name;
       this.time = time;
       this.currency = currency;

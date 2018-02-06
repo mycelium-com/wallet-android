@@ -69,7 +69,7 @@ public class GlideraSendToNextStep extends Activity {
    }
 
    private void handleError() {
-      Intent intent = new Intent(GlideraSendToNextStep.this, BuySellSelectFragment.class);
+      Intent intent = new Intent(this, BuySellSelectFragment.class);
       startActivity(intent);
       finish();
    }

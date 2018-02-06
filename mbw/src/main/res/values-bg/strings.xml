@@ -526,8 +526,6 @@
   <string name="title_wrong_password">Грешна парола, моля опитайте отново</string>
   <string name="dont_allow_archiving_unused_notification">Не може да архивирате неизползвана HD сметка</string>
   <string name="newly_generated_coins_from_coinbase">Новогенерирани биткоини</string>
-  <string name="release_notes_hd">Най-добрият мобилен портфейл в света стана още по-добър.\n\nПравенето на сигурно резервно копие сега е лесно, а с новите HD сметки можете да бъдете по-анонимни от всякога!\n\nПроверете бележките към изданието за подробности.</string>
-  <string name="title_upgrade_info">Добре дошли в Mycelium 2.0</string>
   <string name="button_continue">Продължи</string>
   <string name="butto_show_release_notes">Покажи детайли</string>
   <string name="word_does_not_exist_in_wordlist">Думата, която написахте, не съществува в списъка с думи</string>
