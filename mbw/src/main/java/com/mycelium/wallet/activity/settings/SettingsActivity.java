@@ -517,13 +517,11 @@ public class SettingsActivity extends PreferenceActivity {
       PreferenceCategory modulesPrefs = (PreferenceCategory) findPreference("modulesPrefs");
       if (!CommunicationManager.getInstance(this).getPairedModules().isEmpty()) {
          for (final Module module : CommunicationManager.getInstance(this).getPairedModules()) {
-            Preference preference = new Preference(this);
+            ButtonPreference preference = new ButtonPreference(this);
             preference.setLayoutResource(R.layout.preference_layout);
             preference.setTitle(Html.fromHtml(module.getName()));
             preference.setKey("Module_" + module.getModulePackage());
-            preference.setSummary(Html.fromHtml(module.getDescription()
-                    + "<br/>"
-                    + addColorHtmlTag(getString(R.string.sync_progress, BCHHelper.getBCHSyncProgress(this)), "#f0c0")));
+            updateModulePreference(preference, module, BCHHelper.getBCHSyncProgress(this));
             preference.setOnPreferenceClickListener(new OnPreferenceClickListener() {
                @Override
                public boolean onPreferenceClick(Preference preference) {
@@ -536,6 +534,14 @@ public class SettingsActivity extends PreferenceActivity {
                      Log.e("SettingsActivity", "Something wrong with module", e);
                   }
                   return true;
+               }
+            });
+            preference.setButtonText(getString(R.string.uninstall));
+            preference.setButtonClickListener(new View.OnClickListener() {
+               @Override
+               public void onClick(View view) {
+                  Uri packageUri = Uri.parse("package:" + module.getModulePackage());
+                  startActivity(new Intent(Intent.ACTION_UNINSTALL_PACKAGE, packageUri));
                }
             });
             modulesPrefs.addPreference(preference);
@@ -566,21 +572,24 @@ public class SettingsActivity extends PreferenceActivity {
       }
    }
 
-   @Subscribe
-   public void onSyncStateChanged(SpvSyncChanged spvSyncChanged) {
-      PreferenceCategory modulesPrefs = (PreferenceCategory) findPreference("modulesPrefs");
-      String bchPackage = "Module_" + WalletApplication.getSpvModuleName(WalletAccount.Type.BCHBIP44);
-
-      Preference preference = modulesPrefs.findPreference(bchPackage);
+   private void updateModulePreference(Preference preference, Module module, int progress) {
       if (preference != null) {
-         preference.setSummary(Html.fromHtml(getApplicationContext().getString(R.string.bch_module_description)
+         preference.setSummary(Html.fromHtml(module.getDescription()
                  + "<br/>"
-                 + addColorHtmlTag(getString(R.string.sync_progress, BCHHelper.getBCHSyncProgress(this)), "#f0c0")));
+                 + addColorHtmlTag(getString(R.string.sync_progress, progress), "#f0c0")));
       }
    }
 
+   @Subscribe
+   public void onSyncStateChanged(SpvSyncChanged syncChanged) {
+      PreferenceCategory modulesPrefs = (PreferenceCategory) findPreference("modulesPrefs");
+      String bchPackage = "Module_" + WalletApplication.getSpvModuleName(WalletAccount.Type.BCHBIP44);
+      Preference preference = modulesPrefs.findPreference(bchPackage);
+      updateModulePreference(preference, syncChanged.module, syncChanged.chainDownloadPercentDone);
+   }
+
    private String addColorHtmlTag(String input, String color) {
-      return "<![CDATA[<font color=\"" + color + "\">" + input + "</font>]]>";
+      return "<font color=\"" + color + "\">" + input + "</font>";
    }
 
    void initExternalSettings() {

@@ -9,19 +9,18 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import com.google.common.base.CharMatcher
-import com.mrd.bitlib.model.NetworkParameters.NetworkType.*
 import com.mrd.bitlib.model.OutPoint
 import com.mrd.bitlib.model.ScriptOutput
-import com.mrd.bitlib.model.Transaction
 import com.mrd.bitlib.model.TransactionOutput
 import com.mrd.bitlib.util.Sha256Hash
+import com.mycelium.modularizationtools.CommunicationManager
 import com.mycelium.modularizationtools.ModuleMessageReceiver
+import com.mycelium.modularizationtools.model.Module
 import com.mycelium.spvmodule.IntentContract
 import com.mycelium.wallet.WalletApplication.getSpvModuleName
 import com.mycelium.wallet.activity.modern.ModernMain
 import com.mycelium.wallet.event.SpvSyncChanged
 import com.mycelium.wallet.persistence.MetadataStorage
-import com.mycelium.wapi.model.TransactionEx
 import com.mycelium.wapi.wallet.AesKeyCipher
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.WalletAccount.Type.BCHBIP44
@@ -33,12 +32,10 @@ import com.mycelium.wapi.wallet.currency.CurrencyValue
 import com.mycelium.wapi.wallet.single.SingleAddressAccount
 import com.squareup.otto.Bus
 import org.bitcoinj.core.NetworkParameters
-import org.bitcoinj.core.TransactionConfidence.ConfidenceType.*
 import org.bitcoinj.crypto.ChildNumber
 import org.bitcoinj.crypto.DeterministicKey
 import org.bitcoinj.crypto.HDKeyDerivation
 import java.math.BigDecimal
-import java.nio.ByteBuffer
 import java.util.*
 
 class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
@@ -46,13 +43,23 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
 
     override fun onMessage(callingPackageName: String, intent: Intent) {
         when (callingPackageName) {
-            getSpvModuleName(BCHBIP44) -> onMessageFromSpvModuleBch(intent)
+            getSpvModuleName(BCHBIP44) -> onMessageFromSpvModuleBch(intent, getModule(callingPackageName))
             else -> Log.e(TAG, "Ignoring unexpected package $callingPackageName calling with intent $intent.")
         }
     }
 
+    private fun getModule(packageName: String): Module? {
+        CommunicationManager.getInstance(context).pairedModules.forEach {
+            if (it.modulePackage == packageName) {
+                return it
+            }
+        }
+        return null
+    }
+
     @Suppress("UNCHECKED_CAST")
-    private fun onMessageFromSpvModuleBch(intent: Intent) {
+    private fun onMessageFromSpvModuleBch(intent: Intent, module: Module?) {
+
         val walletManager = MbwManager.getInstance(context).getWalletManager(false)
         when (intent.action) {
             "com.mycelium.wallet.notifySatoshisReceived" -> {
@@ -90,7 +97,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                         }
                 // Defines a Handler object that's attached to the UI thread
                 val runnable = Runnable {
-                    eventBus.post(SpvSyncChanged(Date(bestChainDate), bestChainHeight.toLong(), chainDownloadPercentDone))
+                    eventBus.post(SpvSyncChanged(module, Date(bestChainDate), bestChainHeight.toLong(), chainDownloadPercentDone))
                 }
                 Handler(Looper.getMainLooper()).post(runnable)
             }
