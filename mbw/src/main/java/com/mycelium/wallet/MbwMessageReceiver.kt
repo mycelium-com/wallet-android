@@ -55,121 +55,6 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
     private fun onMessageFromSpvModuleBch(intent: Intent) {
         val walletManager = MbwManager.getInstance(context).getWalletManager(false)
         when (intent.action) {
-            "com.mycelium.wallet.receivedTransactions" -> {
-                val network = MbwEnvironment.verifyEnvironment(context).network
-                val protocolId = when (network.networkType) {
-                    PRODNET -> "main"
-                    REGTEST -> "regtest"
-                    TESTNET -> "test"
-                    else -> ""
-                }
-                val networkBJ = org.bitcoinj.core.NetworkParameters.fromPmtProtocolID(protocolId)
-                val transactionsBytes = intent.getSerializableExtra(IntentContract.TRANSACTIONS) as Array<ByteArray>
-                val fundingOutputs = bitcoinJ2Bitlib(intent.getSerializableExtra(IntentContract.CONNECTED_OUTPUTS)
-                        as Map<String, ByteArray>, networkBJ!!) //Funding outputs
-
-                // Unspent Transaction Output (UTXO)
-                val utxoSet = (intent.getSerializableExtra(IntentContract.UTXOS) as Map<String, ByteArray>).keys.map {
-                    val parts = it.split(":")
-                    val hash = Sha256Hash.fromString(parts[0])
-                    val index = parts[1].toInt()
-                    OutPoint(hash, index)
-                }.toSet()
-
-                if (transactionsBytes.isEmpty()) {
-                    Log.d(TAG, "onMessage: received an empty transaction notification")
-                    return
-                }
-                var satoshisReceived = 0L
-                var satoshisSent = 0L
-                try {
-                    for (confTransactionBytes in transactionsBytes) {
-                        val transactionAccounts = HashSet<WalletAccount>()
-                        val transactionBytesBuffer = ByteBuffer.wrap(confTransactionBytes)
-                        val blockHeight = transactionBytesBuffer.int
-                        val transactionBytes = ByteArray(transactionBytesBuffer.capacity() - (4 + 8))
-                        //Filling up transactionBytes.
-                        transactionBytesBuffer.get(transactionBytes, 0, transactionBytes.size)
-
-                        val updateAtTime = transactionBytesBuffer.long
-
-                        val transaction = Transaction.fromBytes(transactionBytes)
-
-                        val connectedOutputs = HashMap<OutPoint, TransactionOutput>()
-
-                        for (input in transaction.inputs) {
-                            val connectedOutput = fundingOutputs[input.outPoint] ?: // skip this
-                                    continue
-                            connectedOutputs.put(input.outPoint, connectedOutput)
-                            val address = connectedOutput.script.getAddress(network)
-
-                            val optionalAccount = walletManager.getAccountByAddress(address)
-                            if (optionalAccount.isPresent) {
-                                val account = walletManager.getAccount(optionalAccount.get())
-                                //TODO - uncomment account.storeAddressOldestActivityTime(address, updateAtTime / 1000)
-                                if (account.getTransaction(transaction.hash) == null) {
-                                    // The transaction is new and relevant for the account.
-                                    // We found spending from the account.
-                                    satoshisSent += connectedOutput.value
-                                    //Should we update lookahead of adresses / Accounts that needs to be look at
-                                    //by SPV module ?
-                                    transactionAccounts.add(account)
-                                    Log.d(TAG, "new transaction $transaction is sending ${connectedOutput.value}sat from ${input.outPoint} of Account ${account.getId()}")
-                                }
-                            }
-                        }
-
-                        for (output in transaction.outputs) {
-                            //Transaction received and Change from transaction.
-                            val address = output.script.getAddress(network)
-                            val optionalAccount = walletManager.getAccountByAddress(address)
-                            if (optionalAccount.isPresent) {
-                                val account = walletManager.getAccount(optionalAccount.get())
-                                //TODO - uncomment account.storeAddressOldestActivityTime(address, updateAtTime / 1000)
-                                if (account.getTransaction(transaction.hash) == null) {
-                                    // The transaction is new and relevant for the account.
-                                    // We found spending from the account.
-                                    satoshisReceived += output.value
-                                    transactionAccounts.add(account)
-                                    Log.d(TAG, "new transaction $transaction is sending ${output.value}sat to ${output.script.getAddress(network)}")
-                                }
-                            }
-                        }
-                        for (account in transactionAccounts) {
-                            when (blockHeight) {
-                                DEAD.value -> Log.e(TAG, "transaction is dead")
-                                IN_CONFLICT.value -> Log.e(TAG, "transaction is in conflict")
-                                UNKNOWN.value, PENDING.value -> {
-                                    //TODO - uncomment account.notifyNewTransactionDiscovered(
-                                    //        TransactionEx.fromUnconfirmedTransaction(transactionBytes),
-                                    //        connectedOutputs, utxoSet, false)
-                                    if(account is Bip44Account) {
-                                        createNextAccount(account, walletManager, false)
-                                    }
-                                }
-                                else -> {
-                                    val txBJ = org.bitcoinj.core.Transaction(networkBJ, transactionBytes)
-                                    val txid = Sha256Hash.fromString(txBJ.hash.toString())
-                                    txBJ.updateTime = Date(updateAtTime)
-                                    val time = (txBJ.updateTime.time / 1000L).toInt()
-                                    val tEx = TransactionEx(txid, blockHeight, time, transactionBytes)
-                                    //TODO - uncomment account.notifyNewTransactionDiscovered(tEx, connectedOutputs, utxoSet, false)
-                                    // Need to launch synchronisation after we notified of a new transaction
-                                    // discovered and updated the lookahead of address to observe when using SPV
-                                    // module.
-
-                                    // But before that we might need to create the next account if it does not exist.
-                                    if(account is Bip44Account) {
-                                        createNextAccount(account, walletManager, false)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                } catch (e: Transaction.TransactionParsingException) {
-                    Log.e(TAG, e.message, e)
-                }
-            }
             "com.mycelium.wallet.notifySatoshisReceived" -> {
                 val satoshisReceived = intent.getLongExtra(IntentContract.SATOSHIS_RECEIVED, 0L)
                 val satoshisSent = intent.getLongExtra(IntentContract.SATOSHIS_SENT, 0L)
@@ -178,7 +63,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 val walletAccounts = mutableListOf<WalletAccount>()
                 for(accountIndex in accountsIndex) {
                     walletManager.activeAccounts.filterTo(walletAccounts) {
-                        it is Bip44Account && it.accountIndex == accountIndex
+                        it is Bip44BCHAccount && it.accountIndex == accountIndex
                     }
                 }
                 notifySatoshisReceived(satoshisReceived, satoshisSent, mds, walletAccounts)
