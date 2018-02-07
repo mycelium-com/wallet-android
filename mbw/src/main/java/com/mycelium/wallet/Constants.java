@@ -64,7 +64,6 @@ public interface Constants {
    String ENABLE_CONTINUOUS_FOCUS_SETTING = "EnableContinuousFocusSetting";
    String KEY_MANAGEMENT_LOCKED_SETTING = "KeyManagementLocked";
    String MYCELIUM_WALLET_HELP_URL = "http://www.mycelium.com/wallet/help_20.html";
-   String MYCELIUM_2_RELEASE_NOTES_URL = "http://mycelium.com/wallet/whats_new_in_20.html";
    String PLAYSTORE_BASE_URL = "https://play.google.com/store/apps/details?id=";
    String DIRECT_APK_URL = "https://mycelium.com/download";
    String LANGUAGE_SETTING = "user_language";

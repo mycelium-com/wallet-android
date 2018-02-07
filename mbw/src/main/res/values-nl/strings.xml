@@ -518,9 +518,7 @@
   <string name="decryption_password_hint">YOU RPA SSW ORD ABC D</string>
   <string name="dont_allow_archiving_unused_notification">U kunt een ongebruikt HD-account niet archiveren</string>
   <string name="newly_generated_coins_from_coinbase">Nieuw gegenereerde coins</string>
-  <string name="release_notes_hd">\'s Werelds beste mobiele portemonnee is zojuist verbeterd.\n\nHet maken van een veilige back-up is nu een fluitje van een cent en nieuwe HD accounts maken u anoniemer dan ooit!\n\nLees de release notes voor meer informatie.</string>
-  <string name="title_upgrade_info">Welkom bij Mycelium 2.0</string>
-  <string name="button_continue">Doorgaan</string>
+    <string name="button_continue">Doorgaan</string>
   <string name="butto_show_release_notes">Details tonen</string>
   <string name="word_does_not_exist_in_wordlist">Het woord dat u heeft ingevoerd bestaat niet in de woordenlijst</string>
   <string name="pref_legacy_backup_title">Oudere back-up</string>
