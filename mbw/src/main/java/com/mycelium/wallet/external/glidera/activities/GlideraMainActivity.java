@@ -50,11 +50,14 @@ public class GlideraMainActivity extends AppCompatActivity {
          String tabName = extras.getString("tab");
          switch (tabName) {
             case "buy":
-               tab = buyBitcoinTab; break;
+               tab = buyBitcoinTab;
+               break;
             case "sell":
-               tab = sellBitcoinTab; break;
+               tab = sellBitcoinTab;
+               break;
             case "history":
-               tab = transactionHistoryTab; break;
+               tab = transactionHistoryTab;
+               break;
          }
       }
       actionBar.selectTab(tab);

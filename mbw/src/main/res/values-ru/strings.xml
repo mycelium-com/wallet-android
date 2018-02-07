@@ -512,9 +512,7 @@
   <string name="title_wrong_password">Неверный пароль, пожалуйста введите еще раз</string>
   <string name="dont_allow_archiving_unused_notification">Нельзя архивировать неиспользованный HD аккаунт</string>
   <string name="newly_generated_coins_from_coinbase">Новые созданные биткойны</string>
-  <string name="release_notes_hd">Лучший в мире мобильный  биткойн кошелек стал еще лучше.\n\nСоздание безопасного резервного копирования теперь  проще простого, а новые HD аккаунты дают вам больше анонимности чем что-либо еще! \n\n Прочтите информацию о новой  версии чтобы быть в курсе.</string>
-  <string name="title_upgrade_info">Добро пожаловать в Mycelium 2.0</string>
-  <string name="button_continue">Продолжить</string>
+    <string name="button_continue">Продолжить</string>
   <string name="butto_show_release_notes">Показать детали</string>
   <string name="word_does_not_exist_in_wordlist">Слово, которое вы ввели, не существует в списке слов</string>
   <string name="pref_legacy_backup_title">Резервная копия старого образца</string>

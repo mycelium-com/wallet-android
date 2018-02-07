@@ -83,7 +83,7 @@ public class CompactInt {
          // Regard the following four bytes as a 32 bit value
          value = 0x00000000FFFFFFFF & ((long) reader.getIntLE());
       } else {
-         // Regard the following four bytes as a 64 bit value
+         // Regard the following eight bytes as a 64 bit value
          value = reader.getLongLE();
       }
       return value;

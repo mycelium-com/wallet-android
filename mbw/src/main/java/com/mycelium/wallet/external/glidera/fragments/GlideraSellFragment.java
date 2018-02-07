@@ -30,7 +30,6 @@ import java.math.BigDecimal;
 import rx.Observer;
 
 public class GlideraSellFragment extends Fragment {
-
    private GlideraService glideraService;
    private EditText etSellFiat;
    private EditText etSellBtc;
@@ -65,12 +64,10 @@ public class GlideraSellFragment extends Fragment {
       textWatcherFiat = new TextWatcher() {
          @Override
          public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
          }
 
          @Override
          public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
          }
 
          @Override
@@ -105,12 +102,10 @@ public class GlideraSellFragment extends Fragment {
       textWatcherBtc = new TextWatcher() {
          @Override
          public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
          }
 
          @Override
          public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
          }
 
          @Override
@@ -197,7 +192,6 @@ public class GlideraSellFragment extends Fragment {
       buttonSellBitcoin.setOnClickListener(new View.OnClickListener() {
          @Override
          public void onClick(View view) {
-
             String qty = etSellBtc.getText().toString();
             if (qty.isEmpty()) {
                String error = "BTC must be greater than " + GlideraUtils.formatBtcForDisplay(BigDecimal.ZERO);
@@ -228,12 +222,10 @@ public class GlideraSellFragment extends Fragment {
             glideraService.sellAddress().subscribe(new Observer<SellAddressResponse>() {
                @Override
                public void onCompleted() {
-
                }
 
                @Override
                public void onError(Throwable e) {
-
                }
 
                @Override
@@ -259,8 +251,7 @@ public class GlideraSellFragment extends Fragment {
          try {
             btc = new BigDecimal(value);
             queryPricing(btc, null);
-         } catch (NumberFormatException numberFormatException) {
-            //Intentinally empty
+         } catch (NumberFormatException ignore) {
          }
       }
 
@@ -342,13 +333,17 @@ public class GlideraSellFragment extends Fragment {
 
    private void updatePricing(SellMode sellMode, SellPriceResponse sellPriceResponse) {
       removeTextChangedListeners();
-      if (sellMode == SellMode.BTC) {
-         etSellFiat.setText(sellPriceResponse.getSubtotal().toPlainString());
-      } else if (sellMode == SellMode.FIAT) {
-         etSellBtc.setText(sellPriceResponse.getQty().toPlainString());
-      } else {
-         etSellFiat.setText(sellPriceResponse.getSubtotal().toPlainString());
-         etSellBtc.setText(sellPriceResponse.getQty().toPlainString());
+      switch (sellMode) {
+         case BTC:
+            etSellFiat.setText(sellPriceResponse.getSubtotal().toPlainString());
+            break;
+         case FIAT:
+            etSellBtc.setText(sellPriceResponse.getQty().toPlainString());
+            break;
+         default:
+            etSellFiat.setText(sellPriceResponse.getSubtotal().toPlainString());
+            etSellBtc.setText(sellPriceResponse.getQty().toPlainString());
+            break;
       }
       addTextChangedListeners();
 
@@ -370,7 +365,6 @@ public class GlideraSellFragment extends Fragment {
          String error = "Insufficient funds";
          setError(sellMode, error);
       }
-
    }
 
    private void zeroPricing(@NonNull SellMode sellMode) {
