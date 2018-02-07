@@ -100,6 +100,10 @@
 
         <item name="android:actionModeBackground">@color/selectedrecord</item>
 
+        <item name="android:actionModeStyle">@style/ActionModeStyle</item>
+        <item name="actionModeStyle">@style/ActionModeStyle</item>
+        <item name="actionMenuTextAppearance">@style/ActionMenuTextStyle</item>
+
         <item name="android:dropDownListViewStyle">@style/DropDownListViewStyle</item>
         <item name="dropDownListViewStyle">@style/DropDownListViewStyle</item>
 
@@ -213,6 +217,14 @@
         <item name="android:paddingLeft">0dip</item>
         <item name="android:paddingRight">0dip</item>
 -->
+    </style>
+
+    <style name="ActionModeStyle" parent="Widget.AppCompat.ActionMode">
+        <item name="height">48dp</item>
+    </style>
+
+    <style name="ActionMenuTextStyle" parent="TextAppearance.AppCompat.Widget.ActionBar.Menu">
+        <item name="textSize">12sp</item>
     </style>
 
     <style name="RmcActiveProgressBar">
