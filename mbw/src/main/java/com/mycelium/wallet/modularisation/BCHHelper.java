@@ -65,7 +65,9 @@ public class BCHHelper {
                     .setOnDismissListener(new DialogInterface.OnDismissListener() {
                         @Override
                         public void onDismiss(DialogInterface dialogInterface) {
-                            sharedPreferences.edit().putBoolean(BCH_FIRST_INSTALLED, true)
+                            sharedPreferences.edit()
+                                    .putBoolean(BCH_FIRST_UPDATE, true)
+                                    .putBoolean(BCH_FIRST_INSTALLED, true)
                                     .apply();
                         }
                     })
@@ -81,7 +83,7 @@ public class BCHHelper {
         BigDecimal sum = BigDecimal.ZERO;
         int accountFounded = 0;
         for (WalletAccount account : accounts) {
-            if (sharedPreferences.getBoolean(ALREADY_FOUND_ACCOUNT + account.getId().toString(), false)) {
+            if (!sharedPreferences.getBoolean(ALREADY_FOUND_ACCOUNT + account.getId().toString(), false)) {
                 sum = sum.add(account.getCurrencyBasedBalance().confirmed.getValue());
                 accountFounded++;
                 sharedPreferences.edit()
@@ -90,18 +92,19 @@ public class BCHHelper {
             }
         }
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle(R.string.scaning_complete);
         builder.setPositiveButton(R.string.button_continue, null);
         if (sum.floatValue() > 0) {
+            builder.setTitle(R.string.scaning_complete_found);
             builder.setMessage(context.getString(R.string.bch_accounts_found,
                     sum.toPlainString()
                     , accountFounded));
             builder.create().show();
         } else if (sharedPreferences.getBoolean(IS_FIRST_SYNC, true)) {
-            sharedPreferences.edit().putBoolean(IS_FIRST_SYNC, false).apply();
+            builder.setTitle(R.string.scaning_complete_not_found);
             builder.setMessage(R.string.bch_accounts_not_found);
             builder.create().show();
         }
+        sharedPreferences.edit().putBoolean(IS_FIRST_SYNC, false).apply();
     }
 
     public static int getBCHSyncProgress(Context context) {

@@ -82,6 +82,7 @@ import com.mycelium.wallet.WalletApplication;
 import com.mycelium.wallet.activity.export.VerifyBackupActivity;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.view.ButtonPreference;
+import com.mycelium.wallet.event.SpvSyncChanged;
 import com.mycelium.wallet.external.BuySellServiceDescriptor;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
@@ -91,6 +92,7 @@ import com.mycelium.wallet.modularisation.BCHHelper;
 import com.mycelium.wallet.modularisation.GooglePlayModuleCollection;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
+import com.squareup.otto.Subscribe;
 
 import java.util.List;
 import java.util.Locale;
@@ -410,8 +412,7 @@ public class SettingsActivity extends PreferenceActivity {
          public boolean onPreferenceChange(Preference preference, Object newValue) {
             String lang = newValue.toString();
             _mbwManager.setLanguage(lang);
-            WalletApplication app = (WalletApplication) getApplication();
-            app.applyLanguageChange(lang);
+            WalletApplication.applyLanguageChange(getBaseContext(), lang);
 
             restart();
 
@@ -516,23 +517,31 @@ public class SettingsActivity extends PreferenceActivity {
       PreferenceCategory modulesPrefs = (PreferenceCategory) findPreference("modulesPrefs");
       if (!CommunicationManager.getInstance(this).getPairedModules().isEmpty()) {
          for (final Module module : CommunicationManager.getInstance(this).getPairedModules()) {
-            Preference preference = new Preference(this);
+            ButtonPreference preference = new ButtonPreference(this);
             preference.setLayoutResource(R.layout.preference_layout);
             preference.setTitle(Html.fromHtml(module.getName()));
-            preference.setSummary(module.getDescription()
-                    + "\n"
-                    + getString(R.string.sync_progress, BCHHelper.getBCHSyncProgress(this)));
+            preference.setKey("Module_" + module.getModulePackage());
+            updateModulePreference(preference, module, BCHHelper.getBCHSyncProgress(this));
             preference.setOnPreferenceClickListener(new OnPreferenceClickListener() {
                @Override
                public boolean onPreferenceClick(Preference preference) {
                   Intent intent = new Intent(com.mycelium.modularizationtools.Constants.getSETTINGS());
                   intent.setPackage(module.getModulePackage());
+                  intent.putExtra("callingPackage", getPackageName());
                   try {
                      startActivity(intent);
                   } catch (ActivityNotFoundException e) {
                      Log.e("SettingsActivity", "Something wrong with module", e);
                   }
                   return true;
+               }
+            });
+            preference.setButtonText(getString(R.string.uninstall));
+            preference.setButtonClickListener(new View.OnClickListener() {
+               @Override
+               public void onClick(View view) {
+                  Uri packageUri = Uri.parse("package:" + module.getModulePackage());
+                  startActivity(new Intent(Intent.ACTION_UNINSTALL_PACKAGE, packageUri));
                }
             });
             modulesPrefs.addPreference(preference);
@@ -561,6 +570,26 @@ public class SettingsActivity extends PreferenceActivity {
             modulesPrefs.addPreference(installPreference);
          }
       }
+   }
+
+   private void updateModulePreference(Preference preference, Module module, int progress) {
+      if (preference != null) {
+         preference.setSummary(Html.fromHtml(module.getDescription()
+                 + "<br/>"
+                 + addColorHtmlTag(getString(R.string.sync_progress, progress), "#f0c0")));
+      }
+   }
+
+   @Subscribe
+   public void onSyncStateChanged(SpvSyncChanged syncChanged) {
+      PreferenceCategory modulesPrefs = (PreferenceCategory) findPreference("modulesPrefs");
+      String bchPackage = "Module_" + WalletApplication.getSpvModuleName(WalletAccount.Type.BCHBIP44);
+      Preference preference = modulesPrefs.findPreference(bchPackage);
+      updateModulePreference(preference, syncChanged.module, syncChanged.chainDownloadPercentDone);
+   }
+
+   private String addColorHtmlTag(String input, String color) {
+      return "<font color=\"" + color + "\">" + input + "</font>";
    }
 
    void initExternalSettings() {
@@ -596,11 +625,18 @@ public class SettingsActivity extends PreferenceActivity {
       setupLocalTraderSettings();
       showOrHideLegacyBackup();
       _localCurrency.setTitle(localCurrencyTitle());
+      _mbwManager.getEventBus().register(this);
       super.onResume();
    }
 
    private ProgressDialog pleaseWait;
 
+
+   @Override
+   protected void onPause() {
+      _mbwManager.getEventBus().unregister(this);
+      super.onPause();
+   }
 
    @SuppressWarnings("deprecation")
    private void setupLocalTraderSettings() {

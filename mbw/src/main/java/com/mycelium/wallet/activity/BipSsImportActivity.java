@@ -48,14 +48,12 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.StringHandleConfig;
 
 public class BipSsImportActivity extends Activity {
-
-
    public static final String RESULT_SECRET = "secret";
    private static final int REQUEST_SHARE_CODE = 1;
 
    public static void callMe(Activity currentActivity, BipSss.Share share, int requestCode) {
-      Intent intent = new Intent(currentActivity, BipSsImportActivity.class);
-      intent.putExtra("share", share);
+      Intent intent = new Intent(currentActivity, BipSsImportActivity.class)
+              .putExtra("share", share);
       currentActivity.startActivityForResult(intent, requestCode);
    }
 

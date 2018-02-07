@@ -67,6 +67,7 @@
         <receiver android:name=".PackageRemovedReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.PACKAGE_ADDED"/>
+                <action android:name="android.intent.action.PACKAGE_REPLACED"/>
                 <action android:name="android.intent.action.PACKAGE_REMOVED"/>
                 <data android:scheme="package"/>
             </intent-filter>
@@ -243,6 +244,8 @@
         <activity android:name=".lt.activity.sell.CreateOrEditAdActivity" />
         <activity android:name=".lt.activity.SendRequestActivity" />
         <activity android:name=".activity.UpdateNotificationActivity" />
+        <activity android:name=".activity.RestartPopupActivity"
+            android:theme="@style/MyceliumModern.Dialog.Transparent" />
         <activity android:name=".activity.PinProtectedActivity" />
         <activity android:name=".activity.MessageSigningActivity" />
         <activity android:name=".activity.ImportSeedActivity" />

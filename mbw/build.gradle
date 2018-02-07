@@ -57,6 +57,7 @@ dependencies {
     implementation guavaArtifact
     implementation 'com.squareup.retrofit2:retrofit:2.3.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
+    implementation 'com.squareup.retrofit2:converter-jackson:2.3.0'
     implementation 'com.squareup.okhttp3:logging-interceptor:3.6.0'
 
     //not upgrading. This will be removed from the core app
@@ -122,8 +123,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 2100000
-        versionName '2.10.0.0'
+        versionCode 2100004
+        versionName '2.10.0.4'
         multiDexEnabled true
 
         minSdkVersion 19

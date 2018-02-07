@@ -29,7 +29,12 @@ public class ButtonPreference extends Preference {
     protected View onCreateView(ViewGroup parent) {
         View view = super.onCreateView(parent);
         ButterKnife.bind(this, view);
-        view.setClickable(false); // disable parent click
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getOnPreferenceClickListener().onPreferenceClick(ButtonPreference.this);
+            }
+        });
         return view;
     }
 

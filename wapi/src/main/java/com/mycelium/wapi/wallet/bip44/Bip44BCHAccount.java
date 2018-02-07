@@ -1,5 +1,7 @@
 package com.mycelium.wapi.wallet.bip44;
 
+import com.google.common.base.Optional;
+import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.model.TransactionSummary;
@@ -13,6 +15,8 @@ import java.util.UUID;
 
 public class Bip44BCHAccount extends Bip44Account {
     private SpvBalanceFetcher spvBalanceFetcher;
+    private int blockChainHeight;
+    private boolean visible;
 
     @Override
     public String getAccountDefaultCurrency() {
@@ -35,6 +39,17 @@ public class Bip44BCHAccount extends Bip44Account {
         return UUID.nameUUIDFromBytes(("BCH" + super.getId().toString()).getBytes());
     }
 
+    // need override because parent write it to context(bch and btc account have one context)
+    @Override
+    public void setBlockChainHeight(int blockHeight) {
+        blockChainHeight = blockHeight;
+    }
+
+    @Override
+    public int getBlockChainHeight() {
+        return blockChainHeight;
+    }
+
     @Override
     public List<TransactionSummary> getTransactionHistory(int offset, int limit) {
         return spvBalanceFetcher.retrieveTransactionSummaryByHdAccountIndex(getId().toString(), getAccountIndex());
@@ -47,6 +62,19 @@ public class Bip44BCHAccount extends Bip44Account {
 
     @Override
     public boolean isVisible() {
-        return !spvBalanceFetcher.retrieveTransactionSummaryByHdAccountIndex(getId().toString(), getAccountIndex()).isEmpty();
+        if (!visible) {
+            visible = !spvBalanceFetcher.retrieveTransactionSummaryByHdAccountIndex(getId().toString(), getAccountIndex()).isEmpty();
+        }
+        return visible;
+    }
+
+    @Override
+    public int getPrivateKeyCount() {
+        return spvBalanceFetcher.getPrivateKeysCount(getAccountIndex());
+    }
+
+    @Override
+    public Optional<Address> getReceivingAddress() {
+        return Optional.fromNullable(spvBalanceFetcher.getCurrentReceiveAddress(getAccountIndex()));
     }
 }
