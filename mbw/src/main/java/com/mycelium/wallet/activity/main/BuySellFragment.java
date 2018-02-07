@@ -126,6 +126,7 @@ public class BuySellFragment extends Fragment {
     }
 
     private void startExchange(Intent intent) {
+        //TODO need find more right way to detect is Changelly available
         if (_mbwManager.getExchangeRateManager().getExchangeRate("BCH").price == null) {
             new AlertDialog.Builder(getActivity())
                     .setMessage(R.string.exchange_service_unavailable)
