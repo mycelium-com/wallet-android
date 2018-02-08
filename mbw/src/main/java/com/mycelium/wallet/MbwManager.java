@@ -599,13 +599,16 @@ public class MbwManager {
       if (lastSelectedAccountId != null) {
          walletManager.setActiveAccount(lastSelectedAccountId);
       }
-      if(spvBchFetcher != null) {
-         importLabelsToBch(walletManager);
-      }
+
+      importLabelsToBch(walletManager);
+
       return walletManager;
    }
 
    public void importLabelsToBch(WalletManager walletManager) {
+      if (getSpvBchFetcher() == null)
+         return;
+
       for (WalletAccount walletAccount : walletManager.getActiveAccounts()) {
          if (walletAccount.getType() == WalletAccount.Type.BTCSINGLEADDRESS
                  || walletAccount.getType() == WalletAccount.Type.BTCBIP44) {
