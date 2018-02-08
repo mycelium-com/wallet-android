@@ -1154,9 +1154,11 @@ public class AccountsFragment extends Fragment {
          _mbwManager.runPinProtectedFunction(this.getActivity(), new Runnable() {
             @Override
             public void run() {
-               _mbwManager.getWalletManager(false).removeUnusedBip44Account();
-               //in case user had labeled the account, delete the stored name
-               _storage.deleteAccountMetadata(account.getId());
+               List<UUID> removedAccounts = _mbwManager.getWalletManager(false).removeUnusedBip44Account();
+               //in case user had labeled the account, delete the stored names
+               for(UUID curAccount : removedAccounts) {
+                  _storage.deleteAccountMetadata(curAccount);
+               }
                //setselected also broadcasts AccountChanged event, which will cause an ui update
                _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
                //we dont want to show the context menu for the automatically selected account
