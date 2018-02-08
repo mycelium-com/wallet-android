@@ -95,8 +95,16 @@ public class BuySellFragment extends Fragment {
             }
         });
         switch (_mbwManager.getSelectedAccount().getType()) {
-            case BTCBIP44:
-            case BTCSINGLEADDRESS:
+            case BCHBIP44:
+            case BCHSINGLEADDRESS:
+                actions.add(new ActoinButton(getString(R.string.exchange_bch_to_btc), new Runnable() {
+                    @Override
+                    public void run() {
+                        startExchange(new Intent(getActivity(), ExchangeActivity.class));
+                    }
+                }));
+                break;
+            default:
                 if (showButton) {
                     actions.add(new ActoinButton(getString(R.string.gd_buy_sell_button), new Runnable() {
                         @Override
@@ -111,16 +119,6 @@ public class BuySellFragment extends Fragment {
                         startExchange(new Intent(getActivity(), ChangellyActivity.class));
                     }
                 }));
-                break;
-            case BCHBIP44:
-            case BCHSINGLEADDRESS:
-                actions.add(new ActoinButton(getString(R.string.exchange_bch_to_btc), new Runnable() {
-                    @Override
-                    public void run() {
-                        startExchange(new Intent(getActivity(), ExchangeActivity.class));
-                    }
-                }));
-                break;
         }
         current = 0;
     }
@@ -155,6 +153,7 @@ public class BuySellFragment extends Fragment {
     public void onResume() {
         _mbwManager.getEventBus().register(this);
         super.onResume();
+        recreateActions();
         updateUI();
     }
 
