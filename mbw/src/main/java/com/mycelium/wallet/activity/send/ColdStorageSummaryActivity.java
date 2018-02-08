@@ -169,9 +169,14 @@ public class ColdStorageSummaryActivity extends Activity {
    }
 
    @Override
+   protected void onDestroy() {
+      super.onDestroy();
+      _mbwManager.forgetColdStorageWalletManager();
+   }
+
+   @Override
    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
       if (requestCode == SEND_MAIN_REQUEST_CODE) {
-         _mbwManager.forgetColdStorageWalletManager();
          setResult(resultCode, data);
          finish();
       } else {
