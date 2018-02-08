@@ -1144,7 +1144,7 @@ public class MbwManager {
             // We had a bug that allowed it, and the app will crash always after restart.
             _walletManager.activateFirstAccount();
          }
-         uuid = _walletManager.getActiveAccounts().get(0).getId();
+         uuid = _walletManager.getActiveAccounts(WalletAccount.Type.BTCBIP44).get(0).getId();
          setSelectedAccount(uuid);
       }
 

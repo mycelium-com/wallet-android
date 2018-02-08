@@ -436,6 +436,19 @@ public class WalletManager {
     public List<WalletAccount> getActiveMasterseedAccounts() {
         return filterAndConvert(and(MAIN_SEED_HD_ACCOUNT, not(IS_ARCHIVE)));
     }
+    /**
+     * Get the active BTC HD-accounts managed by the wallet manager, excluding on-the-fly-accounts and single-key accounts
+     *
+     * @return the list of accounts
+     */
+    public List<WalletAccount> getActiveAccounts(final WalletAccount.Type type) {
+        return filterAndConvert(and(new Predicate<WalletAccount>() {
+            @Override
+            public boolean apply(WalletAccount input) {
+                return input.getType() == type;
+            }
+        }, not(IS_ARCHIVE)));
+    }
 
     /**
      * Get the active none-HD-accounts managed by the wallet manager, excluding on-the-fly-accounts and single-key accounts
