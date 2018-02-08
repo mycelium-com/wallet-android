@@ -8,7 +8,6 @@ import com.mycelium.wapi.wallet.SpvBalanceFetcher;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -44,7 +43,7 @@ public class SingleAddressBCHAccount extends SingleAddressAccount {
 
     @Override
     public List<TransactionSummary> getTransactionsSince(Long receivingSince) {
-        return spvBalanceFetcher.retrieveTransactionSummaryBySingleAddressAccountId(getId().toString());
+        return spvBalanceFetcher.retrieveTransactionSummaryBySingleAddressAccountId(getId().toString(), receivingSince);
     }
 
     @Override

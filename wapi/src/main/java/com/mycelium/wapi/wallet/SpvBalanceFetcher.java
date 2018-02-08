@@ -10,7 +10,9 @@ public interface SpvBalanceFetcher {
     CurrencyBasedBalance retrieveByHdAccountIndex(String id, int accountIndex);
     CurrencyBasedBalance retrieveBySingleAddressAccountId(String id);
     List<TransactionSummary> retrieveTransactionSummaryByHdAccountIndex(String id, int accountIndex);
+    List<TransactionSummary> retrieveTransactionSummaryByHdAccountIndex(String id, int accountIndex, long since);
     List<TransactionSummary> retrieveTransactionSummaryBySingleAddressAccountId(String id);
+    List<TransactionSummary> retrieveTransactionSummaryBySingleAddressAccountId(String id, long since);
     void requestTransactionsAsync(int accountIndex);
     void requestHdWalletAccountRemoval(int accountIndex);
     void requestTransactionsFromSingleAddressAccountAsync(String guid);
