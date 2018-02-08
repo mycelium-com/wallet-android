@@ -436,6 +436,19 @@ public class WalletManager {
     public List<WalletAccount> getActiveMasterseedAccounts() {
         return filterAndConvert(and(MAIN_SEED_HD_ACCOUNT, not(IS_ARCHIVE)));
     }
+    /**
+     * Get the active BTC HD-accounts managed by the wallet manager, excluding on-the-fly-accounts and single-key accounts
+     *
+     * @return the list of accounts
+     */
+    public List<WalletAccount> getActiveAccounts(final WalletAccount.Type type) {
+        return filterAndConvert(and(new Predicate<WalletAccount>() {
+            @Override
+            public boolean apply(WalletAccount input) {
+                return input.getType() == type;
+            }
+        }, not(IS_ARCHIVE)));
+    }
 
     /**
      * Get the active none-HD-accounts managed by the wallet manager, excluding on-the-fly-accounts and single-key accounts
@@ -1004,23 +1017,26 @@ public class WalletManager {
         return last.hasHadActivity();
     }
 
-    public boolean removeUnusedBip44Account() {
+    public List<UUID> removeUnusedBip44Account() {
+        List<UUID> removedAccountIds = new ArrayList<>();
         Bip44Account last = _bip44Accounts.get(_bip44Accounts.size() - 1);
         //we do not remove used accounts
         if (last.hasHadActivity()) {
-            return false;
+            return removedAccountIds;
         }
         //if its unused, we can remove it from the manager
         synchronized (_walletAccounts) {
             _bip44Accounts.remove(last);
             _walletAccounts.remove(last.getId());
             _backing.deleteBip44AccountContext(last.getId());
+            removedAccountIds.add(last.getId());
 
             if (_btcToBchAccounts.containsKey(last.getId())) {
                 _walletAccounts.remove(_btcToBchAccounts.get(last.getId()));
+                removedAccountIds.add(_btcToBchAccounts.get(last.getId()));
                 _btcToBchAccounts.remove(last.getId());
             }
-            return true;
+            return removedAccountIds;
         }
     }
 

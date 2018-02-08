@@ -32,7 +32,9 @@ public class ButtonPreference extends Preference {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                getOnPreferenceClickListener().onPreferenceClick(ButtonPreference.this);
+                if(getOnPreferenceClickListener() != null) {
+                    getOnPreferenceClickListener().onPreferenceClick(ButtonPreference.this);
+                }
             }
         });
         return view;
