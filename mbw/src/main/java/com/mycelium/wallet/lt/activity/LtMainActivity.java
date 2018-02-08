@@ -262,12 +262,6 @@ public class LtMainActivity extends AppCompatActivity {
       }
 
       if (itemId == android.R.id.home) {
-        // Respond to the action bar's home button, navigates to parent activity
-        Intent intent = new Intent(this, BuySellSelectFragment.class);
-        //This flag causes the back stack to be cleared until modern main is on top
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
-
         finish();
         return true;
       }
