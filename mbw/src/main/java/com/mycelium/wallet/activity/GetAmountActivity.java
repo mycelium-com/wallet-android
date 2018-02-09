@@ -112,13 +112,16 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
    /**
     * Get Amount for spending
     */
-   public static void callMeToSend(Activity currentActivity, int requestCode, UUID account, CurrencyValue amountToSend, Long kbMinerFee, boolean isColdStorage) {
+   public static void callMeToSend(Activity currentActivity, int requestCode, UUID account, CurrencyValue amountToSend, Long kbMinerFee,
+                                   AccountDisplayType currencyType, boolean isColdStorage)
+   {
       Intent intent = new Intent(currentActivity, GetAmountActivity.class)
               .putExtra(ACCOUNT, account)
               .putExtra(ENTERED_AMOUNT, amountToSend)
               .putExtra(KB_MINER_FEE, kbMinerFee)
               .putExtra(IS_COLD_STORAGE, isColdStorage)
-              .putExtra(SEND_MODE, true);
+              .putExtra(SEND_MODE, true)
+              .putExtra(BASIC_CURRENCY, currencyType);
       currentActivity.startActivityForResult(intent, requestCode);
    }
 

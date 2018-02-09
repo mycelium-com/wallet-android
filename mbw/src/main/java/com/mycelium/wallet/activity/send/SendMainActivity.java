@@ -94,6 +94,7 @@ import com.mycelium.wallet.activity.send.helper.FeeItemsBuilder;
 import com.mycelium.wallet.activity.send.model.FeeItem;
 import com.mycelium.wallet.activity.send.model.FeeLvlItem;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
+import com.mycelium.wallet.activity.util.AccountDisplayType;
 import com.mycelium.wallet.activity.util.AnimationUtils;
 import com.mycelium.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wallet.colu.ColuAccount;
@@ -698,7 +699,8 @@ public class SendMainActivity extends Activity {
          // if no amount is set so far, use an unknown amount but in the current accounts currency
          presetAmount = ExactCurrencyValue.from(null, _account.getAccountDefaultCurrency());
       }
-      GetAmountActivity.callMeToSend(this, GET_AMOUNT_RESULT_CODE, _account.getId(), presetAmount, feePerKbValue, _isColdStorage);
+      GetAmountActivity.callMeToSend(this, GET_AMOUNT_RESULT_CODE, _account.getId(), presetAmount, feePerKbValue,
+              AccountDisplayType.getAccountType(_mbwManager.getSelectedAccount()), _isColdStorage);
    }
 
    @OnClick(R.id.btSend)
