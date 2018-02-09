@@ -1,7 +1,7 @@
 package com.mycelium.wapi;
 
+import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.WapiLogger;
-import com.subgraph.orchid.encoders.Hex;
 
 import org.junit.Test;
 
@@ -21,7 +21,7 @@ public class ColuTransferInstructionsParserTest {
 
     @Test
     public void retrieveOutputIndexesFromScript() throws Exception {
-        byte[] script = Hex.decode("00 00 43 43" + // colored coin protocol
+        byte[] script = HexUtils.toBytes("00 00 43 43" + // colored coin protocol
                 "02 15 " +      // TODO: document
                 "40 01 20 73" + // output: 1, amount: 7000
                 "25 0a" +       // output: 5, amount: 10
@@ -35,7 +35,7 @@ public class ColuTransferInstructionsParserTest {
 
     @Test
     public void retrieveOutputIndexesFromTooSmallScript() throws Exception {
-        byte[] script = Hex.decode("00 00 43 43 02");
+        byte[] script = HexUtils.toBytes("00 00 43 43 02");
         List<Integer> outputIndexes = coluTransferInstructionsParser.retrieveOutputIndexesFromScript(script);
         assertEquals(0, outputIndexes.size());
     }
@@ -43,7 +43,7 @@ public class ColuTransferInstructionsParserTest {
     @Test(expected = ParseException.class)
     public void retrieveOutputFromCrashingScript() throws Exception {
         // Transaction 811ce060b88cec67e5066f7bb75cd8acef43c3f24c0787fb1fe426510d4fe38b contains the invalid script
-        byte[] script = Hex.decode("6a 07 43 43 02 15 00 21 64");
+        byte[] script = HexUtils.toBytes("6a 07 43 43 02 15 00 21 64");
         // this may not crash but result in no output being found.
         // Or am I interpreting wrongly the fact that the CC blockexplorer doesn't see this as a CC transaction, neither?
         // http://coloredcoins.org/explorer/list/811ce060b88cec67e5066f7bb75cd8acef43c3f24c0787fb1fe426510d4fe38b
