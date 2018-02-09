@@ -86,14 +86,8 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
                 retrieveAddresses(toAddresses))
     }
 
-    private fun retrieveAddresses(toAddress: String) : List<Address> {
-        val addressesStringList = toAddress.split(",".toRegex())
-        val addressesList = ArrayList<Address>()
-        for (it in addressesStringList) {
-            addressesList.add(Address.fromString(it))
-        }
-        return addressesList
-    }
+    private fun retrieveAddresses(toAddress: String) : List<Address> =
+            toAddress.split(",".toRegex()).map { Address.fromString(it) }
 
     private fun retrieveTransactionSummary(uri: Uri, selection: String, selectionArg: String): List<TransactionSummary> {
         val transactionSummariesList = ArrayList<TransactionSummary>()
