@@ -74,6 +74,7 @@ import com.mycelium.wapi.wallet.ExportableAccount;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.SynchronizeAbleWalletAccount;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
@@ -347,6 +348,11 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
                  getSatoshis(balanceFiat.sending),
                  0, 0, 0, false, true);
       }
+   }
+
+   @Override
+   public Type getType() {
+      return Type.COLU;
    }
 
    @Override
