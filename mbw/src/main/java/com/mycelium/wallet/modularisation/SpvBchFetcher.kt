@@ -82,12 +82,26 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
                 isQueuedOutgoing != 0,
                 ConfirmationRiskProfileLocal(unconfirmedChainLength, hasRbfRisk != 0, hasDoubleSpend != 0),
                 Optional.of(Address.fromString(destinationAddress)),
-                ArrayList())
+                retrieveAddresses(toAddresses))
     }
+
+    private fun retrieveAddresses(toAddress: String) : List<Address> =
+            toAddress.split(",".toRegex()).map { Address.fromString(it) }
 
     private fun retrieveTransactionSummary(uri: Uri, selection: String, selectionArg: String): List<TransactionSummary> {
         val transactionSummariesList = ArrayList<TransactionSummary>()
         context.contentResolver.query(uri, null, selection, arrayOf(selectionArg), null).use {
+            while (it?.moveToNext() == true) {
+                val txSummary = txSummaryFromCursor(it)
+                transactionSummariesList.add(txSummary)
+            }
+        }
+        return transactionSummariesList
+    }
+
+    private fun retrieveTransactionSummary(uri: Uri, selection: String, selectionArgs: Array<String>): List<TransactionSummary> {
+        val transactionSummariesList = ArrayList<TransactionSummary>()
+        context.contentResolver.query(uri, null, selection, selectionArgs, null).use {
             while (it?.moveToNext() == true) {
                 val txSummary = txSummaryFromCursor(it)
                 transactionSummariesList.add(txSummary)
@@ -102,10 +116,22 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
         return retrieveTransactionSummary(uri, selection, "" + accountIndex)
     }
 
+    override fun retrieveTransactionSummaryByHdAccountIndex(id: String?, accountIndex: Int, since: Long): List<TransactionSummary> {
+        val uri = SpvTxSummary.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHBIP44)).buildUpon().appendEncodedPath(id).build()
+        val selection = SpvTxSummary.SELECTION_ACCOUNT_INDEX_SINCE
+        return retrieveTransactionSummary(uri, selection, arrayOf("" + accountIndex, "" + since))
+    }
+
     override fun retrieveTransactionSummaryBySingleAddressAccountId(id: String): List<TransactionSummary> {
         val uri = SpvTxSummary.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHSINGLEADDRESS)).buildUpon().appendEncodedPath(id).build()
         val selection = SpvTxSummary.SELECTION_SINGLE_ADDRESS_ACCOUNT_GUID
         return retrieveTransactionSummary(uri, selection, id)
+    }
+
+    override fun retrieveTransactionSummaryBySingleAddressAccountId(id: String, since: Long): List<TransactionSummary> {
+        val uri = SpvTxSummary.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHSINGLEADDRESS)).buildUpon().appendEncodedPath(id).build()
+        val selection = SpvTxSummary.SELECTION_SINGLE_ADDRESS_ACCOUNT_GUID_SINCE
+        return retrieveTransactionSummary(uri, selection, arrayOf(id, "" + since))
     }
 
     override fun requestTransactionsAsync(accountId: Int) {

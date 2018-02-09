@@ -805,7 +805,7 @@
   <string name="warning_reason_unconfirmed_parent">Unconfirmed parent</string>
   <string name="warning_reason_doublespend">Zjištěna dvojí útrata</string>
   <string name="opening_url_in_browser">Otevírání URL v prohlížeči...</string>
-  <string name="incoming_payment">"Příchozí platba: "</string>
+  <string name="incoming_payment">Příchozí platba: %s</string>
   <string name="warning_amount_does_not_match">Upozornění: částka neodpovídá!</string>
   <string name="mycelium_terms_of_use">Podmínky použití Mycelium</string>
   <!-- Credit Card -->

@@ -8,6 +8,7 @@ import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.Bip44AccountBacking;
 import com.mycelium.wapi.wallet.SpvBalanceFetcher;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
+import com.mycelium.wapi.wallet.currency.CurrencyValue;
 
 import java.util.List;
 import java.util.UUID;
@@ -16,6 +17,11 @@ public class Bip44BCHAccount extends Bip44Account {
     private SpvBalanceFetcher spvBalanceFetcher;
     private int blockChainHeight;
     private boolean visible;
+
+    @Override
+    public String getAccountDefaultCurrency() {
+        return CurrencyValue.BCH;
+    }
 
     public Bip44BCHAccount(Bip44AccountContext context, Bip44AccountKeyManager keyManager, NetworkParameters network, Bip44AccountBacking backing, Wapi wapi, SpvBalanceFetcher spvBalanceFetcher) {
         super(context, keyManager, network, backing, wapi);
@@ -51,7 +57,7 @@ public class Bip44BCHAccount extends Bip44Account {
 
     @Override
     public List<TransactionSummary> getTransactionsSince(Long receivingSince) {
-        return spvBalanceFetcher.retrieveTransactionSummaryByHdAccountIndex(getId().toString(), getAccountIndex());
+        return spvBalanceFetcher.retrieveTransactionSummaryByHdAccountIndex(getId().toString(), getAccountIndex(), receivingSince);
     }
 
     @Override

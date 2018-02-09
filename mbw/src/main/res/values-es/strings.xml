@@ -778,7 +778,7 @@
   <string name="warning_reason_unconfirmed_parent">Transacción previa no confirmada</string>
   <string name="warning_reason_doublespend">Doble gasto detectado</string>
   <string name="opening_url_in_browser">Abriendo URL en el navegador...</string>
-  <string name="incoming_payment">"Pago recibido: "</string>
+  <string name="incoming_payment">Pago recibido: %s</string>
   <string name="warning_amount_does_not_match">Aviso: La cantidad no coincide.</string>
   <!-- Credit Card -->
   <!-- Credit Card End-->

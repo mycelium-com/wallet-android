@@ -793,7 +793,7 @@
   <string name="warning_reason_unconfirmed_parent">Transação pai não confirmada</string>
   <string name="warning_reason_doublespend">Gasto duplo detectado</string>
   <string name="opening_url_in_browser">Abrindo URL no Navegador...</string>
-  <string name="incoming_payment">"Pagamento recebido: "</string>
+  <string name="incoming_payment">Pagamento recebido: %s</string>
   <string name="warning_amount_does_not_match">Aviso: a quantia não corresponde!</string>
   <string name="mycelium_terms_of_use">Termos de Uso da Mycelium</string>
   <!-- Credit Card -->

@@ -6,12 +6,12 @@ import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.SingleAddressAccountBacking;
 import com.mycelium.wapi.wallet.SpvBalanceFetcher;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
+import com.mycelium.wapi.wallet.currency.CurrencyValue;
 
 import java.util.List;
 import java.util.UUID;
 
 public class SingleAddressBCHAccount extends SingleAddressAccount {
-
     private SpvBalanceFetcher spvBalanceFetcher;
     private boolean visible;
 
@@ -19,6 +19,11 @@ public class SingleAddressBCHAccount extends SingleAddressAccount {
         super(context, keyStore, network, backing, wapi);
         this.spvBalanceFetcher = spvBalanceFetcher;
         this.type = Type.BCHSINGLEADDRESS;
+    }
+
+    @Override
+    public String getAccountDefaultCurrency() {
+        return CurrencyValue.BCH;
     }
 
     @Override
@@ -38,7 +43,7 @@ public class SingleAddressBCHAccount extends SingleAddressAccount {
 
     @Override
     public List<TransactionSummary> getTransactionsSince(Long receivingSince) {
-        return spvBalanceFetcher.retrieveTransactionSummaryBySingleAddressAccountId(getId().toString());
+        return spvBalanceFetcher.retrieveTransactionSummaryBySingleAddressAccountId(getId().toString(), receivingSince);
     }
 
     @Override

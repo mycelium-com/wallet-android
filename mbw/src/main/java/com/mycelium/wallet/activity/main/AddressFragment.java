@@ -182,11 +182,6 @@ public class AddressFragment extends Fragment {
    @OnClick(R.id.ivQR)
    void qrClick() {
       WalletAccount account = _mbwManager.getSelectedAccount();
-      if(account.getType() == WalletAccount.Type.BCHSINGLEADDRESS
-              || account.getType() == WalletAccount.Type.BCHBIP44) {
-         BCHHelper.bchTechnologyPreviewDialog(getActivity());
-         return;
-      }
       Optional<Address> receivingAddress = account.getReceivingAddress();
       if (receivingAddress.isPresent()) {
          ReceiveCoinsActivity.callMe(getActivity(), receivingAddress.get(), account.canSpend());

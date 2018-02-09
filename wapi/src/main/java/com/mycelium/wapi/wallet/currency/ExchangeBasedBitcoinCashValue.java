@@ -34,30 +34,58 @@
 
 package com.mycelium.wapi.wallet.currency;
 
+import com.megiontechnologies.BitcoinCash;
+
 import java.math.BigDecimal;
 
-public class ExchangeBasedFiatValue extends ExchangeBasedCurrencyValue {
+public class ExchangeBasedBitcoinCashValue extends ExchangeBasedCurrencyValue {
 
-   private final BigDecimal value;
+   private final BitcoinCash value;
 
-   protected ExchangeBasedFiatValue(String currency, BigDecimal value, ExactCurrencyValue basedOnExactValue) {
+   public static CurrencyValue fromValue(CurrencyValue currencyValue, ExchangeRateProvider exchangeRateManager) {
+      return ExchangeBasedCurrencyValue.fromValue(currencyValue, BCH, exchangeRateManager);
+   }
+
+   protected ExchangeBasedBitcoinCashValue(String currency, BigDecimal value) {
+      this(currency, value, null);
+   }
+
+   protected ExchangeBasedBitcoinCashValue(String currency, BigDecimal value, ExactCurrencyValue basedOnExactValue) {
       super(currency, basedOnExactValue);
-      this.value = value;
+      if (value != null) {
+         this.value = BitcoinCash.nearestValue(value);
+      } else {
+         this.value = null;
+      }
    }
 
-   protected ExchangeBasedFiatValue(String currency, BigDecimal value) {
-      super(currency, null);
-      this.value = value;
+   protected ExchangeBasedBitcoinCashValue(String currency, Long satoshis, ExactCurrencyValue basedOnExactValue) {
+      super(currency, basedOnExactValue);
+      if (satoshis != null) {
+         this.value = BitcoinCash.valueOf(satoshis);
+      } else {
+         this.value = null;
+      }
    }
 
-   @Override
-   public BigDecimal getValue() {
+
+   // todo - optimize to bigdecimal/long ondemand caching
+   public BitcoinCash getAsBitcoinCash() {
       return value;
    }
 
    @Override
    public long getLongValue() {
-      throw new UnsupportedOperationException();
+      return getAsBitcoinCash().getLongValue();
+   }
+
+   @Override
+   public BigDecimal getValue() {
+      if (value != null) {
+         return value.toBigDecimal();
+      } else {
+         return null;
+      }
    }
 
 }
