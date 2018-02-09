@@ -3,14 +3,12 @@ package com.mycelium.wapi.wallet.bip44;
 import com.google.common.base.Optional;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
-import com.mrd.bitlib.model.Transaction;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.Bip44AccountBacking;
 import com.mycelium.wapi.wallet.SpvBalanceFetcher;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -58,7 +56,8 @@ public class Bip44BCHAccount extends Bip44Account {
 
     @Override
     public boolean isVisible() {
-        if (!visible) {
+        if ((spvBalanceFetcher.getSyncProgressPercents() == 100 || !spvBalanceFetcher.isFirstSync())
+                && !visible) {
             visible = !spvBalanceFetcher.retrieveTransactionSummaryByHdAccountIndex(getId().toString(), getAccountIndex()).isEmpty();
         }
         return visible;

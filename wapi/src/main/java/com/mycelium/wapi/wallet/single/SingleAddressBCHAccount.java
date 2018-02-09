@@ -7,7 +7,6 @@ import com.mycelium.wapi.wallet.SingleAddressAccountBacking;
 import com.mycelium.wapi.wallet.SpvBalanceFetcher;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -44,7 +43,8 @@ public class SingleAddressBCHAccount extends SingleAddressAccount {
 
     @Override
     public boolean isVisible() {
-        if (!visible) {
+        if ((spvBalanceFetcher.getSyncProgressPercents() == 100 || !spvBalanceFetcher.isFirstSync())
+                && !visible) {
             visible = !spvBalanceFetcher.retrieveTransactionSummaryBySingleAddressAccountId(getId().toString()).isEmpty();
         }
         return visible;

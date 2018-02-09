@@ -4,17 +4,16 @@ package com.mycelium.wallet.modularisation
 import android.content.Context
 import android.database.Cursor
 import android.net.Uri
-
 import com.google.common.base.Optional
 import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.spvmodule.IntentContract
 import com.mycelium.spvmodule.providers.TransactionContract.AccountBalance
-import com.mycelium.spvmodule.providers.TransactionContract.TransactionSummary as SpvTxSummary
-import com.mycelium.spvmodule.providers.TransactionContract.GetSyncProgress
 import com.mycelium.spvmodule.providers.TransactionContract.CurrentReceiveAddress
 import com.mycelium.spvmodule.providers.TransactionContract.GetPrivateKeysCount
+import com.mycelium.spvmodule.providers.TransactionContract.GetSyncProgress
 import com.mycelium.wallet.WalletApplication
+import com.mycelium.wallet.WalletApplication.getSpvModuleName
 import com.mycelium.wapi.model.TransactionSummary
 import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal
 import com.mycelium.wapi.wallet.SpvBalanceFetcher
@@ -22,12 +21,12 @@ import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue
-
-import java.util.ArrayList
-
-import com.mycelium.wallet.WalletApplication.getSpvModuleName
+import java.util.*
+import com.mycelium.spvmodule.providers.TransactionContract.TransactionSummary as SpvTxSummary
 
 class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
+
+    val sharedPreference = context.getSharedPreferences("spvbalancefetcher", Context.MODE_PRIVATE)
 
     override fun retrieveByHdAccountIndex(id: String, accountIndex: Int): CurrencyBasedBalance {
         val uri = AccountBalance.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHBIP44)).buildUpon().appendEncodedPath(id).build()
@@ -131,13 +130,20 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
     override fun getSyncProgressPercents(): Int {
         val uri = GetSyncProgress.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHBIP44)).buildUpon().build()
         context.contentResolver.query(uri, null, null, null, null).use {
+            var result = 0
             if (it != null && it.columnCount != 0) {
                 it.moveToFirst()
-                return it.getInt(0)
-            } else {
-                return 0
+                result = it.getInt(0)
             }
+            if(result == 100) {
+                sharedPreference.edit().putBoolean("is_first_sync", false).apply()
+            }
+            return result
         }
+    }
+
+    override fun isFirstSync(): Boolean {
+        return sharedPreference.getBoolean("is_first_sync", true)
     }
 
     override fun getCurrentReceiveAddress(accountIndex: Int): Address? {
