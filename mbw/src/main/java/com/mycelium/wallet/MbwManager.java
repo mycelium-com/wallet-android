@@ -599,13 +599,16 @@ public class MbwManager {
       if (lastSelectedAccountId != null) {
          walletManager.setActiveAccount(lastSelectedAccountId);
       }
-      if(spvBchFetcher != null) {
-         importLabelsToBch(walletManager);
-      }
+
+      importLabelsToBch(walletManager);
+
       return walletManager;
    }
 
    public void importLabelsToBch(WalletManager walletManager) {
+      if (getSpvBchFetcher() == null)
+         return;
+
       for (WalletAccount walletAccount : walletManager.getActiveAccounts()) {
          if (walletAccount.getType() == WalletAccount.Type.BTCSINGLEADDRESS
                  || walletAccount.getType() == WalletAccount.Type.BTCBIP44) {
@@ -1141,7 +1144,7 @@ public class MbwManager {
             // We had a bug that allowed it, and the app will crash always after restart.
             _walletManager.activateFirstAccount();
          }
-         uuid = _walletManager.getActiveAccounts().get(0).getId();
+         uuid = _walletManager.getActiveAccounts(WalletAccount.Type.BTCBIP44).get(0).getId();
          setSelectedAccount(uuid);
       }
 

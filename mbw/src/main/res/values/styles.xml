@@ -224,7 +224,7 @@
     </style>
 
     <style name="ActionMenuTextStyle" parent="TextAppearance.AppCompat.Widget.ActionBar.Menu">
-        <item name="textSize">12sp</item>
+        <item name="android:textSize">12sp</item>
     </style>
 
     <style name="RmcActiveProgressBar">
