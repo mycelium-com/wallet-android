@@ -364,6 +364,8 @@ public class AccountsFragment extends Fragment {
                               try {
                                  walletManager.deleteUnrelatedAccount(accountToDelete.getId(), AesKeyCipher.defaultKeyCipher());
                                  _storage.deleteAccountMetadata(accountToDelete.getId());
+                                 UUID bchAccountUUID = UUID.nameUUIDFromBytes(("BCH" + accountToDelete.getId().toString()).getBytes());
+                                 _storage.deleteAccountMetadata(bchAccountUUID);
                               } catch (KeyCipher.InvalidKeyCipher e) {
                                  throw new RuntimeException(e);
                               }
@@ -398,6 +400,8 @@ public class AccountsFragment extends Fragment {
                      try {
                         walletManager.deleteUnrelatedAccount(accountToDelete.getId(), AesKeyCipher.defaultKeyCipher());
                         _storage.deleteAccountMetadata(accountToDelete.getId());
+                        UUID bchAccountUUID = UUID.nameUUIDFromBytes(("BCH" + accountToDelete.getId().toString()).getBytes());
+                        _storage.deleteAccountMetadata(bchAccountUUID);
                      } catch (KeyCipher.InvalidKeyCipher e) {
                         throw new RuntimeException(e);
                      }
