@@ -35,10 +35,7 @@
 package com.mycelium.wallet.activity.receive;
 
 import android.app.Activity;
-import android.app.NotificationManager;
-import android.content.Context;
 import android.content.Intent;
-import android.media.AudioManager;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.nfc.NdefMessage;
@@ -47,7 +44,6 @@ import android.nfc.NfcAdapter;
 import android.nfc.NfcEvent;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.NotificationCompat;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
@@ -434,14 +430,8 @@ public class ReceiveCoinsActivity extends Activity {
          }
          tvRecv.setVisibility(View.VISIBLE);
          if (!sum.equals(_lastAddressBalance)) {
-            NotificationManager notificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
             Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-
-            NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext())
-                    .setSmallIcon(R.drawable.ic_launcher)
-                    .setSound(soundUri, AudioManager.STREAM_NOTIFICATION); //This sets the sound to play
-            notificationManager.notify(0, mBuilder.build());
-
+            RingtoneManager.getRingtone(this, soundUri).play();
             _lastAddressBalance = sum;
          }
       } else {
