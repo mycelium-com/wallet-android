@@ -35,6 +35,7 @@
 package com.mycelium.wallet.activity.receive;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -194,7 +195,7 @@ public class ReceiveCoinsActivity extends Activity {
 
    protected void shareByNfc() {
       NfcAdapter nfc = NfcAdapter.getDefaultAdapter(this);
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN && nfc != null && nfc.isNdefPushEnabled()) {
+      if (nfc != null && nfc.isNdefPushEnabled()) {
          nfc.setNdefPushMessageCallback(new NfcAdapter.CreateNdefMessageCallback() {
             @Override
             public NdefMessage createNdefMessage(NfcEvent event) {
