@@ -202,6 +202,7 @@ public class ModernMain extends AppCompatActivity {
          _isAppStart = false;
       }
       BCHHelper.firstBCHPages(this);
+      _mbwManager.importLabelsToBch(_mbwManager.getWalletManager(false));
    }
 
    private void checkGapBug() {
