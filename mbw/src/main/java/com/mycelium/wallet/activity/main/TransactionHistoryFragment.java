@@ -72,6 +72,7 @@ import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
+import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.DataExport;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.MinerFee;
@@ -137,13 +138,14 @@ public class TransactionHistoryFragment extends Fragment {
       WalletAccount account = _mbwManager.getSelectedAccount();
       if(account.getType() == WalletAccount.Type.BCHSINGLEADDRESS
               ||  account.getType() == WalletAccount.Type.BCHBIP44) {
+         final String queryCurrency = BuildConfig.FLAVOR.equals("btctestnet") ? "tBCC" : "BCC";
          noTransactionMessage.setText(Html.fromHtml(getString(R.string.bch_technology_preview)
-                 + "<br/>" + getString(R.string.bch_you_can_transaction_on_explorer)));
+                 + "<br/>" + getString(R.string.bch_you_can_transaction_on_explorer, queryCurrency)));
          noTransactionMessage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                try {
-                  startActivity(Intent.parseUri("https://www.blocktrail.com/BCC", Intent.URI_INTENT_SCHEME));
+                  startActivity(Intent.parseUri("https://www.blocktrail.com/" + queryCurrency, Intent.URI_INTENT_SCHEME));
                } catch (URISyntaxException e) {
                   Log.e("TransactionFragment", "start blocktrail", e);
                }
