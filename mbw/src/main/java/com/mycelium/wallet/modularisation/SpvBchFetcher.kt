@@ -42,7 +42,7 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
 
     private fun retrieveBalance(uri: Uri, selection: String, selectionArg: String): CurrencyBasedBalance {
         context.contentResolver.query(uri, null, selection, arrayOf(selectionArg), null).use {
-            while (it.moveToLast()) {
+            while (it?.moveToLast() == true) {
                 return from(it)
             }
         }
