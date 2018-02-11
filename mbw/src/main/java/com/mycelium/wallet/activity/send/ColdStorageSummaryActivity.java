@@ -56,23 +56,22 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import java.util.UUID;
 
 public class ColdStorageSummaryActivity extends Activity {
-
    private static final int SEND_MAIN_REQUEST_CODE = 1;
    private MbwManager _mbwManager;
    private WalletAccount _account;
 
    public static void callMe(Activity currentActivity, UUID account) {
-      Intent intent = new Intent(currentActivity, ColdStorageSummaryActivity.class);
-      intent.putExtra("account", account);
-      intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
+      Intent intent = new Intent(currentActivity, ColdStorageSummaryActivity.class)
+              .putExtra("account", account)
+              .addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
       currentActivity.startActivity(intent);
    }
 
    /** Called when the activity is first created. */
    @Override
    public void onCreate(Bundle savedInstanceState) {
-      this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-      this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+      requestWindowFeature(Window.FEATURE_NO_TITLE);
+      getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
       super.onCreate(savedInstanceState);
       setContentView(R.layout.cold_storage_summary_activity);
       _mbwManager = MbwManager.getInstance(getApplication());
@@ -85,9 +84,7 @@ public class ColdStorageSummaryActivity extends Activity {
          //this can happen if we were in background for long time and then came back
          //just go back and have the user scan again is probably okay as a workaround
          finish();
-         return;
       }
-
    }
 
    @Override
@@ -119,7 +116,7 @@ public class ColdStorageSummaryActivity extends Activity {
       if (!_mbwManager.hasFiatCurrency() || price == null) {
          findViewById(R.id.tvFiat).setVisibility(View.INVISIBLE);
       } else {
-         TextView tvFiat = (TextView) findViewById(R.id.tvFiat);
+         TextView tvFiat = findViewById(R.id.tvFiat);
          String converted = Utils.getFiatValueAsString(balance.getSpendableBalance(), price);
          String currency = _mbwManager.getFiatCurrency();
          tvFiat.setText(getResources().getString(R.string.approximate_fiat_value, currency, converted));
@@ -129,7 +126,7 @@ public class ColdStorageSummaryActivity extends Activity {
       if (balance.getReceivingBalance() > 0) {
          String receivingString = _mbwManager.getBtcValueString(balance.getReceivingBalance());
          String receivingText = getResources().getString(R.string.receiving, receivingString);
-         TextView tvReceiving = (TextView) findViewById(R.id.tvReceiving);
+         TextView tvReceiving = findViewById(R.id.tvReceiving);
          tvReceiving.setText(receivingText);
          tvReceiving.setVisibility(View.VISIBLE);
       } else {
@@ -140,7 +137,7 @@ public class ColdStorageSummaryActivity extends Activity {
       if (balance.getSendingBalance() > 0) {
          String sendingString = _mbwManager.getBtcValueString(balance.getSendingBalance());
          String sendingText = getResources().getString(R.string.sending, sendingString);
-         TextView tvSending = (TextView) findViewById(R.id.tvSending);
+         TextView tvSending = findViewById(R.id.tvSending);
          tvSending.setText(sendingText);
          tvSending.setVisibility(View.VISIBLE);
       } else {
@@ -148,7 +145,7 @@ public class ColdStorageSummaryActivity extends Activity {
       }
 
       // Send Button
-      Button btSend = (Button) findViewById(R.id.btSend);
+      Button btSend = findViewById(R.id.btSend);
       if (_account.canSpend()) {
          if (balance.getSpendableBalance() > 0) {
             btSend.setEnabled(true);
