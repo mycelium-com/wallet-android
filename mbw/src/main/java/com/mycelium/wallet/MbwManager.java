@@ -61,7 +61,6 @@ import com.google.common.collect.EvictingQueue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Ints;
-import com.megiontechnologies.Bitcoins;
 import com.mrd.bitlib.crypto.Bip39;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
@@ -136,8 +135,6 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 
-import static android.os.Build.VERSION.SDK_INT;
-import static android.os.Build.VERSION_CODES.GINGERBREAD;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class MbwManager {
@@ -363,8 +360,7 @@ public class MbwManager {
          return Optional.absent();
       }
    }
-
-
+   
    private Optional<ColuManager> createColuManager(final Context context, MbwEnvironment environment) {
 
       // Create persisted account backing
@@ -459,7 +455,7 @@ public class MbwManager {
       _torHandler = new Handler(Looper.getMainLooper());
 
       if (_torMode == ServerEndpointType.Types.ONLY_TOR) {
-         this._torManager = new TorManagerOrbot();
+         _torManager = new TorManagerOrbot();
       } else {
          throw new IllegalArgumentException();
       }
@@ -478,8 +474,8 @@ public class MbwManager {
          }
       });
 
-      _environment.getWapiEndpoints().setTorManager(this._torManager);
-      _environment.getLtEndpoints().setTorManager(this._torManager);
+      _environment.getWapiEndpoints().setTorManager(_torManager);
+      _environment.getLtEndpoints().setTorManager(_torManager);
    }
 
 
@@ -702,10 +698,10 @@ public class MbwManager {
    }
 
    public void showClearPinDialog(final Activity activity, final Optional<Runnable> afterDialogClosed) {
-      this.runPinProtectedFunction(activity, new ClearPinDialog(activity, true), new Runnable() {
+      runPinProtectedFunction(activity, new ClearPinDialog(activity, true), new Runnable() {
          @Override
          public void run() {
-            MbwManager.this.savePin(Pin.CLEAR_PIN);
+            savePin(Pin.CLEAR_PIN);
             Toast.makeText(_applicationContext, R.string.pin_cleared, Toast.LENGTH_LONG).show();
             if (afterDialogClosed.isPresent()) {
                afterDialogClosed.get().run();
@@ -716,7 +712,7 @@ public class MbwManager {
 
    public void showSetPinDialog(final Activity activity, final Optional<Runnable> afterDialogClosed) {
       // Must make a backup before setting PIN
-      if (this.getMetadataStorage().getMasterSeedBackupState() != MetadataStorage.BackupState.VERIFIED) {
+      if (getMetadataStorage().getMasterSeedBackupState() != MetadataStorage.BackupState.VERIFIED) {
          Utils.showSimpleMessageDialog(activity, R.string.pin_backup_first);
          return;
       }
@@ -731,7 +727,7 @@ public class MbwManager {
                newPin = pin.getPin();
                dialog.setTitle(R.string.pin_confirm_pin);
             } else if (newPin.equals(pin.getPin())) {
-               MbwManager.this.savePin(pin);
+               savePin(pin);
                Toast.makeText(activity, R.string.pin_set, Toast.LENGTH_LONG).show();
                dialog.dismiss();
                if (afterDialogClosed.isPresent()) {
@@ -739,7 +735,7 @@ public class MbwManager {
                }
             } else {
                Toast.makeText(activity, R.string.pin_codes_dont_match, Toast.LENGTH_LONG).show();
-               MbwManager.this.vibrate(500);
+               vibrate();
                dialog.dismiss();
                if (afterDialogClosed.isPresent()) {
                   afterDialogClosed.get().run();
@@ -748,7 +744,7 @@ public class MbwManager {
          }
       });
 
-      this.runPinProtectedFunction(activity, new Runnable() {
+      runPinProtectedFunction(activity, new Runnable() {
          @Override
          public void run() {
             _dialog.show();
@@ -811,7 +807,7 @@ public class MbwManager {
                      Thread.sleep(millis);
                   } catch (InterruptedException ignored) {
                      Toast.makeText(activity, "Something weird is happening. avoid getting to pin check", Toast.LENGTH_LONG).show();
-                     vibrate(500);
+                     vibrate();
                      pinDialog.dismiss();
                      return;
                   }
@@ -822,7 +818,7 @@ public class MbwManager {
                   pinDialog.dismiss();
 
                   // as soon as you enter the correct pin once, abort the reset-pin-procedure
-                  MbwManager.this.getMetadataStorage().clearResetPinStartBlockheight();
+                  getMetadataStorage().clearResetPinStartBlockheight();
                   // if last Pin entry was 1sec ago, don't ask for it again.
                   // to prevent if there are two pin protected functions cascaded
                   // like startup-pin request and account-choose-pin request if opened by a bitcoin url
@@ -845,7 +841,7 @@ public class MbwManager {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                    pinDialog.dismiss();
-                                   MbwManager.this.showClearPinDialog(activity, Optional.<Runnable>absent());
+                                   showClearPinDialog(activity, Optional.<Runnable>absent());
                                 }
                              })
 
@@ -854,7 +850,7 @@ public class MbwManager {
                   } else {
                      // This pin is not resettable, you are out of luck
                      Toast.makeText(activity, R.string.pin_invalid_pin, Toast.LENGTH_LONG).show();
-                     vibrate(500);
+                     vibrate();
                      pinDialog.dismiss();
                   }
                }
@@ -884,13 +880,9 @@ public class MbwManager {
    }
 
    public void vibrate() {
-      vibrate(500);
-   }
-
-   private void vibrate(int milliseconds) {
       Vibrator v = (Vibrator) _applicationContext.getSystemService(Context.VIBRATOR_SERVICE);
       if (v != null) {
-         v.vibrate(milliseconds);
+         v.vibrate(500);
       }
    }
 
@@ -1022,15 +1014,15 @@ public class MbwManager {
       return new Locale(_language);
    }
 
-   public void setLanguage(String _language) {
-      this._language = _language;
+   public void setLanguage(String language) {
+      _language = language;
       SharedPreferences.Editor editor = getEditor();
-      editor.putString(Constants.LANGUAGE_SETTING, _language);
+      editor.putString(Constants.LANGUAGE_SETTING, language);
       editor.commit();
    }
 
    public void setTorMode(ServerEndpointType.Types torMode) {
-      this._torMode = torMode;
+      _torMode = torMode;
       SharedPreferences.Editor editor = getEditor();
       editor.putString(Constants.TOR_MODE, torMode.toString());
       editor.commit();
@@ -1086,7 +1078,6 @@ public class MbwManager {
       return accountId;
    }
 
-
    public void forgetColdStorageWalletManager() {
       createTempWalletManager();
    }
@@ -1112,7 +1103,6 @@ public class MbwManager {
 
       return _walletManager.getAccount(uuid);
    }
-
 
    public Optional<UUID> getAccountId(Address address, Class accountClass) {
       Optional<UUID> result = Optional.absent();
@@ -1253,7 +1243,7 @@ public class MbwManager {
    }
 
    public boolean getPinRequiredOnStartup() {
-      return this._pinRequiredOnStartup;
+      return _pinRequiredOnStartup;
    }
 
    public boolean isUnlockPinRequired() {
@@ -1261,15 +1251,15 @@ public class MbwManager {
    }
 
    public void setStartUpPinUnlocked(boolean unlocked) {
-      this.startUpPinUnlocked = unlocked;
+      startUpPinUnlocked = unlocked;
    }
 
-   public void setPinRequiredOnStartup(boolean _pinRequiredOnStartup) {
+   public void setPinRequiredOnStartup(boolean pinRequiredOnStartup) {
       SharedPreferences.Editor editor = getEditor();
-      editor.putBoolean(Constants.PIN_SETTING_REQUIRED_ON_STARTUP, _pinRequiredOnStartup);
+      editor.putBoolean(Constants.PIN_SETTING_REQUIRED_ON_STARTUP, pinRequiredOnStartup);
       editor.commit();
 
-      this._pinRequiredOnStartup = _pinRequiredOnStartup;
+      _pinRequiredOnStartup = pinRequiredOnStartup;
    }
 
    /**
@@ -1350,18 +1340,5 @@ public class MbwManager {
          }
       }, 1, SECONDS);
 
-   }
-
-   /**
-    * Refresh transaction data and exchange rates.
-    */
-   public void manualRefresh(SyncMode syncMode) {
-      //switch server every third time the refresh button gets hit
-      if (new Random().nextInt(3) == 0) {
-         switchServer();
-      }
-      getWalletManager(false).startSynchronization(syncMode);
-      // also fetch a new exchange rate, if necessary
-      getExchangeRateManager().requestOptionalRefresh();
    }
 }
