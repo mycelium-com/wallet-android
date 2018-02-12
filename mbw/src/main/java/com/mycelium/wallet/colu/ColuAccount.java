@@ -79,7 +79,8 @@ import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.squareup.otto.Bus;
-import com.subgraph.orchid.encoders.Hex;
+
+import org.spongycastle.util.encoders.Hex;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -567,6 +568,7 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
       return null;
    }
 
+   @Override
    public TransactionDetails getTransactionDetails(Sha256Hash txid) {
       TransactionDetails details = null;
       TransactionSummary summary = getTransactionSummary(txid);
@@ -767,23 +769,16 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
 
    @Override
    public BroadcastResult broadcastTransaction(com.mrd.bitlib.model.Transaction transaction) {
-      return null;
+      if (manager.broadcastTransaction(transaction)) {
+         return BroadcastResult.SUCCESS;
+      } else {
+         return BroadcastResult.REJECTED;
+      }
    }
 
    @Override
    public TransactionEx getTransaction(Sha256Hash txid) {
-      TransactionEx tex = null;
-      for (Utxo.Json utxo : utxosList) {
-         if (utxo.txid.contentEquals(txid.toString())) {
-            Sha256Hash tHash = new Sha256Hash(Hex.decode(utxo.txid));
-            tex = new TransactionEx(tHash,
-                    utxo.blockheight,
-                    utxo.blockheight,
-                    null);
-         }
-      }
-
-      return tex;
+      return accountBacking.getTransaction(txid);
    }
 
    @Override
