@@ -34,6 +34,7 @@
 
 package com.mycelium.wallet.activity.modern;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -154,7 +155,8 @@ public class ModernMain extends AppCompatActivity {
       // pixel format, this saves around 10MB of allocated memory
       // persist the loaded Bitmap in the context of mbw-manager and reuse it every time this activity gets created
       try {
-         BitmapDrawable background = (BitmapDrawable) _mbwManager.getBackgroundObjectsCache().get("mainBackground", new Callable<BitmapDrawable>() {
+         BitmapDrawable background = (BitmapDrawable) _mbwManager.getBackgroundObjectsCache().get("mainBackground" +
+                 getResources().getConfiguration().orientation, new Callable<BitmapDrawable>() {
             @Override
             public BitmapDrawable call() throws Exception {
                BitmapFactory.Options options = new BitmapFactory.Options();
