@@ -576,7 +576,7 @@ public class SettingsActivity extends PreferenceActivity {
       if (preference != null) {
          preference.setSummary(Html.fromHtml(module.getDescription()
                  + "<br/>"
-                 + addColorHtmlTag(getString(R.string.sync_progress, progress), "#f0c0")));
+                 + addColorHtmlTag(getString(R.string.sync_progress, progress), "#00CC00")));
       }
    }
 
