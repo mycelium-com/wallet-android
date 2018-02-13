@@ -113,7 +113,6 @@ public class ExampleTest {
       }
    }
 
-
    private class TestRandom implements RandomSource {
       private SecureRandom _secureRandom;
 

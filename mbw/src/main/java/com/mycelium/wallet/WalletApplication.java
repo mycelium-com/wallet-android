@@ -34,6 +34,7 @@
 
 package com.mycelium.wallet;
 
+import java.security.Security;
 import java.util.Locale;
 
 import android.content.res.Configuration;
@@ -41,9 +42,14 @@ import android.support.multidex.MultiDexApplication;
 import android.util.Log;
 
 public class WalletApplication extends MultiDexApplication {
-
    @Override
    public void onCreate() {
+      int loadedBouncy = Security.insertProviderAt(new org.spongycastle.jce.provider.BouncyCastleProvider(), 1);
+      if(loadedBouncy == -1) {
+         Log.e("WalletApplication", "Failed to insert spongy castle provider");
+      } else {
+         Log.d("WalletApplication", "Inserted spongy castle provider");
+      }
       String lang = MbwManager.getInstance(this).getLanguage();
       applyLanguageChange(lang);
       super.onCreate();
