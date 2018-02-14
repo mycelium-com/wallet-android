@@ -113,10 +113,10 @@ public class ColdStorageSummaryActivity extends Activity {
       Double price = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
 
       // Fiat
+      TextView tvFiat = findViewById(R.id.tvFiat);
       if (!_mbwManager.hasFiatCurrency() || price == null) {
-         findViewById(R.id.tvFiat).setVisibility(View.INVISIBLE);
+         tvFiat.setVisibility(View.INVISIBLE);
       } else {
-         TextView tvFiat = findViewById(R.id.tvFiat);
          String converted = Utils.getFiatValueAsString(balance.getSpendableBalance(), price);
          String currency = _mbwManager.getFiatCurrency();
          tvFiat.setText(getResources().getString(R.string.approximate_fiat_value, currency, converted));

@@ -54,8 +54,6 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.CharMatcher;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -99,7 +97,6 @@ import info.guardianproject.onionkit.ui.OrbotHelper;
  * Type>("<Preference Key>",<default value>);
  */
 public class SettingsActivity extends PreferenceActivity {
-   public static final CharMatcher AMOUNT = CharMatcher.JAVA_DIGIT.or(CharMatcher.anyOf(".,"));
    private final OnPreferenceClickListener localCurrencyClickListener = new OnPreferenceClickListener() {
       public boolean onPreferenceClick(Preference preference) {
          SetLocalCurrencyActivity.callMe(SettingsActivity.this);
@@ -251,30 +248,6 @@ public class SettingsActivity extends PreferenceActivity {
    private ListPreference _minerFee;
    private ListPreference _blockExplorer;
 
-   @SuppressWarnings("ResultOfMethodCallIgnored")
-   @VisibleForTesting
-   static boolean isNumber(String text) {
-      try {
-         Double.parseDouble(text);
-      } catch (NumberFormatException ignore) {
-         return false;
-      }
-      return true;
-   }
-
-   @VisibleForTesting
-   static String extractAmount(CharSequence s) {
-      String amt = AMOUNT.retainFrom(s).replace(",", ".");
-      int commaIdx = amt.indexOf(".");
-      if (commaIdx > -1) {
-         String cents = amt.substring(commaIdx + 1, Math.min(amt.length(), commaIdx + 3));
-         String euros = amt.substring(0, commaIdx);
-         return euros + "." + cents;
-      }
-      return amt;
-   }
-
-   @SuppressWarnings("deprecation")
    @Override
    public void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
@@ -685,7 +658,6 @@ public class SettingsActivity extends PreferenceActivity {
               _mbwManager._blockExplorerManager.getBlockExplorer().getTitle());
    }
 
-   @SuppressWarnings("deprecation")
    private void updateClearPin() {
       Preference clearPin = findPreference("clearPin");
       clearPin.setEnabled(_mbwManager.isPinProtected());
@@ -698,11 +670,10 @@ public class SettingsActivity extends PreferenceActivity {
    }
 
    private class SubscribeToServerResponse extends LocalTraderEventSubscriber {
-
       private Button okButton;
       private EditText emailEdit;
 
-      public SubscribeToServerResponse() {
+      SubscribeToServerResponse() {
          super(new Handler());
       }
 
@@ -758,7 +729,6 @@ public class SettingsActivity extends PreferenceActivity {
          pleaseWait.dismiss();
          new Toaster(SettingsActivity.this).toast(getString(R.string.lt_set_email_error), false);
          _ltManager.unsubscribe(this);
-
       }
    }
 }
