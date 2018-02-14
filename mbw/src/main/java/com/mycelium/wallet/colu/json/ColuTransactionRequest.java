@@ -7,7 +7,6 @@ import com.google.api.client.util.Key;
 
 public class ColuTransactionRequest {
     public static class Json extends GenericJson {
-
         @Key
         public long fee;
 
