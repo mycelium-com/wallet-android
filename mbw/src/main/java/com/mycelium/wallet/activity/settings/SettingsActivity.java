@@ -112,6 +112,7 @@ public class SettingsActivity extends PreferenceActivity {
                     @Override
                     public void run() {
                        updateClearPin();
+                       updatePinAtStartup();
                     }
                  })
          );
@@ -143,6 +144,7 @@ public class SettingsActivity extends PreferenceActivity {
             @Override
             public void run() {
                updateClearPin();
+               updatePinAtStartup();
             }
          }));
          return true;
@@ -417,9 +419,7 @@ public class SettingsActivity extends PreferenceActivity {
       updateClearPin();
 
       // PIN required on startup
-      CheckBoxPreference setPinRequiredStartup = (CheckBoxPreference) Preconditions.checkNotNull(findPreference("requirePinOnStartup"));
-      setPinRequiredStartup.setOnPreferenceChangeListener(setPinOnStartupClickListener);
-      setPinRequiredStartup.setChecked(_mbwManager.getPinRequiredOnStartup());
+      updatePinAtStartup();
 
       // Legacy backup function
       Preference legacyBackup = Preconditions.checkNotNull(findPreference("legacyBackup"));
@@ -690,6 +690,13 @@ public class SettingsActivity extends PreferenceActivity {
       Preference clearPin = findPreference("clearPin");
       clearPin.setEnabled(_mbwManager.isPinProtected());
       clearPin.setOnPreferenceClickListener(clearPinClickListener);
+   }
+
+   private void updatePinAtStartup() {
+      CheckBoxPreference setPinRequiredStartup = (CheckBoxPreference) Preconditions.checkNotNull(findPreference("requirePinOnStartup"));
+      setPinRequiredStartup.setOnPreferenceChangeListener(setPinOnStartupClickListener);
+      setPinRequiredStartup.setEnabled(_mbwManager.isPinProtected());
+      setPinRequiredStartup.setChecked(_mbwManager.isPinProtected() && _mbwManager.getPinRequiredOnStartup());
    }
 
    @Override
