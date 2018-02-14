@@ -9,8 +9,6 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 import retrofit2.Call;
@@ -39,16 +37,12 @@ public class ChangellyService extends IntentService {
     public static final String TO = "TO";
     public static final String AMOUNT = "AMOUNT";
     public static final String DESTADDRESS = "DESTADDRESS";
-    public static final String TXID = "TXID";
     public static final String OFFER = "OFFER";
     public static final String FROM_AMOUNT = "FROM_AMOUNT";
 
     private ChangellyAPIService changellyAPIService = ChangellyAPIService.retrofit.create(ChangellyAPIService.class);
 
     private List<String> currencies;
-    private Date dateCurrencies;
-
-    private HashMap<String, Double> currenciesMinAmounts;
 
     public ChangellyService() {
         super("ChangellyService");
@@ -61,7 +55,6 @@ public class ChangellyService extends IntentService {
             String currs = "";
             if(result != null) {
                 currencies = result.result;
-                dateCurrencies = new Date();
                 currs = TextUtils.join(" ", currencies);
             }
             Log.d(LOG_TAG, "Active currencies: " + currs);
@@ -77,10 +70,6 @@ public class ChangellyService extends IntentService {
             ChangellyAnswerDouble result = call2.execute().body();
             if(result != null) {
                 Log.d("MyceliumChangelly", "Minimum amount " + from + to + ": " + result.result);
-                if(currenciesMinAmounts == null) {
-                    currenciesMinAmounts = new HashMap<>();
-                }
-                currenciesMinAmounts.put(from+to, result.result);
                 return result.result;
             }
         } catch (IOException e) {
@@ -109,7 +98,6 @@ public class ChangellyService extends IntentService {
         try {
             ChangellyTransaction result = call4.execute().body();
             if(result != null) {
-
                 //Log.d("MyceliumChangelly", "createTransaction answer: " + result.result);
                 return result.result;
             }
