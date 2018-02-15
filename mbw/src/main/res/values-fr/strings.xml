@@ -118,7 +118,7 @@
   <string name="backup_legacy_warning">Vous allez sauvegarder les comptes à adresse unique de votre portefeuille. \nCette sauvegarde ne contiendra pas votre master seed, aucun de vos comptes HD ne peut être restauré depuis celle-ci !\n\nSouhaitez-vous continuer ?</string>
   <string name="export_to_clipboard_warning">AVERTISSEMENT : Exporter la clé privée vers le presse-papier l\'expose à toutes les autres applications de votre appareil.\n\nNote : Garder votre clé privée dans le presse-papier ne suffit pas, vous devez également la coller à un endroit sûr.\n\nVoulez-vous continuer ?</string>
   <string name="found_clipboard_private_key_title">Clé privée trouvée dans le presse-papier</string>
-  <string name="found_clipboard_private_keys_message">Le presse-papier contient une clé privée.\r\nVoulez-vous effacer le presse-papier ?</string>
+  <string name="found_clipboard_private_keys_message">Le presse-papier contient une clé privée.\nVoulez-vous effacer le presse-papier ?</string>
   <string name="exchange_source_not_available">Taux de change non disponible pour %1$s</string>
   <string name="my_own_address_warning">Remarque : Vous envoyez vers l\'une de vos propres adresses.</string>
   <string name="read_only_warning">AVERTISSEMENT : Votre portefeuille n\'a pas la clé privée de cette adresse.\nVous ne pouvez pas dépenser les fonds sans avoir la clé privée.</string>
@@ -197,7 +197,7 @@
   <string name="encrypted_pdf_backup_document_ready">Document PDF créé</string>
   <string name="encrypted_pdf_backup_sharing">Partage du document PDF&#8230;</string>
   <string name="encrypted_pdf_backup_email_title">Sauvegarde de portefeuille Mycelium</string>
-  <string name="encrypted_pdf_backup_email_text">Vous trouverez ci-joint la sauvegarde de votre portefeuille Mycelium.\r\n\r\nVeuillez suivre les étapes suivantes afin de sécuriser les fonds :\r\n1. Imprimer le document PDF.\r\n2. Écrire les 15 caractères affichés sur votre appareil Android dans les cases bleues à cet effet.\r\n3. S\'assurer que vous parvenez à importer les clés privées à votre portefeuille Mycelium.\r\n4. Ranger l\'impression en lieu sûr.</string>
+  <string name="encrypted_pdf_backup_email_text">Vous trouverez ci-joint la sauvegarde de votre portefeuille Mycelium.\n\nVeuillez suivre les étapes suivantes afin de sécuriser les fonds :\n1. Imprimer le document PDF.\n2. Écrire les 15 caractères affichés sur votre appareil Android dans les cases bleues à cet effet.\n3. S\'assurer que vous parvenez à importer les clés privées à votre portefeuille Mycelium.\n4. Ranger l\'impression en lieu sûr.</string>
   <string name="share_pdf">Partager PDF</string>
   <string name="share_with">Partager avec&#8230;</string>
   <string name="import_decrypt_key_title">Déchiffrement de clé privée</string>

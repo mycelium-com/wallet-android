@@ -99,7 +99,7 @@
   <string name="delete">Șterge</string>
   <string name="payment_request">Cerere de Plată</string>
   <string name="found_clipboard_private_key_title">Cheie privată descoperită în Clipboard</string>
-  <string name="found_clipboard_private_keys_message">Clipboard-ul conţine o cheie privată.\r\nVrei să o ştergi?</string>
+  <string name="found_clipboard_private_keys_message">Clipboard-ul conţine o cheie privată.\nVrei să o ştergi?</string>
   <string name="add_to_address_book_dialog_title">Adaugă adresă</string>
   <string name="scan_address_book_desc">Scanează Adresa Bitcoin.</string>
   <string name="clipboard_address_book_desc">Preia adresa Bitcoin din clipboard.</string>

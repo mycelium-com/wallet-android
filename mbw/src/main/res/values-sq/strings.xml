@@ -117,7 +117,7 @@
   <string name="backup_legacy_warning">Kjo krijon një kopje rezervë të një adrese të vetme në kuletën tuaj. \nKjo kopje rezervë nuk përmban master seed, asnjë HD llogari nuk mund të rikthehet nga kjo!\n\nDoni të vazhdoni?</string>
   <string name="export_to_clipboard_warning">Paralajmërim: Eksportimi i të dhënave të llogaris suaj në memorje ekspozon këto të dhëna tek të gjithë aplikacionet tjera në pajisjen tuaj.\n\nNjoftim: Mjafton të ruani të dhënat private në memorje por gjithashtu duhet të ngjisni sigurtë atë.\n\nDoni të vazhdoni?</string>
   <string name="found_clipboard_private_key_title">Është gjetur çelës privat në memorje</string>
-  <string name="found_clipboard_private_keys_message">Memorja përmban një çelës privat.\r\nDoni ta fshini nga memorja?</string>
+  <string name="found_clipboard_private_keys_message">Memorja përmban një çelës privat.\nDoni ta fshini nga memorja?</string>
   <string name="exchange_source_not_available">Kursi i këmbimit nuk është në dispozicion për %1$s</string>
   <string name="my_own_address_warning">Njoftim: Jeni duke dërguar monedha në një nga adresat e juaja.</string>
   <string name="read_only_warning">Paralajmerim: Kuleta juaj nuk ka çelësin privat për këtë adresë.\nNuk mund të shpenzoni monedhat që keni pranuar, përveç nëse e keni çelësin privat diku tjetër.</string>
@@ -196,7 +196,7 @@
   <string name="encrypted_pdf_backup_document_ready">PDF dokumenti u krijua</string>
   <string name="encrypted_pdf_backup_sharing">Duke e ndarë PDF dokumentin&#8230;</string>
   <string name="encrypted_pdf_backup_email_title">Kopja rezervë Mycelium Wallet</string>
-  <string name="encrypted_pdf_backup_email_text">Mycelium kopja rezervë e kuletës suaj është e bashkangjitur.\r\n\r\nNdjeki këta hapa për të ruajtur fondet e juaja:\r\n1. Printo PDF dokumentin.\r\n2. Shkruaj fjalëkalimin 15 karakterësh nga Android pajisja juaj në katrorët e kaltërt të dokumentit të printuar.\r\n3. Verifiko se mund të importosh çelësat privat në Mycelium Wallet.\r\n4. Ruaj dokumentin e printuar në një vend të sigurtë.</string>
+  <string name="encrypted_pdf_backup_email_text">Mycelium kopja rezervë e kuletës suaj është e bashkangjitur.\n\nNdjeki këta hapa për të ruajtur fondet e juaja:\n1. Printo PDF dokumentin.\n2. Shkruaj fjalëkalimin 15 karakterësh nga Android pajisja juaj në katrorët e kaltërt të dokumentit të printuar.\n3. Verifiko se mund të importosh çelësat privat në Mycelium Wallet.\n4. Ruaj dokumentin e printuar në një vend të sigurtë.</string>
   <string name="share_pdf">Ndaje PDF</string>
   <string name="share_with">Ndaje me&#8230;</string>
   <string name="import_decrypt_key_title">Dekriptimi i çelësit privat</string>

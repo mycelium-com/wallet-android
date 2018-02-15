@@ -120,7 +120,7 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="backup_legacy_warning">Sie erstellen das Backup für die Konten mit einer einzelnen Adresse in Ihrer Wallet.\nDieses Backup ist ohne Ihre Master Seed, keines Ihrer HD Konten kann so wiederhergestellt werden!\n\nMöchten Sie fortfahren?</string>
   <string name="export_to_clipboard_warning">Hinweis:Sie kopieren nun den privaten Schlüssel in die Zwischenablage. Damit es er für alle anderen Apps auf Ihrem Gerät zugänglich.\n\nBeachten Sie: Es genügt nicht, Ihren privaten Schlüssel in der Zwischenablage abzulegen, Sie müssen ihn auch anderswo sicher ablegen.\n\nMöchten Sie fortfahren?</string>
   <string name="found_clipboard_private_key_title">Privater Schlüssel in der Zwischenablage gefunden</string>
-  <string name="found_clipboard_private_keys_message">In Ihrer Zwischenablage befindet sich ein privater Schlüssel.\r\nMöchten Sie ihn löschen?</string>
+  <string name="found_clipboard_private_keys_message">In Ihrer Zwischenablage befindet sich ein privater Schlüssel.\nMöchten Sie ihn löschen?</string>
   <string name="exchange_source_not_available">Wechselkurs für %1$s nicht verfügbar</string>
   <string name="my_own_address_warning">Achtung: Sie senden Bitcoins zu einer Ihrer eigenen Adressen</string>
   <string name="read_only_warning">Hinweis: Ihre Wallet hat keinen privaten Schlüssel für diese Adresse. \nSie können erhaltene Bitcoins nur ausgeben, wenn Sie den privaten Schlüssel an einem anderen Ort haben.</string>
@@ -199,7 +199,7 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="encrypted_pdf_backup_document_ready">PDF-Dokument erstellt</string>
   <string name="encrypted_pdf_backup_sharing">PDF-Dokument teilen&#8230;</string>
   <string name="encrypted_pdf_backup_email_title">Mycelium Wallet Backup</string>
-  <string name="encrypted_pdf_backup_email_text">Sie finden Ihr Mycelium Wallet Backup im Anhang.\r\n\r\nMit diesen einfachen Schritten sichern Sie nun Ihre Bitcoins:\r\n1. PDF-Dokument drucken.\r\n2. Das 15-Zeichen lange Passwort vom Display Ihres Android-Geräts abschreiben und in die vorgesehenen Kästchen auf Ihrem Ausdruck eintragen.\r\n3. Prüfen Sie, ob Sie die privaten Schlüssel in Ihr Mycelium Wallet importieren können.\r\n4. Bewahren Sie den Ausdruck an einem sicheren Ort auf.</string>
+  <string name="encrypted_pdf_backup_email_text">Sie finden Ihr Mycelium Wallet Backup im Anhang.\n\nMit diesen einfachen Schritten sichern Sie nun Ihre Bitcoins:\n1. PDF-Dokument drucken.\n2. Das 15-Zeichen lange Passwort vom Display Ihres Android-Geräts abschreiben und in die vorgesehenen Kästchen auf Ihrem Ausdruck eintragen.\n3. Prüfen Sie, ob Sie die privaten Schlüssel in Ihr Mycelium Wallet importieren können.\n4. Bewahren Sie den Ausdruck an einem sicheren Ort auf.</string>
   <string name="share_pdf">PDF-Dokument teilen</string>
   <string name="share_with">Teilen mit&#8230;</string>
   <string name="import_decrypt_key_title">Privaten Schlüssel entschlüsseln</string>
