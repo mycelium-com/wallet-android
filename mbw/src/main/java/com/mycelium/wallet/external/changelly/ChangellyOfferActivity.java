@@ -119,7 +119,7 @@ public class ChangellyOfferActivity extends AppCompatActivity {
                 case INFO_ERROR:
                     progressDialog.dismiss();
                     new AlertDialog.Builder(ChangellyOfferActivity.this)
-                            .setMessage("Exchange service not available now, try later")
+                            .setMessage(R.string.exchange_service_unavailable)
                             .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
