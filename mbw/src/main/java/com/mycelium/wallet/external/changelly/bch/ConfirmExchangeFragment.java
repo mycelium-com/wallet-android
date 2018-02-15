@@ -12,6 +12,7 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,6 +34,7 @@ import com.mycelium.wallet.external.changelly.ChangellyService;
 import com.mycelium.wallet.external.changelly.Constants;
 import com.mycelium.wallet.external.changelly.ExchangeLoggingService;
 import com.mycelium.wallet.external.changelly.model.Order;
+import com.mycelium.wallet.pdf.BCHExchangeReceiptBuilder;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -115,7 +117,7 @@ public class ConfirmExchangeFragment extends Fragment {
             WalletAccount account = mbwManager.getSelectedAccount();
             Intent intent = IntentContract.BroadcastTransaction.createIntent(transaction.toBytes());
             WalletApplication.sendToSpv(intent, account.getType());
-            Order order = new Order();
+            final Order order = new Order();
             order.transactionId = transaction.getHash().toString();
             order.exchangingAmount = String.valueOf(offer.amountFrom);
             order.exchangingCurrency = "BCH";
@@ -123,6 +125,28 @@ public class ConfirmExchangeFragment extends Fragment {
             order.receivingAmount = String.valueOf(offer.amountTo);
             order.receivingCurrency = "BTC";
             order.timestamp = SimpleDateFormat.getDateTimeInstance().format(new Date());
+
+            new AlertDialog.Builder(getActivity())
+                    .setTitle(R.string.success)
+                    .setMessage(Html.fromHtml(getString(R.string.exchange_order_placed_dialog
+                            , order.timestamp
+                            , order.transactionId
+                            , order.exchangingAmount
+                            , order.receivingAmount)))
+                    .setPositiveButton(R.string.save_receipt, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            new BCHExchangeReceiptBuilder()
+                                    .setTransactionId(order.transactionId)
+                                    .setDate(order.timestamp)
+                                    .setReceivingAmount(order.receivingAmount + " " + order.receivingCurrency)
+                                    .setReceivingAddress(order.receivingAddress)
+                                    .setSpendingAmount(order.exchangingAmount + " " + order.exchangingCurrency)
+                                    .build();
+                        }
+                    })
+                    .setNegativeButton(R.string.close, null)
+                    .create().show();
 
             ExchangeLoggingService.exchangeLoggingService.saveOrder(order).enqueue(new Callback<Void>() {
                 @Override

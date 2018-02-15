@@ -756,7 +756,7 @@
     <string name="payment_request_warning_no_sig">The origin of this payment request can not be verified, because it has no signature.\n\nPlease be very cautious, as there might be someone intercepting it and changing payout addresses.</string>
 
     <string name="label_cold_storage_external_signing">Sign with:</string>
-    <string name="spending_unconfirmed_warning">Warning: spending unconfirmed funds</string>
+    <string name="spending_unconfirmed_warning">Warning: spendingAmount unconfirmed funds</string>
     <string name="spending_unconfirmed_title">Spending unconfirmed funds</string>
     <string name="spending_unconfirmed_description">Your transaction uses funds which have not been included in a bitcoin block yet. If for any reason the transaction which sends these coins to you fails or stays unconfirmed, your transaction will fail or stay unconfirmed as well.</string>
     <string name="label_unverified_recipient">unverified Recipient</string>
@@ -1035,7 +1035,7 @@ You can either add miner\'s fee from any account with bitcoins every time you ma
 This account allows you to spend BTC, received from the RMC pool.
 All new bitcoins, mined by the pool, are proportionally distributed among RMC bitcoin accounts.
         \n
-        In order to protect your assets from accidentally being "burned" while spending BTC from your "RMC Bitcoin" linked account, digital assets unspent transaction outputs (UTXO) and corresponding technical transactions (so-called "dust") are not taken into account.</string>
+        In order to protect your assets from accidentally being "burned" while spendingAmount BTC from your "RMC Bitcoin" linked account, digital assets unspent transaction outputs (UTXO) and corresponding technical transactions (so-called "dust") are not taken into account.</string>
     <string name="what_is_it">What is it?</string>
     <string name="error_start_google_calendar">Something wrong with google calendar</string>
     <string name="both_rmc_will_deleted" formatted="false">Both %s and %s accounts will be  deleted.</string>
@@ -1156,6 +1156,9 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="exchange_rate_unavailable">Exchange rate is temporarily unavailable.</string>
     <string name="exchange_service_unavailable">Exchange service is temporarily unavailable.\nPlease try again later.</string>
     <string name="uninstall">Uninstall</string>
+    <string name="exchange_order_placed_dialog"><![CDATA[Your exchange order has been placed. BTC will be sent to you after 12 confirmations on your BCH transaction.<br/>Order details: Date: %s<br/>TxID: %s<br/>Spending: %s BCH<br/>Receiving: %s BTC<br/><font color="#f08c18">Receiving amount is estimated due to the high volatility of the cryptomarket.</font>To track your order please save the payment receipt. You can only do it now!]]></string>
+    <string name="success">Success!</string>
+    <string name="save_receipt">Save receipt</string>
     <plurals name="account_label">
         <item quantity="one">Account label:\n%s</item>
         <item quantity="other">Accounts labels:\n%s</item>
