@@ -109,6 +109,9 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
       for (WalletAccount account : accounts) {
          //TODO: add check whether coluaccount is in hd or singleaddress mode
          if (account instanceof SingleAddressAccount) {
+            if (!account.isVisible()) {
+               continue;
+            }
             EntryToExport entry;
             SingleAddressAccount a = (SingleAddressAccount) account;
             Address address = a.getAddress();
