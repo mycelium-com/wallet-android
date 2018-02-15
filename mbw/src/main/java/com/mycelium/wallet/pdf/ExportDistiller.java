@@ -51,16 +51,22 @@ import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import com.mycelium.wallet.R;
-import crl.android.pdfwriter.PDFWriter;
-import crl.android.pdfwriter.PaperSize;
-import crl.android.pdfwriter.StandardFonts;
+import com.mycelium.wapi.wallet.WalletAccount;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.text.DateFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.Hashtable;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
+
+import crl.android.pdfwriter.PDFWriter;
+import crl.android.pdfwriter.PaperSize;
+import crl.android.pdfwriter.StandardFonts;
 
 public class ExportDistiller {
 
@@ -74,12 +80,14 @@ public class ExportDistiller {
       public String encryptedKey;
       public String encryptedMasterSeed;
       public String label;
+      public WalletAccount.Type accountType;
 
-      public ExportEntry(String address, String encryptedKey, String encryptedMasterSeed, String label) {
+      public ExportEntry(String address, String encryptedKey, String encryptedMasterSeed, String label, WalletAccount.Type accountType) {
          this.address = address;
          this.encryptedKey = encryptedKey;
          this.encryptedMasterSeed = encryptedMasterSeed;
          this.label = label;
+         this.accountType = accountType;
       }
 
    }
@@ -400,7 +408,17 @@ public class ExportDistiller {
 
       // Titles
       writer.setTextColor(0, 0, 0);
-      writer.addText(3F, fromTop, 13, "Bitcoin Address");
+      switch (entry.accountType) {
+         case BCHSINGLEADDRESS:
+            writer.addText(2.05F, fromTop, 13, "Bitcoin");
+            writer.setTextColor(0.9411, 0.5490, 0.09411);
+            writer.addText(3.60F, fromTop, 13, "Cash");
+            writer.setTextColor(0, 0, 0);
+            writer.addText(4.72F, fromTop, 13, "Address");
+            break;
+         default:
+            writer.addText(3F, fromTop, 13, "Bitcoin Address");
+      }
       if (hasEpk) {
          writer.addText(12F, fromTop, 13, "Encrypted Private Key");
       }
