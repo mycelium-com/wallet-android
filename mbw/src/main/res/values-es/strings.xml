@@ -118,7 +118,7 @@
   <string name="backup_legacy_warning">Vas a hacer una copia de seguridad de las cuentas de dirección única de tu monedero.\nEste respaldo no contendrá la semilla, ninguna de tus cuentas puede ser restaurada desde ella\n\n¿Quieres proceder?</string>
   <string name="export_to_clipboard_warning">Atención: Exportar la clave privada al portapapeles la expone a todas las otras aplicaciones en tu dispositivo.\n\n Nota: No es suficiente almacenar la clave privada en el portapapeles, también tienes que pegarla en algún lugar seguro.\n\n¿Deseas continuar?</string>
   <string name="found_clipboard_private_key_title">Clave privada encontrada en el portapapeles</string>
-  <string name="found_clipboard_private_keys_message">El portapapeles contiene una clave privada.\r\n¿Deseas limpiar el portapapeles?</string>
+  <string name="found_clipboard_private_keys_message">El portapapeles contiene una clave privada.\n¿Deseas limpiar el portapapeles?</string>
   <string name="exchange_source_not_available">Tipo de cambio actual no disponible para %1$s</string>
   <string name="my_own_address_warning">Nota: Estás enviando a una de tus propias direcciones.</string>
   <string name="read_only_warning">Atención: Tu monedero no dispone de la clave privada para esta dirección.\nNo puedes gastar los bitcoin recibidos a no ser que dispongas de la clave privada en algún otro lugar.</string>
@@ -197,7 +197,7 @@
   <string name="encrypted_pdf_backup_document_ready">Documento PDF creado</string>
   <string name="encrypted_pdf_backup_sharing">Compartir documentos PDF...</string>
   <string name="encrypted_pdf_backup_email_title">Copia de seguridad de Mycelium Wallet</string>
-  <string name="encrypted_pdf_backup_email_text">Adjuntamos la copia de seguridad de tu monedero Mycelium \r\n\r\nSigue estos sencillos pasos para asegurar tus fondos:\r\n1. Imprime el documento en PDF.\r\n2. Escribe la contraseña de 15 caracteres que aparece en la pantalla de tu dispositivo Android en los recuadros azules de la hoja impresa.\r\n3. Comprueba que puedes importar las claves a tu Mycelium Wallet.\r\n4. Almacena la hoja impresa en un lugar seguro.</string>
+  <string name="encrypted_pdf_backup_email_text">Adjuntamos la copia de seguridad de tu monedero Mycelium \n\nSigue estos sencillos pasos para asegurar tus fondos:\n1. Imprime el documento en PDF.\n2. Escribe la contraseña de 15 caracteres que aparece en la pantalla de tu dispositivo Android en los recuadros azules de la hoja impresa.\n3. Comprueba que puedes importar las claves a tu Mycelium Wallet.\n4. Almacena la hoja impresa en un lugar seguro.</string>
   <string name="share_pdf">Compartir PDF</string>
   <string name="share_with">Compartir con...</string>
   <string name="import_decrypt_key_title">Descifrado de Clave Privada</string>
