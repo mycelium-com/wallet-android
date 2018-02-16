@@ -117,7 +117,7 @@
   <string name="backup_legacy_warning">U maakt een back-up van het Eén Adres Account in uw portemonnee. \nDeze backup bevat niet uw master seed, geen van uw HD accounts kan hiermee worden hersteld!\n\nWilt u doorgaan?</string>
   <string name="export_to_clipboard_warning">Waarschuwing: Door de private key te exporteren naar het klembord stelt u deze bloot aan alle andere apps op uw apparaat .\n\nOpmerking: Het volstaat niet om uw persoonlijke sleutel naar het klembord te kopiëren, u dient deze ook ergens veilig op te slaan / plakken.\n\nWilt u doorgaan?</string>
   <string name="found_clipboard_private_key_title">Private key gevonden op klembord</string>
-  <string name="found_clipboard_private_keys_message">Het klembord bevat een private key.\r\nWilt u deze verwijderen?</string>
+  <string name="found_clipboard_private_keys_message">Het klembord bevat een private key.\nWilt u deze verwijderen?</string>
   <string name="exchange_source_not_available">Wisselkoers is momenteel niet beschikbaar voor %1$s</string>
   <string name="my_own_address_warning">Opmerking: U verzendt naar een van uw eigen adressen.</string>
   <string name="read_only_warning">Waarschuwing: Uw portemonnee beschikt niet over de private key voor dit adres \nU kunt ontvangen munten niet uitgeven tenzij u elders beschikt over de private key van dit Bitcoin adres.</string>
@@ -196,7 +196,7 @@
   <string name="encrypted_pdf_backup_document_ready">PDF-document is aangemaakt</string>
   <string name="encrypted_pdf_backup_sharing">PDF-document delen&#8230;</string>
   <string name="encrypted_pdf_backup_email_title">Mycelium wallet back-up</string>
-  <string name="encrypted_pdf_backup_email_text">Uw Mycelium back-up is bijgesloten. \r\n\r\nVolg deze eenvoudige stappen om uw Bitcoins veilig te stellen.\r\n1. Afdrukken van het PDF-document.\r\n2. Schrijf het wachtwoord van 15-tekens dat weergegeven wordt op uw Android apparaat in de blauwe kaders van de papieren afdruk.\r\n3. Controleer of u de private keys naar uw Mycelium Wallet kunt importeren.\r\n4. Bewaar de afdruk op een veilige plaats.</string>
+  <string name="encrypted_pdf_backup_email_text">Uw Mycelium back-up is bijgesloten. \n\nVolg deze eenvoudige stappen om uw Bitcoins veilig te stellen.\n1. Afdrukken van het PDF-document.\n2. Schrijf het wachtwoord van 15-tekens dat weergegeven wordt op uw Android apparaat in de blauwe kaders van de papieren afdruk.\n3. Controleer of u de private keys naar uw Mycelium Wallet kunt importeren.\n4. Bewaar de afdruk op een veilige plaats.</string>
   <string name="share_pdf">PDF delen</string>
   <string name="share_with">Delen met&#8230;</string>
   <string name="import_decrypt_key_title">Private key decodering</string>

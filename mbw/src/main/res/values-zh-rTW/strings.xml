@@ -118,7 +118,7 @@
   <string name="backup_legacy_warning">您將備份您錢包中單地址帳戶。 \n 這份備份將不會包含您的主種子，您的HD帳戶不可以從它進行恢復 ！ \n\n 您還要繼續嗎？</string>
   <string name="export_to_clipboard_warning">警告：將私鑰導出到剪貼板內意味將它公開給您手機中安裝的其他應用程序． \n\n注意：在剪貼板中存儲您的私人信息不夠安全，您必須粘貼它到安全的地方\n\n您要繼續嗎？</string>
   <string name="found_clipboard_private_key_title">剪貼板中發現私鑰</string>
-  <string name="found_clipboard_private_keys_message">密匙在剪貼板上\r\n您想刪除它碼</string>
+  <string name="found_clipboard_private_keys_message">密匙在剪貼板上\n您想刪除它碼</string>
   <string name="exchange_source_not_available">無法獲得%1$s匯率</string>
   <string name="my_own_address_warning">注意：您正在發送給您自己的一個地址</string>
   <string name="read_only_warning">警告：您的錢包沒有此地址的私鑰． \n除非您在其他的地方有此地址的私鑰，否則您將不能用接受的比特幣進行消費．</string>
@@ -197,7 +197,7 @@
   <string name="encrypted_pdf_backup_document_ready">創建PDF文件完成</string>
   <string name="encrypted_pdf_backup_sharing">正在共享PDF文件</string>
   <string name="encrypted_pdf_backup_email_title">Mycelium錢包備份</string>
-  <string name="encrypted_pdf_backup_email_text">您的Mycelium錢包備份已經鏈接． \r\n\r\n請執行下列步驟來保護您的資金:\r\n1. 打印PDF文件\r\n2. 從Android設備顯示屏到打印文件的藍框中依次寫一下15個字符的密碼\r\n3. 驗證您可是否以導入私鑰到您的Mycelium錢包\r\n4. 把打印文件存儲在一個安全的地方</string>
+  <string name="encrypted_pdf_backup_email_text">您的Mycelium錢包備份已經鏈接． \n\n請執行下列步驟來保護您的資金:\n1. 打印PDF文件\n2. 從Android設備顯示屏到打印文件的藍框中依次寫一下15個字符的密碼\n3. 驗證您可是否以導入私鑰到您的Mycelium錢包\n4. 把打印文件存儲在一個安全的地方</string>
   <string name="share_pdf">共享PDF</string>
   <string name="share_with">共享與</string>
   <string name="import_decrypt_key_title">密鑰的解密</string>

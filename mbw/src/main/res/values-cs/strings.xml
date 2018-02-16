@@ -118,7 +118,7 @@
   <string name="backup_legacy_warning">Zálohujete účty s jedinou adresou ve vaší peněžence.\nTato záloha nebude obsahovat váš master seed a nelze z ní obnovit žádný HD účet.\n\nChcete pokračovat?</string>
   <string name="export_to_clipboard_warning">Varování: Exportování soukromých dat účtu do schránky je odhaluje všem aplikacím ve vašem zařízení.\n\nPozn.: Nestačí uložit soukromá data do schránky, také je musíte někam bezpečně vložit.\n\nChcete pokračovat?</string>
   <string name="found_clipboard_private_key_title">Ve schránce byl nalezen soukromý klíč</string>
-  <string name="found_clipboard_private_keys_message">Schránka obsahuje soukromý klíč.\r\nChcete vymazat schránku?</string>
+  <string name="found_clipboard_private_keys_message">Schránka obsahuje soukromý klíč.\nChcete vymazat schránku?</string>
   <string name="exchange_source_not_available">Směnný kurz není pro %1$s dostupný</string>
   <string name="my_own_address_warning">Pozn.: Posíláte na jednu z vlastních adres.</string>
   <string name="read_only_warning">Varování: Vaše peněženka nemá soukromý klíč pro tuto adresu.\nNemáte-li soukromý klíč jinde, nemůžete utratit obdržené mince.</string>
@@ -197,7 +197,7 @@
   <string name="encrypted_pdf_backup_document_ready">PDF dokument vytvořen</string>
   <string name="encrypted_pdf_backup_sharing">Sdílím PDF dokument&#8230;</string>
   <string name="encrypted_pdf_backup_email_title">Záloha Mycelium Wallet</string>
-  <string name="encrypted_pdf_backup_email_text">Záloha vaší peněženky Mycelium je přiložena.\n\nPro zabezpečení vašich zdrojů udělejte následující:\r\n1. Vytiskněte PDF dokument.\r\n2. Opište 15znakové heslo z displeje vašeho zařízení do modrých chlívečků.\r\n3. Ověřte, že můžete soukromé klíče importovat do vaší peněženky Mycelium.\r\n4. Uschovejte výtisk na bezpečném místě.</string>
+  <string name="encrypted_pdf_backup_email_text">Záloha vaší peněženky Mycelium je přiložena.\n\nPro zabezpečení vašich zdrojů udělejte následující:\n1. Vytiskněte PDF dokument.\n2. Opište 15znakové heslo z displeje vašeho zařízení do modrých chlívečků.\n3. Ověřte, že můžete soukromé klíče importovat do vaší peněženky Mycelium.\n4. Uschovejte výtisk na bezpečném místě.</string>
   <string name="share_pdf">Sdílet PDF</string>
   <string name="share_with">Sdílet s&#8230;</string>
   <string name="import_decrypt_key_title">Dešifrování soukromého klíče</string>

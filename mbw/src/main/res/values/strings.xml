@@ -125,7 +125,7 @@
     <string name="backup_legacy_warning">Make a Backup of your Private Key!\n\nIt will take you 2 minutes but can save millions! Having a proper backup is a cornerstone when managing your digital assets or Bitcoin funds.\n\nDO NOT USE Mycelium without creating and verifying backup of all your accounts - if you lose your smartphone and have no backup your bitcoins and digital assets will be  lost forever.\n\nDo you want to proceed?</string>
     <string name="export_to_clipboard_warning">Warning: Exporting the private account data to your clipboard exposes it to all other apps on your device.\n\nNote: It is not enough to store your private data on the clipboard, you also have to paste it somewhere safe.\n\nDo you want to continue?</string>
     <string name="found_clipboard_private_key_title">Private Key Found on Clipboard</string>
-    <string name="found_clipboard_private_keys_message">The clipboard contains a private key.\r\nDo you want to clear the clipboard?</string>
+    <string name="found_clipboard_private_keys_message">The clipboard contains a private key.\nDo you want to clear the clipboard?</string>
     <string name="btc_rate">1 BTC ~ %1$s %2$s (%3$s)</string>
     <string name="exchange_source_not_available">Exchange rate not available for %1$s</string>
     <string name="my_own_address_warning">Note: You are sending to one of your own addresses.</string>
@@ -207,7 +207,7 @@
     <string name="encrypted_pdf_backup_document_ready">PDF document created</string>
     <string name="encrypted_pdf_backup_sharing">Sharing PDF document…</string>
     <string name="encrypted_pdf_backup_email_title">Mycelium Wallet Backup</string>
-    <string name="encrypted_pdf_backup_email_text">Your Mycelium wallet backup is attached.\r\n\r\nFollow these simple steps to secure your funds:\r\n1. Print the PDF document.\r\n2. Write the 15-character password from the display of your Android device to the blue boxes of the printout.\r\n3. Verify that you can import the private keys to your Mycelium Wallet.\r\n4. Store the printout in a safe place.</string>
+    <string name="encrypted_pdf_backup_email_text">Your Mycelium wallet backup is attached.\n\nFollow these simple steps to secure your funds:\n1. Print the PDF document.\n2. Write the 15-character password from the display of your Android device to the blue boxes of the printout.\n3. Verify that you can import the private keys to your Mycelium Wallet.\n4. Store the printout in a safe place.</string>
     <string name="share_pdf">Share PDF</string>
     <string name="share_with">Share with…</string>
     <string name="bitcoin_name">Bitcoin</string>

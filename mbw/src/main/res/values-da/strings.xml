@@ -110,7 +110,7 @@
   <string name="backup_legacy_warning">Du er ved at sikkerhedskopiere de enkelte adressekonti i din tegnebog.\nDenne sikkerhedskopi vil ikke indeholde dit master seed; ingen af dine HD-konti kan blive genskabt fra denne kopi!\n\nVil du fortsætte?</string>
   <string name="export_to_clipboard_warning">Advarsel: Eksportering af den private nøgle til Udklipsholderen vil gøre den tilgængelig for andre apps.\n\nNote: Det er ikke nok at gemme den private nøgle til udklipsholderen, du skal også indsætte den et sikkert sted.\n\nVil du fortsætte?</string>
   <string name="found_clipboard_private_key_title">Privat nøgle fundet i udklipsholderen</string>
-  <string name="found_clipboard_private_keys_message">Udklipsholderen indeholder en privat nøgle.\r\nVil du slette den?</string>
+  <string name="found_clipboard_private_keys_message">Udklipsholderen indeholder en privat nøgle.\nVil du slette den?</string>
   <string name="exchange_source_not_available">Valutakurs ikke tilgængelig for %1$s</string>
   <string name="my_own_address_warning">Bemærk: Du sender til en af dine egne adresser.</string>
   <string name="read_only_warning">Advarsel: Din tegnebog indeholder ikke den private nøgle for denne adresse.\nDu kan ikke bruge evt. modtagede mønter, medmindre du har den private nøgle et andet sted.</string>
@@ -182,7 +182,7 @@
   <string name="encrypted_pdf_backup_document_ready">PDF-dokument oprettet</string>
   <string name="encrypted_pdf_backup_sharing">Deling af PDF-dokument&#8230;</string>
   <string name="encrypted_pdf_backup_email_title">Mycelium sikkerhedskopi</string>
-  <string name="encrypted_pdf_backup_email_text">Sikkerhedskopien af din Mycelium-tegnebog er vedlagt.\r\n\r\nFølg disse enkle trin for at sikre dine penge: \r\n1. Udskriv PDF-dokument.\r\n2. Skriv den 15-karakter lange adgangskode ned i den blå boks på udskriften.\r\n3. Kontrollér, at du kan importere den private nøgle til din Mycelium Tegnebog.\r\n4. Gem udskriften et sikkert sted.</string>
+  <string name="encrypted_pdf_backup_email_text">Sikkerhedskopien af din Mycelium-tegnebog er vedlagt.\n\nFølg disse enkle trin for at sikre dine penge: \n1. Udskriv PDF-dokument.\n2. Skriv den 15-karakter lange adgangskode ned i den blå boks på udskriften.\n3. Kontrollér, at du kan importere den private nøgle til din Mycelium Tegnebog.\n4. Gem udskriften et sikkert sted.</string>
   <string name="share_pdf">Del PDF</string>
   <string name="share_with">Del med&#8230;</string>
   <string name="import_decrypt_key_title">Dekryptering af privat nøgle</string>
