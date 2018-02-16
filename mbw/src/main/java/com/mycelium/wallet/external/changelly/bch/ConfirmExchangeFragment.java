@@ -2,6 +2,7 @@ package com.mycelium.wallet.external.changelly.bch;
 
 
 import android.app.AlertDialog;
+import android.app.DownloadManager;
 import android.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
@@ -20,9 +21,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.mrd.bitlib.StandardTransactionBuilder;
-import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
-import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
-import com.mrd.bitlib.StandardTransactionBuilder.UnableToBuildTransactionException;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.Transaction;
 import com.mycelium.spvmodule.IntentContract;
@@ -36,14 +34,18 @@ import com.mycelium.wallet.external.changelly.ExchangeLoggingService;
 import com.mycelium.wallet.external.changelly.model.Order;
 import com.mycelium.wallet.pdf.BCHExchangeReceiptBuilder;
 import com.mycelium.wapi.wallet.AesKeyCipher;
-import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Locale;
 import java.util.UUID;
 
 import butterknife.BindView;
@@ -54,6 +56,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static android.content.Context.DOWNLOAD_SERVICE;
+import static android.os.Environment.DIRECTORY_DOWNLOADS;
 import static com.mycelium.wallet.external.changelly.ChangellyService.INFO_ERROR;
 
 public class ConfirmExchangeFragment extends Fragment {
@@ -117,6 +121,7 @@ public class ConfirmExchangeFragment extends Fragment {
             WalletAccount account = mbwManager.getSelectedAccount();
             Intent intent = IntentContract.BroadcastTransaction.createIntent(transaction.toBytes());
             WalletApplication.sendToSpv(intent, account.getType());
+
             final Order order = new Order();
             order.transactionId = transaction.getHash().toString();
             order.exchangingAmount = String.valueOf(offer.amountFrom);
@@ -124,7 +129,8 @@ public class ConfirmExchangeFragment extends Fragment {
             order.receivingAddress = toAccount.getReceivingAddress().get().toString();
             order.receivingAmount = String.valueOf(offer.amountTo);
             order.receivingCurrency = "BTC";
-            order.timestamp = SimpleDateFormat.getDateTimeInstance().format(new Date());
+            order.timestamp = SimpleDateFormat.getDateTimeInstance(SimpleDateFormat.LONG, SimpleDateFormat.LONG, Locale.ENGLISH)
+                    .format(new Date());
 
             new AlertDialog.Builder(getActivity())
                     .setTitle(R.string.success)
@@ -136,13 +142,25 @@ public class ConfirmExchangeFragment extends Fragment {
                     .setPositiveButton(R.string.save_receipt, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-                            new BCHExchangeReceiptBuilder()
+                            String pdf = new BCHExchangeReceiptBuilder()
                                     .setTransactionId(order.transactionId)
                                     .setDate(order.timestamp)
                                     .setReceivingAmount(order.receivingAmount + " " + order.receivingCurrency)
                                     .setReceivingAddress(order.receivingAddress)
                                     .setSpendingAmount(order.exchangingAmount + " " + order.exchangingCurrency)
                                     .build();
+                            File pdfFile = new File(getActivity().getExternalFilesDir(DIRECTORY_DOWNLOADS), "exchange_bch_order.pdf");
+                            try {
+                                OutputStream pdfStream = new FileOutputStream(pdfFile);
+                                pdfStream.write(pdf.getBytes("UTF-8"));
+                                pdfStream.close();
+                            } catch (IOException e) {
+                                Log.e(TAG, "", e);
+                            }
+                            DownloadManager downloadManager = (DownloadManager) getActivity().getSystemService(DOWNLOAD_SERVICE);
+                            downloadManager.addCompletedDownload(pdfFile.getName(), pdfFile.getName()
+                                    , true, "application/pdf"
+                                    , pdfFile.getAbsolutePath(), pdfFile.length(), true);
                         }
                     })
                     .setNegativeButton(R.string.close, null)
@@ -160,10 +178,10 @@ public class ConfirmExchangeFragment extends Fragment {
                 }
             });
 
-        } catch (UnableToBuildTransactionException | InsufficientFundsException | OutputTooSmallException | KeyCipher.InvalidKeyCipher e) {
-            Log.e(TAG, "", e);
         } catch (RetrofitError e) {
             Log.e(TAG, "Excange logging error", e);
+        } catch (/*UnableToBuildTransactionException | InsufficientFundsException | OutputTooSmallException | KeyCipher.InvalidKeyCipher*/Exception e) {
+            Log.e(TAG, "", e);
         }
     }
 

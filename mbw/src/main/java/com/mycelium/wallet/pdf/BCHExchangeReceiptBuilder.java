@@ -49,16 +49,16 @@ public class BCHExchangeReceiptBuilder {
         fromTop += 1.5F;
         writer.addText(1F, fromTop, 16, "TxID: " + transactionId);
 
-        fromTop += 1.5F;
+        fromTop += 1F;
         writer.addText(1F, fromTop, 16, "Date: " + date);
 
-        fromTop += 1.5F;
+        fromTop += 1F;
         writer.addText(1F, fromTop, 16, "Spending amount: " + spendingAmount);
 
-        fromTop += 1.5F;
+        fromTop += 1F;
         writer.addText(1F, fromTop, 16, "Receiving amount*: " + receivingAmount);
 
-        fromTop += 1.5F;
+        fromTop += 1F;
         writer.addText(1F, fromTop, 16, "Receiving address: " + receivingAddress);
 
         fromTop += 1.5F;
