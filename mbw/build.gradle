@@ -53,6 +53,7 @@ dependencies {
     implementation project(includePrefix + ':libs:nordpol')
     implementation project(includePrefix + ':libs:zxing-core')
     implementation project(includePrefix + ':bitlib')
+    implementation project(':view')
 
     implementation guavaArtifact
     implementation 'com.squareup.retrofit2:retrofit:2.3.0'
