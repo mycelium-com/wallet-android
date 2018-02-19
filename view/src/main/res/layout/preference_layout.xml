@@ -39,6 +39,7 @@
                 android:layout_height="wrap_content"
                 android:ellipsize="marquee"
                 android:fadingEdge="horizontal"
+                android:textColor="@color/preference_title_color"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:singleLine="true" />
 
