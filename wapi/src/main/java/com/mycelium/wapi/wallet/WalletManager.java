@@ -863,8 +863,8 @@ public class WalletManager {
                     _spvBalanceFetcher.requestTransactionsFromSingleAddressAccountAsync(currentAccount.getId().toString());
                 }
 
-                for(WalletAccount account : getAllAccounts()) {
-                    if(account instanceof Bip44Account) {
+                for (WalletAccount account : getAllAccounts()) {
+                    if (account instanceof Bip44Account) {
                         //_transactionFetcher.getTransactions(((Bip44Account) account).getAccountIndex());
                     } else {
                         // TODO: 28.09.17 sync single address accounts using spv, too.
@@ -899,7 +899,10 @@ public class WalletManager {
     }
 
     private Iterable<WalletAccount> getAllAccounts() {
-        return Iterables.concat(_walletAccounts.values(), _extraAccounts.values());
+        //New collection should be created to prevent concurrent modification of iterator
+        Collection<WalletAccount> allAccounts = _walletAccounts.values();
+        allAccounts.addAll(_extraAccounts.values());
+        return allAccounts;
     }
 
     private class AccountEventManager implements AbstractAccount.EventHandler {
