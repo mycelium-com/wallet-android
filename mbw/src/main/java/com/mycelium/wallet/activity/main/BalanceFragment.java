@@ -274,9 +274,6 @@ public class BalanceFragment extends Fragment {
              tvBtcRate.setText(getResources().getString(R.string.btc_rate, currency, converted, _mbwManager.getExchangeRateManager().getCurrentExchangeSourceName()));
           }
       }
-      final float alpha = isBCH() ? 0.4f : 1f;
-      scanButton.setAlpha(alpha);
-      sendButton.setAlpha(alpha);
    }
 
    private void updateUiKnownBalance(CurrencyBasedBalance balance) {
