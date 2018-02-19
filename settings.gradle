@@ -1,3 +1,4 @@
+include ':view'
 include 'bitlib'
 include 'libs:zxing-core'
 include 'lt-api'
