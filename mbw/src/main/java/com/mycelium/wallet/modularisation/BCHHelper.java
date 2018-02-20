@@ -25,7 +25,7 @@ import static android.content.Context.MODE_PRIVATE;
 public class BCHHelper {
 
     private static final String BCH_FIRST_UPDATE = "bch_first_update_page";
-    private static final String BCH_FIRST_INSTALLED = "bch_first_installed_page";
+    private static final String BCH_INSTALLED = "bch_installed_page";
     public static final String BCH_PREFS = "bch_prefs";
     public static final String IS_FIRST_SYNC = "is_first_sync";
     public static final String ALREADY_FOUND_ACCOUNT = "already_found_account";
@@ -57,7 +57,7 @@ public class BCHHelper {
                         }
                     })
                     .create().show();
-        } else if (!sharedPreferences.getBoolean(BCH_FIRST_INSTALLED, false) && moduleBCHInstalled) {
+        } else if (!sharedPreferences.getBoolean(BCH_INSTALLED, false) && moduleBCHInstalled) {
             new AlertDialog.Builder(context)
                     .setTitle(R.string.first_bch_installed_title)
                     .setMessage(R.string.first_bch_installed_message)
@@ -67,11 +67,15 @@ public class BCHHelper {
                         public void onDismiss(DialogInterface dialogInterface) {
                             sharedPreferences.edit()
                                     .putBoolean(BCH_FIRST_UPDATE, true)
-                                    .putBoolean(BCH_FIRST_INSTALLED, true)
+                                    .putBoolean(BCH_INSTALLED, true)
                                     .apply();
                         }
                     })
                     .create().show();
+        }
+        if (sharedPreferences.getBoolean(BCH_INSTALLED, false) && !moduleBCHInstalled) {
+            sharedPreferences.edit().putBoolean(BCH_INSTALLED, false)
+                    .apply();
         }
     }
 
