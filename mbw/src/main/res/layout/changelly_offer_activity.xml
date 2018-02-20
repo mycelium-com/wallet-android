@@ -26,15 +26,6 @@
         android:textSize="@dimen/exchange_offer_text_size" />
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginBottom="@dimen/margin_medium"
-        android:text="@string/exchange_to_do_so"
-        android:textColor="@color/white"
-        android:textSize="@dimen/exchange_offer_text_size" />
-
-    <TextView
         android:id="@+id/tvSendToAddress"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -51,6 +42,16 @@
         android:drawableRight="@drawable/ic_content_copy_white"
         android:textSize="18sp"
         android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="@dimen/margin_medium"
+        android:text="@string/exchange_to_do_so"
+        android:textColor="@color/white"
+        android:textSize="@dimen/exchange_offer_text_size" />
+
 
     <TextView
         android:id="@+id/tvFromAmount"
