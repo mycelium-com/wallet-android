@@ -43,6 +43,7 @@ import android.content.Intent;
 
 import com.mycelium.wallet.activity.RestartPopupActivity;
 import com.mycelium.wallet.activity.StartupActivity;
+import com.mycelium.wallet.modularisation.BCHHelper;
 import com.mycelium.wapi.wallet.WalletAccount;
 
 import java.util.List;
@@ -65,6 +66,7 @@ public class PackageRemovedReceiver extends BroadcastReceiver {
                         break;
                     case Intent.ACTION_PACKAGE_REMOVED:
                         if (!intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
+                            BCHHelper.removed(context);
                             initiateRestart(context, R.string.removed);
                         }
                 }
