@@ -900,9 +900,9 @@ public class WalletManager {
 
     private Iterable<WalletAccount> getAllAccounts() {
         //New collection should be created to prevent concurrent modification of iterator
-        Collection<WalletAccount> allAccounts = _walletAccounts.values();
-        allAccounts.addAll(_extraAccounts.values());
-        return allAccounts;
+        Map<UUID, WalletAccount> walletAccounts = new HashMap<>(_walletAccounts);
+        Map<UUID, WalletAccount> extraAccounts = new HashMap<>(_extraAccounts);
+        return Iterables.concat(walletAccounts.values(), extraAccounts.values());
     }
 
     private class AccountEventManager implements AbstractAccount.EventHandler {
