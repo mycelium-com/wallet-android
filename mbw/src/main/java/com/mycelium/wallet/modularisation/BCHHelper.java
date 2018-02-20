@@ -27,14 +27,17 @@ public class BCHHelper {
     private static final String BCH_FIRST_UPDATE = "bch_first_update_page";
     private static final String BCH_FIRST_INSTALLED = "bch_first_installed_page";
     public static final String BCH_PREFS = "bch_prefs";
+    public static final String COMMON_MODULE_SYSTEM_PREFS = "module_system_prefs";
     public static final String IS_FIRST_SYNC = "is_first_sync";
     public static final String ALREADY_FOUND_ACCOUNT = "already_found_account";
 
     public static void firstBCHPages(final Context context) {
         final Module bchModule = GooglePlayModuleCollection.getModules(context).get("bch");
-        final SharedPreferences sharedPreferences = context.getSharedPreferences(BCH_PREFS, MODE_PRIVATE);
+
+        final SharedPreferences commonSharedPreferences = context.getSharedPreferences(COMMON_MODULE_SYSTEM_PREFS, MODE_PRIVATE);
+        final SharedPreferences bchSharedPreferences = context.getSharedPreferences(BCH_PREFS, MODE_PRIVATE);
         boolean moduleBCHInstalled = CommunicationManager.getInstance(context).getPairedModules().contains(bchModule);
-        if (!sharedPreferences.getBoolean(BCH_FIRST_UPDATE, false) && !moduleBCHInstalled) {
+        if (!commonSharedPreferences.getBoolean(BCH_FIRST_UPDATE, false) && !moduleBCHInstalled) {
             new AlertDialog.Builder(context)
                     .setTitle(R.string.first_modulization_title)
                     .setMessage(R.string.first_modulization_message)
@@ -52,12 +55,12 @@ public class BCHHelper {
                     .setOnDismissListener(new DialogInterface.OnDismissListener() {
                         @Override
                         public void onDismiss(DialogInterface dialogInterface) {
-                            sharedPreferences.edit().putBoolean(BCH_FIRST_UPDATE, true)
+                            commonSharedPreferences.edit().putBoolean(BCH_FIRST_UPDATE, true)
                                     .apply();
                         }
                     })
                     .create().show();
-        } else if (!sharedPreferences.getBoolean(BCH_FIRST_INSTALLED, false) && moduleBCHInstalled) {
+        } else if (!bchSharedPreferences.getBoolean(BCH_FIRST_INSTALLED, false) && moduleBCHInstalled) {
             new AlertDialog.Builder(context)
                     .setTitle(R.string.first_bch_installed_title)
                     .setMessage(R.string.first_bch_installed_message)
@@ -65,7 +68,7 @@ public class BCHHelper {
                     .setOnDismissListener(new DialogInterface.OnDismissListener() {
                         @Override
                         public void onDismiss(DialogInterface dialogInterface) {
-                            sharedPreferences.edit()
+                            bchSharedPreferences.edit()
                                     .putBoolean(BCH_FIRST_UPDATE, true)
                                     .putBoolean(BCH_FIRST_INSTALLED, true)
                                     .apply();
@@ -123,7 +126,7 @@ public class BCHHelper {
     }
 
     public static void removed(Context context) {
-        final SharedPreferences sharedPreferences = context.getSharedPreferences(BCH_PREFS, MODE_PRIVATE);
+        SharedPreferences sharedPreferences = context.getSharedPreferences(BCH_PREFS, MODE_PRIVATE);
         sharedPreferences.edit().clear().apply();
     }
 }
