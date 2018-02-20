@@ -9,6 +9,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.text.Html;
 import android.view.Window;
 
 import com.mycelium.wallet.R;
@@ -22,7 +23,7 @@ public class RestartPopupActivity extends Activity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.popup_activity);
         AlertDialog.Builder Builder=new AlertDialog.Builder(this)
-                .setTitle(getIntent().getExtras().getString(RESTART_WARNING_HEADER,""))
+                .setTitle(Html.fromHtml(getIntent().getExtras().getString(RESTART_WARNING_HEADER,"")))
                 .setMessage(R.string.configuration_change_restart_warning)
                 .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
                     @Override
