@@ -49,6 +49,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.Constants;
+import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.StringHandleConfig;
@@ -69,14 +70,19 @@ import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.modularisation.BCHHelper;
+import com.mycelium.wapi.model.ExchangeRate;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
+import com.shehabic.droppy.DroppyClickCallbackInterface;
+import com.shehabic.droppy.DroppyMenuItem;
+import com.shehabic.droppy.DroppyMenuPopup;
 import com.squareup.otto.Subscribe;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -91,6 +97,9 @@ public class BalanceFragment extends Fragment {
 
    @BindView(R.id.btScan) RoundButtonWithText scanButton;
    @BindView(R.id.btSend) RoundButtonWithText sendButton;
+   @BindView(R.id.exchangeSource) TextView exchangeSource;
+   @BindView(R.id.exchangeSourceLayout) View exchangeSourceLayout;
+   @BindView(R.id.exchangeSourceArrow) View exchangeSourceArrow;
 
 
    @Override
@@ -104,7 +113,30 @@ public class BalanceFragment extends Fragment {
          }
       });
       ButterKnife.bind(this, _root);
+      updateExcahngeSourceMenu();
       return _root;
+   }
+
+   private void updateExcahngeSourceMenu() {
+      DroppyMenuPopup.Builder builder = new DroppyMenuPopup.Builder(getActivity(), exchangeSourceLayout);
+      ExchangeRateManager exchangeRateManager = _mbwManager.getExchangeRateManager();
+      final List<String> sources = exchangeRateManager.getExchangeSourceNames();
+      for (int i = 0; i < sources.size(); i++) {
+         String source = sources.get(i);
+         ExchangeRate exchangeRate = exchangeRateManager.getExchangeRate(_mbwManager.getFiatCurrency(), source);
+         String price = exchangeRate.price == null ? "not available"
+                 : new BigDecimal(exchangeRate.price).setScale(2, BigDecimal.ROUND_DOWN).toPlainString() + " " + _mbwManager.getFiatCurrency();
+         builder.addMenuItem(new DroppyMenuItem(source + " (" + price + ")"));
+         if (i < sources.size() - 1) {
+            builder.addSeparator();
+         }
+      }
+      builder.setOnClick(new DroppyClickCallbackInterface() {
+         @Override
+         public void call(View v, int id) {
+            _mbwManager.getExchangeRateManager().setCurrentExchangeSourceName(sources.get(id));
+         }
+      }).build();
    }
 
    @Override
@@ -245,9 +277,8 @@ public class BalanceFragment extends Fragment {
             _tcdFiatDisplay.setVisibility(View.INVISIBLE);
             tvBtcRate.setText(getString(R.string.exchange_source_not_available, ((ColuAccount) account).getColuAsset().name));
          }
-      }
-
-      if(isBCH()) {
+         exchangeSourceLayout.setVisibility(View.GONE);
+      } else if (isBCH()) {
          CurrencyValue fiatValue = CurrencyValue.fromValue(ExactBitcoinCashValue.from(BigDecimal.ONE)
                  , _mbwManager.getFiatCurrency(), _mbwManager.getExchangeRateManager());
          if (_exchangeRatePrice == null) {
@@ -258,6 +289,7 @@ public class BalanceFragment extends Fragment {
             tvBtcRate.setText(getString(R.string.bch_rate, "BCH"
                     , Utils.formatFiatWithUnit(fiatValue)));
          }
+         exchangeSourceLayout.setVisibility(View.GONE);
       } else {
           // restore default settings if account is standard
           tvBtcRate.setVisibility(View.VISIBLE);
@@ -267,15 +299,20 @@ public class BalanceFragment extends Fragment {
           if (!_mbwManager.hasFiatCurrency()) {
              // No fiat currency selected by user
              tvBtcRate.setVisibility(View.INVISIBLE);
+             exchangeSourceLayout.setVisibility(View.GONE);
           } else if (_exchangeRatePrice == null) {
              // We have no price, exchange not available
              tvBtcRate.setVisibility(View.VISIBLE);
              tvBtcRate.setText(getResources().getString(R.string.exchange_source_not_available, _mbwManager.getExchangeRateManager().getCurrentExchangeSourceName() ));
+             exchangeSource.setText(_mbwManager.getExchangeRateManager().getCurrentExchangeSourceName());
+             exchangeSourceLayout.setVisibility(View.VISIBLE);
           } else {
              tvBtcRate.setVisibility(View.VISIBLE);
              String currency = _mbwManager.getFiatCurrency();
              String converted = Utils.getFiatValueAsString(Constants.ONE_BTC_IN_SATOSHIS, _exchangeRatePrice);
-             tvBtcRate.setText(getResources().getString(R.string.btc_rate, currency, converted, _mbwManager.getExchangeRateManager().getCurrentExchangeSourceName()));
+             tvBtcRate.setText(getResources().getString(R.string.btc_rate, currency, converted));
+             exchangeSource.setText(_mbwManager.getExchangeRateManager().getCurrentExchangeSourceName());
+             exchangeSourceLayout.setVisibility(View.VISIBLE);
           }
       }
    }
@@ -365,12 +402,14 @@ public class BalanceFragment extends Fragment {
    public void exchangeRatesRefreshed(ExchangeRatesRefreshed event){
       _exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
       updateUi();
+      updateExcahngeSourceMenu();
    }
 
    @Subscribe
    public void selectedCurrencyChanged(SelectedCurrencyChanged event){
       _exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
       updateUi();
+      updateExcahngeSourceMenu();
    }
 
    /**
@@ -379,6 +418,7 @@ public class BalanceFragment extends Fragment {
    @Subscribe
    public void selectedAccountChanged(SelectedAccountChanged event) {
       updateUi();
+      updateExcahngeSourceMenu();
    }
 
    /**

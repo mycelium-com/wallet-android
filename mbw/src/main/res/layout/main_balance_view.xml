@@ -105,11 +105,36 @@
         android:id="@+id/tvBtcRate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="@dimen/margin_medium"
-        android:layout_marginBottom="@dimen/margin_medium"
-        android:gravity="center_horizontal"
         android:textColor="@color/lightgrey"
-        android:textSize="18sp" />
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:layout_marginBottom="@dimen/margin_medium"
+        android:textSize="18sp"
+        tools:text="1 BTC ~ USD 10" />
 
+    <LinearLayout
+        android:id="@+id/exchangeSourceLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginLeft="4dp"
+        android:layout_marginBottom="@dimen/margin_medium"
+        android:gravity="center">
+
+        <TextView
+            android:id="@+id/exchangeSource"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:textColor="@color/lightgrey"
+            android:textSize="18sp" />
+
+        <ImageView
+            android:id="@+id/exchangeSourceArrow"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            custom:srcCompat="@drawable/ic_arrow_drop_down" />
+    </LinearLayout>
 </LinearLayout>

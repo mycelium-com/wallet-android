@@ -296,9 +296,10 @@ public class ExchangeRateManager implements ExchangeRateProvider {
         return result;
     }
 
-    public synchronized void setCurrentExchangeSourceName(String name) {
+    public void setCurrentExchangeSourceName(String name) {
         _currentExchangeSourceName = name;
         getEditor().putString("currentRateName", _currentExchangeSourceName).apply();
+        notifyRefreshingExchangeRatesSucceeded();
     }
 
     /**
@@ -310,7 +311,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
      * the currently chosen exchange source is not available.
      */
     @Override
-    public synchronized ExchangeRate getExchangeRate(String currency) {
+    public synchronized ExchangeRate getExchangeRate(String currency, String source) {
         // TODO need some refactoring for this
         String injectCurrency = null;
         if(currency.equals("RMC") || currency.equals("MSS") || currency.equals("BCH")) {
@@ -323,24 +324,29 @@ public class ExchangeRateManager implements ExchangeRateProvider {
         if (_latestRatesTime + MAX_RATE_AGE_MS < System.currentTimeMillis() || _latestRates.get(currency) == null) {
             //rate is too old or does not exists, source seems to not be available
             //we return a rate with null price to indicate there is something wrong with the exchange rate source
-            return ExchangeRate.missingRate(_currentExchangeSourceName, System.currentTimeMillis(),  currency);
+            return ExchangeRate.missingRate(source, System.currentTimeMillis(),  currency);
         }
         for (ExchangeRate r : _latestRates.get(currency).exchangeRates) {
-            if (r.name.equals(_currentExchangeSourceName)) {
+            if (r.name.equals(source)) {
                 //if the price is 0, obviously something went wrong
                 if (r.price.equals(0d)) {
                     //we return an exchange rate with null price -> indicating missing rate
-                    return ExchangeRate.missingRate(_currentExchangeSourceName, System.currentTimeMillis(),  currency);
+                    return ExchangeRate.missingRate(source, System.currentTimeMillis(),  currency);
                 }
                 //everything is fine, return the rate
                 return getOtherExchangeRate(injectCurrency, r);
             }
         }
-        if (_currentExchangeSourceName != null) {
+        if (source != null) {
             // We end up here if the exchange is no longer on the list
-            return ExchangeRate.missingRate(_currentExchangeSourceName, System.currentTimeMillis(),  currency);
+            return ExchangeRate.missingRate(source, System.currentTimeMillis(),  currency);
         }
         return null;
+    }
+
+    @Override
+    public ExchangeRate getExchangeRate(String currency) {
+        return getExchangeRate(currency, _currentExchangeSourceName);
     }
 
     private ExchangeRate getOtherExchangeRate(String injectCurrency, ExchangeRate r) {
