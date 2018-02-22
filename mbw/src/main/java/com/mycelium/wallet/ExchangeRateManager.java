@@ -310,7 +310,6 @@ public class ExchangeRateManager implements ExchangeRateProvider {
      * for callbacks. If a rate is returned the contained price may be null if
      * the currently chosen exchange source is not available.
      */
-    @Override
     public synchronized ExchangeRate getExchangeRate(String currency, String source) {
         // TODO need some refactoring for this
         String injectCurrency = null;
