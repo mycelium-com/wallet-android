@@ -20,6 +20,7 @@ import com.mycelium.spvmodule.IntentContract
 import com.mycelium.wallet.WalletApplication.getSpvModuleName
 import com.mycelium.wallet.activity.modern.ModernMain
 import com.mycelium.wallet.event.SpvSyncChanged
+import com.mycelium.wallet.event.SpvTransactionBroadcastCompleted
 import com.mycelium.wallet.persistence.MetadataStorage
 import com.mycelium.wapi.wallet.AesKeyCipher
 import com.mycelium.wapi.wallet.WalletAccount
@@ -154,6 +155,14 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 }
                 val service = IntentContract.RequestSingleAddressPrivateKeyToSPV.createIntent(accountGuid, privateKey.privateKeyBytes)
                 WalletApplication.sendToSpv(service, BCHSINGLEADDRESS)
+            }
+            "com.mycelium.wallet.notifyBroadcastTransactionBroadcastCompleted" -> {
+                val operationId = intent.getStringExtra(IntentContract.OPERATION_ID)
+                val txHash = intent.getStringExtra(IntentContract.TRANSACTION_HASH)
+                val runnable = Runnable {
+                    eventBus.post(SpvTransactionBroadcastCompleted(operationId, txHash))
+                }
+                Handler(Looper.getMainLooper()).post(runnable)
             }
             null -> Log.w(TAG, "onMessage failed. No action defined.")
             else -> Log.e(TAG, "onMessage failed. Unknown action ${intent.action}")
