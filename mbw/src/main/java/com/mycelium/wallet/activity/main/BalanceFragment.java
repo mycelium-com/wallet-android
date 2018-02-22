@@ -90,6 +90,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class BalanceFragment extends Fragment {
+   public static final String COINMARKETCAP = "Coinmarketcap";
    private MbwManager _mbwManager;
    private View _root;
    private Double _exchangeRatePrice;
@@ -127,7 +128,13 @@ public class BalanceFragment extends Fragment {
          ExchangeRate exchangeRate = exchangeRateManager.getExchangeRate(_mbwManager.getFiatCurrency(), source);
          String price = exchangeRate.price == null ? "not available"
                  : new BigDecimal(exchangeRate.price).setScale(2, BigDecimal.ROUND_DOWN).toPlainString() + " " + _mbwManager.getFiatCurrency();
-         builder.addMenuItem(new DroppyMenuItem(source + " (" + price + ")"));
+         String item;
+         if (_mbwManager.getSelectedAccount().getType() == WalletAccount.Type.COLU) {
+            item = COINMARKETCAP + "/" + source;
+         } else {
+            item = source + " (" + price + ")";
+         }
+         builder.addMenuItem(new DroppyMenuItem(item));
          if (i < sources.size() - 1) {
             builder.addSeparator();
          }
@@ -262,23 +269,24 @@ public class BalanceFragment extends Fragment {
             CurrencyValue coluValue = ExactCurrencyValue.from(BigDecimal.ONE, coluAccount.getColuAsset().name);
             CurrencyValue fiatValue = CurrencyValue.fromValue(coluValue, _mbwManager.getFiatCurrency(), _mbwManager.getExchangeRateManager());
             if (fiatValue != null && fiatValue.getValue() != null) {
-               tvBtcRate.setText(getString(R.string.rmc_rate, coluAccount.getColuAsset().name
-                       , Utils.formatFiatWithUnit(fiatValue)
-                       , _mbwManager.getExchangeRateManager().getCurrentExchangeSourceName()));
+               tvBtcRate.setText(getString(R.string.rate, coluAccount.getColuAsset().name, Utils.formatFiatWithUnit(fiatValue)));
             }
+            exchangeSource.setText(COINMARKETCAP + "/" + _mbwManager.getExchangeRateManager().getCurrentExchangeSourceName());
+            exchangeSourceLayout.setVisibility(View.VISIBLE);
          } else if(assetType == ColuAccount.ColuAssetType.MASS) {
             _tcdFiatDisplay.setVisibility(View.VISIBLE);
             CurrencyValue coluValue = ExactCurrencyValue.from(BigDecimal.ONE, coluAccount.getColuAsset().name);
             CurrencyValue fiatValue = CurrencyValue.fromValue(coluValue, _mbwManager.getFiatCurrency(), _mbwManager.getExchangeRateManager());
             if (fiatValue != null && fiatValue.getValue() != null) {
-               tvBtcRate.setText(getString(R.string.mss_rate, coluAccount.getColuAsset().name
+               tvBtcRate.setText(getString(R.string.rate, coluAccount.getColuAsset().name
                        , Utils.formatFiatWithUnit(fiatValue, 6)));
             }
+            exchangeSourceLayout.setVisibility(View.GONE);
          } else {
             _tcdFiatDisplay.setVisibility(View.INVISIBLE);
             tvBtcRate.setText(getString(R.string.exchange_source_not_available, ((ColuAccount) account).getColuAsset().name));
+            exchangeSourceLayout.setVisibility(View.GONE);
          }
-         exchangeSourceLayout.setVisibility(View.GONE);
       } else if (isBCH()) {
          CurrencyValue fiatValue = CurrencyValue.fromValue(ExactBitcoinCashValue.from(BigDecimal.ONE)
                  , _mbwManager.getFiatCurrency(), _mbwManager.getExchangeRateManager());
@@ -287,7 +295,7 @@ public class BalanceFragment extends Fragment {
             tvBtcRate.setVisibility(View.VISIBLE);
             tvBtcRate.setText(R.string.exchange_rate_unavailable);
          } else {
-            tvBtcRate.setText(getString(R.string.bch_rate, "BCH"
+            tvBtcRate.setText(getString(R.string.rate, "BCH"
                     , Utils.formatFiatWithUnit(fiatValue)));
          }
          exchangeSourceLayout.setVisibility(View.GONE);
