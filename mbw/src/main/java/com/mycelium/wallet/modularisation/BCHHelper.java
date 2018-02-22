@@ -121,4 +121,9 @@ public class BCHHelper {
                 .setMessage(R.string.bch_technology_preview)
                 .setPositiveButton(R.string.button_ok, null).create().show();
     }
+
+    public static void removed(Context context) {
+        final SharedPreferences sharedPreferences = context.getSharedPreferences(BCH_PREFS, MODE_PRIVATE);
+        sharedPreferences.edit().clear().apply();
+    }
 }

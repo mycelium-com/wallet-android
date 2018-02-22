@@ -159,6 +159,10 @@ public class BalanceFragment extends Fragment {
    }
 
    @OnClick(R.id.btReceive) void onClickReceive() {
+      if (_mbwManager.getSelectedAccount().getType().equals(WalletAccount.Type.BCHBIP44)) {
+         BCHHelper.bchTechnologyPreviewDialog(getActivity());
+         return;
+      }
       Optional<Address> receivingAddress = _mbwManager.getSelectedAccount().getReceivingAddress();
       if (receivingAddress.isPresent()) {
          ReceiveCoinsActivity.callMe(getActivity(), receivingAddress.get(),
@@ -274,9 +278,6 @@ public class BalanceFragment extends Fragment {
              tvBtcRate.setText(getResources().getString(R.string.btc_rate, currency, converted, _mbwManager.getExchangeRateManager().getCurrentExchangeSourceName()));
           }
       }
-      final float alpha = isBCH() ? 0.4f : 1f;
-      scanButton.setAlpha(alpha);
-      sendButton.setAlpha(alpha);
    }
 
    private void updateUiKnownBalance(CurrencyBasedBalance balance) {

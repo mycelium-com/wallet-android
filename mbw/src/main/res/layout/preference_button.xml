@@ -8,7 +8,10 @@
     <Button
         android:id="@+id/preference_button"
         android:layout_width="wrap_content"
+        style="@style/MyceliumButtonModern"
         android:layout_height="wrap_content"
         android:textSize="16sp"
+        android:paddingEnd="12dp"
+        android:paddingStart="12dp"
         tools:text="text"/>
 </LinearLayout>

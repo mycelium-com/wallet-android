@@ -125,7 +125,7 @@
     <string name="backup_legacy_warning">Make a Backup of your Private Key!\n\nIt will take you 2 minutes but can save millions! Having a proper backup is a cornerstone when managing your digital assets or Bitcoin funds.\n\nDO NOT USE Mycelium without creating and verifying backup of all your accounts - if you lose your smartphone and have no backup your bitcoins and digital assets will be  lost forever.\n\nDo you want to proceed?</string>
     <string name="export_to_clipboard_warning">Warning: Exporting the private account data to your clipboard exposes it to all other apps on your device.\n\nNote: It is not enough to store your private data on the clipboard, you also have to paste it somewhere safe.\n\nDo you want to continue?</string>
     <string name="found_clipboard_private_key_title">Private Key Found on Clipboard</string>
-    <string name="found_clipboard_private_keys_message">The clipboard contains a private key.\r\nDo you want to clear the clipboard?</string>
+    <string name="found_clipboard_private_keys_message">The clipboard contains a private key.\nDo you want to clear the clipboard?</string>
     <string name="btc_rate">1 BTC ~ %1$s %2$s (%3$s)</string>
     <string name="exchange_source_not_available">Exchange rate not available for %1$s</string>
     <string name="my_own_address_warning">Note: You are sending to one of your own addresses.</string>
@@ -207,7 +207,7 @@
     <string name="encrypted_pdf_backup_document_ready">PDF document created</string>
     <string name="encrypted_pdf_backup_sharing">Sharing PDF document…</string>
     <string name="encrypted_pdf_backup_email_title">Mycelium Wallet Backup</string>
-    <string name="encrypted_pdf_backup_email_text">Your Mycelium wallet backup is attached.\r\n\r\nFollow these simple steps to secure your funds:\r\n1. Print the PDF document.\r\n2. Write the 15-character password from the display of your Android device to the blue boxes of the printout.\r\n3. Verify that you can import the private keys to your Mycelium Wallet.\r\n4. Store the printout in a safe place.</string>
+    <string name="encrypted_pdf_backup_email_text">Your Mycelium wallet backup is attached.\n\nFollow these simple steps to secure your funds:\n1. Print the PDF document.\n2. Write the 15-character password from the display of your Android device to the blue boxes of the printout.\n3. Verify that you can import the private keys to your Mycelium Wallet.\n4. Store the printout in a safe place.</string>
     <string name="share_pdf">Share PDF</string>
     <string name="share_with">Share with…</string>
     <string name="bitcoin_name">Bitcoin</string>
@@ -756,7 +756,7 @@
     <string name="payment_request_warning_no_sig">The origin of this payment request can not be verified, because it has no signature.\n\nPlease be very cautious, as there might be someone intercepting it and changing payout addresses.</string>
 
     <string name="label_cold_storage_external_signing">Sign with:</string>
-    <string name="spending_unconfirmed_warning">Warning: spending unconfirmed funds</string>
+    <string name="spending_unconfirmed_warning">Warning: spendingAmount unconfirmed funds</string>
     <string name="spending_unconfirmed_title">Spending unconfirmed funds</string>
     <string name="spending_unconfirmed_description">Your transaction uses funds which have not been included in a bitcoin block yet. If for any reason the transaction which sends these coins to you fails or stays unconfirmed, your transaction will fail or stay unconfirmed as well.</string>
     <string name="label_unverified_recipient">unverified Recipient</string>
@@ -1035,7 +1035,7 @@ You can either add miner\'s fee from any account with bitcoins every time you ma
 This account allows you to spend BTC, received from the RMC pool.
 All new bitcoins, mined by the pool, are proportionally distributed among RMC bitcoin accounts.
         \n
-        In order to protect your assets from accidentally being "burned" while spending BTC from your "RMC Bitcoin" linked account, digital assets unspent transaction outputs (UTXO) and corresponding technical transactions (so-called "dust") are not taken into account.</string>
+        In order to protect your assets from accidentally being "burned" while spendingAmount BTC from your "RMC Bitcoin" linked account, digital assets unspent transaction outputs (UTXO) and corresponding technical transactions (so-called "dust") are not taken into account.</string>
     <string name="what_is_it">What is it?</string>
     <string name="error_start_google_calendar">Something wrong with google calendar</string>
     <string name="both_rmc_will_deleted" formatted="false">Both %s and %s accounts will be  deleted.</string>
@@ -1106,9 +1106,9 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="amount_to_exchange">Exchanging</string>
     <string name="value_currency">%1$s %2$f</string>
     <string name="enter_exchange_amount">Enter exchange amount</string>
-    <string name="exchange_in_order_to_complete">In order to complete exchange operation, you need to send the selected amount of altcoins to the special address.</string>
-    <string name="exchange_to_do_so">To do so, open your wallet managing other cryptos, select \"send\" option, copy&amp;paste address and amount specified below then send transaction.</string>
-    <string name="exchange_after_transaction">After your transaction is confirmed, your funds will be exchanged and sent to the specified receiving account.</string>
+    <string name="exchange_in_order_to_complete">In order to complete exchange operation, you need to send the selected amount to the address below.</string>
+    <string name="exchange_to_do_so">Step 1. Copy the address above.\nStep 2. Open your wallet where you store the currency you are exchanging.\nStep 3. Send this.</string>
+    <string name="exchange_after_transaction">After your transaction is confirmed, your funds will be sent to your receiving account.</string>
     <string name="exchange_altcoins_to_btc">Shift any coins to BTC</string>
     <string name="exchange_minimum_amount">(Min. amount is %1$s %2$s)</string>
     <string name="choose_the_currency_and_btc_receiving_account">Choose the currency and BTC receiving account</string>
@@ -1156,6 +1156,9 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="exchange_rate_unavailable">Exchange rate is temporarily unavailable.</string>
     <string name="exchange_service_unavailable">Exchange service is temporarily unavailable.\nPlease try again later.</string>
     <string name="uninstall">Uninstall</string>
+    <string name="exchange_order_placed_dialog"><![CDATA[Your exchange order has been placed. BTC will be sent to you after 12 confirmations on your BCH transaction.<br/><br/>Order details:<br/>Date: %s<br/>TxID: %s<br/>Spending: %s BCH<br/>Receiving: %s BTC<br/><font color="#f08c18">Receiving amount is estimated due to the high volatility of the cryptomarket.</font><br/>To track your order please save the payment receipt. You can only do it now!]]></string>
+    <string name="success">Success!</string>
+    <string name="save_receipt">Save receipt</string>
     <plurals name="account_label">
         <item quantity="one">Account label:\n%s</item>
         <item quantity="other">Accounts labels:\n%s</item>

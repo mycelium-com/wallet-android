@@ -118,7 +118,7 @@
   <string name="backup_legacy_warning">Você irá fazer backup das contas de endereço único de sua carteira. \nEsse backup não irá conter sua semente mestre, nenhuma das suas contas HD poderá ser restaurada a partir dele!\n\nVocê quer continuar?</string>
   <string name="export_to_clipboard_warning">Aviso: Exportar os dados privados da conta para a sua área de transferência os expõe para todos os outros aplicativos do seu dispositivo.\n\nNota: Não é suficiente armazenar seus dados privados na área de transferência, você também precisa colar esses dados em algum lugar seguro.\n\nVocê quer continuar?</string>
   <string name="found_clipboard_private_key_title">Chave Privada Encontrada na Área de Transferência</string>
-  <string name="found_clipboard_private_keys_message">A área de transferência contém uma chave privada.\r\nVocê quer limpar a área de transferência?</string>
+  <string name="found_clipboard_private_keys_message">A área de transferência contém uma chave privada.\nVocê quer limpar a área de transferência?</string>
   <string name="exchange_source_not_available">Taxa de corretagem não disponível para %1$s</string>
   <string name="my_own_address_warning">Nota: Você está enviando para um de seus próprios endereços.</string>
   <string name="read_only_warning">Aviso: A sua carteira não tem a chave privada para esse endereço.\nVocê não pode gastar os bitcoins recebidos, a menos que você tenha a chave privada anota em outro lugar.</string>
@@ -197,7 +197,7 @@
   <string name="encrypted_pdf_backup_document_ready">Documento PDF criado</string>
   <string name="encrypted_pdf_backup_sharing">Compartilhando documento PDF&#8230;</string>
   <string name="encrypted_pdf_backup_email_title">Backup da carteira Mycelium</string>
-  <string name="encrypted_pdf_backup_email_text">Seu backup da carteira Mycelium está anexado.\r\n\r\nSiga esses passos para proteger os seus fundos:\r\n1. Imprima o documento PDF.\r\n2. Anote, nas caixas azuis da folha impressa, a senha de 15 caracteres exibida na tela do seu dispositivo Android.\r\n3. Verique que você consegue importar as chaves privadas paara a sua carteira Mycelium.\r\n4. Armazene a folha impressa em um lugar seguro.</string>
+  <string name="encrypted_pdf_backup_email_text">Seu backup da carteira Mycelium está anexado.\n\nSiga esses passos para proteger os seus fundos:\n1. Imprima o documento PDF.\n2. Anote, nas caixas azuis da folha impressa, a senha de 15 caracteres exibida na tela do seu dispositivo Android.\n3. Verique que você consegue importar as chaves privadas paara a sua carteira Mycelium.\n4. Armazene a folha impressa em um lugar seguro.</string>
   <string name="share_pdf">Compartilhar PDF</string>
   <string name="share_with">Compartilhar com&#8230;</string>
   <string name="import_decrypt_key_title">Descriptografando a Chave Privada</string>

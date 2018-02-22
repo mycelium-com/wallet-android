@@ -197,7 +197,7 @@
   <string name="encrypted_pdf_backup_document_ready">PDF-dokument pripravljen</string>
   <string name="encrypted_pdf_backup_sharing">Pošiljanje dokumenta&#8230;</string>
   <string name="encrypted_pdf_backup_email_title">Rezervna kopija denarnice Mycelium</string>
-  <string name="encrypted_pdf_backup_email_text">V prilogi je rezervna kopija vaše denarnice Mycelium.\r\n\r\nZa zaščito svojih sredstev sledite tem enostavnim korakom:\r\n1. Natisnite priloženi dokument.\r\n2. Prepišite 15 črk z zaslona svoje denarnice v modra polja na natisnjenem dokumentu.\r\n3. Preverite, da lahko zasebne ključe uspešno uvozite v denarnico Mycelium.\r\n4. Varno shranite natisnjeni dokument.</string>
+  <string name="encrypted_pdf_backup_email_text">V prilogi je rezervna kopija vaše denarnice Mycelium.\n\nZa zaščito svojih sredstev sledite tem enostavnim korakom:\n1. Natisnite priloženi dokument.\n2. Prepišite 15 črk z zaslona svoje denarnice v modra polja na natisnjenem dokumentu.\n3. Preverite, da lahko zasebne ključe uspešno uvozite v denarnico Mycelium.\n4. Varno shranite natisnjeni dokument.</string>
   <string name="share_pdf">Deli PDF</string>
   <string name="share_with">Deli z&#8230;</string>
   <string name="import_decrypt_key_title">Dešifriranje zasebnih ključev</string>

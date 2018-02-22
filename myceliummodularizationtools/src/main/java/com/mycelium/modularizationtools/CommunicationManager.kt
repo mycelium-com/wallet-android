@@ -203,7 +203,11 @@ class CommunicationManager private constructor(val context: Context) {
         val serviceIntent = intent.clone() as Intent
         serviceIntent.putExtra("key", getKey(receivingPackage))
         serviceIntent.component = ComponentName(receivingPackage, MessageReceiver::class.qualifiedName)
-        context.startService(serviceIntent)
+        try {
+            context.startService(serviceIntent)
+        } catch (e: SecurityException) {
+            Log.e(LOG_TAG, "", e) // often throw after update mbw application with exception "process is bad"
+        }
 
     }
 
