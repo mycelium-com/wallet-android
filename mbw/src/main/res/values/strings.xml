@@ -1066,7 +1066,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="share_transaction_manually_description">Do you want to share the raw transaction via clipboard, mail or other means?  This operation is usually safe but not necessary. We added this feature for debugging, when the transaction cannot be broadcast.</string>
     <string name="share_transaction">Share Transaction</string>
     <string name="want_to_add_priv_key_to_watch_account">Private keys for watch only account \"%1$s\" detected. Do you want to turn it into a spendable account?</string>
-    <string name="priv_key_of_watch_only_sa_account">Private key of watch only account!</string>
+    <string name="priv_key_of_watch_only_account">Private key of watch only account!</string>
     <string name="changelly">Changelly</string>
     <string name="changelly_description">Exchange your other coins for Bitcoin</string>
     <string name="changelly_setting_show_button_summary">Show Changelly option</string>

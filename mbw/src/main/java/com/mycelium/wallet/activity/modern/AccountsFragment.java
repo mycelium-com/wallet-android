@@ -204,9 +204,11 @@ public class AccountsFragment extends Fragment {
          }
          accountListAdapter.setFocusedAccount(account);
          updateIncludingMenus();
-         if(!(account instanceof ColuAccount)) {
+         if(!(account instanceof ColuAccount) && !intent.getBooleanExtra(AddAccountActivity.IS_UPGRADE, false)) {
             setNameForNewAccount(account);
          }
+         _mbwManager.getEventBus().post(new ExtraAccountsChanged());
+         _mbwManager.getEventBus().post(new AccountChanged(accountid));
       } else if(requestCode == ADD_RECORD_RESULT_CODE && resultCode == AddAdvancedAccountActivity.RESULT_MSG) {
          new AlertDialog.Builder(getActivity())
                  .setMessage(intent.getStringExtra(AddAccountActivity.RESULT_MSG))
@@ -364,8 +366,6 @@ public class AccountsFragment extends Fragment {
                               try {
                                  walletManager.deleteUnrelatedAccount(accountToDelete.getId(), AesKeyCipher.defaultKeyCipher());
                                  _storage.deleteAccountMetadata(accountToDelete.getId());
-                                 UUID bchAccountUUID = UUID.nameUUIDFromBytes(("BCH" + accountToDelete.getId().toString()).getBytes());
-                                 _storage.deleteAccountMetadata(bchAccountUUID);
                               } catch (KeyCipher.InvalidKeyCipher e) {
                                  throw new RuntimeException(e);
                               }
@@ -400,8 +400,6 @@ public class AccountsFragment extends Fragment {
                      try {
                         walletManager.deleteUnrelatedAccount(accountToDelete.getId(), AesKeyCipher.defaultKeyCipher());
                         _storage.deleteAccountMetadata(accountToDelete.getId());
-                        UUID bchAccountUUID = UUID.nameUUIDFromBytes(("BCH" + accountToDelete.getId().toString()).getBytes());
-                        _storage.deleteAccountMetadata(bchAccountUUID);
                      } catch (KeyCipher.InvalidKeyCipher e) {
                         throw new RuntimeException(e);
                      }
@@ -419,6 +417,7 @@ public class AccountsFragment extends Fragment {
                return null;
             } else {
                CurrencyBasedBalance balance = account.getCurrencyBasedBalance();
+               ExchangeRateManager exchanger = _mbwManager.getExchangeRateManager();
                return balance.confirmed;
             }
          }
@@ -511,15 +510,12 @@ public class AccountsFragment extends Fragment {
             _mbwManager.setSelectedAccount(account.getId());
          }
          toastSelectedAccountChanged(account);
-         accountListAdapter.setFocusedAccount(account);
          updateIncludingMenus();
       }
    };
 
    private void updateIncludingMenus() {
       WalletAccount account = accountListAdapter.getFocusedAccount();
-      boolean isBch = account.getType() == WalletAccount.Type.BCHSINGLEADDRESS
-              || account.getType() == WalletAccount.Type.BCHBIP44;
 
       final List<Integer> menus = Lists.newArrayList();
       if(!(account instanceof ColuAccount)
@@ -541,20 +537,19 @@ public class AccountsFragment extends Fragment {
          menus.add(R.menu.record_options_menu_backup_verify);
       }
 
-      if (!account.isDerivedFromInternalMasterseed() && !isBch) {
+      if (!account.isDerivedFromInternalMasterseed()) {
          menus.add(R.menu.record_options_menu_delete);
       }
 
-      if (account.isActive() && account.canSpend() && !(account instanceof Bip44PubOnlyAccount)
-              && !isBch) {
+      if (account.isActive() && account.canSpend() && !(account instanceof Bip44PubOnlyAccount)) {
          menus.add(R.menu.record_options_menu_sign);
       }
 
-      if (account.isActive() && !isBch) {
+      if (account.isActive()) {
          menus.add(R.menu.record_options_menu_active);
       }
 
-      if (account.isActive() && !(account instanceof CoinapultAccount) && !isBch) {
+      if (account.isActive() && !(account instanceof CoinapultAccount)) {
          menus.add(R.menu.record_options_menu_outputs);
       }
 
@@ -566,13 +561,12 @@ public class AccountsFragment extends Fragment {
          menus.add(R.menu.record_options_menu_archive);
       }
 
-      if (account.isActive() && account instanceof ExportableAccount && !isBch) {
+      if (account.isActive() && account instanceof ExportableAccount) {
          menus.add(R.menu.record_options_menu_export);
       }
 
       if (account.isActive() && account instanceof Bip44Account && !(account instanceof Bip44PubOnlyAccount)
-              && AccountManager.INSTANCE.getBTCMasterSeedAccounts().size() > 1 && !isBch) {
-
+              && walletManager.getActiveMasterseedAccounts().size() > 1) {
          if (!((Bip44Account) account).hasHadActivity()) {
             //only allow to remove unused HD acounts from the view
             menus.add(R.menu.record_options_menu_hide_unused);
@@ -587,7 +581,7 @@ public class AccountsFragment extends Fragment {
          menus.add(R.menu.record_options_menu_detach);
       }
 
-      AppCompatActivity parent = (AppCompatActivity) getActivity();
+      ActionBarActivity parent = (ActionBarActivity) getActivity();
 
       Callback actionMode = new Callback() {
          @Override
@@ -677,6 +671,7 @@ public class AccountsFragment extends Fragment {
       // starting for some reason, and this would clear the focus and force
       // an update.
       accountListAdapter.setFocusedAccount(account);
+
       update();
    }
 
@@ -1158,11 +1153,9 @@ public class AccountsFragment extends Fragment {
          _mbwManager.runPinProtectedFunction(this.getActivity(), new Runnable() {
             @Override
             public void run() {
-               List<UUID> removedAccounts = _mbwManager.getWalletManager(false).removeUnusedBip44Account();
-               //in case user had labeled the account, delete the stored names
-               for(UUID curAccount : removedAccounts) {
-                  _storage.deleteAccountMetadata(curAccount);
-               }
+               _mbwManager.getWalletManager(false).removeUnusedBip44Account();
+               //in case user had labeled the account, delete the stored name
+               _storage.deleteAccountMetadata(account.getId());
                //setselected also broadcasts AccountChanged event, which will cause an ui update
                _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
                //we dont want to show the context menu for the automatically selected account
@@ -1203,7 +1196,7 @@ public class AccountsFragment extends Fragment {
       _mbwManager.setKeyManagementLocked(true);
       update();
       if (isAdded()) {
-         getActivity().invalidateOptionsMenu();
+         getActivity().supportInvalidateOptionsMenu();
       }
    }
 
@@ -1218,7 +1211,7 @@ public class AccountsFragment extends Fragment {
                _mbwManager.setKeyManagementLocked(false);
                update();
                if (isAdded()) {
-                  getActivity().invalidateOptionsMenu();
+                  getActivity().supportInvalidateOptionsMenu();
                }
             }
 
@@ -1253,7 +1246,6 @@ public class AccountsFragment extends Fragment {
    @Subscribe
    public void accountChanged(AccountChanged event) {
       update();
-      _mbwManager.importLabelsToBch(walletManager);
    }
-}
 
+}

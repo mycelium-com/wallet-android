@@ -224,6 +224,10 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
       }
    }
 
+   @Override
+   public void upgradeBip44AccountContext(Bip44AccountContext context) {
+      updateBip44AccountContext(context);
+   }
 
    private void updateBip44AccountContext(Bip44AccountContext context) {
       //UPDATE bip44 SET archived=?,blockheight=?,lastExternalIndexWithActivity=?,lastInternalIndexWithActivity=?,firstMonitoredInternalIndex=?,lastDiscovery=?,accountType=?,accountSubId=? WHERE id=?
