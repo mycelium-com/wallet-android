@@ -65,6 +65,7 @@ import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.BalanceChanged;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
+import com.mycelium.wallet.event.ExchangeSourceChanged;
 import com.mycelium.wallet.event.RefreshingExchangeRatesFailed;
 import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
@@ -403,6 +404,11 @@ public class BalanceFragment extends Fragment {
       _exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
       updateUi();
       updateExcahngeSourceMenu();
+   }
+   @Subscribe
+   public void exchangeSourceChanged(ExchangeSourceChanged event) {
+      _exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
+      updateUi();
    }
 
    @Subscribe

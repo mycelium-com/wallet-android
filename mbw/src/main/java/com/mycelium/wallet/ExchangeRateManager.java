@@ -87,6 +87,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
     public interface Observer {
         void refreshingExchangeRatesSucceeded();
         void refreshingExchangeRatesFailed();
+        void exchangeSourceChanged();
     }
 
     private final Context _applicationContext;
@@ -220,15 +221,21 @@ public class ExchangeRateManager implements ExchangeRateProvider {
         }
     }
 
-    private synchronized void notifyRefreshingExchangeRatesSucceeded() {
-        for (final Observer s : _subscribers) {
+    private void notifyRefreshingExchangeRatesSucceeded() {
+        for (Observer s : _subscribers) {
             s.refreshingExchangeRatesSucceeded();
         }
     }
 
-    private synchronized void notifyRefreshingExchangeRatesFailed() {
-        for (final Observer s : _subscribers) {
+    private void notifyRefreshingExchangeRatesFailed() {
+        for (Observer s : _subscribers) {
             s.refreshingExchangeRatesFailed();
+        }
+    }
+
+    private void notifyExchangeSourceChanged() {
+        for (Observer s : _subscribers) {
+            s.exchangeSourceChanged();
         }
     }
 
@@ -299,7 +306,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
     public void setCurrentExchangeSourceName(String name) {
         _currentExchangeSourceName = name;
         getEditor().putString("currentRateName", _currentExchangeSourceName).apply();
-        notifyRefreshingExchangeRatesSucceeded();
+        notifyExchangeSourceChanged();
     }
 
     /**
@@ -310,7 +317,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
      * for callbacks. If a rate is returned the contained price may be null if
      * the currently chosen exchange source is not available.
      */
-    public synchronized ExchangeRate getExchangeRate(String currency, String source) {
+    public ExchangeRate getExchangeRate(String currency, String source) {
         // TODO need some refactoring for this
         String injectCurrency = null;
         if(currency.equals("RMC") || currency.equals("MSS") || currency.equals("BCH")) {
