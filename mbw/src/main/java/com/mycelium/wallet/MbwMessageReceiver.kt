@@ -20,7 +20,7 @@ import com.mycelium.spvmodule.IntentContract
 import com.mycelium.wallet.WalletApplication.getSpvModuleName
 import com.mycelium.wallet.activity.modern.ModernMain
 import com.mycelium.wallet.event.SpvSyncChanged
-import com.mycelium.wallet.event.SpvTransactionBroadcastCompleted
+import com.mycelium.wallet.event.SpvSendFundsResult
 import com.mycelium.wallet.persistence.MetadataStorage
 import com.mycelium.wapi.wallet.AesKeyCipher
 import com.mycelium.wapi.wallet.WalletAccount
@@ -159,8 +159,10 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
             "com.mycelium.wallet.notifyBroadcastTransactionBroadcastCompleted" -> {
                 val operationId = intent.getStringExtra(IntentContract.OPERATION_ID)
                 val txHash = intent.getStringExtra(IntentContract.TRANSACTION_HASH)
+                val isSuccess = intent.getBooleanExtra(IntentContract.IS_SUCCESS, false)
+                val message = intent.getStringExtra(IntentContract.MESSAGE)
                 val runnable = Runnable {
-                    eventBus.post(SpvTransactionBroadcastCompleted(operationId, txHash))
+                    eventBus.post(SpvSendFundsResult(operationId, txHash, isSuccess, message))
                 }
                 Handler(Looper.getMainLooper()).post(runnable)
             }

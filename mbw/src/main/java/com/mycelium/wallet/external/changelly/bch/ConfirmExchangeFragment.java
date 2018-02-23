@@ -20,22 +20,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.mrd.bitlib.StandardTransactionBuilder;
-import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.model.Transaction;
 import com.mycelium.spvmodule.IntentContract;
 import com.mycelium.spvmodule.TransactionFee;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.WalletApplication;
-import com.mycelium.wallet.event.SpvTransactionBroadcastCompleted;
+import com.mycelium.wallet.event.SpvSendFundsResult;
 import com.mycelium.wallet.external.changelly.ChangellyAPIService;
 import com.mycelium.wallet.external.changelly.ChangellyService;
 import com.mycelium.wallet.external.changelly.Constants;
 import com.mycelium.wallet.external.changelly.ExchangeLoggingService;
 import com.mycelium.wallet.external.changelly.model.Order;
 import com.mycelium.wallet.pdf.BCHExchangeReceiptBuilder;
-import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
@@ -48,7 +44,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
 import java.util.UUID;
@@ -124,16 +119,20 @@ public class ConfirmExchangeFragment extends Fragment {
             this.lastOperationId = UUID.randomUUID().toString();
             WalletAccount account = mbwManager.getSelectedAccount();
 
-            if (account instanceof Bip44BCHAccount) {
-                Bip44BCHAccount bip44BCHAccount = (Bip44BCHAccount)account;
-                Intent service = IntentContract.SendFunds.createIntent(lastOperationId, bip44BCHAccount.getAccountIndex(), offer.payinAddress, fromValue, TransactionFee.NORMAL, (float)1.0);
-                WalletApplication.sendToSpv(service, WalletAccount.Type.BCHBIP44);
-            }
+            switch (account.getType()) {
+                case BCHBIP44: {
+                    Bip44BCHAccount bip44BCHAccount = (Bip44BCHAccount)account;
+                    Intent service = IntentContract.SendFunds.createIntent(lastOperationId, bip44BCHAccount.getAccountIndex(), offer.payinAddress, fromValue, TransactionFee.NORMAL, (float)1.0);
+                    WalletApplication.sendToSpv(service, WalletAccount.Type.BCHBIP44);
+                    break;
+                }
+                case BCHSINGLEADDRESS: {
+                    SingleAddressBCHAccount bip44BCHAccount = (SingleAddressBCHAccount)account;
+                    Intent service = IntentContract.SendFundsSingleAddress.createIntent(lastOperationId, bip44BCHAccount.getId().toString(), offer.payinAddress, fromValue, TransactionFee.NORMAL, (float)1.0);
+                    WalletApplication.sendToSpv(service, WalletAccount.Type.BCHSINGLEADDRESS);
+                    break;
+                }
 
-            if (account instanceof SingleAddressBCHAccount) {
-                SingleAddressBCHAccount bip44BCHAccount = (SingleAddressBCHAccount)account;
-                Intent service = IntentContract.SendFundsSingleAddress.createIntent(lastOperationId, bip44BCHAccount.getId().toString(), offer.payinAddress, fromValue, TransactionFee.NORMAL, (float)1.0);
-                WalletApplication.sendToSpv(service, WalletAccount.Type.BCHSINGLEADDRESS);
             }
         } catch (RetrofitError e) {
             Log.e(TAG, "Excange logging error", e);
@@ -216,10 +215,15 @@ public class ConfirmExchangeFragment extends Fragment {
     }
 
     @Subscribe
-    public void spvTransactionBroadcastCompleted(SpvTransactionBroadcastCompleted event) {
+    public void spvSendFundsResult(SpvSendFundsResult event) {
         if (!event.operationId.equals(lastOperationId))
             return;
 
+        if (!event.isSuccess) {
+            //TODO most probably we need UI dialog here to display the message
+            Log.e(TAG, "Send funds failed: " + event.message);
+            return;
+        }
         final Order order = new Order();
         order.transactionId = event.txHash;
         order.exchangingAmount = String.valueOf(offer.amountFrom);
