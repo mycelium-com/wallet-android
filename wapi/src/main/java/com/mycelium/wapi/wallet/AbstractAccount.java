@@ -875,9 +875,14 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
          byte[] scriptBytes = curOutput.script.getScriptBytes();
          //Check the protocol identifier 0x4343 ASCII representation of the string CC ("Colored Coins")
          if (curOutput.value == 0 && coluTransferInstructionsParser.isValidColuScript(scriptBytes)) {
-            return coluTransferInstructionsParser.retrieveOutputIndexesFromScript(scriptBytes);
+            List<Integer> indexesList = coluTransferInstructionsParser.retrieveOutputIndexesFromScript(scriptBytes);
+            //Since all assets with remaining amounts are automatically transferred to the last output,
+            //add last output to indexes list
+            indexesList.add(tx.outputs.length - 1);
+            return indexesList;
          }
       }
+
       return new ArrayList<>();
    }
 
