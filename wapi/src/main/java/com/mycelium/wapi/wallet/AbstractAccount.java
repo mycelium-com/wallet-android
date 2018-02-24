@@ -877,8 +877,13 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
          if (curOutput.value == 0 && coluTransferInstructionsParser.isValidColuScript(scriptBytes)) {
             List<Integer> indexesList = coluTransferInstructionsParser.retrieveOutputIndexesFromScript(scriptBytes);
             //Since all assets with remaining amounts are automatically transferred to the last output,
-            //add last output to indexes list
-            indexesList.add(tx.outputs.length - 1);
+            //add the last output to indexes list.
+            //At least CC transaction could consist of have two outputs if it has no change - dust output that represents
+            //transferred assets value and an empty output containing OP_RETURN data.
+            //If the CC transaction has the change to transfer, it will be represented at least as the third dust output
+            if (tx.outputs.length > 2) {
+               indexesList.add(tx.outputs.length - 1);
+            }
             return indexesList;
          }
       }
