@@ -46,8 +46,11 @@ public class BCHExchangeReceiptBuilder {
         fromTop += 1.5F;
         writer.addText(1F, fromTop, 16, "Convertion From BCH to BTC");
 
+
         fromTop += 1.5F;
-        writer.addText(1F, fromTop, 16, "TxID: " + transactionId);
+        writer.addText(1F, fromTop, 16, "TxID: " + transactionId.substring(0, transactionId.length() / 2));
+        fromTop += 0.6F;
+        writer.addText(1F, fromTop, 16, "           " + transactionId.substring(transactionId.length() / 2));
 
         fromTop += 1F;
         writer.addText(1F, fromTop, 16, "Date: " + date);

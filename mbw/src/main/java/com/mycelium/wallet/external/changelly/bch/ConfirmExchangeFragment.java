@@ -115,29 +115,23 @@ public class ConfirmExchangeFragment extends Fragment {
     @OnClick(R.id.buttonContinue)
     void createAndSignTransaction() {
         long fromValue = ExactBitcoinCashValue.from(BigDecimal.valueOf(offer.amountFrom)).getLongValue();
-        try {
-            this.lastOperationId = UUID.randomUUID().toString();
-            WalletAccount account = mbwManager.getSelectedAccount();
 
-            switch (account.getType()) {
-                case BCHBIP44: {
-                    Bip44BCHAccount bip44BCHAccount = (Bip44BCHAccount)account;
-                    Intent service = IntentContract.SendFunds.createIntent(lastOperationId, bip44BCHAccount.getAccountIndex(), offer.payinAddress, fromValue, TransactionFee.NORMAL, (float)1.0);
-                    WalletApplication.sendToSpv(service, WalletAccount.Type.BCHBIP44);
-                    break;
-                }
-                case BCHSINGLEADDRESS: {
-                    SingleAddressBCHAccount bip44BCHAccount = (SingleAddressBCHAccount)account;
-                    Intent service = IntentContract.SendFundsSingleAddress.createIntent(lastOperationId, bip44BCHAccount.getId().toString(), offer.payinAddress, fromValue, TransactionFee.NORMAL, (float)1.0);
-                    WalletApplication.sendToSpv(service, WalletAccount.Type.BCHSINGLEADDRESS);
-                    break;
-                }
+        this.lastOperationId = UUID.randomUUID().toString();
+        WalletAccount account = mbwManager.getSelectedAccount();
 
+        switch (account.getType()) {
+            case BCHBIP44: {
+                Bip44BCHAccount bip44BCHAccount = (Bip44BCHAccount) account;
+                Intent serviceIntent = IntentContract.SendFunds.createIntent(lastOperationId, bip44BCHAccount.getAccountIndex(), offer.payinAddress, fromValue, TransactionFee.NORMAL, (float) 1.0);
+                WalletApplication.sendToSpv(serviceIntent, WalletAccount.Type.BCHBIP44);
+                break;
             }
-        } catch (RetrofitError e) {
-            Log.e(TAG, "Excange logging error", e);
-        } catch (/*UnableToBuildTransactionException | InsufficientFundsException | OutputTooSmallException | KeyCipher.InvalidKeyCipher*/Exception e) {
-            Log.e(TAG, "", e);
+            case BCHSINGLEADDRESS: {
+                SingleAddressBCHAccount bip44BCHAccount = (SingleAddressBCHAccount) account;
+                Intent service = IntentContract.SendFundsSingleAddress.createIntent(lastOperationId, bip44BCHAccount.getId().toString(), offer.payinAddress, fromValue, TransactionFee.NORMAL, (float) 1.0);
+                WalletApplication.sendToSpv(service, WalletAccount.Type.BCHSINGLEADDRESS);
+                break;
+            }
         }
     }
 
@@ -251,7 +245,8 @@ public class ConfirmExchangeFragment extends Fragment {
                                 .setReceivingAddress(order.receivingAddress)
                                 .setSpendingAmount(order.exchangingAmount + " " + order.exchangingCurrency)
                                 .build();
-                        File pdfFile = new File(getActivity().getExternalFilesDir(DIRECTORY_DOWNLOADS), "exchange_bch_order.pdf");
+                        String filePart = new SimpleDateFormat( "yyMMddHHmmss").format(new Date());
+                        File pdfFile = new File(getActivity().getExternalFilesDir(DIRECTORY_DOWNLOADS), "exchange_bch_order_" + filePart + ".pdf");
                         try {
                             OutputStream pdfStream = new FileOutputStream(pdfFile);
                             pdfStream.write(pdf.getBytes("UTF-8"));
@@ -266,18 +261,28 @@ public class ConfirmExchangeFragment extends Fragment {
                     }
                 })
                 .setNegativeButton(R.string.close, null)
+                .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialogInterface) {
+                        getActivity().finish();
+                    }
+                })
                 .create().show();
 
-        ExchangeLoggingService.exchangeLoggingService.saveOrder(order).enqueue(new Callback<Void>() {
-            @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                Log.d(TAG, "logging success ");
-            }
+        try {
+            ExchangeLoggingService.exchangeLoggingService.saveOrder(order).enqueue(new Callback<Void>() {
+                @Override
+                public void onResponse(Call<Void> call, Response<Void> response) {
+                    Log.d(TAG, "logging success ");
+                }
 
-            @Override
-            public void onFailure(Call<Void> call, Throwable t) {
-                Log.d(TAG, "logging failure", t);
-            }
-        });
+                @Override
+                public void onFailure(Call<Void> call, Throwable t) {
+                    Log.d(TAG, "logging failure", t);
+                }
+            });
+        } catch (RetrofitError e) {
+            Log.e(TAG, "Excange logging error", e);
+        }
     }
 }
