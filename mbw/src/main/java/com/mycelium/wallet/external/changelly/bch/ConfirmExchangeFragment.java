@@ -244,6 +244,7 @@ public class ConfirmExchangeFragment extends Fragment {
                                 .setReceivingAmount(order.receivingAmount + " " + order.receivingCurrency)
                                 .setReceivingAddress(order.receivingAddress)
                                 .setSpendingAmount(order.exchangingAmount + " " + order.exchangingCurrency)
+                                .setSpendingAccountLabel(mbwManager.getMetadataStorage().getLabelByAccount(fromAccount.getId()))
                                 .build();
                         String filePart = new SimpleDateFormat( "yyMMddHHmmss").format(new Date());
                         File pdfFile = new File(getActivity().getExternalFilesDir(DIRECTORY_DOWNLOADS), "exchange_bch_order_" + filePart + ".pdf");
