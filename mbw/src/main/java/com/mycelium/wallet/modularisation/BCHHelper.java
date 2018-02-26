@@ -61,6 +61,7 @@ public class BCHHelper {
                     })
                     .create().show();
         } else if (!bchSharedPreferences.getBoolean(BCH_FIRST_INSTALLED, false) && moduleBCHInstalled) {
+            cleanModulesIfFirstRun(context, commonSharedPreferences);
             new AlertDialog.Builder(context)
                     .setTitle(R.string.first_bch_installed_title)
                     .setMessage(R.string.first_bch_installed_message)
@@ -75,6 +76,12 @@ public class BCHHelper {
                         }
                     })
                     .create().show();
+        }
+    }
+
+    private static void cleanModulesIfFirstRun(Context context, SharedPreferences commonSharedPreferences) {
+        if (!commonSharedPreferences.getBoolean(BCH_FIRST_UPDATE, false)) {
+            MbwManager.getInstance(context).getSpvBchFetcher().forceCleanCache();
         }
     }
 
