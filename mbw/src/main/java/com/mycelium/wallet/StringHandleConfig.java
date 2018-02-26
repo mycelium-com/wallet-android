@@ -208,8 +208,8 @@ public class StringHandleConfig implements Serializable {
             UUID account = MbwManager.getInstance(handlerActivity).createOnTheFlyAccount(key.get());
             //we dont know yet where at what to send
             BitcoinUri uri = new BitcoinUri(null,null,null);
-            SendInitializationActivity.callMe(handlerActivity, account,uri, true);
-            handlerActivity.finishOk();
+            SendInitializationActivity.callMeWithResult(handlerActivity, account,uri, true,
+                    StringHandlerActivity.SEND_INITIALIZATION_CODE);
             return true;
          }
 
@@ -313,8 +313,8 @@ public class StringHandleConfig implements Serializable {
                UUID acc = tempWalletManager.createUnrelatedBip44Account(hdKey);
                tempWalletManager.setActiveAccount(acc);
                BitcoinUri uri = new BitcoinUri(null,null,null);
-               SendInitializationActivity.callMe(handlerActivity, acc, uri, true);
-               handlerActivity.finishOk();
+               SendInitializationActivity.callMeWithResult(handlerActivity, acc, uri, true,
+                       StringHandlerActivity.SEND_INITIALIZATION_CODE);
                return true;
             } catch (HdKeyNode.KeyGenerationException ex){
                return false;
@@ -410,8 +410,8 @@ public class StringHandleConfig implements Serializable {
             UUID account = MbwManager.getInstance(handlerActivity).createOnTheFlyAccount(address.get());
             //we dont know yet where at what to send
             BitcoinUri uri = new BitcoinUri(null,null,null);
-            SendInitializationActivity.callMe(handlerActivity, account, uri, true);
-            handlerActivity.finishOk();
+            SendInitializationActivity.callMeWithResult(handlerActivity, account, uri, true,
+                    StringHandlerActivity.SEND_INITIALIZATION_CODE);
             return true;
          }
 
@@ -619,8 +619,8 @@ public class StringHandleConfig implements Serializable {
                UUID account = MbwManager.getInstance(handlerActivity).createOnTheFlyAccount(uri.get().address);
                //we dont know yet where at what to send
                BitcoinUri targeturi = new BitcoinUri(null,null,null);
-               SendInitializationActivity.callMe(handlerActivity, account, targeturi, true);
-               handlerActivity.finishOk();
+               SendInitializationActivity.callMeWithResult(handlerActivity, account, targeturi, true,
+                       StringHandlerActivity.SEND_INITIALIZATION_CODE);
             }
             return true;
          }

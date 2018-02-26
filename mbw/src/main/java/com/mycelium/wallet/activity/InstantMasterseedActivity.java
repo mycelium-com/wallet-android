@@ -150,4 +150,10 @@ public class InstantMasterseedActivity extends HdAccountSelectorActivity {
    public void onPassphraseRequest(AccountScanManager.OnPassphraseRequest event){
       super.onPassphraseRequest(event);
    }
+
+   @Override
+   protected void onDestroy() {
+      super.onDestroy();
+      MbwManager.getInstance(this).forgetColdStorageWalletManager();
+   }
 }
