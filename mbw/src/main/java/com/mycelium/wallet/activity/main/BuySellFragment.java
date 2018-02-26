@@ -54,6 +54,7 @@ import com.mycelium.wallet.external.BuySellSelectFragment;
 import com.mycelium.wallet.external.BuySellServiceDescriptor;
 import com.mycelium.wallet.external.changelly.ChangellyActivity;
 import com.mycelium.wallet.external.changelly.bch.ExchangeActivity;
+import com.mycelium.wapi.model.ExchangeRate;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
@@ -125,7 +126,8 @@ public class BuySellFragment extends Fragment {
 
     private void startExchange(Intent intent) {
         //TODO need find more right way to detect is Changelly available
-        if (_mbwManager.getExchangeRateManager().getExchangeRate("BCH").price == null) {
+        final ExchangeRate exchangeRate = _mbwManager.getExchangeRateManager().getExchangeRate("BCH");
+        if (exchangeRate == null || exchangeRate.price == null) {
             new AlertDialog.Builder(getActivity())
                     .setMessage(R.string.exchange_service_unavailable)
                     .setPositiveButton(R.string.button_ok, null)
