@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.text.Html;
 
 import com.mycelium.modularizationtools.CommunicationManager;
 import com.mycelium.modularizationtools.model.Module;
@@ -40,8 +41,8 @@ public class BCHHelper {
         if (!commonSharedPreferences.getBoolean(BCH_FIRST_UPDATE, false) && !moduleBCHInstalled) {
             new AlertDialog.Builder(context)
                     .setTitle(R.string.first_modulization_title)
-                    .setMessage(R.string.first_modulization_message)
-                    .setPositiveButton(R.string.install_bch_module, new DialogInterface.OnClickListener() {
+                    .setMessage(Html.fromHtml(context.getString(R.string.first_modulization_message)))
+                    .setPositiveButton(Html.fromHtml(context.getString(R.string.install_bch_module)), new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             Intent installIntent = new Intent(Intent.ACTION_VIEW);
@@ -62,8 +63,8 @@ public class BCHHelper {
                     .create().show();
         } else if (!bchSharedPreferences.getBoolean(BCH_FIRST_INSTALLED, false) && moduleBCHInstalled) {
             new AlertDialog.Builder(context)
-                    .setTitle(R.string.first_bch_installed_title)
-                    .setMessage(R.string.first_bch_installed_message)
+                    .setTitle(Html.fromHtml(context.getString(R.string.first_bch_installed_title)))
+                    .setMessage(Html.fromHtml(context.getString(R.string.first_bch_installed_message)))
                     .setPositiveButton(R.string.button_continue, null)
                     .setOnDismissListener(new DialogInterface.OnDismissListener() {
                         @Override
@@ -97,14 +98,14 @@ public class BCHHelper {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setPositiveButton(R.string.button_continue, null);
         if (sum.floatValue() > 0) {
-            builder.setTitle(R.string.scaning_complete_found);
-            builder.setMessage(context.getString(R.string.bch_accounts_found,
+            builder.setTitle(Html.fromHtml(context.getString(R.string.scaning_complete_found)));
+            builder.setMessage(Html.fromHtml(context.getString(R.string.bch_accounts_found,
                     sum.toPlainString()
-                    , accountFounded));
+                    , accountFounded)));
             builder.create().show();
         } else if (sharedPreferences.getBoolean(IS_FIRST_SYNC, true)) {
-            builder.setTitle(R.string.scaning_complete_not_found);
-            builder.setMessage(R.string.bch_accounts_not_found);
+            builder.setTitle(Html.fromHtml(context.getString(R.string.scaning_complete_not_found)));
+            builder.setMessage(Html.fromHtml(context.getString(R.string.bch_accounts_not_found)));
             builder.create().show();
         }
         sharedPreferences.edit().putBoolean(IS_FIRST_SYNC, false).apply();

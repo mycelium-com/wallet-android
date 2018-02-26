@@ -1126,31 +1126,31 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="backup">BACKUP</string>
     <string name="bch_module_description">Bitcoin Cash accounts support and exchange to BTC option</string>
     <string name="first_modulization_title">Congratulations!</string>
-    <string name="first_modulization_message">You just got a new modular multiblockain version of Mycelium Wallet!\n\nDue to high demand, we have released Bitcoin Cash (BCH) module first.\n\nNow you can get your BCH and instantly and securely exchange it to BTC.\n\nTo do so, you need to install the BCH module or you can do it later from Settings -> Bitcoin Cash module section.</string>
-    <string name="install_bch_module">Install BCH module</string>
+    <string name="first_modulization_message"><![CDATA[You just got a new modular multiblockain version of Mycelium Wallet!<br><br>Due to high demand, we have released Bitcoin Cash (BCH) module first.<br><br>Now you can get your Bitcoin <font color="#f08c18">Cash</font> and instantly and securely exchange it to BTC.<br><br>To do so, you need to install the Bitcoin <font color="#f08c18">Cash</font> module or you can do it later from Settings -> Bitcoin Cash module section.]]></string>
+    <string name="install_bch_module"><![CDATA[Install Bitcoin <font color="#f08c18">Cash</font> module]]></string>
     <string name="contunue_without_bch">Continue without BCH</string>
-    <string name="bch_module_change">Mycelium BCH module has been %s!</string>>
+    <string name="bch_module_change"><![CDATA[Mycelium Bitcoin <font color="#f08c18">Cash</font> module has been %s!]]></string>>
     <string name="installed">installed</string>>
     <string name="updated">updated</string>>
-    <string name="removed">removed</string>>
+    <string name="removed">uninstalled</string>>
     <string name="configuration_change_restart_warning">Application restart is required in order to apply configuration changes.</string>
-    <string name="first_bch_installed_title">Mycelium BCH module has been installed!</string>
-    <string name="first_bch_installed_message">Now we need to sync it with the blockchain in order to retrieve your BCH balance.\n\nThis procedure takes some time and is performed in the background. We will inform you when it is done.\n\nYou can always check the sync progress here:  Settings -> BCH module.\n\nFor every BTC account with not retrieved BCH, corresponding BCH account will be created.\n\nGo to Balance tab of your BCH account to instantly  exchange it to BTC.</string>
-    <string name="bch_accounts_not_found">We have not found any BCH on your BTC accounts.\nWe are continuously monitoring your BTC accounts and will inform you if BCH is found.</string>
-    <string name="bch_accounts_found">We have found %1$s BCH on your BTC accounts.\n\n%2$d corresponding BCH account(s) created.\nBCH balance can be checked on the Accounts tab.\n\nNow you can go to the Balance tab of your BCH account(s) and instantly exchange it to BTC.</string>
+    <string name="first_bch_installed_title"><![CDATA[Mycelium Bitcoin <font color="#f08c18">Cash</font> module has been installed!]]></string>
+    <string name="first_bch_installed_message"><![CDATA[Now we need to sync it with the blockchain in order to retrieve your Bitcoin <font color="#f08c18">Cash</font>  balance.<br><br>This procedure takes some time and is performed in the background. We will inform you when it is done.<br><br>You can always check the sync progress here:  Settings -> Bitcoin <font color="#f08c18">Cash</font> module.<br><br>For every BTC account with not retrieved Bitcoin <font color="#f08c18">Cash</font>, corresponding Bitcoin <font color="#f08c18">Cash</font> account will be created.<br><br>Go to Balance tab of your Bitcoin <font color="#f08c18">Cash</font> account to instantly  exchange it to BTC.]]></string>
+    <string name="bch_accounts_not_found"><![CDATA[We have not found any Bitcoin <font color="#f08c18">Cash</font> on your BTC accounts.<br>We are continuously monitoring your BTC accounts and will inform you if Bitcoin <font color="#f08c18">Cash</font> is found.]]></string>
+    <string name="bch_accounts_found"><![CDATA[We have found %1$s Bitcoin <font color="#f08c18">Cash</font> on your BTC accounts.<br><br>%2$d corresponding Bitcoin <font color="#f08c18">Cash</font> account(s) created.\Bitcoin <font color="#f08c18">Cash</font>  balance can be checked on the Accounts tab.<br><br>Now you can go to the Balance tab of your Bitcoin <font color="#f08c18">Cash</font> account(s) and instantly exchange it to BTC.]]></string>
     <string name="bitcoin_cash" ><![CDATA[Bitcoin <font color="#f08c18">Cash</font>]]></string>
     <string name="hd_account_bch">Add Bitcoin Cash HD Account</string>
     <string name="generate_new_bch_key">Generate Bitcoin Cash</string>
     <string name="bch_you_can_transaction_on_explorer"><![CDATA[You can check your transactions on <font color="#4583de">https://www.blocktrail.com/%s</font>]]></string>
-    <string name="bch_technology_preview">Bitcoin Cash functionality is a technology preview of Mycelium Modular Architecture. You can only instantly exchange your BCH to BTC right in Mycelium so far. Fully functional BCH module will be available soon. Special thanks to all our contributors and beta  testers!</string>
+    <string name="bch_technology_preview"><![CDATA[Bitcoin Cash functionality is a technology preview of Mycelium Modular Architecture. You can only instantly exchange your Bitcoin <font color="#f08c18">Cash</font> to BTC right in Mycelium so far. Fully functional Bitcoin <font color="#f08c18">Cash</font> module will be available soon. Special thanks to all our contributors and beta testers!]]></string>
     <string name="install">Install</string>
     <string name="no_spendable_accounts">No spendable accounts</string>
     <string name="digital_assets">Digital Assets</string>
     <string name="sync_progress">Sync progress: %d%%.</string>
     <string name="how_is_it_calculated">How is it calculated?</string>
     <string name="how_is_it_calculated_text">The \"Spendable Amount\" is the account\'s balance minus the cost to spend it.\n\nThe costs depend on the number of UTXOs and the miner fee level that you chose.\n\nYou can review your UTXO count in the Accounts tab, selecting your account and then using the context menu.\n\nIf you have more than 300 UTXOs, your spendable amount might further be limited by Bitcoin\'s transaction size limit. In this case you might need more than one transaction to spend all your funds.</string>
-    <string name="scaning_complete_found">BCH has been found!</string>
-    <string name="scaning_complete_not_found">BCH has not been found!</string>
+    <string name="scaning_complete_found"><![CDATA[Bitcoin <font color="#f08c18">Cash</font> has been found!]]></string>
+    <string name="scaning_complete_not_found"><![CDATA[Bitcoin <font color="#f08c18">Cash</font> has not been found!]]></string>
     <string name="exchange_rate_unavailable">Exchange rate is temporarily unavailable.</string>
     <string name="exchange_service_unavailable">Exchange service is temporarily unavailable.\nPlease try again later.</string>
     <string name="uninstall">Uninstall</string>
