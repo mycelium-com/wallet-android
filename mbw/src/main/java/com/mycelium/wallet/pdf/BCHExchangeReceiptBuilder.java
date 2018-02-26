@@ -10,6 +10,7 @@ public class BCHExchangeReceiptBuilder {
     private String spendingAmount;
     private String receivingAmount;
     private String receivingAddress;
+    private String spendingAccountLabel;
 
     public BCHExchangeReceiptBuilder setTransactionId(String transactionId) {
         this.transactionId = transactionId;
@@ -36,6 +37,11 @@ public class BCHExchangeReceiptBuilder {
         return this;
     }
 
+    public BCHExchangeReceiptBuilder setSpendingAccountLabel(String spendingAccountLabel) {
+        this.spendingAccountLabel = spendingAccountLabel;
+        return this;
+    }
+
     public String build() {
         int pageWidth = PaperSize.EXECUTIVE_WIDTH;
         int pageHeight = PaperSize.EXECUTIVE_HEIGHT;
@@ -46,11 +52,17 @@ public class BCHExchangeReceiptBuilder {
         fromTop += 1.5F;
         writer.addText(1F, fromTop, 16, "Convertion From BCH to BTC");
 
+
         fromTop += 1.5F;
-        writer.addText(1F, fromTop, 16, "TxID: " + transactionId);
+        writer.addText(1F, fromTop, 16, "TxID: " + transactionId.substring(0, transactionId.length() / 2));
+        fromTop += 0.6F;
+        writer.addText(1F, fromTop, 16, "           " + transactionId.substring(transactionId.length() / 2));
 
         fromTop += 1F;
         writer.addText(1F, fromTop, 16, "Date: " + date);
+
+        fromTop += 1F;
+        writer.addText(1F, fromTop, 16, "Spending account: " + spendingAccountLabel);
 
         fromTop += 1F;
         writer.addText(1F, fromTop, 16, "Spending amount: " + spendingAmount);

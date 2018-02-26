@@ -20,22 +20,23 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.mrd.bitlib.StandardTransactionBuilder;
-import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.model.Transaction;
 import com.mycelium.spvmodule.IntentContract;
+import com.mycelium.spvmodule.TransactionFee;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.WalletApplication;
+import com.mycelium.wallet.event.SpvSendFundsResult;
 import com.mycelium.wallet.external.changelly.ChangellyAPIService;
 import com.mycelium.wallet.external.changelly.ChangellyService;
 import com.mycelium.wallet.external.changelly.Constants;
 import com.mycelium.wallet.external.changelly.ExchangeLoggingService;
 import com.mycelium.wallet.external.changelly.model.Order;
 import com.mycelium.wallet.pdf.BCHExchangeReceiptBuilder;
-import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
+import com.mycelium.wapi.wallet.single.SingleAddressBCHAccount;
+import com.squareup.otto.Subscribe;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -43,7 +44,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
 import java.util.UUID;
@@ -91,6 +91,8 @@ public class ConfirmExchangeFragment extends Fragment {
     private ProgressDialog progressDialog;
     private Receiver receiver;
 
+    private String lastOperationId;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -99,6 +101,7 @@ public class ConfirmExchangeFragment extends Fragment {
         UUID fromAddress = (UUID) getArguments().getSerializable(Constants.FROM_ADDRESS);
         amount = getArguments().getDouble(Constants.FROM_AMOUNT);
         mbwManager = MbwManager.getInstance(getActivity());
+        mbwManager.getEventBus().register(this);
         fromAccount = mbwManager.getWalletManager(false).getAccount(fromAddress);
         toAccount = mbwManager.getWalletManager(false).getAccount(toAddress);
         receiver = new Receiver();
@@ -112,76 +115,23 @@ public class ConfirmExchangeFragment extends Fragment {
     @OnClick(R.id.buttonContinue)
     void createAndSignTransaction() {
         long fromValue = ExactBitcoinCashValue.from(BigDecimal.valueOf(offer.amountFrom)).getLongValue();
-        try {
-            StandardTransactionBuilder.UnsignedTransaction unsignedTransaction = fromAccount.createUnsignedTransaction(
-                    Collections.singletonList(new WalletAccount.Receiver(Address.fromString(offer.payinAddress), fromValue))
-                    , MINER_FEE);
-            Transaction transaction = fromAccount.signTransaction(unsignedTransaction, AesKeyCipher.defaultKeyCipher());
 
-            WalletAccount account = mbwManager.getSelectedAccount();
-            Intent intent = IntentContract.BroadcastTransaction.createIntent(transaction.toBytes());
-            WalletApplication.sendToSpv(intent, account.getType());
+        this.lastOperationId = UUID.randomUUID().toString();
+        WalletAccount account = mbwManager.getSelectedAccount();
 
-            final Order order = new Order();
-            order.transactionId = transaction.getHash().toString();
-            order.exchangingAmount = String.valueOf(offer.amountFrom);
-            order.exchangingCurrency = "BCH";
-            order.receivingAddress = toAccount.getReceivingAddress().get().toString();
-            order.receivingAmount = String.valueOf(offer.amountTo);
-            order.receivingCurrency = "BTC";
-            order.timestamp = SimpleDateFormat.getDateTimeInstance(SimpleDateFormat.LONG, SimpleDateFormat.LONG, Locale.ENGLISH)
-                    .format(new Date());
-
-            new AlertDialog.Builder(getActivity())
-                    .setTitle(R.string.success)
-                    .setMessage(Html.fromHtml(getString(R.string.exchange_order_placed_dialog
-                            , order.timestamp
-                            , order.transactionId
-                            , order.exchangingAmount
-                            , order.receivingAmount)))
-                    .setPositiveButton(R.string.save_receipt, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            String pdf = new BCHExchangeReceiptBuilder()
-                                    .setTransactionId(order.transactionId)
-                                    .setDate(order.timestamp)
-                                    .setReceivingAmount(order.receivingAmount + " " + order.receivingCurrency)
-                                    .setReceivingAddress(order.receivingAddress)
-                                    .setSpendingAmount(order.exchangingAmount + " " + order.exchangingCurrency)
-                                    .build();
-                            File pdfFile = new File(getActivity().getExternalFilesDir(DIRECTORY_DOWNLOADS), "exchange_bch_order.pdf");
-                            try {
-                                OutputStream pdfStream = new FileOutputStream(pdfFile);
-                                pdfStream.write(pdf.getBytes("UTF-8"));
-                                pdfStream.close();
-                            } catch (IOException e) {
-                                Log.e(TAG, "", e);
-                            }
-                            DownloadManager downloadManager = (DownloadManager) getActivity().getSystemService(DOWNLOAD_SERVICE);
-                            downloadManager.addCompletedDownload(pdfFile.getName(), pdfFile.getName()
-                                    , true, "application/pdf"
-                                    , pdfFile.getAbsolutePath(), pdfFile.length(), true);
-                        }
-                    })
-                    .setNegativeButton(R.string.close, null)
-                    .create().show();
-
-            ExchangeLoggingService.exchangeLoggingService.saveOrder(order).enqueue(new Callback<Void>() {
-                @Override
-                public void onResponse(Call<Void> call, Response<Void> response) {
-                    Log.d(TAG, "logging success ");
-                }
-
-                @Override
-                public void onFailure(Call<Void> call, Throwable t) {
-                    Log.d(TAG, "logging failure", t);
-                }
-            });
-
-        } catch (RetrofitError e) {
-            Log.e(TAG, "Excange logging error", e);
-        } catch (/*UnableToBuildTransactionException | InsufficientFundsException | OutputTooSmallException | KeyCipher.InvalidKeyCipher*/Exception e) {
-            Log.e(TAG, "", e);
+        switch (account.getType()) {
+            case BCHBIP44: {
+                Bip44BCHAccount bip44BCHAccount = (Bip44BCHAccount) account;
+                Intent serviceIntent = IntentContract.SendFunds.createIntent(lastOperationId, bip44BCHAccount.getAccountIndex(), offer.payinAddress, fromValue, TransactionFee.NORMAL, (float) 1.0);
+                WalletApplication.sendToSpv(serviceIntent, WalletAccount.Type.BCHBIP44);
+                break;
+            }
+            case BCHSINGLEADDRESS: {
+                SingleAddressBCHAccount bip44BCHAccount = (SingleAddressBCHAccount) account;
+                Intent service = IntentContract.SendFundsSingleAddress.createIntent(lastOperationId, bip44BCHAccount.getId().toString(), offer.payinAddress, fromValue, TransactionFee.NORMAL, (float) 1.0);
+                WalletApplication.sendToSpv(service, WalletAccount.Type.BCHSINGLEADDRESS);
+                break;
+            }
         }
     }
 
@@ -255,6 +205,85 @@ public class ConfirmExchangeFragment extends Fragment {
                             }).create().show();
                     break;
             }
+        }
+    }
+
+    @Subscribe
+    public void spvSendFundsResult(SpvSendFundsResult event) {
+        if (!event.operationId.equals(lastOperationId))
+            return;
+
+        if (!event.isSuccess) {
+            //TODO most probably we need UI dialog here to display the message
+            Log.e(TAG, "Send funds failed: " + event.message);
+            return;
+        }
+        final Order order = new Order();
+        order.transactionId = event.txHash;
+        order.exchangingAmount = String.valueOf(offer.amountFrom);
+        order.exchangingCurrency = "BCH";
+        order.receivingAddress = toAccount.getReceivingAddress().get().toString();
+        order.receivingAmount = String.valueOf(offer.amountTo);
+        order.receivingCurrency = "BTC";
+        order.timestamp = SimpleDateFormat.getDateTimeInstance(SimpleDateFormat.LONG, SimpleDateFormat.LONG, Locale.ENGLISH)
+                .format(new Date());
+
+        new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.success)
+                .setMessage(Html.fromHtml(getString(R.string.exchange_order_placed_dialog
+                        , order.timestamp
+                        , order.transactionId
+                        , order.exchangingAmount
+                        , order.receivingAmount)))
+                .setPositiveButton(R.string.save_receipt, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        String pdf = new BCHExchangeReceiptBuilder()
+                                .setTransactionId(order.transactionId)
+                                .setDate(order.timestamp)
+                                .setReceivingAmount(order.receivingAmount + " " + order.receivingCurrency)
+                                .setReceivingAddress(order.receivingAddress)
+                                .setSpendingAmount(order.exchangingAmount + " " + order.exchangingCurrency)
+                                .setSpendingAccountLabel(mbwManager.getMetadataStorage().getLabelByAccount(fromAccount.getId()))
+                                .build();
+                        String filePart = new SimpleDateFormat( "yyMMddHHmmss").format(new Date());
+                        File pdfFile = new File(getActivity().getExternalFilesDir(DIRECTORY_DOWNLOADS), "exchange_bch_order_" + filePart + ".pdf");
+                        try {
+                            OutputStream pdfStream = new FileOutputStream(pdfFile);
+                            pdfStream.write(pdf.getBytes("UTF-8"));
+                            pdfStream.close();
+                        } catch (IOException e) {
+                            Log.e(TAG, "", e);
+                        }
+                        DownloadManager downloadManager = (DownloadManager) getActivity().getSystemService(DOWNLOAD_SERVICE);
+                        downloadManager.addCompletedDownload(pdfFile.getName(), pdfFile.getName()
+                                , true, "application/pdf"
+                                , pdfFile.getAbsolutePath(), pdfFile.length(), true);
+                    }
+                })
+                .setNegativeButton(R.string.close, null)
+                .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialogInterface) {
+                        getActivity().finish();
+                    }
+                })
+                .create().show();
+
+        try {
+            ExchangeLoggingService.exchangeLoggingService.saveOrder(order).enqueue(new Callback<Void>() {
+                @Override
+                public void onResponse(Call<Void> call, Response<Void> response) {
+                    Log.d(TAG, "logging success ");
+                }
+
+                @Override
+                public void onFailure(Call<Void> call, Throwable t) {
+                    Log.d(TAG, "logging failure", t);
+                }
+            });
+        } catch (RetrofitError e) {
+            Log.e(TAG, "Excange logging error", e);
         }
     }
 }

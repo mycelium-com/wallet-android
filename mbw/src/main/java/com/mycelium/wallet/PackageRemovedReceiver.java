@@ -77,8 +77,10 @@ public class PackageRemovedReceiver extends BroadcastReceiver {
     private void initiateRestart(Context context, int stringId) {
         if (isAppOnForeground(context)) {
             showRestartWarning(context, String.format(context.getString(R.string.bch_module_change), context.getString(stringId)));
-        } else {
+        } else if (stringId == R.string.installed){
             restart(context);
+        } else {
+            Runtime.getRuntime().exit(0);
         }
     }
 
