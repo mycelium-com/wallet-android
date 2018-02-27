@@ -93,7 +93,7 @@ public class ToggleableCurrencyDisplay extends LinearLayout {
          int attr = a.getIndex(i);
          switch (attr) {
             case R.styleable.ToggleableCurrencyButton_fiatOnly:
-               fiatOnly = a.getBoolean(attr, false);
+               setFiatOnly(a.getBoolean(attr, false));
                break;
             case R.styleable.ToggleableCurrencyButton_textSize:
                setTextSize(a.getDimensionPixelSize(attr, 12));

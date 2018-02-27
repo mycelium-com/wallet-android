@@ -38,15 +38,16 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
 
-import com.google.common.base.Preconditions;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
+import com.shehabic.droppy.DroppyClickCallbackInterface;
+import com.shehabic.droppy.DroppyMenuItem;
+import com.shehabic.droppy.DroppyMenuPopup;
 import com.squareup.otto.Subscribe;
 
-import java.math.BigDecimal;
+import java.util.List;
 
 
 public class ToggleableCurrencyButton extends ToggleableCurrencyDisplay {
@@ -64,39 +65,37 @@ public class ToggleableCurrencyButton extends ToggleableCurrencyDisplay {
    }
 
    @Override
-   protected void init(Context context){
-      super.init(context);
-
-      llContainer.setOnClickListener(new OnClickListener() {
-         @Override
-         public void onClick(View view) {
-            switchToNextCurrency();
-         }
-      });
-   }
-
-
-   @Override
    protected void updateUi(){
       super.updateUi();
 
-      int cntCurrencies = (fiatOnly ? currencySwitcher.getFiatCurrenciesCount() : currencySwitcher.getCurrenciesCount() );
-      if (cntCurrencies == 1){
-         // there is only one currency to show - dont show a triangle hinting that the user can toggle
-         findViewById(R.id.ivSwitchable).setVisibility(INVISIBLE);
-      } else {
-         // there are more than one fiat-currency
-         findViewById(R.id.ivSwitchable).setVisibility(VISIBLE);
-      }
-   }
+      final List<String> currencies = fiatOnly ? currencySwitcher.getCurrencyList() : currencySwitcher.getCurrencyList(CurrencyValue.BTC);
+      // there are more than one fiat-currency
+      // there is only one currency to show - dont show a triangle hinting that the user can toggle
+      findViewById(R.id.ivSwitchable).setVisibility(currencies.size() > 1 ? VISIBLE : INVISIBLE);
 
-   public void switchToNextCurrency(){
-      Preconditions.checkNotNull(this.currencySwitcher).getNextCurrency(!fiatOnly);
-      if (eventBus != null){
-         // update UI via event bus, also inform other parts of the app about the change
-         eventBus.post(new SelectedCurrencyChanged());
+      DroppyMenuPopup.Builder builder = new DroppyMenuPopup.Builder(getContext(), llContainer);
+      if (currencies.size() > 1) {
+         for (int i = 0; i < currencies.size(); i++) {
+            String currency = currencies.get(i);
+            builder.addMenuItem(new DroppyMenuItem(currency));
+            if (i < currencies.size() - 1) {
+               builder.addSeparator();
+            }
+         }
+         builder.setOnClick(new DroppyClickCallbackInterface() {
+            @Override
+            public void call(View v, int id) {
+               currencySwitcher.setCurrency(currencies.get(id));
+               if (eventBus != null) {
+                  // update UI via event bus, also inform other parts of the app about the change
+                  eventBus.post(new SelectedCurrencyChanged());
+               } else {
+                  updateUi();
+               }
+            }
+         }).build();
       } else {
-         updateUi();
+         llContainer.setOnClickListener(null);
       }
    }
 

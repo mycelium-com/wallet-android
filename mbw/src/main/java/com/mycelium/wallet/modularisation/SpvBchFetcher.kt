@@ -144,6 +144,11 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
         WalletApplication.sendToSpv(service, WalletAccount.Type.BCHSINGLEADDRESS)
     }
 
+    override fun forceCleanCache() {
+        val service = IntentContract.ForceCacheClean.createIntent()
+        WalletApplication.sendToSpv(service, WalletAccount.Type.BCHBIP44)
+    }
+
     override fun requestHdWalletAccountRemoval(accountIndex: Int) {
         val service = IntentContract.RemoveHdWalletAccount.createIntent(accountIndex)
         WalletApplication.sendToSpv(service, WalletAccount.Type.BCHBIP44)

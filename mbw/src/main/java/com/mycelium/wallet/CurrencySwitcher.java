@@ -118,10 +118,11 @@ public class CurrencySwitcher {
       }
    }
 
-
-   public List<String> getCurrencyList() {
+   public List<String> getCurrencyList(String ... additions) {
       //make a copy to prevent others from changing our internal list
-      return new ArrayList<String>(fiatCurrencies);
+      List<String> result = new ArrayList<>(fiatCurrencies);
+      Collections.addAll(result, additions);
+      return result;
    }
 
    public int getFiatCurrenciesCount() {

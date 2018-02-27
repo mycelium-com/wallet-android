@@ -48,6 +48,10 @@
         <item name="colorPrimary">@color/transparent</item>
         <item name="colorAccent">@color/color_accent</item>
         <item name="android:windowBackground">@drawable/background_window</item>
+
+        <item name="droppyPopupStyle">@style/MyceliumDroppyPopup</item>
+        <item name="droppyMenuItemTitleStyle">@style/MyceliumMenuItemTitle</item>
+        <item name="droppyMenuSeparatorStyle">@style/MyceliumDroppyMenuSeparator</item>
     </style>
 
     <style name="MyceliumLauncher" parent="MyceliumModern">
@@ -249,5 +253,22 @@
 
     <style name="TitleTextStyleDark" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
         <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="MyceliumDroppyPopup">
+        <item name="android:background">#343434</item>
+    </style>
+
+    <style name="MyceliumMenuItemTitle">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">end</item>
+
+    </style>
+    <style name="MyceliumDroppyMenuSeparator">
+        <item name="android:background">@color/lightgrey</item>
+        <item name="android:layout_height">0.5dp</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:orientation">horizontal</item>
     </style>
 </resources>
