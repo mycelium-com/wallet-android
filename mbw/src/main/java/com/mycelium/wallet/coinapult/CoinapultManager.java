@@ -266,8 +266,14 @@ public class CoinapultManager implements AccountProvider {
          }
          //initBalance();
       } catch (Exception e) {
-         Log.e("CoinapultManager", "Failed to addUsd account", e);
-         throw new CoinapultClient.CoinapultBackendException(e);
+         Log.e("CoinapultManager", "Failed to add account", e);
+         //Ugly hack to activate accounts which were created while spongycastle were broking connection
+         //resulting a lot of unactivated accounts, which could not be checked for existence somewhy.
+         try {
+            getClient().activateAccount(true);
+         } catch (Exception e1) {
+            throw new CoinapultClient.CoinapultBackendException(e);
+         }
       }
    }
 
