@@ -197,18 +197,15 @@ public class AccountsFragment extends Fragment {
       } else if (requestCode == ADD_RECORD_RESULT_CODE && resultCode == Activity.RESULT_OK) {
          UUID accountid = (UUID) intent.getSerializableExtra(AddAccountActivity.RESULT_KEY);
          //check whether the account is active - we might have scanned the priv key for an archived watchonly
-         WalletManager walletManager = _mbwManager.getWalletManager(false);
-         WalletAccount account = walletManager.getAccount(accountid);
+         WalletAccount account = _mbwManager.getWalletManager(false).getAccount(accountid);
          if (account.isActive()) {
             _mbwManager.setSelectedAccount(accountid);
          }
          accountListAdapter.setFocusedAccount(account);
-         updateIncludingMenus();
-         if(!(account instanceof ColuAccount) && !intent.getBooleanExtra(AddAccountActivity.IS_UPGRADE, false)) {
+         update();
+         if(!(account instanceof ColuAccount)) {
             setNameForNewAccount(account);
          }
-         _mbwManager.getEventBus().post(new ExtraAccountsChanged());
-         _mbwManager.getEventBus().post(new AccountChanged(accountid));
       } else if(requestCode == ADD_RECORD_RESULT_CODE && resultCode == AddAdvancedAccountActivity.RESULT_MSG) {
          new AlertDialog.Builder(getActivity())
                  .setMessage(intent.getStringExtra(AddAccountActivity.RESULT_MSG))
@@ -581,7 +578,7 @@ public class AccountsFragment extends Fragment {
          menus.add(R.menu.record_options_menu_detach);
       }
 
-      ActionBarActivity parent = (ActionBarActivity) getActivity();
+      AppCompatActivity parent = (AppCompatActivity) getActivity();
 
       Callback actionMode = new Callback() {
          @Override
