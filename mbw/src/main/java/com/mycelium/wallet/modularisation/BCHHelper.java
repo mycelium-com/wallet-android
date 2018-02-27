@@ -26,19 +26,16 @@ import static android.content.Context.MODE_PRIVATE;
 public class BCHHelper {
 
     private static final String BCH_FIRST_UPDATE = "bch_first_update_page";
-    private static final String BCH_FIRST_INSTALLED = "bch_first_installed_page";
+    private static final String BCH_INSTALLED = "bch_installed_page";
     public static final String BCH_PREFS = "bch_prefs";
-    public static final String COMMON_MODULE_SYSTEM_PREFS = "module_system_prefs";
     public static final String IS_FIRST_SYNC = "is_first_sync";
     public static final String ALREADY_FOUND_ACCOUNT = "already_found_account";
 
     public static void firstBCHPages(final Context context) {
         final Module bchModule = GooglePlayModuleCollection.getModules(context).get("bch");
-
-        final SharedPreferences commonSharedPreferences = context.getSharedPreferences(COMMON_MODULE_SYSTEM_PREFS, MODE_PRIVATE);
-        final SharedPreferences bchSharedPreferences = context.getSharedPreferences(BCH_PREFS, MODE_PRIVATE);
+        final SharedPreferences sharedPreferences = context.getSharedPreferences(BCH_PREFS, MODE_PRIVATE);
         boolean moduleBCHInstalled = CommunicationManager.getInstance(context).getPairedModules().contains(bchModule);
-        if (!commonSharedPreferences.getBoolean(BCH_FIRST_UPDATE, false) && !moduleBCHInstalled) {
+        if (!sharedPreferences.getBoolean(BCH_FIRST_UPDATE, false) && !moduleBCHInstalled) {
             new AlertDialog.Builder(context)
                     .setTitle(R.string.first_modulization_title)
                     .setMessage(Html.fromHtml(context.getString(R.string.first_modulization_message)))
@@ -56,13 +53,13 @@ public class BCHHelper {
                     .setOnDismissListener(new DialogInterface.OnDismissListener() {
                         @Override
                         public void onDismiss(DialogInterface dialogInterface) {
-                            commonSharedPreferences.edit().putBoolean(BCH_FIRST_UPDATE, true)
+                            sharedPreferences.edit().putBoolean(BCH_FIRST_UPDATE, true)
                                     .apply();
                         }
                     })
                     .create().show();
-        } else if (!bchSharedPreferences.getBoolean(BCH_FIRST_INSTALLED, false) && moduleBCHInstalled) {
-            cleanModulesIfFirstRun(context, commonSharedPreferences);
+        } else if (!sharedPreferences.getBoolean(BCH_INSTALLED, false) && moduleBCHInstalled) {
+            cleanModulesIfFirstRun(context, sharedPreferences);
             new AlertDialog.Builder(context)
                     .setTitle(Html.fromHtml(context.getString(R.string.first_bch_installed_title)))
                     .setMessage(Html.fromHtml(context.getString(R.string.first_bch_installed_message)))
@@ -70,13 +67,17 @@ public class BCHHelper {
                     .setOnDismissListener(new DialogInterface.OnDismissListener() {
                         @Override
                         public void onDismiss(DialogInterface dialogInterface) {
-                            bchSharedPreferences.edit()
+                            sharedPreferences.edit()
                                     .putBoolean(BCH_FIRST_UPDATE, true)
-                                    .putBoolean(BCH_FIRST_INSTALLED, true)
+                                    .putBoolean(BCH_INSTALLED, true)
                                     .apply();
                         }
                     })
                     .create().show();
+        }
+        if (sharedPreferences.getBoolean(BCH_INSTALLED, false) && !moduleBCHInstalled) {
+            sharedPreferences.edit().putBoolean(BCH_INSTALLED, false)
+                    .apply();
         }
     }
 
@@ -131,10 +132,5 @@ public class BCHHelper {
         new AlertDialog.Builder(context)
                 .setMessage(R.string.bch_technology_preview)
                 .setPositiveButton(R.string.button_ok, null).create().show();
-    }
-
-    public static void removed(Context context) {
-        SharedPreferences sharedPreferences = context.getSharedPreferences(BCH_PREFS, MODE_PRIVATE);
-        sharedPreferences.edit().clear().apply();
     }
 }
