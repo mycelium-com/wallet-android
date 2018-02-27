@@ -130,7 +130,7 @@ public class BCHHelper {
 
     public static void bchTechnologyPreviewDialog(Context context) {
         new AlertDialog.Builder(context)
-                .setMessage(R.string.bch_technology_preview)
+                .setMessage(Html.fromHtml(context.getString(R.string.bch_technology_preview)))
                 .setPositiveButton(R.string.button_ok, null).create().show();
     }
 }
