@@ -19,8 +19,8 @@ import com.mycelium.modularizationtools.model.Module
 import com.mycelium.spvmodule.IntentContract
 import com.mycelium.wallet.WalletApplication.getSpvModuleName
 import com.mycelium.wallet.activity.modern.ModernMain
-import com.mycelium.wallet.event.SpvSyncChanged
 import com.mycelium.wallet.event.SpvSendFundsResult
+import com.mycelium.wallet.event.SpvSyncChanged
 import com.mycelium.wallet.persistence.MetadataStorage
 import com.mycelium.wapi.wallet.AesKeyCipher
 import com.mycelium.wapi.wallet.WalletAccount
@@ -38,6 +38,7 @@ import org.bitcoinj.crypto.DeterministicKey
 import org.bitcoinj.crypto.HDKeyDerivation
 import java.math.BigDecimal
 import java.util.*
+import kotlin.collections.ArrayList
 
 class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
     private val eventBus: Bus = MbwManager.getInstance(context).eventBus
@@ -190,7 +191,10 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 .setSmallIcon(R.drawable.holo_dark_ic_action_new_usd_account)
                 .setContentTitle(context.getString(R.string.app_name))
         var contentText = "";
-        for (account in AccountManager.getActiveAccounts().values) {
+        val accounts = ArrayList<WalletAccount>();
+        accounts.addAll(AccountManager.getBCHBip44Accounts().values)
+        accounts.addAll(AccountManager.getBCHSingleAddressAccounts().values)
+        for (account in accounts) {
             if (account.currencyBasedBalance.receiving.value.compareTo(BigDecimal.ZERO) > 0) {
                 contentText += buildLine(R.string.receiving, account.currencyBasedBalance.receiving
                         , mds.getLabelByAccount(account.id))
