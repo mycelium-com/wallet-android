@@ -51,6 +51,7 @@
     <color name="scan_background">#3F4F57</color>
     <color name="new_btn_text_color">#5d5d5d</color>
     <color name="common_blue">#5aa7e6</color>
+    <color name="transparentaction">#22888888</color>
 
     <fraction name="background_alpha">50%</fraction>
 </resources>

@@ -27,7 +27,7 @@
             android:layout_width="match_parent"
             android:layout_height="125dp" />
 
-        <com.mycelium.wallet.activity.rmc.view.ViewPagerIndicator
+        <com.mycelium.wallet.activity.view.ViewPagerIndicator
             android:id="@+id/pager_indicator"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -36,7 +36,7 @@
             android:layout_marginBottom="4dp"
             app:delimiterSize="8dp"
             app:itemIcon="@drawable/pager_indicator_dot"
-            app:itemSize="8dp" />
+            app:itemWidth="8dp" />
     </FrameLayout>
 
     <TextView

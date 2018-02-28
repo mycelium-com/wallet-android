@@ -77,7 +77,7 @@ import com.mycelium.wallet.activity.AddCoinapultAccountActivity;
 import com.mycelium.wallet.activity.MessageSigningActivity;
 import com.mycelium.wallet.activity.export.VerifyBackupActivity;
 import com.mycelium.wallet.activity.modern.adapter.AccountListAdapter;
-import com.mycelium.wallet.activity.modern.adapter.DividerItemDecoration;
+import com.mycelium.wallet.activity.view.DividerItemDecoration;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
 import com.mycelium.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wallet.coinapult.CoinapultManager;
@@ -140,11 +140,12 @@ public class AccountsFragment extends Fragment {
    @Override
    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
       super.onViewCreated(view, savedInstanceState);
-      rvRecords = (RecyclerView) view.findViewById(R.id.rvRecords);
+      rvRecords = view.findViewById(R.id.rvRecords);
       rvRecords.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
       accountListAdapter = new AccountListAdapter(getActivity(), _mbwManager);
       rvRecords.setAdapter(accountListAdapter);
-      rvRecords.addItemDecoration(new DividerItemDecoration(getResources().getDrawable(R.drawable.divider_account_list)));
+      rvRecords.addItemDecoration(new DividerItemDecoration(getResources().getDrawable(R.drawable.divider_account_list)
+              , LinearLayoutManager.VERTICAL));
       rvRecords.setHasFixedSize(true);
       llLocked = view.findViewById(R.id.llLocked);
       accountListAdapter.setItemClickListener(recordAddressClickListener);
@@ -414,7 +415,6 @@ public class AccountsFragment extends Fragment {
                return null;
             } else {
                CurrencyBasedBalance balance = account.getCurrencyBasedBalance();
-               ExchangeRateManager exchanger = _mbwManager.getExchangeRateManager();
                return balance.confirmed;
             }
          }

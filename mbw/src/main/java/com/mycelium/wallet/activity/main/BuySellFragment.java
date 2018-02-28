@@ -39,16 +39,19 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.activity.main.adapter.ButtonPagerAdapter;
+import com.mycelium.wallet.activity.main.model.ActoinButton;
+import com.mycelium.wallet.activity.view.ViewPagerIndicator;
 import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.external.BuySellSelectFragment;
 import com.mycelium.wallet.external.BuySellServiceDescriptor;
@@ -64,31 +67,29 @@ import javax.annotation.Nullable;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 
 public class BuySellFragment extends Fragment {
     private MbwManager _mbwManager;
     private View _root;
-    @BindView(R.id.action_button)
-    Button btAction;
 
-    @BindView(R.id.rotate_button)
-    View btRotate;
+    @BindView(R.id.view_pager)
+    ViewPager viewPager;
 
-    private List<ActoinButton> actions = new ArrayList<>();
-    private int current = 0;
+    @BindView(R.id.pager_indicator)
+    ViewPagerIndicator indicator;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         _root = Preconditions.checkNotNull(inflater.inflate(R.layout.main_buy_sell_fragment, container, false));
         ButterKnife.bind(this, _root);
         recreateActions();
-        updateUI();
+        indicator.setupWithViewPager(viewPager);
         return _root;
     }
 
     private void recreateActions() {
-        actions.clear();
+        List<ActoinButton> actions = new ArrayList<>();
         boolean showButton = Iterables.any(_mbwManager.getEnvironmentSettings().getBuySellServices(), new Predicate<BuySellServiceDescriptor>() {
             @Override
             public boolean apply(@Nullable BuySellServiceDescriptor input) {
@@ -121,7 +122,21 @@ public class BuySellFragment extends Fragment {
                     }
                 }));
         }
-        current = 0;
+        viewPager.setAdapter(new ButtonPagerAdapter(actions));
+
+        if(viewPager.getAdapter().getCount() > 1) {
+            indicator.setupWithViewPager(viewPager);
+            viewPager.setCurrentItem(viewPager.getAdapter().getCount() - 1);
+            viewPager.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    viewPager.setCurrentItem(0, true);
+                }
+            }, 3000);
+            indicator.setVisibility(View.VISIBLE);
+        }else {
+            indicator.setVisibility(View.INVISIBLE);
+        }
     }
 
     private void startExchange(Intent intent) {
@@ -156,7 +171,6 @@ public class BuySellFragment extends Fragment {
         _mbwManager.getEventBus().register(this);
         super.onResume();
         recreateActions();
-        updateUI();
     }
 
     @Override
@@ -165,41 +179,9 @@ public class BuySellFragment extends Fragment {
         super.onPause();
     }
 
-    @OnClick(R.id.action_button)
-    void clickAction() {
-        actions.get(current).task.run();
-    }
-
-    @OnClick(R.id.rotate_button)
-    void clickRotate() {
-        current = (current + 1) % actions.size();
-        updateUI();
-    }
-
-    void updateUI() {
-        if (actions.isEmpty()) {
-            _root.setVisibility(View.GONE);
-        } else {
-            _root.setVisibility(View.VISIBLE);
-            btAction.setText(actions.get(current).text);
-            btRotate.setVisibility(actions.size() == 1 ? View.GONE : View.VISIBLE);
-        }
-    }
-
     @Subscribe
     public void selectedAccountChanged(SelectedAccountChanged event) {
         recreateActions();
-        updateUI();
-    }
-
-    class ActoinButton {
-        public ActoinButton(String text, Runnable task) {
-            this.text = text;
-            this.task = task;
-        }
-
-        String text;
-        Runnable task;
     }
 
 }

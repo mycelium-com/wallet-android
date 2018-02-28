@@ -1,4 +1,4 @@
-package com.mycelium.wallet.activity.rmc.view;
+package com.mycelium.wallet.activity.view;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -27,9 +27,11 @@ public class ViewPagerIndicator extends LinearLayout {
 
     private int mPageCount;
     private int mSelectedIndex;
-    private int mItemSize = DEF_VALUE;
+    private int mItemWidth = DEF_VALUE;
+    private int mItemHeight = DEF_VALUE;
     private int mDelimiterSize = DEF_VALUE;
-    private int mItemIcon = DEF_VALUE;
+    private int mItemIcon = DEF_ICON;
+    private int mItemIconSelected = DEF_ICON_SELECTED;
 
     @NonNull
     private final List<ImageView> mIndexImages = new ArrayList<>();
@@ -49,9 +51,11 @@ public class ViewPagerIndicator extends LinearLayout {
         setOrientation(HORIZONTAL);
         final TypedArray attributes = context.getTheme().obtainStyledAttributes(attrs, R.styleable.ViewPagerIndicator, 0, 0);
         try {
-            mItemSize = attributes.getDimensionPixelSize(R.styleable.ViewPagerIndicator_itemSize, DEF_VALUE);
+            mItemWidth = attributes.getDimensionPixelSize(R.styleable.ViewPagerIndicator_itemWidth, DEF_VALUE);
+            mItemHeight = attributes.getDimensionPixelSize(R.styleable.ViewPagerIndicator_itemHeight, mItemWidth);
             mDelimiterSize = attributes.getDimensionPixelSize(R.styleable.ViewPagerIndicator_delimiterSize, DEF_VALUE);
             mItemIcon = attributes.getResourceId(R.styleable.ViewPagerIndicator_itemIcon, DEF_ICON);
+            mItemIconSelected = attributes.getResourceId(R.styleable.ViewPagerIndicator_itemIconSelected, DEF_ICON_SELECTED);
         } finally {
             attributes.recycle();
         }
@@ -89,11 +93,11 @@ public class ViewPagerIndicator extends LinearLayout {
         }
 
         final ImageView unselectedView = mIndexImages.get(mSelectedIndex);
-        unselectedView.setImageResource(DEF_ICON);
+        unselectedView.setImageResource(mItemIcon);
 //        unselectedView.animate().scaleX(NO_SCALE).scaleY(NO_SCALE).setDuration(300).start();
 
         final ImageView selectedView = mIndexImages.get(selectedIndex);
-        selectedView.setImageResource(DEF_ICON_SELECTED);
+        selectedView.setImageResource(mItemIconSelected);
 //        selectedView.animate().scaleX(SCALE).scaleY(SCALE).setDuration(300).start();
 
         mSelectedIndex = selectedIndex;
@@ -120,8 +124,8 @@ public class ViewPagerIndicator extends LinearLayout {
         mIndexImages.add(item);
 
         final LinearLayout.LayoutParams boxParams = new LinearLayout.LayoutParams(
-                (int) (mItemSize * SCALE),
-                (int) (mItemSize * SCALE)
+                (int) (mItemWidth * SCALE),
+                (int) (mItemHeight * SCALE)
         );
         if (position > 0) {
             boxParams.setMargins(mDelimiterSize, 0, 0, 0);
@@ -134,8 +138,8 @@ public class ViewPagerIndicator extends LinearLayout {
     private ImageView createItem() {
         final ImageView index = new ImageView(getContext());
         final FrameLayout.LayoutParams indexParams = new FrameLayout.LayoutParams(
-                mItemSize,
-                mItemSize
+                mItemWidth,
+                mItemHeight
         );
         indexParams.gravity = Gravity.CENTER;
         index.setLayoutParams(indexParams);

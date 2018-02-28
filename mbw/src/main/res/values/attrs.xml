@@ -8,9 +8,11 @@
         <attr name="precision" format="integer"/>
     </declare-styleable>
     <declare-styleable name = "ViewPagerIndicator">
-        <attr name = "itemSize" format = "dimension"/>
+        <attr name = "itemWidth" format = "dimension"/>
+        <attr name = "itemHeight" format = "dimension"/>
         <attr name = "delimiterSize" format = "dimension"/>
         <attr name = "itemIcon" format = "reference"/>
+        <attr name = "itemIconSelected" format = "reference"/>
     </declare-styleable>
     <attr name="exchange_text_color" format="reference|color" />
     <attr name="change_color_scheme_icon" format="reference" />
