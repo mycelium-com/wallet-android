@@ -6,6 +6,7 @@ import com.google.api.client.http.HttpTransport;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.Transaction;
+import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.wallet.AdvancedHttpClient;
 import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.colu.json.AddressInfo;
@@ -167,19 +168,10 @@ public class ColuClient {
         return coloredCoinsClient.sendPostRequest(ColuBroadcastTxHex.Json.class, "sendasset", null, request);
     }
 
-    public static String bytesToHex(byte[] in) {
-        final StringBuilder builder = new StringBuilder();
-        for (byte b : in) {
-            builder.append(String.format("%02x", b));
-        }
-        return builder.toString();
-    }
-
-    public ColuBroadcastTxId.Json broadcastTransaction(Transaction coluSignedTransaction) throws IOException {
+    ColuBroadcastTxId.Json broadcastTransaction(Transaction coluSignedTransaction) throws IOException {
         ColuBroadcastTxHex.Json tx = new ColuBroadcastTxHex.Json();
         byte[] signedTr = coluSignedTransaction.toBytes();
-        tx.txHex = bytesToHex(signedTr);
-        Log.d(TAG, "broadcastTransaction: hexbytes=" + tx.txHex);
+        tx.txHex = HexUtils.toHex(signedTr);
         return coloredCoinsClient.sendPostRequest(ColuBroadcastTxId.Json.class, "broadcast", null, tx);
     }
 }
