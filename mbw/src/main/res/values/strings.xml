@@ -609,8 +609,8 @@
     <string name="lt_confirm_delete_trader_message">Do you want to delete your local trader identity? All trade information and ratings will be permanently removed and can not be recovered.</string>
     <string name="rescan_account_menu_item">Reload Account</string>
     <string name="add_advanced_account_warning">Warning:\n These keys won\'t be included in your Master-Seed-Backup. You have to ensure that you have a separate backup of them.</string>
-    <string name="new_random_key_desc">Generate new random key</string>
-    <string name="generate_new_key">Generate</string>
+    <string name="new_random_key_desc">Generate new random key pair to use as BTC or BCH SA account.</string>
+    <string name="generate_new_key">Generate BTC SA Account</string>
     <string name="new_bitcoin_address_created">A new random private key has been generated with the following Bitcoin address:</string>
     <string name="shuffle">Shuffle</string>
     <string name="toast_warning_low_fee">might take longer to confirm</string>
@@ -1140,7 +1140,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="bch_accounts_found"><![CDATA[We have found %1$s Bitcoin <font color="#f08c18">Cash</font> on your BTC accounts.<br><br>%2$d corresponding Bitcoin <font color="#f08c18">Cash</font> account(s) created.\Bitcoin <font color="#f08c18">Cash</font>  balance can be checked on the Accounts tab.<br><br>Now you can go to the Balance tab of your Bitcoin <font color="#f08c18">Cash</font> account(s) and instantly exchange it to BTC.]]></string>
     <string name="bitcoin_cash" ><![CDATA[Bitcoin <font color="#f08c18">Cash</font>]]></string>
     <string name="hd_account_bch">Add Bitcoin Cash HD Account</string>
-    <string name="generate_new_bch_key">Generate Bitcoin Cash</string>
+    <string name="generate_new_bch_key">Generate BCH SA Account</string>
     <string name="bch_you_can_transaction_on_explorer"><![CDATA[You can check your transactions on <font color="#4583de">https://www.blocktrail.com/%s</font>]]></string>
     <string name="bch_technology_preview"><![CDATA[Bitcoin Cash functionality is a technology preview of Mycelium Modular Architecture. You can only instantly exchange your Bitcoin <font color="#f08c18">Cash</font> to BTC right in Mycelium so far. Fully functional Bitcoin <font color="#f08c18">Cash</font> module will be available soon. Special thanks to all our contributors and beta testers!]]></string>
     <string name="install">Install</string>
@@ -1157,6 +1157,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="exchange_order_placed_dialog"><![CDATA[Your exchange order has been placed. BTC will be sent to you after 12 confirmations on your BCH transaction.<br/><br/><b>Order details:</b><br/>Date: %s<br/>TxID: %s<br/>Spending: %s BCH<br/>Receiving: %s BTC<br/><font color="#ea5e5e"><small>Receiving amount is estimated due to the high volatility of the cryptomarket.</small></font><br/><br/>To track your order please save the payment receipt. You can only do it now!]]></string>
     <string name="success">Success!</string>
     <string name="save_receipt">Save receipt</string>
+    <string name="single_address_account">Single Address Account</string>
     <plurals name="account_label">
         <item quantity="one">Account label:\n%s</item>
         <item quantity="other">Accounts labels:\n%s</item>
