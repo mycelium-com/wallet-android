@@ -63,4 +63,9 @@ public class ButtonPreference extends Preference {
             button.setText(text);
         }
     }
+
+    public void setButtonEnabled(boolean enabled) {
+        button.setClickable(enabled);
+        button.setEnabled(enabled);
+    }
 }

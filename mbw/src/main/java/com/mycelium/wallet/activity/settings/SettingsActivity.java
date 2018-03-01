@@ -514,10 +514,10 @@ public class SettingsActivity extends PreferenceActivity {
 
       // external Services
 
-      PreferenceCategory modulesPrefs = (PreferenceCategory) findPreference("modulesPrefs");
+      final PreferenceCategory modulesPrefs = (PreferenceCategory) findPreference("modulesPrefs");
       if (!CommunicationManager.getInstance(this).getPairedModules().isEmpty()) {
          for (final Module module : CommunicationManager.getInstance(this).getPairedModules()) {
-            ButtonPreference preference = new ButtonPreference(this);
+            final ButtonPreference preference = new ButtonPreference(this);
             preference.setLayoutResource(R.layout.preference_layout);
             preference.setTitle(Html.fromHtml(module.getName()));
             preference.setKey("Module_" + module.getModulePackage());
@@ -541,7 +541,9 @@ public class SettingsActivity extends PreferenceActivity {
                @Override
                public void onClick(View view) {
                   Uri packageUri = Uri.parse("package:" + module.getModulePackage());
-                  startActivity(new Intent(Intent.ACTION_UNINSTALL_PACKAGE, packageUri));
+                  preference.setButtonEnabled(false);
+                  startActivityForResult(new Intent(Intent.ACTION_UNINSTALL_PACKAGE, packageUri)
+                          .putExtra(Intent.EXTRA_RETURN_RESULT, true), 0);
                }
             });
             modulesPrefs.addPreference(preference);
@@ -568,6 +570,19 @@ public class SettingsActivity extends PreferenceActivity {
             installPreference.setTitle(Html.fromHtml(module.getName()));
             installPreference.setSummary(module.getDescription());
             modulesPrefs.addPreference(installPreference);
+         }
+      }
+   }
+
+   @Override
+   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+      if (requestCode == 0) {
+         PreferenceCategory modulesPrefs = (PreferenceCategory) findPreference("modulesPrefs");
+         if (resultCode == RESULT_CANCELED) {
+            for (int index = 0; index < modulesPrefs.getPreferenceCount(); index++) {
+               ButtonPreference preferenceButton = (ButtonPreference) modulesPrefs.getPreference(index);
+               preferenceButton.setButtonEnabled(true);
+            }
          }
       }
    }
