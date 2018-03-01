@@ -25,7 +25,7 @@ import static android.content.Context.MODE_PRIVATE;
 
 public class BCHHelper {
 
-    private static final String BCH_FIRST_UPDATE = "bch_first_update_page";
+    public static final String BCH_FIRST_UPDATE = "bch_first_update_page";
     private static final String BCH_INSTALLED = "bch_installed_page";
     public static final String BCH_PREFS = "bch_prefs";
     public static final String IS_FIRST_SYNC = "is_first_sync";
