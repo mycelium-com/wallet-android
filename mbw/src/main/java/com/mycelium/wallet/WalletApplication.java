@@ -37,7 +37,6 @@ package com.mycelium.wallet;
 import java.security.Security;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.StrictMode;
 import android.support.annotation.NonNull;
@@ -46,7 +45,6 @@ import android.util.Log;
 
 import com.mycelium.modularizationtools.CommunicationManager;
 import com.mycelium.modularizationtools.ModuleMessageReceiver;
-import com.mycelium.wallet.modularisation.BCHHelper;
 import com.mycelium.wapi.wallet.WalletAccount;
 
 import java.util.HashMap;
@@ -82,7 +80,6 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         }
         super.onCreate();
         pairSpvModules(CommunicationManager.getInstance(this));
-        cleanModulesIfFirstRun(this, this.getSharedPreferences(BCHHelper.BCH_PREFS, MODE_PRIVATE));
         moduleMessageReceiver = new MbwMessageReceiver(this);
         MbwManager mbwManager = MbwManager.getInstance(this);
         applyLanguageChange(getBaseContext(), mbwManager.getLanguage());
@@ -91,13 +88,6 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
     private void pairSpvModules(CommunicationManager communicationManager) {
         for (Map.Entry<WalletAccount.Type, String> entry : spvModulesMapping.entrySet()) {
             communicationManager.requestPair(entry.getValue());
-        }
-    }
-
-    private void cleanModulesIfFirstRun(Context context, SharedPreferences sharedPreferences) {
-        if (!sharedPreferences.getBoolean(BCHHelper.BCH_FIRST_UPDATE, false)) {
-            MbwManager.getInstance(context).getSpvBchFetcher().forceCleanCache();
-            pairSpvModules(CommunicationManager.getInstance(this));
         }
     }
 
