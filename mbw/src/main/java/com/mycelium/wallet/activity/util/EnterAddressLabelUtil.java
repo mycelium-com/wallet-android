@@ -127,7 +127,7 @@ public class EnterAddressLabelUtil {
       }
    }
 
-   public static void enterAccountLabel(Context context, UUID account, String defaultName, MetadataStorage storage) {
+   public static void enterAccountLabel(final Context context, UUID account, String defaultName, MetadataStorage storage) {
       String hintText = context.getResources().getString(R.string.name);
       String currentName = storage.getLabelByAccount(account);
       int title_id;
@@ -139,7 +139,13 @@ public class EnterAddressLabelUtil {
       }
       String invalidOkToastMessage = context.getResources().getString(R.string.account_label_not_unique);
       Bus bus = MbwManager.getInstance(context).getEventBus();
-      EnterAccountLabelHandler handler = new EnterAccountLabelHandler(account, invalidOkToastMessage, storage, bus);
+      EnterAccountLabelHandler handler = new EnterAccountLabelHandler(account, invalidOkToastMessage, storage, bus) {
+         @Override
+         public void onDismiss() {
+            super.onDismiss();
+            MbwManager.getInstance(context).importLabelsToBch(MbwManager.getInstance(context).getWalletManager(false));
+         }
+      };
       EnterTextDialog.show(context, title_id, hintText, currentName, true, handler);
 
    }

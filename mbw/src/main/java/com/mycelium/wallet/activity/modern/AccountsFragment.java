@@ -205,7 +205,7 @@ public class AccountsFragment extends Fragment {
          }
          accountListAdapter.setFocusedAccount(account);
          updateIncludingMenus();
-         if(!(account instanceof ColuAccount) && !intent.getBooleanExtra(AddAccountActivity.IS_UPGRADE, false)) {
+         if(account.getType() != WalletAccount.Type.COLU && !intent.getBooleanExtra(AddAccountActivity.IS_UPGRADE, false)) {
             setNameForNewAccount(account);
          }
          _mbwManager.getEventBus().post(new ExtraAccountsChanged());
