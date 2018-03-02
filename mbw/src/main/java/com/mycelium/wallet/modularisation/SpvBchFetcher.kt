@@ -88,16 +88,8 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
     private fun retrieveAddresses(toAddress: String) : List<Address> =
             toAddress.split(",".toRegex()).map { Address.fromString(it) }
 
-    private fun retrieveTransactionSummary(uri: Uri, selection: String, selectionArg: String): List<TransactionSummary> {
-        val transactionSummariesList = ArrayList<TransactionSummary>()
-        context.contentResolver.query(uri, null, selection, arrayOf(selectionArg), null).use {
-            while (it?.moveToNext() == true) {
-                val txSummary = txSummaryFromCursor(it)
-                transactionSummariesList.add(txSummary)
-            }
-        }
-        return transactionSummariesList
-    }
+    private fun retrieveTransactionSummary(uri: Uri, selection: String, selectionArg: String) =
+            retrieveTransactionSummary(uri, selection, arrayOf(selectionArg))
 
     private fun retrieveTransactionSummary(uri: Uri, selection: String, selectionArgs: Array<String>): List<TransactionSummary> {
         val transactionSummariesList = ArrayList<TransactionSummary>()
@@ -161,8 +153,7 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
     override fun getSyncProgressPercents(): Int {
         val uri = GetSyncProgress.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHBIP44)).buildUpon().build()
         context.contentResolver.query(uri, null, null, null, null).use {
-            val result = if (it.columnCount != 0) {
-                it.moveToFirst()
+            val result = if (it?.moveToFirst() == true) {
                 it.getInt(0)
             } else {
                 0
@@ -194,8 +185,7 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
         val uri = GetPrivateKeysCount.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHBIP44)).buildUpon().build()
         val selection = AccountBalance.SELECTION_ACCOUNT_INDEX
         context.contentResolver.query(uri, null, selection, arrayOf("" + accountIndex), null).use {
-            return if (it.columnCount != 0) {
-                it.moveToFirst()
+            return if (it?.moveToFirst() == true) {
                 it.getInt(0)
             } else {
                 0
