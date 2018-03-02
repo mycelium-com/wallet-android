@@ -71,7 +71,6 @@ import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
-import com.squareup.otto.Bus;
 import org.spongycastle.util.encoders.Hex;
 
 import java.io.IOException;
@@ -683,7 +682,7 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
       TransactionEx tex = null;
       for (Utxo.Json utxo : utxosList) {
          if (utxo.txid.contentEquals(txid.toString())) {
-            Sha256Hash tHash = new Sha256Hash(com.subgraph.orchid.encoders.Hex.decode(utxo.txid));
+            Sha256Hash tHash = new Sha256Hash(Hex.decode(utxo.txid));
             tex = new TransactionEx(tHash,
                 utxo.blockheight,
                 utxo.blockheight,
