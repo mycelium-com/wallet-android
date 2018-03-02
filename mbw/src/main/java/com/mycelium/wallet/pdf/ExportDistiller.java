@@ -40,7 +40,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.Build;
 import android.util.Log;
 
 import com.google.common.base.CharMatcher;
@@ -59,18 +58,8 @@ import java.util.List;
 import java.util.Locale;
 
 import crl.android.pdfwriter.PaperSize;
-import java.util.Date;
-import java.util.Hashtable;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-
-import crl.android.pdfwriter.PDFWriter;
-import crl.android.pdfwriter.PaperSize;
-import crl.android.pdfwriter.StandardFonts;
 
 public class ExportDistiller {
-
     private static final int LABEL_FONT_SIZE = 15;
     private static final int RECORDS_PR_PAGE = 3;
 
@@ -81,17 +70,16 @@ public class ExportDistiller {
         public String encryptedKey;
         public String encryptedMasterSeed;
         public String label;
-      public WalletAccount.Type accountType;
+        public WalletAccount.Type accountType;
 
-      public ExportEntry(String address, String encryptedKey, String encryptedMasterSeed, String label, WalletAccount.Type accountType) {
-         this.address = address;
-         this.encryptedKey = encryptedKey;
-         this.encryptedMasterSeed = encryptedMasterSeed;
-         this.label = label;
-         this.accountType = accountType;
-      }
-
-   }
+        public ExportEntry(String address, String encryptedKey, String encryptedMasterSeed, String label, WalletAccount.Type accountType) {
+            this.address = address;
+            this.encryptedKey = encryptedKey;
+            this.encryptedMasterSeed = encryptedMasterSeed;
+            this.label = label;
+            this.accountType = accountType;
+        }
+    }
 
     public static class ExportProgressTracker implements Serializable {
         private static final long serialVersionUID = 1L;
@@ -140,8 +128,8 @@ public class ExportDistiller {
 
     }
 
-    public static String exportPrivateKeysToFile(Context context, ExportPdfParameters params,
-                                                 ExportProgressTracker progressTracker, String filePath) throws IOException {
+    public static void exportPrivateKeysToFile(Context context, ExportPdfParameters params,
+                                               ExportProgressTracker progressTracker, String filePath) throws IOException {
         // Write document to file
         String result = exportPrivateKeys(context, params, progressTracker);
         try {
@@ -154,19 +142,14 @@ public class ExportDistiller {
             Log.e("ExportDistiller", "IOException while writing file", e);
             throw e;
         }
-        return result;
     }
 
     private static FileOutputStream getOutStream(Context context, String filePath) throws FileNotFoundException {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-            return context.openFileOutput(filePath, Context.MODE_PRIVATE);
-        } else {
-            return new FileOutputStream(filePath);
-        }
+        return context.openFileOutput(filePath, Context.MODE_PRIVATE);
     }
 
-    public static String exportPrivateKeys(Context context, ExportPdfParameters params,
-                                           ExportProgressTracker progressTracker) {
+    private static String exportPrivateKeys(Context context, ExportPdfParameters params,
+                                            ExportProgressTracker progressTracker) {
 
         int pageWidth = PaperSize.EXECUTIVE_WIDTH;
         int pageHeight = PaperSize.EXECUTIVE_HEIGHT;
@@ -188,7 +171,7 @@ public class ExportDistiller {
         int activeRecords = params.getNumActive();
         int archivedRecords = params.getNumArchived();
         int totalAddresses = activeRecords + archivedRecords;
-        int totalRecords = activeRecords + archivedRecords + (params.masterSeed.isPresent() ? 1 : 0);
+        int totalRecords = activeRecords + archivedRecords;
 
         int totalPages = 1 + ((totalRecords + RECORDS_PR_PAGE - 1) / RECORDS_PR_PAGE) + 1;
 
@@ -255,11 +238,6 @@ public class ExportDistiller {
         writer.addText(4.2F, fromTop, 10, "" + totalAddresses);
         fromTop += 0.4F;
 
-        // Total Addresses
-        writer.addText(1F, fromTop, 10, "Master Seed:");
-        writer.addText(4.2F, fromTop, 10, params.masterSeed.isPresent() ? "Present" : "Not present");
-        fromTop += 0.8F;
-
         // Description 1
         writer.addText(1F, fromTop, 12, "This document contains an encrypted backup of your Mycelium Wallet.");
         fromTop += 0.8F;
@@ -314,13 +292,6 @@ public class ExportDistiller {
 
         if (remainingRecords > 0) {
             writer.addPage();
-        }
-
-        // Add master seed if present
-        if (params.masterSeed.isPresent()) {
-            remainingRecords--;
-            recordsOnThisPage++;
-            fromTop = addMasterSeed(new OffsetWriter(0F, fromTop, writer), "Master Seed", params.masterSeed.get(), remainingRecords == 0, progressTracker);
         }
 
         List<ExportEntry> active = params.getActive();
@@ -540,7 +511,7 @@ public class ExportDistiller {
     }
 
     private static boolean isASCII(String string) {
-        return CharMatcher.ASCII.matchesAllOf(string);
+        return CharMatcher.ascii().matchesAllOf(string);
     }
 
     private static void addPasswordBoxes(OffsetWriter offsetWriter) {
@@ -619,6 +590,7 @@ public class ExportDistiller {
     private static final String FUNCTIONS_2 = "SHA-256 - http://csrc.nist.gov/publications/fips/fips180-4/fips-180-4.pdf";
     private static final String FUNCTIONS_3 = "scrypt - http://www.tarsnap.com/scrypt/scrypt.pdf";
 
+    @SuppressWarnings("UnusedAssignment")
     private static void addFinalPage(PdfWriter writer, int pageNum) {
         writer.addPage();
         addPageNumber(writer, pageNum, pageNum);
@@ -743,12 +715,13 @@ public class ExportDistiller {
         return fromTop;
     }
 
+    @SuppressWarnings("StringContatenationInLoop")
     private static List<String> chopByWords(String text, int maxLength) {
-        List<String> lines = new LinkedList<String>();
+        List<String> lines = new LinkedList<>();
         String[] words = text.split(" ");
         String currentLine = "";
-        for (int i = 0; i < words.length; i++) {
-            String word = words[i].trim();
+        for (String w : words) {
+            String word = w.trim();
             String[] splittedWord = wordSplitter(word, maxLength);
             for (String splinter : splittedWord) {
                 if (currentLine.length() != 0) {
@@ -757,7 +730,7 @@ public class ExportDistiller {
                         currentLine = "";
                     }
                 }
-                currentLine = currentLine + splinter + " ";
+                currentLine += splinter + " ";
             }
         }
         if (currentLine.length() > 0) {
@@ -784,18 +757,16 @@ public class ExportDistiller {
     }
 
     private static class OffsetWriter extends PdfWriter {
-
-        public OffsetWriter(double cmX, double cmY, OffsetWriter parent) {
+        OffsetWriter(double cmX, double cmY, OffsetWriter parent) {
             super(parent);
             _offX = translateCmX(cmX) + parent._offX;
             _offY = translateCmY(cmY) + parent._offY;
         }
 
-        public OffsetWriter(double cmX, double cmY, PdfWriter writer) {
+        OffsetWriter(double cmX, double cmY, PdfWriter writer) {
             super(writer);
             _offX = translateCmX(cmX);
             _offY = translateCmY(cmY);
         }
     }
-
 }

@@ -38,14 +38,14 @@ public class ColuClient {
 
     private static final String TAG = "ColuClient";
 
-    public static final boolean coluAutoSelectUtxo = true;
+    private static final boolean coluAutoSelectUtxo = true;
 
     public NetworkParameters network;
 
     private AdvancedHttpClient coloredCoinsClient;
     private AdvancedHttpClient blockExplorerClient;
 
-    public ColuClient(NetworkParameters network) {
+    ColuClient(NetworkParameters network) {
         this.coloredCoinsClient = new AdvancedHttpClient(BuildConfig.ColoredCoinsApiURLs);
         this.blockExplorerClient = new AdvancedHttpClient(BuildConfig.ColuBlockExplorerApiURLs);
         this.network = network;
@@ -61,7 +61,7 @@ public class ColuClient {
         Security.addProvider(new BouncyCastleProvider());
     }
 
-    public AssetMetadata getMetadata(String assetId) throws IOException {
+    AssetMetadata getMetadata(String assetId) throws IOException {
         String endpoint = "assetmetadata/" + assetId;
         return coloredCoinsClient.sendGetRequest(AssetMetadata.class, endpoint);
     }
@@ -71,15 +71,15 @@ public class ColuClient {
         return coloredCoinsClient.sendGetRequest(AddressInfo.Json.class, endpoint);
     }
 
-    public AddressTransactionsInfo.Json getAddressTransactions(Address address) throws IOException {
+    AddressTransactionsInfo.Json getAddressTransactions(Address address) throws IOException {
         String endpoint = "getaddressinfowithtransactions?address=" + address.toString();
         return blockExplorerClient.sendGetRequest(AddressTransactionsInfo.Json.class, endpoint);
     }
 
     //TODO: move most of the logic to ColuManager
-    public ColuBroadcastTxHex.Json prepareTransaction(Address destAddress, List<Address> src,
-                                                      ExactCurrencyValue nativeAmount, ColuAccount coluAccount,
-                                                      long txFee)
+    ColuBroadcastTxHex.Json prepareTransaction(Address destAddress, List<Address> src,
+                                               ExactCurrencyValue nativeAmount, ColuAccount coluAccount,
+                                               long txFee)
             throws IOException {
         Log.d(TAG, "prepareTransaction");
         if (destAddress == null) {
@@ -97,7 +97,7 @@ public class ColuClient {
         Log.d(TAG, "destAddress=" + destAddress.toString() + " src nb addr=" + src.size() + " src0=" + src.get(0).toString() + " nativeAmount=" + nativeAmount.toString());
         Log.d(TAG, " txFee=" + txFee);
         ColuTransactionRequest.Json request = new ColuTransactionRequest.Json();
-        List<ColuTxDest.Json> to = new LinkedList<ColuTxDest.Json>();
+        List<ColuTxDest.Json> to = new LinkedList<>();
         ColuTxDest.Json dest = new ColuTxDest.Json();
         dest.address = destAddress.toString();
         BigDecimal amountAssetSatoshi = (nativeAmount.getValue().multiply(new BigDecimal(10).pow(coluAccount.getColuAsset().scale)));
@@ -114,7 +114,7 @@ public class ColuClient {
 
         // v1: let colu chose source tx
         if (ColuClient.coluAutoSelectUtxo) {
-            LinkedList<String> from = new LinkedList<String>();
+            LinkedList<String> from = new LinkedList<>();
             for (Address addr : src) {
                 from.add(addr.toString());
             }
@@ -122,7 +122,7 @@ public class ColuClient {
             request.financeOutputTxid = "";
         } else {
             // v2: chose utxo ourselves
-            LinkedList<String> sendutxo = new LinkedList<String>();
+            LinkedList<String> sendutxo = new LinkedList<>();
             double selectedAmount = 0;
             double selectedSatoshiAmount = 0;
             for (Address addr : src) {

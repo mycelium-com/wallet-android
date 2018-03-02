@@ -70,7 +70,6 @@ import butterknife.ButterKnife;
 
 public class BuySellFragment extends Fragment {
     private MbwManager _mbwManager;
-    private View _root;
 
     @BindView(R.id.view_pager)
     ViewPager viewPager;
@@ -78,14 +77,13 @@ public class BuySellFragment extends Fragment {
     @BindView(R.id.pager_indicator)
     ViewPagerIndicator indicator;
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        _root = Preconditions.checkNotNull(inflater.inflate(R.layout.main_buy_sell_fragment, container, false));
-        ButterKnife.bind(this, _root);
+        View root = Preconditions.checkNotNull(inflater.inflate(R.layout.main_buy_sell_fragment, container, false));
+        ButterKnife.bind(this, root);
         recreateActions();
         indicator.setupWithViewPager(viewPager);
-        return _root;
+        return root;
     }
 
     private void recreateActions() {
@@ -126,6 +124,7 @@ public class BuySellFragment extends Fragment {
 
         if(viewPager.getAdapter().getCount() > 1) {
             indicator.setupWithViewPager(viewPager);
+            // flash the last item, to call the user's attention to the swipeability of the widget
             viewPager.setCurrentItem(viewPager.getAdapter().getCount() - 1);
             viewPager.postDelayed(new Runnable() {
                 @Override
@@ -134,7 +133,7 @@ public class BuySellFragment extends Fragment {
                 }
             }, 3000);
             indicator.setVisibility(View.VISIBLE);
-        }else {
+        } else {
             indicator.setVisibility(View.INVISIBLE);
         }
     }

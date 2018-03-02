@@ -8,15 +8,14 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 public class DividerItemDecoration extends RecyclerView.ItemDecoration {
-
     private Drawable mDivider;
     private int mOrientation;
     private Rect imgPadding = new Rect();
+
     public DividerItemDecoration(Drawable divider, int orientation) {
         mDivider = divider;
         mOrientation = orientation;
         mDivider.getPadding(imgPadding);
-
     }
 
     @Override
@@ -37,7 +36,6 @@ public class DividerItemDecoration extends RecyclerView.ItemDecoration {
         } else {
             drawHorizontal(canvas, parent);
         }
-
     }
 
     private void drawHorizontal(Canvas canvas, RecyclerView parent) {

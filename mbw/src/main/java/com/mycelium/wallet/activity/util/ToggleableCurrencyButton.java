@@ -51,7 +51,6 @@ import java.util.List;
 
 
 public class ToggleableCurrencyButton extends ToggleableCurrencyDisplay {
-
    public ToggleableCurrencyButton(Context context, AttributeSet attrs) {
       super(context, attrs);
    }
@@ -70,7 +69,7 @@ public class ToggleableCurrencyButton extends ToggleableCurrencyDisplay {
 
       final List<String> currencies = fiatOnly ? currencySwitcher.getCurrencyList() : currencySwitcher.getCurrencyList(CurrencyValue.BTC);
       // there are more than one fiat-currency
-      // there is only one currency to show - dont show a triangle hinting that the user can toggle
+      // there is only one currency to show - don't show a triangle hinting that the user can toggle
       findViewById(R.id.ivSwitchable).setVisibility(currencies.size() > 1 ? VISIBLE : INVISIBLE);
 
       DroppyMenuPopup.Builder builder = new DroppyMenuPopup.Builder(getContext(), llContainer);

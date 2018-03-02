@@ -7,8 +7,7 @@ public class ActionButton {
     public Runnable task;
 
     public ActionButton(String text, Runnable task) {
-        this.text = text;
-        this.task = task;
+        this(text, 0, task);
     }
 
     public ActionButton(String text, int icon, Runnable task) {

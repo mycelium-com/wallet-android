@@ -99,8 +99,8 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
       _kdfParameters = kdfParameters;
 
       // Populate the active and archived entries to export
-      _active = new LinkedList<EntryToExport>();
-      _archived = new LinkedList<EntryToExport>();
+      _active = new LinkedList<>();
+      _archived = new LinkedList<>();
       List<WalletAccount> accounts = new ArrayList<>();
       for (UUID id : walletManager.getAccountIds()) {
          accounts.add(walletManager.getAccount(id));
@@ -171,18 +171,14 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
          _encryptionProgress = 0D;
          double increment = 1D / (_active.size() + _archived.size());
 
-         // Encrypt Master seed if present
-         Optional<ExportEntry> encryptedMasterSeed;
-         encryptedMasterSeed = Optional.absent();
-
          // Encrypt active
-         List<ExportEntry> encryptedActiveKeys = new LinkedList<ExportEntry>();
+         List<ExportEntry> encryptedActiveKeys = new LinkedList<>();
          for (EntryToExport e : _active) {
             encryptedActiveKeys.add(createExportEntry(e, encryptionParameters, _network, e.accountType));
             _encryptionProgress += increment;
          }
          // Encrypt archived
-         List<ExportEntry> encryptedArchivedKeys = new LinkedList<ExportEntry>();
+         List<ExportEntry> encryptedArchivedKeys = new LinkedList<>();
          for (EntryToExport e : _archived) {
             encryptedArchivedKeys.add(createExportEntry(e, encryptionParameters, _network, e.accountType));
             _encryptionProgress += increment;
@@ -191,7 +187,7 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
          // Generate PDF document
          String exportFormatString = "Mycelium Backup 1.1";
          ExportPdfParameters exportParameters = new ExportPdfParameters(new Date().getTime(), exportFormatString,
-               encryptedMasterSeed, encryptedActiveKeys, encryptedArchivedKeys);
+               encryptedActiveKeys, encryptedArchivedKeys);
          _pdfProgress = new ExportProgressTracker(exportParameters.getAllEntries());
          ExportDistiller.exportPrivateKeysToFile(context, exportParameters, _pdfProgress, _exportFilePath);
       } catch (OutOfMemoryError e) {
