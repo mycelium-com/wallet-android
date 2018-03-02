@@ -50,7 +50,7 @@ import com.google.common.collect.Iterables;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.main.adapter.ButtonPagerAdapter;
-import com.mycelium.wallet.activity.main.model.ActoinButton;
+import com.mycelium.wallet.activity.main.model.ActionButton;
 import com.mycelium.wallet.activity.view.ViewPagerIndicator;
 import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.external.BuySellSelectFragment;
@@ -89,7 +89,7 @@ public class BuySellFragment extends Fragment {
     }
 
     private void recreateActions() {
-        List<ActoinButton> actions = new ArrayList<>();
+        List<ActionButton> actions = new ArrayList<>();
         boolean showButton = Iterables.any(_mbwManager.getEnvironmentSettings().getBuySellServices(), new Predicate<BuySellServiceDescriptor>() {
             @Override
             public boolean apply(@Nullable BuySellServiceDescriptor input) {
@@ -99,7 +99,7 @@ public class BuySellFragment extends Fragment {
         switch (_mbwManager.getSelectedAccount().getType()) {
             case BCHBIP44:
             case BCHSINGLEADDRESS:
-                actions.add(new ActoinButton(getString(R.string.exchange_bch_to_btc), new Runnable() {
+                actions.add(new ActionButton(getString(R.string.exchange_bch_to_btc), new Runnable() {
                     @Override
                     public void run() {
                         startExchange(new Intent(getActivity(), ExchangeActivity.class));
@@ -108,14 +108,14 @@ public class BuySellFragment extends Fragment {
                 break;
             default:
                 if (showButton) {
-                    actions.add(new ActoinButton(getString(R.string.gd_buy_sell_button), new Runnable() {
+                    actions.add(new ActionButton(getString(R.string.gd_buy_sell_button), new Runnable() {
                         @Override
                         public void run() {
                             startActivity(new Intent(getActivity(), BuySellSelectFragment.class));
                         }
                     }));
                 }
-                actions.add(new ActoinButton(getString(R.string.exchange_altcoins_to_btc), new Runnable() {
+                actions.add(new ActionButton(getString(R.string.exchange_altcoins_to_btc), new Runnable() {
                     @Override
                     public void run() {
                         startExchange(new Intent(getActivity(), ChangellyActivity.class));
