@@ -161,10 +161,11 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
     override fun getSyncProgressPercents(): Int {
         val uri = GetSyncProgress.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHBIP44)).buildUpon().build()
         context.contentResolver.query(uri, null, null, null, null).use {
-            var result = 0
-            if (it != null && it.columnCount != 0) {
+            val result = if (it.columnCount != 0) {
                 it.moveToFirst()
-                result = it.getInt(0)
+                it.getInt(0)
+            } else {
+                0
             }
             if(result == 100) {
                 sharedPreference.edit().putBoolean("is_first_sync", false).apply()
@@ -173,20 +174,18 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
         }
     }
 
-    override fun isFirstSync(): Boolean {
-        return sharedPreference.getBoolean("is_first_sync", true)
-    }
+    override fun isFirstSync() = sharedPreference.getBoolean("is_first_sync", true)
 
     override fun getCurrentReceiveAddress(accountIndex: Int): Address? {
         val uri = CurrentReceiveAddress.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHBIP44)).buildUpon().build()
         val selection = AccountBalance.SELECTION_ACCOUNT_INDEX
         context.contentResolver.query(uri, null, selection, arrayOf("" + accountIndex), null).use {
-            if (it != null && it.columnCount != 0) {
+            return if (it.columnCount != 0) {
                 it.moveToFirst()
                 val address = it.getString(it.getColumnIndex(CurrentReceiveAddress.ADDRESS))
-                return Address.fromString(address)
+                Address.fromString(address)
             } else {
-                return null
+                null
             }
         }
     }
@@ -195,11 +194,11 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
         val uri = GetPrivateKeysCount.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHBIP44)).buildUpon().build()
         val selection = AccountBalance.SELECTION_ACCOUNT_INDEX
         context.contentResolver.query(uri, null, selection, arrayOf("" + accountIndex), null).use {
-            if (it != null && it.columnCount != 0) {
+            return if (it.columnCount != 0) {
                 it.moveToFirst()
-                return it.getInt(0)
+                it.getInt(0)
             } else {
-                return 0
+                0
             }
         }
     }

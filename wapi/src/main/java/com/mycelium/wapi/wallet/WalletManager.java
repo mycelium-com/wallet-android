@@ -250,30 +250,34 @@ public class WalletManager {
 
         final UUID id = keyManager.getAccountId();
 
-      synchronized (_walletAccounts){
-         // check if it already exists
-         boolean isUpgrade = false;if (_walletAccounts.containsKey(id)) {
-            isUpgrade = !_walletAccounts.get(id).canSpend() && hdKeyNode.isPrivateHdKeyNode();
-            if (!isUpgrade) {return id;}
-         }
-         _backing.beginTransaction();
-         try {
-
-            // Generate the context for the account
-            Bip44AccountContext context;
-            if (hdKeyNode.isPrivateHdKeyNode()) {
-               context = new Bip44AccountContext(keyManager.getAccountId(), accountIndex, false,
-                     ACCOUNT_TYPE_UNRELATED_X_PRIV, secureStorage.getSubId());
-            } else {
-               context = new Bip44AccountContext(keyManager.getAccountId(), accountIndex, false,
-                     ACCOUNT_TYPE_UNRELATED_X_PUB, secureStorage.getSubId());
+        synchronized (_walletAccounts) {
+            // check if it already exists
+            boolean isUpgrade = false;
+            if (_walletAccounts.containsKey(id)) {
+                isUpgrade = !_walletAccounts.get(id).canSpend() && hdKeyNode.isPrivateHdKeyNode();
+                if (!isUpgrade) {
+                    return id;
+                }
             }
-            if (isUpgrade) {
-               _backing.upgradeBip44AccountContext(context);
-            } else {_backing.createBip44AccountContext(context);
-}
-            // Get the backing for the new account
-            Bip44AccountBacking accountBacking = getBip44AccountBacking(context.getId());
+            _backing.beginTransaction();
+            try {
+
+                // Generate the context for the account
+                Bip44AccountContext context;
+                if (hdKeyNode.isPrivateHdKeyNode()) {
+                    context = new Bip44AccountContext(keyManager.getAccountId(), accountIndex, false,
+                            ACCOUNT_TYPE_UNRELATED_X_PRIV, secureStorage.getSubId());
+                } else {
+                    context = new Bip44AccountContext(keyManager.getAccountId(), accountIndex, false,
+                            ACCOUNT_TYPE_UNRELATED_X_PUB, secureStorage.getSubId());
+                }
+                if (isUpgrade) {
+                    _backing.upgradeBip44AccountContext(context);
+                } else {
+                    _backing.createBip44AccountContext(context);
+                }
+                // Get the backing for the new account
+                Bip44AccountBacking accountBacking = getBip44AccountBacking(context.getId());
 
                 // Create actual account
                 Bip44Account account;
@@ -283,25 +287,28 @@ public class WalletManager {
                     account = new Bip44PubOnlyAccount(context, keyManager, _network, accountBacking, _wapi);
                 }
 
-            // Finally persist context and add account
-            context.persist(accountBacking);
-            _backing.setTransactionSuccessful();
-            if (!isUpgrade) {addAccount(account);
-            _bip44Accounts.add(account);} else {
-               _walletAccounts.remove(id);
-               _walletAccounts.put(id, account);
-            }
-if (_spvBalanceFetcher != null) {
+                // Finally persist context and add account
+                context.persist(accountBacking);
+                _backing.setTransactionSuccessful();
+                if (!isUpgrade) {
+                    addAccount(account);
+                    _bip44Accounts.add(account);
+                } else {
+                    _walletAccounts.remove(id);
+                    _walletAccounts.put(id, account);
+                }
+                if (_spvBalanceFetcher != null) {
                     Bip44BCHAccount bip44BCHAccount = new Bip44BCHAccount(context, keyManager, _network, accountBacking, _wapi, _spvBalanceFetcher);
                     addAccount(bip44BCHAccount);
                     _btcToBchAccounts.put(account.getId(), bip44BCHAccount.getId());
                     _spvBalanceFetcher.requestTransactionsAsync(bip44BCHAccount.getAccountIndex());
-                }            return id;
-         } finally {
-            _backing.endTransaction();
-         }
-      }
-   }
+                }
+                return id;
+            } finally {
+                _backing.endTransaction();
+            }
+        }
+    }
 
     public UUID createExternalSignatureAccount(HdKeyNode hdKeyNode, ExternalSignatureProvider externalSignatureProvider, int accountIndex) {
         SecureSubKeyValueStore newSubKeyStore = getSecureStorage().createNewSubKeyStore();

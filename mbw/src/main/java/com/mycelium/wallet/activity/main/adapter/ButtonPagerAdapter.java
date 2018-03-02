@@ -9,15 +9,15 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.activity.main.model.ActoinButton;
+import com.mycelium.wallet.activity.main.model.ActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ButtonPagerAdapter extends PagerAdapter {
-    private List<ActoinButton> buttons = new ArrayList<>();
+    private List<ActionButton> buttons = new ArrayList<>();
 
-    public ButtonPagerAdapter(List<ActoinButton> buttons) {
+    public ButtonPagerAdapter(List<ActionButton> buttons) {
         this.buttons = buttons;
     }
 
@@ -41,7 +41,7 @@ public class ButtonPagerAdapter extends PagerAdapter {
     }
 
     @Override
-    public void destroyItem(ViewGroup container, int position, Object object) {
+    public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
         container.removeView((View) object);
     }
 
@@ -54,5 +54,4 @@ public class ButtonPagerAdapter extends PagerAdapter {
     public boolean isViewFromObject(@NonNull View view, @NonNull Object object) {
         return view == object;
     }
-
 }
