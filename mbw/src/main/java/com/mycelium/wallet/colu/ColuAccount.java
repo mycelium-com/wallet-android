@@ -680,7 +680,17 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
 
    @Override
    public TransactionEx getTransaction(Sha256Hash txid) {
-      return accountBacking.getTransaction(txid);
+      TransactionEx tex = null;
+      for (Utxo.Json utxo : utxosList) {
+         if (utxo.txid.contentEquals(txid.toString())) {
+            Sha256Hash tHash = new Sha256Hash(com.subgraph.orchid.encoders.Hex.decode(utxo.txid));
+            tex = new TransactionEx(tHash,
+                utxo.blockheight,
+                utxo.blockheight,
+                null);
+         }
+      }
+      return tex;
    }
 
    @Override
