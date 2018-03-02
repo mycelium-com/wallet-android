@@ -21,4 +21,5 @@ public interface SpvBalanceFetcher {
     Address getCurrentReceiveAddress(int accountIndex);
     int getPrivateKeysCount(int accountIndex);
     boolean isFirstSync();
+    void forceCleanCache();
 }
