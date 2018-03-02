@@ -537,7 +537,7 @@ public class AddAdvancedAccountActivity extends Activity {
       Intent result = new Intent();
       String accountType;
       UUID walletId = _mbwManager.getAccountId(address, null).get();
-      if (_mbwManager.getWalletManager(false).getAccount(walletId) instanceof Bip44Account) {
+      if (_mbwManager.getWalletManager(false).getAccount(walletId).getType().equals(WalletAccount.Type.BCHBIP44)) {
          accountType = "BTC HD account";
       } else {
          accountType = "BTC Single Address";
