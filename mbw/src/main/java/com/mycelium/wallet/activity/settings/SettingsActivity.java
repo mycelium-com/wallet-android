@@ -112,6 +112,7 @@ import info.guardianproject.onionkit.ui.OrbotHelper;
  */
 public class SettingsActivity extends PreferenceActivity {
    public static final CharMatcher AMOUNT = CharMatcher.JAVA_DIGIT.or(CharMatcher.anyOf(".,"));
+   private static final int REQUEST_CODE_UNINSTALL = 1;
    private final OnPreferenceClickListener localCurrencyClickListener = new OnPreferenceClickListener() {
       public boolean onPreferenceClick(Preference preference) {
          SetLocalCurrencyActivity.callMe(SettingsActivity.this);
@@ -286,7 +287,6 @@ public class SettingsActivity extends PreferenceActivity {
       return amt;
    }
 
-   @SuppressWarnings("deprecation")
    @Override
    public void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
@@ -543,7 +543,7 @@ public class SettingsActivity extends PreferenceActivity {
                   Uri packageUri = Uri.parse("package:" + module.getModulePackage());
                   preference.setButtonEnabled(false);
                   startActivityForResult(new Intent(Intent.ACTION_UNINSTALL_PACKAGE, packageUri)
-                          .putExtra(Intent.EXTRA_RETURN_RESULT, true), 0);
+                          .putExtra(Intent.EXTRA_RETURN_RESULT, true), REQUEST_CODE_UNINSTALL);
                }
             });
             modulesPrefs.addPreference(preference);
@@ -576,7 +576,7 @@ public class SettingsActivity extends PreferenceActivity {
 
    @Override
    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-      if (requestCode == 0) {
+      if (requestCode == REQUEST_CODE_UNINSTALL) {
          PreferenceCategory modulesPrefs = (PreferenceCategory) findPreference("modulesPrefs");
          if (resultCode == RESULT_CANCELED) {
             for (int index = 0; index < modulesPrefs.getPreferenceCount(); index++) {

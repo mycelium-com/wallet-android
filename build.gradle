@@ -1,7 +1,6 @@
 apply from: 'tools.gradle'
 
 buildscript {
-    ext.kotlin_version = '1.2.21'
     apply from: 'ext_settings.gradle'
     repositories {
         google()

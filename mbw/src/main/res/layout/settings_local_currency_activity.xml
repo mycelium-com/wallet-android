@@ -18,6 +18,7 @@
             android:id="@+id/etFilterCurrency"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:imeOptions="actionDone"
             android:singleLine="true"
             android:hint="@string/hint_type_to_filter"/>
 

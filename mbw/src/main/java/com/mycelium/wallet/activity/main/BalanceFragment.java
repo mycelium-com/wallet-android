@@ -34,10 +34,12 @@
 
 package com.mycelium.wallet.activity.main;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -105,7 +107,7 @@ public class BalanceFragment extends Fragment {
 
 
    @Override
-   public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+   public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
       _root = Preconditions.checkNotNull(inflater.inflate(R.layout.main_balance_view, container, false));
       final View balanceArea = Preconditions.checkNotNull(_root.findViewById(R.id.llBalance));
       balanceArea.setOnClickListener(new OnClickListener() {
@@ -115,11 +117,11 @@ public class BalanceFragment extends Fragment {
          }
       });
       ButterKnife.bind(this, _root);
-      updateExcahngeSourceMenu();
+      updateExchangeSourceMenu();
       return _root;
    }
 
-   private void updateExcahngeSourceMenu() {
+   private void updateExchangeSourceMenu() {
       DroppyMenuPopup.Builder builder = new DroppyMenuPopup.Builder(getActivity(), exchangeSourceLayout);
       ExchangeRateManager exchangeRateManager = _mbwManager.getExchangeRateManager();
       final List<String> sources = exchangeRateManager.getExchangeSourceNames();
@@ -150,7 +152,6 @@ public class BalanceFragment extends Fragment {
    @Override
    public void onCreate(Bundle savedInstanceState) {
       setHasOptionsMenu(true);
-//      setRetainInstance(true);
       super.onCreate(savedInstanceState);
    }
 
@@ -232,6 +233,7 @@ public class BalanceFragment extends Fragment {
               || _mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHSINGLEADDRESS;
    }
 
+   @SuppressLint("SetTextI18n")
    private void updateUi() {
       if (!isAdded()) {
          return;
@@ -254,7 +256,7 @@ public class BalanceFragment extends Fragment {
 
       updateUiKnownBalance(balance);
 
-      TextView tvBtcRate = (TextView) _root.findViewById(R.id.tvBtcRate);
+      TextView tvBtcRate = _root.findViewById(R.id.tvBtcRate);
       // show / hide components depending on account type
       if(account instanceof ColuAccount) {
          tvBtcRate.setVisibility(View.VISIBLE);
@@ -267,6 +269,7 @@ public class BalanceFragment extends Fragment {
             if (fiatValue != null && fiatValue.getValue() != null) {
                tvBtcRate.setText(getString(R.string.rate, coluAccount.getColuAsset().name, Utils.formatFiatWithUnit(fiatValue)));
             }
+
             exchangeSource.setText(COINMARKETCAP + "/" + _mbwManager.getExchangeRateManager().getCurrentExchangeSourceName());
             exchangeSourceLayout.setVisibility(View.VISIBLE);
          } else if(assetType == ColuAccount.ColuAssetType.MASS) {
@@ -347,7 +350,7 @@ public class BalanceFragment extends Fragment {
             receivingString = Utils.getFormattedValueWithUnit(balance.receiving, _mbwManager.getBitcoinDenomination());
          }
          String receivingText = getResources().getString(R.string.receiving, receivingString);
-         TextView tvReceiving = (TextView) _root.findViewById(R.id.tvReceiving);
+         TextView tvReceiving = _root.findViewById(R.id.tvReceiving);
          tvReceiving.setText(receivingText);
          tvReceiving.setVisibility(View.VISIBLE);
       } else {
@@ -365,7 +368,7 @@ public class BalanceFragment extends Fragment {
             sendingString = Utils.getFormattedValueWithUnit(balance.sending, _mbwManager.getBitcoinDenomination());
          }
          String sendingText = getResources().getString(R.string.sending, sendingString);
-         TextView tvSending = (TextView) _root.findViewById(R.id.tvSending);
+         TextView tvSending = _root.findViewById(R.id.tvSending);
          tvSending.setText(sendingText);
          tvSending.setVisibility(View.VISIBLE);
       } else {
@@ -376,7 +379,7 @@ public class BalanceFragment extends Fragment {
    }
 
    private void setFiatValue(int textViewResourceId, CurrencyValue value, boolean hideOnZeroBalance) {
-      TextView tv = (TextView) _root.findViewById(textViewResourceId);
+      TextView tv = _root.findViewById(textViewResourceId);
       if (!_mbwManager.hasFiatCurrency()
             || _exchangeRatePrice == null
             || (hideOnZeroBalance && value.isZero())
@@ -407,8 +410,9 @@ public class BalanceFragment extends Fragment {
    public void exchangeRatesRefreshed(ExchangeRatesRefreshed event){
       _exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
       updateUi();
-      updateExcahngeSourceMenu();
+      updateExchangeSourceMenu();
    }
+
    @Subscribe
    public void exchangeSourceChanged(ExchangeSourceChanged event) {
       _exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
@@ -419,7 +423,7 @@ public class BalanceFragment extends Fragment {
    public void selectedCurrencyChanged(SelectedCurrencyChanged event){
       _exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
       updateUi();
-      updateExcahngeSourceMenu();
+      updateExchangeSourceMenu();
    }
 
    /**
@@ -428,7 +432,7 @@ public class BalanceFragment extends Fragment {
    @Subscribe
    public void selectedAccountChanged(SelectedAccountChanged event) {
       updateUi();
-      updateExcahngeSourceMenu();
+      updateExchangeSourceMenu();
    }
 
    /**
@@ -448,5 +452,4 @@ public class BalanceFragment extends Fragment {
    public void syncStopped(SyncStopped event) {
       updateUi();
    }
-
 }
