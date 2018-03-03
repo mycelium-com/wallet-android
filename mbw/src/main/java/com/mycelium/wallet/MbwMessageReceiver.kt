@@ -9,6 +9,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import com.google.common.base.CharMatcher
+import com.mrd.bitlib.model.Address
 import com.mycelium.modularizationtools.CommunicationManager
 import com.mycelium.modularizationtools.ModuleMessageReceiver
 import com.mycelium.modularizationtools.model.Module
@@ -28,10 +29,18 @@ import com.mycelium.wapi.wallet.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.currency.CurrencyValue
 import com.mycelium.wapi.wallet.single.SingleAddressAccount
 import com.squareup.otto.Bus
+import org.bitcoinj.core.ECKey
 import org.bitcoinj.core.NetworkParameters
+import org.bitcoinj.core.Sha256Hash
+import org.bitcoinj.core.Transaction
 import org.bitcoinj.crypto.ChildNumber
 import org.bitcoinj.crypto.DeterministicKey
 import org.bitcoinj.crypto.HDKeyDerivation
+import org.bitcoinj.signers.LocalTransactionSigner
+import org.bitcoinj.signers.TransactionSigner
+import org.bitcoinj.wallet.KeyBag
+import org.bitcoinj.wallet.KeyChainGroup
+import org.bitcoinj.wallet.RedeemData
 import java.math.BigDecimal
 import java.util.*
 import kotlin.collections.ArrayList
@@ -131,8 +140,8 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
 
                 //val bip39PassphraseList : ArrayList<String> = ArrayList(masterSeed.bip39WordList)
                 val service = IntentContract.RequestAccountLevelKeysToSPV.createIntent(
-                        accountIndexes.toList(),
-                        accountLevelKeys,
+                        ArrayList(accountIndexes.toList()),
+                        ArrayList(accountLevelKeys.toList()),
                         1504664986L) //TODO Change value after test. Nelson
                 WalletApplication.sendToSpv(service, BCHBIP44)
             }
@@ -165,6 +174,36 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                     eventBus.post(SpvSendFundsResult(operationId, txHash, isSuccess, message))
                 }
                 Handler(Looper.getMainLooper()).post(runnable)
+            }
+            "com.mycelium.wallet.sendUnsignedTransactionToMbw" -> {
+                val accountIndex = intent.getIntExtra(IntentContract.ACCOUNT_INDEX_EXTRA, -1)
+                val transactionHash = intent.getStringExtra(IntentContract.TRANSACTION_HASH)
+                val mbwManager = MbwManager.getInstance(context)
+                val networkParameters = NetworkParameters.fromID(if (mbwManager.network.isTestnet) {
+                    NetworkParameters.ID_TESTNET
+                } else {
+                    NetworkParameters.ID_MAINNET
+                })!!
+                val transaction = Transaction(networkParameters, Sha256Hash.wrap(transactionHash).bytes)
+                val account = mbwManager.getWalletManager(false).getBip44Account(accountIndex) as Bip44Account
+                val privateKey = account.getPrivateKeyForAddress(Address.fromString(transaction.inputs.get(0).fromAddress.toString()),
+                        AesKeyCipher.defaultKeyCipher())
+                if (privateKey == null) {
+                    Log.w(TAG, "MbwMessageReceiver.onMessageFromSpvModuleBch, " +
+                            "com.mycelium.wallet.sendUnsignedTransactionToMbw, " +
+                            "privateKey must not be null.")
+                    return
+                }
+                val deterministicKey = DeterministicKey
+                        .deserializeB58(privateKey.getBase58EncodedPrivateKey(mbwManager.network), networkParameters)
+
+
+                // Sign the transaction
+                val proposedTransaction = TransactionSigner.ProposedTransaction(transaction)
+                val signer = LocalTransactionSigner()
+                signer.signInputs(proposedTransaction, KeyChainGroup(networkParameters, deterministicKey, false))
+                val service = IntentContract.SendSignedTransactionToSPV.createIntent(accountIndex, proposedTransaction.partialTx.bitcoinSerialize())
+                WalletApplication.sendToSpv(service, BCHBIP44)
             }
             null -> Log.w(TAG, "onMessage failed. No action defined.")
             else -> Log.e(TAG, "onMessage failed. Unknown action ${intent.action}")
