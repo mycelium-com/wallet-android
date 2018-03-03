@@ -19,7 +19,6 @@ project.ext.set("mainClassName", mainClassName)
 
 repositories {
     google()
-    mavenLocal()
     jcenter()
 }
 

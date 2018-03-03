@@ -5,14 +5,12 @@ apply plugin: 'kotlin-android-extensions'
 
 repositories {
     google()
-    mavenLocal()
     jcenter()
 }
 
 buildscript {
     repositories {
         google()
-        mavenLocal()
         jcenter()
     }
 
@@ -95,7 +93,7 @@ dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.8.4'
     implementation 'com.madgag.spongycastle:core:1.58.0.0'
     implementation 'com.madgag.spongycastle:prov:1.58.0.0'
-    implementation 'org.bitcoincashj:bitcoincashj-core:0.14.5'
+    implementation 'org.bitcoinj:bitcoinj-core:0.14.5'
 }
 
 android {
