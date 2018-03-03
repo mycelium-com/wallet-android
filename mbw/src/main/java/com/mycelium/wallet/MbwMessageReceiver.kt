@@ -104,36 +104,48 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 Handler(Looper.getMainLooper()).post(runnable)
             }
 
-            "com.mycelium.wallet.requestPrivateExtendedKeyCoinTypeToMBW" -> {
+            "com.mycelium.wallet.requestAccountLevelKeysToMBW" -> {
                 val mbwManager = MbwManager.getInstance(context)
-                val accountIndex = intent.getIntExtra(IntentContract.ACCOUNT_INDEX_EXTRA, -1)
-                Log.d(TAG, "com.mycelium.wallet.requestPrivateExtendedKeyCoinTypeToMBW, " +
-                        "accountIndex = $accountIndex")
-                if (accountIndex == -19) {
-                    Log.e(TAG, "Account Index required!")
+                val accountIndexes = intent.getIntArrayExtra(IntentContract.ACCOUNT_INDEXES_EXTRA)
+                val creationTimeSeconds = intent.getLongExtra(IntentContract.CREATIONTIMESECONDS, 0)
+                Log.d(TAG, "com.mycelium.wallet.requestAccountLevelKeysToMBW, " +
+                        "accountIndexes = $accountIndexes")
+                if (accountIndexes == null) {
+                    Log.e(TAG, "Account Indexes required!")
                     return
                 }
-                val masterSeed = mbwManager.getWalletManager(false).getMasterSeed(AesKeyCipher.defaultKeyCipher())
+                val accountLevelKeys: MutableList<String> = mutableListOf()
+                val accountIndexesIterator = accountIndexes.iterator()
+                while (accountIndexesIterator.hasNext()) {
+                    val accountIndex = accountIndexesIterator.nextInt()
+                    val masterSeed = mbwManager.getWalletManager(false)
+                            .getMasterSeed(AesKeyCipher.defaultKeyCipher())
+                    val masterDeterministicKey : DeterministicKey = HDKeyDerivation.createMasterPrivateKey(masterSeed.bip32Seed)
+                    val bip44LevelDeterministicKey = HDKeyDerivation.deriveChildKey(
+                            masterDeterministicKey, ChildNumber(44, true))
+                    val coinType = if (mbwManager.network.isTestnet) {
+                        1 //Bitcoin Testnet https://github.com/satoshilabs/slips/blob/master/slip-0044.md
+                    } else {
+                        0 //Bitcoin Mainnet https://github.com/satoshilabs/slips/blob/master/slip-0044.md
+                    }
+                    val cointypeLevelDeterministicKey =
+                            HDKeyDerivation.deriveChildKey(bip44LevelDeterministicKey, ChildNumber(coinType, true))
+                    val networkParameters = NetworkParameters.fromID(if (mbwManager.network.isTestnet) {
+                        NetworkParameters.ID_TESTNET
+                    } else {
+                        NetworkParameters.ID_MAINNET
+                    })!!
 
-                val masterDeterministicKey : DeterministicKey = HDKeyDerivation.createMasterPrivateKey(masterSeed.bip32Seed)
-                val bip44LevelDeterministicKey = HDKeyDerivation.deriveChildKey(
-                        masterDeterministicKey, ChildNumber(44, true))
-                val coinType = if (mbwManager.network.isTestnet) {
-                    1 //Bitcoin Testnet https://github.com/satoshilabs/slips/blob/master/slip-0044.md
-                } else {
-                    0 //Bitcoin Mainnet https://github.com/satoshilabs/slips/blob/master/slip-0044.md
+                    cointypeLevelDeterministicKey.creationTimeSeconds = creationTimeSeconds
+                    val accountLevelKey = HDKeyDerivation.deriveChildKey(cointypeLevelDeterministicKey,
+                            ChildNumber(accountIndex, true), creationTimeSeconds)
+                    accountLevelKeys.add(accountLevelKey.serializePubB58(networkParameters))
                 }
-                val cointypeLevelDeterministicKey =
-                        HDKeyDerivation.deriveChildKey(bip44LevelDeterministicKey, ChildNumber(coinType, true))
-                val networkParameters = NetworkParameters.fromID(if (mbwManager.network.isTestnet) {
-                    NetworkParameters.ID_TESTNET
-                } else {
-                    NetworkParameters.ID_MAINNET
-                })!!
+
                 //val bip39PassphraseList : ArrayList<String> = ArrayList(masterSeed.bip39WordList)
-                val service = IntentContract.RequestPrivateExtendedKeyCoinTypeToSPV.createIntent(
-                        accountIndex,
-                        cointypeLevelDeterministicKey.serializePrivB58(networkParameters),
+                val service = IntentContract.RequestAccountLevelKeysToSPV.createIntent(
+                        accountIndexes.toList(),
+                        accountLevelKeys,
                         1504664986L) //TODO Change value after test. Nelson
                 WalletApplication.sendToSpv(service, BCHBIP44)
             }
