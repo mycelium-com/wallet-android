@@ -55,6 +55,7 @@ import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.squareup.otto.Bus;
+import com.squareup.otto.Subscribe;
 
 import java.util.UUID;
 
@@ -170,7 +171,7 @@ public class AddAccountActivity extends Activity {
    private class HdCreationAsyncTask extends AsyncTask<Void, Integer, UUID> {
       private Bus bus;
 
-      public HdCreationAsyncTask(Bus bus) {
+      HdCreationAsyncTask(Bus bus) {
          this.bus = bus;
       }
 
@@ -192,7 +193,7 @@ public class AddAccountActivity extends Activity {
       }
    }
 
-   @com.squareup.otto.Subscribe
+   @Subscribe
    public void hdAccountCreated(HdAccountCreated event) {
       _progress.dismiss();
       finishOk(event.account);

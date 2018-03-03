@@ -50,7 +50,7 @@ import com.google.common.collect.Iterables;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.main.adapter.ButtonPagerAdapter;
-import com.mycelium.wallet.activity.main.model.ActoinButton;
+import com.mycelium.wallet.activity.main.model.ActionButton;
 import com.mycelium.wallet.activity.view.ViewPagerIndicator;
 import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.external.BuySellSelectFragment;
@@ -70,7 +70,6 @@ import butterknife.ButterKnife;
 
 public class BuySellFragment extends Fragment {
     private MbwManager _mbwManager;
-    private View _root;
 
     @BindView(R.id.view_pager)
     ViewPager viewPager;
@@ -78,18 +77,17 @@ public class BuySellFragment extends Fragment {
     @BindView(R.id.pager_indicator)
     ViewPagerIndicator indicator;
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        _root = Preconditions.checkNotNull(inflater.inflate(R.layout.main_buy_sell_fragment, container, false));
-        ButterKnife.bind(this, _root);
+        View root = Preconditions.checkNotNull(inflater.inflate(R.layout.main_buy_sell_fragment, container, false));
+        ButterKnife.bind(this, root);
         recreateActions();
         indicator.setupWithViewPager(viewPager);
-        return _root;
+        return root;
     }
 
     private void recreateActions() {
-        List<ActoinButton> actions = new ArrayList<>();
+        List<ActionButton> actions = new ArrayList<>();
         boolean showButton = Iterables.any(_mbwManager.getEnvironmentSettings().getBuySellServices(), new Predicate<BuySellServiceDescriptor>() {
             @Override
             public boolean apply(@Nullable BuySellServiceDescriptor input) {
@@ -99,7 +97,7 @@ public class BuySellFragment extends Fragment {
         switch (_mbwManager.getSelectedAccount().getType()) {
             case BCHBIP44:
             case BCHSINGLEADDRESS:
-                actions.add(new ActoinButton(getString(R.string.exchange_bch_to_btc), new Runnable() {
+                actions.add(new ActionButton(getString(R.string.exchange_bch_to_btc), new Runnable() {
                     @Override
                     public void run() {
                         startExchange(new Intent(getActivity(), ExchangeActivity.class));
@@ -108,14 +106,14 @@ public class BuySellFragment extends Fragment {
                 break;
             default:
                 if (showButton) {
-                    actions.add(new ActoinButton(getString(R.string.gd_buy_sell_button), new Runnable() {
+                    actions.add(new ActionButton(getString(R.string.gd_buy_sell_button), new Runnable() {
                         @Override
                         public void run() {
                             startActivity(new Intent(getActivity(), BuySellSelectFragment.class));
                         }
                     }));
                 }
-                actions.add(new ActoinButton(getString(R.string.exchange_altcoins_to_btc), new Runnable() {
+                actions.add(new ActionButton(getString(R.string.exchange_altcoins_to_btc), new Runnable() {
                     @Override
                     public void run() {
                         startExchange(new Intent(getActivity(), ChangellyActivity.class));
@@ -126,6 +124,7 @@ public class BuySellFragment extends Fragment {
 
         if(viewPager.getAdapter().getCount() > 1) {
             indicator.setupWithViewPager(viewPager);
+            // flash the last item, to call the user's attention to the swipeability of the widget
             viewPager.setCurrentItem(viewPager.getAdapter().getCount() - 1);
             viewPager.postDelayed(new Runnable() {
                 @Override
@@ -134,7 +133,7 @@ public class BuySellFragment extends Fragment {
                 }
             }, 3000);
             indicator.setVisibility(View.VISIBLE);
-        }else {
+        } else {
             indicator.setVisibility(View.INVISIBLE);
         }
     }

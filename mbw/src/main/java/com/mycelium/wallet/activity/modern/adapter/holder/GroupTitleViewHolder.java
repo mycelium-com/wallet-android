@@ -17,9 +17,9 @@ public class GroupTitleViewHolder extends RecyclerView.ViewHolder {
 
     public GroupTitleViewHolder(View itemView) {
         super(itemView);
-        tvTitle = (TextView) itemView.findViewById(R.id.tvTitle);
-        tvBalance = (ToggleableCurrencyDisplay) itemView.findViewById(R.id.tvBalance);
-        tvAccountsCount = (TextView) itemView.findViewById(R.id.tvAccountsCount);
-        expandIcon = (ImageView) itemView.findViewById(R.id.expand);
+        tvTitle = itemView.findViewById(R.id.tvTitle);
+        tvBalance = itemView.findViewById(R.id.tvBalance);
+        tvAccountsCount = itemView.findViewById(R.id.tvAccountsCount);
+        expandIcon = itemView.findViewById(R.id.expand);
     }
 }

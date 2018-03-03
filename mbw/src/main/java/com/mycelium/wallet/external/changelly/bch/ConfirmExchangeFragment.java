@@ -116,19 +116,19 @@ public class ConfirmExchangeFragment extends Fragment {
     void createAndSignTransaction() {
         long fromValue = ExactBitcoinCashValue.from(BigDecimal.valueOf(offer.amountFrom)).getLongValue();
 
-        this.lastOperationId = UUID.randomUUID().toString();
+        lastOperationId = UUID.randomUUID().toString();
         WalletAccount account = mbwManager.getSelectedAccount();
 
         switch (account.getType()) {
             case BCHBIP44: {
                 Bip44BCHAccount bip44BCHAccount = (Bip44BCHAccount) account;
-                Intent serviceIntent = IntentContract.SendFunds.createIntent(lastOperationId, bip44BCHAccount.getAccountIndex(), offer.payinAddress, fromValue, TransactionFee.NORMAL, (float) 1.0);
+                Intent serviceIntent = IntentContract.SendFunds.createIntent(lastOperationId, bip44BCHAccount.getAccountIndex(), offer.payinAddress, fromValue, TransactionFee.NORMAL, 1.0f);
                 WalletApplication.sendToSpv(serviceIntent, WalletAccount.Type.BCHBIP44);
                 break;
             }
             case BCHSINGLEADDRESS: {
                 SingleAddressBCHAccount bip44BCHAccount = (SingleAddressBCHAccount) account;
-                Intent service = IntentContract.SendFundsSingleAddress.createIntent(lastOperationId, bip44BCHAccount.getId().toString(), offer.payinAddress, fromValue, TransactionFee.NORMAL, (float) 1.0);
+                Intent service = IntentContract.SendFundsSingleAddress.createIntent(lastOperationId, bip44BCHAccount.getId().toString(), offer.payinAddress, fromValue, TransactionFee.NORMAL, 1.0f);
                 WalletApplication.sendToSpv(service, WalletAccount.Type.BCHSINGLEADDRESS);
                 break;
             }
@@ -210,12 +210,22 @@ public class ConfirmExchangeFragment extends Fragment {
 
     @Subscribe
     public void spvSendFundsResult(SpvSendFundsResult event) {
-        if (!event.operationId.equals(lastOperationId))
+        if (!event.operationId.equals(lastOperationId)) {
             return;
+        }
 
         if (!event.isSuccess) {
-            //TODO most probably we need UI dialog here to display the message
-            Log.e(TAG, "Send funds failed: " + event.message);
+            new AlertDialog.Builder(getActivity())
+                    .setTitle(R.string.error)
+                    .setMessage("Send funds failed: " + event.message)
+                    .setNegativeButton(R.string.close, null)
+                    .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                        @Override
+                        public void onDismiss(DialogInterface dialogInterface) {
+                            getActivity().finish();
+                        }
+                    })
+                    .create().show();
             return;
         }
         final Order order = new Order();
@@ -246,7 +256,7 @@ public class ConfirmExchangeFragment extends Fragment {
                                 .setSpendingAmount(order.exchangingAmount + " " + order.exchangingCurrency)
                                 .setSpendingAccountLabel(mbwManager.getMetadataStorage().getLabelByAccount(fromAccount.getId()))
                                 .build();
-                        String filePart = new SimpleDateFormat( "yyMMddHHmmss").format(new Date());
+                        String filePart = new SimpleDateFormat( "yyMMddHHmmss", Locale.US).format(new Date());
                         File pdfFile = new File(getActivity().getExternalFilesDir(DIRECTORY_DOWNLOADS), "exchange_bch_order_" + filePart + ".pdf");
                         try {
                             OutputStream pdfStream = new FileOutputStream(pdfFile);

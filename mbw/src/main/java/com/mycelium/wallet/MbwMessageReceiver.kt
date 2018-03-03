@@ -9,10 +9,6 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import com.google.common.base.CharMatcher
-import com.mrd.bitlib.model.OutPoint
-import com.mrd.bitlib.model.ScriptOutput
-import com.mrd.bitlib.model.TransactionOutput
-import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.modularizationtools.CommunicationManager
 import com.mycelium.modularizationtools.ModuleMessageReceiver
 import com.mycelium.modularizationtools.model.Module
@@ -61,13 +57,9 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
 
     @Suppress("UNCHECKED_CAST")
     private fun onMessageFromSpvModuleBch(intent: Intent, module: Module?) {
-
         val walletManager = MbwManager.getInstance(context).getWalletManager(false)
         when (intent.action) {
             "com.mycelium.wallet.notifySatoshisReceived" -> {
-                val satoshisReceived = intent.getLongExtra(IntentContract.SATOSHIS_RECEIVED, 0L)
-                val satoshisSent = intent.getLongExtra(IntentContract.SATOSHIS_SENT, 0L)
-                val mds = MbwManager.getInstance(context).metadataStorage
                 val accountsIndex = intent.getIntArrayExtra(IntentContract.ACCOUNTS_INDEX)
                 val walletAccounts = mutableListOf<WalletAccount>()
                 for(accountIndex in accountsIndex) {
@@ -75,15 +67,10 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                         it is Bip44BCHAccount && it.accountIndex == accountIndex
                     }
                 }
-                notifySatoshisReceived(satoshisReceived, satoshisSent, mds, walletAccounts)
+                notifySatoshisReceived()
             }
             "com.mycelium.wallet.notifySatoshisReceivedSingleAddress" -> {
-                val satoshisReceived = intent.getLongExtra(IntentContract.SATOSHIS_RECEIVED, 0L)
-                val satoshisSent = intent.getLongExtra(IntentContract.SATOSHIS_SENT, 0L)
-                val mds = MbwManager.getInstance(context).metadataStorage
-                val guid = intent.getStringExtra(IntentContract.SINGLE_ADDRESS_ACCOUNT_GUID)
-                val singleAddressAccount = walletManager.getAccount(UUID.fromString(guid))
-                notifySatoshisReceived(satoshisReceived, satoshisSent, mds, listOf(singleAddressAccount))
+                notifySatoshisReceived()
             }
 
             "com.mycelium.wallet.blockchainState" -> {
@@ -164,7 +151,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                     Log.w(TAG, "MbwMessageReceiver.onMessageFromSpvModuleBch, " +
                             "com.mycelium.wallet.requestSingleAddressPrivateKeyToMBW, " +
                             "privateKey must not be null.")
-                    return;
+                    return
                 }
                 val service = IntentContract.RequestSingleAddressPrivateKeyToSPV.createIntent(accountGuid, privateKey.privateKeyBytes)
                 WalletApplication.sendToSpv(service, BCHSINGLEADDRESS)
@@ -196,17 +183,15 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
         }
     }
 
-    private fun notifySatoshisReceived(satoshisReceived: Long, satoshisSent: Long, mds: MetadataStorage,
-                                       affectedAccounts: Collection<WalletAccount>) {
+    private fun notifySatoshisReceived() {
+        val mds = MbwManager.getInstance(context).metadataStorage
         val builder = Notification.Builder(context)
                 // TODO: bitcoin icon
                 .setSmallIcon(R.drawable.holo_dark_ic_action_new_usd_account)
                 .setContentTitle(context.getString(R.string.app_name))
         var contentText = "";
-        val accounts = ArrayList<WalletAccount>();
-        accounts.addAll(AccountManager.getBCHBip44Accounts().values)
-        accounts.addAll(AccountManager.getBCHSingleAddressAccounts().values)
-        for (account in accounts) {
+        for (account in AccountManager.getBCHBip44Accounts().values +
+                AccountManager.getBCHSingleAddressAccounts().values) {
             if (account.currencyBasedBalance.receiving.value.compareTo(BigDecimal.ZERO) > 0) {
                 contentText += buildLine(R.string.receiving, account.currencyBasedBalance.receiving
                         , mds.getLabelByAccount(account.id))
@@ -235,25 +220,8 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
         }
     }
 
-    private fun buildLine(action: Int, value: CurrencyValue, label:String): String {
-        return context.getString(action, "${value.value.toPlainString()} ${value.currency} ($label)\n")
-    }
-
-    private fun bitcoinJ2Bitlib(bitcoinJConnectedOutputs: Map<String, ByteArray>, networkBJ: NetworkParameters): Map<OutPoint, TransactionOutput> {
-        val connectedOutputs = HashMap<OutPoint, TransactionOutput>(bitcoinJConnectedOutputs.size)
-        for (id in bitcoinJConnectedOutputs.keys) {
-            val parts = id.split(":".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-            val hash = Sha256Hash.fromString(parts[0])
-            val index = Integer.parseInt(parts[1])
-            val outPoint = OutPoint(hash, index)
-            val bitcoinJTransactionOutput = org.bitcoinj.core.TransactionOutput(networkBJ, null, bitcoinJConnectedOutputs[id], 0)
-            val value = bitcoinJTransactionOutput.value.longValue()
-            val scriptBytes = bitcoinJTransactionOutput.scriptBytes
-            val transactionOutput = TransactionOutput(value, ScriptOutput.fromScriptBytes(scriptBytes))
-            connectedOutputs.put(outPoint, transactionOutput)
-        }
-        return connectedOutputs
-    }
+    private fun buildLine(action: Int, value: CurrencyValue, label:String) =
+            context.getString(action, "${value.value.toPlainString()} ${value.currency} ($label)\n")
 
     companion object {
         private val TAG = MbwMessageReceiver::class.java.canonicalName

@@ -1,9 +1,5 @@
 package com.mycelium.wallet.event;
 
-/**
- * Created by itserg on 22.02.18.
- */
-
 public class SpvSendFundsResult {
     public final String operationId;
     public final boolean isSuccess;

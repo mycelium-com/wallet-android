@@ -114,12 +114,11 @@ public class ToggleableCurrencyDisplay extends LinearLayout {
    protected void init(Context context) {
       LayoutInflater mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-      View view;
-      view = mInflater.inflate(R.layout.toggleable_currency_display, this, true);
+      View view = mInflater.inflate(R.layout.toggleable_currency_display, this, true);
 
-      tvCurrency = (TextView) view.findViewById(R.id.tvCurrency);
-      tvValue = (TextView) view.findViewById(R.id.tvDisplayValue);
-      llContainer = (LinearLayout) view.findViewById(R.id.llContainer);
+      tvCurrency = view.findViewById(R.id.tvCurrency);
+      tvValue = view.findViewById(R.id.tvDisplayValue);
+      llContainer = view.findViewById(R.id.llContainer);
    }
 
    private void setTextSize(int size) {

@@ -198,7 +198,7 @@ public class AddAdvancedAccountActivity extends Activity {
                     StringHandleConfig.returnKeyOrAddressOrHdNode(),
                     Utils.getClipboardString(AddAdvancedAccountActivity.this));
 
-            AddAdvancedAccountActivity.this.startActivityForResult(intent, CLIPBOARD_RESULT_CODE);
+            startActivityForResult(intent, CLIPBOARD_RESULT_CODE);
          }
       });
    }
@@ -228,8 +228,6 @@ public class AddAdvancedAccountActivity extends Activity {
                }
                int depth = hdKeyNode.getDepth();
                if (depth != 3) {
-                  // only BIP44 account level is accepted here. Unfortunately this will also reject the xpub key from
-                  // our current Mycelium iPhone app which is account level plus one (external chain).
                   String errorMessage = this.getString(R.string.import_xpub_wrong_depth, Integer.toString(depth));
                   new Toaster(this).toast(errorMessage, false);
                } else if (_mbwManager.getWalletManager(false).hasAccount(hdKeyNode.getUuid())){
@@ -443,7 +441,7 @@ public class AddAdvancedAccountActivity extends Activity {
       private ProgressDialog dialog;
       private boolean askUserForColorize = false;
 
-      public ImportReadOnlySingleAddressAccountAsyncTask(Address address, AccountType addressType) {
+      ImportReadOnlySingleAddressAccountAsyncTask(Address address, AccountType addressType) {
          this.address = address;
          this.addressType = addressType;
       }
@@ -539,7 +537,7 @@ public class AddAdvancedAccountActivity extends Activity {
       Intent result = new Intent();
       String accountType;
       UUID walletId = _mbwManager.getAccountId(address, null).get();
-      if (_mbwManager.getWalletManager(false).getAccount(walletId) instanceof Bip44Account) {
+      if (_mbwManager.getWalletManager(false).getAccount(walletId).getType().equals(WalletAccount.Type.BCHBIP44)) {
          accountType = "BTC HD account";
       } else {
          accountType = "BTC Single Address";
@@ -561,12 +559,13 @@ public class AddAdvancedAccountActivity extends Activity {
    }
 
    private void finishOk(UUID account, boolean isUpgrade) {
-      Intent result = new Intent();
-      result.putExtra(AddAccountActivity.RESULT_KEY, account);
-      result.putExtra(AddAccountActivity.IS_UPGRADE, isUpgrade);
+      Intent result = new Intent()
+              .putExtra(AddAccountActivity.RESULT_KEY, account)
+              .putExtra(AddAccountActivity.IS_UPGRADE, isUpgrade);
       setResult(RESULT_OK, result);
       finish();
    }
+
    enum AccountType {
       SA, Colu, Unknown
    }

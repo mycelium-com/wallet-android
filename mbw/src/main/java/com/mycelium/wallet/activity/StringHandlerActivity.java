@@ -117,7 +117,7 @@ public class StringHandlerActivity extends Activity {
    @Override
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
       if (Activity.RESULT_CANCELED == resultCode) {
-          if (SEND_INITIALIZATION_CODE == requestCode) {
+          if (requestCode == SEND_INITIALIZATION_CODE) {
              _mbwManager.forgetColdStorageWalletManager();
           }
          finishError(R.string.cancelled);

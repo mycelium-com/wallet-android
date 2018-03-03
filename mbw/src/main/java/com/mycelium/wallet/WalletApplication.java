@@ -82,7 +82,7 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         }
         super.onCreate();
         pairSpvModules(CommunicationManager.getInstance(this));
-        cleanModulesIfFirstRun(this, this.getSharedPreferences(BCHHelper.BCH_PREFS, MODE_PRIVATE));
+        cleanModulesIfFirstRun(this, getSharedPreferences(BCHHelper.BCH_PREFS, MODE_PRIVATE));
         moduleMessageReceiver = new MbwMessageReceiver(this);
         MbwManager mbwManager = MbwManager.getInstance(this);
         applyLanguageChange(getBaseContext(), mbwManager.getLanguage());
