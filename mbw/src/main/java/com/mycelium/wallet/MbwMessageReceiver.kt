@@ -134,7 +134,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
 
                     cointypeLevelDeterministicKey.creationTimeSeconds = creationTimeSeconds
                     val accountLevelKey = HDKeyDerivation.deriveChildKey(cointypeLevelDeterministicKey,
-                            ChildNumber(accountIndex, true), creationTimeSeconds)
+                            ChildNumber(accountIndex, true))
                     accountLevelKeys.add(accountLevelKey.serializePubB58(networkParameters))
                 }
 
