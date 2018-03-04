@@ -15,9 +15,5 @@ public class ColuSendAsset {
 
         @Key
         public List<String> from;
-
-
-
-
     }
 }

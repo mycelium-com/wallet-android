@@ -31,13 +31,11 @@ public class Tx {
         @Key
         public String _id;
 
-
         @Key
         public String hex;
 
         @Key
         public String txid;
-
 
         @Key
         public String hash;
