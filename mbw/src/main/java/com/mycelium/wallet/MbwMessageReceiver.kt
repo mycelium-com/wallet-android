@@ -105,7 +105,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 val accountIndexes = intent.getIntArrayExtra(IntentContract.ACCOUNT_INDEXES_EXTRA)
                 val creationTimeSeconds = intent.getLongExtra(IntentContract.CREATIONTIMESECONDS, 0)
                 Log.d(TAG, "com.mycelium.wallet.requestAccountLevelKeysToMBW, " +
-                        "accountIndexes = $accountIndexes")
+                        "accountIndexes.size = ${accountIndexes.size}")
                 if (accountIndexes == null) {
                     Log.e(TAG, "Account Indexes required!")
                     return
@@ -117,6 +117,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                     val masterSeed = mbwManager.getWalletManager(false)
                             .getMasterSeed(AesKeyCipher.defaultKeyCipher())
                     val masterDeterministicKey : DeterministicKey = HDKeyDerivation.createMasterPrivateKey(masterSeed.bip32Seed)
+                    masterDeterministicKey.creationTimeSeconds = creationTimeSeconds
                     val bip44LevelDeterministicKey = HDKeyDerivation.deriveChildKey(
                             masterDeterministicKey, ChildNumber(44, true))
                     val coinType = if (mbwManager.network.isTestnet) {
@@ -132,7 +133,6 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                         NetworkParameters.ID_MAINNET
                     })!!
 
-                    cointypeLevelDeterministicKey.creationTimeSeconds = creationTimeSeconds
                     val accountLevelKey = HDKeyDerivation.deriveChildKey(cointypeLevelDeterministicKey,
                             ChildNumber(accountIndex, true))
                     accountLevelKeys.add(accountLevelKey.serializePubB58(networkParameters))
