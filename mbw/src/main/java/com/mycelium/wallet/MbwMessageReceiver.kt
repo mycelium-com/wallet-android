@@ -9,6 +9,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import com.google.common.base.CharMatcher
+import com.mrd.bitlib.StandardTransactionBuilder
 import com.mrd.bitlib.model.Address
 import com.mycelium.modularizationtools.CommunicationManager
 import com.mycelium.modularizationtools.ModuleMessageReceiver
@@ -20,6 +21,7 @@ import com.mycelium.wallet.event.SpvSendFundsResult
 import com.mycelium.wallet.event.SpvSyncChanged
 import com.mycelium.wallet.persistence.MetadataStorage
 import com.mycelium.wapi.wallet.AesKeyCipher
+import com.mycelium.wapi.wallet.KeyCipher
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.WalletAccount.Type.BCHBIP44
 import com.mycelium.wapi.wallet.WalletAccount.Type.BCHSINGLEADDRESS
@@ -29,10 +31,7 @@ import com.mycelium.wapi.wallet.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.currency.CurrencyValue
 import com.mycelium.wapi.wallet.single.SingleAddressAccount
 import com.squareup.otto.Bus
-import org.bitcoinj.core.ECKey
-import org.bitcoinj.core.NetworkParameters
-import org.bitcoinj.core.Sha256Hash
-import org.bitcoinj.core.Transaction
+import org.bitcoinj.core.*
 import org.bitcoinj.crypto.ChildNumber
 import org.bitcoinj.crypto.DeterministicKey
 import org.bitcoinj.crypto.HDKeyDerivation
@@ -206,6 +205,33 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 signer.signInputs(proposedTransaction, KeyChainGroup(networkParameters, deterministicKey, false))
                 val service = IntentContract.SendSignedTransactionToSPV.createIntent(accountIndex, proposedTransaction.partialTx.bitcoinSerialize())
                 WalletApplication.sendToSpv(service, BCHBIP44)
+            }
+            "com.mycelium.wallet.sendUnsignedTransactionToMbwSingleAddress" -> {
+                val accountGuid = intent.getStringExtra(IntentContract.SINGLE_ADDRESS_ACCOUNT_GUID)
+                val transactionHash = intent.getStringExtra(IntentContract.TRANSACTION_HASH)
+                val mbwManager = MbwManager.getInstance(context)
+                val networkParameters = NetworkParameters.fromID(if (mbwManager.network.isTestnet) {
+                    NetworkParameters.ID_TESTNET
+                } else {
+                    NetworkParameters.ID_MAINNET
+                })!!
+
+
+                val transaction = Transaction(networkParameters, Sha256Hash.wrap(transactionHash).bytes)
+                val account = mbwManager.getWalletManager(false).getAccount(UUID.fromString(accountGuid)) as SingleAddressAccount
+
+                val privateKeyBase58 = account.getPrivateKey(AesKeyCipher.defaultKeyCipher()).getBase58EncodedPrivateKey(mbwManager.network)
+                val keyList = ArrayList<ECKey>()
+                keyList.add(DumpedPrivateKey.fromBase58(networkParameters, privateKeyBase58).getKey())
+
+                val group = KeyChainGroup(networkParameters)
+                group.importKeys(keyList)
+
+                val proposedTransaction = TransactionSigner.ProposedTransaction(transaction)
+                val signer = LocalTransactionSigner()
+                signer.signInputs(proposedTransaction, group)
+
+                //TODO create intent to send signed transaction
             }
             null -> Log.w(TAG, "onMessage failed. No action defined.")
             else -> Log.e(TAG, "onMessage failed. Unknown action ${intent.action}")
