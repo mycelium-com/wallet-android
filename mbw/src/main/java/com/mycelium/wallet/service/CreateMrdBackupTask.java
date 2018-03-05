@@ -131,6 +131,7 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
             } else {
                _archived.add(entry);
             }
+            storage.setOtherAccountBackupState(account.getId(), MetadataStorage.BackupState.NOT_VERIFIED);
          } else if (account instanceof ColuAccount) {
             EntryToExport entry;
             ColuAccount a = (ColuAccount) account;
@@ -146,6 +147,7 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
             } else {
                _archived.add(entry);
             }
+            storage.setOtherAccountBackupState(account.getId(), MetadataStorage.BackupState.NOT_VERIFIED);
          }
       }
 

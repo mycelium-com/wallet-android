@@ -21,17 +21,39 @@
             android:text="@string/secure_my_funds"
             android:textSize="13dp" />
 
-        <Button
-            style="@style/MyceliumButtonModern"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/margin_large"
-            android:background="@drawable/background_backup"
-            android:paddingBottom="@dimen/margin_large"
-            android:clickable="false"
-            android:paddingTop="@dimen/margin_large"
-            android:text="@string/backup"
-            android:textColor="@color/white" />
+            android:orientation="vertical"
+            android:padding="8dp">
+
+            <Button
+                android:id="@+id/btnVerify"
+                style="@style/MyceliumButtonModern"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/background_backup"
+                android:clickable="false"
+                android:paddingBottom="8dp"
+                android:paddingTop="8dp"
+                android:text="verify"
+                android:textColor="@color/white"
+                android:visibility="gone"/>
+
+            <Button
+                android:id="@+id/btnSecond"
+                style="@style/MyceliumButtonModern"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/background_backup"
+                android:clickable="false"
+                android:paddingBottom="8dp"
+                android:paddingTop="8dp"
+                android:text="@string/backup"
+                android:textColor="@color/white" />
+        </LinearLayout>
+
     </LinearLayout>
 
 
