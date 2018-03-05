@@ -20,5 +20,5 @@ dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.5.1'
     testImplementation "junit:junit:$junitVersion"
     implementation guavaArtifact
-    implementation 'org.bitcoinj:bitcoinj-core:0.14.5'
+    implementation 'org.bitcoincashj:bitcoincashj-core:0.14.5'
 }

@@ -117,16 +117,18 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                     val masterSeed = mbwManager.getWalletManager(false)
                             .getMasterSeed(AesKeyCipher.defaultKeyCipher())
                     val masterDeterministicKey : DeterministicKey = HDKeyDerivation.createMasterPrivateKey(masterSeed.bip32Seed)
-                    masterDeterministicKey.creationTimeSeconds = creationTimeSeconds
+                    masterDeterministicKey.creationTimeSeconds
                     val bip44LevelDeterministicKey = HDKeyDerivation.deriveChildKey(
-                            masterDeterministicKey, ChildNumber(44, true))
+                            masterDeterministicKey, ChildNumber(44, true),
+                            creationTimeSeconds)
                     val coinType = if (mbwManager.network.isTestnet) {
                         1 //Bitcoin Testnet https://github.com/satoshilabs/slips/blob/master/slip-0044.md
                     } else {
                         0 //Bitcoin Mainnet https://github.com/satoshilabs/slips/blob/master/slip-0044.md
                     }
                     val cointypeLevelDeterministicKey =
-                            HDKeyDerivation.deriveChildKey(bip44LevelDeterministicKey, ChildNumber(coinType, true))
+                            HDKeyDerivation.deriveChildKey(bip44LevelDeterministicKey,
+                                    ChildNumber(coinType, true), creationTimeSeconds)
                     val networkParameters = NetworkParameters.fromID(if (mbwManager.network.isTestnet) {
                         NetworkParameters.ID_TESTNET
                     } else {
@@ -134,7 +136,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                     })!!
 
                     val accountLevelKey = HDKeyDerivation.deriveChildKey(cointypeLevelDeterministicKey,
-                            ChildNumber(accountIndex, true))
+                            ChildNumber(accountIndex, true), creationTimeSeconds)
                     accountLevelKeys.add(accountLevelKey.serializePubB58(networkParameters))
                 }
 

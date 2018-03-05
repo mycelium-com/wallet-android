@@ -94,7 +94,8 @@ dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.8.4'
     implementation 'com.madgag.spongycastle:core:1.58.0.0'
     implementation 'com.madgag.spongycastle:prov:1.58.0.0'
-    implementation 'org.bitcoinj:bitcoinj-core:0.15-SNAPSHOT'
+    implementation 'org.bitcoincashj:bitcoincashj-core:0.14.5'
+
 }
 
 android {
