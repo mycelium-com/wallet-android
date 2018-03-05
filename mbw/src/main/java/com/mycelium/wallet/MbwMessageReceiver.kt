@@ -9,6 +9,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import com.google.common.base.CharMatcher
+import com.mrd.bitlib.model.Address
 import com.mycelium.modularizationtools.CommunicationManager
 import com.mycelium.modularizationtools.ModuleMessageReceiver
 import com.mycelium.modularizationtools.model.Module
@@ -28,10 +29,18 @@ import com.mycelium.wapi.wallet.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.currency.CurrencyValue
 import com.mycelium.wapi.wallet.single.SingleAddressAccount
 import com.squareup.otto.Bus
+import org.bitcoinj.core.ECKey
 import org.bitcoinj.core.NetworkParameters
+import org.bitcoinj.core.Sha256Hash
+import org.bitcoinj.core.Transaction
 import org.bitcoinj.crypto.ChildNumber
 import org.bitcoinj.crypto.DeterministicKey
 import org.bitcoinj.crypto.HDKeyDerivation
+import org.bitcoinj.signers.LocalTransactionSigner
+import org.bitcoinj.signers.TransactionSigner
+import org.bitcoinj.wallet.KeyBag
+import org.bitcoinj.wallet.KeyChainGroup
+import org.bitcoinj.wallet.RedeemData
 import java.math.BigDecimal
 import java.util.*
 import kotlin.collections.ArrayList
@@ -91,36 +100,50 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 Handler(Looper.getMainLooper()).post(runnable)
             }
 
-            "com.mycelium.wallet.requestPrivateExtendedKeyCoinTypeToMBW" -> {
+            "com.mycelium.wallet.requestAccountLevelKeysToMBW" -> {
                 val mbwManager = MbwManager.getInstance(context)
-                val accountIndex = intent.getIntExtra(IntentContract.ACCOUNT_INDEX_EXTRA, -1)
-                Log.d(TAG, "com.mycelium.wallet.requestPrivateExtendedKeyCoinTypeToMBW, " +
-                        "accountIndex = $accountIndex")
-                if (accountIndex == -19) {
-                    Log.e(TAG, "Account Index required!")
+                val accountIndexes = intent.getIntArrayExtra(IntentContract.ACCOUNT_INDEXES_EXTRA)
+                val creationTimeSeconds = intent.getLongExtra(IntentContract.CREATIONTIMESECONDS, 0)
+                Log.d(TAG, "com.mycelium.wallet.requestAccountLevelKeysToMBW, " +
+                        "accountIndexes.size = ${accountIndexes.size}")
+                if (accountIndexes == null) {
+                    Log.e(TAG, "Account Indexes required!")
                     return
                 }
-                val masterSeed = mbwManager.getWalletManager(false).getMasterSeed(AesKeyCipher.defaultKeyCipher())
+                val accountLevelKeys: MutableList<String> = mutableListOf()
+                val accountIndexesIterator = accountIndexes.iterator()
+                while (accountIndexesIterator.hasNext()) {
+                    val accountIndex = accountIndexesIterator.nextInt()
+                    val masterSeed = mbwManager.getWalletManager(false)
+                            .getMasterSeed(AesKeyCipher.defaultKeyCipher())
+                    val masterDeterministicKey : DeterministicKey = HDKeyDerivation.createMasterPrivateKey(masterSeed.bip32Seed)
+                    masterDeterministicKey.creationTimeSeconds
+                    val bip44LevelDeterministicKey = HDKeyDerivation.deriveChildKey(
+                            masterDeterministicKey, ChildNumber(44, true),
+                            creationTimeSeconds)
+                    val coinType = if (mbwManager.network.isTestnet) {
+                        1 //Bitcoin Testnet https://github.com/satoshilabs/slips/blob/master/slip-0044.md
+                    } else {
+                        0 //Bitcoin Mainnet https://github.com/satoshilabs/slips/blob/master/slip-0044.md
+                    }
+                    val cointypeLevelDeterministicKey =
+                            HDKeyDerivation.deriveChildKey(bip44LevelDeterministicKey,
+                                    ChildNumber(coinType, true), creationTimeSeconds)
+                    val networkParameters = NetworkParameters.fromID(if (mbwManager.network.isTestnet) {
+                        NetworkParameters.ID_TESTNET
+                    } else {
+                        NetworkParameters.ID_MAINNET
+                    })!!
 
-                val masterDeterministicKey : DeterministicKey = HDKeyDerivation.createMasterPrivateKey(masterSeed.bip32Seed)
-                val bip44LevelDeterministicKey = HDKeyDerivation.deriveChildKey(
-                        masterDeterministicKey, ChildNumber(44, true))
-                val coinType = if (mbwManager.network.isTestnet) {
-                    1 //Bitcoin Testnet https://github.com/satoshilabs/slips/blob/master/slip-0044.md
-                } else {
-                    0 //Bitcoin Mainnet https://github.com/satoshilabs/slips/blob/master/slip-0044.md
+                    val accountLevelKey = HDKeyDerivation.deriveChildKey(cointypeLevelDeterministicKey,
+                            ChildNumber(accountIndex, true), creationTimeSeconds)
+                    accountLevelKeys.add(accountLevelKey.serializePubB58(networkParameters))
                 }
-                val cointypeLevelDeterministicKey =
-                        HDKeyDerivation.deriveChildKey(bip44LevelDeterministicKey, ChildNumber(coinType, true))
-                val networkParameters = NetworkParameters.fromID(if (mbwManager.network.isTestnet) {
-                    NetworkParameters.ID_TESTNET
-                } else {
-                    NetworkParameters.ID_MAINNET
-                })!!
+
                 //val bip39PassphraseList : ArrayList<String> = ArrayList(masterSeed.bip39WordList)
-                val service = IntentContract.RequestPrivateExtendedKeyCoinTypeToSPV.createIntent(
-                        accountIndex,
-                        cointypeLevelDeterministicKey.serializePrivB58(networkParameters),
+                val service = IntentContract.RequestAccountLevelKeysToSPV.createIntent(
+                        ArrayList(accountIndexes.toList()),
+                        ArrayList(accountLevelKeys.toList()),
                         1504664986L) //TODO Change value after test. Nelson
                 WalletApplication.sendToSpv(service, BCHBIP44)
             }
@@ -153,6 +176,36 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                     eventBus.post(SpvSendFundsResult(operationId, txHash, isSuccess, message))
                 }
                 Handler(Looper.getMainLooper()).post(runnable)
+            }
+            "com.mycelium.wallet.sendUnsignedTransactionToMbw" -> {
+                val accountIndex = intent.getIntExtra(IntentContract.ACCOUNT_INDEX_EXTRA, -1)
+                val transactionHash = intent.getStringExtra(IntentContract.TRANSACTION_HASH)
+                val mbwManager = MbwManager.getInstance(context)
+                val networkParameters = NetworkParameters.fromID(if (mbwManager.network.isTestnet) {
+                    NetworkParameters.ID_TESTNET
+                } else {
+                    NetworkParameters.ID_MAINNET
+                })!!
+                val transaction = Transaction(networkParameters, Sha256Hash.wrap(transactionHash).bytes)
+                val account = mbwManager.getWalletManager(false).getBip44Account(accountIndex) as Bip44Account
+                val privateKey = account.getPrivateKeyForAddress(Address.fromString(transaction.inputs.get(0).fromAddress.toString()),
+                        AesKeyCipher.defaultKeyCipher())
+                if (privateKey == null) {
+                    Log.w(TAG, "MbwMessageReceiver.onMessageFromSpvModuleBch, " +
+                            "com.mycelium.wallet.sendUnsignedTransactionToMbw, " +
+                            "privateKey must not be null.")
+                    return
+                }
+                val deterministicKey = DeterministicKey
+                        .deserializeB58(privateKey.getBase58EncodedPrivateKey(mbwManager.network), networkParameters)
+
+
+                // Sign the transaction
+                val proposedTransaction = TransactionSigner.ProposedTransaction(transaction)
+                val signer = LocalTransactionSigner()
+                signer.signInputs(proposedTransaction, KeyChainGroup(networkParameters, deterministicKey, false))
+                val service = IntentContract.SendSignedTransactionToSPV.createIntent(accountIndex, proposedTransaction.partialTx.bitcoinSerialize())
+                WalletApplication.sendToSpv(service, BCHBIP44)
             }
             null -> Log.w(TAG, "onMessage failed. No action defined.")
             else -> Log.e(TAG, "onMessage failed. Unknown action ${intent.action}")
