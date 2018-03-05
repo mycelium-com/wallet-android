@@ -182,9 +182,7 @@ public class TransactionHistoryFragment extends Fragment {
    @Override
    public void onResume() {
       _mbwManager.getEventBus().register(this);
-      if (_mbwManager.getWalletManager(false).getState() == WalletManager.State.READY) {
-         updateTransactionHistory();
-      }
+      updateTransactionHistory();
       super.onResume();
    }
 
@@ -617,9 +615,7 @@ public class TransactionHistoryFragment extends Fragment {
       protected void appendCachedData() {
          synchronized (_toAddLock) {
             TransactionHistoryAdapter a = (TransactionHistoryAdapter) getWrappedAdapter();
-            for (TransactionSummary item : _toAdd) {
-               a.add(item);
-            }
+            a.addAll(_toAdd);
             _toAdd.clear();
          }
       }
