@@ -178,14 +178,14 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
             }
             "com.mycelium.wallet.sendUnsignedTransactionToMbw" -> {
                 val accountIndex = intent.getIntExtra(IntentContract.ACCOUNT_INDEX_EXTRA, -1)
-                val transactionHash = intent.getStringExtra(IntentContract.TRANSACTION_HASH)
+                val transactionBytes = intent.getByteArrayExtra(IntentContract.TRANSACTION_BYTES)
                 val mbwManager = MbwManager.getInstance(context)
                 val networkParameters = NetworkParameters.fromID(if (mbwManager.network.isTestnet) {
                     NetworkParameters.ID_TESTNET
                 } else {
                     NetworkParameters.ID_MAINNET
                 })!!
-                val transaction = Transaction(networkParameters, Sha256Hash.wrap(transactionHash).bytes)
+                val transaction = Transaction(networkParameters, transactionBytes)
                 val account = mbwManager.getWalletManager(false).getBip44Account(accountIndex) as Bip44Account
                 val privateKey = account.getPrivateKeyForAddress(Address.fromString(transaction.inputs.get(0).fromAddress.toString()),
                         AesKeyCipher.defaultKeyCipher())
