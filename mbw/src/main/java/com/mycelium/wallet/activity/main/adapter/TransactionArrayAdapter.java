@@ -1,4 +1,4 @@
-package com.mycelium.wallet.activity.main;
+package com.mycelium.wallet.activity.main.adapter;
 
 import android.content.Context;
 import android.content.SharedPreferences;

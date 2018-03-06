@@ -33,7 +33,7 @@ public class BCHHelper {
     public static void firstBCHPages(final Context context) {
         final Module bchModule = GooglePlayModuleCollection.getModules(context).get("bch");
         final SharedPreferences sharedPreferences = context.getSharedPreferences(BCH_PREFS, MODE_PRIVATE);
-        boolean moduleBCHInstalled = CommunicationManager.getInstance(context).getPairedModules().contains(bchModule);
+        final boolean moduleBCHInstalled = isModulePaired(context);
         if (!sharedPreferences.getBoolean(BCH_FIRST_UPDATE, false) && !moduleBCHInstalled) {
             new AlertDialog.Builder(context)
             .setTitle(R.string.first_modulization_title)
@@ -109,6 +109,11 @@ public class BCHHelper {
             .create().show();
         }
         sharedPreferences.edit().putBoolean(IS_FIRST_SYNC, false).apply();
+    }
+
+    public static boolean isModulePaired (Context context) {
+        final Module bchModule = GooglePlayModuleCollection.getModules(context).get("bch");
+        return CommunicationManager.getInstance(context).getPairedModules().contains(bchModule);
     }
 
     public static int getBCHSyncProgress(Context context) {
