@@ -4,3 +4,6 @@
 [submodule "modulespvbch"]
 	path = modulespvbch
 	url = git@github.com:mycelium-com/wallet-android-spvmodule-bch.git
+[submodule "bitcoincashj"]
+	path = bitcoincashj
+	url = git@github.com:mycelium-com/bitcoincashj.git
