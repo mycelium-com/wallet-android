@@ -36,7 +36,6 @@ package com.mycelium.wallet.service;
 
 import android.content.Context;
 
-import com.google.common.base.Optional;
 import com.mrd.bitlib.crypto.MrdExport;
 import com.mrd.bitlib.crypto.MrdExport.V1.EncryptionParameters;
 import com.mrd.bitlib.crypto.MrdExport.V1.KdfParameters;
@@ -106,13 +105,14 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
          accounts.add(walletManager.getAccount(id));
       }
       accounts = Utils.sortAccounts(accounts, storage);
+      EntryToExport entry;
       for (WalletAccount account : accounts) {
          //TODO: add check whether coluaccount is in hd or singleaddress mode
+         entry = null;
          if (account instanceof SingleAddressAccount) {
             if (!account.isVisible()) {
                continue;
             }
-            EntryToExport entry;
             SingleAddressAccount a = (SingleAddressAccount) account;
             Address address = a.getAddress();
             String label = storage.getLabelByAccount(a.getId());
@@ -126,14 +126,7 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
                }
             }
             entry = new EntryToExport(address.toString(), base58EncodedPrivateKey, label, account.getType());
-            if (a.isActive()) {
-               _active.add(entry);
-            } else {
-               _archived.add(entry);
-            }
-            storage.setOtherAccountBackupState(account.getId(), MetadataStorage.BackupState.NOT_VERIFIED);
          } else if (account instanceof ColuAccount) {
-            EntryToExport entry;
             ColuAccount a = (ColuAccount) account;
             String label = storage.getLabelByAccount(a.getId());
             String base58EncodedPrivateKey = null;
@@ -142,12 +135,16 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
                base58EncodedPrivateKey = a.getPrivateKey().getBase58EncodedPrivateKey(network);
             }
             entry = new EntryToExport(address.toString(), base58EncodedPrivateKey, label, account.getType());
-            if (a.isActive()) {
+         }
+         if (entry != null) {
+            if (account.isActive()) {
                _active.add(entry);
             } else {
                _archived.add(entry);
             }
-            storage.setOtherAccountBackupState(account.getId(), MetadataStorage.BackupState.NOT_VERIFIED);
+            if (storage.getOtherAccountBackupState(account.getId()) != MetadataStorage.BackupState.VERIFIED) {
+               storage.setOtherAccountBackupState(account.getId(), MetadataStorage.BackupState.NOT_VERIFIED);
+            }
          }
       }
 

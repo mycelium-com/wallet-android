@@ -210,19 +210,6 @@ public class NoticeFragment extends Fragment {
       }
    };
 
-   private OnClickListener secondButtonClickListener = new OnClickListener() {
-      @Override
-      public void onClick(View v) {
-         switch (_notice) {
-            case SINGLEKEY_VERIFY_MISSING:
-               showSingleKeyBackupWarning();
-               break;
-            default:
-               break;
-         }
-      }
-   };
-
    private void showPinResetWarning() {
       Optional<Integer> resetPinRemainingBlocksCount = _mbwManager.getResetPinRemainingBlocksCount();
 
