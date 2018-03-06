@@ -197,13 +197,12 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 }
                 val deterministicKey = DeterministicKey
                         .deserializeB58(privateKey.getBase58EncodedPrivateKey(mbwManager.network), networkParameters)
-
-
                 // Sign the transaction
                 val proposedTransaction = TransactionSigner.ProposedTransaction(transaction)
                 val signer = LocalTransactionSigner()
                 signer.signInputs(proposedTransaction, KeyChainGroup(networkParameters, deterministicKey, false))
-                val service = IntentContract.SendSignedTransactionToSPV.createIntent(accountIndex, proposedTransaction.partialTx.bitcoinSerialize())
+                val service = IntentContract.SendSignedTransactionToSPV.createIntent(accountIndex,
+                        proposedTransaction.partialTx.bitcoinSerialize())
                 WalletApplication.sendToSpv(service, BCHBIP44)
             }
             "com.mycelium.wallet.sendUnsignedTransactionToMbwSingleAddress" -> {
