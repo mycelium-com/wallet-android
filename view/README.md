@@ -1,1 +1,1 @@
-This project module coshould contains common Mycelium UI elements and styles
+This project module should contains common Mycelium UI elements and styles
