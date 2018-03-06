@@ -34,7 +34,6 @@
 
 package com.mycelium.wallet;
 
-import java.security.Security;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -49,6 +48,7 @@ import com.mycelium.modularizationtools.ModuleMessageReceiver;
 import com.mycelium.wallet.modularisation.BCHHelper;
 import com.mycelium.wapi.wallet.WalletAccount;
 
+import java.security.Security;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -95,7 +95,7 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
     }
 
     private void cleanModulesIfFirstRun(Context context, SharedPreferences sharedPreferences) {
-        if (!sharedPreferences.getBoolean(BCHHelper.BCH_FIRST_UPDATE, false)) {
+        if (!sharedPreferences.getBoolean(BCHHelper.BCH_FIRST_UPDATE, false) && BCHHelper.isModulePaired(context)) {
             MbwManager.getInstance(context).getSpvBchFetcher().forceCleanCache();
         }
     }
