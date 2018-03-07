@@ -76,6 +76,8 @@ import butterknife.OnClick;
 public class NoticeFragment extends Fragment {
 
    public static final String LATER_CLICK_TIME = "later_click_time";
+   public static final String NOTICE = "notice";
+   private static final String LATER_CLICK_TIME_MASTER_SEED = "later_click_time_master_seed";
 
    private enum Notice {
       BACKUP_MISSING
@@ -111,7 +113,7 @@ public class NoticeFragment extends Fragment {
    public void onCreate(Bundle savedInstanceState) {
       setHasOptionsMenu(false);
       super.onCreate(savedInstanceState);
-      sharedPreferences = getActivity().getSharedPreferences("notice", Context.MODE_PRIVATE);
+      sharedPreferences = getActivity().getSharedPreferences(NOTICE, Context.MODE_PRIVATE);
    }
 
    @Override
@@ -200,6 +202,13 @@ public class NoticeFragment extends Fragment {
             sharedPreferences.edit()
                     .putLong(LATER_CLICK_TIME + account.getId(), System.currentTimeMillis())
                     .apply();
+            break;
+         case BACKUP_MISSING:
+            backupMissingLayout.setVisibility(View.GONE);
+            sharedPreferences.edit()
+                    .putLong(LATER_CLICK_TIME_MASTER_SEED, System.currentTimeMillis())
+                    .apply();
+            break;
          default:
             break;
       }
@@ -354,25 +363,24 @@ public class NoticeFragment extends Fragment {
       _root.findViewById(R.id.btPinResetNotice).setVisibility(_notice == Notice.RESET_PIN_AVAILABLE || _notice == Notice.RESET_PIN_IN_PROGRESS ? View.VISIBLE : View.GONE);
       WalletAccount account = _mbwManager.getSelectedAccount();
       // Only show the "Secure My Funds" button when necessary
-      backupMissingLayout.setVisibility(_notice == Notice.BACKUP_MISSING
-              || (_notice == Notice.SINGLEKEY_BACKUP_MISSING
-              && TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis() - sharedPreferences.getLong(LATER_CLICK_TIME + account.getId(), 0)) > 1)
+      backupMissingLayout.setVisibility(
+              (_notice == Notice.BACKUP_MISSING && TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis() - sharedPreferences.getLong(LATER_CLICK_TIME_MASTER_SEED, 0)) > 1)
+              || (_notice == Notice.SINGLEKEY_BACKUP_MISSING && TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis() - sharedPreferences.getLong(LATER_CLICK_TIME + account.getId(), 0)) > 1)
               || _notice == Notice.SINGLEKEY_VERIFY_MISSING
               ? View.VISIBLE : View.GONE);
-      btnFirst.setVisibility(View.GONE);
+
       if(_notice == Notice.SINGLEKEY_VERIFY_MISSING) {
          backupMissing.setText(R.string.singlekey_verify_notice);
-         btnFirst.setVisibility(View.VISIBLE);
          btnFirst.setText(R.string.verify);
          btnSecond.setText(R.string.backup);
       } else if(_notice == Notice.SINGLEKEY_BACKUP_MISSING) {
-//         ((TextView)_root.findViewById(R.id.btBackupMissing)).setText(getString(R.string.create_backup));
          backupMissing.setText(R.string.single_address_backup_missing);
-         btnFirst.setVisibility(View.VISIBLE);
          btnFirst.setText(R.string.backup_now);
          btnSecond.setText(R.string.backup_later);
       } else if(_notice == Notice.BACKUP_MISSING) {
          backupMissing.setText(R.string.wallet_backup_missing);
+         btnFirst.setText(R.string.backup_now);
+         btnSecond.setText(R.string.backup_later);
       }
 
       // Only show the heartbleed warning when necessary
