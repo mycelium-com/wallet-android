@@ -85,10 +85,9 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                             it!!.blockChainHeight = bestChainHeight
                         }
                 // Defines a Handler object that's attached to the UI thread
-                val runnable = Runnable {
+                Handler(Looper.getMainLooper()).post {
                     eventBus.post(SpvSyncChanged(module, Date(bestChainDate), bestChainHeight.toLong(), chainDownloadPercentDone))
                 }
-                Handler(Looper.getMainLooper()).post(runnable)
             }
 
             "com.mycelium.wallet.requestPrivateExtendedKeyCoinTypeToMBW" -> {
@@ -149,10 +148,9 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 val txHash = intent.getStringExtra(IntentContract.TRANSACTION_HASH)
                 val isSuccess = intent.getBooleanExtra(IntentContract.IS_SUCCESS, false)
                 val message = intent.getStringExtra(IntentContract.MESSAGE)
-                val runnable = Runnable {
+                Handler(Looper.getMainLooper()).post {
                     eventBus.post(SpvSendFundsResult(operationId, txHash, isSuccess, message))
                 }
-                Handler(Looper.getMainLooper()).post(runnable)
             }
             null -> Log.w(TAG, "onMessage failed. No action defined.")
             else -> Log.e(TAG, "onMessage failed. Unknown action ${intent.action}")

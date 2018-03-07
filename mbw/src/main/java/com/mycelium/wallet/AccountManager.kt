@@ -1,5 +1,7 @@
 package com.mycelium.wallet
 
+import android.os.Handler
+import android.os.Looper
 import com.google.common.collect.ImmutableMap
 import com.mycelium.wallet.event.AccountChanged
 import com.mycelium.wallet.event.SelectedAccountChanged
@@ -17,8 +19,10 @@ object AccountManager : AccountProvider {
     val masterSeedAccounts: HashMap<UUID, WalletAccount> = hashMapOf()
 
     init {
-        MbwManager.getInstance(WalletApplication.getInstance()).eventBus.register(this);
-        fillAccounts()
+        Handler(Looper.getMainLooper()).post({
+            MbwManager.getInstance(WalletApplication.getInstance()).eventBus.register(this);
+            fillAccounts()
+        })
     }
 
     private fun fillAccounts() {
