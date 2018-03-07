@@ -37,7 +37,9 @@ package com.mycelium.wallet.activity.main;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -45,6 +47,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.common.base.Optional;
@@ -64,11 +67,15 @@ import com.mycelium.wapi.wallet.bip44.Bip44Account;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.squareup.otto.Subscribe;
 
+import java.util.concurrent.TimeUnit;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class NoticeFragment extends Fragment {
+
+   public static final String LATER_CLICK_TIME = "later_click_time";
 
    private enum Notice {
       BACKUP_MISSING
@@ -79,12 +86,19 @@ public class NoticeFragment extends Fragment {
    private MbwManager _mbwManager;
    private View _root;
    private Notice _notice;
+   private SharedPreferences sharedPreferences;
 
    @BindView(R.id.tvBackupMissing)
    TextView backupMissing;
 
    @BindView(R.id.backup_missing_layout)
    View backupMissingLayout;
+
+   @BindView(R.id.btnFirst)
+   Button btnFirst;
+
+   @BindView(R.id.btnSecond)
+   Button btnSecond;
 
    @Override
    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -97,6 +111,7 @@ public class NoticeFragment extends Fragment {
    public void onCreate(Bundle savedInstanceState) {
       setHasOptionsMenu(false);
       super.onCreate(savedInstanceState);
+      sharedPreferences = getActivity().getSharedPreferences("notice", Context.MODE_PRIVATE);
    }
 
    @Override
@@ -175,10 +190,16 @@ public class NoticeFragment extends Fragment {
 
    @OnClick(R.id.btnSecond)
    void secondButtonClick() {
+      WalletAccount account = _mbwManager.getSelectedAccount();
       switch (_notice) {
          case SINGLEKEY_VERIFY_MISSING:
             showSingleKeyBackupWarning();
             break;
+         case SINGLEKEY_BACKUP_MISSING:
+            backupMissingLayout.setVisibility(View.GONE);
+            sharedPreferences.edit()
+                    .putLong(LATER_CLICK_TIME + account.getId(), System.currentTimeMillis())
+                    .apply();
          default:
             break;
       }
@@ -331,19 +352,25 @@ public class NoticeFragment extends Fragment {
 
       // Show button, that a PIN reset is in progress and allow to abort it
       _root.findViewById(R.id.btPinResetNotice).setVisibility(_notice == Notice.RESET_PIN_AVAILABLE || _notice == Notice.RESET_PIN_IN_PROGRESS ? View.VISIBLE : View.GONE);
-
+      WalletAccount account = _mbwManager.getSelectedAccount();
       // Only show the "Secure My Funds" button when necessary
       backupMissingLayout.setVisibility(_notice == Notice.BACKUP_MISSING
-              || _notice == Notice.SINGLEKEY_BACKUP_MISSING
+              || (_notice == Notice.SINGLEKEY_BACKUP_MISSING
+              && TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis() - sharedPreferences.getLong(LATER_CLICK_TIME + account.getId(), 0)) > 1)
               || _notice == Notice.SINGLEKEY_VERIFY_MISSING
               ? View.VISIBLE : View.GONE);
-      backupMissingLayout.findViewById(R.id.btnVerify).setVisibility(View.GONE);
+      btnFirst.setVisibility(View.GONE);
       if(_notice == Notice.SINGLEKEY_VERIFY_MISSING) {
          backupMissing.setText(R.string.singlekey_verify_notice);
-         backupMissingLayout.findViewById(R.id.btnVerify).setVisibility(View.VISIBLE);
+         btnFirst.setVisibility(View.VISIBLE);
+         btnFirst.setText(R.string.verify);
+         btnSecond.setText(R.string.backup);
       } else if(_notice == Notice.SINGLEKEY_BACKUP_MISSING) {
 //         ((TextView)_root.findViewById(R.id.btBackupMissing)).setText(getString(R.string.create_backup));
          backupMissing.setText(R.string.single_address_backup_missing);
+         btnFirst.setVisibility(View.VISIBLE);
+         btnFirst.setText(R.string.backup_now);
+         btnSecond.setText(R.string.backup_later);
       } else if(_notice == Notice.BACKUP_MISSING) {
          backupMissing.setText(R.string.wallet_backup_missing);
       }
