@@ -228,7 +228,9 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 val signer = LocalTransactionSigner()
                 signer.signInputs(proposedTransaction, group)
 
-                //TODO create intent to send signed transaction
+                val service = IntentContract.SendSignedTransactionSingleAddressToSPV.createIntent(accountGuid,
+                        proposedTransaction.partialTx.bitcoinSerialize())
+                WalletApplication.sendToSpv(service, BCHSINGLEADDRESS)
             }
             null -> Log.w(TAG, "onMessage failed. No action defined.")
             else -> Log.e(TAG, "onMessage failed. Unknown action ${intent.action}")
