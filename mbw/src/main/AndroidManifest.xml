@@ -25,11 +25,6 @@
     <!-- location for local trader -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
-    <!-- we really don't want to spy on our users -->
-    <uses-permission
-        android:name="android.permission.READ_CONTACTS"
-        tools:node="remove" />
-
     <!-- the license checker -->
     <uses-permission android:name="com.android.vending.CHECK_LICENSE" />
 

@@ -93,10 +93,9 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                             it!!.blockChainHeight = bestChainHeight
                         }
                 // Defines a Handler object that's attached to the UI thread
-                val runnable = Runnable {
+                Handler(Looper.getMainLooper()).post {
                     eventBus.post(SpvSyncChanged(module, Date(bestChainDate), bestChainHeight.toLong(), chainDownloadPercentDone))
                 }
-                Handler(Looper.getMainLooper()).post(runnable)
             }
 
             "com.mycelium.wallet.requestAccountLevelKeysToMBW" -> {
@@ -171,10 +170,9 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 val txHash = intent.getStringExtra(IntentContract.TRANSACTION_HASH)
                 val isSuccess = intent.getBooleanExtra(IntentContract.IS_SUCCESS, false)
                 val message = intent.getStringExtra(IntentContract.MESSAGE)
-                val runnable = Runnable {
+                Handler(Looper.getMainLooper()).post {
                     eventBus.post(SpvSendFundsResult(operationId, txHash, isSuccess, message))
                 }
-                Handler(Looper.getMainLooper()).post(runnable)
             }
             "com.mycelium.wallet.sendUnsignedTransactionToMbw" -> {
                 val accountIndex = intent.getIntExtra(IntentContract.ACCOUNT_INDEX_EXTRA, -1)
