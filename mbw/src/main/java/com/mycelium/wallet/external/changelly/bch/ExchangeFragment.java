@@ -236,7 +236,7 @@ public class ExchangeFragment extends Fragment {
     @OnClick(R.id.use_all_funds)
     void useAllFundsClick() {
         AccountAdapter.Item item = fromAccountAdapter.getItem(fromRecyclerView.getSelectedItem());
-        fromValue.setText(getMaxSpend(item.account).toPlainString());
+        fromValue.setText(getMaxSpend(item.account).stripTrailingZeros().toPlainString());
     }
 
     private BigDecimal getMaxSpend(WalletAccount account) {
