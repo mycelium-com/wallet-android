@@ -1161,6 +1161,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="error">Error!</string>
     <string name="save_receipt">Save receipt</string>
     <string name="single_address_account">Single Address Account</string>
+    <string name="exchange">Exchange</string>
     <string name="singlekey_verify_notice">You have made (or attempted to make) a backup of your Single Address account. To make sure you did it correctly, please verify your backup. If you have made a mistake making your backup you can lose your funds forever.</string>
     <string name="backup_not_verified">Backup not verified</string>
     <string name="i_understand_the_risks">I understand the risks</string>

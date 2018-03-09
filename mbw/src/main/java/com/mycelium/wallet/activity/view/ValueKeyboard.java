@@ -214,6 +214,9 @@ public class ValueKeyboard extends GridLayout {
         }
 
         void clicked(int digit) {
+            if (entry.equals("0")) {
+                entry = "";
+            }
             if (digit == DEL) {
                 // Delete Digit
                 if (entry.isEmpty()) {

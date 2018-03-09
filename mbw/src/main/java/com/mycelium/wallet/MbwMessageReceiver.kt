@@ -120,7 +120,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 val service = IntentContract.RequestPrivateExtendedKeyCoinTypeToSPV.createIntent(
                         accountIndex,
                         cointypeLevelDeterministicKey.serializePrivB58(networkParameters),
-                        1504664986L) //TODO Change value after test. Nelson
+                        0)
                 WalletApplication.sendToSpv(service, BCHBIP44)
             }
             "com.mycelium.wallet.requestSingleAddressPrivateKeyToMBW" -> {
@@ -175,7 +175,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 // TODO: bitcoin icon
                 .setSmallIcon(R.drawable.holo_dark_ic_action_new_usd_account)
                 .setContentTitle(context.getString(R.string.app_name))
-        var contentText = "";
+        var contentText = ""
         for (account in AccountManager.getBCHBip44Accounts().values +
                 AccountManager.getBCHSingleAddressAccounts().values) {
             if (account.currencyBasedBalance.receiving.value.compareTo(BigDecimal.ZERO) > 0) {
