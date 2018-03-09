@@ -48,6 +48,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.TextView;
 
 import com.google.common.base.Optional;
@@ -71,6 +72,7 @@ import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
 
 public class NoticeFragment extends Fragment {
@@ -103,7 +105,7 @@ public class NoticeFragment extends Fragment {
    Button btnSecond;
 
    @BindView(R.id.cbRisks)
-   View cbRisks;
+   CheckBox cbRisks;
 
    @Override
    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -215,6 +217,10 @@ public class NoticeFragment extends Fragment {
          default:
             break;
       }
+   }
+   @OnCheckedChanged(R.id.cbRisks)
+   void riskAccepted(boolean checked) {
+      btnSecond.setEnabled(checked);
    }
 
    private OnClickListener noticeClickListener = new OnClickListener() {
@@ -346,17 +352,23 @@ public class NoticeFragment extends Fragment {
          btnFirst.setText(R.string.verify);
          btnSecond.setText(R.string.backup);
          cbRisks.setVisibility(View.GONE);
+         btnSecond.setEnabled(true);
       } else if(_notice == Notice.SINGLEKEY_BACKUP_MISSING) {
          backupMissing.setText(R.string.single_address_backup_missing);
          btnFirst.setText(R.string.backup_now);
          btnSecond.setText(R.string.backup_later);
          cbRisks.setVisibility(View.VISIBLE);
+         cbRisks.setChecked(false);
+         btnSecond.setEnabled(false);
       } else if(_notice == Notice.BACKUP_MISSING) {
          backupMissing.setText(R.string.wallet_backup_missing);
          btnFirst.setText(R.string.backup_now);
          btnSecond.setText(R.string.backup_later);
          cbRisks.setVisibility(View.VISIBLE);
+         cbRisks.setChecked(false);
+         btnSecond.setEnabled(false);
       }
+
 
       // Only show the heartbleed warning when necessary
       _root.findViewById(R.id.btWarning).setVisibility(shouldWarnAboutHeartbleedBug() ? View.VISIBLE : View.GONE);
