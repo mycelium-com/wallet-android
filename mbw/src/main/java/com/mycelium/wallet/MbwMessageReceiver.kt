@@ -175,6 +175,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 }
             }
             "com.mycelium.wallet.sendUnsignedTransactionToMbw" -> {
+                val operationId = intent.getStringExtra(IntentContract.OPERATION_ID)
                 val accountIndex = intent.getIntExtra(IntentContract.ACCOUNT_INDEX_EXTRA, -1)
                 val transactionBytes = intent.getByteArrayExtra(IntentContract.TRANSACTION_BYTES)
                 val mbwManager = MbwManager.getInstance(context)
@@ -199,11 +200,12 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 val proposedTransaction = TransactionSigner.ProposedTransaction(transaction)
                 val signer = LocalTransactionSigner()
                 signer.signInputs(proposedTransaction, KeyChainGroup(networkParameters, deterministicKey, false))
-                val service = IntentContract.SendSignedTransactionToSPV.createIntent(accountIndex,
+                val service = IntentContract.SendSignedTransactionToSPV.createIntent(operationId, accountIndex,
                         proposedTransaction.partialTx.bitcoinSerialize())
                 WalletApplication.sendToSpv(service, BCHBIP44)
             }
             "com.mycelium.wallet.sendUnsignedTransactionToMbwSingleAddress" -> {
+                val operationId = intent.getStringExtra(IntentContract.OPERATION_ID)
                 val accountGuid = intent.getStringExtra(IntentContract.SINGLE_ADDRESS_ACCOUNT_GUID)
                 val transactionBytes = intent.getByteArrayExtra(IntentContract.TRANSACTION_BYTES)
                 val mbwManager = MbwManager.getInstance(context)
@@ -228,7 +230,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 val signer = LocalTransactionSigner()
                 signer.signInputs(proposedTransaction, group)
 
-                val service = IntentContract.SendSignedTransactionSingleAddressToSPV.createIntent(accountGuid,
+                val service = IntentContract.SendSignedTransactionSingleAddressToSPV.createIntent(operationId, accountGuid,
                         proposedTransaction.partialTx.bitcoinSerialize())
                 WalletApplication.sendToSpv(service, BCHSINGLEADDRESS)
             }
