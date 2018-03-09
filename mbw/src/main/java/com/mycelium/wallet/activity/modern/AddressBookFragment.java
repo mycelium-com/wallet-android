@@ -37,6 +37,7 @@ package com.mycelium.wallet.activity.modern;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
@@ -68,6 +69,7 @@ import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.StringHandlerActivity;
 import com.mycelium.wallet.activity.modern.adapter.AddressBookAdapter;
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity;
+import com.mycelium.wallet.activity.util.AccountDisplayType;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil.AddressLabelChangedHandler;
 import com.mycelium.wallet.colu.ColuAccount;
@@ -107,7 +109,7 @@ public class AddressBookFragment extends Fragment {
       boolean isSelectOnly = getArguments().getBoolean(SELECT_ONLY);
       excudeSelected = getArguments().getBoolean(EXCLUDE_SELECTED, false);
       setHasOptionsMenu(!isSelectOnly);
-      ListView foreignList = (ListView) ret.findViewById(R.id.lvForeignAddresses);
+      ListView foreignList = ret.findViewById(R.id.lvForeignAddresses);
       if (isSelectOnly) {
          foreignList.setOnItemClickListener(new SelectItemListener());
       } else {
@@ -121,9 +123,9 @@ public class AddressBookFragment extends Fragment {
    }
 
    @Override
-   public void onAttach(Activity activity) {
-      _mbwManager = MbwManager.getInstance(getActivity().getApplication());
-      super.onAttach(activity);
+   public void onAttach(Context context) {
+      _mbwManager = MbwManager.getInstance(context);
+      super.onAttach(context);
    }
 
    @Override
@@ -159,9 +161,13 @@ public class AddressBookFragment extends Fragment {
    }
 
    private void updateUiMine() {
-      List<Entry> entries = new ArrayList<Entry>();
+      List<Entry> entries = new ArrayList<>();
       List<WalletAccount> activeAccounts = AccountManager.INSTANCE.getActiveAccounts().values().asList();
       for (WalletAccount account : Utils.sortAccounts(activeAccounts, _mbwManager.getMetadataStorage())) {
+         // TODO rework on full bch release
+         if (AccountDisplayType.getAccountType(account).equals(AccountDisplayType.BCH_ACCOUNT)) {
+            continue;
+         }
          String name = _mbwManager.getMetadataStorage().getLabelByAccount(account.getId());
          Drawable drawableForAccount = Utils.getDrawableForAccount(account, true, getResources());
          Optional<Address> receivingAddress = account.getReceivingAddress();
@@ -354,6 +360,7 @@ public class AddressBookFragment extends Fragment {
       }
    }
 
+   @Override
    public boolean onOptionsItemSelected(MenuItem item) {
       if (item.getItemId() == R.id.miAddAddress) {
          _addDialog = new AddDialog(getActivity());
