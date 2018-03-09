@@ -10,7 +10,6 @@ import android.os.Looper
 import android.util.Log
 import com.google.common.base.CharMatcher
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
-import com.mrd.bitlib.model.Address
 import com.mycelium.modularizationtools.CommunicationManager
 import com.mycelium.modularizationtools.ModuleMessageReceiver
 import com.mycelium.modularizationtools.model.Module
@@ -34,10 +33,8 @@ import org.bitcoinj.crypto.ChildNumber
 import org.bitcoinj.crypto.DeterministicKey
 import org.bitcoinj.crypto.HDKeyDerivation
 import org.bitcoinj.signers.LocalTransactionSigner
-import org.bitcoinj.signers.MissingSigResolutionSigner
 import org.bitcoinj.signers.TransactionSigner
 import org.bitcoinj.wallet.KeyChainGroup
-import org.bitcoinj.wallet.Wallet
 import java.math.BigDecimal
 import java.util.*
 import kotlin.collections.ArrayList
@@ -199,8 +196,8 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
 
                 // Sign the transaction
                 val proposedTransaction = TransactionSigner.ProposedTransaction(transaction)
-                val signer = LocalTransactionSigner()
-                signer.signInputs(proposedTransaction, group)
+                val signer = MbwTransactionSigner(privateKey!!)
+                check(signer.signInputs(proposedTransaction, group) == true)
                 val service = IntentContract.SendSignedTransactionToSPV.createIntent(operationId, accountIndex,
                         proposedTransaction.partialTx.bitcoinSerialize())
                 WalletApplication.sendToSpv(service, BCHBIP44)
@@ -226,7 +223,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 group.importKeys(keyList)
 
                 val proposedTransaction = TransactionSigner.ProposedTransaction(transaction)
-                val signer = MissingSigResolutionSigner(Wallet.MissingSigsMode.THROW)
+                val signer = LocalTransactionSigner()
                 check(signer.signInputs(proposedTransaction, group) == true)
 
                 val service = IntentContract.SendSignedTransactionSingleAddressToSPV.createIntent(operationId, accountGuid,
