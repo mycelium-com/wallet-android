@@ -9,7 +9,6 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import com.google.common.base.CharMatcher
-import com.mrd.bitlib.StandardTransactionBuilder
 import com.mrd.bitlib.model.Address
 import com.mycelium.modularizationtools.CommunicationManager
 import com.mycelium.modularizationtools.ModuleMessageReceiver
@@ -19,9 +18,7 @@ import com.mycelium.wallet.WalletApplication.getSpvModuleName
 import com.mycelium.wallet.activity.modern.ModernMain
 import com.mycelium.wallet.event.SpvSendFundsResult
 import com.mycelium.wallet.event.SpvSyncChanged
-import com.mycelium.wallet.persistence.MetadataStorage
 import com.mycelium.wapi.wallet.AesKeyCipher
-import com.mycelium.wapi.wallet.KeyCipher
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.WalletAccount.Type.BCHBIP44
 import com.mycelium.wapi.wallet.WalletAccount.Type.BCHSINGLEADDRESS
@@ -37,9 +34,7 @@ import org.bitcoinj.crypto.DeterministicKey
 import org.bitcoinj.crypto.HDKeyDerivation
 import org.bitcoinj.signers.LocalTransactionSigner
 import org.bitcoinj.signers.TransactionSigner
-import org.bitcoinj.wallet.KeyBag
 import org.bitcoinj.wallet.KeyChainGroup
-import org.bitcoinj.wallet.RedeemData
 import java.math.BigDecimal
 import java.util.*
 import kotlin.collections.ArrayList
@@ -155,14 +150,13 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                     account =_mbwManager.getWalletManager(true).getAccount(UUID.fromString(accountGuid)) as SingleAddressAccount
                 }
 
-                val privateKey = account.getPrivateKey(AesKeyCipher.defaultKeyCipher())
-                if (privateKey == null) {
+                if (account.publicKey == null) {
                     Log.w(TAG, "MbwMessageReceiver.onMessageFromSpvModuleBch, " +
                             "com.mycelium.wallet.requestSingleAddressPrivateKeyToMBW, " +
-                            "privateKey must not be null.")
+                            "publicKey must not be null.")
                     return
                 }
-                val service = IntentContract.RequestSingleAddressPrivateKeyToSPV.createIntent(accountGuid, privateKey.privateKeyBytes)
+                val service = IntentContract.RequestSingleAddressPublicKeyToSPV.createIntent(accountGuid, account.publicKey.publicKeyBytes)
                 WalletApplication.sendToSpv(service, BCHSINGLEADDRESS)
             }
             "com.mycelium.wallet.notifyBroadcastTransactionBroadcastCompleted" -> {
