@@ -102,6 +102,9 @@ public class NoticeFragment extends Fragment {
    @BindView(R.id.btnSecond)
    Button btnSecond;
 
+   @BindView(R.id.cbRisks)
+   View cbRisks;
+
    @Override
    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
       _root = Preconditions.checkNotNull(inflater.inflate(R.layout.main_notice_fragment, container, false));
@@ -323,37 +326,6 @@ public class NoticeFragment extends Fragment {
       return Build.VERSION.RELEASE.equals("4.1.1");
    }
 
-
-   //this got replaced by VerifyWordlistBackup, but stays here unused, in case we ever need again the old backup functionality
-   private class VerifyBackupDialog extends Dialog {
-
-      public VerifyBackupDialog(final Activity activity) {
-         super(activity);
-         this.setContentView(R.layout.backup_verification_warning_dialog);
-         this.setTitle(R.string.verify_backup_title);
-
-         findViewById(R.id.btBackup).setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-               VerifyBackupDialog.this.dismiss();
-               Utils.pinProtectedBackup(activity);
-            }
-
-         });
-
-         findViewById(R.id.btVerifyBackup).setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-               VerifyBackupDialog.this.dismiss();
-               VerifyBackupActivity.callMe(activity);
-            }
-
-         });
-      }
-   }
-
    private void updateUi() {
       if (!isAdded()) {
          return;
@@ -364,8 +336,8 @@ public class NoticeFragment extends Fragment {
       WalletAccount account = _mbwManager.getSelectedAccount();
       // Only show the "Secure My Funds" button when necessary
       backupMissingLayout.setVisibility(
-              (_notice == Notice.BACKUP_MISSING && TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis() - sharedPreferences.getLong(LATER_CLICK_TIME_MASTER_SEED, 0)) > 1)
-              || (_notice == Notice.SINGLEKEY_BACKUP_MISSING && TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis() - sharedPreferences.getLong(LATER_CLICK_TIME + account.getId(), 0)) > 1)
+              (_notice == Notice.BACKUP_MISSING && TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis() - sharedPreferences.getLong(LATER_CLICK_TIME_MASTER_SEED, 0)) > 0)
+              || (_notice == Notice.SINGLEKEY_BACKUP_MISSING && TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis() - sharedPreferences.getLong(LATER_CLICK_TIME + account.getId(), 0)) > 0)
               || _notice == Notice.SINGLEKEY_VERIFY_MISSING
               ? View.VISIBLE : View.GONE);
 
@@ -373,14 +345,17 @@ public class NoticeFragment extends Fragment {
          backupMissing.setText(R.string.singlekey_verify_notice);
          btnFirst.setText(R.string.verify);
          btnSecond.setText(R.string.backup);
+         cbRisks.setVisibility(View.GONE);
       } else if(_notice == Notice.SINGLEKEY_BACKUP_MISSING) {
          backupMissing.setText(R.string.single_address_backup_missing);
          btnFirst.setText(R.string.backup_now);
          btnSecond.setText(R.string.backup_later);
+         cbRisks.setVisibility(View.VISIBLE);
       } else if(_notice == Notice.BACKUP_MISSING) {
          backupMissing.setText(R.string.wallet_backup_missing);
          btnFirst.setText(R.string.backup_now);
          btnSecond.setText(R.string.backup_later);
+         cbRisks.setVisibility(View.VISIBLE);
       }
 
       // Only show the heartbleed warning when necessary
@@ -389,11 +364,8 @@ public class NoticeFragment extends Fragment {
    }
 
    private void recheckNotice() {
-      Notice notice = determineNotice();
-      if (_notice != notice) {
-         _notice = notice;
-         updateUi();
-      }
+      _notice = determineNotice();
+      updateUi();
    }
 
    @Subscribe
