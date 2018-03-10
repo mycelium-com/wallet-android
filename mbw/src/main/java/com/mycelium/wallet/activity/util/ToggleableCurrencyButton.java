@@ -72,7 +72,7 @@ public class ToggleableCurrencyButton extends ToggleableCurrencyDisplay {
       // there is only one currency to show - don't show a triangle hinting that the user can toggle
       findViewById(R.id.ivSwitchable).setVisibility(currencies.size() > 1 ? VISIBLE : INVISIBLE);
 
-      DroppyMenuPopup.Builder builder = new DroppyMenuPopup.Builder(getContext(), llContainer);
+      DroppyMenuPopup.Builder builder = new DroppyMenuPopup.Builder(getContext(), this);
       if (currencies.size() > 1) {
          for (int i = 0; i < currencies.size(); i++) {
             String currency = currencies.get(i);
@@ -94,7 +94,7 @@ public class ToggleableCurrencyButton extends ToggleableCurrencyDisplay {
             }
          }).build();
       } else {
-         llContainer.setOnClickListener(null);
+         setOnClickListener(null);
       }
    }
 
