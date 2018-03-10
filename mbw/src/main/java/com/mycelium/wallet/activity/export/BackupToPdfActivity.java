@@ -43,13 +43,10 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ProviderInfo;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.support.v4.app.ShareCompat;
 import android.support.v4.content.FileProvider;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
@@ -68,7 +65,6 @@ import com.mycelium.wapi.wallet.AesKeyCipher;
 
 //todo HD: export master seed without address/xpub extra data.
 //todo HD: later: be compatible with a common format
-import java.io.File;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
@@ -77,9 +73,6 @@ import java.util.Locale;
 import static android.text.format.DateFormat.getDateFormat;
 
 public class BackupToPdfActivity extends Activity implements TaskExecutionServiceCallback {
-
-   private static final String MYCELIUM_EXPORT_FOLDER = "mycelium";
-
    public static void callMe(Activity currentActivity) {
       Intent intent = new Intent(currentActivity, BackupToPdfActivity.class);
       currentActivity.startActivity(intent);
@@ -249,17 +242,6 @@ public class BackupToPdfActivity extends Activity implements TaskExecutionServic
       super.onPause();
    }
 
-   @SuppressWarnings("unused")
-   private void deleteBackupFile() {
-      boolean success;
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-         success = this.deleteFile(getFullExportFilePath());
-      } else {
-         success = new File(getFullExportFilePath()).delete();
-      }
-      Log.i("BackupToPdfActivity", "Successfully deleted backup file: " + success);
-   }
-
    @Override
    protected void onDestroy() {
       _taskExecutionServiceController.terminate();
@@ -284,20 +266,7 @@ public class BackupToPdfActivity extends Activity implements TaskExecutionServic
    }
 
    private String getFullExportFilePath() {
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-         return _fileName;
-      } else {
-         File externalStorageDir = Environment.getExternalStorageDirectory();
-         String directory = externalStorageDir.getAbsolutePath() + File.separatorChar + MYCELIUM_EXPORT_FOLDER;
-         File dirFile = new File(directory);
-         if (!dirFile.exists()) {
-            boolean wasCreated = dirFile.mkdirs();
-            Preconditions.checkArgument(wasCreated);
-         } else {
-            Preconditions.checkArgument(dirFile.isDirectory());
-         }
-         return directory + File.separatorChar + _fileName;
-      }
+      return _fileName;
    }
 
    private void startTask() {
@@ -352,12 +321,8 @@ public class BackupToPdfActivity extends Activity implements TaskExecutionServic
    }
 
    private Uri getUri() {
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-         String authority = getFileProviderAuthority();
-         return FileProvider.getUriForFile(this, authority, getFileStreamPath(getFullExportFilePath()));
-      } else {
-         return Uri.fromFile(new File(getFullExportFilePath()));
-      }
+      String authority = getFileProviderAuthority();
+      return FileProvider.getUriForFile(this, authority, getFileStreamPath(getFullExportFilePath()));
    }
 
    // ignore null checks in this method
