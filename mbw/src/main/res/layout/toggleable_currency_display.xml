@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/llContainer"
@@ -8,21 +8,24 @@
     android:orientation="horizontal"
     android:clickable="true"
     android:paddingLeft="3dp"
-    android:paddingRight="3dp">
+    android:paddingRight="3dp"
+    tools:context="com.mycelium.wallet.activity.util.ToggleableCurrencyDisplay">
 
 
     <TextView
         android:id="@+id/tvDisplayValue"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:lines="1"
         android:textSize="22sp"
-        tools:text="1.5" />
+        tools:text="1.500.000.000" />
 
     <TextView
         android:id="@+id/tvCurrency"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="5dp"
+        android:lines="1"
         android:textSize="22sp"
         android:typeface="monospace"
         tools:text="mBtc" />
@@ -36,4 +39,4 @@
         android:visibility="gone"
         app:srcCompat="@drawable/ic_arrow_drop_down" />
 
-</LinearLayout>
+</merge>

@@ -469,7 +469,7 @@ public class MetadataStorage extends GenericMetadataStorage {
    }
 
    public enum BackupState {
-      UNKNOWN(0), VERIFIED(1), IGNORED(2);
+      UNKNOWN(0), VERIFIED(1), IGNORED(2), NOT_VERIFIED(3);
 
       private final int _index;
 
@@ -497,6 +497,8 @@ public class MetadataStorage extends GenericMetadataStorage {
                return VERIFIED;
             case 2:
                return IGNORED;
+            case 3:
+               return NOT_VERIFIED;
             default:
                return UNKNOWN;
          }

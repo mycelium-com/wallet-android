@@ -60,7 +60,6 @@ public class ToggleableCurrencyDisplay extends LinearLayout {
 
    protected TextView tvCurrency;
    protected TextView tvValue;
-   protected LinearLayout llContainer;
 
    protected CurrencyValue currentValue;
    protected boolean fiatOnly = false;
@@ -118,7 +117,6 @@ public class ToggleableCurrencyDisplay extends LinearLayout {
 
       tvCurrency = view.findViewById(R.id.tvCurrency);
       tvValue = view.findViewById(R.id.tvDisplayValue);
-      llContainer = view.findViewById(R.id.llContainer);
    }
 
    private void setTextSize(int size) {
@@ -142,7 +140,7 @@ public class ToggleableCurrencyDisplay extends LinearLayout {
             currencySwitcher.setCurrency(CurrencyValue.BTC);
          }
 
-         llContainer.setVisibility(VISIBLE);
+         setVisibility(VISIBLE);
          String formattedValue;
          if (precision >= 0) {
             formattedValue = currencySwitcher.getFormattedValue(currentValue, false, precision);
@@ -159,9 +157,9 @@ public class ToggleableCurrencyDisplay extends LinearLayout {
    protected void showFiat() {
       if (hideOnNoExchangeRate && !currencySwitcher.isFiatExchangeRateAvailable()) {
          // hide everything
-         llContainer.setVisibility(GONE);
+         setVisibility(GONE);
       } else {
-         llContainer.setVisibility(VISIBLE);
+         setVisibility(VISIBLE);
          String formattedFiatValue;
 
          // convert to the target fiat currency, if needed
