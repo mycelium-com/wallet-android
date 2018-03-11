@@ -22,9 +22,8 @@ import java.util.Map;
 import retrofit.RetrofitError;
 
 public class BtcPoolStatisticsManager {
-
     public static final String TAG = "RMCStatistic";
-    public static String BITCOIN_NETWORK_STATS_URL = "https://api.blockchain.info/stats";
+    private static final String BITCOIN_NETWORK_STATS_URL = "https://api.blockchain.info/stats";
 
     private ColuAccount coluAccount;
 

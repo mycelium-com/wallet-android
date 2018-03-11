@@ -6,10 +6,6 @@ import java.util.Map;
 import retrofit.http.GET;
 import retrofit.http.Path;
 
-/**
- *
- */
-
 public interface StatRmcService {
     @GET("/stats/hashrate")
     long getCommonHashrate();
