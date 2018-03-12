@@ -26,8 +26,13 @@ public class ButtonPreference extends Preference {
     }
 
     @Override
-    protected View onCreateView(ViewGroup parent) {
-        View view = super.onCreateView(parent);
+    public OnPreferenceChangeListener getOnPreferenceChangeListener() {
+        return super.getOnPreferenceChangeListener();
+    }
+
+    @Override
+    protected void onBindView(final View view) {
+        super.onBindView(view);
         ButterKnife.bind(this, view);
         view.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -37,13 +42,15 @@ public class ButtonPreference extends Preference {
                 }
             }
         });
-        return view;
+        button.setText(buttonText);
     }
 
     @Override
-    protected void onBindView(final View view) {
-        super.onBindView(view);
-        button.setText(buttonText);
+    public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
+        button.setEnabled(enabled);
+        float alpha = enabled ? 1f : 0.7f;
+        button.setAlpha(alpha);
     }
 
     @OnClick(R.id.preference_button)

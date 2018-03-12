@@ -541,7 +541,7 @@ public class SettingsActivity extends PreferenceActivity {
                @Override
                public void onClick(View view) {
                   Uri packageUri = Uri.parse("package:" + module.getModulePackage());
-                  preference.setButtonEnabled(false);
+                  preference.setEnabled(false);
                   startActivityForResult(new Intent(Intent.ACTION_UNINSTALL_PACKAGE, packageUri)
                           .putExtra(Intent.EXTRA_RETURN_RESULT, true), REQUEST_CODE_UNINSTALL);
                }
@@ -581,7 +581,7 @@ public class SettingsActivity extends PreferenceActivity {
          if (resultCode == RESULT_CANCELED) {
             for (int index = 0; index < modulesPrefs.getPreferenceCount(); index++) {
                ButtonPreference preferenceButton = (ButtonPreference) modulesPrefs.getPreference(index);
-               preferenceButton.setButtonEnabled(true);
+               preferenceButton.setEnabled(true);
             }
          }
       }
