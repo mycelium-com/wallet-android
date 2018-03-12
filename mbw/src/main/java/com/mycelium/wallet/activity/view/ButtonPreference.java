@@ -49,8 +49,6 @@ public class ButtonPreference extends Preference {
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
         button.setEnabled(enabled);
-        float alpha = enabled ? 1f : 0.7f;
-        button.setAlpha(alpha);
     }
 
     @OnClick(R.id.preference_button)
