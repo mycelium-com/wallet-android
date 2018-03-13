@@ -59,15 +59,14 @@ public class HttpErrorCollector implements Thread.UncaughtExceptionHandler {
 
    public static HttpErrorCollector registerInVM(Context applicationContext, WapiClient wapi) {
       // Initialize error collector
-      boolean emailOnErrors = applicationContext.getResources().getBoolean(R.bool.email_on_errors);
-      if (!emailOnErrors) {
+      if (BuildConfig.DEBUG) {
          return null;
       }
       Thread.UncaughtExceptionHandler orig = Thread.getDefaultUncaughtExceptionHandler();
       if (orig instanceof HttpErrorCollector) {
          return (HttpErrorCollector) orig;
       }
-      String version = VersionManager.determineVersion(applicationContext) + " / " + VersionManager.determineVersionCode(applicationContext);
+      String version = BuildConfig.VERSION_NAME + " / " + BuildConfig.VERSION_CODE;
       Log.i(Constants.TAG, "registering exception handler from thread " + Thread.currentThread().getName());
       HttpErrorCollector ret = new HttpErrorCollector(orig, wapi, version, buildMetaData(applicationContext));
       Thread.setDefaultUncaughtExceptionHandler(ret);

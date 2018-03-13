@@ -120,7 +120,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 val service = IntentContract.RequestPrivateExtendedKeyCoinTypeToSPV.createIntent(
                         accountIndex,
                         cointypeLevelDeterministicKey.serializePrivB58(networkParameters),
-                        0)
+                        0) //TODO Don't commit an evil value close to releasing the prodnet version. maybe do some BuildConfig.DEBUG ? 1504664986L: 0L
                 WalletApplication.sendToSpv(service, BCHBIP44)
             }
             "com.mycelium.wallet.requestSingleAddressPrivateKeyToMBW" -> {
