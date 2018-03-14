@@ -29,6 +29,7 @@ import com.mycelium.wapi.wallet.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.currency.CurrencyValue
 import com.mycelium.wapi.wallet.single.SingleAddressAccount
 import com.squareup.otto.Bus
+import com.subgraph.orchid.encoders.Hex
 import org.bitcoinj.core.*
 import org.bitcoinj.crypto.ChildNumber
 import org.bitcoinj.crypto.DeterministicKey
@@ -202,12 +203,13 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 check(signer.signInputs(proposedTransaction, group) == true)
                 val service = IntentContract.SendSignedTransactionToSPV.createIntent(operationId, accountIndex,
                         proposedTransaction.partialTx.bitcoinSerialize())
-                WalletApplication.sendToSpv(service, BCHBIP44) 
+                WalletApplication.sendToSpv(service, BCHBIP44)
             }
             "com.mycelium.wallet.sendUnsignedTransactionToMbwSingleAddress" -> {
                 val operationId = intent.getStringExtra(IntentContract.OPERATION_ID)
                 val accountGuid = intent.getStringExtra(IntentContract.SINGLE_ADDRESS_ACCOUNT_GUID)
                 val transactionBytes = intent.getByteArrayExtra(IntentContract.TRANSACTION_BYTES)
+                val connectedOutputsHexList = intent.getStringArrayExtra(IntentContract.CONNECTED_OUTPUTS)
                 val mbwManager = MbwManager.getInstance(context)
                 val networkParameters = NetworkParameters.fromID(if (mbwManager.network.isTestnet) {
                     NetworkParameters.ID_TESTNET
@@ -215,6 +217,13 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                     NetworkParameters.ID_MAINNET
                 })!!
                 val transaction = Transaction(networkParameters, transactionBytes)
+
+                val curIndex = 0
+                for(connectedOutputHex in connectedOutputsHexList) {
+                    val txOutput = TransactionOutput(networkParameters, null, Hex.decode(connectedOutputHex), 0)
+                    transaction.inputs[curIndex].connect(txOutput)
+                }
+
                 val account = mbwManager.getWalletManager(false).getAccount(UUID.fromString(accountGuid)) as SingleAddressAccount
 
                 val privateKeyBase58 = account.getPrivateKey(AesKeyCipher.defaultKeyCipher()).getBase58EncodedPrivateKey(mbwManager.network)
