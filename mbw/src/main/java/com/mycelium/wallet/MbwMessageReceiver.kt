@@ -138,7 +138,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 val service = IntentContract.RequestAccountLevelKeysToSPV.createIntent(
                         ArrayList(accountIndexes.toList()),
                         ArrayList(accountLevelKeys.toList()),
-                        1504664986L) //TODO Change value after test. Nelson
+                        0) //TODO Don't commit an evil value close to releasing the prodnet version. maybe do some BuildConfig.DEBUG ? 1504664986L: 0L
                 WalletApplication.sendToSpv(service, BCHBIP44)
             }
             "com.mycelium.wallet.requestSingleAddressPrivateKeyToMBW" -> {
@@ -263,7 +263,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 // TODO: bitcoin icon
                 .setSmallIcon(R.drawable.holo_dark_ic_action_new_usd_account)
                 .setContentTitle(context.getString(R.string.app_name))
-        var contentText = "";
+        var contentText = ""
         for (account in AccountManager.getBCHBip44Accounts().values +
                 AccountManager.getBCHSingleAddressAccounts().values) {
             if (account.currencyBasedBalance.receiving.value.compareTo(BigDecimal.ZERO) > 0) {

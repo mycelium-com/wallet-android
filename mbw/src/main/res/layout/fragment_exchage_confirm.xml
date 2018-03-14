@@ -166,7 +166,7 @@
         android:layout_marginTop="@dimen/margin_large"
         android:paddingEnd="@dimen/margin_large"
         android:paddingStart="@dimen/margin_large"
-        android:text="Exchange"
+        android:text="@string/exchange"
         android:textColor="@color/white"
         android:textSize="18sp" />
 

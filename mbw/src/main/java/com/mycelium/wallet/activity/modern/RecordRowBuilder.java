@@ -190,7 +190,13 @@ public class RecordRowBuilder {
          tvBalance.setTextColor(textColor);
 
          boolean showBackupMissingWarning = showBackupMissingWarning(walletAccount, mbwManager);
-         rowView.findViewById(R.id.tvBackupMissingWarning).setVisibility(showBackupMissingWarning ? View.VISIBLE : View.GONE);
+         TextView backupMissing = rowView.findViewById(R.id.tvBackupMissingWarning);
+         backupMissing.setVisibility(showBackupMissingWarning ? View.VISIBLE : View.GONE);
+         if(mbwManager.getMetadataStorage().getOtherAccountBackupState(walletAccount.getId()) == MetadataStorage.BackupState.NOT_VERIFIED) {
+            backupMissing.setText(R.string.backup_not_verified);
+         } else {
+            backupMissing.setText(R.string.backup_missing);
+         }
 
       } else {
          // We don't show anything if the account is archived

@@ -1124,6 +1124,8 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="single_address_backup_missing">No backup - no bitcoins! In order not to lose your bitcoins when your smartphone is lost or broken please make a backup of this address NOW and keep it in a safe place!</string>
     <string name="wallet_backup_missing">No backup - no bitcoins! In order not to lose your bitcoins when your smartphone is lost or broken please make a wallet backup NOW and keep it in a safe place!</string>
     <string name="backup">BACKUP</string>
+    <string name="backup_later">Backup later</string>
+    <string name="backup_now">Backup now</string>
     <string name="bch_module_description">Bitcoin Cash accounts support and exchange to BTC option</string>
     <string name="first_modulization_title">Congratulations!</string>
     <string name="first_modulization_message"><![CDATA[You just got a new modular multiblockain version of Mycelium Wallet!<br><br>Due to high demand, we have released Bitcoin Cash (BCH) module first.<br><br>Now you can get your Bitcoin <font color="#f08c18">Cash</font> and instantly and securely exchange it to BTC.<br><br>To do so, you need to install the Bitcoin <font color="#f08c18">Cash</font> module or you can do it later from Settings -> Bitcoin Cash module section.]]></string>
@@ -1159,6 +1161,10 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="error">Error!</string>
     <string name="save_receipt">Save receipt</string>
     <string name="single_address_account">Single Address Account</string>
+    <string name="exchange">Exchange</string>
+    <string name="singlekey_verify_notice">You have made (or attempted to make) a backup of your Single Address account. To make sure you did it correctly, please verify your backup. If you have made a mistake making your backup you can lose your funds forever.</string>
+    <string name="backup_not_verified">Backup not verified</string>
+    <string name="i_understand_the_risks">I understand the risks</string>
     <plurals name="account_label">
         <item quantity="one">Account label:\n%s</item>
         <item quantity="other">Accounts labels:\n%s</item>
