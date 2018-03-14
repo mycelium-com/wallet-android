@@ -34,10 +34,12 @@ import org.bitcoinj.core.*
 import org.bitcoinj.crypto.ChildNumber
 import org.bitcoinj.crypto.DeterministicKey
 import org.bitcoinj.crypto.HDKeyDerivation
+import org.bitcoinj.script.Script
 import org.bitcoinj.signers.LocalTransactionSigner
 import org.bitcoinj.signers.TransactionSigner
 import org.bitcoinj.wallet.FreeStandingTransactionOutput
 import org.bitcoinj.wallet.KeyChainGroup
+import org.bitcoinj.wallet.RedeemData
 import org.bitcoinj.wallet.Wallet
 import java.io.ByteArrayInputStream
 import java.math.BigDecimal
@@ -234,15 +236,6 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 val transaction = Transaction(networkParameters, transactionBytes)
                 transaction.clearInputs()
 
-                for(curIndex in txUTXOsHexList.indices) {
-                    val utxoHex = txUTXOsHexList[curIndex]
-                    val utxo = UTXO(ByteArrayInputStream(Hex.decode(utxoHex)))
-                    val txOutput = FreeStandingTransactionOutput(networkParameters, utxo, utxo.height)
-                    val outpoint = TransactionOutPoint(networkParameters, txOutput)
-                    val txInput = TransactionInput(networkParameters, transaction, utxo.script.program, outpoint)
-                    transaction.addInput(txInput)
-                }
-
                 val account = mbwManager.getWalletManager(false).getAccount(UUID.fromString(accountGuid)) as SingleAddressAccount
 
                 val privateKeyBase58 = account.getPrivateKey(AesKeyCipher.defaultKeyCipher()).getBase58EncodedPrivateKey(mbwManager.network)
@@ -251,6 +244,19 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
 
                 val group = KeyChainGroup(networkParameters)
                 group.importKeys(keyList)
+
+                for(curIndex in txUTXOsHexList.indices) {
+                    val utxoHex = txUTXOsHexList[curIndex]
+                    val utxo = UTXO(ByteArrayInputStream(Hex.decode(utxoHex)))
+                    val txOutput = FreeStandingTransactionOutput(networkParameters, utxo, utxo.height)
+                    val outpoint = TransactionOutPoint(networkParameters, txOutput)
+                    val txInput = TransactionInput(networkParameters, transaction, utxo.script.program, outpoint)
+                    transaction.addInput(txInput)
+
+                    val scriptPubKey = txInput.connectedOutput!!.scriptPubKey
+                    val redeemData = txInput.getConnectedRedeemData(group)
+                    txInput.setScriptSig(scriptPubKey.createEmptyInputScript(redeemData!!.keys.get(0), redeemData.redeemScript))
+                }
 
                 val proposedTransaction = TransactionSigner.ProposedTransaction(transaction, true)
                 val signer = LocalTransactionSigner()
