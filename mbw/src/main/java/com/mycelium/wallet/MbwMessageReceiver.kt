@@ -193,11 +193,11 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                     utxoList.add(intent.getByteArrayExtra(IntentContract.CONNECTED_OUTPUTS+i++))
                 }
                 val curIndex = 0
-                for(utxoByteArray in utxoList) {
+              /*  for(utxoByteArray in utxoList) {
                     val utxo = UTXO(ByteArrayInputStream(utxoByteArray))
                     val txOutput = FreeStandingTransactionOutput(networkParameters, utxo, utxo.height)
                     transaction.inputs[curIndex].connect(txOutput)
-                }
+                }*/
 
                 var x = 0
                 var privateKey : InMemoryPrivateKey? = null
@@ -224,7 +224,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 val operationId = intent.getStringExtra(IntentContract.OPERATION_ID)
                 val accountGuid = intent.getStringExtra(IntentContract.SINGLE_ADDRESS_ACCOUNT_GUID)
                 val transactionBytes = intent.getByteArrayExtra(IntentContract.TRANSACTION_BYTES)
-                val connectedOutputsHexList = intent.getStringArrayExtra(IntentContract.CONNECTED_OUTPUTS)
+                val txUTXOsHexList = intent.getStringArrayExtra(IntentContract.CONNECTED_OUTPUTS)
                 val mbwManager = MbwManager.getInstance(context)
                 val networkParameters = NetworkParameters.fromID(if (mbwManager.network.isTestnet) {
                     NetworkParameters.ID_TESTNET
@@ -232,11 +232,15 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                     NetworkParameters.ID_MAINNET
                 })!!
                 val transaction = Transaction(networkParameters, transactionBytes)
+                transaction.clearInputs()
 
-                val curIndex = 0
-                for(connectedOutputHex in connectedOutputsHexList) {
-                    val txOutput = TransactionOutput(networkParameters, null, Hex.decode(connectedOutputHex), 0)
-                    transaction.inputs[curIndex].connect(txOutput)
+                for(curIndex in txUTXOsHexList.indices) {
+                    val utxoHex = txUTXOsHexList[curIndex]
+                    val utxo = UTXO(ByteArrayInputStream(Hex.decode(utxoHex)))
+                    val txOutput = FreeStandingTransactionOutput(networkParameters, utxo, utxo.height)
+                    val outpoint = TransactionOutPoint(networkParameters, txOutput)
+                    val txInput = TransactionInput(networkParameters, transaction, utxo.script.program, outpoint)
+                    transaction.addInput(txInput)
                 }
 
                 val account = mbwManager.getWalletManager(false).getAccount(UUID.fromString(accountGuid)) as SingleAddressAccount
@@ -248,7 +252,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 val group = KeyChainGroup(networkParameters)
                 group.importKeys(keyList)
 
-                val proposedTransaction = TransactionSigner.ProposedTransaction(transaction)
+                val proposedTransaction = TransactionSigner.ProposedTransaction(transaction, true)
                 val signer = LocalTransactionSigner()
                 check(signer.signInputs(proposedTransaction, group) == true)
 
