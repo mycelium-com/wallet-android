@@ -170,25 +170,12 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 }
             }
             "com.mycelium.wallet.sendUnsignedTransactionToMbw" -> {
-                val unsignedTransaction: StandardTransactionBuilder.UnsignedTransaction =
-                        intent.getSerializableExtra(IntentContract.UNSIGNED_TRANSACTION)
-                                as StandardTransactionBuilder.UnsignedTransaction
-                checkNotNull(unsignedTransaction)
-
+                val operationId = intent.getStringExtra(IntentContract.OPERATION_ID)
+                val transactionBytes = intent.getByteArrayExtra(IntentContract.TRANSACTION_BYTES)
+                val addresses = intent.getStringArrayExtra(IntentContract.ADDRESSES)
                 val accountIndex = intent.getIntExtra(IntentContract.ACCOUNT_INDEX_EXTRA, -1)
                 val mbwManager = MbwManager.getInstance(context)
                 val account = mbwManager.getWalletManager(false).getBip44Account(accountIndex) as Bip44Account
-                val signedTransaction = account.signTransaction(unsignedTransaction, AesKeyCipher.defaultKeyCipher())
-
-                val operationId = intent.getStringExtra(IntentContract.OPERATION_ID)
-                val service = IntentContract.SendSignedTransactionToSPV.createIntent(operationId, accountIndex,
-                        signedTransaction.toBytes())
-                WalletApplication.sendToSpv(service, BCHBIP44)
-
-                /*
-
-                val transactionBytes = intent.getByteArrayExtra(IntentContract.TRANSACTION_BYTES)
-                val addresses = intent.getStringArrayExtra(IntentContract.ADDRESSES)
                 val networkParameters = NetworkParameters.fromID(if (mbwManager.network.isTestnet) {
                     NetworkParameters.ID_TESTNET
                 } else {
@@ -215,29 +202,34 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 check(signer.signInputs(proposedTransaction, group) == true)
                 val service = IntentContract.SendSignedTransactionToSPV.createIntent(operationId, accountIndex,
                         proposedTransaction.partialTx.bitcoinSerialize())
-                WalletApplication.sendToSpv(service, BCHBIP44) */
+                WalletApplication.sendToSpv(service, BCHBIP44) 
             }
             "com.mycelium.wallet.sendUnsignedTransactionToMbwSingleAddress" -> {
-                val unsignedTransaction: StandardTransactionBuilder.UnsignedTransaction =
-                        intent.getSerializableExtra(IntentContract.UNSIGNED_TRANSACTION)
-                                as StandardTransactionBuilder.UnsignedTransaction
-                checkNotNull(unsignedTransaction)
-
                 val operationId = intent.getStringExtra(IntentContract.OPERATION_ID)
                 val accountGuid = intent.getStringExtra(IntentContract.SINGLE_ADDRESS_ACCOUNT_GUID)
-
+                val transactionBytes = intent.getByteArrayExtra(IntentContract.TRANSACTION_BYTES)
                 val mbwManager = MbwManager.getInstance(context)
                 val networkParameters = NetworkParameters.fromID(if (mbwManager.network.isTestnet) {
                     NetworkParameters.ID_TESTNET
                 } else {
                     NetworkParameters.ID_MAINNET
                 })!!
-
+                val transaction = Transaction(networkParameters, transactionBytes)
                 val account = mbwManager.getWalletManager(false).getAccount(UUID.fromString(accountGuid)) as SingleAddressAccount
-                val signedTransaction = account.signTransaction(unsignedTransaction, AesKeyCipher.defaultKeyCipher())
+
+                val privateKeyBase58 = account.getPrivateKey(AesKeyCipher.defaultKeyCipher()).getBase58EncodedPrivateKey(mbwManager.network)
+                val keyList = ArrayList<ECKey>()
+                keyList.add(DumpedPrivateKey.fromBase58(networkParameters, privateKeyBase58).getKey())
+
+                val group = KeyChainGroup(networkParameters)
+                group.importKeys(keyList)
+
+                val proposedTransaction = TransactionSigner.ProposedTransaction(transaction)
+                val signer = LocalTransactionSigner()
+                check(signer.signInputs(proposedTransaction, group) == true)
 
                 val service = IntentContract.SendSignedTransactionSingleAddressToSPV.createIntent(operationId, accountGuid,
-                        signedTransaction.toBytes())
+                        proposedTransaction.partialTx.bitcoinSerialize())
                 WalletApplication.sendToSpv(service, BCHSINGLEADDRESS)
             }
             null -> Log.w(TAG, "onMessage failed. No action defined.")
