@@ -875,9 +875,19 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
          byte[] scriptBytes = curOutput.script.getScriptBytes();
          //Check the protocol identifier 0x4343 ASCII representation of the string CC ("Colored Coins")
          if (curOutput.value == 0 && coluTransferInstructionsParser.isValidColuScript(scriptBytes)) {
-            return coluTransferInstructionsParser.retrieveOutputIndexesFromScript(scriptBytes);
+            List<Integer> indexesList = coluTransferInstructionsParser.retrieveOutputIndexesFromScript(scriptBytes);
+            //Since all assets with remaining amounts are automatically transferred to the last output,
+            //add the last output to indexes list.
+            //At least CC transaction could consist of have two outputs if it has no change - dust output that represents
+            //transferred assets value and an empty output containing OP_RETURN data.
+            //If the CC transaction has the change to transfer, it will be represented at least as the third dust output
+            if (tx.outputs.length > 2) {
+               indexesList.add(tx.outputs.length - 1);
+            }
+            return indexesList;
          }
       }
+
       return new ArrayList<>();
    }
 

@@ -373,8 +373,7 @@ public class MbwManager {
    }
 
 
-   private Optional<ColuManager> createColuManager(final Context context, MbwEnvironment environment) {
-
+   private Optional<ColuManager> createColuManager(final Context context) {
       // Create persisted account backing
       // we never talk directly to this class. Instead, we use SecureKeyValueStore API
       SqliteColuManagerBacking coluBacking = new SqliteColuManagerBacking(context);
@@ -390,9 +389,7 @@ public class MbwManager {
               _environment,
               _eventBus,
               new Handler(_applicationContext.getMainLooper()),
-              _storage,
-              _exchangeRateManager, // not sure we need this one for colu
-              retainingWapiLogger));
+              _storage));
    }
 
    private void createTempWalletManager() {
@@ -1324,7 +1321,7 @@ public class MbwManager {
          return _coluManager.get();
       } else {
          synchronized (this) {
-            _coluManager = createColuManager(_applicationContext, _environment);
+            _coluManager = createColuManager(_applicationContext);
             if (_coluManager.isPresent()) {
                return _coluManager.get();
             } else {

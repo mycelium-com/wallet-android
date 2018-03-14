@@ -266,10 +266,10 @@ public class WalletManager {
                 Bip44AccountContext context;
                 if (hdKeyNode.isPrivateHdKeyNode()) {
                     context = new Bip44AccountContext(keyManager.getAccountId(), accountIndex, false,
-                            ACCOUNT_TYPE_UNRELATED_X_PRIV, secureStorage.getSubId());
+                                                      ACCOUNT_TYPE_UNRELATED_X_PRIV, secureStorage.getSubId());
                 } else {
                     context = new Bip44AccountContext(keyManager.getAccountId(), accountIndex, false,
-                            ACCOUNT_TYPE_UNRELATED_X_PUB, secureStorage.getSubId());
+                                                      ACCOUNT_TYPE_UNRELATED_X_PUB, secureStorage.getSubId());
                 }
                 if (isUpgrade) {
                     _backing.upgradeBip44AccountContext(context);
@@ -1030,18 +1030,16 @@ public class WalletManager {
         return last.hasHadActivity();
     }
 
-    public List<UUID> removeUnusedBip44Account() {
-        List<UUID> removedAccountIds = new ArrayList<>();
-        Bip44Account last = _bip44Accounts.get(_bip44Accounts.size() - 1);
+    public boolean removeUnusedBip44Account(Bip44Account account) {
         //we do not remove used accounts
-        if (last.hasHadActivity()) {
+        if (account.hasHadActivity()) {
             return removedAccountIds;
         }
         //if its unused, we can remove it from the manager
         synchronized (_walletAccounts) {
-            _bip44Accounts.remove(last);
-            _walletAccounts.remove(last.getId());
-            _backing.deleteBip44AccountContext(last.getId());
+            _bip44Accounts.remove(account);
+            _walletAccounts.remove(account.getId());
+            _backing.deleteBip44AccountContext(account.getId());
             removedAccountIds.add(last.getId());
 
             if (_btcToBchAccounts.containsKey(last.getId())) {

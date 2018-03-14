@@ -2,10 +2,8 @@ package com.mycelium.wallet.colu;
 
 import com.mrd.bitlib.model.Address;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
-import com.megiontechnologies.Bitcoins;
 
 public class ColuTransactionData {
-
     private ColuAccount coluAccount;
 
     private Address receivingAddress;
@@ -16,7 +14,6 @@ public class ColuTransactionData {
 
     public ColuTransactionData(Address receivingAddress, ExactCurrencyValue nativeAmount, 
                                ColuAccount coluAccount, long feePerKb) {
-        super();
         this.coluAccount = coluAccount;
         this.receivingAddress = receivingAddress;
         this.nativeAmount = nativeAmount;
@@ -38,5 +35,4 @@ public class ColuTransactionData {
     public long getFeePerKb() {
         return feePerKb;
     }
-
 }

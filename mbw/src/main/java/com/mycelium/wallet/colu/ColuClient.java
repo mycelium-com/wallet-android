@@ -35,7 +35,6 @@ import java.util.logging.Logger;
  * Client for the Colu HTTP API.
  */
 public class ColuClient {
-
     private static final String TAG = "ColuClient";
 
     private static final boolean coluAutoSelectUtxo = true;
@@ -78,10 +77,9 @@ public class ColuClient {
 
     //TODO: move most of the logic to ColuManager
     ColuBroadcastTxHex.Json prepareTransaction(Address destAddress, List<Address> src,
-                                               ExactCurrencyValue nativeAmount, ColuAccount coluAccount,
-                                               long txFee)
-            throws IOException {
-        Log.d(TAG, "prepareTransaction");
+            ExactCurrencyValue nativeAmount, ColuAccount coluAccount,
+            long txFee)
+    throws IOException {
         if (destAddress == null) {
             Log.e(TAG, "destAddress is null");
             return null;
@@ -94,8 +92,6 @@ public class ColuClient {
             Log.e(TAG, "nativeAmount is null");
             return null;
         }
-        Log.d(TAG, "destAddress=" + destAddress.toString() + " src nb addr=" + src.size() + " src0=" + src.get(0).toString() + " nativeAmount=" + nativeAmount.toString());
-        Log.d(TAG, " txFee=" + txFee);
         ColuTransactionRequest.Json request = new ColuTransactionRequest.Json();
         List<ColuTxDest.Json> to = new LinkedList<>();
         ColuTxDest.Json dest = new ColuTxDest.Json();
@@ -126,40 +122,28 @@ public class ColuClient {
             double selectedAmount = 0;
             double selectedSatoshiAmount = 0;
             for (Address addr : src) {
-                Log.d(TAG, "Selected address " + addr.toString());
                 // get list of address utxo and filter out those who have asset
                 List<Utxo.Json> addressUnspent = coluAccount.getAddressUnspent(addr.toString());
-                Log.d(TAG, "addressUnspent.size=" + addressUnspent.size());
                 for (Utxo.Json utxo : addressUnspent) {
-                    Log.d(TAG, "Processing " + utxo.txid + ":" + utxo.index);
-
                     // case 1: this is a BTC/satoshi utxo, we select it for fee finance
                     // Colu server will only take as much as it needs from the utxo we send it
                     if (utxo.assets == null || utxo.assets.size() == 0) {
-                        Log.d(TAG, "utxo without asset, use it for fee ");
-                        Log.d(TAG, "txid: " + utxo.txid + ":" + utxo.index + " value: " + utxo.value);
                         sendutxo.add(utxo.txid + ":" + utxo.index);
                         selectedSatoshiAmount = selectedSatoshiAmount + utxo.value;
                     }
                     // case 2: asset utxo. If it is of the type we care, and we need more, select it.
                     for (Asset.Json asset : utxo.assets) {
-                        Log.d(TAG, "Evaluating asset " + asset.assetId);
                         if (asset.assetId.compareTo(coluAccount.getColuAsset().id) == 0) {
                             if (selectedAmount < dest.amount) {
                                 sendutxo.add(utxo.txid + ":" + utxo.index);
                                 selectedAmount = selectedAmount + asset.amount;
-                                Log.d(TAG, "Selected output " + utxo.txid + ":" + utxo.index +
-                                        " and added amount " + asset.amount);
-                                Log.d(TAG, "Current amount is " + selectedAmount);
                             }
                         } else if (asset.assetId.isEmpty() || asset.assetId.compareTo("") == 0) {
-                            Log.d(TAG, "utxo with empty asset, use it for fee ");
-                            Log.d(TAG, "txid: " + utxo.txid + ":" + utxo.index + " value: " + utxo.value);
                             sendutxo.add(utxo.txid + ":" + utxo.index);
                             selectedSatoshiAmount = selectedSatoshiAmount + utxo.value;
                         }
                     }
-                }  // end for
+                }
             }
             request.sendutxo = sendutxo;
             // do we need to set this one as well ?
