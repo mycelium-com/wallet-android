@@ -49,15 +49,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MbwTestEnvironment extends MbwEnvironment {
-   public MbwTestEnvironment(String brand) {
-      super(brand);
-   }
-
    @Override
    public NetworkParameters getNetwork() {
       return NetworkParameters.testNetwork;
    }
-
 
    /**
     * Local Trader API for testnet
@@ -71,7 +66,6 @@ public class MbwTestEnvironment extends MbwEnvironment {
    public ServerEndpoints getLtEndpoints() {
       return testnetLtEndpoints;
    }
-
 
    /**
     * Wapi

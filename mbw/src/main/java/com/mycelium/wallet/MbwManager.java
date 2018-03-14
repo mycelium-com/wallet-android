@@ -140,8 +140,6 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 
-import static android.os.Build.VERSION.SDK_INT;
-import static android.os.Build.VERSION_CODES.GINGERBREAD;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class MbwManager {
@@ -220,7 +218,7 @@ public class MbwManager {
 
    private MbwManager(Context evilContext) {
       _applicationContext = Preconditions.checkNotNull(evilContext.getApplicationContext());
-      _environment = MbwEnvironment.verifyEnvironment(_applicationContext);
+      _environment = MbwEnvironment.verifyEnvironment();
       String version = VersionManager.determineVersion(_applicationContext);
 
       // Preferences
@@ -1027,14 +1025,6 @@ public class MbwManager {
 
    public MbwEnvironment getEnvironmentSettings() {
       return _environment;
-   }
-
-   /**
-    * Get the brand of the wallet. This allows us to behave differently
-    * depending on the brand of the wallet.
-    */
-   public String getBrand() {
-      return _environment.getBrand();
    }
 
    public void reportIgnoredException(Throwable e) {
