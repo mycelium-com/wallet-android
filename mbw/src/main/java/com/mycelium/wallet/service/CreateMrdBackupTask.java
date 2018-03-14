@@ -142,9 +142,7 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
             } else {
                _archived.add(entry);
             }
-            if (storage.getOtherAccountBackupState(account.getId()) != MetadataStorage.BackupState.VERIFIED) {
-               storage.setOtherAccountBackupState(account.getId(), MetadataStorage.BackupState.NOT_VERIFIED);
-            }
+            storage.setOtherAccountBackupState(account.getId(), MetadataStorage.BackupState.NOT_VERIFIED);
          }
       }
 
