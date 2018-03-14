@@ -36,7 +36,10 @@ import org.bitcoinj.crypto.DeterministicKey
 import org.bitcoinj.crypto.HDKeyDerivation
 import org.bitcoinj.signers.LocalTransactionSigner
 import org.bitcoinj.signers.TransactionSigner
+import org.bitcoinj.wallet.FreeStandingTransactionOutput
 import org.bitcoinj.wallet.KeyChainGroup
+import org.bitcoinj.wallet.Wallet
+import java.io.ByteArrayInputStream
 import java.math.BigDecimal
 import java.util.*
 import kotlin.collections.ArrayList
@@ -173,7 +176,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
             "com.mycelium.wallet.sendUnsignedTransactionToMbw" -> {
                 val operationId = intent.getStringExtra(IntentContract.OPERATION_ID)
                 val transactionBytes = intent.getByteArrayExtra(IntentContract.TRANSACTION_BYTES)
-                val addresses = intent.getStringArrayExtra(IntentContract.ADDRESSES)
+                val connectedOutputsHexList = intent.getStringArrayExtra(IntentContract.CONNECTED_OUTPUTS)
                 val accountIndex = intent.getIntExtra(IntentContract.ACCOUNT_INDEX_EXTRA, -1)
                 val mbwManager = MbwManager.getInstance(context)
                 val account = mbwManager.getWalletManager(false).getBip44Account(accountIndex) as Bip44Account
@@ -183,6 +186,18 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                     NetworkParameters.ID_MAINNET
                 })!!
                 val transaction = Transaction(networkParameters, transactionBytes)
+
+                val utxoList: MutableList<ByteArray> = mutableListOf()
+                var i = 0
+                for (input in transaction.inputs) {
+                    utxoList.add(intent.getByteArrayExtra(IntentContract.CONNECTED_OUTPUTS+i++))
+                }
+                val curIndex = 0
+                for(utxoByteArray in utxoList) {
+                    val utxo = UTXO(ByteArrayInputStream(utxoByteArray))
+                    val txOutput = FreeStandingTransactionOutput(networkParameters, utxo, utxo.height)
+                    transaction.inputs[curIndex].connect(txOutput)
+                }
 
                 var x = 0
                 var privateKey : InMemoryPrivateKey? = null
