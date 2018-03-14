@@ -1030,24 +1030,21 @@ public class WalletManager {
         return last.hasHadActivity();
     }
 
-    public boolean removeUnusedBip44Account(Bip44Account account) {
+    public void removeUnusedBip44Account(Bip44Account account) {
         //we do not remove used accounts
         if (account.hasHadActivity()) {
-            return removedAccountIds;
+            return;
         }
         //if its unused, we can remove it from the manager
         synchronized (_walletAccounts) {
             _bip44Accounts.remove(account);
             _walletAccounts.remove(account.getId());
             _backing.deleteBip44AccountContext(account.getId());
-            removedAccountIds.add(last.getId());
 
-            if (_btcToBchAccounts.containsKey(last.getId())) {
-                _walletAccounts.remove(_btcToBchAccounts.get(last.getId()));
-                removedAccountIds.add(_btcToBchAccounts.get(last.getId()));
-                _btcToBchAccounts.remove(last.getId());
+            if (_btcToBchAccounts.containsKey(account.getId())) {
+                _walletAccounts.remove(_btcToBchAccounts.get(account.getId()));
+                _btcToBchAccounts.remove(account.getId());
             }
-            return removedAccountIds;
         }
     }
 
