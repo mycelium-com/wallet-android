@@ -855,7 +855,7 @@ public class AccountsFragment extends Fragment {
       if (!AccountsFragment.this.isAdded()) {
          return;
       }
-      _mbwManager.runPinProtectedFunction(AccountsFragment.this.getActivity(), new Runnable() {
+      _mbwManager.runPinProtectedFunction(getActivity(), new Runnable() {
 
          @Override
          public void run() {
@@ -928,7 +928,7 @@ public class AccountsFragment extends Fragment {
          return;
       }
       if (askForPin) {
-         _mbwManager.runPinProtectedFunction(AccountsFragment.this.getActivity(), new Runnable() {
+         _mbwManager.runPinProtectedFunction(getActivity(), new Runnable() {
 
             @Override
             public void run() {
@@ -953,7 +953,7 @@ public class AccountsFragment extends Fragment {
          _toaster.toast(R.string.keep_one_active, false);
          return;
       }
-      _mbwManager.runPinProtectedFunction(AccountsFragment.this.getActivity(), new Runnable() {
+      _mbwManager.runPinProtectedFunction(getActivity(), new Runnable() {
 
          @Override
          public void run() {
@@ -979,7 +979,7 @@ public class AccountsFragment extends Fragment {
       if (!isAdded()) {
          return;
       }
-      _mbwManager.runPinProtectedFunction(AccountsFragment.this.getActivity(), new Runnable() {
+      _mbwManager.runPinProtectedFunction(getActivity(), new Runnable() {
 
          @Override
          public void run() {
@@ -1013,7 +1013,7 @@ public class AccountsFragment extends Fragment {
       if (!isAdded()) {
          return;
       }
-      _mbwManager.runPinProtectedFunction(AccountsFragment.this.getActivity(), new Runnable() {
+      _mbwManager.runPinProtectedFunction(getActivity(), new Runnable() {
 
          @Override
          public void run() {
@@ -1030,7 +1030,7 @@ public class AccountsFragment extends Fragment {
       if (!isAdded()) {
          return;
       }
-      _mbwManager.runPinProtectedFunction(AccountsFragment.this.getActivity(), new Runnable() {
+      _mbwManager.runPinProtectedFunction(getActivity(), new Runnable() {
 
          @Override
          public void run() {
@@ -1063,7 +1063,7 @@ public class AccountsFragment extends Fragment {
       if (!isAdded()) {
          return;
       }
-      _mbwManager.runPinProtectedFunction(AccountsFragment.this.getActivity(), new Runnable() {
+      _mbwManager.runPinProtectedFunction(getActivity(), new Runnable() {
 
          @Override
          public void run() {
@@ -1100,7 +1100,7 @@ public class AccountsFragment extends Fragment {
       }
       final WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
       if (_focusedAccount instanceof CoinapultAccount) {
-         _mbwManager.runPinProtectedFunction(AccountsFragment.this.getActivity(), new Runnable() {
+         _mbwManager.runPinProtectedFunction(getActivity(), new Runnable() {
 
             @Override
             public void run() {
@@ -1122,7 +1122,7 @@ public class AccountsFragment extends Fragment {
             return;
          }
       }
-      _mbwManager.runPinProtectedFunction(AccountsFragment.this.getActivity(), new Runnable() {
+      _mbwManager.runPinProtectedFunction(getActivity(), new Runnable() {
 
          @Override
          public void run() {
@@ -1154,7 +1154,7 @@ public class AccountsFragment extends Fragment {
             return;
          }
 
-         _mbwManager.runPinProtectedFunction(this.getActivity(), new Runnable() {
+         _mbwManager.runPinProtectedFunction(getActivity(), new Runnable() {
             @Override
             public void run() {
                _mbwManager.getWalletManager(false).removeUnusedBip44Account();
