@@ -188,6 +188,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                     NetworkParameters.ID_MAINNET
                 })!!
                 val transaction = Transaction(networkParameters, transactionBytes)
+                transaction.clearInputs()
 
                 var privateKey : InMemoryPrivateKey? = null
                 val keyList = ArrayList<ECKey>()
