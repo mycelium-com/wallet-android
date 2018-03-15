@@ -178,7 +178,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
             "com.mycelium.wallet.sendUnsignedTransactionToMbw" -> {
                 val operationId = intent.getStringExtra(IntentContract.OPERATION_ID)
                 val transactionBytes = intent.getByteArrayExtra(IntentContract.TRANSACTION_BYTES)
-                val connectedOutputsHexList = intent.getStringArrayExtra(IntentContract.CONNECTED_OUTPUTS)
+                val txUTXOsHexList = intent.getStringArrayExtra(IntentContract.CONNECTED_OUTPUTS)
                 val accountIndex = intent.getIntExtra(IntentContract.ACCOUNT_INDEX_EXTRA, -1)
                 val mbwManager = MbwManager.getInstance(context)
                 val account = mbwManager.getWalletManager(false).getBip44Account(accountIndex) as Bip44Account
@@ -189,19 +189,6 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 })!!
                 val transaction = Transaction(networkParameters, transactionBytes)
 
-                val utxoList: MutableList<ByteArray> = mutableListOf()
-                var i = 0
-                for (input in transaction.inputs) {
-                    utxoList.add(intent.getByteArrayExtra(IntentContract.CONNECTED_OUTPUTS+i++))
-                }
-                val curIndex = 0
-              /*  for(utxoByteArray in utxoList) {
-                    val utxo = UTXO(ByteArrayInputStream(utxoByteArray))
-                    val txOutput = FreeStandingTransactionOutput(networkParameters, utxo, utxo.height)
-                    transaction.inputs[curIndex].connect(txOutput)
-                }*/
-
-                var x = 0
                 var privateKey : InMemoryPrivateKey? = null
                 val keyList = ArrayList<ECKey>()
                 for(address in account.allAddresses) {
@@ -214,9 +201,21 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 val group = KeyChainGroup(networkParameters)
                 group.importKeys(keyList)
 
-                // Sign the transaction
-                val proposedTransaction = TransactionSigner.ProposedTransaction(transaction)
-                val signer = MbwTransactionSigner(privateKey!!)
+                for(curIndex in txUTXOsHexList.indices) {
+                    val utxoHex = txUTXOsHexList[curIndex]
+                    val utxo = UTXO(ByteArrayInputStream(Hex.decode(utxoHex)))
+                    val txOutput = FreeStandingTransactionOutput(networkParameters, utxo, utxo.height)
+                    val outpoint = TransactionOutPoint(networkParameters, txOutput)
+                    val txInput = TransactionInput(networkParameters, transaction, utxo.script.program, outpoint)
+                    transaction.addInput(txInput)
+
+                    val scriptPubKey = txInput.connectedOutput!!.scriptPubKey
+                    val redeemData = txInput.getConnectedRedeemData(group)
+                    txInput.setScriptSig(scriptPubKey.createEmptyInputScript(redeemData!!.keys.get(0), redeemData.redeemScript))
+                }
+
+                val proposedTransaction = TransactionSigner.ProposedTransaction(transaction, true)
+                val signer = LocalTransactionSigner()
                 check(signer.signInputs(proposedTransaction, group) == true)
                 val service = IntentContract.SendSignedTransactionToSPV.createIntent(operationId, accountIndex,
                         proposedTransaction.partialTx.bitcoinSerialize())
