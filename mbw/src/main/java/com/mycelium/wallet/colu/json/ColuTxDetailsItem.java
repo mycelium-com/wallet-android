@@ -5,14 +5,10 @@ import com.mycelium.wapi.model.TransactionDetails;
 
 import java.math.BigDecimal;
 
-/**
- * Created by kot on 09.07.17.
- */
-
 public class ColuTxDetailsItem extends TransactionDetails.Item {
-    public final long assetAmount;
+    private final long assetAmount;
 
-    public final int scale;
+    private final int scale;
 
     public ColuTxDetailsItem(Address address, long value, boolean isCoinbase, long assetAmount, int scale) {
         super(address, value, isCoinbase);
