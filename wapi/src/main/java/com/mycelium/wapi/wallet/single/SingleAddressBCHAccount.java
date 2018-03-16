@@ -1,5 +1,6 @@
 package com.mycelium.wapi.wallet.single;
 
+import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.model.TransactionSummary;
@@ -34,6 +35,10 @@ public class SingleAddressBCHAccount extends SingleAddressAccount {
     @Override
     public UUID getId() {
         return UUID.nameUUIDFromBytes(("BCH" + super.getId().toString()).getBytes());
+    }
+
+    public static UUID calculateId(Address address) {
+        return UUID.nameUUIDFromBytes(("BCH" + SingleAddressAccount.calculateId(address).toString()).getBytes());
     }
 
     @Override
