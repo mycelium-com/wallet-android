@@ -235,7 +235,7 @@ public class PopActivity extends Activity {
 
          final UnsignedTransaction unsignedPop = account.createUnsignedPop(txidToProve, popRequest.getN());
 
-         _mbwManager.runPinProtectedFunction(PopActivity.this, new Runnable() {
+         _mbwManager.runPinProtectedFunction(this, new Runnable() {
 
             @Override
             public void run() {
