@@ -9,7 +9,6 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import com.google.common.base.CharMatcher
-import com.mrd.bitlib.StandardTransactionBuilder
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mycelium.modularizationtools.CommunicationManager
 import com.mycelium.modularizationtools.ModuleMessageReceiver
@@ -34,13 +33,10 @@ import org.bitcoinj.core.*
 import org.bitcoinj.crypto.ChildNumber
 import org.bitcoinj.crypto.DeterministicKey
 import org.bitcoinj.crypto.HDKeyDerivation
-import org.bitcoinj.script.Script
 import org.bitcoinj.signers.LocalTransactionSigner
 import org.bitcoinj.signers.TransactionSigner
 import org.bitcoinj.wallet.FreeStandingTransactionOutput
 import org.bitcoinj.wallet.KeyChainGroup
-import org.bitcoinj.wallet.RedeemData
-import org.bitcoinj.wallet.Wallet
 import java.io.ByteArrayInputStream
 import java.math.BigDecimal
 import java.util.*
@@ -190,10 +186,9 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 val transaction = Transaction(networkParameters, transactionBytes)
                 transaction.clearInputs()
 
-                var privateKey : InMemoryPrivateKey? = null
                 val keyList = ArrayList<ECKey>()
                 for(address in account.allAddresses) {
-                    privateKey = account.getPrivateKeyForAddress(address,
+                    val privateKey = account.getPrivateKeyForAddress(address,
                             AesKeyCipher.defaultKeyCipher())
                     checkNotNull(privateKey)
                     keyList.add(DumpedPrivateKey.fromBase58(networkParameters,

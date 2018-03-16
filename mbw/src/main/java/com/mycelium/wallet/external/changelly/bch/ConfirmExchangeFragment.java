@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.mycelium.spvmodule.IntentContract;
@@ -82,6 +83,9 @@ public class ConfirmExchangeFragment extends Fragment {
     @BindView(R.id.toAmount)
     TextView toAmount;
 
+    @BindView(R.id.buttonContinue)
+    Button buttonContinue;
+
     MbwManager mbwManager;
     WalletAccount fromAccount;
     WalletAccount toAccount;
@@ -114,25 +118,31 @@ public class ConfirmExchangeFragment extends Fragment {
 
     @OnClick(R.id.buttonContinue)
     void createAndSignTransaction() {
-        long fromValue = ExactBitcoinCashValue.from(BigDecimal.valueOf(offer.amountFrom)).getLongValue();
+        mbwManager.runPinProtectedFunction(getActivity(), new Runnable() {
+            @Override
+            public void run() {
+                buttonContinue.setEnabled(false);
+                long fromValue = ExactBitcoinCashValue.from(BigDecimal.valueOf(offer.amountFrom)).getLongValue();
 
-        lastOperationId = UUID.randomUUID().toString();
-        WalletAccount account = mbwManager.getSelectedAccount();
+                lastOperationId = UUID.randomUUID().toString();
+                WalletAccount account = mbwManager.getSelectedAccount();
 
-        switch (account.getType()) {
-            case BCHBIP44: {
-                Bip44BCHAccount bip44BCHAccount = (Bip44BCHAccount) account;
-                Intent serviceIntent = IntentContract.SendFunds.createIntent(lastOperationId, bip44BCHAccount.getAccountIndex(), offer.payinAddress, fromValue, TransactionFee.NORMAL, 1.0f);
-                WalletApplication.sendToSpv(serviceIntent, WalletAccount.Type.BCHBIP44);
-                break;
+                switch (account.getType()) {
+                    case BCHBIP44: {
+                        Bip44BCHAccount bip44BCHAccount = (Bip44BCHAccount) account;
+                        Intent serviceIntent = IntentContract.SendFunds.createIntent(lastOperationId, bip44BCHAccount.getAccountIndex(), offer.payinAddress, fromValue, TransactionFee.NORMAL, 1.0f);
+                        WalletApplication.sendToSpv(serviceIntent, WalletAccount.Type.BCHBIP44);
+                        break;
+                    }
+                    case BCHSINGLEADDRESS: {
+                        SingleAddressBCHAccount bip44BCHAccount = (SingleAddressBCHAccount) account;
+                        Intent service = IntentContract.SendFundsSingleAddress.createIntent(lastOperationId, bip44BCHAccount.getId().toString(), offer.payinAddress, fromValue, TransactionFee.NORMAL, 1.0f);
+                        WalletApplication.sendToSpv(service, WalletAccount.Type.BCHSINGLEADDRESS);
+                        break;
+                    }
+                }
             }
-            case BCHSINGLEADDRESS: {
-                SingleAddressBCHAccount bip44BCHAccount = (SingleAddressBCHAccount) account;
-                Intent service = IntentContract.SendFundsSingleAddress.createIntent(lastOperationId, bip44BCHAccount.getId().toString(), offer.payinAddress, fromValue, TransactionFee.NORMAL, 1.0f);
-                WalletApplication.sendToSpv(service, WalletAccount.Type.BCHSINGLEADDRESS);
-                break;
-            }
-        }
+        });
     }
 
     @Nullable
