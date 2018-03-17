@@ -2,8 +2,8 @@ apply plugin: 'java'
 
 repositories {
     google()
-    mavenLocal()
     jcenter()
+    mavenLocal()
 }
 
 dependencies {

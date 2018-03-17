@@ -4,8 +4,8 @@ buildscript {
     apply from: 'ext_settings.gradle'
     repositories {
         google()
-        mavenLocal()
         jcenter()
+        mavenLocal()
     }
     dependencies {
         classpath androidBuildArtifact

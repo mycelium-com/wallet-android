@@ -3,6 +3,7 @@ apply plugin: 'java'
 repositories {
     google()
     jcenter()
+    mavenLocal()
 }
 
 dependencies {
