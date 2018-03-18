@@ -26,22 +26,9 @@ public class ButtonPreference extends Preference {
     }
 
     @Override
-    public OnPreferenceChangeListener getOnPreferenceChangeListener() {
-        return super.getOnPreferenceChangeListener();
-    }
-
-    @Override
     protected void onBindView(final View view) {
         super.onBindView(view);
         ButterKnife.bind(this, view);
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(getOnPreferenceClickListener() != null) {
-                    getOnPreferenceClickListener().onPreferenceClick(ButtonPreference.this);
-                }
-            }
-        });
         button.setText(buttonText);
     }
 

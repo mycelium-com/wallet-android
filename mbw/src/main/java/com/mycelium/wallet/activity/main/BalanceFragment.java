@@ -128,7 +128,7 @@ public class BalanceFragment extends Fragment {
       for (int i = 0; i < sources.size(); i++) {
          String source = sources.get(i);
          ExchangeRate exchangeRate = exchangeRateManager.getExchangeRate(_mbwManager.getFiatCurrency(), source);
-         String price = exchangeRate.price == null ? "not available"
+         String price = exchangeRate == null || exchangeRate.price == null ? "not available"
                  : new BigDecimal(exchangeRate.price).setScale(2, BigDecimal.ROUND_DOWN).toPlainString() + " " + _mbwManager.getFiatCurrency();
          String item;
          if (_mbwManager.getSelectedAccount().getType() == WalletAccount.Type.COLU) {
