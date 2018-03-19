@@ -4,6 +4,7 @@ import android.os.Handler
 import android.os.Looper
 import com.google.common.collect.ImmutableMap
 import com.mycelium.wallet.event.AccountChanged
+import com.mycelium.wallet.event.ExtraAccountsChanged
 import com.mycelium.wallet.event.SelectedAccountChanged
 import com.mycelium.wapi.wallet.AccountProvider
 import com.mycelium.wapi.wallet.WalletAccount
@@ -88,6 +89,11 @@ object AccountManager : AccountProvider {
 
     @Subscribe
     fun selectedAccountChanged(event: SelectedAccountChanged) {
+        fillAccounts()
+    }
+
+    @Subscribe
+    fun extraAccountsChanged(event: ExtraAccountsChanged) {
         fillAccounts()
     }
 }
