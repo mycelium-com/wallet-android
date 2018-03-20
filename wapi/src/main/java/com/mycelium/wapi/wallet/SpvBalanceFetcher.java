@@ -17,7 +17,7 @@ public interface SpvBalanceFetcher {
     void requestHdWalletAccountRemoval(int accountIndex);
     void requestTransactionsFromSingleAddressAccountAsync(String guid);
     void requestSingleAddressWalletAccountRemoval(String guid);
-    int getSyncProgressPercents();
+    float getSyncProgressPercents();
     Address getCurrentReceiveAddress(int accountIndex);
     int getPrivateKeysCount(int accountIndex);
     boolean isFirstSync();

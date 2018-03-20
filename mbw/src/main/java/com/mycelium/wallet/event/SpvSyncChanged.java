@@ -8,9 +8,9 @@ public class SpvSyncChanged {
     public final Module module;
     public final Date bestChainDate;
     public final long blockHeight;
-    public final int chainDownloadPercentDone;
+    public final float chainDownloadPercentDone;
 
-    public SpvSyncChanged(Module module, Date bestChainDate, long blockHeight, int chainDownloadPercentDone) {
+    public SpvSyncChanged(Module module, Date bestChainDate, long blockHeight, float chainDownloadPercentDone) {
         this.module = module;
         this.bestChainDate = bestChainDate;
         this.blockHeight = blockHeight;

@@ -116,9 +116,9 @@ public class BCHHelper {
         return CommunicationManager.getInstance(context).getPairedModules().contains(bchModule);
     }
 
-    public static int getBCHSyncProgress(Context context) {
+    public static float getBCHSyncProgress(Context context) {
         SpvBalanceFetcher spvBalanceFetcher = MbwManager.getInstance(context).getSpvBchFetcher();
-        int result = 0;
+        float result = 0f;
         if (spvBalanceFetcher != null) {
             result = spvBalanceFetcher.getSyncProgressPercents();
         }

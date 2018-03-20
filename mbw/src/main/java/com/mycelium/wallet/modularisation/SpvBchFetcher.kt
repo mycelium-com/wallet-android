@@ -149,19 +149,25 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
         val service = IntentContract.RemoveSingleAddressWalletAccount.createIntent(guid)
         WalletApplication.sendToSpv(service, WalletAccount.Type.BCHSINGLEADDRESS)
     }
-
-    override fun getSyncProgressPercents(): Int {
+    var syncProgress = 0f
+    var lastSyncProgressTime = 0L
+    override fun getSyncProgressPercents(): Float {
+        // optimization, some time very often getSyncProgressPercents called from ui thread
+        if(System.currentTimeMillis() - lastSyncProgressTime < 20000) {
+            return syncProgress
+        }
         val uri = GetSyncProgress.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHBIP44)).buildUpon().build()
         context.contentResolver.query(uri, null, null, null, null).use {
-            val result = if (it?.moveToFirst() == true) {
-                it.getInt(0)
+            syncProgress = if (it?.moveToFirst() == true) {
+                it.getFloat(0)
             } else {
-                0
+                0f
             }
-            if(result == 100) {
+            if(syncProgress == 100f) {
                 sharedPreference.edit().putBoolean("is_first_sync", false).apply()
             }
-            return result
+            lastSyncProgressTime = System.currentTimeMillis()
+            return syncProgress
         }
     }
 

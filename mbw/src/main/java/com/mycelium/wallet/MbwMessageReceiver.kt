@@ -82,7 +82,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
             "com.mycelium.wallet.blockchainState" -> {
                 val bestChainDate = intent.getLongExtra("best_chain_date", 0L)
                 val bestChainHeight = intent.getIntExtra("best_chain_height", 0)
-                val chainDownloadPercentDone = intent.getIntExtra("chain_download_percent_done", 0)
+                val chainDownloadPercentDone = intent.getFloatExtra("chain_download_percent_done", 0f)
                 // val replaying = intent.getBooleanExtra("replaying", true)
                 // val impediments = intent.getStringArrayExtra("impediment")
                 walletManager.activeAccounts
