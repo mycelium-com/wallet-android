@@ -22,8 +22,8 @@ object AccountManager : AccountProvider {
     init {
         Handler(Looper.getMainLooper()).post({
             MbwManager.getInstance(WalletApplication.getInstance()).eventBus.register(this);
-            fillAccounts()
         })
+        fillAccounts()
     }
 
     private fun fillAccounts() {
