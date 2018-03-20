@@ -81,7 +81,7 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
                 confirmations,
                 isQueuedOutgoing != 0,
                 ConfirmationRiskProfileLocal(unconfirmedChainLength, hasRbfRisk != 0, hasDoubleSpend != 0),
-                Optional.of(Address.fromString(destinationAddress)),
+                Optional.fromNullable(if (destinationAddress != null) Address.fromString(destinationAddress) else null),
                 retrieveAddresses(toAddresses))
     }
 
