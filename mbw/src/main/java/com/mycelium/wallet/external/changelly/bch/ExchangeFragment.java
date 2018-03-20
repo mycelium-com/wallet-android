@@ -141,6 +141,7 @@ public class ExchangeFragment extends Fragment {
         fromAccountAdapter = new AccountAdapter(mbwManager, fromAccounts, firstItemWidth);
         fromAccountAdapter.setAccountUseType(AccountAdapter.AccountUseType.OUT);
         fromRecyclerView.setAdapter(fromAccountAdapter);
+        fromRecyclerView.setSelectedItem(mbwManager.getSelectedAccount());
 
         valueKeyboard.setMaxDecimals(8);
         valueKeyboard.setInputListener(new ValueKeyboard.SimpleInputListener() {
