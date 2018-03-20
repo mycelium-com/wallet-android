@@ -433,7 +433,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       } else {
          currentCurrency = _mbwManager.getCurrencySwitcher().getCurrentCurrency();
       }
-      if (currentCurrency.equals(mainCurrencyType)) {
+      if (currentCurrency.equals(mainCurrencyType.getAccountLabel())) {
          Long satoshis;
          int decimals = _mbwManager.getBitcoinDenomination().getDecimalPlaces();
          satoshis = value.movePointRight(decimals).longValue();
