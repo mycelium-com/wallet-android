@@ -934,5 +934,9 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
             db.execSQL("ALTER TABLE bip44 ADD COLUMN accountSubId INTEGER DEFAULT 0");
          }
       }
+
+      @Override
+      public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+      }
    }
 }
