@@ -63,16 +63,15 @@ import com.mycelium.wapi.model.TransactionDetails;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputSummary;
 import com.mycelium.wapi.model.TransactionSummary;
+import com.mycelium.wapi.wallet.AccountBacking;
 import com.mycelium.wapi.wallet.ExportableAccount;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.SynchronizeAbleWalletAccount;
-import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
-import com.squareup.otto.Bus;
 
 import org.spongycastle.util.encoders.Hex;
 
@@ -97,6 +96,7 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
 
     private final ColuManager manager;
     private final UUID uuid;
+    private final AccountBacking accountBacking;
     private final MetadataStorage metadataStorage;
     private List<TransactionSummary> allTransactionSummaries;
     private long satoshiAmount;
@@ -132,9 +132,10 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
 
     private String label;
 
-    public ColuAccount(ColuManager manager, MetadataStorage metadataStorage, Address address,
+    public ColuAccount(ColuManager manager, AccountBacking accountBacking, MetadataStorage metadataStorage, Address address,
                        ColuAsset coluAsset) {
         this.manager = manager;
+        this.accountBacking = accountBacking;
         this.metadataStorage = metadataStorage;
         this.coluAsset = coluAsset;
         this.satoshiAmount = 0;
@@ -146,9 +147,10 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
         archived = metadataStorage.getArchived(uuid);
     }
 
-    public ColuAccount(ColuManager manager, MetadataStorage metadataStorage, InMemoryPrivateKey accountKey,
+    public ColuAccount(ColuManager manager, AccountBacking accountBacking, MetadataStorage metadataStorage, InMemoryPrivateKey accountKey,
                        ColuAsset coluAsset) {
         this.manager = manager;
+        this.accountBacking = accountBacking;
         this.metadataStorage = metadataStorage;
         this.coluAsset = coluAsset;
         this.satoshiAmount = 0;
@@ -689,17 +691,7 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
 
     @Override
     public TransactionEx getTransaction(Sha256Hash txid) {
-        TransactionEx tex = null;
-        for (Utxo.Json utxo : utxosList) {
-            if (utxo.txid.contentEquals(txid.toString())) {
-                Sha256Hash tHash = new Sha256Hash(Hex.decode(utxo.txid));
-                tex = new TransactionEx(tHash,
-                                        utxo.blockheight,
-                                        utxo.blockheight,
-                                        null);
-            }
-        }
-        return tex;
+        return accountBacking.getTransaction(txid);
     }
 
     @Override
