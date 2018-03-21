@@ -21,7 +21,7 @@ object AccountManager : AccountProvider {
 
     init {
         Handler(Looper.getMainLooper()).post({
-            MbwManager.getInstance(WalletApplication.getInstance()).eventBus.register(this);
+            MbwManager.getInstance(WalletApplication.getInstance()).eventBus.register(this)
         })
         fillAccounts()
     }
@@ -33,7 +33,7 @@ object AccountManager : AccountProvider {
         val walletManager: WalletManager = mbwManager.getWalletManager(false)
         accounts.clear()
         accounts.putAll(walletManager.activeAccounts)
-        archivedAccounts.clear();
+        archivedAccounts.clear()
         archivedAccounts.putAll(walletManager.archivedAccounts)
         masterSeedAccounts.clear()
         masterSeedAccounts.putAll(walletManager.activeMasterseedAccounts)
@@ -57,29 +57,28 @@ object AccountManager : AccountProvider {
 
     fun getDashAccounts() = getAccountsByType(DASH)
 
-    fun getActiveAccounts() = ImmutableMap.copyOf<UUID, WalletAccount>(accounts.filter {
+    fun getActiveAccounts(): Map<UUID, WalletAccount> = ImmutableMap.copyOf<UUID, WalletAccount>(accounts.filter {
         it.value.isVisible
     })
 
-    private fun getAccountsByType(coinType: Type) = ImmutableMap.copyOf<UUID, WalletAccount>(accounts.filter {
+    private fun getAccountsByType(coinType: Type): Map<UUID, WalletAccount> = ImmutableMap.copyOf<UUID, WalletAccount>(accounts.filter {
         it.value.type == coinType && it.value.isVisible
     })
 
-    fun getBTCMasterSeedAccounts() = ImmutableMap.copyOf<UUID, WalletAccount>(masterSeedAccounts.filter {
+    fun getBTCMasterSeedAccounts(): Map<UUID, WalletAccount> = ImmutableMap.copyOf<UUID, WalletAccount>(masterSeedAccounts.filter {
         it.value.type == BTCBIP44 && it.value.isVisible
     })
 
-
-    override fun getAccount(uuid: UUID?): WalletAccount? = accounts.get(uuid)
+    override fun getAccount(uuid: UUID?): WalletAccount? = accounts[uuid]
 
     override fun hasAccount(uuid: UUID?): Boolean = accounts.containsKey(uuid)
 
     private fun HashMap<UUID, WalletAccount>.putAll(from: List<WalletAccount>) {
         val result: MutableMap<UUID, WalletAccount> = mutableMapOf()
         for (walletAccount in from) {
-            result.put(walletAccount.id, walletAccount)
+            result[walletAccount.id] = walletAccount
         }
-        this.putAll(result)
+        putAll(result)
     }
 
     @Subscribe

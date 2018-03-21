@@ -37,6 +37,7 @@ package com.mycelium.wallet.activity.modern;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -125,7 +126,6 @@ public class AccountsFragment extends Fragment {
    /**
     * Called when the activity is first created.
     */
-   @SuppressWarnings("deprecation")
    @Override
    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
       return inflater.inflate(R.layout.records_activity, container, false);
@@ -153,12 +153,12 @@ public class AccountsFragment extends Fragment {
    }
 
    @Override
-   public void onAttach(Activity activity) {
-      _mbwManager = MbwManager.getInstance(activity);
+   public void onAttach(Context context) {
+      _mbwManager = MbwManager.getInstance(context);
       walletManager = _mbwManager.getWalletManager(false);
       _storage = _mbwManager.getMetadataStorage();
       _toaster = new Toaster(this);
-      super.onAttach(activity);
+      super.onAttach(context);
    }
 
    @Override
@@ -261,7 +261,6 @@ public class AccountsFragment extends Fragment {
       }
 
       deleteDialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-
          public void onClick(DialogInterface arg0, int arg1) {
             Log.d(TAG, "Entering onClick delete");
             if (hasPrivateData) {
@@ -324,7 +323,6 @@ public class AccountsFragment extends Fragment {
                confirmDeleteDialog.setMessage(message);
 
                confirmDeleteDialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-
                   public void onClick(DialogInterface arg0, int arg1) {
                      Log.d(TAG, "In deleteFragment onClick");
                      if (keepAddrCheckbox.isChecked() && accountToDelete instanceof SingleAddressAccount) {
