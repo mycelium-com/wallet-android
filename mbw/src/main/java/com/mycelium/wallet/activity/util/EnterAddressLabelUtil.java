@@ -160,11 +160,6 @@ public class EnterAddressLabelUtil {
       }
 
       @Override
-      public boolean validateTextOnChange(String newText, String oldText) {
-         return true;
-      }
-
-      @Override
       public boolean validateTextOnOk(String newText, String oldText) {
          Optional<UUID> existing = storage.getAccountByLabel(newText);
          return !existing.isPresent() || existing.get().equals(account);
