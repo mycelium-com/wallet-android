@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
-    <release version="2.10" versioncode="2100000">
+    <release version="2.10.4" versioncode="2100403">
         <change>Bitcoin Cash Module: Bitcoin Cash functionality is a technology preview of Mycelium Modular Architecture. You can only exchange your BCH to BTC so far. Fully functional BCH module will be available soon. Special thanks to all our contributors and beta testers!</change>
     </release>
     <release version="2.9.11" versioncode="2091100">
