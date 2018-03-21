@@ -57,15 +57,15 @@ object AccountManager : AccountProvider {
 
     fun getDashAccounts() = getAccountsByType(DASH)
 
-    fun getActiveAccounts(): Map<UUID, WalletAccount> = ImmutableMap.copyOf<UUID, WalletAccount>(accounts.filter {
+    fun getActiveAccounts(): ImmutableMap<UUID, WalletAccount> = ImmutableMap.copyOf<UUID, WalletAccount>(accounts.filter {
         it.value.isVisible
     })
 
-    private fun getAccountsByType(coinType: Type): Map<UUID, WalletAccount> = ImmutableMap.copyOf<UUID, WalletAccount>(accounts.filter {
+    private fun getAccountsByType(coinType: Type): ImmutableMap<UUID, WalletAccount> = ImmutableMap.copyOf<UUID, WalletAccount>(accounts.filter {
         it.value.type == coinType && it.value.isVisible
     })
 
-    fun getBTCMasterSeedAccounts(): Map<UUID, WalletAccount> = ImmutableMap.copyOf<UUID, WalletAccount>(masterSeedAccounts.filter {
+    fun getBTCMasterSeedAccounts(): ImmutableMap<UUID, WalletAccount> = ImmutableMap.copyOf<UUID, WalletAccount>(masterSeedAccounts.filter {
         it.value.type == BTCBIP44 && it.value.isVisible
     })
 
