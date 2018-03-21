@@ -995,7 +995,7 @@ public class Utils {
       if (value.isBtc()) {
          return getFormattedValueWithUnit((BitcoinValue) value, denomination);
       } else if(value.isBch()) {
-        return value.getValue() + " " + value.getCurrency();
+        return getFormattedValueWithUnit((ExactBitcoinCashValue) value, denomination);
       } else {
          BigDecimal val = value.getValue();
          if (val == null) {
@@ -1026,12 +1026,12 @@ public class Utils {
       return String.format("%s %s", CoinUtil.valueString(val, denomination, false), denomination.getUnicodeName());
    }
 
-   public static String getFormattedValueWithUnit(ExactBitcoinCashValue value) {
+   public static String getFormattedValueWithUnit(ExactBitcoinCashValue value, CoinUtil.Denomination denomination) {
       BigDecimal val = value.getValue();
       if (val == null) {
          return "";
       }
-      return String.format("%s %s", val.toPlainString(), value.getCurrency());
+      return String.format("%s %s", CoinUtil.valueString(val, denomination, false), denomination.getUnicodeName().replace("BTC", "BCH"));
    }
 
 
