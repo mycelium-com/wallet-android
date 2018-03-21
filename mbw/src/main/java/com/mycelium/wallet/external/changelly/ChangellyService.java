@@ -112,7 +112,7 @@ public class ChangellyService extends IntentService {
         if(BuildConfig.FLAVOR.equals("btctestnet")) {
             ChangellyTransactionOffer result = new ChangellyTransactionOffer();
             result.amountFrom = amount;
-            result.amountTo = 1.5;
+            result.amountTo = getExchangeAmount(from, to, amount);
             result.currencyFrom = from;
             result.currencyTo = to;
             result.payinAddress = "n2YyHr69tG6ViQDW1AUTbuwbakfYbqrqsH";
