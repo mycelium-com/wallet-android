@@ -24,7 +24,8 @@ def props = new Properties()
 try {
     //this allows having a drive with the keys to be mounted for releases, only.
     props.load(new FileInputStream("keys.properties"))
-} catch(Exception ignore) {}
+} catch(Exception ignore) {
+}
 props.each {
     key, val -> extensions."$key" = val
 }
