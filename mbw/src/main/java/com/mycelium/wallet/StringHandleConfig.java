@@ -274,7 +274,7 @@ public class StringHandleConfig implements Serializable {
          }
       };
 
-      static private Optional<InMemoryPrivateKey> getPrivateKey(NetworkParameters network, String content) {
+      static public Optional<InMemoryPrivateKey> getPrivateKey(NetworkParameters network, String content) {
          Optional<InMemoryPrivateKey> key = InMemoryPrivateKey.fromBase58String(content, network);
          if (key.isPresent()) return key;
          key = InMemoryPrivateKey.fromBase58MiniFormat(content, network);
