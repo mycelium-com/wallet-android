@@ -143,7 +143,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                         0) //TODO Don't commit an evil value close to releasing the prodnet version. maybe do some BuildConfig.DEBUG ? 1504664986L: 0L
                 WalletApplication.sendToSpv(service, BCHBIP44)
             }
-            "com.mycelium.wallet.requestSingleAddressPrivateKeyToMBW" -> {
+            "com.mycelium.wallet.requestSingleAddressPublicKeyToMBW" -> {
                 val _mbwManager = MbwManager.getInstance(context)
                 val accountGuid = intent.getStringExtra(IntentContract.SINGLE_ADDRESS_ACCOUNT_GUID)
                 Log.d(TAG, "com.mycelium.wallet.requestSingleAddressPrivateKeyToMBW, guid = $accountGuid")
