@@ -125,14 +125,6 @@ public class CurrencySwitcher {
       return result;
    }
 
-   public int getFiatCurrenciesCount() {
-      return fiatCurrencies.size();
-   }
-
-   public int getCurrenciesCount() {
-      return fiatCurrencies.size() + 1;  // BTC is always available
-   }
-
    public void setCurrencyList(final Set<String> fiatCurrencies) {
       // convert the set to a list and sort it
       ArrayList<String> currencies = Lists.newArrayList(fiatCurrencies);
@@ -148,7 +140,7 @@ public class CurrencySwitcher {
          }
       }
       //copy to prevent changes by caller
-      this.fiatCurrencies = new ArrayList<String>(currencies);
+      this.fiatCurrencies = new ArrayList<>(currencies);
    }
 
    public void setDefaultCurrency(String currencyLabel) {
@@ -157,7 +149,6 @@ public class CurrencySwitcher {
          currencies.remove(defaultCurrency);
          currencies.add(currencyLabel);
       }
-      setCurrencyList(currencies);
       defaultCurrency = currencyLabel;
    }
 
