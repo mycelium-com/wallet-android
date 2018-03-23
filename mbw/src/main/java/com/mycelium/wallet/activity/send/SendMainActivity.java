@@ -685,8 +685,8 @@ public class SendMainActivity extends Activity {
       if (uri != null) {
          makeText(this, getResources().getString(R.string.using_address_from_clipboard), LENGTH_SHORT).show();
          _receivingAddress = uri.address;
-         if (uri.amount != null) {
-            _amountToSend = ExactBitcoinValue.from(uri.amount);
+         if (uri.amount != null && uri.amount >= 0) {
+             _amountToSend = ExactBitcoinValue.from(uri.amount);
          }
          _transactionStatus = tryCreateUnsignedTransaction();
          updateUi();
