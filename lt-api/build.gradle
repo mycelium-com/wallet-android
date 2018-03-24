@@ -3,7 +3,6 @@ apply plugin: 'java'
 repositories {
     google()
     jcenter()
-    mavenLocal()
 }
 
 dependencies {
@@ -12,7 +11,7 @@ dependencies {
 
     implementation guavaArtifact
     implementation 'com.squareup.okhttp:okhttp:2.7.5'
-    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.5.1'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.5.1'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.8.4'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.8.4'
     testImplementation "junit:junit:$junitVersion"
 }

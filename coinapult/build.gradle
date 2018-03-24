@@ -3,7 +3,6 @@ apply plugin: 'java'
 repositories {
     google()
     jcenter()
-    mavenLocal()
 }
 
 dependencies {
@@ -11,9 +10,9 @@ dependencies {
     implementation project(includePrefix +':mbwlib')
 
     implementation guavaArtifact
-    implementation 'com.fasterxml.jackson.core:jackson-core:2.5.1'
-    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.5.1'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.5.1'
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.8.4'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.8.4'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.8.4'
     implementation 'com.google.http-client:google-http-client-jackson2:1.19.0'
     implementation 'com.madgag.spongycastle:core:1.58.0.0'
     implementation 'com.madgag.spongycastle:prov:1.58.0.0'

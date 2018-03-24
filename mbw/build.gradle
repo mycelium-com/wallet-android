@@ -6,7 +6,6 @@ apply plugin: 'kotlin-android-extensions'
 repositories {
     google()
     jcenter()
-    mavenLocal()
 }
 
 buildscript {
@@ -52,7 +51,8 @@ dependencies {
     implementation project(includePrefix + ':libs:nordpol')
     implementation project(includePrefix + ':libs:zxing-core')
     implementation project(includePrefix + ':bitlib')
-    implementation project(':view')
+    implementation project(includePrefix + ':view')
+    implementation project(includePrefix + ':bitcoincashj:core')
 
     implementation guavaArtifact
     implementation 'com.squareup.retrofit2:retrofit:2.3.0'
@@ -78,10 +78,10 @@ dependencies {
     implementation 'com.jakewharton:butterknife:8.5.1'
     implementation 'io.reactivex:rxandroid:1.2.1'
     implementation 'com.squareup.okhttp:okhttp:2.7.5'
-    implementation 'com.android.support:multidex:1.0.2'
+    implementation 'com.android.support:multidex:1.0.3'
     implementation 'commons-codec:commons-codec:1.10'
     implementation 'com.google.protobuf:protobuf-java:3.1.0'
-    implementation 'com.android.support.constraint:constraint-layout:1.1.0-beta4'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.0-beta5'
     implementation 'com.shehabic.droppy:Droppy:0.6.0@aar'
 
     implementation project(includePrefix + ':myceliummodularizationtools')
@@ -94,8 +94,9 @@ dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.8.4'
     implementation 'com.madgag.spongycastle:core:1.58.0.0'
     implementation 'com.madgag.spongycastle:prov:1.58.0.0'
-    implementation 'org.bitcoincashj:bitcoincashj-core:0.14.5'
-
+    implementation('org.bitcoinj:orchid:1.2.1') {
+        exclude(module: 'slf4j-api')
+    }
 }
 
 android {
@@ -112,6 +113,7 @@ android {
         exclude 'META-INF/LICENSE'
         exclude 'META-INF/NOTICE'
         exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/INDEX.LIST'
         // bitcoinj brings in a native library for x86_64, which seems to confuse the playstore upload - just strip the file
         exclude 'lib/x86_64/darwin/libscrypt.dylib'
     }

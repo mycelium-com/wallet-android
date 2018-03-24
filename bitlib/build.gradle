@@ -11,14 +11,14 @@ compileTestJava {
 repositories {
     google()
     jcenter()
-    mavenLocal()
 }
 
 dependencies {
-    implementation 'com.google.protobuf:protobuf-java:2.5.0@jar'
-    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.5.1'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.5.1'
+    implementation 'com.google.protobuf:protobuf-java:3.1.0@jar'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.8.4'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.8.4'
     testImplementation "junit:junit:$junitVersion"
     implementation guavaArtifact
-    implementation 'org.bitcoincashj:bitcoincashj-core:0.14.5'
+    implementation project(includePrefix +':bitcoincashj:core')
+    implementation 'com.madgag.spongycastle:core:1.58.0.0'
 }
