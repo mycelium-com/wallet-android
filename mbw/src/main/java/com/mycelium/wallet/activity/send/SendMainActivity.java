@@ -1142,7 +1142,7 @@ public class SendMainActivity extends Activity {
         llRecipientAddress.setVisibility(View.VISIBLE);
         llEnterRecipient.setVisibility(View.GONE);
 
-      // See if the address is in the address book or one of our accounts
+        // See if the address is in the address book or one of our accounts
         String label = null;
         if (_receivingLabel != null) {
             label = _receivingLabel;

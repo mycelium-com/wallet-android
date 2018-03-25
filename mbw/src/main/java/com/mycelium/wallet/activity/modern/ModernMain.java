@@ -510,8 +510,8 @@ public class ModernMain extends AppCompatActivity {
                  || _mbwManager.getColuManager().getState() == WalletManager.State.SYNCHRONIZING) {
             if(commonSyncState != WalletManager.State.SYNCHRONIZING) {
                commonSyncState = WalletManager.State.SYNCHRONIZING;
-               MenuItem menuItem = MenuItemCompat.setActionView(refreshItem, R.layout.actionbar_indeterminate_progress);
-               ImageView ivTorIcon = (ImageView) menuItem.getActionView().findViewById(R.id.ivTorIcon);
+               MenuItem menuItem = refreshItem.setActionView(R.layout.actionbar_indeterminate_progress);
+               ImageView ivTorIcon = menuItem.getActionView().findViewById(R.id.ivTorIcon);
 
                if (_mbwManager.getTorMode() == ServerEndpointType.Types.ONLY_TOR && _mbwManager.getTorManager() != null) {
                   ivTorIcon.setVisibility(View.VISIBLE);
