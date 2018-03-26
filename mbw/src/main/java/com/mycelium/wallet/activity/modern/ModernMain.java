@@ -526,7 +526,7 @@ public class ModernMain extends AppCompatActivity {
             }
          } else {
             commonSyncState = WalletManager.State.READY;
-            MenuItemCompat.setActionView(refreshItem, null);
+            refreshItem.setActionView(null);
          }
       }
    }
