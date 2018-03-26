@@ -293,7 +293,7 @@ public class MetadataStorage extends GenericMetadataStorage {
       if (!last.isPresent()) {
          return Optional.absent();
       }
-      return Optional.of(Address.fromString(last.get()));
+      return Optional.fromNullable(Address.fromString(last.get()));
    }
 
    public String getCoinapultMail() {
