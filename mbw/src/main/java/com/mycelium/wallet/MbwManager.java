@@ -268,7 +268,7 @@ public class MbwManager {
       Set<String> currencyList = getPreferences().getStringSet(Constants.SELECTED_CURRENCIES, null);
       //TODO: get it through coluManager instead ?
       Set<String> fiatCurrencies = new HashSet<>();
-      if (currencyList == null) {
+      if (currencyList == null || currencyList.isEmpty()) {
          //if there is no list take the default currency
          fiatCurrencies.add(Constants.DEFAULT_CURRENCY);
       } else {
