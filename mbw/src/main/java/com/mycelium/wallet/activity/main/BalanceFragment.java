@@ -341,7 +341,7 @@ public class BalanceFragment extends Fragment {
       _root.findViewById(R.id.pbProgress).setVisibility(balance.isSynchronizing ? View.VISIBLE : View.GONE);
 
       // Show alternative values
-      _tcdFiatDisplay.setFiatOnly(balance.confirmed.isBtc() || (account instanceof ColuAccount && ((ColuAccount) account).getColuAsset().assetType == ColuAccount.ColuAssetType.RMC));
+      _tcdFiatDisplay.setFiatOnly(true);
       _tcdFiatDisplay.setValue(balance.confirmed);
 
       // Show/Hide Receiving

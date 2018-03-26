@@ -12,6 +12,6 @@ public class TotalViewHolder extends RecyclerView.ViewHolder {
 
     public TotalViewHolder(View itemView) {
         super(itemView);
-        tcdBalance = (ToggleableCurrencyButton) itemView.findViewById(R.id.tcdBalance);
+        tcdBalance = itemView.findViewById(R.id.tcdBalance);
     }
 }
