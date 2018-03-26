@@ -53,6 +53,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.io.ByteStreams;
 import com.mrd.bitlib.crypto.Bip39;
+import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.BitcoinUri;
@@ -82,6 +83,8 @@ import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.UUID;
+
+import static com.mycelium.wallet.StringHandleConfig.PrivateKeyAction.getPrivateKey;
 
 public class StartupActivity extends Activity {
    private static final int MINIMUM_SPLASH_TIME = 500;
@@ -152,9 +155,13 @@ public class StartupActivity extends Activity {
       private boolean hasPrivateKeyOnClipboard(NetworkParameters network) {
          // do we have a private key on the clipboard?
          try {
-            new InMemoryPrivateKey(Utils.getClipboardString(StartupActivity.this), network);
+            Optional<InMemoryPrivateKey> key = getPrivateKey(network, Utils.getClipboardString(StartupActivity.this));
+            if (key.isPresent()) {
+               return true;
+            }
+            HdKeyNode.parse(Utils.getClipboardString(StartupActivity.this), network);
             return true;
-         } catch (IllegalArgumentException e) {
+         } catch (HdKeyNode.KeyGenerationException ex) {
             return false;
          }
       }
