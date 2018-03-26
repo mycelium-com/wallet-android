@@ -183,19 +183,26 @@ public class BalanceFragment extends Fragment {
          return;
       }
       WalletAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
-      if (account instanceof ColuAccount && ((ColuAccount) account).getSatoshiAmount() == 0) {
-         new AlertDialog.Builder(getActivity())
-                 .setMessage(getString(R.string.rmc_send_warning, ((ColuAccount) account).getColuAsset().label))
-                 .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                       SendInitializationActivity.callMe(BalanceFragment.this.getActivity(), _mbwManager.getSelectedAccount().getId(), false);
-                    }
-                 })
-                 .create()
-                 .show();
+      if (account.canSpend()) {
+         if (account.getType() == WalletAccount.Type.COLU && ((ColuAccount) account).getSatoshiAmount() == 0) {
+            new AlertDialog.Builder(getActivity())
+                    .setMessage(getString(R.string.rmc_send_warning, ((ColuAccount) account).getColuAsset().label))
+                    .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
+                       @Override
+                       public void onClick(DialogInterface dialogInterface, int i) {
+                          SendInitializationActivity.callMe(BalanceFragment.this.getActivity(), _mbwManager.getSelectedAccount().getId(), false);
+                       }
+                    })
+                    .create()
+                    .show();
+         } else {
+            SendInitializationActivity.callMe(BalanceFragment.this.getActivity(), _mbwManager.getSelectedAccount().getId(), false);
+         }
       } else {
-         SendInitializationActivity.callMe(BalanceFragment.this.getActivity(), _mbwManager.getSelectedAccount().getId(), false);
+         new AlertDialog.Builder(getActivity())
+                 .setMessage(R.string.this_is_read_only_account)
+                 .setPositiveButton(R.string.button_ok, null).create().show();
+
       }
    }
 
@@ -215,11 +222,11 @@ public class BalanceFragment extends Fragment {
       //perform a generic scan, act based upon what we find in the QR code
       StringHandleConfig config = StringHandleConfig.genericScanRequest();
       WalletAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
-      if(account instanceof ColuAccount) {
+      if (account.getType() == WalletAccount.Type.COLU) {
          config.bitcoinUriAction = StringHandleConfig.BitcoinUriAction.SEND_COLU_ASSET;
          config.bitcoinUriWithAddressAction = StringHandleConfig.BitcoinUriWithAddressAction.SEND_COLU_ASSET;
       }
-      ScanActivity.callMe(BalanceFragment.this.getActivity(), ModernMain.GENERIC_SCAN_REQUEST, config);
+      ScanActivity.callMe(getActivity(), ModernMain.GENERIC_SCAN_REQUEST, config);
    }
 
    @Override
@@ -249,10 +256,6 @@ public class BalanceFragment extends Fragment {
          _mbwManager.reportIgnoredException(ex);
          balance = CurrencyBasedBalance.ZERO_BITCOIN_BALANCE;
       }
-
-      // Hide spend button if not canSpend()
-      int visibility = account.canSpend() ? View.VISIBLE : View.GONE;
-      _root.findViewById(R.id.btSend).setVisibility(visibility);
 
       updateUiKnownBalance(balance);
 

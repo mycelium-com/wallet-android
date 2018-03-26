@@ -1165,6 +1165,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="singlekey_verify_notice">You have made (or attempted to make) a backup of your Single Address account. To make sure you did it correctly, please verify your backup. If you have made a mistake making your backup you can lose your funds forever.</string>
     <string name="backup_not_verified">Backup not verified</string>
     <string name="i_understand_the_risks">I understand the risks</string>
+    <string name="this_is_read_only_account">This is watch-only account. In order to spend its funds, you need to import the corresponding private key.\nTo do so tap on Add New Account > Advanced and use either Scan or Clipboard button.</string>
     <plurals name="account_label">
         <item quantity="one">Account label:\n%s</item>
         <item quantity="other">Accounts labels:\n%s</item>
