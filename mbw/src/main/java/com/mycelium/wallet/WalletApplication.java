@@ -154,6 +154,7 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
 
     private static Map<WalletAccount.Type, String> initTrustedSpvModulesMapping() {
         Map<WalletAccount.Type, String> spvModulesMapping = new HashMap<>();
+        // TODO: 27.03.18 turn this into BuildConfig.appIdBCHBIP44 ...
         switch (BuildConfig.APPLICATION_ID) {
         case "com.mycelium.wallet":
             spvModulesMapping.put(WalletAccount.Type.BCHBIP44, "com.mycelium.module.spvbch");
