@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,6 +24,7 @@ import com.mycelium.wallet.AccountManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.send.event.SelectListener;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
 import com.mycelium.wallet.activity.view.ValueKeyboard;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
@@ -74,8 +76,8 @@ public class ExchangeFragment extends Fragment {
     @BindView(R.id.toValueLayout)
     View toLayout;
 
-    @BindView(R.id.tvMinAmountValue)
-    TextView tvMinAmountValue;
+    @BindView(R.id.tvError)
+    TextView tvError;
 
     @BindView(R.id.buttonContinue)
     Button buttonContinue;
@@ -142,6 +144,14 @@ public class ExchangeFragment extends Fragment {
         fromAccountAdapter.setAccountUseType(AccountAdapter.AccountUseType.OUT);
         fromRecyclerView.setAdapter(fromAccountAdapter);
         fromRecyclerView.setSelectedItem(mbwManager.getSelectedAccount());
+        fromRecyclerView.setSelectListener(new SelectListener() {
+            @Override
+            public void onSelect(RecyclerView.Adapter adapter, int position) {
+                WalletAccount fromAccount = fromAccountAdapter.getItem(fromRecyclerView.getSelectedItem()).account;
+                valueKeyboard.setSpendableValue(getMaxSpend(fromAccount));
+                isValueForOfferOk(true);
+            }
+        });
 
         valueKeyboard.setMaxDecimals(8);
         valueKeyboard.setInputListener(new ValueKeyboard.SimpleInputListener() {
@@ -299,7 +309,7 @@ public class ExchangeFragment extends Fragment {
     }
 
     boolean isValueForOfferOk(boolean checkMin) {
-        tvMinAmountValue.setVisibility(View.GONE);
+        tvError.setVisibility(View.GONE);
         String txtAmount = fromValue.getText().toString();
         if (txtAmount.isEmpty()) {
             buttonContinue.setEnabled(false);
@@ -314,15 +324,23 @@ public class ExchangeFragment extends Fragment {
             return false;
         }
 
+        WalletAccount fromAccount = fromAccountAdapter.getItem(fromRecyclerView.getSelectedItem()).account;
         if (checkMin && minAmount == 0) {
             buttonContinue.setEnabled(false);
             toast("Please wait while loading minimum amount information.");
             return false;
         } else if (checkMin && dblAmount.compareTo(minAmount) < 0) {
             buttonContinue.setEnabled(false);
-            tvMinAmountValue.setVisibility(View.VISIBLE);
+            tvError.setText(getString(R.string.exchange_minimum_amount
+                    , decimalFormat.format(minAmount), "BCH"));
+            tvError.setVisibility(View.VISIBLE);
             return false;
-        } // TODO: compare with maximum
+        } else if (fromAccount.getCurrencyBasedBalance().confirmed.getValue().compareTo(BigDecimal.valueOf(dblAmount)) < 0) {
+            buttonContinue.setEnabled(false);
+            tvError.setText(R.string.balance_error);
+            tvError.setVisibility(View.VISIBLE);
+            return false;
+        }
         buttonContinue.setEnabled(true);
         return true;
     }
@@ -364,8 +382,6 @@ public class ExchangeFragment extends Fragment {
                     amount = intent.getDoubleExtra(ChangellyService.AMOUNT, 0);
                     Log.d(TAG, "Received minimum amount: " + amount);
                     minAmount = amount;
-                    tvMinAmountValue.setText(getString(R.string.exchange_minimum_amount
-                            , decimalFormat.format(minAmount), "BCH"));
                     break;
                 case ChangellyService.INFO_EXCH_AMOUNT:
                     from = intent.getStringExtra(ChangellyService.FROM);
