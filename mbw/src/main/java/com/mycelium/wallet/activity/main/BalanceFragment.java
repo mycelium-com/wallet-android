@@ -99,11 +99,8 @@ public class BalanceFragment extends Fragment {
    private Toaster _toaster;
    @BindView(R.id.tcdFiatDisplay) ToggleableCurrencyButton _tcdFiatDisplay;
 
-   @BindView(R.id.btScan) RoundButtonWithText scanButton;
-   @BindView(R.id.btSend) RoundButtonWithText sendButton;
    @BindView(R.id.exchangeSource) TextView exchangeSource;
    @BindView(R.id.exchangeSourceLayout) View exchangeSourceLayout;
-   @BindView(R.id.exchangeSourceArrow) View exchangeSourceArrow;
 
 
    @Override
@@ -177,7 +174,8 @@ public class BalanceFragment extends Fragment {
       super.onResume();
    }
 
-   @OnClick(R.id.btSend) void onClickSend() {
+   @OnClick(R.id.btSend)
+   void onClickSend() {
       if (isBCH()) {
          BCHHelper.bchTechnologyPreviewDialog(getActivity());
          return;
@@ -206,7 +204,8 @@ public class BalanceFragment extends Fragment {
       }
    }
 
-   @OnClick(R.id.btReceive) void onClickReceive() {
+   @OnClick(R.id.btReceive)
+   void onClickReceive() {
       Optional<Address> receivingAddress = _mbwManager.getSelectedAccount().getReceivingAddress();
       if (receivingAddress.isPresent()) {
          ReceiveCoinsActivity.callMe(getActivity(), receivingAddress.get(),
@@ -214,7 +213,8 @@ public class BalanceFragment extends Fragment {
       }
    }
 
-   @OnClick(R.id.btScan) void onClickScan() {
+   @OnClick(R.id.btScan)
+   void onClickScan() {
       if (isBCH()) {
          BCHHelper.bchTechnologyPreviewDialog(getActivity());
          return;
