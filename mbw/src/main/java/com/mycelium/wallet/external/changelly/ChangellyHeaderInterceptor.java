@@ -10,7 +10,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import okhttp3.Interceptor;
@@ -27,26 +26,38 @@ import okhttp3.Response;
  * It wraps the parameters passed in, in a params object and signs the request with the api key secret.
  */
 public class ChangellyHeaderInterceptor implements Interceptor {
-    private static final String apiKeyData = "8fb168fe8b6b4656867c846be47dccce";
-    private static final String apiSecret = "ec97042bcfba5d43f4741dbb3da9861cc59fb7c8d6123333d7823e4c7810d6c0";
-    private static final byte[] apiSecretBytes = apiSecret.getBytes(Charset.forName("US-ASCII"));
+    private static final String API_KEY_DATA_BCH_TO_BTC = "4397e419ed0140ee81d28f66bd72a118";
+    private static final byte[] API_SECRET_BCH_TO_BTC = "6ff5e3e4956b7c87213650babf977a56deab9b4ae37ea133a389dc997a9a3cae".getBytes(Charset.forName("US-ASCII"));
+
+    private static final String API_KEY_DATA_ELSE = "8fb168fe8b6b4656867c846be47dccce";
+    private static final byte[] API_SECRET_ELSE = "ec97042bcfba5d43f4741dbb3da9861cc59fb7c8d6123333d7823e4c7810d6c0".getBytes(Charset.forName("US-ASCII"));
 
     @Override
     public Response intercept(@NonNull Chain chain) throws IOException {
         Request request = chain.request();
         byte[] messageBytes;
+        String apiKeyData;
+        byte[] apiSecret;
         try {
+            JSONObject params = getParamsFromRequest(request);
+            if("BCH2BTC".equalsIgnoreCase(params.optString("from") + "2" + params.optString("to"))) {
+                apiKeyData = API_KEY_DATA_BCH_TO_BTC;
+                apiSecret = API_SECRET_BCH_TO_BTC;
+            } else {
+                apiKeyData = API_KEY_DATA_ELSE;
+                apiSecret = API_SECRET_ELSE;
+            }
             JSONObject requestBodyJson = new JSONObject()
                     .put("id", "test")
                     .put("jsonrpc", "2.0")
                     .put("method", getMethodFromRequest(request))
-                    .put("params", getParamsFromRequest(request));
+                    .put("params", params);
             messageBytes = requestBodyJson.toString().getBytes();
         } catch (JSONException e) {
             e.printStackTrace();
             return null;
         }
-        byte[] sha512bytes = Hmac.hmacSha512(apiSecretBytes, messageBytes);
+        byte[] sha512bytes = Hmac.hmacSha512(apiSecret, messageBytes);
         String signData = HexUtils.toHex(sha512bytes);
         request = request.newBuilder()
                 .delete()
