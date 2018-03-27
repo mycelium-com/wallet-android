@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
@@ -53,6 +54,8 @@ import static com.mycelium.wallet.external.changelly.Constants.decimalFormat;
 
 public class ExchangeFragment extends Fragment {
     public static final BigDecimal MAX_BITCOIN_VALUE = BigDecimal.valueOf(20999999);
+    public static final String BCH_EXCHANGE = "bch_exchange";
+    public static final String BCH_MIN_EXCHANGE_VALUE = "bch_min_exchange_value";
     private static String TAG = "ChangellyActivity";
 
     @BindView(R.id.from_account_list)
@@ -95,6 +98,7 @@ public class ExchangeFragment extends Fragment {
     private Double minAmount = 0.0;
     private boolean avoidTextChangeEvent = false;
     private Receiver receiver;
+    private SharedPreferences sharedPreferences;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -109,6 +113,8 @@ public class ExchangeFragment extends Fragment {
             IntentFilter intentFilter = new IntentFilter(action);
             LocalBroadcastManager.getInstance(getActivity()).registerReceiver(receiver, intentFilter);
         }
+        sharedPreferences = getActivity().getSharedPreferences(BCH_EXCHANGE, Context.MODE_PRIVATE);
+        minAmount = (double) sharedPreferences.getFloat(BCH_MIN_EXCHANGE_VALUE, 0f);
         getActivity().startService(new Intent(getActivity(), ChangellyService.class)
                 .setAction(ChangellyService.ACTION_GET_MIN_EXCHANGE)
                 .putExtra(ChangellyService.FROM, ChangellyService.BCH)
@@ -381,7 +387,12 @@ public class ExchangeFragment extends Fragment {
                 case ChangellyService.INFO_MIN_AMOUNT:
                     amount = intent.getDoubleExtra(ChangellyService.AMOUNT, 0);
                     Log.d(TAG, "Received minimum amount: " + amount);
-                    minAmount = amount;
+                    if(amount != 0) {
+                        sharedPreferences.edit()
+                                .putFloat(BCH_MIN_EXCHANGE_VALUE, (float) amount)
+                                .apply();
+                        minAmount = amount;
+                    }
                     break;
                 case ChangellyService.INFO_EXCH_AMOUNT:
                     from = intent.getStringExtra(ChangellyService.FROM);
