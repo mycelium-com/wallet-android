@@ -173,7 +173,7 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
     override fun getCurrentReceiveAddress(guid: String, accountIndex: Int): Address? {
         val uri = CurrentReceiveAddress.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHBIP44)).buildUpon().build()
         val selection = CurrentReceiveAddress.SELECTION_HD_ACCOUNT
-        context.contentResolver.query(uri, null, selection, arrayOf("" + accountIndex), null).use {
+        context.contentResolver.query(uri, null, selection, arrayOf(guid, "" + accountIndex), null).use {
             return if (it.columnCount != 0) {
                 it.moveToFirst()
                 val address = it.getString(it.getColumnIndex(CurrentReceiveAddress.ADDRESS))
