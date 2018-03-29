@@ -98,50 +98,66 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
 
             "com.mycelium.wallet.requestAccountLevelKeysToMBW" -> {
                 val mbwManager = MbwManager.getInstance(context)
+                val accountGuid = intent.getStringExtra(IntentContract.ACCOUNT_GUID)
                 val accountIndexes = intent.getIntArrayExtra(IntentContract.ACCOUNT_INDEXES_EXTRA)
                 val creationTimeSeconds = intent.getLongExtra(IntentContract.CREATIONTIMESECONDS, 0)
+
+                var account = mbwManager.getWalletManager(false).getAccount(UUID.fromString(accountGuid)) as? Bip44Account
+
                 Log.d(TAG, "com.mycelium.wallet.requestAccountLevelKeysToMBW, " +
                         "accountIndexes.size = ${accountIndexes.size}")
                 if (accountIndexes == null) {
                     Log.e(TAG, "Account Indexes required!")
                     return
                 }
-                val accountLevelKeys: MutableList<String> = mutableListOf()
-                val accountIndexesIterator = accountIndexes.iterator()
-                while (accountIndexesIterator.hasNext()) {
-                    val accountIndex = accountIndexesIterator.nextInt()
-                    val masterSeed = mbwManager.getWalletManager(false)
-                            .getMasterSeed(AesKeyCipher.defaultKeyCipher())
-                    val masterDeterministicKey : DeterministicKey = HDKeyDerivation.createMasterPrivateKey(masterSeed.bip32Seed)
-                    masterDeterministicKey.creationTimeSeconds
-                    val bip44LevelDeterministicKey = HDKeyDerivation.deriveChildKey(
-                            masterDeterministicKey, ChildNumber(44, true),
-                            creationTimeSeconds)
-                    val coinType = if (mbwManager.network.isTestnet) {
-                        1 //Bitcoin Testnet https://github.com/satoshilabs/slips/blob/master/slip-0044.md
-                    } else {
-                        0 //Bitcoin Mainnet https://github.com/satoshilabs/slips/blob/master/slip-0044.md
+
+                //HD key is derived from master seed
+                if (account!!.isDerivedFromInternalMasterseed()) {
+                    val accountLevelKeys: MutableList<String> = mutableListOf()
+                    val accountIndexesIterator = accountIndexes.iterator()
+                    while (accountIndexesIterator.hasNext()) {
+                        val accountIndex = accountIndexesIterator.nextInt()
+                        val masterSeed = mbwManager.getWalletManager(false)
+                                .getMasterSeed(AesKeyCipher.defaultKeyCipher())
+                        val masterDeterministicKey: DeterministicKey = HDKeyDerivation.createMasterPrivateKey(masterSeed.bip32Seed)
+                        masterDeterministicKey.creationTimeSeconds
+                        val bip44LevelDeterministicKey = HDKeyDerivation.deriveChildKey(
+                                masterDeterministicKey, ChildNumber(44, true),
+                                creationTimeSeconds)
+                        val coinType = if (mbwManager.network.isTestnet) {
+                            1 //Bitcoin Testnet https://github.com/satoshilabs/slips/blob/master/slip-0044.md
+                        } else {
+                            0 //Bitcoin Mainnet https://github.com/satoshilabs/slips/blob/master/slip-0044.md
+                        }
+                        val cointypeLevelDeterministicKey =
+                                HDKeyDerivation.deriveChildKey(bip44LevelDeterministicKey,
+                                        ChildNumber(coinType, true), creationTimeSeconds)
+                        val networkParameters = NetworkParameters.fromID(if (mbwManager.network.isTestnet) {
+                            NetworkParameters.ID_TESTNET
+                        } else {
+                            NetworkParameters.ID_MAINNET
+                        })!!
+
+                        val accountLevelKey = HDKeyDerivation.deriveChildKey(cointypeLevelDeterministicKey,
+                                ChildNumber(accountIndex, true), creationTimeSeconds)
+                        accountLevelKeys.add(accountLevelKey.serializePubB58(networkParameters))
                     }
-                    val cointypeLevelDeterministicKey =
-                            HDKeyDerivation.deriveChildKey(bip44LevelDeterministicKey,
-                                    ChildNumber(coinType, true), creationTimeSeconds)
-                    val networkParameters = NetworkParameters.fromID(if (mbwManager.network.isTestnet) {
-                        NetworkParameters.ID_TESTNET
-                    } else {
-                        NetworkParameters.ID_MAINNET
-                    })!!
 
-                    val accountLevelKey = HDKeyDerivation.deriveChildKey(cointypeLevelDeterministicKey,
-                            ChildNumber(accountIndex, true), creationTimeSeconds)
-                    accountLevelKeys.add(accountLevelKey.serializePubB58(networkParameters))
+                    //val bip39PassphraseList : ArrayList<String> = ArrayList(masterSeed.bip39WordList)
+                    val service = IntentContract.RequestAccountLevelKeysToSPV.createIntent(accountGuid,
+                            ArrayList(accountIndexes.toList()),
+                            ArrayList(accountLevelKeys.toList()),
+                            0) //TODO Don't commit an evil value close to releasing the prodnet version. maybe do some BuildConfig.DEBUG ? 1504664986L: 0L
+                    WalletApplication.sendToSpv(service, BCHBIP44)
+                } else {
+                    //Unrelated HD key
+                    val publicKeyB58 = account.getExportData(AesKeyCipher.defaultKeyCipher()).publicData.get()
+                    val service = IntentContract.RequestAccountLevelKeysToSPV.createIntent(accountGuid,
+                            ArrayList(arrayOf(0).toList()),
+                            ArrayList(arrayOf(publicKeyB58).toList()),
+                            0) //TODO Don't commit an evil value close to releasing the prodnet version. maybe do some BuildConfig.DEBUG ? 1504664986L: 0L
+                    WalletApplication.sendToSpv(service, BCHBIP44)
                 }
-
-                //val bip39PassphraseList : ArrayList<String> = ArrayList(masterSeed.bip39WordList)
-                val service = IntentContract.RequestAccountLevelKeysToSPV.createIntent(
-                        ArrayList(accountIndexes.toList()),
-                        ArrayList(accountLevelKeys.toList()),
-                        0) //TODO Don't commit an evil value close to releasing the prodnet version. maybe do some BuildConfig.DEBUG ? 1504664986L: 0L
-                WalletApplication.sendToSpv(service, BCHBIP44)
             }
             "com.mycelium.wallet.requestSingleAddressPublicKeyToMBW" -> {
                 val _mbwManager = MbwManager.getInstance(context)
