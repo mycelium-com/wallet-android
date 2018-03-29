@@ -13,13 +13,13 @@ public interface SpvBalanceFetcher {
     List<TransactionSummary> retrieveTransactionSummaryByHdAccountIndex(String id, int accountIndex, long since);
     List<TransactionSummary> retrieveTransactionSummaryBySingleAddressAccountId(String id);
     List<TransactionSummary> retrieveTransactionSummaryBySingleAddressAccountId(String id, long since);
-    void requestTransactionsAsync(int accountIndex);
+    void requestTransactionsAsync(String guid, int accountIndex);
     void requestHdWalletAccountRemoval(int accountIndex);
     void requestTransactionsFromSingleAddressAccountAsync(String guid);
     void requestSingleAddressWalletAccountRemoval(String guid);
     float getSyncProgressPercents();
-    Address getCurrentReceiveAddress(int accountIndex);
-    int getPrivateKeysCount(int accountIndex);
+    Address getCurrentReceiveAddress(String guid, int accountIndex);
+    int getPrivateKeysCount(String guid, int accountIndex);
     boolean isFirstSync();
     void forceCleanCache();
 }
