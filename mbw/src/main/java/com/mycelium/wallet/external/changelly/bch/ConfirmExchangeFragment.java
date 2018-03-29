@@ -44,6 +44,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -186,7 +187,8 @@ public class ConfirmExchangeFragment extends Fragment {
 
     private void updateUI() {
         if (isAdded()) {
-            fromAmount.setText(getString(R.string.value_currency, offer.currencyFrom, offer.amountFrom));
+            fromAmount.setText(getString(R.string.value_currency, offer.currencyFrom
+                    , new DecimalFormat("#.########").format(offer.amountFrom)));
             toAmount.setText(getString(R.string.value_currency, offer.currencyTo, offer.amountTo));
         }
     }
@@ -249,7 +251,7 @@ public class ConfirmExchangeFragment extends Fragment {
                 .format(new Date());
 
         new AlertDialog.Builder(getActivity())
-                .setTitle(R.string.success)
+                .setTitle(Html.fromHtml("<big>" + getString(R.string.success) + "</big>"))
                 .setMessage(Html.fromHtml(getString(R.string.exchange_order_placed_dialog
                         , order.timestamp
                         , order.transactionId
