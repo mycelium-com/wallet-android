@@ -96,7 +96,7 @@
                 android:layout_marginTop="@dimen/margin_medium"
                 android:gravity="center"
                 android:text="@string/changelly_choose_your_currency"
-                android:textColor="@color/white"
+                android:textColor="?exchange_text_color"
                 android:textSize="18sp" />
 
             <TextView
@@ -109,7 +109,7 @@
                 android:layout_marginStart="8dp"
                 android:gravity="center"
                 android:text="@string/choose_the_currency_and_btc_receiving_account"
-                android:textColor="@color/white"
+                android:textColor="?exchange_text_color"
                 android:textSize="14sp" />
 
             <com.mycelium.wallet.activity.send.view.SelectableRecyclerView
@@ -133,7 +133,7 @@
                 android:layout_marginTop="@dimen/margin_medium"
                 android:gravity="center"
                 android:text="@string/enter_exchange_amount"
-                android:textColor="@color/white"
+                android:textColor="?exchange_text_color"
                 android:textSize="18sp" />
 
             <TextView
@@ -154,7 +154,7 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="@dimen/margin_medium"
                 android:text="@string/amount_to_exchange"
-                android:textColor="@color/white"
+                android:textColor="?exchange_text_color"
                 android:textSize="18sp" />
 
             <TextView
@@ -191,7 +191,7 @@
                 android:layout_marginRight="@dimen/margin_small"
                 android:minEms="4"
                 android:text="BCH"
-                android:textColor="@color/white"
+                android:textColor="?exchange_text_color"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
@@ -207,7 +207,7 @@
                     android:paddingEnd="@dimen/margin_medium"
                     android:paddingStart="@dimen/margin_medium"
                     android:text="0"
-                    android:textColor="@color/white"
+                    android:textColor="?exchange_text_color"
                     android:textSize="20sp" />
             </LinearLayout>
 
@@ -238,7 +238,7 @@
                 android:layout_marginRight="@dimen/margin_small"
                 android:minEms="4"
                 android:text="BTC"
-                android:textColor="@color/white"
+                android:textColor="?exchange_text_color"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
@@ -253,7 +253,7 @@
                     android:paddingEnd="@dimen/margin_medium"
                     android:paddingStart="@dimen/margin_medium"
                     android:text="0"
-                    android:textColor="@color/white"
+                    android:textColor="?exchange_text_color"
                     android:textSize="20sp" />
 
             </LinearLayout>

@@ -99,7 +99,7 @@ public class ExchangeFragment extends Fragment {
     private AccountAdapter toAccountAdapter;
     private AccountAdapter fromAccountAdapter;
 
-    private Double minAmount = 0.0;
+    private double minAmount = -1.0;
     private boolean avoidTextChangeEvent = false;
     private Receiver receiver;
     private SharedPreferences sharedPreferences;
@@ -118,7 +118,7 @@ public class ExchangeFragment extends Fragment {
             LocalBroadcastManager.getInstance(getActivity()).registerReceiver(receiver, intentFilter);
         }
         sharedPreferences = getActivity().getSharedPreferences(BCH_EXCHANGE, Context.MODE_PRIVATE);
-        minAmount = (double) sharedPreferences.getFloat(BCH_MIN_EXCHANGE_VALUE, 0f);
+        minAmount = (double) sharedPreferences.getFloat(BCH_MIN_EXCHANGE_VALUE, -1f);
         getActivity().startService(new Intent(getActivity(), ChangellyService.class)
                 .setAction(ChangellyService.ACTION_GET_MIN_EXCHANGE)
                 .putExtra(ChangellyService.FROM, ChangellyService.BCH)
@@ -345,7 +345,7 @@ public class ExchangeFragment extends Fragment {
         }
 
         WalletAccount fromAccount = fromAccountAdapter.getItem(fromRecyclerView.getSelectedItem()).account;
-        if (checkMin && minAmount == 0) {
+        if (checkMin && minAmount == -1) {
             buttonContinue.setEnabled(false);
             toast("Please wait while loading minimum amount information.");
             return false;
@@ -399,7 +399,7 @@ public class ExchangeFragment extends Fragment {
 
             switch (intent.getAction()) {
                 case ChangellyService.INFO_MIN_AMOUNT:
-                    amount = intent.getDoubleExtra(ChangellyService.AMOUNT, 0);
+                    amount = intent.getDoubleExtra(ChangellyService.AMOUNT, -1);
                     Log.d(TAG, "Received minimum amount: " + amount);
                     if(amount != 0) {
                         sharedPreferences.edit()
