@@ -74,6 +74,14 @@ public class PdfWriter {
         _writer.setFont(StandardFonts.SUBTYPE, StandardFonts.TIMES_ROMAN);
     }
 
+    public void setItalicFont() {
+        _writer.setFont(StandardFonts.SUBTYPE, StandardFonts.TIMES_ITALIC);
+    }
+
+    public void setBoldFont() {
+        _writer.setFont(StandardFonts.SUBTYPE, StandardFonts.TIMES_BOLD);
+    }
+
     public void setMonoFont() {
         _writer.setFont(StandardFonts.SUBTYPE, StandardFonts.COURIER);
     }
