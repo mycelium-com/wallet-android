@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:padding="@dimen/margin_medium">
 
@@ -33,13 +34,14 @@
         android:layout_marginTop="12dp"
         android:ellipsize="middle"
         android:singleLine="true"
-        android:paddingStart="@dimen/margin_medium"
+        android:paddingStart="12dp"
         android:paddingEnd="@dimen/margin_medium"
         android:paddingTop="@dimen/margin_small"
         android:paddingBottom="@dimen/margin_small"
-        android:text=""
+        tools:text="test"
         android:background="@drawable/background_sell_order_card"
         android:drawableRight="@drawable/ic_content_copy_white"
+        android:drawablePadding="12dp"
         android:textSize="18sp"
         android:textStyle="bold" />
 
@@ -59,14 +61,15 @@
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif-medium"
         android:lineSpacingExtra="11sp"
-        android:paddingStart="@dimen/margin_medium"
+        android:paddingStart="12dp"
         android:paddingEnd="@dimen/margin_medium"
         android:paddingTop="@dimen/margin_small"
         android:paddingBottom="@dimen/margin_small"
         android:background="@drawable/background_sell_order_card"
-        android:text=""
+        tools:text="100 btc"
         android:textColor="@color/white"
         android:drawableRight="@drawable/ic_content_copy_white"
+        android:drawablePadding="12dp"
         android:textSize="18sp"
         android:textStyle="normal" />
 

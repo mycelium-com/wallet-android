@@ -1102,7 +1102,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="n_sat_min">%d\nsat/min</string>
     <string name="amount_to_receive">Receiving</string>
     <string name="amount_to_exchange">Exchanging</string>
-    <string name="value_currency">%1$s %2$f</string>
+    <string name="value_currency">%1$s %2$s</string>
     <string name="enter_exchange_amount">Enter exchange amount</string>
     <string name="exchange_in_order_to_complete">In order to complete exchange operation, you need to send the selected amount to the address below.</string>
     <string name="exchange_to_do_so">Step 1. Copy the address above.\nStep 2. Open your wallet where you store the currency you are exchanging.\nStep 3. Send this.</string>

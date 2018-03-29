@@ -18,6 +18,8 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.external.changelly.ChangellyAPIService.ChangellyTransactionOffer;
 
+import java.text.DecimalFormat;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -56,7 +58,8 @@ public class ChangellyOfferActivity extends AppCompatActivity {
     }
 
     private void updateUI() {
-        tvFromAmount.setText(getString(R.string.value_currency, offer.currencyFrom, offer.amountFrom));
+        tvFromAmount.setText(getString(R.string.value_currency, offer.currencyFrom
+                , new DecimalFormat("#.########").format(offer.amountFrom)));
         tvSendToAddress.setText(offer.payinAddress);
     }
 
