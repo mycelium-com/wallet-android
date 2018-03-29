@@ -13,6 +13,7 @@ import android.text.Editable;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -90,7 +91,7 @@ public class ChangellyActivity extends AppCompatActivity {
     View llChangellyLoadingProgress;
 
     @BindView(R.id.llChangellyMain)
-    View llChangellyMain;
+    ScrollView llChangellyMain;
 
     @BindView(R.id.llChangellyValidationWait)
     View llChangellyValidationWait;
@@ -130,8 +131,6 @@ public class ChangellyActivity extends AppCompatActivity {
         valueKeyboard.setInputListener(new ValueKeyboard.SimpleInputListener() {
             @Override
             public void done() {
-                currencySelector.setVisibility(View.VISIBLE);
-                accountSelector.setVisibility(View.VISIBLE);
                 titleView.setVisibility(View.VISIBLE);
                 subtitleView.setVisibility(View.VISIBLE);
                 fromLayout.setAlpha(Constants.INACTIVE_ALPHA);
@@ -269,13 +268,15 @@ public class ChangellyActivity extends AppCompatActivity {
         valueKeyboard.setVisibility(View.VISIBLE);
         valueKeyboard.setInputTextView(fromValue);
         valueKeyboard.setEntry(fromValue.getText().toString());
-        currencySelector.setVisibility(View.GONE);
-        accountSelector.setVisibility(View.GONE);
-        titleView.setVisibility(View.GONE);
-        subtitleView.setVisibility(View.GONE);
         fromLayout.setAlpha(Constants.ACTIVE_ALPHA);
         toLayout.setAlpha(Constants.INACTIVE_ALPHA);
 
+        llChangellyMain.post(new Runnable() {
+            @Override
+            public void run() {
+                llChangellyMain.smoothScrollTo(0, fromLayout.getTop());
+            }
+        });
     }
 
     @OnClick(R.id.toLayout)
@@ -283,13 +284,15 @@ public class ChangellyActivity extends AppCompatActivity {
         valueKeyboard.setVisibility(View.VISIBLE);
         valueKeyboard.setInputTextView(toValue);
         valueKeyboard.setEntry(toValue.getText().toString());
-        currencySelector.setVisibility(View.GONE);
-        accountSelector.setVisibility(View.GONE);
-        titleView.setVisibility(View.GONE);
-        subtitleView.setVisibility(View.GONE);
         fromLayout.setAlpha(Constants.INACTIVE_ALPHA);
         toLayout.setAlpha(Constants.ACTIVE_ALPHA);
 
+        llChangellyMain.post(new Runnable() {
+            @Override
+            public void run() {
+                llChangellyMain.smoothScrollTo(0, toLayout.getTop());
+            }
+        });
     }
 
     @OnClick(R.id.btChangellyCreateTransaction)

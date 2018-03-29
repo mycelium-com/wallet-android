@@ -65,6 +65,7 @@ import static com.mycelium.wallet.external.changelly.ChangellyService.INFO_ERROR
 public class ConfirmExchangeFragment extends Fragment {
     public static final int MINER_FEE = 450;
     public static final String TAG = "BCHExchange";
+    private final DecimalFormat decimalFormat = new DecimalFormat("#.########");
 
     @BindView(R.id.fromAddress)
     TextView fromAddress;
@@ -188,8 +189,9 @@ public class ConfirmExchangeFragment extends Fragment {
     private void updateUI() {
         if (isAdded()) {
             fromAmount.setText(getString(R.string.value_currency, offer.currencyFrom
-                    , new DecimalFormat("#.########").format(offer.amountFrom)));
-            toAmount.setText(getString(R.string.value_currency, offer.currencyTo, offer.amountTo));
+                    , decimalFormat.format(offer.amountFrom)));
+            toAmount.setText(getString(R.string.value_currency, offer.currencyTo
+                    , decimalFormat.format(offer.amountTo)));
         }
     }
 
@@ -228,7 +230,7 @@ public class ConfirmExchangeFragment extends Fragment {
 
         if (!event.isSuccess) {
             new AlertDialog.Builder(getActivity())
-                    .setTitle(R.string.error)
+                    .setTitle(Html.fromHtml("<big>" + getString(R.string.error) + "</big>"))
                     .setMessage("Send funds failed: " + event.message)
                     .setNegativeButton(R.string.close, null)
                     .setOnDismissListener(new DialogInterface.OnDismissListener() {

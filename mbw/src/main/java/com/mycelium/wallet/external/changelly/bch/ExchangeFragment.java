@@ -18,6 +18,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -57,6 +58,9 @@ public class ExchangeFragment extends Fragment {
     public static final String BCH_EXCHANGE = "bch_exchange";
     public static final String BCH_MIN_EXCHANGE_VALUE = "bch_min_exchange_value";
     private static String TAG = "ChangellyActivity";
+
+    @BindView(R.id.scrollView)
+    ScrollView scrollView;
 
     @BindView(R.id.from_account_list)
     SelectableRecyclerView fromRecyclerView;
@@ -163,8 +167,6 @@ public class ExchangeFragment extends Fragment {
         valueKeyboard.setInputListener(new ValueKeyboard.SimpleInputListener() {
             @Override
             public void done() {
-                fromRecyclerView.setVisibility(View.VISIBLE);
-                toRecyclerView.setVisibility(View.VISIBLE);
                 fromLayout.setAlpha(Constants.INACTIVE_ALPHA);
                 toLayout.setAlpha(Constants.INACTIVE_ALPHA);
             }
@@ -230,12 +232,17 @@ public class ExchangeFragment extends Fragment {
         valueKeyboard.setInputTextView(toValue);
         valueKeyboard.setVisibility(View.VISIBLE);
         valueKeyboard.setEntry(toValue.getText().toString());
-        fromRecyclerView.setVisibility(View.GONE);
-        toRecyclerView.setVisibility(View.GONE);
         toLayout.setAlpha(Constants.ACTIVE_ALPHA);
         fromLayout.setAlpha(Constants.INACTIVE_ALPHA);
         valueKeyboard.setSpendableValue(BigDecimal.ZERO);
         valueKeyboard.setMaxValue(MAX_BITCOIN_VALUE);
+
+        scrollView.post(new Runnable() {
+            @Override
+            public void run() {
+                scrollView.smoothScrollTo(0, toLayout.getBottom());
+            }
+        });
     }
 
     @OnClick(R.id.fromValueLayout)
@@ -248,6 +255,13 @@ public class ExchangeFragment extends Fragment {
         AccountAdapter.Item item = fromAccountAdapter.getItem(fromRecyclerView.getSelectedItem());
         valueKeyboard.setSpendableValue(getMaxSpend(item.account));
         valueKeyboard.setMaxValue(MAX_BITCOIN_VALUE);
+
+        scrollView.post(new Runnable() {
+            @Override
+            public void run() {
+                scrollView.smoothScrollTo(0, fromLayout.getTop());
+            }
+        });
     }
 
     @OnClick(R.id.use_all_funds)
