@@ -57,6 +57,7 @@ public class ExchangeFragment extends Fragment {
     public static final BigDecimal MAX_BITCOIN_VALUE = BigDecimal.valueOf(20999999);
     public static final String BCH_EXCHANGE = "bch_exchange";
     public static final String BCH_MIN_EXCHANGE_VALUE = "bch_min_exchange_value";
+    public static final float NOT_LOADED = -1f;
     private static String TAG = "ChangellyActivity";
 
     @BindView(R.id.scrollView)
@@ -99,7 +100,7 @@ public class ExchangeFragment extends Fragment {
     private AccountAdapter toAccountAdapter;
     private AccountAdapter fromAccountAdapter;
 
-    private double minAmount = -1.0;
+    private double minAmount = NOT_LOADED;
     private boolean avoidTextChangeEvent = false;
     private Receiver receiver;
     private SharedPreferences sharedPreferences;
@@ -118,7 +119,7 @@ public class ExchangeFragment extends Fragment {
             LocalBroadcastManager.getInstance(getActivity()).registerReceiver(receiver, intentFilter);
         }
         sharedPreferences = getActivity().getSharedPreferences(BCH_EXCHANGE, Context.MODE_PRIVATE);
-        minAmount = (double) sharedPreferences.getFloat(BCH_MIN_EXCHANGE_VALUE, -1f);
+        minAmount = (double) sharedPreferences.getFloat(BCH_MIN_EXCHANGE_VALUE, NOT_LOADED);
         getActivity().startService(new Intent(getActivity(), ChangellyService.class)
                 .setAction(ChangellyService.ACTION_GET_MIN_EXCHANGE)
                 .putExtra(ChangellyService.FROM, ChangellyService.BCH)
@@ -345,7 +346,7 @@ public class ExchangeFragment extends Fragment {
         }
 
         WalletAccount fromAccount = fromAccountAdapter.getItem(fromRecyclerView.getSelectedItem()).account;
-        if (checkMin && minAmount == -1) {
+        if (checkMin && minAmount == NOT_LOADED) {
             buttonContinue.setEnabled(false);
             toast("Please wait while loading minimum amount information.");
             return false;
@@ -399,7 +400,7 @@ public class ExchangeFragment extends Fragment {
 
             switch (intent.getAction()) {
                 case ChangellyService.INFO_MIN_AMOUNT:
-                    amount = intent.getDoubleExtra(ChangellyService.AMOUNT, -1);
+                    amount = intent.getDoubleExtra(ChangellyService.AMOUNT, NOT_LOADED);
                     Log.d(TAG, "Received minimum amount: " + amount);
                     if(amount != 0) {
                         sharedPreferences.edit()
