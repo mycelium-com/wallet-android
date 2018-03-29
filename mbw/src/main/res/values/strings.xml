@@ -1108,7 +1108,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="exchange_to_do_so">Step 1. Copy the address above.\nStep 2. Open your wallet where you store the currency you are exchanging.\nStep 3. Send this.</string>
     <string name="exchange_after_transaction">After your transaction is confirmed, your funds will be sent to your receiving account.</string>
     <string name="exchange_altcoins_to_btc">Shift any coins to BTC</string>
-    <string name="exchange_minimum_amount">(Min. amount is %1$s %2$s)</string>
+    <string name="exchange_minimum_amount">Minimum exchangeable amount for %2$s is %1$s %2$s.</string>
     <string name="choose_the_currency_and_btc_receiving_account">Choose the currency and BTC receiving account</string>
     <string name="due_to_high_cryptocurrencies_volatility">Due to high cryptocurrencies volatility, the final rate may be slightly higher or lower than estimated here.</string>
     <string name="use_all_funds">USE ALL\nFUNDS</string>
