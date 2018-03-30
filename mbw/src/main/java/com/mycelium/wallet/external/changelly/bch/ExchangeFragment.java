@@ -401,8 +401,8 @@ public class ExchangeFragment extends Fragment {
             switch (intent.getAction()) {
                 case ChangellyService.INFO_MIN_AMOUNT:
                     amount = intent.getDoubleExtra(ChangellyService.AMOUNT, NOT_LOADED);
-                    Log.d(TAG, "Received minimum amount: " + amount);
-                    if(amount != 0) {
+                    if(amount != NOT_LOADED) {
+                        Log.d(TAG, "Received minimum amount: " + amount);
                         sharedPreferences.edit()
                                 .putFloat(BCH_MIN_EXCHANGE_VALUE, (float) amount)
                                 .apply();
