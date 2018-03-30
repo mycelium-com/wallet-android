@@ -9,7 +9,6 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import com.google.common.base.CharMatcher
-import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mycelium.modularizationtools.CommunicationManager
 import com.mycelium.modularizationtools.ModuleMessageReceiver
 import com.mycelium.modularizationtools.model.Module
@@ -157,9 +156,13 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                     Log.w(TAG, "MbwMessageReceiver.onMessageFromSpvModuleBch, " +
                             "com.mycelium.wallet.requestSingleAddressPrivateKeyToMBW, " +
                             "publicKey must not be null.")
+                    val service = IntentContract.SendSingleAddressToSPV.createIntent(accountGuid,
+                            account.address.allAddressBytes)
+                    WalletApplication.sendToSpv(service, BCHSINGLEADDRESS)
                     return
                 }
-                val service = IntentContract.RequestSingleAddressPublicKeyToSPV.createIntent(accountGuid, account.publicKey.publicKeyBytes)
+                val service = IntentContract.SendSingleAddressPublicKeyToSPV.createIntent(accountGuid,
+                        account.publicKey.publicKeyBytes)
                 WalletApplication.sendToSpv(service, BCHSINGLEADDRESS)
             }
             "com.mycelium.wallet.notifyBroadcastTransactionBroadcastCompleted" -> {
