@@ -130,7 +130,7 @@ public class ConfirmExchangeFragment extends Fragment {
                 switch (account.getType()) {
                     case BCHBIP44: {
                         Bip44BCHAccount bip44BCHAccount = (Bip44BCHAccount) account;
-                        Intent serviceIntent = IntentContract.SendFunds.createIntent(lastOperationId, bip44BCHAccount.getAccountIndex(), offer.payinAddress, fromValue, TransactionFee.NORMAL, 1.0f);
+                        Intent serviceIntent = IntentContract.SendFunds.createIntent(lastOperationId, bip44BCHAccount.getId().toString(), bip44BCHAccount.getAccountIndex(), offer.payinAddress, fromValue, TransactionFee.NORMAL, 1.0f);
                         WalletApplication.sendToSpv(serviceIntent, WalletAccount.Type.BCHBIP44);
                         break;
                     }

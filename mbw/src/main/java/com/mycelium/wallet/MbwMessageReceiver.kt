@@ -188,12 +188,13 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 }
             }
             "com.mycelium.wallet.sendUnsignedTransactionToMbw" -> {
+                val guid = intent.getStringExtra(IntentContract.ACCOUNT_GUID)
                 val operationId = intent.getStringExtra(IntentContract.OPERATION_ID)
                 val transactionBytes = intent.getByteArrayExtra(IntentContract.TRANSACTION_BYTES)
                 val txUTXOsHexList = intent.getStringArrayExtra(IntentContract.CONNECTED_OUTPUTS)
                 val accountIndex = intent.getIntExtra(IntentContract.ACCOUNT_INDEX_EXTRA, -1)
                 val mbwManager = MbwManager.getInstance(context)
-                val account = mbwManager.getWalletManager(false).getBip44Account(accountIndex) as Bip44Account
+                val account = mbwManager.getWalletManager(false).getAccount(UUID.fromString(guid)) as Bip44Account
                 val networkParameters = NetworkParameters.fromID(if (mbwManager.network.isTestnet) {
                     NetworkParameters.ID_TESTNET
                 } else {
@@ -213,7 +214,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
 
                 val signedTransaction = signAndSerialize(networkParameters, keyList, txUTXOsHexList, transaction)
 
-                val service = IntentContract.SendSignedTransactionToSPV.createIntent(operationId, accountIndex,
+                val service = IntentContract.SendSignedTransactionToSPV.createIntent(operationId, guid, accountIndex,
                         signedTransaction)
                 WalletApplication.sendToSpv(service, BCHBIP44)
             }
