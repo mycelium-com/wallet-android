@@ -30,18 +30,18 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
 
     override fun retrieveByHdAccountIndex(id: String, accountIndex: Int): CurrencyBasedBalance {
         val uri = AccountBalance.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHBIP44)).buildUpon().appendEncodedPath(id).build()
-        val selection = AccountBalance.SELECTION_HD_ACCOUNT
-        return retrieveBalance(uri, selection, arrayOf(id, "" + accountIndex))
+        val selection = AccountBalance.SELECTION_ACCOUNT_INDEX
+        return retrieveBalance(uri, selection, "" + accountIndex)
     }
 
     override fun retrieveBySingleAddressAccountId(id: String): CurrencyBasedBalance {
         val uri = AccountBalance.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHSINGLEADDRESS)).buildUpon().appendEncodedPath(id).build()
         val selection = AccountBalance.SELECTION_SINGLE_ADDRESS_ACCOUNT_GUID
-        return retrieveBalance(uri, selection, arrayOf(id))
+        return retrieveBalance(uri, selection, id)
     }
 
-    private fun retrieveBalance(uri: Uri, selection: String, selectionArgs: Array<String>): CurrencyBasedBalance {
-        context.contentResolver.query(uri, null, selection, selectionArgs, null).use {
+    private fun retrieveBalance(uri: Uri, selection: String, selectionArg: String): CurrencyBasedBalance {
+        context.contentResolver.query(uri, null, selection, arrayOf(selectionArg), null).use {
             while (it?.moveToLast() == true) {
                 return from(it)
             }
@@ -88,6 +88,9 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
     private fun retrieveAddresses(toAddress: String) : List<Address> =
             toAddress.split(",".toRegex()).map { Address.fromString(it) }
 
+    private fun retrieveTransactionSummary(uri: Uri, selection: String, selectionArg: String) =
+            retrieveTransactionSummary(uri, selection, arrayOf(selectionArg))
+
     private fun retrieveTransactionSummary(uri: Uri, selection: String, selectionArgs: Array<String>): List<TransactionSummary> {
         val transactionSummariesList = ArrayList<TransactionSummary>()
         context.contentResolver.query(uri, null, selection, selectionArgs, null).use {
@@ -101,20 +104,20 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
 
     override fun retrieveTransactionSummaryByHdAccountIndex(id: String, accountIndex: Int): List<TransactionSummary> {
         val uri = SpvTxSummary.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHBIP44)).buildUpon().appendEncodedPath(id).build()
-        val selection = SpvTxSummary.SELECTION_HD_ACCOUNT
-        return retrieveTransactionSummary(uri, selection, arrayOf(id, "" + accountIndex))
+        val selection = SpvTxSummary.SELECTION_ACCOUNT_INDEX
+        return retrieveTransactionSummary(uri, selection, "" + accountIndex)
     }
 
-    override fun retrieveTransactionSummaryByHdAccountIndex(id: String, accountIndex: Int, since: Long): List<TransactionSummary> {
+    override fun retrieveTransactionSummaryByHdAccountIndex(id: String?, accountIndex: Int, since: Long): List<TransactionSummary> {
         val uri = SpvTxSummary.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHBIP44)).buildUpon().appendEncodedPath(id).build()
-        val selection = SpvTxSummary.SELECTION_HD_ACCOUNT_SINCE
-        return retrieveTransactionSummary(uri, selection, arrayOf(id, "" + accountIndex, "" + since))
+        val selection = SpvTxSummary.SELECTION_ACCOUNT_INDEX_SINCE
+        return retrieveTransactionSummary(uri, selection, arrayOf("" + accountIndex, "" + since))
     }
 
     override fun retrieveTransactionSummaryBySingleAddressAccountId(id: String): List<TransactionSummary> {
         val uri = SpvTxSummary.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHSINGLEADDRESS)).buildUpon().appendEncodedPath(id).build()
         val selection = SpvTxSummary.SELECTION_SINGLE_ADDRESS_ACCOUNT_GUID
-        return retrieveTransactionSummary(uri, selection, arrayOf(id))
+        return retrieveTransactionSummary(uri, selection, id)
     }
 
     override fun retrieveTransactionSummaryBySingleAddressAccountId(id: String, since: Long): List<TransactionSummary> {
@@ -123,8 +126,8 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
         return retrieveTransactionSummary(uri, selection, arrayOf(id, "" + since))
     }
 
-    override fun requestTransactionsAsync(guid: String, accountId: Int) {
-        val service = IntentContract.ReceiveTransactions.createIntent(guid, accountId)
+    override fun requestTransactionsAsync(accountId: Int) {
+        val service = IntentContract.ReceiveTransactions.createIntent(accountId)
         WalletApplication.sendToSpv(service, WalletAccount.Type.BCHBIP44)
     }
 
@@ -170,10 +173,10 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
 
     override fun isFirstSync() = sharedPreference.getBoolean("is_first_sync", true)
 
-    override fun getCurrentReceiveAddress(guid: String, accountIndex: Int): Address? {
+    override fun getCurrentReceiveAddress(accountIndex: Int): Address? {
         val uri = CurrentReceiveAddress.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHBIP44)).buildUpon().build()
-        val selection = CurrentReceiveAddress.SELECTION_HD_ACCOUNT
-        context.contentResolver.query(uri, null, selection, arrayOf(guid, "" + accountIndex), null).use {
+        val selection = AccountBalance.SELECTION_ACCOUNT_INDEX
+        context.contentResolver.query(uri, null, selection, arrayOf("" + accountIndex), null).use {
             return if (it.columnCount != 0) {
                 it.moveToFirst()
                 val address = it.getString(it.getColumnIndex(CurrentReceiveAddress.ADDRESS))
@@ -184,10 +187,10 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
         }
     }
 
-    override fun getPrivateKeysCount(guid: String, accountIndex: Int): Int {
+    override fun getPrivateKeysCount(accountIndex: Int): Int {
         val uri = GetPrivateKeysCount.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHBIP44)).buildUpon().build()
-        val selection = GetPrivateKeysCount.SELECTION_HD_ACCOUNT
-        context.contentResolver.query(uri, null, selection, arrayOf(guid, "" + accountIndex), null).use {
+        val selection = AccountBalance.SELECTION_ACCOUNT_INDEX
+        context.contentResolver.query(uri, null, selection, arrayOf("" + accountIndex), null).use {
             return if (it?.moveToFirst() == true) {
                 it.getInt(0)
             } else {

@@ -71,11 +71,11 @@ public class Bip44BCHAccount extends Bip44Account {
 
     @Override
     public int getPrivateKeyCount() {
-        return spvBalanceFetcher.getPrivateKeysCount(getId().toString(), getAccountIndex());
+        return spvBalanceFetcher.getPrivateKeysCount(getAccountIndex());
     }
 
     @Override
     public Optional<Address> getReceivingAddress() {
-        return Optional.fromNullable(spvBalanceFetcher.getCurrentReceiveAddress(getId().toString(), getAccountIndex()));
+        return Optional.fromNullable(spvBalanceFetcher.getCurrentReceiveAddress(getAccountIndex()));
     }
 }

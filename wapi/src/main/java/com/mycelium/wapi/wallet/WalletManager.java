@@ -301,7 +301,7 @@ public class WalletManager {
                     Bip44BCHAccount bip44BCHAccount = new Bip44BCHAccount(context, keyManager, _network, accountBacking, _wapi, _spvBalanceFetcher);
                     addAccount(bip44BCHAccount);
                     _btcToBchAccounts.put(account.getId(), bip44BCHAccount.getId());
-                    _spvBalanceFetcher.requestTransactionsAsync(bip44BCHAccount.getId().toString(), bip44BCHAccount.getAccountIndex());
+                    _spvBalanceFetcher.requestTransactionsAsync(bip44BCHAccount.getAccountIndex());
                 }
                 return id;
             } finally {
@@ -762,7 +762,7 @@ public class WalletManager {
                 Bip44BCHAccount bchAccount = new Bip44BCHAccount(context, keyManager, _network, accountBacking, _wapi, _spvBalanceFetcher);
                 addAccount(bchAccount);
                 _btcToBchAccounts.put(account.getId(), bchAccount.getId());
-                _spvBalanceFetcher.requestTransactionsAsync(bchAccount.getId().toString(), bchAccount.getAccountIndex());
+                _spvBalanceFetcher.requestTransactionsAsync(bchAccount.getAccountIndex());
             }
         }
     }
@@ -866,7 +866,7 @@ public class WalletManager {
                 //If using SPV module, enters this condition.
                 // Get adresses from all accounts
                 if(currentAccount instanceof Bip44BCHAccount) {
-                    _spvBalanceFetcher.requestTransactionsAsync(currentAccount.getId().toString(), ((Bip44BCHAccount) currentAccount).getAccountIndex());
+                    _spvBalanceFetcher.requestTransactionsAsync(((Bip44BCHAccount) currentAccount).getAccountIndex());
                 }
 
                 if (currentAccount instanceof SingleAddressBCHAccount) {
@@ -1208,7 +1208,7 @@ public class WalletManager {
 
                 if(_spvBalanceFetcher != null) {
                     Bip44BCHAccount bip44BCHAccount = new Bip44BCHAccount(context, keyManager, _network, accountBacking, _wapi, _spvBalanceFetcher);
-                    _spvBalanceFetcher.requestTransactionsAsync(bip44BCHAccount.getId().toString(), bip44BCHAccount.getAccountIndex());
+                    _spvBalanceFetcher.requestTransactionsAsync(bip44BCHAccount.getAccountIndex());
                     addAccount(bip44BCHAccount);
                     _btcToBchAccounts.put(account.getId(), bip44BCHAccount.getId());
                 }
