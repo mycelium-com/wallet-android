@@ -145,10 +145,15 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       ButterKnife.bind(this);
 
       _mbwManager = MbwManager.getInstance(getApplication());
-      isColu = _mbwManager.getSelectedAccount() instanceof ColuAccount;
+      isSendMode = getIntent().getBooleanExtra(SEND_MODE, false);
+      if (isSendMode) {
+         initSendModeAccount();
+      } else {
+         _account = _mbwManager.getSelectedAccount();
+      }
+      isColu = _account instanceof ColuAccount;
       initNumberEntry(savedInstanceState);
 
-      isSendMode = getIntent().getBooleanExtra(SEND_MODE, false);
       mainCurrencyType = (AccountDisplayType) getIntent().getSerializableExtra(BASIC_CURRENCY);
 
       _mbwManager.getCurrencySwitcher().setDefaultCurrency(mainCurrencyType.getAccountLabel());
@@ -163,11 +168,6 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
    }
 
    private void initSendMode() {
-      //we need to have an account, fee, etc to be able to calculate sending related stuff
-      boolean isColdStorage = getIntent().getBooleanExtra(IS_COLD_STORAGE, false);
-      UUID accountId = Preconditions.checkNotNull((UUID) getIntent().getSerializableExtra(ACCOUNT));
-      _account = _mbwManager.getWalletManager(isColdStorage).getAccount(accountId);
-
       // Calculate the maximum amount that can be spent where we send everything we got to another address
       _kbMinerFee = Preconditions.checkNotNull((Long) getIntent().getSerializableExtra(KB_MINER_FEE));
       _maxSpendableAmount = _account.calculateMaxSpendableAmount(_kbMinerFee);
@@ -185,10 +185,17 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       btMax.setVisibility(View.VISIBLE);
    }
 
+   private void initSendModeAccount() {
+      //we need to have an account, fee, etc to be able to calculate sending related stuff
+      boolean isColdStorage = getIntent().getBooleanExtra(IS_COLD_STORAGE, false);
+      UUID accountId = Preconditions.checkNotNull((UUID) getIntent().getSerializableExtra(ACCOUNT));
+      _account = _mbwManager.getWalletManager(isColdStorage).getAccount(accountId);
+   }
+
    private void initListeners() {
       // set the text for the currency button
       if(isColu) {
-         ColuAccount coluAccount = (ColuAccount) _mbwManager.getSelectedAccount();
+         ColuAccount coluAccount = (ColuAccount) _account;
          if (_amount == null || _amount.getValue() == null) {
             _amount = ExactCurrencyValue.from(null, coluAccount.getAccountDefaultCurrency());
          }
@@ -208,7 +215,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       // Init the number pad
       String amountString;
       if (!CurrencyValue.isNullOrZero(_amount)) {
-         if(_mbwManager.getSelectedAccount() instanceof ColuAccount) {
+         if(isColu) {
             amountString = Utils.getColuFormattedValue(_amount);
          }else {
             amountString = Utils.getFormattedValue(_amount, _mbwManager.getBitcoinDenomination());
@@ -353,7 +360,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
                int btcToTargetUnit = CoinUtil.Denomination.BTC.getDecimalPlaces() - _mbwManager.getBitcoinDenomination().getDecimalPlaces();
                newAmount = _amount.getValue().multiply(BigDecimal.TEN.pow(btcToTargetUnit));
             }
-         } else if (_mbwManager.getSelectedAccount() instanceof ColuAccount) {
+         } else if (isColu) {
             showDecimalPlaces = CoinUtil.Denomination.BTC.getDecimalPlaces();
             newAmount = _amount.getValue();
          } else {
@@ -374,7 +381,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       CurrencyValue maxSpendable = CurrencyValue.fromValue(_maxSpendableAmount,
             _amount.getCurrency(), _mbwManager.getExchangeRateManager());
       String maxBalanceString = "";
-      if (_mbwManager.getSelectedAccount() instanceof ColuAccount) {
+      if (isColu) {
          maxBalanceString = getResources().getString(R.string.max_btc,
                  Utils.getColuFormattedValueWithUnit(maxSpendable));
       } else {
