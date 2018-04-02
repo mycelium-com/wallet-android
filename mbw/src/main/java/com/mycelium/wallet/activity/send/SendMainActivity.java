@@ -676,6 +676,8 @@ public class SendMainActivity extends Activity {
    @OnClick(R.id.btManualEntry)
    void onClickManualEntry() {
       Intent intent = new Intent(this, ManualAddressEntry.class);
+      intent.putExtra(ACCOUNT, _account.getId());
+      intent.putExtra(IS_COLD_STORAGE, _isColdStorage);
       startActivityForResult(intent, MANUAL_ENTRY_RESULT_CODE);
    }
 
@@ -701,7 +703,7 @@ public class SendMainActivity extends Activity {
          presetAmount = ExactCurrencyValue.from(null, _account.getAccountDefaultCurrency());
       }
       GetAmountActivity.callMeToSend(this, GET_AMOUNT_RESULT_CODE, _account.getId(), presetAmount, feePerKbValue,
-              AccountDisplayType.getAccountType(_mbwManager.getSelectedAccount()), _isColdStorage);
+              AccountDisplayType.getAccountType(_account), _isColdStorage);
    }
 
    @OnClick(R.id.btSend)
