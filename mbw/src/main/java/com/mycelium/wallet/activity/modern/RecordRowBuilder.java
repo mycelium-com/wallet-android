@@ -189,6 +189,11 @@ public class RecordRowBuilder {
          tvBalance.setText(balanceString);
          tvBalance.setTextColor(textColor);
 
+         // Show legacy account with funds warning if necessary
+         boolean showLegacyAccountWarning = showLegacyAccountWarning(walletAccount, mbwManager);
+         rowView.findViewById(R.id.tvLegacyAccountWarning).setVisibility(showLegacyAccountWarning ? View.VISIBLE : View.GONE);
+
+         // Show legacy account with funds warning if necessary
          boolean showBackupMissingWarning = showBackupMissingWarning(walletAccount, mbwManager);
          TextView backupMissing = rowView.findViewById(R.id.tvBackupMissingWarning);
          backupMissing.setVisibility(showBackupMissingWarning ? View.VISIBLE : View.GONE);
