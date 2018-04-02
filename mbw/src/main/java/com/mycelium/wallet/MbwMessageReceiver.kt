@@ -157,7 +157,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                             "com.mycelium.wallet.requestSingleAddressPrivateKeyToMBW, " +
                             "publicKey must not be null.")
                     val service = IntentContract.SendSingleAddressToSPV.createIntent(accountGuid,
-                            account.address.allAddressBytes)
+                            account.address.typeSpecificBytes)
                     WalletApplication.sendToSpv(service, BCHSINGLEADDRESS)
                     return
                 }
