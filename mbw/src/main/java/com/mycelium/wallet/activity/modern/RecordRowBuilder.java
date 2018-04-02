@@ -42,7 +42,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.common.base.Optional;
@@ -50,7 +49,6 @@ import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.activity.util.ToggleableCurrencyButton;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.model.Balance;
@@ -58,8 +56,6 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bip44.Bip44Account;
 import com.mycelium.wapi.wallet.bip44.Bip44PubOnlyAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
-import com.mycelium.wapi.wallet.currency.CurrencySum;
-import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 
 public class RecordRowBuilder {
    private final MbwManager mbwManager;
@@ -206,6 +202,7 @@ public class RecordRowBuilder {
       } else {
          // We don't show anything if the account is archived
          rowView.findViewById(R.id.tvBalance).setVisibility(View.GONE);
+         rowView.findViewById(R.id.tvLegacyAccountWarning).setVisibility(View.GONE);
          rowView.findViewById(R.id.tvBackupMissingWarning).setVisibility(View.GONE);
       }
 
@@ -224,7 +221,7 @@ public class RecordRowBuilder {
          return false;
       }
       Balance balance = account.getBalance();
-       return account instanceof SingleAddressAccount
+      return account.getType() == WalletAccount.Type.BTCSINGLEADDRESS
                && balance.getReceivingBalance() + balance.getSpendableBalance() > 0
                && account.canSpend()
                && !mbwManager.getMetadataStorage().getIgnoreLegacyWarning(account.getId());

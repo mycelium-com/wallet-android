@@ -123,6 +123,7 @@ import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -603,8 +604,10 @@ public class MbwManager {
    public void importLabelsToBch(WalletManager walletManager) {
       if (getSpvBchFetcher() == null)
          return;
-
-      for (WalletAccount walletAccount : walletManager.getActiveAccounts()) {
+      List<WalletAccount> accounts = new ArrayList<>();
+      accounts.addAll(walletManager.getActiveAccounts());
+      accounts.addAll(walletManager.getArchivedAccounts());
+      for (WalletAccount walletAccount : accounts) {
          if (walletAccount.getType() == WalletAccount.Type.BTCSINGLEADDRESS
                  || walletAccount.getType() == WalletAccount.Type.BTCBIP44) {
             UUID bchId = UUID.nameUUIDFromBytes(("BCH" + walletAccount.getId().toString()).getBytes());
