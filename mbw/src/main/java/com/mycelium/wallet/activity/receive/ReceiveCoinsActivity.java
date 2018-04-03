@@ -377,7 +377,7 @@ public class ReceiveCoinsActivity extends Activity {
                 uri.append("?amount=").append(_amount.getValue().toPlainString());
             } else {
                 uri.append("?amount=").append(CoinUtil.valueString(getDefaultCurrencyAmount().getValue(),
-                                              _mbwManager.getBitcoinDenomination(), false));
+                                              CoinUtil.Denomination.BTC, false));
             }
         }
         return uri.toString();
