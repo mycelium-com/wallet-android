@@ -23,7 +23,6 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.mycelium.spvmodule.IntentContract;
-import com.mycelium.spvmodule.TransactionFee;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.WalletApplication;
@@ -36,6 +35,7 @@ import com.mycelium.wallet.external.changelly.model.Order;
 import com.mycelium.wallet.pdf.BCHExchangeReceiptBuilder;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bip44.Bip44BCHAccount;
+import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
 import com.mycelium.wapi.wallet.single.SingleAddressBCHAccount;
 import com.squareup.otto.Subscribe;
@@ -207,8 +207,10 @@ public class ConfirmExchangeFragment extends Fragment {
 
     private void updateUI() {
         if (isAdded()) {
-            fromAmount.setText(getString(R.string.value_currency, offer.currencyFrom, offer.amountFrom));
-            toAmount.setText(getString(R.string.value_currency, offer.currencyTo, offer.amountTo));
+            fromAmount.setText(getString(R.string.value_currency, offer.currencyFrom
+                    , Constants.decimalFormat.format(offer.amountFrom)));
+            toAmount.setText(getString(R.string.value_currency, offer.currencyTo
+                    , Constants.decimalFormat.format(offer.amountTo)));
         }
     }
 
@@ -247,7 +249,7 @@ public class ConfirmExchangeFragment extends Fragment {
 
         if (!event.isSuccess) {
             new AlertDialog.Builder(getActivity())
-                    .setTitle(R.string.error)
+                    .setTitle(Html.fromHtml("<big>" + getString(R.string.error) + "</big>"))
                     .setMessage("Send funds failed: " + event.message)
                     .setNegativeButton(R.string.close, null)
                     .setOnDismissListener(new DialogInterface.OnDismissListener() {
@@ -261,16 +263,16 @@ public class ConfirmExchangeFragment extends Fragment {
         }
         final Order order = new Order();
         order.transactionId = event.txHash;
-        order.exchangingAmount = String.valueOf(offer.amountFrom);
-        order.exchangingCurrency = "BCH";
+        order.exchangingAmount = Constants.decimalFormat.format(offer.amountFrom);
+        order.exchangingCurrency = CurrencyValue.BCH;
         order.receivingAddress = toAccount.getReceivingAddress().get().toString();
-        order.receivingAmount = String.valueOf(offer.amountTo);
-        order.receivingCurrency = "BTC";
+        order.receivingAmount = Constants.decimalFormat.format(offer.amountTo);
+        order.receivingCurrency = CurrencyValue.BTC;
         order.timestamp = SimpleDateFormat.getDateTimeInstance(SimpleDateFormat.LONG, SimpleDateFormat.LONG, Locale.ENGLISH)
                 .format(new Date());
 
         new AlertDialog.Builder(getActivity())
-                .setTitle(R.string.success)
+                .setTitle(Html.fromHtml("<big>" + getString(R.string.success) + "</big>"))
                 .setMessage(Html.fromHtml(getString(R.string.exchange_order_placed_dialog
                         , order.timestamp
                         , order.transactionId
@@ -287,7 +289,7 @@ public class ConfirmExchangeFragment extends Fragment {
                                 .setSpendingAmount(order.exchangingAmount + " " + order.exchangingCurrency)
                                 .setSpendingAccountLabel(mbwManager.getMetadataStorage().getLabelByAccount(fromAccount.getId()))
                                 .build();
-                        String filePart = new SimpleDateFormat( "yyMMddHHmmss", Locale.US).format(new Date());
+                        String filePart = new SimpleDateFormat("yyMMddHHmmss", Locale.US).format(new Date());
                         File pdfFile = new File(getActivity().getExternalFilesDir(DIRECTORY_DOWNLOADS), "exchange_bch_order_" + filePart + ".pdf");
                         try {
                             OutputStream pdfStream = new FileOutputStream(pdfFile);

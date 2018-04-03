@@ -6,16 +6,19 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,6 +26,7 @@ import com.mycelium.wallet.AccountManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.send.event.SelectListener;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
 import com.mycelium.wallet.activity.view.ValueKeyboard;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
@@ -51,7 +55,13 @@ import static com.mycelium.wallet.external.changelly.Constants.decimalFormat;
 
 public class ExchangeFragment extends Fragment {
     public static final BigDecimal MAX_BITCOIN_VALUE = BigDecimal.valueOf(20999999);
+    public static final String BCH_EXCHANGE = "bch_exchange";
+    public static final String BCH_MIN_EXCHANGE_VALUE = "bch_min_exchange_value";
+    public static final float NOT_LOADED = -1f;
     private static String TAG = "ChangellyActivity";
+
+    @BindView(R.id.scrollView)
+    ScrollView scrollView;
 
     @BindView(R.id.from_account_list)
     SelectableRecyclerView fromRecyclerView;
@@ -74,8 +84,8 @@ public class ExchangeFragment extends Fragment {
     @BindView(R.id.toValueLayout)
     View toLayout;
 
-    @BindView(R.id.tvMinAmountValue)
-    TextView tvMinAmountValue;
+    @BindView(R.id.tvError)
+    TextView tvError;
 
     @BindView(R.id.buttonContinue)
     Button buttonContinue;
@@ -90,9 +100,10 @@ public class ExchangeFragment extends Fragment {
     private AccountAdapter toAccountAdapter;
     private AccountAdapter fromAccountAdapter;
 
-    private Double minAmount = 0.0;
+    private double minAmount = NOT_LOADED;
     private boolean avoidTextChangeEvent = false;
     private Receiver receiver;
+    private SharedPreferences sharedPreferences;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -107,6 +118,8 @@ public class ExchangeFragment extends Fragment {
             IntentFilter intentFilter = new IntentFilter(action);
             LocalBroadcastManager.getInstance(getActivity()).registerReceiver(receiver, intentFilter);
         }
+        sharedPreferences = getActivity().getSharedPreferences(BCH_EXCHANGE, Context.MODE_PRIVATE);
+        minAmount = (double) sharedPreferences.getFloat(BCH_MIN_EXCHANGE_VALUE, NOT_LOADED);
         getActivity().startService(new Intent(getActivity(), ChangellyService.class)
                 .setAction(ChangellyService.ACTION_GET_MIN_EXCHANGE)
                 .putExtra(ChangellyService.FROM, ChangellyService.BCH)
@@ -142,13 +155,19 @@ public class ExchangeFragment extends Fragment {
         fromAccountAdapter.setAccountUseType(AccountAdapter.AccountUseType.OUT);
         fromRecyclerView.setAdapter(fromAccountAdapter);
         fromRecyclerView.setSelectedItem(mbwManager.getSelectedAccount());
+        fromRecyclerView.setSelectListener(new SelectListener() {
+            @Override
+            public void onSelect(RecyclerView.Adapter adapter, int position) {
+                WalletAccount fromAccount = fromAccountAdapter.getItem(fromRecyclerView.getSelectedItem()).account;
+                valueKeyboard.setSpendableValue(getMaxSpend(fromAccount));
+                isValueForOfferOk(true);
+            }
+        });
 
         valueKeyboard.setMaxDecimals(8);
         valueKeyboard.setInputListener(new ValueKeyboard.SimpleInputListener() {
             @Override
             public void done() {
-                fromRecyclerView.setVisibility(View.VISIBLE);
-                toRecyclerView.setVisibility(View.VISIBLE);
                 fromLayout.setAlpha(Constants.INACTIVE_ALPHA);
                 toLayout.setAlpha(Constants.INACTIVE_ALPHA);
             }
@@ -214,12 +233,17 @@ public class ExchangeFragment extends Fragment {
         valueKeyboard.setInputTextView(toValue);
         valueKeyboard.setVisibility(View.VISIBLE);
         valueKeyboard.setEntry(toValue.getText().toString());
-        fromRecyclerView.setVisibility(View.GONE);
-        toRecyclerView.setVisibility(View.GONE);
         toLayout.setAlpha(Constants.ACTIVE_ALPHA);
         fromLayout.setAlpha(Constants.INACTIVE_ALPHA);
         valueKeyboard.setSpendableValue(BigDecimal.ZERO);
         valueKeyboard.setMaxValue(MAX_BITCOIN_VALUE);
+
+        scrollView.post(new Runnable() {
+            @Override
+            public void run() {
+                scrollView.smoothScrollTo(0, toLayout.getBottom());
+            }
+        });
     }
 
     @OnClick(R.id.fromValueLayout)
@@ -232,6 +256,13 @@ public class ExchangeFragment extends Fragment {
         AccountAdapter.Item item = fromAccountAdapter.getItem(fromRecyclerView.getSelectedItem());
         valueKeyboard.setSpendableValue(getMaxSpend(item.account));
         valueKeyboard.setMaxValue(MAX_BITCOIN_VALUE);
+
+        scrollView.post(new Runnable() {
+            @Override
+            public void run() {
+                scrollView.smoothScrollTo(0, fromLayout.getTop());
+            }
+        });
     }
 
     @OnClick(R.id.use_all_funds)
@@ -299,7 +330,7 @@ public class ExchangeFragment extends Fragment {
     }
 
     boolean isValueForOfferOk(boolean checkMin) {
-        tvMinAmountValue.setVisibility(View.GONE);
+        tvError.setVisibility(View.GONE);
         String txtAmount = fromValue.getText().toString();
         if (txtAmount.isEmpty()) {
             buttonContinue.setEnabled(false);
@@ -314,15 +345,23 @@ public class ExchangeFragment extends Fragment {
             return false;
         }
 
-        if (checkMin && minAmount == 0) {
+        WalletAccount fromAccount = fromAccountAdapter.getItem(fromRecyclerView.getSelectedItem()).account;
+        if (checkMin && minAmount == NOT_LOADED) {
             buttonContinue.setEnabled(false);
             toast("Please wait while loading minimum amount information.");
             return false;
         } else if (checkMin && dblAmount.compareTo(minAmount) < 0) {
             buttonContinue.setEnabled(false);
-            tvMinAmountValue.setVisibility(View.VISIBLE);
+            tvError.setText(getString(R.string.exchange_minimum_amount
+                    , decimalFormat.format(minAmount), "BCH"));
+            tvError.setVisibility(View.VISIBLE);
             return false;
-        } // TODO: compare with maximum
+        } else if (fromAccount.getCurrencyBasedBalance().confirmed.getValue().compareTo(BigDecimal.valueOf(dblAmount)) < 0) {
+            buttonContinue.setEnabled(false);
+            tvError.setText(R.string.balance_error);
+            tvError.setVisibility(View.VISIBLE);
+            return false;
+        }
         buttonContinue.setEnabled(true);
         return true;
     }
@@ -361,11 +400,14 @@ public class ExchangeFragment extends Fragment {
 
             switch (intent.getAction()) {
                 case ChangellyService.INFO_MIN_AMOUNT:
-                    amount = intent.getDoubleExtra(ChangellyService.AMOUNT, 0);
-                    Log.d(TAG, "Received minimum amount: " + amount);
-                    minAmount = amount;
-                    tvMinAmountValue.setText(getString(R.string.exchange_minimum_amount
-                            , decimalFormat.format(minAmount), "BCH"));
+                    amount = intent.getDoubleExtra(ChangellyService.AMOUNT, NOT_LOADED);
+                    if(amount != NOT_LOADED) {
+                        Log.d(TAG, "Received minimum amount: " + amount);
+                        sharedPreferences.edit()
+                                .putFloat(BCH_MIN_EXCHANGE_VALUE, (float) amount)
+                                .apply();
+                        minAmount = amount;
+                    }
                     break;
                 case ChangellyService.INFO_EXCH_AMOUNT:
                     from = intent.getStringExtra(ChangellyService.FROM);
