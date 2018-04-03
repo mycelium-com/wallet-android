@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -76,12 +76,13 @@
     <ScrollView
         android:id="@+id/llChangellyMain"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
         <LinearLayout
 
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical">
 
             <TextView
@@ -95,7 +96,7 @@
                 android:layout_marginTop="@dimen/margin_medium"
                 android:gravity="center"
                 android:text="@string/changelly_choose_your_currency"
-                android:textColor="@color/white"
+                android:textColor="?exchange_text_color"
                 android:textSize="18sp" />
 
             <TextView
@@ -108,7 +109,7 @@
                 android:layout_marginStart="8dp"
                 android:gravity="center"
                 android:text="@string/choose_the_currency_and_btc_receiving_account"
-                android:textColor="@color/white"
+                android:textColor="?exchange_text_color"
                 android:textSize="14sp" />
 
             <com.mycelium.wallet.activity.send.view.SelectableRecyclerView
@@ -132,7 +133,7 @@
                 android:layout_marginTop="@dimen/margin_medium"
                 android:gravity="center"
                 android:text="@string/enter_exchange_amount"
-                android:textColor="@color/white"
+                android:textColor="?exchange_text_color"
                 android:textSize="18sp" />
 
             <TextView
@@ -153,7 +154,7 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="@dimen/margin_medium"
                 android:text="@string/amount_to_exchange"
-                android:textColor="@color/white"
+                android:textColor="?exchange_text_color"
                 android:textSize="18sp" />
 
             <TextView
@@ -190,7 +191,7 @@
                 android:layout_marginRight="@dimen/margin_small"
                 android:minEms="4"
                 android:text="BCH"
-                android:textColor="@color/white"
+                android:textColor="?exchange_text_color"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
@@ -206,7 +207,7 @@
                     android:paddingEnd="@dimen/margin_medium"
                     android:paddingStart="@dimen/margin_medium"
                     android:text="0"
-                    android:textColor="@color/white"
+                    android:textColor="?exchange_text_color"
                     android:textSize="20sp" />
             </LinearLayout>
 
@@ -237,7 +238,7 @@
                 android:layout_marginRight="@dimen/margin_small"
                 android:minEms="4"
                 android:text="BTC"
-                android:textColor="@color/white"
+                android:textColor="?exchange_text_color"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
@@ -252,7 +253,7 @@
                     android:paddingEnd="@dimen/margin_medium"
                     android:paddingStart="@dimen/margin_medium"
                     android:text="0"
-                    android:textColor="@color/white"
+                    android:textColor="?exchange_text_color"
                     android:textSize="20sp" />
 
             </LinearLayout>
@@ -275,4 +276,4 @@
     <include
         layout="@layout/layout_value_keyboard"
         android:visibility="gone" />
-</FrameLayout>
+</LinearLayout>

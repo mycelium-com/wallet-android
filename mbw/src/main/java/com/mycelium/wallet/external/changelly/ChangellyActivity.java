@@ -11,8 +11,11 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,6 +25,7 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.send.event.SelectListener;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
 import com.mycelium.wallet.activity.view.ValueKeyboard;
+import com.mycelium.wallet.external.changelly.bch.ExchangeActivity;
 import com.mycelium.wapi.wallet.WalletAccount;
 
 import java.util.ArrayList;
@@ -90,7 +94,7 @@ public class ChangellyActivity extends AppCompatActivity {
     View llChangellyLoadingProgress;
 
     @BindView(R.id.llChangellyMain)
-    View llChangellyMain;
+    ScrollView llChangellyMain;
 
     @BindView(R.id.llChangellyValidationWait)
     View llChangellyValidationWait;
@@ -120,7 +124,9 @@ public class ChangellyActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setTheme(ExchangeActivity.theme);
         setContentView(R.layout.changelly_activity);
+        setTitle(getString(R.string.exchange_altcoins_to_btc));
         ButterKnife.bind(this);
         MbwManager mbwManager = MbwManager.getInstance(this);
 
@@ -130,8 +136,6 @@ public class ChangellyActivity extends AppCompatActivity {
         valueKeyboard.setInputListener(new ValueKeyboard.SimpleInputListener() {
             @Override
             public void done() {
-                currencySelector.setVisibility(View.VISIBLE);
-                accountSelector.setVisibility(View.VISIBLE);
                 titleView.setVisibility(View.VISIBLE);
                 subtitleView.setVisibility(View.VISIBLE);
                 fromLayout.setAlpha(Constants.INACTIVE_ALPHA);
@@ -194,6 +198,23 @@ public class ChangellyActivity extends AppCompatActivity {
         Intent changellyServiceIntent = new Intent(this, ChangellyService.class)
                 .setAction(ChangellyService.ACTION_GET_CURRENCIES);
         startService(changellyServiceIntent);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.exchange_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.colorize) {
+            ExchangeActivity.theme = ExchangeActivity.theme == R.style.MyceliumModern_Light ?
+                    R.style.MyceliumModern_Dark : R.style.MyceliumModern_Light;
+            recreate();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -269,13 +290,15 @@ public class ChangellyActivity extends AppCompatActivity {
         valueKeyboard.setVisibility(View.VISIBLE);
         valueKeyboard.setInputTextView(fromValue);
         valueKeyboard.setEntry(fromValue.getText().toString());
-        currencySelector.setVisibility(View.GONE);
-        accountSelector.setVisibility(View.GONE);
-        titleView.setVisibility(View.GONE);
-        subtitleView.setVisibility(View.GONE);
         fromLayout.setAlpha(Constants.ACTIVE_ALPHA);
         toLayout.setAlpha(Constants.INACTIVE_ALPHA);
 
+        llChangellyMain.post(new Runnable() {
+            @Override
+            public void run() {
+                llChangellyMain.smoothScrollTo(0, fromLayout.getTop());
+            }
+        });
     }
 
     @OnClick(R.id.toLayout)
@@ -283,13 +306,15 @@ public class ChangellyActivity extends AppCompatActivity {
         valueKeyboard.setVisibility(View.VISIBLE);
         valueKeyboard.setInputTextView(toValue);
         valueKeyboard.setEntry(toValue.getText().toString());
-        currencySelector.setVisibility(View.GONE);
-        accountSelector.setVisibility(View.GONE);
-        titleView.setVisibility(View.GONE);
-        subtitleView.setVisibility(View.GONE);
         fromLayout.setAlpha(Constants.INACTIVE_ALPHA);
         toLayout.setAlpha(Constants.ACTIVE_ALPHA);
 
+        llChangellyMain.post(new Runnable() {
+            @Override
+            public void run() {
+                llChangellyMain.smoothScrollTo(0, toLayout.getTop());
+            }
+        });
     }
 
     @OnClick(R.id.btChangellyCreateTransaction)

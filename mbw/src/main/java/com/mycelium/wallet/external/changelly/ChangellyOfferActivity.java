@@ -11,12 +11,17 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.external.changelly.ChangellyAPIService.ChangellyTransactionOffer;
+import com.mycelium.wallet.external.changelly.bch.ExchangeActivity;
+
+import java.text.DecimalFormat;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -39,7 +44,9 @@ public class ChangellyOfferActivity extends AppCompatActivity {
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setTheme(ExchangeActivity.theme);
         setContentView(R.layout.changelly_offer_activity);
+        setTitle(getString(R.string.exchange_altcoins_to_btc));
         ButterKnife.bind(this);
         receiver = new Receiver();
         for (String action : new String[]{ChangellyService.INFO_TRANSACTION, ChangellyService.INFO_ERROR}) {
@@ -50,13 +57,31 @@ public class ChangellyOfferActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.exchange_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.colorize) {
+            ExchangeActivity.theme = ExchangeActivity.theme == R.style.MyceliumModern_Light ?
+                    R.style.MyceliumModern_Dark : R.style.MyceliumModern_Light;
+            recreate();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     protected void onDestroy() {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver);
         super.onDestroy();
     }
 
     private void updateUI() {
-        tvFromAmount.setText(getString(R.string.value_currency, offer.currencyFrom, offer.amountFrom));
+        tvFromAmount.setText(getString(R.string.value_currency, offer.currencyFrom
+                , Constants.decimalFormat.format(offer.amountFrom)));
         tvSendToAddress.setText(offer.payinAddress);
     }
 
