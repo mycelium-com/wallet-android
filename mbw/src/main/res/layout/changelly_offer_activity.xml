@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:padding="@dimen/margin_medium">
 
@@ -13,7 +14,7 @@
         android:layout_marginTop="@dimen/margin_medium"
         android:gravity="center"
         android:text="@string/changelly_offer_title"
-        android:textColor="@color/white"
+        android:textColor="?exchange_text_color"
         android:textSize="20sp" />
 
     <TextView
@@ -22,7 +23,7 @@
         android:layout_gravity="center"
         android:layout_marginBottom="@dimen/margin_medium"
         android:text="@string/exchange_in_order_to_complete"
-        android:textColor="@color/white"
+        android:textColor="?exchange_text_color"
         android:textSize="@dimen/exchange_offer_text_size" />
 
     <TextView
@@ -33,13 +34,14 @@
         android:layout_marginTop="12dp"
         android:ellipsize="middle"
         android:singleLine="true"
-        android:paddingStart="@dimen/margin_medium"
+        android:paddingStart="12dp"
         android:paddingEnd="@dimen/margin_medium"
         android:paddingTop="@dimen/margin_small"
         android:paddingBottom="@dimen/margin_small"
-        android:text=""
+        tools:text="test"
         android:background="@drawable/background_sell_order_card"
         android:drawableRight="@drawable/ic_content_copy_white"
+        android:drawablePadding="12dp"
         android:textSize="18sp"
         android:textStyle="bold" />
 
@@ -49,7 +51,7 @@
         android:layout_gravity="center"
         android:layout_marginBottom="@dimen/margin_medium"
         android:text="@string/exchange_to_do_so"
-        android:textColor="@color/white"
+        android:textColor="?exchange_text_color"
         android:textSize="@dimen/exchange_offer_text_size" />
 
 
@@ -59,14 +61,15 @@
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif-medium"
         android:lineSpacingExtra="11sp"
-        android:paddingStart="@dimen/margin_medium"
+        android:paddingStart="12dp"
         android:paddingEnd="@dimen/margin_medium"
         android:paddingTop="@dimen/margin_small"
         android:paddingBottom="@dimen/margin_small"
         android:background="@drawable/background_sell_order_card"
-        android:text=""
+        tools:text="100 btc"
         android:textColor="@color/white"
         android:drawableRight="@drawable/ic_content_copy_white"
+        android:drawablePadding="12dp"
         android:textSize="18sp"
         android:textStyle="normal" />
 
@@ -77,7 +80,7 @@
         android:layout_marginTop="@dimen/margin_medium"
         android:layout_marginBottom="@dimen/margin_medium"
         android:text="@string/exchange_after_transaction"
-        android:textColor="@color/white"
+        android:textColor="?exchange_text_color"
         android:textSize="@dimen/exchange_offer_text_size" />
 
 
@@ -95,8 +98,8 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginBottom="@dimen/margin_small"
-        android:text="or"
-        android:textColor="@color/white"
+        android:text="@string/or"
+        android:textColor="?exchange_text_color"
         android:textSize="16sp" />
 
     <Button
