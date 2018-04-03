@@ -78,6 +78,15 @@
 
 
         <TextView
+            android:id="@+id/tvAccountType"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="32234"
+            android:gravity="center"
+            android:textSize="18sp" />
+
+        <TextView
                 android:id="@+id/tvAddress"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"

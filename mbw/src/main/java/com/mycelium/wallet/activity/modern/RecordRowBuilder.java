@@ -166,13 +166,14 @@ public class RecordRowBuilder {
          displayAddress = ""; //dont show key count of archived accs
       }
 
-      TextView tvAddress = ((TextView) rowView.findViewById(R.id.tvAddress));
+      TextView tvAddress = rowView.findViewById(R.id.tvAddress);
       tvAddress.setText(displayAddress);
       tvAddress.setTextColor(textColor);
 
       // Set tag
       rowView.setTag(walletAccount);
 
+      TextView tvAccountType = rowView.findViewById(R.id.tvAccountType);
       // Set balance
       if (walletAccount.isActive()) {
          CurrencyBasedBalance balance = walletAccount.getCurrencyBasedBalance();
@@ -181,7 +182,7 @@ public class RecordRowBuilder {
          if(walletAccount instanceof ColuAccount) {
             balanceString = Utils.getColuFormattedValueWithUnit(walletAccount.getCurrencyBasedBalance().confirmed);
          }
-         TextView tvBalance = ((TextView) rowView.findViewById(R.id.tvBalance));
+         TextView tvBalance = rowView.findViewById(R.id.tvBalance);
          tvBalance.setText(balanceString);
          tvBalance.setTextColor(textColor);
 
@@ -198,12 +199,20 @@ public class RecordRowBuilder {
          } else {
             backupMissing.setText(R.string.backup_missing);
          }
+         tvAccountType.setVisibility(View.GONE);
 
       } else {
          // We don't show anything if the account is archived
          rowView.findViewById(R.id.tvBalance).setVisibility(View.GONE);
          rowView.findViewById(R.id.tvLegacyAccountWarning).setVisibility(View.GONE);
          rowView.findViewById(R.id.tvBackupMissingWarning).setVisibility(View.GONE);
+         if (walletAccount.getType() == WalletAccount.Type.BCHBIP44
+                 || walletAccount.getType() == WalletAccount.Type.BCHSINGLEADDRESS) {
+            tvAccountType.setText(Html.fromHtml(tvAccountType.getResources().getString(R.string.bitcoin_cash)));
+            tvAccountType.setVisibility(View.VISIBLE);
+         } else {
+            tvAccountType.setVisibility(View.GONE);
+         }
       }
 
       // Show/hide trader account message
