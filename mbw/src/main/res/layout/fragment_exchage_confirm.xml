@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical">
 
     <TextView
@@ -67,7 +68,8 @@
             android:layout_weight="1"
             android:fontFamily="sans-serif-medium"
             android:lineSpacingExtra="11sp"
-            android:text="5.3092 BCH"
+            tools:text="5.3092 BCH"
+            tools:textColor="@color/white"
             android:textColor="?exchange_text_color"
             android:textSize="21sp"
             android:textStyle="normal" />
@@ -82,7 +84,8 @@
             android:fontFamily="sans-serif-medium"
             android:gravity="end"
             android:lineSpacingExtra="11sp"
-            android:text="1.2014 BTC"
+            tools:text="1.2014 BTC"
+            tools:textColor="@color/white"
             android:textColor="?exchange_text_color"
             android:textSize="21sp"
             android:textStyle="normal" />
