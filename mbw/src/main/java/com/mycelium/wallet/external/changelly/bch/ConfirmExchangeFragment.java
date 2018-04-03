@@ -11,6 +11,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.Html;
@@ -48,6 +49,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -96,6 +98,7 @@ public class ConfirmExchangeFragment extends Fragment {
     private Receiver receiver;
 
     private String lastOperationId;
+    private Handler offerCaller;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -113,7 +116,7 @@ public class ConfirmExchangeFragment extends Fragment {
             IntentFilter intentFilter = new IntentFilter(action);
             LocalBroadcastManager.getInstance(getActivity()).registerReceiver(receiver, intentFilter);
         }
-        createOffer();
+        offerCaller = new Handler();
     }
 
     @OnClick(R.id.buttonContinue)
@@ -162,6 +165,24 @@ public class ConfirmExchangeFragment extends Fragment {
 
         fromLabel.setText(mbwManager.getMetadataStorage().getLabelByAccount(fromAccount.getId()));
         toLabel.setText(mbwManager.getMetadataStorage().getLabelByAccount(toAccount.getId()));
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        offerCaller.post(new Runnable() {
+            @Override
+            public void run() {
+                createOffer();
+                offerCaller.postDelayed(this, TimeUnit.MINUTES.toMillis(1));
+            }
+        });
+    }
+
+    @Override
+    public void onPause() {
+        offerCaller.removeCallbacksAndMessages(null);
+        super.onPause();
     }
 
     @Override
