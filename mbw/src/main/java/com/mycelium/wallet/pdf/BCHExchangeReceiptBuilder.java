@@ -53,7 +53,7 @@ public class BCHExchangeReceiptBuilder {
         writer.setBoldFont();
         writer.addText(1F, fromTop, 11, "Date and time:");
         writer.setStandardFont();
-        writer.addText(3.5F, fromTop, 11, date);
+        writer.addText(3.5F, fromTop, 11, date + ".");
 
         fromTop += 0.8F;
         writer.setBoldFont();
@@ -72,14 +72,19 @@ public class BCHExchangeReceiptBuilder {
         writer.setBoldFont();
         writer.addText(1F, fromTop, 11, "Spending account:");
         writer.setStandardFont();
-        writer.addText(4.1F, fromTop, 11, spendingAccountLabel);
+        writer.addText(4.1F, fromTop, 11, spendingAccountLabel + ".");
 
         fromTop += 0.8F;
         writer.setBoldFont();
         writer.addText(1F, fromTop, 11, "Spending amount:");
         writer.setStandardFont();
-        writer.addText(4.1F, fromTop, 11, spendingAmount);
+        writer.addText(4.1F, fromTop, 11, spendingAmount + ".");
 
+        fromTop += 0.8F;
+        writer.setBoldFont();
+        writer.addText(1F, fromTop, 11, "Receiving amount*:");
+        writer.setStandardFont();
+        writer.addText(4.3F, fromTop, 11, receivingAmount + ".");
         fromTop += 0.5F;
         writer.setTextColor(1, 0, 0);
         writer.addText(1F, fromTop, 10, "*Receiving amount is estimated due to the high volatility of the cryptomarket.");
@@ -87,9 +92,9 @@ public class BCHExchangeReceiptBuilder {
         fromTop += 0.8F;
         writer.setTextColor(0, 0, 0);
         writer.setBoldFont();
-        writer.addText(1F, fromTop, 11, "Receiving address: ");
+        writer.addText(1F, fromTop, 11, "Receiving address:");
         writer.setStandardFont();
-        writer.addText(4.1F, fromTop, 11, receivingAddress);
+        writer.addText(4.1F, fromTop, 11, receivingAddress + ".");
 
         fromTop += 1F;
         writer.setItalicFont();

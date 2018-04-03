@@ -81,7 +81,7 @@ public class ChangellyOfferActivity extends AppCompatActivity {
 
     private void updateUI() {
         tvFromAmount.setText(getString(R.string.value_currency, offer.currencyFrom
-                , new DecimalFormat("#.########").format(offer.amountFrom)));
+                , Constants.decimalFormat.format(offer.amountFrom)));
         tvSendToAddress.setText(offer.payinAddress);
     }
 
