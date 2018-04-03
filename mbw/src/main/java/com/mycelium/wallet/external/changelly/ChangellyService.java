@@ -204,9 +204,9 @@ public class ChangellyService extends IntentService {
                     amount = intent.getDoubleExtra(AMOUNT, 0);
                     destAddress = intent.getStringExtra(DESTADDRESS);
                     ChangellyTransactionOffer res = createTransaction(from, to, amount, destAddress);
-
+                    double toAmount = getExchangeAmount(from, to, amount);
                     Intent transactionIntent;
-                    if(res == null) {
+                    if(res == null || toAmount == -1) {
                         // service unavailable
                         transactionIntent = new Intent(ChangellyService.INFO_ERROR, null,
                                 this, ChangellyService.class);
@@ -217,7 +217,7 @@ public class ChangellyService extends IntentService {
                         transactionIntent = new Intent(ChangellyService.INFO_TRANSACTION, null,
                                 this, ChangellyService.class);
                         res.amountFrom = amount;
-                        res.amountTo = getExchangeAmount(from, to, amount);
+                        res.amountTo = toAmount;
                         transactionIntent.putExtra(OFFER, res);
                     }
                     LocalBroadcastManager.getInstance(this).sendBroadcast(transactionIntent);
