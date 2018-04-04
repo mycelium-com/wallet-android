@@ -215,8 +215,8 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
     }
 
     override fun calculateMaxSpendableAmountSingleAddress(guid: String, txFee: String, txFeeFactor: Float): Long {
-        val uri = CalculateMaxSpendable.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHBIP44)).buildUpon().build()
-        val selection = CalculateMaxSpendable.SELECTION_HD
+        val uri = CalculateMaxSpendable.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHSINGLEADDRESS)).buildUpon().build()
+        val selection = CalculateMaxSpendable.SELECTION_SA
 
         context.contentResolver.query(uri, null, selection, arrayOf(guid, txFee, "" + txFeeFactor), null).use {
             return if (it?.moveToFirst() == true) {
