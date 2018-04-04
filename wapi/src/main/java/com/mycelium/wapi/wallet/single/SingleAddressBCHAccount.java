@@ -8,6 +8,7 @@ import com.mycelium.wapi.wallet.SingleAddressAccountBacking;
 import com.mycelium.wapi.wallet.SpvBalanceFetcher;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
+import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 
 import java.math.BigDecimal;
@@ -39,7 +40,7 @@ public class SingleAddressBCHAccount extends SingleAddressAccount {
         //TODO Refactor the code and make the proper usage of minerFeePerKbToUse parameter
         String txFee = "NORMAL";
         float txFeeFactor = 1.0f;
-        return ExactCurrencyValue.from(BigDecimal.valueOf(spvBalanceFetcher.calculateMaxSpendableAmountSingleAddress(getId().toString(), txFee, txFeeFactor)), CurrencyValue.BCH);
+        return ExactBitcoinCashValue.from(spvBalanceFetcher.calculateMaxSpendableAmountSingleAddress(getId().toString(), txFee, txFeeFactor));
     }
 
     @Override
