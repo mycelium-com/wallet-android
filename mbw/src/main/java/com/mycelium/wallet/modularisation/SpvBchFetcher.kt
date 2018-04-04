@@ -8,7 +8,6 @@ import com.google.common.base.Optional
 import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.spvmodule.IntentContract
-import com.mycelium.spvmodule.providers.TransactionContract
 import com.mycelium.spvmodule.providers.TransactionContract.AccountBalance
 import com.mycelium.spvmodule.providers.TransactionContract.CurrentReceiveAddress
 import com.mycelium.spvmodule.providers.TransactionContract.GetPrivateKeysCount
@@ -201,11 +200,25 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
         }
     }
 
-    override fun calculateMaxSpendableAmount(accountIndex: Int): Long {
+    override fun calculateMaxSpendableAmount(accountIndex: Int, txFee: String, txFeeFactor: Float): Long {
         val uri = CalculateMaxSpendable.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHBIP44)).buildUpon().build()
-        val selection = CalculateMaxSpendable.SELECTION_COMPLETE
+        val selection = CalculateMaxSpendable.SELECTION_HD
 
-        context.contentResolver.query(uri, null, selection, arrayOf("" + accountIndex, "NORMAL", "" + 1), null).use {
+        context.contentResolver.query(uri, null, selection, arrayOf("" + accountIndex, txFee, "" + txFeeFactor), null).use {
+            return if (it?.moveToFirst() == true) {
+                it.getLong(0)
+            } else {
+                0
+            }
+        }
+
+    }
+
+    override fun calculateMaxSpendableAmountSingleAddress(guid: String, txFee: String, txFeeFactor: Float): Long {
+        val uri = CalculateMaxSpendable.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHBIP44)).buildUpon().build()
+        val selection = CalculateMaxSpendable.SELECTION_HD
+
+        context.contentResolver.query(uri, null, selection, arrayOf(guid, txFee, "" + txFeeFactor), null).use {
             return if (it?.moveToFirst() == true) {
                 it.getLong(0)
             } else {

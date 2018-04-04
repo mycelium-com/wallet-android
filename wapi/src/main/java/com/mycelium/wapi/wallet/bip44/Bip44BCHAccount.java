@@ -38,7 +38,10 @@ public class Bip44BCHAccount extends Bip44Account {
 
     @Override
     public ExactCurrencyValue calculateMaxSpendableAmount(long minerFeePerKbToUse) {
-        return ExactCurrencyValue.from(BigDecimal.valueOf(spvBalanceFetcher.calculateMaxSpendableAmount(getAccountIndex())), CurrencyValue.BCH);
+        //TODO Refactor the code and make the proper usage of minerFeePerKbToUse parameter
+        String txFee = "NORMAL";
+        float txFeeFactor = 1.0f;
+        return ExactCurrencyValue.from(BigDecimal.valueOf(spvBalanceFetcher.calculateMaxSpendableAmount(getAccountIndex(), txFee, txFeeFactor)), CurrencyValue.BCH);
     }
 
     @Override
