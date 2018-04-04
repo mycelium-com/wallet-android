@@ -9,7 +9,10 @@ import com.mycelium.wapi.wallet.Bip44AccountBacking;
 import com.mycelium.wapi.wallet.SpvBalanceFetcher;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
+import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
+import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -32,6 +35,14 @@ public class Bip44BCHAccount extends Bip44Account {
     @Override
     public CurrencyBasedBalance getCurrencyBasedBalance() {
         return spvBalanceFetcher.retrieveByHdAccountIndex(getId().toString(), getAccountIndex());
+    }
+
+    @Override
+    public ExactCurrencyValue calculateMaxSpendableAmount(long minerFeePerKbToUse) {
+        //TODO Refactor the code and make the proper usage of minerFeePerKbToUse parameter
+        String txFee = "NORMAL";
+        float txFeeFactor = 1.0f;
+        return ExactBitcoinCashValue.from(spvBalanceFetcher.calculateMaxSpendableAmount(getAccountIndex(), txFee, txFeeFactor));
     }
 
     @Override

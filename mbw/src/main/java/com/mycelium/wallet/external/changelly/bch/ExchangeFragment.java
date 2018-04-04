@@ -272,8 +272,7 @@ public class ExchangeFragment extends Fragment {
     }
 
     private BigDecimal getMaxSpend(WalletAccount account) {
-        return account.getCurrencyBasedBalance().confirmed.getValue()
-                .add(BigDecimal.valueOf(ConfirmExchangeFragment.MINER_FEE).movePointLeft(8).negate());
+        return account.calculateMaxSpendableAmount(0).getValue();
     }
 
     @OnTextChanged(value = R.id.fromValue, callback = AFTER_TEXT_CHANGED)
