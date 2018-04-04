@@ -22,4 +22,5 @@ public interface SpvBalanceFetcher {
     int getPrivateKeysCount(int accountIndex);
     boolean isFirstSync();
     void forceCleanCache();
+    long calculateMaxSpendableAmount(int accountIndex);
 }

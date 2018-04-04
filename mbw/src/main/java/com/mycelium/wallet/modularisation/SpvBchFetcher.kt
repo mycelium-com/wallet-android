@@ -8,10 +8,12 @@ import com.google.common.base.Optional
 import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.spvmodule.IntentContract
+import com.mycelium.spvmodule.providers.TransactionContract
 import com.mycelium.spvmodule.providers.TransactionContract.AccountBalance
 import com.mycelium.spvmodule.providers.TransactionContract.CurrentReceiveAddress
 import com.mycelium.spvmodule.providers.TransactionContract.GetPrivateKeysCount
 import com.mycelium.spvmodule.providers.TransactionContract.GetSyncProgress
+import com.mycelium.spvmodule.providers.TransactionContract.CalculateMaxSpendable
 import com.mycelium.wallet.WalletApplication
 import com.mycelium.wallet.WalletApplication.getSpvModuleName
 import com.mycelium.wapi.model.TransactionSummary
@@ -197,5 +199,19 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
                 0
             }
         }
+    }
+
+    override fun calculateMaxSpendableAmount(accountIndex: Int): Long {
+        val uri = CalculateMaxSpendable.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHBIP44)).buildUpon().build()
+        val selection = CalculateMaxSpendable.SELECTION_COMPLETE
+
+        context.contentResolver.query(uri, null, selection, arrayOf("" + accountIndex, "NORMAL", "" + 1), null).use {
+            return if (it?.moveToFirst() == true) {
+                it.getLong(0)
+            } else {
+                0
+            }
+        }
+
     }
 }
