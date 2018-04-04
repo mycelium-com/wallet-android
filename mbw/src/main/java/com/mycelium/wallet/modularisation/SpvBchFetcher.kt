@@ -206,7 +206,7 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
 
         context.contentResolver.query(uri, null, selection, arrayOf("" + accountIndex, txFee, "" + txFeeFactor), null).use {
             return if (it?.moveToFirst() == true) {
-                it.getLong(0)
+                it.getLong(2)
             } else {
                 0
             }
@@ -220,7 +220,7 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
 
         context.contentResolver.query(uri, null, selection, arrayOf(guid, txFee, "" + txFeeFactor), null).use {
             return if (it?.moveToFirst() == true) {
-                it.getLong(0)
+                it.getLong(2)
             } else {
                 0
             }
