@@ -34,6 +34,7 @@ import com.mycelium.wallet.external.changelly.AccountAdapter;
 import com.mycelium.wallet.external.changelly.ChangellyService;
 import com.mycelium.wallet.external.changelly.Constants;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.bip44.Bip44Account;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
@@ -272,7 +273,15 @@ public class ExchangeFragment extends Fragment {
     }
 
     private BigDecimal getMaxSpend(WalletAccount account) {
-        return account.calculateMaxSpendableAmount(0).getValue();
+        if (account.getType() == WalletAccount.Type.BCHBIP44) {
+            int accountIndex = ((Bip44Account)account).getAccountIndex();
+            return ExactBitcoinCashValue.from(mbwManager.getSpvBchFetcher().getMaxFundsTransferrable(accountIndex)).getValue();
+        } else if (account.getType() == WalletAccount.Type.BCHSINGLEADDRESS) {
+            String accountGuid = account.getId().toString();
+            return ExactBitcoinCashValue.from(mbwManager.getSpvBchFetcher().getMaxFundsTransferrableSingleAddress(accountGuid)).getValue();
+        }
+
+        return BigDecimal.valueOf(0);
     }
 
     @OnTextChanged(value = R.id.fromValue, callback = AFTER_TEXT_CHANGED)

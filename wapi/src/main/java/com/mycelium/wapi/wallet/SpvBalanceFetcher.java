@@ -24,4 +24,8 @@ public interface SpvBalanceFetcher {
     void forceCleanCache();
     long calculateMaxSpendableAmount(int accountIndex, String txFee, float txFeeFactor);
     long calculateMaxSpendableAmountSingleAddress(String guid, String txFee, float txFeeFactor);
+    long getMaxFundsTransferrable(int accountIndex);
+    long getMaxFundsTransferrableSingleAddress(String guid);
+    long estimateFeeFromTransferrableAmount(int accountIndex, long amountSatoshis, String txFee, float txFeeFactor);
+    long estimateFeeFromTransferrableAmountSingleAddress(String guid, long amountSatoshis, String txFee, float txFeeFactor);
 }
