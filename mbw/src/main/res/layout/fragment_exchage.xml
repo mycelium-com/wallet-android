@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical">
 
     <ScrollView
@@ -24,7 +25,17 @@
                 android:layout_marginTop="@dimen/margin_large"
                 android:text="@string/amount_to_exchange"
                 android:textColor="?exchange_text_color"
+                tools:textColor="@color/white"
                 android:textSize="21sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/margin_medium"
+                android:layout_marginStart="@dimen/margin_medium"
+                android:text="@string/given_rates_includes_transaction_fee"
+                android:textColor="#77c298"
+                android:textSize="11sp" />
 
             <TextView
                 android:id="@+id/tvError"
@@ -117,6 +128,7 @@
                 android:layout_marginEnd="8dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="@dimen/margin_large"
+                tools:textColor="@color/white"
                 android:text="@string/amount_to_receive"
                 android:textColor="?exchange_text_color"
                 android:textSize="21sp" />
