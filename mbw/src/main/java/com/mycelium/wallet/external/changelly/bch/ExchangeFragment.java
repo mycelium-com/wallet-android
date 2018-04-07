@@ -79,6 +79,9 @@ public class ExchangeFragment extends Fragment {
     @BindView(R.id.fromValue)
     TextView fromValue;
 
+    @BindView(R.id.bchLabel)
+    View bchLabel;
+
     @BindView(R.id.toValue)
     TextView toValue;
 
@@ -172,11 +175,11 @@ public class ExchangeFragment extends Fragment {
         valueKeyboard.setInputListener(new ValueKeyboard.SimpleInputListener() {
             @Override
             public void done() {
-                fromLayout.setAlpha(Constants.INACTIVE_ALPHA);
+                setAlphaFromLayout(Constants.INACTIVE_ALPHA);
                 toLayout.setAlpha(Constants.INACTIVE_ALPHA);
             }
         });
-        fromLayout.setAlpha(Constants.INACTIVE_ALPHA);
+        setAlphaFromLayout(Constants.INACTIVE_ALPHA);
         toLayout.setAlpha(Constants.INACTIVE_ALPHA);
 
         valueKeyboard.setVisibility(android.view.View.GONE);
@@ -238,7 +241,7 @@ public class ExchangeFragment extends Fragment {
         valueKeyboard.setVisibility(View.VISIBLE);
         valueKeyboard.setEntry(toValue.getText().toString());
         toLayout.setAlpha(Constants.ACTIVE_ALPHA);
-        fromLayout.setAlpha(Constants.INACTIVE_ALPHA);
+        setAlphaFromLayout(Constants.INACTIVE_ALPHA);
         valueKeyboard.setSpendableValue(BigDecimal.ZERO);
         valueKeyboard.setMaxValue(MAX_BITCOIN_VALUE);
 
@@ -255,7 +258,7 @@ public class ExchangeFragment extends Fragment {
         valueKeyboard.setInputTextView(fromValue);
         valueKeyboard.setVisibility(View.VISIBLE);
         valueKeyboard.setEntry(fromValue.getText().toString());
-        fromLayout.setAlpha(Constants.ACTIVE_ALPHA);
+        setAlphaFromLayout(Constants.ACTIVE_ALPHA);
         toLayout.setAlpha(Constants.INACTIVE_ALPHA);
         AccountAdapter.Item item = fromAccountAdapter.getItem(fromRecyclerView.getSelectedItem());
         valueKeyboard.setSpendableValue(getMaxSpend(item.account));
@@ -267,6 +270,11 @@ public class ExchangeFragment extends Fragment {
                 scrollView.smoothScrollTo(0, fromLayout.getTop());
             }
         });
+    }
+
+    private void setAlphaFromLayout(float alpha) {
+        fromValue.setAlpha(alpha);
+        bchLabel.setAlpha(alpha);
     }
 
     @OnClick(R.id.use_all_funds)
