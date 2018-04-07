@@ -445,8 +445,10 @@ public class ExchangeFragment extends Fragment {
                                     && from.equalsIgnoreCase(ChangellyService.BCH)
                                     && fromAmount == getFromExcludeFee().doubleValue()) {
                                 toValue.setText(decimalFormat.format(amount));
-                                exchangeRate.setText("1 BCH ~ " + decimalFormat.format(amount / fromAmount) + " BTC");
-                                exchangeRate.setVisibility(View.VISIBLE);
+                                if (fromAmount != 0 && amount != 0) {
+                                    exchangeRate.setText("1 BCH ~ " + decimalFormat.format(amount / fromAmount) + " BTC");
+                                    exchangeRate.setVisibility(View.VISIBLE);
+                                }
                             } else if (from.equalsIgnoreCase(ChangellyService.BTC)
                                     && to.equalsIgnoreCase(ChangellyService.BCH)
                                     && fromAmount == Double.parseDouble(toValue.getText().toString())) {
@@ -454,8 +456,10 @@ public class ExchangeFragment extends Fragment {
                                         fromAccountAdapter.getItem(fromRecyclerView.getSelectedItem()).account,
                                         mbwManager, BitcoinCash.valueOf(amount).getLongValue());
                                 fromValue.setText(decimalFormat.format(amount + txFee.doubleValue()));
-                                exchangeRate.setText("1 BCH ~ " + decimalFormat.format(fromAmount / amount) + " BTC");
-                                exchangeRate.setVisibility(View.VISIBLE);
+                                if (fromAmount != 0 && amount != 0) {
+                                    exchangeRate.setText("1 BCH ~ " + decimalFormat.format(fromAmount / amount) + " BTC");
+                                    exchangeRate.setVisibility(View.VISIBLE);
+                                }
                             }
 
                             isValueForOfferOk(true);
