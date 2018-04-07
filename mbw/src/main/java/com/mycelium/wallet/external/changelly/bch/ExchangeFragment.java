@@ -291,7 +291,8 @@ public class ExchangeFragment extends Fragment {
 
     @OnTextChanged(value = R.id.fromValue, callback = AFTER_TEXT_CHANGED)
     public void afterEditTextInputFrom(Editable editable) {
-        if (!avoidTextChangeEvent && isValueForOfferOk(true)) {
+        isValueForOfferOk(true);
+        if (!avoidTextChangeEvent && !fromValue.getText().toString().isEmpty()) {
             requestOfferFunction(getFromExcludeFee().toPlainString(), ChangellyService.BCH, ChangellyService.BTC);
         }
         if (!avoidTextChangeEvent && fromValue.getText().toString().isEmpty()) {
