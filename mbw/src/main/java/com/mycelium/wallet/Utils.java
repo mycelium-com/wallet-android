@@ -103,7 +103,6 @@ import com.mycelium.wapi.wallet.currency.BitcoinValue;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
-import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 
 import org.ocpsoft.prettytime.Duration;
 import org.ocpsoft.prettytime.PrettyTime;
@@ -789,19 +788,22 @@ public class Utils {
       Ordering<WalletAccount> type = Ordering.natural().onResultOf(new Function<WalletAccount, Integer>() {
          @Override
          public Integer apply(@Nullable WalletAccount input) {
-            if (input instanceof Bip44Account) {
-               return 0;
+            switch (input.getType()) {
+               case BTCBIP44:
+                  return 0;
+               case BTCSINGLEADDRESS:
+                  return checkIsLinked(input, accounts) ? 5 : 1;
+               case BCHBIP44:
+                  return 2;
+               case BCHSINGLEADDRESS:
+                  return 3;
+               case COLU:
+                  return 5;
+               case COINAPULT:
+                  return 6; //coinapult last
+               default:
+                  return 4;
             }
-            if (input instanceof SingleAddressAccount) {
-              return checkIsLinked(input, accounts) ? 3 : 1;
-            }
-            if(input instanceof ColuAccount) {
-               return 3;
-            }
-            if (input instanceof CoinapultAccount) {
-               return 4; //coinapult last
-            }
-            return 2;
          }
       });
       Ordering<WalletAccount> index = Ordering.natural().onResultOf(new Function<WalletAccount, Integer>() {
