@@ -247,7 +247,7 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
 
     override fun getMaxFundsTransferrableSingleAddress(guid: String): Long {
         val uri = TransactionContract.GetMaxFundsTransferrable.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHSINGLEADDRESS)).buildUpon().build()
-        val selection = CalculateMaxSpendable.SELECTION_SA
+        val selection = GetMaxFundsTransferrable.SELECTION_SA
 
         context.contentResolver.query(uri, null, selection, arrayOf(guid), null).use {
             return if (it?.moveToFirst() == true) {
