@@ -1169,6 +1169,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="balance_error">The maximum exchanging amount must not exceed selected account balance!</string>
     <string name="or">or</string>
     <string name="receiving_amount_is_estimated">Receiving amount is estimated due to the high volatility of the cryptomarket. For your convenience, it will be automatically updated to reflect market changes.</string>
+    <string name="both_bch_will_deleted">Both %1$s and Bitcoin Cash - %2$s accounts will be deleted.</string>
     <plurals name="account_label">
         <item quantity="one">Account label:\n%s</item>
         <item quantity="other">Accounts labels:\n%s</item>
