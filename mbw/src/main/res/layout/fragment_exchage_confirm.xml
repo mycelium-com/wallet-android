@@ -173,4 +173,14 @@
         android:textColor="@color/white"
         android:textSize="18sp" />
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/receiving_amount_is_estimated"
+        android:layout_marginTop="@dimen/margin_large"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:textColor="@color/red"
+        android:textSize="11sp"/>
+
 </LinearLayout>
