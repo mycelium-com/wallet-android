@@ -1,9 +1,11 @@
 package com.mycelium.wallet.external.changelly.bch;
 
 
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -38,7 +40,6 @@ import com.mycelium.wallet.external.changelly.Constants;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bip44.Bip44Account;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
-import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.squareup.otto.Subscribe;
 
@@ -399,15 +400,16 @@ public class ExchangeFragment extends Fragment {
 
     private void updateUi() {
         try {
-            exchangeFiatRate.setText(Utils.formatFiatWithUnit(
-                    mbwManager.getCurrencySwitcher().getAsFiatValue(
-                            ExactBitcoinValue.from(new BigDecimal(toValue.getText().toString())))));
+            CurrencyValue currencyValue = mbwManager.getCurrencySwitcher().getAsFiatValue(
+                    ExactBitcoinValue.from(new BigDecimal(toValue.getText().toString())));
+            if (currencyValue != null && currencyValue.getValue() != null) {
+                exchangeFiatRate.setText(Utils.formatFiatWithUnit(currencyValue));
+                exchangeFiatRate.setVisibility(View.VISIBLE);
+            } else {
+                exchangeFiatRate.setVisibility(View.GONE);
+            }
         } catch (NumberFormatException ignore) {
         }
-        exchangeFiatRate.setVisibility(View.VISIBLE);
-
-        exchangeRate.setText("1 BCH ~ " + CurrencyValue.fromValue(ExactBitcoinCashValue.ONE, "BTC", mbwManager.getExchangeRateManager()));
-        exchangeRate.setVisibility(View.VISIBLE);
     }
 
     private void toast(String msg) {
@@ -455,10 +457,14 @@ public class ExchangeFragment extends Fragment {
                                     && from.equalsIgnoreCase(ChangellyService.BCH)
                                     && fromAmount == getFromExcludeFee().doubleValue()) {
                                 toValue.setText(decimalFormat.format(amount));
+                                exchangeRate.setText("1 BCH ~ " + decimalFormat.format(amount / fromAmount) + " BTC");
+                                exchangeRate.setVisibility(View.VISIBLE);
                             } else if (from.equalsIgnoreCase(ChangellyService.BTC)
                                     && to.equalsIgnoreCase(ChangellyService.BCH)
                                     && fromAmount == Double.parseDouble(toValue.getText().toString())) {
                                 fromValue.setText(decimalFormat.format(amount));
+                                exchangeRate.setText("1 BCH ~ " + decimalFormat.format(fromAmount / amount) + " BTC");
+                                exchangeRate.setVisibility(View.VISIBLE);
                             }
 
                             isValueForOfferOk(true);
@@ -470,7 +476,18 @@ public class ExchangeFragment extends Fragment {
                     }
                     break;
                 case INFO_ERROR:
-                    Toast.makeText(getActivity(), "Service unavailable", Toast.LENGTH_LONG).show();
+                    new AlertDialog.Builder(getActivity())
+                            .setMessage(getString(R.string.exchange_rate_unavailable_msg))
+                            .setNegativeButton(R.string.button_cancel, null)
+                            .setPositiveButton(R.string.try_again, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    BigDecimal val = new BigDecimal(fromValue.getText().toString());
+                                    requestOfferFunction(val.toPlainString()
+                                            , ChangellyService.BCH, ChangellyService.BTC);
+
+                                }
+                            }).show();
                     break;
             }
         }
