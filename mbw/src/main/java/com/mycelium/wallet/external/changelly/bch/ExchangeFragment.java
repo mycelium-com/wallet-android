@@ -25,7 +25,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.megiontechnologies.BitcoinCash;
-import com.mycelium.spvmodule.TransactionFee;
 import com.mycelium.wallet.AccountManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -40,6 +39,7 @@ import com.mycelium.wallet.external.changelly.Constants;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bip44.Bip44Account;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
+import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.squareup.otto.Subscribe;
 
@@ -288,20 +288,6 @@ public class ExchangeFragment extends Fragment {
         return BigDecimal.valueOf(0);
     }
 
-    //TODO call estimateFeeFromTransferrableAmount need refactoring, we should call account object
-    private BigDecimal estimateFeeFromTransferrableAmount(WalletAccount account, long amount) {
-        if (account.getType() == WalletAccount.Type.BCHBIP44) {
-            int accountIndex = ((Bip44Account) account).getAccountIndex();
-            return ExactBitcoinCashValue.from(mbwManager.getSpvBchFetcher()
-                    .estimateFeeFromTransferrableAmount(accountIndex, amount, TransactionFee.NORMAL.name(), 1.0f)).getValue();
-        } else if (account.getType() == WalletAccount.Type.BCHSINGLEADDRESS) {
-            String accountGuid = account.getId().toString();
-            return ExactBitcoinCashValue.from(mbwManager.getSpvBchFetcher()
-                    .estimateFeeFromTransferrableAmountSingleAddress(accountGuid, amount, TransactionFee.NORMAL.name(), 1.0f)).getValue();
-        }
-        return BigDecimal.valueOf(0);
-
-    }
 
     @OnTextChanged(value = R.id.fromValue, callback = AFTER_TEXT_CHANGED)
     public void afterEditTextInputFrom(Editable editable) {
@@ -321,8 +307,9 @@ public class ExchangeFragment extends Fragment {
             val = MAX_BITCOIN_VALUE;
             fromValue.setText(val.toPlainString());
         }
-        BigDecimal txFee = estimateFeeFromTransferrableAmount(fromAccountAdapter.getItem(fromRecyclerView.getSelectedItem()).account
-                , BitcoinCash.nearestValue(val).getLongValue());
+        BigDecimal txFee = UtilsKt.estimateFeeFromTransferrableAmount(
+                fromAccountAdapter.getItem(fromRecyclerView.getSelectedItem()).account,
+                mbwManager, BitcoinCash.nearestValue(val).getLongValue());
         return val.add(txFee.negate());
     }
 
@@ -462,7 +449,10 @@ public class ExchangeFragment extends Fragment {
                             } else if (from.equalsIgnoreCase(ChangellyService.BTC)
                                     && to.equalsIgnoreCase(ChangellyService.BCH)
                                     && fromAmount == Double.parseDouble(toValue.getText().toString())) {
-                                fromValue.setText(decimalFormat.format(amount));
+                                BigDecimal txFee = UtilsKt.estimateFeeFromTransferrableAmount(
+                                        fromAccountAdapter.getItem(fromRecyclerView.getSelectedItem()).account,
+                                        mbwManager, BitcoinCash.valueOf(amount).getLongValue());
+                                fromValue.setText(decimalFormat.format(amount + txFee.doubleValue()));
                                 exchangeRate.setText("1 BCH ~ " + decimalFormat.format(fromAmount / amount) + " BTC");
                                 exchangeRate.setVisibility(View.VISIBLE);
                             }

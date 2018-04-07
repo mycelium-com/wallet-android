@@ -22,6 +22,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.megiontechnologies.BitcoinCash;
 import com.mycelium.spvmodule.IntentContract;
 import com.mycelium.spvmodule.TransactionFee;
 import com.mycelium.wallet.MbwManager;
@@ -63,9 +64,9 @@ import retrofit2.Response;
 import static android.content.Context.DOWNLOAD_SERVICE;
 import static android.os.Environment.DIRECTORY_DOWNLOADS;
 import static com.mycelium.wallet.external.changelly.ChangellyService.INFO_ERROR;
+import static com.mycelium.wallet.external.changelly.Constants.decimalFormat;
 
 public class ConfirmExchangeFragment extends Fragment {
-    public static final int MINER_FEE = 450;
     public static final String TAG = "BCHExchange";
 
     @BindView(R.id.fromAddress)
@@ -193,11 +194,14 @@ public class ConfirmExchangeFragment extends Fragment {
     }
 
     private void createOffer() {
+        BigDecimal txFee = UtilsKt.estimateFeeFromTransferrableAmount(
+                fromAccount, mbwManager, BitcoinCash.valueOf(amount).getLongValue());
+
         Intent changellyServiceIntent = new Intent(getActivity(), ChangellyService.class)
                 .setAction(ChangellyService.ACTION_CREATE_TRANSACTION)
                 .putExtra(ChangellyService.FROM, ChangellyService.BCH)
                 .putExtra(ChangellyService.TO, ChangellyService.BTC)
-                .putExtra(ChangellyService.AMOUNT, amount)
+                .putExtra(ChangellyService.AMOUNT, amount - txFee.doubleValue())
                 .putExtra(ChangellyService.DESTADDRESS, toAccount.getReceivingAddress().get().toString());
         getActivity().startService(changellyServiceIntent);
         progressDialog = new ProgressDialog(getActivity());
@@ -209,9 +213,9 @@ public class ConfirmExchangeFragment extends Fragment {
     private void updateUI() {
         if (isAdded()) {
             fromAmount.setText(getString(R.string.value_currency, offer.currencyFrom
-                    , Constants.decimalFormat.format(offer.amountFrom)));
+                    , decimalFormat.format(amount)));
             toAmount.setText(getString(R.string.value_currency, offer.currencyTo
-                    , Constants.decimalFormat.format(offer.amountTo)));
+                    , decimalFormat.format(offer.amountTo)));
         }
     }
 
@@ -264,10 +268,10 @@ public class ConfirmExchangeFragment extends Fragment {
         }
         final Order order = new Order();
         order.transactionId = event.txHash;
-        order.exchangingAmount = Constants.decimalFormat.format(offer.amountFrom);
+        order.exchangingAmount = decimalFormat.format(amount);
         order.exchangingCurrency = CurrencyValue.BCH;
         order.receivingAddress = toAccount.getReceivingAddress().get().toString();
-        order.receivingAmount = Constants.decimalFormat.format(offer.amountTo);
+        order.receivingAmount = decimalFormat.format(offer.amountTo);
         order.receivingCurrency = CurrencyValue.BTC;
         order.timestamp = SimpleDateFormat.getDateTimeInstance(SimpleDateFormat.LONG, SimpleDateFormat.LONG, Locale.ENGLISH)
                 .format(new Date());
