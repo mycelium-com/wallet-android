@@ -790,13 +790,11 @@ public class Utils {
          public Integer apply(@Nullable WalletAccount input) {
             switch (input.getType()) {
                case BTCBIP44:
+               case BCHBIP44:
                   return 0;
                case BTCSINGLEADDRESS:
-                  return checkIsLinked(input, accounts) ? 5 : 1;
-               case BCHBIP44:
-                  return 2;
                case BCHSINGLEADDRESS:
-                  return 3;
+                  return checkIsLinked(input, accounts) ? 5 : 1;
                case COLU:
                   return 5;
                case COINAPULT:
@@ -821,10 +819,26 @@ public class Utils {
       Comparator<WalletAccount> linked = new Comparator<WalletAccount>() {
          @Override
          public int compare(WalletAccount w1, WalletAccount w2) {
-            if (w1 instanceof ColuAccount) {
+            if (w1.getType() == WalletAccount.Type.COLU) {
                return ((ColuAccount) w1).getLinkedAccount().getId().equals(w2.getId()) ? -1 : 0;
-            } else if (w2 instanceof ColuAccount) {
+            } else if (w2.getType() == WalletAccount.Type.COLU) {
                return ((ColuAccount) w2).getLinkedAccount().getId().equals(w1.getId()) ? 1 : 0;
+            } else if (w1.getType() == WalletAccount.Type.BCHBIP44
+                    && w2.getType() == WalletAccount.Type.BTCBIP44
+                    && MbwManager.getBitcoinCashAccountId(w2).equals(w1.getId())) {
+               return 1;
+            } else if (w1.getType() == WalletAccount.Type.BTCBIP44
+                    && w2.getType() == WalletAccount.Type.BCHBIP44
+                    && MbwManager.getBitcoinCashAccountId(w1).equals(w2.getId())) {
+               return -1;
+            } else if (w1.getType() == WalletAccount.Type.BCHSINGLEADDRESS
+                    && w2.getType() == WalletAccount.Type.BTCSINGLEADDRESS
+                    && MbwManager.getBitcoinCashAccountId(w2).equals(w1.getId())) {
+               return 1;
+            } else if (w1.getType() == WalletAccount.Type.BTCSINGLEADDRESS
+                    && w2.getType() == WalletAccount.Type.BCHSINGLEADDRESS
+                    && MbwManager.getBitcoinCashAccountId(w1).equals(w2.getId())) {
+               return -1;
             } else {
                return 0;
             }
