@@ -130,17 +130,16 @@ public class ConfirmExchangeFragment extends Fragment {
                 long fromValue = ExactBitcoinCashValue.from(BigDecimal.valueOf(offer.amountFrom)).getLongValue();
 
                 lastOperationId = UUID.randomUUID().toString();
-                WalletAccount account = mbwManager.getSelectedAccount();
 
-                switch (account.getType()) {
+                switch (fromAccount.getType()) {
                     case BCHBIP44: {
-                        Bip44BCHAccount bip44BCHAccount = (Bip44BCHAccount) account;
+                        Bip44BCHAccount bip44BCHAccount = (Bip44BCHAccount) fromAccount;
                         Intent serviceIntent = IntentContract.SendFunds.createIntent(lastOperationId, bip44BCHAccount.getAccountIndex(), offer.payinAddress, fromValue, TransactionFee.NORMAL, 1.0f);
                         WalletApplication.sendToSpv(serviceIntent, WalletAccount.Type.BCHBIP44);
                         break;
                     }
                     case BCHSINGLEADDRESS: {
-                        SingleAddressBCHAccount bip44BCHAccount = (SingleAddressBCHAccount) account;
+                        SingleAddressBCHAccount bip44BCHAccount = (SingleAddressBCHAccount) fromAccount;
                         Intent service = IntentContract.SendFundsSingleAddress.createIntent(lastOperationId, bip44BCHAccount.getId().toString(), offer.payinAddress, fromValue, TransactionFee.NORMAL, 1.0f);
                         WalletApplication.sendToSpv(service, WalletAccount.Type.BCHSINGLEADDRESS);
                         break;
