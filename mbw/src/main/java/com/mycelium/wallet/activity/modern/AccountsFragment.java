@@ -1089,6 +1089,10 @@ public class AccountsFragment extends Fragment {
       if (linkedAccount != null) {
          linkedAccount.activateAccount();
       }
+      WalletAccount correspondingBCHAccount = _mbwManager.getWalletManager(false).getAccount(MbwManager.getBitcoinCashAccountId(account));
+      if (correspondingBCHAccount != null) {
+         correspondingBCHAccount.activateAccount();
+      }
       //setselected also broadcasts AccountChanged event
       _mbwManager.setSelectedAccount(account.getId());
       updateIncludingMenus();
@@ -1106,7 +1110,7 @@ public class AccountsFragment extends Fragment {
          return;
       }
       final WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
-      if (_focusedAccount instanceof CoinapultAccount) {
+      if (_focusedAccount.getType() == WalletAccount.Type.COINAPULT) {
          _mbwManager.runPinProtectedFunction(getActivity(), new Runnable() {
 
             @Override
@@ -1120,8 +1124,7 @@ public class AccountsFragment extends Fragment {
 
          });
          return;
-      }
-      if (_focusedAccount instanceof Bip44Account) {
+      } else if (_focusedAccount.getType() == WalletAccount.Type.BTCBIP44) {
          Bip44Account account = (Bip44Account) _focusedAccount;
          if (!account.hasHadActivity()) {
             //this account is unused, we dont allow archiving it
@@ -1189,6 +1192,10 @@ public class AccountsFragment extends Fragment {
                     WalletAccount linkedAccount = Utils.getLinkedAccount(account, _mbwManager.getColuManager().getAccounts().values());
                     if (linkedAccount != null) {
                        linkedAccount.archiveAccount();
+                    }
+                    WalletAccount correspondingBCHAccount = _mbwManager.getWalletManager(false).getAccount(MbwManager.getBitcoinCashAccountId(account));
+                    if (correspondingBCHAccount != null) {
+                       correspondingBCHAccount.archiveAccount();
                     }
                     _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
                     _mbwManager.getEventBus().post(new AccountChanged(account.getId()));
