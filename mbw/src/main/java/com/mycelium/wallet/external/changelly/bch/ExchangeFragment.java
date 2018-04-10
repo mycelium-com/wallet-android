@@ -224,7 +224,7 @@ public class ExchangeFragment extends Fragment {
 
         fragment.setArguments(bundle);
         getFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, fragment, "ConfirmExchangeFragment")
+                .add(R.id.fragment_container, fragment, "ConfirmExchangeFragment")
                 .addToBackStack("ConfirmExchangeFragment")
                 .commitAllowingStateLoss();
     }
@@ -239,10 +239,14 @@ public class ExchangeFragment extends Fragment {
         valueKeyboard.setSpendableValue(BigDecimal.ZERO);
         valueKeyboard.setMaxValue(MAX_BITCOIN_VALUE);
 
+        scrollTo(toLayout.getBottom());
+    }
+
+    private void scrollTo(final int to) {
         scrollView.post(new Runnable() {
             @Override
             public void run() {
-                scrollView.smoothScrollTo(0, toLayout.getBottom());
+                scrollView.smoothScrollTo(0, to);
             }
         });
     }
@@ -258,12 +262,7 @@ public class ExchangeFragment extends Fragment {
         valueKeyboard.setSpendableValue(getMaxSpend(item.account));
         valueKeyboard.setMaxValue(MAX_BITCOIN_VALUE);
 
-        scrollView.post(new Runnable() {
-            @Override
-            public void run() {
-                scrollView.smoothScrollTo(0, fromLayout.getTop());
-            }
-        });
+        scrollTo(fromLayout.getTop());
     }
 
     @OnClick(R.id.use_all_funds)
@@ -355,6 +354,7 @@ public class ExchangeFragment extends Fragment {
             tvError.setText(getString(R.string.exchange_minimum_amount
                     , decimalFormat.format(minAmount), "BCH"));
             tvError.setVisibility(View.VISIBLE);
+            scrollTo(tvError.getTop());
             return false;
         } else if (fromAccount.getCurrencyBasedBalance().confirmed.getValue().compareTo(BigDecimal.valueOf(dblAmount)) < 0) {
             buttonContinue.setEnabled(false);
