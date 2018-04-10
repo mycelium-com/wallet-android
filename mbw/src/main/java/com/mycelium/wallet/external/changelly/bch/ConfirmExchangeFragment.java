@@ -145,6 +145,10 @@ public class ConfirmExchangeFragment extends Fragment {
                         break;
                     }
                 }
+                progressDialog = new ProgressDialog(getActivity());
+                progressDialog.setIndeterminate(true);
+                progressDialog.setMessage(getString(R.string.sending));
+                progressDialog.show();
             }
         });
     }
@@ -205,7 +209,7 @@ public class ConfirmExchangeFragment extends Fragment {
         getActivity().startService(changellyServiceIntent);
         progressDialog = new ProgressDialog(getActivity());
         progressDialog.setIndeterminate(true);
-        progressDialog.setMessage("Waiting offer...");
+        progressDialog.setMessage(getString(R.string.waiting_offer));
         progressDialog.show();
     }
 
@@ -247,6 +251,9 @@ public class ConfirmExchangeFragment extends Fragment {
 
     @Subscribe
     public void spvSendFundsResult(SpvSendFundsResult event) {
+        if(progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
         if (!event.operationId.equals(lastOperationId)) {
             return;
         }
