@@ -24,6 +24,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.megiontechnologies.BitcoinCash;
 import com.mycelium.wallet.AccountManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -36,7 +37,9 @@ import com.mycelium.wallet.external.changelly.AccountAdapter;
 import com.mycelium.wallet.external.changelly.ChangellyService;
 import com.mycelium.wallet.external.changelly.Constants;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.bip44.Bip44Account;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
+import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.squareup.otto.Subscribe;
 
@@ -75,6 +78,9 @@ public class ExchangeFragment extends Fragment {
 
     @BindView(R.id.fromValue)
     TextView fromValue;
+
+    @BindView(R.id.bchLabel)
+    View bchLabel;
 
     @BindView(R.id.toValue)
     TextView toValue;
@@ -141,7 +147,7 @@ public class ExchangeFragment extends Fragment {
         toAccounts.addAll(AccountManager.INSTANCE.getBTCBip44Accounts().values());
         toAccounts.addAll(AccountManager.INSTANCE.getBTCSingleAddressAccounts().values());
         toAccounts.addAll(AccountManager.INSTANCE.getCoinapultAccounts().values());
-        toAccountAdapter = new AccountAdapter(mbwManager,toAccounts, firstItemWidth);
+        toAccountAdapter = new AccountAdapter(mbwManager, toAccounts, firstItemWidth);
         toAccountAdapter.setAccountUseType(AccountAdapter.AccountUseType.IN);
         toRecyclerView.setAdapter(toAccountAdapter);
 
@@ -169,11 +175,11 @@ public class ExchangeFragment extends Fragment {
         valueKeyboard.setInputListener(new ValueKeyboard.SimpleInputListener() {
             @Override
             public void done() {
-                fromLayout.setAlpha(Constants.INACTIVE_ALPHA);
+                setAlphaFromLayout(Constants.INACTIVE_ALPHA);
                 toLayout.setAlpha(Constants.INACTIVE_ALPHA);
             }
         });
-        fromLayout.setAlpha(Constants.INACTIVE_ALPHA);
+        setAlphaFromLayout(Constants.INACTIVE_ALPHA);
         toLayout.setAlpha(Constants.INACTIVE_ALPHA);
 
         valueKeyboard.setVisibility(android.view.View.GONE);
@@ -235,7 +241,7 @@ public class ExchangeFragment extends Fragment {
         valueKeyboard.setVisibility(View.VISIBLE);
         valueKeyboard.setEntry(toValue.getText().toString());
         toLayout.setAlpha(Constants.ACTIVE_ALPHA);
-        fromLayout.setAlpha(Constants.INACTIVE_ALPHA);
+        setAlphaFromLayout(Constants.INACTIVE_ALPHA);
         valueKeyboard.setSpendableValue(BigDecimal.ZERO);
         valueKeyboard.setMaxValue(MAX_BITCOIN_VALUE);
 
@@ -256,7 +262,7 @@ public class ExchangeFragment extends Fragment {
         valueKeyboard.setInputTextView(fromValue);
         valueKeyboard.setVisibility(View.VISIBLE);
         valueKeyboard.setEntry(fromValue.getText().toString());
-        fromLayout.setAlpha(Constants.ACTIVE_ALPHA);
+        setAlphaFromLayout(Constants.ACTIVE_ALPHA);
         toLayout.setAlpha(Constants.INACTIVE_ALPHA);
         AccountAdapter.Item item = fromAccountAdapter.getItem(fromRecyclerView.getSelectedItem());
         valueKeyboard.setSpendableValue(getMaxSpend(item.account));
@@ -265,32 +271,54 @@ public class ExchangeFragment extends Fragment {
         scrollTo(fromLayout.getTop());
     }
 
+    private void setAlphaFromLayout(float alpha) {
+        fromValue.setAlpha(alpha);
+        bchLabel.setAlpha(alpha);
+    }
+
     @OnClick(R.id.use_all_funds)
     void useAllFundsClick() {
         AccountAdapter.Item item = fromAccountAdapter.getItem(fromRecyclerView.getSelectedItem());
         fromValue.setText(getMaxSpend(item.account).stripTrailingZeros().toPlainString());
     }
 
+    //TODO call getMaxFundsTransferrable need refactoring, we should call account object
     private BigDecimal getMaxSpend(WalletAccount account) {
-        return account.calculateMaxSpendableAmount(0).getValue();
+        if (account.getType() == WalletAccount.Type.BCHBIP44) {
+            int accountIndex = ((Bip44Account) account).getAccountIndex();
+            return ExactBitcoinCashValue.from(mbwManager.getSpvBchFetcher().getMaxFundsTransferrable(accountIndex)).getValue();
+        } else if (account.getType() == WalletAccount.Type.BCHSINGLEADDRESS) {
+            String accountGuid = account.getId().toString();
+            return ExactBitcoinCashValue.from(mbwManager.getSpvBchFetcher().getMaxFundsTransferrableSingleAddress(accountGuid)).getValue();
+        }
+
+        return BigDecimal.valueOf(0);
     }
+
 
     @OnTextChanged(value = R.id.fromValue, callback = AFTER_TEXT_CHANGED)
     public void afterEditTextInputFrom(Editable editable) {
-        if (!avoidTextChangeEvent && isValueForOfferOk(true)) {
-            BigDecimal val = new BigDecimal(fromValue.getText().toString());
-            if (val.compareTo(MAX_BITCOIN_VALUE) > 0) {
-                val = MAX_BITCOIN_VALUE;
-                fromValue.setText(val.toPlainString());
-            }
-            requestOfferFunction(val.toPlainString()
-                    , ChangellyService.BCH, ChangellyService.BTC);
+        isValueForOfferOk(true);
+        if (!avoidTextChangeEvent && !fromValue.getText().toString().isEmpty()) {
+            requestOfferFunction(getFromExcludeFee().toPlainString(), ChangellyService.BCH, ChangellyService.BTC);
         }
         if (!avoidTextChangeEvent && fromValue.getText().toString().isEmpty()) {
             avoidTextChangeEvent = true;
             toValue.setText(null);
             avoidTextChangeEvent = false;
         }
+    }
+
+    private BigDecimal getFromExcludeFee() {
+        BigDecimal val = new BigDecimal(fromValue.getText().toString());
+        if (val.compareTo(MAX_BITCOIN_VALUE) > 0) {
+            val = MAX_BITCOIN_VALUE;
+            fromValue.setText(val.toPlainString());
+        }
+        BigDecimal txFee = UtilsKt.estimateFeeFromTransferrableAmount(
+                fromAccountAdapter.getItem(fromRecyclerView.getSelectedItem()).account,
+                mbwManager, BitcoinCash.nearestValue(val).getLongValue());
+        return val.add(txFee.negate());
     }
 
     @OnTextChanged(value = R.id.toValue, callback = AFTER_TEXT_CHANGED)
@@ -402,7 +430,7 @@ public class ExchangeFragment extends Fragment {
             switch (intent.getAction()) {
                 case ChangellyService.INFO_MIN_AMOUNT:
                     amount = intent.getDoubleExtra(ChangellyService.AMOUNT, NOT_LOADED);
-                    if(amount != NOT_LOADED) {
+                    if (amount != NOT_LOADED) {
                         Log.d(TAG, "Received minimum amount: " + amount);
                         sharedPreferences.edit()
                                 .putFloat(BCH_MIN_EXCHANGE_VALUE, (float) amount)
@@ -423,16 +451,23 @@ public class ExchangeFragment extends Fragment {
 
                             if (to.equalsIgnoreCase(ChangellyService.BTC)
                                     && from.equalsIgnoreCase(ChangellyService.BCH)
-                                    && fromAmount == Double.parseDouble(fromValue.getText().toString())) {
+                                    && fromAmount == getFromExcludeFee().doubleValue()) {
                                 toValue.setText(decimalFormat.format(amount));
-                                exchangeRate.setText("1 BCH ~ " + decimalFormat.format(amount / fromAmount) + " BTC");
-                                exchangeRate.setVisibility(View.VISIBLE);
+                                if (fromAmount != 0 && amount != 0) {
+                                    exchangeRate.setText("1 BCH ~ " + decimalFormat.format(amount / fromAmount) + " BTC");
+                                    exchangeRate.setVisibility(View.VISIBLE);
+                                }
                             } else if (from.equalsIgnoreCase(ChangellyService.BTC)
                                     && to.equalsIgnoreCase(ChangellyService.BCH)
                                     && fromAmount == Double.parseDouble(toValue.getText().toString())) {
-                                fromValue.setText(decimalFormat.format(amount));
-                                exchangeRate.setText("1 BCH ~ " + decimalFormat.format(fromAmount / amount) + " BTC");
-                                exchangeRate.setVisibility(View.VISIBLE);
+                                BigDecimal txFee = UtilsKt.estimateFeeFromTransferrableAmount(
+                                        fromAccountAdapter.getItem(fromRecyclerView.getSelectedItem()).account,
+                                        mbwManager, BitcoinCash.valueOf(amount).getLongValue());
+                                fromValue.setText(decimalFormat.format(amount + txFee.doubleValue()));
+                                if (fromAmount != 0 && amount != 0) {
+                                    exchangeRate.setText("1 BCH ~ " + decimalFormat.format(fromAmount / amount) + " BTC");
+                                    exchangeRate.setVisibility(View.VISIBLE);
+                                }
                             }
 
                             isValueForOfferOk(true);
@@ -462,7 +497,7 @@ public class ExchangeFragment extends Fragment {
     }
 
     @Subscribe
-    public void exchangeRatesRefreshed(ExchangeRatesRefreshed event){
+    public void exchangeRatesRefreshed(ExchangeRatesRefreshed event) {
         updateUi();
     }
 }

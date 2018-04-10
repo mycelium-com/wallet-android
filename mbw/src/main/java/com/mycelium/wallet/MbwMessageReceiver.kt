@@ -9,6 +9,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import com.google.common.base.CharMatcher
+import com.mrd.bitlib.model.Address
 import com.mycelium.modularizationtools.CommunicationManager
 import com.mycelium.modularizationtools.ModuleMessageReceiver
 import com.mycelium.modularizationtools.model.Module
@@ -190,8 +191,13 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 transaction.clearInputs()
 
                 val keyList = ArrayList<ECKey>()
-                for(address in account.allAddresses) {
-                    val privateKey = account.getPrivateKeyForAddress(address,
+
+
+                for (utxoHex in txUTXOsHexList) {
+                    val utxo = UTXO(ByteArrayInputStream(Hex.decode(utxoHex)))
+                    val txOutput = FreeStandingTransactionOutput(networkParameters, utxo, utxo.height)
+                    val address = txOutput.getAddressFromP2PKHScript(networkParameters)!!.toBase58()
+                    val privateKey = account.getPrivateKeyForAddress(Address.fromString(address),
                             AesKeyCipher.defaultKeyCipher())
                     checkNotNull(privateKey)
                     keyList.add(DumpedPrivateKey.fromBase58(networkParameters,

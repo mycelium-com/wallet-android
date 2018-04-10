@@ -8,11 +8,14 @@ import com.google.common.base.Optional
 import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.spvmodule.IntentContract
+import com.mycelium.spvmodule.providers.TransactionContract
 import com.mycelium.spvmodule.providers.TransactionContract.AccountBalance
 import com.mycelium.spvmodule.providers.TransactionContract.CurrentReceiveAddress
 import com.mycelium.spvmodule.providers.TransactionContract.GetPrivateKeysCount
 import com.mycelium.spvmodule.providers.TransactionContract.GetSyncProgress
 import com.mycelium.spvmodule.providers.TransactionContract.CalculateMaxSpendable
+import com.mycelium.spvmodule.providers.TransactionContract.GetMaxFundsTransferrable
+import com.mycelium.spvmodule.providers.TransactionContract.EstimateFeeFromTransferrableAmount
 import com.mycelium.wallet.WalletApplication
 import com.mycelium.wallet.WalletApplication.getSpvModuleName
 import com.mycelium.wapi.model.TransactionSummary
@@ -26,7 +29,6 @@ import java.util.*
 import com.mycelium.spvmodule.providers.TransactionContract.TransactionSummary as SpvTxSummary
 
 class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
-
     val sharedPreference = context.getSharedPreferences("spvbalancefetcher", Context.MODE_PRIVATE)
 
     override fun retrieveByHdAccountIndex(id: String, accountIndex: Int): CurrencyBasedBalance {
@@ -227,4 +229,60 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
         }
 
     }
+
+
+    override fun getMaxFundsTransferrable(accountIndex: Int): Long {
+        val uri = TransactionContract.GetMaxFundsTransferrable.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHBIP44)).buildUpon().build()
+        val selection = GetMaxFundsTransferrable.SELECTION_HD
+
+        context.contentResolver.query(uri, null, selection, arrayOf("" + accountIndex), null).use {
+            return if (it?.moveToFirst() == true) {
+                it.getLong(0)
+            } else {
+                0
+            }
+        }
+
+    }
+
+    override fun getMaxFundsTransferrableSingleAddress(guid: String): Long {
+        val uri = TransactionContract.GetMaxFundsTransferrable.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHSINGLEADDRESS)).buildUpon().build()
+        val selection = GetMaxFundsTransferrable.SELECTION_SA
+
+        context.contentResolver.query(uri, null, selection, arrayOf(guid), null).use {
+            return if (it?.moveToFirst() == true) {
+                it.getLong(0)
+            } else {
+                0
+            }
+        }
+
+    }
+
+    override fun estimateFeeFromTransferrableAmount(accountIndex: Int, amountSatoshis: Long, txFee: String?, txFeeFactor: Float): Long {
+        val uri = TransactionContract.EstimateFeeFromTransferrableAmount.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHBIP44)).buildUpon().build()
+        val selection = EstimateFeeFromTransferrableAmount.SELECTION_HD
+
+        context.contentResolver.query(uri, null, selection, arrayOf("" + accountIndex, txFee, "" + txFeeFactor, "" + amountSatoshis), null).use {
+            return if (it?.moveToFirst() == true) {
+                it.getLong(0)
+            } else {
+                0
+            }
+        }
+    }
+
+    override fun estimateFeeFromTransferrableAmountSingleAddress(guid: String?, amountSatoshis: Long, txFee: String?, txFeeFactor: Float): Long {
+        val uri = TransactionContract.EstimateFeeFromTransferrableAmount.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHSINGLEADDRESS)).buildUpon().build()
+        val selection = EstimateFeeFromTransferrableAmount.SELECTION_SA
+
+        context.contentResolver.query(uri, null, selection, arrayOf(guid, txFee, "" + txFeeFactor, "" + amountSatoshis), null).use {
+            return if (it?.moveToFirst() == true) {
+                it.getLong(0)
+            } else {
+                0
+            }
+        }
+    }
+
 }
