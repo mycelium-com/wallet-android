@@ -567,7 +567,9 @@ public class AccountsFragment extends Fragment {
          menus.add(R.menu.record_options_menu_set_coinapult_mail);
       }
 
-      if (account.isArchived()) {
+      if (account.getType() != WalletAccount.Type.BCHBIP44
+              && account.getType() != WalletAccount.Type.BCHSINGLEADDRESS
+              && account.isArchived()) {
          menus.add(R.menu.record_options_menu_archive);
       }
 
