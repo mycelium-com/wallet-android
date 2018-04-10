@@ -47,6 +47,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -62,6 +63,9 @@ public class ExchangeFragment extends Fragment {
     public static final String BCH_EXCHANGE = "bch_exchange";
     public static final String BCH_MIN_EXCHANGE_VALUE = "bch_min_exchange_value";
     public static final float NOT_LOADED = -1f;
+    public static final String TO_ACCOUNT = "toAccount";
+    public static final String FROM_ACCOUNT = "fromAccount";
+    public static final String FROM_VALUE = "fromValue";
     private static String TAG = "ChangellyActivity";
 
     @BindView(R.id.scrollView)
@@ -233,6 +237,27 @@ public class ExchangeFragment extends Fragment {
                 .add(R.id.fragment_container, fragment, "ConfirmExchangeFragment")
                 .addToBackStack("ConfirmExchangeFragment")
                 .commitAllowingStateLoss();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(FROM_VALUE, fromValue.getText().toString());
+        outState.putSerializable(FROM_ACCOUNT, fromAccountAdapter.getItem(fromRecyclerView.getSelectedItem()).account.getId());
+        outState.putSerializable(TO_ACCOUNT, toAccountAdapter.getItem(toRecyclerView.getSelectedItem()).account.getId());
+    }
+
+    @Override
+    public void onViewStateRestored(Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        if(savedInstanceState != null) {
+            fromValue.setText(savedInstanceState.getString(FROM_VALUE));
+            fromRecyclerView.setSelectedItem(mbwManager.getWalletManager(false)
+                    .getAccount((UUID) savedInstanceState.getSerializable(FROM_ACCOUNT)));
+            toRecyclerView.setSelectedItem(mbwManager.getWalletManager(false)
+                    .getAccount((UUID) savedInstanceState.getSerializable(TO_ACCOUNT)));
+            requestOfferFunction(getFromExcludeFee().toPlainString(), ChangellyService.BCH, ChangellyService.BTC);
+        }
     }
 
     @OnClick(R.id.toValueLayout)
