@@ -27,6 +27,16 @@
                 android:textSize="21sp" />
 
             <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/margin_medium"
+                android:layout_marginRight="@dimen/margin_medium"
+                android:layout_marginStart="@dimen/margin_medium"
+                android:text="@string/given_rates_includes_transaction_fee"
+                android:textColor="@color/sender_recyclerview_background_green"
+                android:textSize="11sp" />
+
+            <TextView
                 android:id="@+id/tvError"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
