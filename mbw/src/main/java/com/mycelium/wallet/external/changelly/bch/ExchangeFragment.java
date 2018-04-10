@@ -379,9 +379,11 @@ public class ExchangeFragment extends Fragment {
             return false;
         } else if (checkMin && dblAmount.compareTo(minAmount) < 0) {
             buttonContinue.setEnabled(false);
-            tvError.setText(getString(R.string.exchange_minimum_amount
-                    , decimalFormat.format(minAmount), "BCH"));
-            tvError.setVisibility(View.VISIBLE);
+            if(dblAmount != 0) {
+                tvError.setText(getString(R.string.exchange_minimum_amount
+                        , decimalFormat.format(minAmount), "BCH"));
+                tvError.setVisibility(View.VISIBLE);
+            }
             scrollTo(tvError.getTop());
             return false;
         } else if (fromAccount.getCurrencyBasedBalance().confirmed.getValue().compareTo(BigDecimal.valueOf(dblAmount)) < 0) {
