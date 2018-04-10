@@ -147,7 +147,7 @@ public class ConfirmExchangeFragment extends Fragment {
                 }
                 progressDialog = new ProgressDialog(getActivity());
                 progressDialog.setIndeterminate(true);
-                progressDialog.setMessage(getString(R.string.sending));
+                progressDialog.setMessage(getString(R.string.sending, "..."));
                 progressDialog.show();
             }
         });
