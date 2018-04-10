@@ -68,7 +68,6 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.AccountManager;
-import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
@@ -78,8 +77,8 @@ import com.mycelium.wallet.activity.AddCoinapultAccountActivity;
 import com.mycelium.wallet.activity.MessageSigningActivity;
 import com.mycelium.wallet.activity.export.VerifyBackupActivity;
 import com.mycelium.wallet.activity.modern.adapter.AccountListAdapter;
-import com.mycelium.wallet.activity.view.DividerItemDecoration;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
+import com.mycelium.wallet.activity.view.DividerItemDecoration;
 import com.mycelium.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wallet.coinapult.CoinapultManager;
 import com.mycelium.wallet.colu.ColuAccount;
@@ -233,7 +232,7 @@ public class AccountsFragment extends Fragment {
       deleteDialog.setTitle(R.string.delete_account_title);
       final WalletAccount account = _mbwManager.getSelectedAccount();
       final WalletAccount linkedAccount = Utils.getLinkedAccount(account, _mbwManager.getColuManager().getAccounts().values());
-      if (account instanceof ColuAccount) {
+      if (account.getType() == WalletAccount.Type.COLU) {
          deleteDialog.setMessage(getString(R.string.delete_account_message)
                  + "\n" + getString(R.string.both_rmc_will_deleted
                  , _mbwManager.getMetadataStorage().getLabelByAccount(account.getId())
@@ -244,7 +243,15 @@ public class AccountsFragment extends Fragment {
                  , _mbwManager.getMetadataStorage().getLabelByAccount(account.getId())
                  , _mbwManager.getMetadataStorage().getLabelByAccount(linkedAccount.getId())));
       } else {
-         deleteDialog.setMessage(R.string.delete_account_message);
+         WalletAccount correspondingBCHAccount = _mbwManager.getWalletManager(false).getAccount(MbwManager.getBitcoinCashAccountId(account));
+         if (correspondingBCHAccount != null && correspondingBCHAccount.isVisible()) {
+            deleteDialog.setMessage(getString(R.string.delete_account_message)
+                    + "\n" + getString(R.string.both_bch_will_deleted
+                    , _mbwManager.getMetadataStorage().getLabelByAccount(account.getId())
+                    , _mbwManager.getMetadataStorage().getLabelByAccount(correspondingBCHAccount.getId())));
+         } else {
+            deleteDialog.setMessage(getString(R.string.delete_account_message));
+         }
       }
 
       // add checkbox only for SingleAddressAccounts and only if a private key is present

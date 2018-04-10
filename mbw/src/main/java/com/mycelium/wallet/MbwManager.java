@@ -610,13 +610,17 @@ public class MbwManager {
       for (WalletAccount walletAccount : accounts) {
          if (walletAccount.getType() == WalletAccount.Type.BTCSINGLEADDRESS
                  || walletAccount.getType() == WalletAccount.Type.BTCBIP44) {
-            UUID bchId = UUID.nameUUIDFromBytes(("BCH" + walletAccount.getId().toString()).getBytes());
+            UUID bchId = getBitcoinCashAccountId(walletAccount);
             String bchLabel = getMetadataStorage().getLabelByAccount(bchId);
             if (bchLabel == null || bchLabel.isEmpty()) {
                getMetadataStorage().storeAccountLabel(bchId, getMetadataStorage().getLabelByAccount(walletAccount.getId()));
             }
          }
       }
+   }
+
+   public static UUID getBitcoinCashAccountId(WalletAccount walletAccount) {
+      return UUID.nameUUIDFromBytes(("BCH" + walletAccount.getId().toString()).getBytes());
    }
 
    /**
