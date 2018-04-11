@@ -1011,7 +1011,7 @@ public class Utils {
       if (value.isBtc()) {
          return getFormattedValueWithUnit((BitcoinValue) value, denomination);
       } else if(value.isBch()) {
-        return getFormattedValueWithUnit((ExactBitcoinCashValue) value, denomination);
+        return getFormattedValueWithUnit(ExactBitcoinCashValue.from(value.getValue()), denomination);
       } else {
          BigDecimal val = value.getValue();
          if (val == null) {
