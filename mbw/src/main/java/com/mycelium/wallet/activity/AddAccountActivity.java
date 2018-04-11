@@ -43,6 +43,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.View;
 import android.view.WindowManager;
+
 import com.google.common.base.Preconditions;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -59,6 +60,7 @@ import com.squareup.otto.Subscribe;
 
 import java.util.UUID;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
@@ -77,6 +79,9 @@ public class AddAccountActivity extends Activity {
    private Toaster _toaster;
    private MbwManager _mbwManager;
    private ProgressDialog _progress;
+
+   @BindView(R.id.btHdBchCreate)
+   View hdBchCreate;
 
    @Override
    public void onCreate(Bundle savedInstanceState) {
@@ -100,6 +105,7 @@ public class AddAccountActivity extends Activity {
       final View coluCreate = findViewById(R.id.btColuCreate);
       coluCreate.setOnClickListener(createColuAccount);
       _progress = new ProgressDialog(this);
+      hdBchCreate.setVisibility(BCHHelper.isModulePaired(getApplicationContext()) ? View.VISIBLE : View.GONE);
    }
 
    @OnClick(R.id.btHdBchCreate)

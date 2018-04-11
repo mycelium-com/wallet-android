@@ -65,7 +65,6 @@ import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.bip44.Bip44Account;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 
 import java.io.IOException;
@@ -73,6 +72,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
@@ -96,6 +96,9 @@ public class AddAdvancedAccountActivity extends Activity {
    private MbwManager _mbwManager;
 
    private NetworkParameters _network;
+
+   @BindView(R.id.btGenerateNewBchSingleKey)
+   View btGenerateNewBchSingleKey;
 
    @Override
    public void onCreate(Bundle savedInstanceState) {
@@ -165,6 +168,7 @@ public class AddAdvancedAccountActivity extends Activity {
             Utils.openWebsite(activity, BUY_LEDGER_LINK);
          }
       });
+      btGenerateNewBchSingleKey.setVisibility(BCHHelper.isModulePaired(getApplicationContext()) ? View.VISIBLE : View.GONE);
    }
 
    @OnClick(R.id.btGenerateNewBchSingleKey)
