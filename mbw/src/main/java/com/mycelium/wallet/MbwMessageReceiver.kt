@@ -157,12 +157,12 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                     Log.w(TAG, "MbwMessageReceiver.onMessageFromSpvModuleBch, " +
                             "com.mycelium.wallet.requestSingleAddressPrivateKeyToMBW, " +
                             "publicKey must not be null.")
-                    val service = IntentContract.SendSingleAddressToSPV.createIntent(accountGuid,
+                    val service = IntentContract.SendUnrelatedAddressToSPV.createIntent(accountGuid,
                             account.address.typeSpecificBytes)
                     WalletApplication.sendToSpv(service, BCHSINGLEADDRESS)
                     return
                 }
-                val service = IntentContract.SendSingleAddressPublicKeyToSPV.createIntent(accountGuid,
+                val service = IntentContract.SendUnrelatedPublicKeyToSPV.createIntent(accountGuid,
                         account.publicKey.publicKeyBytes)
                 WalletApplication.sendToSpv(service, BCHSINGLEADDRESS)
             }
@@ -232,7 +232,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
 
                 val signedTransaction = signAndSerialize(networkParameters, keyList, txUTXOsHexList, transaction)
 
-                val service = IntentContract.SendSignedTransactionSingleAddressToSPV.createIntent(operationId, accountGuid,
+                val service = IntentContract.SendSignedTransactionUnrelatedToSPV.createIntent(operationId, accountGuid,
                         signedTransaction)
                 WalletApplication.sendToSpv(service, BCHSINGLEADDRESS)
             }

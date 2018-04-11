@@ -215,7 +215,7 @@ public class WalletManager {
                     SingleAddressBCHAccount singleAddressBCHAccount = new SingleAddressBCHAccount(context, store, _network, accountBacking, _wapi, _spvBalanceFetcher);
                     addAccount(singleAddressBCHAccount);
                     _btcToBchAccounts.put(account.getId(), singleAddressBCHAccount.getId());
-                    _spvBalanceFetcher.requestTransactionsFromSingleAddressAccountAsync(singleAddressBCHAccount.getId().toString());
+                    _spvBalanceFetcher.requestTransactionsFromUnrelatedAccountAsync(singleAddressBCHAccount.getId().toString());
                 }
             } finally {
                 _backing.endTransaction();
@@ -383,7 +383,7 @@ public class WalletManager {
                 _backing.deleteSingleAddressAccountContext(id);
                 _walletAccounts.remove(id);
                 if (_spvBalanceFetcher != null) {
-                    _spvBalanceFetcher.requestSingleAddressWalletAccountRemoval(id.toString());
+                    _spvBalanceFetcher.requestUnrelatedAccountRemoval(id.toString());
                 }
             } else if (account instanceof Bip44Account) {
                 Bip44Account hdAccount = (Bip44Account) account;
@@ -780,7 +780,7 @@ public class WalletManager {
                 SingleAddressBCHAccount bchAccount = new SingleAddressBCHAccount(context, store, _network, accountBacking, _wapi, _spvBalanceFetcher);
                 addAccount(bchAccount);
                 _btcToBchAccounts.put(account.getId(), bchAccount.getId());
-                _spvBalanceFetcher.requestTransactionsFromSingleAddressAccountAsync(bchAccount.getId().toString());
+                _spvBalanceFetcher.requestTransactionsFromUnrelatedAccountAsync(bchAccount.getId().toString());
             }
         }
     }
@@ -870,7 +870,7 @@ public class WalletManager {
                 }
 
                 if (currentAccount instanceof SingleAddressBCHAccount) {
-                    _spvBalanceFetcher.requestTransactionsFromSingleAddressAccountAsync(currentAccount.getId().toString());
+                    _spvBalanceFetcher.requestTransactionsFromUnrelatedAccountAsync(currentAccount.getId().toString());
                 }
 
                 for (WalletAccount account : getAllAccounts()) {

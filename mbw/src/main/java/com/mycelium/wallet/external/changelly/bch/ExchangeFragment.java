@@ -314,7 +314,7 @@ public class ExchangeFragment extends Fragment {
             return ExactBitcoinCashValue.from(mbwManager.getSpvBchFetcher().getMaxFundsTransferrable(accountIndex)).getValue();
         } else if (account.getType() == WalletAccount.Type.BCHSINGLEADDRESS) {
             String accountGuid = account.getId().toString();
-            return ExactBitcoinCashValue.from(mbwManager.getSpvBchFetcher().getMaxFundsTransferrableSingleAddress(accountGuid)).getValue();
+            return ExactBitcoinCashValue.from(mbwManager.getSpvBchFetcher().getMaxFundsTransferrableUnrelatedAccount(accountGuid)).getValue();
         }
 
         return BigDecimal.valueOf(0);

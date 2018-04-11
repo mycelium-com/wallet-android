@@ -140,7 +140,7 @@ public class ConfirmExchangeFragment extends Fragment {
                     }
                     case BCHSINGLEADDRESS: {
                         SingleAddressBCHAccount bip44BCHAccount = (SingleAddressBCHAccount) fromAccount;
-                        Intent service = IntentContract.SendFundsSingleAddress.createIntent(lastOperationId, bip44BCHAccount.getId().toString(), offer.payinAddress, fromValue, TransactionFee.NORMAL, 1.0f);
+                        Intent service = IntentContract.SendFundsUnrelated.createIntent(lastOperationId, bip44BCHAccount.getId().toString(), offer.payinAddress, fromValue, TransactionFee.NORMAL, 1.0f);
                         WalletApplication.sendToSpv(service, WalletAccount.Type.BCHSINGLEADDRESS);
                         break;
                     }

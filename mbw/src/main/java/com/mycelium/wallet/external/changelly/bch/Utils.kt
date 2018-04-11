@@ -17,7 +17,7 @@ fun WalletAccount.estimateFeeFromTransferrableAmount(mbwManager: MbwManager, amo
     } else if (this.type == WalletAccount.Type.BCHSINGLEADDRESS) {
         val accountGuid = this.id.toString()
         return ExactBitcoinCashValue.from(mbwManager.getSpvBchFetcher()!!
-                .estimateFeeFromTransferrableAmountSingleAddress(accountGuid, amount, TransactionFee.NORMAL.name, 1.0f)).getValue()
+                .estimateFeeFromTransferrableAmountUnrelatedAccount(accountGuid, amount, TransactionFee.NORMAL.name, 1.0f)).getValue()
     }
     return BigDecimal.valueOf(0)
 
