@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.net.Uri;
 
 import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.external.BuySellSelectFragment;
+import com.mycelium.wallet.external.BuySellSelectActivity;
 import com.mycelium.wallet.external.glidera.api.GlideraService;
 import com.mycelium.wallet.external.glidera.api.response.StatusResponse;
 
@@ -57,7 +57,7 @@ public class GlideraSendToNextStep extends Activity {
                           String uri = glideraService.getSetupUrl();
                           Utils.openWebsite(GlideraSendToNextStep.this, uri);
                        } else if (status != null && status.equals("RETURN")) {
-                          Intent intent = new Intent(GlideraSendToNextStep.this, BuySellSelectFragment.class);
+                          Intent intent = new Intent(GlideraSendToNextStep.this, BuySellSelectActivity.class);
                           startActivity(intent);
                           finish();
                        } else {
@@ -69,7 +69,7 @@ public class GlideraSendToNextStep extends Activity {
    }
 
    private void handleError() {
-      Intent intent = new Intent(this, BuySellSelectFragment.class);
+      Intent intent = new Intent(this, BuySellSelectActivity.class);
       startActivity(intent);
       finish();
    }

@@ -53,7 +53,7 @@ import com.mycelium.wallet.activity.main.adapter.ButtonPagerAdapter;
 import com.mycelium.wallet.activity.main.model.ActionButton;
 import com.mycelium.wallet.activity.view.ViewPagerIndicator;
 import com.mycelium.wallet.event.SelectedAccountChanged;
-import com.mycelium.wallet.external.BuySellSelectFragment;
+import com.mycelium.wallet.external.BuySellSelectActivity;
 import com.mycelium.wallet.external.BuySellServiceDescriptor;
 import com.mycelium.wallet.external.changelly.ChangellyActivity;
 import com.mycelium.wallet.external.changelly.bch.ExchangeActivity;
@@ -109,7 +109,7 @@ public class BuySellFragment extends Fragment {
                     actions.add(new ActionButton(getString(R.string.gd_buy_sell_button), new Runnable() {
                         @Override
                         public void run() {
-                            startActivity(new Intent(getActivity(), BuySellSelectFragment.class));
+                            startActivity(new Intent(getActivity(), BuySellSelectActivity.class));
                         }
                     }));
                 }

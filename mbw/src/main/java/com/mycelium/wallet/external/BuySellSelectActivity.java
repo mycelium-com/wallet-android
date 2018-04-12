@@ -10,7 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -21,14 +20,13 @@ import com.google.common.collect.Iterables;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.modern.ModernMain;
-import com.mycelium.wallet.external.glidera.api.GlideraService;
 
 import java.util.List;
 
 import javax.annotation.Nullable;
 
 
-public class BuySellSelectFragment extends FragmentActivity {
+public class BuySellSelectActivity extends FragmentActivity {
 
    @Override
    protected void onCreate(Bundle savedInstanceState) {
@@ -61,8 +59,6 @@ public class BuySellSelectFragment extends FragmentActivity {
 
       if (onlyOneEnabled != null){
          onlyOneEnabled.launchService(this, mbwManager, mbwManager.getSelectedAccount().getReceivingAddress());
-         // remove me from the back stack
-         this.finish();
       }
 
       final List<BuySellServiceDescriptor> enabledServices = Lists.newArrayList(Iterables.filter(buySellServices, new Predicate<BuySellServiceDescriptor>() {
@@ -120,7 +116,7 @@ public class BuySellSelectFragment extends FragmentActivity {
          v.findViewById(R.id.llServiceRow).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               service.launchService(BuySellSelectFragment.this, mbwManager, mbwManager.getSelectedAccount().getReceivingAddress());
+               service.launchService(BuySellSelectActivity.this, mbwManager, mbwManager.getSelectedAccount().getReceivingAddress());
             }
          });
 
