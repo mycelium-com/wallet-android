@@ -159,7 +159,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                         //Unrelated HD key
                         val publicKeyB58 = account.getExportData(AesKeyCipher.defaultKeyCipher()).publicData.get()
                         val service = IntentContract.SendUnrelatedPublicKeyToSPV.createIntent(accountGuid,
-                                publicKeyB58)
+                                publicKeyB58, accountType)
                         WalletApplication.sendToSpv(service, BCHBIP44)
                     }
                     IntentContract.UNRELATED_ACCOUNT_TYPE_SA -> {
@@ -170,18 +170,8 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                             account =_mbwManager.getWalletManager(true).getAccount(UUID.fromString(accountGuid)) as SingleAddressAccount
                         }
 
-                        if (account.publicKey == null) {
-                            Log.w(TAG, "MbwMessageReceiver.onMessageFromSpvModuleBch, " +
-                                    "com.mycelium.wallet.requestSingleAddressPrivateKeyToMBW, " +
-                                    "publicKey must not be null.")
-                            val service = IntentContract.SendUnrelatedAddressToSPV.createIntent(accountGuid,
-                                    account.address.typeSpecificBytes)
-                            WalletApplication.sendToSpv(service, BCHSINGLEADDRESS)
-                            return
-                        }
-                        val publicKeyB58 = account.getExportData(AesKeyCipher.defaultKeyCipher()).publicData.get()
                         val service = IntentContract.SendUnrelatedPublicKeyToSPV.createIntent(accountGuid,
-                                publicKeyB58)
+                                account.address.toString(), accountType)
                         WalletApplication.sendToSpv(service, BCHSINGLEADDRESS)
                     }
                 }
