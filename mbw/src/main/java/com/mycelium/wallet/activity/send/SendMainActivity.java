@@ -439,14 +439,16 @@ public class SendMainActivity extends Activity {
         transactionFiatValuePref = getSharedPreferences(TRANSACTION_FIAT_VALUE, MODE_PRIVATE);
 
     }
+
     private FeeViewAdapter feeViewAdapter;
     private boolean showSendBtn = true;
 
     private void initFeeView() {
         feeValueList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-
+        feeValueList.setHasFixedSize(true);
         feeViewAdapter = new FeeViewAdapter(feeFirstItemWidth);
         feeItemsBuilder = new FeeItemsBuilder(_mbwManager);
+        feeValueList.setAdapter(feeViewAdapter);
         feeValueList.setSelectListener(new SelectListener() {
             @Override
             public void onSelect(RecyclerView.Adapter adapter, int position) {
@@ -458,21 +460,19 @@ public class SendMainActivity extends Activity {
                 updateFeeText();
                 updateError();
                 btSend.setEnabled(_transactionStatus == TransactionStatus.OK);
-                ScrollView scrollView = (ScrollView) findViewById(R.id.root);
+                ScrollView scrollView = findViewById(R.id.root);
 
                 if(showSendBtn && scrollView.getMaxScrollAmount() - scrollView.getScaleY() > 0) {
                     scrollView.smoothScrollBy(0, scrollView.getMaxScrollAmount());
                     showSendBtn = false;
                 }
-
             }
         });
-        feeValueList.setAdapter(feeViewAdapter);
-        feeValueList.setHasFixedSize(true);
     }
 
     private void initFeeLvlView() {
         feeLvlList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        feeLvlList.setHasFixedSize(true);
         List<MinerFee> fees = Arrays.asList(MinerFee.values());
         List<FeeLvlItem> feeLvlItems = new ArrayList<>();
         feeLvlItems.add(new FeeLvlItem(null, null, SelectableRecyclerView.Adapter.VIEW_TYPE_PADDING));
@@ -483,7 +483,16 @@ public class SendMainActivity extends Activity {
         feeLvlItems.add(new FeeLvlItem(null, null, SelectableRecyclerView.Adapter.VIEW_TYPE_PADDING));
 
         final FeeLvlViewAdapter feeLvlViewAdapter = new FeeLvlViewAdapter(feeLvlItems, feeFirstItemWidth);
+        feeLvlList.setAdapter(feeLvlViewAdapter);
 
+        int selectedIndex = -1;
+        for (int i = 0; i < feeLvlItems.size(); i++) {
+            FeeLvlItem feeLvlItem = feeLvlItems.get(i);
+            if (feeLvlItem.minerFee == _mbwManager.getMinerFee()) {
+                selectedIndex = i;
+                break;
+            }
+        }
         feeLvlList.setSelectListener(new SelectListener() {
             @Override
             public void onSelect(RecyclerView.Adapter adapter, int position) {
@@ -496,20 +505,7 @@ public class SendMainActivity extends Activity {
                 feeValueList.setSelectedItem(new FeeItem(feePerKbValue, null, null, FeeViewAdapter.VIEW_TYPE_ITEM));
             }
         });
-
-        feeLvlList.setAdapter(feeLvlViewAdapter);
-
-        int selectedIndex = -1;
-        for (int i = 0; i < feeLvlItems.size(); i++) {
-            FeeLvlItem feeLvlItem = feeLvlItems.get(i);
-            if (feeLvlItem.minerFee == _mbwManager.getMinerFee()) {
-                selectedIndex = i;
-                break;
-            }
-        }
-
         feeLvlList.setSelectedItem(selectedIndex);
-        feeLvlList.setHasFixedSize(true);
     }
 
     private int estimateTxSize() {
