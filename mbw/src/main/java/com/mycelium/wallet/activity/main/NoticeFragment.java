@@ -84,7 +84,7 @@ public class NoticeFragment extends Fragment {
    private enum Notice {
       BACKUP_MISSING
       , SINGLEKEY_BACKUP_MISSING, SINGLEKEY_VERIFY_MISSING
-      , MOVE_LEGACY_FUNDS, RESET_PIN_AVAILABLE, RESET_PIN_IN_PROGRESS, NONE;
+      , RESET_PIN_AVAILABLE, RESET_PIN_IN_PROGRESS, NONE;
    }
 
    private MbwManager _mbwManager;
@@ -182,11 +182,6 @@ public class NoticeFragment extends Fragment {
          }
       }
 
-      // Second check whether to warn about legacy accounts with funds
-      if (RecordRowBuilder.showLegacyAccountWarning(account, _mbwManager)) {
-         return Notice.MOVE_LEGACY_FUNDS;
-      }
-
       return Notice.NONE;
    }
 
@@ -239,9 +234,6 @@ public class NoticeFragment extends Fragment {
                break;
             case SINGLEKEY_VERIFY_MISSING:
                showSingleKeyVerifyWarning();
-               break;
-            case MOVE_LEGACY_FUNDS:
-               showMoveLegacyFundsWarning();
                break;
             default:
                break;
@@ -318,13 +310,6 @@ public class NoticeFragment extends Fragment {
          return;
       }
       VerifyBackupActivity.callMe(getActivity());
-   }
-
-   private void showMoveLegacyFundsWarning() {
-      if (!isAdded()) {
-         return;
-      }
-      Utils.showSimpleMessageDialog(getActivity(), R.string.move_legacy_funds_message);
    }
 
    private boolean shouldWarnAboutHeartbleedBug() {

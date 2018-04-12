@@ -187,10 +187,6 @@ public class RecordRowBuilder {
          tvBalance.setTextColor(textColor);
 
          // Show legacy account with funds warning if necessary
-         boolean showLegacyAccountWarning = showLegacyAccountWarning(walletAccount, mbwManager);
-         rowView.findViewById(R.id.tvLegacyAccountWarning).setVisibility(showLegacyAccountWarning ? View.VISIBLE : View.GONE);
-
-         // Show legacy account with funds warning if necessary
          boolean showBackupMissingWarning = showBackupMissingWarning(walletAccount, mbwManager);
          TextView backupMissing = rowView.findViewById(R.id.tvBackupMissingWarning);
          backupMissing.setVisibility(showBackupMissingWarning ? View.VISIBLE : View.GONE);
@@ -204,7 +200,6 @@ public class RecordRowBuilder {
       } else {
          // We don't show anything if the account is archived
          rowView.findViewById(R.id.tvBalance).setVisibility(View.GONE);
-         rowView.findViewById(R.id.tvLegacyAccountWarning).setVisibility(View.GONE);
          rowView.findViewById(R.id.tvBackupMissingWarning).setVisibility(View.GONE);
          if (walletAccount.getType() == WalletAccount.Type.BCHBIP44
                  || walletAccount.getType() == WalletAccount.Type.BCHSINGLEADDRESS) {
@@ -223,17 +218,6 @@ public class RecordRowBuilder {
       }
 
       return rowView;
-   }
-
-   public static boolean showLegacyAccountWarning(WalletAccount account, MbwManager mbwManager) {
-      if (account.isArchived()) {
-         return false;
-      }
-      Balance balance = account.getBalance();
-      return account.getType() == WalletAccount.Type.BTCSINGLEADDRESS
-               && balance.getReceivingBalance() + balance.getSpendableBalance() > 0
-               && account.canSpend()
-               && !mbwManager.getMetadataStorage().getIgnoreLegacyWarning(account.getId());
    }
 
    private static boolean showBackupMissingWarning(WalletAccount account, MbwManager mbwManager) {

@@ -107,18 +107,6 @@
         </TextView>
 
         <TextView
-                android:id="@+id/tvLegacyAccountWarning"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="0dp"
-                android:gravity="center"
-                android:padding="0dp"
-                android:text="@string/legacy_account_with_funds"
-                android:textColor="@color/red"
-                android:textSize="16sp" >
-        </TextView>
-
-        <TextView
                 android:id="@+id/tvBackupMissingWarning"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"

@@ -181,7 +181,6 @@
   <string name="verify_backup_master_seed">Vaše glavno seme ni preverjeno.</string>
   <string name="verify_backup_no_such_record">Zasebni ključ ne ujema z nobenim od vaših Bitcoin naslovov.</string>
   <string name="verify_backup_ok">Rezervna kopija zasebnih ključev je bila uspešno preverjena za naslednje naslove:\n\n%1$s</string>
-  <string name="legacy_account_with_funds">Podedovan račun s sredstvi</string>
   <string name="wrong_seed">Prečitano seme se ne ujema z vašim glavnim semenom.</string>
   <string name="backup_missing">Rezervna kopija manjka</string>
   <string name="verify_backup_title">Rezervna kopija, preverba</string>

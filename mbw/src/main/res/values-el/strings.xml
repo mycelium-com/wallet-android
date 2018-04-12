@@ -180,7 +180,6 @@
   <string name="verify_backup_master_seed">Ο κεντρικός κωδικός (σπόρος) δεν έχει επιβεβαιωθεί.</string>
   <string name="verify_backup_no_such_record">Το μυστικό κλειδί δεν ταιριάζει με καμμία από τις διευθύνσεις σας.</string>
   <string name="verify_backup_ok">Το αντίγραφο ασφαλείας μυστικού κλειδιού επιβεβαιώθηκε επιτυχώς για την διεύθυνση:\n\n%1$s</string>
-  <string name="legacy_account_with_funds">Παλαιού τύπου λογαριασμός με κεφάλαια</string>
   <string name="wrong_seed">Ο κωδικός-σπόρος που σαρώθηκε δεν ταιριάζει με τον κεντρικό κωδικό σας.</string>
   <string name="backup_missing">Χωρίς αντίγραφο ασφαλείας</string>
   <string name="verify_backup_title">Αντίγραφο Ασφαλείας κι Επιβεβαίωση</string>

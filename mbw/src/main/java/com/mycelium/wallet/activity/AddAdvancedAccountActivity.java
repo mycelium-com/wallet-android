@@ -410,9 +410,6 @@ public class AddAdvancedAccountActivity extends Activity {
       try {
          acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(key, AesKeyCipher.defaultKeyCipher());
 
-         // Dont show a legacy-account warning for freshly generated or imported keys
-         _mbwManager.getMetadataStorage().setIgnoreLegacyWarning(acc, true);
-
          _mbwManager.getMetadataStorage().setOtherAccountBackupState(acc, backupState);
          return acc;
       } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {

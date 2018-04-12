@@ -181,7 +181,6 @@
   <string name="verify_backup_master_seed">您的主種子尚未被驗證。</string>
   <string name="verify_backup_no_such_record">此私鑰不匹配任何您的比特幣地址</string>
   <string name="verify_backup_ok">完成驗證一下地址備份：\n\n%1$s</string>
-  <string name="legacy_account_with_funds">內含資金的舊帳戶</string>
   <string name="wrong_seed">掃描的種子與您的主種子不匹配。</string>
   <string name="backup_missing">備份丟失</string>
   <string name="verify_backup_title">備份和驗證</string>
