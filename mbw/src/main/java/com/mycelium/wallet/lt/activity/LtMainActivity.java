@@ -61,7 +61,6 @@ import com.mycelium.lt.api.LtApi;
 import com.mycelium.lt.api.model.TraderInfo;
 import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.export.ExportAsQrCodeActivity;
-import com.mycelium.wallet.external.BuySellSelectFragment;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.activity.buy.AdSearchFragment;
