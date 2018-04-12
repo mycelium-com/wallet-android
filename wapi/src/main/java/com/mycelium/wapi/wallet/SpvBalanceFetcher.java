@@ -15,7 +15,7 @@ public interface SpvBalanceFetcher {
     List<TransactionSummary> retrieveTransactionSummaryByUnrelatedAccountId(String id, long since);
     void requestTransactionsAsync(int accountIndex);
     void requestHdWalletAccountRemoval(int accountIndex);
-    void requestTransactionsFromUnrelatedAccountAsync(String guid);
+    void requestTransactionsFromUnrelatedAccountAsync(String guid, int accountType);
     void requestUnrelatedAccountRemoval(String guid);
     float getSyncProgressPercents();
     Address getCurrentReceiveAddress(int accountIndex);

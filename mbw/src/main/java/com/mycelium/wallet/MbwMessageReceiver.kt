@@ -156,6 +156,11 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                             account =_mbwManager.getWalletManager(true).getAccount(UUID.fromString(accountGuid)) as Bip44Account
                         }
 
+                        //Unrelated HD key
+                        val publicKeyB58 = account.getExportData(AesKeyCipher.defaultKeyCipher()).publicData.get()
+                        val service = IntentContract.SendUnrelatedPublicKeyToSPV.createIntent(accountGuid,
+                                publicKeyB58)
+                        WalletApplication.sendToSpv(service, BCHBIP44)
                     }
                     IntentContract.UNRELATED_ACCOUNT_TYPE_SA -> {
                         Log.d(TAG, "com.mycelium.wallet.requestSingleAddressPrivateKeyToMBW, guid = $accountGuid")
@@ -174,8 +179,9 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                             WalletApplication.sendToSpv(service, BCHSINGLEADDRESS)
                             return
                         }
+                        val publicKeyB58 = account.getExportData(AesKeyCipher.defaultKeyCipher()).publicData.get()
                         val service = IntentContract.SendUnrelatedPublicKeyToSPV.createIntent(accountGuid,
-                                account.publicKey.publicKeyBytes)
+                                publicKeyB58)
                         WalletApplication.sendToSpv(service, BCHSINGLEADDRESS)
                     }
                 }

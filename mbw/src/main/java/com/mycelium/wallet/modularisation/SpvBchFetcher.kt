@@ -134,8 +134,8 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
         WalletApplication.sendToSpv(service, WalletAccount.Type.BCHBIP44)
     }
 
-    override fun requestTransactionsFromUnrelatedAccountAsync(guid: String) {
-        val service = IntentContract.ReceiveTransactionsUnrelated.createIntent(guid)
+    override fun requestTransactionsFromUnrelatedAccountAsync(guid: String, accountType : Int) {
+        val service = IntentContract.ReceiveTransactionsUnrelated.createIntent(guid, accountType)
         WalletApplication.sendToSpv(service, WalletAccount.Type.BCHSINGLEADDRESS)
     }
 
