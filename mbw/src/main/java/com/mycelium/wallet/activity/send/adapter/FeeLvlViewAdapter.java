@@ -67,6 +67,10 @@ public class FeeLvlViewAdapter extends SelectableRecyclerView.Adapter<FeeLvlView
 //            holder.categoryTextView.setText(mDataset[position].getCategory());
             holder.itemTextView.setText(item.minerFee.getMinerFeeName(holder.itemView.getContext()));
             holder.valueTextView.setText(item.duration);
+        } else {
+            RecyclerView.LayoutParams layoutParams = (RecyclerView.LayoutParams) holder.itemView.getLayoutParams();
+            layoutParams.width = paddingWidth;
+            holder.itemView.setLayoutParams(layoutParams);
         }
     }
 
