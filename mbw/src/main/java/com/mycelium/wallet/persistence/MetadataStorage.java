@@ -156,14 +156,6 @@ public class MetadataStorage extends GenericMetadataStorage {
       }
    }
 
-   public void setIgnoreLegacyWarning(UUID account, Boolean ignore) {
-      storeKeyCategoryValueEntry(IGNORE_LEGACY_WARNING_CATEGORY.of(account.toString()), ignore ? "1" : "0");
-   }
-
-   public Boolean getIgnoreLegacyWarning(UUID account) {
-      return "1".equals(getKeyCategoryValueEntry(IGNORE_LEGACY_WARNING_CATEGORY.of(account.toString()), "0"));
-   }
-
    public boolean firstMasterseedBackupFinished() {
       return getMasterSeedBackupState().equals(BackupState.VERIFIED);
    }

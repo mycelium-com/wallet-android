@@ -181,7 +181,6 @@
   <string name="verify_backup_master_seed">Il master seed non è stato verificato.</string>
   <string name="verify_backup_no_such_record">La chiave privata non corrisponde a nessuno dei tuoi indirizzi bitcoin.</string>
   <string name="verify_backup_ok">Backup della chiave privata verificato con successo per il seguente indirizzo:\n\n%1$s</string>
-  <string name="legacy_account_with_funds">Account di tipo non HD con fondi</string>
   <string name="wrong_seed">Il numero scandito non corrisponde al tuo master seed.</string>
   <string name="backup_missing">Backup assente</string>
   <string name="verify_backup_title">Eseguire il backup e la verifica</string>
