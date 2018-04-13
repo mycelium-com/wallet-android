@@ -19,7 +19,9 @@ public interface SpvBalanceFetcher {
     void requestUnrelatedAccountRemoval(String guid);
     float getSyncProgressPercents();
     Address getCurrentReceiveAddress(int accountIndex);
+    Address getCurrentReceiveAddressUnrelated(String guid);
     int getPrivateKeysCount(int accountIndex);
+    int getPrivateKeysCountUnrelated(String guid);
     boolean isFirstSync();
     void forceCleanCache();
     long calculateMaxSpendableAmount(int accountIndex, String txFee, float txFeeFactor);

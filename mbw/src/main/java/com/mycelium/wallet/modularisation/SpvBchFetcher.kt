@@ -39,7 +39,7 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
 
     override fun retrieveByUnrelatedAccountId(id: String): CurrencyBasedBalance {
         val uri = AccountBalance.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHSINGLEADDRESS)).buildUpon().appendEncodedPath(id).build()
-        val selection = AccountBalance.SELECTION_SINGLE_ADDRESS_ACCOUNT_GUID
+        val selection = AccountBalance.SELECTION_HD
         return retrieveBalance(uri, selection, id)
     }
 
@@ -178,8 +178,22 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
 
     override fun getCurrentReceiveAddress(accountIndex: Int): Address? {
         val uri = CurrentReceiveAddress.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHBIP44)).buildUpon().build()
-        val selection = AccountBalance.SELECTION_ACCOUNT_INDEX
+        val selection = CurrentReceiveAddress.SELECTION_ACCOUNT_INDEX
         context.contentResolver.query(uri, null, selection, arrayOf("" + accountIndex), null).use {
+            return if (it.columnCount != 0) {
+                it.moveToFirst()
+                val address = it.getString(it.getColumnIndex(CurrentReceiveAddress.ADDRESS))
+                Address.fromString(address)
+            } else {
+                null
+            }
+        }
+    }
+
+    override fun getCurrentReceiveAddressUnrelated(guid: String): Address? {
+        val uri = CurrentReceiveAddress.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHBIP44)).buildUpon().build()
+        val selection = CurrentReceiveAddress.SELECTION_UNRELATED
+        context.contentResolver.query(uri, null, selection, arrayOf(guid), null).use {
             return if (it.columnCount != 0) {
                 it.moveToFirst()
                 val address = it.getString(it.getColumnIndex(CurrentReceiveAddress.ADDRESS))
@@ -192,8 +206,20 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
 
     override fun getPrivateKeysCount(accountIndex: Int): Int {
         val uri = GetPrivateKeysCount.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHBIP44)).buildUpon().build()
-        val selection = AccountBalance.SELECTION_ACCOUNT_INDEX
+        val selection = GetPrivateKeysCount.SELECTION_ACCOUNT_INDEX
         context.contentResolver.query(uri, null, selection, arrayOf("" + accountIndex), null).use {
+            return if (it?.moveToFirst() == true) {
+                it.getInt(0)
+            } else {
+                0
+            }
+        }
+    }
+
+    override fun getPrivateKeysCountUnrelated(guid: String): Int {
+        val uri = GetPrivateKeysCount.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHBIP44)).buildUpon().build()
+        val selection = GetPrivateKeysCount.SELECTION_UNRELATED
+        context.contentResolver.query(uri, null, selection, arrayOf(guid), null).use {
             return if (it?.moveToFirst() == true) {
                 it.getInt(0)
             } else {
