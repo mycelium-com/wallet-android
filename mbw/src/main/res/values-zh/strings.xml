@@ -181,7 +181,6 @@
   <string name="verify_backup_master_seed">您的主种子尚未被验证。</string>
   <string name="verify_backup_no_such_record">此私钥不匹配任何您的比特币地址</string>
   <string name="verify_backup_ok">成功验证一下地址备份:\n\n%1$s</string>
-  <string name="legacy_account_with_funds">內含资金的旧帐户</string>
   <string name="wrong_seed">扫描的种子与您的主种子不匹配。</string>
   <string name="backup_missing">备份丢失</string>
   <string name="verify_backup_title">备份和验证</string>

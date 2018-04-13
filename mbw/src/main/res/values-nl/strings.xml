@@ -180,7 +180,6 @@
   <string name="verify_backup_master_seed">Uw master seed is niet geverifieerd.</string>
   <string name="verify_backup_no_such_record">De private key komt niet overeen met een van uw Bitcoin adressen.</string>
   <string name="verify_backup_ok">Private key back-up geverifieerd voor het volgende address:\n\n%1$s</string>
-  <string name="legacy_account_with_funds">Ouder account met tegoeden</string>
   <string name="wrong_seed">De gescande Seed komt niet overeen met uw Master Seed.</string>
   <string name="backup_missing">Back-up ontbreekt</string>
   <string name="verify_backup_title">Back-up en verifieer</string>

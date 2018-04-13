@@ -325,7 +325,11 @@ public class ExchangeFragment extends Fragment {
     public void afterEditTextInputFrom(Editable editable) {
         isValueForOfferOk(true);
         if (!avoidTextChangeEvent && !fromValue.getText().toString().isEmpty()) {
-            requestOfferFunction(getFromExcludeFee().toPlainString(), ChangellyService.BCH, ChangellyService.BTC);
+            try {
+                requestOfferFunction(getFromExcludeFee().toPlainString(), ChangellyService.BCH, ChangellyService.BTC);
+            } catch (IllegalArgumentException e) {
+                Log.e(TAG, e.getMessage(), e);
+            }
         }
         if (!avoidTextChangeEvent && fromValue.getText().toString().isEmpty()) {
             avoidTextChangeEvent = true;

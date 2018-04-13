@@ -251,10 +251,10 @@ public abstract class HdAccountSelectorActivity extends Activity implements Mast
          Drawable drawableForAccount = Utils.getDrawableForAccount(walletAccount, true, getResources());
 
          ((TextView)row.findViewById(R.id.tvBalance)).setText(balanceString);
-         ((TextView)row.findViewById(R.id.tvAddress)).setVisibility(View.GONE);
+         row.findViewById(R.id.tvAddress).setVisibility(View.GONE);
          ((ImageView)row.findViewById(R.id.ivIcon)).setImageDrawable(drawableForAccount);
 
-         ((TextView)row.findViewById(R.id.tvBackupMissingWarning)).setVisibility(View.GONE);
+         row.findViewById(R.id.tvBackupMissingWarning).setVisibility(View.GONE);
 
          return row;
       }

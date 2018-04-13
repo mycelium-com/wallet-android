@@ -177,7 +177,6 @@
   <string name="verify_backup_master_seed">Ваш мастер-ключ (seed) не был проверен.</string>
   <string name="verify_backup_no_such_record">Закрытый ключ не соответствует ни одному из ваших  биткойн адресов.</string>
   <string name="verify_backup_ok">Резервная копия приватных ключей успешно проверена для следующих адресов:\n\n%1$s</string>
-  <string name="legacy_account_with_funds">Счёт со средствами версии предыдущего поколения кошелька</string>
   <string name="wrong_seed">Отсканированный seed-ключ не совпадает с вашим мастер-ключом seed.</string>
   <string name="backup_missing">Отсутствует резервная  копия</string>
   <string name="verify_backup_title">ВАЖНО !</string>

@@ -183,7 +183,6 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="verify_backup_master_seed">Ihr Master Seed wurde nicht überprüft.</string>
   <string name="verify_backup_no_such_record">Dieser private Schlüssel stimmt mit keiner Ihrer Bitcoin-Adressen überein.</string>
   <string name="verify_backup_ok">Backup der privaten Schlüssel erfolgreich überprüft für die folgende Adresse:\n\n%1$s</string>
-  <string name="legacy_account_with_funds">Altdaten-Konto mit verfügbaren Bitcoins</string>
   <string name="wrong_seed">Das gescannte Master Seed entspricht nicht Ihrem Master Seed.</string>
   <string name="backup_missing">Fehlendes Backup</string>
   <string name="verify_backup_title">Backup und überprüfen</string>
