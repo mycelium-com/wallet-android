@@ -170,9 +170,15 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                             account =_mbwManager.getWalletManager(true).getAccount(UUID.fromString(accountGuid)) as SingleAddressAccount
                         }
 
-                        val service = IntentContract.SendUnrelatedPublicKeyToSPV.createIntent(accountGuid,
-                                account.address.toString(), accountType)
-                        WalletApplication.sendToSpv(service, BCHSINGLEADDRESS)
+                        if (account.publicKey == null) {
+                            val service = IntentContract.SendUnrelatedWatchedAddressToSPV.createIntent(accountGuid,
+                                    account.address.toString())
+                            WalletApplication.sendToSpv(service, BCHSINGLEADDRESS)
+                        } else {
+                            val service = IntentContract.SendUnrelatedPublicKeyToSPV.createIntent(accountGuid,
+                                    account.publicKey.toString(), accountType)
+                            WalletApplication.sendToSpv(service, BCHSINGLEADDRESS)
+                        }
                     }
                 }
             }
