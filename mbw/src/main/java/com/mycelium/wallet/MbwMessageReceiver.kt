@@ -208,7 +208,6 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
 
                 val keyList = ArrayList<ECKey>()
 
-
                 for (utxoHex in txUTXOsHexList) {
                     val utxo = UTXO(ByteArrayInputStream(Hex.decode(utxoHex)))
                     val txOutput = FreeStandingTransactionOutput(networkParameters, utxo, utxo.height)
@@ -240,17 +239,34 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 val transaction = Transaction(networkParameters, transactionBytes)
                 transaction.clearInputs()
 
-                val account = mbwManager.getWalletManager(false).getAccount(UUID.fromString(accountGuid)) as SingleAddressAccount
+                val account = mbwManager.getWalletManager(false).getAccount(UUID.fromString(accountGuid))
 
-                val privateKeyBase58 = account.getPrivateKey(AesKeyCipher.defaultKeyCipher()).getBase58EncodedPrivateKey(mbwManager.network)
                 val keyList = ArrayList<ECKey>()
-                keyList.add(DumpedPrivateKey.fromBase58(networkParameters, privateKeyBase58).key)
+
+                if (account is SingleAddressAccount) {
+                    val privateKeyBase58 = account.getPrivateKey(AesKeyCipher.defaultKeyCipher()).getBase58EncodedPrivateKey(mbwManager.network)
+
+                    keyList.add(DumpedPrivateKey.fromBase58(networkParameters, privateKeyBase58).key)
+
+                } else {
+                    val bip44Account = account as Bip44Account
+
+                    for (utxoHex in txUTXOsHexList) {
+                        val utxo = UTXO(ByteArrayInputStream(Hex.decode(utxoHex)))
+                        val txOutput = FreeStandingTransactionOutput(networkParameters, utxo, utxo.height)
+                        val address = txOutput.getAddressFromP2PKHScript(networkParameters)!!.toBase58()
+                        val privateKey = bip44Account.getPrivateKeyForAddress(Address.fromString(address),
+                                AesKeyCipher.defaultKeyCipher())
+                        checkNotNull(privateKey)
+                        keyList.add(DumpedPrivateKey.fromBase58(networkParameters,
+                                privateKey!!.getBase58EncodedPrivateKey(mbwManager.network)).key)
+                    }
+                }
 
                 val signedTransaction = signAndSerialize(networkParameters, keyList, txUTXOsHexList, transaction)
-
                 val service = IntentContract.SendSignedTransactionUnrelatedToSPV.createIntent(operationId, accountGuid,
                         signedTransaction)
-                WalletApplication.sendToSpv(service, BCHSINGLEADDRESS)
+                WalletApplication.sendToSpv(service, if (account is Bip44Account) BCHBIP44 else BCHSINGLEADDRESS)
             }
             null -> Log.w(TAG, "onMessage failed. No action defined.")
             else -> Log.e(TAG, "onMessage failed. Unknown action ${intent.action}")
