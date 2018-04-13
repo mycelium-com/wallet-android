@@ -300,7 +300,7 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
 
     override fun estimateFeeFromTransferrableAmountUnrelatedAccount(guid: String?, amountSatoshis: Long, txFee: String?, txFeeFactor: Float): Long {
         val uri = TransactionContract.EstimateFeeFromTransferrableAmount.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHSINGLEADDRESS)).buildUpon().build()
-        val selection = EstimateFeeFromTransferrableAmount.SELECTION_SA
+        val selection = EstimateFeeFromTransferrableAmount.SELECTION_UNRELATED
 
         context.contentResolver.query(uri, null, selection, arrayOf(guid, txFee, "" + txFeeFactor, "" + amountSatoshis), null).use {
             return if (it?.moveToFirst() == true) {
