@@ -762,7 +762,12 @@ public class WalletManager {
                 Bip44BCHAccount bchAccount = new Bip44BCHAccount(context, keyManager, _network, accountBacking, _wapi, _spvBalanceFetcher);
                 addAccount(bchAccount);
                 _btcToBchAccounts.put(account.getId(), bchAccount.getId());
-                _spvBalanceFetcher.requestTransactionsAsync(bchAccount.getAccountIndex());
+
+                if (context.getAccountType() == ACCOUNT_TYPE_FROM_MASTERSEED) {
+                    _spvBalanceFetcher.requestTransactionsAsync(bchAccount.getAccountIndex());
+                } else {
+                    _spvBalanceFetcher.requestTransactionsFromUnrelatedAccountAsync(bchAccount.getId().toString(), 0);
+                }
             }
         }
     }
