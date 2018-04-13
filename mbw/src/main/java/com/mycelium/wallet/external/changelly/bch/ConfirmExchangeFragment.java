@@ -65,6 +65,7 @@ import static android.content.Context.DOWNLOAD_SERVICE;
 import static android.os.Environment.DIRECTORY_DOWNLOADS;
 import static com.mycelium.wallet.external.changelly.ChangellyService.INFO_ERROR;
 import static com.mycelium.wallet.external.changelly.Constants.decimalFormat;
+import static com.mycelium.wapi.wallet.bip44.Bip44AccountContext.ACCOUNT_TYPE_FROM_MASTERSEED;
 
 public class ConfirmExchangeFragment extends Fragment {
     public static final String TAG = "BCHExchange";
@@ -134,13 +135,18 @@ public class ConfirmExchangeFragment extends Fragment {
                 switch (fromAccount.getType()) {
                     case BCHBIP44: {
                         Bip44BCHAccount bip44BCHAccount = (Bip44BCHAccount) fromAccount;
-                        Intent serviceIntent = IntentContract.SendFunds.createIntent(lastOperationId, bip44BCHAccount.getAccountIndex(), offer.payinAddress, fromValue, TransactionFee.NORMAL, 1.0f);
-                        WalletApplication.sendToSpv(serviceIntent, WalletAccount.Type.BCHBIP44);
+                        if (bip44BCHAccount.getAccountType() == ACCOUNT_TYPE_FROM_MASTERSEED) {
+                            Intent serviceIntent = IntentContract.SendFunds.createIntent(lastOperationId, bip44BCHAccount.getAccountIndex(), offer.payinAddress, fromValue, TransactionFee.NORMAL, 1.0f);
+                            WalletApplication.sendToSpv(serviceIntent, WalletAccount.Type.BCHBIP44);
+                        } else {
+                            Intent service = IntentContract.SendFundsUnrelated.createIntent(lastOperationId, bip44BCHAccount.getId().toString(), offer.payinAddress, fromValue, TransactionFee.NORMAL, 1.0f);
+                            WalletApplication.sendToSpv(service, WalletAccount.Type.BCHBIP44);
+                        }
                         break;
                     }
                     case BCHSINGLEADDRESS: {
-                        SingleAddressBCHAccount bip44BCHAccount = (SingleAddressBCHAccount) fromAccount;
-                        Intent service = IntentContract.SendFundsUnrelated.createIntent(lastOperationId, bip44BCHAccount.getId().toString(), offer.payinAddress, fromValue, TransactionFee.NORMAL, 1.0f);
+                        SingleAddressBCHAccount singleAddressAccount = (SingleAddressBCHAccount) fromAccount;
+                        Intent service = IntentContract.SendFundsUnrelated.createIntent(lastOperationId, singleAddressAccount.getId().toString(), offer.payinAddress, fromValue, TransactionFee.NORMAL, 1.0f);
                         WalletApplication.sendToSpv(service, WalletAccount.Type.BCHSINGLEADDRESS);
                         break;
                     }
