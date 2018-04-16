@@ -27,6 +27,7 @@ import com.mycelium.spvmodule.IntentContract;
 import com.mycelium.spvmodule.TransactionFee;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.WalletApplication;
 import com.mycelium.wallet.event.SpvSendFundsResult;
 import com.mycelium.wallet.external.changelly.ChangellyAPIService;
@@ -39,6 +40,7 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
+import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.mycelium.wapi.wallet.single.SingleAddressBCHAccount;
 import com.squareup.otto.Subscribe;
 
@@ -86,6 +88,9 @@ public class ConfirmExchangeFragment extends Fragment {
 
     @BindView(R.id.toAmount)
     TextView toAmount;
+
+    @BindView(R.id.exchange_fiat_rate)
+    TextView exchangeFiatRate;
 
     @BindView(R.id.buttonContinue)
     Button buttonContinue;
@@ -175,13 +180,13 @@ public class ConfirmExchangeFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        offerCaller.post(new Runnable() {
+        offerCaller.postDelayed(new Runnable() {
             @Override
             public void run() {
                 createOffer();
                 offerCaller.postDelayed(this, TimeUnit.MINUTES.toMillis(1));
             }
-        });
+        }, TimeUnit.MINUTES.toMillis(1));
     }
 
     @Override
@@ -195,6 +200,23 @@ public class ConfirmExchangeFragment extends Fragment {
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(receiver);
         super.onDestroy();
     }
+
+    private void updateRate() {
+        if (offer != null) {
+            try {
+                CurrencyValue currencyValue = mbwManager.getCurrencySwitcher().getAsFiatValue(
+                        ExactBitcoinValue.from(new BigDecimal(offer.amountTo)));
+                if (currencyValue != null && currencyValue.getValue() != null) {
+                    exchangeFiatRate.setText(Utils.formatFiatWithUnit(currencyValue));
+                    exchangeFiatRate.setVisibility(View.VISIBLE);
+                } else {
+                    exchangeFiatRate.setVisibility(View.INVISIBLE);
+                }
+            } catch (NumberFormatException ignore) {
+            }
+        }
+    }
+
 
     private void createOffer() {
         BigDecimal txFee = UtilsKt.estimateFeeFromTransferrableAmount(
@@ -219,6 +241,7 @@ public class ConfirmExchangeFragment extends Fragment {
                     , decimalFormat.format(amount)));
             toAmount.setText(getString(R.string.value_currency, offer.currencyTo
                     , decimalFormat.format(offer.amountTo)));
+            updateRate();
         }
     }
 

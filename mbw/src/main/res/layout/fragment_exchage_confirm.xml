@@ -160,6 +160,20 @@
             android:textSize="14sp" />
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/exchange_fiat_rate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginEnd="@dimen/margin_small"
+        android:layout_marginStart="@dimen/margin_small"
+        android:layout_marginTop="@dimen/margin_small"
+        android:alpha="0.6"
+        tools:text="1 BCH ~ 0.46BTC"
+        android:textColor="?exchange_text_color"
+        android:textSize="16sp"
+        android:visibility="invisible" />
+
     <Button
         android:id="@+id/buttonContinue"
         style="@style/MyceliumButton"
