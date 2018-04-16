@@ -106,6 +106,7 @@ public class ConfirmExchangeFragment extends Fragment {
 
     private String lastOperationId;
     private Handler offerCaller;
+    private String toCachedValue;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -113,6 +114,7 @@ public class ConfirmExchangeFragment extends Fragment {
         setRetainInstance(true);
         UUID toAddress = (UUID) getArguments().getSerializable(Constants.DESTADDRESS);
         UUID fromAddress = (UUID) getArguments().getSerializable(Constants.FROM_ADDRESS);
+        toCachedValue = getArguments().getString(Constants.TO_AMOUNT);
         amount = getArguments().getDouble(Constants.FROM_AMOUNT);
         mbwManager = MbwManager.getInstance(getActivity());
         mbwManager.getEventBus().register(this);
@@ -163,6 +165,7 @@ public class ConfirmExchangeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_exchage_confirm, container, false);
         ButterKnife.bind(this, view);
+        updateUI();
         return view;
     }
 
@@ -237,10 +240,17 @@ public class ConfirmExchangeFragment extends Fragment {
 
     private void updateUI() {
         if (isAdded()) {
-            fromAmount.setText(getString(R.string.value_currency, offer.currencyFrom
-                    , decimalFormat.format(amount)));
-            toAmount.setText(getString(R.string.value_currency, offer.currencyTo
-                    , decimalFormat.format(offer.amountTo)));
+            if (offer != null) {
+                fromAmount.setText(getString(R.string.value_currency, offer.currencyFrom
+                        , decimalFormat.format(amount)));
+                toAmount.setText(getString(R.string.value_currency, offer.currencyTo
+                        , decimalFormat.format(offer.amountTo)));
+            } else {
+                fromAmount.setText(getString(R.string.value_currency, ChangellyService.BCH
+                        , decimalFormat.format(amount)));
+                toAmount.setText(getString(R.string.value_currency, ChangellyService.BTC
+                        , toCachedValue));
+            }
             updateRate();
         }
     }

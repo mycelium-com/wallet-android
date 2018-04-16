@@ -233,6 +233,7 @@ public class ExchangeFragment extends Fragment {
         bundle.putSerializable(Constants.DESTADDRESS, toAccount.getId());
         WalletAccount fromAccount = fromAccountAdapter.getItem(fromRecyclerView.getSelectedItem()).account;
         bundle.putSerializable(Constants.FROM_ADDRESS, fromAccount.getId());
+        bundle.putString(Constants.TO_AMOUNT, toValue.getText().toString());
 
         fragment.setArguments(bundle);
         getFragmentManager().beginTransaction()
