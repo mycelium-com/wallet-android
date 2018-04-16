@@ -1157,7 +1157,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="exchange_order_placed_dialog"><![CDATA[Your exchange order has been placed. BTC will be sent to you after 12 confirmations on your BCH transaction.<br/><br/><b>Order details:</b><br/>Date: %s<br/>TxID: %s<br/>Spending: %s BCH<br/>Receiving: %s BTC<br/><font color="#ea5e5e"><small>Receiving amount is estimated due to the high volatility of the cryptomarket.</small></font><br/><br/>To track your order please save the payment receipt. You can only do it now!]]></string>
     <string name="success">Success!</string>
     <string name="error">Error!</string>
-    <string name="save_receipt">Save receipt</string>
+    <string name="save_receipt">Save confirmation</string>
     <string name="single_address_account">Single Address Account</string>
     <string name="exchange">Exchange</string>
     <string name="singlekey_verify_notice">You have made (or attempted to make) a backup of your Single Address account. To make sure you did it correctly, please verify your backup. If you have made a mistake making your backup you can lose your funds forever.</string>
