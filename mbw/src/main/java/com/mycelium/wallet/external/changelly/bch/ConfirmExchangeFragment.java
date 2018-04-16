@@ -180,13 +180,13 @@ public class ConfirmExchangeFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        offerCaller.postDelayed(new Runnable() {
+        offerCaller.post(new Runnable() {
             @Override
             public void run() {
                 createOffer();
                 offerCaller.postDelayed(this, TimeUnit.MINUTES.toMillis(1));
             }
-        }, TimeUnit.MINUTES.toMillis(1));
+        });
     }
 
     @Override
