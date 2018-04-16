@@ -578,8 +578,12 @@ public class SettingsActivity extends PreferenceActivity {
    @Override
    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
       if (requestCode == REQUEST_CODE_UNINSTALL) {
+         pleaseWait = new ProgressDialog(SettingsActivity.this);
+         pleaseWait.setMessage(getString(R.string.module_uninstall_progress));
+         pleaseWait.show();
          PreferenceCategory modulesPrefs = (PreferenceCategory) findPreference("modulesPrefs");
          if (resultCode == RESULT_CANCELED) {
+            pleaseWait.dismiss();
             for (int index = 0; index < modulesPrefs.getPreferenceCount(); index++) {
                ButtonPreference preferenceButton = (ButtonPreference) modulesPrefs.getPreference(index);
                preferenceButton.setEnabled(true);
