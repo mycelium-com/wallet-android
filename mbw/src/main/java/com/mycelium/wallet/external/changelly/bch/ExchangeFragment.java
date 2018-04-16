@@ -183,6 +183,8 @@ public class ExchangeFragment extends Fragment {
                 toLayout.setAlpha(Constants.INACTIVE_ALPHA);
             }
         });
+        valueKeyboard.setMaxText(getString(R.string.use_all_funds), 14);
+        valueKeyboard.setPasteVisibility(View.GONE);
         setAlphaFromLayout(Constants.INACTIVE_ALPHA);
         toLayout.setAlpha(Constants.INACTIVE_ALPHA);
 

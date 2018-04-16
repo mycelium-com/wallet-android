@@ -4,6 +4,7 @@ package com.mycelium.wallet.activity.view;
 import android.content.Context;
 import android.support.v7.widget.GridLayout;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.TextView;
 
@@ -122,6 +123,16 @@ public class ValueKeyboard extends GridLayout {
                 return true;
             }
         });
+    }
+
+    public void setMaxText(String text, float size) {
+        TextView textView = findViewById(R.id.btn_max);
+        textView.setText(text);
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, size);
+    }
+
+    public void setPasteVisibility(int visibility) {
+        findViewById(R.id.btn_copy).setVisibility(visibility);
     }
 
     public void done() {

@@ -190,7 +190,7 @@
         app:srcCompat="@drawable/ic_backspace" />
 
 
-    <ImageView
+    <TextView
         android:id="@+id/btn_done"
         android:background="@drawable/bg_keyboard_item"
         android:gravity="center"
@@ -198,6 +198,8 @@
         app:layout_column="4"
         app:layout_gravity="fill"
         app:layout_row="4"
-        app:srcCompat="@drawable/ic_check_circle" />
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        android:text="@string/ok" />
 
 </com.mycelium.wallet.activity.view.ValueKeyboard>
