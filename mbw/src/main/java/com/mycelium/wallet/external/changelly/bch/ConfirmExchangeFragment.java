@@ -254,6 +254,7 @@ public class ConfirmExchangeFragment extends Fragment {
         if(progressDialog != null && progressDialog.isShowing()) {
             progressDialog.dismiss();
         }
+        offerCaller.removeCallbacksAndMessages(null);
         if (!event.operationId.equals(lastOperationId)) {
             return;
         }
