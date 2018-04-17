@@ -522,8 +522,6 @@
   <string name="decryption_password_hint">YOU RPA SSW ORD ABC D</string>
   <string name="dont_allow_archiving_unused_notification">您不能存檔未使用的HD帳戶</string>
   <string name="newly_generated_coins_from_coinbase">新生成的硬幣</string>
-  <string name="release_notes_hd">世界最佳手機錢包剛升級.\n\n 安全備份現在輕而易舉。新的HD帳戶讓你比以往任何時候更加匿名！\n\n 請閱讀更新說明，了解詳細信息。</string>
-  <string name="title_upgrade_info">歡迎光臨Mycelium 2.0</string>
   <string name="button_continue">繼續</string>
   <string name="butto_show_release_notes">顯示詳細信息</string>
   <string name="word_does_not_exist_in_wordlist">您鍵入的單詞不在單詞列表中</string>

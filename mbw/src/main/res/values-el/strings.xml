@@ -509,9 +509,7 @@
   <string name="title_wrong_password">Λάθος κωδικός, παρακαλώ δοκιμάστε ξανά</string>
   <string name="dont_allow_archiving_unused_notification">Δεν μπορείτε να αρχειοθετήσετε αχρησιμοποίητο HD λογαριασμό</string>
   <string name="newly_generated_coins_from_coinbase">Νεοδημιουργηθέντα Bitcoins</string>
-  <string name="release_notes_hd">Το καλύτερο πορτοφόλι κινητού μόλις βελτιώθηκε.\n\nΗ δημιουργία σωστού αντίγραφου ασφαλείας είναι πλέον πανεύκολη, και οι νέοι HD (Ιεραρχικοί - Ντετερμινιστικοί) λογαριασμοί σας κάνουν πιο ανώνυμους από ποτέ!\n\nΔείτε τις σημειώσεις έκδοσης για λεπτομέρειες.</string>
-  <string name="title_upgrade_info">Καλωσήρθατε στο Mycelium 2.0</string>
-  <string name="button_continue">Συνέχεια</string>
+    <string name="button_continue">Συνέχεια</string>
   <string name="butto_show_release_notes">Προβολή Λεπτομερειών</string>
   <string name="word_does_not_exist_in_wordlist">Η λέξη που πληκτρολογήσατε δεν υπάρχει στον κατάλογο λέξεων</string>
   <string name="pref_legacy_backup_title">Αντίγραφο Ασφαλείας Παλαιού Τύπου</string>

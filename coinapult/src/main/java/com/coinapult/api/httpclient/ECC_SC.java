@@ -13,15 +13,7 @@ import java.math.BigInteger;
 import java.security.*;
 
 public class ECC_SC implements EccUtil {
-
-   static {
-      int success = Security.insertProviderAt(new BouncyCastleProvider(), 1);
-      System.out.println(success);
-   }
-
-   static final String ECDSA = "SHA256withECDSA";
-
-
+   private static final String ECDSA = "SHA256withECDSA";
 
    public boolean verifySign(String signature, String origdata,
                              PublicKey pub) {
@@ -41,13 +33,7 @@ public class ECC_SC implements EccUtil {
 
          byte[] sign = seq.getEncoded();
          return dsa.verify(sign);
-      } catch (IOException e) {
-         throw new RuntimeException(e);
-      } catch (NoSuchAlgorithmException e) {
-         throw new RuntimeException(e);
-      } catch (InvalidKeyException e) {
-         throw new RuntimeException(e);
-      } catch (SignatureException e) {
+      } catch (IOException | NoSuchAlgorithmException | InvalidKeyException | SignatureException e) {
          throw new RuntimeException(e);
       }
    }
@@ -62,8 +48,6 @@ public class ECC_SC implements EccUtil {
          String result = writer.toString();
          pemwriter.close();
          return result.trim();
-      } catch (PEMException e) {
-         throw new RuntimeException(e);
       } catch (IOException e) {
          throw new RuntimeException(e);
       }

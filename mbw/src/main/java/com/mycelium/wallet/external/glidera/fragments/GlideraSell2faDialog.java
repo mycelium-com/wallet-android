@@ -222,19 +222,22 @@ public class GlideraSell2faDialog extends DialogFragment {
                glideraService.sell(sellRequest).subscribe(new Observer<SellResponse>() {
                   @Override
                   public void onCompleted() {
-
                   }
 
                   @Override
                   public void onError(Throwable e) {
                      GlideraError error = GlideraService.convertRetrofitException(e);
                      if (error != null && error.getCode() != null) {
-                        if (error.getCode() == GlideraError.ERROR_TRANSACTION_FAILED_COINS_RETURNED) {
-                           toaster.toast("An error has occured and your coin returned.", true);
-                        } else if (error.getCode() == GlideraError.ERROR_OCCURRED_CALL_SUPPORT) {
-                           toaster.toast("An error has occured, please contact Glidera support", true);
-                        } else {
-                           toaster.toast("Unable to sell at this time", true);
+                        switch (error.getCode()) {
+                           case GlideraError.ERROR_TRANSACTION_FAILED_COINS_RETURNED:
+                              toaster.toast("An error has occured and your coin returned.", true);
+                              break;
+                           case GlideraError.ERROR_OCCURRED_CALL_SUPPORT:
+                              toaster.toast("An error has occured, please contact Glidera support", true);
+                              break;
+                           default:
+                              toaster.toast("Unable to sell at this time", true);
+                              break;
                         }
                      }
                      buttonContinue.setEnabled(true);

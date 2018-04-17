@@ -521,8 +521,6 @@
   <string name="title_wrong_password">Contraseña incorrecta, inténtalo de nuevo</string>
   <string name="dont_allow_archiving_unused_notification">No puedes archivar una cuenta HD sin usar</string>
   <string name="newly_generated_coins_from_coinbase">Monedas generadas recientemente</string>
-  <string name="release_notes_hd">El mejor monedero para móviles del mundo acaba de mejorar.\n\nHacer un respaldo seguro es fácil, y las nuevas cuentas HD te hacen más anónimo que nunca\n\nRevisa las notas de la versión para más detalles.</string>
-  <string name="title_upgrade_info">Bienvenido a Mycelium 2.0</string>
   <string name="button_continue">Continuar</string>
   <string name="butto_show_release_notes">Mostrar detalles</string>
   <string name="word_does_not_exist_in_wordlist">La palabra que has escrito no existe en la lista de palabras</string>

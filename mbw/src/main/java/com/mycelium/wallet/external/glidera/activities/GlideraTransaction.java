@@ -52,12 +52,10 @@ public class GlideraTransaction extends Activity {
       glideraService.transaction(transactionUUID).subscribe(new Observer<TransactionResponse>() {
          @Override
          public void onCompleted() {
-
          }
 
          @Override
          public void onError(Throwable e) {
-
          }
 
          @Override
@@ -73,14 +71,19 @@ public class GlideraTransaction extends Activity {
         Details
          */
       TextView tvDetails = (TextView) findViewById(R.id.tvDetails);
-      if (transactionResponse.getStatus() == OrderState.PROCESSING) {
-         tvDetails.setText(getString(R.string.gd_transaction_initiated));
-      } else if (transactionResponse.getStatus() == OrderState.COMPLETE) {
-         tvDetails.setText(getString(R.string.gd_transaction_complete));
-      } else if (transactionResponse.getStatus() == OrderState.PENDING_REVIEW) {
-         tvDetails.setText(getString(R.string.gd_transaction_reviewed));
-      } else {
-         tvDetails.setText(getString(R.string.gd_transaction_error));
+      switch (transactionResponse.getStatus()) {
+         case PROCESSING:
+            tvDetails.setText(getString(R.string.gd_transaction_initiated));
+            break;
+         case COMPLETE:
+            tvDetails.setText(getString(R.string.gd_transaction_complete));
+            break;
+         case PENDING_REVIEW:
+            tvDetails.setText(getString(R.string.gd_transaction_reviewed));
+            break;
+         default:
+            tvDetails.setText(getString(R.string.gd_transaction_error));
+            break;
       }
 
         /*
@@ -200,7 +203,7 @@ public class GlideraTransaction extends Activity {
 
    @Override
    public void onBackPressed() {
-      Intent intent = new Intent(GlideraTransaction.this, GlideraMainActivity.class);
+      Intent intent = new Intent(this, GlideraMainActivity.class);
       intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
       Bundle bundle = new Bundle();
       bundle.putString("tab", "history");

@@ -9,15 +9,7 @@ import java.math.BigInteger;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 
-/**
- * Created by Andreas on 12.11.2014.
- */
 public class SpongyKeyConverter {
-   static {
-      int success = Security.insertProviderAt(new BouncyCastleProvider(), 1);
-      System.out.println(success);
-   }
-
    public static KeyPair convertKeyFormat(InMemoryPrivateKey inMemoryPrivateKey) {
       try {
          org.spongycastle.jce.spec.ECNamedCurveParameterSpec secp256k1 = org.spongycastle.jce.ECNamedCurveTable.getParameterSpec("secp256k1");
@@ -28,14 +20,8 @@ public class SpongyKeyConverter {
          org.spongycastle.math.ec.ECPoint ecpubPoint = new org.spongycastle.math.ec.custom.sec.SecP256K1Curve().createPoint(pubPoint.getX().toBigInteger(), pubPoint.getY().toBigInteger());
          org.spongycastle.jcajce.provider.asymmetric.ec.BCECPublicKey publicKey = (org.spongycastle.jcajce.provider.asymmetric.ec.BCECPublicKey) keyFactory.generatePublic(new org.spongycastle.jce.spec.ECPublicKeySpec(ecpubPoint, secp256k1));
          return new KeyPair(publicKey, bcpriv);
-      } catch (InvalidKeySpecException e) {
-         throw new RuntimeException(e);
-      } catch (NoSuchAlgorithmException e) {
-         throw new RuntimeException(e);
-      } catch (NoSuchProviderException e) {
+      } catch (InvalidKeySpecException | NoSuchAlgorithmException | NoSuchProviderException e) {
          throw new RuntimeException(e);
       }
    }
-
-
 }

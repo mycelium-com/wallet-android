@@ -34,10 +34,8 @@
 
 package com.mycelium.wallet.colu;
 
-import android.os.Handler;
-import android.util.Log;
-
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.mrd.bitlib.StandardTransactionBuilder;
@@ -51,9 +49,7 @@ import com.mrd.bitlib.model.TransactionOutput;
 import com.mrd.bitlib.util.ByteWriter;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
-import com.mycelium.WapiLogger;
 import com.mycelium.wallet.BuildConfig;
-import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wallet.colu.json.Asset;
 import com.mycelium.wallet.colu.json.ColuTxDetailsItem;
 import com.mycelium.wallet.colu.json.Tx;
@@ -63,13 +59,10 @@ import com.mycelium.wallet.colu.json.Vout;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.api.lib.TransactionExApi;
 import com.mycelium.wapi.model.Balance;
-import com.mycelium.wapi.model.ExchangeRate;
 import com.mycelium.wapi.model.TransactionDetails;
 import com.mycelium.wapi.model.TransactionEx;
-import com.mycelium.wapi.model.TransactionOutputEx;
 import com.mycelium.wapi.model.TransactionOutputSummary;
 import com.mycelium.wapi.model.TransactionSummary;
-import com.mycelium.wapi.wallet.AccountBacking;
 import com.mycelium.wapi.wallet.ExportableAccount;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SyncMode;
@@ -78,35 +71,29 @@ import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
-import com.squareup.otto.Bus;
-import com.subgraph.orchid.encoders.Hex;
+import org.spongycastle.util.encoders.Hex;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
-//import com.colu.api.httpclient.ColuClient;
 
 public class ColuAccount extends SynchronizeAbleWalletAccount implements ExportableAccount {
    public static final String TAG = "ColuAccount";
 
    private static final Balance EMPTY_BALANCE = new Balance(0, 0, 0, 0, 0, 0, true, true);
    private static final BigDecimal SATOSHIS_PER_BTC = BigDecimal.valueOf(100000000);
-   public static final int MILLISENCONDS_IN_SECOND = 1000;
+   private static final int MILLISENCONDS_IN_SECOND = 1000;
 
    private final ColuManager manager;
    private final UUID uuid;
-   private final ExchangeRateManager exchangeRateManager;
    private final MetadataStorage metadataStorage;
    private List<TransactionSummary> allTransactionSummaries;
    private long satoshiAmount;
@@ -129,7 +116,6 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
    private List<Tx.Json> historyTxList;
 
    private Collection<TransactionExApi> historyTxInfosList;
-   private AccountBacking accountBacking;
 
    public InMemoryPrivateKey getPrivateKey() {
       return accountKey;
@@ -143,11 +129,9 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
 
    private String label;
 
-   public ColuAccount(ColuManager manager, AccountBacking backing, MetadataStorage metadataStorage, Address address,
-                      ExchangeRateManager exchangeRateManager, Handler handler, Bus eventBus, WapiLogger logger, ColuAsset coluAsset) {
-      this.accountBacking = backing;
+   public ColuAccount(ColuManager manager, MetadataStorage metadataStorage, Address address,
+                      ColuAsset coluAsset) {
       this.manager = manager;
-      this.exchangeRateManager = exchangeRateManager;
       this.metadataStorage = metadataStorage;
       this.coluAsset = coluAsset;
       this.satoshiAmount = 0;
@@ -157,11 +141,10 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
 
       archived = metadataStorage.getArchived(uuid);
    }
-   public ColuAccount(ColuManager manager, AccountBacking backing, MetadataStorage metadataStorage, InMemoryPrivateKey accountKey,
-                      ExchangeRateManager exchangeRateManager, ColuAsset coluAsset) {
-      this.accountBacking = backing;
+
+   public ColuAccount(ColuManager manager, MetadataStorage metadataStorage, InMemoryPrivateKey accountKey,
+                      ColuAsset coluAsset) {
       this.manager = manager;
-      this.exchangeRateManager = exchangeRateManager;
       this.metadataStorage = metadataStorage;
       this.coluAsset = coluAsset;
       this.satoshiAmount = 0;
@@ -182,7 +165,7 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
       return getGuidFromByteArray(accountId.getBytes());
    }
 
-   public static UUID getGuidFromByteArray(byte[] bytes) {
+   private static UUID getGuidFromByteArray(byte[] bytes) {
       ByteBuffer bb = ByteBuffer.wrap(bytes);
       long high = bb.getLong();
       long low = bb.getLong();
@@ -206,10 +189,9 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
    }
 
    /// @brief return true if at least one address in the list belongs to this account
-   public boolean ownAddress(List<String> addresses) {
+   boolean ownAddress(List<String> addresses) {
       for (String otherAddress : addresses) {
          if (address.toString().compareTo(otherAddress) == 0) {
-            Log.d(TAG, "Address " + otherAddress + "matches with " + address.toString());
             return true;
          }
       }
@@ -220,41 +202,22 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
       return coluAsset;
    }
 
-   // if it is a fiat value convert it, otherwise take the exact value
-   private long getSatoshis(BigDecimal amount, String currency) {
-     if (currency.equals("BTC")) {
-        return amount.multiply(SATOSHIS_PER_BTC).longValue();
-     }
-          ExchangeRate rate = exchangeRateManager.getExchangeRate(currency);
-          if (rate == null || rate.price == null) {
-                 return 0;
-          } else {
-                  BigDecimal btc = amount.divide(new BigDecimal(rate.price), MathContext.DECIMAL32);
-                  return btc.multiply(SATOSHIS_PER_BTC).longValue();
-          }
+   private long getSatoshis(ExactCurrencyValue confirmed) {
+      //TODO: for now we do not associate a currency or BTC value to assets
+      return confirmed.getValue().multiply(SATOSHIS_PER_BTC).longValue();
+      // if it is a fiat value convert it, otherwise take the exact value
+      //return getSatoshis(confirmed.getValue(), confirmed.getCurrency());
    }
-
-    private long getSatoshis(ExactCurrencyValue confirmed) {
-       //TODO: for now we do not associate a currency or BTC value to assets
-       return confirmed.getValue().multiply(SATOSHIS_PER_BTC).longValue();
-       // if it is a fiat value convert it, otherwise take the exact value
-       //return getSatoshis(confirmed.getValue(), confirmed.getCurrency());
-    }
 
    public long getSatoshiAmount() {
       return satoshiAmount;
    }
 
-   public void setBalanceFiat(CurrencyBasedBalance newBalanceFiat) {
-      if (balanceFiat != null) {
-         Log.d(TAG, "Updating balanceFiat from " + balanceFiat.toString() + " to " + newBalanceFiat.toString());
-      } else {
-         Log.d(TAG, "Setting initial balance to " + newBalanceFiat.toString());
-      }
+   void setBalanceFiat(CurrencyBasedBalance newBalanceFiat) {
       balanceFiat = newBalanceFiat;
    }
 
-   public void setBtcOnlyAmount(long satoshiBtcOnlyAmount) {
+   void setBtcOnlyAmount(long satoshiBtcOnlyAmount) {
       this.satoshiBtcOnlyAmount = satoshiBtcOnlyAmount;
    }
 
@@ -262,33 +225,26 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
       return satoshiBtcOnlyAmount;
    }
 
-   public void setBalanceSatoshi(long satoshiAmount) {
+   void setBalanceSatoshi(long satoshiAmount) {
       this.satoshiAmount = satoshiAmount;
    }
 
-   public synchronized void setUtxos(List<Utxo.Json> utxos) {
+   synchronized void setUtxos(List<Utxo.Json> utxos) {
       utxosList = utxos;
-
    }
 
    public synchronized void setHistory(List<Tx.Json> history) {
-      Log.d(TAG, "History updated history.size=" + history.size());
-      for (Tx.Json tx : history) {
-         Log.d(TAG, "tx " + tx.txid);
-      }
       historyTxList = history; // utxosList = utxos;
    }
 
-   public synchronized void setHistoryTxInfos(Collection<TransactionExApi> txInfos) {
+   synchronized void setHistoryTxInfos(Collection<TransactionExApi> txInfos) {
       historyTxInfosList = txInfos;
    }
 
 
-   public List<Address> getSendingAddresses() {
-      LinkedList<Address> sendingAddresses = new LinkedList<Address>();
+   List<Address> getSendingAddresses() {
       //TODO: make this dynamic and based on utxo with asset > 0
-      sendingAddresses.add(address);
-      return sendingAddresses;
+      return Collections.singletonList(address);
    }
 
    private <T> List<T> limitedList(int offset, int limit, List<T> list) {
@@ -296,9 +252,8 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
          return Collections.emptyList();
       }
       int endIndex = Math.min(offset + limit, list.size());
-      return new ArrayList<T>(list.subList(offset, endIndex));
+      return new ArrayList<>(list.subList(offset, endIndex));
    }
-
 
    @Override
    public NetworkParameters getNetwork() {
@@ -319,7 +274,7 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
       return height;
    }
 
-   public void setBlockChainHeight(int height) {
+   void setBlockChainHeight(int height) {
       this.height = height;
    }
 
@@ -379,16 +334,12 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
             for (TransactionExApi tex : historyTxInfosList) {
                if (tex.txid.compareTo(hash) == 0) {
                   extendedInfo = tex;
-                  Log.d(TAG, "Found additional blockchain data for hash " + hash);
                   break;
                }
             }
-         } else {
-            Log.d(TAG, "historyTxInfosList is null, ignoring it for allTransactionSummaries.");
          }
 
          if (extendedInfo == null) {
-            Log.d(TAG, "Extended info for hash " + hash + " not found !");
             continue;
          }
 
@@ -410,12 +361,7 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
                   outgoingSatoshi += vin.value;
                }
             }
-
          }
-
-         Log.d(TAG, "Debug: valueAsset=" + outgoingAsset);
-         Log.d(TAG, "Debug: valueSatoshi=" + outgoingSatoshi);
-
 
          long incomingAsset = 0;
          long incomingSatoshi = 0;
@@ -424,7 +370,6 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
          Optional<Address> destinationAddress = null;
 
          for (Vout.Json vout : tx.vout) {
-
             if (vout.scriptPubKey.addresses != null) {
                for(String address : vout.scriptPubKey.addresses) {
                   toAddresses.add(Address.fromString(address));
@@ -475,35 +420,16 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
             continue;
          }
 
-         long time = 0;
+         long time;
          int height = (int)tx.blockheight;
          boolean isQueuedOutgoing = false;
 
-         if (extendedInfo != null) {
-            time = extendedInfo.time;
-         } else {
-            //Since we merge transactions information from two data sources - colu server and WAPI server, there might be a data syncronization issue -
-            //colu server detects recently added transactions earlier then WAPI server, so at some moment they may return different numbers of transactions available
-            //So for transaction retuned inside colu list we may not found the corresponding transaction in the list returned by WAPI
-            //The syncronization lag seems to be small, so we can return current time
-            time = new Date().getTime();
-         }
+         time = extendedInfo.time;
 
          int confirmations = tx.confirmations;
 
          if (destinationAddress == null) {
             destinationAddress = Optional.absent();
-         }
-         if (destinationAddress != null && destinationAddress.isPresent()) {
-            Log.d(TAG, "getTransactionSummaries: creating transaction summary: hash=" + hash
-
-                    + " time=" + time + " height=" + height + " confirmations="
-                    + confirmations + " destinationAddress=" + destinationAddress.get().toString());
-         } else {
-            Log.d(TAG, "getTransactionSummaries: creating transaction summary: hash=" + hash
-
-                    + " time=" + time + " height=" + height + " confirmations="
-                    + confirmations);
          }
          //ExactCurrencyValue value = ExactCurrencyValue.from(new BigDecimal(0), CurrencyValue.BTC);
          TransactionSummary summary = new TransactionSummary(hash, value, isIncoming, time,
@@ -511,7 +437,6 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
                  isQueuedOutgoing, null, destinationAddress, toAddresses);
          allTransactionSummaries.add(summary);
       }
-      Log.d(TAG, "getTransactionSummaries: returning " + allTransactionSummaries.size() + " transactions.");
 
       Collections.sort(allTransactionSummaries, new Comparator<TransactionSummary>(){
          public int compare(TransactionSummary p1, TransactionSummary p2){
@@ -532,7 +457,7 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
    public List<TransactionSummary> getTransactionsSince(Long receivingSince) {
       if (historyTxList != null) {
          List<TransactionSummary> list = getTransactionSummaries();
-         final ArrayList<TransactionSummary> result = new ArrayList<TransactionSummary>();
+         final ArrayList<TransactionSummary> result = new ArrayList<>();
          for (TransactionSummary item : list) {
             if (item.time * MILLISENCONDS_IN_SECOND < receivingSince) {
                break;
@@ -567,30 +492,20 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
       return null;
    }
 
+   @Override
    public TransactionDetails getTransactionDetails(Sha256Hash txid) {
       TransactionDetails details = null;
       TransactionSummary summary = getTransactionSummary(txid);
-      Log.d(TAG, "getTransactionDetails: " + txid);
       if (summary != null) {
-         Log.d(TAG, "getTransactionDetails: summary is not null: height=" + summary.height
-                 + " summary.time: " + summary.time);
-
          // parsing additional data
          TransactionExApi extendedInfo = null;
          if (historyTxInfosList != null) {
             for (TransactionExApi tex : historyTxInfosList) {
                if (tex.txid.compareTo(txid) == 0) {
                   extendedInfo = tex;
-                  Log.d(TAG, "Found additional blockchain data for hash " + txid);
                   break;
                }
             }
-         } else {
-            Log.d(TAG, "historyTxInfosList is null, ignoring it for allTransactionSummaries.");
-         }
-
-         if (extendedInfo == null) {
-            Log.d(TAG, "Extended info for hash " + txid + " not found !");
          }
 
          Transaction tx = TransactionEx.toTransaction(extendedInfo);
@@ -598,7 +513,7 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
             throw new RuntimeException();
          }
 
-         Tx.Json coluTxInfo = GetColuTransactionInfoById(txid);
+         Tx.Json coluTxInfo = Preconditions.checkNotNull(GetColuTransactionInfoById(txid));
 
          List<TransactionDetails.Item> inputs = new ArrayList<>();
 
@@ -702,10 +617,10 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
    }
 
    @Override
+   // logd("Do not use this method ");
    public com.mrd.bitlib.model.Transaction signTransaction(
            StandardTransactionBuilder.UnsignedTransaction unsigned,
            KeyCipher cipher) throws KeyCipher.InvalidKeyCipher {
-      Log.d(TAG, "Do not use this method ");
       return null;
    }
 
@@ -715,24 +630,12 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
    }
 
    /**
-    * Determine whether a transaction output was sent from one of our own
-    * addresses
-    *
-    * @param output the output to investigate
-    * @return true iff the putput was sent from one of our own addresses
-    */
-   protected boolean isMine(TransactionOutputEx output) {
-      ScriptOutput script = ScriptOutput.fromScriptBytes(output.script);
-      return isMine(script);
-   }
-
-   /**
     * Determine whether an output script was created by one of our own addresses
     *
     * @param script the script to investigate
     * @return true iff the script was created by one of our own addresses
     */
-   protected boolean isMine(ScriptOutput script) {
+   private boolean isMine(ScriptOutput script) {
       Address address = script.getAddress(getNetwork());
       return isMine(address);
    }
@@ -767,7 +670,11 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
 
    @Override
    public BroadcastResult broadcastTransaction(com.mrd.bitlib.model.Transaction transaction) {
-      return null;
+      if (manager.broadcastTransaction(transaction)) {
+         return BroadcastResult.SUCCESS;
+      } else {
+         return BroadcastResult.REJECTED;
+      }
    }
 
    @Override
@@ -777,18 +684,16 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
          if (utxo.txid.contentEquals(txid.toString())) {
             Sha256Hash tHash = new Sha256Hash(Hex.decode(utxo.txid));
             tex = new TransactionEx(tHash,
-                    utxo.blockheight,
-                    utxo.blockheight,
-                    null);
+                utxo.blockheight,
+                utxo.blockheight,
+                null);
          }
       }
-
       return tex;
    }
 
    @Override
    public void queueTransaction(TransactionEx transaction) {
-
    }
 
    @Override
@@ -836,7 +741,7 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
    }
 
    /// returns all utxo associated with this address
-   public List<Utxo.Json> getAddressUnspent(String address) {
+   List<Utxo.Json> getAddressUnspent(String address) {
       LinkedList<Utxo.Json> addressUnspent = new LinkedList<>();
       if (utxosList != null) {
          for (Utxo.Json utxo : utxosList) {
@@ -844,12 +749,7 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
                if (address.compareTo(addr) == 0) {
                   addressUnspent.add(utxo);
                   break;
-               } else {
-                  Log.d(TAG, " skipping utxo " + utxo.txid + ":" + utxo.index + " addr=" + addr);
                }
-            }
-            if (utxo.scriptPubKey.addresses.size() == 0) {
-               Log.d(TAG, "addresses list is zero, skipping utxo " + utxo.txid + ":" + utxo.index);
             }
          }
       }
@@ -871,53 +771,8 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
       return true;
    }
 
-   public String getDefaultLabel() {
+   String getDefaultLabel() {
       return coluAsset.label;
-   }
-
-   public static class Currency {
-      public static final Currency USD = new Currency("USD", BigDecimal.ONE);
-      public static final Currency EUR = new Currency("EUR", BigDecimal.ONE);
-      public static final Currency GBP = new Currency("GBP", BigDecimal.ONE);
-      public static final Currency BTC = new Currency("BTC", BigDecimal.ZERO);
-      public static final Map<String, Currency> all = ImmutableMap.of(
-              USD.name, USD,
-              EUR.name, EUR,
-              GBP.name, GBP,
-              BTC.name, BTC
-      );
-
-      final public String name;
-      final public BigDecimal minimumConversationValue;
-
-      private Currency(String name, BigDecimal minimumConversationValue) {
-         this.name = name;
-         this.minimumConversationValue = minimumConversationValue;
-      }
-
-      @Override
-      public boolean equals(Object o) {
-         if (this == o) {
-            return true;
-         }
-         if (o == null || getClass() != o.getClass()) {
-            return false;
-         }
-
-         Currency currency = (Currency) o;
-
-         if (!name.equals(currency.name)) {
-            return false;
-         }
-         return minimumConversationValue.equals(currency.minimumConversationValue);
-      }
-
-      @Override
-      public int hashCode() {
-         int result = name.hashCode();
-         result = 31 * result + minimumConversationValue.hashCode();
-         return result;
-      }
    }
 
    public enum ColuAssetType {
@@ -948,19 +803,19 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
               assetRMC.id, assetRMC
       );
 
-       public static Map<String, ColuAsset> getAssetMap() {
+      public static Map<String, ColuAsset> getAssetMap() {
           return assetMap;
       }
 
-      public static final List<String> getAllAssetNames() {
-         LinkedList<String> assetNames = new LinkedList<String>();
+      public static List<String> getAllAssetNames() {
+         LinkedList<String> assetNames = new LinkedList<>();
          for (ColuAsset asset : getAssetMap().values()) {
             assetNames.add(asset.name);
          }
          return assetNames;
       }
 
-      public static final ColuAsset getByType(ColuAssetType assetType) {
+      public static ColuAsset getByType(ColuAssetType assetType) {
             switch (assetType) {
                case MT:
                   return assetMT;
@@ -975,8 +830,8 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
       final public String label;
       final public String name;
       final public String id;
-      final public int scale; // number of fractional digits
-      final public String issuance;
+      final int scale; // number of fractional digits
+      final String issuance;
       final public ColuAssetType assetType;
 
       private ColuAsset(ColuAssetType assetType, String label, String name, String id, int scale, String issuance) {
@@ -1004,7 +859,6 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
          }
          return id.equals(asset.id);
       }
-
    }
 
    @Override
@@ -1016,7 +870,7 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
       return linkedAccount;
    }
 
-   public void setLinkedAccount(SingleAddressAccount linkedAccount) {
+   void setLinkedAccount(SingleAddressAccount linkedAccount) {
       this.linkedAccount = linkedAccount;
    }
 
@@ -1024,7 +878,7 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
       return address;
    }
 
-   public void forgetPrivateKey() {
+   void forgetPrivateKey() {
       accountKey = null;
    }
 

@@ -971,7 +971,7 @@ public class AccountsFragment extends Fragment {
    }
 
    private void rescan() {
-      if (!AccountsFragment.this.isAdded()) {
+      if (!isAdded()) {
          return;
       }
       accountListAdapter.getFocusedAccount().dropCachedData();
@@ -980,7 +980,7 @@ public class AccountsFragment extends Fragment {
    }
 
    private void ignoreSelectedPrivateKey() {
-      if (!AccountsFragment.this.isAdded()) {
+      if (!isAdded()) {
          return;
       }
       _mbwManager.runPinProtectedFunction(AccountsFragment.this.getActivity(), new Runnable() {
@@ -1014,7 +1014,7 @@ public class AccountsFragment extends Fragment {
    }
 
    private void exportSelectedPrivateKey() {
-      if (!AccountsFragment.this.isAdded()) {
+      if (!isAdded()) {
          return;
       }
       _mbwManager.runPinProtectedFunction(AccountsFragment.this.getActivity(), new Runnable() {
@@ -1031,7 +1031,7 @@ public class AccountsFragment extends Fragment {
    }
 
    private void detachFromLocalTrader() {
-      if (!AccountsFragment.this.isAdded()) {
+      if (!isAdded()) {
          return;
       }
       _mbwManager.runPinProtectedFunction(AccountsFragment.this.getActivity(), new Runnable() {
@@ -1064,7 +1064,7 @@ public class AccountsFragment extends Fragment {
    }
 
    private void activateSelected() {
-      if (!AccountsFragment.this.isAdded()) {
+      if (!isAdded()) {
          return;
       }
       _mbwManager.runPinProtectedFunction(AccountsFragment.this.getActivity(), new Runnable() {
@@ -1094,7 +1094,7 @@ public class AccountsFragment extends Fragment {
    }
 
    private void archiveSelected() {
-      if (!AccountsFragment.this.isAdded()) {
+      if (!isAdded()) {
          return;
       }
       if (_mbwManager.getWalletManager(false).getActiveAccounts().size() < 2) {
@@ -1141,7 +1141,7 @@ public class AccountsFragment extends Fragment {
    }
 
    private void hideSelected() {
-      if (!AccountsFragment.this.isAdded()) {
+      if (!isAdded()) {
          return;
       }
       if (_mbwManager.getWalletManager(false).getActiveAccounts().size() < 2) {
@@ -1161,7 +1161,7 @@ public class AccountsFragment extends Fragment {
          _mbwManager.runPinProtectedFunction(this.getActivity(), new Runnable() {
             @Override
             public void run() {
-               _mbwManager.getWalletManager(false).removeUnusedBip44Account();
+               _mbwManager.getWalletManager(false).removeUnusedBip44Account(account);
                //in case user had labeled the account, delete the stored name
                _storage.deleteAccountMetadata(account.getId());
                //setselected also broadcasts AccountChanged event, which will cause an ui update
@@ -1176,29 +1176,28 @@ public class AccountsFragment extends Fragment {
    }
 
    private void archive(final WalletAccount account) {
-      AlertDialog.Builder confirmDialog = new AlertDialog.Builder(getActivity());
-      confirmDialog.setTitle(R.string.archiving_account_title);
-      confirmDialog.setMessage(getString(R.string.question_archive_account));
-      confirmDialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+      new AlertDialog.Builder(getActivity())
+              .setTitle(R.string.archiving_account_title)
+              .setMessage(getString(R.string.question_archive_account))
+              .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 
-         public void onClick(DialogInterface arg0, int arg1) {
-            account.archiveAccount();
-            WalletAccount linkedAccount = Utils.getLinkedAccount(account, _mbwManager.getColuManager().getAccounts().values());
-            if (linkedAccount != null) {
-               linkedAccount.archiveAccount();
-            }
-            _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
-            _mbwManager.getEventBus().post(new AccountChanged(account.getId()));
-            updateIncludingMenus();
-            _toaster.toast(R.string.archived, false);
-         }
-      });
-      confirmDialog.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-
-         public void onClick(DialogInterface arg0, int arg1) {
-         }
-      });
-      confirmDialog.show();
+                 public void onClick(DialogInterface arg0, int arg1) {
+                    account.archiveAccount();
+                    WalletAccount linkedAccount = Utils.getLinkedAccount(account, _mbwManager.getColuManager().getAccounts().values());
+                    if (linkedAccount != null) {
+                       linkedAccount.archiveAccount();
+                    }
+                    _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
+                    _mbwManager.getEventBus().post(new AccountChanged(account.getId()));
+                    updateIncludingMenus();
+                    _toaster.toast(R.string.archived, false);
+                 }
+              })
+              .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                 public void onClick(DialogInterface arg0, int arg1) {
+                 }
+              })
+              .show();
    }
 
    private void lock() {

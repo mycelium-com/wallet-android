@@ -78,7 +78,6 @@ import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.model.TransactionDetails;
-import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.AbstractAccount;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -284,6 +283,7 @@ public class TransactionHistoryFragment extends Fragment {
                      checkNotNull(menu.findItem(R.id.miShowDetails)).setVisible(record.hasDetails());
                      checkNotNull(menu.findItem(R.id.miShowCoinapultDebug)).setVisible(record.canCoinapult());
                      checkNotNull(menu.findItem(R.id.miRebroadcastTransaction)).setVisible((record.confirmations == 0) && !record.canCoinapult());
+                     checkNotNull(menu.findItem(R.id.miShare)).setVisible(!record.canCoinapult());
                      checkNotNull(menu.findItem(R.id.miBumpFee)).setVisible((record.confirmations == 0) && !record.canCoinapult());
                      checkNotNull(menu.findItem(R.id.miDeleteUnconfirmedTransaction)).setVisible(record.confirmations == 0);
                      currentActionMode = actionMode;

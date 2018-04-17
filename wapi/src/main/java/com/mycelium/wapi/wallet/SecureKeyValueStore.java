@@ -169,7 +169,7 @@ public class SecureKeyValueStore {
    }
 
    public void deleteEncryptedValue(byte[] id, KeyCipher userCipher) throws InvalidKeyCipher {
-      AesKeyCipher kekCipher = getKeyEncryptionKey(userCipher); // may throw InvalidKeyCipher
+      getKeyEncryptionKey(userCipher); // may throw InvalidKeyCipher
       _backing.deleteValue(getRealId(id, true));
    }
 
