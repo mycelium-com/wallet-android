@@ -530,6 +530,11 @@ public class SettingsActivity extends PreferenceActivity {
          });
          external.addPreference(cbService);
       }
+
+      final CheckBoxPreference cbService = new CheckBoxPreference(this);
+      cbService.setTitle(R.string.settings_mydfs_title);
+      cbService.setSummary(R.string.settings_mydfs_summary);
+      external.addPreference(cbService);
    }
 
    @Override
