@@ -33,7 +33,7 @@ public class CenterLayoutManager extends LinearLayoutManager {
         super.scrollToPosition(position);
     }
 
-    private static class CenterSmoothScroller extends LinearSmoothScroller {
+    private class CenterSmoothScroller extends LinearSmoothScroller {
 
         CenterSmoothScroller(Context context) {
             super(context);
@@ -46,7 +46,8 @@ public class CenterLayoutManager extends LinearLayoutManager {
 
         @Override
         public PointF computeScrollVectorForPosition(int targetPosition) {
-            return null;
+            return CenterLayoutManager.this
+                    .computeScrollVectorForPosition(targetPosition);
         }
 
     }
