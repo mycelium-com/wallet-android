@@ -131,16 +131,24 @@ public class ConfirmExchangeFragment extends Fragment {
 
                 lastOperationId = UUID.randomUUID().toString();
 
+                String payAddress = null;
+                try {
+                    payAddress = BCHBechAddress.bchBechDecode(offer.payinAddress).constructLegacyAddress(mbwManager.getNetwork()).toString();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 switch (fromAccount.getType()) {
                     case BCHBIP44: {
                         Bip44BCHAccount bip44BCHAccount = (Bip44BCHAccount) fromAccount;
-                        Intent serviceIntent = IntentContract.SendFunds.createIntent(lastOperationId, bip44BCHAccount.getAccountIndex(), offer.payinAddress, fromValue, TransactionFee.NORMAL, 1.0f);
+                        Intent serviceIntent = IntentContract.SendFunds.createIntent(lastOperationId, bip44BCHAccount.getAccountIndex(),
+                                payAddress, fromValue, TransactionFee.NORMAL, 1.0f);
                         WalletApplication.sendToSpv(serviceIntent, WalletAccount.Type.BCHBIP44);
                         break;
                     }
                     case BCHSINGLEADDRESS: {
                         SingleAddressBCHAccount bip44BCHAccount = (SingleAddressBCHAccount) fromAccount;
-                        Intent service = IntentContract.SendFundsSingleAddress.createIntent(lastOperationId, bip44BCHAccount.getId().toString(), offer.payinAddress, fromValue, TransactionFee.NORMAL, 1.0f);
+                        Intent service = IntentContract.SendFundsSingleAddress.createIntent(lastOperationId, bip44BCHAccount.getId().toString(),
+                                payAddress, fromValue, TransactionFee.NORMAL, 1.0f);
                         WalletApplication.sendToSpv(service, WalletAccount.Type.BCHSINGLEADDRESS);
                         break;
                     }
