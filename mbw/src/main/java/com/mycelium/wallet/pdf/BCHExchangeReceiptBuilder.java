@@ -47,7 +47,7 @@ public class BCHExchangeReceiptBuilder {
         int pageHeight = PaperSize.A4_HEIGHT;
         writer = new PdfWriter(pageWidth, pageHeight, 20, 20, 20, 20);
         double fromTop = 1.5F;
-        writer.addText(7F, fromTop, 20, "Exchange receipt");
+        writer.addText(7F, fromTop, 20, "Exchange confirmation");
 
         fromTop += 1.5F;
         writer.setBoldFont();
