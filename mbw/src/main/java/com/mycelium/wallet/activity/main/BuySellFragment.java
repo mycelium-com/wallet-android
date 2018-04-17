@@ -37,7 +37,6 @@ package com.mycelium.wallet.activity.main;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -107,14 +106,12 @@ public class BuySellFragment extends Fragment {
             }
         });
         int scrollTo = 0;
-        if (showButton) {
-            actions.add(new ActionButton(getString(R.string.gd_buy_sell_button), new Runnable() {
-                @Override
-                public void run() {
-                    startActivity(new Intent(getActivity(), BuySellSelectFragment.class));
-                }
-            }));
-        }
+        actions.add(new ActionButton(getString(R.string.exchange_altcoins_to_btc), new Runnable() {
+            @Override
+            public void run() {
+                startExchange(new Intent(getActivity(), ChangellyActivity.class));
+            }
+        }));
         if (SettingsPreference.getInstance().isMyDFSEnabled()) {
             ActionButton actionButton = new ActionButton(getString(R.string.buy_mydfs_token), R.drawable.ic_stars_black_18px, new Runnable() {
                 @Override
@@ -126,12 +123,14 @@ public class BuySellFragment extends Fragment {
             actions.add(actionButton);
             scrollTo = 1;
         }
-        actions.add(new ActionButton(getString(R.string.exchange_altcoins_to_btc), new Runnable() {
-            @Override
-            public void run() {
-                startExchange(new Intent(getActivity(), ChangellyActivity.class));
-            }
-        }));
+        if (showButton) {
+            actions.add(new ActionButton(getString(R.string.gd_buy_sell_button), new Runnable() {
+                @Override
+                public void run() {
+                    startActivity(new Intent(getActivity(), BuySellSelectFragment.class));
+                }
+            }));
+        }
         buttonAdapter.setButtons(actions);
         if (scrollTo != 0) {
             recyclerView.postDelayed(new ScrollToRunner(scrollTo), 500);
