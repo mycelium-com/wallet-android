@@ -7,9 +7,15 @@ import com.mrd.bitlib.model.NetworkParameters;
 import java.util.Arrays;
 import java.util.Locale;
 
+/**
+ * This class was created to support new Bech32 like BCH addresses to legacy convertation.
+ */
 public class BCHBechAddress {
     private static final String CHARSET = "qpzry9x8gf2tvdw0s3jn54khce6mua7l";
 
+    /**
+     * Converts new Bech32 like address to {@link BechAddressParams} class, which could be used to construct legacy address.
+     */
     public static BechAddressParams bchBechDecode(String bech) throws Exception {
         byte[] buffer = bech.getBytes();
         for (byte b : buffer) {
@@ -125,6 +131,9 @@ public class BCHBechAddress {
         return result;
     }
 
+    /**
+     * Class to handle converted info and construct legacy addresses.
+     */
     public static class BechAddressParams {
         private String type;
         private byte[] hash;
