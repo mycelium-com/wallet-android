@@ -39,6 +39,7 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -53,6 +54,8 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.main.adapter.ButtonAdapter;
 import com.mycelium.wallet.activity.main.model.ActionButton;
+import com.mycelium.wallet.activity.settings.SettingsPreference;
+import com.mycelium.wallet.activity.util.CenterLayoutManager;
 import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.external.BuySellSelectFragment;
 import com.mycelium.wallet.external.BuySellServiceDescriptor;
@@ -75,16 +78,23 @@ public class BuySellFragment extends Fragment {
     RecyclerView recyclerView;
 
     ButtonAdapter buttonAdapter;
+    CenterLayoutManager layoutManager;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = Preconditions.checkNotNull(inflater.inflate(R.layout.main_buy_sell_fragment, container, false));
         ButterKnife.bind(this, root);
         buttonAdapter = new ButtonAdapter();
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false));
+        layoutManager = new CenterLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
+        recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(buttonAdapter);
-        recreateActions();
         return root;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @android.support.annotation.Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        recreateActions();
     }
 
     private void recreateActions() {
@@ -95,6 +105,7 @@ public class BuySellFragment extends Fragment {
                 return input.isEnabled(_mbwManager);
             }
         });
+        int scrollTo = 0;
         if (showButton) {
             actions.add(new ActionButton(getString(R.string.gd_buy_sell_button), new Runnable() {
                 @Override
@@ -103,12 +114,15 @@ public class BuySellFragment extends Fragment {
                 }
             }));
         }
-        actions.add(new ActionButton("BUY MYDFS TOKEN", R.drawable.ic_stars_black_18px, new Runnable() {
-            @Override
-            public void run() {
-                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://mydfs.net/?ref=mycelium")));
-            }
-        }));
+        if (SettingsPreference.getInstance().isMyDFSEnabled()) {
+            actions.add(new ActionButton("BUY MYDFS TOKEN", R.drawable.ic_stars_black_18px, new Runnable() {
+                @Override
+                public void run() {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://mydfs.net/?ref=mycelium")));
+                }
+            }));
+            scrollTo = 1;
+        }
         actions.add(new ActionButton(getString(R.string.exchange_altcoins_to_btc), new Runnable() {
             @Override
             public void run() {
@@ -116,6 +130,22 @@ public class BuySellFragment extends Fragment {
             }
         }));
         buttonAdapter.setButtons(actions);
+        if (scrollTo != 0) {
+            recyclerView.postDelayed(new ScrollToRunner(scrollTo), 500);
+        }
+    }
+
+    class ScrollToRunner implements Runnable {
+        int scrollTo;
+
+        public ScrollToRunner(int scrollTo) {
+            this.scrollTo = scrollTo;
+        }
+
+        @Override
+        public void run() {
+            recyclerView.smoothScrollToPosition(scrollTo);
+        }
     }
 
     private void startExchange(Intent intent) {
