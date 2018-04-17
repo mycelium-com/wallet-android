@@ -314,12 +314,15 @@ public class ExchangeFragment extends Fragment {
         if (account.getType() == WalletAccount.Type.BCHBIP44) {
             Bip44BCHAccount bip44BCHAccount = (Bip44BCHAccount)account;
             //Find out the type of Bip44 account
+            long satoshisTransferable;
             if (bip44BCHAccount.getAccountType() == ACCOUNT_TYPE_FROM_MASTERSEED) {
                 int accountIndex = bip44BCHAccount.getAccountIndex();
-                return ExactBitcoinCashValue.from(mbwManager.getSpvBchFetcher().getMaxFundsTransferrable(accountIndex)).getValue();
-            } else { //We are dealing with unrelated Bip44Account and should handle it separately
-                return ExactBitcoinCashValue.from(mbwManager.getSpvBchFetcher().getMaxFundsTransferrableUnrelatedAccount(bip44BCHAccount.getId().toString())).getValue();
+                satoshisTransferable = mbwManager.getSpvBchFetcher().getMaxFundsTransferrable(accountIndex);
+            } else {
+                //We are dealing with unrelated Bip44Account and should handle it separately
+                satoshisTransferable = mbwManager.getSpvBchFetcher().getMaxFundsTransferrableUnrelatedAccount(bip44BCHAccount.getId().toString());
             }
+            return ExactBitcoinCashValue.from(satoshisTransferable).getValue();
         } else if (account.getType() == WalletAccount.Type.BCHSINGLEADDRESS) {
             String accountGuid = account.getId().toString();
             return ExactBitcoinCashValue.from(mbwManager.getSpvBchFetcher().getMaxFundsTransferrableUnrelatedAccount(accountGuid)).getValue();

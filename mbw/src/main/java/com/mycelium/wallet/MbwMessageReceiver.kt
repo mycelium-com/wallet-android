@@ -150,11 +150,9 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
 
                 when(accountType) {
                     IntentContract.UNRELATED_ACCOUNT_TYPE_HD -> {
-                        var account =_mbwManager.getWalletManager(false).getAccount(UUID.fromString(accountGuid)) as? Bip44Account
-                        if (account == null) {
+                        val account =_mbwManager.getWalletManager(false).getAccount(UUID.fromString(accountGuid)) as? Bip44Account
                             //This is a way to not to pass information that this is a cold storage to BCH module and back
-                            account =_mbwManager.getWalletManager(true).getAccount(UUID.fromString(accountGuid)) as Bip44Account
-                        }
+                            ?: _mbwManager.getWalletManager(true).getAccount(UUID.fromString(accountGuid)) as Bip44Account
 
                         //Unrelated HD key
                         val publicKeyB58 = account.getExportData(AesKeyCipher.defaultKeyCipher()).publicData.get()
@@ -164,22 +162,20 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                     }
                     IntentContract.UNRELATED_ACCOUNT_TYPE_SA -> {
                         Log.d(TAG, "com.mycelium.wallet.requestSingleAddressPrivateKeyToMBW, guid = $accountGuid")
-                        var account =_mbwManager.getWalletManager(false).getAccount(UUID.fromString(accountGuid)) as? SingleAddressAccount
-                        if (account == null) {
-                            //This is a way to not to pass information that this is a cold storage to BCH module and back
-                            account =_mbwManager.getWalletManager(true).getAccount(UUID.fromString(accountGuid)) as SingleAddressAccount
-                        }
+                        val account =_mbwManager.getWalletManager(false).getAccount(UUID.fromString(accountGuid)) as? SingleAddressAccount
+                                //This is a way to not to pass information that this is a cold storage to BCH module and back
+                                ?: _mbwManager.getWalletManager(true).getAccount(UUID.fromString(accountGuid)) as SingleAddressAccount
 
-                        if (account.publicKey == null) {
-                            val service = IntentContract.SendUnrelatedWatchedAddressToSPV.createIntent(accountGuid,
+                        val service = if (account.publicKey == null) {
+                            IntentContract.SendUnrelatedWatchedAddressToSPV.createIntent(accountGuid,
                                     account.address.toString())
-                            WalletApplication.sendToSpv(service, BCHSINGLEADDRESS)
                         } else {
-                            val service = IntentContract.SendUnrelatedPublicKeyToSPV.createIntent(accountGuid,
+                            IntentContract.SendUnrelatedPublicKeyToSPV.createIntent(accountGuid,
                                     account.publicKey.toString(), accountType)
-                            WalletApplication.sendToSpv(service, BCHSINGLEADDRESS)
                         }
+                        WalletApplication.sendToSpv(service, BCHSINGLEADDRESS)
                     }
+                    else -> Log.e(TAG, "Unknown accountType $accountType")
                 }
             }
             "com.mycelium.wallet.notifyBroadcastTransactionBroadcastCompleted" -> {
@@ -247,7 +243,6 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                     val privateKeyBase58 = account.getPrivateKey(AesKeyCipher.defaultKeyCipher()).getBase58EncodedPrivateKey(mbwManager.network)
 
                     keyList.add(DumpedPrivateKey.fromBase58(networkParameters, privateKeyBase58).key)
-
                 } else {
                     val bip44Account = account as Bip44Account
 
@@ -256,10 +251,9 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                         val txOutput = FreeStandingTransactionOutput(networkParameters, utxo, utxo.height)
                         val address = txOutput.getAddressFromP2PKHScript(networkParameters)!!.toBase58()
                         val privateKey = bip44Account.getPrivateKeyForAddress(Address.fromString(address),
-                                AesKeyCipher.defaultKeyCipher())
-                        checkNotNull(privateKey)
+                                AesKeyCipher.defaultKeyCipher())!!
                         keyList.add(DumpedPrivateKey.fromBase58(networkParameters,
-                                privateKey!!.getBase58EncodedPrivateKey(mbwManager.network)).key)
+                                privateKey.getBase58EncodedPrivateKey(mbwManager.network)).key)
                     }
                 }
 

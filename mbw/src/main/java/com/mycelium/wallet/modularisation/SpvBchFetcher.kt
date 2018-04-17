@@ -39,7 +39,7 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
 
     override fun retrieveByUnrelatedAccountId(id: String): CurrencyBasedBalance {
         val uri = AccountBalance.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHSINGLEADDRESS)).buildUpon().appendEncodedPath(id).build()
-        val selection = AccountBalance.SELECTION_HD
+        val selection = AccountBalance.SELECTION_GUID
         return retrieveBalance(uri, selection, id)
     }
 
@@ -180,8 +180,7 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
         val uri = CurrentReceiveAddress.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHBIP44)).buildUpon().build()
         val selection = CurrentReceiveAddress.SELECTION_ACCOUNT_INDEX
         context.contentResolver.query(uri, null, selection, arrayOf("" + accountIndex), null).use {
-            return if (it.columnCount != 0) {
-                it.moveToFirst()
+            return if (it?.moveToFirst() == true) {
                 val address = it.getString(it.getColumnIndex(CurrentReceiveAddress.ADDRESS))
                 Address.fromString(address)
             } else {
@@ -194,8 +193,7 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
         val uri = CurrentReceiveAddress.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHBIP44)).buildUpon().build()
         val selection = CurrentReceiveAddress.SELECTION_UNRELATED
         context.contentResolver.query(uri, null, selection, arrayOf(guid), null).use {
-            return if (it.columnCount != 0) {
-                it.moveToFirst()
+            return if (it?.moveToFirst() == true) {
                 val address = it.getString(it.getColumnIndex(CurrentReceiveAddress.ADDRESS))
                 Address.fromString(address)
             } else {

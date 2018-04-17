@@ -132,24 +132,22 @@ public class ConfirmExchangeFragment extends Fragment {
 
                 lastOperationId = UUID.randomUUID().toString();
 
+                Intent service;
                 switch (fromAccount.getType()) {
-                    case BCHBIP44: {
+                    case BCHBIP44:
                         Bip44BCHAccount bip44BCHAccount = (Bip44BCHAccount) fromAccount;
                         if (bip44BCHAccount.getAccountType() == ACCOUNT_TYPE_FROM_MASTERSEED) {
-                            Intent serviceIntent = IntentContract.SendFunds.createIntent(lastOperationId, bip44BCHAccount.getAccountIndex(), offer.payinAddress, fromValue, TransactionFee.NORMAL, 1.0f);
-                            WalletApplication.sendToSpv(serviceIntent, WalletAccount.Type.BCHBIP44);
+                            service = IntentContract.SendFunds.createIntent(lastOperationId, bip44BCHAccount.getAccountIndex(), offer.payinAddress, fromValue, TransactionFee.NORMAL, 1.0f);
                         } else {
-                            Intent service = IntentContract.SendFundsUnrelated.createIntent(lastOperationId, bip44BCHAccount.getId().toString(), offer.payinAddress, fromValue, TransactionFee.NORMAL, 1.0f, 0);
-                            WalletApplication.sendToSpv(service, WalletAccount.Type.BCHBIP44);
+                            service = IntentContract.SendFundsUnrelated.createIntent(lastOperationId, bip44BCHAccount.getId().toString(), offer.payinAddress, fromValue, TransactionFee.NORMAL, 1.0f, IntentContract.UNRELATED_ACCOUNT_TYPE_HD);
                         }
+                        WalletApplication.sendToSpv(service, WalletAccount.Type.BCHBIP44);
                         break;
-                    }
-                    case BCHSINGLEADDRESS: {
+                    case BCHSINGLEADDRESS:
                         SingleAddressBCHAccount singleAddressAccount = (SingleAddressBCHAccount) fromAccount;
-                        Intent service = IntentContract.SendFundsUnrelated.createIntent(lastOperationId, singleAddressAccount.getId().toString(), offer.payinAddress, fromValue, TransactionFee.NORMAL, 1.0f, 1);
+                        service = IntentContract.SendFundsUnrelated.createIntent(lastOperationId, singleAddressAccount.getId().toString(), offer.payinAddress, fromValue, TransactionFee.NORMAL, 1.0f, IntentContract.UNRELATED_ACCOUNT_TYPE_SA);
                         WalletApplication.sendToSpv(service, WalletAccount.Type.BCHSINGLEADDRESS);
                         break;
-                    }
                 }
                 progressDialog = new ProgressDialog(getActivity());
                 progressDialog.setIndeterminate(true);
