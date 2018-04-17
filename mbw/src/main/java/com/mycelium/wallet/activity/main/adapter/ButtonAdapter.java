@@ -1,5 +1,7 @@
 package com.mycelium.wallet.activity.main.adapter;
 
+import android.annotation.TargetApi;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -28,13 +30,17 @@ public class ButtonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 .inflate(R.layout.item_action_button, parent, false));
     }
 
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         final ActionButton actionButton = buttons.get(position);
         Button button = ((ButtonHolder) holder).button;
         button.setText(actionButton.text);
         button.setCompoundDrawablesRelativeWithIntrinsicBounds(actionButton.icon, 0, 0, 0);
-        if (buttons.get(position).icon != 0) {
+        if(actionButton.textColor != 0) {
+            button.setTextColor(actionButton.textColor);
+        }
+        if (actionButton.icon != 0) {
             button.setPadding(button.getResources().getDimensionPixelSize(R.dimen.button_padding)
                     , button.getPaddingTop(), button.getPaddingRight(), button.getPaddingBottom());
         }

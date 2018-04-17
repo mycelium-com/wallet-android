@@ -37,6 +37,7 @@ package com.mycelium.wallet.activity.main;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -115,12 +116,14 @@ public class BuySellFragment extends Fragment {
             }));
         }
         if (SettingsPreference.getInstance().isMyDFSEnabled()) {
-            actions.add(new ActionButton("BUY MYDFS TOKEN", R.drawable.ic_stars_black_18px, new Runnable() {
+            ActionButton actionButton = new ActionButton(getString(R.string.buy_mydfs_token), R.drawable.ic_stars_black_18px, new Runnable() {
                 @Override
                 public void run() {
                     startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://mydfs.net/?ref=mycelium")));
                 }
-            }));
+            });
+            actionButton.textColor = getResources().getColor(R.color.white);
+            actions.add(actionButton);
             scrollTo = 1;
         }
         actions.add(new ActionButton(getString(R.string.exchange_altcoins_to_btc), new Runnable() {
