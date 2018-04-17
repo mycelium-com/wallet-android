@@ -58,7 +58,7 @@ public class ButtonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         public ButtonHolder(View itemView) {
             super(itemView);
-            button = itemView.findViewById(R.id.btn_action);
+            button = (Button) itemView.findViewById(R.id.btn_action);
         }
     }
 }

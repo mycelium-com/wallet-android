@@ -35,6 +35,7 @@
 package com.mycelium.wallet.activity.main;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -53,10 +54,9 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.main.adapter.ButtonAdapter;
 import com.mycelium.wallet.activity.main.model.ActionButton;
 import com.mycelium.wallet.event.SelectedAccountChanged;
-import com.mycelium.wallet.external.BuySellSelectActivity;
+import com.mycelium.wallet.external.BuySellSelectFragment;
 import com.mycelium.wallet.external.BuySellServiceDescriptor;
 import com.mycelium.wallet.external.changelly.ChangellyActivity;
-import com.mycelium.wallet.external.changelly.bch.ExchangeActivity;
 import com.mycelium.wapi.model.ExchangeRate;
 import com.squareup.otto.Subscribe;
 
@@ -95,38 +95,26 @@ public class BuySellFragment extends Fragment {
                 return input.isEnabled(_mbwManager);
             }
         });
-        switch (_mbwManager.getSelectedAccount().getType()) {
-            case BCHBIP44:
-            case BCHSINGLEADDRESS:
-                actions.add(new ActionButton(getString(R.string.exchange_bch_to_btc), new Runnable() {
-                    @Override
-                    public void run() {
-                        startExchange(new Intent(getActivity(), ExchangeActivity.class));
-                    }
-                }));
-                break;
-            default:
-                if (showButton) {
-                    actions.add(new ActionButton(getString(R.string.gd_buy_sell_button), new Runnable() {
-                        @Override
-                        public void run() {
-                            startActivity(new Intent(getActivity(), BuySellSelectActivity.class));
-                        }
-                    }));
+        if (showButton) {
+            actions.add(new ActionButton(getString(R.string.gd_buy_sell_button), new Runnable() {
+                @Override
+                public void run() {
+                    startActivity(new Intent(getActivity(), BuySellSelectFragment.class));
                 }
-                actions.add(new ActionButton("BUY MYDFS TOKEN", R.drawable.ic_stars_black_18px, new Runnable() {
-                    @Override
-                    public void run() {
-                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://mydfs.net/?ref=mycelium")));
-                    }
-                }));
-                actions.add(new ActionButton(getString(R.string.exchange_altcoins_to_btc), new Runnable() {
-                    @Override
-                    public void run() {
-                        startExchange(new Intent(getActivity(), ChangellyActivity.class));
-                    }
-                }));
+            }));
         }
+        actions.add(new ActionButton("BUY MYDFS TOKEN", R.drawable.ic_stars_black_18px, new Runnable() {
+            @Override
+            public void run() {
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://mydfs.net/?ref=mycelium")));
+            }
+        }));
+        actions.add(new ActionButton(getString(R.string.exchange_altcoins_to_btc), new Runnable() {
+            @Override
+            public void run() {
+                startExchange(new Intent(getActivity(), ChangellyActivity.class));
+            }
+        }));
         buttonAdapter.setButtons(actions);
     }
 
