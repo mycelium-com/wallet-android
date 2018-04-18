@@ -52,7 +52,7 @@ public class WalletApplication extends MultiDexApplication {
       } else {
          Log.d("WalletApplication", "Inserted spongy castle provider");
       }
-       SettingsPreference.getInstance().init(this);
+      SettingsPreference.getInstance().init(this);
       String lang = MbwManager.getInstance(this).getLanguage();
       applyLanguageChange(lang);
       super.onCreate();
