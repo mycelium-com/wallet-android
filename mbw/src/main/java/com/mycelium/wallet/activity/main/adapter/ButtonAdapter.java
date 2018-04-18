@@ -74,9 +74,7 @@ public class ButtonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             } else {
                 text = buttons.get(buttons.size() - 2).text;
             }
-            Rect result = new Rect();
-            paint.getTextBounds(text, 0, text.length(), result);
-            int width = result.width();
+            int width = (int) paint.measureText(text);
 
             int paddings = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
                     58, holder.itemView.getResources().getDisplayMetrics());
