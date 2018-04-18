@@ -54,6 +54,7 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.main.adapter.ButtonAdapter;
 import com.mycelium.wallet.activity.main.model.ActionButton;
+import com.mycelium.wallet.event.PageSelectedEvent;
 import com.mycelium.wallet.activity.settings.SettingsPreference;
 import com.mycelium.wallet.activity.util.CenterLayoutManager;
 import com.mycelium.wallet.event.SelectedAccountChanged;
@@ -105,7 +106,7 @@ public class BuySellFragment extends Fragment {
                 return input.isEnabled(_mbwManager);
             }
         });
-        int scrollTo = 0;
+        int scrollTo = 1;
         actions.add(new ActionButton(getString(R.string.exchange_altcoins_to_btc), new Runnable() {
             @Override
             public void run() {
@@ -121,7 +122,7 @@ public class BuySellFragment extends Fragment {
             });
             actionButton.textColor = getResources().getColor(R.color.white);
             actions.add(actionButton);
-            scrollTo = 1;
+            scrollTo = 2;
         }
         if (showButton) {
             actions.add(new ActionButton(getString(R.string.gd_buy_sell_button), new Runnable() {
@@ -132,9 +133,8 @@ public class BuySellFragment extends Fragment {
             }));
         }
         buttonAdapter.setButtons(actions);
-        if (scrollTo != 0) {
-            recyclerView.postDelayed(new ScrollToRunner(scrollTo), 500);
-        }
+
+        recyclerView.postDelayed(new ScrollToRunner(scrollTo), 500);
     }
 
     class ScrollToRunner implements Runnable {
@@ -195,4 +195,10 @@ public class BuySellFragment extends Fragment {
         recreateActions();
     }
 
+    @Subscribe
+    public void pageSelectedEvent(PageSelectedEvent event) {
+        if(event.position == 1) {
+            recreateActions();
+        }
+    }
 }
