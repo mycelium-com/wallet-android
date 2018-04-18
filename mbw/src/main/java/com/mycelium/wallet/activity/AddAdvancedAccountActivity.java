@@ -643,6 +643,8 @@ public class AddAdvancedAccountActivity extends Activity {
                   if (coluManager.isColoredAddress(address)) {
                      empty = 0;
                      emptyHD = 0;
+                  } else {
+                     empty++;
                   }
                   List<ColuAccount.ColuAsset> assetList = new ArrayList<>(coluManager.getColuAddressAssets(address));
                   if (assetList.size() > 0) {
@@ -652,11 +654,10 @@ public class AddAdvancedAccountActivity extends Activity {
                      } else {
                         _mbwManager.getColuManager().enableAsset(assetList.get(0), currentNode.getPrivateKey());
                      }
-                  } else {
-                     empty++;
                   }
                } catch (IOException e) {
                   e.printStackTrace();
+                  empty++;
                }
                publishProgress(++scanned);
                if (empty == coloredLookAhead) {
