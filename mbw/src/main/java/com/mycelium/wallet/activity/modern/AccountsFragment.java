@@ -223,13 +223,6 @@ public class AccountsFragment extends Fragment {
                  .setPositiveButton(R.string.button_ok, null)
                  .create()
                  .show();
-      } else if(requestCode == ADD_RECORD_RESULT_CODE && resultCode == AddAdvancedAccountActivity.COLU_SCAN_COMPLETED) {
-          new AlertDialog.Builder(getActivity())
-                  .setTitle(R.string.scan_completed)
-                  .setMessage(getString(R.string.d_coco_created, intent.getIntExtra(AddAdvancedAccountActivity.ACCOUNTS_FOUND, 0)))
-                  .setPositiveButton(R.string.button_continue, null)
-                  .create()
-                  .show();
       } else {
          super.onActivityResult(requestCode, resultCode, intent);
       }

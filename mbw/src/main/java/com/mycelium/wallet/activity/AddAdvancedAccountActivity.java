@@ -594,117 +594,119 @@ public class AddAdvancedAccountActivity extends Activity {
       }
    }
 
-   private class ImportCoCoBip32Account extends AsyncTask<Void, Integer, UUID> {
-      private final HdKeyNode hdKeyNode;
-      private ProgressDialog dialog;
-      private int accountsCreated;
+    private class ImportCoCoBip32Account extends AsyncTask<Void, Integer, UUID> {
+        private final HdKeyNode hdKeyNode;
+        private ProgressDialog dialog;
+        private int accountsCreated;
 
-      ImportCoCoBip32Account(HdKeyNode hdKeyNode) {
-         this.hdKeyNode = hdKeyNode;
-      }
+        ImportCoCoBip32Account(HdKeyNode hdKeyNode) {
+            this.hdKeyNode = hdKeyNode;
+        }
 
-      @Override
-      protected void onPreExecute() {
-         super.onPreExecute();
-         dialog = new ProgressDialog(AddAdvancedAccountActivity.this);
-         dialog.setTitle(getString(R.string.digital_assets_retrieve));
-         dialog.setMessage(getString(R.string.coco_addresses_scanned, 0));
-         dialog.show();
-      }
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            dialog = new ProgressDialog(AddAdvancedAccountActivity.this);
+            dialog.setCancelable(false);
+            dialog.setCanceledOnTouchOutside(false);
+            dialog.setTitle(getString(R.string.digital_assets_retrieve));
+            dialog.setMessage(getString(R.string.coco_addresses_scanned, 0));
+            dialog.show();
+        }
 
-      @Override
-      protected void onProgressUpdate(Integer... values) {
-         dialog.setMessage(getString(R.string.coco_addresses_scanned, values[0]));
-      }
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            dialog.setMessage(getString(R.string.coco_addresses_scanned, values[0]));
+        }
 
-      @Override
-      protected UUID doInBackground(Void... voids) {
-         UUID firstCoCoUUID = null;
-         final int coloredLookAhead = 2;
-         final String coCoDerivationPath = "m/44'/0'/%d'/0/%d";
-         int emptyHD = 0;
-         int scanned = 0;
-         accountsCreated = 0;
-         for (int x = 0; emptyHD < coloredLookAhead; ++x) {
-            int empty = 0;
-            for (int y = 0; empty < coloredLookAhead; ++y) {
-               HdKeyNode currentNode = hdKeyNode.createChildNode(HdKeyPath.valueOf(String.format(coCoDerivationPath, x, y)));
-               Address address = currentNode.getPublicKey().toAddress(_mbwManager.getNetwork());
-               Optional<UUID> accountId = _mbwManager.getAccountId(address, null);
-               if (accountId.isPresent()) {
-                  return null;
-               }
-
-               /* check if address is CoCo
-                do not do this in main thread */
-               ColuManager coluManager = _mbwManager.getColuManager();
-
-               try {
-                  if (coluManager.isColoredAddress(address)) {
-                     empty = 0;
-                     emptyHD = 0;
-                  } else {
-                     empty++;
-                  }
-                  List<ColuAccount.ColuAsset> assetList = new ArrayList<>(coluManager.getColuAddressAssets(address));
-                  if (assetList.size() > 0) {
-                     accountsCreated++;
-                     if (firstCoCoUUID == null) {
-                        firstCoCoUUID = _mbwManager.getColuManager().enableAsset(assetList.get(0), currentNode.getPrivateKey());
-                     } else {
-                        _mbwManager.getColuManager().enableAsset(assetList.get(0), currentNode.getPrivateKey());
-                     }
-                  }
-               } catch (IOException e) {
-                  e.printStackTrace();
-                  empty++;
-               }
-               publishProgress(++scanned);
-               if (empty == coloredLookAhead) {
-                  if (empty == y + 1) {
-                     emptyHD++;
-                  }
-                  break;
-               }
+        @Override
+        protected UUID doInBackground(Void... voids) {
+            UUID firstCoCoUUID = null;
+            final int coloredLookAhead = 2;
+            final int coloredLookAheadHD = 20;
+            final String coCoDerivationPath = "m/44'/0'/%d'/0/%d";
+            int emptyHD = 0;
+            int scanned = 0;
+            accountsCreated = 0;
+            ColuManager coluManager = _mbwManager.getColuManager();
+            for (int x = 0; emptyHD < coloredLookAheadHD; ++x) {
+                int empty = 0;
+                for (int y = 0; empty < coloredLookAhead; ++y) {
+                    HdKeyNode currentNode = hdKeyNode.createChildNode(HdKeyPath.valueOf(String.format(coCoDerivationPath, x, y)));
+                    Address address = currentNode.getPublicKey().toAddress(_mbwManager.getNetwork());
+                    Optional<UUID> accountId = _mbwManager.getAccountId(address, null);
+                    if (accountId.isPresent()) {
+                        return null;
+                    }
+                    try {
+                        if (coluManager.isColoredAddress(address)) {
+                            empty = 0;
+                            emptyHD = 0;
+                        } else {
+                            empty++;
+                        }
+                        List<ColuAccount.ColuAsset> assetList = new ArrayList<>(coluManager.getColuAddressAssets(address));
+                        if (assetList.size() > 0) {
+                            accountsCreated++;
+                            if (firstCoCoUUID == null) {
+                                firstCoCoUUID = coluManager.enableAsset(assetList.get(0), currentNode.getPrivateKey());
+                            } else {
+                                coluManager.enableAsset(assetList.get(0), currentNode.getPrivateKey());
+                            }
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        empty++;
+                    }
+                    publishProgress(++scanned);
+                    if (empty == coloredLookAhead) {
+                        if (empty == y + 1) {
+                            emptyHD++;
+                        }
+                        break;
+                    }
+                }
             }
-         }
-         if (firstCoCoUUID != null) {
-            return firstCoCoUUID;
-         } else {
-            return null;
-         }
-      }
 
-      @Override
-      protected void onPostExecute(UUID account) {
-         dialog.dismiss();
-         if (account != null) {
-            finishCoCoFound(account, accountsCreated);
-         } else {
-            finishCoCoNotFound(hdKeyNode);
-         }
-      }
-   }
+            //Make sure that accounts are up to date
+            coluManager.scanForAccounts();
+            if (firstCoCoUUID != null) {
+                return firstCoCoUUID;
+            } else {
+                return null;
+            }
+        }
 
-   private void finishCoCoFound(UUID account, int accountsFound) {
-      Intent result = new Intent();
-      result.putExtra(ACCOUNTS_FOUND, accountsFound);
-      result.putExtra(AddAccountActivity.RESULT_KEY, account);
-      setResult(COLU_SCAN_COMPLETED, result);
+        @Override
+        protected void onPostExecute(UUID account) {
+            dialog.dismiss();
+            if (account != null) {
+                finishCoCoFound(account, accountsCreated);
+            } else {
+                finishCoCoNotFound(hdKeyNode);
+            }
+        }
+    }
+
+   private void finishCoCoFound(final UUID account, final int accountsFound) {
+       new AlertDialog.Builder(this)
+               .setTitle(R.string.scan_completed)
+               .setMessage(getString(R.string.d_coco_created, accountsFound))
+               .setPositiveButton(R.string.button_continue, new DialogInterface.OnClickListener() {
+                   @Override
+                   public void onClick(DialogInterface dialogInterface, int i) {
+                       finishOk(account);
+                   }
+               })
+               .create()
+               .show();
    }
 
    private void finishCoCoNotFound(final HdKeyNode hdKeyNode) {
       new AlertDialog.Builder(this)
               .setTitle(R.string.scan_completed)
               .setMessage(R.string.no_digital_asset)
-              .setPositiveButton(R.string.close, new DialogInterface.OnClickListener() {
-                 @Override
-                 public void onClick(DialogInterface dialogInterface, int i) {
-                    Intent result = new Intent();
-                    setResult(RESULT_CANCELED, result);
-                    finish();
-                 }
-              })
+              .setPositiveButton(R.string.close, null)
               .setNegativeButton(R.string.try_again, new DialogInterface.OnClickListener() {
                  @Override
                  public void onClick(DialogInterface dialog, int id) {
