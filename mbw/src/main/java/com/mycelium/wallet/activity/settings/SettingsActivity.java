@@ -591,9 +591,12 @@ public class SettingsActivity extends PreferenceActivity {
    private void updateModulePreference(Preference preference, Module module, float progress) {
       if (preference != null) {
          DecimalFormat format = new DecimalFormat(progress < 0.1f ? "#.###" : "#");
+
+         String syncStatus = progress == 100F ? getString(R.string.fully_synced)
+                 : getString(R.string.sync_progress, format.format(progress));
          preference.setSummary(Html.fromHtml(module.getDescription()
                  + "<br/>"
-                 + addColorHtmlTag(getString(R.string.sync_progress, format.format(progress)), "#00CC00")));
+                 + addColorHtmlTag(syncStatus, "#00CC00")));
 
       }
    }
