@@ -530,6 +530,20 @@ public class SettingsActivity extends PreferenceActivity {
          });
          external.addPreference(cbService);
       }
+
+      final CheckBoxPreference cbService = new CheckBoxPreference(this);
+      cbService.setTitle(R.string.settings_mydfs_title);
+      cbService.setSummary(R.string.settings_mydfs_summary);
+      cbService.setChecked(SettingsPreference.getInstance().isMyDFSEnabled());
+      cbService.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+         @Override
+         public boolean onPreferenceClick(Preference preference) {
+            CheckBoxPreference p = (CheckBoxPreference) preference;
+            SettingsPreference.getInstance().setEnableMyDFS(p.isChecked());
+            return true;
+         }
+      });
+      external.addPreference(cbService);
    }
 
    @Override
