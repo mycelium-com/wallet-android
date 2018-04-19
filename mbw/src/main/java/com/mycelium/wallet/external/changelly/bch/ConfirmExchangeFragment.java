@@ -300,20 +300,19 @@ public class ConfirmExchangeFragment extends Fragment {
                 .setPositiveButton(R.string.save_receipt, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        String pdf = new BCHExchangeReceiptBuilder()
-                                .setTransactionId(order.transactionId)
-                                .setDate(order.timestamp)
-                                .setReceivingAmount(order.receivingAmount + " " + order.receivingCurrency)
-                                .setReceivingAddress(order.receivingAddress)
-                                .setSpendingAmount(order.exchangingAmount + " " + order.exchangingCurrency)
-                                .setSpendingAccountLabel(mbwManager.getMetadataStorage().getLabelByAccount(fromAccount.getId()))
-                                .build();
-                        String filePart = new SimpleDateFormat("yyMMddHHmmss", Locale.US).format(new Date());
+                        String filePart = new SimpleDateFormat( "yyMMddHHmmss", Locale.US).format(new Date());
                         File pdfFile = new File(getActivity().getExternalFilesDir(DIRECTORY_DOWNLOADS), "exchange_bch_order_" + filePart + ".pdf");
                         try {
-                            OutputStream pdfStream = new FileOutputStream(pdfFile);
-                            pdfStream.write(pdf.getBytes("UTF-8"));
-                            pdfStream.close();
+                            try (OutputStream pdfStream = new FileOutputStream(pdfFile)) {
+                                new BCHExchangeReceiptBuilder()
+                                        .setTransactionId(order.transactionId)
+                                        .setDate(order.timestamp)
+                                        .setReceivingAmount(order.receivingAmount + " " + order.receivingCurrency)
+                                        .setReceivingAddress(order.receivingAddress)
+                                        .setSpendingAmount(order.exchangingAmount + " " + order.exchangingCurrency)
+                                        .setSpendingAccountLabel(mbwManager.getMetadataStorage().getLabelByAccount(fromAccount.getId()))
+                                        .build(pdfStream);
+                            }
                         } catch (IOException e) {
                             Log.e(TAG, "", e);
                         }
