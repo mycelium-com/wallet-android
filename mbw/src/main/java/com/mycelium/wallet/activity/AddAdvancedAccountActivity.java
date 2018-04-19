@@ -268,11 +268,7 @@ public class AddAdvancedAccountActivity extends Activity {
                     returnBip32Account(hdKeyNode);
                  }
               })
-              .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                 @Override
-                 public void onClick(DialogInterface dialog, int id) {
-                 }
-              })
+              .setNegativeButton(R.string.cancel, null)
               .create()
               .show();
    }
@@ -288,11 +284,7 @@ public class AddAdvancedAccountActivity extends Activity {
                     new ImportCoCoBip32Account(hdKeyNode).execute();
                  }
               })
-              .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                 @Override
-                 public void onClick(DialogInterface dialog, int id) {
-                 }
-              })
+              .setNegativeButton(R.string.cancel, null)
               .create()
               .show();
    }
@@ -327,22 +319,7 @@ public class AddAdvancedAccountActivity extends Activity {
                if (fromClipboard && hdKeyNode.isPrivateHdKeyNode()) {
                   Utils.clearClipboardString(AddAdvancedAccountActivity.this);
                }
-               int depth = hdKeyNode.getDepth();
-               if (depth != 3 && depth != 0) {
-                  // only BIP44 account level is accepted here. Unfortunately this will also reject the xpub key from
-                  // our current Mycelium iPhone app which is account level plus one (external chain).
-                  String errorMessage = this.getString(R.string.import_xpub_wrong_depth, Integer.toString(depth));
-                  new Toaster(this).toast(errorMessage, false);
-               } else if  (depth == 0) {
-                  // This branch is created to support import CoCo from bip32 accout
-                  if (hdKeyNode.isPrivateHdKeyNode()) {
-                     returnBip32Account(hdKeyNode);
-                  } else {
-                     new Toaster(this).toast(getString(R.string.import_xpub_should_xpriv), false);
-                  }
-               }  else {
-                  returnAccount(hdKeyNode);
-               }
+               processNode(hdKeyNode);
             } else {
                throw new IllegalStateException("Unexpected result type from scan: " + type.toString());
             }
@@ -369,6 +346,26 @@ public class AddAdvancedAccountActivity extends Activity {
          finishOk((UUID) intent.getSerializableExtra("account"));
       } else {
          super.onActivityResult(requestCode, resultCode, intent);
+      }
+   }
+
+   private void processNode(HdKeyNode hdKeyNode) {
+      int depth = hdKeyNode.getDepth();
+      switch (depth) {
+         case 3:
+            returnAccount(hdKeyNode);
+            break;
+         case 0:
+            // This branch is created to support import CoCo from bip32 accout
+            if (hdKeyNode.isPrivateHdKeyNode()) {
+               returnBip32Account(hdKeyNode);
+            } else {
+               new Toaster(this).toast(getString(R.string.import_xpub_should_xpriv), false);
+            }
+            break;
+         default:
+            String errorMessage = this.getString(R.string.import_xpub_wrong_depth, Integer.toString(depth));
+            new Toaster(this).toast(errorMessage, false);
       }
    }
 
@@ -629,52 +626,52 @@ public class AddAdvancedAccountActivity extends Activity {
             int scanned = 0;
             accountsCreated = 0;
             ColuManager coluManager = _mbwManager.getColuManager();
-            for (int x = 0; emptyHD < coloredLookAheadHD; ++x) {
-                int empty = 0;
-                for (int y = 0; empty < coloredLookAhead; ++y) {
-                    HdKeyNode currentNode = hdKeyNode.createChildNode(HdKeyPath.valueOf(String.format(coCoDerivationPath, x, y)));
-                    Address address = currentNode.getPublicKey().toAddress(_mbwManager.getNetwork());
-                    Optional<UUID> accountId = _mbwManager.getAccountId(address, null);
-                    if (accountId.isPresent()) {
-                        return null;
-                    }
-                    try {
-                        if (coluManager.isColoredAddress(address)) {
-                            empty = 0;
-                            emptyHD = 0;
-                        } else {
-                            empty++;
-                        }
-                        List<ColuAccount.ColuAsset> assetList = new ArrayList<>(coluManager.getColuAddressAssets(address));
-                        if (assetList.size() > 0) {
-                            accountsCreated++;
-                            if (firstCoCoUUID == null) {
-                                firstCoCoUUID = coluManager.enableAsset(assetList.get(0), currentNode.getPrivateKey());
-                            } else {
-                                coluManager.enableAsset(assetList.get(0), currentNode.getPrivateKey());
-                            }
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        empty++;
-                    }
-                    publishProgress(++scanned);
-                    if (empty == coloredLookAhead) {
-                        if (empty == y + 1) {
-                            emptyHD++;
-                        }
-                        break;
-                    }
-                }
-            }
+           int x = 0;
+           while (emptyHD < coloredLookAheadHD) {
+              int empty = 0;
+              int y = 0;
+              while (empty < coloredLookAhead) {
+                  HdKeyNode currentNode = hdKeyNode.createChildNode(HdKeyPath.valueOf(String.format(coCoDerivationPath, x, y)));
+                  Address address = currentNode.getPublicKey().toAddress(_mbwManager.getNetwork());
+                  Optional<UUID> accountId = _mbwManager.getAccountId(address, null);
+                  if (accountId.isPresent()) {
+                      return null;
+                  }
+                  try {
+                      if (coluManager.isColoredAddress(address)) {
+                          empty = 0;
+                          emptyHD = 0;
+                      } else {
+                          empty++;
+                      }
+                      List<ColuAccount.ColuAsset> assetList = new ArrayList<>(coluManager.getColuAddressAssets(address));
+                      if (!assetList.isEmpty()) {
+                          accountsCreated++;
+                          if (firstCoCoUUID == null) {
+                              firstCoCoUUID = coluManager.enableAsset(assetList.get(0), currentNode.getPrivateKey());
+                          } else {
+                              coluManager.enableAsset(assetList.get(0), currentNode.getPrivateKey());
+                          }
+                      }
+                  } catch (IOException e) {
+                      e.printStackTrace();
+                      empty++;
+                  }
+                  publishProgress(++scanned);
+                  if (empty == coloredLookAhead) {
+                      if (empty == y + 1) {
+                          emptyHD++;
+                      }
+                      break;
+                  }
+                 ++y;
+              }
+              ++x;
+           }
 
-            //Make sure that accounts are up to date
-            coluManager.scanForAccounts();
-            if (firstCoCoUUID != null) {
-                return firstCoCoUUID;
-            } else {
-                return null;
-            }
+           //Make sure that accounts are up to date
+           coluManager.scanForAccounts();
+           return firstCoCoUUID;
         }
 
         @Override
