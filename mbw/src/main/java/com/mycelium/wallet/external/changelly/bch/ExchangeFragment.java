@@ -9,9 +9,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.widget.TextViewCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -107,6 +109,9 @@ public class ExchangeFragment extends Fragment {
     @BindView(R.id.exchange_fiat_rate)
     TextView exchangeFiatRate;
 
+    @BindView(R.id.exchange_fiat_rate_from)
+    TextView exchangeFiatRateFrom;
+
     private MbwManager mbwManager;
     private AccountAdapter toAccountAdapter;
     private AccountAdapter fromAccountAdapter;
@@ -181,6 +186,8 @@ public class ExchangeFragment extends Fragment {
             public void done() {
                 setAlphaFromLayout(Constants.INACTIVE_ALPHA);
                 toLayout.setAlpha(Constants.INACTIVE_ALPHA);
+                stopCursor(fromValue);
+                stopCursor(toValue);
             }
         });
         setAlphaFromLayout(Constants.INACTIVE_ALPHA);
@@ -189,6 +196,23 @@ public class ExchangeFragment extends Fragment {
         valueKeyboard.setVisibility(View.GONE);
         buttonContinue.setEnabled(false);
         return view;
+    }
+
+    private void startCursor(final TextView textView) {
+        textView.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.input_cursor, 0);
+        textView.post(new Runnable() {
+            @Override
+            public void run() {
+                AnimationDrawable animationDrawable = (AnimationDrawable) textView.getCompoundDrawables()[2];
+                if(!animationDrawable.isRunning()) {
+                    animationDrawable.start();
+                }
+            }
+        });
+    }
+
+    private void stopCursor(final TextView textView) {
+        textView.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
     }
 
     private List<WalletAccount> filterAccount(Collection<WalletAccount> accounts) {
@@ -266,6 +290,8 @@ public class ExchangeFragment extends Fragment {
         valueKeyboard.setVisibility(View.VISIBLE);
         valueKeyboard.setEntry(toValue.getText().toString());
         toLayout.setAlpha(Constants.ACTIVE_ALPHA);
+        startCursor(toValue);
+        stopCursor(fromValue);
         setAlphaFromLayout(Constants.INACTIVE_ALPHA);
         valueKeyboard.setSpendableValue(BigDecimal.ZERO);
         valueKeyboard.setMaxValue(MAX_BITCOIN_VALUE);
@@ -288,6 +314,8 @@ public class ExchangeFragment extends Fragment {
         valueKeyboard.setVisibility(View.VISIBLE);
         valueKeyboard.setEntry(fromValue.getText().toString());
         setAlphaFromLayout(Constants.ACTIVE_ALPHA);
+        startCursor(fromValue);
+        stopCursor(toValue);
         toLayout.setAlpha(Constants.INACTIVE_ALPHA);
         AccountAdapter.Item item = fromAccountAdapter.getItem(fromRecyclerView.getSelectedItem());
         valueKeyboard.setSpendableValue(getMaxSpend(item.account));

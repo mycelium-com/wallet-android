@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?android:windowBackground"
+    android:background="@drawable/background_witherrors_centered"
     android:clickable="true"
     android:orientation="vertical">
 
@@ -153,7 +153,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:fontFamily="sans-serif"
-        android:text="Exchange amount is approximate due to the high volatility of the cryptomarket.  "
+        android:text="@string/exchange_amount_is_approximate_due_to_the_high_volatility_of_the_cryptomarket"
         android:textColor="#ffffff"
         android:textSize="12sp"
         android:textStyle="normal" />
@@ -169,10 +169,10 @@
         android:textSize="12sp"
         android:textStyle="normal" />
 
-    <Space
+    <android.support.v4.widget.ContentLoadingProgressBar
+        android:id="@+id/progress_bar"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_weight="1" />
+        android:layout_height="wrap_content" />
 
     <Button
         android:id="@+id/buttonContinue"

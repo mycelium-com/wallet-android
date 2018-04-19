@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:background="?android:windowBackground"
+    android:background="@drawable/background_witherrors_centered"
     android:clickable="true"
     android:orientation="vertical">
 
@@ -18,26 +19,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginEnd="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="@dimen/margin_large"
-                android:text="@string/amount_to_exchange"
-                android:textColor="?exchange_text_color"
-                tools:textColor="@color/white"
-                android:textSize="21sp" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/margin_medium"
-                android:layout_marginStart="@dimen/margin_medium"
-                android:text="@string/given_rates_includes_transaction_fee"
-                android:textColor="#77c298"
-                android:textSize="11sp" />
 
             <TextView
                 android:id="@+id/tvError"
@@ -55,6 +36,20 @@
                 android:textSize="12sp"
                 android:visibility="gone" />
 
+            <TextView
+                android:id="@+id/exchange_fiat_rate_from"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginEnd="@dimen/margin_small"
+                android:layout_marginStart="@dimen/margin_small"
+                android:layout_marginTop="@dimen/margin_medium"
+                android:alpha="0.6"
+                android:textColor="?exchange_text_color"
+                android:textSize="16sp"
+                android:visibility="invisible"
+                tools:text="1 BCH ~ 0.46BTC" />
+
             <RelativeLayout
                 android:id="@+id/fromValueLayout"
                 android:layout_width="match_parent"
@@ -62,53 +57,63 @@
                 android:layout_marginBottom="@dimen/margin_large"
                 android:layout_marginEnd="@dimen/margin_medium"
                 android:layout_marginStart="@dimen/margin_medium"
-                android:layout_marginTop="@dimen/margin_large"
-                android:orientation="horizontal">
+                android:layout_marginTop="@dimen/margin_large">
 
                 <TextView
                     android:id="@+id/bchLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignBaseline="@+id/use_all_funds"
-                    android:layout_alignParentBottom="true"
                     android:layout_gravity="bottom"
                     android:layout_marginRight="@dimen/margin_medium"
+                    android:layout_marginTop="10dp"
                     android:layout_toLeftOf="@id/fromValue"
                     android:text="BCH"
                     android:textColor="?exchange_text_color"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
+                    android:textSize="14sp"
+                    tools:textColor="@color/white" />
 
-                <TextView
+                <android.support.v7.widget.AppCompatTextView
                     android:id="@+id/fromValue"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignBaseline="@+id/use_all_funds"
-                    android:layout_alignParentBottom="true"
                     android:layout_centerHorizontal="true"
-                    android:layout_gravity="bottom"
                     android:layout_marginEnd="@dimen/margin_small"
                     android:layout_marginStart="@dimen/margin_small"
-                    android:layout_weight="1"
-                    android:background="@drawable/underline"
-                    android:gravity="center"
+                    android:gravity="bottom"
                     android:hint="@string/zero"
-                    android:minEms="4"
-                    android:text="0"
                     android:textColor="?exchange_text_color"
-                    android:textSize="18sp" />
+                    android:textSize="36sp"
+                    app:autoSizeMaxTextSize="36sp"
+                    app:autoSizeMinTextSize="20sp"
+                    app:autoSizeStepGranularity="1sp"
+                    app:autoSizeTextType="uniform"
+                    tools:text="0"
+                    tools:textColor="@color/white" />
 
-                <Button
+                <TextView
                     android:id="@+id/use_all_funds"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
-                    android:background="@drawable/background_use_all_funds"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="4dp"
+                    android:letterSpacing="0.04"
                     android:padding="@dimen/margin_medium"
                     android:text="@string/use_all_funds"
-                    android:textSize="12sp" />
+                    android:textSize="14sp" />
 
             </RelativeLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="27dp"
+                android:layout_marginEnd="@dimen/margin_medium"
+                android:layout_marginStart="@dimen/margin_medium"
+                android:gravity="center"
+                android:text="@string/given_rates_includes_transaction_fee"
+                android:textColor="#bdbdbd"
+                android:textSize="12sp" />
 
             <com.mycelium.wallet.activity.send.view.SelectableRecyclerView
                 android:id="@+id/from_account_list"
@@ -124,57 +129,6 @@
                 android:background="#77c298" />
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginEnd="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="@dimen/margin_large"
-                tools:textColor="@color/white"
-                android:text="@string/amount_to_receive"
-                android:textColor="?exchange_text_color"
-                android:textSize="21sp" />
-
-            <RelativeLayout
-                android:id="@+id/toValueLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/margin_medium"
-                android:layout_marginStart="@dimen/margin_medium"
-                android:layout_marginTop="@dimen/margin_large"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="bottom"
-                    android:layout_marginRight="@dimen/margin_medium"
-                    android:layout_toLeftOf="@id/toValue"
-                    android:text="BTC"
-                    android:textColor="?exchange_text_color"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/toValue"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
-                    android:layout_gravity="bottom"
-                    android:layout_marginEnd="@dimen/margin_small"
-                    android:layout_marginStart="@dimen/margin_small"
-                    android:layout_weight="1"
-                    android:background="@drawable/underline"
-                    android:gravity="center"
-                    android:hint="@string/zero"
-                    android:minEms="4"
-                    android:text="0"
-                    android:textColor="?exchange_text_color"
-                    android:textSize="18sp" />
-
-            </RelativeLayout>
-
-            <TextView
                 android:id="@+id/exchange_fiat_rate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -187,6 +141,42 @@
                 android:textColor="?exchange_text_color"
                 android:textSize="16sp"
                 android:visibility="invisible" />
+
+            <RelativeLayout
+                android:id="@+id/toValueLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/margin_medium"
+                android:layout_marginStart="@dimen/margin_medium"
+                android:layout_marginTop="@dimen/margin_large">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="@dimen/margin_medium"
+                    android:layout_marginTop="10dp"
+                    android:layout_toLeftOf="@+id/toValue"
+                    android:text="BTC"
+                    android:textColor="?exchange_text_color"
+                    android:textSize="14sp"
+                    tools:textColor="@color/white" />
+
+                <TextView
+                    android:id="@+id/toValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginEnd="@dimen/margin_small"
+                    android:layout_marginStart="@dimen/margin_small"
+                    android:gravity="center"
+                    android:hint="@string/zero"
+                    android:textColor="?exchange_text_color"
+                    android:textSize="36sp"
+                    tools:text="0"
+                    tools:textColor="@color/white" />
+
+            </RelativeLayout>
+
 
             <TextView
                 android:id="@+id/exchange_rate"
@@ -202,19 +192,20 @@
                 android:textSize="14sp"
                 android:visibility="invisible" />
 
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
             <Button
                 android:id="@+id/buttonContinue"
-                style="@style/MyceliumButton"
+                style="@style/MyceliumButtonModern"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginEnd="@dimen/margin_medium"
-                android:layout_marginStart="@dimen/margin_medium"
+                android:layout_marginBottom="46dp"
                 android:layout_marginTop="@dimen/margin_large"
-                android:paddingEnd="@dimen/margin_large"
-                android:paddingStart="@dimen/margin_large"
                 android:text="@string/button_continue"
-                android:textColor="@color/white"
                 android:textSize="18sp" />
         </LinearLayout>
     </ScrollView>

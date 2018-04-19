@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.widget.ContentLoadingProgressBar;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -89,6 +90,9 @@ public class ConfirmExchangeFragment extends Fragment {
 
     @BindView(R.id.buttonContinue)
     Button buttonContinue;
+
+    @BindView(R.id.progress_bar)
+    ContentLoadingProgressBar progressBar;
 
     MbwManager mbwManager;
     WalletAccount fromAccount;
@@ -207,10 +211,7 @@ public class ConfirmExchangeFragment extends Fragment {
                 .putExtra(ChangellyService.AMOUNT, amount - txFee.doubleValue())
                 .putExtra(ChangellyService.DESTADDRESS, toAccount.getReceivingAddress().get().toString());
         getActivity().startService(changellyServiceIntent);
-        progressDialog = new ProgressDialog(getActivity());
-        progressDialog.setIndeterminate(true);
-        progressDialog.setMessage(getString(R.string.waiting_offer));
-        progressDialog.show();
+        progressBar.show();
     }
 
     private void updateUI() {
@@ -230,12 +231,12 @@ public class ConfirmExchangeFragment extends Fragment {
         public void onReceive(Context context, Intent intent) {
             switch (intent.getAction()) {
                 case ChangellyService.INFO_TRANSACTION:
-                    progressDialog.dismiss();
+                    progressBar.hide();
                     offer = (ChangellyAPIService.ChangellyTransactionOffer) intent.getSerializableExtra(ChangellyService.OFFER);
                     updateUI();
                     break;
                 case INFO_ERROR:
-                    progressDialog.dismiss();
+                    progressBar.hide();
                     new AlertDialog.Builder(getActivity())
                             .setMessage(R.string.exchange_service_unavailable)
                             .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
