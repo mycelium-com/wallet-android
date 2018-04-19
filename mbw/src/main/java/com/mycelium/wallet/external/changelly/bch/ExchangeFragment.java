@@ -467,9 +467,10 @@ public class ExchangeFragment extends Fragment {
                 exchangeFiatRate.setText(ABOUT + Utils.formatFiatWithUnit(currencyValue));
                 exchangeFiatRate.setVisibility(View.VISIBLE);
             } else {
-                exchangeFiatRate.setVisibility(View.GONE);
+                exchangeFiatRate.setVisibility(View.INVISIBLE);
             }
         } catch (NumberFormatException ignore) {
+            exchangeFiatRate.setVisibility(View.INVISIBLE);
         }
 
         try {
@@ -479,9 +480,10 @@ public class ExchangeFragment extends Fragment {
                 exchangeFiatRateFrom.setText(ABOUT + Utils.formatFiatWithUnit(currencyValue));
                 exchangeFiatRateFrom.setVisibility(View.VISIBLE);
             } else {
-                exchangeFiatRateFrom.setVisibility(View.GONE);
+                exchangeFiatRateFrom.setVisibility(View.INVISIBLE);
             }
         } catch (NumberFormatException ignore) {
+            exchangeFiatRateFrom.setVisibility(View.INVISIBLE);
         }
     }
 

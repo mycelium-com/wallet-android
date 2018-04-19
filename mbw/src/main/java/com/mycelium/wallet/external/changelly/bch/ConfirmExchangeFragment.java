@@ -14,13 +14,13 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.widget.ContentLoadingProgressBar;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.megiontechnologies.BitcoinCash;
@@ -69,6 +69,7 @@ import static com.mycelium.wallet.external.changelly.Constants.decimalFormat;
 
 public class ConfirmExchangeFragment extends Fragment {
     public static final String TAG = "BCHExchange";
+    public static final int UPDATE_TIME = 60;
 
     @BindView(R.id.fromAddress)
     TextView fromAddress;
@@ -92,7 +93,11 @@ public class ConfirmExchangeFragment extends Fragment {
     Button buttonContinue;
 
     @BindView(R.id.progress_bar)
-    ContentLoadingProgressBar progressBar;
+    ProgressBar progressBar;
+
+    @BindView(R.id.offer_update_text)
+    TextView offerUpdateText;
+
 
     MbwManager mbwManager;
     WalletAccount fromAccount;
@@ -104,7 +109,6 @@ public class ConfirmExchangeFragment extends Fragment {
     private Receiver receiver;
 
     private String lastOperationId;
-    private Handler offerCaller;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -122,7 +126,6 @@ public class ConfirmExchangeFragment extends Fragment {
             IntentFilter intentFilter = new IntentFilter(action);
             LocalBroadcastManager.getInstance(getActivity()).registerReceiver(receiver, intentFilter);
         }
-        offerCaller = new Handler();
     }
 
     @OnClick(R.id.buttonContinue)
@@ -169,8 +172,8 @@ public class ConfirmExchangeFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        fromAddress.setText(fromAccount.getReceivingAddress().get().toString());
-        toAddress.setText(toAccount.getReceivingAddress().get().toString());
+        fromAddress.setText(fromAccount.getReceivingAddress().get().getShortAddress());
+        toAddress.setText(toAccount.getReceivingAddress().get().getShortAddress());
 
         fromLabel.setText(mbwManager.getMetadataStorage().getLabelByAccount(fromAccount.getId()));
         toLabel.setText(mbwManager.getMetadataStorage().getLabelByAccount(toAccount.getId()));
@@ -179,18 +182,11 @@ public class ConfirmExchangeFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        offerCaller.post(new Runnable() {
-            @Override
-            public void run() {
-                createOffer();
-                offerCaller.postDelayed(this, TimeUnit.MINUTES.toMillis(1));
-            }
-        });
+        createOffer();
     }
 
     @Override
     public void onPause() {
-        offerCaller.removeCallbacksAndMessages(null);
         super.onPause();
     }
 
@@ -211,7 +207,8 @@ public class ConfirmExchangeFragment extends Fragment {
                 .putExtra(ChangellyService.AMOUNT, amount - txFee.doubleValue())
                 .putExtra(ChangellyService.DESTADDRESS, toAccount.getReceivingAddress().get().toString());
         getActivity().startService(changellyServiceIntent);
-        progressBar.show();
+        progressBar.setVisibility(View.VISIBLE);
+        offerUpdateText.setText(R.string.updating_offer);
     }
 
     private void updateUI() {
@@ -229,14 +226,30 @@ public class ConfirmExchangeFragment extends Fragment {
 
         @Override
         public void onReceive(Context context, Intent intent) {
+            progressBar.setVisibility(View.INVISIBLE);
             switch (intent.getAction()) {
                 case ChangellyService.INFO_TRANSACTION:
-                    progressBar.hide();
                     offer = (ChangellyAPIService.ChangellyTransactionOffer) intent.getSerializableExtra(ChangellyService.OFFER);
                     updateUI();
+                    offerUpdateText.post(new Runnable() {
+                        int time;
+
+                        @Override
+                        public void run() {
+                            if(!isAdded()) {
+                                return;
+                            }
+                            time++;
+                            offerUpdateText.setText(getString(R.string.offer_auto_updated, UPDATE_TIME - time));
+                            if (time < UPDATE_TIME) {
+                                offerUpdateText.postDelayed(this, TimeUnit.SECONDS.toMillis(1));
+                            } else {
+                                createOffer();
+                            }
+                        }
+                    });
                     break;
                 case INFO_ERROR:
-                    progressBar.hide();
                     new AlertDialog.Builder(getActivity())
                             .setMessage(R.string.exchange_service_unavailable)
                             .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
@@ -247,12 +260,13 @@ public class ConfirmExchangeFragment extends Fragment {
                             }).create().show();
                     break;
             }
+
         }
     }
 
     @Subscribe
     public void spvSendFundsResult(SpvSendFundsResult event) {
-        if(progressDialog != null && progressDialog.isShowing()) {
+        if (progressDialog != null && progressDialog.isShowing()) {
             progressDialog.dismiss();
         }
         if (!event.operationId.equals(lastOperationId)) {

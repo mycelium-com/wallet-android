@@ -31,12 +31,10 @@
             android:id="@+id/fromAmount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="@dimen/margin_medium"
             android:fontFamily="sans-serif-medium"
             android:lineSpacingExtra="11sp"
             android:textColor="@color/sender_recyclerview_background_red"
             android:textSize="18sp"
-            android:textStyle="normal"
             tools:text="5.3092 BCH" />
 
         <LinearLayout
@@ -48,8 +46,7 @@
                 android:id="@+id/fromLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="@dimen/margin_medium"
-                android:ellipsize="middle"
+                android:ellipsize="end"
                 android:singleLine="true"
                 android:textColor="#bdbdbd"
                 android:textSize="16sp"
@@ -60,8 +57,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dp"
-                android:layout_weight="1"
-                android:ellipsize="middle"
                 android:singleLine="true"
                 android:text="1p17cu…KNZa88"
                 android:textColor="#5c5c5c"
@@ -70,6 +65,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="end|bottom"
                 android:layout_marginLeft="10dp"
                 android:text="sending"
                 android:textColor="#bdbdbd"
@@ -100,8 +96,7 @@
             android:lineSpacingExtra="11sp"
             android:textColor="@color/sender_recyclerview_background_green"
             android:textSize="18sp"
-            android:textStyle="normal"
-            tools:text="1.2014 BTC" />
+            tools:text="5.2014 BTC" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -124,7 +119,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dp"
-                android:layout_weight="1"
                 android:ellipsize="middle"
                 android:singleLine="true"
                 android:text="4bYT8…KRp88"
@@ -134,7 +128,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="right"
+                android:layout_gravity="end|bottom"
                 android:layout_marginLeft="10dp"
                 android:gravity="end"
                 android:text="receiving"
@@ -146,7 +140,7 @@
 
     <Space
         android:layout_width="wrap_content"
-        android:layout_height="34dp" />
+        android:layout_height="30dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -159,20 +153,24 @@
         android:textStyle="normal" />
 
     <TextView
+        android:id="@+id/offer_update_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
         android:fontFamily="sans-serif"
-        android:text="The offer will be auto-updated after 60 seconds."
         android:textColor="#ffffff"
         android:textSize="12sp"
         android:textStyle="normal" />
 
-    <android.support.v4.widget.ContentLoadingProgressBar
+    <ProgressBar
         android:id="@+id/progress_bar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_width="42dp"
+        android:layout_height="42dp"
+        android:layout_margin="16dp"
+        android:indeterminate="true"
+        android:layout_gravity="center"
+        android:visibility="invisible"/>
 
     <Button
         android:id="@+id/buttonContinue"
@@ -180,7 +178,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="46dp"
+        android:layout_marginBottom="36dp"
         android:text="@string/exchange"
         android:textColor="@color/white"
         android:textSize="16sp" />
