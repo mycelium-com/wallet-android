@@ -1113,7 +1113,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="colorize">colorize</string>
     <string name="excange_title">Exchange BCH to BTC</string>
     <string name="press_exchange_button_below_to_confirm">Press Exchange button below to confirm</string>
-    <string name="confirmation">Confirmation</string>
+    <string name="confirmation">Exchange confirmation</string>
     <string name="no_connected_modules">No connected modules</string>
     <string name="bitcoin_cash_hd"><![CDATA[Bitcoin <font color="#f08c18">Cash</font> HD]]></string>
     <string name="bitcoin_cash_sa"><![CDATA[Bitcoin <font color="#f08c18">Cash</font> SA]]></string>

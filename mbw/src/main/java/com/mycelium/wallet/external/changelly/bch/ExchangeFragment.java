@@ -186,7 +186,7 @@ public class ExchangeFragment extends Fragment {
         setAlphaFromLayout(Constants.INACTIVE_ALPHA);
         toLayout.setAlpha(Constants.INACTIVE_ALPHA);
 
-        valueKeyboard.setVisibility(android.view.View.GONE);
+        valueKeyboard.setVisibility(View.GONE);
         buttonContinue.setEnabled(false);
         return view;
     }
