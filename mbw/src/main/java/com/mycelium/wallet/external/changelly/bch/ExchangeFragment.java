@@ -13,7 +13,6 @@ import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.widget.TextViewCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -68,6 +67,7 @@ public class ExchangeFragment extends Fragment {
     public static final String TO_ACCOUNT = "toAccount";
     public static final String FROM_ACCOUNT = "fromAccount";
     public static final String FROM_VALUE = "fromValue";
+    public static final String ABOUT = "≈ ";
     private static String TAG = "ChangellyActivity";
 
     @BindView(R.id.scrollView)
@@ -111,6 +111,9 @@ public class ExchangeFragment extends Fragment {
 
     @BindView(R.id.exchange_fiat_rate_from)
     TextView exchangeFiatRateFrom;
+
+    @BindView(R.id.use_all_funds)
+    View useAllFunds;
 
     private MbwManager mbwManager;
     private AccountAdapter toAccountAdapter;
@@ -188,6 +191,7 @@ public class ExchangeFragment extends Fragment {
                 toLayout.setAlpha(Constants.INACTIVE_ALPHA);
                 stopCursor(fromValue);
                 stopCursor(toValue);
+                useAllFunds.setVisibility(View.VISIBLE);
             }
         });
         setAlphaFromLayout(Constants.INACTIVE_ALPHA);
@@ -288,6 +292,7 @@ public class ExchangeFragment extends Fragment {
     void toValueClick() {
         valueKeyboard.setInputTextView(toValue);
         valueKeyboard.setVisibility(View.VISIBLE);
+        useAllFunds.setVisibility(View.GONE);
         valueKeyboard.setEntry(toValue.getText().toString());
         toLayout.setAlpha(Constants.ACTIVE_ALPHA);
         startCursor(toValue);
@@ -312,6 +317,7 @@ public class ExchangeFragment extends Fragment {
     void fromValueClick() {
         valueKeyboard.setInputTextView(fromValue);
         valueKeyboard.setVisibility(View.VISIBLE);
+        useAllFunds.setVisibility(View.GONE);
         valueKeyboard.setEntry(fromValue.getText().toString());
         setAlphaFromLayout(Constants.ACTIVE_ALPHA);
         startCursor(fromValue);
@@ -458,10 +464,22 @@ public class ExchangeFragment extends Fragment {
             CurrencyValue currencyValue = mbwManager.getCurrencySwitcher().getAsFiatValue(
                     ExactBitcoinValue.from(new BigDecimal(toValue.getText().toString())));
             if (currencyValue != null && currencyValue.getValue() != null) {
-                exchangeFiatRate.setText(Utils.formatFiatWithUnit(currencyValue));
+                exchangeFiatRate.setText(ABOUT + Utils.formatFiatWithUnit(currencyValue));
                 exchangeFiatRate.setVisibility(View.VISIBLE);
             } else {
                 exchangeFiatRate.setVisibility(View.GONE);
+            }
+        } catch (NumberFormatException ignore) {
+        }
+
+        try {
+            CurrencyValue currencyValue = mbwManager.getCurrencySwitcher().getAsFiatValue(
+                    ExactBitcoinCashValue.from(new BigDecimal(fromValue.getText().toString())));
+            if (currencyValue != null && currencyValue.getValue() != null) {
+                exchangeFiatRateFrom.setText(ABOUT + Utils.formatFiatWithUnit(currencyValue));
+                exchangeFiatRateFrom.setVisibility(View.VISIBLE);
+            } else {
+                exchangeFiatRateFrom.setVisibility(View.GONE);
             }
         } catch (NumberFormatException ignore) {
         }

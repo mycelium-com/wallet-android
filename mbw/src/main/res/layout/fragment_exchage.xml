@@ -57,7 +57,7 @@
                 android:layout_marginBottom="@dimen/margin_large"
                 android:layout_marginEnd="@dimen/margin_medium"
                 android:layout_marginStart="@dimen/margin_medium"
-                android:layout_marginTop="@dimen/margin_large">
+                android:layout_marginTop="10dp">
 
                 <TextView
                     android:id="@+id/bchLabel"
@@ -135,7 +135,7 @@
                 android:layout_gravity="center_horizontal"
                 android:layout_marginEnd="@dimen/margin_small"
                 android:layout_marginStart="@dimen/margin_small"
-                android:layout_marginTop="@dimen/margin_medium"
+                android:layout_marginTop="24dp"
                 android:alpha="0.6"
                 android:text="1 BCH ~ 0.46BTC"
                 android:textColor="?exchange_text_color"
