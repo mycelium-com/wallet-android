@@ -1,7 +1,6 @@
 package com.mycelium.wallet.activity.main.adapter;
 
 import android.graphics.Paint;
-import android.graphics.Rect;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
@@ -53,6 +52,9 @@ public class ButtonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             }
             if (actionButton.icon != 0) {
                 button.setPadding(button.getResources().getDimensionPixelSize(R.dimen.button_padding)
+                        , button.getPaddingTop(), button.getPaddingRight(), button.getPaddingBottom());
+            } else {
+                button.setPadding(button.getResources().getDimensionPixelSize(R.dimen.button_padding_large)
                         , button.getPaddingTop(), button.getPaddingRight(), button.getPaddingBottom());
             }
             button.setOnClickListener(new View.OnClickListener() {
