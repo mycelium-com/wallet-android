@@ -7,6 +7,11 @@
     android:clickable="true"
     android:orientation="vertical">
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@color/color_accent" />
+
     <ScrollView
         android:id="@+id/scrollView"
         android:layout_width="match_parent"
@@ -66,8 +71,8 @@
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:layout_marginRight="@dimen/margin_medium"
-                    android:paddingBottom="8dp"
                     android:layout_toLeftOf="@id/fromValue"
+                    android:paddingBottom="8dp"
                     android:text="BCH"
                     android:textColor="?exchange_text_color"
                     android:textSize="14sp"
@@ -154,10 +159,10 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="@dimen/margin_medium"
-                    android:paddingBottom="8dp"
                     android:layout_centerVertical="true"
+                    android:layout_marginRight="@dimen/margin_medium"
                     android:layout_toLeftOf="@+id/toValue"
+                    android:paddingBottom="8dp"
                     android:text="BTC"
                     android:textColor="?exchange_text_color"
                     android:textSize="14sp"
@@ -168,9 +173,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
+                    android:layout_centerVertical="true"
                     android:layout_marginEnd="@dimen/margin_small"
                     android:layout_marginStart="@dimen/margin_small"
-                    android:layout_centerVertical="true"
                     android:hint="@string/zero"
                     android:maxWidth="200dp"
                     android:textColor="@color/white"

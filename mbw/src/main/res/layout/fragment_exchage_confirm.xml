@@ -6,6 +6,11 @@
     android:clickable="true"
     android:orientation="vertical">
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@color/color_accent" />
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -82,9 +87,9 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="30dp"
         android:background="#2c2c2c"
         android:orientation="vertical"
-        android:layout_marginBottom="30dp"
         android:padding="16dp">
 
         <TextView
