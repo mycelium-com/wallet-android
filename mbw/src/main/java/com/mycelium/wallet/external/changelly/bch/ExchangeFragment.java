@@ -385,6 +385,7 @@ public class ExchangeFragment extends Fragment {
             toValue.setText(null);
             avoidTextChangeEvent = false;
         }
+        updateUi();
     }
 
     private BigDecimal getFromExcludeFee() {
@@ -415,6 +416,7 @@ public class ExchangeFragment extends Fragment {
             fromValue.setText(null);
             avoidTextChangeEvent = false;
         }
+        updateUi();
     }
 
     private void requestOfferFunction(String amount, String fromCurrency, String toCurrency) {
