@@ -196,6 +196,8 @@ public class ExchangeFragment extends Fragment {
                 useAllFunds.setVisibility(View.VISIBLE);
             }
         });
+        valueKeyboard.setMaxText(getString(R.string.use_all_funds), 14);
+        valueKeyboard.setPasteVisibility(View.GONE);
         setAlphaFromLayout(Constants.INACTIVE_ALPHA);
         toLayout.setAlpha(Constants.INACTIVE_ALPHA);
 
@@ -261,6 +263,7 @@ public class ExchangeFragment extends Fragment {
         bundle.putSerializable(Constants.DESTADDRESS, toAccount.getId());
         WalletAccount fromAccount = fromAccountAdapter.getItem(fromRecyclerView.getSelectedItem()).account;
         bundle.putSerializable(Constants.FROM_ADDRESS, fromAccount.getId());
+        bundle.putString(Constants.TO_AMOUNT, toValue.getText().toString());
 
         fragment.setArguments(bundle);
         getFragmentManager().beginTransaction()
@@ -479,7 +482,6 @@ public class ExchangeFragment extends Fragment {
             currencyBTCValue = mbwManager.getCurrencySwitcher().getAsFiatValue(
                     ExactBitcoinValue.from(new BigDecimal(toValue.getText().toString())));
         } catch (NumberFormatException ignore) {
-            exchangeFiatRate.setVisibility(View.INVISIBLE);
         }
         if (currencyBTCValue != null && currencyBTCValue.getValue() != null) {
             exchangeFiatRate.setText(ABOUT + Utils.formatFiatWithUnit(currencyBTCValue));
