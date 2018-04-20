@@ -586,10 +586,6 @@ public class AccountsFragment extends Fragment {
          }
       }
 
-      if (RecordRowBuilder.showLegacyAccountWarning(account, _mbwManager)) {
-         menus.add(R.menu.record_options_menu_ignore_warning);
-      }
-
       if (account.getId().equals(_mbwManager.getLocalTraderManager().getLocalTraderAccountId())) {
          menus.add(R.menu.record_options_menu_detach);
       }
@@ -636,9 +632,6 @@ public class AccountsFragment extends Fragment {
                return true;
             } else if (id == R.id.miExport) {
                exportSelectedPrivateKey();
-               return true;
-            } else if (id == R.id.miIgnoreWarnings) {
-               ignoreSelectedPrivateKey();
                return true;
             } else if (id == R.id.miSignMessage) {
                signMessage();
@@ -982,40 +975,6 @@ public class AccountsFragment extends Fragment {
       accountListAdapter.getFocusedAccount().dropCachedData();
       _mbwManager.getWalletManager(false).startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
       _mbwManager.getColuManager().startSynchronization();
-   }
-
-   private void ignoreSelectedPrivateKey() {
-      if (!isAdded()) {
-         return;
-      }
-      _mbwManager.runPinProtectedFunction(getActivity(), new Runnable() {
-
-         @Override
-         public void run() {
-            if (!AccountsFragment.this.isAdded()) {
-               return;
-            }
-            AlertDialog.Builder confirmDialog = new AlertDialog.Builder(getActivity());
-            confirmDialog.setTitle(R.string.ignore_warnings_title);
-            confirmDialog.setMessage(getString(R.string.ignore_warnings_description));
-            final WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
-            confirmDialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-
-               public void onClick(DialogInterface arg0, int arg1) {
-                  _mbwManager.getMetadataStorage().setIgnoreLegacyWarning(_focusedAccount.getId(), true);
-                  _mbwManager.getEventBus().post(new AccountChanged(_focusedAccount.getId()));
-               }
-            });
-            confirmDialog.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-               public void onClick(DialogInterface arg0, int arg1) {
-                  _mbwManager.getMetadataStorage().setIgnoreLegacyWarning(_focusedAccount.getId(), false);
-                  _mbwManager.getEventBus().post(new AccountChanged(_focusedAccount.getId()));
-               }
-            });
-            confirmDialog.show();
-         }
-
-      });
    }
 
    private void exportSelectedPrivateKey() {

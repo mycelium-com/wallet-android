@@ -181,7 +181,6 @@
   <string name="verify_backup_master_seed">Váš master seed nebyl ověřen.</string>
   <string name="verify_backup_no_such_record">Soukromý klíč neodpovídá žádné z vašich Bitcoinových adres.</string>
   <string name="verify_backup_ok">Záloha soukromého klíče úspěšně ověřena pro následující adresu:\n\n%1$s</string>
-  <string name="legacy_account_with_funds">Starý účet s prostředky</string>
   <string name="wrong_seed">Naskenovaný seed se neshoduje s vaším master seedem.</string>
   <string name="backup_missing">Chybí záloha</string>
   <string name="verify_backup_title">Záloha a ověření</string>

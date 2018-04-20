@@ -22,5 +22,6 @@ public class Order {
     public String timestamp;
     @JsonProperty("tx_id")
     public String transactionId;
-
+    @JsonProperty("order_id")
+    public String order_id;
 }

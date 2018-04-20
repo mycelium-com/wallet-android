@@ -191,7 +191,6 @@
     <string name="verify_backup_master_seed">Your master seed has not been verified.</string>
     <string name="verify_backup_no_such_record">The private key does not match any of your Bitcoin addresses.</string>
     <string name="verify_backup_ok">Private key backup successfully verified for the following address:\n\n%1$s</string>
-    <string name="legacy_account_with_funds">Legacy account with funds</string>
     <string name="wrong_seed">The scanned seed does not match your master seed.</string>
     <string name="backup_missing">Backup missing</string>
     <string name="verify_backup_title">Backup and Verify</string>
@@ -235,7 +234,6 @@
     <string name="unlock_label">Unlock</string>
     <string name="lock_label">Lock</string>
     <string name="secure_my_funds">Secure My Funds</string>
-    <string name="move_legacy_funds_message">Your wallet has one or more legacy accounts with funds.\n\nTo make sure that your funds are safe and to improve your anonymity you should move those funds to one of your HD accounts.\n\nPlease go to the Accounts tab for details.</string>
     <string name="ignore_warnings_title">Ignore Warnings</string>
     <string name="ignore_warnings_description">Do you want to ignore warnings explaining that this legacy account holds funds?</string>
     <string name="explore">Explore</string>
@@ -1175,6 +1173,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="try_again">Try Again</string>
     <string name="exchange_rate_unavailable_msg">An exchange rate is temporarily unavailable.\nPlease check your network connection and try again or get back later.</string>
     <string name="module_uninstall_progress">Uninstalling…</string>
+    <string name="fully_synced">Fully synced.</string>
     <plurals name="account_label">
         <item quantity="one">Account label:\n%s</item>
         <item quantity="other">Accounts labels:\n%s</item>

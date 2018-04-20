@@ -180,7 +180,6 @@
   <string name="verify_backup_master_seed">Ditt huvudfrö har inte verifierats.</string>
   <string name="verify_backup_no_such_record">Den privata nyckeln överensstämmer inte med någon av dina bitcoin-adresser.</string>
   <string name="verify_backup_ok">Säkerhetskopia av privat nyckel har lyckats verifieras för följande adress:\n\n%1$s</string>
-  <string name="legacy_account_with_funds">Äldre konto med tillgångar</string>
   <string name="wrong_seed">Det inlästa fröet överensstämmer inte med ditt huvudfrö.</string>
   <string name="backup_missing">Säkerhetskopia saknas</string>
   <string name="verify_backup_title">Säkerhetskopiera och verifiera</string>

@@ -271,7 +271,7 @@
         <activity android:name=".activity.pop.PopActivity" />
         <activity android:name=".activity.pop.PopSelectTransactionActivity" />
         <activity android:name=".external.glidera.activities.GlideraSendToNextStep" />
-        <activity android:name=".external.BuySellSelectFragment" />
+        <activity android:name=".external.BuySellSelectActivity" />
         <activity android:name=".external.glidera.activities.GlideraMainActivity" />
         <activity android:name=".external.glidera.activities.GlideraTransaction" />
         <activity android:name=".activity.send.GetBtcAccountForFeeActivity" />

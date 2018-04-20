@@ -181,7 +181,6 @@
   <string name="verify_backup_master_seed">A sua semente mestre nunca foi verificada.</string>
   <string name="verify_backup_no_such_record">A chave privada não corresponde a nenhum de seus endereços Bitcoin.</string>
   <string name="verify_backup_ok">O backup da chave privada foi verificado com sucesso para o seguinte endereço:\n\n%1$s</string>
-  <string name="legacy_account_with_funds">Carteira herdada (legacy) com fundos</string>
   <string name="wrong_seed">A semente escaneada não corresponde a sua semente mestre.</string>
   <string name="backup_missing">Backup não encontrado</string>
   <string name="verify_backup_title">Fazer Backup e Verificar</string>
