@@ -34,7 +34,6 @@
 
 package com.mycelium.wallet.activity.settings;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
@@ -50,6 +49,7 @@ import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
+import android.support.v7.widget.AppCompatEditText;
 import android.text.Html;
 import android.text.InputType;
 import android.util.Log;
@@ -834,8 +834,6 @@ public class SettingsActivity extends PreferenceActivity {
       }
 
       @Override
-      //TODO: upgrade to android support v7 >>19.1.0
-      @SuppressLint("AppCompatCustomView")
       public void onLtTraderInfoFetched(final TraderInfo info, GetTraderInfo request) {
          pleaseWait.dismiss();
          AlertDialog.Builder b = new AlertDialog.Builder(SettingsActivity.this);
@@ -853,7 +851,7 @@ public class SettingsActivity extends PreferenceActivity {
          });
          b.setNegativeButton(R.string.cancel, null);
 
-         emailEdit = new EditText(SettingsActivity.this) {
+         emailEdit = new AppCompatEditText(SettingsActivity.this) {
             @Override
             protected void onTextChanged(CharSequence text, int start, int lengthBefore, int lengthAfter) {
 
