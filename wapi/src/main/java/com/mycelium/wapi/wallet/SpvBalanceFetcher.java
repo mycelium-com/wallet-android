@@ -8,24 +8,26 @@ import java.util.List;
 
 public interface SpvBalanceFetcher {
     CurrencyBasedBalance retrieveByHdAccountIndex(String id, int accountIndex);
-    CurrencyBasedBalance retrieveBySingleAddressAccountId(String id);
+    CurrencyBasedBalance retrieveByUnrelatedAccountId(String id);
     List<TransactionSummary> retrieveTransactionSummaryByHdAccountIndex(String id, int accountIndex);
     List<TransactionSummary> retrieveTransactionSummaryByHdAccountIndex(String id, int accountIndex, long since);
-    List<TransactionSummary> retrieveTransactionSummaryBySingleAddressAccountId(String id);
-    List<TransactionSummary> retrieveTransactionSummaryBySingleAddressAccountId(String id, long since);
+    List<TransactionSummary> retrieveTransactionSummaryByUnrelatedAccountId(String id);
+    List<TransactionSummary> retrieveTransactionSummaryByUnrelatedAccountId(String id, long since);
     void requestTransactionsAsync(int accountIndex);
     void requestHdWalletAccountRemoval(int accountIndex);
-    void requestTransactionsFromSingleAddressAccountAsync(String guid);
-    void requestSingleAddressWalletAccountRemoval(String guid);
+    void requestTransactionsFromUnrelatedAccountAsync(String guid, int accountType);
+    void requestUnrelatedAccountRemoval(String guid);
     float getSyncProgressPercents();
     Address getCurrentReceiveAddress(int accountIndex);
+    Address getCurrentReceiveAddressUnrelated(String guid);
     int getPrivateKeysCount(int accountIndex);
+    int getPrivateKeysCountUnrelated(String guid);
     boolean isFirstSync();
     void forceCleanCache();
     long calculateMaxSpendableAmount(int accountIndex, String txFee, float txFeeFactor);
-    long calculateMaxSpendableAmountSingleAddress(String guid, String txFee, float txFeeFactor);
+    long calculateMaxSpendableAmountUnrelatedAccount(String guid, String txFee, float txFeeFactor);
     long getMaxFundsTransferrable(int accountIndex);
-    long getMaxFundsTransferrableSingleAddress(String guid);
+    long getMaxFundsTransferrableUnrelatedAccount(String guid);
     long estimateFeeFromTransferrableAmount(int accountIndex, long amountSatoshis, String txFee, float txFeeFactor);
-    long estimateFeeFromTransferrableAmountSingleAddress(String guid, long amountSatoshis, String txFee, float txFeeFactor);
+    long estimateFeeFromTransferrableAmountUnrelatedAccount(String guid, long amountSatoshis, String txFee, float txFeeFactor);
 }

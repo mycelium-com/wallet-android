@@ -37,9 +37,9 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
         return retrieveBalance(uri, selection, "" + accountIndex)
     }
 
-    override fun retrieveBySingleAddressAccountId(id: String): CurrencyBasedBalance {
+    override fun retrieveByUnrelatedAccountId(id: String): CurrencyBasedBalance {
         val uri = AccountBalance.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHSINGLEADDRESS)).buildUpon().appendEncodedPath(id).build()
-        val selection = AccountBalance.SELECTION_SINGLE_ADDRESS_ACCOUNT_GUID
+        val selection = AccountBalance.SELECTION_GUID
         return retrieveBalance(uri, selection, id)
     }
 
@@ -117,13 +117,13 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
         return retrieveTransactionSummary(uri, selection, arrayOf("" + accountIndex, "" + since))
     }
 
-    override fun retrieveTransactionSummaryBySingleAddressAccountId(id: String): List<TransactionSummary> {
+    override fun retrieveTransactionSummaryByUnrelatedAccountId(id: String): List<TransactionSummary> {
         val uri = SpvTxSummary.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHSINGLEADDRESS)).buildUpon().appendEncodedPath(id).build()
         val selection = SpvTxSummary.SELECTION_SINGLE_ADDRESS_ACCOUNT_GUID
         return retrieveTransactionSummary(uri, selection, id)
     }
 
-    override fun retrieveTransactionSummaryBySingleAddressAccountId(id: String, since: Long): List<TransactionSummary> {
+    override fun retrieveTransactionSummaryByUnrelatedAccountId(id: String, since: Long): List<TransactionSummary> {
         val uri = SpvTxSummary.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHSINGLEADDRESS)).buildUpon().appendEncodedPath(id).build()
         val selection = SpvTxSummary.SELECTION_SINGLE_ADDRESS_ACCOUNT_GUID_SINCE
         return retrieveTransactionSummary(uri, selection, arrayOf(id, "" + since))
@@ -134,8 +134,8 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
         WalletApplication.sendToSpv(service, WalletAccount.Type.BCHBIP44)
     }
 
-    override fun requestTransactionsFromSingleAddressAccountAsync(guid: String) {
-        val service = IntentContract.ReceiveTransactionsSingleAddress.createIntent(guid)
+    override fun requestTransactionsFromUnrelatedAccountAsync(guid: String, accountType : Int) {
+        val service = IntentContract.ReceiveTransactionsUnrelated.createIntent(guid, accountType)
         WalletApplication.sendToSpv(service, WalletAccount.Type.BCHSINGLEADDRESS)
     }
 
@@ -148,8 +148,8 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
         val service = IntentContract.RemoveHdWalletAccount.createIntent(accountIndex)
         WalletApplication.sendToSpv(service, WalletAccount.Type.BCHBIP44)
     }
-    override fun requestSingleAddressWalletAccountRemoval(guid: String)  {
-        val service = IntentContract.RemoveSingleAddressWalletAccount.createIntent(guid)
+    override fun requestUnrelatedAccountRemoval(guid: String)  {
+        val service = IntentContract.RemoveUnrelatedAccount.createIntent(guid)
         WalletApplication.sendToSpv(service, WalletAccount.Type.BCHSINGLEADDRESS)
     }
     var syncProgress = 0f
@@ -178,10 +178,22 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
 
     override fun getCurrentReceiveAddress(accountIndex: Int): Address? {
         val uri = CurrentReceiveAddress.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHBIP44)).buildUpon().build()
-        val selection = AccountBalance.SELECTION_ACCOUNT_INDEX
+        val selection = CurrentReceiveAddress.SELECTION_ACCOUNT_INDEX
         context.contentResolver.query(uri, null, selection, arrayOf("" + accountIndex), null).use {
-            return if (it.columnCount != 0) {
-                it.moveToFirst()
+            return if (it?.moveToFirst() == true) {
+                val address = it.getString(it.getColumnIndex(CurrentReceiveAddress.ADDRESS))
+                Address.fromString(address)
+            } else {
+                null
+            }
+        }
+    }
+
+    override fun getCurrentReceiveAddressUnrelated(guid: String): Address? {
+        val uri = CurrentReceiveAddress.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHBIP44)).buildUpon().build()
+        val selection = CurrentReceiveAddress.SELECTION_UNRELATED
+        context.contentResolver.query(uri, null, selection, arrayOf(guid), null).use {
+            return if (it?.moveToFirst() == true) {
                 val address = it.getString(it.getColumnIndex(CurrentReceiveAddress.ADDRESS))
                 Address.fromString(address)
             } else {
@@ -192,8 +204,20 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
 
     override fun getPrivateKeysCount(accountIndex: Int): Int {
         val uri = GetPrivateKeysCount.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHBIP44)).buildUpon().build()
-        val selection = AccountBalance.SELECTION_ACCOUNT_INDEX
+        val selection = GetPrivateKeysCount.SELECTION_ACCOUNT_INDEX
         context.contentResolver.query(uri, null, selection, arrayOf("" + accountIndex), null).use {
+            return if (it?.moveToFirst() == true) {
+                it.getInt(0)
+            } else {
+                0
+            }
+        }
+    }
+
+    override fun getPrivateKeysCountUnrelated(guid: String): Int {
+        val uri = GetPrivateKeysCount.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHBIP44)).buildUpon().build()
+        val selection = GetPrivateKeysCount.SELECTION_UNRELATED
+        context.contentResolver.query(uri, null, selection, arrayOf(guid), null).use {
             return if (it?.moveToFirst() == true) {
                 it.getInt(0)
             } else {
@@ -216,7 +240,7 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
 
     }
 
-    override fun calculateMaxSpendableAmountSingleAddress(guid: String, txFee: String, txFeeFactor: Float): Long {
+    override fun calculateMaxSpendableAmountUnrelatedAccount(guid: String, txFee: String, txFeeFactor: Float): Long {
         val uri = CalculateMaxSpendable.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHSINGLEADDRESS)).buildUpon().build()
         val selection = CalculateMaxSpendable.SELECTION_SA
 
@@ -245,9 +269,9 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
 
     }
 
-    override fun getMaxFundsTransferrableSingleAddress(guid: String): Long {
+    override fun getMaxFundsTransferrableUnrelatedAccount(guid: String): Long {
         val uri = TransactionContract.GetMaxFundsTransferrable.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHSINGLEADDRESS)).buildUpon().build()
-        val selection = GetMaxFundsTransferrable.SELECTION_SA
+        val selection = GetMaxFundsTransferrable.SELECTION_UNRELATED
 
         context.contentResolver.query(uri, null, selection, arrayOf(guid), null).use {
             return if (it?.moveToFirst() == true) {
@@ -272,9 +296,9 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
         }
     }
 
-    override fun estimateFeeFromTransferrableAmountSingleAddress(guid: String?, amountSatoshis: Long, txFee: String?, txFeeFactor: Float): Long {
+    override fun estimateFeeFromTransferrableAmountUnrelatedAccount(guid: String?, amountSatoshis: Long, txFee: String?, txFeeFactor: Float): Long {
         val uri = TransactionContract.EstimateFeeFromTransferrableAmount.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHSINGLEADDRESS)).buildUpon().build()
-        val selection = EstimateFeeFromTransferrableAmount.SELECTION_SA
+        val selection = EstimateFeeFromTransferrableAmount.SELECTION_UNRELATED
 
         context.contentResolver.query(uri, null, selection, arrayOf(guid, txFee, "" + txFeeFactor, "" + amountSatoshis), null).use {
             return if (it?.moveToFirst() == true) {

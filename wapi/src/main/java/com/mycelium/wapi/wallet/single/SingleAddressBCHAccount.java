@@ -11,7 +11,6 @@ import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -32,7 +31,7 @@ public class SingleAddressBCHAccount extends SingleAddressAccount {
 
     @Override
     public CurrencyBasedBalance getCurrencyBasedBalance() {
-        return spvBalanceFetcher.retrieveBySingleAddressAccountId(getId().toString());
+        return spvBalanceFetcher.retrieveByUnrelatedAccountId(getId().toString());
     }
 
     @Override
@@ -40,7 +39,7 @@ public class SingleAddressBCHAccount extends SingleAddressAccount {
         //TODO Refactor the code and make the proper usage of minerFeePerKbToUse parameter
         String txFee = "NORMAL";
         float txFeeFactor = 1.0f;
-        return ExactBitcoinCashValue.from(spvBalanceFetcher.calculateMaxSpendableAmountSingleAddress(getId().toString(), txFee, txFeeFactor));
+        return ExactBitcoinCashValue.from(spvBalanceFetcher.calculateMaxSpendableAmountUnrelatedAccount(getId().toString(), txFee, txFeeFactor));
     }
 
     @Override
@@ -54,19 +53,19 @@ public class SingleAddressBCHAccount extends SingleAddressAccount {
 
     @Override
     public List<TransactionSummary> getTransactionHistory(int offset, int limit) {
-        return spvBalanceFetcher.retrieveTransactionSummaryBySingleAddressAccountId(getId().toString());
+        return spvBalanceFetcher.retrieveTransactionSummaryByUnrelatedAccountId(getId().toString());
     }
 
     @Override
     public List<TransactionSummary> getTransactionsSince(Long receivingSince) {
-        return spvBalanceFetcher.retrieveTransactionSummaryBySingleAddressAccountId(getId().toString(), receivingSince);
+        return spvBalanceFetcher.retrieveTransactionSummaryByUnrelatedAccountId(getId().toString(), receivingSince);
     }
 
     @Override
     public boolean isVisible() {
         if ((spvBalanceFetcher.getSyncProgressPercents() == 100 || !spvBalanceFetcher.isFirstSync())
                 && !visible) {
-            visible = !spvBalanceFetcher.retrieveTransactionSummaryBySingleAddressAccountId(getId().toString()).isEmpty();
+            visible = !spvBalanceFetcher.retrieveTransactionSummaryByUnrelatedAccountId(getId().toString()).isEmpty();
         }
         return visible;
     }

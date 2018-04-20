@@ -1106,7 +1106,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="exchange_to_do_so">Step 1. Copy the address above.\nStep 2. Open your wallet where you store the currency you are exchanging.\nStep 3. Send this.</string>
     <string name="exchange_after_transaction">After your transaction is confirmed, your funds will be sent to your receiving account.</string>
     <string name="exchange_altcoins_to_btc">Shift any coins to BTC</string>
-    <string name="exchange_minimum_amount">Minimum exchangeable amount for %2$s is %1$s %2$s.</string>
+    <string name="exchange_minimum_amount">Minimum exchangeable amount is %1$s %2$s.</string>
     <string name="choose_the_currency_and_btc_receiving_account">Choose the currency and BTC receiving account</string>
     <string name="due_to_high_cryptocurrencies_volatility">Due to high cryptocurrencies volatility, the final rate may be slightly higher or lower than estimated here.</string>
     <string name="use_all_funds">USE ALL\nFUNDS</string>
@@ -1157,17 +1157,17 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="exchange_order_placed_dialog"><![CDATA[Your exchange order has been placed. BTC will be sent to you after 12 confirmations on your BCH transaction.<br/><br/><b>Order details:</b><br/>Date: %s<br/>TxID: %s<br/>Spending: %s BCH<br/>Receiving: %s BTC<br/><font color="#ea5e5e"><small>Receiving amount is estimated due to the high volatility of the cryptomarket.</small></font><br/><br/>To track your order please save the payment receipt. You can only do it now!]]></string>
     <string name="success">Success!</string>
     <string name="error">Error!</string>
-    <string name="save_receipt">Save receipt</string>
+    <string name="save_receipt">Save confirmation</string>
     <string name="single_address_account">Single Address Account</string>
     <string name="exchange">Exchange</string>
     <string name="singlekey_verify_notice">You have made (or attempted to make) a backup of your Single Address account. To make sure you did it correctly, please verify your backup. If you have made a mistake making your backup you can lose your funds forever.</string>
     <string name="backup_not_verified">Backup not verified</string>
     <string name="i_understand_the_risks">I understand the risks</string>
     <string name="this_is_read_only_account">This is watch-only account. In order to spend its funds, you need to import the corresponding private key.\nYou can do it by selecting Accounts tab > Add New Account > Advanced and using either Scan or Clipboard option for key's importing.</string>
-    <string name="balance_error">The maximum exchanging amount must not exceed selected account balance!</string>
+    <string name="balance_error">Insufficient funds</string>
     <string name="or">or</string>
-    <string name="waiting_offer">Waiting offer...</string>
-    <string name="receiving_amount_is_estimated">Receiving amount is estimated due to the high volatility of the cryptomarket. For your convenience, it will be automatically updated to reflect market changes.</string>
+    <string name="waiting_offer">Waiting offer…</string>
+    <string name="receiving_amount_is_estimated">Exchange amount is approximate due to the high volatility of the cryptomarket.\nOffer will be auto-updated every 60 seconds.</string>
     <string name="both_bch_will_deleted">Both %1$s and Bitcoin Cash - %2$s accounts will be deleted.</string>
     <string name="given_rates_includes_transaction_fee">Given rate includes transaction fee</string>
     <string name="try_again">Try Again</string>
@@ -1175,6 +1175,8 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="exchange_amount_is_approximate_due_to_the_high_volatility_of_the_cryptomarket">Exchange amount is approximate due to the high volatility of the cryptomarket.</string>
     <string name="offer_auto_updated">The offer will be auto-updated after %d seconds.</string>
     <string name="updating_offer">Updating offer…</string>
+    <string name="module_uninstall_progress">Uninstalling…</string>
+    <string name="fully_synced">Fully synced.</string>
     <plurals name="account_label">
         <item quantity="one">Account label:\n%s</item>
         <item quantity="other">Accounts labels:\n%s</item>

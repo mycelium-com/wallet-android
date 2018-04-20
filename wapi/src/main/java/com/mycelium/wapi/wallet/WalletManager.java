@@ -215,7 +215,7 @@ public class WalletManager {
                     SingleAddressBCHAccount singleAddressBCHAccount = new SingleAddressBCHAccount(context, store, _network, accountBacking, _wapi, _spvBalanceFetcher);
                     addAccount(singleAddressBCHAccount);
                     _btcToBchAccounts.put(account.getId(), singleAddressBCHAccount.getId());
-                    _spvBalanceFetcher.requestTransactionsFromSingleAddressAccountAsync(singleAddressBCHAccount.getId().toString());
+                    _spvBalanceFetcher.requestTransactionsFromUnrelatedAccountAsync(singleAddressBCHAccount.getId().toString(), /* IntentContract.UNRELATED_ACCOUNT_TYPE_SA */2);
                 }
             } finally {
                 _backing.endTransaction();
@@ -301,7 +301,7 @@ public class WalletManager {
                     Bip44BCHAccount bip44BCHAccount = new Bip44BCHAccount(context, keyManager, _network, accountBacking, _wapi, _spvBalanceFetcher);
                     addAccount(bip44BCHAccount);
                     _btcToBchAccounts.put(account.getId(), bip44BCHAccount.getId());
-                    _spvBalanceFetcher.requestTransactionsAsync(bip44BCHAccount.getAccountIndex());
+                    _spvBalanceFetcher.requestTransactionsFromUnrelatedAccountAsync(bip44BCHAccount.getId().toString(), /* IntentContract.UNRELATED_ACCOUNT_TYPE_HD */ 1);
                 }
                 return id;
             } finally {
@@ -383,7 +383,7 @@ public class WalletManager {
                 _backing.deleteSingleAddressAccountContext(id);
                 _walletAccounts.remove(id);
                 if (_spvBalanceFetcher != null) {
-                    _spvBalanceFetcher.requestSingleAddressWalletAccountRemoval(id.toString());
+                    _spvBalanceFetcher.requestUnrelatedAccountRemoval(id.toString());
                 }
             } else if (account instanceof Bip44Account) {
                 Bip44Account hdAccount = (Bip44Account) account;
@@ -762,7 +762,12 @@ public class WalletManager {
                 Bip44BCHAccount bchAccount = new Bip44BCHAccount(context, keyManager, _network, accountBacking, _wapi, _spvBalanceFetcher);
                 addAccount(bchAccount);
                 _btcToBchAccounts.put(account.getId(), bchAccount.getId());
-                _spvBalanceFetcher.requestTransactionsAsync(bchAccount.getAccountIndex());
+
+                if (context.getAccountType() == ACCOUNT_TYPE_FROM_MASTERSEED) {
+                    _spvBalanceFetcher.requestTransactionsAsync(bchAccount.getAccountIndex());
+                } else {
+                    _spvBalanceFetcher.requestTransactionsFromUnrelatedAccountAsync(bchAccount.getId().toString(), /* IntentContract.UNRELATED_ACCOUNT_TYPE_HD */ 1);
+                }
             }
         }
     }
@@ -780,7 +785,7 @@ public class WalletManager {
                 SingleAddressBCHAccount bchAccount = new SingleAddressBCHAccount(context, store, _network, accountBacking, _wapi, _spvBalanceFetcher);
                 addAccount(bchAccount);
                 _btcToBchAccounts.put(account.getId(), bchAccount.getId());
-                _spvBalanceFetcher.requestTransactionsFromSingleAddressAccountAsync(bchAccount.getId().toString());
+                _spvBalanceFetcher.requestTransactionsFromUnrelatedAccountAsync(bchAccount.getId().toString(), /* IntentContract.UNRELATED_ACCOUNT_TYPE_SA */ 2);
             }
         }
     }
@@ -866,11 +871,15 @@ public class WalletManager {
                 //If using SPV module, enters this condition.
                 // Get adresses from all accounts
                 if(currentAccount instanceof Bip44BCHAccount) {
-                    _spvBalanceFetcher.requestTransactionsAsync(((Bip44BCHAccount) currentAccount).getAccountIndex());
+                    if (currentAccount.isDerivedFromInternalMasterseed()) {
+                        _spvBalanceFetcher.requestTransactionsAsync(((Bip44BCHAccount) currentAccount).getAccountIndex());
+                    }  else {
+                        _spvBalanceFetcher.requestTransactionsFromUnrelatedAccountAsync(currentAccount.getId().toString(), /* IntentContract.UNRELATED_ACCOUNT_TYPE_HD */ 1);
+                    }
                 }
 
                 if (currentAccount instanceof SingleAddressBCHAccount) {
-                    _spvBalanceFetcher.requestTransactionsFromSingleAddressAccountAsync(currentAccount.getId().toString());
+                    _spvBalanceFetcher.requestTransactionsFromUnrelatedAccountAsync(currentAccount.getId().toString(), /* IntentContract.UNRELATED_ACCOUNT_TYPE_SA */ 2);
                 }
 
                 for (WalletAccount account : getAllAccounts()) {
