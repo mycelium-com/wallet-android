@@ -30,23 +30,6 @@ public class ExchangeActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.exchange_menu, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.colorize) {
-            theme = theme == R.style.MyceliumModern_Light ?
-                    R.style.MyceliumModern_Dark : R.style.MyceliumModern_Light;
-            recreate();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
     public void onBackPressed() {
         ValueKeyboard valueKeyboard = findViewById(R.id.numeric_keyboard);
         if (valueKeyboard != null && valueKeyboard.getVisibility() == View.VISIBLE) {

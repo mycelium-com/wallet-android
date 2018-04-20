@@ -185,6 +185,8 @@ public class ExchangeFragment extends Fragment {
                 toLayout.setAlpha(Constants.INACTIVE_ALPHA);
             }
         });
+        valueKeyboard.setMaxText(getString(R.string.use_all_funds), 14);
+        valueKeyboard.setPasteVisibility(View.GONE);
         setAlphaFromLayout(Constants.INACTIVE_ALPHA);
         toLayout.setAlpha(Constants.INACTIVE_ALPHA);
 
@@ -233,6 +235,7 @@ public class ExchangeFragment extends Fragment {
         bundle.putSerializable(Constants.DESTADDRESS, toAccount.getId());
         WalletAccount fromAccount = fromAccountAdapter.getItem(fromRecyclerView.getSelectedItem()).account;
         bundle.putSerializable(Constants.FROM_ADDRESS, fromAccount.getId());
+        bundle.putString(Constants.TO_AMOUNT, toValue.getText().toString());
 
         fragment.setArguments(bundle);
         getFragmentManager().beginTransaction()
@@ -437,16 +440,17 @@ public class ExchangeFragment extends Fragment {
     }
 
     private void updateUi() {
+        CurrencyValue currencyValue = null;
         try {
-            CurrencyValue currencyValue = mbwManager.getCurrencySwitcher().getAsFiatValue(
+            currencyValue = mbwManager.getCurrencySwitcher().getAsFiatValue(
                     ExactBitcoinValue.from(new BigDecimal(toValue.getText().toString())));
-            if (currencyValue != null && currencyValue.getValue() != null) {
-                exchangeFiatRate.setText(Utils.formatFiatWithUnit(currencyValue));
-                exchangeFiatRate.setVisibility(View.VISIBLE);
-            } else {
-                exchangeFiatRate.setVisibility(View.GONE);
-            }
         } catch (NumberFormatException ignore) {
+        }
+        if (currencyValue != null && currencyValue.getValue() != null) {
+            exchangeFiatRate.setText(Utils.formatFiatWithUnit(currencyValue));
+            exchangeFiatRate.setVisibility(View.VISIBLE);
+        } else {
+            exchangeFiatRate.setVisibility(View.GONE);
         }
     }
 

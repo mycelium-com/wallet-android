@@ -27,6 +27,7 @@ import com.mycelium.spvmodule.IntentContract;
 import com.mycelium.spvmodule.TransactionFee;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.WalletApplication;
 import com.mycelium.wallet.event.SpvSendFundsResult;
 import com.mycelium.wallet.external.changelly.ChangellyAPIService;
@@ -39,6 +40,7 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
+import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.mycelium.wapi.wallet.single.SingleAddressBCHAccount;
 import com.squareup.otto.Subscribe;
 
@@ -88,6 +90,9 @@ public class ConfirmExchangeFragment extends Fragment {
     @BindView(R.id.toAmount)
     TextView toAmount;
 
+    @BindView(R.id.exchange_fiat_rate)
+    TextView exchangeFiatRate;
+
     @BindView(R.id.buttonContinue)
     Button buttonContinue;
 
@@ -102,6 +107,7 @@ public class ConfirmExchangeFragment extends Fragment {
 
     private String lastOperationId;
     private Handler offerCaller;
+    private String toCachedValue;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -109,6 +115,7 @@ public class ConfirmExchangeFragment extends Fragment {
         setRetainInstance(true);
         UUID toAddress = (UUID) getArguments().getSerializable(Constants.DESTADDRESS);
         UUID fromAddress = (UUID) getArguments().getSerializable(Constants.FROM_ADDRESS);
+        toCachedValue = getArguments().getString(Constants.TO_AMOUNT);
         amount = getArguments().getDouble(Constants.FROM_AMOUNT);
         mbwManager = MbwManager.getInstance(getActivity());
         mbwManager.getEventBus().register(this);
@@ -172,6 +179,7 @@ public class ConfirmExchangeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_exchage_confirm, container, false);
         ButterKnife.bind(this, view);
+        updateUI();
         return view;
     }
 
@@ -210,6 +218,23 @@ public class ConfirmExchangeFragment extends Fragment {
         super.onDestroy();
     }
 
+    private void updateRate() {
+        if (offer != null) {
+            try {
+                CurrencyValue currencyValue = mbwManager.getCurrencySwitcher().getAsFiatValue(
+                        ExactBitcoinValue.from(new BigDecimal(offer.amountTo)));
+                if (currencyValue != null && currencyValue.getValue() != null) {
+                    exchangeFiatRate.setText(Utils.formatFiatWithUnit(currencyValue));
+                    exchangeFiatRate.setVisibility(View.VISIBLE);
+                } else {
+                    exchangeFiatRate.setVisibility(View.INVISIBLE);
+                }
+            } catch (NumberFormatException ignore) {
+            }
+        }
+    }
+
+
     private void createOffer() {
         BigDecimal txFee = UtilsKt.estimateFeeFromTransferrableAmount(
                 fromAccount, mbwManager, BitcoinCash.valueOf(amount).getLongValue());
@@ -229,10 +254,18 @@ public class ConfirmExchangeFragment extends Fragment {
 
     private void updateUI() {
         if (isAdded()) {
-            fromAmount.setText(getString(R.string.value_currency, offer.currencyFrom
-                    , decimalFormat.format(amount)));
-            toAmount.setText(getString(R.string.value_currency, offer.currencyTo
-                    , decimalFormat.format(offer.amountTo)));
+            if (offer != null) {
+                fromAmount.setText(getString(R.string.value_currency, offer.currencyFrom
+                        , decimalFormat.format(amount)));
+                toAmount.setText(getString(R.string.value_currency, offer.currencyTo
+                        , decimalFormat.format(offer.amountTo)));
+            } else {
+                fromAmount.setText(getString(R.string.value_currency, ChangellyService.BCH
+                        , decimalFormat.format(amount)));
+                toAmount.setText(getString(R.string.value_currency, ChangellyService.BTC
+                        , toCachedValue));
+            }
+            updateRate();
         }
     }
 
@@ -268,6 +301,7 @@ public class ConfirmExchangeFragment extends Fragment {
         if(progressDialog != null && progressDialog.isShowing()) {
             progressDialog.dismiss();
         }
+        offerCaller.removeCallbacksAndMessages(null);
         if (!event.operationId.equals(lastOperationId)) {
             return;
         }
