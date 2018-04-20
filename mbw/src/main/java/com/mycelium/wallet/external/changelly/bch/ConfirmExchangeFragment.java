@@ -11,7 +11,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.Html;
@@ -28,7 +27,6 @@ import com.mycelium.spvmodule.IntentContract;
 import com.mycelium.spvmodule.TransactionFee;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.WalletApplication;
 import com.mycelium.wallet.event.SpvSendFundsResult;
 import com.mycelium.wallet.external.changelly.ChangellyAPIService;
@@ -41,7 +39,6 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
-import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.mycelium.wapi.wallet.single.SingleAddressBCHAccount;
 import com.squareup.otto.Subscribe;
 
@@ -250,15 +247,15 @@ public class ConfirmExchangeFragment extends Fragment {
     private void updateUI() {
         if (isAdded()) {
             if (offer != null) {
-                fromAmount.setText(getString(R.string.value_currency, offer.currencyFrom
-                        , decimalFormat.format(amount)));
-                toAmount.setText(getString(R.string.value_currency, offer.currencyTo
-                        , decimalFormat.format(offer.amountTo)));
+                fromAmount.setText(getString(R.string.value_currency, decimalFormat.format(amount)
+                        , offer.currencyFrom));
+                toAmount.setText(getString(R.string.value_currency, decimalFormat.format(offer.amountTo)
+                        , offer.currencyTo));
             } else {
-                fromAmount.setText(getString(R.string.value_currency, ChangellyService.BCH
-                        , decimalFormat.format(amount)));
-                toAmount.setText(getString(R.string.value_currency, ChangellyService.BTC
-                        , toCachedValue));
+                fromAmount.setText(getString(R.string.value_currency, decimalFormat.format(amount)
+                        , ChangellyService.BCH));
+                toAmount.setText(getString(R.string.value_currency, toCachedValue
+                        , ChangellyService.BTC));
             }
 //            updateRate();
         }

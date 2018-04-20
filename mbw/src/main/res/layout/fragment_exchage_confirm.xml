@@ -146,7 +146,6 @@
                     android:textColor="#5c5c5c"
                     android:textSize="12sp" />
 
-
                 <TextView
                     android:id="@+id/toLabel"
                     android:layout_width="wrap_content"
@@ -156,7 +155,6 @@
                     android:textColor="#bdbdbd"
                     android:textSize="16sp"
                     tools:text="to label " />
-
             </LinearLayout>
         </LinearLayout>
 
