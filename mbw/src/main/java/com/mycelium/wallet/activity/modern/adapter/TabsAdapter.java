@@ -47,6 +47,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 
 import com.mycelium.wallet.MbwManager;
+import com.mycelium.wallet.event.PageSelectedEvent;
 
 public class TabsAdapter extends FragmentPagerAdapter implements ActionBar.TabListener, ViewPager.OnPageChangeListener {
    private final Activity mContext;
@@ -107,6 +108,7 @@ public class TabsAdapter extends FragmentPagerAdapter implements ActionBar.TabLi
       _mbwManager.clearCachedEncryptionParameters();
       // redraw menu - not working yet
       ActivityCompat.invalidateOptionsMenu(mContext);
+      _mbwManager.getEventBus().post(new PageSelectedEvent(position));
    }
 
    @Override

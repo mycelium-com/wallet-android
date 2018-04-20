@@ -41,6 +41,8 @@ import android.content.res.Configuration;
 import android.support.multidex.MultiDexApplication;
 import android.util.Log;
 
+import com.mycelium.wallet.activity.settings.SettingsPreference;
+
 public class WalletApplication extends MultiDexApplication {
    @Override
    public void onCreate() {
@@ -50,6 +52,7 @@ public class WalletApplication extends MultiDexApplication {
       } else {
          Log.d("WalletApplication", "Inserted spongy castle provider");
       }
+      SettingsPreference.getInstance().init(this);
       String lang = MbwManager.getInstance(this).getLanguage();
       applyLanguageChange(lang);
       super.onCreate();
