@@ -85,6 +85,7 @@
         android:layout_height="wrap_content"
         android:background="#2c2c2c"
         android:orientation="vertical"
+        android:layout_marginBottom="30dp"
         android:padding="16dp">
 
         <TextView
@@ -138,10 +139,6 @@
 
     </LinearLayout>
 
-    <Space
-        android:layout_width="wrap_content"
-        android:layout_height="30dp" />
-
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -165,22 +162,27 @@
 
     <ProgressBar
         android:id="@+id/progress_bar"
-        android:layout_width="42dp"
-        android:layout_height="42dp"
+        android:layout_width="46dp"
+        android:layout_height="46dp"
+        android:layout_gravity="center"
         android:layout_margin="16dp"
         android:indeterminate="true"
-        android:layout_gravity="center"
-        android:visibility="invisible"/>
+        android:visibility="invisible" />
 
-    <Button
-        android:id="@+id/buttonContinue"
-        style="@style/MyceliumButtonModernBlue"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="36dp"
-        android:text="@string/exchange"
-        android:textColor="@color/white"
-        android:textSize="16sp" />
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <Button
+            android:id="@+id/buttonContinue"
+            style="@style/MyceliumButtonModernBlue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/exchange"
+            android:textColor="@color/white"
+            android:textSize="16sp" />
+
+    </FrameLayout>
 
 </LinearLayout>

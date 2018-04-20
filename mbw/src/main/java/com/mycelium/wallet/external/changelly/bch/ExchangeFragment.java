@@ -208,7 +208,7 @@ public class ExchangeFragment extends Fragment {
             @Override
             public void run() {
                 AnimationDrawable animationDrawable = (AnimationDrawable) textView.getCompoundDrawables()[2];
-                if(!animationDrawable.isRunning()) {
+                if (!animationDrawable.isRunning()) {
                     animationDrawable.start();
                 }
             }
@@ -278,7 +278,7 @@ public class ExchangeFragment extends Fragment {
     @Override
     public void onViewStateRestored(Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
-        if(savedInstanceState != null) {
+        if (savedInstanceState != null) {
             fromValue.setText(savedInstanceState.getString(FROM_VALUE));
             fromRecyclerView.setSelectedItem(mbwManager.getWalletManager(false)
                     .getAccount((UUID) savedInstanceState.getSerializable(FROM_ACCOUNT)));
@@ -421,6 +421,7 @@ public class ExchangeFragment extends Fragment {
 
     boolean isValueForOfferOk(boolean checkMin) {
         tvError.setVisibility(View.GONE);
+        exchangeFiatRateFrom.setVisibility(View.VISIBLE);
         String txtAmount = fromValue.getText().toString();
         if (txtAmount.isEmpty()) {
             buttonContinue.setEnabled(false);
@@ -442,10 +443,11 @@ public class ExchangeFragment extends Fragment {
             return false;
         } else if (checkMin && dblAmount.compareTo(minAmount) < 0) {
             buttonContinue.setEnabled(false);
-            if(dblAmount != 0) {
+            if (dblAmount != 0) {
                 tvError.setText(getString(R.string.exchange_minimum_amount
                         , decimalFormat.format(minAmount), "BCH"));
                 tvError.setVisibility(View.VISIBLE);
+                exchangeFiatRateFrom.setVisibility(View.INVISIBLE);
             }
             scrollTo(tvError.getTop());
             return false;
@@ -453,6 +455,7 @@ public class ExchangeFragment extends Fragment {
             buttonContinue.setEnabled(false);
             tvError.setText(R.string.balance_error);
             tvError.setVisibility(View.VISIBLE);
+            exchangeFiatRateFrom.setVisibility(View.INVISIBLE);
             return false;
         }
         buttonContinue.setEnabled(true);
@@ -460,29 +463,31 @@ public class ExchangeFragment extends Fragment {
     }
 
     private void updateUi() {
+        CurrencyValue currencyBTCValue = null;
         try {
-            CurrencyValue currencyValue = mbwManager.getCurrencySwitcher().getAsFiatValue(
+            currencyBTCValue = mbwManager.getCurrencySwitcher().getAsFiatValue(
                     ExactBitcoinValue.from(new BigDecimal(toValue.getText().toString())));
-            if (currencyValue != null && currencyValue.getValue() != null) {
-                exchangeFiatRate.setText(ABOUT + Utils.formatFiatWithUnit(currencyValue));
-                exchangeFiatRate.setVisibility(View.VISIBLE);
-            } else {
-                exchangeFiatRate.setVisibility(View.INVISIBLE);
-            }
         } catch (NumberFormatException ignore) {
             exchangeFiatRate.setVisibility(View.INVISIBLE);
         }
+        if (currencyBTCValue != null && currencyBTCValue.getValue() != null) {
+            exchangeFiatRate.setText(ABOUT + Utils.formatFiatWithUnit(currencyBTCValue));
+            exchangeFiatRate.setVisibility(View.VISIBLE);
+        } else {
+            exchangeFiatRate.setVisibility(View.INVISIBLE);
+        }
 
+
+        CurrencyValue currencyBCHValue = null;
         try {
-            CurrencyValue currencyValue = mbwManager.getCurrencySwitcher().getAsFiatValue(
+            currencyBCHValue = mbwManager.getCurrencySwitcher().getAsFiatValue(
                     ExactBitcoinCashValue.from(new BigDecimal(fromValue.getText().toString())));
-            if (currencyValue != null && currencyValue.getValue() != null) {
-                exchangeFiatRateFrom.setText(ABOUT + Utils.formatFiatWithUnit(currencyValue));
-                exchangeFiatRateFrom.setVisibility(View.VISIBLE);
-            } else {
-                exchangeFiatRateFrom.setVisibility(View.INVISIBLE);
-            }
         } catch (NumberFormatException ignore) {
+        }
+        if (currencyBCHValue != null && currencyBCHValue.getValue() != null) {
+            exchangeFiatRateFrom.setText(ABOUT + Utils.formatFiatWithUnit(currencyBCHValue));
+            exchangeFiatRateFrom.setVisibility(View.VISIBLE);
+        } else {
             exchangeFiatRateFrom.setVisibility(View.INVISIBLE);
         }
     }
