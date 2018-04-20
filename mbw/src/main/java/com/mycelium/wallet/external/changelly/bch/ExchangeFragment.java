@@ -267,6 +267,7 @@ public class ExchangeFragment extends Fragment {
 
         fragment.setArguments(bundle);
         getFragmentManager().beginTransaction()
+                .hide(this)
                 .add(R.id.fragment_container, fragment, "ConfirmExchangeFragment")
                 .addToBackStack("ConfirmExchangeFragment")
                 .commitAllowingStateLoss();
