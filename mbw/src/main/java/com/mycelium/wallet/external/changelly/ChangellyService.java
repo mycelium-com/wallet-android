@@ -109,14 +109,15 @@ public class ChangellyService extends IntentService {
 
     // return txid?
     private ChangellyTransactionOffer createTransaction(String from, String to, double amount, String destAddress) {
-        if(BuildConfig.FLAVOR.equals("btctestnet")) {
+        if (BuildConfig.FLAVOR.equals("btctestnet")) {
             ChangellyTransactionOffer result = new ChangellyTransactionOffer();
             result.amountFrom = amount;
             result.amountTo = getExchangeAmount(from, to, amount);
             result.currencyFrom = from;
             result.currencyTo = to;
-            result.payinAddress = "n2YyHr69tG6ViQDW1AUTbuwbakfYbqrqsH";
+            result.payinAddress = "bchtest:qrntcnsl8p2y936cu9eq9nwhnj9uvsg9wvcv2k60yp";
             result.payoutAddress = destAddress;
+            result.id = "test_order_id";
             return result;
         }
         Call<ChangellyTransaction> call4 = changellyAPIService.createTransaction(from, to, amount, destAddress);

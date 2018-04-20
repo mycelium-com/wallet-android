@@ -132,22 +132,32 @@ public class ConfirmExchangeFragment extends Fragment {
 
                 lastOperationId = UUID.randomUUID().toString();
 
+                String payAddress = null;
+                try {
+                    payAddress = BCHBechAddress.bchBechDecode(offer.payinAddress).constructLegacyAddress(mbwManager.getNetwork()).toString();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
                 Intent service;
                 switch (fromAccount.getType()) {
-                    case BCHBIP44:
+                    case BCHBIP44: {
                         Bip44BCHAccount bip44BCHAccount = (Bip44BCHAccount) fromAccount;
                         if (bip44BCHAccount.getAccountType() == ACCOUNT_TYPE_FROM_MASTERSEED) {
-                            service = IntentContract.SendFunds.createIntent(lastOperationId, bip44BCHAccount.getAccountIndex(), offer.payinAddress, fromValue, TransactionFee.NORMAL, 1.0f);
+                            service = IntentContract.SendFunds.createIntent(lastOperationId, bip44BCHAccount.getAccountIndex(),
+                                    payAddress, fromValue, TransactionFee.NORMAL, 1.0f);
                         } else {
-                            service = IntentContract.SendFundsUnrelated.createIntent(lastOperationId, bip44BCHAccount.getId().toString(), offer.payinAddress, fromValue, TransactionFee.NORMAL, 1.0f, IntentContract.UNRELATED_ACCOUNT_TYPE_HD);
+                            service = IntentContract.SendFundsUnrelated.createIntent(lastOperationId, bip44BCHAccount.getId().toString(), payAddress, fromValue, TransactionFee.NORMAL, 1.0f, IntentContract.UNRELATED_ACCOUNT_TYPE_HD);
                         }
                         WalletApplication.sendToSpv(service, WalletAccount.Type.BCHBIP44);
                         break;
-                    case BCHSINGLEADDRESS:
+                    }
+                    case BCHSINGLEADDRESS: {
                         SingleAddressBCHAccount singleAddressAccount = (SingleAddressBCHAccount) fromAccount;
                         service = IntentContract.SendFundsUnrelated.createIntent(lastOperationId, singleAddressAccount.getId().toString(), offer.payinAddress, fromValue, TransactionFee.NORMAL, 1.0f, IntentContract.UNRELATED_ACCOUNT_TYPE_SA);
                         WalletApplication.sendToSpv(service, WalletAccount.Type.BCHSINGLEADDRESS);
                         break;
+                    }
                 }
                 progressDialog = new ProgressDialog(getActivity());
                 progressDialog.setIndeterminate(true);
@@ -278,6 +288,7 @@ public class ConfirmExchangeFragment extends Fragment {
         }
         final Order order = new Order();
         order.transactionId = event.txHash;
+        order.order_id = offer.id;
         order.exchangingAmount = decimalFormat.format(amount);
         order.exchangingCurrency = CurrencyValue.BCH;
         order.receivingAddress = toAccount.getReceivingAddress().get().toString();
@@ -296,20 +307,19 @@ public class ConfirmExchangeFragment extends Fragment {
                 .setPositiveButton(R.string.save_receipt, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        String pdf = new BCHExchangeReceiptBuilder()
-                                .setTransactionId(order.transactionId)
-                                .setDate(order.timestamp)
-                                .setReceivingAmount(order.receivingAmount + " " + order.receivingCurrency)
-                                .setReceivingAddress(order.receivingAddress)
-                                .setSpendingAmount(order.exchangingAmount + " " + order.exchangingCurrency)
-                                .setSpendingAccountLabel(mbwManager.getMetadataStorage().getLabelByAccount(fromAccount.getId()))
-                                .build();
-                        String filePart = new SimpleDateFormat("yyMMddHHmmss", Locale.US).format(new Date());
+                        String filePart = new SimpleDateFormat( "yyMMddHHmmss", Locale.US).format(new Date());
                         File pdfFile = new File(getActivity().getExternalFilesDir(DIRECTORY_DOWNLOADS), "exchange_bch_order_" + filePart + ".pdf");
                         try {
-                            OutputStream pdfStream = new FileOutputStream(pdfFile);
-                            pdfStream.write(pdf.getBytes("UTF-8"));
-                            pdfStream.close();
+                            try (OutputStream pdfStream = new FileOutputStream(pdfFile)) {
+                                new BCHExchangeReceiptBuilder()
+                                        .setTransactionId(order.transactionId)
+                                        .setDate(order.timestamp)
+                                        .setReceivingAmount(order.receivingAmount + " " + order.receivingCurrency)
+                                        .setReceivingAddress(order.receivingAddress)
+                                        .setSpendingAmount(order.exchangingAmount + " " + order.exchangingCurrency)
+                                        .setSpendingAccountLabel(mbwManager.getMetadataStorage().getLabelByAccount(fromAccount.getId()))
+                                        .build(pdfStream);
+                            }
                         } catch (IOException e) {
                             Log.e(TAG, "", e);
                         }
