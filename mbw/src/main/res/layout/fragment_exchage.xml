@@ -121,18 +121,54 @@
                 android:textColor="#bdbdbd"
                 android:textSize="12sp" />
 
-            <com.mycelium.wallet.activity.send.view.SelectableRecyclerView
-                android:id="@+id/from_account_list"
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="75dp"
-                android:layout_marginTop="@dimen/margin_medium"
-                android:background="#fb746d" />
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_medium">
 
-            <com.mycelium.wallet.activity.send.view.SelectableRecyclerView
-                android:id="@+id/to_account_list"
+                <com.mycelium.wallet.activity.send.view.SelectableRecyclerView
+                    android:id="@+id/from_account_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="75dp"
+                    android:background="#fb746d" />
+
+                <View
+                    android:layout_width="40dp"
+                    android:layout_height="75dp"
+                    android:layout_gravity="right"
+                    android:background="@drawable/exchange_gradient_red" />
+
+                <View
+                    android:layout_width="40dp"
+                    android:layout_height="75dp"
+                    android:layout_gravity="left"
+                    android:background="@drawable/exchange_gradient_red"
+                    android:rotation="180" />
+            </FrameLayout>
+
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="75dp"
-                android:background="#77c298" />
+                android:layout_height="wrap_content">
+
+                <com.mycelium.wallet.activity.send.view.SelectableRecyclerView
+                    android:id="@+id/to_account_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="75dp"
+                    android:background="#77c298" />
+
+                <View
+                    android:layout_width="40dp"
+                    android:layout_height="75dp"
+                    android:layout_gravity="right"
+                    android:background="@drawable/exchange_gradient_green" />
+
+                <View
+                    android:layout_width="40dp"
+                    android:layout_height="75dp"
+                    android:layout_gravity="left"
+                    android:background="@drawable/exchange_gradient_green"
+                    android:rotation="180" />
+            </FrameLayout>
 
             <TextView
                 android:id="@+id/exchange_fiat_rate"

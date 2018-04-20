@@ -38,7 +38,6 @@ import com.mycelium.wallet.external.changelly.AccountAdapter;
 import com.mycelium.wallet.external.changelly.ChangellyService;
 import com.mycelium.wallet.external.changelly.Constants;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.bip44.Bip44Account;
 import com.mycelium.wapi.wallet.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
@@ -189,17 +188,15 @@ public class ExchangeFragment extends Fragment {
         valueKeyboard.setInputListener(new ValueKeyboard.SimpleInputListener() {
             @Override
             public void done() {
-                setAlphaFromLayout(Constants.INACTIVE_ALPHA);
-                toLayout.setAlpha(Constants.INACTIVE_ALPHA);
                 stopCursor(fromValue);
                 stopCursor(toValue);
                 useAllFunds.setVisibility(View.VISIBLE);
+                fromValue.setHint(R.string.zero);
+                toValue.setHint(R.string.zero);
             }
         });
         valueKeyboard.setMaxText(getString(R.string.use_all_funds), 14);
         valueKeyboard.setPasteVisibility(View.GONE);
-        setAlphaFromLayout(Constants.INACTIVE_ALPHA);
-        toLayout.setAlpha(Constants.INACTIVE_ALPHA);
 
         valueKeyboard.setVisibility(View.GONE);
         buttonContinue.setEnabled(false);
@@ -300,10 +297,10 @@ public class ExchangeFragment extends Fragment {
         valueKeyboard.setVisibility(View.VISIBLE);
         useAllFunds.setVisibility(View.GONE);
         valueKeyboard.setEntry(toValue.getText().toString());
-        toLayout.setAlpha(Constants.ACTIVE_ALPHA);
+        toValue.setHint("");
+        fromValue.setHint(R.string.zero);
         startCursor(toValue);
         stopCursor(fromValue);
-        setAlphaFromLayout(Constants.INACTIVE_ALPHA);
         valueKeyboard.setSpendableValue(BigDecimal.ZERO);
         valueKeyboard.setMaxValue(MAX_BITCOIN_VALUE);
 
@@ -325,20 +322,15 @@ public class ExchangeFragment extends Fragment {
         valueKeyboard.setVisibility(View.VISIBLE);
         useAllFunds.setVisibility(View.GONE);
         valueKeyboard.setEntry(fromValue.getText().toString());
-        setAlphaFromLayout(Constants.ACTIVE_ALPHA);
         startCursor(fromValue);
         stopCursor(toValue);
-        toLayout.setAlpha(Constants.INACTIVE_ALPHA);
+        fromValue.setHint("");
+        toValue.setHint(R.string.zero);
         AccountAdapter.Item item = fromAccountAdapter.getItem(fromRecyclerView.getSelectedItem());
         valueKeyboard.setSpendableValue(getMaxSpend(item.account));
         valueKeyboard.setMaxValue(MAX_BITCOIN_VALUE);
 
         scrollTo(fromLayout.getTop());
-    }
-
-    private void setAlphaFromLayout(float alpha) {
-        fromValue.setAlpha(alpha);
-        bchLabel.setAlpha(alpha);
     }
 
     @OnClick(R.id.use_all_funds)
@@ -350,7 +342,7 @@ public class ExchangeFragment extends Fragment {
     //TODO call getMaxFundsTransferrable need refactoring, we should call account object
     private BigDecimal getMaxSpend(WalletAccount account) {
         if (account.getType() == WalletAccount.Type.BCHBIP44) {
-            Bip44BCHAccount bip44BCHAccount = (Bip44BCHAccount)account;
+            Bip44BCHAccount bip44BCHAccount = (Bip44BCHAccount) account;
             //Find out the type of Bip44 account
             long satoshisTransferable;
             if (bip44BCHAccount.getAccountType() == ACCOUNT_TYPE_FROM_MASTERSEED) {
