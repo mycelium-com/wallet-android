@@ -282,6 +282,7 @@ public class ConfirmExchangeFragment extends Fragment {
         }
         final Order order = new Order();
         order.transactionId = event.txHash;
+        order.order_id = offer.id;
         order.exchangingAmount = decimalFormat.format(amount);
         order.exchangingCurrency = CurrencyValue.BCH;
         order.receivingAddress = toAccount.getReceivingAddress().get().toString();
