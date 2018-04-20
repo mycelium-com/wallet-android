@@ -75,7 +75,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 }
                 notifySatoshisReceived()
             }
-            "com.mycelium.wallet.notifySatoshisReceivedSingleAddress" -> {
+            "com.mycelium.wallet.notifySatoshisReceivedUnrelated" -> {
                 notifySatoshisReceived()
             }
 
@@ -143,28 +143,40 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                         0) //TODO Don't commit an evil value close to releasing the prodnet version. maybe do some BuildConfig.DEBUG ? 1504664986L: 0L
                 WalletApplication.sendToSpv(service, BCHBIP44)
             }
-            "com.mycelium.wallet.requestSingleAddressPublicKeyToMBW" -> {
+            "com.mycelium.wallet.requestPublicKeyUnrelatedToMBW" -> {
                 val _mbwManager = MbwManager.getInstance(context)
-                val accountGuid = intent.getStringExtra(IntentContract.SINGLE_ADDRESS_ACCOUNT_GUID)
-                Log.d(TAG, "com.mycelium.wallet.requestSingleAddressPrivateKeyToMBW, guid = $accountGuid")
-                var account =_mbwManager.getWalletManager(false).getAccount(UUID.fromString(accountGuid)) as? SingleAddressAccount
-                if (account == null) {
-                    //This is a way to not to pass information that this is a cold storage to BCH module and back
-                    account =_mbwManager.getWalletManager(true).getAccount(UUID.fromString(accountGuid)) as SingleAddressAccount
-                }
+                val accountGuid = intent.getStringExtra(IntentContract.UNRELATED_ACCOUNT_GUID)
+                val accountType = intent.getIntExtra(IntentContract.UNRELATED_ACCOUNT_TYPE, -1)
 
-                if (account.publicKey == null) {
-                    Log.w(TAG, "MbwMessageReceiver.onMessageFromSpvModuleBch, " +
-                            "com.mycelium.wallet.requestSingleAddressPrivateKeyToMBW, " +
-                            "publicKey must not be null.")
-                    val service = IntentContract.SendSingleAddressToSPV.createIntent(accountGuid,
-                            account.address.typeSpecificBytes)
-                    WalletApplication.sendToSpv(service, BCHSINGLEADDRESS)
-                    return
+                when(accountType) {
+                    IntentContract.UNRELATED_ACCOUNT_TYPE_HD -> {
+                        val account =_mbwManager.getWalletManager(false).getAccount(UUID.fromString(accountGuid)) as? Bip44Account
+                            //This is a way to not to pass information that this is a cold storage to BCH module and back
+                            ?: _mbwManager.getWalletManager(true).getAccount(UUID.fromString(accountGuid)) as Bip44Account
+
+                        //Unrelated HD key
+                        val publicKeyB58 = account.getExportData(AesKeyCipher.defaultKeyCipher()).publicData.get()
+                        val service = IntentContract.SendUnrelatedPublicKeyToSPV.createIntent(accountGuid,
+                                publicKeyB58, accountType)
+                        WalletApplication.sendToSpv(service, BCHBIP44)
+                    }
+                    IntentContract.UNRELATED_ACCOUNT_TYPE_SA -> {
+                        Log.d(TAG, "com.mycelium.wallet.requestSingleAddressPrivateKeyToMBW, guid = $accountGuid")
+                        val account =_mbwManager.getWalletManager(false).getAccount(UUID.fromString(accountGuid)) as? SingleAddressAccount
+                                //This is a way to not to pass information that this is a cold storage to BCH module and back
+                                ?: _mbwManager.getWalletManager(true).getAccount(UUID.fromString(accountGuid)) as SingleAddressAccount
+
+                        val service = if (account.publicKey == null) {
+                            IntentContract.SendUnrelatedWatchedAddressToSPV.createIntent(accountGuid,
+                                    account.address.toString())
+                        } else {
+                            IntentContract.SendUnrelatedPublicKeyToSPV.createIntent(accountGuid,
+                                    account.publicKey.toString(), accountType)
+                        }
+                        WalletApplication.sendToSpv(service, BCHSINGLEADDRESS)
+                    }
+                    else -> Log.e(TAG, "Unknown accountType $accountType")
                 }
-                val service = IntentContract.SendSingleAddressPublicKeyToSPV.createIntent(accountGuid,
-                        account.publicKey.publicKeyBytes)
-                WalletApplication.sendToSpv(service, BCHSINGLEADDRESS)
             }
             "com.mycelium.wallet.notifyBroadcastTransactionBroadcastCompleted" -> {
                 val operationId = intent.getStringExtra(IntentContract.OPERATION_ID)
@@ -192,7 +204,6 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
 
                 val keyList = ArrayList<ECKey>()
 
-
                 for (utxoHex in txUTXOsHexList) {
                     val utxo = UTXO(ByteArrayInputStream(Hex.decode(utxoHex)))
                     val txOutput = FreeStandingTransactionOutput(networkParameters, utxo, utxo.height)
@@ -210,9 +221,9 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                         signedTransaction)
                 WalletApplication.sendToSpv(service, BCHBIP44)
             }
-            "com.mycelium.wallet.sendUnsignedTransactionToMbwSingleAddress" -> {
+            "com.mycelium.wallet.sendUnsignedTransactionToMbwUnrelated" -> {
                 val operationId = intent.getStringExtra(IntentContract.OPERATION_ID)
-                val accountGuid = intent.getStringExtra(IntentContract.SINGLE_ADDRESS_ACCOUNT_GUID)
+                val accountGuid = intent.getStringExtra(IntentContract.UNRELATED_ACCOUNT_GUID)
                 val transactionBytes = intent.getByteArrayExtra(IntentContract.TRANSACTION_BYTES)
                 val txUTXOsHexList = intent.getStringArrayExtra(IntentContract.CONNECTED_OUTPUTS)
                 val mbwManager = MbwManager.getInstance(context)
@@ -224,17 +235,32 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 val transaction = Transaction(networkParameters, transactionBytes)
                 transaction.clearInputs()
 
-                val account = mbwManager.getWalletManager(false).getAccount(UUID.fromString(accountGuid)) as SingleAddressAccount
+                val account = mbwManager.getWalletManager(false).getAccount(UUID.fromString(accountGuid))
 
-                val privateKeyBase58 = account.getPrivateKey(AesKeyCipher.defaultKeyCipher()).getBase58EncodedPrivateKey(mbwManager.network)
                 val keyList = ArrayList<ECKey>()
-                keyList.add(DumpedPrivateKey.fromBase58(networkParameters, privateKeyBase58).key)
+
+                if (account is SingleAddressAccount) {
+                    val privateKeyBase58 = account.getPrivateKey(AesKeyCipher.defaultKeyCipher()).getBase58EncodedPrivateKey(mbwManager.network)
+
+                    keyList.add(DumpedPrivateKey.fromBase58(networkParameters, privateKeyBase58).key)
+                } else {
+                    val bip44Account = account as Bip44Account
+
+                    for (utxoHex in txUTXOsHexList) {
+                        val utxo = UTXO(ByteArrayInputStream(Hex.decode(utxoHex)))
+                        val txOutput = FreeStandingTransactionOutput(networkParameters, utxo, utxo.height)
+                        val address = txOutput.getAddressFromP2PKHScript(networkParameters)!!.toBase58()
+                        val privateKey = bip44Account.getPrivateKeyForAddress(Address.fromString(address),
+                                AesKeyCipher.defaultKeyCipher())!!
+                        keyList.add(DumpedPrivateKey.fromBase58(networkParameters,
+                                privateKey.getBase58EncodedPrivateKey(mbwManager.network)).key)
+                    }
+                }
 
                 val signedTransaction = signAndSerialize(networkParameters, keyList, txUTXOsHexList, transaction)
-
-                val service = IntentContract.SendSignedTransactionSingleAddressToSPV.createIntent(operationId, accountGuid,
+                val service = IntentContract.SendSignedTransactionUnrelatedToSPV.createIntent(operationId, accountGuid,
                         signedTransaction)
-                WalletApplication.sendToSpv(service, BCHSINGLEADDRESS)
+                WalletApplication.sendToSpv(service, if (account is Bip44Account) BCHBIP44 else BCHSINGLEADDRESS)
             }
             null -> Log.w(TAG, "onMessage failed. No action defined.")
             else -> Log.e(TAG, "onMessage failed. Unknown action ${intent.action}")
