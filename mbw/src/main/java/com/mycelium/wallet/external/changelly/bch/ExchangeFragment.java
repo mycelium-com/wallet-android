@@ -470,6 +470,7 @@ public class ExchangeFragment extends Fragment {
             tvError.setText(R.string.balance_error);
             tvError.setVisibility(View.VISIBLE);
             exchangeFiatRateFrom.setVisibility(View.INVISIBLE);
+            scrollTo(tvError.getTop());
             return false;
         }
         buttonContinue.setEnabled(true);

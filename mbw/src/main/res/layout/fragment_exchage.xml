@@ -22,6 +22,7 @@
 
 
             <FrameLayout
+                android:id="@+id/top_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/margin_small"
@@ -55,7 +56,7 @@
                 android:id="@+id/fromValueLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/margin_large"
+                android:layout_marginBottom="@dimen/margin_medium"
                 android:layout_marginEnd="@dimen/margin_medium"
                 android:layout_marginStart="@dimen/margin_medium"
                 android:layout_marginTop="10dp">
@@ -64,9 +65,9 @@
                     android:id="@+id/bchLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="bottom"
+                    android:layout_centerVertical="true"
                     android:layout_marginRight="@dimen/margin_medium"
-                    android:layout_marginTop="10dp"
+                    android:paddingBottom="8dp"
                     android:layout_toLeftOf="@id/fromValue"
                     android:text="BCH"
                     android:textColor="?exchange_text_color"
@@ -78,18 +79,18 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
+                    android:layout_centerVertical="true"
                     android:layout_marginEnd="@dimen/margin_small"
                     android:layout_marginStart="@dimen/margin_small"
-                    android:gravity="bottom"
                     android:hint="@string/zero"
-                    android:textColor="?exchange_text_color"
+                    android:maxLines="1"
+                    android:maxWidth="200dp"
+                    android:textColor="@color/white"
                     android:textSize="36sp"
                     app:autoSizeMaxTextSize="36sp"
                     app:autoSizeMinTextSize="20sp"
-                    app:autoSizeStepGranularity="1sp"
                     app:autoSizeTextType="uniform"
-                    tools:text="0"
-                    tools:textColor="@color/white" />
+                    tools:text="0" />
 
                 <TextView
                     android:id="@+id/use_all_funds"
@@ -108,7 +109,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="27dp"
+                android:layout_marginBottom="24dp"
                 android:layout_marginEnd="@dimen/margin_medium"
                 android:layout_marginStart="@dimen/margin_medium"
                 android:gravity="center"
@@ -155,24 +156,29 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginRight="@dimen/margin_medium"
-                    android:layout_marginTop="10dp"
+                    android:paddingBottom="8dp"
+                    android:layout_centerVertical="true"
                     android:layout_toLeftOf="@+id/toValue"
                     android:text="BTC"
                     android:textColor="?exchange_text_color"
                     android:textSize="14sp"
                     tools:textColor="@color/white" />
 
-                <TextView
+                <android.support.v7.widget.AppCompatTextView
                     android:id="@+id/toValue"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
                     android:layout_marginEnd="@dimen/margin_small"
                     android:layout_marginStart="@dimen/margin_small"
-                    android:gravity="center"
+                    android:layout_centerVertical="true"
                     android:hint="@string/zero"
-                    android:textColor="?exchange_text_color"
+                    android:maxWidth="200dp"
+                    android:textColor="@color/white"
                     android:textSize="36sp"
+                    app:autoSizeMaxTextSize="36sp"
+                    app:autoSizeMinTextSize="24sp"
+                    app:autoSizeTextType="uniform"
                     tools:text="0"
                     tools:textColor="@color/white" />
 
