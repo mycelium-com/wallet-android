@@ -429,16 +429,17 @@ public class ExchangeFragment extends Fragment {
     }
 
     private void updateUi() {
+        CurrencyValue currencyValue = null;
         try {
-            CurrencyValue currencyValue = mbwManager.getCurrencySwitcher().getAsFiatValue(
+            currencyValue = mbwManager.getCurrencySwitcher().getAsFiatValue(
                     ExactBitcoinValue.from(new BigDecimal(toValue.getText().toString())));
-            if (currencyValue != null && currencyValue.getValue() != null) {
-                exchangeFiatRate.setText(Utils.formatFiatWithUnit(currencyValue));
-                exchangeFiatRate.setVisibility(View.VISIBLE);
-            } else {
-                exchangeFiatRate.setVisibility(View.GONE);
-            }
         } catch (NumberFormatException ignore) {
+        }
+        if (currencyValue != null && currencyValue.getValue() != null) {
+            exchangeFiatRate.setText(Utils.formatFiatWithUnit(currencyValue));
+            exchangeFiatRate.setVisibility(View.VISIBLE);
+        } else {
+            exchangeFiatRate.setVisibility(View.GONE);
         }
     }
 
