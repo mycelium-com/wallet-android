@@ -5,6 +5,7 @@
     <dimen name="ab_icon_size">16dp</dimen>
     <dimen name="bigtext">22sp</dimen>
     <dimen name="button_padding">10dp</dimen>
+    <dimen name="button_padding_large">24dp</dimen>
     <dimen name="small_qrcode">130dp</dimen>
     <dimen name="large_qrcode">260dp</dimen>
     <dimen name="buttonspacing">30dp</dimen>
