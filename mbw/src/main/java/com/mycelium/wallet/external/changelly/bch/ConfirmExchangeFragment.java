@@ -27,6 +27,7 @@ import com.mycelium.spvmodule.IntentContract;
 import com.mycelium.spvmodule.TransactionFee;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.WalletApplication;
 import com.mycelium.wallet.event.SpvSendFundsResult;
 import com.mycelium.wallet.external.changelly.ChangellyAPIService;
@@ -39,6 +40,7 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
+import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.mycelium.wapi.wallet.single.SingleAddressBCHAccount;
 import com.squareup.otto.Subscribe;
 
@@ -64,6 +66,7 @@ import retrofit2.Response;
 import static android.content.Context.DOWNLOAD_SERVICE;
 import static android.os.Environment.DIRECTORY_DOWNLOADS;
 import static com.mycelium.wallet.external.changelly.ChangellyService.INFO_ERROR;
+import static com.mycelium.wallet.external.changelly.Constants.ABOUT;
 import static com.mycelium.wallet.external.changelly.Constants.decimalFormat;
 import static com.mycelium.wapi.wallet.bip44.Bip44AccountContext.ACCOUNT_TYPE_FROM_MASTERSEED;
 
@@ -86,8 +89,14 @@ public class ConfirmExchangeFragment extends Fragment {
     @BindView(R.id.fromAmount)
     TextView fromAmount;
 
+    @BindView(R.id.fromFiat)
+    TextView fromFiat;
+
     @BindView(R.id.toAmount)
     TextView toAmount;
+
+    @BindView(R.id.toFiat)
+    TextView toFiat;
 
     @BindView(R.id.buttonContinue)
     Button buttonContinue;
@@ -212,21 +221,38 @@ public class ConfirmExchangeFragment extends Fragment {
         super.onDestroy();
     }
 
-//    private void updateRate() {
-//        if (offer != null) {
-//            try {
-//                CurrencyValue currencyValue = mbwManager.getCurrencySwitcher().getAsFiatValue(
-//                        ExactBitcoinValue.from(new BigDecimal(offer.amountTo)));
-//                if (currencyValue != null && currencyValue.getValue() != null) {
-//                    exchangeFiatRate.setText(Utils.formatFiatWithUnit(currencyValue));
-//                    exchangeFiatRate.setVisibility(View.VISIBLE);
-//                } else {
-//                    exchangeFiatRate.setVisibility(View.INVISIBLE);
-//                }
-//            } catch (NumberFormatException ignore) {
-//            }
-//        }
-//    }
+    private void updateRate() {
+        if (offer != null) {
+            CurrencyValue currencyValueTo = null;
+            try {
+                currencyValueTo = mbwManager.getCurrencySwitcher().getAsFiatValue(
+                        ExactBitcoinValue.from(new BigDecimal(offer.amountTo)));
+
+            } catch (NumberFormatException ignore) {
+            }
+            if (currencyValueTo != null && currencyValueTo.getValue() != null) {
+                toFiat.setText(ABOUT + Utils.formatFiatWithUnit(currencyValueTo));
+                toFiat.setVisibility(View.VISIBLE);
+            } else {
+                toFiat.setVisibility(View.INVISIBLE);
+            }
+
+            CurrencyValue currencyValueFrom = null;
+            try {
+                currencyValueFrom = mbwManager.getCurrencySwitcher().getAsFiatValue(
+                        ExactBitcoinCashValue.from(new BigDecimal(offer.amountFrom)));
+
+            } catch (NumberFormatException ignore) {
+            }
+            if (currencyValueFrom != null && currencyValueFrom.getValue() != null) {
+                fromFiat.setText(ABOUT + Utils.formatFiatWithUnit(currencyValueFrom));
+                fromFiat.setVisibility(View.VISIBLE);
+            } else {
+                fromFiat.setVisibility(View.INVISIBLE);
+            }
+
+        }
+    }
 
 
     private void createOffer() {
@@ -257,7 +283,7 @@ public class ConfirmExchangeFragment extends Fragment {
                 toAmount.setText(getString(R.string.value_currency, toCachedValue
                         , ChangellyService.BTC));
             }
-//            updateRate();
+            updateRate();
         }
     }
 
@@ -277,7 +303,7 @@ public class ConfirmExchangeFragment extends Fragment {
 
                         @Override
                         public void run() {
-                            if(!isAdded()) {
+                            if (!isAdded()) {
                                 return;
                             }
                             time++;
@@ -348,7 +374,7 @@ public class ConfirmExchangeFragment extends Fragment {
                 .setPositiveButton(R.string.save_receipt, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        String filePart = new SimpleDateFormat( "yyMMddHHmmss", Locale.US).format(new Date());
+                        String filePart = new SimpleDateFormat("yyMMddHHmmss", Locale.US).format(new Date());
                         File pdfFile = new File(getActivity().getExternalFilesDir(DIRECTORY_DOWNLOADS), "exchange_bch_order_" + filePart + ".pdf");
                         try {
                             try (OutputStream pdfStream = new FileOutputStream(pdfFile)) {

@@ -31,15 +31,33 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <TextView
-            android:id="@+id/fromAmount"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="sans-serif-medium"
-            android:lineSpacingExtra="11sp"
-            android:textColor="@color/sender_recyclerview_background_red"
-            android:textSize="18sp"
-            tools:text="5.3092 BCH" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/fromAmount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:lineSpacingExtra="11sp"
+                android:textColor="@color/sender_recyclerview_background_red"
+                android:textSize="18sp"
+                tools:text="5.3092 BCH" />
+
+            <TextView
+                android:id="@+id/fromFiat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:fontFamily="sans-serif-medium"
+                android:lineSpacingExtra="11sp"
+                android:textColor="#5c5c5c"
+                android:textSize="14sp"
+                tools:text="≈ 85.50 USD" />
+
+        </LinearLayout>
+
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -86,7 +104,6 @@
             </LinearLayout>
 
         </LinearLayout>
-
     </LinearLayout>
 
     <View
@@ -102,16 +119,33 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <TextView
-            android:id="@+id/toAmount"
+        <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="sans-serif-medium"
-            android:gravity="end"
-            android:lineSpacingExtra="11sp"
-            android:textColor="@color/sender_recyclerview_background_green"
-            android:textSize="18sp"
-            tools:text="5.2014 BTC" />
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/toAmount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:gravity="end"
+                android:lineSpacingExtra="11sp"
+                android:textColor="@color/sender_recyclerview_background_green"
+                android:textSize="18sp"
+                tools:text="5.2014 BTC" />
+
+            <TextView
+                android:id="@+id/toFiat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:fontFamily="sans-serif-medium"
+                android:lineSpacingExtra="11sp"
+                android:textColor="#5c5c5c"
+                android:textSize="14sp"
+                tools:text="≈ 85.50 USD" />
+
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"

@@ -17,4 +17,5 @@ public class Constants {
     public static final String FROM_ADDRESS = "FROM_ADDRESS";
     public static final String FROM_AMOUNT = "from_amount";
     public static final String TO_AMOUNT = "to_amount";
+    public static final String ABOUT = "≈ ";
 }

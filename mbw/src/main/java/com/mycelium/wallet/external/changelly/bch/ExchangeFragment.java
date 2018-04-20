@@ -58,6 +58,7 @@ import butterknife.OnTextChanged;
 
 import static butterknife.OnTextChanged.Callback.AFTER_TEXT_CHANGED;
 import static com.mycelium.wallet.external.changelly.ChangellyService.INFO_ERROR;
+import static com.mycelium.wallet.external.changelly.Constants.ABOUT;
 import static com.mycelium.wallet.external.changelly.Constants.decimalFormat;
 import static com.mycelium.wapi.wallet.bip44.Bip44AccountContext.ACCOUNT_TYPE_FROM_MASTERSEED;
 
@@ -69,7 +70,6 @@ public class ExchangeFragment extends Fragment {
     public static final String TO_ACCOUNT = "toAccount";
     public static final String FROM_ACCOUNT = "fromAccount";
     public static final String FROM_VALUE = "fromValue";
-    public static final String ABOUT = "≈ ";
     private static String TAG = "ChangellyActivity";
 
     @BindView(R.id.scrollView)
