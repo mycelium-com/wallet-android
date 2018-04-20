@@ -198,7 +198,7 @@
         app:layout_column="4"
         app:layout_gravity="fill"
         app:layout_row="4"
-        android:textColor="@color/black"
+        android:textColor="#5aa7e6"
         android:textSize="20sp"
         android:text="@string/ok" />
 

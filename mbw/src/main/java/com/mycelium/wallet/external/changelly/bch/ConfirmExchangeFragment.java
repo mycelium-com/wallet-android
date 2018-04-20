@@ -92,9 +92,6 @@ public class ConfirmExchangeFragment extends Fragment {
     @BindView(R.id.toAmount)
     TextView toAmount;
 
-    @BindView(R.id.exchange_fiat_rate)
-    TextView exchangeFiatRate;
-
     @BindView(R.id.buttonContinue)
     Button buttonContinue;
 
@@ -218,21 +215,21 @@ public class ConfirmExchangeFragment extends Fragment {
         super.onDestroy();
     }
 
-    private void updateRate() {
-        if (offer != null) {
-            try {
-                CurrencyValue currencyValue = mbwManager.getCurrencySwitcher().getAsFiatValue(
-                        ExactBitcoinValue.from(new BigDecimal(offer.amountTo)));
-                if (currencyValue != null && currencyValue.getValue() != null) {
-                    exchangeFiatRate.setText(Utils.formatFiatWithUnit(currencyValue));
-                    exchangeFiatRate.setVisibility(View.VISIBLE);
-                } else {
-                    exchangeFiatRate.setVisibility(View.INVISIBLE);
-                }
-            } catch (NumberFormatException ignore) {
-            }
-        }
-    }
+//    private void updateRate() {
+//        if (offer != null) {
+//            try {
+//                CurrencyValue currencyValue = mbwManager.getCurrencySwitcher().getAsFiatValue(
+//                        ExactBitcoinValue.from(new BigDecimal(offer.amountTo)));
+//                if (currencyValue != null && currencyValue.getValue() != null) {
+//                    exchangeFiatRate.setText(Utils.formatFiatWithUnit(currencyValue));
+//                    exchangeFiatRate.setVisibility(View.VISIBLE);
+//                } else {
+//                    exchangeFiatRate.setVisibility(View.INVISIBLE);
+//                }
+//            } catch (NumberFormatException ignore) {
+//            }
+//        }
+//    }
 
 
     private void createOffer() {
@@ -263,7 +260,7 @@ public class ConfirmExchangeFragment extends Fragment {
                 toAmount.setText(getString(R.string.value_currency, ChangellyService.BTC
                         , toCachedValue));
             }
-            updateRate();
+//            updateRate();
         }
     }
 

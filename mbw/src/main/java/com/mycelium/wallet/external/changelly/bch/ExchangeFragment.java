@@ -481,7 +481,7 @@ public class ExchangeFragment extends Fragment {
         try {
             currencyBTCValue = mbwManager.getCurrencySwitcher().getAsFiatValue(
                     ExactBitcoinValue.from(new BigDecimal(toValue.getText().toString())));
-        } catch (NumberFormatException ignore) {
+        } catch (IllegalArgumentException ignore) {
         }
         if (currencyBTCValue != null && currencyBTCValue.getValue() != null) {
             exchangeFiatRate.setText(ABOUT + Utils.formatFiatWithUnit(currencyBTCValue));
@@ -495,9 +495,10 @@ public class ExchangeFragment extends Fragment {
         try {
             currencyBCHValue = mbwManager.getCurrencySwitcher().getAsFiatValue(
                     ExactBitcoinCashValue.from(new BigDecimal(fromValue.getText().toString())));
-        } catch (NumberFormatException ignore) {
+        } catch (IllegalArgumentException ignore) {
         }
-        if (currencyBCHValue != null && currencyBCHValue.getValue() != null) {
+        if (currencyBCHValue != null && currencyBCHValue.getValue() != null
+                && tvError.getVisibility() != View.VISIBLE) {
             exchangeFiatRateFrom.setText(ABOUT + Utils.formatFiatWithUnit(currencyBCHValue));
             exchangeFiatRateFrom.setVisibility(View.VISIBLE);
         } else {
