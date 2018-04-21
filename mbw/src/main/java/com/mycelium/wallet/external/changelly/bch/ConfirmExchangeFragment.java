@@ -120,6 +120,8 @@ public class ConfirmExchangeFragment extends Fragment {
     private String lastOperationId;
     private String toCachedValue;
 
+    private AlertDialog downloadConfirmationDialog;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -330,6 +332,7 @@ public class ConfirmExchangeFragment extends Fragment {
         }
     }
 
+
     @Subscribe
     public void spvSendFundsResult(SpvSendFundsResult event) {
         if (progressDialog != null && progressDialog.isShowing()) {
@@ -364,46 +367,55 @@ public class ConfirmExchangeFragment extends Fragment {
         order.timestamp = SimpleDateFormat.getDateTimeInstance(SimpleDateFormat.LONG, SimpleDateFormat.LONG, Locale.ENGLISH)
                 .format(new Date());
 
-        new AlertDialog.Builder(getActivity())
+        View view = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_exchange_download_confirmation, null);
+        view.findViewById(R.id.download).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String filePart = new SimpleDateFormat("yyMMddHHmmss", Locale.US).format(new Date());
+                File pdfFile = new File(getActivity().getExternalFilesDir(DIRECTORY_DOWNLOADS), "exchange_bch_order_" + filePart + ".pdf");
+                try {
+                    try (OutputStream pdfStream = new FileOutputStream(pdfFile)) {
+                        new BCHExchangeReceiptBuilder()
+                                .setTransactionId(order.transactionId)
+                                .setDate(order.timestamp)
+                                .setReceivingAmount(order.receivingAmount + " " + order.receivingCurrency)
+                                .setReceivingAddress(order.receivingAddress)
+                                .setSpendingAmount(order.exchangingAmount + " " + order.exchangingCurrency)
+                                .setSpendingAccountLabel(mbwManager.getMetadataStorage().getLabelByAccount(fromAccount.getId()))
+                                .build(pdfStream);
+                    }
+                } catch (IOException e) {
+                    Log.e(TAG, "", e);
+                }
+                DownloadManager downloadManager = (DownloadManager) getActivity().getSystemService(DOWNLOAD_SERVICE);
+                downloadManager.addCompletedDownload(pdfFile.getName(), pdfFile.getName()
+                        , true, "application/pdf"
+                        , pdfFile.getAbsolutePath(), pdfFile.length(), true);
+                downloadConfirmationDialog.dismiss();
+            }
+        });
+        view.findViewById(R.id.close).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                downloadConfirmationDialog.dismiss();
+            }
+        });
+        downloadConfirmationDialog = new AlertDialog.Builder(getActivity())
                 .setTitle(Html.fromHtml("<big>" + getString(R.string.success) + "</big>"))
                 .setMessage(Html.fromHtml(getString(R.string.exchange_order_placed_dialog
                         , order.timestamp
                         , order.transactionId
                         , order.exchangingAmount
                         , order.receivingAmount)))
-                .setPositiveButton(R.string.save_receipt, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        String filePart = new SimpleDateFormat("yyMMddHHmmss", Locale.US).format(new Date());
-                        File pdfFile = new File(getActivity().getExternalFilesDir(DIRECTORY_DOWNLOADS), "exchange_bch_order_" + filePart + ".pdf");
-                        try {
-                            try (OutputStream pdfStream = new FileOutputStream(pdfFile)) {
-                                new BCHExchangeReceiptBuilder()
-                                        .setTransactionId(order.transactionId)
-                                        .setDate(order.timestamp)
-                                        .setReceivingAmount(order.receivingAmount + " " + order.receivingCurrency)
-                                        .setReceivingAddress(order.receivingAddress)
-                                        .setSpendingAmount(order.exchangingAmount + " " + order.exchangingCurrency)
-                                        .setSpendingAccountLabel(mbwManager.getMetadataStorage().getLabelByAccount(fromAccount.getId()))
-                                        .build(pdfStream);
-                            }
-                        } catch (IOException e) {
-                            Log.e(TAG, "", e);
-                        }
-                        DownloadManager downloadManager = (DownloadManager) getActivity().getSystemService(DOWNLOAD_SERVICE);
-                        downloadManager.addCompletedDownload(pdfFile.getName(), pdfFile.getName()
-                                , true, "application/pdf"
-                                , pdfFile.getAbsolutePath(), pdfFile.length(), true);
-                    }
-                })
-                .setNegativeButton(R.string.close, null)
+                .setView(view)
                 .setOnDismissListener(new DialogInterface.OnDismissListener() {
                     @Override
                     public void onDismiss(DialogInterface dialogInterface) {
                         getActivity().finish();
                     }
                 })
-                .create().show();
+                .create();
+        downloadConfirmationDialog.show();
 
         try {
             ExchangeLoggingService.exchangeLoggingService.saveOrder(order).enqueue(new Callback<Void>() {

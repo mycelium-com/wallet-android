@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="@string/success" />
+
+    <TextView
+        android:id="@+id/content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="12dp"
+        android:textColor="@color/white"
+        android:textSize="14sp"
+        tools:text="some text" />
+
+    <Button
+        android:id="@+id/download"
+        style="@style/MyceliumButtonModernBlue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="24dp"
+        android:drawableLeft="@drawable/wallet_receive_icon"
+        android:drawablePadding="10dp"
+        android:text="CONFIRMATION"
+        android:textColor="@color/btn_text_color_white"
+        android:textSize="14sp" />
+
+    <Button
+        android:id="@+id/close"
+        style="@style/MyceliumButtonModernBlue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="16dp"
+        android:background="null"
+        android:text="@string/close"
+        android:textAllCaps="true"
+        android:textColor="@color/btn_text_color"
+        android:textSize="14sp" />
+
+
+</LinearLayout>
