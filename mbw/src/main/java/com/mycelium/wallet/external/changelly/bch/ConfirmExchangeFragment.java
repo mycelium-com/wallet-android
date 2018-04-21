@@ -368,6 +368,12 @@ public class ConfirmExchangeFragment extends Fragment {
                 .format(new Date());
 
         View view = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_exchange_download_confirmation, null);
+        ((TextView) view.findViewById(R.id.title)).setText(R.string.success);
+        ((TextView) view.findViewById(R.id.content)).setText(Html.fromHtml(getString(R.string.exchange_order_placed_dialog
+                , order.timestamp
+                , order.transactionId
+                , order.exchangingAmount
+                , order.receivingAmount)));
         view.findViewById(R.id.download).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -401,12 +407,7 @@ public class ConfirmExchangeFragment extends Fragment {
             }
         });
         downloadConfirmationDialog = new AlertDialog.Builder(getActivity())
-                .setTitle(Html.fromHtml("<big>" + getString(R.string.success) + "</big>"))
-                .setMessage(Html.fromHtml(getString(R.string.exchange_order_placed_dialog
-                        , order.timestamp
-                        , order.transactionId
-                        , order.exchangingAmount
-                        , order.receivingAmount)))
+
                 .setView(view)
                 .setOnDismissListener(new DialogInterface.OnDismissListener() {
                     @Override
