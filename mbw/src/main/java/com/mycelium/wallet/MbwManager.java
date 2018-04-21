@@ -963,6 +963,10 @@ public class MbwManager {
       return _currencySwitcher.getBtcValueString(satoshis);
    }
 
+  public String getBchValueString(long satoshis) {
+    return _currencySwitcher.getBchValueString(satoshis);
+  }
+
    public boolean isKeyManagementLocked() {
       return _keyManagementLocked;
    }

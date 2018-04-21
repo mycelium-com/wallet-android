@@ -109,7 +109,7 @@ public class TransactionArrayAdapter extends ArrayAdapter<TransactionSummary> {
 
       // if the current selected currency is the same as the transactions
       if (alternativeCurrency.equals(record.value.getCurrency())) {
-         if (record.value.isBtc() || record.value.getCurrency().equalsIgnoreCase("RMC")) {
+         if (record.value.isBtc() || record.value.isBch() || record.value.getCurrency().equalsIgnoreCase("RMC")) {
             // use the current selected fiat currency
             alternativeCurrency = _mbwManager.getCurrencySwitcher().getCurrentFiatCurrency();
          } else {

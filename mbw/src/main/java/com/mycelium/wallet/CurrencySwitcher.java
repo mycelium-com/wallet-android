@@ -41,6 +41,7 @@ import com.mycelium.wapi.model.ExchangeRate;
 import com.mycelium.wapi.wallet.currency.CurrencySum;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -52,6 +53,8 @@ public class CurrencySwitcher {
 
    private List<String> fiatCurrencies;
    private CoinUtil.Denomination bitcoinDenomination;
+
+  private CoinUtil.Denomination bitcoinCashDenomination;
 
    // the last selected/shown fiat currency
    private String currentFiatCurrency;
@@ -66,6 +69,7 @@ public class CurrencySwitcher {
       Collections.sort(currencies);
       this.fiatCurrencies = currencies;
       this.bitcoinDenomination = bitcoinDenomination;
+      this.bitcoinCashDenomination = CoinUtil.Denomination.BCH;
 
       this.currentCurrency = currentCurrency;
 
@@ -187,13 +191,25 @@ public class CurrencySwitcher {
       return bitcoinDenomination;
    }
 
+  public CoinUtil.Denomination getBitcoinCashDenomination() {
+    return bitcoinCashDenomination;
+  }
+
    public void setBitcoinDenomination(CoinUtil.Denomination _bitcoinDenomination) {
       this.bitcoinDenomination = _bitcoinDenomination;
    }
 
+  public void setBitcoinCashDenomination(CoinUtil.Denomination _bitcoinCashDenomination) {
+    this.bitcoinCashDenomination = _bitcoinCashDenomination;
+  }
+
    public String getBtcValueString(long satoshis) {
       return getBtcValueString(satoshis, true);
    }
+
+  public String getBchValueString(long satoshis) {
+    return getBchValueString(satoshis, true);
+  }
 
    public String getBtcValueString(long satoshis, boolean includeUnit) {
       CoinUtil.Denomination d = getBitcoinDenomination();
@@ -204,6 +220,16 @@ public class CurrencySwitcher {
          return valueString;
       }
    }
+
+  public String getBchValueString(long satoshis, boolean includeUnit) {
+    CoinUtil.Denomination d = getBitcoinCashDenomination();
+    String valueString = CoinUtil.valueString(satoshis, d, true);
+    if (includeUnit) {
+      return valueString + " " + d.getUnicodeName();
+    } else {
+      return valueString;
+    }
+  }
 
    public String getBtcValueString(long satoshis, boolean includeUnit, int precision) {
       CoinUtil.Denomination d = getBitcoinDenomination();
