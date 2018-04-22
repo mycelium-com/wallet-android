@@ -31,7 +31,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/margin_small"
                 android:layout_marginStart="@dimen/margin_small"
-                android:layout_marginTop="@dimen/margin_medium">
+                android:layout_marginTop="24dp">
 
                 <TextView
                     android:id="@+id/tvError"
@@ -78,7 +78,7 @@
                     android:textSize="14sp"
                     tools:textColor="@color/white" />
 
-                <android.support.v7.widget.AppCompatTextView
+                <TextView
                     android:id="@+id/fromValue"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -88,12 +88,8 @@
                     android:layout_marginStart="@dimen/margin_small"
                     android:hint="@string/zero"
                     android:maxLines="1"
-                    android:maxWidth="200dp"
                     android:textColor="@color/white"
-                    android:textSize="36sp"
-                    app:autoSizeMaxTextSize="36sp"
-                    app:autoSizeMinTextSize="20sp"
-                    app:autoSizeTextType="uniform"
+                    android:textSize="@dimen/big_input"
                     tools:text="0" />
 
                 <TextView
@@ -204,7 +200,7 @@
                     android:textSize="14sp"
                     tools:textColor="@color/white" />
 
-                <android.support.v7.widget.AppCompatTextView
+                <TextView
                     android:id="@+id/toValue"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -213,14 +209,9 @@
                     android:layout_marginEnd="@dimen/margin_small"
                     android:layout_marginStart="@dimen/margin_small"
                     android:hint="@string/zero"
-                    android:maxWidth="200dp"
                     android:textColor="@color/white"
-                    android:textSize="36sp"
-                    app:autoSizeMaxTextSize="36sp"
-                    app:autoSizeMinTextSize="24sp"
-                    app:autoSizeTextType="uniform"
-                    tools:text="0"
-                    tools:textColor="@color/white" />
+                    android:textSize="@dimen/big_input"
+                    tools:text="0" />
 
             </RelativeLayout>
 

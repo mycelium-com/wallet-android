@@ -17,6 +17,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -377,7 +378,13 @@ public class ExchangeFragment extends Fragment {
             toValue.setText(null);
             avoidTextChangeEvent = false;
         }
+        resizeTextView(fromValue);
         updateUi();
+    }
+
+    private void resizeTextView(TextView textView) {
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP
+                , textView.getText().toString().length() < 11 ? 36 : 22);
     }
 
     private BigDecimal getFromExcludeFee() {
@@ -408,6 +415,7 @@ public class ExchangeFragment extends Fragment {
             fromValue.setText(null);
             avoidTextChangeEvent = false;
         }
+        resizeTextView(toValue);
         updateUi();
     }
 

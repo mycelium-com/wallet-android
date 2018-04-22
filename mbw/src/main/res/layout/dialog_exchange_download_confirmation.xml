@@ -46,7 +46,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginTop="16dp"
-        android:background="null"
+        android:background="@null"
         android:text="@string/close"
         android:textAllCaps="true"
         android:textColor="@color/btn_text_color"
