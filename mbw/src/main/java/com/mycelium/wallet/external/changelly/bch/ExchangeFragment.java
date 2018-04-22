@@ -330,8 +330,6 @@ public class ExchangeFragment extends Fragment {
         AccountAdapter.Item item = fromAccountAdapter.getItem(fromRecyclerView.getSelectedItem());
         valueKeyboard.setSpendableValue(getMaxSpend(item.account));
         valueKeyboard.setMaxValue(MAX_BITCOIN_VALUE);
-
-        scrollTo(fromLayout.getTop());
     }
 
     @OnClick(R.id.use_all_funds)
@@ -465,8 +463,8 @@ public class ExchangeFragment extends Fragment {
                         , decimalFormat.format(minAmount), "BCH"));
                 tvError.setVisibility(View.VISIBLE);
                 exchangeFiatRateFrom.setVisibility(View.INVISIBLE);
+                scrollTo(tvError.getTop());
             }
-            scrollTo(tvError.getTop());
             return false;
         } else if (fromAccount.getCurrencyBasedBalance().confirmed.getValue().compareTo(BigDecimal.valueOf(dblAmount)) < 0) {
             buttonContinue.setEnabled(false);

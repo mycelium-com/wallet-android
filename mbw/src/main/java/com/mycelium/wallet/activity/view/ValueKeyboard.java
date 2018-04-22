@@ -230,10 +230,9 @@ public class ValueKeyboard extends GridLayout {
             }
             if (digit == DEL) {
                 // Delete Digit
-                if (entry.isEmpty()) {
-                    return;
+                if (!entry.isEmpty()) {
+                    entry = entry.substring(0, entry.length() - 1);
                 }
-                entry = entry.substring(0, entry.length() - 1);
             } else if (digit == DOT) {
                 // Do we already have a dot?
                 if (hasDot()) {
