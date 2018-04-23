@@ -1,6 +1,7 @@
 package com.mycelium.wapi.wallet;
 
 import com.mrd.bitlib.model.Address;
+import com.mycelium.wapi.model.IssuedKeysInfo;
 import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 
@@ -21,8 +22,8 @@ public interface SpvBalanceFetcher {
     float getSyncProgressPercents();
     Address getCurrentReceiveAddress(int accountIndex);
     Address getCurrentReceiveAddressUnrelated(String guid);
-    int getPrivateKeysCount(int accountIndex);
-    int getPrivateKeysCountUnrelated(String guid);
+    IssuedKeysInfo getPrivateKeysCount(int accountIndex);
+    IssuedKeysInfo getPrivateKeysCountUnrelated(String guid);
     boolean isFirstSync();
     void forceCleanCache();
     long calculateMaxSpendableAmount(int accountIndex, String txFee, float txFeeFactor);
