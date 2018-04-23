@@ -220,7 +220,6 @@
   <string name="unlock_label">Lås upp</string>
   <string name="lock_label">Lås</string>
   <string name="secure_my_funds">Säkra mina tillgångar</string>
-  <string name="move_legacy_funds_message">Din plånbok har en eller fler äldre konton med tillgångar.\n\nFör att säkerställa att dina tillgångar är säkra och för att förbättra din anonymitet bör du flytta dessa tillgångar till en av dina HD-konton.\n\nGå till Kontofliken för detaljer.</string>
   <string name="ignore_warnings_title">Ignorera varningar</string>
   <string name="ignore_warnings_description">Vill du ignorera varningar som förklarar att detta äldre konto håller tillgångar?</string>
   <string name="explore">Utforska</string>

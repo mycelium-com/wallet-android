@@ -304,6 +304,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
 
     private fun notifySatoshisReceived() {
         val mds = MbwManager.getInstance(context).metadataStorage
+        @SuppressWarnings("deprecation") // the non-deprecated alternative requires min API level 26
         val builder = Notification.Builder(context)
                 // TODO: bitcoin icon
                 .setSmallIcon(R.drawable.holo_dark_ic_action_new_usd_account)
