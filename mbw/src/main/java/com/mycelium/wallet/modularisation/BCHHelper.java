@@ -8,6 +8,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.text.Html;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.TextView;
 
 import com.mycelium.modularizationtools.CommunicationManager;
 import com.mycelium.modularizationtools.model.Module;
@@ -58,20 +61,29 @@ public class BCHHelper {
             })
             .create().show();
         } else if (!sharedPreferences.getBoolean(BCH_INSTALLED, false) && moduleBCHInstalled) {
-            new AlertDialog.Builder(context)
-            .setTitle(Html.fromHtml(context.getString(R.string.first_bch_installed_title)))
-            .setMessage(Html.fromHtml(context.getString(R.string.first_bch_installed_message)))
-            .setPositiveButton(R.string.button_continue, null)
-            .setOnDismissListener(new DialogInterface.OnDismissListener() {
+            View view = LayoutInflater.from(context).inflate(R.layout.dialog_bch_module_installed, null);
+            ((TextView) view.findViewById(R.id.title)).setText(Html.fromHtml(context.getString(R.string.first_bch_installed_title)));
+            ((TextView) view.findViewById(R.id.content)).setText(Html.fromHtml(context.getString(R.string.to_get_your_bitcoin_cash_retrieved)));
+            final AlertDialog dialog = new AlertDialog.Builder(context)
+                    .setView(view)
+                    .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                        @Override
+                        public void onDismiss(DialogInterface dialogInterface) {
+                            sharedPreferences.edit()
+                                    .putBoolean(BCH_FIRST_UPDATE, true)
+                                    .putBoolean(BCH_INSTALLED, true)
+                                    .apply();
+                        }
+                    })
+                    .create();
+
+            view.findViewById(R.id.buttonContinue).setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onDismiss(DialogInterface dialogInterface) {
-                    sharedPreferences.edit()
-                    .putBoolean(BCH_FIRST_UPDATE, true)
-                    .putBoolean(BCH_INSTALLED, true)
-                    .apply();
+                public void onClick(View view) {
+                    dialog.dismiss();
                 }
-            })
-            .create().show();
+            });
+            dialog.show();
         }
         if (sharedPreferences.getBoolean(BCH_INSTALLED, false) && !moduleBCHInstalled) {
             sharedPreferences.edit().putBoolean(BCH_INSTALLED, false)

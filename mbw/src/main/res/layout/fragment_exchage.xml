@@ -90,7 +90,7 @@
                     android:maxLines="1"
                     android:textColor="@color/white"
                     android:textSize="@dimen/big_input"
-                    tools:text="0" />
+                    android:text="0" />
 
                 <TextView
                     android:id="@+id/use_all_funds"
@@ -232,7 +232,7 @@
                     android:hint="@string/zero"
                     android:textColor="@color/white"
                     android:textSize="@dimen/big_input"
-                    tools:text="0" />
+                    android:text="0" />
 
             </RelativeLayout>
 
