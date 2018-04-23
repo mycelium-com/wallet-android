@@ -455,6 +455,11 @@ public class ExchangeFragment extends Fragment {
             buttonContinue.setEnabled(false);
             return false;
         }
+        Double dblAmountTo = 0.0;
+        try {
+            dblAmountTo = Double.parseDouble(toValue.getText().toString());
+        } catch (NumberFormatException e) {
+        }
 
         WalletAccount fromAccount = fromAccountAdapter.getItem(fromRecyclerView.getSelectedItem()).account;
         if (checkMin && minAmount == NOT_LOADED) {
@@ -463,7 +468,7 @@ public class ExchangeFragment extends Fragment {
             return false;
         } else if (checkMin && dblAmount.compareTo(minAmount) < 0) {
             buttonContinue.setEnabled(false);
-            if (dblAmount != 0) {
+            if (dblAmount != 0 || dblAmountTo != 0) {
                 TextView tvError = valueKeyboard.getInputTextView() == toValue
                         ? tvErrorTo : tvErrorFrom;
                 tvError.setText(getString(R.string.exchange_minimum_amount
@@ -571,9 +576,13 @@ public class ExchangeFragment extends Fragment {
                             } else if (from.equalsIgnoreCase(ChangellyService.BTC)
                                     && to.equalsIgnoreCase(ChangellyService.BCH)
                                     && fromAmount == Double.parseDouble(toValue.getText().toString())) {
-                                BigDecimal txFee = UtilsKt.estimateFeeFromTransferrableAmount(
-                                        fromAccountAdapter.getItem(fromRecyclerView.getSelectedItem()).account,
-                                        mbwManager, BitcoinCash.valueOf(amount).getLongValue());
+                                BigDecimal txFee = BigDecimal.ZERO;
+                                try {
+                                    txFee = UtilsKt.estimateFeeFromTransferrableAmount(
+                                            fromAccountAdapter.getItem(fromRecyclerView.getSelectedItem()).account,
+                                            mbwManager, BitcoinCash.valueOf(amount).getLongValue());
+                                } catch (IllegalArgumentException ignore) {
+                                }
                                 fromValue.setText(decimalFormat.format(amount + txFee.doubleValue()));
                                 if (fromAmount != 0 && amount != 0) {
                                     exchangeRate.setText("1 BCH ~ " + decimalFormat.format(fromAmount / amount) + " BTC");

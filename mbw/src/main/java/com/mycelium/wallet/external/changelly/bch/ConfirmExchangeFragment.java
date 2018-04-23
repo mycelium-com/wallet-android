@@ -23,9 +23,12 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.megiontechnologies.BitcoinCash;
+import com.mycelium.spvmodule.IntentContract;
+import com.mycelium.spvmodule.TransactionFee;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.WalletApplication;
 import com.mycelium.wallet.event.SpvSendFundsResult;
 import com.mycelium.wallet.external.changelly.ChangellyAPIService;
 import com.mycelium.wallet.external.changelly.ChangellyService;
@@ -34,9 +37,11 @@ import com.mycelium.wallet.external.changelly.ExchangeLoggingService;
 import com.mycelium.wallet.external.changelly.model.Order;
 import com.mycelium.wallet.pdf.BCHExchangeReceiptBuilder;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
+import com.mycelium.wapi.wallet.single.SingleAddressBCHAccount;
 import com.squareup.otto.Subscribe;
 
 import java.io.File;
@@ -63,6 +68,7 @@ import static android.os.Environment.DIRECTORY_DOWNLOADS;
 import static com.mycelium.wallet.external.changelly.ChangellyService.INFO_ERROR;
 import static com.mycelium.wallet.external.changelly.Constants.ABOUT;
 import static com.mycelium.wallet.external.changelly.Constants.decimalFormat;
+import static com.mycelium.wapi.wallet.bip44.Bip44AccountContext.ACCOUNT_TYPE_FROM_MASTERSEED;
 
 public class ConfirmExchangeFragment extends Fragment {
     public static final String TAG = "BCHExchange";
@@ -137,50 +143,47 @@ public class ConfirmExchangeFragment extends Fragment {
 
     @OnClick(R.id.buttonContinue)
     void createAndSignTransaction() {
-//        mbwManager.runPinProtectedFunction(getActivity(), new Runnable() {
-//            @Override
-//            public void run() {
-//                buttonContinue.setEnabled(false);
-//                long fromValue = ExactBitcoinCashValue.from(BigDecimal.valueOf(offer.amountFrom)).getLongValue();
-//
-//                lastOperationId = UUID.randomUUID().toString();
-//
-//                String payAddress = null;
-//                try {
-//                    payAddress = BCHBechAddress.bchBechDecode(offer.payinAddress).constructLegacyAddress(mbwManager.getNetwork()).toString();
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-//
-//                Intent service;
-//                switch (fromAccount.getType()) {
-//                    case BCHBIP44: {
-//                        Bip44BCHAccount bip44BCHAccount = (Bip44BCHAccount) fromAccount;
-//                        if (bip44BCHAccount.getAccountType() == ACCOUNT_TYPE_FROM_MASTERSEED) {
-//                            service = IntentContract.SendFunds.createIntent(lastOperationId, bip44BCHAccount.getAccountIndex(),
-//                                    payAddress, fromValue, TransactionFee.NORMAL, 1.0f);
-//                        } else {
-//                            service = IntentContract.SendFundsUnrelated.createIntent(lastOperationId, bip44BCHAccount.getId().toString(), payAddress, fromValue, TransactionFee.NORMAL, 1.0f, IntentContract.UNRELATED_ACCOUNT_TYPE_HD);
-//                        }
-//                        WalletApplication.sendToSpv(service, WalletAccount.Type.BCHBIP44);
-//                        break;
-//                    }
-//                    case BCHSINGLEADDRESS: {
-//                        SingleAddressBCHAccount singleAddressAccount = (SingleAddressBCHAccount) fromAccount;
-//                        service = IntentContract.SendFundsUnrelated.createIntent(lastOperationId, singleAddressAccount.getId().toString(), offer.payinAddress, fromValue, TransactionFee.NORMAL, 1.0f, IntentContract.UNRELATED_ACCOUNT_TYPE_SA);
-//                        WalletApplication.sendToSpv(service, WalletAccount.Type.BCHSINGLEADDRESS);
-//                        break;
-//                    }
-//                }
-//                progressDialog = new ProgressDialog(getActivity());
-//                progressDialog.setIndeterminate(true);
-//                progressDialog.setMessage(getString(R.string.sending, "..."));
-//                progressDialog.show();
-//            }
-//        });
-        lastOperationId = UUID.randomUUID().toString();
-        SpvSendFundsResult result = new SpvSendFundsResult(lastOperationId, "105fcbd0230656f09e6143544ba50febbe84019ee81fd2e71b53997f60512ccf", true, null);
-        spvSendFundsResult(result);
+        mbwManager.runPinProtectedFunction(getActivity(), new Runnable() {
+            @Override
+            public void run() {
+                buttonContinue.setEnabled(false);
+                long fromValue = ExactBitcoinCashValue.from(BigDecimal.valueOf(offer.amountFrom)).getLongValue();
+
+                lastOperationId = UUID.randomUUID().toString();
+
+                String payAddress = null;
+                try {
+                    payAddress = BCHBechAddress.bchBechDecode(offer.payinAddress).constructLegacyAddress(mbwManager.getNetwork()).toString();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                Intent service;
+                switch (fromAccount.getType()) {
+                    case BCHBIP44: {
+                        Bip44BCHAccount bip44BCHAccount = (Bip44BCHAccount) fromAccount;
+                        if (bip44BCHAccount.getAccountType() == ACCOUNT_TYPE_FROM_MASTERSEED) {
+                            service = IntentContract.SendFunds.createIntent(lastOperationId, bip44BCHAccount.getAccountIndex(),
+                                    payAddress, fromValue, TransactionFee.NORMAL, 1.0f);
+                        } else {
+                            service = IntentContract.SendFundsUnrelated.createIntent(lastOperationId, bip44BCHAccount.getId().toString(), payAddress, fromValue, TransactionFee.NORMAL, 1.0f, IntentContract.UNRELATED_ACCOUNT_TYPE_HD);
+                        }
+                        WalletApplication.sendToSpv(service, WalletAccount.Type.BCHBIP44);
+                        break;
+                    }
+                    case BCHSINGLEADDRESS: {
+                        SingleAddressBCHAccount singleAddressAccount = (SingleAddressBCHAccount) fromAccount;
+                        service = IntentContract.SendFundsUnrelated.createIntent(lastOperationId, singleAddressAccount.getId().toString(), offer.payinAddress, fromValue, TransactionFee.NORMAL, 1.0f, IntentContract.UNRELATED_ACCOUNT_TYPE_SA);
+                        WalletApplication.sendToSpv(service, WalletAccount.Type.BCHSINGLEADDRESS);
+                        break;
+                    }
+                }
+                progressDialog = new ProgressDialog(getActivity());
+                progressDialog.setIndeterminate(true);
+                progressDialog.setMessage(getString(R.string.sending, "..."));
+                progressDialog.show();
+            }
+        });
     }
 
     @Nullable
