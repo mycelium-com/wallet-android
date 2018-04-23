@@ -11,13 +11,10 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.view.ValueKeyboard;
 
 public class ExchangeActivity extends AppCompatActivity {
-    //TODO should extract this functionality for use in other places
-    public static int theme = R.style.MyceliumModern_Dark;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setTheme(theme);
         setContentView(R.layout.activity_exchange);
         setTitle(getString(R.string.excange_title));
         ActionBar bar = getSupportActionBar();

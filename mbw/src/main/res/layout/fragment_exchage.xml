@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -34,7 +33,7 @@
                 android:layout_marginTop="24dp">
 
                 <TextView
-                    android:id="@+id/tvError"
+                    android:id="@+id/tvErrorFrom"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
@@ -49,7 +48,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:alpha="0.6"
-                    android:textColor="?exchange_text_color"
+                    android:textColor="#bdbdbd"
                     android:textSize="12sp"
                     android:visibility="invisible"
                     tools:text="1 BCH ~ 0.46BTC" />
@@ -74,7 +73,7 @@
                     android:layout_toLeftOf="@id/fromValue"
                     android:paddingBottom="8dp"
                     android:text="BCH"
-                    android:textColor="?exchange_text_color"
+                    android:textColor="@color/white"
                     android:textSize="14sp"
                     tools:textColor="@color/white" />
 
@@ -86,6 +85,7 @@
                     android:layout_centerVertical="true"
                     android:layout_marginEnd="@dimen/margin_small"
                     android:layout_marginStart="@dimen/margin_small"
+                    android:textColorHint="#252525"
                     android:hint="@string/zero"
                     android:maxLines="1"
                     android:textColor="@color/white"
@@ -166,19 +166,39 @@
                     android:rotation="180" />
             </FrameLayout>
 
-            <TextView
-                android:id="@+id/exchange_fiat_rate"
-                android:layout_width="wrap_content"
+            <FrameLayout
+                android:id="@+id/bottom_layout"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
                 android:layout_marginEnd="@dimen/margin_small"
                 android:layout_marginStart="@dimen/margin_small"
-                android:layout_marginTop="24dp"
-                android:alpha="0.6"
-                android:text="1 BCH ~ 0.46BTC"
-                android:textColor="?exchange_text_color"
-                android:textSize="12sp"
-                android:visibility="invisible" />
+                android:layout_marginTop="24dp">
+
+                <TextView
+                    android:id="@+id/tvErrorTo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/changelly_min_amount"
+                    android:textColor="#fb746d"
+                    android:textSize="12sp"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/exchange_fiat_rate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginEnd="@dimen/margin_small"
+                    android:layout_marginStart="@dimen/margin_small"
+                    android:layout_marginTop="24dp"
+                    android:alpha="0.6"
+                    android:text="1 BCH ~ 0.46BTC"
+                    android:textColor="#bdbdbd"
+                    android:textSize="12sp"
+                    android:visibility="invisible" />
+
+            </FrameLayout>
 
             <RelativeLayout
                 android:id="@+id/toValueLayout"
@@ -196,7 +216,7 @@
                     android:layout_toLeftOf="@+id/toValue"
                     android:paddingBottom="8dp"
                     android:text="BTC"
-                    android:textColor="?exchange_text_color"
+                    android:textColor="@color/white"
                     android:textSize="14sp"
                     tools:textColor="@color/white" />
 
@@ -208,6 +228,7 @@
                     android:layout_centerVertical="true"
                     android:layout_marginEnd="@dimen/margin_small"
                     android:layout_marginStart="@dimen/margin_small"
+                    android:textColorHint="#252525"
                     android:hint="@string/zero"
                     android:textColor="@color/white"
                     android:textSize="@dimen/big_input"
@@ -226,7 +247,7 @@
                 android:layout_marginTop="@dimen/margin_medium"
                 android:alpha="0.6"
                 android:text="1 BCH ~ 0.46BTC"
-                android:textColor="?exchange_text_color"
+                android:textColor="@color/white"
                 android:textSize="14sp"
                 android:visibility="invisible" />
 

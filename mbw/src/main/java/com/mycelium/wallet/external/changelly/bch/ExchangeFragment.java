@@ -99,8 +99,11 @@ public class ExchangeFragment extends Fragment {
     @BindView(R.id.toValueLayout)
     View toLayout;
 
-    @BindView(R.id.tvError)
-    TextView tvError;
+    @BindView(R.id.tvErrorFrom)
+    TextView tvErrorFrom;
+
+    @BindView(R.id.tvErrorTo)
+    TextView tvErrorTo;
 
     @BindView(R.id.buttonContinue)
     Button buttonContinue;
@@ -435,8 +438,10 @@ public class ExchangeFragment extends Fragment {
     }
 
     boolean isValueForOfferOk(boolean checkMin) {
-        tvError.setVisibility(View.GONE);
+        tvErrorFrom.setVisibility(View.GONE);
+        tvErrorTo.setVisibility(View.GONE);
         exchangeFiatRateFrom.setVisibility(View.VISIBLE);
+        exchangeFiatRate.setVisibility(View.VISIBLE);
         String txtAmount = fromValue.getText().toString();
         if (txtAmount.isEmpty()) {
             buttonContinue.setEnabled(false);
@@ -459,19 +464,24 @@ public class ExchangeFragment extends Fragment {
         } else if (checkMin && dblAmount.compareTo(minAmount) < 0) {
             buttonContinue.setEnabled(false);
             if (dblAmount != 0) {
+                TextView tvError = valueKeyboard.getInputTextView() == toValue
+                        ? tvErrorTo : tvErrorFrom;
                 tvError.setText(getString(R.string.exchange_minimum_amount
                         , decimalFormat.format(minAmount), "BCH"));
                 tvError.setVisibility(View.VISIBLE);
+
                 exchangeFiatRateFrom.setVisibility(View.INVISIBLE);
-                scrollTo(tvError.getTop());
+                exchangeFiatRate.setVisibility(View.INVISIBLE);
             }
             return false;
         } else if (fromAccount.getCurrencyBasedBalance().confirmed.getValue().compareTo(BigDecimal.valueOf(dblAmount)) < 0) {
             buttonContinue.setEnabled(false);
+            TextView tvError = valueKeyboard.getInputTextView() == toValue
+                    ? tvErrorTo : tvErrorFrom;
             tvError.setText(R.string.balance_error);
             tvError.setVisibility(View.VISIBLE);
             exchangeFiatRateFrom.setVisibility(View.INVISIBLE);
-            scrollTo(tvError.getTop());
+            exchangeFiatRate.setVisibility(View.INVISIBLE);
             return false;
         }
         buttonContinue.setEnabled(true);
@@ -485,7 +495,8 @@ public class ExchangeFragment extends Fragment {
                     ExactBitcoinValue.from(new BigDecimal(toValue.getText().toString())));
         } catch (IllegalArgumentException ignore) {
         }
-        if (currencyBTCValue != null && currencyBTCValue.getValue() != null) {
+        if (currencyBTCValue != null && currencyBTCValue.getValue() != null
+                && tvErrorTo.getVisibility() != View.VISIBLE) {
             exchangeFiatRate.setText(ABOUT + Utils.formatFiatWithUnit(currencyBTCValue));
             exchangeFiatRate.setVisibility(View.VISIBLE);
         } else {
@@ -500,7 +511,7 @@ public class ExchangeFragment extends Fragment {
         } catch (IllegalArgumentException ignore) {
         }
         if (currencyBCHValue != null && currencyBCHValue.getValue() != null
-                && tvError.getVisibility() != View.VISIBLE) {
+                && tvErrorFrom.getVisibility() != View.VISIBLE) {
             exchangeFiatRateFrom.setText(ABOUT + Utils.formatFiatWithUnit(currencyBCHValue));
             exchangeFiatRateFrom.setVisibility(View.VISIBLE);
         } else {

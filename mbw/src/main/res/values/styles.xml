@@ -271,4 +271,20 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:orientation">horizontal</item>
     </style>
+
+    <style name="MyceliumExchange" parent="MyceliumModern">
+        <item name="actionBarStyle">@style/MyceliumExchangeActionBarStyle</item>
+    </style>
+
+    <style name="MyceliumExchangeActionBarStyle" parent="@style/Widget.AppCompat.ActionBar.Solid">
+        <item name="height">48dp</item>
+        <item name="titleTextStyle">@style/ExchangeTitleText</item>
+    </style>
+
+    <style name="ExchangeTitleText" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
 </resources>

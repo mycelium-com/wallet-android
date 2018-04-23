@@ -35,6 +35,10 @@ public class ValueKeyboard extends GridLayout {
         super(context, attrs, defStyleAttr);
     }
 
+    public TextView getInputTextView() {
+        return inputTextView;
+    }
+
     public void setMaxDecimals(int maxDecimals) {
         this.maxDecimals = maxDecimals;
         value.setEntry(value.getEntryAsBigDecimal(), maxDecimals);
