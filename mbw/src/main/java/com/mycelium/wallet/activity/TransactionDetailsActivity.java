@@ -40,7 +40,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
+import android.accounts.Account;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ContentResolver;
@@ -75,8 +77,14 @@ import com.mycelium.wapi.model.TransactionDetails;
 import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.bip44.Bip44Account;
+import com.mycelium.wapi.wallet.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
+import com.mycelium.wapi.wallet.single.SingleAddressAccount;
+import com.mycelium.wapi.wallet.single.SingleAddressBCHAccount;
+
+import org.bitcoinj.wallet.Wallet;
 
 public class TransactionDetailsActivity extends Activity {
 
@@ -124,10 +132,19 @@ public class TransactionDetailsActivity extends Activity {
       TransactionSummary transactionSummary = null;
       Uri uri = Uri.withAppendedPath(TransactionContract.TransactionSummary.CONTENT_URI(
           WalletApplication.getSpvModuleName(_mbwManager.getSelectedAccount().getType())), txid.toHex());
-      String selection = TransactionContract.TransactionSummary.SELECTION_ACCOUNT_INDEX;
-      int accountIndex = ((com.mycelium.wapi.wallet.bip44.Bip44Account)
-          _mbwManager.getSelectedAccount()).getAccountIndex();
-      String[] selectionArgs = new String[]{Integer.toString(accountIndex)};
+      String selection;
+      WalletAccount account = _mbwManager.getSelectedAccount();
+      String[] selectionArgs;
+      if(account.getType() == WalletAccount.Type.BCHSINGLEADDRESS
+          || account.getType() == WalletAccount.Type.BCHBIP44) {
+         UUID accountId = account.getId();
+         selectionArgs = new String[]{accountId.toString()};
+         selection = TransactionContract.TransactionSummary.SELECTION_SINGLE_ADDRESS_ACCOUNT_GUID;
+      } else {
+         int accountIndex = ((Bip44Account) account).getAccountIndex();
+         selectionArgs = new String[]{Integer.toString(accountIndex)};
+         selection = TransactionContract.TransactionSummary.SELECTION_ACCOUNT_INDEX;
+      }
       Cursor cursor = null;
       ContentResolver contentResolver = getContentResolver();
       try {
@@ -188,23 +205,44 @@ public class TransactionDetailsActivity extends Activity {
       Uri uri = Uri.withAppendedPath(TransactionContract.TransactionDetails.CONTENT_URI(
           WalletApplication.getSpvModuleName(_mbwManager.getSelectedAccount().getType())), txid.toHex());
       String selection = TransactionContract.TransactionDetails.SELECTION_ACCOUNT_INDEX;
-      int accountIndex = ((com.mycelium.wapi.wallet.bip44.Bip44Account)
-          _mbwManager.getSelectedAccount()).getAccountIndex();
-      String[] selectionArgs = new String[]{Integer.toString(accountIndex)};
-      Cursor cursor = null;
-      ContentResolver contentResolver = getContentResolver();
-      try {
-         cursor = contentResolver.query(uri, null, selection, selectionArgs, null);
-         if (cursor != null) {
+      WalletAccount account = _mbwManager.getSelectedAccount();
+      if(account.getClass() == Bip44Account.class || account.getClass() == Bip44BCHAccount.class) {
+        int accountIndex = ((Bip44Account)
+            _mbwManager.getSelectedAccount()).getAccountIndex();
+        String[] selectionArgs = new String[]{Integer.toString(accountIndex)};
+        Cursor cursor = null;
+        ContentResolver contentResolver = getContentResolver();
+        try {
+          cursor = contentResolver.query(uri, null, selection, selectionArgs, null);
+          if (cursor != null) {
             while (cursor.moveToNext()) {
-               transactionDetails = from(cursor);
+              transactionDetails = from(cursor);
             }
-         }
-      } finally {
-         if (cursor != null) {
+          }
+        } finally {
+          if (cursor != null) {
             cursor.close();
-         }
+          }
+        }
+      } else if(account.getClass() == SingleAddressAccount.class || account.getClass() == SingleAddressBCHAccount.class) {
+        UUID accountId = account.getId();
+        String[] selectionArgs = new String[]{accountId.toString()};
+        Cursor cursor = null;
+        ContentResolver contentResolver = getContentResolver();
+        try {
+          cursor = contentResolver.query(uri, null, selection, selectionArgs, null);
+          if (cursor != null) {
+            while (cursor.moveToNext()) {
+              transactionDetails = from(cursor);
+            }
+          }
+        } finally {
+          if (cursor != null) {
+            cursor.close();
+          }
+        }
       }
+
       return transactionDetails;
    }
 

@@ -210,8 +210,7 @@ public class TransactionHistoryFragment extends Fragment {
     String[] selectionArgs = null;
     if (account instanceof Bip44BCHAccount) {
       selection = TransactionContract.TransactionSummary.SELECTION_ACCOUNT_INDEX;
-      int accountIndex = ((Bip44BCHAccount) _mbwManager.getSelectedAccount()).getAccountIndex();
-      selectionArgs = new String[]{Integer.toString(accountIndex)};
+      selectionArgs = new String[]{Integer.toString(((Bip44BCHAccount) account).getAccountIndex())};
     }
 
     if (account instanceof SingleAddressBCHAccount) {
