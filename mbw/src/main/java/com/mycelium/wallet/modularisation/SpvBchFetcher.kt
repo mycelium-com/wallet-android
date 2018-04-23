@@ -18,6 +18,7 @@ import com.mycelium.spvmodule.providers.TransactionContract.GetMaxFundsTransferr
 import com.mycelium.spvmodule.providers.TransactionContract.EstimateFeeFromTransferrableAmount
 import com.mycelium.wallet.WalletApplication
 import com.mycelium.wallet.WalletApplication.getSpvModuleName
+import com.mycelium.wapi.model.IssuedKeysInfo
 import com.mycelium.wapi.model.TransactionSummary
 import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal
 import com.mycelium.wapi.wallet.SpvBalanceFetcher
@@ -202,26 +203,26 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
         }
     }
 
-    override fun getPrivateKeysCount(accountIndex: Int): Int {
+    override fun getPrivateKeysCount(accountIndex: Int): IssuedKeysInfo {
         val uri = GetPrivateKeysCount.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHBIP44)).buildUpon().build()
         val selection = GetPrivateKeysCount.SELECTION_ACCOUNT_INDEX
         context.contentResolver.query(uri, null, selection, arrayOf("" + accountIndex), null).use {
             return if (it?.moveToFirst() == true) {
-                it.getInt(0)
+                IssuedKeysInfo(it.getInt(0), it.getInt(1))
             } else {
-                0
+                IssuedKeysInfo(0, 0)
             }
         }
     }
 
-    override fun getPrivateKeysCountUnrelated(guid: String): Int {
+    override fun getPrivateKeysCountUnrelated(guid: String): IssuedKeysInfo {
         val uri = GetPrivateKeysCount.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHBIP44)).buildUpon().build()
         val selection = GetPrivateKeysCount.SELECTION_UNRELATED
         context.contentResolver.query(uri, null, selection, arrayOf(guid), null).use {
             return if (it?.moveToFirst() == true) {
-                it.getInt(0)
+                IssuedKeysInfo(it.getInt(0), it.getInt(1))
             } else {
-                0
+                IssuedKeysInfo(0, 0)
             }
         }
     }
