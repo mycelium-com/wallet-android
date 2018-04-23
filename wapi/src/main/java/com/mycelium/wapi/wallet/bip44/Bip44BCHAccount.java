@@ -1,11 +1,14 @@
 package com.mycelium.wapi.wallet.bip44;
 
 import com.google.common.base.Optional;
+import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wapi.api.Wapi;
+import com.mycelium.wapi.model.IssuedKeysInfo;
 import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.Bip44AccountBacking;
+import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SpvBalanceFetcher;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
@@ -99,14 +102,38 @@ public class Bip44BCHAccount extends Bip44Account {
 
     @Override
     public int getPrivateKeyCount() {
-        if (getAccountType() == ACCOUNT_TYPE_FROM_MASTERSEED)
-            return spvBalanceFetcher.getPrivateKeysCount(getAccountIndex());
-        else
-            return spvBalanceFetcher.getPrivateKeysCountUnrelated(getId().toString());
+        if (getAccountType() == ACCOUNT_TYPE_FROM_MASTERSEED) {
+            IssuedKeysInfo info = spvBalanceFetcher.getPrivateKeysCount(getAccountIndex());
+            return info.getExternalKeys() + info.getInternalKeys();
+        } else {
+            IssuedKeysInfo info = spvBalanceFetcher.getPrivateKeysCountUnrelated(getId().toString());
+            return info.getExternalKeys() + info.getInternalKeys();
+        }
     }
 
     @Override
     public Optional<Address> getReceivingAddress() {
         return Optional.fromNullable(spvBalanceFetcher.getCurrentReceiveAddress(getAccountIndex()));
+    }
+
+    @Override
+    public InMemoryPrivateKey getPrivateKeyForAddress(Address address, KeyCipher cipher) throws KeyCipher.InvalidKeyCipher {
+        IssuedKeysInfo info = spvBalanceFetcher.getPrivateKeysCount(getAccountIndex());
+        List<Address> internalAddresses = getAddressRange(true, 0, info.getInternalKeys() + INTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH);
+        List<Address> externalAddresses = getAddressRange(false, 0, info.getExternalKeys() + EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH);
+
+        int iix = internalAddresses.indexOf(address);
+
+        if (iix != -1) {
+            return _keyManager.getPrivateKey(true, iix, cipher);
+        }
+
+        int eix = externalAddresses.indexOf(address);
+
+        if (eix != -1) {
+            return _keyManager.getPrivateKey(false, eix, cipher);
+        }
+
+        return null;
     }
 }
