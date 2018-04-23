@@ -85,12 +85,12 @@
                     android:layout_centerVertical="true"
                     android:layout_marginEnd="@dimen/margin_small"
                     android:layout_marginStart="@dimen/margin_small"
-                    android:textColorHint="#252525"
+                    android:textColorHint="@color/white"
                     android:hint="@string/zero"
                     android:maxLines="1"
                     android:textColor="@color/white"
                     android:textSize="@dimen/big_input"
-                    android:text="0" />
+                    tools:text="0" />
 
                 <TextView
                     android:id="@+id/use_all_funds"
@@ -228,11 +228,11 @@
                     android:layout_centerVertical="true"
                     android:layout_marginEnd="@dimen/margin_small"
                     android:layout_marginStart="@dimen/margin_small"
-                    android:textColorHint="#252525"
+                    android:textColorHint="@color/white"
                     android:hint="@string/zero"
                     android:textColor="@color/white"
                     android:textSize="@dimen/big_input"
-                    android:text="0" />
+                    tools:text="0" />
 
             </RelativeLayout>
 
