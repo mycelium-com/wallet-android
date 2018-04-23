@@ -220,7 +220,6 @@
   <string name="unlock_label">Ontgrendelen</string>
   <string name="lock_label">Vergrendelen</string>
   <string name="secure_my_funds">Beveilig mijn tegoeden</string>
-  <string name="move_legacy_funds_message">Uw portemonnee heeft een of meer oudere accounts met tegoeden.\n\nZorg ervoor dat uw geld veilig is en ter verbetering van uw anonimiteit dient u uw fondsen te verplaatsen naar een van uw HD accounts.\n\nGa naar het tabblad rekeningen voor meer informatie.</string>
   <string name="ignore_warnings_title">Negeer de waarschuwingen</string>
   <string name="ignore_warnings_description">Wilt u waarschuwingen negeren dat er nog tegoed staat op dit bestaande account?</string>
   <string name="explore">Verkennen</string>

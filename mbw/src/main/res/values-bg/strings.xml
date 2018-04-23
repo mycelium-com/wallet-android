@@ -222,7 +222,6 @@
   <string name="unlock_label">Отключване</string>
   <string name="lock_label">Заключване</string>
   <string name="secure_my_funds">Подсигури парите ми</string>
-  <string name="move_legacy_funds_message">Този портфейл има една или повече стари сметки с налични средства.\n\nЗа да се уверите че парите ви са подсигурени и да подобрите анонимността си, трябва да преместите тези средства към някоя от вашите HD сметки.\n\nМоля, преминете към раздел \"Сметки\" за подробности.</string>
   <string name="ignore_warnings_title">Игнориране на предупрежденията</string>
   <string name="ignore_warnings_description">Желаете ли да игнорирате предупрежденията, обясняващи че тази стара сметка съдържа средства?</string>
   <string name="explore">Разглеждане</string>

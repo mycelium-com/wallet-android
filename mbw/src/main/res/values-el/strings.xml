@@ -219,7 +219,6 @@
   <string name="unlock_label">Ξεκλείδωμα</string>
   <string name="lock_label">Κλείδωμα</string>
   <string name="secure_my_funds">Ασφάλιση Κεφαλαίων Μου</string>
-  <string name="move_legacy_funds_message">Το πορτοφόλι σας έχει έναν ή περισσότερους παλαιού τύπου λογαριασμούς που περιέχουν κεφάλαια.\n\nΓια να διασφαλίσετε την ασφάλεια των κεφαλαίων αυτών και να βελτιώσετε την ανωνυμία σας θα πρέπει να τα μεταφέρετε σε έναν από τους HD λογαριασμούς σας\n\nΜεταβείτε στην καρτέλα Λογαριασμοί για λεπτομέρειες.</string>
   <string name="ignore_warnings_title">Αγνόηση Προειδοποιήσεων</string>
   <string name="ignore_warnings_description">Θέλετε να αγνοήσετε τα μηνύματα που ειδοποιούν ότι αυτός ο παλαιού τύπου λογαριασμός περιέχει κεφάλαια;</string>
   <string name="explore">Εξερεύνηση</string>

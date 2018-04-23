@@ -224,7 +224,6 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="unlock_label">Entsperren</string>
   <string name="lock_label">Sperren</string>
   <string name="secure_my_funds">Meine Bitcoins sichern</string>
-  <string name="move_legacy_funds_message">Ihre Wallet hat ein oder mehrere Altdaten-Konten, die Bitcoins enthalten.\n\nUm sicherzustellen, dass Ihre Bitcoins sicher sind und um Ihre Anonymität zu verbessern, sollten Sie diese Bitcoins auf eines Ihrer HD-Konten verschieben.\n\nBitte tippen Sie auf die Registerkarte \"Konten\" um weitere Details zu sehen.</string>
   <string name="ignore_warnings_title">Warnungen ignorieren</string>
   <string name="ignore_warnings_description">Wollen Sie weitere Warnungen ignorieren, dass dieses Altdaten-Konto Bitcoins enthält und Sie ein sicheres Backup des privaten Schlüssels haben?</string>
   <string name="explore">Erkunde Umgebung</string>
