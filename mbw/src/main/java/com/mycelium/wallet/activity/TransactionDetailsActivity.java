@@ -298,18 +298,24 @@ public class TransactionDetailsActivity extends Activity {
       // Set Fee
       final long txFeeTotal = getFee(_tx);
       String fee = null;
-      if(_mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHSINGLEADDRESS
-          || _mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHBIP44) {
-         fee = _mbwManager.getBchValueString(txFeeTotal);
+      if(txFeeTotal > 0) {
+         ((TextView) findViewById(R.id.tvFeeLabel)).setVisibility(View.VISIBLE);
+         ((TextView) findViewById(R.id.tvInputsLabel)).setVisibility(View.VISIBLE);
+         if (_mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHSINGLEADDRESS
+             || _mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHBIP44) {
+            fee = _mbwManager.getBchValueString(txFeeTotal);
+         } else {
+            fee = _mbwManager.getBtcValueString(txFeeTotal);
+         }
+         if (_tx.rawSize > 0) {
+            final long txFeePerSat = txFeeTotal / _tx.rawSize;
+            fee += String.format("\n%d sat/byte", txFeePerSat);
+         }
+         ((TextView) findViewById(R.id.tvFee)).setText(fee);
       } else {
-         fee = _mbwManager.getBtcValueString(txFeeTotal);
+         ((TextView) findViewById(R.id.tvFeeLabel)).setVisibility(View.GONE);
+         ((TextView) findViewById(R.id.tvInputsLabel)).setVisibility(View.GONE);
       }
-
-      if (_tx.rawSize > 0) {
-         final long txFeePerSat = txFeeTotal / _tx.rawSize;
-         fee += String.format("\n%d sat/byte", txFeePerSat);
-      }
-      ((TextView) findViewById(R.id.tvFee)).setText(fee);
 
    }
 

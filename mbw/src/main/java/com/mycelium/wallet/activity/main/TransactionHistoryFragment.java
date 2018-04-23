@@ -200,7 +200,7 @@ public class TransactionHistoryFragment extends Fragment {
       }
    }
 
-  private List<TransactionSummary> getTransactions() {
+  private List<TransactionSummary> getTransactions(int offset, int limit) {
     List<TransactionSummary> transactionSummaryList = new ArrayList<>();
     WalletAccount account = _mbwManager.getSelectedAccount();
     FragmentActivity context = getActivity();
@@ -224,9 +224,15 @@ public class TransactionHistoryFragment extends Fragment {
     try {
       cursor = contentResolver.query(uri, null, selection, selectionArgs, null);
       if (cursor != null) {
+        int x = 0;
+        int counter = 0;
         while (cursor.moveToNext()) {
-          TransactionSummary transactionSummary = from(cursor);
-          transactionSummaryList.add(transactionSummary);
+          if(x >= offset && counter < limit) {
+            TransactionSummary transactionSummary = from(cursor);
+            transactionSummaryList.add(transactionSummary);
+            counter++;
+          }
+          x++;
         }
       }
     } finally {
@@ -328,7 +334,7 @@ public class TransactionHistoryFragment extends Fragment {
      List<TransactionSummary> history;
       if (account.getClass() == Bip44BCHAccount.class
           || account.getClass() == SingleAddressBCHAccount.class) {
-         history = getTransactions();
+         history = getTransactions(0, 20);
       } else  {
         history = account.getTransactionHistory(0, 20);
       }
@@ -679,10 +685,15 @@ public class TransactionHistoryFragment extends Fragment {
 
       @Override
       protected boolean cacheInBackground() {
-         WalletAccount acc = _mbwManager.getSelectedAccount();
+         WalletAccount account = _mbwManager.getSelectedAccount();
          synchronized (_toAddLock) {
             lastOffset += chunkSize;
-            _toAdd = acc.getTransactionHistory(lastOffset, chunkSize);
+           if (account.getClass() == Bip44BCHAccount.class
+               || account.getClass() == SingleAddressBCHAccount.class) {
+             _toAdd = getTransactions(lastOffset, chunkSize);
+           } else  {
+             _toAdd = account.getTransactionHistory(lastOffset, chunkSize);
+           }
          }
          return _toAdd.size() == chunkSize;
       }
@@ -702,7 +713,16 @@ public class TransactionHistoryFragment extends Fragment {
       MetadataStorage metaData = _mbwManager.getMetadataStorage();
       try {
          String fileName = "MyceliumExport_" + System.currentTimeMillis() + ".csv";
-         File historyData = DataExport.getTxHistoryCsv(account, metaData, getActivity().getFileStreamPath(fileName));
+
+        List<TransactionSummary> history;
+        if (account.getClass() == Bip44BCHAccount.class
+            || account.getClass() == SingleAddressBCHAccount.class) {
+          history = getTransactions(0, Integer.MAX_VALUE);
+        } else  {
+          history = account.getTransactionHistory(0, Integer.MAX_VALUE);
+        }
+         File historyData = DataExport.getTxHistoryCsv(account, history, metaData,
+             getActivity().getFileStreamPath(fileName));
          PackageManager packageManager = Preconditions.checkNotNull(getActivity().getPackageManager());
          PackageInfo packageInfo = packageManager.getPackageInfo(getActivity().getPackageName(), PackageManager.GET_PROVIDERS);
          for (ProviderInfo info : packageInfo.providers) {

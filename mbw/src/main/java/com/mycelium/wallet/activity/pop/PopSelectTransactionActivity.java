@@ -34,25 +34,39 @@
 
 package com.mycelium.wallet.activity.pop;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.*;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+
+import com.google.common.base.Optional;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.Sha256Hash;
+import com.mycelium.spvmodule.providers.TransactionContract;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.WalletApplication;
 import com.mycelium.wallet.activity.main.adapter.TransactionArrayAdapter;
 import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.model.TransactionSummary;
+import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.bip44.Bip44BCHAccount;
+import com.mycelium.wapi.wallet.currency.CurrencyValue;
+import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
+import com.mycelium.wapi.wallet.single.SingleAddressBCHAccount;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -183,8 +197,13 @@ public class PopSelectTransactionActivity extends AppCompatActivity implements A
          MbwManager mbwManager = MbwManager.getInstance(getActivity());
          WalletAccount account = mbwManager.getSelectedAccount();
 
-         List<TransactionSummary> history = account.getTransactionHistory(0, 1000);
-         List<TransactionSummary> list = new ArrayList<TransactionSummary>();
+         List<TransactionSummary> history;
+         if (account.getClass() == Bip44BCHAccount.class
+             || account.getClass() == SingleAddressBCHAccount.class) {
+            history = getTransactions(0, 1000);
+         } else  {
+            history = account.getTransactionHistory(0, 1000);
+         }         List<TransactionSummary> list = new ArrayList<TransactionSummary>();
 
          for (TransactionSummary transactionSummary : history) {
             if (transactionSummary.isIncoming) {
@@ -198,6 +217,87 @@ public class PopSelectTransactionActivity extends AppCompatActivity implements A
 
          Map<Address, String> addressBook = mbwManager.getMetadataStorage().getAllAddressLabels();
          transactionHistoryAdapter = new TransactionHistoryAdapter(getActivity(), list, addressBook);
+      }
+
+      private List<TransactionSummary> getTransactions(int offset, int limit) {
+         List<TransactionSummary> transactionSummaryList = new ArrayList<>();
+         WalletAccount account = MbwManager.getInstance(getContext()).getSelectedAccount();
+         FragmentActivity context = getActivity();
+         Uri uri = TransactionContract.TransactionSummary.CONTENT_URI(
+             WalletApplication.getSpvModuleName(account.getType()));
+         String selection = null;
+         String[] selectionArgs = null;
+         if (account instanceof Bip44BCHAccount) {
+            selection = TransactionContract.TransactionSummary.SELECTION_ACCOUNT_INDEX;
+            int accountIndex = ((Bip44BCHAccount) MbwManager.getInstance(getContext()).getSelectedAccount()).getAccountIndex();
+            selectionArgs = new String[]{Integer.toString(accountIndex)};
+         }
+
+         if (account instanceof SingleAddressBCHAccount) {
+            selection = TransactionContract.TransactionSummary.SELECTION_SINGLE_ADDRESS_ACCOUNT_GUID;
+            selectionArgs = new String[]{account.getId().toString()};
+         }
+
+         Cursor cursor = null;
+         ContentResolver contentResolver = context.getContentResolver();
+         try {
+            cursor = contentResolver.query(uri, null, selection, selectionArgs, null);
+            if (cursor != null) {
+               int x = 0;
+               int counter = 0;
+               while (cursor.moveToNext()) {
+                  if(x >= offset && counter < limit) {
+                     TransactionSummary transactionSummary = from(cursor);
+                     transactionSummaryList.add(transactionSummary);
+                     counter++;
+                  }
+                  x++;
+               }
+            }
+         } finally {
+            if (cursor != null) {
+               cursor.close();
+            }
+         }
+         return transactionSummaryList;
+      }
+
+      private TransactionSummary from(Cursor cursor) {
+         String rawTxId = cursor.getString(cursor.getColumnIndex(TransactionContract.TransactionSummary._ID));
+         Sha256Hash txId = Sha256Hash.fromString(rawTxId);
+         String rawValue = cursor.getString(cursor.getColumnIndex(TransactionContract.TransactionSummary.VALUE));
+         CurrencyValue value = ExactCurrencyValue.from(new BigDecimal(rawValue), "BCH");
+         int rawIsIncoming = cursor.getInt(cursor.getColumnIndex(TransactionContract.TransactionSummary.IS_INCOMING));
+         boolean isIncoming = rawIsIncoming == 1;
+         long time = cursor.getLong(cursor.getColumnIndex(TransactionContract.TransactionSummary.TIME));
+         int height = cursor.getInt(cursor.getColumnIndex(TransactionContract.TransactionSummary.HEIGHT));
+         int confirmations = cursor.getInt(cursor.getColumnIndex(TransactionContract.TransactionSummary.CONFIRMATIONS));
+         int rawIsQueuedOutgoing = cursor.getInt(cursor.getColumnIndex(TransactionContract.TransactionSummary.IS_QUEUED_OUTGOING));
+         boolean isQueuedOutgoing = rawIsQueuedOutgoing == 1;
+
+         ConfirmationRiskProfileLocal confirmationRiskProfile = null;
+         int unconfirmedChainLength = cursor.getInt(cursor.getColumnIndex(TransactionContract.TransactionSummary.CONFIRMATION_RISK_PROFILE_LENGTH));
+         if (unconfirmedChainLength > -1) {
+            boolean hasRbfRisk = cursor.getInt(cursor.getColumnIndex(TransactionContract.TransactionSummary.CONFIRMATION_RISK_PROFILE_LENGTH)) == 1;
+            boolean isDoubleSpend = cursor.getInt(cursor.getColumnIndex(TransactionContract.TransactionSummary.CONFIRMATION_RISK_PROFILE_LENGTH)) == 1;
+            confirmationRiskProfile = new ConfirmationRiskProfileLocal(unconfirmedChainLength, hasRbfRisk, isDoubleSpend);
+         }
+
+         String rawDestinationAddress = cursor.getString(cursor.getColumnIndex(TransactionContract.TransactionSummary.DESTINATION_ADDRESS));
+         Optional<Address> destinationAddress = Optional.absent();
+         if (!TextUtils.isEmpty(rawDestinationAddress)) {
+            destinationAddress = Optional.of(com.mrd.bitlib.model.Address.fromString(rawDestinationAddress));
+         }
+         List<com.mrd.bitlib.model.Address> toAddresses = new ArrayList<>();
+         String rawToAddresses = cursor.getString(cursor.getColumnIndex(TransactionContract.TransactionSummary.TO_ADDRESSES));
+         if (!TextUtils.isEmpty(rawToAddresses)) {
+            String[] addresses = rawToAddresses.split(",");
+            for (String addr : addresses) {
+               toAddresses.add(Address.fromString(addr));
+            }
+         }
+         return new TransactionSummary(txId, value, isIncoming, time, height, confirmations, isQueuedOutgoing,
+             confirmationRiskProfile, destinationAddress, toAddresses);
       }
 
       @Override
