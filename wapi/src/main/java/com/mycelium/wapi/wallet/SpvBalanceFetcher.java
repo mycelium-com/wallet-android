@@ -5,6 +5,7 @@ import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface SpvBalanceFetcher {
     CurrencyBasedBalance retrieveByHdAccountIndex(String id, int accountIndex);
@@ -30,4 +31,5 @@ public interface SpvBalanceFetcher {
     long getMaxFundsTransferrableUnrelatedAccount(String guid);
     long estimateFeeFromTransferrableAmount(int accountIndex, long amountSatoshis, String txFee, float txFeeFactor);
     long estimateFeeFromTransferrableAmountUnrelatedAccount(String guid, long amountSatoshis, String txFee, float txFeeFactor);
+    int getBlockchainHeight();
 }

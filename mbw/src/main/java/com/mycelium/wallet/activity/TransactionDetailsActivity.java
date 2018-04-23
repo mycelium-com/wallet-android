@@ -283,7 +283,7 @@ public class TransactionDetailsActivity extends Activity {
 
 
       // Set Confirmed
-      int confirmations = _tx.calculateConfirmations(_mbwManager.getSelectedAccount().getBlockChainHeight());
+      int confirmations = _tx.calculateConfirmations(_mbwManager.getSpvBchFetcher().getBlockchainHeight());
       String confirmed;
       if (_tx.height > 0) {
          confirmed = getResources().getString(R.string.confirmed_in_block, _tx.height);

@@ -266,7 +266,18 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
                 0
             }
         }
+    }
 
+    override fun getBlockchainHeight(): Int {
+        val uri = TransactionContract.BlockchainHeight.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHBIP44))
+                .buildUpon().build()
+        context.contentResolver.query(uri, null, null, null, null).use {
+            return if (it?.moveToFirst() == true) {
+                it.getInt(it.getColumnIndex(TransactionContract.BlockchainHeight.HEIGHT))
+            } else {
+                -1
+            }
+        }
     }
 
     override fun getMaxFundsTransferrableUnrelatedAccount(guid: String): Long {
