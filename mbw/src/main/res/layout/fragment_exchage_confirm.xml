@@ -182,7 +182,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:fontFamily="sans-serif"
-        android:text="@string/exchange_amount_is_approximate_due_to_the_high_volatility_of_the_cryptomarket"
+        android:text="@string/aproximate_volatile"
         android:textColor="#ffffff"
         android:textSize="12sp"
         android:textStyle="normal" />

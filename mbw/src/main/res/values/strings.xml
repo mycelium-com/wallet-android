@@ -1175,7 +1175,6 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="given_rates_includes_transaction_fee">Given rate includes transaction fee</string>
     <string name="try_again">Try Again</string>
     <string name="exchange_rate_unavailable_msg">An exchange rate is temporarily unavailable.\nPlease check your network connection and try again or get back later.</string>
-    <string name="exchange_amount_is_approximate_due_to_the_high_volatility_of_the_cryptomarket">Exchange rate is approximate due to the high volatility of the cryptomarket.</string>
     <string name="offer_auto_updated">The offer will be auto-updated after %d seconds.</string>
     <string name="updating_offer">Updating offer…</string>
     <string name="module_uninstall_progress">Uninstalling…</string>
