@@ -287,7 +287,7 @@ public class ConfirmExchangeFragment extends Fragment {
                     offerUpdateText.post(updateOffer);
                     break;
                 case INFO_ERROR:
-                    new AlertDialog.Builder(getActivity())
+                    new AlertDialog.Builder(getActivity(), R.style.MyceliumModern_Dialog)
                             .setMessage(R.string.exchange_service_unavailable)
                             .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
                                 @Override
@@ -393,7 +393,7 @@ public class ConfirmExchangeFragment extends Fragment {
                 downloadConfirmationDialog.dismiss();
             }
         });
-        downloadConfirmationDialog = new AlertDialog.Builder(getActivity())
+        downloadConfirmationDialog = new AlertDialog.Builder(getActivity(), R.style.MyceliumModern_Dialog)
 
                 .setView(view)
                 .setOnDismissListener(new DialogInterface.OnDismissListener() {

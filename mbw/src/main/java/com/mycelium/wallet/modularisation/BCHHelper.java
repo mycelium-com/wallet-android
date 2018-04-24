@@ -38,7 +38,7 @@ public class BCHHelper {
         final SharedPreferences sharedPreferences = context.getSharedPreferences(BCH_PREFS, MODE_PRIVATE);
         final boolean moduleBCHInstalled = isModulePaired(context);
         if (!sharedPreferences.getBoolean(BCH_FIRST_UPDATE, false) && !moduleBCHInstalled) {
-            new AlertDialog.Builder(context)
+            new AlertDialog.Builder(context, R.style.MyceliumModern_Dialog)
             .setTitle(R.string.first_modulization_title)
             .setMessage(Html.fromHtml(context.getString(R.string.first_modulization_message)))
             .setPositiveButton(Html.fromHtml(context.getString(R.string.install_bch_module)), new DialogInterface.OnClickListener() {
@@ -64,7 +64,7 @@ public class BCHHelper {
             View view = LayoutInflater.from(context).inflate(R.layout.dialog_bch_module_installed, null);
             ((TextView) view.findViewById(R.id.title)).setText(Html.fromHtml(context.getString(R.string.first_bch_installed_title)));
             ((TextView) view.findViewById(R.id.content)).setText(Html.fromHtml(context.getString(R.string.to_get_your_bitcoin_cash_retrieved)));
-            final AlertDialog dialog = new AlertDialog.Builder(context)
+            final AlertDialog dialog = new AlertDialog.Builder(context, R.style.MyceliumModern_Dialog)
                     .setView(view)
                     .setOnDismissListener(new DialogInterface.OnDismissListener() {
                         @Override
@@ -107,7 +107,7 @@ public class BCHHelper {
                 .apply();
             }
         }
-        AlertDialog.Builder builder = new AlertDialog.Builder(context)
+        AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.MyceliumModern_Dialog)
         .setPositiveButton(R.string.button_continue, null);
         if (sum.floatValue() > 0) {
             builder.setTitle(Html.fromHtml(context.getString(R.string.scaning_complete_found)))
@@ -138,7 +138,7 @@ public class BCHHelper {
     }
 
     public static void bchTechnologyPreviewDialog(Context context) {
-        new AlertDialog.Builder(context)
+        new AlertDialog.Builder(context, R.style.MyceliumModern_Dialog)
         .setMessage(Html.fromHtml(context.getString(R.string.bch_technology_preview)))
         .setPositiveButton(R.string.button_ok, null).create().show();
     }

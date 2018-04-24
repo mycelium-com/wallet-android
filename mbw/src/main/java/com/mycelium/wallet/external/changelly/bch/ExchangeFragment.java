@@ -576,12 +576,13 @@ public class ExchangeFragment extends Fragment {
                             }
                         }
                         isValueForOfferOk(true);
+
                         avoidTextChangeEvent = false;
                         updateUi();
                     }
                     break;
                 case INFO_ERROR:
-                    new AlertDialog.Builder(getActivity())
+                    new AlertDialog.Builder(getActivity(), R.style.MyceliumModern_Dialog)
                             .setMessage(getString(R.string.exchange_rate_unavailable_msg))
                             .setNegativeButton(R.string.button_cancel, null)
                             .setPositiveButton(R.string.try_again, new DialogInterface.OnClickListener() {

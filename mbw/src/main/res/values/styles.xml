@@ -75,6 +75,7 @@
         <item name="android:buttonStyle">@style/MyceliumButton</item>
         <item name="android:textViewStyle">@style/MyceliumText</item>
 
+        <item name="android:windowBackground">@drawable/dialog_background</item>
     </style>
 
     <style name="MyceliumModern.Dialog.Transparent" >

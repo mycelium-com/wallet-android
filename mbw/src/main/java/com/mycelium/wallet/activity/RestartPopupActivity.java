@@ -22,8 +22,8 @@ public class RestartPopupActivity extends Activity {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.popup_activity);
-        AlertDialog.Builder Builder=new AlertDialog.Builder(this)
-                .setTitle(Html.fromHtml(getIntent().getExtras().getString(RESTART_WARNING_HEADER,"")))
+        AlertDialog.Builder Builder = new AlertDialog.Builder(this, R.style.MyceliumModern_Dialog)
+                .setTitle(Html.fromHtml(getIntent().getExtras().getString(RESTART_WARNING_HEADER, "")))
                 .setMessage(R.string.configuration_change_restart_warning)
                 .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
                     @Override
@@ -32,7 +32,7 @@ public class RestartPopupActivity extends Activity {
                         restart(getApplicationContext());
                     }
                 });
-        AlertDialog alertDialog=Builder.create();
+        AlertDialog alertDialog = Builder.create();
         alertDialog.setCanceledOnTouchOutside(false);
         alertDialog.show();
     }
