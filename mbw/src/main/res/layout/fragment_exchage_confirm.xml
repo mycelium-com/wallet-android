@@ -53,7 +53,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
                 android:layout_marginLeft="10dp"
-                android:text="exchanging"
+                android:text="@string/exchanging"
                 android:textColor="#bdbdbd"
                 android:textSize="12sp" />
 
@@ -142,7 +142,7 @@
                 android:layout_gravity="end|bottom"
                 android:layout_marginLeft="10dp"
                 android:lines="1"
-                android:text="receiving"
+                android:text="@string/receiving_exchange"
                 android:textColor="#bdbdbd"
                 android:textSize="12sp" />
 

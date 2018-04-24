@@ -561,23 +561,21 @@ public class ExchangeFragment extends Fragment {
                     if (from != null && to != null) {
                         Log.d(TAG, "Received offer: " + amount + " " + to);
                         avoidTextChangeEvent = true;
-                        try {
-
-                            if (to.equalsIgnoreCase(ChangellyService.BTC)
-                                    && from.equalsIgnoreCase(ChangellyService.BCH)) {
+                        if (to.equalsIgnoreCase(ChangellyService.BTC)
+                                && from.equalsIgnoreCase(ChangellyService.BCH)) {
+                            try {
                                 if (fromAmount == getFromExcludeFee().doubleValue()) {
                                     toValue.setText(decimalFormat.format(amount));
                                 }
-                                if (fromAmount != 0 && amount != 0) {
-                                    bchToBtcRate = amount / fromAmount;
-                                    exchangeRate.setText("1 BCH ~ " + decimalFormat.format(bchToBtcRate) + " BTC");
-                                    exchangeRate.setVisibility(View.VISIBLE);
-                                }
+                            } catch (NumberFormatException ignore) {
                             }
-                            isValueForOfferOk(true);
-
-                        } catch (NumberFormatException ignore) {
+                            if (fromAmount != 0 && amount != 0) {
+                                bchToBtcRate = amount / fromAmount;
+                                exchangeRate.setText("1 BCH ~ " + decimalFormat.format(bchToBtcRate) + " BTC");
+                                exchangeRate.setVisibility(View.VISIBLE);
+                            }
                         }
+                        isValueForOfferOk(true);
                         avoidTextChangeEvent = false;
                         updateUi();
                     }
