@@ -126,6 +126,8 @@ public class ExchangeFragment extends Fragment {
     private Receiver receiver;
     private SharedPreferences sharedPreferences;
 
+    private double bchToBtcRate = 0;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -145,6 +147,7 @@ public class ExchangeFragment extends Fragment {
                 .setAction(ChangellyService.ACTION_GET_MIN_EXCHANGE)
                 .putExtra(ChangellyService.FROM, ChangellyService.BCH)
                 .putExtra(ChangellyService.TO, ChangellyService.BTC));
+        requestExchangeRate("1", ChangellyService.BCH, ChangellyService.BTC);
     }
 
     @Nullable
@@ -288,7 +291,7 @@ public class ExchangeFragment extends Fragment {
                     .getAccount((UUID) savedInstanceState.getSerializable(FROM_ACCOUNT)));
             toRecyclerView.setSelectedItem(mbwManager.getWalletManager(false)
                     .getAccount((UUID) savedInstanceState.getSerializable(TO_ACCOUNT)));
-            requestOfferFunction(getFromExcludeFee().toPlainString(), ChangellyService.BCH, ChangellyService.BTC);
+            requestExchangeRate(getFromExcludeFee().toPlainString(), ChangellyService.BCH, ChangellyService.BTC);
         }
     }
 
@@ -366,7 +369,7 @@ public class ExchangeFragment extends Fragment {
         isValueForOfferOk(true);
         if (!avoidTextChangeEvent && !fromValue.getText().toString().isEmpty()) {
             try {
-                requestOfferFunction(getFromExcludeFee().toPlainString(), ChangellyService.BCH, ChangellyService.BTC);
+                requestExchangeRate(getFromExcludeFee().toPlainString(), ChangellyService.BCH, ChangellyService.BTC);
             } catch (IllegalArgumentException e) {
                 Log.e(TAG, e.getMessage(), e);
             }
@@ -405,8 +408,9 @@ public class ExchangeFragment extends Fragment {
                 val = MAX_BITCOIN_VALUE;
                 toValue.setText(val.toPlainString());
             }
-            requestOfferFunction(val.toPlainString()
-                    , ChangellyService.BTC, ChangellyService.BCH);
+            avoidTextChangeEvent = true;
+            fromValue.setText(decimalFormat.format(calculateBTCtoBHC(val.toPlainString())));
+            avoidTextChangeEvent = false;
         }
         if (!avoidTextChangeEvent && toValue.getText().toString().isEmpty()) {
             avoidTextChangeEvent = true;
@@ -417,7 +421,7 @@ public class ExchangeFragment extends Fragment {
         updateUi();
     }
 
-    private void requestOfferFunction(String amount, String fromCurrency, String toCurrency) {
+    private void requestExchangeRate(String amount, String fromCurrency, String toCurrency) {
         Double dblAmount;
         try {
             dblAmount = Double.parseDouble(amount);
@@ -432,6 +436,21 @@ public class ExchangeFragment extends Fragment {
                 .putExtra(ChangellyService.AMOUNT, dblAmount);
         getActivity().startService(changellyServiceIntent);
 
+    }
+
+    private double calculateBTCtoBHC(String amount) {
+        Double dblAmount;
+        try {
+            dblAmount = Double.parseDouble(amount);
+        } catch (NumberFormatException e) {
+            Toast.makeText(getActivity(), "Error parsing double values", Toast.LENGTH_SHORT).show();
+            return 0;
+        }
+        if (bchToBtcRate == 0) {
+            Toast.makeText(getActivity(), "Please wait while loading exchange rate", Toast.LENGTH_SHORT).show();
+            return 0;
+        }
+        return dblAmount / bchToBtcRate;
     }
 
     boolean isValueForOfferOk(boolean checkMin) {
@@ -545,30 +564,16 @@ public class ExchangeFragment extends Fragment {
                         try {
 
                             if (to.equalsIgnoreCase(ChangellyService.BTC)
-                                    && from.equalsIgnoreCase(ChangellyService.BCH)
-                                    && fromAmount == getFromExcludeFee().doubleValue()) {
-                                toValue.setText(decimalFormat.format(amount));
-                                if (fromAmount != 0 && amount != 0) {
-                                    exchangeRate.setText("1 BCH ~ " + decimalFormat.format(amount / fromAmount) + " BTC");
-                                    exchangeRate.setVisibility(View.VISIBLE);
+                                    && from.equalsIgnoreCase(ChangellyService.BCH)) {
+                                if (fromAmount == getFromExcludeFee().doubleValue()) {
+                                    toValue.setText(decimalFormat.format(amount));
                                 }
-                            } else if (from.equalsIgnoreCase(ChangellyService.BTC)
-                                    && to.equalsIgnoreCase(ChangellyService.BCH)
-                                    && fromAmount == Double.parseDouble(toValue.getText().toString())) {
-                                BigDecimal txFee = BigDecimal.ZERO;
-                                try {
-                                    txFee = UtilsKt.estimateFeeFromTransferrableAmount(
-                                            fromAccountAdapter.getItem(fromRecyclerView.getSelectedItem()).account,
-                                            mbwManager, BitcoinCash.valueOf(amount).getLongValue());
-                                } catch (IllegalArgumentException ignore) {
-                                }
-                                fromValue.setText(decimalFormat.format(amount + txFee.doubleValue()));
                                 if (fromAmount != 0 && amount != 0) {
-                                    exchangeRate.setText("1 BCH ~ " + decimalFormat.format(fromAmount / amount) + " BTC");
+                                    bchToBtcRate = amount / fromAmount;
+                                    exchangeRate.setText("1 BCH ~ " + decimalFormat.format(bchToBtcRate) + " BTC");
                                     exchangeRate.setVisibility(View.VISIBLE);
                                 }
                             }
-
                             isValueForOfferOk(true);
 
                         } catch (NumberFormatException ignore) {
@@ -585,7 +590,7 @@ public class ExchangeFragment extends Fragment {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     BigDecimal val = new BigDecimal(fromValue.getText().toString());
-                                    requestOfferFunction(val.toPlainString()
+                                    requestExchangeRate(val.toPlainString()
                                             , ChangellyService.BCH, ChangellyService.BTC);
 
                                 }
