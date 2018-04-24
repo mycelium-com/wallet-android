@@ -51,8 +51,8 @@ import java.util.Map;
 import java.util.UUID;
 
 public class Bip44Account extends AbstractAccount implements ExportableAccount {
-    private static final int EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH = 20;
-    private static final int INTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH = 20;
+    protected static final int EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH = 20;
+    protected static final int INTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH = 20;
     private static final int EXTERNAL_MINIMAL_ADDRESS_LOOK_AHEAD_LENGTH = 4;
     private static final int INTERNAL_MINIMAL_ADDRESS_LOOK_AHEAD_LENGTH = 1;
     private static final long FORCED_DISCOVERY_INTERVAL_MS = 1000 * 60 * 60 * 24;
@@ -262,7 +262,7 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
         return ImmutableList.copyOf(ret);
     }
 
-    private List<Address> getAddressRange(boolean isChangeChain, int fromIndex, int toIndex) {
+    protected List<Address> getAddressRange(boolean isChangeChain, int fromIndex, int toIndex) {
         fromIndex = Math.max(0, fromIndex); // clip at zero
         ArrayList<Address> ret = new ArrayList<Address>(toIndex - fromIndex + 1);
         for (int i = fromIndex; i <= toIndex; i++) {

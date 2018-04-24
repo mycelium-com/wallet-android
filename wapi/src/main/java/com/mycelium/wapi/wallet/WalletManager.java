@@ -542,6 +542,19 @@ public class WalletManager {
         return checkNotNull(result);
     }
 
+
+    /**
+     * Get a BCH wallet account
+     *
+     * @param index the index of the account to get
+     * @return a wallet account
+     */
+    public Bip44BCHAccount getBip44BCHAccount(int index) {
+        Bip44Account bip44Account = getBip44Account(index);
+        UUID bchBip44AccountID = _btcToBchAccounts.get(bip44Account.getId());
+        return (Bip44BCHAccount)_walletAccounts.get(bchBip44AccountID);
+    }
+
     /**
      * Checks if the account is already created.
      *

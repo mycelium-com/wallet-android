@@ -222,7 +222,6 @@
   <string name="unlock_label">Odkleni</string>
   <string name="lock_label">Zakleni</string>
   <string name="secure_my_funds">Zaščitite svoja sredstva</string>
-  <string name="move_legacy_funds_message">Vaša denarnica vsebuje enega ali več podedovanih računov, ki vsebujejo sredstva.\n\nČe želite zagotoviti varnost teh sredstev in izboljšati svojo zasebnost plačevanja, morate prenesti ta sredstva v enega od svojih HD-računov.\n\nZa podrobnosti pojdite na zavihek Računi.</string>
   <string name="ignore_warnings_title">Prezri opozorila</string>
   <string name="ignore_warnings_description">Ali želite prezreti opozorila, da ta podedovani račun vsebuje sredstva, in ali imate varno rezervno kopijo ustreznega zasebnega ključa?</string>
   <string name="explore">Raziskuj</string>

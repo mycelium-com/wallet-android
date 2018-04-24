@@ -222,7 +222,6 @@
   <string name="unlock_label">Sblocca</string>
   <string name="lock_label">Blocca</string>
   <string name="secure_my_funds">Proteggi i miei fondi</string>
-  <string name="move_legacy_funds_message">Il portafogli contiene uno o più account non HD contenenti bitcoin.\n\nPer assicurarsi che i tuoi fondi siano al sicuro e per aumentare la tua anonimità dovresti spostare i fondi in uno dei tuoi account HD.\n\nVai alla scheda \"Account\" per maggiori dettagli.</string>
   <string name="ignore_warnings_title">Ignorare gli avvisi</string>
   <string name="ignore_warnings_description">Desideri ignorare gli avvertimenti che questo account non HD contiene fondi, e che possiedi un backup verificato della chiave privata?</string>
   <string name="explore">Esplora</string>

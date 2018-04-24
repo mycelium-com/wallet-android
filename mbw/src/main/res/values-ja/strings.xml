@@ -219,9 +219,6 @@
   <string name="unlock_label">ロック解除</string>
   <string name="lock_label">ロック</string>
   <string name="secure_my_funds">私の残高を安全に管理</string>
-  <string name="move_legacy_funds_message">あなたのウォレットには１つあるいは複数の、残高があるレガシーアカウントが
-あります。\n\nあなたの残高の安全性と匿名性を高めるために、それらを階層的決定性ア
-カウントのひとつに移動させて下さい。\n\n詳細をアカウントタブでご覧下さい。</string>
   <string name="ignore_warnings_title">警告を無視</string>
   <string name="ignore_warnings_description">レガシーアカウントにお金があることについての警告を無視し、秘密鍵の安全なバックアップをとりますか？</string>
   <string name="explore">ビットコインが使える場所を探す</string>

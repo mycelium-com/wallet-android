@@ -193,7 +193,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 val txUTXOsHexList = intent.getStringArrayExtra(IntentContract.CONNECTED_OUTPUTS)
                 val accountIndex = intent.getIntExtra(IntentContract.ACCOUNT_INDEX_EXTRA, -1)
                 val mbwManager = MbwManager.getInstance(context)
-                val account = mbwManager.getWalletManager(false).getBip44Account(accountIndex) as Bip44Account
+                val account = mbwManager.getWalletManager(false).getBip44BCHAccount(accountIndex) as Bip44BCHAccount
                 val networkParameters = NetworkParameters.fromID(if (mbwManager.network.isTestnet) {
                     NetworkParameters.ID_TESTNET
                 } else {
@@ -244,7 +244,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
 
                     keyList.add(DumpedPrivateKey.fromBase58(networkParameters, privateKeyBase58).key)
                 } else {
-                    val bip44Account = account as Bip44Account
+                    val bip44Account = account as Bip44BCHAccount
 
                     for (utxoHex in txUTXOsHexList) {
                         val utxo = UTXO(ByteArrayInputStream(Hex.decode(utxoHex)))
@@ -304,6 +304,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
 
     private fun notifySatoshisReceived() {
         val mds = MbwManager.getInstance(context).metadataStorage
+        @SuppressWarnings("deprecation") // the non-deprecated alternative requires min API level 26
         val builder = Notification.Builder(context)
                 // TODO: bitcoin icon
                 .setSmallIcon(R.drawable.holo_dark_ic_action_new_usd_account)

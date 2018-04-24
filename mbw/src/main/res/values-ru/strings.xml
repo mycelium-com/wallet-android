@@ -218,7 +218,6 @@
   <string name="unlock_label">Разблокировать</string>
   <string name="lock_label">Заблокировать</string>
   <string name="secure_my_funds">Защитить мои средства</string>
-  <string name="move_legacy_funds_message">Ваш кошелек имеет один или более старые счета со средствами.\n\nЧтобы быть уверенным, что ваши средства в безопасности и чтобы улучшить вашу конфиденциальность, вам необходимо перенести все биткойны на один из ваших HD счетов.\n\nПожалуйста, перейдите во вкладку \"Счета\" и следуйте там инструкциям.</string>
   <string name="ignore_warnings_title">Игнорировать предупреждения</string>
   <string name="ignore_warnings_description">Вы хотите игнорировать предупреждения о старом аккаунте, где лежат средства?</string>
   <string name="explore">Исследовать</string>
