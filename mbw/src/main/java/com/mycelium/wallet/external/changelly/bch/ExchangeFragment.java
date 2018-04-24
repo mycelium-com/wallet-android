@@ -473,7 +473,7 @@ public class ExchangeFragment extends Fragment {
         Double dblAmountTo = 0.0;
         try {
             dblAmountTo = Double.parseDouble(toValue.getText().toString());
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException ignore) {
         }
 
         WalletAccount fromAccount = fromAccountAdapter.getItem(fromRecyclerView.getSelectedItem()).account;
