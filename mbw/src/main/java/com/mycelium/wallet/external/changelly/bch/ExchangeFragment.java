@@ -588,10 +588,11 @@ public class ExchangeFragment extends Fragment {
                             .setPositiveButton(R.string.try_again, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
-                                    BigDecimal val = new BigDecimal(fromValue.getText().toString());
-                                    requestExchangeRate(val.toPlainString()
-                                            , ChangellyService.BCH, ChangellyService.BTC);
-
+                                    try {
+                                        requestExchangeRate(getFromExcludeFee().toPlainString(), ChangellyService.BCH, ChangellyService.BTC);
+                                    } catch (IllegalArgumentException e) {
+                                        Log.e(TAG, e.getMessage(), e);
+                                    }
                                 }
                             }).show();
                     break;
