@@ -1127,7 +1127,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="bch_module_description">Bitcoin Cash accounts support and exchange to BTC option</string>
     <string name="first_modulization_title">Congratulations!</string>
     <string name="first_modulization_message"><![CDATA[You just got a new modular multiblockain version of Mycelium Wallet!<br><br>Due to high demand, we have released Bitcoin Cash (BCH) module first.<br><br>Now you can get your Bitcoin <font color="#f08c18">Cash</font> and instantly and securely exchange it to BTC.<br><br>To do so, you need to install the Bitcoin <font color="#f08c18">Cash</font> module or you can do it later from Settings -> Bitcoin Cash module section.]]></string>
-    <string name="install_bch_module"><![CDATA[Install Bitcoin <font color="#f08c18">Cash</font> module]]></string>
+    <string name="install_bch_module">Install Bitcoin Cash module</string>
     <string name="contunue_without_bch">Continue without BCH</string>
     <string name="bch_module_change"><![CDATA[Mycelium Bitcoin <font color="#f08c18">Cash</font> module has been %s!]]></string>>
     <string name="installed">installed</string>>
