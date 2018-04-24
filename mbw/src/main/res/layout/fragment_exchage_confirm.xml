@@ -19,8 +19,8 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="@dimen/margin_large"
         android:text="@string/confirmation"
-        android:textSize="16sp"
-        android:textColor="#bdbdbd" />
+        android:textColor="#bdbdbd"
+        android:textSize="16sp" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -30,32 +30,16 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
 
-            <TextView
-                android:id="@+id/fromAmount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-medium"
-                android:lineSpacingExtra="11sp"
-                android:textColor="@color/sender_recyclerview_background_red"
-                android:textSize="18sp"
-                tools:text="5.3092 BCH" />
-
-            <TextView
-                android:id="@+id/fromFiat"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="8dp"
-                android:fontFamily="sans-serif-medium"
-                android:lineSpacingExtra="11sp"
-                android:textColor="#5c5c5c"
-                android:textSize="14sp"
-                tools:text="≈ 85.50 USD" />
-
-        </LinearLayout>
+        <TextView
+            android:id="@+id/fromAmount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:lineSpacingExtra="11sp"
+            android:textColor="@color/sender_recyclerview_background_red"
+            android:textSize="18sp"
+            tools:text="5.3092 BCH" />
 
 
         <LinearLayout
@@ -69,7 +53,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
                 android:layout_marginLeft="10dp"
-                android:text="sending"
+                android:text="exchanging"
                 android:textColor="#bdbdbd"
                 android:textSize="12sp" />
 

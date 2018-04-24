@@ -24,35 +24,18 @@
             android:orientation="vertical">
 
 
-            <FrameLayout
-                android:id="@+id/top_layout"
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/tvErrorFrom"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:layout_marginEnd="@dimen/margin_small"
                 android:layout_marginStart="@dimen/margin_small"
-                android:layout_marginTop="24dp">
-
-                <TextView
-                    android:id="@+id/tvErrorFrom"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="@string/changelly_min_amount"
-                    android:textColor="#fb746d"
-                    android:textSize="12sp"
-                    android:visibility="gone" />
-
-                <TextView
-                    android:id="@+id/exchange_fiat_rate_from"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:alpha="0.6"
-                    android:textColor="#bdbdbd"
-                    android:textSize="12sp"
-                    android:visibility="invisible"
-                    tools:text="1 BCH ~ 0.46BTC" />
-            </FrameLayout>
+                android:layout_marginTop="24dp"
+                android:text="@string/changelly_min_amount"
+                android:textColor="#fb746d"
+                android:textSize="12sp"
+                android:visibility="invisible" />
 
 
             <RelativeLayout

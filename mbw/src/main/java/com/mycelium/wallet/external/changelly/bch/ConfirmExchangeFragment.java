@@ -89,9 +89,6 @@ public class ConfirmExchangeFragment extends Fragment {
     @BindView(R.id.fromAmount)
     TextView fromAmount;
 
-    @BindView(R.id.fromFiat)
-    TextView fromFiat;
-
     @BindView(R.id.toAmount)
     TextView toAmount;
 
@@ -238,21 +235,6 @@ public class ConfirmExchangeFragment extends Fragment {
             } else {
                 toFiat.setVisibility(View.INVISIBLE);
             }
-
-            CurrencyValue currencyValueFrom = null;
-            try {
-                currencyValueFrom = mbwManager.getCurrencySwitcher().getAsFiatValue(
-                        ExactBitcoinCashValue.from(new BigDecimal(offer.amountFrom)));
-
-            } catch (NumberFormatException ignore) {
-            }
-            if (currencyValueFrom != null && currencyValueFrom.getValue() != null) {
-                fromFiat.setText(ABOUT + Utils.formatFiatWithUnit(currencyValueFrom));
-                fromFiat.setVisibility(View.VISIBLE);
-            } else {
-                fromFiat.setVisibility(View.INVISIBLE);
-            }
-
         }
     }
 

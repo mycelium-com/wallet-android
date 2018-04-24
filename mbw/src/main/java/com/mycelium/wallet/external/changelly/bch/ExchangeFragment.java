@@ -114,9 +114,6 @@ public class ExchangeFragment extends Fragment {
     @BindView(R.id.exchange_fiat_rate)
     TextView exchangeFiatRate;
 
-    @BindView(R.id.exchange_fiat_rate_from)
-    TextView exchangeFiatRateFrom;
-
     @BindView(R.id.use_all_funds)
     View useAllFunds;
 
@@ -438,9 +435,8 @@ public class ExchangeFragment extends Fragment {
     }
 
     boolean isValueForOfferOk(boolean checkMin) {
-        tvErrorFrom.setVisibility(View.GONE);
+        tvErrorFrom.setVisibility(View.INVISIBLE);
         tvErrorTo.setVisibility(View.GONE);
-        exchangeFiatRateFrom.setVisibility(View.VISIBLE);
         exchangeFiatRate.setVisibility(View.VISIBLE);
         String txtAmount = fromValue.getText().toString();
         if (txtAmount.isEmpty()) {
@@ -475,7 +471,6 @@ public class ExchangeFragment extends Fragment {
                         , decimalFormat.format(minAmount), "BCH"));
                 tvError.setVisibility(View.VISIBLE);
 
-                exchangeFiatRateFrom.setVisibility(View.INVISIBLE);
                 exchangeFiatRate.setVisibility(View.INVISIBLE);
             }
             return false;
@@ -485,7 +480,6 @@ public class ExchangeFragment extends Fragment {
                     ? tvErrorTo : tvErrorFrom;
             tvError.setText(R.string.balance_error);
             tvError.setVisibility(View.VISIBLE);
-            exchangeFiatRateFrom.setVisibility(View.INVISIBLE);
             exchangeFiatRate.setVisibility(View.INVISIBLE);
             return false;
         }
@@ -506,21 +500,6 @@ public class ExchangeFragment extends Fragment {
             exchangeFiatRate.setVisibility(View.VISIBLE);
         } else {
             exchangeFiatRate.setVisibility(View.INVISIBLE);
-        }
-
-
-        CurrencyValue currencyBCHValue = null;
-        try {
-            currencyBCHValue = mbwManager.getCurrencySwitcher().getAsFiatValue(
-                    ExactBitcoinCashValue.from(new BigDecimal(fromValue.getText().toString())));
-        } catch (IllegalArgumentException ignore) {
-        }
-        if (currencyBCHValue != null && currencyBCHValue.getValue() != null
-                && tvErrorFrom.getVisibility() != View.VISIBLE) {
-            exchangeFiatRateFrom.setText(ABOUT + Utils.formatFiatWithUnit(currencyBCHValue));
-            exchangeFiatRateFrom.setVisibility(View.VISIBLE);
-        } else {
-            exchangeFiatRateFrom.setVisibility(View.INVISIBLE);
         }
     }
 

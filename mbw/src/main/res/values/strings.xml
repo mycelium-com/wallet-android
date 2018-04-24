@@ -1154,9 +1154,9 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="exchange_rate_unavailable">Exchange rate is temporarily unavailable.</string>
     <string name="exchange_service_unavailable">Exchange service is temporarily unavailable.\nPlease try again later.</string>
     <string name="uninstall">Uninstall</string>
-    <string name="you_exchange_order_placed">Your exchange order has been placed. BTC will be sent to you after 12 confirmations on your BCH transaction.</string>
+    <string name="you_exchange_order_placed">Your exchange order has been placed. BTC will be sent after this transaction gets 12 confirmations.</string>
     <string name="order_details">Order details:</string>
-    <string name="exchange_order_placed_dialog"><![CDATA[Date: %s<br/><br/><b>Blockchain Transaction ID:</b><br/><br/><font color="#5aa7e6">%s</font><br/><br/>Sending: %s BCH<br/>Receiving: %s BTC]]></string>
+    <string name="exchange_order_placed_dialog"><![CDATA[Date: %s<br/><br/><b>Blockchain Transaction ID:</b><br/><br/><font color="#5aa7e6">%s</font><br/><br/>Exchanging: %s BCH<br/>Receiving: %s BTC]]></string>
     <string name="aproximate_volatile">Exchange amount is approximate due to the high volatility of the cryptomarket.</string>
     <string name="track_your_order">To track your order please download exchange confirmation.</string>
     <string name="success">Success!</string>
