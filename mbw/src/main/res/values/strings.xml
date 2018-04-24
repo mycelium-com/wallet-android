@@ -1157,7 +1157,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="you_exchange_order_placed">Your exchange order has been placed. BTC will be sent after this transaction gets 12 confirmations.</string>
     <string name="order_details">Order details:</string>
     <string name="exchange_order_placed_dialog"><![CDATA[Date: %s<br/><br/><b>Blockchain Transaction ID:</b><br/><br/><font color="#5aa7e6">%s</font><br/><br/>Exchanging: %s BCH<br/>Receiving: %s BTC]]></string>
-    <string name="aproximate_volatile">Exchange amount is approximate due to the high volatility of the cryptomarket.</string>
+    <string name="aproximate_volatile">Exchange rate is approximate due to the high volatility of the cryptomarket.</string>
     <string name="track_your_order">To track your order please download exchange confirmation.</string>
     <string name="success">Success!</string>
     <string name="error">Error!</string>
@@ -1171,7 +1171,6 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="balance_error">Insufficient funds</string>
     <string name="or">or</string>
     <string name="waiting_offer">Waiting offer…</string>
-    <string name="receiving_amount_is_estimated">Exchange amount is approximate due to the high volatility of the cryptomarket.\nOffer will be auto-updated every 60 seconds.</string>
     <string name="both_bch_will_deleted">Both %1$s and Bitcoin Cash - %2$s accounts will be deleted.</string>
     <string name="given_rates_includes_transaction_fee">Given rate includes transaction fee</string>
     <string name="try_again">Try Again</string>

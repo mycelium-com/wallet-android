@@ -116,18 +116,26 @@ public class BCHHelper {
                         .apply();
             }
         }
+        View view = LayoutInflater.from(context).inflate(R.layout.dialog_bch_found, null);
         AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.MyceliumModern_Dialog)
-                .setPositiveButton(R.string.button_continue, null);
+                .setView(view);
+        final AlertDialog dialog = builder.create();
+        view.findViewById(R.id.buttonContinue).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
         if (sum.floatValue() > 0) {
-            builder.setTitle(Html.fromHtml(context.getString(R.string.scaning_complete_found)))
-                    .setMessage(Html.fromHtml(context.getString(R.string.bch_accounts_found,
-                            sum.toPlainString()
-                            , accountsFound)))
-                    .create().show();
+            ((TextView) view.findViewById(R.id.title)).setText(Html.fromHtml(context.getString(R.string.scaning_complete_found)));
+            ((TextView) view.findViewById(R.id.content)).setText(Html.fromHtml(context.getString(R.string.bch_accounts_found,
+                    sum.toPlainString()
+                    , accountsFound)));
+            dialog.show();
         } else if (sharedPreferences.getBoolean(IS_FIRST_SYNC, true)) {
-            builder.setTitle(Html.fromHtml(context.getString(R.string.scaning_complete_not_found)))
-                    .setMessage(Html.fromHtml(context.getString(R.string.bch_accounts_not_found)))
-                    .create().show();
+            ((TextView) view.findViewById(R.id.title)).setText(Html.fromHtml(context.getString(R.string.scaning_complete_not_found)));
+            ((TextView) view.findViewById(R.id.content)).setText(Html.fromHtml(context.getString(R.string.bch_accounts_not_found)));
+            dialog.show();
         }
         sharedPreferences.edit().putBoolean(IS_FIRST_SYNC, false).apply();
     }

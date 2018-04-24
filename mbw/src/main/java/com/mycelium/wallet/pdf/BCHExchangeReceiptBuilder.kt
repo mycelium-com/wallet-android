@@ -114,14 +114,14 @@ class BCHExchangeReceiptBuilder {
         height += 18F
         paint.typeface = robotoRegular
         paint.color = Color.BLACK
-        val receivingAmountText = "Receiving amount*: "
+        val receivingAmountText = "Receiving amount: "
         drawTextOnCanvasWithMagnifier(page.canvas, receivingAmountText, leftMargin, height, paint)
         paint.typeface = robotoLight
         drawTextOnCanvasWithMagnifier(page.canvas, receivingAmount, leftMargin + paint.measureText(receivingAmountText), height, paint)
 
         height += 18F
         paint.color = Color.parseColor("#fb746d")
-        drawTextOnCanvasWithMagnifier(page.canvas, "*Receiving amount is approximate due to the high volatility of the cryptomarket", leftMargin, height, paint)
+        drawTextOnCanvasWithMagnifier(page.canvas, "Exchange rate is approximate due to the high volatility of the cryptomarket", leftMargin, height, paint)
 
         height += 36F
         paint.color = Color.BLACK
