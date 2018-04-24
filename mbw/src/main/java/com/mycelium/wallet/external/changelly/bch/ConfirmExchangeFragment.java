@@ -282,23 +282,9 @@ public class ConfirmExchangeFragment extends Fragment {
                 case ChangellyService.INFO_TRANSACTION:
                     offer = (ChangellyAPIService.ChangellyTransactionOffer) intent.getSerializableExtra(ChangellyService.OFFER);
                     updateUI();
-                    offerUpdateText.post(new Runnable() {
-                        int time;
-
-                        @Override
-                        public void run() {
-                            if (!isAdded()) {
-                                return;
-                            }
-                            time++;
-                            offerUpdateText.setText(getString(R.string.offer_auto_updated, UPDATE_TIME - time));
-                            if (time < UPDATE_TIME) {
-                                offerUpdateText.postDelayed(this, TimeUnit.SECONDS.toMillis(1));
-                            } else {
-                                createOffer();
-                            }
-                        }
-                    });
+                    offerUpdateText.removeCallbacks(updateOffer);
+                    autoUpdateTime = 0;
+                    offerUpdateText.post(updateOffer);
                     break;
                 case INFO_ERROR:
                     new AlertDialog.Builder(getActivity())
@@ -314,6 +300,23 @@ public class ConfirmExchangeFragment extends Fragment {
         }
     }
 
+    int autoUpdateTime;
+    private Runnable updateOffer = new Runnable() {
+
+        @Override
+        public void run() {
+            if (!isAdded()) {
+                return;
+            }
+            autoUpdateTime++;
+            offerUpdateText.setText(getString(R.string.offer_auto_updated, UPDATE_TIME - autoUpdateTime));
+            if (autoUpdateTime < UPDATE_TIME) {
+                offerUpdateText.postDelayed(this, TimeUnit.SECONDS.toMillis(1));
+            } else {
+                createOffer();
+            }
+        }
+    };
 
     @Subscribe
     public void spvSendFundsResult(SpvSendFundsResult event) {
