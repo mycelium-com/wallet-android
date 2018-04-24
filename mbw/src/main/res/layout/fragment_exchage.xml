@@ -57,8 +57,7 @@
                     android:paddingBottom="8dp"
                     android:text="BCH"
                     android:textColor="@color/white"
-                    android:textSize="14sp"
-                    tools:textColor="@color/white" />
+                    android:textSize="14sp" />
 
                 <TextView
                     android:id="@+id/fromValue"
@@ -200,8 +199,7 @@
                     android:paddingBottom="8dp"
                     android:text="BTC"
                     android:textColor="@color/white"
-                    android:textSize="14sp"
-                    tools:textColor="@color/white" />
+                    android:textSize="14sp" />
 
                 <TextView
                     android:id="@+id/toValue"

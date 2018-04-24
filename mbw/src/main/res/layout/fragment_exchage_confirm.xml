@@ -70,7 +70,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="10dp"
                     android:singleLine="true"
-                    android:text="1p17cu…KNZa88"
+                    tools:text="1p17cu…KNZa88"
                     android:textColor="#5c5c5c"
                     android:textSize="12sp" />
 
@@ -159,7 +159,7 @@
                     android:layout_marginLeft="10dp"
                     android:ellipsize="middle"
                     android:singleLine="true"
-                    android:text="4bYT8…KRp88"
+                    tools:text="4bYT8…KRp88"
                     android:textColor="#5c5c5c"
                     android:textSize="12sp" />
 
