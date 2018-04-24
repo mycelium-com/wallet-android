@@ -626,6 +626,7 @@ public class SettingsActivity extends PreferenceActivity {
          cbService.setTitle(enableTitle);
          cbService.setSummary(buySellService.settingDescription);
          cbService.setChecked(buySellService.isEnabled(_mbwManager));
+         cbService.setWidgetLayoutResource(R.layout.preference_checkbox);
          cbService.setOnPreferenceClickListener(new OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
