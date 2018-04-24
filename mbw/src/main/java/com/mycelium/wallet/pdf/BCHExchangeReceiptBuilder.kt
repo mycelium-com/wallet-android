@@ -20,6 +20,7 @@ class BCHExchangeReceiptBuilder {
     private var receivingAmount: String? = null
     private var receivingAddress: String? = null
     private var spendingAccountLabel: String? = null
+    private var receivingAccountLabel: String? = null
 
     fun setTransactionId(transactionId: String) = apply { this.transactionId = transactionId }
 
@@ -32,6 +33,8 @@ class BCHExchangeReceiptBuilder {
     fun setReceivingAddress(receivingAddress: String) = apply { this.receivingAddress = receivingAddress }
 
     fun setSpendingAccountLabel(spendingAccountLabel: String) = apply { this.spendingAccountLabel = spendingAccountLabel }
+
+    fun setReceivingAccountLabel(receivingAccountLabel: String) = apply { this.receivingAccountLabel = receivingAccountLabel }
 
     private val leftMargin = 48F
 
@@ -80,25 +83,33 @@ class BCHExchangeReceiptBuilder {
         height += 36F
         paint.typeface = robotoRegular
         paint.color = Color.BLACK
-        val sendingAccountText = "Sending account: "
+        val sendingAccountText = "Exchanging account: "
         drawTextOnCanvasWithMagnifier(page.canvas, sendingAccountText, leftMargin, height, paint)
         paint.typeface = robotoLight
         drawTextOnCanvasWithMagnifier(page.canvas, spendingAccountLabel, leftMargin + paint.measureText(sendingAccountText), height, paint)
 
         height += 18F
         paint.typeface = robotoRegular
-        val sendingAmountText = "Sending amount: "
+        val sendingAmountText = "Exchanging amount: "
         drawTextOnCanvasWithMagnifier(page.canvas, sendingAmountText, leftMargin, height, paint)
         paint.typeface = robotoLight
         drawTextOnCanvasWithMagnifier(page.canvas, spendingAmount, leftMargin + paint.measureText(sendingAmountText), height, paint)
 
         height += 36F
         paint.typeface = robotoRegular
-        val receivingAccountText = "Receiving address: "
+        paint.color = Color.BLACK
+        val receivingAccountText = "Receiving account: "
         drawTextOnCanvasWithMagnifier(page.canvas, receivingAccountText, leftMargin, height, paint)
         paint.typeface = robotoLight
+        drawTextOnCanvasWithMagnifier(page.canvas, receivingAccountLabel, leftMargin + paint.measureText(receivingAccountText), height, paint)
+
+        height += 18F
+        paint.typeface = robotoRegular
+        val receivingAddressText = "Receiving address: "
+        drawTextOnCanvasWithMagnifier(page.canvas, receivingAddressText, leftMargin, height, paint)
+        paint.typeface = robotoLight
         paint.color = Color.parseColor("#5aa7e6")
-        drawTextOnCanvasWithMagnifier(page.canvas, receivingAddress, leftMargin + paint.measureText(receivingAccountText), height, paint)
+        drawTextOnCanvasWithMagnifier(page.canvas, receivingAddress, leftMargin + paint.measureText(receivingAddressText), height, paint)
 
         height += 18F
         paint.typeface = robotoRegular

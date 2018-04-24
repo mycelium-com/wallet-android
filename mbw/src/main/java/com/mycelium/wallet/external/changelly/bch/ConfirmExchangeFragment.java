@@ -346,6 +346,7 @@ public class ConfirmExchangeFragment extends Fragment {
         order.order_id = offer.id;
         order.exchangingAmount = decimalFormat.format(amount);
         order.exchangingCurrency = CurrencyValue.BCH;
+
         order.receivingAddress = toAccount.getReceivingAddress().get().toString();
         order.receivingAmount = decimalFormat.format(offer.amountTo);
         order.receivingCurrency = CurrencyValue.BTC;
@@ -371,6 +372,7 @@ public class ConfirmExchangeFragment extends Fragment {
                                 .setDate(order.timestamp)
                                 .setReceivingAmount(order.receivingAmount + " " + order.receivingCurrency)
                                 .setReceivingAddress(order.receivingAddress)
+                                .setReceivingAccountLabel(mbwManager.getMetadataStorage().getLabelByAccount(toAccount.getId()))
                                 .setSpendingAmount(order.exchangingAmount + " " + order.exchangingCurrency)
                                 .setSpendingAccountLabel(mbwManager.getMetadataStorage().getLabelByAccount(fromAccount.getId()))
                                 .build(pdfStream);
