@@ -14,6 +14,7 @@ import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.Transaction;
+import com.mycelium.lt.api.model.Ad;
 import com.mycelium.wallet.MbwEnvironment;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.activity.util.BlockExplorer;
@@ -851,6 +852,15 @@ public class ColuManager implements AccountProvider {
             if (asset.contentEquals(assetName)) {
                 return true;
             }
+        }
+        return false;
+    }
+
+    public boolean isColoredAddress(Address address) {
+        try {
+            return coluClient.getAddressTransactions(address).numOfTransactions != 0;
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return false;
     }
