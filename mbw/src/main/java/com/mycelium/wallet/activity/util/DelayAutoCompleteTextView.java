@@ -34,22 +34,18 @@
 
 package com.mycelium.wallet.activity.util;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v7.widget.AppCompatAutoCompleteTextView;
 import android.util.AttributeSet;
-import android.widget.AutoCompleteTextView;
 
-//TODO: upgrade to android support v7 >>19.1.0
-@SuppressLint("AppCompatCustomView")
-public class DelayAutoCompleteTextView extends AutoCompleteTextView {
+public class DelayAutoCompleteTextView extends AppCompatAutoCompleteTextView {
    private int delayMs = 250;
 
    public DelayAutoCompleteTextView(Context context, AttributeSet attrs) {
       super(context, attrs);
    }
-
 
    private final Handler mHandler = new Handler() {
       @Override
@@ -63,7 +59,6 @@ public class DelayAutoCompleteTextView extends AutoCompleteTextView {
       mHandler.removeMessages(0);
       mHandler.sendMessageDelayed(mHandler.obtainMessage(0, keyCode, 0, text), delayMs);
    }
-
 
    public void setDelay(int delayMs) {
       this.delayMs = delayMs;
