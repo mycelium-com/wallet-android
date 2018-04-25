@@ -35,6 +35,10 @@ public class ValueKeyboard extends GridLayout {
         super(context, attrs, defStyleAttr);
     }
 
+    public TextView getInputTextView() {
+        return inputTextView;
+    }
+
     public void setMaxDecimals(int maxDecimals) {
         this.maxDecimals = maxDecimals;
         value.setEntry(value.getEntryAsBigDecimal(), maxDecimals);
@@ -136,10 +140,10 @@ public class ValueKeyboard extends GridLayout {
     }
 
     public void done() {
+        setVisibility(View.GONE);
         if (inputListener != null) {
             inputListener.done();
         }
-        setVisibility(View.GONE);
     }
 
     private void updateDotBtn() {
@@ -230,10 +234,9 @@ public class ValueKeyboard extends GridLayout {
             }
             if (digit == DEL) {
                 // Delete Digit
-                if (entry.isEmpty()) {
-                    return;
+                if (!entry.isEmpty()) {
+                    entry = entry.substring(0, entry.length() - 1);
                 }
-                entry = entry.substring(0, entry.length() - 1);
             } else if (digit == DOT) {
                 // Do we already have a dot?
                 if (hasDot()) {

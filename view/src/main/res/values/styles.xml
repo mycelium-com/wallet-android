@@ -10,4 +10,8 @@
         <item name="android:paddingStart">24dp</item>
         <item name="android:paddingEnd">24dp</item>
     </style>
+
+    <style name="MyceliumButtonModernBlue" parent="MyceliumButtonModern">
+        <item name="android:background">@drawable/background_action_btn_blue</item>
+    </style>
 </resources>

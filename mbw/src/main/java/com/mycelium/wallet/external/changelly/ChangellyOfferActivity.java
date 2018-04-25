@@ -44,7 +44,6 @@ public class ChangellyOfferActivity extends AppCompatActivity {
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setTheme(ExchangeActivity.theme);
         setContentView(R.layout.changelly_offer_activity);
         setTitle(getString(R.string.exchange_altcoins_to_btc));
         ButterKnife.bind(this);
@@ -54,23 +53,6 @@ public class ChangellyOfferActivity extends AppCompatActivity {
             LocalBroadcastManager.getInstance(this).registerReceiver(receiver, intentFilter);
         }
         createOffer();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.exchange_menu, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.colorize) {
-            ExchangeActivity.theme = ExchangeActivity.theme == R.style.MyceliumModern_Light ?
-                    R.style.MyceliumModern_Dark : R.style.MyceliumModern_Light;
-            recreate();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     @Override
