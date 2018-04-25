@@ -222,7 +222,6 @@
   <string name="unlock_label">Desbloquear</string>
   <string name="lock_label">Bloquear</string>
   <string name="secure_my_funds">Asegurar mis fondos</string>
-  <string name="move_legacy_funds_message">Tu monedero tiene una o más cuentas obsoletas con fondos.\n\nPara asegurar que tus fondos están seguros y mejorar tu anonimato deberías mover tus fondos a una cuenta HD.\n\nPor favor ve a la pestaña Cuentas para más detalles.</string>
   <string name="ignore_warnings_title">Ignorar los avisos</string>
   <string name="ignore_warnings_description">¿Deseas ignorar los avisos explicativos de que esta cuenta obsoleta tiene fondos?</string>
   <string name="explore">Explorar</string>

@@ -48,7 +48,8 @@
                 android:key="requirePinOnStartup"
                 android:layout="@layout/preference_layout"
                 android:summary="@string/pref_pin_require_on_startup_summary"
-                android:title="@string/pref_pin_require_on_startup"/>
+                android:title="@string/pref_pin_require_on_startup"
+                android:widgetLayout="@layout/preference_checkbox"/>
     </PreferenceCategory>
 
     <!--Modules-->
@@ -68,19 +69,22 @@
                 android:key="ltDisable"
                 android:layout="@layout/preference_layout"
                 android:summary="@string/lt_disable_preference_summary"
-                android:title="@string/lt_disable_preference"/>
+                android:title="@string/lt_disable_preference"
+                android:widgetLayout="@layout/preference_checkbox"/>
 
         <CheckBoxPreference
                 android:key="ltNotificationSound"
                 android:layout="@layout/preference_layout"
                 android:summary="@string/lt_sound_on_trade_preference_summary"
-                android:title="@string/lt_sound_on_trade_preference"/>
+                android:title="@string/lt_sound_on_trade_preference"
+                android:widgetLayout="@layout/preference_checkbox"/>
 
         <CheckBoxPreference
                 android:key="ltMilesKilometers"
                 android:layout="@layout/preference_layout"
                 android:summary="@string/lt_miles_kilometers_preference_summary"
-                android:title="@string/lt_miles_kilometers_preference"/>
+                android:title="@string/lt_miles_kilometers_preference"
+                android:widgetLayout="@layout/preference_checkbox"/>
 
         <Preference
                 android:key="ltNotificationEmail2"
@@ -102,7 +106,8 @@
                 android:key="showBip44Path"
                 android:layout="@layout/preference_layout"
                 android:summary="Show the BIP44 address path for the current address on the homescreen"
-                android:title="Show address path"/>
+                android:title="Show address path"
+                android:widgetLayout="@layout/preference_checkbox"/>
 
         <ListPreference
                 android:inputType="text"
@@ -138,7 +143,8 @@
                 android:key="ledgerDisableTee"
                 android:layout="@layout/preference_layout"
                 android:summary="@string/ledger_disable_tee_preference_summary"
-                android:title="@string/ledger_disable_tee_preference"/>
+                android:title="@string/ledger_disable_tee_preference"
+                android:widgetLayout="@layout/preference_checkbox"/>
         <Preference
                 android:key="ledgerUnpluggedAID"
                 android:layout="@layout/preference_layout"

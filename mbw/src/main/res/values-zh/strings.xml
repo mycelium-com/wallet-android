@@ -222,7 +222,6 @@
   <string name="unlock_label">不加锁</string>
   <string name="lock_label">加锁</string>
   <string name="secure_my_funds">保护我的资金</string>
-  <string name="move_legacy_funds_message">您的钱包里有一个或多个有资金的旧帐户.\n\n为确保您的资金安全以及提高您的匿名性，你应该将这些资金移动到您的HD帐户中.\n\n请点击帐户选项卡获取详细信息。</string>
   <string name="ignore_warnings_title">忽略警告</string>
   <string name="ignore_warnings_description">您想要忽略提示旧帐户有资金的警告吗？</string>
   <string name="explore">探索</string>

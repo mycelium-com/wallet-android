@@ -219,7 +219,6 @@
   <string name="unlock_label">Hape</string>
   <string name="lock_label">Mbylle</string>
   <string name="secure_my_funds">Siguro fondet mia</string>
-  <string name="move_legacy_funds_message">Kuleta juaj ka një apo më shumë llogari të trashëguara me fonde.\n\nQë të siguroheni që fondet e juaja janë të sigurta dhe që të përmirësoni anonimitetin tuaj duhet që të zhvendosni fondet në një nga HD llogaritë e juaja.\n\nJu lutem shikoni tek menyja Llogaritë për detaje.</string>
   <string name="ignore_warnings_title">Injoro paralajmërimet</string>
   <string name="ignore_warnings_description">Doni të injoroni paralajmërimet që ju sqaron se kjo është llogari e trashëguar që mban fondet e juaja?</string>
   <string name="explore">Eksploro</string>

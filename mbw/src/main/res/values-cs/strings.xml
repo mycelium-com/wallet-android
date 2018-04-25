@@ -222,7 +222,6 @@
   <string name="unlock_label">Odemknout</string>
   <string name="lock_label">Uzamknout</string>
   <string name="secure_my_funds">Zabezpečit mé zdroje</string>
-  <string name="move_legacy_funds_message">Vaše peněženka obsahuje jeden nebo více starších účtů s prostředky.\n\nK ujištění, zda jsou vaše prostředky v pořádku a ke zvýšení vaší anonymity, byste tyto prostředky měli přesunout na jeden z vašich HD účtů.\n\nPro více detailů přejděte na kartu Účty.</string>
   <string name="ignore_warnings_title">Ignorovat varování</string>
   <string name="ignore_warnings_description">Chcete ignorovat varování vysvětlující, že tento starší účet obsahuje finanční prostředky?</string>
   <string name="explore">Prozkoumat</string>

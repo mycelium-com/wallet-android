@@ -222,7 +222,6 @@
   <string name="unlock_label">Déverrouiller</string>
   <string name="lock_label">Verrouiller</string>
   <string name="secure_my_funds">Sécuriser mes fonds</string>
-  <string name="move_legacy_funds_message">Votre portefeuille contient au moins un compte non HD avec des fonds.\n\n Pour garantir la sécurité de vos fonds et améliorer la confidentialité de vos transactions, vous pouvez transférer ces fonds vers un de vos comptes HD.\n\nVeuillez consulter la section Comptes pour plus d\'informations.</string>
   <string name="ignore_warnings_title">Ignorer les avertissements</string>
   <string name="ignore_warnings_description">Voulez-vous ignorer l\'avertissement expliquant que ce compte non HD détient des fonds ?</string>
   <string name="explore">Explorer</string>
