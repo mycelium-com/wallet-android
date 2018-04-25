@@ -140,10 +140,10 @@ public class ValueKeyboard extends GridLayout {
     }
 
     public void done() {
+        setVisibility(View.GONE);
         if (inputListener != null) {
             inputListener.done();
         }
-        setVisibility(View.GONE);
     }
 
     private void updateDotBtn() {

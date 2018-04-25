@@ -256,6 +256,7 @@ public class ConfirmExchangeFragment extends Fragment {
         getActivity().startService(changellyServiceIntent);
         progressBar.setVisibility(View.VISIBLE);
         offerUpdateText.setText(R.string.updating_offer);
+        buttonContinue.setEnabled(false);
     }
 
     private void updateUI() {
@@ -284,6 +285,7 @@ public class ConfirmExchangeFragment extends Fragment {
             progressBar.setVisibility(View.INVISIBLE);
             switch (intent.getAction()) {
                 case ChangellyService.INFO_TRANSACTION:
+                    buttonContinue.setEnabled(true);
                     offer = (ChangellyAPIService.ChangellyTransactionOffer) intent.getSerializableExtra(ChangellyService.OFFER);
                     updateUI();
                     offerUpdateText.removeCallbacks(updateOffer);

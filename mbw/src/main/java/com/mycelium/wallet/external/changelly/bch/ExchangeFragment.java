@@ -197,6 +197,7 @@ public class ExchangeFragment extends Fragment {
                 useAllFunds.setVisibility(View.VISIBLE);
                 fromValue.setHint(R.string.zero);
                 toValue.setHint(R.string.zero);
+                isValueForOfferOk(true);
             }
         });
         valueKeyboard.setMaxText(getString(R.string.use_all_funds), 14);
@@ -307,7 +308,7 @@ public class ExchangeFragment extends Fragment {
         stopCursor(fromValue);
         valueKeyboard.setSpendableValue(BigDecimal.ZERO);
         valueKeyboard.setMaxValue(MAX_BITCOIN_VALUE);
-
+        isValueForOfferOk(true);
         scrollTo(toLayout.getBottom());
     }
 
@@ -333,6 +334,7 @@ public class ExchangeFragment extends Fragment {
         AccountAdapter.Item item = fromAccountAdapter.getItem(fromRecyclerView.getSelectedItem());
         valueKeyboard.setSpendableValue(getMaxSpend(item.account));
         valueKeyboard.setMaxValue(MAX_BITCOIN_VALUE);
+        isValueForOfferOk(true);
     }
 
     @OnClick(R.id.use_all_funds)
@@ -484,7 +486,8 @@ public class ExchangeFragment extends Fragment {
         } else if (checkMin && dblAmount.compareTo(minAmount) < 0) {
             buttonContinue.setEnabled(false);
             if (dblAmount != 0 || dblAmountTo != 0) {
-                TextView tvError = valueKeyboard.getInputTextView() == toValue
+                TextView tvError = valueKeyboard.getVisibility() == View.VISIBLE
+                        && valueKeyboard.getInputTextView() == toValue
                         ? tvErrorTo : tvErrorFrom;
                 tvError.setText(getString(R.string.exchange_minimum_amount
                         , decimalFormat.format(minAmount), "BCH"));
@@ -495,7 +498,8 @@ public class ExchangeFragment extends Fragment {
             return false;
         } else if (fromAccount.getCurrencyBasedBalance().confirmed.getValue().compareTo(BigDecimal.valueOf(dblAmount)) < 0) {
             buttonContinue.setEnabled(false);
-            TextView tvError = valueKeyboard.getInputTextView() == toValue
+            TextView tvError = valueKeyboard.getVisibility() == View.VISIBLE
+                    && valueKeyboard.getInputTextView() == toValue
                     ? tvErrorTo : tvErrorFrom;
             tvError.setText(R.string.balance_error);
             tvError.setVisibility(View.VISIBLE);
