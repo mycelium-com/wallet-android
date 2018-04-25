@@ -38,14 +38,18 @@ import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.UUID;
 
 import android.accounts.Account;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ContentResolver;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -85,6 +89,9 @@ import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.single.SingleAddressBCHAccount;
 
 import org.bitcoinj.wallet.Wallet;
+
+import static com.mycelium.wallet.external.changelly.bch.ExchangeFragment.BCH_EXCHANGE;
+import static com.mycelium.wallet.external.changelly.bch.ExchangeFragment.BCH_EXCHANGE_TRANSACTIONS;
 
 public class TransactionDetailsActivity extends Activity {
 
@@ -354,6 +361,15 @@ public class TransactionDetailsActivity extends Activity {
          ((TextView) findViewById(R.id.tvFeeLabel)).setVisibility(View.GONE);
          ((TextView) findViewById(R.id.tvInputsLabel)).setVisibility(View.GONE);
       }
+
+      SharedPreferences sharedPreferences = getSharedPreferences(BCH_EXCHANGE, Context.MODE_PRIVATE);
+      Set<String> exchangeTransactions = sharedPreferences.getStringSet(BCH_EXCHANGE_TRANSACTIONS, new HashSet<String>());
+      if(exchangeTransactions.contains(_tx.hash.toString())) {
+         //TODO Show that it is an exchange transaction BCH -> BTC.
+      }
+      SharedPreferences.Editor editor = sharedPreferences.edit();
+      editor.putStringSet(BCH_EXCHANGE_TRANSACTIONS, exchangeTransactions);
+      editor.apply();
 
    }
 

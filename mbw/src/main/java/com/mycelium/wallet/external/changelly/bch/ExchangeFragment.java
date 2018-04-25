@@ -63,6 +63,7 @@ import static com.mycelium.wapi.wallet.bip44.Bip44AccountContext.ACCOUNT_TYPE_FR
 public class ExchangeFragment extends Fragment {
     public static final BigDecimal MAX_BITCOIN_VALUE = BigDecimal.valueOf(20999999);
     public static final String BCH_EXCHANGE = "bch_exchange";
+    public static final String BCH_EXCHANGE_TRANSACTIONS = "bch_exchange_transactions";
     public static final String BCH_MIN_EXCHANGE_VALUE = "bch_min_exchange_value";
     public static final float NOT_LOADED = -1f;
     public static final String TO_ACCOUNT = "toAccount";
