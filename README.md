@@ -46,11 +46,11 @@ On the console type:
 
 Linux/Mac type:
 
-    ./gradlew build
+    ./gradlew clean test mbw::asProdRel mbw::asBtRel
 
 Windows type:
 
-    gradlew.bat build
+    gradlew.bat clean test mbw::asProdRel mbw::asBtRel
 
  - Voila, look into `wallet/public/mbw/build/apk` to see the generated apk. 
    There are versions for both prodnet and testnet.
