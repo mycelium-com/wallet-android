@@ -1154,9 +1154,11 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="exchange_rate_unavailable">Exchange rate is temporarily unavailable.</string>
     <string name="exchange_service_unavailable">Exchange service is temporarily unavailable.\nPlease try again later.</string>
     <string name="uninstall">Uninstall</string>
-    <string name="you_exchange_order_placed">Your exchange order has been placed. BTC will be sent after this transaction gets 12 confirmations.</string>
+    <string name="you_exchange_order_placed">Your exchange order is in progress. BTC will be sent after this transaction gets 12 confirmations.</string>
     <string name="order_details">Order details:</string>
-    <string name="exchange_order_placed_dialog"><![CDATA[Date: %s<br/><br/><b>Blockchain Transaction ID:</b><br/><br/><font color="#5aa7e6">%s</font><br/><br/>Exchanging: %s BCH<br/>Receiving: %s BTC]]></string>
+    <string name="exchange_order_date">Date: %s</string>
+    <string name="exchange_order_exchanging">Exchanging: %s BCH</string>
+    <string name="exchange_order_receiving">Receiving: %s BTC</string>
     <string name="aproximate_volatile">Exchange rate is approximate due to the high volatility of the cryptomarket.</string>
     <string name="track_your_order">To track your order please download exchange confirmation.</string>
     <string name="success">Success!</string>
@@ -1182,6 +1184,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="to_get_your_bitcoin_cash_retrieved"><![CDATA[To get your Bitcoin <font color="#f08c18">Cash</font> retrieved this newly installed module needs some time for synchronisation. It might take from 20 min to several hours, depending on the amount of transactions. When synchronisation is done the information dialog will appear.<br/><br/>You can check the synchronisation progress in notification drawer or Settings -> Bitcoin <font color="#f08c18">Cash</font> module section.<br/><br/>Bitcoin <font color="#f08c18">Cash</font> linked account will be created for every BTC account containing Bitcoin <font color="#f08c18">Cash</font> which has not been retrieved yet.<br/><br/>Go to Balance tab of your Bitcoin <font color="#f08c18">Cash</font> account to instantly exchange it to BTC.]]></string>
     <string name="exchanging">exchanging</string>
     <string name="receiving_exchange">receiving</string>
+    <string name="blockchain_transaction_id">Blockchain Transaction ID:</string>
     <plurals name="account_label">
         <item quantity="one">Account label:\n%s</item>
         <item quantity="other">Accounts labels:\n%s</item>

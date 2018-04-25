@@ -67,10 +67,10 @@ class BCHExchangeReceiptBuilder {
 
         height += 17F
         paint.typeface = robotoRegular
-        val exchangeDirectionText = "Exchange direction: "
+        val exchangeDirectionText = "Exchange operation: "
         drawTextOnCanvasWithMagnifier(page.canvas, exchangeDirectionText, leftMargin, height, paint)
         paint.typeface = robotoLight
-        drawTextOnCanvasWithMagnifier(page.canvas, "From Bitcoin Cash (BCH) to Bitcoin (BTC)", leftMargin + paint.measureText(exchangeDirectionText), height, paint)
+        drawTextOnCanvasWithMagnifier(page.canvas, "Bitcoin Cash (BCH) to Bitcoin (BTC)", leftMargin + paint.measureText(exchangeDirectionText), height, paint)
 
         height += 36F
         paint.typeface = robotoRegular

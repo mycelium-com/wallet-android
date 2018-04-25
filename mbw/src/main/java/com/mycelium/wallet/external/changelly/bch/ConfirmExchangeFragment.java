@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
@@ -25,6 +26,7 @@ import android.widget.TextView;
 import com.megiontechnologies.BitcoinCash;
 import com.mycelium.spvmodule.IntentContract;
 import com.mycelium.spvmodule.TransactionFee;
+import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
@@ -49,6 +51,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -73,6 +76,7 @@ import static com.mycelium.wapi.wallet.bip44.Bip44AccountContext.ACCOUNT_TYPE_FR
 public class ConfirmExchangeFragment extends Fragment {
     public static final String TAG = "BCHExchange";
     public static final int UPDATE_TIME = 60;
+    public static final String BLOCKTRAIL_TRANSACTION = "https://www.blocktrail.com/_network_/tx/_id_";
 
     @BindView(R.id.fromAddress)
     TextView fromAddress;
@@ -355,11 +359,25 @@ public class ConfirmExchangeFragment extends Fragment {
 
         View view = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_exchange_download_confirmation, null);
         ((TextView) view.findViewById(R.id.title)).setText(R.string.success);
-        ((TextView) view.findViewById(R.id.content)).setText(Html.fromHtml(getString(R.string.exchange_order_placed_dialog
-                , order.timestamp
-                , order.transactionId
-                , order.exchangingAmount
-                , order.receivingAmount)));
+        ((TextView) view.findViewById(R.id.date_time)).setText(getString(R.string.exchange_order_date, order.timestamp));
+        ((TextView) view.findViewById(R.id.exchanging)).setText(getString(R.string.exchange_order_exchanging, order.exchangingAmount));
+        ((TextView) view.findViewById(R.id.receiving)).setText(getString(R.string.exchange_order_receiving, order.receivingAmount));
+        TextView transactionId = view.findViewById(R.id.transaction_id);
+        transactionId.setPaintFlags(transactionId.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+        transactionId.setText(order.transactionId);
+        transactionId.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+                    String uri = BLOCKTRAIL_TRANSACTION
+                            .replaceAll("_network_", (BuildConfig.FLAVOR.equals("btctestnet") ? "tBCC" : "BCC"))
+                            .replaceAll("_id_", order.transactionId);
+                    startActivity(Intent.parseUri(uri, Intent.URI_INTENT_SCHEME));
+                } catch (URISyntaxException e) {
+                    Log.e(TAG, "look transaction on blocktrail ", e);
+                }
+            }
+        });
         view.findViewById(R.id.download).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

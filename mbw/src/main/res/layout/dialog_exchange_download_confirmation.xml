@@ -28,18 +28,54 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:text="@string/order_details"
+        android:textStyle="bold"
         android:textColor="@color/white"
         android:textSize="14sp" />
 
     <TextView
-        android:id="@+id/content"
+        android:id="@+id/date_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
         android:layout_marginTop="10dp"
         android:textColor="@color/white"
         android:textSize="14sp"
-        tools:text="some text" />
+        tools:text="date" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="@string/blockchain_transaction_id"
+        android:textColor="@color/white"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/transaction_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:textColor="@color/common_blue"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        tools:text="some id" />
+
+    <TextView
+        android:id="@+id/exchanging"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:textColor="@color/white"
+        android:textSize="14sp"
+        tools:text="0.01 BCH" />
+
+    <TextView
+        android:id="@+id/receiving"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/white"
+        android:textSize="14sp"
+        tools:text="0.01 BTC" />
 
     <TextView
         android:layout_width="wrap_content"
