@@ -1113,7 +1113,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="colorize">colorize</string>
     <string name="excange_title">Exchange BCH to BTC</string>
     <string name="press_exchange_button_below_to_confirm">Press Exchange button below to confirm</string>
-    <string name="confirmation">Confirmation</string>
+    <string name="confirmation">Exchange confirmation</string>
     <string name="no_connected_modules">No connected modules</string>
     <string name="bitcoin_cash_hd"><![CDATA[Bitcoin <font color="#f08c18">Cash</font> HD]]></string>
     <string name="bitcoin_cash_sa"><![CDATA[Bitcoin <font color="#f08c18">Cash</font> SA]]></string>
@@ -1127,7 +1127,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="bch_module_description">Bitcoin Cash accounts support and exchange to BTC option</string>
     <string name="first_modulization_title">Congratulations!</string>
     <string name="first_modulization_message"><![CDATA[You just got a new modular multiblockain version of Mycelium Wallet!<br><br>Due to high demand, we have released Bitcoin Cash (BCH) module first.<br><br>Now you can get your Bitcoin <font color="#f08c18">Cash</font> and instantly and securely exchange it to BTC.<br><br>To do so, you need to install the Bitcoin <font color="#f08c18">Cash</font> module or you can do it later from Settings -> Bitcoin Cash module section.]]></string>
-    <string name="install_bch_module"><![CDATA[Install Bitcoin <font color="#f08c18">Cash</font> module]]></string>
+    <string name="install_bch_module">Install Bitcoin Cash module</string>
     <string name="contunue_without_bch">Continue without BCH</string>
     <string name="bch_module_change"><![CDATA[Mycelium Bitcoin <font color="#f08c18">Cash</font> module has been %s!]]></string>>
     <string name="installed">installed</string>>
@@ -1154,7 +1154,13 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="exchange_rate_unavailable">Exchange rate is temporarily unavailable.</string>
     <string name="exchange_service_unavailable">Exchange service is temporarily unavailable.\nPlease try again later.</string>
     <string name="uninstall">Uninstall</string>
-    <string name="exchange_order_placed_dialog"><![CDATA[Your exchange order has been placed. BTC will be sent to you after 12 confirmations on your BCH transaction.<br/><br/><b>Order details:</b><br/>Date: %s<br/>TxID: %s<br/>Spending: %s BCH<br/>Receiving: %s BTC<br/><font color="#ea5e5e"><small>Receiving amount is estimated due to the high volatility of the cryptomarket.</small></font><br/><br/>To track your order please save the payment receipt. You can only do it now!]]></string>
+    <string name="you_exchange_order_placed">Your exchange order is in progress. BTC will be sent after this transaction gets 12 confirmations.</string>
+    <string name="order_details">Order details:</string>
+    <string name="exchange_order_date">Date: %s</string>
+    <string name="exchange_order_exchanging">Exchanging: %s BCH</string>
+    <string name="exchange_order_receiving">Receiving: %s BTC</string>
+    <string name="aproximate_volatile">Exchange rate is approximate due to the high volatility of the cryptomarket.</string>
+    <string name="track_your_order">To track your order please download exchange confirmation.</string>
     <string name="success">Success!</string>
     <string name="error">Error!</string>
     <string name="save_receipt">Save confirmation</string>
@@ -1167,13 +1173,18 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="balance_error">Insufficient funds</string>
     <string name="or">or</string>
     <string name="waiting_offer">Waiting offer…</string>
-    <string name="receiving_amount_is_estimated">Exchange amount is approximate due to the high volatility of the cryptomarket.\nOffer will be auto-updated every 60 seconds.</string>
     <string name="both_bch_will_deleted">Both %1$s and Bitcoin Cash - %2$s accounts will be deleted.</string>
     <string name="given_rates_includes_transaction_fee">Given rate includes transaction fee</string>
     <string name="try_again">Try Again</string>
     <string name="exchange_rate_unavailable_msg">An exchange rate is temporarily unavailable.\nPlease check your network connection and try again or get back later.</string>
+    <string name="offer_auto_updated">The offer will be auto-updated after %d seconds.</string>
+    <string name="updating_offer">Updating offer…</string>
     <string name="module_uninstall_progress">Uninstalling…</string>
     <string name="fully_synced">Fully synced.</string>
+    <string name="to_get_your_bitcoin_cash_retrieved"><![CDATA[To get your Bitcoin <font color="#f08c18">Cash</font> retrieved this newly installed module needs some time for synchronisation. It might take from 20 min to several hours, depending on the amount of transactions. When synchronisation is done the information dialog will appear.<br/><br/>You can check the synchronisation progress in notification drawer or Settings -> Bitcoin <font color="#f08c18">Cash</font> module section.<br/><br/>Bitcoin <font color="#f08c18">Cash</font> linked account will be created for every BTC account containing Bitcoin <font color="#f08c18">Cash</font> which has not been retrieved yet.<br/><br/>Go to Balance tab of your Bitcoin <font color="#f08c18">Cash</font> account to instantly exchange it to BTC.]]></string>
+    <string name="exchanging">exchanging</string>
+    <string name="receiving_exchange">receiving</string>
+    <string name="blockchain_transaction_id">Blockchain Transaction ID:</string>
     <plurals name="account_label">
         <item quantity="one">Account label:\n%s</item>
         <item quantity="other">Accounts labels:\n%s</item>

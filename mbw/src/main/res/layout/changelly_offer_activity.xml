@@ -14,7 +14,7 @@
         android:layout_marginTop="@dimen/margin_medium"
         android:gravity="center"
         android:text="@string/changelly_offer_title"
-        android:textColor="?exchange_text_color"
+        android:textColor="@color/white"
         android:textSize="20sp" />
 
     <TextView
@@ -23,7 +23,7 @@
         android:layout_gravity="center"
         android:layout_marginBottom="@dimen/margin_medium"
         android:text="@string/exchange_in_order_to_complete"
-        android:textColor="?exchange_text_color"
+        android:textColor="@color/white"
         android:textSize="@dimen/exchange_offer_text_size" />
 
     <TextView
@@ -51,7 +51,7 @@
         android:layout_gravity="center"
         android:layout_marginBottom="@dimen/margin_medium"
         android:text="@string/exchange_to_do_so"
-        android:textColor="?exchange_text_color"
+        android:textColor="@color/white"
         android:textSize="@dimen/exchange_offer_text_size" />
 
 
@@ -80,7 +80,7 @@
         android:layout_marginTop="@dimen/margin_medium"
         android:layout_marginBottom="@dimen/margin_medium"
         android:text="@string/exchange_after_transaction"
-        android:textColor="?exchange_text_color"
+        android:textColor="@color/white"
         android:textSize="@dimen/exchange_offer_text_size" />
 
 
@@ -99,7 +99,7 @@
         android:layout_gravity="center"
         android:layout_marginBottom="@dimen/margin_small"
         android:text="@string/or"
-        android:textColor="?exchange_text_color"
+        android:textColor="@color/white"
         android:textSize="16sp" />
 
     <Button

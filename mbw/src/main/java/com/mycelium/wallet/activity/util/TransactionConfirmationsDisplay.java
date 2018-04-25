@@ -34,17 +34,14 @@
 
 package com.mycelium.wallet.activity.util;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
+import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
-import android.widget.ImageView;
 import com.mycelium.wallet.R;
 
 import java.lang.reflect.Field;
 
-//TODO: upgrade to android support v7 >>19.1.0
-@SuppressLint("AppCompatCustomView")
-public class TransactionConfirmationsDisplay extends ImageView{
+public class TransactionConfirmationsDisplay extends AppCompatImageView {
    public static final int MAX_CONFIRMATIONS = 6;
 
    public TransactionConfirmationsDisplay(Context context) {
@@ -68,16 +65,12 @@ public class TransactionConfirmationsDisplay extends ImageView{
          Field field = res.getField("pie_send");
          int drawableId = field.getInt(null);
          setImageResource(drawableId);
-      } catch (NoSuchFieldException e) {
-         throw new RuntimeException("drawable not found, pie_send");
-      } catch (IllegalAccessException e) {
+      } catch (NoSuchFieldException | IllegalAccessException e) {
          throw new RuntimeException("drawable not found, pie_send");
       }
-
    }
 
    public void setConfirmations(int number){
-
       if (number > MAX_CONFIRMATIONS){
          number = MAX_CONFIRMATIONS;
       }else if (number < 0){
@@ -89,12 +82,9 @@ public class TransactionConfirmationsDisplay extends ImageView{
          Field field = res.getField("pie_" + number);
          int drawableId = field.getInt(null);
          setImageResource(drawableId);
-      } catch (NoSuchFieldException e) {
-         throw new RuntimeException("drawable not found, " + number);
-      } catch (IllegalAccessException e) {
+      } catch (NoSuchFieldException | IllegalAccessException e) {
          throw new RuntimeException("drawable not found, " + number);
       }
-
    }
 }
 

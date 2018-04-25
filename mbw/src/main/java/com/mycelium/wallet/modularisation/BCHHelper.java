@@ -8,6 +8,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.text.Html;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.TextView;
 
 import com.mycelium.modularizationtools.CommunicationManager;
 import com.mycelium.modularizationtools.model.Module;
@@ -35,47 +38,65 @@ public class BCHHelper {
         final SharedPreferences sharedPreferences = context.getSharedPreferences(BCH_PREFS, MODE_PRIVATE);
         final boolean moduleBCHInstalled = isModulePaired(context);
         if (!sharedPreferences.getBoolean(BCH_FIRST_UPDATE, false) && !moduleBCHInstalled) {
-            new AlertDialog.Builder(context)
-            .setTitle(R.string.first_modulization_title)
-            .setMessage(Html.fromHtml(context.getString(R.string.first_modulization_message)))
-            .setPositiveButton(Html.fromHtml(context.getString(R.string.install_bch_module)), new DialogInterface.OnClickListener() {
+            View view = LayoutInflater.from(context).inflate(R.layout.dialog_first_modulization, null);
+            ((TextView) view.findViewById(R.id.title)).setText(Html.fromHtml(context.getString(R.string.first_modulization_title)));
+            ((TextView) view.findViewById(R.id.content)).setText(Html.fromHtml(context.getString(R.string.first_modulization_message)));
+            final AlertDialog dialog = new AlertDialog.Builder(context, R.style.MyceliumModern_Dialog)
+                    .setView(view)
+                    .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                        @Override
+                        public void onDismiss(DialogInterface dialogInterface) {
+                            sharedPreferences.edit().putBoolean(BCH_FIRST_UPDATE, true)
+                                    .apply();
+                        }
+                    })
+                    .create();
+            view.findViewById(R.id.install).setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
+                public void onClick(View view) {
                     Intent installIntent = new Intent(Intent.ACTION_VIEW);
                     installIntent.setData(Uri.parse("https://play.google.com/store/apps/details?id="
-                                                    + bchModule.getModulePackage()
-                                                   ));
+                            + bchModule.getModulePackage()
+                    ));
                     context.startActivity(installIntent);
+                    dialog.dismiss();
                 }
-            })
-            .setNegativeButton(R.string.contunue_without_bch, null)
-            .setOnDismissListener(new DialogInterface.OnDismissListener() {
+            });
+            view.findViewById(R.id.close).setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onDismiss(DialogInterface dialogInterface) {
-                    sharedPreferences.edit().putBoolean(BCH_FIRST_UPDATE, true)
-                    .apply();
+                public void onClick(View view) {
+                    dialog.dismiss();
                 }
-            })
-            .create().show();
+            });
+            dialog.show();
         } else if (!sharedPreferences.getBoolean(BCH_INSTALLED, false) && moduleBCHInstalled) {
-            new AlertDialog.Builder(context)
-            .setTitle(Html.fromHtml(context.getString(R.string.first_bch_installed_title)))
-            .setMessage(Html.fromHtml(context.getString(R.string.first_bch_installed_message)))
-            .setPositiveButton(R.string.button_continue, null)
-            .setOnDismissListener(new DialogInterface.OnDismissListener() {
+            View view = LayoutInflater.from(context).inflate(R.layout.dialog_bch_module_installed, null);
+            ((TextView) view.findViewById(R.id.title)).setText(Html.fromHtml(context.getString(R.string.first_bch_installed_title)));
+            ((TextView) view.findViewById(R.id.content)).setText(Html.fromHtml(context.getString(R.string.to_get_your_bitcoin_cash_retrieved)));
+            final AlertDialog dialog = new AlertDialog.Builder(context, R.style.MyceliumModern_Dialog)
+                    .setView(view)
+                    .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                        @Override
+                        public void onDismiss(DialogInterface dialogInterface) {
+                            sharedPreferences.edit()
+                                    .putBoolean(BCH_FIRST_UPDATE, true)
+                                    .putBoolean(BCH_INSTALLED, true)
+                                    .apply();
+                        }
+                    })
+                    .create();
+
+            view.findViewById(R.id.buttonContinue).setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onDismiss(DialogInterface dialogInterface) {
-                    sharedPreferences.edit()
-                    .putBoolean(BCH_FIRST_UPDATE, true)
-                    .putBoolean(BCH_INSTALLED, true)
-                    .apply();
+                public void onClick(View view) {
+                    dialog.dismiss();
                 }
-            })
-            .create().show();
+            });
+            dialog.show();
         }
         if (sharedPreferences.getBoolean(BCH_INSTALLED, false) && !moduleBCHInstalled) {
             sharedPreferences.edit().putBoolean(BCH_INSTALLED, false)
-            .apply();
+                    .apply();
         }
     }
 
@@ -91,27 +112,35 @@ public class BCHHelper {
                 sum = sum.add(account.getCurrencyBasedBalance().confirmed.getValue());
                 accountsFound++;
                 sharedPreferences.edit()
-                .putBoolean(ALREADY_FOUND_ACCOUNT + account.getId().toString(), true)
-                .apply();
+                        .putBoolean(ALREADY_FOUND_ACCOUNT + account.getId().toString(), true)
+                        .apply();
             }
         }
-        AlertDialog.Builder builder = new AlertDialog.Builder(context)
-        .setPositiveButton(R.string.button_continue, null);
+        View view = LayoutInflater.from(context).inflate(R.layout.dialog_bch_found, null);
+        AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.MyceliumModern_Dialog)
+                .setView(view);
+        final AlertDialog dialog = builder.create();
+        view.findViewById(R.id.buttonContinue).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
         if (sum.floatValue() > 0) {
-            builder.setTitle(Html.fromHtml(context.getString(R.string.scaning_complete_found)))
-            .setMessage(Html.fromHtml(context.getString(R.string.bch_accounts_found,
-                                      sum.toPlainString()
-                                      , accountsFound)))
-            .create().show();
+            ((TextView) view.findViewById(R.id.title)).setText(Html.fromHtml(context.getString(R.string.scaning_complete_found)));
+            ((TextView) view.findViewById(R.id.content)).setText(Html.fromHtml(context.getString(R.string.bch_accounts_found,
+                    sum.toPlainString()
+                    , accountsFound)));
+            dialog.show();
         } else if (sharedPreferences.getBoolean(IS_FIRST_SYNC, true)) {
-            builder.setTitle(Html.fromHtml(context.getString(R.string.scaning_complete_not_found)))
-            .setMessage(Html.fromHtml(context.getString(R.string.bch_accounts_not_found)))
-            .create().show();
+            ((TextView) view.findViewById(R.id.title)).setText(Html.fromHtml(context.getString(R.string.scaning_complete_not_found)));
+            ((TextView) view.findViewById(R.id.content)).setText(Html.fromHtml(context.getString(R.string.bch_accounts_not_found)));
+            dialog.show();
         }
         sharedPreferences.edit().putBoolean(IS_FIRST_SYNC, false).apply();
     }
 
-    public static boolean isModulePaired (Context context) {
+    public static boolean isModulePaired(Context context) {
         final Module bchModule = GooglePlayModuleCollection.getModules(context).get("bch");
         return CommunicationManager.getInstance(context).getPairedModules().contains(bchModule);
     }
@@ -126,8 +155,8 @@ public class BCHHelper {
     }
 
     public static void bchTechnologyPreviewDialog(Context context) {
-        new AlertDialog.Builder(context)
-        .setMessage(Html.fromHtml(context.getString(R.string.bch_technology_preview)))
-        .setPositiveButton(R.string.button_ok, null).create().show();
+        new AlertDialog.Builder(context, R.style.MyceliumModern_Dialog)
+                .setMessage(Html.fromHtml(context.getString(R.string.bch_technology_preview)))
+                .setPositiveButton(R.string.button_ok, null).create().show();
     }
 }

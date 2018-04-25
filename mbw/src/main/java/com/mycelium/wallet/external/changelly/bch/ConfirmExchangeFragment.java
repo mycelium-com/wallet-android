@@ -11,8 +11,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.graphics.Paint;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.Html;
@@ -22,11 +22,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.megiontechnologies.BitcoinCash;
 import com.mycelium.spvmodule.IntentContract;
 import com.mycelium.spvmodule.TransactionFee;
+import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
@@ -51,6 +53,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
@@ -71,6 +74,7 @@ import retrofit2.Response;
 import static android.content.Context.DOWNLOAD_SERVICE;
 import static android.os.Environment.DIRECTORY_DOWNLOADS;
 import static com.mycelium.wallet.external.changelly.ChangellyService.INFO_ERROR;
+import static com.mycelium.wallet.external.changelly.Constants.ABOUT;
 import static com.mycelium.wallet.external.changelly.Constants.decimalFormat;
 import static com.mycelium.wallet.external.changelly.bch.ExchangeFragment.BCH_EXCHANGE;
 import static com.mycelium.wallet.external.changelly.bch.ExchangeFragment.BCH_EXCHANGE_TRANSACTIONS;
@@ -78,6 +82,8 @@ import static com.mycelium.wapi.wallet.bip44.Bip44AccountContext.ACCOUNT_TYPE_FR
 
 public class ConfirmExchangeFragment extends Fragment {
     public static final String TAG = "BCHExchange";
+    public static final int UPDATE_TIME = 60;
+    public static final String BLOCKTRAIL_TRANSACTION = "https://www.blocktrail.com/_network_/tx/_id_";
 
     @BindView(R.id.fromAddress)
     TextView fromAddress;
@@ -97,11 +103,18 @@ public class ConfirmExchangeFragment extends Fragment {
     @BindView(R.id.toAmount)
     TextView toAmount;
 
-    @BindView(R.id.exchange_fiat_rate)
-    TextView exchangeFiatRate;
+    @BindView(R.id.toFiat)
+    TextView toFiat;
 
     @BindView(R.id.buttonContinue)
     Button buttonContinue;
+
+    @BindView(R.id.progress_bar)
+    ProgressBar progressBar;
+
+    @BindView(R.id.offer_update_text)
+    TextView offerUpdateText;
+
 
     MbwManager mbwManager;
     WalletAccount fromAccount;
@@ -113,8 +126,9 @@ public class ConfirmExchangeFragment extends Fragment {
     private Receiver receiver;
 
     private String lastOperationId;
-    private Handler offerCaller;
     private String toCachedValue;
+
+    private AlertDialog downloadConfirmationDialog;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -133,7 +147,6 @@ public class ConfirmExchangeFragment extends Fragment {
             IntentFilter intentFilter = new IntentFilter(action);
             LocalBroadcastManager.getInstance(getActivity()).registerReceiver(receiver, intentFilter);
         }
-        offerCaller = new Handler();
     }
 
     @OnClick(R.id.buttonContinue)
@@ -194,8 +207,8 @@ public class ConfirmExchangeFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        fromAddress.setText(fromAccount.getReceivingAddress().get().toString());
-        toAddress.setText(toAccount.getReceivingAddress().get().toString());
+        fromAddress.setText(fromAccount.getReceivingAddress().get().getShortAddress());
+        toAddress.setText(toAccount.getReceivingAddress().get().getShortAddress());
 
         fromLabel.setText(mbwManager.getMetadataStorage().getLabelByAccount(fromAccount.getId()));
         toLabel.setText(mbwManager.getMetadataStorage().getLabelByAccount(toAccount.getId()));
@@ -204,18 +217,11 @@ public class ConfirmExchangeFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        offerCaller.post(new Runnable() {
-            @Override
-            public void run() {
-                createOffer();
-                offerCaller.postDelayed(this, TimeUnit.MINUTES.toMillis(1));
-            }
-        });
+        createOffer();
     }
 
     @Override
     public void onPause() {
-        offerCaller.removeCallbacksAndMessages(null);
         super.onPause();
     }
 
@@ -227,16 +233,18 @@ public class ConfirmExchangeFragment extends Fragment {
 
     private void updateRate() {
         if (offer != null) {
+            CurrencyValue currencyValueTo = null;
             try {
-                CurrencyValue currencyValue = mbwManager.getCurrencySwitcher().getAsFiatValue(
+                currencyValueTo = mbwManager.getCurrencySwitcher().getAsFiatValue(
                         ExactBitcoinValue.from(new BigDecimal(offer.amountTo)));
-                if (currencyValue != null && currencyValue.getValue() != null) {
-                    exchangeFiatRate.setText(Utils.formatFiatWithUnit(currencyValue));
-                    exchangeFiatRate.setVisibility(View.VISIBLE);
-                } else {
-                    exchangeFiatRate.setVisibility(View.INVISIBLE);
-                }
+
             } catch (NumberFormatException ignore) {
+            }
+            if (currencyValueTo != null && currencyValueTo.getValue() != null) {
+                toFiat.setText(ABOUT + Utils.formatFiatWithUnit(currencyValueTo));
+                toFiat.setVisibility(View.VISIBLE);
+            } else {
+                toFiat.setVisibility(View.INVISIBLE);
             }
         }
     }
@@ -253,24 +261,23 @@ public class ConfirmExchangeFragment extends Fragment {
                 .putExtra(ChangellyService.AMOUNT, amount - txFee.doubleValue())
                 .putExtra(ChangellyService.DESTADDRESS, toAccount.getReceivingAddress().get().toString());
         getActivity().startService(changellyServiceIntent);
-        progressDialog = new ProgressDialog(getActivity());
-        progressDialog.setIndeterminate(true);
-        progressDialog.setMessage(getString(R.string.waiting_offer));
-        progressDialog.show();
+        progressBar.setVisibility(View.VISIBLE);
+        offerUpdateText.setText(R.string.updating_offer);
+        buttonContinue.setEnabled(false);
     }
 
     private void updateUI() {
         if (isAdded()) {
             if (offer != null) {
-                fromAmount.setText(getString(R.string.value_currency, offer.currencyFrom
-                        , decimalFormat.format(amount)));
-                toAmount.setText(getString(R.string.value_currency, offer.currencyTo
-                        , decimalFormat.format(offer.amountTo)));
+                fromAmount.setText(getString(R.string.value_currency, decimalFormat.format(amount)
+                        , offer.currencyFrom));
+                toAmount.setText(getString(R.string.value_currency, decimalFormat.format(offer.amountTo)
+                        , offer.currencyTo));
             } else {
-                fromAmount.setText(getString(R.string.value_currency, ChangellyService.BCH
-                        , decimalFormat.format(amount)));
-                toAmount.setText(getString(R.string.value_currency, ChangellyService.BTC
-                        , toCachedValue));
+                fromAmount.setText(getString(R.string.value_currency, decimalFormat.format(amount)
+                        , ChangellyService.BCH));
+                toAmount.setText(getString(R.string.value_currency, toCachedValue
+                        , ChangellyService.BTC));
             }
             updateRate();
         }
@@ -282,15 +289,18 @@ public class ConfirmExchangeFragment extends Fragment {
 
         @Override
         public void onReceive(Context context, Intent intent) {
+            progressBar.setVisibility(View.INVISIBLE);
             switch (intent.getAction()) {
                 case ChangellyService.INFO_TRANSACTION:
-                    progressDialog.dismiss();
+                    buttonContinue.setEnabled(true);
                     offer = (ChangellyAPIService.ChangellyTransactionOffer) intent.getSerializableExtra(ChangellyService.OFFER);
                     updateUI();
+                    offerUpdateText.removeCallbacks(updateOffer);
+                    autoUpdateTime = 0;
+                    offerUpdateText.post(updateOffer);
                     break;
                 case INFO_ERROR:
-                    progressDialog.dismiss();
-                    new AlertDialog.Builder(getActivity())
+                    new AlertDialog.Builder(getActivity(), R.style.MyceliumModern_Dialog)
                             .setMessage(R.string.exchange_service_unavailable)
                             .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
                                 @Override
@@ -303,12 +313,29 @@ public class ConfirmExchangeFragment extends Fragment {
         }
     }
 
+    int autoUpdateTime;
+    private Runnable updateOffer = new Runnable() {
+
+        @Override
+        public void run() {
+            if (!isAdded()) {
+                return;
+            }
+            autoUpdateTime++;
+            offerUpdateText.setText(getString(R.string.offer_auto_updated, UPDATE_TIME - autoUpdateTime));
+            if (autoUpdateTime < UPDATE_TIME) {
+                offerUpdateText.postDelayed(this, TimeUnit.SECONDS.toMillis(1));
+            } else {
+                createOffer();
+            }
+        }
+    };
+
     @Subscribe
     public void spvSendFundsResult(SpvSendFundsResult event) {
-        if(progressDialog != null && progressDialog.isShowing()) {
+        if (progressDialog != null && progressDialog.isShowing()) {
             progressDialog.dismiss();
         }
-        offerCaller.removeCallbacksAndMessages(null);
         if (!event.operationId.equals(lastOperationId)) {
             return;
         }
@@ -332,52 +359,78 @@ public class ConfirmExchangeFragment extends Fragment {
         order.order_id = offer.id;
         order.exchangingAmount = decimalFormat.format(amount);
         order.exchangingCurrency = CurrencyValue.BCH;
+
         order.receivingAddress = toAccount.getReceivingAddress().get().toString();
         order.receivingAmount = decimalFormat.format(offer.amountTo);
         order.receivingCurrency = CurrencyValue.BTC;
         order.timestamp = SimpleDateFormat.getDateTimeInstance(SimpleDateFormat.LONG, SimpleDateFormat.LONG, Locale.ENGLISH)
                 .format(new Date());
 
-        new AlertDialog.Builder(getActivity())
-                .setTitle(Html.fromHtml("<big>" + getString(R.string.success) + "</big>"))
-                .setMessage(Html.fromHtml(getString(R.string.exchange_order_placed_dialog
-                        , order.timestamp
-                        , order.transactionId
-                        , order.exchangingAmount
-                        , order.receivingAmount)))
-                .setPositiveButton(R.string.save_receipt, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        String filePart = new SimpleDateFormat( "yyMMddHHmmss", Locale.US).format(new Date());
-                        File pdfFile = new File(getActivity().getExternalFilesDir(DIRECTORY_DOWNLOADS), "exchange_bch_order_" + filePart + ".pdf");
-                        try {
-                            try (OutputStream pdfStream = new FileOutputStream(pdfFile)) {
-                                new BCHExchangeReceiptBuilder()
-                                        .setTransactionId(order.transactionId)
-                                        .setDate(order.timestamp)
-                                        .setReceivingAmount(order.receivingAmount + " " + order.receivingCurrency)
-                                        .setReceivingAddress(order.receivingAddress)
-                                        .setSpendingAmount(order.exchangingAmount + " " + order.exchangingCurrency)
-                                        .setSpendingAccountLabel(mbwManager.getMetadataStorage().getLabelByAccount(fromAccount.getId()))
-                                        .build(pdfStream);
-                            }
-                        } catch (IOException e) {
-                            Log.e(TAG, "", e);
-                        }
-                        DownloadManager downloadManager = (DownloadManager) getActivity().getSystemService(DOWNLOAD_SERVICE);
-                        downloadManager.addCompletedDownload(pdfFile.getName(), pdfFile.getName()
-                                , true, "application/pdf"
-                                , pdfFile.getAbsolutePath(), pdfFile.length(), true);
+        View view = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_exchange_download_confirmation, null);
+        ((TextView) view.findViewById(R.id.title)).setText(R.string.success);
+        ((TextView) view.findViewById(R.id.date_time)).setText(getString(R.string.exchange_order_date, order.timestamp));
+        ((TextView) view.findViewById(R.id.exchanging)).setText(getString(R.string.exchange_order_exchanging, order.exchangingAmount));
+        ((TextView) view.findViewById(R.id.receiving)).setText(getString(R.string.exchange_order_receiving, order.receivingAmount));
+        TextView transactionId = view.findViewById(R.id.transaction_id);
+        transactionId.setPaintFlags(transactionId.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+        transactionId.setText(order.transactionId);
+        transactionId.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+                    String uri = BLOCKTRAIL_TRANSACTION
+                            .replaceAll("_network_", (BuildConfig.FLAVOR.equals("btctestnet") ? "tBCC" : "BCC"))
+                            .replaceAll("_id_", order.transactionId);
+                    startActivity(Intent.parseUri(uri, Intent.URI_INTENT_SCHEME));
+                } catch (URISyntaxException e) {
+                    Log.e(TAG, "look transaction on blocktrail ", e);
+                }
+            }
+        });
+        view.findViewById(R.id.download).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String filePart = new SimpleDateFormat("yyMMddHHmmss", Locale.US).format(new Date());
+                File pdfFile = new File(getActivity().getExternalFilesDir(DIRECTORY_DOWNLOADS), "exchange_bch_order_" + filePart + ".pdf");
+                try {
+                    try (OutputStream pdfStream = new FileOutputStream(pdfFile)) {
+                        new BCHExchangeReceiptBuilder()
+                                .setTransactionId(order.transactionId)
+                                .setDate(order.timestamp)
+                                .setReceivingAmount(order.receivingAmount + " " + order.receivingCurrency)
+                                .setReceivingAddress(order.receivingAddress)
+                                .setReceivingAccountLabel(mbwManager.getMetadataStorage().getLabelByAccount(toAccount.getId()))
+                                .setSpendingAmount(order.exchangingAmount + " " + order.exchangingCurrency)
+                                .setSpendingAccountLabel(mbwManager.getMetadataStorage().getLabelByAccount(fromAccount.getId()))
+                                .build(pdfStream);
                     }
-                })
-                .setNegativeButton(R.string.close, null)
+                } catch (IOException e) {
+                    Log.e(TAG, "", e);
+                }
+                DownloadManager downloadManager = (DownloadManager) getActivity().getSystemService(DOWNLOAD_SERVICE);
+                downloadManager.addCompletedDownload(pdfFile.getName(), pdfFile.getName()
+                        , true, "application/pdf"
+                        , pdfFile.getAbsolutePath(), pdfFile.length(), true);
+                downloadConfirmationDialog.dismiss();
+            }
+        });
+        view.findViewById(R.id.close).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                downloadConfirmationDialog.dismiss();
+            }
+        });
+        downloadConfirmationDialog = new AlertDialog.Builder(getActivity(), R.style.MyceliumModern_Dialog)
+
+                .setView(view)
                 .setOnDismissListener(new DialogInterface.OnDismissListener() {
                     @Override
                     public void onDismiss(DialogInterface dialogInterface) {
                         getActivity().finish();
                     }
                 })
-                .create().show();
+                .create();
+        downloadConfirmationDialog.show();
 
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences(BCH_EXCHANGE, Context.MODE_PRIVATE);
         Set<String> exchangeTransactions = sharedPreferences.getStringSet(BCH_EXCHANGE_TRANSACTIONS, new HashSet<String>());
