@@ -204,6 +204,7 @@
         android:layout_height="46dp"
         android:layout_gravity="center"
         android:layout_margin="16dp"
+        android:indeterminateTint="#bdbdbd"
         android:indeterminate="true"
         android:visibility="invisible" />
 
