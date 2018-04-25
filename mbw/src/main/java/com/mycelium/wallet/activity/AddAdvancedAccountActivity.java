@@ -635,7 +635,7 @@ public class AddAdvancedAccountActivity extends Activity {
 
         /**
          * Processes address level for selected account level
-         * @return
+         * @return 1 if no accounts were added else returns 0
          */
         private int processAddressLevel(int emptyHD, ColuManager coluManager, int accountIndex) {
             final String coCoDerivationPath = "m/44'/0'/%d'/0/%d";
