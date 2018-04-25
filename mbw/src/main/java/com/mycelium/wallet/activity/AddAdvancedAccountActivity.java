@@ -79,9 +79,7 @@ public class AddAdvancedAccountActivity extends Activity {
    public static final String BUY_TREZOR_LINK = "https://buytrezor.com?a=mycelium.com";
    public static final String BUY_KEEPKEY_LINK = "https://keepkey.go2cloud.org/SH1M";
    public static final String BUY_LEDGER_LINK = "https://www.ledgerwallet.com/r/494d?path=/products";
-   public static final String ACCOUNTS_FOUND = "ACCOUNTS_FOUND";
    public static final int RESULT_MSG = 25;
-   public static final int COLU_SCAN_COMPLETED = 26;
 
    public static void callMe(Activity activity, int requestCode) {
       Intent intent = new Intent(activity, AddAdvancedAccountActivity.class);
@@ -281,7 +279,7 @@ public class AddAdvancedAccountActivity extends Activity {
               .setPositiveButton(R.string.button_continue, new DialogInterface.OnClickListener() {
                  @Override
                  public void onClick(DialogInterface dialog, int id) {
-                    new ImportCoCoBip32Account(hdKeyNode).execute();
+                    new ImportCoCoHDAccount(hdKeyNode).execute();
                  }
               })
               .setNegativeButton(R.string.cancel, null)
@@ -591,12 +589,14 @@ public class AddAdvancedAccountActivity extends Activity {
       }
    }
 
-    private class ImportCoCoBip32Account extends AsyncTask<Void, Integer, UUID> {
+    private class ImportCoCoHDAccount extends AsyncTask<Void, Integer, UUID> {
         private final HdKeyNode hdKeyNode;
         private ProgressDialog dialog;
         private int accountsCreated;
+        private int scanned = 0;
+        private UUID firstCoCoUUID = null;
 
-        ImportCoCoBip32Account(HdKeyNode hdKeyNode) {
+        ImportCoCoHDAccount(HdKeyNode hdKeyNode) {
             this.hdKeyNode = hdKeyNode;
         }
 
@@ -618,60 +618,70 @@ public class AddAdvancedAccountActivity extends Activity {
 
         @Override
         protected UUID doInBackground(Void... voids) {
-            UUID firstCoCoUUID = null;
-            final int coloredLookAhead = 2;
             final int coloredLookAheadHD = 20;
-            final String coCoDerivationPath = "m/44'/0'/%d'/0/%d";
             int emptyHD = 0;
-            int scanned = 0;
             accountsCreated = 0;
             ColuManager coluManager = _mbwManager.getColuManager();
-           int x = 0;
-           while (emptyHD < coloredLookAheadHD) {
-              int empty = 0;
-              int y = 0;
-              while (empty < coloredLookAhead) {
-                  HdKeyNode currentNode = hdKeyNode.createChildNode(HdKeyPath.valueOf(String.format(coCoDerivationPath, x, y)));
-                  Address address = currentNode.getPublicKey().toAddress(_mbwManager.getNetwork());
-                  Optional<UUID> accountId = _mbwManager.getAccountId(address, null);
-                  if (accountId.isPresent()) {
-                      return null;
-                  }
-                  try {
-                      if (coluManager.isColoredAddress(address)) {
-                          empty = 0;
-                          emptyHD = 0;
-                      } else {
-                          empty++;
-                      }
-                      List<ColuAccount.ColuAsset> assetList = new ArrayList<>(coluManager.getColuAddressAssets(address));
-                      if (!assetList.isEmpty()) {
-                          accountsCreated++;
-                          if (firstCoCoUUID == null) {
-                              firstCoCoUUID = coluManager.enableAsset(assetList.get(0), currentNode.getPrivateKey());
-                          } else {
-                              coluManager.enableAsset(assetList.get(0), currentNode.getPrivateKey());
-                          }
-                      }
-                  } catch (IOException e) {
-                      e.printStackTrace();
-                      empty++;
-                  }
-                  publishProgress(++scanned);
-                  if (empty == coloredLookAhead) {
-                      if (empty == y + 1) {
-                          emptyHD++;
-                      }
-                      break;
-                  }
-                 ++y;
-              }
-              ++x;
-           }
+            int x = 0;
+            while (emptyHD < coloredLookAheadHD) {
+                emptyHD = processAddressLevel(emptyHD, coluManager, x);
+                ++x;
+            }
 
-           //Make sure that accounts are up to date
-           coluManager.scanForAccounts();
-           return firstCoCoUUID;
+            //Make sure that accounts are up to date
+            coluManager.scanForAccounts();
+            return firstCoCoUUID;
+        }
+
+        /**
+         * Processes address level for selected account level
+         * @return
+         */
+        private int processAddressLevel(int emptyHD, ColuManager coluManager, int accountIndex) {
+            final String coCoDerivationPath = "m/44'/0'/%d'/0/%d";
+            int empty = 0;
+            int addressIndex = 0;
+            int coloredLookAhead = 2;
+            while (empty < coloredLookAhead) {
+                HdKeyNode currentNode = hdKeyNode.createChildNode(HdKeyPath.valueOf(String.format(coCoDerivationPath, accountIndex, addressIndex)));
+                Address address = currentNode.getPublicKey().toAddress(_mbwManager.getNetwork());
+                Optional<UUID> accountId = _mbwManager.getAccountId(address, null);
+                if (accountId.isPresent()) {
+                    addressIndex++;
+                    continue;
+                }
+                try {
+                    if (coluManager.isColoredAddress(address)) {
+                        empty = 0;
+                        emptyHD = 0;
+                    } else {
+                        empty++;
+                    }
+                    addCoCoAccount(coluManager, currentNode, address);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    empty++;
+                }
+                publishProgress(++scanned);
+                if (empty == coloredLookAhead && empty == addressIndex + 1) {
+                    emptyHD++;
+                }
+                addressIndex++;
+            }
+            return emptyHD;
+        }
+
+        private void addCoCoAccount(ColuManager coluManager, HdKeyNode currentNode, Address address) throws IOException {
+            List<ColuAccount.ColuAsset> assetList = new ArrayList<>(coluManager.getColuAddressAssets(address));
+            //Check if there were any known assets
+            if (!assetList.isEmpty()) {
+                accountsCreated++;
+                if (firstCoCoUUID == null) {
+                    firstCoCoUUID = coluManager.enableAsset(assetList.get(0), currentNode.getPrivateKey());
+                } else {
+                    coluManager.enableAsset(assetList.get(0), currentNode.getPrivateKey());
+                }
+            }
         }
 
         @Override
@@ -707,7 +717,7 @@ public class AddAdvancedAccountActivity extends Activity {
               .setNegativeButton(R.string.try_again, new DialogInterface.OnClickListener() {
                  @Override
                  public void onClick(DialogInterface dialog, int id) {
-                    new ImportCoCoBip32Account(hdKeyNode).execute();
+                    new ImportCoCoHDAccount(hdKeyNode).execute();
                  }
               })
               .create()
