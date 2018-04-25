@@ -622,10 +622,10 @@ public class AddAdvancedAccountActivity extends Activity {
             int emptyHD = 0;
             accountsCreated = 0;
             ColuManager coluManager = _mbwManager.getColuManager();
-            int x = 0;
+            int accountIndex = 0;
             while (emptyHD < coloredLookAheadHD) {
-                emptyHD = processAddressLevel(emptyHD, coluManager, x);
-                ++x;
+                emptyHD = processAddressLevel(emptyHD, coluManager, accountIndex);
+                ++accountIndex;
             }
 
             //Make sure that accounts are up to date
@@ -635,7 +635,7 @@ public class AddAdvancedAccountActivity extends Activity {
 
         /**
          * Processes address level for selected account level
-         * @return 1 if no accounts were added else returns 0
+         * @return returns new emptyHD value
          */
         private int processAddressLevel(int emptyHD, ColuManager coluManager, int accountIndex) {
             final String coCoDerivationPath = "m/44'/0'/%d'/0/%d";
@@ -648,6 +648,8 @@ public class AddAdvancedAccountActivity extends Activity {
                 Optional<UUID> accountId = _mbwManager.getAccountId(address, null);
                 if (accountId.isPresent()) {
                     addressIndex++;
+                    empty = 0;
+                    emptyHD = 0;
                     continue;
                 }
                 try {
