@@ -11,16 +11,14 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.AppCompatDelegate;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.external.changelly.ChangellyAPIService.ChangellyTransactionOffer;
-import com.mycelium.wallet.external.changelly.bch.ExchangeActivity;
 import com.mycelium.wallet.external.changelly.model.Order;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 
@@ -42,6 +40,10 @@ import static com.mycelium.wallet.external.changelly.Constants.decimalFormat;
 public class ChangellyOfferActivity extends AppCompatActivity {
     public static final int RESULT_FINISH = 11;
     public static final String TAG = "ChangellyOfferActivity";
+
+    static {
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
+    }
 
     @BindView(R.id.tvFromAmount)
     TextView tvFromAmount;
