@@ -1,7 +1,6 @@
 package com.mycelium.wallet.external.changelly.bch;
 
 
-import android.app.AlertDialog;
 import android.app.DownloadManager;
 import android.app.Fragment;
 import android.app.ProgressDialog;
@@ -14,6 +13,7 @@ import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.AlertDialog;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
