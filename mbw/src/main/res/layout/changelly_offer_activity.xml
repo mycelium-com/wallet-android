@@ -40,7 +40,7 @@
         android:paddingBottom="@dimen/margin_small"
         tools:text="test"
         android:background="@drawable/background_sell_order_card"
-        android:drawableRight="@drawable/ic_content_copy_white"
+        android:drawableRight="@drawable/ic_content_copy_white_selector"
         android:drawablePadding="12dp"
         android:textSize="18sp"
         android:textStyle="bold" />
@@ -68,7 +68,7 @@
         android:background="@drawable/background_sell_order_card"
         tools:text="100 btc"
         android:textColor="@color/white"
-        android:drawableRight="@drawable/ic_content_copy_white"
+        android:drawableRight="@drawable/ic_content_copy_white_selector"
         android:drawablePadding="12dp"
         android:textSize="18sp"
         android:textStyle="normal" />
