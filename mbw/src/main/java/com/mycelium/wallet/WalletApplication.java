@@ -42,6 +42,7 @@ import android.os.StrictMode;
 import android.support.annotation.NonNull;
 import android.support.multidex.MultiDexApplication;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.mycelium.modularizationtools.CommunicationManager;
 import com.mycelium.modularizationtools.ModuleMessageReceiver;
@@ -91,7 +92,13 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
 
     private void pairSpvModules(CommunicationManager communicationManager) {
         for (Map.Entry<WalletAccount.Type, String> entry : spvModulesMapping.entrySet()) {
-            communicationManager.requestPair(entry.getValue());
+            try {
+                communicationManager.requestPair(entry.getValue());
+            } catch(SecurityException se) {
+                if(se.getMessage().contains("Version conflict")) {
+                    Toast.makeText(this, "Make sure your wallet and modules are all up to date.\n" + se.getMessage(), Toast.LENGTH_LONG).show();
+                }
+            }
         }
     }
 

@@ -92,7 +92,7 @@ class CommunicationManager private constructor(val context: Context) {
         val trustedPackage = trustedPackages[packageName]
                 ?: throw SecurityException("Package $packageName generally not trusted.")
         if(modularizationApiVersion != version) {
-            throw SecurityException("Package $packageName has wrong version $version != $modularizationApiVersion.")
+            throw SecurityException("Version conflict detected!\n${context.applicationContext.packageName}/${modularizationApiVersion} vs. $packageName/$version.")
         }
         val signingPubKeyHash = getSigningPubKeyHash(packageName)
         if (trustedPackage.signature != signingPubKeyHash) {
@@ -112,25 +112,21 @@ class CommunicationManager private constructor(val context: Context) {
         var success = false
         val startTimeMillis = System.currentTimeMillis()
         val cr = context.contentResolver
-        try {
-            // reuse the key we already have. This avoids mismatches if both sides might initiate the communication.
-            val packageMetaData = trustedPackages[packageName]
-                    ?: throw SecurityException("Unknown package name $packageName")
-            val key = packageMetaData.key ?: Random().nextLong()
-            val keyVersionSelectionArgs = arrayOf(key.toString(), modularizationApiVersion.toString())
-            cr.query(Uri.parse("content://$packageName.PairingProvider"), null, null, keyVersionSelectionArgs, null)
-                    .use { cursor ->
-                        cursor ?: return false // if the other module is not returning a proper Cursor, pairing fails here
-                        pair(packageName, key, modularizationApiVersion)
-                        cursor.moveToFirst()
-                        pairedModules.add(Module(packageName
-                                , cursor.getString(cursor.getColumnIndex("name"))
-                                , cursor.getString(cursor.getColumnIndex("description"))))
-                        success = true
-                    }
-        } catch (e: Exception) {
-            Log.e(LOG_TAG, "Couldn't pair with $packageName. Message was: ${e.message}.")
-        }
+        // reuse the key we already have. This avoids mismatches if both sides might initiate the communication.
+        val packageMetaData = trustedPackages[packageName]
+                ?: throw SecurityException("Unknown package name $packageName")
+        val key = packageMetaData.key ?: Random().nextLong()
+        val keyVersionSelectionArgs = arrayOf(key.toString(), modularizationApiVersion.toString())
+        cr.query(Uri.parse("content://$packageName.PairingProvider"), null, null, keyVersionSelectionArgs, null)
+                .use { cursor ->
+                    cursor ?: return false // if the other module is not returning a proper Cursor, pairing fails here
+                    pair(packageName, key, modularizationApiVersion)
+                    cursor.moveToFirst()
+                    pairedModules.add(Module(packageName
+                            , cursor.getString(cursor.getColumnIndex("name"))
+                            , cursor.getString(cursor.getColumnIndex("description"))))
+                    success = true
+                }
         Log.d(LOG_TAG, "It took ${System.currentTimeMillis()-startTimeMillis}ms to ${if(success) "" else "not "} pair with $packageName.")
         return success
     }
