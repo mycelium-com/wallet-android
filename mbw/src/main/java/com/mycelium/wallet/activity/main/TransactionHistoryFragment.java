@@ -293,7 +293,7 @@ public class TransactionHistoryFragment extends Fragment {
      List<TransactionSummary> history;
       if (account.getClass() == Bip44BCHAccount.class
           || account.getClass() == SingleAddressBCHAccount.class) {
-         history = getTransactions(0, 20);
+         history = _mbwManager.getSpvBchFetcher().retrieveTransactionsSummary(account, 0, 20);
       } else  {
         history = account.getTransactionHistory(0, 20);
       }
@@ -649,7 +649,8 @@ public class TransactionHistoryFragment extends Fragment {
             lastOffset += chunkSize;
            if (account.getClass() == Bip44BCHAccount.class
                || account.getClass() == SingleAddressBCHAccount.class) {
-             _toAdd = getTransactions(lastOffset, chunkSize);
+             _toAdd = _mbwManager.getSpvBchFetcher().retrieveTransactionsSummary(account,
+                 lastOffset, chunkSize);
            } else  {
              _toAdd = account.getTransactionHistory(lastOffset, chunkSize);
            }
@@ -676,7 +677,8 @@ public class TransactionHistoryFragment extends Fragment {
         List<TransactionSummary> history;
         if (account.getClass() == Bip44BCHAccount.class
             || account.getClass() == SingleAddressBCHAccount.class) {
-          history = getTransactions(0, Integer.MAX_VALUE);
+          history = _mbwManager.getSpvBchFetcher().retrieveTransactionsSummary(account, 0,
+              Integer.MAX_VALUE);
         } else  {
           history = account.getTransactionHistory(0, Integer.MAX_VALUE);
         }

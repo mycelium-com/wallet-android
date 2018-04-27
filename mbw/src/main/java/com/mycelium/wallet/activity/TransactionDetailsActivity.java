@@ -137,7 +137,7 @@ public class TransactionDetailsActivity extends Activity {
 
    private void updateUi() {
       // Set Hash
-      TransactionDetailsLabel tvHash = ((TransactionDetailsLabel) findViewById(R.id.tvHash));
+      TransactionDetailsLabel tvHash = findViewById(R.id.tvHash);
       tvHash.setColuMode(coluMode);
       tvHash.setTransaction(_tx);
 
@@ -211,7 +211,7 @@ public class TransactionDetailsActivity extends Activity {
          }
          ((TextView) findViewById(R.id.tvFee)).setText(fee);
       } else {
-         ((TextView) findViewById(R.id.tvFeeLabel)).setVisibility(View.GONE);
+         ((TextView) findViewById(R.id.tvFee)).setText("check in Block Explorer");
          ((TextView) findViewById(R.id.tvInputsLabel)).setVisibility(View.GONE);
       }
    }
