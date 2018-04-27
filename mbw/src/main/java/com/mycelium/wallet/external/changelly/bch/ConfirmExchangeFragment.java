@@ -435,9 +435,8 @@ public class ConfirmExchangeFragment extends Fragment {
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences(BCH_EXCHANGE, Context.MODE_PRIVATE);
         Set<String> exchangeTransactions = sharedPreferences.getStringSet(BCH_EXCHANGE_TRANSACTIONS, new HashSet<String>());
         exchangeTransactions.add(order.transactionId);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putStringSet(BCH_EXCHANGE_TRANSACTIONS, exchangeTransactions);
-        editor.apply();
+        sharedPreferences.edit()
+            .putStringSet(BCH_EXCHANGE_TRANSACTIONS, exchangeTransactions).apply();
 
         try {
             ExchangeLoggingService.exchangeLoggingService.saveOrder(order).enqueue(new Callback<Void>() {

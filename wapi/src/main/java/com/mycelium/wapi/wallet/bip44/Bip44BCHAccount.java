@@ -15,7 +15,6 @@ import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -75,17 +74,17 @@ public class Bip44BCHAccount extends Bip44Account {
     @Override
     public List<TransactionSummary> getTransactionHistory(int offset, int limit) {
         if (getAccountType() == ACCOUNT_TYPE_FROM_MASTERSEED)
-            return spvBalanceFetcher.retrieveTransactionSummaryByHdAccountIndex(getId().toString(), getAccountIndex());
+            return spvBalanceFetcher.retrieveTransactionsSummaryByHdAccountIndex(getId().toString(), getAccountIndex());
         else
-            return spvBalanceFetcher.retrieveTransactionSummaryByUnrelatedAccountId(getId().toString());
+            return spvBalanceFetcher.retrieveTransactionsSummaryByUnrelatedAccountId(getId().toString());
     }
 
     @Override
     public List<TransactionSummary> getTransactionsSince(Long receivingSince) {
         if (getAccountType() == ACCOUNT_TYPE_FROM_MASTERSEED)
-            return spvBalanceFetcher.retrieveTransactionSummaryByHdAccountIndex(getId().toString(), getAccountIndex(), receivingSince);
+            return spvBalanceFetcher.retrieveTransactionsSummaryByHdAccountIndex(getId().toString(), getAccountIndex(), receivingSince);
         else
-            return spvBalanceFetcher.retrieveTransactionSummaryByUnrelatedAccountId(getId().toString(), receivingSince);
+            return spvBalanceFetcher.retrieveTransactionsSummaryByUnrelatedAccountId(getId().toString(), receivingSince);
     }
 
     @Override
@@ -93,9 +92,9 @@ public class Bip44BCHAccount extends Bip44Account {
         if ((spvBalanceFetcher.getSyncProgressPercents() == 100 || !spvBalanceFetcher.isFirstSync())
                 && !visible) {
             if (getAccountType() == ACCOUNT_TYPE_FROM_MASTERSEED)
-                visible = !spvBalanceFetcher.retrieveTransactionSummaryByHdAccountIndex(getId().toString(), getAccountIndex()).isEmpty();
+                visible = !spvBalanceFetcher.retrieveTransactionsSummaryByHdAccountIndex(getId().toString(), getAccountIndex()).isEmpty();
             else
-                visible = !spvBalanceFetcher.retrieveTransactionSummaryByUnrelatedAccountId(getId().toString()).isEmpty();
+                visible = !spvBalanceFetcher.retrieveTransactionsSummaryByUnrelatedAccountId(getId().toString()).isEmpty();
         }
         return visible;
     }

@@ -1,20 +1,27 @@
 package com.mycelium.wapi.wallet;
 
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.model.IssuedKeysInfo;
+import com.mycelium.wapi.model.TransactionDetails;
 import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 
 import java.util.List;
-import java.util.UUID;
 
 public interface SpvBalanceFetcher {
     CurrencyBasedBalance retrieveByHdAccountIndex(String id, int accountIndex);
     CurrencyBasedBalance retrieveByUnrelatedAccountId(String id);
-    List<TransactionSummary> retrieveTransactionSummaryByHdAccountIndex(String id, int accountIndex);
-    List<TransactionSummary> retrieveTransactionSummaryByHdAccountIndex(String id, int accountIndex, long since);
-    List<TransactionSummary> retrieveTransactionSummaryByUnrelatedAccountId(String id);
-    List<TransactionSummary> retrieveTransactionSummaryByUnrelatedAccountId(String id, long since);
+    List<TransactionSummary> retrieveTransactionsSummary(WalletAccount account, int offset, int limit);
+    List<TransactionSummary> retrieveTransactionsSummaryByHdAccountIndex(String id, int accountIndex);
+    List<TransactionSummary> retrieveTransactionsSummaryByHdAccountIndex(String id, int accountIndex, long since);
+    List<TransactionSummary> retrieveTransactionsSummaryByHdAccountIndex(String id, int accountIndex, int offset, int limit);
+    List<TransactionSummary> retrieveTransactionsSummaryByUnrelatedAccountId(String id);
+    List<TransactionSummary> retrieveTransactionsSummaryByUnrelatedAccountId(String id, long since);
+    List<TransactionSummary> retrieveTransactionsSummaryByUnrelatedAccountId(String id, int offset, int limit);
+
+    TransactionSummary retrieveTransactionSummary(Sha256Hash txid);
+    TransactionDetails retrieveTransactionDetails(Sha256Hash txid);
     void requestTransactionsAsync(int accountIndex);
     void requestHdWalletAccountRemoval(int accountIndex);
     void requestTransactionsFromUnrelatedAccountAsync(String guid, int accountType);

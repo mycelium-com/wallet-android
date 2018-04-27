@@ -25,11 +25,15 @@ import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static android.content.Context.MODE_PRIVATE;
 import static com.mycelium.wallet.activity.send.SendMainActivity.TRANSACTION_FIAT_VALUE;
+import static com.mycelium.wallet.external.changelly.bch.ExchangeFragment.BCH_EXCHANGE;
+import static com.mycelium.wallet.external.changelly.bch.ExchangeFragment.BCH_EXCHANGE_TRANSACTIONS;
 
 public class TransactionArrayAdapter extends ArrayAdapter<TransactionSummary> {
    private final MetadataStorage _storage;
@@ -40,6 +44,7 @@ public class TransactionArrayAdapter extends ArrayAdapter<TransactionSummary> {
    private Fragment _containerFragment;
    private Map<Address, String> _addressBook;
    private SharedPreferences transactionFiatValuePref;
+   private Set<String> exchangeTransactions;
 
    public TransactionArrayAdapter(Context context, List<TransactionSummary> transactions, Map<Address, String> addressBook) {
       this(context, transactions, null, addressBook, true);
@@ -60,6 +65,9 @@ public class TransactionArrayAdapter extends ArrayAdapter<TransactionSummary> {
       _addressBook = addressBook;
 
       transactionFiatValuePref = context.getSharedPreferences(TRANSACTION_FIAT_VALUE, MODE_PRIVATE);
+
+      SharedPreferences sharedPreferences = context.getSharedPreferences(BCH_EXCHANGE, MODE_PRIVATE);
+      exchangeTransactions = sharedPreferences.getStringSet(BCH_EXCHANGE_TRANSACTIONS, new HashSet<String>());
    }
 
    @NonNull
@@ -182,6 +190,9 @@ public class TransactionArrayAdapter extends ArrayAdapter<TransactionSummary> {
       // Show label or confirmations
       TextView tvLabel = (TextView) rowView.findViewById(R.id.tvTransactionLabel);
       String label = _storage.getLabelByTransaction(record.txid);
+      if(exchangeTransactions.contains(record.txid.toString())) {
+         label = "Exchange BCH to BTC " + label;
+      }
       if (label.length() == 0) {
          // if we have no txLabel show the confirmation state instead - to keep they layout ballanced
          String confirmationsText;

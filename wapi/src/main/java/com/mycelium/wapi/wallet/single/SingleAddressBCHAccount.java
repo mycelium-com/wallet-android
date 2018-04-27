@@ -53,19 +53,19 @@ public class SingleAddressBCHAccount extends SingleAddressAccount {
 
     @Override
     public List<TransactionSummary> getTransactionHistory(int offset, int limit) {
-        return spvBalanceFetcher.retrieveTransactionSummaryByUnrelatedAccountId(getId().toString());
+        return spvBalanceFetcher.retrieveTransactionsSummaryByUnrelatedAccountId(getId().toString());
     }
 
     @Override
     public List<TransactionSummary> getTransactionsSince(Long receivingSince) {
-        return spvBalanceFetcher.retrieveTransactionSummaryByUnrelatedAccountId(getId().toString(), receivingSince);
+        return spvBalanceFetcher.retrieveTransactionsSummaryByUnrelatedAccountId(getId().toString(), receivingSince);
     }
 
     @Override
     public boolean isVisible() {
         if ((spvBalanceFetcher.getSyncProgressPercents() == 100 || !spvBalanceFetcher.isFirstSync())
                 && !visible) {
-            visible = !spvBalanceFetcher.retrieveTransactionSummaryByUnrelatedAccountId(getId().toString()).isEmpty();
+            visible = !spvBalanceFetcher.retrieveTransactionsSummaryByUnrelatedAccountId(getId().toString()).isEmpty();
         }
         return visible;
     }

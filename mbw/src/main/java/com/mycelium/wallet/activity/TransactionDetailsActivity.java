@@ -120,8 +120,8 @@ public class TransactionDetailsActivity extends Activity {
       Sha256Hash txid = (Sha256Hash) getIntent().getSerializableExtra("transaction");
       if(_mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHBIP44
           || _mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHSINGLEADDRESS) {
-         _tx = getTransactionDetails(txid);
-         _txs = getTransactionSummary(txid);
+         _tx = _mbwManager.getSpvBchFetcher().retrieveTransactionDetails(txid);
+         _txs = _mbwManager.getSpvBchFetcher().retrieveTransactionSummary(txid);
       } else {
          _tx = _mbwManager.getSelectedAccount().getTransactionDetails(txid);
          _txs = _mbwManager.getSelectedAccount().getTransactionSummary(txid);
@@ -133,153 +133,6 @@ public class TransactionDetailsActivity extends Activity {
          coluMode = false;
       }
       updateUi();
-   }
-
-   private TransactionSummary getTransactionSummary(Sha256Hash txid) {
-      TransactionSummary transactionSummary = null;
-      Uri uri = Uri.withAppendedPath(TransactionContract.TransactionSummary.CONTENT_URI(
-          WalletApplication.getSpvModuleName(_mbwManager.getSelectedAccount().getType())), txid.toHex());
-      String selection;
-      WalletAccount account = _mbwManager.getSelectedAccount();
-      String[] selectionArgs;
-      if(account.getType() == WalletAccount.Type.BCHSINGLEADDRESS
-          || account.getType() == WalletAccount.Type.BCHBIP44) {
-         UUID accountId = account.getId();
-         selectionArgs = new String[]{accountId.toString()};
-         selection = TransactionContract.TransactionSummary.SELECTION_SINGLE_ADDRESS_ACCOUNT_GUID;
-      } else {
-         int accountIndex = ((Bip44Account) account).getAccountIndex();
-         selectionArgs = new String[]{Integer.toString(accountIndex)};
-         selection = TransactionContract.TransactionSummary.SELECTION_ACCOUNT_INDEX;
-      }
-      Cursor cursor = null;
-      ContentResolver contentResolver = getContentResolver();
-      try {
-         cursor = contentResolver.query(uri, null, selection, selectionArgs, null);
-         if (cursor != null) {
-            while (cursor.moveToNext()) {
-               transactionSummary = transactionSummaryfrom(cursor);
-            }
-         }
-      } finally {
-         if (cursor != null) {
-            cursor.close();
-         }
-      }
-      return transactionSummary;
-   }
-
-   private TransactionSummary transactionSummaryfrom(Cursor cursor) {
-      String rawTxId = cursor.getString(cursor.getColumnIndex(TransactionContract.TransactionSummary._ID));
-      Sha256Hash txId = Sha256Hash.fromString(rawTxId);
-      String rawValue = cursor.getString(cursor.getColumnIndex(TransactionContract.TransactionSummary.VALUE));
-      CurrencyValue value = ExactCurrencyValue.from(new BigDecimal(rawValue), "BCH");
-      int rawIsIncoming = cursor.getInt(cursor.getColumnIndex(TransactionContract.TransactionSummary.IS_INCOMING));
-      boolean isIncoming = rawIsIncoming == 1;
-      long time = cursor.getLong(cursor.getColumnIndex(TransactionContract.TransactionSummary.TIME));
-      int height = cursor.getInt(cursor.getColumnIndex(TransactionContract.TransactionSummary.HEIGHT));
-      int confirmations = cursor.getInt(cursor.getColumnIndex(TransactionContract.TransactionSummary.CONFIRMATIONS));
-      int rawIsQueuedOutgoing = cursor.getInt(cursor.getColumnIndex(TransactionContract.TransactionSummary.IS_QUEUED_OUTGOING));
-      boolean isQueuedOutgoing = rawIsQueuedOutgoing == 1;
-
-      ConfirmationRiskProfileLocal confirmationRiskProfile = null;
-      int unconfirmedChainLength = cursor.getInt(cursor.getColumnIndex(TransactionContract.TransactionSummary.CONFIRMATION_RISK_PROFILE_LENGTH));
-      if (unconfirmedChainLength > -1) {
-         boolean hasRbfRisk = cursor.getInt(cursor.getColumnIndex(TransactionContract.TransactionSummary.CONFIRMATION_RISK_PROFILE_LENGTH)) == 1;
-         boolean isDoubleSpend = cursor.getInt(cursor.getColumnIndex(TransactionContract.TransactionSummary.CONFIRMATION_RISK_PROFILE_LENGTH)) == 1;
-         confirmationRiskProfile = new ConfirmationRiskProfileLocal(unconfirmedChainLength, hasRbfRisk, isDoubleSpend);
-      }
-
-      String rawDestinationAddress = cursor.getString(cursor.getColumnIndex(TransactionContract.TransactionSummary.DESTINATION_ADDRESS));
-      Optional<Address> destinationAddress = Optional.absent();
-      if (!TextUtils.isEmpty(rawDestinationAddress)) {
-         destinationAddress = Optional.of(Address.fromString(rawDestinationAddress));
-      }
-      List<Address> toAddresses = new ArrayList<>();
-      String rawToAddresses = cursor.getString(cursor.getColumnIndex(TransactionContract.TransactionSummary.TO_ADDRESSES));
-      if (!TextUtils.isEmpty(rawToAddresses)) {
-         String[] addresses = rawToAddresses.split(",");
-         for (String addr : addresses) {
-            toAddresses.add(Address.fromString(addr));
-         }
-      }
-      return new TransactionSummary(txId, value, isIncoming, time, height, confirmations, isQueuedOutgoing,
-          confirmationRiskProfile, destinationAddress, toAddresses);
-   }
-
-   private TransactionDetails getTransactionDetails(Sha256Hash txid) {
-      TransactionDetails transactionDetails = null;
-      Uri uri = Uri.withAppendedPath(TransactionContract.TransactionDetails.CONTENT_URI(
-          WalletApplication.getSpvModuleName(_mbwManager.getSelectedAccount().getType())), txid.toHex());
-      String selection = TransactionContract.TransactionDetails.SELECTION_ACCOUNT_INDEX;
-      WalletAccount account = _mbwManager.getSelectedAccount();
-      if(account.getClass() == Bip44Account.class || account.getClass() == Bip44BCHAccount.class) {
-        int accountIndex = ((Bip44Account)
-            _mbwManager.getSelectedAccount()).getAccountIndex();
-        String[] selectionArgs = new String[]{Integer.toString(accountIndex)};
-        Cursor cursor = null;
-        ContentResolver contentResolver = getContentResolver();
-        try {
-          cursor = contentResolver.query(uri, null, selection, selectionArgs, null);
-          if (cursor != null) {
-            while (cursor.moveToNext()) {
-              transactionDetails = from(cursor);
-            }
-          }
-        } finally {
-          if (cursor != null) {
-            cursor.close();
-          }
-        }
-      } else if(account.getClass() == SingleAddressAccount.class || account.getClass() == SingleAddressBCHAccount.class) {
-        UUID accountId = account.getId();
-        String[] selectionArgs = new String[]{accountId.toString()};
-        Cursor cursor = null;
-        ContentResolver contentResolver = getContentResolver();
-        try {
-          cursor = contentResolver.query(uri, null, selection, selectionArgs, null);
-          if (cursor != null) {
-            while (cursor.moveToNext()) {
-              transactionDetails = from(cursor);
-            }
-          }
-        } finally {
-          if (cursor != null) {
-            cursor.close();
-          }
-        }
-      }
-
-      return transactionDetails;
-   }
-
-   private TransactionDetails from(Cursor cursor) {
-      String rawTxId = cursor.getString(cursor.getColumnIndex(TransactionContract.TransactionDetails._ID));
-      Sha256Hash hash = Sha256Hash.fromString(rawTxId);
-      int height = cursor.getInt(cursor.getColumnIndex(TransactionContract.TransactionDetails.HEIGHT));
-      int time = cursor.getInt(cursor.getColumnIndex(TransactionContract.TransactionDetails.TIME));
-      int rawSize = cursor.getInt(cursor.getColumnIndex(TransactionContract.TransactionDetails.RAW_SIZE));
-
-      String rawInputs = cursor.getString(cursor.getColumnIndex(TransactionContract.TransactionDetails.INPUTS));
-      String rawOutputs = cursor.getString(cursor.getColumnIndex(TransactionContract.TransactionDetails.OUTPUTS));
-
-      TransactionDetails.Item[] inputs = extract(rawInputs);
-      TransactionDetails.Item[] outputs = extract(rawOutputs);
-      return new TransactionDetails(hash, height, time, inputs, outputs, rawSize);
-   }
-
-   private TransactionDetails.Item[] extract(String data) {
-      List<TransactionDetails.Item> result = new ArrayList<>();
-      if (!TextUtils.isEmpty(data)) {
-         String[] dataParts = data.split(",");
-         for (String in : dataParts) {
-            String[] inParts = in.split(" BCH");
-            long value = Long.valueOf(inParts[0]);
-            Address address = Address.fromString(inParts[1]);
-            result.add(new TransactionDetails.Item(address, value, false));
-         }
-      }
-      return result.toArray(new TransactionDetails.Item[result.size()]);
    }
 
    private void updateUi() {
@@ -361,16 +214,6 @@ public class TransactionDetailsActivity extends Activity {
          ((TextView) findViewById(R.id.tvFeeLabel)).setVisibility(View.GONE);
          ((TextView) findViewById(R.id.tvInputsLabel)).setVisibility(View.GONE);
       }
-
-      SharedPreferences sharedPreferences = getSharedPreferences(BCH_EXCHANGE, Context.MODE_PRIVATE);
-      Set<String> exchangeTransactions = sharedPreferences.getStringSet(BCH_EXCHANGE_TRANSACTIONS, new HashSet<String>());
-      if(exchangeTransactions.contains(_tx.hash.toString())) {
-         //TODO Show that it is an exchange transaction BCH -> BTC.
-      }
-      SharedPreferences.Editor editor = sharedPreferences.edit();
-      editor.putStringSet(BCH_EXCHANGE_TRANSACTIONS, exchangeTransactions);
-      editor.apply();
-
    }
 
    private long getFee(TransactionDetails tx) {

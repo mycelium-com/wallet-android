@@ -200,47 +200,7 @@ public class TransactionHistoryFragment extends Fragment {
       }
    }
 
-  private List<TransactionSummary> getTransactions(int offset, int limit) {
-    List<TransactionSummary> transactionSummaryList = new ArrayList<>();
-    WalletAccount account = _mbwManager.getSelectedAccount();
-    FragmentActivity context = getActivity();
-    Uri uri = TransactionContract.TransactionSummary.CONTENT_URI(
-        WalletApplication.getSpvModuleName(account.getType()));
-    String selection = null;
-    String[] selectionArgs = null;
-    if (account instanceof Bip44BCHAccount) {
-      selection = TransactionContract.TransactionSummary.SELECTION_ACCOUNT_INDEX;
-      selectionArgs = new String[]{Integer.toString(((Bip44BCHAccount) account).getAccountIndex())};
-    }
 
-    if (account instanceof SingleAddressBCHAccount) {
-      selection = TransactionContract.TransactionSummary.SELECTION_SINGLE_ADDRESS_ACCOUNT_GUID;
-      selectionArgs = new String[]{account.getId().toString()};
-    }
-
-    Cursor cursor = null;
-    ContentResolver contentResolver = context.getContentResolver();
-    try {
-      cursor = contentResolver.query(uri, null, selection, selectionArgs, null);
-      if (cursor != null) {
-        int x = 0;
-        int counter = 0;
-        while (cursor.moveToNext()) {
-          if(x >= offset && counter < limit) {
-            TransactionSummary transactionSummary = from(cursor);
-            transactionSummaryList.add(transactionSummary);
-            counter++;
-          }
-          x++;
-        }
-      }
-    } finally {
-      if (cursor != null) {
-        cursor.close();
-      }
-    }
-    return transactionSummaryList;
-  }
 
   private TransactionSummary from(Cursor cursor) {
     String rawTxId = cursor.getString(cursor.getColumnIndex(TransactionContract.TransactionSummary._ID));
