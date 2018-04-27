@@ -194,6 +194,9 @@ android {
                 ColoredCoinsApiURLs = '{"https://coloredcoinsd.gear.mycelium.com/v3/", "https://api.coloredcoins.org/v3/"}'
                 ColuBlockExplorerApiURLs = '{"https://coloredcoins.gear.mycelium.com/api/", "https://explorer.coloredcoins.org/api/"}'
                 RMCChangeAddress = "18c91fJmVg7btPjxpwrhgwd37GkVghq9me"
+
+                appIdSpvBch = [release: "com.mycelium.module.spvbch",
+                               debug: "com.mycelium.module.spvbch.debug"]
             }
             logger.info("Signing config is ", signingConfig)
         }
@@ -210,6 +213,9 @@ android {
                 ColoredCoinsApiURLs = '{"http://testnet.api.coloredcoins.org/v3/"}'
                 ColuBlockExplorerApiURLs = '{"http://testnet.explorer.coloredcoins.org/api/"}'
                 RMCChangeAddress = "mx92L6iuCfxQUz4cLNU4jJpfWbavVHgYj9"
+
+                appIdSpvBch = [release: "com.mycelium.module.spvbch.testnet",
+                               debug: "com.mycelium.module.spvbch.testnet.debug"]
             }
             logger.info("Signing config is ", signingConfig)
         }
@@ -224,6 +230,8 @@ android {
         variant.buildConfigField "String[]", "ColoredCoinsApiURLs", "${flavor.ext.ColoredCoinsApiURLs}"
         variant.buildConfigField "String[]", "ColuBlockExplorerApiURLs", "${flavor.ext.ColuBlockExplorerApiURLs}"
         variant.buildConfigField "String", "RMCChangeAddress", "\"${flavor.ext.RMCChangeAddress}\""
+
+        variant.buildConfigField "String", "appIdSpvBch", "\"${flavor.ext.appIdSpvBch[variant.buildType.name]}\""
     }
 
     testOptions {

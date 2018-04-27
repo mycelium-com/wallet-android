@@ -155,27 +155,8 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
 
     private static Map<WalletAccount.Type, String> initTrustedSpvModulesMapping() {
         Map<WalletAccount.Type, String> spvModulesMapping = new HashMap<>();
-        // TODO: 27.03.18 turn this into BuildConfig.appIdBCHBIP44 ...
-        switch (BuildConfig.APPLICATION_ID) {
-        case "com.mycelium.wallet":
-            spvModulesMapping.put(WalletAccount.Type.BCHBIP44, "com.mycelium.module.spvbch");
-            spvModulesMapping.put(WalletAccount.Type.BCHSINGLEADDRESS, "com.mycelium.module.spvbch");
-            break;
-        case "com.mycelium.wallet.debug":
-            spvModulesMapping.put(WalletAccount.Type.BCHBIP44, "com.mycelium.module.spvbch.debug");
-            spvModulesMapping.put(WalletAccount.Type.BCHSINGLEADDRESS, "com.mycelium.module.spvbch.debug");
-            break;
-        case "com.mycelium.testnetwallet":
-            spvModulesMapping.put(WalletAccount.Type.BCHBIP44, "com.mycelium.module.spvbch.testnet");
-            spvModulesMapping.put(WalletAccount.Type.BCHSINGLEADDRESS, "com.mycelium.module.spvbch.testnet");
-            break;
-        case "com.mycelium.testnetwallet.debug":
-            spvModulesMapping.put(WalletAccount.Type.BCHBIP44, "com.mycelium.module.spvbch.testnet.debug");
-            spvModulesMapping.put(WalletAccount.Type.BCHSINGLEADDRESS, "com.mycelium.module.spvbch.testnet.debug");
-            break;
-        default:
-            throw new RuntimeException("No spv module defined for BuildConfig " + BuildConfig.APPLICATION_ID);
-        }
+        spvModulesMapping.put(WalletAccount.Type.BCHBIP44, BuildConfig.appIdSpvBch);
+        spvModulesMapping.put(WalletAccount.Type.BCHSINGLEADDRESS, BuildConfig.appIdSpvBch);
         return spvModulesMapping;
     }
 }
