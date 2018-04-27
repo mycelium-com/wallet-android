@@ -67,12 +67,14 @@ import com.google.common.base.Optional;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.CoinUtil;
 import com.mrd.bitlib.util.Sha256Hash;
+import com.mycelium.net.ServerEndpointType;
 import com.mycelium.spvmodule.providers.TransactionContract;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.WalletApplication;
 import com.mycelium.wallet.activity.util.AddressLabel;
+import com.mycelium.wallet.activity.util.BlockExplorer;
 import com.mycelium.wallet.activity.util.TransactionConfirmationsDisplay;
 import com.mycelium.wallet.activity.util.TransactionDetailsLabel;
 import com.mycelium.wallet.colu.ColuAccount;
@@ -211,7 +213,7 @@ public class TransactionDetailsActivity extends Activity {
          }
          ((TextView) findViewById(R.id.tvFee)).setText(fee);
       } else {
-         ((TextView) findViewById(R.id.tvFee)).setText("check in Block Explorer");
+         ((TextView) findViewById(R.id.tvFee)).setText("Click on transaction hash to check in Block Explorer");
          ((TextView) findViewById(R.id.tvInputsLabel)).setVisibility(View.GONE);
       }
    }
