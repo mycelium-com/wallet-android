@@ -17,6 +17,7 @@ import java.util.*
 
 class CommunicationManager private constructor(val context: Context) {
     private val trustedPackages = HashMap<String, PackageMetaData>()
+    private var modularizationApiVersion: Int = -1
     private val sessionFilename = "sessions.json"
     private val LOG_TAG: String? = this::class.java.canonicalName
     val pairedModules = HashSet<Module>()
@@ -48,10 +49,11 @@ class CommunicationManager private constructor(val context: Context) {
     private fun loadTrustedPackages() {
         val readerDev = InputStreamReader(context.resources.assets.open("trusted_packages.json"))
         val gson = GsonBuilder().create()
-        val trustedPackagesArray = gson.fromJson(readerDev, emptyArray<PackageMetaData>().javaClass)
-        Log.d(LOG_TAG, "loading trust database of latest package version…")
-        for (pmd in trustedPackagesArray) {
-            Log.d(LOG_TAG, "Trusting ${pmd.name} with sig ${pmd.signature} and version ${pmd.version}.")
+        val trustConfiguration = gson.fromJson(readerDev, TrustConfiguration::class.java)
+        modularizationApiVersion = trustConfiguration.modularizationApiVersion
+        Log.d(LOG_TAG, "Loading trust database of latest package version…")
+        for (pmd in trustConfiguration.packages) {
+            Log.d(LOG_TAG, "Trusting ${pmd.name} with sig ${pmd.signature}.")
             trustedPackages.put(pmd.name, pmd)
         }
     }
@@ -89,8 +91,8 @@ class CommunicationManager private constructor(val context: Context) {
         }
         val trustedPackage = trustedPackages[packageName]
                 ?: throw SecurityException("Package $packageName generally not trusted.")
-        if(trustedPackage.version != version) {
-            throw SecurityException("Package $packageName has wrong version $version != ${trustedPackage.version}.")
+        if(modularizationApiVersion != version) {
+            throw SecurityException("Package $packageName has wrong version $version != $modularizationApiVersion.")
         }
         val signingPubKeyHash = getSigningPubKeyHash(packageName)
         if (trustedPackage.signature != signingPubKeyHash) {
@@ -115,12 +117,11 @@ class CommunicationManager private constructor(val context: Context) {
             val packageMetaData = trustedPackages[packageName]
                     ?: throw SecurityException("Unknown package name $packageName")
             val key = packageMetaData.key ?: Random().nextLong()
-            val version = packageMetaData.version
-            val keyVersionSelectionArgs = arrayOf(key.toString(), version.toString())
+            val keyVersionSelectionArgs = arrayOf(key.toString(), modularizationApiVersion.toString())
             cr.query(Uri.parse("content://$packageName.PairingProvider"), null, null, keyVersionSelectionArgs, null)
                     .use { cursor ->
                         cursor ?: return false // if the other module is not returning a proper Cursor, pairing fails here
-                        pair(packageName, key, version)
+                        pair(packageName, key, modularizationApiVersion)
                         cursor.moveToFirst()
                         pairedModules.add(Module(packageName
                                 , cursor.getString(cursor.getColumnIndex("name"))
@@ -153,7 +154,6 @@ class CommunicationManager private constructor(val context: Context) {
                     " unexpected signature $signingPubKeyHash instead of ${pmd.signature}")
         }
     }
-
 
     /**
      * @param key the session key a package should be associated to.
@@ -242,8 +242,12 @@ class CommunicationManager private constructor(val context: Context) {
  * of the [android.content.pm.PackageInfo.signature][signature]
  * @property key the "session ID" the [name][target package] and us
  */
-private class PackageMetaData(
+private data class PackageMetaData(
         val name: String,
         val signature: String,
-        val version: Int,
         var key: Long? = null)
+
+private data class TrustConfiguration(
+        val packages: Array<PackageMetaData>,
+        val modularizationApiVersion: Int)
+
