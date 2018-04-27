@@ -65,6 +65,7 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         }
         return INSTANCE;
     }
+
     @Override
     public void onCreate() {
         int loadedBouncy = Security.insertProviderAt(new org.spongycastle.jce.provider.BouncyCastleProvider(), 1);
