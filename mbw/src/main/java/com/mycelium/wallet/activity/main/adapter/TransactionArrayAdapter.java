@@ -106,7 +106,9 @@ public class TransactionArrayAdapter extends ArrayAdapter<TransactionSummary> {
       TextView tvAmount = (TextView) rowView.findViewById(R.id.tvAmount);
       if(_mbwManager.getColuManager().isColuAsset(record.value.getCurrency())) {
          tvAmount.setText(Utils.getColuFormattedValueWithUnit(record.value));
-      }else {
+      } else if(record.value.getCurrency().equals("BCH")) {
+         tvAmount.setText(_mbwManager.getBchValueString(record.value.getLongValue()));
+      } else {
          tvAmount.setText(Utils.getFormattedValueWithUnit(record.value, _mbwManager.getBitcoinDenomination()));
       }
       tvAmount.setTextColor(color);
@@ -127,6 +129,10 @@ public class TransactionArrayAdapter extends ArrayAdapter<TransactionSummary> {
       }
 
       if(alternativeCurrency.equals(CurrencyValue.BTC) && record.value.getCurrency().equalsIgnoreCase("RMC")) {
+         alternativeCurrency = _mbwManager.getCurrencySwitcher().getCurrentFiatCurrency();
+      }
+
+      if(alternativeCurrency.equals(CurrencyValue.BTC) && record.value.getCurrency().equalsIgnoreCase("BCH")) {
          alternativeCurrency = _mbwManager.getCurrencySwitcher().getCurrentFiatCurrency();
       }
 

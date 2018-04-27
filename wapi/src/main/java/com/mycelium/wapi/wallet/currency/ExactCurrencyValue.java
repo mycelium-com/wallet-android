@@ -41,6 +41,8 @@ public abstract class ExactCurrencyValue extends CurrencyValue {
    public static ExactCurrencyValue from(BigDecimal value, String currency) {
       if (currency.equals(CurrencyValue.BTC)) {
          return new ExactBitcoinValue(value);
+      } else if(currency.equals(CurrencyValue.BCH)) {
+         return new ExactBitcoinCashValue(value);
       } else {
          return new ExactFiatValue(value, currency);
       }

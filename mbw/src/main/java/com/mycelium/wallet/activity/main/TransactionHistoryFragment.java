@@ -200,46 +200,6 @@ public class TransactionHistoryFragment extends Fragment {
       }
    }
 
-
-
-  private TransactionSummary from(Cursor cursor) {
-    String rawTxId = cursor.getString(cursor.getColumnIndex(TransactionContract.TransactionSummary._ID));
-    Sha256Hash txId = Sha256Hash.fromString(rawTxId);
-    String rawValue = cursor.getString(cursor.getColumnIndex(TransactionContract.TransactionSummary.VALUE));
-    CurrencyValue value = ExactCurrencyValue.from(new BigDecimal(rawValue), "BCH");
-    int rawIsIncoming = cursor.getInt(cursor.getColumnIndex(TransactionContract.TransactionSummary.IS_INCOMING));
-    boolean isIncoming = rawIsIncoming == 1;
-    long time = cursor.getLong(cursor.getColumnIndex(TransactionContract.TransactionSummary.TIME));
-    int height = cursor.getInt(cursor.getColumnIndex(TransactionContract.TransactionSummary.HEIGHT));
-    int confirmations = cursor.getInt(cursor.getColumnIndex(TransactionContract.TransactionSummary.CONFIRMATIONS));
-    int rawIsQueuedOutgoing = cursor.getInt(cursor.getColumnIndex(TransactionContract.TransactionSummary.IS_QUEUED_OUTGOING));
-    boolean isQueuedOutgoing = rawIsQueuedOutgoing == 1;
-
-    ConfirmationRiskProfileLocal confirmationRiskProfile = null;
-    int unconfirmedChainLength = cursor.getInt(cursor.getColumnIndex(TransactionContract.TransactionSummary.CONFIRMATION_RISK_PROFILE_LENGTH));
-    if (unconfirmedChainLength > -1) {
-      boolean hasRbfRisk = cursor.getInt(cursor.getColumnIndex(TransactionContract.TransactionSummary.CONFIRMATION_RISK_PROFILE_LENGTH)) == 1;
-      boolean isDoubleSpend = cursor.getInt(cursor.getColumnIndex(TransactionContract.TransactionSummary.CONFIRMATION_RISK_PROFILE_LENGTH)) == 1;
-      confirmationRiskProfile = new ConfirmationRiskProfileLocal(unconfirmedChainLength, hasRbfRisk, isDoubleSpend);
-    }
-
-    String rawDestinationAddress = cursor.getString(cursor.getColumnIndex(TransactionContract.TransactionSummary.DESTINATION_ADDRESS));
-    Optional<Address> destinationAddress = Optional.absent();
-    if (!TextUtils.isEmpty(rawDestinationAddress)) {
-      destinationAddress = Optional.of(Address.fromString(rawDestinationAddress));
-    }
-    List<Address> toAddresses = new ArrayList<>();
-    String rawToAddresses = cursor.getString(cursor.getColumnIndex(TransactionContract.TransactionSummary.TO_ADDRESSES));
-    if (!TextUtils.isEmpty(rawToAddresses)) {
-      String[] addresses = rawToAddresses.split(",");
-      for (String addr : addresses) {
-        toAddresses.add(Address.fromString(addr));
-      }
-    }
-    return new TransactionSummary(txId, value, isIncoming, time, height, confirmations, isQueuedOutgoing,
-        confirmationRiskProfile, destinationAddress, toAddresses);
-  }
-
    @Subscribe
    public void syncStopped(SyncStopped event) {
       updateTransactionHistory();
