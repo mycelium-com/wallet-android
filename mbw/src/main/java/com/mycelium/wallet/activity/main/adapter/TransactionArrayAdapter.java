@@ -128,11 +128,9 @@ public class TransactionArrayAdapter extends ArrayAdapter<TransactionSummary> {
          }
       }
 
-      if(alternativeCurrency.equals(CurrencyValue.BTC) && record.value.getCurrency().equalsIgnoreCase("RMC")) {
-         alternativeCurrency = _mbwManager.getCurrencySwitcher().getCurrentFiatCurrency();
-      }
-
-      if(alternativeCurrency.equals(CurrencyValue.BTC) && record.value.getCurrency().equalsIgnoreCase("BCH")) {
+      if(alternativeCurrency.equals(CurrencyValue.BTC)
+          && (record.value.getCurrency().equalsIgnoreCase("RMC")
+          || record.value.getCurrency().equalsIgnoreCase("BCH"))) {
          alternativeCurrency = _mbwManager.getCurrencySwitcher().getCurrentFiatCurrency();
       }
 
