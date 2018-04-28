@@ -354,12 +354,13 @@ public class AddAdvancedAccountActivity extends Activity {
             returnAccount(hdKeyNode);
             break;
          case 0:
-            // This branch is created to support import CoCo from bip32 accout
-            if (hdKeyNode.isPrivateHdKeyNode()) {
-               returnBip32Account(hdKeyNode);
-            } else {
-               new Toaster(this).toast(getString(R.string.import_xpub_should_xpriv), false);
-            }
+            new Toaster(this).toast("root level account import will soon be available for ColoredCoins accounts.", false);
+//            // This branch is created to support import CoCo from bip32 accout
+//            if (hdKeyNode.isPrivateHdKeyNode()) {
+//               returnBip32Account(hdKeyNode);
+//            } else {
+//               new Toaster(this).toast(getString(R.string.import_xpub_should_xpriv), false);
+//            }
             break;
          default:
             String errorMessage = this.getString(R.string.import_xpub_wrong_depth, Integer.toString(depth));
