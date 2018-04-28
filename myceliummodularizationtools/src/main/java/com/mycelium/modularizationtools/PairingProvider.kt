@@ -13,12 +13,7 @@ import android.net.Uri
  *
  */
 open class PairingProvider : ContentProvider() {
-    var communicationManager: CommunicationManager? = null
-
-    override fun onCreate(): Boolean {
-        communicationManager = CommunicationManager.getInstance(context)
-        return true
-    }
+    override fun onCreate(): Boolean = true
 
     /**
      * Heavy hack ahead! Sorry!
@@ -32,7 +27,7 @@ open class PairingProvider : ContentProvider() {
     override fun query(uri: Uri, projection: Array<String>?, selection: String?, selectionArgs: Array<String>?, sortOrder: String?): Cursor? {
         val sessionKey = selectionArgs!![0].toLong()
         val version = selectionArgs[1].toInt()
-        communicationManager!!.pair(callingPackage, sessionKey, version)
+        CommunicationManager.getInstance().pair(callingPackage, sessionKey, version)
         val cursor = MatrixCursor(arrayOf("name", "description"))
         cursor.addRow(arrayOf(context.getString(R.string.module_name), context.getString(R.string.module_description)))
         return cursor

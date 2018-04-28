@@ -516,8 +516,8 @@ public class SettingsActivity extends PreferenceActivity {
       // external Services
 
       final PreferenceCategory modulesPrefs = (PreferenceCategory) findPreference("modulesPrefs");
-      if (!CommunicationManager.getInstance(this).getPairedModules().isEmpty()) {
-         for (final Module module : CommunicationManager.getInstance(this).getPairedModules()) {
+      if (!CommunicationManager.getInstance().getPairedModules().isEmpty()) {
+         for (final Module module : CommunicationManager.getInstance().getPairedModules()) {
             final ButtonPreference preference = new ButtonPreference(this);
             preference.setLayoutResource(R.layout.preference_layout);
             preference.setTitle(Html.fromHtml(module.getName()));
@@ -556,7 +556,7 @@ public class SettingsActivity extends PreferenceActivity {
       }
 
       for (final Module module : GooglePlayModuleCollection.getModules(this).values()) {
-         if (!CommunicationManager.getInstance(this).getPairedModules().contains(module)) {
+         if (!CommunicationManager.getInstance().getPairedModules().contains(module)) {
             ButtonPreference installPreference = new ButtonPreference(this);
             installPreference.setButtonText(getString(R.string.install));
             installPreference.setButtonClickListener(new View.OnClickListener() {

@@ -42,7 +42,6 @@ import android.os.StrictMode;
 import android.support.annotation.NonNull;
 import android.support.multidex.MultiDexApplication;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.mycelium.modularizationtools.CommunicationManager;
 import com.mycelium.modularizationtools.ModuleMessageReceiver;
@@ -50,7 +49,10 @@ import com.mycelium.wallet.modularisation.BCHHelper;
 import com.mycelium.wapi.wallet.WalletAccount;
 
 import java.security.Security;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -83,20 +85,27 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
                                    .build());
         }
         super.onCreate();
-        pairSpvModules(CommunicationManager.getInstance(this));
+        CommunicationManager.init(this, com.mycelium.spvmodulecontract.BuildConfig.SpvApiVersion);
+        pairSpvModules(CommunicationManager.getInstance());
         cleanModulesIfFirstRun(this, getSharedPreferences(BCHHelper.BCH_PREFS, MODE_PRIVATE));
         moduleMessageReceiver = new MbwMessageReceiver(this);
         MbwManager mbwManager = MbwManager.getInstance(this);
         applyLanguageChange(getBaseContext(), mbwManager.getLanguage());
     }
 
+    public List<ModuleVersionError> moduleVersionErrors = new ArrayList<>();
     private void pairSpvModules(CommunicationManager communicationManager) {
-        for (Map.Entry<WalletAccount.Type, String> entry : spvModulesMapping.entrySet()) {
+        for (String moduleId : new HashSet<>(spvModulesMapping.values())) {
             try {
-                communicationManager.requestPair(entry.getValue());
+                communicationManager.requestPair(moduleId);
             } catch(SecurityException se) {
-                if(se.getMessage().contains("Version conflict")) {
-                    Toast.makeText(this, "Make sure your wallet and modules are all up to date.\n" + se.getMessage(), Toast.LENGTH_LONG).show();
+                String message = se.getMessage();
+                if(message.contains("Version conflict")) {
+                    String[] strings = message.split("\\|");
+                    int otherSpvApiVersion = Integer.decode(strings[1]);
+                    moduleVersionErrors.add(new ModuleVersionError(moduleId, otherSpvApiVersion));
+                } else {
+                    Log.w("WalletApplication", message);
                 }
             }
         }
@@ -157,7 +166,7 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
     }
 
     public static void sendToSpv(Intent intent, WalletAccount.Type accountType) {
-        CommunicationManager.getInstance(INSTANCE).send(getSpvModuleName(accountType), intent);
+        CommunicationManager.getInstance().send(getSpvModuleName(accountType), intent);
     }
 
     private static Map<WalletAccount.Type, String> initTrustedSpvModulesMapping() {
@@ -165,5 +174,15 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         spvModulesMapping.put(WalletAccount.Type.BCHBIP44, BuildConfig.appIdSpvBch);
         spvModulesMapping.put(WalletAccount.Type.BCHSINGLEADDRESS, BuildConfig.appIdSpvBch);
         return spvModulesMapping;
+    }
+
+    public class ModuleVersionError {
+        public final String moduleId;
+        public final int expected;
+
+        private ModuleVersionError(String moduleId, int expected) {
+            this.moduleId = moduleId;
+            this.expected = expected;
+        }
     }
 }

@@ -54,6 +54,7 @@ import android.support.annotation.StringRes;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.text.ClipboardManager;
+import android.text.Html;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.util.SparseArray;
@@ -85,12 +86,14 @@ import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.CoinUtil;
+import com.mycelium.modularizationtools.model.Module;
 import com.mycelium.wallet.activity.AdditionalBackupWarningActivity;
 import com.mycelium.wallet.activity.BackupWordListActivity;
 import com.mycelium.wallet.activity.export.BackupToPdfActivity;
 import com.mycelium.wallet.activity.export.ExportAsQrCodeActivity;
 import com.mycelium.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wallet.colu.ColuAccount;
+import com.mycelium.wallet.modularisation.GooglePlayModuleCollection;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.ExportableAccount;
@@ -687,21 +690,49 @@ public class Utils {
          AdditionalBackupWarningActivity.callMe(parent);
       } else {
          // first backup
-         AlertDialog.Builder builder = new AlertDialog.Builder(parent);
-         builder.setMessage(R.string.backup_all_warning).setCancelable(true)
-               .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                  public void onClick(DialogInterface dialog, int id) {
-                     dialog.dismiss();
-                     BackupWordListActivity.callMe(parent);
-                  }
-               }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-            }
-         });
-         AlertDialog alertDialog = builder.create();
-         alertDialog.show();
+         new AlertDialog.Builder(parent)
+                 .setMessage(R.string.backup_all_warning)
+                 .setCancelable(true)
+                 .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                       dialog.dismiss();
+                       BackupWordListActivity.callMe(parent);
+                    }
+                 })
+                 .setNegativeButton(R.string.no, null)
+                 .create()
+                 .show();
       }
+   }
 
+   /**
+    * Shows one AlertDialog per module that runs under a different SpvApiVersion, advising to upgrade the lower between wallet and module.
+    */
+   public static void notifyWrongModuleVersion(final Activity parent) {
+      for(WalletApplication.ModuleVersionError moduleVersionError: WalletApplication.getInstance().moduleVersionErrors) {
+         Module module = GooglePlayModuleCollection.getModuleByPackage(parent, moduleVersionError.moduleId);
+         Module wallet = new Module(BuildConfig.APPLICATION_ID, "<b>Mycelium Wallet</b>", "");
+         final Module needsUpdate;
+         if (moduleVersionError.expected > com.mycelium.spvmodulecontract.BuildConfig.SpvApiVersion) {
+            needsUpdate = wallet;
+         } else {
+            needsUpdate = module;
+         }
+         new AlertDialog.Builder(parent)
+                 .setTitle(Html.fromHtml(parent.getString(R.string.update_required_for, needsUpdate.getName())))
+                 .setMessage(Html.fromHtml(parent.getString(R.string.update_required_details, wallet.getName(), module.getName(), needsUpdate.getName())))
+                 .setPositiveButton(Html.fromHtml(parent.getString(R.string.update, needsUpdate.getName())), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                       Intent installIntent = new Intent(Intent.ACTION_VIEW)
+                               .setData(Uri.parse("https://play.google.com/store/apps/details?id=" + needsUpdate.getModulePackage()));
+                       parent.startActivity(installIntent);
+                    }
+                 })
+                 .setNegativeButton(Html.fromHtml(parent.getString(R.string.continue_without, module.getName())), null)
+                 .create()
+                 .show();
+      }
    }
 
    public static void pinProtectedBackup(final Activity activity) {

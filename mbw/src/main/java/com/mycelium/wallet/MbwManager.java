@@ -647,7 +647,7 @@ public class MbwManager {
 
    public SpvBalanceFetcher getSpvBchFetcher() {
       SpvBalanceFetcher result = null;
-      if (CommunicationManager.getInstance(_applicationContext).getPairedModules()
+      if (CommunicationManager.getInstance().getPairedModules()
               .contains(GooglePlayModuleCollection.getModules(_applicationContext).get("bch"))) {
          result = new SpvBchFetcher(_applicationContext);
       }

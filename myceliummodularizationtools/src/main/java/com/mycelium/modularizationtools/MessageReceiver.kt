@@ -35,7 +35,7 @@ class MessageReceiver : IntentService("MessageReceiverThread") {
         val callerPackage: String
         try {
             // verify sender and get sending package name
-            callerPackage = CommunicationManager.getInstance(this).getPackageName(key)
+            callerPackage = CommunicationManager.getInstance().getPackageName(key)
         } catch (e: SecurityException) {
             Log.e(LOG_TAG, "onStartCommand failed: ${e.message}")
             return

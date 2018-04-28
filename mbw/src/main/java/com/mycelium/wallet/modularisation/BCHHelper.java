@@ -142,7 +142,7 @@ public class BCHHelper {
 
     public static boolean isModulePaired(Context context) {
         final Module bchModule = GooglePlayModuleCollection.getModules(context).get("bch");
-        return CommunicationManager.getInstance(context).getPairedModules().contains(bchModule);
+        return CommunicationManager.getInstance().getPairedModules().contains(bchModule);
     }
 
     public static float getBCHSyncProgress(Context context) {

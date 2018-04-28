@@ -1,5 +1,4 @@
 {
-  "modularizationApiVersion": 2,
   "packages": [
     {
       "name": "com.mycelium.module.spvbch",

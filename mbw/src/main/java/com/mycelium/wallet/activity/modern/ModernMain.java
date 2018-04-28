@@ -34,7 +34,6 @@
 
 package com.mycelium.wallet.activity.modern;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -45,7 +44,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -205,6 +203,8 @@ public class ModernMain extends AppCompatActivity {
       }
       BCHHelper.firstBCHPages(this);
       _mbwManager.importLabelsToBch(_mbwManager.getWalletManager(false));
+
+      Utils.notifyWrongModuleVersion(this);
    }
 
    private void checkGapBug() {

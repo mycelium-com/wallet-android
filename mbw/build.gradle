@@ -16,7 +16,7 @@ buildscript {
 
     dependencies {
         classpath androidBuildArtifact
-        classpath ("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version") {
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version") {
             exclude(group: 'org.jetbrains', module: 'annotations')
         }
     }
@@ -24,7 +24,7 @@ buildscript {
 
 configurations {
     compile.exclude group: 'org.apache.httpcomponents', module: 'httpclient'
-    compile.exclude group: 'org.jetbrains' , module:'annotations'
+    compile.exclude group: 'org.jetbrains', module: 'annotations'
 }
 
 kapt {
@@ -196,7 +196,7 @@ android {
                 RMCChangeAddress = "18c91fJmVg7btPjxpwrhgwd37GkVghq9me"
 
                 appIdSpvBch = [release: "com.mycelium.module.spvbch",
-                               debug: "com.mycelium.module.spvbch.debug"]
+                               debug  : "com.mycelium.module.spvbch.debug"]
             }
             logger.info("Signing config is ", signingConfig)
         }
@@ -215,7 +215,7 @@ android {
                 RMCChangeAddress = "mx92L6iuCfxQUz4cLNU4jJpfWbavVHgYj9"
 
                 appIdSpvBch = [release: "com.mycelium.module.spvbch.testnet",
-                               debug: "com.mycelium.module.spvbch.testnet.debug"]
+                               debug  : "com.mycelium.module.spvbch.testnet.debug"]
             }
             logger.info("Signing config is ", signingConfig)
         }

@@ -15,9 +15,8 @@ import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
 import java.util.*
 
-class CommunicationManager private constructor(val context: Context) {
+class CommunicationManager private constructor(val context: Context, val modularizationApiVersion: Int) {
     private val trustedPackages = HashMap<String, PackageMetaData>()
-    private var modularizationApiVersion: Int = -1
     private val sessionFilename = "sessions.json"
     private val LOG_TAG: String? = this::class.java.canonicalName
     val pairedModules = HashSet<Module>()
@@ -50,7 +49,6 @@ class CommunicationManager private constructor(val context: Context) {
         val readerDev = InputStreamReader(context.resources.assets.open("trusted_packages.json"))
         val gson = GsonBuilder().create()
         val trustConfiguration = gson.fromJson(readerDev, TrustConfiguration::class.java)
-        modularizationApiVersion = trustConfiguration.modularizationApiVersion
         Log.d(LOG_TAG, "Loading trust database of latest package version…")
         for (pmd in trustConfiguration.packages) {
             Log.d(LOG_TAG, "Trusting ${pmd.name} with sig ${pmd.signature}.")
@@ -92,7 +90,7 @@ class CommunicationManager private constructor(val context: Context) {
         val trustedPackage = trustedPackages[packageName]
                 ?: throw SecurityException("Package $packageName generally not trusted.")
         if(modularizationApiVersion != version) {
-            throw SecurityException("Version conflict detected!\n${context.applicationContext.packageName}/${modularizationApiVersion} vs. $packageName/$version.")
+            throw SecurityException("Version conflict detected!|$modularizationApiVersion")
         }
         val signingPubKeyHash = getSigningPubKeyHash(packageName)
         if (trustedPackage.signature != signingPubKeyHash) {
@@ -221,11 +219,17 @@ class CommunicationManager private constructor(val context: Context) {
 
         @Synchronized
         @JvmStatic
-        fun getInstance(context: Context): CommunicationManager {
+        fun init(context: Context, spvApiVersion: Int) {
             if (INSTANCE == null) {
-                INSTANCE = CommunicationManager(context)
+                INSTANCE = CommunicationManager(context, spvApiVersion)
             }
-            return INSTANCE!!
+        }
+
+        @Synchronized
+        @JvmStatic
+        fun getInstance(): CommunicationManager {
+            return INSTANCE
+                    ?: throw Error("Call init first, ideally from your Application's onCreate()")
         }
     }
 }
@@ -244,6 +248,4 @@ private data class PackageMetaData(
         var key: Long? = null)
 
 private data class TrustConfiguration(
-        val packages: Array<PackageMetaData>,
-        val modularizationApiVersion: Int)
-
+        val packages: Array<PackageMetaData>)
