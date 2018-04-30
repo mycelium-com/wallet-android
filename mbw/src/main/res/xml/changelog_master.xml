@@ -7,6 +7,10 @@
         <change>More convenient way to shift between exchange providers on the balance screen.</change>
         <change>Various minor improvements and bugfixes.</change>
     </release>
+    <release version="2.9.12" versioncode="2091200">
+        <change>MyDFS token buy option</change>
+        <change>Bugfix: account deletion issue</change>
+    </release>
     <release version="2.9.11" versioncode="2091100">
         <change>get RMC rate from coinmarketcap</change>
         <change>Explain why not all the balance is spendable in the amount entry screen</change>
