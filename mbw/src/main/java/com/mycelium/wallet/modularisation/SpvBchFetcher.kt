@@ -152,44 +152,29 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
 
 
     override fun retrieveTransactionSummary(txid: Sha256Hash): TransactionSummary? {
-        var transactionSummary: TransactionSummary? = null
-        val _mbwManager = MbwManager.getInstance(context)
-        val uri = Uri.withAppendedPath(TransactionContract.TransactionSummary.CONTENT_URI(
-                WalletApplication.getSpvModuleName(_mbwManager.getSelectedAccount().getType())), txid.toHex())
-        val selection: String
-        val account = _mbwManager.getSelectedAccount()
-        val selectionArgs: Array<String>
-        if (account.getType() == WalletAccount.Type.BCHSINGLEADDRESS) {
-            val accountId = account.getId()
-            selectionArgs = arrayOf(accountId.toString())
-            selection = TransactionContract.TransactionSummary.SELECTION_SINGLE_ADDRESS_ACCOUNT_GUID
-        } else {
-            val accountIndex = (account as Bip44Account).accountIndex
-            selectionArgs = arrayOf(Integer.toString(accountIndex))
-            selection = TransactionContract.TransactionSummary.SELECTION_ACCOUNT_INDEX
+        var transactionSummaryList: List<TransactionSummary> = ArrayList()
+        val account = MbwManager.getInstance(context).selectedAccount
+        if (account is Bip44BCHAccount) {
+            transactionSummaryList = retrieveTransactionsSummaryByHdAccountIndex(account.getId().toString(),
+                    account.accountIndex)
+        } else if (account is SingleAddressBCHAccount) {
+            transactionSummaryList = retrieveTransactionsSummaryByUnrelatedAccountId(
+                    account.getId().toString())
         }
-        var cursor: Cursor? = null
-        val contentResolver = context.getContentResolver()
-        try {
-            cursor = contentResolver.query(uri, null, selection, selectionArgs, null)
-            if (cursor != null) {
-                while (cursor!!.moveToNext()) {
-                    transactionSummary = transactionSummaryfrom(cursor!!)
-                }
-            }
-        } finally {
-            if (cursor != null) {
-                cursor.close()
+        for (transaction in transactionSummaryList) {
+            if(transaction.txid.equals(txid)) {
+                return transaction
             }
         }
-        return transactionSummary
+        return null
     }
 
     private fun transactionSummaryfrom(cursor: Cursor): TransactionSummary {
         val rawTxId = cursor.getString(cursor.getColumnIndex(TransactionContract.TransactionSummary._ID))
         val txId = Sha256Hash.fromString(rawTxId)
         val rawValue = cursor.getString(cursor.getColumnIndex(TransactionContract.TransactionSummary.VALUE))
-        val value = ExactCurrencyValue.from(BigDecimal(rawValue), "BCH")
+        val bdValue = BigDecimal(rawValue)
+        val value = ExactCurrencyValue.from(bdValue, "BCH")
         val rawIsIncoming = cursor.getInt(cursor.getColumnIndex(TransactionContract.TransactionSummary.IS_INCOMING))
         val isIncoming = rawIsIncoming == 1
         val time = cursor.getLong(cursor.getColumnIndex(TransactionContract.TransactionSummary.TIME))
