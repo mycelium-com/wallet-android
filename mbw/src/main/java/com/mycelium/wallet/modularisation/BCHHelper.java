@@ -17,6 +17,7 @@ import com.mycelium.modularizationtools.model.Module;
 import com.mycelium.wallet.AccountManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wapi.wallet.SpvBalanceFetcher;
 import com.mycelium.wapi.wallet.WalletAccount;
 
@@ -36,7 +37,7 @@ public class BCHHelper {
     public static void firstBCHPages(final Context context) {
         final Module bchModule = GooglePlayModuleCollection.getModules(context).get("bch");
         final SharedPreferences sharedPreferences = context.getSharedPreferences(BCH_PREFS, MODE_PRIVATE);
-        final boolean moduleBCHInstalled = isModulePaired(context);
+        final boolean moduleBCHInstalled = Utils.isAppInstalled(context, bchModule.getModulePackage());
         if (!sharedPreferences.getBoolean(BCH_FIRST_UPDATE, false) && !moduleBCHInstalled) {
             View view = LayoutInflater.from(context).inflate(R.layout.dialog_first_modulization, null);
             ((TextView) view.findViewById(R.id.title)).setText(Html.fromHtml(context.getString(R.string.first_modulization_title)));

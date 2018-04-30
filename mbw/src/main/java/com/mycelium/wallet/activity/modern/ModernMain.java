@@ -89,6 +89,7 @@ import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.event.TorStateChanged;
 import com.mycelium.wallet.event.TransactionBroadcasted;
 import com.mycelium.wallet.modularisation.BCHHelper;
+import com.mycelium.wallet.modularisation.ModularisationVersionHelper;
 import com.mycelium.wapi.api.response.Feature;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
@@ -204,7 +205,7 @@ public class ModernMain extends AppCompatActivity {
       BCHHelper.firstBCHPages(this);
       _mbwManager.importLabelsToBch(_mbwManager.getWalletManager(false));
 
-      Utils.notifyWrongModuleVersion(this);
+      ModularisationVersionHelper.notifyWrongModuleVersion(this);
    }
 
    private void checkGapBug() {

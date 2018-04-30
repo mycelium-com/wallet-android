@@ -12,6 +12,7 @@ object GooglePlayModuleCollection {
     fun getModules(context: Context): Map<String, Module> =
             hashMapOf("bch" to Module(WalletApplication.getSpvModuleName(WalletAccount.Type.BCHBIP44)
                     , context.getString(R.string.bitcoin_cash_module)
+                    , context.getString(R.string.bitcoin_cash_module_short)
                     , context.getString(R.string.bch_module_description)))
 
     @JvmStatic

@@ -28,8 +28,8 @@ open class PairingProvider : ContentProvider() {
         val sessionKey = selectionArgs!![0].toLong()
         val version = selectionArgs[1].toInt()
         CommunicationManager.getInstance().pair(callingPackage, sessionKey, version)
-        val cursor = MatrixCursor(arrayOf("name", "description"))
-        cursor.addRow(arrayOf(context.getString(R.string.module_name), context.getString(R.string.module_description)))
+        val cursor = MatrixCursor(arrayOf("name", "shortName", "description"))
+        cursor.addRow(arrayOf(context.getString(R.string.module_name), context.getString(R.string.module_short_name),context.getString(R.string.module_description)))
         return cursor
     }
 

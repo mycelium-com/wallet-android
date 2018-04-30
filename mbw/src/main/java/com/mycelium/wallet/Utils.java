@@ -705,34 +705,16 @@ public class Utils {
       }
    }
 
-   /**
-    * Shows one AlertDialog per module that runs under a different SpvApiVersion, advising to upgrade the lower between wallet and module.
-    */
-   public static void notifyWrongModuleVersion(final Activity parent) {
-      for(WalletApplication.ModuleVersionError moduleVersionError: WalletApplication.getInstance().moduleVersionErrors) {
-         Module module = GooglePlayModuleCollection.getModuleByPackage(parent, moduleVersionError.moduleId);
-         Module wallet = new Module(BuildConfig.APPLICATION_ID, "<b>Mycelium Wallet</b>", "");
-         final Module needsUpdate;
-         if (moduleVersionError.expected > com.mycelium.spvmodulecontract.BuildConfig.SpvApiVersion) {
-            needsUpdate = wallet;
-         } else {
-            needsUpdate = module;
-         }
-         new AlertDialog.Builder(parent)
-                 .setTitle(Html.fromHtml(parent.getString(R.string.update_required_for, needsUpdate.getName())))
-                 .setMessage(Html.fromHtml(parent.getString(R.string.update_required_details, wallet.getName(), module.getName(), needsUpdate.getName())))
-                 .setPositiveButton(Html.fromHtml(parent.getString(R.string.update, needsUpdate.getName())), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                       Intent installIntent = new Intent(Intent.ACTION_VIEW)
-                               .setData(Uri.parse("https://play.google.com/store/apps/details?id=" + needsUpdate.getModulePackage()));
-                       parent.startActivity(installIntent);
-                    }
-                 })
-                 .setNegativeButton(Html.fromHtml(parent.getString(R.string.continue_without, module.getName())), null)
-                 .create()
-                 .show();
+   public static boolean isAppInstalled(Context context, String uri) {
+      PackageManager pm = context.getPackageManager();
+      boolean installed;
+      try {
+         pm.getPackageInfo(uri, PackageManager.GET_ACTIVITIES);
+         installed = true;
+      } catch (PackageManager.NameNotFoundException e) {
+         installed = false;
       }
+      return installed;
    }
 
    public static void pinProtectedBackup(final Activity activity) {
