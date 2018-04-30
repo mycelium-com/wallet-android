@@ -14,7 +14,7 @@
 
 
     <TextView
-        android:id="@+id/btn_1"
+        android:id="@+id/bottom_button"
         android:background="@drawable/bg_keyboard_item"
         android:gravity="center"
         android:padding="16dp"
@@ -167,7 +167,7 @@
 
 
     <TextView
-        android:id="@+id/btn_0"
+        android:id="@+id/top_button"
         android:background="@drawable/bg_keyboard_item"
         android:gravity="center"
         android:padding="16dp"

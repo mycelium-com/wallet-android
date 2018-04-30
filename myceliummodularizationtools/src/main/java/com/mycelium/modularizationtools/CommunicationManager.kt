@@ -15,7 +15,7 @@ import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
 import java.util.*
 
-class CommunicationManager private constructor(val context: Context) {
+class CommunicationManager private constructor(val context: Context, val modularizationApiVersion: Int) {
     private val trustedPackages = HashMap<String, PackageMetaData>()
     private val sessionFilename = "sessions.json"
     private val LOG_TAG: String? = this::class.java.canonicalName
@@ -48,9 +48,9 @@ class CommunicationManager private constructor(val context: Context) {
     private fun loadTrustedPackages() {
         val readerDev = InputStreamReader(context.resources.assets.open("trusted_packages.json"))
         val gson = GsonBuilder().create()
-        val trustedPackagesArray = gson.fromJson(readerDev, emptyArray<PackageMetaData>().javaClass)
-        Log.d(LOG_TAG, "loading trust database of latest package version…")
-        for (pmd in trustedPackagesArray) {
+        val trustConfiguration = gson.fromJson(readerDev, TrustConfiguration::class.java)
+        Log.d(LOG_TAG, "Loading trust database of latest package version…")
+        for (pmd in trustConfiguration.packages) {
             Log.d(LOG_TAG, "Trusting ${pmd.name} with sig ${pmd.signature}.")
             trustedPackages.put(pmd.name, pmd)
         }
@@ -80,15 +80,20 @@ class CommunicationManager private constructor(val context: Context) {
      * @throws SecurityException if the key is 0 or the package is not in the set of allowed third
      * party packages or the package is not signed by the right key
      */
-    fun pair(key: Long, packageName: String) {
+    fun pair(packageName: String, key: Long, version: Int) {
         if (key == 0L) {
             //Disallowing 0 as it might be the default value of a Long.
             //By preventing pairing of 0L to anything, searching for 0L's paired package will also
             //lead to adequate SecurityExceptions.
             throw SecurityException("Key 0 does not look like a random key.")
         }
+        val trustedPackage = trustedPackages[packageName]
+                ?: throw SecurityException("Package $packageName generally not trusted.")
+        if(modularizationApiVersion != version) {
+            throw SecurityException("Version conflict detected!|$modularizationApiVersion")
+        }
         val signingPubKeyHash = getSigningPubKeyHash(packageName)
-        if (trustedPackages[packageName]?.signature != signingPubKeyHash) {
+        if (trustedPackage.signature != signingPubKeyHash) {
             throw SecurityException("Signature $signingPubKeyHash can't be verified for" +
                     " package $packageName.")
         }
@@ -105,22 +110,22 @@ class CommunicationManager private constructor(val context: Context) {
         var success = false
         val startTimeMillis = System.currentTimeMillis()
         val cr = context.contentResolver
-        try {
-            // reuse the key we already have. This avoids mismatches if both sides might initiate the communication.
-            val key: Long = trustedPackages[packageName]?.key ?: Random().nextLong()
-            cr.query(Uri.parse("content://$packageName.PairingProvider"), null, key.toString(), null, null)
-                    .use { cursor ->
-                        cursor ?: return false // if the other module is not returning a proper Cursor, pairing fails here
-                        pair(key, packageName)
-                        cursor.moveToFirst()
-                        pairedModules.add(Module(packageName
-                                , cursor.getString(cursor.getColumnIndex("name"))
-                                , cursor.getString(cursor.getColumnIndex("description"))))
-                        success = true
-                    }
-        } catch (e: SecurityException) {
-            Log.e(LOG_TAG, "Couldn't pair with $packageName")
-        }
+        // reuse the key we already have. This avoids mismatches if both sides might initiate the communication.
+        val packageMetaData = trustedPackages[packageName]
+                ?: throw SecurityException("Unknown package name $packageName")
+        val key = packageMetaData.key ?: Random().nextLong()
+        val keyVersionSelectionArgs = arrayOf(key.toString(), modularizationApiVersion.toString())
+        cr.query(Uri.parse("content://$packageName.PairingProvider"), null, null, keyVersionSelectionArgs, null)
+                .use { cursor ->
+                    cursor ?: return false // if the other module is not returning a proper Cursor, pairing fails here
+                    pair(packageName, key, modularizationApiVersion)
+                    cursor.moveToFirst()
+                    pairedModules.add(Module(packageName
+                            , cursor.getString(cursor.getColumnIndex("name"))
+                            , cursor.getString(cursor.getColumnIndex("shortName"))
+                            , cursor.getString(cursor.getColumnIndex("description"))))
+                    success = true
+                }
         Log.d(LOG_TAG, "It took ${System.currentTimeMillis()-startTimeMillis}ms to ${if(success) "" else "not "} pair with $packageName.")
         return success
     }
@@ -144,7 +149,6 @@ class CommunicationManager private constructor(val context: Context) {
                     " unexpected signature $signingPubKeyHash instead of ${pmd.signature}")
         }
     }
-
 
     /**
      * @param key the session key a package should be associated to.
@@ -216,11 +220,17 @@ class CommunicationManager private constructor(val context: Context) {
 
         @Synchronized
         @JvmStatic
-        fun getInstance(context: Context): CommunicationManager {
+        fun init(context: Context, spvApiVersion: Int) {
             if (INSTANCE == null) {
-                INSTANCE = CommunicationManager(context)
+                INSTANCE = CommunicationManager(context, spvApiVersion)
             }
-            return INSTANCE!!
+        }
+
+        @Synchronized
+        @JvmStatic
+        fun getInstance(): CommunicationManager {
+            return INSTANCE
+                    ?: throw Error("Call init first, ideally from your Application's onCreate()")
         }
     }
 }
@@ -233,7 +243,10 @@ class CommunicationManager private constructor(val context: Context) {
  * of the [android.content.pm.PackageInfo.signature][signature]
  * @property key the "session ID" the [name][target package] and us
  */
-private class PackageMetaData(
+private data class PackageMetaData(
         val name: String,
         val signature: String,
         var key: Long? = null)
+
+private data class TrustConfiguration(
+        val packages: Array<PackageMetaData>)

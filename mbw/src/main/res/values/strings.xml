@@ -1049,7 +1049,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="ico_will_start">RMC ICO will start on 28.08.2017 at 0:00 MSK.</string>
     <string name="rmc_please_select_receiving_account">Please select receiving account</string>
     <string name="not_available">N/A</string>
-    <string name="miner_fee_custom" >Custom</string>
+    <string name="miner_fee_custom">Custom</string>
     <string name="miner_fee_custom_desc">With the custom fee we don\'t know how long take transaction</string>
     <string name="fee_is_zero">Transaction might never happen!</string>
     <string name="fee_change_warning" formatted="false"><![CDATA[Your <font color="#4583de">change</font> is less than Bitcoin network output limit. Total miner fee will be increased to %s %s!]]></string>
@@ -1118,6 +1118,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="bitcoin_cash_hd"><![CDATA[Bitcoin <font color="#f08c18">Cash</font> HD]]></string>
     <string name="bitcoin_cash_sa"><![CDATA[Bitcoin <font color="#f08c18">Cash</font> SA]]></string>
     <string name="bitcoin_cash_module"><![CDATA[Bitcoin <font color="#f08c18">Cash</font> Module]]></string>
+    <string name="bitcoin_cash_module_short">BCH</string>
     <string name="exchange_bch_to_btc">EXCHANGE BCH TO BTC</string>
     <string name="single_address_backup_missing">No backup - no bitcoins! In order not to lose your bitcoins when your smartphone is lost or broken please make a backup of this address NOW and keep it in a safe place!</string>
     <string name="wallet_backup_missing">No backup - no bitcoins! In order not to lose your bitcoins when your smartphone is lost or broken please make a wallet backup NOW and keep it in a safe place!</string>
@@ -1128,8 +1129,9 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="first_modulization_title">Congratulations!</string>
     <string name="first_modulization_message"><![CDATA[You just got a new modular multiblockain version of Mycelium Wallet!<br><br>Due to high demand, we have released Bitcoin Cash (BCH) module first.<br><br>Now you can get your Bitcoin <font color="#f08c18">Cash</font> and instantly and securely exchange it to BTC.<br><br>To do so, you need to install the Bitcoin <font color="#f08c18">Cash</font> module or you can do it later from Settings -> Bitcoin Cash module section.]]></string>
     <string name="install_bch_module">Install Bitcoin Cash module</string>
-    <string name="contunue_without_bch">Continue without BCH</string>
-    <string name="bch_module_change"><![CDATA[Mycelium Bitcoin <font color="#f08c18">Cash</font> module has been %s!]]></string>>
+    <string name="continue_without_bch">Continue without BCH</string>
+    <string name="bch_module_change"><![CDATA[Mycelium Bitcoin <font color="#f08c18">Cash</font> module has been %s!]]></string>
+    >
     <string name="installed">installed</string>>
     <string name="updated">updated</string>>
     <string name="removed">uninstalled</string>>
@@ -1138,7 +1140,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="first_bch_installed_message"><![CDATA[Now we need to sync it with the blockchain in order to retrieve your Bitcoin <font color="#f08c18">Cash</font>  balance.<br><br>This procedure takes some time and is performed in the background.<br>The more private keys you have the longer it takes, please be patient. For example, if you have around 1000 private keys, it could take more than 3 hours to reach full sync.<br>We will inform you when it is done.<br><br>You can always check the sync progress here:  Settings -> Bitcoin <font color="#f08c18">Cash</font> module.<br><br>For every BTC account with not retrieved Bitcoin <font color="#f08c18">Cash</font>, corresponding Bitcoin <font color="#f08c18">Cash</font> account will be created.<br><br>Go to Balance tab of your Bitcoin <font color="#f08c18">Cash</font> account to instantly  exchange it to BTC.]]></string>
     <string name="bch_accounts_not_found"><![CDATA[We have not found any Bitcoin <font color="#f08c18">Cash</font> on your BTC accounts.<br>We are continuously monitoring your BTC accounts and will inform you if Bitcoin <font color="#f08c18">Cash</font> is found.]]></string>
     <string name="bch_accounts_found"><![CDATA[We have found %1$s Bitcoin <font color="#f08c18">Cash</font> on your BTC accounts.<br><br>%2$d corresponding Bitcoin <font color="#f08c18">Cash</font> account(s) created.\nBitcoin <font color="#f08c18">Cash</font>  balance can be checked on the Accounts tab.<br><br>Now you can go to the Balance tab of your Bitcoin <font color="#f08c18">Cash</font> account(s) and instantly exchange it to BTC.]]></string>
-    <string name="bitcoin_cash" ><![CDATA[Bitcoin <font color="#f08c18">Cash</font>]]></string>
+    <string name="bitcoin_cash"><![CDATA[Bitcoin <font color="#f08c18">Cash</font>]]></string>
     <string name="hd_account_bch">Add Bitcoin Cash HD Account</string>
     <string name="generate_new_bch_key">Generate BCH SA Account</string>
     <string name="bch_you_can_transaction_on_explorer"><![CDATA[You can check your transactions on <font color="#4583de">https://www.blocktrail.com/%s</font>]]></string>
@@ -1197,6 +1199,11 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="exchanging">exchanging</string>
     <string name="receiving_exchange">receiving</string>
     <string name="blockchain_transaction_id">Blockchain Transaction ID:</string>
+    <string name="update_required_for">%1$s update required!</string>
+    <string name="update_required_details"><![CDATA[Your %2$s version is incompatible with %1$s.<br><br>%2$s functionality is disabled until %3$s is updated.]]></string>
+    <string name="update_for">Update %1$s</string>
+    <string name="continue_without">Continue without %1$s</string>
+    <string name="update">UPDATE</string>
     <plurals name="account_label">
         <item quantity="one">Account label:\n%s</item>
         <item quantity="other">Accounts labels:\n%s</item>

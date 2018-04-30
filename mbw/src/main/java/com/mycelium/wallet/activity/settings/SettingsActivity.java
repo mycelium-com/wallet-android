@@ -49,6 +49,7 @@ import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.AppCompatEditText;
 import android.text.Html;
 import android.text.InputType;
@@ -82,6 +83,7 @@ import com.mycelium.wallet.WalletApplication;
 import com.mycelium.wallet.activity.export.VerifyBackupActivity;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.view.ButtonPreference;
+import com.mycelium.wallet.activity.view.TwoButtonsPreference;
 import com.mycelium.wallet.event.SpvSyncChanged;
 import com.mycelium.wallet.external.BuySellServiceDescriptor;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
@@ -90,6 +92,7 @@ import com.mycelium.wallet.lt.api.GetTraderInfo;
 import com.mycelium.wallet.lt.api.SetNotificationMail;
 import com.mycelium.wallet.modularisation.BCHHelper;
 import com.mycelium.wallet.modularisation.GooglePlayModuleCollection;
+import com.mycelium.wallet.modularisation.ModularisationVersionHelper;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.squareup.otto.Subscribe;
@@ -516,63 +519,112 @@ public class SettingsActivity extends PreferenceActivity {
       // external Services
 
       final PreferenceCategory modulesPrefs = (PreferenceCategory) findPreference("modulesPrefs");
-      if (!CommunicationManager.getInstance(this).getPairedModules().isEmpty()) {
-         for (final Module module : CommunicationManager.getInstance(this).getPairedModules()) {
-            final ButtonPreference preference = new ButtonPreference(this);
-            preference.setLayoutResource(R.layout.preference_layout);
-            preference.setTitle(Html.fromHtml(module.getName()));
-            preference.setKey("Module_" + module.getModulePackage());
-            updateModulePreference(preference, module, BCHHelper.getBCHSyncProgress(this));
-            preference.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-               @Override
-               public boolean onPreferenceClick(Preference preference) {
-                  Intent intent = new Intent(com.mycelium.modularizationtools.Constants.getSETTINGS());
-                  intent.setPackage(module.getModulePackage());
-                  intent.putExtra("callingPackage", getPackageName());
-                  try {
-                     startActivity(intent);
-                  } catch (ActivityNotFoundException e) {
-                     Log.e("SettingsActivity", "Something wrong with module", e);
-                  }
-                  return true;
-               }
-            });
-            preference.setButtonText(getString(R.string.uninstall));
-            preference.setButtonClickListener(new View.OnClickListener() {
-               @Override
-               public void onClick(View view) {
-                  Uri packageUri = Uri.parse("package:" + module.getModulePackage());
-                  preference.setEnabled(false);
-                  startActivityForResult(new Intent(Intent.ACTION_UNINSTALL_PACKAGE, packageUri)
-                          .putExtra(Intent.EXTRA_RETURN_RESULT, true), REQUEST_CODE_UNINSTALL);
-               }
-            });
-            modulesPrefs.addPreference(preference);
-         }
+      if (!CommunicationManager.getInstance().getPairedModules().isEmpty()) {
+         processPairedModules(modulesPrefs);
       } else {
          Preference preference = new Preference(this);
          preference.setTitle(R.string.no_connected_modules);
          modulesPrefs.addPreference(preference);
       }
+      processUnpairedModules(modulesPrefs);
+   }
 
+   private void processPairedModules(PreferenceCategory modulesPrefs) {
+      for (final Module module : CommunicationManager.getInstance().getPairedModules()) {
+         final ButtonPreference preference = createUninstallableModulePreference(module);
+         modulesPrefs.addPreference(preference);
+      }
+   }
+
+   private void processUnpairedModules(PreferenceCategory modulesPrefs) {
       for (final Module module : GooglePlayModuleCollection.getModules(this).values()) {
-         if (!CommunicationManager.getInstance(this).getPairedModules().contains(module)) {
-            ButtonPreference installPreference = new ButtonPreference(this);
-            installPreference.setButtonText(getString(R.string.install));
-            installPreference.setButtonClickListener(new View.OnClickListener() {
-               @Override
-               public void onClick(View view) {
-                  Intent installIntent = new Intent(Intent.ACTION_VIEW);
-                  installIntent.setData(Uri.parse("https://play.google.com/store/apps/details?id=" +
-                          module.getModulePackage()));
-                  startActivity(installIntent);
-               }
-            });
-            installPreference.setTitle(Html.fromHtml(module.getName()));
-            installPreference.setSummary(module.getDescription());
-            modulesPrefs.addPreference(installPreference);
+         if (!CommunicationManager.getInstance().getPairedModules().contains(module)) {
+            if (Utils.isAppInstalled(this, module.getModulePackage()) && ModularisationVersionHelper.isUpdateRequired(this, module.getModulePackage())) {
+               TwoButtonsPreference preference = createUpdateRequiredPreference( module);
+               modulesPrefs.addPreference(preference);
+               preference.setEnabled(false, true, true);
+            } else if (Utils.isAppInstalled(this, module.getModulePackage())) {
+               final ButtonPreference preference = createUninstallableModulePreference(module);
+               preference.setEnabled(false);
+               preference.setButtonEnabled(true);
+               modulesPrefs.addPreference(preference);
+            } else {
+               ButtonPreference installPreference = new ButtonPreference(this);
+               installPreference.setButtonText(getString(R.string.install));
+               installPreference.setButtonClickListener(getInstallClickListener(module));
+               installPreference.setTitle(Html.fromHtml(module.getName()));
+               installPreference.setSummary(module.getDescription());
+               modulesPrefs.addPreference(installPreference);
+            }
          }
       }
+   }
+
+   @NonNull
+   private ButtonPreference createUninstallableModulePreference(final Module module) {
+      final ButtonPreference preference = new ButtonPreference(this);
+      preference.setLayoutResource(R.layout.preference_layout);
+      preference.setTitle(Html.fromHtml(module.getName()));
+      preference.setKey("Module_" + module.getModulePackage());
+      updateModulePreference(preference, module, BCHHelper.getBCHSyncProgress(this));
+      preference.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+         @Override
+         public boolean onPreferenceClick(Preference preference) {
+            Intent intent = new Intent(com.mycelium.modularizationtools.Constants.getSETTINGS());
+            intent.setPackage(module.getModulePackage());
+            intent.putExtra("callingPackage", getPackageName());
+            try {
+               startActivity(intent);
+            } catch (ActivityNotFoundException e) {
+               Log.e("SettingsActivity", "Something wrong with module", e);
+            }
+            return true;
+         }
+      });
+      preference.setButtonText(getString(R.string.uninstall));
+      preference.setButtonClickListener(new View.OnClickListener() {
+         @Override
+         public void onClick(View view) {
+            Uri packageUri = Uri.parse("package:" + module.getModulePackage());
+            preference.setEnabled(false);
+            startActivityForResult(new Intent(Intent.ACTION_UNINSTALL_PACKAGE, packageUri)
+                    .putExtra(Intent.EXTRA_RETURN_RESULT, true), REQUEST_CODE_UNINSTALL);
+         }
+      });
+      return preference;
+   }
+
+   private TwoButtonsPreference createUpdateRequiredPreference(final Module module) {
+      final TwoButtonsPreference preference = new TwoButtonsPreference(this);
+      preference.setLayoutResource(R.layout.preference_layout);
+      preference.setTitle(Html.fromHtml(module.getName()));
+      preference.setKey("Module_" + module.getModulePackage());
+      updateModulePreference(preference, module, BCHHelper.getBCHSyncProgress(this));
+      preference.setButtonsText(getString(R.string.uninstall), getString(R.string.update));
+      preference.setTopButtonClickListener(new View.OnClickListener() {
+         @Override
+         public void onClick(View view) {
+            Uri packageUri = Uri.parse("package:" + module.getModulePackage());
+            preference.setEnabled(false, false, false);
+            startActivityForResult(new Intent(Intent.ACTION_UNINSTALL_PACKAGE, packageUri)
+                    .putExtra(Intent.EXTRA_RETURN_RESULT, true), REQUEST_CODE_UNINSTALL);
+         }
+      });
+      preference.setBottomButtonClickListener(getInstallClickListener(module));
+      return preference;
+   }
+
+   @NonNull
+   private View.OnClickListener getInstallClickListener(final Module module) {
+      return new View.OnClickListener() {
+         @Override
+         public void onClick(View v) {
+            Intent installIntent = new Intent(Intent.ACTION_VIEW);
+            installIntent.setData(Uri.parse("https://play.google.com/store/apps/details?id=" +
+                    module.getModulePackage()));
+            startActivity(installIntent);
+         }
+      };
    }
 
    @Override
@@ -585,8 +637,13 @@ public class SettingsActivity extends PreferenceActivity {
          if (resultCode == RESULT_CANCELED) {
             pleaseWait.dismiss();
             for (int index = 0; index < modulesPrefs.getPreferenceCount(); index++) {
-               ButtonPreference preferenceButton = (ButtonPreference) modulesPrefs.getPreference(index);
-               preferenceButton.setEnabled(true);
+               Preference preferenceButton = modulesPrefs.getPreference(index);
+               if (preferenceButton instanceof ButtonPreference) {
+                  if (ModularisationVersionHelper.isUpdateRequired(this, preferenceButton.getKey().replace("Module_", "")))
+                  preferenceButton.setEnabled(true);
+               } else if (preferenceButton instanceof TwoButtonsPreference) {
+                  ((TwoButtonsPreference) preferenceButton).setEnabled(false, true, true);
+               }
             }
          }
       }
@@ -599,7 +656,7 @@ public class SettingsActivity extends PreferenceActivity {
          String syncStatus = progress == 100F ? getString(R.string.fully_synced)
                  : getString(R.string.sync_progress, format.format(progress));
          preference.setSummary(Html.fromHtml(module.getDescription()
-                 + "<br/>"
+                 + "<br/><br/>"
                  + addColorHtmlTag(syncStatus, "#00CC00")));
 
       }

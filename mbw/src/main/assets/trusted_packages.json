@@ -1,18 +1,20 @@
-[
-  {
-    "name": "com.mycelium.module.spvbch",
-    "signature": "uOWdSmC2UpDvsnFjGeULlOKY16csdsIRnrfY06+sMC4="
-  },
-  {
-    "name": "com.mycelium.module.spvbch.debug",
-    "signature": "gz35r0bqdqhXMguVc8UR2+QRbboJFKgr/FzEKO5OoW8="
-  },
-  {
-    "name": "com.mycelium.module.spvbch.testnet",
-    "signature": "Ux+tW+lAkn01UG6h1e68dE8mGvLbKX6Eg+iVJXVbOq8="
-  },
-  {
-    "name": "com.mycelium.module.spvbch.testnet.debug",
-    "signature": "gz35r0bqdqhXMguVc8UR2+QRbboJFKgr/FzEKO5OoW8="
-  }
-]
+{
+  "packages": [
+    {
+      "name": "com.mycelium.module.spvbch",
+      "signature": "uOWdSmC2UpDvsnFjGeULlOKY16csdsIRnrfY06+sMC4="
+    },
+    {
+      "name": "com.mycelium.module.spvbch.debug",
+      "signature": "gz35r0bqdqhXMguVc8UR2+QRbboJFKgr/FzEKO5OoW8="
+    },
+    {
+      "name": "com.mycelium.module.spvbch.testnet",
+      "signature": "Ux+tW+lAkn01UG6h1e68dE8mGvLbKX6Eg+iVJXVbOq8="
+    },
+    {
+      "name": "com.mycelium.module.spvbch.testnet.debug",
+      "signature": "gz35r0bqdqhXMguVc8UR2+QRbboJFKgr/FzEKO5OoW8="
+    }
+  ]
+}

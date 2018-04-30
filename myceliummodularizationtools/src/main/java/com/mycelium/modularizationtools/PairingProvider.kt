@@ -13,27 +13,23 @@ import android.net.Uri
  *
  */
 open class PairingProvider : ContentProvider() {
-    var communicationManager: CommunicationManager? = null
-
-    override fun onCreate(): Boolean {
-        communicationManager = CommunicationManager.getInstance(context)
-        return true
-    }
+    override fun onCreate(): Boolean = true
 
     /**
      * Heavy hack ahead! Sorry!
      *
-     * Query gets abused as the pair function. A calling package updates the session ID with us.
+     * Query gets abused as the pair function. A calling package updates the sessionKey with us.
      *
-     * This will fail if no selection String was provided or the selection cannot be converted to a
-     * Long other than 0 or the callingPackage is unknown or the callingPackage was signed by an
+     * This will fail if no [selectionArgs] were provided or the [selectionArgs] cannot be converted to
+     * valid sessionKey and version or the callingPackage is unknown or the callingPackage was signed by an
      * unexpected key.
      */
     override fun query(uri: Uri, projection: Array<String>?, selection: String?, selectionArgs: Array<String>?, sortOrder: String?): Cursor? {
-        val key = selection!!.toLong()
-        communicationManager!!.pair(key, callingPackage)
-        val cursor = MatrixCursor(arrayOf("name", "description"))
-        cursor.addRow(arrayOf(context.getString(R.string.module_name), context.getString(R.string.module_description)))
+        val sessionKey = selectionArgs!![0].toLong()
+        val version = selectionArgs[1].toInt()
+        CommunicationManager.getInstance().pair(callingPackage, sessionKey, version)
+        val cursor = MatrixCursor(arrayOf("name", "shortName", "description"))
+        cursor.addRow(arrayOf(context.getString(R.string.module_name), context.getString(R.string.module_short_name),context.getString(R.string.module_description)))
         return cursor
     }
 
