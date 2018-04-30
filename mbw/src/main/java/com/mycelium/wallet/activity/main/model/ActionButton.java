@@ -1,9 +1,9 @@
 package com.mycelium.wallet.activity.main.model;
 
-
 public class ActionButton {
     public int icon;
     public String text;
+    public int textColor = 0;
     public Runnable task;
 
     public ActionButton(String text, Runnable task) {
