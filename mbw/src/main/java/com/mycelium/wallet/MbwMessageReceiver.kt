@@ -52,14 +52,8 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
         }
     }
 
-    private fun getModule(packageName: String): Module? {
-        CommunicationManager.getInstance(context).pairedModules.forEach {
-            if (it.modulePackage == packageName) {
-                return it
-            }
-        }
-        return null
-    }
+    private fun getModule(packageName: String): Module? =
+            CommunicationManager.getInstance().pairedModules.find { it.modulePackage == packageName }
 
     @Suppress("UNCHECKED_CAST")
     private fun onMessageFromSpvModuleBch(intent: Intent, module: Module?) {

@@ -45,13 +45,19 @@ import android.util.Log;
 
 import com.mycelium.modularizationtools.CommunicationManager;
 import com.mycelium.modularizationtools.ModuleMessageReceiver;
+import com.mycelium.wallet.activity.settings.SettingsPreference;
 import com.mycelium.wallet.modularisation.BCHHelper;
 import com.mycelium.wapi.wallet.WalletAccount;
 
 import java.security.Security;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import com.mycelium.wallet.activity.settings.SettingsPreference;
 
 public class WalletApplication extends MultiDexApplication implements ModuleMessageReceiver {
     private ModuleMessageReceiver moduleMessageReceiver;
@@ -65,6 +71,7 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         }
         return INSTANCE;
     }
+
     @Override
     public void onCreate() {
         int loadedBouncy = Security.insertProviderAt(new org.spongycastle.jce.provider.BouncyCastleProvider(), 1);
@@ -73,6 +80,7 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         } else {
             Log.d("WalletApplication", "Inserted spongy castle provider");
         }
+        SettingsPreference.getInstance().init(this);
         INSTANCE = this;
         if (BuildConfig.DEBUG) {
             StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
@@ -81,16 +89,29 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
                                    .build());
         }
         super.onCreate();
-        pairSpvModules(CommunicationManager.getInstance(this));
+        CommunicationManager.init(this, com.mycelium.spvmodulecontract.BuildConfig.SpvApiVersion);
+        pairSpvModules(CommunicationManager.getInstance());
         cleanModulesIfFirstRun(this, getSharedPreferences(BCHHelper.BCH_PREFS, MODE_PRIVATE));
         moduleMessageReceiver = new MbwMessageReceiver(this);
         MbwManager mbwManager = MbwManager.getInstance(this);
         applyLanguageChange(getBaseContext(), mbwManager.getLanguage());
     }
 
+    public List<ModuleVersionError> moduleVersionErrors = new ArrayList<>();
     private void pairSpvModules(CommunicationManager communicationManager) {
-        for (Map.Entry<WalletAccount.Type, String> entry : spvModulesMapping.entrySet()) {
-            communicationManager.requestPair(entry.getValue());
+        for (String moduleId : new HashSet<>(spvModulesMapping.values())) {
+            try {
+                communicationManager.requestPair(moduleId);
+            } catch(SecurityException se) {
+                String message = se.getMessage();
+                if(message.contains("Version conflict")) {
+                    String[] strings = message.split("\\|");
+                    int otherSpvApiVersion = Integer.decode(strings[1]);
+                    moduleVersionErrors.add(new ModuleVersionError(moduleId, otherSpvApiVersion));
+                } else {
+                    Log.w("WalletApplication", message);
+                }
+            }
         }
     }
 
@@ -149,32 +170,23 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
     }
 
     public static void sendToSpv(Intent intent, WalletAccount.Type accountType) {
-        CommunicationManager.getInstance(INSTANCE).send(getSpvModuleName(accountType), intent);
+        CommunicationManager.getInstance().send(getSpvModuleName(accountType), intent);
     }
 
     private static Map<WalletAccount.Type, String> initTrustedSpvModulesMapping() {
         Map<WalletAccount.Type, String> spvModulesMapping = new HashMap<>();
-        // TODO: 27.03.18 turn this into BuildConfig.appIdBCHBIP44 ...
-        switch (BuildConfig.APPLICATION_ID) {
-        case "com.mycelium.wallet":
-            spvModulesMapping.put(WalletAccount.Type.BCHBIP44, "com.mycelium.module.spvbch");
-            spvModulesMapping.put(WalletAccount.Type.BCHSINGLEADDRESS, "com.mycelium.module.spvbch");
-            break;
-        case "com.mycelium.wallet.debug":
-            spvModulesMapping.put(WalletAccount.Type.BCHBIP44, "com.mycelium.module.spvbch.debug");
-            spvModulesMapping.put(WalletAccount.Type.BCHSINGLEADDRESS, "com.mycelium.module.spvbch.debug");
-            break;
-        case "com.mycelium.testnetwallet":
-            spvModulesMapping.put(WalletAccount.Type.BCHBIP44, "com.mycelium.module.spvbch.testnet");
-            spvModulesMapping.put(WalletAccount.Type.BCHSINGLEADDRESS, "com.mycelium.module.spvbch.testnet");
-            break;
-        case "com.mycelium.testnetwallet.debug":
-            spvModulesMapping.put(WalletAccount.Type.BCHBIP44, "com.mycelium.module.spvbch.testnet.debug");
-            spvModulesMapping.put(WalletAccount.Type.BCHSINGLEADDRESS, "com.mycelium.module.spvbch.testnet.debug");
-            break;
-        default:
-            throw new RuntimeException("No spv module defined for BuildConfig " + BuildConfig.APPLICATION_ID);
-        }
+        spvModulesMapping.put(WalletAccount.Type.BCHBIP44, BuildConfig.appIdSpvBch);
+        spvModulesMapping.put(WalletAccount.Type.BCHSINGLEADDRESS, BuildConfig.appIdSpvBch);
         return spvModulesMapping;
+    }
+
+    public class ModuleVersionError {
+        public final String moduleId;
+        public final int expected;
+
+        private ModuleVersionError(String moduleId, int expected) {
+            this.moduleId = moduleId;
+            this.expected = expected;
+        }
     }
 }
