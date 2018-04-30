@@ -35,11 +35,14 @@
 package com.mycelium.wallet.activity.main;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
-import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,9 +52,10 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.activity.main.adapter.ButtonPagerAdapter;
+import com.mycelium.wallet.activity.main.adapter.ButtonAdapter;
 import com.mycelium.wallet.activity.main.model.ActionButton;
-import com.mycelium.wallet.activity.view.ViewPagerIndicator;
+import com.mycelium.wallet.activity.settings.SettingsPreference;
+import com.mycelium.wallet.activity.util.CenterLayoutManager;
 import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.external.BuySellSelectActivity;
 import com.mycelium.wallet.external.BuySellServiceDescriptor;
@@ -71,19 +75,27 @@ import butterknife.ButterKnife;
 public class BuySellFragment extends Fragment {
     private MbwManager _mbwManager;
 
-    @BindView(R.id.view_pager)
-    ViewPager viewPager;
+    @BindView(R.id.button_list)
+    RecyclerView recyclerView;
 
-    @BindView(R.id.pager_indicator)
-    ViewPagerIndicator indicator;
+    ButtonAdapter buttonAdapter;
+    CenterLayoutManager layoutManager;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = Preconditions.checkNotNull(inflater.inflate(R.layout.main_buy_sell_fragment, container, false));
         ButterKnife.bind(this, root);
-        recreateActions();
-        indicator.setupWithViewPager(viewPager);
+        buttonAdapter = new ButtonAdapter();
+        layoutManager = new CenterLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setAdapter(buttonAdapter);
         return root;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @android.support.annotation.Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        recreateActions();
     }
 
     private void recreateActions() {
@@ -94,6 +106,7 @@ public class BuySellFragment extends Fragment {
                 return input.isEnabled(_mbwManager);
             }
         });
+        int scrollTo = 0;
         switch (_mbwManager.getSelectedAccount().getType()) {
             case BCHBIP44:
             case BCHSINGLEADDRESS:
@@ -105,6 +118,24 @@ public class BuySellFragment extends Fragment {
                 }));
                 break;
             default:
+                actions.add(new ActionButton(getString(R.string.exchange_altcoins_to_btc), new Runnable() {
+                    @Override
+                    public void run() {
+                        startExchange(new Intent(getActivity(), ChangellyActivity.class));
+                    }
+                }));
+                if (SettingsPreference.getInstance().isMyDFSEnabled()) {
+                    ActionButton actionButton = new ActionButton(getString(R.string.buy_mydfs_token), R.drawable.ic_stars_black_18px, new Runnable() {
+                        @Override
+                        public void run() {
+                            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://mydfs.net/?ref=mycelium")));
+                        }
+                    });
+                    actionButton.textColor = getResources().getColor(R.color.white);
+                    actions.add(actionButton);
+                    scrollTo = 1;
+                }
+
                 if (showButton) {
                     actions.add(new ActionButton(getString(R.string.gd_buy_sell_button), new Runnable() {
                         @Override
@@ -113,28 +144,24 @@ public class BuySellFragment extends Fragment {
                         }
                     }));
                 }
-                actions.add(new ActionButton(getString(R.string.exchange_altcoins_to_btc), new Runnable() {
-                    @Override
-                    public void run() {
-                        startExchange(new Intent(getActivity(), ChangellyActivity.class));
-                    }
-                }));
         }
-        viewPager.setAdapter(new ButtonPagerAdapter(actions));
 
-        if(viewPager.getAdapter().getCount() > 1) {
-            indicator.setupWithViewPager(viewPager);
-            // flash the last item, to call the user's attention to the swipeability of the widget
-            viewPager.setCurrentItem(viewPager.getAdapter().getCount() - 1);
-            viewPager.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    viewPager.setCurrentItem(0, true);
-                }
-            }, 3000);
-            indicator.setVisibility(View.VISIBLE);
-        } else {
-            indicator.setVisibility(View.INVISIBLE);
+        buttonAdapter.setButtons(actions);
+        if (scrollTo != 0) {
+            recyclerView.postDelayed(new ScrollToRunner(scrollTo), 500);
+        }
+    }
+
+    class ScrollToRunner implements Runnable {
+        int scrollTo;
+
+        public ScrollToRunner(int scrollTo) {
+            this.scrollTo = scrollTo;
+        }
+
+        @Override
+        public void run() {
+            recyclerView.smoothScrollToPosition(scrollTo);
         }
     }
 
@@ -142,7 +169,7 @@ public class BuySellFragment extends Fragment {
         //TODO need find more right way to detect is Changelly available
         final ExchangeRate exchangeRate = _mbwManager.getExchangeRateManager().getExchangeRate("BCH");
         if (exchangeRate == null || exchangeRate.price == null) {
-            new AlertDialog.Builder(getActivity())
+            new AlertDialog.Builder(getActivity(), R.style.MyceliumModern_Dialog)
                     .setMessage(R.string.exchange_service_unavailable)
                     .setPositiveButton(R.string.button_ok, null)
                     .create()
@@ -182,5 +209,4 @@ public class BuySellFragment extends Fragment {
     public void selectedAccountChanged(SelectedAccountChanged event) {
         recreateActions();
     }
-
 }
