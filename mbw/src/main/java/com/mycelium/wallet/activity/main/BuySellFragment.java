@@ -116,7 +116,7 @@ public class BuySellFragment extends Fragment {
                         startExchange(new Intent(getActivity(), ExchangeActivity.class));
                     }
                 }));
-                scrollTo = AddMyDfs(actions, scrollTo);
+                scrollTo = addMyDfs(actions, scrollTo);
                 break;
             default:
                 actions.add(new ActionButton(getString(R.string.exchange_altcoins_to_btc), new Runnable() {
@@ -125,7 +125,7 @@ public class BuySellFragment extends Fragment {
                         startExchange(new Intent(getActivity(), ChangellyActivity.class));
                     }
                 }));
-                scrollTo = AddMyDfs(actions, scrollTo);
+                scrollTo = addMyDfs(actions, scrollTo);
                 if (showButton) {
                     actions.add(new ActionButton(getString(R.string.gd_buy_sell_button), new Runnable() {
                         @Override
@@ -142,7 +142,7 @@ public class BuySellFragment extends Fragment {
         }
     }
 
-    private int AddMyDfs(List<ActionButton> actions, int scrollTo) {
+    private int addMyDfs(List<ActionButton> actions, int scrollTo) {
         if (SettingsPreference.getInstance().isMyDFSEnabled()) {
             ActionButton actionButton = new ActionButton(getString(R.string.buy_mydfs_token), R.drawable.ic_stars_black_18px, new Runnable() {
                 @Override
