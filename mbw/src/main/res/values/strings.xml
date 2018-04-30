@@ -1149,6 +1149,18 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="sync_progress">Sync progress: %s%%.</string>
     <string name="how_is_it_calculated">How is it calculated?</string>
     <string name="how_is_it_calculated_text">The \"Spendable Amount\" is the account\'s balance minus the cost to spend it.\n\nThe costs depend on the number of UTXOs and the miner fee level that you chose.\n\nYou can review your UTXO count in the Accounts tab, selecting your account and then using the context menu.\n\nIf you have more than 300 UTXOs, your spendable amount might further be limited by Bitcoin\'s transaction size limit. In this case you might need more than one transaction to spend all your funds.</string>
+    <string name="import_xpub_should_xpriv">Only spendable accounts with Digital Assets are supported for account level 0. Please use xpriv instead of xpub</string>
+    <string name="no_digital_asset">Digital Assets were not found.</string>
+    <string name="coco_addresses_scanned">%d addresses scanned</string>
+    <string name="digital_assets_retrieve">Retrieving digital assets</string>
+    <string name="attention">Attention!</string>
+    <string name="coco_scan_warning">You are about to retrieve Colored Coin based digital assets from BIP32 private key.  For that you must have an active network connection!</string>
+    <string name="connection_unavailable">We are unable to connect co Colored Coins service. Please check your network connection and try again or come back later.</string>
+    <string name="scan_completed">Scan completed</string>
+    <string name="d_coco_created">Digital Assets found:\n%d corresponding Single Address accounts has been created.</string>
+    <string name="settings_mydfs_title">Enable MYDFS TOKEN</string>
+    <string name="settings_mydfs_summary">Show MYDFS token buy option</string>
+    <string name="buy_mydfs_token">BUY MYDFS TOKEN</string>
     <string name="scaning_complete_found"><![CDATA[Bitcoin <font color="#f08c18">Cash</font> has been found!]]></string>
     <string name="scaning_complete_not_found"><![CDATA[Bitcoin <font color="#f08c18">Cash</font> has not been found!]]></string>
     <string name="exchange_rate_unavailable">Exchange rate is temporarily unavailable.</string>

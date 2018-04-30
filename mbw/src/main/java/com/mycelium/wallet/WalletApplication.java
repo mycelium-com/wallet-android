@@ -45,6 +45,7 @@ import android.util.Log;
 
 import com.mycelium.modularizationtools.CommunicationManager;
 import com.mycelium.modularizationtools.ModuleMessageReceiver;
+import com.mycelium.wallet.activity.settings.SettingsPreference;
 import com.mycelium.wallet.modularisation.BCHHelper;
 import com.mycelium.wapi.wallet.WalletAccount;
 
@@ -52,6 +53,8 @@ import java.security.Security;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+
+import com.mycelium.wallet.activity.settings.SettingsPreference;
 
 public class WalletApplication extends MultiDexApplication implements ModuleMessageReceiver {
     private ModuleMessageReceiver moduleMessageReceiver;
@@ -73,6 +76,7 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         } else {
             Log.d("WalletApplication", "Inserted spongy castle provider");
         }
+        SettingsPreference.getInstance().init(this);
         INSTANCE = this;
         if (BuildConfig.DEBUG) {
             StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
