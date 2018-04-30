@@ -6,14 +6,15 @@
 
 package info.guardianproject.onionkit.ui;
 
-import com.mycelium.wallet.R;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
+
+import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
 
 public class OrbotHelper {
 
@@ -42,19 +43,7 @@ public class OrbotHelper {
 
     public boolean isOrbotInstalled()
     {
-        return isAppInstalled(URI_ORBOT);
-    }
-
-    private boolean isAppInstalled(String uri) {
-        PackageManager pm = mContext.getPackageManager();
-        boolean installed = false;
-        try {
-            pm.getPackageInfo(uri, PackageManager.GET_ACTIVITIES);
-            installed = true;
-        } catch (PackageManager.NameNotFoundException e) {
-            installed = false;
-        }
-        return installed;
+        return Utils.isAppInstalled(mContext, URI_ORBOT);
     }
 
     public void promptToInstall(Activity activity)

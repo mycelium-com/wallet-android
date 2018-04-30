@@ -122,6 +122,7 @@ class CommunicationManager private constructor(val context: Context, val modular
                     cursor.moveToFirst()
                     pairedModules.add(Module(packageName
                             , cursor.getString(cursor.getColumnIndex("name"))
+                            , cursor.getString(cursor.getColumnIndex("shortName"))
                             , cursor.getString(cursor.getColumnIndex("description"))))
                     success = true
                 }

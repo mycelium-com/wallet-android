@@ -42,7 +42,7 @@
         android:layout_gravity="center"
         android:layout_marginTop="16dp"
         android:background="@null"
-        android:text="@string/contunue_without_bch"
+        android:text="@string/continue_without_bch"
         android:textAllCaps="true"
         android:textColor="@color/btn_text_color"
         android:textSize="14sp" />

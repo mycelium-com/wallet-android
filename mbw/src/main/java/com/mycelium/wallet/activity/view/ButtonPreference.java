@@ -4,7 +4,6 @@ package com.mycelium.wallet.activity.view;
 import android.content.Context;
 import android.preference.Preference;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.mycelium.wallet.R;
@@ -19,6 +18,7 @@ public class ButtonPreference extends Preference {
 
     private View.OnClickListener buttonClickListener;
     private String buttonText;
+    private boolean buttonEnabled = true;
 
     public ButtonPreference(Context context) {
         super(context);
@@ -30,12 +30,15 @@ public class ButtonPreference extends Preference {
         super.onBindView(view);
         ButterKnife.bind(this, view);
         button.setText(buttonText);
+        setButtonEnabled(buttonEnabled);
     }
 
     @Override
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
-        button.setEnabled(enabled);
+        if (button != null) {
+            button.setEnabled(enabled);
+        }
     }
 
     @OnClick(R.id.preference_button)
@@ -57,7 +60,10 @@ public class ButtonPreference extends Preference {
     }
 
     public void setButtonEnabled(boolean enabled) {
-        button.setClickable(enabled);
-        button.setEnabled(enabled);
+        buttonEnabled = enabled;
+        if (button != null) {
+            button.setClickable(enabled);
+            button.setEnabled(enabled);
+        }
     }
 }
