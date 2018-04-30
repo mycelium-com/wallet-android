@@ -50,6 +50,7 @@ import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
+import com.mycelium.wapi.wallet.single.SingleAddressBCHAccount;
 
 import java.util.UUID;
 
@@ -143,8 +144,9 @@ public class VerifyBackupActivity extends Activity {
 
          if (backupState!= MetadataStorage.BackupState.IGNORED) {
             boolean needsBackup = account instanceof SingleAddressAccount
-                  && account.canSpend()
-                  && backupState != MetadataStorage.BackupState.VERIFIED;
+                && !(account instanceof SingleAddressBCHAccount)
+                && account.canSpend()
+                && backupState != MetadataStorage.BackupState.VERIFIED;
             if (needsBackup) {
                num++;
             }

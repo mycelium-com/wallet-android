@@ -3,25 +3,27 @@ package com.mycelium.wallet.activity.modern.adapter;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.mycelium.wallet.AccountManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.modern.RecordRowBuilder;
 import com.mycelium.wallet.activity.modern.adapter.holder.AccountViewHolder;
+import com.mycelium.wallet.activity.modern.adapter.holder.ArchivedGroupTitleViewHolder;
 import com.mycelium.wallet.activity.modern.adapter.holder.GroupTitleViewHolder;
 import com.mycelium.wallet.activity.modern.adapter.holder.TotalViewHolder;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.currency.CurrencySum;
-import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -82,8 +84,9 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     }
 
     public void setFocusedAccount(WalletAccount focusedAccount) {
-        notifyItemChanged(findPosition(this.focusedAccount));
+        int oldFocusedPosition = findPosition(this.focusedAccount);
         this.focusedAccount = focusedAccount;
+        notifyItemChanged(oldFocusedPosition);
         notifyItemChanged(findPosition(this.focusedAccount));
     }
 
@@ -101,44 +104,49 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     public void updateData() {
         itemList.clear();
-        WalletManager walletManager = mbwManager.getWalletManager(false);
-        MetadataStorage storage = mbwManager.getMetadataStorage();
+        AccountManager am = AccountManager.INSTANCE;
 
-        List<WalletAccount> activeHdRecords = walletManager.getActiveMasterseedAccounts();
-        itemList.addAll(buildGroup(activeHdRecords, storage
-                , context.getString(R.string.active_hd_accounts_name), GROUP_TITLE_TYPE));
+        addGroup(R.string.active_hd_accounts_name, GROUP_TITLE_TYPE, am.getBTCBip44Accounts().values());
+        addGroup("Bitcoin SA", GROUP_TITLE_TYPE, am.getBTCSingleAddressAccounts().values());
+        addGroup(R.string.bitcoin_cash_hd, GROUP_TITLE_TYPE, am.getBCHBip44Accounts().values());
+        addGroup(R.string.bitcoin_cash_sa, GROUP_TITLE_TYPE, am.getBCHSingleAddressAccounts().values());
 
-        List<WalletAccount> accounts = walletManager.getActiveOtherAccounts();
-        List<WalletAccount> saAccounts = new ArrayList<>();
         List<WalletAccount> coluAccounts = new ArrayList<>();
+        for (WalletAccount walletAccount : am.getColuAccounts().values()) {
+            coluAccounts.add(walletAccount);
+            coluAccounts.add(((ColuAccount)walletAccount).getLinkedAccount());
+        }
+        addGroup(R.string.digital_assets, GROUP_TITLE_TYPE, coluAccounts);
+
+        List<WalletAccount> accounts = am.getActiveAccounts().values().asList();
         List<WalletAccount> other = new ArrayList<>();
         for (WalletAccount account : accounts) {
-            if (account instanceof SingleAddressAccount) {
-                if (!Utils.checkIsLinked(account, accounts)) {
-                    saAccounts.add(account);
-                }
-            } else if (account instanceof ColuAccount) {
-                coluAccounts.add(account);
-                coluAccounts.add(((ColuAccount) account).getLinkedAccount());
-            } else {
-                other.add(account);
+            switch (account.getType()) {
+                case BTCSINGLEADDRESS:
+                case BTCBIP44:
+                case BCHSINGLEADDRESS:
+                case BCHBIP44:
+                case COLU:
+                    break;
+                default:
+                    other.add(account);
+                    break;
             }
         }
+        addGroup(R.string.active_other_accounts_name, GROUP_TITLE_TYPE, other);
 
-        itemList.addAll(buildGroup(saAccounts, storage, "Bitcoin SA", GROUP_TITLE_TYPE));
-        itemList.addAll(buildGroup(coluAccounts, storage, "Digital Assets", GROUP_TITLE_TYPE));
-        itemList.addAll(buildGroup(other, storage
-                , context.getString(R.string.active_other_accounts_name), GROUP_TITLE_TYPE));
-
-        List<WalletAccount> allAccount = new ArrayList<>();
-        allAccount.addAll(activeHdRecords);
-        allAccount.addAll(accounts);
-        itemList.add(new Item(TOTAL_BALANCE_TYPE, "", allAccount));
-
-        itemList.addAll(buildGroup(walletManager.getArchivedAccounts(), storage
-                , context.getString(R.string.archive_name), GROUP_ARCHIVED_TITLE_TYPE));
-
+        itemList.add(new Item(TOTAL_BALANCE_TYPE, "", am.getActiveAccounts().values().asList()));
+        addGroup(R.string.archive_name, GROUP_ARCHIVED_TITLE_TYPE, am.getArchivedAccounts().values());
         notifyDataSetChanged();
+    }
+
+    private void addGroup(int titleId, int titleType, Collection<WalletAccount> accounts) {
+        addGroup(context.getString(titleId), titleType, accounts);
+    }
+
+    private void addGroup(String title, int titleType, Collection<WalletAccount> accounts) {
+        MetadataStorage storage = mbwManager.getMetadataStorage();
+        itemList.addAll(buildGroup(new ArrayList<>(accounts), storage, title, titleType));
     }
 
     public List<Item> buildGroup(List<WalletAccount> accountList, MetadataStorage storage, String title, int type) {
@@ -158,12 +166,15 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         RecyclerView.ViewHolder result = null;
-        if (viewType == GROUP_TITLE_TYPE || viewType == GROUP_ARCHIVED_TITLE_TYPE) {
+        if (viewType == GROUP_TITLE_TYPE) {
             View view = layoutInflater.inflate(R.layout.accounts_title_view, parent, false);
             GroupTitleViewHolder res = new GroupTitleViewHolder(view);
             res.tvBalance.setEventBus(mbwManager.getEventBus());
             res.tvBalance.setCurrencySwitcher(mbwManager.getCurrencySwitcher());
             result = res;
+        } else if (viewType == GROUP_ARCHIVED_TITLE_TYPE) {
+            View view = layoutInflater.inflate(R.layout.accounts_archived_title_view, parent, false);
+            result = new ArchivedGroupTitleViewHolder(view);
         } else if (viewType == ACCOUNT_TYPE) {
             View view = layoutInflater.inflate(R.layout.record_row, parent, false);
             result = new AccountViewHolder(view);
@@ -205,9 +216,9 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     }
                 }
             });
-        } else if (viewType == GROUP_TITLE_TYPE || viewType == GROUP_ARCHIVED_TITLE_TYPE) {
+        } else if (viewType == GROUP_TITLE_TYPE) {
             GroupTitleViewHolder groupHolder = (GroupTitleViewHolder) holder;
-            groupHolder.tvTitle.setText(item.title);
+            groupHolder.tvTitle.setText(Html.fromHtml(item.title));
             int count = item.walletAccountList.size();
             groupHolder.tvAccountsCount.setVisibility(count > 0 ? View.VISIBLE : View.GONE);
             groupHolder.tvAccountsCount.setText("(" + count + ")");
@@ -220,17 +231,27 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 }
             });
             groupHolder.expandIcon.setRotation(pagePrefs.getBoolean(item.title, true) ? 180 : 0);
-            if (viewType == GROUP_ARCHIVED_TITLE_TYPE) {
-                groupHolder.tvBalance.setVisibility(View.GONE);
+            CurrencySum sum = getSpendableBalance(item.walletAccountList);
+            if (sum != null) {
+                groupHolder.tvBalance.setValue(sum);
+                groupHolder.tvBalance.setVisibility(View.VISIBLE);
             } else {
-                CurrencySum sum = getSpendableBalance(item.walletAccountList);
-                if (sum != null) {
-                    groupHolder.tvBalance.setValue(sum);
-                    groupHolder.tvBalance.setVisibility(View.VISIBLE);
-                } else {
-                    groupHolder.tvBalance.setVisibility(View.GONE);
-                }
+                groupHolder.tvBalance.setVisibility(View.GONE);
             }
+        } else if (viewType == GROUP_ARCHIVED_TITLE_TYPE) {
+            ArchivedGroupTitleViewHolder groupHolder = (ArchivedGroupTitleViewHolder) holder;
+            groupHolder.tvTitle.setText(Html.fromHtml(item.title));
+            int count = item.walletAccountList.size();
+            groupHolder.tvAccountsCount.setVisibility(count > 0 ? View.VISIBLE : View.GONE);
+            groupHolder.tvAccountsCount.setText("(" + count + ")");
+            groupHolder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    boolean isGroupVisible = !pagePrefs.getBoolean(item.title, true);
+                    pagePrefs.edit().putBoolean(item.title, isGroupVisible).apply();
+                    updateData();
+                }
+            });
         } else if (viewType == TOTAL_BALANCE_TYPE) {
             TotalViewHolder totalHolder = (TotalViewHolder) holder;
             CurrencySum sum = getSpendableBalance(item.walletAccountList);

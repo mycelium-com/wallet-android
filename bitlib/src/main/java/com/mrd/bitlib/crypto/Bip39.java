@@ -408,7 +408,7 @@ public class Bip39 {
       }
       String mnemonic = sb.toString().trim();
 
-      // The salt is is the passphrase with a prefix
+      // The salt is the passphrase with a prefix
       String salt = BASE_SALT + passphrase;
 
       // Calculate and return the seed

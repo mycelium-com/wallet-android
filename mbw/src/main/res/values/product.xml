@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<resources
-        xmlns:tools="http://schemas.android.com/tools"
-        tools:ignore="MissingTranslation">
-    <string name="network">undefined</string>
-    <string name="brand">mycelium</string>
-    <bool name="email_on_errors">false</bool>
-</resources>

@@ -48,22 +48,22 @@ import com.mycelium.wallet.GpsLocationFetcher;
 import com.mycelium.wallet.GpsLocationFetcher.GpsLocationEx;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.lt.LocalTraderManager;
 
 public class ChangeLocationActivity extends Activity {
-
    protected static final int ENTER_LOCATION_REQUEST_CODE = 0;
 
    public static void callMe(Activity currentActivity) {
-      Intent intent = new Intent(currentActivity, ChangeLocationActivity.class);
-      intent.putExtra("persist", true);
+      Intent intent = new Intent(currentActivity, ChangeLocationActivity.class)
+              .putExtra("persist", true);
       currentActivity.startActivity(intent);
    }
 
    public static void callMeForResult(Activity currentActivity, GpsLocation location, boolean persist, int requestCode) {
-      Intent intent = new Intent(currentActivity, ChangeLocationActivity.class);
-      intent.putExtra("persist", persist);
-      intent.putExtra("location", location);
+      Intent intent = new Intent(currentActivity, ChangeLocationActivity.class)
+              .putExtra("persist", persist)
+              .putExtra("location", location);
       currentActivity.startActivityForResult(intent, requestCode);
    }
 
@@ -128,7 +128,6 @@ public class ChangeLocationActivity extends Activity {
             MbwManager.getInstance(ChangeLocationActivity.this).reportIgnoredException(error);
          }
       };
-
    }
 
    protected void onSaveInstanceState(Bundle outState) {
@@ -139,6 +138,9 @@ public class ChangeLocationActivity extends Activity {
 
       @Override
       public void onClick(View arg0) {
+         if(!Utils.hasOrRequestLocationAccess(ChangeLocationActivity.this)) {
+            return;
+         }
          _chosenAddress = null;
          updateUi();
          new GpsLocationFetcher().getNetworkLocation(_gpsLocationCallback);
@@ -189,5 +191,4 @@ public class ChangeLocationActivity extends Activity {
       }
       // else  We didn't like what we got, bail...
    }
-
 }

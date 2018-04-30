@@ -37,12 +37,15 @@ package com.mycelium.wallet;
 import com.google.api.client.util.Lists;
 import com.google.common.base.Strings;
 import com.mrd.bitlib.util.CoinUtil;
-import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wapi.model.ExchangeRate;
 import com.mycelium.wapi.wallet.currency.CurrencySum;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class CurrencySwitcher {
    private final ExchangeRateManager exchangeRateManager;
@@ -55,6 +58,7 @@ public class CurrencySwitcher {
 
    // the last shown currency (usually same as fiat currency, but in some spots we cycle through all currencies including Bitcoin)
    private String currentCurrency;
+   private String defaultCurrency = CurrencyValue.BTC;
 
    public CurrencySwitcher(final ExchangeRateManager exchangeRateManager, final Set<String> fiatCurrencies, final String currentCurrency, final CoinUtil.Denomination bitcoinDenomination) {
       this.exchangeRateManager = exchangeRateManager;
@@ -67,7 +71,8 @@ public class CurrencySwitcher {
 
       // if BTC is selected or current currency is not in list of available currencies (e.g. after update)
       // select a default one or none
-      if (currentCurrency.equals(CurrencyValue.BTC) || !fiatCurrencies.contains(currentCurrency)) {
+      if (currentCurrency.equals(CurrencyValue.BTC) || currentCurrency.equals(CurrencyValue.BCH)
+              || !fiatCurrencies.contains(currentCurrency)) {
          if (fiatCurrencies.size() == 0) {
             this.currentFiatCurrency = "";  // no fiat currency selected
          } else {
@@ -85,6 +90,7 @@ public class CurrencySwitcher {
    public void setCurrency(final String setToCurrency) {
       //TODO need no accurate detect is colu currency
       if (!setToCurrency.equals(CurrencyValue.BTC)
+              && !setToCurrency.equals(CurrencyValue.BCH)
               && !setToCurrency.equals("RMC")
               && !setToCurrency.equals("MT")
               && !setToCurrency.equals("MSS")) {
@@ -102,26 +108,21 @@ public class CurrencySwitcher {
    }
 
    public String getCurrentCurrencyIncludingDenomination() {
-      if (currentCurrency.equals(CurrencyValue.BTC)) {
-         // use denomination only for btc
-         return bitcoinDenomination.getUnicodeName();
-      } else {
-         return currentCurrency;
+      switch (currentCurrency) {
+         case CurrencyValue.BTC:
+            return bitcoinDenomination.getUnicodeName();
+         case CurrencyValue.BCH:
+            return bitcoinDenomination.getUnicodeName().replace(CurrencyValue.BTC, CurrencyValue.BCH);
+         default:
+            return currentCurrency;
       }
    }
 
-
-   public List<String> getCurrencyList() {
+   public List<String> getCurrencyList(String ... additions) {
       //make a copy to prevent others from changing our internal list
-      return new ArrayList<String>(fiatCurrencies);
-   }
-
-   public int getFiatCurrenciesCount() {
-      return fiatCurrencies.size();
-   }
-
-   public int getCurrenciesCount() {
-      return fiatCurrencies.size() + 1;  // BTC is always available
+      List<String> result = new ArrayList<>(fiatCurrencies);
+      Collections.addAll(result, additions);
+      return result;
    }
 
    public void setCurrencyList(final Set<String> fiatCurrencies) {
@@ -139,7 +140,16 @@ public class CurrencySwitcher {
          }
       }
       //copy to prevent changes by caller
-      this.fiatCurrencies = new ArrayList<String>(currencies);
+      this.fiatCurrencies = new ArrayList<>(currencies);
+   }
+
+   public void setDefaultCurrency(String currencyLabel) {
+      Set<String> currencies = new HashSet<>(getCurrencyList());
+      if (!defaultCurrency.equals(currencyLabel)) {
+         currencies.remove(defaultCurrency);
+         currencies.add(currencyLabel);
+      }
+      defaultCurrency = currencyLabel;
    }
 
    public String getNextCurrency(boolean includeBitcoin) {
@@ -157,7 +167,7 @@ public class CurrencySwitcher {
          // we are at the end of the fiat-list. return BTC if we should include Bitcoin, otherwise wrap around
          if (includeBitcoin) {
             // only set currentCurrency, but leave currentFiat currency as it was
-            currentCurrency = CurrencyValue.BTC;
+            currentCurrency = defaultCurrency;
          } else {
             index -= currencies.size(); //wrap around
             currentCurrency = currencies.get(index);

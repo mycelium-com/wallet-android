@@ -8,8 +8,19 @@
         <attr name="precision" format="integer"/>
     </declare-styleable>
     <declare-styleable name = "ViewPagerIndicator">
-        <attr name = "itemSize" format = "dimension"/>
+        <attr name = "itemWidth" format = "dimension"/>
+        <attr name = "itemHeight" format = "dimension"/>
         <attr name = "delimiterSize" format = "dimension"/>
         <attr name = "itemIcon" format = "reference"/>
+        <attr name = "itemIconSelected" format = "reference"/>
+    </declare-styleable>
+
+    <declare-styleable name="RoundButton">
+        <attr name="backgroundColor" />
+    </declare-styleable>
+    <declare-styleable name="RoundButtonWithText" >
+        <attr name="backgroundColor" />
+        <attr name="text" format="string|reference" />
+        <attr name="icon" />
     </declare-styleable>
 </resources>

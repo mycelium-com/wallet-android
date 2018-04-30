@@ -156,14 +156,6 @@ public class MetadataStorage extends GenericMetadataStorage {
       }
    }
 
-   public void setIgnoreLegacyWarning(UUID account, Boolean ignore) {
-      storeKeyCategoryValueEntry(IGNORE_LEGACY_WARNING_CATEGORY.of(account.toString()), ignore ? "1" : "0");
-   }
-
-   public Boolean getIgnoreLegacyWarning(UUID account) {
-      return "1".equals(getKeyCategoryValueEntry(IGNORE_LEGACY_WARNING_CATEGORY.of(account.toString()), "0"));
-   }
-
    public boolean firstMasterseedBackupFinished() {
       return getMasterSeedBackupState().equals(BackupState.VERIFIED);
    }
@@ -293,7 +285,7 @@ public class MetadataStorage extends GenericMetadataStorage {
       if (!last.isPresent()) {
          return Optional.absent();
       }
-      return Optional.of(Address.fromString(last.get()));
+      return Optional.fromNullable(Address.fromString(last.get()));
    }
 
    public String getCoinapultMail() {
@@ -469,7 +461,7 @@ public class MetadataStorage extends GenericMetadataStorage {
    }
 
    public enum BackupState {
-      UNKNOWN(0), VERIFIED(1), IGNORED(2);
+      UNKNOWN(0), VERIFIED(1), IGNORED(2), NOT_VERIFIED(3);
 
       private final int _index;
 
@@ -497,6 +489,8 @@ public class MetadataStorage extends GenericMetadataStorage {
                return VERIFIED;
             case 2:
                return IGNORED;
+            case 3:
+               return NOT_VERIFIED;
             default:
                return UNKNOWN;
          }

@@ -118,7 +118,7 @@
   <string name="backup_legacy_warning">您將備份您錢包中單地址帳戶。 \n 這份備份將不會包含您的主種子，您的HD帳戶不可以從它進行恢復 ！ \n\n 您還要繼續嗎？</string>
   <string name="export_to_clipboard_warning">警告：將私鑰導出到剪貼板內意味將它公開給您手機中安裝的其他應用程序． \n\n注意：在剪貼板中存儲您的私人信息不夠安全，您必須粘貼它到安全的地方\n\n您要繼續嗎？</string>
   <string name="found_clipboard_private_key_title">剪貼板中發現私鑰</string>
-  <string name="found_clipboard_private_keys_message">密匙在剪貼板上\r\n您想刪除它碼</string>
+  <string name="found_clipboard_private_keys_message">密匙在剪貼板上\n您想刪除它碼</string>
   <string name="exchange_source_not_available">無法獲得%1$s匯率</string>
   <string name="my_own_address_warning">注意：您正在發送給您自己的一個地址</string>
   <string name="read_only_warning">警告：您的錢包沒有此地址的私鑰． \n除非您在其他的地方有此地址的私鑰，否則您將不能用接受的比特幣進行消費．</string>
@@ -138,7 +138,7 @@
   <string name="active_accounts_empty">(空)</string>
   <string name="activate_action">激活</string>
   <string name="archive_action">存檔</string>
-  <string name="question_archive_account">存檔帳戶沒有被監測、 你不能看到帳戶餘額和接收地址。請不要對這個帳戶進行操作.\r\n\r\n存檔帳戶可以被再次激活.\r\n\r\n您需要存檔該帳戶嗎？</string>
+  <string name="question_archive_account">存檔帳戶沒有被監測、 你不能看到帳戶餘額和接收地址。請不要對這個帳戶進行操作.\n\n存檔帳戶可以被再次激活.\n\n您需要存檔該帳戶嗎？</string>
   <string name="master_seed_configuration_title">歡迎來到Mycelium</string>
   <string name="master_seed_configuration_description">你想還原備份，還是創建一個新錢包？</string>
   <string name="master_seed_create_new_button">創建新的</string>
@@ -181,7 +181,6 @@
   <string name="verify_backup_master_seed">您的主種子尚未被驗證。</string>
   <string name="verify_backup_no_such_record">此私鑰不匹配任何您的比特幣地址</string>
   <string name="verify_backup_ok">完成驗證一下地址備份：\n\n%1$s</string>
-  <string name="legacy_account_with_funds">內含資金的舊帳戶</string>
   <string name="wrong_seed">掃描的種子與您的主種子不匹配。</string>
   <string name="backup_missing">備份丟失</string>
   <string name="verify_backup_title">備份和驗證</string>
@@ -197,7 +196,7 @@
   <string name="encrypted_pdf_backup_document_ready">創建PDF文件完成</string>
   <string name="encrypted_pdf_backup_sharing">正在共享PDF文件</string>
   <string name="encrypted_pdf_backup_email_title">Mycelium錢包備份</string>
-  <string name="encrypted_pdf_backup_email_text">您的Mycelium錢包備份已經鏈接． \r\n\r\n請執行下列步驟來保護您的資金:\r\n1. 打印PDF文件\r\n2. 從Android設備顯示屏到打印文件的藍框中依次寫一下15個字符的密碼\r\n3. 驗證您可是否以導入私鑰到您的Mycelium錢包\r\n4. 把打印文件存儲在一個安全的地方</string>
+  <string name="encrypted_pdf_backup_email_text">您的Mycelium錢包備份已經鏈接． \n\n請執行下列步驟來保護您的資金:\n1. 打印PDF文件\n2. 從Android設備顯示屏到打印文件的藍框中依次寫一下15個字符的密碼\n3. 驗證您可是否以導入私鑰到您的Mycelium錢包\n4. 把打印文件存儲在一個安全的地方</string>
   <string name="share_pdf">共享PDF</string>
   <string name="share_with">共享與</string>
   <string name="import_decrypt_key_title">密鑰的解密</string>
@@ -223,7 +222,6 @@
   <string name="unlock_label">不加鎖</string>
   <string name="lock_label">加鎖</string>
   <string name="secure_my_funds">保護我的資金</string>
-  <string name="move_legacy_funds_message">您的錢包裡有一個或多個有資金的舊帳戶.\n\n為確保您的資金安全以及提高您的匿名性，你應該將這些資金移動到您的HD帳戶中.\n\n請點擊帳戶選項卡獲取詳細信息。</string>
   <string name="ignore_warnings_title">忽略警告</string>
   <string name="ignore_warnings_description">您想要忽略提示舊帳戶有資金的警告嗎？</string>
   <string name="explore">探索</string>
@@ -795,7 +793,7 @@
   <string name="warning_reason_unconfirmed_parent">未經證實的父母</string>
   <string name="warning_reason_doublespend">檢測到雙重支付</string>
   <string name="opening_url_in_browser">在瀏覽器中打開 URL...</string>
-  <string name="incoming_payment">"收款: "</string>
+  <string name="incoming_payment">收款: %s</string>
   <string name="warning_amount_does_not_match">警告 ︰ 金額不符 ！</string>
   <string name="mycelium_terms_of_use">Mycelium使用條款</string>
   <!-- Credit Card -->

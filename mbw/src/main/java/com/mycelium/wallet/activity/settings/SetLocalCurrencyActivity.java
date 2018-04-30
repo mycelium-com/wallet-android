@@ -34,22 +34,32 @@
 
 package com.mycelium.wallet.activity.settings;
 
-import java.util.*;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.*;
+import android.view.inputmethod.EditorInfo;
+import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.TextView;
 
 import com.google.common.collect.Sets;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wapi.api.lib.CurrencyCode;
+
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 public class SetLocalCurrencyActivity extends Activity {
 
@@ -67,7 +77,7 @@ public class SetLocalCurrencyActivity extends Activity {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.settings_local_currency_activity);
 
-      
+      _currencies = Sets.newHashSet(MbwManager.getInstance(this).getCurrencyList());
       // Build data structures for holding currencies
       _currencySelectionToCurrencyMap = new HashMap<String, String>();
       CurrencyCode[] codes = CurrencyCode.sortedArray();
@@ -77,6 +87,18 @@ public class SetLocalCurrencyActivity extends Activity {
          _currencySelectionToCurrencyMap.put(strings[i], codes[i].getShortString());
       }
 
+      Arrays.sort(strings, new Comparator<String>() {
+         @Override
+         public int compare(String currency1, String currency2) {
+            if (_currencies.contains(_currencySelectionToCurrencyMap.get(currency1))) {
+               return -1;
+            } else if (_currencies.contains(_currencySelectionToCurrencyMap.get(currency2))) {
+               return 1;
+            } else {
+               return currency1.compareTo(currency2);
+            }
+         }
+      });
       // Populate adapter - and overwrite getView to correctly set checkbox status
       _adapter = new ArrayAdapter<String>(this, R.layout.listview_item_with_checkbox, R.id.tv_currency_name, strings){
          @Override
@@ -89,26 +111,36 @@ public class SetLocalCurrencyActivity extends Activity {
             String fullname = getItem(pos);
             String currency = _currencySelectionToCurrencyMap.get(fullname);
 
-            TextView tv = (TextView) convertView.findViewById(R.id.tv_currency_name);
+            TextView tv = convertView.findViewById(R.id.tv_currency_name);
             tv.setText(fullname);
-            CheckBox box = (CheckBox) convertView.findViewById(R.id.checkbox_currency);
+            CheckBox box = convertView.findViewById(R.id.checkbox_currency);
             box.setChecked(_currencies.contains(currency));
 
             convertView.setOnClickListener(itemClicked);
 
             return convertView;
          }
+
       };
 
       //configure edittext for filtering
-      EditText search = (EditText) findViewById(R.id.etFilterCurrency);
+      EditText search = findViewById(R.id.etFilterCurrency);
       search.addTextChangedListener(filterWatcher);
+      search.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+         @Override
+         public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+               finish();
+               return true;
+            }
+            return false;
+         }
+      });
 
       // Configure list view
       ListView listview = (ListView) findViewById(R.id.lvCurrencies);
       listview.setAdapter(_adapter);
 
-      _currencies = Sets.newHashSet(MbwManager.getInstance(this).getCurrencyList());
    }
 
    View.OnClickListener itemClicked = new View.OnClickListener() {

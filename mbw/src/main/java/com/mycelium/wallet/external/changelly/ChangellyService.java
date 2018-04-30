@@ -7,6 +7,12 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.mycelium.wallet.BuildConfig;
+import com.mycelium.wallet.external.changelly.ChangellyAPIService.ChangellyAnswerDouble;
+import com.mycelium.wallet.external.changelly.ChangellyAPIService.ChangellyAnswerListString;
+import com.mycelium.wallet.external.changelly.ChangellyAPIService.ChangellyTransaction;
+import com.mycelium.wallet.external.changelly.ChangellyAPIService.ChangellyTransactionOffer;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -14,8 +20,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import retrofit2.Call;
-
-import com.mycelium.wallet.external.changelly.ChangellyAPIService.*;
 
 public class ChangellyService extends IntentService {
     private static final String LOG_TAG="ChangellyService";
@@ -105,6 +109,17 @@ public class ChangellyService extends IntentService {
 
     // return txid?
     private ChangellyTransactionOffer createTransaction(String from, String to, double amount, String destAddress) {
+        if (BuildConfig.FLAVOR.equals("btctestnet")) {
+            ChangellyTransactionOffer result = new ChangellyTransactionOffer();
+            result.amountFrom = amount;
+            result.amountTo = getExchangeAmount(from, to, amount);
+            result.currencyFrom = from;
+            result.currencyTo = to;
+            result.payinAddress = "bchtest:qrntcnsl8p2y936cu9eq9nwhnj9uvsg9wvcv2k60yp";
+            result.payoutAddress = destAddress;
+            result.id = "test_order_id";
+            return result;
+        }
         Call<ChangellyTransaction> call4 = changellyAPIService.createTransaction(from, to, amount, destAddress);
         try {
             ChangellyTransaction result = call4.execute().body();
@@ -114,7 +129,7 @@ public class ChangellyService extends IntentService {
                 return result.result;
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(LOG_TAG, "createTransaction", e);
         }
         return null;
     }
@@ -190,8 +205,9 @@ public class ChangellyService extends IntentService {
                     amount = intent.getDoubleExtra(AMOUNT, 0);
                     destAddress = intent.getStringExtra(DESTADDRESS);
                     ChangellyTransactionOffer res = createTransaction(from, to, amount, destAddress);
+                    double toAmount = getExchangeAmount(from, to, amount);
                     Intent transactionIntent;
-                    if(res == null) {
+                    if(res == null || toAmount == -1) {
                         // service unavailable
                         transactionIntent = new Intent(ChangellyService.INFO_ERROR, null,
                                 this, ChangellyService.class);
@@ -202,6 +218,7 @@ public class ChangellyService extends IntentService {
                         transactionIntent = new Intent(ChangellyService.INFO_TRANSACTION, null,
                                 this, ChangellyService.class);
                         res.amountFrom = amount;
+                        res.amountTo = toAmount;
                         transactionIntent.putExtra(OFFER, res);
                     }
                     LocalBroadcastManager.getInstance(this).sendBroadcast(transactionIntent);

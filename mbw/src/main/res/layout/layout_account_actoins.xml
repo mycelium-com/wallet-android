@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/action_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <Space
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_weight="0.75" />
+
+    <com.mycelium.wallet.activity.view.RoundButtonWithText
+        android:id="@+id/btSend"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        custom:backgroundColor="@color/sender_recyclerview_background_red"
+        custom:icon="@drawable/wallet_send_icon"
+        custom:text="@string/send" />
+
+    <Space
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_weight="1" />
+
+    <com.mycelium.wallet.activity.view.RoundButtonWithText
+        android:id="@+id/btScan"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        custom:backgroundColor="@color/scan_background"
+        custom:icon="@drawable/wallet_scan_icon"
+        custom:text="@string/scan" />
+
+    <Space
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_weight="1" />
+
+    <com.mycelium.wallet.activity.view.RoundButtonWithText
+        android:id="@+id/btReceive"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        custom:backgroundColor="@color/sender_recyclerview_background_green"
+        custom:icon="@drawable/wallet_receive_icon"
+        custom:text="@string/receive" />
+
+    <Space
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_weight="0.75" />
+</LinearLayout>

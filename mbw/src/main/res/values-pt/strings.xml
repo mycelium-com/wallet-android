@@ -118,7 +118,7 @@
   <string name="backup_legacy_warning">Você irá fazer backup das contas de endereço único de sua carteira. \nEsse backup não irá conter sua semente mestre, nenhuma das suas contas HD poderá ser restaurada a partir dele!\n\nVocê quer continuar?</string>
   <string name="export_to_clipboard_warning">Aviso: Exportar os dados privados da conta para a sua área de transferência os expõe para todos os outros aplicativos do seu dispositivo.\n\nNota: Não é suficiente armazenar seus dados privados na área de transferência, você também precisa colar esses dados em algum lugar seguro.\n\nVocê quer continuar?</string>
   <string name="found_clipboard_private_key_title">Chave Privada Encontrada na Área de Transferência</string>
-  <string name="found_clipboard_private_keys_message">A área de transferência contém uma chave privada.\r\nVocê quer limpar a área de transferência?</string>
+  <string name="found_clipboard_private_keys_message">A área de transferência contém uma chave privada.\nVocê quer limpar a área de transferência?</string>
   <string name="exchange_source_not_available">Taxa de corretagem não disponível para %1$s</string>
   <string name="my_own_address_warning">Nota: Você está enviando para um de seus próprios endereços.</string>
   <string name="read_only_warning">Aviso: A sua carteira não tem a chave privada para esse endereço.\nVocê não pode gastar os bitcoins recebidos, a menos que você tenha a chave privada anota em outro lugar.</string>
@@ -138,7 +138,7 @@
   <string name="active_accounts_empty">(Vazio)</string>
   <string name="activate_action">Ativar</string>
   <string name="archive_action">Arquivar</string>
-  <string name="question_archive_account">Contas arquivadas não serão monitoradas. Você não poderá ver o saldo, nem o endereço de recebimento, assim como não poderá trabalhar com elas.\r\n\r\nAs contas arquivadas podem ser ativadas novamente no futuro.\r\n\r\nVocê quer arquivas essa conta?</string>
+  <string name="question_archive_account">Contas arquivadas não serão monitoradas. Você não poderá ver o saldo, nem o endereço de recebimento, assim como não poderá trabalhar com elas.\n\nAs contas arquivadas podem ser ativadas novamente no futuro.\n\nVocê quer arquivas essa conta?</string>
   <string name="master_seed_configuration_title">Bem-vindo(a) à Mycelium</string>
   <string name="master_seed_configuration_description">Você quer restaurar um backup ou criar uma nova carteira?</string>
   <string name="master_seed_create_new_button">Criar Nova</string>
@@ -181,7 +181,6 @@
   <string name="verify_backup_master_seed">A sua semente mestre nunca foi verificada.</string>
   <string name="verify_backup_no_such_record">A chave privada não corresponde a nenhum de seus endereços Bitcoin.</string>
   <string name="verify_backup_ok">O backup da chave privada foi verificado com sucesso para o seguinte endereço:\n\n%1$s</string>
-  <string name="legacy_account_with_funds">Carteira herdada (legacy) com fundos</string>
   <string name="wrong_seed">A semente escaneada não corresponde a sua semente mestre.</string>
   <string name="backup_missing">Backup não encontrado</string>
   <string name="verify_backup_title">Fazer Backup e Verificar</string>
@@ -197,7 +196,7 @@
   <string name="encrypted_pdf_backup_document_ready">Documento PDF criado</string>
   <string name="encrypted_pdf_backup_sharing">Compartilhando documento PDF&#8230;</string>
   <string name="encrypted_pdf_backup_email_title">Backup da carteira Mycelium</string>
-  <string name="encrypted_pdf_backup_email_text">Seu backup da carteira Mycelium está anexado.\r\n\r\nSiga esses passos para proteger os seus fundos:\r\n1. Imprima o documento PDF.\r\n2. Anote, nas caixas azuis da folha impressa, a senha de 15 caracteres exibida na tela do seu dispositivo Android.\r\n3. Verique que você consegue importar as chaves privadas paara a sua carteira Mycelium.\r\n4. Armazene a folha impressa em um lugar seguro.</string>
+  <string name="encrypted_pdf_backup_email_text">Seu backup da carteira Mycelium está anexado.\n\nSiga esses passos para proteger os seus fundos:\n1. Imprima o documento PDF.\n2. Anote, nas caixas azuis da folha impressa, a senha de 15 caracteres exibida na tela do seu dispositivo Android.\n3. Verique que você consegue importar as chaves privadas paara a sua carteira Mycelium.\n4. Armazene a folha impressa em um lugar seguro.</string>
   <string name="share_pdf">Compartilhar PDF</string>
   <string name="share_with">Compartilhar com&#8230;</string>
   <string name="import_decrypt_key_title">Descriptografando a Chave Privada</string>
@@ -223,7 +222,6 @@
   <string name="unlock_label">Destravar</string>
   <string name="lock_label">Travar</string>
   <string name="secure_my_funds">Proteger Meus Fundos</string>
-  <string name="move_legacy_funds_message">Sua carteira tem uma ou mais contas herdadas (legacy) com fundos.\n\nPara certificar-se que seus fundos estão seguros e para melhorar o seu anonimato você deveria mover os fundos para uma de suas carteiras HD.\n\nPor favor entre na aba Contas para maiores detalhes.</string>
   <string name="ignore_warnings_title">Ignorar Avisos</string>
   <string name="ignore_warnings_description">Você quer ignorar os avisos explicando que essa conta herdada (legacy) possui fundos?</string>
   <string name="explore">Explorar</string>
@@ -793,7 +791,7 @@
   <string name="warning_reason_unconfirmed_parent">Transação pai não confirmada</string>
   <string name="warning_reason_doublespend">Gasto duplo detectado</string>
   <string name="opening_url_in_browser">Abrindo URL no Navegador...</string>
-  <string name="incoming_payment">"Pagamento recebido: "</string>
+  <string name="incoming_payment">Pagamento recebido: %s</string>
   <string name="warning_amount_does_not_match">Aviso: a quantia não corresponde!</string>
   <string name="mycelium_terms_of_use">Termos de Uso da Mycelium</string>
   <!-- Credit Card -->

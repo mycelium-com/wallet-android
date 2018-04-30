@@ -42,9 +42,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.annotation.LayoutRes;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -53,15 +52,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
+import com.mycelium.wallet.AccountManager;
 import com.mycelium.wallet.AddressBookManager;
 import com.mycelium.wallet.AddressBookManager.Entry;
 import com.mycelium.wallet.MbwManager;
@@ -72,6 +69,7 @@ import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.StringHandlerActivity;
 import com.mycelium.wallet.activity.modern.adapter.AddressBookAdapter;
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity;
+import com.mycelium.wallet.activity.util.AccountDisplayType;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil.AddressLabelChangedHandler;
 import com.mycelium.wallet.colu.ColuAccount;
@@ -111,7 +109,7 @@ public class AddressBookFragment extends Fragment {
       boolean isSelectOnly = getArguments().getBoolean(SELECT_ONLY);
       excudeSelected = getArguments().getBoolean(EXCLUDE_SELECTED, false);
       setHasOptionsMenu(!isSelectOnly);
-      ListView foreignList = (ListView) ret.findViewById(R.id.lvForeignAddresses);
+      ListView foreignList = ret.findViewById(R.id.lvForeignAddresses);
       if (isSelectOnly) {
          foreignList.setOnItemClickListener(new SelectItemListener());
       } else {
@@ -125,9 +123,9 @@ public class AddressBookFragment extends Fragment {
    }
 
    @Override
-   public void onAttach(Activity activity) {
-      _mbwManager = MbwManager.getInstance(getActivity().getApplication());
-      super.onAttach(activity);
+   public void onAttach(Context context) {
+      _mbwManager = MbwManager.getInstance(context);
+      super.onAttach(context);
    }
 
    @Override
@@ -163,8 +161,13 @@ public class AddressBookFragment extends Fragment {
    }
 
    private void updateUiMine() {
-      List<Entry> entries = new ArrayList<Entry>();
-      for (WalletAccount account : Utils.sortAccounts(_mbwManager.getWalletManager(false).getActiveAccounts(), _mbwManager.getMetadataStorage())) {
+      List<Entry> entries = new ArrayList<>();
+      List<WalletAccount> activeAccounts = AccountManager.INSTANCE.getActiveAccounts().values().asList();
+      for (WalletAccount account : Utils.sortAccounts(activeAccounts, _mbwManager.getMetadataStorage())) {
+         // TODO rework on full bch release
+         if (AccountDisplayType.getAccountType(account).equals(AccountDisplayType.BCH_ACCOUNT)) {
+            continue;
+         }
          String name = _mbwManager.getMetadataStorage().getLabelByAccount(account.getId());
          Drawable drawableForAccount = Utils.getDrawableForAccount(account, true, getResources());
          Optional<Address> receivingAddress = account.getReceivingAddress();
@@ -232,7 +235,7 @@ public class AddressBookFragment extends Fragment {
       @Override
       public void onItemClick(AdapterView<?> listView, final View view, int position, long id) {
          mSelectedAddress = (Address) view.getTag();
-         ActionBarActivity parent = (ActionBarActivity) getActivity();
+         AppCompatActivity parent = (AppCompatActivity) getActivity();
          currentActionMode = parent.startSupportActionMode(new ActionMode.Callback() {
             @Override
             public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
@@ -357,6 +360,7 @@ public class AddressBookFragment extends Fragment {
       }
    }
 
+   @Override
    public boolean onOptionsItemSelected(MenuItem item) {
       if (item.getItemId() == R.id.miAddAddress) {
          _addDialog = new AddDialog(getActivity());

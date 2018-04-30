@@ -33,8 +33,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 public class CoinapultManager implements AccountProvider {
-
-   public static final int CACHE_DURATION = 10;
+   private static final int CACHE_DURATION = 10;
    private final MbwEnvironment env;
    private final Bus eventBus;
    private final Handler handler;
@@ -61,7 +60,7 @@ public class CoinapultManager implements AccountProvider {
             eventBus.register(CoinapultManager.this);
          }
       });
-      coinapultAccounts = new HashMap<UUID, CoinapultAccount>();
+      coinapultAccounts = new HashMap<>();
       flushCacheIfNeeded();
       loadAccounts();
    }
@@ -76,15 +75,6 @@ public class CoinapultManager implements AccountProvider {
          metadataStorage.deleteCoinapultAddress("BTC");
          metadataStorage.storeCoinapultLastFlush(1);
       }
-
-      /*
-      // if further flushes are needed:
-      if (metadataStorage.getCoinapultLastFlush() < 2) {
-         // to stuff
-         metadataStorage.storeCoinapultLastFlush(2);
-      }
-      ...
-      */
    }
 
    private void saveEnabledCurrencies() {
@@ -134,13 +124,10 @@ public class CoinapultManager implements AccountProvider {
       return account;
    }
 
-   @android.support.annotation.Nullable
-   private UUID enableCurrency(String currency) {
+   private void enableCurrency(String currency) {
       if (CoinapultAccount.Currency.all.containsKey(currency)) {
          CoinapultAccount.Currency currencyAccount = CoinapultAccount.Currency.all.get(currency);
-         return enableCurrency(currencyAccount);
-      } else {
-         return null;
+         enableCurrency(currencyAccount);
       }
    }
 
@@ -215,7 +202,7 @@ public class CoinapultManager implements AccountProvider {
       return coinapultAccounts.get(id);
    }
 
-   public boolean scanForAccounts() {
+   public void scanForAccounts() {
       try {
          Map<String, AccountInfo.Balance> balances = getBalances();
 
@@ -229,10 +216,8 @@ public class CoinapultManager implements AccountProvider {
                }
             }
          }
-         return true;
       } catch (CoinapultClient.CoinapultBackendException e) {
          logger.logError("error while scanning for accounts");
-         return false;
       }
    }
 
@@ -257,17 +242,22 @@ public class CoinapultManager implements AccountProvider {
    public void activateAccount(Optional<String> mail) throws CoinapultClient.CoinapultBackendException {
       try {
          if (!userAccountExists()) {
-            Map<String, String> options = new HashMap<String, String>();
+            Map<String, String> options = new HashMap<>();
             if (mail.isPresent()) {
                options.put("email", mail.get());
             }
             getClient().createAccount(options);
             getClient().activateAccount(true);
          }
-         //initBalance();
       } catch (Exception e) {
-         Log.e("CoinapultManager", "Failed to addUsd account", e);
-         throw new CoinapultClient.CoinapultBackendException(e);
+         Log.e("CoinapultManager", "Failed to add account", e);
+         //Ugly hack to activate accounts which were created while spongycastle were broking connection
+         //resulting a lot of unactivated accounts, which could not be checked for existence somewhy.
+         try {
+            getClient().activateAccount(true);
+         } catch (Exception e1) {
+            throw new CoinapultClient.CoinapultBackendException(e);
+         }
       }
    }
 
@@ -293,8 +283,7 @@ public class CoinapultManager implements AccountProvider {
       @Override
       public List<AccountInfo.Balance> get() {
          try {
-            List<AccountInfo.Balance> balances = getClient().accountInfo().balances;
-            return balances;
+            return getClient().accountInfo().balances;
          } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
          } catch (IOException e) {

@@ -10,7 +10,7 @@ public class Bip44Purpose extends HdKeyPath {
    }
 
    public Bip44CoinType getCoinTypeBitcoin(){
-      return  new Bip44CoinType(this, UnsignedInteger.valueOf(0), true);
+      return new Bip44CoinType(this, UnsignedInteger.valueOf(0), true);
    }
 
    public Bip44CoinType getCoinTypeBitcoinTestnet(){

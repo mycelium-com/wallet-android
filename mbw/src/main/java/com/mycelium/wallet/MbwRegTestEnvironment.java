@@ -51,15 +51,10 @@ import java.util.List;
 public class MbwRegTestEnvironment extends MbwEnvironment {
    private static final String myceliumThumbprint = "9c:8e:d7:ad:6c:28:db:d4:72:6a:71:93:d6:4d:cb:e7:c7:a0:2e:bc";
 
-   public MbwRegTestEnvironment(String brand){
-      super(brand);
-   }
-
    @Override
    public NetworkParameters getNetwork() {
       return NetworkParameters.testNetwork;
    }
-
 
    /**
     * Local Trader API for testnet

@@ -473,7 +473,7 @@ public class ColuManager implements AccountProvider {
         addAssetAccountUUID(coluAsset, createdAccountInfo.id);
 
         ColuAccount account = new ColuAccount(
-                ColuManager.this, metadataStorage, address,
+                ColuManager.this, createdAccountInfo.accountBacking, metadataStorage, address,
                 coluAsset
         );
 
@@ -502,11 +502,11 @@ public class ColuManager implements AccountProvider {
 
             if (accountKey == null) {
                 account = new ColuAccount(
-                        ColuManager.this, metadataStorage, singleAddressAccount.getAddress(),
+                        ColuManager.this, createdAccountInfo.accountBacking, metadataStorage, singleAddressAccount.getAddress(),
                         coluAsset);
             } else {
                 account = new ColuAccount(
-                        ColuManager.this, metadataStorage, accountKey,
+                        ColuManager.this, createdAccountInfo.accountBacking, metadataStorage, accountKey,
                         coluAsset
                 );
             }
@@ -542,7 +542,7 @@ public class ColuManager implements AccountProvider {
         }
 
         ColuAccount account = new ColuAccount(
-                ColuManager.this, metadataStorage, accountKey,
+                ColuManager.this, createdAccountInfo.accountBacking, metadataStorage, accountKey,
                 coluAsset
         );
 

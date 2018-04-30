@@ -15,8 +15,8 @@ So far, restoring the wallet from masterseed has never been necessary, but we of
 Building
 ========
 
-To build everything from source, simply checkout the source and build using gradle
-on the build system you need.
+To build everything from source, simply checkout the source and build using gradle.
+On the build system you need:
 
  * JDK 1.7
 
@@ -41,23 +41,22 @@ The project layout is designed to be used with a recent version of Android Studi
 
 On the console type:
 
-    git clone https://github.com/mycelium-com/wallet.git
-    cd wallet
+    git clone https://github.com/mycelium-com/wallet-android.git
+    cd wallet-android
+    git submodule update --init --recursive
 
 Linux/Mac type:
 
-    ./gradlew build
+    ./gradlew clean test mbw::asProdRel mbw::asBtRel
 
 Windows type:
 
-    gradlew.bat build
+    gradlew.bat clean test mbw::asProdRel mbw::asBtRel
 
- - Voila, look into `wallet/public/mbw/build/apk` to see the generated apk. 
+ - Voila, look into `mbw/build/outputs/apk/` to see the generated apk. 
    There are versions for both prodnet and testnet.
 
-Alternatively you can install the latest version from the Play store at:
-
-https://play.google.com/store/apps/details?id=com.mycelium.wallet
+Alternatively you can install the latest version from the [Play Store](https://play.google.com/store/apps/details?id=com.mycelium.wallet).
 
 If you cannot access the Play store, you can obtain the apk directly from https://mycelium.com/bitcoinwallet
 
@@ -129,10 +128,10 @@ With the Mycelium Bitcoin Wallet you can send and receive Bitcoins using your mo
 Please note that bitcoin is still experimental and this app comes with no warranty - while we make sure to adhere to the highest standards of software craftsmanship we can not exclude that the software contains bugs. Please make sure you have backups of your private keys and do not use this for more than you are willing to lose.
 
 This application's source is published at https://github.com/mycelium-com/wallet
-We need your feedback. If you have a suggestion or a bug to report open an issue at: https://github.com/mycelium-com/wallet/issues
+We need your feedback. If you have a suggestion or a bug to report [create an issue](https://github.com/mycelium-com/wallet/issues).
 
 More features:
- - Sources available for review:  https://github.com/mycelium-com/wallet
+ - Sources [available for review](https://github.com/mycelium-com/wallet-android)
  - Multiple HD accounts, private keys, external xPub or xPriv accounts
  - Multiple Bitcoin denominations: BTC, mBTC, bits and uBTC
  - View your balance in multiple fiat currencies: USD, AUD, CAD, CHF, CNY, DKK, EUR, GBP, HKD, JPY, NZD, PLN, RUB, SEK, SGD, THB, and many more

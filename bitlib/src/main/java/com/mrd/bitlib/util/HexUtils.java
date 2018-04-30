@@ -110,6 +110,9 @@ public class HexUtils {
     * @return The byte representation of the ASCII-HEX string.
     */
    public static byte[] toBytes(String hexString) {
+      if(hexString != null) {
+         hexString = hexString.replace(" ", "");
+      }
       if (hexString == null || hexString.length() % 2 != 0) {
          throw new RuntimeException("Input string must contain an even number of characters");
       }

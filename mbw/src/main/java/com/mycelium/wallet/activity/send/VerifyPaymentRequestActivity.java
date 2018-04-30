@@ -39,7 +39,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.*;
@@ -65,7 +65,7 @@ import org.ocpsoft.prettytime.units.Millisecond;
 
 import java.util.*;
 
-public class VerifyPaymentRequestActivity extends ActionBarActivity {
+public class VerifyPaymentRequestActivity extends AppCompatActivity {
    private static final String CALLBACK_URI = "payment_uri";
    private static final String RAW_PR = "raw_pr";
    private static final String PAYMENT_REQUEST_HANDLER_ID = "paymentRequestHandlerId";

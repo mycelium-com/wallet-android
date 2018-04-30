@@ -1,6 +1,7 @@
 buildscript {
     repositories {
-        mavenCentral()
+        google()
+        jcenter()
     }
     dependencies {
         classpath 'org.batcha.gradle.plugins:git-dependencies:0.2'
@@ -17,7 +18,8 @@ mainClassName='com.mrd.bitlib.BackupUtil'
 project.ext.set("mainClassName", mainClassName)
 
 repositories {
-    mavenCentral()
+    google()
+    jcenter()
 }
 
 dependencies {

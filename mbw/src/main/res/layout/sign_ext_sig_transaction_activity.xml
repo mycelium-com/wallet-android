@@ -57,7 +57,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:columnCount="2"
-                    android:background="@drawable/abc_ab_solid_dark_holo"
+                    android:background="@drawable/semi_black"
                     android:padding="10dp"
                     android:rowCount="4"
                     >

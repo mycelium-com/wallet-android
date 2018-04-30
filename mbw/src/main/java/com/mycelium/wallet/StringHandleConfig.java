@@ -61,6 +61,7 @@ import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
+import com.mycelium.wapi.wallet.single.SingleAddressBCHAccount;
 
 import java.io.Serializable;
 import java.util.List;
@@ -208,8 +209,8 @@ public class StringHandleConfig implements Serializable {
             UUID account = MbwManager.getInstance(handlerActivity).createOnTheFlyAccount(key.get());
             //we dont know yet where at what to send
             BitcoinUri uri = new BitcoinUri(null,null,null);
-            SendInitializationActivity.callMe(handlerActivity, account,uri, true);
-            handlerActivity.finishOk();
+            SendInitializationActivity.callMeWithResult(handlerActivity, account,uri, true,
+                    StringHandlerActivity.SEND_INITIALIZATION_CODE);
             return true;
          }
 
@@ -243,6 +244,7 @@ public class StringHandleConfig implements Serializable {
             MbwManager mbwManager = MbwManager.getInstance(handlerActivity);
             // Calculate the account ID that this key would have
             UUID account = SingleAddressAccount.calculateId(key.get().getPublicKey().toAddress(mbwManager.getNetwork()));
+            UUID bchAccount = SingleAddressBCHAccount.calculateId(key.get().getPublicKey().toAddress(mbwManager.getNetwork()));
             // Check whether regular wallet contains the account
             boolean success = mbwManager.getWalletManager(false).hasAccount(account)
                     || mbwManager.getColuManager().hasAccount(account);
@@ -254,6 +256,7 @@ public class StringHandleConfig implements Serializable {
             if (success) {
                // Mark key as verified
                mbwManager.getMetadataStorage().setOtherAccountBackupState(account, MetadataStorage.BackupState.VERIFIED);
+               mbwManager.getMetadataStorage().setOtherAccountBackupState(bchAccount, MetadataStorage.BackupState.VERIFIED);
                for (ColuAccount.ColuAsset coluAsset : ColuAccount.ColuAsset.getAssetMap().values()) {
                   UUID coluUUID = ColuAccount.getGuidForAsset(coluAsset, key.get().getPublicKey().toAddress(mbwManager.getNetwork()).getAllAddressBytes());
                   mbwManager.getMetadataStorage().setOtherAccountBackupState(coluUUID, MetadataStorage.BackupState.VERIFIED);
@@ -271,7 +274,7 @@ public class StringHandleConfig implements Serializable {
          }
       };
 
-      static private Optional<InMemoryPrivateKey> getPrivateKey(NetworkParameters network, String content) {
+      static public Optional<InMemoryPrivateKey> getPrivateKey(NetworkParameters network, String content) {
          Optional<InMemoryPrivateKey> key = InMemoryPrivateKey.fromBase58String(content, network);
          if (key.isPresent()) return key;
          key = InMemoryPrivateKey.fromBase58MiniFormat(content, network);
@@ -313,8 +316,8 @@ public class StringHandleConfig implements Serializable {
                UUID acc = tempWalletManager.createUnrelatedBip44Account(hdKey);
                tempWalletManager.setActiveAccount(acc);
                BitcoinUri uri = new BitcoinUri(null,null,null);
-               SendInitializationActivity.callMe(handlerActivity, acc, uri, true);
-               handlerActivity.finishOk();
+               SendInitializationActivity.callMeWithResult(handlerActivity, acc, uri, true,
+                       StringHandlerActivity.SEND_INITIALIZATION_CODE);
                return true;
             } catch (HdKeyNode.KeyGenerationException ex){
                return false;
@@ -410,8 +413,8 @@ public class StringHandleConfig implements Serializable {
             UUID account = MbwManager.getInstance(handlerActivity).createOnTheFlyAccount(address.get());
             //we dont know yet where at what to send
             BitcoinUri uri = new BitcoinUri(null,null,null);
-            SendInitializationActivity.callMe(handlerActivity, account, uri, true);
-            handlerActivity.finishOk();
+            SendInitializationActivity.callMeWithResult(handlerActivity, account, uri, true,
+                    StringHandlerActivity.SEND_INITIALIZATION_CODE);
             return true;
          }
 
@@ -619,8 +622,8 @@ public class StringHandleConfig implements Serializable {
                UUID account = MbwManager.getInstance(handlerActivity).createOnTheFlyAccount(uri.get().address);
                //we dont know yet where at what to send
                BitcoinUri targeturi = new BitcoinUri(null,null,null);
-               SendInitializationActivity.callMe(handlerActivity, account, targeturi, true);
-               handlerActivity.finishOk();
+               SendInitializationActivity.callMeWithResult(handlerActivity, account, targeturi, true,
+                       StringHandlerActivity.SEND_INITIALIZATION_CODE);
             }
             return true;
          }

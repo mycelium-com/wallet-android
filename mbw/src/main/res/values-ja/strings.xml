@@ -117,7 +117,7 @@
   <string name="backup_legacy_warning">あなたのウォレットにある単一アドレスのアカウントのみがバックアップされます。\nこのバックアップにはマスターシードが含まれていないため、HDアカウントの復元はできません！\n\nご了承の上、続けますか？</string>
   <string name="export_to_clipboard_warning">注意：クリップボードに秘密鍵をコピーすると、他のアプリに安易に読み取られてしまいます。\n\n備考：クリップボードにコピーするだけでは秘密鍵のバックアップが不十分です。安全な場所に貼り付けて保存しなければいけません。\n\n続けますか？</string>
   <string name="found_clipboard_private_key_title">クリップボードに秘密鍵を見つけました。</string>
-  <string name="found_clipboard_private_keys_message">クリップボードに秘密鍵がコピーされています。\r\nクリップボードから削除しますか？</string>
+  <string name="found_clipboard_private_keys_message">クリップボードに秘密鍵がコピーされています。\nクリップボードから削除しますか？</string>
   <string name="exchange_source_not_available">%1$s の為替レートが不明</string>
   <string name="my_own_address_warning">メモ：送金先にご自身のアドレスが入っています。</string>
   <string name="read_only_warning">注意：あなたの財布にはこのアドレスを解除する秘密鍵がありません。\nこのアドレスのビットコインを送るには秘密鍵を入力する必要があります。</string>
@@ -137,7 +137,7 @@
   <string name="active_accounts_empty">（真空）</string>
   <string name="activate_action">有効にする</string>
   <string name="archive_action">アドレスをアーカイブへ</string>
-  <string name="question_archive_account">アーカイブされたアカウントは監視されておらず、残高と受け取りアドレスが見えないため、このアカウントでは何も行えません。\r\n\r\nアーカイブされたアカウントは再度アクティブにすることができます。\r\n\r\nこのアカウントをアーカイブしますか？</string>
+  <string name="question_archive_account">アーカイブされたアカウントは監視されておらず、残高と受け取りアドレスが見えないため、このアカウントでは何も行えません。\n\nアーカイブされたアカウントは再度アクティブにすることができます。\n\nこのアカウントをアーカイブしますか？</string>
   <string name="master_seed_configuration_title">ようこそ！</string>
   <string name="master_seed_configuration_description">バックアップを復元しますか？または新しいウォレットを作成しますか？</string>
   <string name="master_seed_create_new_button">新規作成</string>
@@ -180,7 +180,6 @@
   <string name="verify_backup_master_seed">あなたのマスターシードは確認されていません。</string>
   <string name="verify_backup_no_such_record">この秘密キーはいずれのビットコインアドレスとも一致しません。</string>
   <string name="verify_backup_ok">次のアドレスについて秘密キーのバックアップが正常に確認されました：\n\n%1$s</string>
-  <string name="legacy_account_with_funds">残高のあるレガシーアカウント</string>
   <string name="wrong_seed">スキャンされたシードはあなたのマスターシードに一致しません。</string>
   <string name="backup_missing">バックアップが見つかりません。</string>
   <string name="verify_backup_title">バックアップと確認</string>
@@ -196,7 +195,7 @@
   <string name="encrypted_pdf_backup_document_ready">PDF文書が作成されました</string>
   <string name="encrypted_pdf_backup_sharing">PDF文書を共有しています&#8230;</string>
   <string name="encrypted_pdf_backup_email_title">Myceliumウォレットのバックアップ</string>
-  <string name="encrypted_pdf_backup_email_text">Myceliumウォレットのバックアップが添付されています。\r\n\r\n以下のシンプルなステップを行い資金を安全に保管して下さい：\r\n1. PDF文書を印刷する\r\n2. アンドロイドデバイスに表示されている15文字のパスワードを印刷した文書の青いボックスに書き留める\r\n3. 秘密キーを自分のMuseliumウォレットにインポートできることを確認する\r\n4. 印刷した文書を安全な場所に保管する</string>
+  <string name="encrypted_pdf_backup_email_text">Myceliumウォレットのバックアップが添付されています。\n\n以下のシンプルなステップを行い資金を安全に保管して下さい：\n1. PDF文書を印刷する\n2. アンドロイドデバイスに表示されている15文字のパスワードを印刷した文書の青いボックスに書き留める\n3. 秘密キーを自分のMuseliumウォレットにインポートできることを確認する\n4. 印刷した文書を安全な場所に保管する</string>
   <string name="share_pdf">PDFの共有</string>
   <string name="share_with">共有する</string>
   <string name="import_decrypt_key_title">秘密キーの復号化</string>
@@ -220,9 +219,6 @@
   <string name="unlock_label">ロック解除</string>
   <string name="lock_label">ロック</string>
   <string name="secure_my_funds">私の残高を安全に管理</string>
-  <string name="move_legacy_funds_message">あなたのウォレットには１つあるいは複数の、残高があるレガシーアカウントが
-あります。\n\nあなたの残高の安全性と匿名性を高めるために、それらを階層的決定性ア
-カウントのひとつに移動させて下さい。\n\n詳細をアカウントタブでご覧下さい。</string>
   <string name="ignore_warnings_title">警告を無視</string>
   <string name="ignore_warnings_description">レガシーアカウントにお金があることについての警告を無視し、秘密鍵の安全なバックアップをとりますか？</string>
   <string name="explore">ビットコインが使える場所を探す</string>

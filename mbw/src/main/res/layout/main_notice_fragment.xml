@@ -4,23 +4,66 @@
               android:layout_height="wrap_content"
               android:orientation="vertical" >
 
-    <TextView
-            android:id="@+id/btBackupMissing"
-            style="@style/MyceliumButton"
+    <LinearLayout
+        android:id="@+id/backup_missing_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/sender_recyclerview_background_red"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="8dp">
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/tvBackupMissing"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/single_address_backup_missing"
+                android:textSize="13dp" />
+            <CheckBox
+                android:id="@+id/cbRisks"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/i_understand_the_risks"/>
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="10dp"
-            android:drawableLeft="@drawable/holo_dark_ic_action_warning_yellow"
-            android:gravity="center_vertical"
-            android:paddingBottom="7dp"
-            android:paddingLeft="5dp"
-            android:paddingRight="7dp"
-            android:paddingTop="8dp"
-            android:text="@string/secure_my_funds"
-            android:textSize="16sp"
-            android:visibility="gone"
-            />
+            android:layout_marginLeft="4dp"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/btnFirst"
+                style="@style/MyceliumButtonModern"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/background_backup"
+                android:clickable="false"
+                android:paddingBottom="8dp"
+                android:paddingTop="8dp"
+                android:text="@string/verify"
+                android:textColor="@color/white" />
+
+            <Button
+                android:id="@+id/btnSecond"
+                style="@style/MyceliumButtonModern"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/background_backup"
+                android:clickable="false"
+                android:paddingBottom="8dp"
+                android:paddingTop="8dp"
+                android:layout_marginTop="8dp"
+                android:text="@string/backup"
+                android:textColor="@color/white" />
+        </LinearLayout>
+
+    </LinearLayout>
+
 
     <Button
             android:id="@+id/btWarning"

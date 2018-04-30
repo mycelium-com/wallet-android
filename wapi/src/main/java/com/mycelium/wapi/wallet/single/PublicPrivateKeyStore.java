@@ -50,7 +50,7 @@ public class PublicPrivateKeyStore {
    }
 
    public InMemoryPrivateKey getPrivateKey(Address address, KeyCipher cipher) throws KeyCipher.InvalidKeyCipher {
-      byte[] pri = _secureStorage.getEncryptedValue(address.getAllAddressBytes(), cipher);
+      byte[] pri = _secureStorage.getDecryptedValue(address.getAllAddressBytes(), cipher);
       byte[] pub = _secureStorage.getPlaintextValue(address.getAllAddressBytes());
       if (pri == null || pub == null) {
          return null;

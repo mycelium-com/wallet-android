@@ -163,12 +163,20 @@
                         android:text="@string/buy_one"/>
             </LinearLayout>
 
-            <TextView
-                android:layout_marginTop="20dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="@string/new_random_key_desc"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:gravity="center"
+            android:textSize="18sp"
+            android:text="@string/single_address_account" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:gravity="center"
+            android:text="@string/new_random_key_desc" />
 
         <Button
                 android:id="@+id/btGenerateNewSingleKey"
@@ -178,8 +186,19 @@
                 android:layout_marginTop="5dp"
                 android:paddingLeft="30dp"
                 android:paddingRight="30dp"
-                android:layout_marginBottom="30dp"
+                android:layout_marginBottom="@dimen/margin_medium"
                 android:text="@string/generate_new_key"/>
+
+        <Button
+                android:id="@+id/btGenerateNewBchSingleKey"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_marginTop="@dimen/margin_medium"
+                android:paddingLeft="30dp"
+                android:paddingRight="30dp"
+                android:layout_marginBottom="30dp"
+                android:text="@string/generate_new_bch_key"/>
     </LinearLayout>
 
 </ScrollView>
