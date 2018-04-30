@@ -344,14 +344,25 @@ public class TransactionHistoryFragment extends Fragment {
                   }
 
                   private void updateActionBar(ActionMode actionMode, Menu menu) {
-                     checkNotNull(menu.findItem(R.id.miAddToAddressBook)).setVisible(record.hasAddressBook());
-                     checkNotNull(menu.findItem(R.id.miCancelTransaction)).setVisible(record.canCancel());
                      checkNotNull(menu.findItem(R.id.miShowDetails)).setVisible(record.hasDetails());
                      checkNotNull(menu.findItem(R.id.miShowCoinapultDebug)).setVisible(record.canCoinapult());
-                     checkNotNull(menu.findItem(R.id.miRebroadcastTransaction)).setVisible((record.confirmations == 0) && !record.canCoinapult());
+                     checkNotNull(menu.findItem(R.id.miAddToAddressBook)).setVisible(record.hasAddressBook());
+                     if((_mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHBIP44
+                         || _mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHSINGLEADDRESS)) {
+                       checkNotNull(menu.findItem(R.id.miCancelTransaction)).setVisible(false);
+                       checkNotNull(menu.findItem(R.id.miRebroadcastTransaction)).setVisible(false);
+                       checkNotNull(menu.findItem(R.id.miBumpFee)).setVisible(false);
+                       checkNotNull(menu.findItem(R.id.miDeleteUnconfirmedTransaction)).setVisible(false);
+                     } else {
+                       checkNotNull(menu.findItem(R.id.miCancelTransaction)).setVisible(record.canCancel());
+                       checkNotNull(menu.findItem(R.id.miRebroadcastTransaction))
+                           .setVisible((record.confirmations == 0) && !record.canCoinapult());
+                       checkNotNull(menu.findItem(R.id.miBumpFee))
+                           .setVisible((record.confirmations == 0) && !record.canCoinapult());
+                       checkNotNull(menu.findItem(R.id.miDeleteUnconfirmedTransaction))
+                           .setVisible(record.confirmations == 0);
+                     }
                      checkNotNull(menu.findItem(R.id.miShare)).setVisible(!record.canCoinapult());
-                     checkNotNull(menu.findItem(R.id.miBumpFee)).setVisible((record.confirmations == 0) && !record.canCoinapult());
-                     checkNotNull(menu.findItem(R.id.miDeleteUnconfirmedTransaction)).setVisible(record.confirmations == 0);
                      currentActionMode = actionMode;
                      ((ListView) _root.findViewById(R.id.lvTransactionHistory)).setItemChecked(position, true);
                   }
