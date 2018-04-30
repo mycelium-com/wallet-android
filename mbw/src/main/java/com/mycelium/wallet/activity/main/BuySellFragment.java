@@ -56,6 +56,7 @@ import com.mycelium.wallet.activity.main.adapter.ButtonAdapter;
 import com.mycelium.wallet.activity.main.model.ActionButton;
 import com.mycelium.wallet.activity.settings.SettingsPreference;
 import com.mycelium.wallet.activity.util.CenterLayoutManager;
+import com.mycelium.wallet.event.PageSelectedEvent;
 import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.external.BuySellSelectActivity;
 import com.mycelium.wallet.external.BuySellServiceDescriptor;
@@ -213,5 +214,12 @@ public class BuySellFragment extends Fragment {
     @Subscribe
     public void selectedAccountChanged(SelectedAccountChanged event) {
         recreateActions();
+    }
+
+    @Subscribe
+    public void pageSelectedEvent(PageSelectedEvent event) {
+        if(event.position == 1) {
+            recreateActions();
+        }
     }
 }
