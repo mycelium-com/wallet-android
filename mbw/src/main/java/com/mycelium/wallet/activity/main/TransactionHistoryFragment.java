@@ -353,6 +353,7 @@ public class TransactionHistoryFragment extends Fragment {
                        checkNotNull(menu.findItem(R.id.miRebroadcastTransaction)).setVisible(false);
                        checkNotNull(menu.findItem(R.id.miBumpFee)).setVisible(false);
                        checkNotNull(menu.findItem(R.id.miDeleteUnconfirmedTransaction)).setVisible(false);
+                       checkNotNull(menu.findItem(R.id.miShare)).setVisible(false);
                      } else {
                        checkNotNull(menu.findItem(R.id.miCancelTransaction)).setVisible(record.canCancel());
                        checkNotNull(menu.findItem(R.id.miRebroadcastTransaction))
@@ -361,8 +362,9 @@ public class TransactionHistoryFragment extends Fragment {
                            .setVisible((record.confirmations == 0) && !record.canCoinapult());
                        checkNotNull(menu.findItem(R.id.miDeleteUnconfirmedTransaction))
                            .setVisible(record.confirmations == 0);
+                       checkNotNull(menu.findItem(R.id.miShare)).setVisible(!record.canCoinapult());
+
                      }
-                     checkNotNull(menu.findItem(R.id.miShare)).setVisible(!record.canCoinapult());
                      currentActionMode = actionMode;
                      ((ListView) _root.findViewById(R.id.lvTransactionHistory)).setItemChecked(position, true);
                   }
@@ -519,10 +521,12 @@ public class TransactionHistoryFragment extends Fragment {
                                          if(_mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHBIP44
                                              || _mbwManager.getSelectedAccount().getType()
                                              == WalletAccount.Type.BCHSINGLEADDRESS) {
+                                            //TODO Module should provide full bytes of transaction.
                                             transaction = HexUtils.toHex(_mbwManager.getSpvBchFetcher()
                                                 .retrieveTransactionSummary(record.txid).txid.getBytes());
                                          } else {
-                                            transaction = HexUtils.toHex(_mbwManager.getSelectedAccount()
+                                            transaction = HexUtils.toHex(_mbwManager
+                                                .getSelectedAccount()
                                                 .getTransaction(record.txid).binary);
                                          }
 
