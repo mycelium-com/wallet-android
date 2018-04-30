@@ -545,7 +545,7 @@ public class SettingsActivity extends PreferenceActivity {
                preference.setEnabled(false, true, true);
             } else if (Utils.isAppInstalled(this, module.getModulePackage())) {
                final ButtonPreference preference = createUninstallableModulePreference(module);
-               preference.setEnabled(true);
+               preference.setEnabled(false);
                preference.setButtonEnabled(true);
                modulesPrefs.addPreference(preference);
             } else {
