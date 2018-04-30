@@ -116,6 +116,7 @@ public class BuySellFragment extends Fragment {
                         startExchange(new Intent(getActivity(), ExchangeActivity.class));
                     }
                 }));
+                scrollTo = AddMyDfs(actions, scrollTo);
                 break;
             default:
                 actions.add(new ActionButton(getString(R.string.exchange_altcoins_to_btc), new Runnable() {
@@ -124,18 +125,7 @@ public class BuySellFragment extends Fragment {
                         startExchange(new Intent(getActivity(), ChangellyActivity.class));
                     }
                 }));
-                if (SettingsPreference.getInstance().isMyDFSEnabled()) {
-                    ActionButton actionButton = new ActionButton(getString(R.string.buy_mydfs_token), R.drawable.ic_stars_black_18px, new Runnable() {
-                        @Override
-                        public void run() {
-                            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://mydfs.net/?ref=mycelium")));
-                        }
-                    });
-                    actionButton.textColor = getResources().getColor(R.color.white);
-                    actions.add(actionButton);
-                    scrollTo = 1;
-                }
-
+                scrollTo = AddMyDfs(actions, scrollTo);
                 if (showButton) {
                     actions.add(new ActionButton(getString(R.string.gd_buy_sell_button), new Runnable() {
                         @Override
@@ -150,6 +140,21 @@ public class BuySellFragment extends Fragment {
         if (scrollTo != 0) {
             recyclerView.postDelayed(new ScrollToRunner(scrollTo), 500);
         }
+    }
+
+    private int AddMyDfs(List<ActionButton> actions, int scrollTo) {
+        if (SettingsPreference.getInstance().isMyDFSEnabled()) {
+            ActionButton actionButton = new ActionButton(getString(R.string.buy_mydfs_token), R.drawable.ic_stars_black_18px, new Runnable() {
+                @Override
+                public void run() {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://mydfs.net/?ref=mycelium")));
+                }
+            });
+            actionButton.textColor = getResources().getColor(R.color.white);
+            actions.add(actionButton);
+            scrollTo = actions.size() - 1;
+        }
+        return scrollTo;
     }
 
     class ScrollToRunner implements Runnable {
