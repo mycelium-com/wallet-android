@@ -1155,13 +1155,11 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="digital_assets_retrieve">Retrieving digital assets</string>
     <string name="attention">Attention!</string>
     <string name="coco_scan_warning">You are about to retrieve Colored Coin based digital assets from BIP32 private key.  For that you must have an active network connection!</string>
-    <string name="try_again">Try again</string>
     <string name="connection_unavailable">We are unable to connect co Colored Coins service. Please check your network connection and try again or come back later.</string>
     <string name="scan_completed">Scan completed</string>
     <string name="d_coco_created">Digital Assets found:\n%d corresponding Single Address accounts has been created.</string>
     <string name="settings_mydfs_title">Enable MYDFS TOKEN</string>
     <string name="settings_mydfs_summary">Show MYDFS token buy option</string>
-    <string name="exchange_service_unavailable">Exchange service is temporarily unavailable.\nPlease try again later.</string>
     <string name="buy_mydfs_token">BUY MYDFS TOKEN</string>
     <string name="scaning_complete_found"><![CDATA[Bitcoin <font color="#f08c18">Cash</font> has been found!]]></string>
     <string name="scaning_complete_not_found"><![CDATA[Bitcoin <font color="#f08c18">Cash</font> has not been found!]]></string>
