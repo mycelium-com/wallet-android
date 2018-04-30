@@ -42,6 +42,7 @@ import com.mycelium.wapi.wallet.bip44.Bip44AccountContext;
 import com.mycelium.wapi.wallet.bip44.Bip44AccountExternalSignature;
 import com.mycelium.wapi.wallet.bip44.Bip44AccountKeyManager;
 import com.mycelium.wapi.wallet.bip44.Bip44BCHAccount;
+import com.mycelium.wapi.wallet.bip44.Bip44BCHPubOnlyAccount;
 import com.mycelium.wapi.wallet.bip44.Bip44PubOnlyAccount;
 import com.mycelium.wapi.wallet.bip44.Bip44PubOnlyAccountKeyManager;
 import com.mycelium.wapi.wallet.bip44.ExternalSignatureProvider;
@@ -298,7 +299,12 @@ public class WalletManager {
                     _walletAccounts.put(id, account);
                 }
                 if (_spvBalanceFetcher != null) {
-                    Bip44BCHAccount bip44BCHAccount = new Bip44BCHAccount(context, keyManager, _network, accountBacking, _wapi, _spvBalanceFetcher);
+                    Bip44BCHAccount bip44BCHAccount;
+                    if (hdKeyNode.isPrivateHdKeyNode()) {
+                        bip44BCHAccount = new Bip44BCHAccount(context, keyManager, _network, accountBacking, _wapi, _spvBalanceFetcher);
+                    } else {
+                        bip44BCHAccount = new Bip44BCHPubOnlyAccount(context, keyManager, _network, accountBacking, _wapi, _spvBalanceFetcher);
+                    }
                     addAccount(bip44BCHAccount);
                     _btcToBchAccounts.put(account.getId(), bip44BCHAccount.getId());
                     _spvBalanceFetcher.requestTransactionsFromUnrelatedAccountAsync(bip44BCHAccount.getId().toString(), /* IntentContract.UNRELATED_ACCOUNT_TYPE_HD */ 1);
@@ -772,7 +778,16 @@ public class WalletManager {
             _bip44Accounts.add(account);
 
             if (_spvBalanceFetcher != null) {
-                Bip44BCHAccount bchAccount = new Bip44BCHAccount(context, keyManager, _network, accountBacking, _wapi, _spvBalanceFetcher);
+                Bip44BCHAccount bchAccount;
+
+                switch (context.getAccountType()) {
+                    case ACCOUNT_TYPE_UNRELATED_X_PUB:
+                        bchAccount = new Bip44BCHPubOnlyAccount(context, keyManager, _network, accountBacking, _wapi, _spvBalanceFetcher);
+                        break;
+                    default:
+                        bchAccount = new Bip44BCHAccount(context, keyManager, _network, accountBacking, _wapi, _spvBalanceFetcher);
+                }
+
                 addAccount(bchAccount);
                 _btcToBchAccounts.put(account.getId(), bchAccount.getId());
 
