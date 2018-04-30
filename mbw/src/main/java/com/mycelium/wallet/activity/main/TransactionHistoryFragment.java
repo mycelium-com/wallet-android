@@ -504,7 +504,17 @@ public class TransactionHistoryFragment extends Fragment {
                                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                                       @Override
                                       public void onClick(DialogInterface dialog, int which) {
-                                         String transaction = HexUtils.toHex(_mbwManager.getSelectedAccount().getTransaction(record.txid).binary);
+                                         String transaction;
+                                         if(_mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHBIP44
+                                             || _mbwManager.getSelectedAccount().getType()
+                                             == WalletAccount.Type.BCHSINGLEADDRESS) {
+                                            transaction = HexUtils.toHex(_mbwManager.getSpvBchFetcher()
+                                                .retrieveTransactionSummary(record.txid).txid.getBytes());
+                                         } else {
+                                            transaction = HexUtils.toHex(_mbwManager.getSelectedAccount()
+                                                .getTransaction(record.txid).binary);
+                                         }
+
                                          Intent shareIntent = new Intent(Intent.ACTION_SEND);
                                          shareIntent.setType("text/plain");
                                          shareIntent.putExtra(Intent.EXTRA_TEXT, transaction);

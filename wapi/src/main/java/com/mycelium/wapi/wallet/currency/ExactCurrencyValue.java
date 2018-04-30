@@ -42,7 +42,7 @@ public abstract class ExactCurrencyValue extends CurrencyValue {
       if (currency.equals(CurrencyValue.BTC)) {
          return new ExactBitcoinValue(value);
       } else if(currency.equals(CurrencyValue.BCH)) {
-         return new ExactBitcoinCashValue(value);
+         return ExactBitcoinCashValue.from(value.longValue());
       } else {
          return new ExactFiatValue(value, currency);
       }

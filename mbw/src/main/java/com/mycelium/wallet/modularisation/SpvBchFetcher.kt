@@ -159,7 +159,7 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
         val selection: String
         val account = _mbwManager.getSelectedAccount()
         val selectionArgs: Array<String>
-        if (account.getType() == WalletAccount.Type.BCHSINGLEADDRESS || account.getType() == WalletAccount.Type.BCHBIP44) {
+        if (account.getType() == WalletAccount.Type.BCHSINGLEADDRESS) {
             val accountId = account.getId()
             selectionArgs = arrayOf(accountId.toString())
             selection = TransactionContract.TransactionSummary.SELECTION_SINGLE_ADDRESS_ACCOUNT_GUID
