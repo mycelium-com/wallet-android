@@ -117,7 +117,6 @@ public class BuySellFragment extends Fragment {
                         startExchange(new Intent(getActivity(), ExchangeActivity.class));
                     }
                 }));
-                scrollTo = addMyDfs(actions, scrollTo);
                 break;
             default:
                 actions.add(new ActionButton(getString(R.string.exchange_altcoins_to_btc), new Runnable() {
