@@ -23,7 +23,7 @@ public class ModularisationVersionHelper {
     private static final String UPDATE_REQUIRED = "update_required";
 
     /**
-     * Shows one AlertDialog per module that runs under a different SpvApiVersion, advising to upgrade the lower between wallet and module.
+     * Shows one AlertDialog per module that runs under a different otherModuleApiVersion, advising to upgrade the lower between wallet and module.
      */
     public static void notifyWrongModuleVersion(final Activity parent) {
         final SharedPreferences sharedPreferences = parent.getSharedPreferences(MODULE_PREFS, MODE_PRIVATE);
@@ -33,7 +33,7 @@ public class ModularisationVersionHelper {
             Module module = GooglePlayModuleCollection.getModuleByPackage(parent, moduleVersionError.moduleId);
             Module wallet = new Module(BuildConfig.APPLICATION_ID, "<b>Mycelium Wallet</b>", "<b>Mycelium Wallet</b>", "");
             final Module needsUpdate;
-            if (moduleVersionError.expected > com.mycelium.spvmodulecontract.BuildConfig.SpvApiVersion) {
+            if (moduleVersionError.expected > com.mycelium.modularizationtools.BuildConfig.ModuleApiVersion) {
                 needsUpdate = wallet;
             } else {
                 needsUpdate = module;
