@@ -10,7 +10,7 @@ so you are eligible for testing
 
 As Beta Testers, please make sure you have a recent **backup of the masterseed** and
 all **private keys** inside Mycelium. Beta testers will experience many bugs.
-So far, restoring the wallet from masterseed has never been necessary, but we offer no guarantees.
+So far, restoring the wallet from masterseed has never been necessary, but we offer **no guarantees**.
 
 Building
 ========
@@ -67,7 +67,7 @@ Deterministic builds
 To validate the Mycelium image you obtain from Google Play Store, you can rebuild the Mycelium wallet yourself using
 Docker and compare both images following these steps:
  
-* Create your own Doker image
+* Create your own Docker image
 
         $ docker build . --tag mycelium-wallet .
 
@@ -180,4 +180,4 @@ Thanks to our numerous volunteer translators who provide high-quality translatio
 
 Thanks to Johannes Zweng for his testing and providing pull requests for fixes.
 
-Thanks to all beta testers to provide early feedback.
+Thanks to all beta testers for providing early feedback.
