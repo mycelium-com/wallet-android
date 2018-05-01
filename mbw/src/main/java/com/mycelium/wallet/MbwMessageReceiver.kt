@@ -19,6 +19,7 @@ import com.mycelium.wallet.activity.modern.ModernMain
 import com.mycelium.wallet.event.SpvSendFundsResult
 import com.mycelium.wallet.event.SpvSyncChanged
 import com.mycelium.wapi.wallet.AesKeyCipher
+import com.mycelium.wapi.wallet.ExportableAccount
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.WalletAccount.Type.BCHBIP44
 import com.mycelium.wapi.wallet.WalletAccount.Type.BCHSINGLEADDRESS
@@ -144,15 +145,23 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
 
                 when(accountType) {
                     IntentContract.UNRELATED_ACCOUNT_TYPE_HD -> {
-                        val account =_mbwManager.getWalletManager(false).getAccount(UUID.fromString(accountGuid)) as? Bip44Account
+                        val account: WalletAccount =_mbwManager.getWalletManager(false).getAccount(UUID.fromString(accountGuid))
                             //This is a way to not to pass information that this is a cold storage to BCH module and back
-                            ?: _mbwManager.getWalletManager(true).getAccount(UUID.fromString(accountGuid)) as Bip44Account
+                            ?: _mbwManager.getWalletManager(true).getAccount(UUID.fromString(accountGuid))
 
                         //Unrelated HD key
-                        val publicKeyB58 = account.getExportData(AesKeyCipher.defaultKeyCipher()).publicData.get()
-                        val service = IntentContract.SendUnrelatedPublicKeyToSPV.createIntent(accountGuid,
-                                publicKeyB58, accountType)
-                        WalletApplication.sendToSpv(service, BCHBIP44)
+                        if(account !is ExportableAccount) {
+                            Log.e(TAG, "Can't handle account ${_mbwManager.metadataStorage.getLabelByAccount(account.id)}")
+                            return
+                        }
+                        try {
+                            val publicKeyB58 = account.getExportData(AesKeyCipher.defaultKeyCipher()).publicData.get()
+                            val service = IntentContract.SendUnrelatedPublicKeyToSPV.createIntent(accountGuid,
+                                    publicKeyB58, accountType)
+                            WalletApplication.sendToSpv(service, BCHBIP44)
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Still can't handle account ${_mbwManager.metadataStorage.getLabelByAccount(account.id)}")
+                        }
                     }
                     IntentContract.UNRELATED_ACCOUNT_TYPE_SA -> {
                         Log.d(TAG, "com.mycelium.wallet.requestSingleAddressPrivateKeyToMBW, guid = $accountGuid")
