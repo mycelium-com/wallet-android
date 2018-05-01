@@ -86,7 +86,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                             it!!.blockChainHeight = bestChainHeight
                         }
                 // Defines a Handler object that's attached to the UI thread
-                Handler(Looper.getMainLooper()).post {
+                Handler(context.mainLooper).post {
                     eventBus.post(SpvSyncChanged(module, Date(bestChainDate), bestChainHeight.toLong(), chainDownloadPercentDone))
                 }
             }
