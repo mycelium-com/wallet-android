@@ -29,6 +29,9 @@ import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
  */
 
 public class SimplexMainActivity extends Activity {
+    private static final int ERROR_CONTACTING_SERVER = 0x101;
+    private static final int ERROR_INVALID_PACKAGE_NAME = 0x102;
+    private static final int ERROR_NON_MATCHING_UID = 0x103;
 
     //the event bus entities
     private static final Bus _eventBus = new Bus(ThreadEnforcer.ANY, "Simplex");
@@ -125,17 +128,23 @@ public class SimplexMainActivity extends Activity {
     }
 
     private void redirectWebView(String siteUrl, int responseCode, String signedData, String signature) {
-        Log.d("Simplex", "RedirectWebView...");
-        String fullSiteUrl = String.format("%s?nonce=%s&wallet_address=%s&lvlcode=%s&lvlsignedData=%s&signature=%s", siteUrl, _simplexNonce.simplexNonce, _walletAddress, responseCode, signedData, signature);
-        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(fullSiteUrl));
-        Log.d("webview post nonce", String.valueOf(_simplexNonce.simplexNonce));
-        Log.d("webview post wallet", _walletAddress);
-        Log.d("webview post lvlCode", String.valueOf(responseCode));
-        Log.d("webview post signedData", signedData);
-        Log.d("webview post signature", signature);
-        setLayout(SimplexUITypes.WebView);
-        startActivity(browserIntent);
-
+        if (responseCode != ERROR_CONTACTING_SERVER && responseCode != ERROR_INVALID_PACKAGE_NAME && responseCode != ERROR_NON_MATCHING_UID) {
+            Log.d("Simplex", "RedirectWebView...");
+            String fullSiteUrl = String.format("%s?nonce=%s&wallet_address=%s&lvlcode=%s&lvlsignedData=%s&signature=%s", siteUrl, _simplexNonce.simplexNonce, _walletAddress, responseCode, signedData, signature);
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(fullSiteUrl));
+            Log.d("webview post nonce", String.valueOf(_simplexNonce.simplexNonce));
+            Log.d("webview post wallet", _walletAddress);
+            Log.d("webview post lvlCode", String.valueOf(responseCode));
+            Log.d("webview post signedData", signedData);
+            Log.d("webview post signature", signature);
+            setLayout(SimplexUITypes.WebView);
+            startActivity(browserIntent);
+        } else {
+            SimplexError error = new SimplexError();
+            error.activityHandler = new Handler(this.getMainLooper());
+            error.message = "Unable to verify application signature.";
+            displayError(error);
+        }
     }
 
     /** Simplex App Auth logic End **/
