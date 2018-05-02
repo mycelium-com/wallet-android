@@ -272,8 +272,10 @@
         <item name="android:textAllCaps">true</item>
         <item name="android:background">@drawable/background_action_btn</item>
         <item name="android:textColor">@color/btn_text_color</item>
-        <item name="android:paddingStart">24dp</item>
-        <item name="android:paddingEnd">24dp</item>
+        <item name="android:paddingLeft">@dimen/button_padding_large</item>
+        <item name="android:paddingRight">@dimen/button_padding_large</item>
+        <item name="android:paddingStart">@dimen/button_padding_large</item>
+        <item name="android:paddingEnd">@dimen/button_padding_large</item>
     </style>
 
     <color name="btn_text_color">#5aa7e6</color>

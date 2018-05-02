@@ -706,6 +706,7 @@ public class SettingsActivity extends PreferenceActivity {
       cbService.setTitle(R.string.settings_mydfs_title);
       cbService.setSummary(R.string.settings_mydfs_summary);
       cbService.setChecked(SettingsPreference.getInstance().isMyDFSEnabled());
+      cbService.setWidgetLayoutResource(R.layout.preference_checkbox);
       cbService.setOnPreferenceClickListener(new OnPreferenceClickListener() {
          @Override
          public boolean onPreferenceClick(Preference preference) {

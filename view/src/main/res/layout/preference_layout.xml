@@ -50,7 +50,7 @@
                 android:layout_alignLeft="@android:id/title"
                 android:layout_below="@android:id/title"
                 android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="?android:attr/textColorSecondary" />
+                android:textColor="#b8bcbf" />
     </RelativeLayout>
 
     <!-- Preference should place its actual preference widget here. -->
