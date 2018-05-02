@@ -107,7 +107,7 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         AccountManager am = AccountManager.INSTANCE;
 
         addGroup(R.string.active_hd_accounts_name, GROUP_TITLE_TYPE, am.getBTCBip44Accounts().values());
-        addGroup("Bitcoin SA", GROUP_TITLE_TYPE, am.getBTCSingleAddressAccounts().values());
+        addGroup(context.getString(R.string.active_bitcoin_sa_group_name), GROUP_TITLE_TYPE, am.getBTCSingleAddressAccounts().values());
         addGroup(R.string.bitcoin_cash_hd, GROUP_TITLE_TYPE, am.getBCHBip44Accounts().values());
         addGroup(R.string.bitcoin_cash_sa, GROUP_TITLE_TYPE, am.getBCHSingleAddressAccounts().values());
 
@@ -252,6 +252,7 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     updateData();
                 }
             });
+            groupHolder.expandIcon.setRotation(pagePrefs.getBoolean(item.title, true) ? 180 : 0);
         } else if (viewType == TOTAL_BALANCE_TYPE) {
             TotalViewHolder totalHolder = (TotalViewHolder) holder;
             CurrencySum sum = getSpendableBalance(item.walletAccountList);
