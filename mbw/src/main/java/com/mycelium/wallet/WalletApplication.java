@@ -41,6 +41,7 @@ import android.content.res.Configuration;
 import android.os.StrictMode;
 import android.support.annotation.NonNull;
 import android.support.multidex.MultiDexApplication;
+import android.support.v7.app.AppCompatDelegate;
 import android.util.Log;
 
 import com.mycelium.modularizationtools.CommunicationManager;
@@ -57,13 +58,15 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import com.mycelium.wallet.activity.settings.SettingsPreference;
-
 public class WalletApplication extends MultiDexApplication implements ModuleMessageReceiver {
     private ModuleMessageReceiver moduleMessageReceiver;
     private static WalletApplication INSTANCE;
 
     private static Map<WalletAccount.Type, String> spvModulesMapping = initTrustedSpvModulesMapping();
+
+    static {
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
+    }
 
     public static WalletApplication getInstance() {
         if (INSTANCE == null) {
