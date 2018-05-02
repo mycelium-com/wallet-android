@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:tools="http://schemas.android.com/tools"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:padding="10dp"
-        >
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:padding="10dp">
 
     <LinearLayout
             android:layout_width="fill_parent"
@@ -52,27 +50,29 @@
                     <!--android:paddingTop="10dp"-->
                     <!--android:gravity="center"/>-->
 
-            <RadioGroup 
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:paddingTop="15dp">
-                    <RadioButton android:id="@+id/radio_mycelium_tokens"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/colu_mycelium_tokens"
-                        android:onClick="onRadioButtonClicked"/>
-                     <RadioButton android:id="@+id/radio_mass_tokens"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/colu_mass_tokens"
-                        android:onClick="onRadioButtonClicked"/>
+        <RadioGroup
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="15dp">
 
-                <RadioButton android:id="@+id/radio_rmc_tokens"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/colu_rmc_tokens"
-                    android:onClick="onRadioButtonClicked"/>
+            <android.support.v7.widget.AppCompatRadioButton
+                android:id="@+id/radio_mycelium_tokens"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/colu_mycelium_tokens" />
+
+            <android.support.v7.widget.AppCompatRadioButton
+                android:id="@+id/radio_mass_tokens"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/colu_mass_tokens" />
+
+            <android.support.v7.widget.AppCompatRadioButton
+                android:id="@+id/radio_rmc_tokens"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/colu_rmc_tokens" />
         </RadioGroup>
 
         <Button
