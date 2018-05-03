@@ -1,4 +1,4 @@
-package com.mycelium.wallet.activity.util;
+package com.mycelium.view;
 
 import android.content.Context;
 import android.graphics.PointF;
