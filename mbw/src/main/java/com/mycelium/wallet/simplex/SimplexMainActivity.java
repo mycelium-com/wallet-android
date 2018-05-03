@@ -71,6 +71,14 @@ public class SimplexMainActivity extends Activity {
             }
         });
 
+        Button cancelButton = findViewById(R.id.btCancel);
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+
         //simplex app auth
         simplexAsync.run();
     }
@@ -142,7 +150,7 @@ public class SimplexMainActivity extends Activity {
         } else {
             SimplexError error = new SimplexError();
             error.activityHandler = new Handler(this.getMainLooper());
-            error.message = "Unable to verify application signature.";
+            error.message = getString(R.string.gp_required);
             displayError(error);
         }
     }
@@ -180,6 +188,8 @@ public class SimplexMainActivity extends Activity {
             public void run() {
                 //update the UI
                 TextView errorTextView = findViewById(R.id.tvSimplexError);
+                TextView cancelButton = findViewById(R.id.btCancel);
+                cancelButton.setVisibility(View.VISIBLE);
                 String errorMessage;
                 errorMessage = error.message;
 
