@@ -170,8 +170,27 @@ public class SimplexMainActivity extends Activity {
         }
     }
 
-    @Subscribe
     public void displayError(final SimplexError error) {
+        Log.i("simplex", error.message);
+        // Don't update UI if Activity is finishing.
+        if (isFinishing())
+            return;
+
+        error.activityHandler.post(new Runnable() {
+            public void run() {
+                //update the UI
+                TextView errorTextView = findViewById(R.id.tvSimplexError);
+                String errorMessage;
+                errorMessage = error.message;
+
+                errorTextView.setText(errorMessage);
+                setLayout(SimplexUITypes.RetryLater);
+            }
+        });
+    }
+
+    @Subscribe
+    public void displayRetryError(final SimplexError error) {
         Log.i("simplex", error.message);
         // Don't update UI if Activity is finishing.
         if (isFinishing())
