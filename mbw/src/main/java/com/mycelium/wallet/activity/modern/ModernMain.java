@@ -576,7 +576,7 @@ public class ModernMain extends AppCompatActivity {
 
    @Subscribe
    public void onSpvSynced(SpvSyncChanged spvSyncChanged) {
-      if(spvSyncChanged.chainDownloadPercentDone == 100) {
+      if (spvSyncChanged.chainDownloadPercentDone == 100) {
          BCHHelper.bchSynced(this);
       }
    }

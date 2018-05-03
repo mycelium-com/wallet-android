@@ -119,6 +119,7 @@ public class AddColuAccountActivity extends Activity {
      //displayTemporaryMessage();
    }
 
+   @OnClick({R.id.radio_mycelium_tokens, R.id.radio_mass_tokens, R.id.radio_rmc_tokens})
    public void onRadioButtonClicked(View view) {
       // Is the button now checked?
       boolean checked = ((RadioButton) view).isChecked();
