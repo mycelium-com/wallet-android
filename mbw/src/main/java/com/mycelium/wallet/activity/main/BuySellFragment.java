@@ -41,6 +41,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.InfiniteLinearLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -50,7 +51,6 @@ import android.view.ViewGroup;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-import android.support.v7.widget.InfiniteLinearLayoutManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.main.adapter.ButtonAdapter;
@@ -107,7 +107,7 @@ public class BuySellFragment extends Fragment {
                 return input.isEnabled(_mbwManager);
             }
         });
-        int scrollTo = 1;
+        int scrollTo = 0;
         switch (_mbwManager.getSelectedAccount().getType()) {
             case BCHBIP44:
             case BCHSINGLEADDRESS:
@@ -151,7 +151,7 @@ public class BuySellFragment extends Fragment {
             });
             actionButton.textColor = getResources().getColor(R.color.white);
             actions.add(actionButton);
-            scrollTo = actions.size();
+            scrollTo = actions.size() - 1;
         }
         return scrollTo;
     }

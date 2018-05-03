@@ -22,9 +22,7 @@ public class ButtonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     public void setButtons(List<ActionButton> buttons) {
         this.buttons.clear();
-        this.buttons.add(null);
         this.buttons.addAll(buttons);
-        this.buttons.add(null);
         notifyDataSetChanged();
     }
 
@@ -49,6 +47,8 @@ public class ButtonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             button.setCompoundDrawablesWithIntrinsicBounds(actionButton.icon, 0, 0, 0);
             if (actionButton.textColor != 0) {
                 button.setTextColor(actionButton.textColor);
+            } else {
+                button.setTextColor(button.getResources().getColor(R.color.btn_text_color));
             }
             if (actionButton.icon != 0) {
                 button.setPadding(button.getResources().getDimensionPixelSize(R.dimen.button_padding)

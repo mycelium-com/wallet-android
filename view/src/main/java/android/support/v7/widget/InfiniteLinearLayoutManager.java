@@ -4,10 +4,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
 
-public class InfiniteLinearLayoutManager extends LinearLayoutManager {
-
-    private static final String TAG = "InfiniteLLManager";
-    private final LayoutChunkResult mLayoutChunkResult = new LayoutChunkResult();
+public class InfiniteLinearLayoutManager extends CenterLayoutManager {
 
     public InfiniteLinearLayoutManager(Context context) {
         super(context);
@@ -25,10 +22,10 @@ public class InfiniteLinearLayoutManager extends LinearLayoutManager {
         return new InfiniteLayoutState();
     }
 
-    class InfiniteLayoutState extends LayoutState {
+    class InfiniteLayoutState extends LinearLayoutManager.LayoutState {
         @Override
         boolean hasMore(RecyclerView.State state) {
-            return mRecyclerView.getAdapter().getItemCount() > 1 ? true : super.hasMore(state);
+            return mRecyclerView.getAdapter().getItemCount() > 1 || super.hasMore(state);
         }
 
         View next(RecyclerView.Recycler recycler) {
