@@ -4,8 +4,10 @@ import com.google.common.base.Optional;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
+import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.model.IssuedKeysInfo;
+import com.mycelium.wapi.model.TransactionDetails;
 import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.Bip44AccountBacking;
 import com.mycelium.wapi.wallet.KeyCipher;
@@ -42,6 +44,23 @@ public class Bip44BCHAccount extends Bip44Account {
             return spvBalanceFetcher.retrieveByHdAccountIndex(getId().toString(), getAccountIndex());
         else
             return spvBalanceFetcher.retrieveByUnrelatedAccountId(getId().toString());
+    }
+
+    @Override
+    public TransactionDetails getTransactionDetails(Sha256Hash txid) {
+        return spvBalanceFetcher.retrieveTransactionDetails(txid);
+    }
+
+    @Override
+    public TransactionSummary getTransactionSummary(Sha256Hash txid) {
+        List<TransactionSummary> transactions = spvBalanceFetcher.retrieveTransactionsSummaryByHdAccountIndex(getId().toString(),
+                getAccountIndex());
+        for (TransactionSummary transaction : transactions) {
+            if(transaction.txid.equals(txid)) {
+                return transaction;
+            }
+        }
+        return null;
     }
 
     @Override

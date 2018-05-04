@@ -35,56 +35,45 @@
 package com.mycelium.wallet.activity.pop;
 
 import android.app.Activity;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.StringRes;
-import android.support.v4.app.FragmentActivity;
-import android.text.TextUtils;
 import android.view.View;
 import android.view.Window;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.google.api.client.repackaged.com.google.common.base.Strings;
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.StandardTransactionBuilder.UnsignedTransaction;
-import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.net.ServerEndpointType;
-import com.mycelium.spvmodule.providers.TransactionContract;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.WalletApplication;
 import com.mycelium.wallet.activity.send.SignTransactionActivity;
 import com.mycelium.wallet.activity.util.AdaptiveDateFormat;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.model.TransactionDetails;
 import com.mycelium.wapi.model.TransactionSummary;
-import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.bip44.Bip44BCHAccount;
-import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
-import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
-import com.mycelium.wapi.wallet.single.SingleAddressBCHAccount;
-import com.squareup.okhttp.*;
+import com.squareup.okhttp.MediaType;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.RequestBody;
+import com.squareup.okhttp.Response;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.DateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -120,8 +109,7 @@ public class PopActivity extends Activity {
          txToProve = _mbwManager.getSelectedAccount().getTransactionSummary(txidToProve);
       } else {
          // Get history ordered by block height descending
-         List<TransactionSummary> transactionHistory;
-         transactionHistory = _mbwManager.getSelectedAccount().getTransactionHistory(0, 10000);
+         List<TransactionSummary> transactionHistory = _mbwManager.getSelectedAccount().getTransactionHistory(0, 10000);
          TransactionSummary matchingTransaction = findFirstMatchingTransaction(popRequest, transactionHistory);
          if (matchingTransaction == null) {
             launchSelectTransactionActivity();
@@ -133,7 +121,6 @@ public class PopActivity extends Activity {
 
       updateUi(txToProve);
    }
-
 
    private void launchSelectTransactionActivity() {
       Intent intent = new Intent(this, PopSelectTransactionActivity.class);

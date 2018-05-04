@@ -79,25 +79,25 @@ public class TransactionDetailsLabel extends GenericBlockExplorerLabel {
       return blockExplorer.getUrl(transaction,MbwManager.getInstance(getContext()).getTorMode() == ServerEndpointType.Types.ONLY_TOR);
    }
 
-   public void setTransaction(final TransactionDetails tx){
+   public void setTransaction(final TransactionDetails tx) {
       this.transaction = tx;
       update_ui();
-      if(coluMode) {
+      if (coluMode) {
          setHandler(MbwManager.getInstance(getContext()).getColuManager().getBlockExplorer());
-      } else if(MbwManager.getInstance(getContext()).getSelectedAccount().getType() ==
-          WalletAccount.Type.BCHSINGLEADDRESS
-          || MbwManager.getInstance(getContext()).getSelectedAccount().getType() ==
-          WalletAccount.Type.BCHBIP44) {
-         if(MbwManager.getInstance(getContext()).getNetwork().getNetworkType() == NetworkParameters.NetworkType.PRODNET) {
+      } else if (MbwManager.getInstance(getContext()).getSelectedAccount().getType() ==
+              WalletAccount.Type.BCHSINGLEADDRESS
+              || MbwManager.getInstance(getContext()).getSelectedAccount().getType() ==
+              WalletAccount.Type.BCHBIP44) {
+         if (MbwManager.getInstance(getContext()).getNetwork().getNetworkType() == NetworkParameters.NetworkType.PRODNET) {
             setHandler(new BlockExplorer("BTL", "blockTrail",
-                "https://www.blocktrail.com/BCC/address/",
-                "https://www.blocktrail.com/BCC/tx/",
-                null, null));
+                    "https://www.blocktrail.com/BCC/address/",
+                    "https://www.blocktrail.com/BCC/tx/",
+                    null, null));
          } else {
             setHandler(new BlockExplorer("BTL", "blockTrail",
-                "https://www.blocktrail.com/tBCC/address/",
-                "https://www.blocktrail.com/tBCC/tx/",
-                null, null));
+                    "https://www.blocktrail.com/tBCC/address/",
+                    "https://www.blocktrail.com/tBCC/tx/",
+                    null, null));
          }
       } else {
          setHandler(MbwManager.getInstance(getContext())._blockExplorerManager.getBlockExplorer());

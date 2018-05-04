@@ -89,14 +89,8 @@ public class TransactionDetailsActivity extends Activity {
       _mbwManager = MbwManager.getInstance(this.getApplication());
 
       Sha256Hash txid = (Sha256Hash) getIntent().getSerializableExtra("transaction");
-      if(_mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHBIP44
-          || _mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHSINGLEADDRESS) {
-         _tx = _mbwManager.getSpvBchFetcher().retrieveTransactionDetails(txid);
-         _txs = _mbwManager.getSpvBchFetcher().retrieveTransactionSummary(txid);
-      } else {
-         _tx = _mbwManager.getSelectedAccount().getTransactionDetails(txid);
-         _txs = _mbwManager.getSelectedAccount().getTransactionSummary(txid);
-      }
+      _tx = _mbwManager.getSelectedAccount().getTransactionDetails(txid);
+      _txs = _mbwManager.getSelectedAccount().getTransactionSummary(txid);
 
       if(_mbwManager.getSelectedAccount() instanceof ColuAccount) {
          coluMode = true;
@@ -114,13 +108,7 @@ public class TransactionDetailsActivity extends Activity {
 
 
       // Set Confirmed
-      int confirmations = 0;
-      if (_mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHSINGLEADDRESS
-          || _mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHBIP44) {
-         confirmations = _tx.calculateConfirmations(_mbwManager.getSpvBchFetcher().getBlockchainHeight());
-      } else {
-         confirmations = _tx.calculateConfirmations(_mbwManager.getSelectedAccount().getBlockChainHeight());
-      }
+      int confirmations = _tx.calculateConfirmations(_mbwManager.getSelectedAccount().getBlockChainHeight());
 
       String confirmed;
       if (_tx.height > 0) {
@@ -140,7 +128,6 @@ public class TransactionDetailsActivity extends Activity {
       }else {
          confirmationsDisplay.setConfirmations(confirmations);
          confirmationsCount.setText(String.valueOf(confirmations));
-
       }
 
       ((TextView) findViewById(R.id.tvConfirmed)).setText(confirmed);
@@ -173,7 +160,7 @@ public class TransactionDetailsActivity extends Activity {
 
       // Set Fee
       final long txFeeTotal = getFee(_tx);
-      String fee = null;
+      String fee;
       if(txFeeTotal > 0) {
          ((TextView) findViewById(R.id.tvFeeLabel)).setVisibility(View.VISIBLE);
          ((TextView) findViewById(R.id.tvInputsLabel)).setVisibility(View.VISIBLE);

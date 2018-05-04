@@ -4,7 +4,6 @@ package com.mycelium.wallet.modularisation
 import android.content.Context
 import android.database.Cursor
 import android.net.Uri
-import android.text.TextUtils
 import com.google.common.base.Optional
 import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.util.Sha256Hash
@@ -30,12 +29,12 @@ import com.mycelium.wapi.wallet.bip44.Bip44Account
 import com.mycelium.wapi.wallet.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue
-import com.mycelium.wapi.wallet.currency.ExactBitcoinValue
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue
-import com.mycelium.wapi.wallet.single.SingleAddressAccount
 import com.mycelium.wapi.wallet.single.SingleAddressBCHAccount
 import java.math.BigDecimal
 import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.math.min
 import com.mycelium.spvmodule.providers.TransactionContract.TransactionSummary as SpvTxSummary
 
 class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
@@ -82,7 +81,7 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
         val transactionSummariesList = ArrayList<TransactionSummary>()
         context.contentResolver.query(uri, null, selection, selectionArgs, null).use {
             while (it?.moveToNext() == true) {
-                val txSummary = transactionSummaryfrom(it)
+                val txSummary = transactionSummaryFrom(it)
                 transactionSummariesList.add(txSummary)
             }
         }
@@ -103,7 +102,7 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
 
     override fun retrieveTransactionsSummaryByHdAccountIndex(id: String, accountIndex: Int,
                                                              offset: Int, limit: Int): List<TransactionSummary> {
-        val fullList: List<TransactionSummary> = retrieveTransactionsSummaryByHdAccountIndex(id, accountIndex)
+        val fullList = retrieveTransactionsSummaryByHdAccountIndex(id, accountIndex)
         return parseTransactionsSummary(fullList, offset, limit)
     }
 
@@ -121,41 +120,20 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
 
     override fun retrieveTransactionsSummaryByUnrelatedAccountId(id: String, offset: Int, limit: Int)
             : List<TransactionSummary> {
-        val fullList: List<TransactionSummary> = retrieveTransactionsSummaryByUnrelatedAccountId(id)
+        val fullList = retrieveTransactionsSummaryByUnrelatedAccountId(id)
         return parseTransactionsSummary(fullList, offset, limit)
     }
 
-    private fun parseTransactionsSummary(fullList: List<TransactionSummary>, offset: Int, limit: Int): MutableList<TransactionSummary> {
-        val transactionSummaryList: MutableList<TransactionSummary> = mutableListOf()
-        val x = 0
-        val counter = 0
-        for (transactionSummary in fullList) {
-            if (x >= offset && counter < limit) {
-                transactionSummaryList.add(transactionSummary)
-            }
+    private fun parseTransactionsSummary(fullList: List<TransactionSummary>, offset: Int, limit: Int): List<TransactionSummary> {
+        return if (offset >= fullList.size) {
+            Collections.emptyList()
+        } else {
+            val toIndex = min(offset + limit, fullList.size)
+            fullList.subList(offset, toIndex)
         }
-        return transactionSummaryList
     }
 
-    override fun retrieveTransactionSummary(txid: Sha256Hash): TransactionSummary? {
-        var transactionSummaryList: List<TransactionSummary> = ArrayList()
-        val account = MbwManager.getInstance(context).selectedAccount
-        if (account is Bip44BCHAccount) {
-            transactionSummaryList = retrieveTransactionsSummaryByHdAccountIndex(account.getId().toString(),
-                    account.accountIndex)
-        } else if (account is SingleAddressBCHAccount) {
-            transactionSummaryList = retrieveTransactionsSummaryByUnrelatedAccountId(
-                    account.getId().toString())
-        }
-        for (transaction in transactionSummaryList) {
-            if(transaction.txid.equals(txid)) {
-                return transaction
-            }
-        }
-        return null
-    }
-
-    private fun transactionSummaryfrom(cursor: Cursor): TransactionSummary {
+    private fun transactionSummaryFrom(cursor: Cursor): TransactionSummary {
         val rawTxId = cursor.getString(cursor.getColumnIndex(TransactionContract.TransactionSummary._ID))
         val txId = Sha256Hash.fromString(rawTxId)
         val rawValue = cursor.getString(cursor.getColumnIndex(TransactionContract.TransactionSummary.VALUE))
@@ -178,69 +156,44 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
         }
 
         val rawDestinationAddress = cursor.getString(cursor.getColumnIndex(TransactionContract.TransactionSummary.DESTINATION_ADDRESS))
-        var destinationAddress = Optional.absent<Address>()
-        if (!TextUtils.isEmpty(rawDestinationAddress)) {
-            destinationAddress = Optional.of(Address.fromString(rawDestinationAddress))
-        }
-        val toAddresses = ArrayList<Address>()
+        val destinationAddress =
+                if (rawDestinationAddress?.isEmpty() == false) {
+                    Optional.of(Address.fromString(rawDestinationAddress))
+                } else {
+                    Optional.absent()
+                }
         val rawToAddresses = cursor.getString(cursor.getColumnIndex(TransactionContract.TransactionSummary.TO_ADDRESSES))
-        if (!TextUtils.isEmpty(rawToAddresses)) {
-            val addresses = rawToAddresses.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-            for (addr in addresses) {
-                toAddresses.add(Address.fromString(addr))
-            }
-        }
+        val toAddresses = rawToAddresses?.split(",")?.map { Address.fromString(it) } ?: ArrayList<Address>()
+
         return TransactionSummary(txId, value, isIncoming, time, height, confirmations, isQueuedOutgoing,
                 confirmationRiskProfile, destinationAddress, toAddresses)
     }
 
     override fun retrieveTransactionDetails(txid: Sha256Hash): TransactionDetails? {
         var transactionDetails: TransactionDetails? = null
-        val _mbwManager = MbwManager.getInstance(context)
+        val mbwManager = MbwManager.getInstance(context)
         val uri = Uri.withAppendedPath(TransactionContract.TransactionDetails.CONTENT_URI(
-                WalletApplication.getSpvModuleName(_mbwManager.getSelectedAccount().getType())), txid.toHex())
+                WalletApplication.getSpvModuleName(mbwManager.selectedAccount.type)), txid.toHex())
         val selection = TransactionContract.TransactionDetails.SELECTION_ACCOUNT_INDEX
-        val account = _mbwManager.getSelectedAccount()
-        if (account.javaClass == Bip44Account::class.java || account.javaClass == Bip44BCHAccount::class.java) {
-            val accountIndex = (_mbwManager.getSelectedAccount() as Bip44Account).accountIndex
-            val selectionArgs = arrayOf(Integer.toString(accountIndex))
-            var cursor: Cursor? = null
-            val contentResolver = context.getContentResolver()
-            try {
-                cursor = contentResolver.query(uri, null, selection, selectionArgs, null)
-                if (cursor != null) {
-                    while (cursor!!.moveToNext()) {
-                        transactionDetails = transactionDetailsfrom(cursor!!)
-                    }
-                }
-            } finally {
-                if (cursor != null) {
-                    cursor.close()
-                }
-            }
-        } else if (account.javaClass == SingleAddressAccount::class.java || account.javaClass == SingleAddressBCHAccount::class.java) {
-            val accountId = account.getId()
-            val selectionArgs = arrayOf<String>(accountId.toString())
-            var cursor: Cursor? = null
-            val contentResolver = context.getContentResolver()
-            try {
-                cursor = contentResolver.query(uri, null, selection, selectionArgs, null)
-                if (cursor != null) {
-                    while (cursor!!.moveToNext()) {
-                        transactionDetails = transactionDetailsfrom(cursor!!)
-                    }
-                }
-            } finally {
-                if (cursor != null) {
-                    cursor.close()
-                }
+        val account = mbwManager.selectedAccount
+        val contentResolver = context.contentResolver
+        var selectionArgs : Array<String>? = null
+        if (account.type == WalletAccount.Type.BTCBIP44 || account.type == WalletAccount.Type.BCHBIP44) {
+            val accountIndex = (mbwManager.selectedAccount as Bip44Account).accountIndex
+            selectionArgs = arrayOf(Integer.toString(accountIndex))
+        } else if (account.type == WalletAccount.Type.BTCSINGLEADDRESS || account.type == WalletAccount.Type.BCHSINGLEADDRESS) {
+            val accountId = account.id
+            selectionArgs = arrayOf(accountId.toString())
+        }
+        contentResolver.query(uri, null, selection, selectionArgs!!, null).use {
+            if (it?.moveToNext() == true) {
+                transactionDetails = transactionDetailsFrom(it)
             }
         }
-
         return transactionDetails
     }
 
-    private fun transactionDetailsfrom(cursor: Cursor): TransactionDetails {
+    private fun transactionDetailsFrom(cursor: Cursor): TransactionDetails {
         val rawTxId = cursor.getString(cursor.getColumnIndex(TransactionContract.TransactionDetails._ID))
         val hash = Sha256Hash.fromString(rawTxId)
         val height = cursor.getInt(cursor.getColumnIndex(TransactionContract.TransactionDetails.HEIGHT))
@@ -255,20 +208,16 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
         return TransactionDetails(hash, height, time, inputs, outputs, rawSize)
     }
 
-    private fun extract(data: String): Array<TransactionDetails.Item> {
+    private fun extract(data: String?): Array<TransactionDetails.Item> {
         val result = ArrayList<TransactionDetails.Item>()
-        if (!TextUtils.isEmpty(data)) {
-            val dataParts = data.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-            for (`in` in dataParts) {
-                val inParts = `in`.split(" BCH".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-                val value = java.lang.Long.valueOf(inParts[0])
-                val address = Address.fromString(inParts[1])
-                result.add(TransactionDetails.Item(address, value, false))
-            }
-        }
+        data?.split(",")?.forEach {
+            val inParts = it.split(" BCH")
+            val value = java.lang.Long.valueOf(inParts[0])
+            val address = Address.fromString(inParts[1])
+            result.add(TransactionDetails.Item(address, value, false))
+        } ?: ArrayList<TransactionDetails.Item>()
         return result.toTypedArray()
     }
-
 
     override fun requestTransactionsAsync(accountId: Int) {
         val service = IntentContract.ReceiveTransactions.createIntent(accountId)
@@ -405,18 +354,6 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
                 it.getLong(0)
             } else {
                 0
-            }
-        }
-    }
-
-    override fun getBlockchainHeight(): Int {
-        val uri = TransactionContract.BlockchainHeight.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHBIP44))
-                .buildUpon().build()
-        context.contentResolver.query(uri, null, null, null, null).use {
-            return if (it?.moveToFirst() == true) {
-                it.getInt(it.getColumnIndex(TransactionContract.BlockchainHeight.HEIGHT))
-            } else {
-                -1
             }
         }
     }

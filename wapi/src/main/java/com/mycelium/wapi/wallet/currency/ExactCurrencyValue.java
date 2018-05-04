@@ -41,7 +41,7 @@ public abstract class ExactCurrencyValue extends CurrencyValue {
    public static ExactCurrencyValue from(BigDecimal value, String currency) {
       switch (currency) {
          case CurrencyValue.BTC:
-            return ExactBitcoinValue.from(value );
+            return ExactBitcoinValue.from(value);
          case CurrencyValue.BCH:
             return ExactBitcoinCashValue.from(value);
          default:

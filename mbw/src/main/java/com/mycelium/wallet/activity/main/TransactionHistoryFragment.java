@@ -35,7 +35,6 @@
 package com.mycelium.wallet.activity.main;
 
 import android.app.AlertDialog;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -43,19 +42,14 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
 import android.content.pm.ResolveInfo;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.ShareCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
-import android.text.Html;
-import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -67,7 +61,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.commonsware.cwac.endless.EndlessAdapter;
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.UnableToBuildTransactionException;
@@ -76,14 +69,11 @@ import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
-import com.mycelium.spvmodule.providers.TransactionContract;
-import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.DataExport;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.MinerFee;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.WalletApplication;
 import com.mycelium.wallet.activity.TransactionDetailsActivity;
 import com.mycelium.wallet.activity.main.adapter.TransactionArrayAdapter;
 import com.mycelium.wallet.activity.modern.Toaster;
@@ -100,22 +90,13 @@ import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.model.TransactionDetails;
 import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.AbstractAccount;
-import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.bip44.Bip44Account;
-import com.mycelium.wapi.wallet.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
-import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
-import com.mycelium.wapi.wallet.single.SingleAddressAccount;
-import com.mycelium.wapi.wallet.single.SingleAddressBCHAccount;
 import com.squareup.otto.Subscribe;
 
 import java.io.File;
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -250,7 +231,7 @@ public class TransactionHistoryFragment extends Fragment {
          _root.findViewById(R.id.lvTransactionHistory).setVisibility(View.GONE);
          return;
       }
-      List<TransactionSummary> history = account.getTransactionHistory(0, 20);
+      List <TransactionSummary> history = account.getTransactionHistory(0, 20);
       Collections.sort(history);
       Collections.reverse(history);
       if (history.isEmpty()) {
@@ -516,8 +497,8 @@ public class TransactionHistoryFragment extends Fragment {
                                              || _mbwManager.getSelectedAccount().getType()
                                              == WalletAccount.Type.BCHSINGLEADDRESS) {
                                             //TODO Module should provide full bytes of transaction.
-                                            transaction = HexUtils.toHex(_mbwManager.getSpvBchFetcher()
-                                                .retrieveTransactionSummary(record.txid).txid.getBytes());
+                                            transaction = HexUtils.toHex(_mbwManager.getSelectedAccount()
+                                                .getTransactionSummary(record.txid).txid.getBytes());
                                          } else {
                                             transaction = HexUtils.toHex(_mbwManager
                                                 .getSelectedAccount()

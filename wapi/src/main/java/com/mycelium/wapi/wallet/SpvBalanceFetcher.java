@@ -19,7 +19,6 @@ public interface SpvBalanceFetcher {
     List<TransactionSummary> retrieveTransactionsSummaryByUnrelatedAccountId(String id, long since);
     List<TransactionSummary> retrieveTransactionsSummaryByUnrelatedAccountId(String id, int offset, int limit);
 
-    TransactionSummary retrieveTransactionSummary(Sha256Hash txid);
     TransactionDetails retrieveTransactionDetails(Sha256Hash txid);
     void requestTransactionsAsync(int accountIndex);
     void requestHdWalletAccountRemoval(int accountIndex);
@@ -38,5 +37,4 @@ public interface SpvBalanceFetcher {
     long getMaxFundsTransferrableUnrelatedAccount(String guid);
     long estimateFeeFromTransferrableAmount(int accountIndex, long amountSatoshis, String txFee, float txFeeFactor);
     long estimateFeeFromTransferrableAmountUnrelatedAccount(String guid, long amountSatoshis, String txFee, float txFeeFactor);
-    int getBlockchainHeight();
 }
