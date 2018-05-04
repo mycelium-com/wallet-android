@@ -121,13 +121,7 @@ public class PopActivity extends Activity {
       } else {
          // Get history ordered by block height descending
          List<TransactionSummary> transactionHistory;
-         if (_mbwManager.getSelectedAccount().getClass() == Bip44BCHAccount.class
-             || _mbwManager.getSelectedAccount().getClass() == SingleAddressBCHAccount.class) {
-            transactionHistory = _mbwManager.getSpvBchFetcher().retrieveTransactionsSummary(
-                _mbwManager.getSelectedAccount(),0, 10000);
-         } else  {
-            transactionHistory = _mbwManager.getSelectedAccount().getTransactionHistory(0, 10000);
-         }
+         transactionHistory = _mbwManager.getSelectedAccount().getTransactionHistory(0, 10000);
          TransactionSummary matchingTransaction = findFirstMatchingTransaction(popRequest, transactionHistory);
          if (matchingTransaction == null) {
             launchSelectTransactionActivity();

@@ -250,13 +250,7 @@ public class TransactionHistoryFragment extends Fragment {
          _root.findViewById(R.id.lvTransactionHistory).setVisibility(View.GONE);
          return;
       }
-     List<TransactionSummary> history;
-      if (account.getClass() == Bip44BCHAccount.class
-          || account.getClass() == SingleAddressBCHAccount.class) {
-         history = _mbwManager.getSpvBchFetcher().retrieveTransactionsSummary(account, 0, 20);
-      } else  {
-        history = account.getTransactionHistory(0, 20);
-      }
+      List<TransactionSummary> history = account.getTransactionHistory(0, 20);
       Collections.sort(history);
       Collections.reverse(history);
       if (history.isEmpty()) {
@@ -632,13 +626,7 @@ public class TransactionHistoryFragment extends Fragment {
          WalletAccount account = _mbwManager.getSelectedAccount();
          synchronized (_toAddLock) {
             lastOffset += chunkSize;
-           if (account.getClass() == Bip44BCHAccount.class
-               || account.getClass() == SingleAddressBCHAccount.class) {
-             _toAdd = _mbwManager.getSpvBchFetcher().retrieveTransactionsSummary(account,
-                 lastOffset, chunkSize);
-           } else  {
-             _toAdd = account.getTransactionHistory(lastOffset, chunkSize);
-           }
+            _toAdd = account.getTransactionHistory(lastOffset, chunkSize);
          }
          return _toAdd.size() == chunkSize;
       }
@@ -659,14 +647,8 @@ public class TransactionHistoryFragment extends Fragment {
       try {
          String fileName = "MyceliumExport_" + System.currentTimeMillis() + ".csv";
 
-        List<TransactionSummary> history;
-        if (account.getClass() == Bip44BCHAccount.class
-            || account.getClass() == SingleAddressBCHAccount.class) {
-          history = _mbwManager.getSpvBchFetcher().retrieveTransactionsSummary(account, 0,
-              Integer.MAX_VALUE);
-        } else  {
-          history = account.getTransactionHistory(0, Integer.MAX_VALUE);
-        }
+         List<TransactionSummary> history = account.getTransactionHistory(0, Integer.MAX_VALUE);
+
          File historyData = DataExport.getTxHistoryCsv(account, history, metaData,
              getActivity().getFileStreamPath(fileName));
          PackageManager packageManager = Preconditions.checkNotNull(getActivity().getPackageManager());

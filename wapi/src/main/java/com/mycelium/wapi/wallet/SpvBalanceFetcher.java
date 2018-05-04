@@ -12,7 +12,6 @@ import java.util.List;
 public interface SpvBalanceFetcher {
     CurrencyBasedBalance retrieveByHdAccountIndex(String id, int accountIndex);
     CurrencyBasedBalance retrieveByUnrelatedAccountId(String id);
-    List<TransactionSummary> retrieveTransactionsSummary(WalletAccount account, int offset, int limit);
     List<TransactionSummary> retrieveTransactionsSummaryByHdAccountIndex(String id, int accountIndex);
     List<TransactionSummary> retrieveTransactionsSummaryByHdAccountIndex(String id, int accountIndex, long since);
     List<TransactionSummary> retrieveTransactionsSummaryByHdAccountIndex(String id, int accountIndex, int offset, int limit);

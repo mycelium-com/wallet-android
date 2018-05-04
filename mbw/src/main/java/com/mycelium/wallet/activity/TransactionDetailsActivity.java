@@ -34,66 +34,35 @@
 
 package com.mycelium.wallet.activity;
 
-import java.math.BigDecimal;
-import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
-import java.util.UUID;
-
-import android.accounts.Account;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.ContentResolver;
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
-
 import android.widget.Toast;
 
-import com.google.common.base.Optional;
-import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.CoinUtil;
 import com.mrd.bitlib.util.Sha256Hash;
-import com.mycelium.net.ServerEndpointType;
-import com.mycelium.spvmodule.providers.TransactionContract;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.WalletApplication;
 import com.mycelium.wallet.activity.util.AddressLabel;
-import com.mycelium.wallet.activity.util.BlockExplorer;
 import com.mycelium.wallet.activity.util.TransactionConfirmationsDisplay;
 import com.mycelium.wallet.activity.util.TransactionDetailsLabel;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.colu.json.ColuTxDetailsItem;
 import com.mycelium.wapi.model.TransactionDetails;
 import com.mycelium.wapi.model.TransactionSummary;
-import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.bip44.Bip44Account;
-import com.mycelium.wapi.wallet.bip44.Bip44BCHAccount;
-import com.mycelium.wapi.wallet.currency.CurrencyValue;
-import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
-import com.mycelium.wapi.wallet.single.SingleAddressAccount;
-import com.mycelium.wapi.wallet.single.SingleAddressBCHAccount;
 
-import org.bitcoinj.wallet.Wallet;
-
-import static com.mycelium.wallet.external.changelly.bch.ExchangeFragment.BCH_EXCHANGE;
-import static com.mycelium.wallet.external.changelly.bch.ExchangeFragment.BCH_EXCHANGE_TRANSACTIONS;
+import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class TransactionDetailsActivity extends Activity {
 
@@ -150,7 +119,8 @@ public class TransactionDetailsActivity extends Activity {
           || _mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHBIP44) {
          confirmations = _tx.calculateConfirmations(_mbwManager.getSpvBchFetcher().getBlockchainHeight());
       } else {
-         confirmations = _tx.calculateConfirmations(_mbwManager.getSelectedAccount().getBlockChainHeight());      }
+         confirmations = _tx.calculateConfirmations(_mbwManager.getSelectedAccount().getBlockChainHeight());
+      }
 
       String confirmed;
       if (_tx.height > 0) {

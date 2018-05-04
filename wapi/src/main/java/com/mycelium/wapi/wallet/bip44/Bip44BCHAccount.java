@@ -74,9 +74,9 @@ public class Bip44BCHAccount extends Bip44Account {
     @Override
     public List<TransactionSummary> getTransactionHistory(int offset, int limit) {
         if (getAccountType() == ACCOUNT_TYPE_FROM_MASTERSEED)
-            return spvBalanceFetcher.retrieveTransactionsSummaryByHdAccountIndex(getId().toString(), getAccountIndex());
+            return spvBalanceFetcher.retrieveTransactionsSummaryByHdAccountIndex(getId().toString(), getAccountIndex(), offset, limit);
         else
-            return spvBalanceFetcher.retrieveTransactionsSummaryByUnrelatedAccountId(getId().toString());
+            return spvBalanceFetcher.retrieveTransactionsSummaryByUnrelatedAccountId(getId().toString(), offset, limit);
     }
 
     @Override

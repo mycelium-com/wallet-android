@@ -137,20 +137,6 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
         return transactionSummaryList
     }
 
-    override fun retrieveTransactionsSummary(account: WalletAccount, offset: Int, limit: Int)
-            : List<TransactionSummary> {
-        var transactionSummaryList: List<TransactionSummary> = ArrayList()
-        if (account is Bip44BCHAccount) {
-            transactionSummaryList = retrieveTransactionsSummaryByHdAccountIndex(account.getId().toString(),
-                    account.accountIndex, offset, limit)
-        } else if (account is SingleAddressBCHAccount) {
-            transactionSummaryList = retrieveTransactionsSummaryByUnrelatedAccountId(
-                    account.getId().toString(), offset, limit)
-        }
-        return transactionSummaryList
-    }
-
-
     override fun retrieveTransactionSummary(txid: Sha256Hash): TransactionSummary? {
         var transactionSummaryList: List<TransactionSummary> = ArrayList()
         val account = MbwManager.getInstance(context).selectedAccount

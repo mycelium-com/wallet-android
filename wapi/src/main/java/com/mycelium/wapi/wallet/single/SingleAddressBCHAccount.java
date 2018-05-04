@@ -53,7 +53,7 @@ public class SingleAddressBCHAccount extends SingleAddressAccount {
 
     @Override
     public List<TransactionSummary> getTransactionHistory(int offset, int limit) {
-        return spvBalanceFetcher.retrieveTransactionsSummaryByUnrelatedAccountId(getId().toString());
+        return spvBalanceFetcher.retrieveTransactionsSummaryByUnrelatedAccountId(getId().toString(), offset, limit);
     }
 
     @Override

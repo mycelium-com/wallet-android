@@ -34,39 +34,30 @@
 
 package com.mycelium.wallet.activity.pop;
 
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.*;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.ListFragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 
-import com.google.common.base.Optional;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.Sha256Hash;
-import com.mycelium.spvmodule.providers.TransactionContract;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.WalletApplication;
 import com.mycelium.wallet.activity.main.adapter.TransactionArrayAdapter;
 import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.model.TransactionSummary;
-import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.bip44.Bip44BCHAccount;
-import com.mycelium.wapi.wallet.currency.CurrencyValue;
-import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
-import com.mycelium.wapi.wallet.single.SingleAddressBCHAccount;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -197,14 +188,9 @@ public class PopSelectTransactionActivity extends AppCompatActivity implements A
          MbwManager mbwManager = MbwManager.getInstance(getActivity());
          WalletAccount account = mbwManager.getSelectedAccount();
 
-         List<TransactionSummary> history;
-         if (account.getClass() == Bip44BCHAccount.class
-             || account.getClass() == SingleAddressBCHAccount.class) {
-            history = mbwManager.getSpvBchFetcher().retrieveTransactionsSummary(account,
-                0, 1000);
-         } else  {
-            history = account.getTransactionHistory(0, 1000);
-         }         List<TransactionSummary> list = new ArrayList<TransactionSummary>();
+         List<TransactionSummary> history = account.getTransactionHistory(0, 1000);
+
+         List<TransactionSummary> list = new ArrayList<>();
 
          for (TransactionSummary transactionSummary : history) {
             if (transactionSummary.isIncoming) {
