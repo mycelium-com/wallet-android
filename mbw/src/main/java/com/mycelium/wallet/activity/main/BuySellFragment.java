@@ -107,7 +107,7 @@ public class BuySellFragment extends Fragment {
                 return input.isEnabled(_mbwManager);
             }
         });
-        int scrollTo = 0;
+        int scrollTo = 1;
         switch (_mbwManager.getSelectedAccount().getType()) {
             case BCHBIP44:
             case BCHSINGLEADDRESS:
@@ -117,7 +117,6 @@ public class BuySellFragment extends Fragment {
                         startExchange(new Intent(getActivity(), ExchangeActivity.class));
                     }
                 }));
-                scrollTo = addMyDfs(actions, scrollTo);
                 break;
             default:
                 actions.add(new ActionButton(getString(R.string.exchange_altcoins_to_btc), new Runnable() {
@@ -136,7 +135,6 @@ public class BuySellFragment extends Fragment {
                     }));
                 }
         }
-
         buttonAdapter.setButtons(actions);
         if (scrollTo != 0) {
             recyclerView.postDelayed(new ScrollToRunner(scrollTo), 500);
@@ -153,7 +151,7 @@ public class BuySellFragment extends Fragment {
             });
             actionButton.textColor = getResources().getColor(R.color.white);
             actions.add(actionButton);
-            scrollTo = actions.size() - 1;
+            scrollTo = actions.size();
         }
         return scrollTo;
     }

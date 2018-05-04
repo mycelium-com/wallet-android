@@ -550,11 +550,16 @@ public class ExchangeFragment extends Fragment {
                 case ChangellyService.INFO_MIN_AMOUNT:
                     amount = intent.getDoubleExtra(ChangellyService.AMOUNT, NOT_LOADED);
                     if (amount != NOT_LOADED) {
-                        Log.d(TAG, "Received minimum amount: " + amount);
+                        BigDecimal val = BigDecimal.valueOf(amount);
+                        BigDecimal txFee = UtilsKt.estimateFeeFromTransferrableAmount(
+                                fromAccountAdapter.getItem(fromRecyclerView.getSelectedItem()).account,
+                                mbwManager, BitcoinCash.nearestValue(val).getLongValue());
+                        Log.d(TAG, "Received minimum amount: " + amount + " TX Fee: " + txFee.toPlainString());
+
                         sharedPreferences.edit()
                                 .putFloat(BCH_MIN_EXCHANGE_VALUE, (float) amount)
                                 .apply();
-                        minAmount = amount;
+                        minAmount = amount + txFee.doubleValue();
                     }
                     break;
                 case ChangellyService.INFO_EXCH_AMOUNT:

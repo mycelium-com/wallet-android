@@ -89,7 +89,7 @@ public class Bip44BCHAccount extends Bip44Account {
 
     @Override
     public boolean isVisible() {
-        if ((spvBalanceFetcher.getSyncProgressPercents() == 100 || !spvBalanceFetcher.isFirstSync())
+        if ((spvBalanceFetcher.getSyncProgressPercents() == 100 && !spvBalanceFetcher.isFirstSync())
                 && !visible) {
             if (getAccountType() == ACCOUNT_TYPE_FROM_MASTERSEED)
                 visible = !spvBalanceFetcher.retrieveTransactionsSummaryByHdAccountIndex(getId().toString(), getAccountIndex()).isEmpty();
