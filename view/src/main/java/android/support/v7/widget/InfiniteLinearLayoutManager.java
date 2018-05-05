@@ -30,7 +30,7 @@ public class InfiniteLinearLayoutManager extends CenterLayoutManager {
 
         View next(RecyclerView.Recycler recycler) {
             if (mScrapList != null) {
-                return next(recycler);
+                return super.next(recycler);
             }
             int position = mCurrentPosition;
             int itemCount = mRecyclerView.getAdapter().getItemCount();

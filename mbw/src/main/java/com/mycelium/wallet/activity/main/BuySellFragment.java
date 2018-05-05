@@ -51,6 +51,7 @@ import android.view.ViewGroup;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import com.mycelium.view.ItemCentralizer;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.main.adapter.ButtonAdapter;
@@ -90,6 +91,7 @@ public class BuySellFragment extends Fragment {
         layoutManager = new InfiniteLinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(buttonAdapter);
+        recyclerView.addOnScrollListener(new ItemCentralizer());
         return root;
     }
 
