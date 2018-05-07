@@ -155,7 +155,7 @@ public class ConfirmExchangeFragment extends Fragment {
             @Override
             public void run() {
                 buttonContinue.setEnabled(false);
-                long fromValue = ExactBitcoinCashValue.from(BigDecimal.valueOf(offer.amountFrom)).getLongValue();
+                long fromValue = ExactBitcoinCashValue.from(BigDecimal.valueOf(sentAmount)).getLongValue();
 
                 lastOperationId = UUID.randomUUID().toString();
 
@@ -223,11 +223,6 @@ public class ConfirmExchangeFragment extends Fragment {
     public void onResume() {
         super.onResume();
         getRate();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
     }
 
     @Override
