@@ -41,6 +41,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.InfiniteLinearLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -50,12 +51,12 @@ import android.view.ViewGroup;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import com.mycelium.view.ItemCentralizer;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.main.adapter.ButtonAdapter;
 import com.mycelium.wallet.activity.main.model.ActionButton;
 import com.mycelium.wallet.activity.settings.SettingsPreference;
-import com.mycelium.wallet.activity.util.CenterLayoutManager;
 import com.mycelium.wallet.event.PageSelectedEvent;
 import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.external.BuySellSelectActivity;
@@ -80,16 +81,17 @@ public class BuySellFragment extends Fragment {
     RecyclerView recyclerView;
 
     ButtonAdapter buttonAdapter;
-    CenterLayoutManager layoutManager;
+    RecyclerView.LayoutManager layoutManager;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = Preconditions.checkNotNull(inflater.inflate(R.layout.main_buy_sell_fragment, container, false));
         ButterKnife.bind(this, root);
         buttonAdapter = new ButtonAdapter();
-        layoutManager = new CenterLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
+        layoutManager = new InfiniteLinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(buttonAdapter);
+        recyclerView.addOnScrollListener(new ItemCentralizer());
         return root;
     }
 
@@ -135,7 +137,6 @@ public class BuySellFragment extends Fragment {
                     }));
                 }
         }
-
         buttonAdapter.setButtons(actions);
         if (scrollTo != 0) {
             recyclerView.postDelayed(new ScrollToRunner(scrollTo), 500);
