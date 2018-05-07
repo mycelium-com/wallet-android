@@ -8,8 +8,16 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        minSdkVersion 14
-        targetSdkVersion 19
+        minSdkVersion 19
+        targetSdkVersion 23
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
     }
 }
 
