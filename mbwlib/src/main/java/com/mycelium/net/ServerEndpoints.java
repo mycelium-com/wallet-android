@@ -61,11 +61,11 @@ public class ServerEndpoints {
       currentEndpoint = initialEndpoint;
    }
 
-   public HttpEndpoint getCurrentEndpoint(){
+   public synchronized HttpEndpoint getCurrentEndpoint(){
       return endpoints.get(currentEndpoint);
    }
 
-   public int getCurrentEndpointIndex(){
+   public synchronized int getCurrentEndpointIndex(){
       return currentEndpoint;
    }
 
