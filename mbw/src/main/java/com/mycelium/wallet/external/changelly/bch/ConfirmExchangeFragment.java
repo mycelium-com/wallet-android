@@ -309,7 +309,6 @@ public class ConfirmExchangeFragment extends Fragment {
                     autoUpdateTime = 0;
                     offerUpdateText.post(updateOffer);
                     updateUI();
-
                     break;
             }
         }
