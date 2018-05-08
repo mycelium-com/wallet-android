@@ -1162,9 +1162,9 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="attention">Attention!</string>
     <string name="coco_scan_warning">You are about to retrieve Colored Coins based digital assets from the BIP32 private key.\nFor that, you must have an active network connection!</string>
     <string name="connection_unavailable">Please check your network connection and try again or come back later.</string>
-    <string name="d_coco_created">We have found %1$s on your BIP32 private key.\n\nCorresponding digital assets accounts:\n%2$d new account(s) created\n\nNow you will be redirected to the Balance tab where you can check assets balance.</string>
-    <string name="d_coco_created_existing_found">We have found %1$s on your BIP32 private key.\n\nCorresponding digital assets accounts:\n%2$d new account(s) created\n%3$d existing accounts found\n\nNow you will be redirected to the Balance tab where you can check assets balance.</string>
-    <string name="d_coco_existing_found">We have found digital assets on your BIP32 private key.\n\nCorresponding digital assets accounts:\n%2$d existing accounts found\n\nNow you will be redirected to the Balance tab where you can check assets balance.</string>
+    <string name="d_coco_created">We have found %1$s on your BIP32 private key.\n\nCorresponding digital assets accounts:\n%2$s\n\nNow you will be redirected to the Balance tab where you can check assets balance.</string>
+    <string name="d_coco_created_existing_found">We have found %1$s on your BIP32 private key.\n\nCorresponding digital assets accounts:\n%2$s\n%3$s\n\nNow you will be redirected to the Balance tab where you can check assets balance.</string>
+    <string name="d_coco_existing_found">We have found digital assets on your BIP32 private key.\n\nCorresponding digital assets accounts:\n%2$s\n\nNow you will be redirected to the Balance tab where you can check assets balance.</string>
     <string name="settings_mydfs_title">Enable MYDFS TOKEN</string>
     <string name="settings_mydfs_summary">Show MYDFS token buy option</string>
     <string name="buy_mydfs_token">BUY MYDFS TOKEN</string>
@@ -1214,5 +1214,13 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <plurals name="account_label">
         <item quantity="one">Account label:\n%s</item>
         <item quantity="other">Accounts labels:\n%s</item>
+    </plurals>
+    <plurals name="existing_accounts_found">
+        <item quantity="one">%d existing account found</item>
+        <item quantity="two">%d existing accounts found</item>
+    </plurals>
+    <plurals name="new_accounts_created">
+        <item quantity="one">%d new account created</item>
+        <item quantity="two">%d new accounts created</item>
     </plurals>
 </resources>

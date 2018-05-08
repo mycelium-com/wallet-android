@@ -656,12 +656,14 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
          fundsFound.append(Utils.getColuFormattedValueWithUnit(new ColuCurrencyValue(massFound, "MSS")));
       }
       String message = null;
+      String accountsCreatedString = getResources().getQuantityString(R.plurals.new_accounts_created, accountsCreated, accountsCreated);
+      String existingFoundString = getResources().getQuantityString(R.plurals.existing_accounts_found, existingAccountsFound, existingAccountsFound);
       if (accountsCreated > 0 && existingAccountsFound == 0) {
-         message = getString(R.string.d_coco_created, fundsFound.toString(), accountsCreated);
+         message = getString(R.string.d_coco_created, fundsFound.toString(), accountsCreatedString);
       } else if (accountsCreated > 0 && existingAccountsFound > 0) {
-         message = getString(R.string.d_coco_created_existing_found, fundsFound.toString(), accountsCreated, existingAccountsFound);
+         message = getString(R.string.d_coco_created_existing_found, fundsFound.toString(), accountsCreatedString, existingFoundString);
       } else if (existingAccountsFound > 0) {
-         message = getString(R.string.d_coco_existing_found, fundsFound.toString(), existingAccountsFound);
+         message = getString(R.string.d_coco_existing_found, fundsFound.toString(), existingFoundString);
       }
       new AlertDialog.Builder(this)
               .setTitle(R.string.coco_found)
