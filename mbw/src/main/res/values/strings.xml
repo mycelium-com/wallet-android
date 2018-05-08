@@ -1217,10 +1217,10 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     </plurals>
     <plurals name="existing_accounts_found">
         <item quantity="one">%d existing account found</item>
-        <item quantity="two">%d existing accounts found</item>
+        <item quantity="other">%d existing accounts found</item>
     </plurals>
     <plurals name="new_accounts_created">
         <item quantity="one">%d new account created</item>
-        <item quantity="two">%d new accounts created</item>
+        <item quantity="other">%d new accounts created</item>
     </plurals>
 </resources>
