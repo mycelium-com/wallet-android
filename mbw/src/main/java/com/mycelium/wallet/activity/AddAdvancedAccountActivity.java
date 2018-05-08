@@ -44,6 +44,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -639,31 +640,26 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
    @Override
    public void finishCoCoFound(final UUID firstAddedAccount, int accountsCreated, int existingAccountsFound,
                                BigDecimal mtFound, BigDecimal massFound, BigDecimal rmcFound) {
-      StringBuilder fundsFound = new StringBuilder();
-      if (rmcFound.compareTo(BigDecimal.ZERO) == 1) {
-         fundsFound.append(Utils.getColuFormattedValueWithUnit(new ColuCurrencyValue(rmcFound, "RMC")));
+      List<String> amountStrings = new ArrayList<>();
+      if (rmcFound.compareTo(BigDecimal.ZERO) > 0) {
+         amountStrings.add(Utils.getColuFormattedValueWithUnit(new ColuCurrencyValue(rmcFound, "RMC")));
       }
-      if (mtFound.compareTo(BigDecimal.ZERO) == 1) {
-         if (rmcFound.compareTo(BigDecimal.ZERO) == 1) {
-            fundsFound.append(',');
-         }
-         fundsFound.append(Utils.getColuFormattedValueWithUnit(new ColuCurrencyValue(mtFound, "MT")));
+      if (mtFound.compareTo(BigDecimal.ZERO) > 0) {
+         amountStrings.add(Utils.getColuFormattedValueWithUnit(new ColuCurrencyValue(mtFound, "MT")));
       }
-      if (massFound.compareTo(BigDecimal.ZERO) == 1) {
-         if (rmcFound.add(mtFound).compareTo(BigDecimal.ZERO) == 1) {
-            fundsFound.append(',');
-         }
-         fundsFound.append(Utils.getColuFormattedValueWithUnit(new ColuCurrencyValue(massFound, "MSS")));
+      if (massFound.compareTo(BigDecimal.ZERO) > 0) {
+         amountStrings.add(Utils.getColuFormattedValueWithUnit(new ColuCurrencyValue(massFound, "MSS")));
       }
+      String fundsFound = TextUtils.join(", ", amountStrings);
       String message = null;
       String accountsCreatedString = getResources().getQuantityString(R.plurals.new_accounts_created, accountsCreated, accountsCreated);
       String existingFoundString = getResources().getQuantityString(R.plurals.existing_accounts_found, existingAccountsFound, existingAccountsFound);
       if (accountsCreated > 0 && existingAccountsFound == 0) {
-         message = getString(R.string.d_coco_created, fundsFound.toString(), accountsCreatedString);
+         message = getString(R.string.d_coco_created, fundsFound, accountsCreatedString);
       } else if (accountsCreated > 0 && existingAccountsFound > 0) {
-         message = getString(R.string.d_coco_created_existing_found, fundsFound.toString(), accountsCreatedString, existingFoundString);
+         message = getString(R.string.d_coco_created_existing_found, fundsFound, accountsCreatedString, existingFoundString);
       } else if (existingAccountsFound > 0) {
-         message = getString(R.string.d_coco_existing_found, fundsFound.toString(), existingFoundString);
+         message = getString(R.string.d_coco_existing_found, fundsFound, existingFoundString);
       }
       new AlertDialog.Builder(this)
               .setTitle(R.string.coco_found)
