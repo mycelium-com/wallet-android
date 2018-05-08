@@ -12,8 +12,10 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.colu.ColuManager;
+import com.mycelium.wapi.wallet.WalletAccount;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -23,10 +25,13 @@ public class ImportCoCoHDAccount extends AsyncTask<Void, Integer, UUID> {
     private final Context context;
     private ProgressDialog dialog;
     private MbwManager mbwManager;
-    private int accountsCreated;
+    private BigDecimal mtFound = BigDecimal.ZERO;
+    private BigDecimal rmcFound = BigDecimal.ZERO;
+    private BigDecimal massFound = BigDecimal.ZERO;
     private int scanned = 0;
-    private UUID firstCoCoUUID = null;
+    private List<WalletAccount> accountsCreated = new ArrayList<>();
     private FinishListener finishListener;
+    private int existingAccountsFound;
 
     public ImportCoCoHDAccount(Context context, HdKeyNode hdKeyNode) {
         this.hdKeyNode = hdKeyNode;
@@ -58,7 +63,6 @@ public class ImportCoCoHDAccount extends AsyncTask<Void, Integer, UUID> {
     protected UUID doInBackground(Void... voids) {
         final int coloredLookAheadHD = 20;
         int emptyHD = 0;
-        accountsCreated = 0;
         ColuManager coluManager = mbwManager.getColuManager();
         int accountIndex = 0;
         while (emptyHD < coloredLookAheadHD) {
@@ -68,7 +72,21 @@ public class ImportCoCoHDAccount extends AsyncTask<Void, Integer, UUID> {
 
         //Make sure that accounts are up to date
         coluManager.scanForAccounts();
-        return firstCoCoUUID;
+        for (WalletAccount account : accountsCreated) {
+            BigDecimal spendableBalance = account.getCurrencyBasedBalance().confirmed.getValue();
+            switch (((ColuAccount) account).getColuAsset().assetType) {
+                case MASS:
+                    massFound = massFound.add(spendableBalance);
+                    break;
+                case RMC:
+                    rmcFound = rmcFound.add(spendableBalance);
+                    break;
+                case MT:
+                    mtFound = mtFound.add(spendableBalance);
+                    break;
+            }
+        }
+        return accountsCreated.isEmpty() ? null : accountsCreated.get(0).getId();
     }
 
     /**
@@ -86,6 +104,7 @@ public class ImportCoCoHDAccount extends AsyncTask<Void, Integer, UUID> {
             Address address = currentNode.getPublicKey().toAddress(mbwManager.getNetwork());
             Optional<UUID> accountId = mbwManager.getAccountId(address, null);
             if (accountId.isPresent()) {
+                existingAccountsFound++;
                 addressIndex++;
                 empty = 0;
                 emptyHD = 0;
@@ -116,11 +135,9 @@ public class ImportCoCoHDAccount extends AsyncTask<Void, Integer, UUID> {
         List<ColuAccount.ColuAsset> assetList = new ArrayList<>(coluManager.getColuAddressAssets(address));
         //Check if there were any known assets
         if (!assetList.isEmpty()) {
-            accountsCreated++;
-            if (firstCoCoUUID == null) {
-                firstCoCoUUID = coluManager.enableAsset(assetList.get(0), currentNode.getPrivateKey());
-            } else {
-                coluManager.enableAsset(assetList.get(0), currentNode.getPrivateKey());
+            UUID addedAccountUUID = coluManager.enableAsset(assetList.get(0), currentNode.getPrivateKey());
+            if (addedAccountUUID != null) {
+                accountsCreated.add(coluManager.getAccount(addedAccountUUID));
             }
         }
     }
@@ -128,16 +145,17 @@ public class ImportCoCoHDAccount extends AsyncTask<Void, Integer, UUID> {
     @Override
     protected void onPostExecute(UUID account) {
         dialog.dismiss();
-        if (account != null && finishListener != null) {
-            finishListener.finishCoCoFound(account, accountsCreated);
-        } else if (finishListener != null) {
+        if (accountsCreated.isEmpty() && existingAccountsFound == 0 && finishListener != null) {
             finishListener.finishCoCoNotFound(hdKeyNode);
+        } else if (finishListener != null) {
+            finishListener.finishCoCoFound(account, accountsCreated.size(), existingAccountsFound, mtFound, massFound, rmcFound);
         }
     }
 
     public interface FinishListener {
         void finishCoCoNotFound(HdKeyNode hdKeyNode);
 
-        void finishCoCoFound(UUID account, int accountsCreated);
+        void finishCoCoFound(final UUID firstAddedAccount, int accountsCreated, int existingAccountsFound, BigDecimal mtFound,
+                             BigDecimal massFound, BigDecimal rmcFound);
     }
 }
