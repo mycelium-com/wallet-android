@@ -61,11 +61,11 @@ public class ServerEndpoints {
       currentEndpoint = initialEndpoint;
    }
 
-   public synchronized HttpEndpoint getCurrentEndpoint(){
+   public HttpEndpoint getCurrentEndpoint(){
       return endpoints.get(currentEndpoint);
    }
 
-   public synchronized int getCurrentEndpointIndex(){
+   public int getCurrentEndpointIndex(){
       return currentEndpoint;
    }
 
@@ -73,10 +73,7 @@ public class ServerEndpoints {
       HttpEndpoint selectedEndpoint;
       int cnt=0;
       do{
-         currentEndpoint++;
-         if (currentEndpoint >= endpoints.size()) {
-            currentEndpoint = 0;
-         }
+         currentEndpoint = (currentEndpoint + 1) % endpoints.size();
          selectedEndpoint = endpoints.get(currentEndpoint);
          cnt++;
          if (cnt>endpoints.size()){
