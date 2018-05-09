@@ -362,7 +362,7 @@ public class ConfirmExchangeFragment extends Fragment {
         order.exchangingCurrency = CurrencyValue.BCH;
 
         order.receivingAddress = toAccount.getReceivingAddress().get().toString();
-        order.receivingAmount = decimalFormat.format(toValue);
+        order.receivingAmount = toValue;
         order.receivingCurrency = CurrencyValue.BTC;
         order.timestamp = SimpleDateFormat.getDateTimeInstance(SimpleDateFormat.LONG, SimpleDateFormat.LONG, Locale.ENGLISH)
                 .format(new Date());
