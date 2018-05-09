@@ -494,7 +494,7 @@ public class ExchangeFragment extends Fragment {
             tvError.setVisibility(View.VISIBLE);
             exchangeFiatRate.setVisibility(View.INVISIBLE);
             return false;
-        } else if (checkMin && minAmount == NOT_LOADED
+        } else if (checkMin && minAmount != NOT_LOADED
                 && dblAmount.compareTo(getMinAmountWithFee()) < 0) {
             buttonContinue.setEnabled(false);
             if (dblAmount != 0 || dblAmountTo != 0) {
