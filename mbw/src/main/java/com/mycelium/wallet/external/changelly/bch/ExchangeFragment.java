@@ -481,7 +481,6 @@ public class ExchangeFragment extends Fragment {
         }
 
         WalletAccount fromAccount = fromAccountAdapter.getItem(fromRecyclerView.getSelectedItem()).account;
-        double minAmountWithFee; // need for optimization getMinAmountWithFee calls
         if (checkMin && minAmount == NOT_LOADED) {
             buttonContinue.setEnabled(false);
             toast("Please wait while loading minimum amount information.");
@@ -495,14 +494,15 @@ public class ExchangeFragment extends Fragment {
             tvError.setVisibility(View.VISIBLE);
             exchangeFiatRate.setVisibility(View.INVISIBLE);
             return false;
-        } else if (checkMin && dblAmount.compareTo(minAmountWithFee = getMinAmountWithFee()) < 0) {
+        } else if (checkMin && minAmount == NOT_LOADED
+                && dblAmount.compareTo(getMinAmountWithFee()) < 0) {
             buttonContinue.setEnabled(false);
             if (dblAmount != 0 || dblAmountTo != 0) {
                 TextView tvError = valueKeyboard.getVisibility() == View.VISIBLE
                         && valueKeyboard.getInputTextView() == toValue
                         ? tvErrorTo : tvErrorFrom;
                 tvError.setText(getString(R.string.exchange_minimum_amount
-                        , decimalFormat.format(minAmountWithFee), "BCH"));
+                        , decimalFormat.format(getMinAmountWithFee()), "BCH"));
                 tvError.setVisibility(View.VISIBLE);
 
                 exchangeFiatRate.setVisibility(View.INVISIBLE);
