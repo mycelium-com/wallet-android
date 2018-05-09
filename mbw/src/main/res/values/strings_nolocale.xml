@@ -3,7 +3,7 @@
         xmlns:tools="http://schemas.android.com/tools"
         tools:ignore="MissingTranslation">
 
-    <string name="contact_email">info@mycelium.com</string>
+    <string name="contact_email">support@mycelium.com</string>
     <string name="authors">Jan Møller\nAndreas Petersson\nDmitry Murashchik\nDaniel Weigl\nJan Dreske\nConstantin Vennekel\nLeo Wandersleb\nDaniel Krawisz\nJerome Rousselot\nElvis Kurtnebiev\nSergey Dolgopolov</string>
     <string name="btc">BTC</string>
 
