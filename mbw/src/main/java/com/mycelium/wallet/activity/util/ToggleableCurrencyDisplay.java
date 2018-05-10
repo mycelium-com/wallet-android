@@ -136,7 +136,9 @@ public class ToggleableCurrencyDisplay extends LinearLayout {
          showFiat();
       } else {
          // Switch to BTC if no fiat fx rate is available
-         if (!currencySwitcher.isFiatExchangeRateAvailable()) {
+         if (!currencySwitcher.isFiatExchangeRateAvailable()
+                 && currencySwitcher.isFiatCurrency(currencySwitcher.getCurrentCurrency())
+                 && !currencySwitcher.isFiatCurrency(currencySwitcher.getDefaultCurrency())) {
             currencySwitcher.setCurrency(CurrencyValue.BTC);
          }
 
@@ -183,6 +185,7 @@ public class ToggleableCurrencyDisplay extends LinearLayout {
    public void setEventBus(Bus eventBus) {
       this.eventBus = eventBus;
    }
+
    private boolean isAddedToBus = false;
    @Override
    protected void onAttachedToWindow() {

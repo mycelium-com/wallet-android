@@ -84,6 +84,7 @@ import com.mycelium.wapi.wallet.currency.ExchangeBasedBitcoinValue;
 import com.mycelium.wapi.wallet.currency.ExchangeBasedCurrencyValue;
 import com.squareup.otto.Subscribe;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -253,12 +254,14 @@ public class ReceiveCoinsActivity extends Activity {
 
         if (!_amount.getCurrency().equals(accountDisplayType.getAccountLabel())) {
             switch (accountDisplayType) {
+            case COINAPULT_ACCOUNT:
             case BTC_ACCOUNT:
                 // convert the amount to btc, but only once and stay within btc for all next calls
                 _amount = ExchangeBasedBitcoinValue.fromValue(_amount, _mbwManager.getExchangeRateManager());
                 break;
             case BCH_ACCOUNT:
                 _amount = ExchangeBasedBitcoinCashValue.fromValue(_amount, _mbwManager.getExchangeRateManager());
+                break;
             default:
                 _amount = ExchangeBasedCurrencyValue.fromValue(_amount, accountDisplayType.getAccountLabel(),
                           _mbwManager.getExchangeRateManager());
@@ -309,6 +312,7 @@ public class ReceiveCoinsActivity extends Activity {
 
     private void updateAmountText() {
         switch(accountDisplayType) {
+        case COINAPULT_ACCOUNT:
         case BTC_ACCOUNT:
             tvAmount.setText(Utils.getFormattedValueWithUnit(getDefaultCurrencyAmount(), _mbwManager.getBitcoinDenomination()));
             break;
@@ -376,8 +380,13 @@ public class ReceiveCoinsActivity extends Activity {
             if(accountDisplayType == AccountDisplayType.COLU_ACCOUNT) {
                 uri.append("?amount=").append(_amount.getValue().toPlainString());
             } else {
-                uri.append("?amount=").append(CoinUtil.valueString(getDefaultCurrencyAmount().getValue(),
-                                              CoinUtil.Denomination.BTC, false));
+                BigDecimal value = getDefaultCurrencyAmount().getValue();
+                if (value != null) {
+                    uri.append("?amount=").append(CoinUtil.valueString(value,
+                            CoinUtil.Denomination.BTC, false));
+                } else {
+                    Toast.makeText(this, R.string.value_conversion_error, Toast.LENGTH_LONG).show();
+                }
             }
         }
         return uri.toString();
