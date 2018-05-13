@@ -669,7 +669,7 @@ public class AccountsFragment extends Fragment {
             // Loose focus
             if (accountListAdapter.getFocusedAccount() != null) {
                accountListAdapter.setFocusedAccount(null);
-               update();
+//               update();
             }
          }
       };
@@ -680,7 +680,7 @@ public class AccountsFragment extends Fragment {
       // an update.
       accountListAdapter.setFocusedAccount(account);
 
-      update();
+//      update();
    }
 
    //todo: maybe move it to another class along with the other coinaspult mail stuff? would require passing the context for dialog boxes though.

@@ -55,6 +55,7 @@ import com.mycelium.view.ItemCentralizer;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.main.adapter.ButtonAdapter;
+import com.mycelium.wallet.activity.main.adapter.ButtonClickListener;
 import com.mycelium.wallet.activity.main.model.ActionButton;
 import com.mycelium.wallet.activity.settings.SettingsPreference;
 import com.mycelium.wallet.event.PageSelectedEvent;
@@ -74,7 +75,11 @@ import javax.annotation.Nullable;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class BuySellFragment extends Fragment {
+public class BuySellFragment extends Fragment implements ButtonClickListener {
+    public static final int BCH_ACTION = 1;
+    public static final int ALTCOIN_ACTION = 2;
+    public static final int BTC_ACTION = 3;
+    public static final int MYDFS_ACTION = 4;
     private MbwManager _mbwManager;
 
     @BindView(R.id.button_list)
@@ -92,6 +97,7 @@ public class BuySellFragment extends Fragment {
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(buttonAdapter);
         recyclerView.addOnScrollListener(new ItemCentralizer());
+        buttonAdapter.setClickListener(this);
         return root;
     }
 
@@ -113,28 +119,13 @@ public class BuySellFragment extends Fragment {
         switch (_mbwManager.getSelectedAccount().getType()) {
             case BCHBIP44:
             case BCHSINGLEADDRESS:
-                actions.add(new ActionButton(getString(R.string.exchange_bch_to_btc), new Runnable() {
-                    @Override
-                    public void run() {
-                        startExchange(new Intent(getActivity(), ExchangeActivity.class));
-                    }
-                }));
+                actions.add(new ActionButton(BCH_ACTION, getString(R.string.exchange_bch_to_btc)));
                 break;
             default:
-                actions.add(new ActionButton(getString(R.string.exchange_altcoins_to_btc), new Runnable() {
-                    @Override
-                    public void run() {
-                        startExchange(new Intent(getActivity(), ChangellyActivity.class));
-                    }
-                }));
+                actions.add(new ActionButton(ALTCOIN_ACTION, getString(R.string.exchange_altcoins_to_btc)));
                 scrollTo = addMyDfs(actions, scrollTo);
                 if (showButton) {
-                    actions.add(new ActionButton(getString(R.string.gd_buy_sell_button), new Runnable() {
-                        @Override
-                        public void run() {
-                            startActivity(new Intent(getActivity(), BuySellSelectActivity.class));
-                        }
-                    }));
+                    actions.add(new ActionButton(BTC_ACTION, getString(R.string.gd_buy_sell_button)));
                 }
         }
         buttonAdapter.setButtons(actions);
@@ -145,17 +136,30 @@ public class BuySellFragment extends Fragment {
 
     private int addMyDfs(List<ActionButton> actions, int scrollTo) {
         if (SettingsPreference.getInstance().isMyDFSEnabled()) {
-            ActionButton actionButton = new ActionButton(getString(R.string.buy_mydfs_token), R.drawable.ic_stars_black_18px, new Runnable() {
-                @Override
-                public void run() {
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://mydfs.net/?ref=mycelium")));
-                }
-            });
+            ActionButton actionButton = new ActionButton(MYDFS_ACTION, getString(R.string.buy_mydfs_token), R.drawable.ic_stars_black_18px);
             actionButton.textColor = getResources().getColor(R.color.white);
             actions.add(actionButton);
             scrollTo = actions.size() - 1;
         }
         return scrollTo;
+    }
+
+    @Override
+    public void onClick(ActionButton actionButton) {
+        switch (actionButton.id) {
+            case BCH_ACTION:
+                startExchange(new Intent(getActivity(), ExchangeActivity.class));
+                break;
+            case ALTCOIN_ACTION:
+                startExchange(new Intent(getActivity(), ChangellyActivity.class));
+                break;
+            case BTC_ACTION:
+                startActivity(new Intent(getActivity(), BuySellSelectActivity.class));
+                break;
+            case MYDFS_ACTION:
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://mydfs.net/?ref=mycelium")));
+                break;
+        }
     }
 
     class ScrollToRunner implements Runnable {
@@ -218,7 +222,7 @@ public class BuySellFragment extends Fragment {
 
     @Subscribe
     public void pageSelectedEvent(PageSelectedEvent event) {
-        if(event.position == 1) {
+        if (event.position == 1) {
             recreateActions();
         }
     }

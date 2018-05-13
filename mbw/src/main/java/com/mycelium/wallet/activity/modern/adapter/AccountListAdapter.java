@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +26,7 @@ import com.mycelium.wapi.wallet.currency.CurrencySum;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int GROUP_TITLE_TYPE = 2;
@@ -54,6 +56,23 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             this.type = type;
             this.title = title;
             this.walletAccountList = walletAccountList;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Item item = (Item) o;
+            return type == item.type &&
+                    Objects.equals(walletAccount, item.walletAccount) &&
+                    Objects.equals(title, item.title) &&
+                    Objects.equals(walletAccountList, item.walletAccountList);
+        }
+
+        @Override
+        public int hashCode() {
+
+            return Objects.hash(type, walletAccount, title, walletAccountList);
         }
     }
 
@@ -103,6 +122,7 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     }
 
     public void updateData() {
+        Log.e("!!!", "updateData start");
         itemList.clear();
         AccountManager am = AccountManager.INSTANCE;
 
@@ -138,6 +158,8 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         itemList.add(new Item(TOTAL_BALANCE_TYPE, "", am.getActiveAccounts().values().asList()));
         addGroup(R.string.archive_name, GROUP_ARCHIVED_TITLE_TYPE, am.getArchivedAccounts().values());
         notifyDataSetChanged();
+
+        Log.e("!!!", "updateData end");
     }
 
     private void addGroup(int titleId, int titleType, Collection<WalletAccount> accounts) {
@@ -265,7 +287,7 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     private CurrencySum getSpendableBalance(List<WalletAccount> walletAccountList) {
         CurrencySum currencySum = new CurrencySum();
         for (WalletAccount account : walletAccountList) {
-            if(!account.isArchived()) {
+            if (!account.isArchived()) {
                 currencySum.add(account.getCurrencyBasedBalance().confirmed);
             }
         }
