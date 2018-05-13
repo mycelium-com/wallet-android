@@ -62,7 +62,6 @@ import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity;
 import com.mycelium.wallet.activity.send.SendInitializationActivity;
 import com.mycelium.wallet.activity.util.ToggleableCurrencyButton;
-import com.mycelium.wallet.activity.view.RoundButtonWithText;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.BalanceChanged;
@@ -292,13 +291,13 @@ public class BalanceFragment extends Fragment {
       } else if (isBCH()) {
          CurrencyValue fiatValue = CurrencyValue.fromValue(ExactBitcoinCashValue.from(BigDecimal.ONE)
                  , _mbwManager.getFiatCurrency(), _mbwManager.getExchangeRateManager());
-         if (fiatValue.getValue() == null) {
+         if (fiatValue != null && fiatValue.getValue() != null) {
+            tvBtcRate.setText(getString(R.string.rate, "BCH"
+                    , Utils.formatFiatWithUnit(fiatValue)));
+         } else {
             // We have no price, exchange not available
             tvBtcRate.setVisibility(View.VISIBLE);
             tvBtcRate.setText(R.string.exchange_rate_unavailable);
-         } else {
-            tvBtcRate.setText(getString(R.string.rate, "BCH"
-                    , Utils.formatFiatWithUnit(fiatValue)));
          }
          exchangeSourceLayout.setVisibility(View.GONE);
       } else {
