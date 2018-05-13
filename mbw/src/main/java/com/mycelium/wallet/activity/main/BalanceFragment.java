@@ -292,7 +292,7 @@ public class BalanceFragment extends Fragment {
       } else if (isBCH()) {
          CurrencyValue fiatValue = CurrencyValue.fromValue(ExactBitcoinCashValue.from(BigDecimal.ONE)
                  , _mbwManager.getFiatCurrency(), _mbwManager.getExchangeRateManager());
-         if (_exchangeRatePrice == null) {
+         if (fiatValue.getValue() == null) {
             // We have no price, exchange not available
             tvBtcRate.setVisibility(View.VISIBLE);
             tvBtcRate.setText(R.string.exchange_rate_unavailable);
