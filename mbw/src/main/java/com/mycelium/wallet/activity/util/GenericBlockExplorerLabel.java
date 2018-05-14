@@ -34,26 +34,23 @@
 
 package com.mycelium.wallet.activity.util;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.net.Uri;
+import android.support.v7.widget.AppCompatTextView;
 import android.text.SpannableString;
 import android.text.style.UnderlineSpan;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 import com.google.common.base.Strings;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 
-//TODO: upgrade to android support v7 >>19.1.0
-@SuppressLint("AppCompatCustomView")
-public abstract class GenericBlockExplorerLabel extends TextView {
+public abstract class GenericBlockExplorerLabel extends AppCompatTextView {
    private void init(){
       this.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
       this.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);

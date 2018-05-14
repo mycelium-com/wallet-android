@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<View xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="120dp"
     android:layout_height="75dp"
     android:background="@drawable/sender_recyclerview_item_background_selector">
-</LinearLayout>
+</View>

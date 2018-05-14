@@ -2,9 +2,10 @@ package com.mycelium.wallet.activity.view;
 
 
 import android.content.Context;
+import android.support.v7.widget.GridLayout;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.View;
-import android.widget.GridLayout;
 import android.widget.TextView;
 
 import com.mycelium.wallet.R;
@@ -34,17 +35,27 @@ public class ValueKeyboard extends GridLayout {
         super(context, attrs, defStyleAttr);
     }
 
+    public TextView getInputTextView() {
+        return inputTextView;
+    }
+
     public void setMaxDecimals(int maxDecimals) {
         this.maxDecimals = maxDecimals;
         value.setEntry(value.getEntryAsBigDecimal(), maxDecimals);
         updateDotBtn();
     }
 
-    BigDecimal maxValue = BigDecimal.ZERO;
+    BigDecimal spendableValue = BigDecimal.ZERO;
+
+    public void setSpendableValue(BigDecimal spendableValue) {
+        this.spendableValue = spendableValue;
+        updateMaxBtn();
+    }
+
+    BigDecimal maxValue;
 
     public void setMaxValue(BigDecimal maxValue) {
         this.maxValue = maxValue;
-        updateMaxBtn();
     }
 
     public void setInputTextView(TextView inputTextView) {
@@ -84,7 +95,7 @@ public class ValueKeyboard extends GridLayout {
                 @Override
                 public void onClick(View view) {
                     if (view.getId() == R.id.btn_max) {
-                        value.setEntry(maxValue, maxDecimals);
+                        value.setEntry(spendableValue, maxDecimals);
                     } else if (view.getId() == R.id.btn_backspace) {
                         value.clicked(DEL);
                     } else if (view.getId() == R.id.btn_dot) {
@@ -96,7 +107,7 @@ public class ValueKeyboard extends GridLayout {
                         if (!clipboardString.isEmpty()) {
                             try {
                                 value.setEntry(new BigDecimal(clipboardString), maxDecimals);
-                            } catch (NumberFormatException ignre) {
+                            } catch (NumberFormatException ignore) {
                             }
                         }
                     } else if (view instanceof TextView) {
@@ -118,11 +129,21 @@ public class ValueKeyboard extends GridLayout {
         });
     }
 
+    public void setMaxText(String text, float size) {
+        TextView textView = findViewById(R.id.btn_max);
+        textView.setText(text);
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, size);
+    }
+
+    public void setPasteVisibility(int visibility) {
+        findViewById(R.id.btn_copy).setVisibility(visibility);
+    }
+
     public void done() {
+        setVisibility(View.GONE);
         if (inputListener != null) {
             inputListener.done();
         }
-        setVisibility(View.GONE);
     }
 
     private void updateDotBtn() {
@@ -130,7 +151,7 @@ public class ValueKeyboard extends GridLayout {
     }
 
     private void updateMaxBtn() {
-        findViewById(R.id.btn_max).setVisibility(maxValue.equals(BigDecimal.ZERO) ? View.INVISIBLE : View.VISIBLE);
+        findViewById(R.id.btn_max).setVisibility(spendableValue.equals(BigDecimal.ZERO) ? View.INVISIBLE : View.VISIBLE);
     }
 
     public interface InputListener {
@@ -208,12 +229,14 @@ public class ValueKeyboard extends GridLayout {
         }
 
         void clicked(int digit) {
+            if (entry.equals("0")) {
+                entry = "";
+            }
             if (digit == DEL) {
                 // Delete Digit
-                if (entry.isEmpty()) {
-                    return;
+                if (!entry.isEmpty()) {
+                    entry = entry.substring(0, entry.length() - 1);
                 }
-                entry = entry.substring(0, entry.length() - 1);
             } else if (digit == DOT) {
                 // Do we already have a dot?
                 if (hasDot()) {
@@ -243,7 +266,9 @@ public class ValueKeyboard extends GridLayout {
                         return;
                     }
                 }
-                entry = entry + digit;
+                if (maxValue == null || new BigDecimal(entry + digit).compareTo(maxValue) <= 0) {
+                    entry = entry + digit;
+                }
             }
             entryChange.entryChange(entry, false);
         }

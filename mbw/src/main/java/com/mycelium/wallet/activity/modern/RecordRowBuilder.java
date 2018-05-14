@@ -42,7 +42,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.common.base.Optional;
@@ -50,7 +49,6 @@ import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.activity.util.ToggleableCurrencyButton;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.model.Balance;
@@ -58,8 +56,6 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bip44.Bip44Account;
 import com.mycelium.wapi.wallet.bip44.Bip44PubOnlyAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
-import com.mycelium.wapi.wallet.currency.CurrencySum;
-import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 
 public class RecordRowBuilder {
    private final MbwManager mbwManager;
@@ -170,13 +166,14 @@ public class RecordRowBuilder {
          displayAddress = ""; //dont show key count of archived accs
       }
 
-      TextView tvAddress = ((TextView) rowView.findViewById(R.id.tvAddress));
+      TextView tvAddress = rowView.findViewById(R.id.tvAddress);
       tvAddress.setText(displayAddress);
       tvAddress.setTextColor(textColor);
 
       // Set tag
       rowView.setTag(walletAccount);
 
+      TextView tvAccountType = rowView.findViewById(R.id.tvAccountType);
       // Set balance
       if (walletAccount.isActive()) {
          CurrencyBasedBalance balance = walletAccount.getCurrencyBasedBalance();
@@ -185,17 +182,32 @@ public class RecordRowBuilder {
          if(walletAccount instanceof ColuAccount) {
             balanceString = Utils.getColuFormattedValueWithUnit(walletAccount.getCurrencyBasedBalance().confirmed);
          }
-         TextView tvBalance = ((TextView) rowView.findViewById(R.id.tvBalance));
+         TextView tvBalance = rowView.findViewById(R.id.tvBalance);
          tvBalance.setText(balanceString);
          tvBalance.setTextColor(textColor);
 
+         // Show legacy account with funds warning if necessary
          boolean showBackupMissingWarning = showBackupMissingWarning(walletAccount, mbwManager);
-         rowView.findViewById(R.id.tvBackupMissingWarning).setVisibility(showBackupMissingWarning ? View.VISIBLE : View.GONE);
+         TextView backupMissing = rowView.findViewById(R.id.tvBackupMissingWarning);
+         backupMissing.setVisibility(showBackupMissingWarning ? View.VISIBLE : View.GONE);
+         if(mbwManager.getMetadataStorage().getOtherAccountBackupState(walletAccount.getId()) == MetadataStorage.BackupState.NOT_VERIFIED) {
+            backupMissing.setText(R.string.backup_not_verified);
+         } else {
+            backupMissing.setText(R.string.backup_missing);
+         }
+         tvAccountType.setVisibility(View.GONE);
 
       } else {
          // We don't show anything if the account is archived
          rowView.findViewById(R.id.tvBalance).setVisibility(View.GONE);
          rowView.findViewById(R.id.tvBackupMissingWarning).setVisibility(View.GONE);
+         if (walletAccount.getType() == WalletAccount.Type.BCHBIP44
+                 || walletAccount.getType() == WalletAccount.Type.BCHSINGLEADDRESS) {
+            tvAccountType.setText(Html.fromHtml(tvAccountType.getResources().getString(R.string.bitcoin_cash)));
+            tvAccountType.setVisibility(View.VISIBLE);
+         } else {
+            tvAccountType.setVisibility(View.GONE);
+         }
       }
 
       // Show/hide trader account message
@@ -206,17 +218,6 @@ public class RecordRowBuilder {
       }
 
       return rowView;
-   }
-
-   public static boolean showLegacyAccountWarning(WalletAccount account, MbwManager mbwManager) {
-      if (account.isArchived()) {
-         return false;
-      }
-      Balance balance = account.getBalance();
-       return account instanceof SingleAddressAccount
-               && balance.getReceivingBalance() + balance.getSpendableBalance() > 0
-               && account.canSpend()
-               && !mbwManager.getMetadataStorage().getIgnoreLegacyWarning(account.getId());
    }
 
    private static boolean showBackupMissingWarning(WalletAccount account, MbwManager mbwManager) {

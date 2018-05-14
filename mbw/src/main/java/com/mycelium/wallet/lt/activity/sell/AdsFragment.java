@@ -52,7 +52,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -203,7 +203,7 @@ public class AdsFragment extends Fragment {
       @Override
       public void onItemClick(AdapterView<?> listView, final View view, final int position, long id) {
          _selectedAd = (Ad) view.getTag();
-         ActionBarActivity parent = (ActionBarActivity) getActivity();
+         AppCompatActivity parent = (AppCompatActivity) getActivity();
          _currentActionMode = parent.startSupportActionMode(new ActionMode.Callback() {
             @Override
             public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {

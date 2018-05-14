@@ -49,13 +49,12 @@ import com.squareup.otto.Bus;
 import java.util.UUID;
 
 public class EnterAddressLabelUtil {
-
    public interface AddressLabelChangedHandler {
-      public void OnAddressLabelChanged(Address address, String label);
+      void OnAddressLabelChanged(Address address, String label);
    }
 
    public interface TransactionLabelChangedHandler {
-      public void OnTransactionLabelChanged(Sha256Hash txid, String label);
+      void OnTransactionLabelChanged(Sha256Hash txid, String label);
    }
 
    public static void enterAddressLabel(Context context, MetadataStorage storage, Address address,
@@ -73,18 +72,16 @@ public class EnterAddressLabelUtil {
       String invalidOkToastMessage = context.getResources().getString(R.string.address_label_not_unique);
       EnterTextDialog.show(context, title_id, hintText, currentName, true, new EnterAddressLabelHandler(storage,
               address, invalidOkToastMessage, changeHandler));
-
    }
 
    private static class EnterAddressLabelHandler extends EnterTextDialog.EnterTextHandler {
-
       private MetadataStorage _storage;
       private Address _address;
       private String _invalidOkToastMessage;
       private AddressLabelChangedHandler _changeHandler;
 
-      public EnterAddressLabelHandler(MetadataStorage storage, Address address, String invalidOkToastMessage,
-                                      AddressLabelChangedHandler changeHandler) {
+      EnterAddressLabelHandler(MetadataStorage storage, Address address, String invalidOkToastMessage,
+                               AddressLabelChangedHandler changeHandler) {
          _storage = storage;
          _address = address;
          _invalidOkToastMessage = invalidOkToastMessage;
@@ -127,7 +124,7 @@ public class EnterAddressLabelUtil {
       }
    }
 
-   public static void enterAccountLabel(Context context, UUID account, String defaultName, MetadataStorage storage) {
+   public static void enterAccountLabel(final Context context, UUID account, String defaultName, MetadataStorage storage) {
       String hintText = context.getResources().getString(R.string.name);
       String currentName = storage.getLabelByAccount(account);
       int title_id;
@@ -139,28 +136,27 @@ public class EnterAddressLabelUtil {
       }
       String invalidOkToastMessage = context.getResources().getString(R.string.account_label_not_unique);
       Bus bus = MbwManager.getInstance(context).getEventBus();
-      EnterAccountLabelHandler handler = new EnterAccountLabelHandler(account, invalidOkToastMessage, storage, bus);
+      EnterAccountLabelHandler handler = new EnterAccountLabelHandler(account, invalidOkToastMessage, storage, bus) {
+         @Override
+         public void onDismiss() {
+            super.onDismiss();
+            MbwManager.getInstance(context).importLabelsToBch(MbwManager.getInstance(context).getWalletManager(false));
+         }
+      };
       EnterTextDialog.show(context, title_id, hintText, currentName, true, handler);
-
    }
 
    private static class EnterAccountLabelHandler extends EnterTextDialog.EnterTextHandler {
-
       private UUID account;
       private String invalidOkToastMessage;
       private MetadataStorage storage;
       private Bus bus;
 
-      public EnterAccountLabelHandler(UUID account, String invalidOkToastMessage, MetadataStorage storage, Bus bus) {
+      EnterAccountLabelHandler(UUID account, String invalidOkToastMessage, MetadataStorage storage, Bus bus) {
          this.account = account;
          this.invalidOkToastMessage = invalidOkToastMessage;
          this.storage = storage;
          this.bus = bus;
-      }
-
-      @Override
-      public boolean validateTextOnChange(String newText, String oldText) {
-         return true;
       }
 
       @Override
@@ -194,16 +190,14 @@ public class EnterAddressLabelUtil {
 
       EnterTransactionLabelHandler handler = new EnterTransactionLabelHandler(txid, storage, changeHandler);
       EnterTextDialog.show(context, title_id, hintText, currentName, true, handler);
-
    }
 
    private static class EnterTransactionLabelHandler extends EnterTextDialog.EnterTextHandler {
-
       private Sha256Hash txid;
       private MetadataStorage storage;
       private TransactionLabelChangedHandler changeHandler;
 
-      public EnterTransactionLabelHandler(Sha256Hash txid, MetadataStorage storage, TransactionLabelChangedHandler changeHandler) {
+      EnterTransactionLabelHandler(Sha256Hash txid, MetadataStorage storage, TransactionLabelChangedHandler changeHandler) {
          this.txid = txid;
          this.storage = storage;
          this.changeHandler = changeHandler;
@@ -227,5 +221,4 @@ public class EnterAddressLabelUtil {
          }
       }
    }
-
 }

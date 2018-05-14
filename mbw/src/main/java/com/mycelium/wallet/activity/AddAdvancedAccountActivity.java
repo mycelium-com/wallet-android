@@ -37,10 +37,14 @@ package com.mycelium.wallet.activity;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -55,11 +59,14 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.StringHandleConfig;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.modern.Toaster;
+import com.mycelium.wallet.activity.util.ImportCoCoHDAccount;
 import com.mycelium.wallet.colu.ColuAccount;
+import com.mycelium.wallet.colu.ColuCurrencyValue;
 import com.mycelium.wallet.colu.ColuManager;
 import com.mycelium.wallet.extsig.keepkey.activity.KeepKeyAccountImportActivity;
 import com.mycelium.wallet.extsig.ledger.activity.LedgerAccountImportActivity;
 import com.mycelium.wallet.extsig.trezor.activity.TrezorAccountImportActivity;
+import com.mycelium.wallet.modularisation.BCHHelper;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
@@ -67,11 +74,16 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class AddAdvancedAccountActivity extends Activity {
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
+public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHDAccount.FinishListener {
    public static final String BUY_TREZOR_LINK = "https://buytrezor.com?a=mycelium.com";
    public static final String BUY_KEEPKEY_LINK = "https://keepkey.go2cloud.org/SH1M";
    public static final String BUY_LEDGER_LINK = "https://www.ledgerwallet.com/r/494d?path=/products";
@@ -92,11 +104,15 @@ public class AddAdvancedAccountActivity extends Activity {
 
    private NetworkParameters _network;
 
+   @BindView(R.id.btGenerateNewBchSingleKey)
+   View btGenerateNewBchSingleKey;
+
    @Override
    public void onCreate(Bundle savedInstanceState) {
       this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
       super.onCreate(savedInstanceState);
       setContentView(R.layout.add_advanced_account_activity);
+      ButterKnife.bind(this);
       final Activity activity = AddAdvancedAccountActivity.this;
       _mbwManager = MbwManager.getInstance(this);
       _network = _mbwManager.getNetwork();
@@ -159,6 +175,12 @@ public class AddAdvancedAccountActivity extends Activity {
             Utils.openWebsite(activity, BUY_LEDGER_LINK);
          }
       });
+      btGenerateNewBchSingleKey.setVisibility(BCHHelper.isModulePaired(getApplicationContext()) ? View.VISIBLE : View.GONE);
+   }
+
+   @OnClick(R.id.btGenerateNewBchSingleKey)
+   void onGenerateBchClick() {
+      BCHHelper.bchTechnologyPreviewDialog(this);
    }
 
    @Override
@@ -187,9 +209,84 @@ public class AddAdvancedAccountActivity extends Activity {
                     StringHandleConfig.returnKeyOrAddressOrHdNode(),
                     Utils.getClipboardString(AddAdvancedAccountActivity.this));
 
-            AddAdvancedAccountActivity.this.startActivityForResult(intent, CLIPBOARD_RESULT_CODE);
+            startActivityForResult(intent, CLIPBOARD_RESULT_CODE);
          }
       });
+   }
+
+   /**
+    * SA watch only accounts import method.
+    */
+   private void returnAccount(Address address) {
+      //UUID acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(address);
+      new ImportReadOnlySingleAddressAccountAsyncTask(address, AccountType.Unknown).execute();
+   }
+
+   /**
+    * BIP44 account import method.
+    * @param hdKeyNode node of depth 3.
+    */
+   private void returnAccount(HdKeyNode hdKeyNode) {
+      UUID acc = _mbwManager.getWalletManager(false).createUnrelatedBip44Account(hdKeyNode);
+      // set BackupState as ignored - we currently have no option to backup xPrivs after all
+      _mbwManager.getMetadataStorage().setOtherAccountBackupState(acc, MetadataStorage.BackupState.IGNORED);
+      finishOk(acc, false);
+   }
+
+   /**
+    *  This method is only intended to support BIP32 CoCo accounts.
+    * @param hdKeyNode node of depth 0
+    */
+   private void returnBip32Account(final HdKeyNode hdKeyNode) {
+      if (hdKeyNode.getDepth() != 0) {
+         throw new IllegalArgumentException("Only nodes of depth 0 are supported");
+      }
+      if (isNetworkActive()) {
+         createAskForScanDialog(hdKeyNode);
+      } else {
+         createAskForNetworkDialog(hdKeyNode);
+      }
+   }
+
+   private void createAskForNetworkDialog(final HdKeyNode hdKeyNode) {
+      new AlertDialog.Builder(this)
+              .setTitle(R.string.coco_service_unavailable)
+              .setMessage(R.string.connection_unavailable)
+              .setCancelable(true)
+              .setPositiveButton(R.string.try_again, new DialogInterface.OnClickListener() {
+                 @Override
+                 public void onClick(DialogInterface dialog, int id) {
+                    returnBip32Account(hdKeyNode);
+                 }
+              })
+              .setNegativeButton(R.string.cancel, null)
+              .create()
+              .show();
+   }
+
+   private void createAskForScanDialog(final HdKeyNode hdKeyNode) {
+      new AlertDialog.Builder(this)
+              .setTitle(R.string.attention)
+              .setMessage(R.string.coco_scan_warning)
+              .setCancelable(true)
+              .setPositiveButton(R.string.button_continue, new DialogInterface.OnClickListener() {
+                 @Override
+                 public void onClick(DialogInterface dialog, int id) {
+                    ImportCoCoHDAccount importCoCoHDAccount = new ImportCoCoHDAccount(AddAdvancedAccountActivity.this, hdKeyNode);
+                    importCoCoHDAccount.setFinishListener(AddAdvancedAccountActivity.this);
+                    importCoCoHDAccount.execute();
+                 }
+              })
+              .setNegativeButton(R.string.cancel, null)
+              .create()
+              .show();
+   }
+
+   private boolean isNetworkActive() {
+      ConnectivityManager cm =
+              (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
+      NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+      return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
    }
 
    @Override
@@ -211,19 +308,11 @@ public class AddAdvancedAccountActivity extends Activity {
                Address address = StringHandlerActivity.getAddress(intent);
                returnAccount(address);
             } else if (type == StringHandlerActivity.ResultType.HD_NODE) {
-               HdKeyNode hdKeyNode = StringHandlerActivity.getHdKeyNode(intent);
+               final HdKeyNode hdKeyNode = StringHandlerActivity.getHdKeyNode(intent);
                if (fromClipboard && hdKeyNode.isPrivateHdKeyNode()) {
                   Utils.clearClipboardString(AddAdvancedAccountActivity.this);
                }
-               int depth = hdKeyNode.getDepth();
-               if (depth != 3) {
-                  // only BIP44 account level is accepted here. Unfortunately this will also reject the xpub key from
-                  // our current Mycelium iPhone app which is account level plus one (external chain).
-                  String errorMessage = this.getString(R.string.import_xpub_wrong_depth, Integer.toString(depth));
-                  new Toaster(this).toast(errorMessage, false);
-               } else {
-                  returnAccount(hdKeyNode);
-               }
+               processNode(hdKeyNode);
             } else {
                throw new IllegalStateException("Unexpected result type from scan: " + type.toString());
             }
@@ -241,15 +330,58 @@ public class AddAdvancedAccountActivity extends Activity {
          }
       } else if (requestCode == TREZOR_RESULT_CODE && resultCode == Activity.RESULT_OK) {
          // already added to the WalletManager - just return the new account
-         finishOk((UUID) intent.getSerializableExtra("account"));
+         finishOk((UUID) intent.getSerializableExtra("account"), false);
       } else if (requestCode == KEEPKEY_RESULT_CODE && resultCode == Activity.RESULT_OK) {
          // already added to the WalletManager - just return the new account
-         finishOk((UUID) intent.getSerializableExtra("account"));
+         finishOk((UUID) intent.getSerializableExtra("account"), false);
       } else if (requestCode == LEDGER_RESULT_CODE && resultCode == Activity.RESULT_OK) {
          // already added to the WalletManager - just return the new account
-         finishOk((UUID) intent.getSerializableExtra("account"));
+         finishOk((UUID) intent.getSerializableExtra("account"), false);
       } else {
          super.onActivityResult(requestCode, resultCode, intent);
+      }
+   }
+
+   private void processNode(final HdKeyNode hdKeyNode) {
+      int depth = hdKeyNode.getDepth();
+      switch (depth) {
+         case 3:
+            if (_mbwManager.getWalletManager(false).hasAccount(hdKeyNode.getUuid())){
+               final WalletAccount existingAccount = _mbwManager.getWalletManager(false).getAccount(hdKeyNode.getUuid());
+               if (hdKeyNode.isPrivateHdKeyNode() && !existingAccount.canSpend()) {
+                  new AlertDialog.Builder(AddAdvancedAccountActivity.this)
+                          .setTitle(R.string.priv_key_of_watch_only_account)
+                          .setMessage(getString(R.string.want_to_add_priv_key_to_watch_account, _mbwManager.getMetadataStorage().getLabelByAccount(hdKeyNode.getUuid())))
+                          .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                             @Override
+                             public void onClick(DialogInterface dialogInterface, int i) {
+                                finishAlreadyExist(existingAccount.getReceivingAddress().get());
+                             }
+                          })
+                          .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                             @Override
+                             public void onClick(DialogInterface dialogInterface, int i) {
+                                returnAccount(hdKeyNode, true);
+                             }
+                          })
+                          .create()
+                          .show();
+               }
+            } else {
+               returnAccount(hdKeyNode);
+            }
+            break;
+         case 0:
+//            // This branch is created to support import CoCo from bip32 accout
+            if (hdKeyNode.isPrivateHdKeyNode()) {
+               returnBip32Account(hdKeyNode);
+            } else {
+               new Toaster(this).toast(getString(R.string.import_xpub_should_xpriv), false);
+            }
+            break;
+         default:
+            String errorMessage = this.getString(R.string.import_xpub_wrong_depth, Integer.toString(depth));
+            new Toaster(this).toast(errorMessage, false);
       }
    }
 
@@ -260,6 +392,7 @@ public class AddAdvancedAccountActivity extends Activity {
       private ProgressDialog dialog;
       private boolean askUserForColorize = false;
       private Address address;
+      private int selectedItem;
 
       public ImportSingleAddressAccountAsyncTask(InMemoryPrivateKey key, MetadataStorage.BackupState backupState) {
          this.key = key;
@@ -302,13 +435,13 @@ public class AddAdvancedAccountActivity extends Activity {
          }
          return acc;
       }
-      private int selectedItem;
+
       @Override
       protected void onPostExecute(UUID account) {
          dialog.dismiss();
          Optional accountId = _mbwManager.getAccountId(this.address, null);
          if (account != null) {
-            finishOk(account);
+            finishOk(account, false);
          } else if(askUserForColorize) {
             final List<String> list = ColuAccount.ColuAsset.getAllAssetNames();
             list.add(0, "BTC");
@@ -330,7 +463,7 @@ public class AddAdvancedAccountActivity extends Activity {
                              ColuAccount.ColuAsset coluAsset = ColuAccount.ColuAsset.getByType(ColuAccount.ColuAssetType.parse(list.get(selectedItem)));
                              account = _mbwManager.getColuManager().enableAsset(coluAsset, key);
                           }
-                          finishOk(account);
+                          finishOk(account, false);
                        }
                     })
                     .create()
@@ -341,7 +474,7 @@ public class AddAdvancedAccountActivity extends Activity {
                // scanned the private key of a watch only single address account
                String existingAccountName = _mbwManager.getMetadataStorage().getLabelByAccount(existingAccount.getId());
                new AlertDialog.Builder(AddAdvancedAccountActivity.this)
-                       .setTitle(R.string.priv_key_of_watch_only_sa_account)
+                       .setTitle(R.string.priv_key_of_watch_only_account)
                        .setMessage(getString(R.string.want_to_add_priv_key_to_watch_account, existingAccountName))
                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                           @Override
@@ -363,7 +496,7 @@ public class AddAdvancedAccountActivity extends Activity {
                              } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
                                 invalidKeyCipher.printStackTrace();
                              }
-                             finishOk(existingAccount.getId());
+                             finishOk(existingAccount.getId(), true);
                           }
                        })
                        .create()
@@ -380,9 +513,6 @@ public class AddAdvancedAccountActivity extends Activity {
       try {
          acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(key, AesKeyCipher.defaultKeyCipher());
 
-         // Dont show a legacy-account warning for freshly generated or imported keys
-         _mbwManager.getMetadataStorage().setIgnoreLegacyWarning(acc, true);
-
          _mbwManager.getMetadataStorage().setOtherAccountBackupState(acc, backupState);
          return acc;
       } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
@@ -390,19 +520,22 @@ public class AddAdvancedAccountActivity extends Activity {
       }
    }
 
+   /**
+    * SA spend account import method.
+    */
    private void returnAccount(InMemoryPrivateKey key, MetadataStorage.BackupState backupState, AccountType type) {
       if (type == AccountType.SA) {
-         finishOk(returnSAAccount(key, backupState));
+         finishOk(returnSAAccount(key, backupState), false);
       } else {
          new ImportSingleAddressAccountAsyncTask(key, backupState).execute();
       }
    }
 
-   private void returnAccount(HdKeyNode hdKeyNode) {
+   private void returnAccount(HdKeyNode hdKeyNode, boolean isUpgrade) {
       UUID acc = _mbwManager.getWalletManager(false).createUnrelatedBip44Account(hdKeyNode);
       // set BackupState as ignored - we currently have no option to backup xPrivs after all
       _mbwManager.getMetadataStorage().setOtherAccountBackupState(acc, MetadataStorage.BackupState.IGNORED);
-      finishOk(acc);
+      finishOk(acc, isUpgrade);
    }
 
    private class ImportReadOnlySingleAddressAccountAsyncTask extends AsyncTask<Void, Integer, UUID> {
@@ -410,8 +543,9 @@ public class AddAdvancedAccountActivity extends Activity {
       private AccountType addressType;
       private ProgressDialog dialog;
       private boolean askUserForColorize = false;
+      private int selectedItem;
 
-      public ImportReadOnlySingleAddressAccountAsyncTask(Address address, AccountType addressType) {
+      ImportReadOnlySingleAddressAccountAsyncTask(Address address, AccountType addressType) {
          this.address = address;
          this.addressType = addressType;
       }
@@ -465,47 +599,108 @@ public class AddAdvancedAccountActivity extends Activity {
          }
          return acc;
       }
-      private int selectedItem;
+
       @Override
       protected void onPostExecute(UUID account) {
          dialog.dismiss();
          if (account != null) {
-            finishOk(account);
+            finishOk(account, false);
          } else if(askUserForColorize) {
-             final List<String> list = ColuAccount.ColuAsset.getAllAssetNames();
-             list.add(0, "BTC");
-             new AlertDialog.Builder(AddAdvancedAccountActivity.this)
-                     .setTitle(R.string.restore_addres_as)
-                     .setSingleChoiceItems(list.toArray(new String[list.size()]), 0, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                           selectedItem = i;
-                        }
-                     })
-                     .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                           UUID account;
-                           if (selectedItem == 0) {
-                              account = _mbwManager.getWalletManager(false).createSingleAddressAccount(address);
-                           } else {
-                              ColuAccount.ColuAsset coluAsset = ColuAccount.ColuAsset.getByType(ColuAccount.ColuAssetType.parse(list.get(selectedItem)));
-                              account = _mbwManager.getColuManager().enableReadOnlyAsset(coluAsset, address);
-                           }
-                           finishOk(account);
-                        }
-                     })
-                     .create()
-                     .show();
+            final List<String> list = ColuAccount.ColuAsset.getAllAssetNames();
+            list.add(0, "BTC");
+            new AlertDialog.Builder(AddAdvancedAccountActivity.this)
+                    .setTitle(R.string.restore_addres_as)
+                    .setSingleChoiceItems(list.toArray(new String[list.size()]), 0, new DialogInterface.OnClickListener() {
+                       @Override
+                       public void onClick(DialogInterface dialogInterface, int i) {
+                          selectedItem = i;
+                       }
+                    })
+                    .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
+                       @Override
+                       public void onClick(DialogInterface dialogInterface, int i) {
+                          UUID account;
+                          if (selectedItem == 0) {
+                             account = _mbwManager.getWalletManager(false).createSingleAddressAccount(address);
+                          } else {
+                             ColuAccount.ColuAsset coluAsset = ColuAccount.ColuAsset.getByType(ColuAccount.ColuAssetType.parse(list.get(selectedItem)));
+                             account = _mbwManager.getColuManager().enableReadOnlyAsset(coluAsset, address);
+                          }
+                          finishOk(account, false);
+                       }
+                    })
+                    .create()
+                    .show();
          } else if(_mbwManager.getAccountId(this.address, null).isPresent()) {
             finishAlreadyExist(address);
          }
       }
    }
 
+   @Override
+   public void finishCoCoFound(final UUID firstAddedAccount, int accountsCreated, int existingAccountsFound,
+                               BigDecimal mtFound, BigDecimal massFound, BigDecimal rmcFound) {
+      List<String> amountStrings = new ArrayList<>();
+      if (rmcFound.compareTo(BigDecimal.ZERO) > 0) {
+         amountStrings.add(Utils.getColuFormattedValueWithUnit(new ColuCurrencyValue(rmcFound, "RMC")));
+      }
+      if (mtFound.compareTo(BigDecimal.ZERO) > 0) {
+         amountStrings.add(Utils.getColuFormattedValueWithUnit(new ColuCurrencyValue(mtFound, "MT")));
+      }
+      if (massFound.compareTo(BigDecimal.ZERO) > 0) {
+         amountStrings.add(Utils.getColuFormattedValueWithUnit(new ColuCurrencyValue(massFound, "MSS")));
+      }
+      String fundsFound = TextUtils.join(", ", amountStrings);
+      String message = null;
+      String accountsCreatedString = getResources().getQuantityString(R.plurals.new_accounts_created, accountsCreated, accountsCreated);
+      String existingFoundString = getResources().getQuantityString(R.plurals.existing_accounts_found, existingAccountsFound, existingAccountsFound);
+      if (accountsCreated > 0 && existingAccountsFound == 0) {
+         message = getString(R.string.d_coco_created, fundsFound, accountsCreatedString);
+      } else if (accountsCreated > 0 && existingAccountsFound > 0) {
+         message = getString(R.string.d_coco_created_existing_found, fundsFound, accountsCreatedString, existingFoundString);
+      } else if (existingAccountsFound > 0) {
+         message = getString(R.string.d_coco_existing_found, fundsFound, existingFoundString);
+      }
+      new AlertDialog.Builder(this)
+              .setTitle(R.string.coco_found)
+              .setMessage(message)
+              .setPositiveButton(R.string.button_continue, new DialogInterface.OnClickListener() {
+                 @Override
+                 public void onClick(DialogInterface dialogInterface, int i) {
+                    finishOk(firstAddedAccount, false);
+                 }
+              })
+              .create()
+              .show();
+   }
+
+   @Override
+   public void finishCoCoNotFound(final HdKeyNode hdKeyNode) {
+      new AlertDialog.Builder(this)
+              .setTitle(R.string.coco_not_found)
+              .setMessage(R.string.no_digital_asset)
+              .setPositiveButton(R.string.close, null)
+              .setNegativeButton(R.string.rescan, new DialogInterface.OnClickListener() {
+                 @Override
+                 public void onClick(DialogInterface dialog, int id) {
+                    ImportCoCoHDAccount importCoCoHDAccount = new ImportCoCoHDAccount(AddAdvancedAccountActivity.this, hdKeyNode);
+                    importCoCoHDAccount.setFinishListener(AddAdvancedAccountActivity.this);
+                    importCoCoHDAccount.execute();
+                 }
+              })
+              .create()
+              .show();
+   }
+
    private void finishAlreadyExist(Address address) {
       Intent result = new Intent();
-      String accountType = "BTC Single Address";
+      String accountType;
+      UUID walletId = _mbwManager.getAccountId(address, null).get();
+      if (_mbwManager.getWalletManager(false).getAccount(walletId).getType().equals(WalletAccount.Type.BCHBIP44)) {
+         accountType = "BTC HD account";
+      } else {
+         accountType = "BTC Single Address";
+      }
       for (ColuAccount.ColuAssetType type : ColuAccount.ColuAssetType.values()) {
          if (_mbwManager.getColuManager().hasAccountWithType(address, type)) {
             accountType = ColuAccount.ColuAsset.getByType(type).name;
@@ -517,17 +712,14 @@ public class AddAdvancedAccountActivity extends Activity {
       finish();
    }
 
-   private void returnAccount(Address address) {
-      //UUID acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(address);
-      new ImportReadOnlySingleAddressAccountAsyncTask(address, AccountType.Unknown).execute();
-   }
-
-   private void finishOk(UUID account) {
-      Intent result = new Intent();
-      result.putExtra(AddAccountActivity.RESULT_KEY, account);
+   private void finishOk(UUID account, boolean isUpgrade) {
+      Intent result = new Intent()
+              .putExtra(AddAccountActivity.RESULT_KEY, account)
+              .putExtra(AddAccountActivity.IS_UPGRADE, isUpgrade);
       setResult(RESULT_OK, result);
       finish();
    }
+
    enum AccountType {
       SA, Colu, Unknown
    }

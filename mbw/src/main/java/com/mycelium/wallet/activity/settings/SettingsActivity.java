@@ -34,11 +34,12 @@
 
 package com.mycelium.wallet.activity.settings;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.CheckBoxPreference;
@@ -48,7 +49,12 @@ import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
+import android.support.annotation.NonNull;
+import android.support.v7.widget.AppCompatEditText;
+import android.text.Html;
 import android.text.InputType;
+import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -64,6 +70,8 @@ import com.ledger.tbase.comm.LedgerTransportTEEProxyFactory;
 import com.mrd.bitlib.util.CoinUtil.Denomination;
 import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.lt.api.model.TraderInfo;
+import com.mycelium.modularizationtools.CommunicationManager;
+import com.mycelium.modularizationtools.model.Module;
 import com.mycelium.net.ServerEndpointType;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.ExchangeRateManager;
@@ -74,14 +82,22 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.WalletApplication;
 import com.mycelium.wallet.activity.export.VerifyBackupActivity;
 import com.mycelium.wallet.activity.modern.Toaster;
+import com.mycelium.wallet.activity.view.ButtonPreference;
+import com.mycelium.wallet.activity.view.TwoButtonsPreference;
+import com.mycelium.wallet.event.SpvSyncChanged;
 import com.mycelium.wallet.external.BuySellServiceDescriptor;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.api.GetTraderInfo;
 import com.mycelium.wallet.lt.api.SetNotificationMail;
+import com.mycelium.wallet.modularisation.BCHHelper;
+import com.mycelium.wallet.modularisation.GooglePlayModuleCollection;
+import com.mycelium.wallet.modularisation.ModularisationVersionHelper;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
+import com.squareup.otto.Subscribe;
 
+import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Locale;
 
@@ -100,6 +116,7 @@ import info.guardianproject.onionkit.ui.OrbotHelper;
  */
 public class SettingsActivity extends PreferenceActivity {
    public static final CharMatcher AMOUNT = CharMatcher.JAVA_DIGIT.or(CharMatcher.anyOf(".,"));
+   private static final int REQUEST_CODE_UNINSTALL = 1;
    private final OnPreferenceClickListener localCurrencyClickListener = new OnPreferenceClickListener() {
       public boolean onPreferenceClick(Preference preference) {
          SetLocalCurrencyActivity.callMe(SettingsActivity.this);
@@ -276,7 +293,6 @@ public class SettingsActivity extends PreferenceActivity {
       return amt;
    }
 
-   @SuppressWarnings("deprecation")
    @Override
    public void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
@@ -402,8 +418,7 @@ public class SettingsActivity extends PreferenceActivity {
          public boolean onPreferenceChange(Preference preference, Object newValue) {
             String lang = newValue.toString();
             _mbwManager.setLanguage(lang);
-            WalletApplication app = (WalletApplication) getApplication();
-            app.applyLanguageChange(lang);
+            WalletApplication.applyLanguageChange(getBaseContext(), lang);
 
             restart();
 
@@ -502,6 +517,161 @@ public class SettingsActivity extends PreferenceActivity {
       initExternalSettings();
 
       // external Services
+
+      final PreferenceCategory modulesPrefs = (PreferenceCategory) findPreference("modulesPrefs");
+      if (!CommunicationManager.getInstance().getPairedModules().isEmpty()) {
+         processPairedModules(modulesPrefs);
+      } else {
+         Preference preference = new Preference(this);
+         preference.setTitle(R.string.no_connected_modules);
+         modulesPrefs.addPreference(preference);
+      }
+      processUnpairedModules(modulesPrefs);
+   }
+
+   private void processPairedModules(PreferenceCategory modulesPrefs) {
+      for (final Module module : CommunicationManager.getInstance().getPairedModules()) {
+         final ButtonPreference preference = createUninstallableModulePreference(module);
+         modulesPrefs.addPreference(preference);
+      }
+   }
+
+   private void processUnpairedModules(PreferenceCategory modulesPrefs) {
+      for (final Module module : GooglePlayModuleCollection.getModules(this).values()) {
+         if (!CommunicationManager.getInstance().getPairedModules().contains(module)) {
+            if (Utils.isAppInstalled(this, module.getModulePackage()) && ModularisationVersionHelper.isUpdateRequired(this, module.getModulePackage())) {
+               TwoButtonsPreference preference = createUpdateRequiredPreference( module);
+               modulesPrefs.addPreference(preference);
+               preference.setEnabled(false, true, true);
+            } else if (Utils.isAppInstalled(this, module.getModulePackage())) {
+               final ButtonPreference preference = createUninstallableModulePreference(module);
+               preference.setEnabled(false);
+               preference.setButtonEnabled(true);
+               modulesPrefs.addPreference(preference);
+            } else {
+               ButtonPreference installPreference = new ButtonPreference(this);
+               installPreference.setButtonText(getString(R.string.install));
+               installPreference.setButtonClickListener(getInstallClickListener(module));
+               installPreference.setTitle(Html.fromHtml(module.getName()));
+               installPreference.setSummary(module.getDescription());
+               modulesPrefs.addPreference(installPreference);
+            }
+         }
+      }
+   }
+
+   @NonNull
+   private ButtonPreference createUninstallableModulePreference(final Module module) {
+      final ButtonPreference preference = new ButtonPreference(this);
+      preference.setLayoutResource(R.layout.preference_layout);
+      preference.setTitle(Html.fromHtml(module.getName()));
+      preference.setKey("Module_" + module.getModulePackage());
+      updateModulePreference(preference, module, BCHHelper.getBCHSyncProgress(this));
+      preference.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+         @Override
+         public boolean onPreferenceClick(Preference preference) {
+            Intent intent = new Intent(com.mycelium.modularizationtools.Constants.getSETTINGS());
+            intent.setPackage(module.getModulePackage());
+            intent.putExtra("callingPackage", getPackageName());
+            try {
+               startActivity(intent);
+            } catch (ActivityNotFoundException e) {
+               Log.e("SettingsActivity", "Something wrong with module", e);
+            }
+            return true;
+         }
+      });
+      preference.setButtonText(getString(R.string.uninstall));
+      preference.setButtonClickListener(new View.OnClickListener() {
+         @Override
+         public void onClick(View view) {
+            Uri packageUri = Uri.parse("package:" + module.getModulePackage());
+            preference.setEnabled(false);
+            startActivityForResult(new Intent(Intent.ACTION_UNINSTALL_PACKAGE, packageUri)
+                    .putExtra(Intent.EXTRA_RETURN_RESULT, true), REQUEST_CODE_UNINSTALL);
+         }
+      });
+      return preference;
+   }
+
+   private TwoButtonsPreference createUpdateRequiredPreference(final Module module) {
+      final TwoButtonsPreference preference = new TwoButtonsPreference(this);
+      preference.setLayoutResource(R.layout.preference_layout);
+      preference.setTitle(Html.fromHtml(module.getName()));
+      preference.setKey("Module_" + module.getModulePackage());
+      updateModulePreference(preference, module, BCHHelper.getBCHSyncProgress(this));
+      preference.setButtonsText(getString(R.string.uninstall), getString(R.string.update));
+      preference.setTopButtonClickListener(new View.OnClickListener() {
+         @Override
+         public void onClick(View view) {
+            Uri packageUri = Uri.parse("package:" + module.getModulePackage());
+            preference.setEnabled(false, false, false);
+            startActivityForResult(new Intent(Intent.ACTION_UNINSTALL_PACKAGE, packageUri)
+                    .putExtra(Intent.EXTRA_RETURN_RESULT, true), REQUEST_CODE_UNINSTALL);
+         }
+      });
+      preference.setBottomButtonClickListener(getInstallClickListener(module));
+      return preference;
+   }
+
+   @NonNull
+   private View.OnClickListener getInstallClickListener(final Module module) {
+      return new View.OnClickListener() {
+         @Override
+         public void onClick(View v) {
+            Intent installIntent = new Intent(Intent.ACTION_VIEW);
+            installIntent.setData(Uri.parse("https://play.google.com/store/apps/details?id=" +
+                    module.getModulePackage()));
+            startActivity(installIntent);
+         }
+      };
+   }
+
+   @Override
+   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+      if (requestCode == REQUEST_CODE_UNINSTALL) {
+         pleaseWait = new ProgressDialog(SettingsActivity.this);
+         pleaseWait.setMessage(getString(R.string.module_uninstall_progress));
+         pleaseWait.show();
+         PreferenceCategory modulesPrefs = (PreferenceCategory) findPreference("modulesPrefs");
+         if (resultCode == RESULT_CANCELED) {
+            pleaseWait.dismiss();
+            for (int index = 0; index < modulesPrefs.getPreferenceCount(); index++) {
+               Preference preferenceButton = modulesPrefs.getPreference(index);
+               if (preferenceButton instanceof ButtonPreference) {
+                  if (ModularisationVersionHelper.isUpdateRequired(this, preferenceButton.getKey().replace("Module_", "")))
+                  preferenceButton.setEnabled(true);
+               } else if (preferenceButton instanceof TwoButtonsPreference) {
+                  ((TwoButtonsPreference) preferenceButton).setEnabled(false, true, true);
+               }
+            }
+         }
+      }
+   }
+
+   private void updateModulePreference(Preference preference, Module module, float progress) {
+      if (preference != null) {
+         DecimalFormat format = new DecimalFormat(progress < 0.1f ? "#.###" : "#.##");
+
+         String syncStatus = progress == 100F ? getString(R.string.fully_synced)
+                 : getString(R.string.sync_progress, format.format(progress));
+         preference.setSummary(Html.fromHtml(module.getDescription()
+                 + "<br/><br/>"
+                 + addColorHtmlTag(syncStatus, "#00CC00")));
+
+      }
+   }
+
+   @Subscribe
+   public void onSyncStateChanged(SpvSyncChanged syncChanged) {
+      PreferenceCategory modulesPrefs = (PreferenceCategory) findPreference("modulesPrefs");
+      String bchPackage = "Module_" + WalletApplication.getSpvModuleName(WalletAccount.Type.BCHBIP44);
+      Preference preference = modulesPrefs.findPreference(bchPackage);
+      updateModulePreference(preference, syncChanged.module, syncChanged.chainDownloadPercentDone);
+   }
+
+   private String addColorHtmlTag(String input, String color) {
+      return "<font color=\"" + color + "\">" + input + "</font>";
    }
 
    void initExternalSettings() {
@@ -520,6 +690,7 @@ public class SettingsActivity extends PreferenceActivity {
          cbService.setTitle(enableTitle);
          cbService.setSummary(buySellService.settingDescription);
          cbService.setChecked(buySellService.isEnabled(_mbwManager));
+         cbService.setWidgetLayoutResource(R.layout.preference_checkbox);
          cbService.setOnPreferenceClickListener(new OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
@@ -535,6 +706,7 @@ public class SettingsActivity extends PreferenceActivity {
       cbService.setTitle(R.string.settings_mydfs_title);
       cbService.setSummary(R.string.settings_mydfs_summary);
       cbService.setChecked(SettingsPreference.getInstance().isMyDFSEnabled());
+      cbService.setWidgetLayoutResource(R.layout.preference_checkbox);
       cbService.setOnPreferenceClickListener(new OnPreferenceClickListener() {
          @Override
          public boolean onPreferenceClick(Preference preference) {
@@ -551,11 +723,18 @@ public class SettingsActivity extends PreferenceActivity {
       setupLocalTraderSettings();
       showOrHideLegacyBackup();
       _localCurrency.setTitle(localCurrencyTitle());
+      _mbwManager.getEventBus().register(this);
       super.onResume();
    }
 
    private ProgressDialog pleaseWait;
 
+
+   @Override
+   protected void onPause() {
+      _mbwManager.getEventBus().unregister(this);
+      super.onPause();
+   }
 
    @SuppressWarnings("deprecation")
    private void setupLocalTraderSettings() {
@@ -728,8 +907,6 @@ public class SettingsActivity extends PreferenceActivity {
       }
 
       @Override
-      //TODO: upgrade to android support v7 >>19.1.0
-      @SuppressLint("AppCompatCustomView")
       public void onLtTraderInfoFetched(final TraderInfo info, GetTraderInfo request) {
          pleaseWait.dismiss();
          AlertDialog.Builder b = new AlertDialog.Builder(SettingsActivity.this);
@@ -747,7 +924,7 @@ public class SettingsActivity extends PreferenceActivity {
          });
          b.setNegativeButton(R.string.cancel, null);
 
-         emailEdit = new EditText(SettingsActivity.this) {
+         emailEdit = new AppCompatEditText(SettingsActivity.this) {
             @Override
             protected void onTextChanged(CharSequence text, int start, int lengthBefore, int lengthAfter) {
 

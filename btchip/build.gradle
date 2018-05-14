@@ -2,7 +2,8 @@ apply plugin: 'com.android.library'
 
 buildscript {
     repositories {
-        mavenCentral()
+        google()
+        jcenter()
     }
 
     dependencies {
@@ -11,16 +12,17 @@ buildscript {
 }
 
 repositories {
-    mavenCentral()
+    google()
+    jcenter()
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:19.1.0'
-    compile project(includePrefix + ':libs:nordpol')
+    implementation 'com.android.support:support-v4:19.1.0'
+    implementation project(includePrefix + ':libs:nordpol')
 }
 
 android {
-    compileSdkVersion 19
+    compileSdkVersion androidCompileSdkVersion
     buildToolsVersion androidSdkBuildVersion
 
     sourceSets {
@@ -45,5 +47,4 @@ android {
         quiet false
         showAll true
     }
-
 }

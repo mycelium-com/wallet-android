@@ -279,6 +279,11 @@ public class CoinapultAccount extends SynchronizeAbleWalletAccount {
       }
    }
 
+   @Override
+   public Type getType() {
+      return Type.COINAPULT;
+   }
+
    private void buildBalance() throws CoinapultClient.CoinapultBackendException {
       AccountInfo.Balance balanceFiat = getBalanceFiat();
       final long oneMinuteAgo = new Date().getTime() - 1000 * 60;

@@ -71,7 +71,8 @@ import com.satoshilabs.trezor.protobuf.TrezorMessage.SignTx;
 import com.satoshilabs.trezor.protobuf.TrezorMessage.TxRequest;
 import com.satoshilabs.trezor.protobuf.TrezorType;
 import com.squareup.otto.Bus;
-import org.bitcoinj.core.*;
+
+import org.bitcoinj.core.ScriptException;
 import org.bitcoinj.script.*;
 
 import java.util.UUID;
@@ -90,8 +91,6 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
    protected final LinkedBlockingQueue<String> pinMatrixEntry = new LinkedBlockingQueue<String>(1);
 
    public static class OnButtonRequest {
-      public OnButtonRequest() {
-      }
    }
 
    public static class OnPinMatrixRequest {

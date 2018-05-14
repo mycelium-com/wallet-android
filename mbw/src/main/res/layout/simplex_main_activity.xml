@@ -60,13 +60,23 @@
             android:text="@string/si_error_message"
             android:textSize="20sp"/>
 
-        <Button
-            android:id="@+id/btSimplexRetry"
-            android:layout_marginTop="16px"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:text="@string/si_retry"/>
+            android:gravity="center">
+            <Button
+                android:id="@+id/btSimplexRetry"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/si_retry" />
+            <Button
+                android:id="@+id/btCancel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:layout_marginStart="4dp"
+                android:text="@string/cancel" />
+        </LinearLayout>
 
     </LinearLayout>
 

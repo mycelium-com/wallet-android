@@ -45,7 +45,6 @@ public class ScriptInputStandard extends ScriptInput {
             return false;
          }
 
-
          if (chunks[0].length < 6){
             // not enough bytes to encode tag, and two lengths
             return false;
@@ -138,5 +137,4 @@ public class ScriptInputStandard extends ScriptInput {
       writer.putBytes(bytes[1]);
       return writer.toBytes();
    }
-
 }

@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clickable="true"
+    android:orientation="vertical">
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@color/color_accent" />
+
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+
+            <TextView
+                android:id="@+id/tvErrorFrom"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginEnd="@dimen/margin_small"
+                android:layout_marginStart="@dimen/margin_small"
+                android:layout_marginTop="24dp"
+                android:text="@string/changelly_min_amount"
+                android:textColor="#fb746d"
+                android:textSize="12sp"
+                android:visibility="invisible" />
+
+
+            <RelativeLayout
+                android:id="@+id/fromValueLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/margin_medium"
+                android:layout_marginEnd="@dimen/margin_medium"
+                android:layout_marginStart="@dimen/margin_medium"
+                android:layout_marginTop="10dp">
+
+                <TextView
+                    android:id="@+id/bchLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="@dimen/margin_medium"
+                    android:layout_toLeftOf="@id/fromValue"
+                    android:paddingBottom="8dp"
+                    android:text="BCH"
+                    android:textColor="@color/white"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/fromValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="@dimen/margin_small"
+                    android:layout_marginStart="@dimen/margin_small"
+                    android:textColorHint="@color/white"
+                    android:hint="@string/zero"
+                    android:maxLines="1"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/big_input"
+                    tools:text="0" />
+
+                <TextView
+                    android:id="@+id/use_all_funds"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="4dp"
+                    android:letterSpacing="0.04"
+                    android:padding="@dimen/margin_medium"
+                    android:text="@string/use_all_funds"
+                    android:textSize="14sp" />
+
+            </RelativeLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:layout_marginEnd="@dimen/margin_medium"
+                android:layout_marginStart="@dimen/margin_medium"
+                android:gravity="center"
+                android:text="@string/given_rates_includes_transaction_fee"
+                android:textColor="#bdbdbd"
+                android:textSize="12sp" />
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_medium">
+
+                <com.mycelium.wallet.activity.send.view.SelectableRecyclerView
+                    android:id="@+id/from_account_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="75dp"
+                    android:background="#fb746d" />
+
+                <View
+                    android:layout_width="40dp"
+                    android:layout_height="75dp"
+                    android:layout_gravity="right"
+                    android:background="@drawable/exchange_gradient_red" />
+
+                <View
+                    android:layout_width="40dp"
+                    android:layout_height="75dp"
+                    android:layout_gravity="left"
+                    android:background="@drawable/exchange_gradient_red"
+                    android:rotation="180" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <com.mycelium.wallet.activity.send.view.SelectableRecyclerView
+                    android:id="@+id/to_account_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="75dp"
+                    android:background="#77c298" />
+
+                <View
+                    android:layout_width="40dp"
+                    android:layout_height="75dp"
+                    android:layout_gravity="right"
+                    android:background="@drawable/exchange_gradient_green" />
+
+                <View
+                    android:layout_width="40dp"
+                    android:layout_height="75dp"
+                    android:layout_gravity="left"
+                    android:background="@drawable/exchange_gradient_green"
+                    android:rotation="180" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/bottom_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/margin_small"
+                android:layout_marginStart="@dimen/margin_small"
+                android:layout_marginTop="24dp">
+
+                <TextView
+                    android:id="@+id/tvErrorTo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/changelly_min_amount"
+                    android:textColor="#fb746d"
+                    android:textSize="12sp"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/exchange_fiat_rate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginEnd="@dimen/margin_small"
+                    android:layout_marginStart="@dimen/margin_small"
+                    android:layout_marginTop="24dp"
+                    android:alpha="0.6"
+                    android:text="1 BCH ~ 0.46BTC"
+                    android:textColor="#bdbdbd"
+                    android:textSize="12sp"
+                    android:visibility="invisible" />
+
+            </FrameLayout>
+
+            <RelativeLayout
+                android:id="@+id/toValueLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/margin_medium"
+                android:layout_marginStart="@dimen/margin_medium"
+                android:layout_marginTop="@dimen/margin_large">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="@dimen/margin_medium"
+                    android:layout_toLeftOf="@+id/toValue"
+                    android:paddingBottom="8dp"
+                    android:text="BTC"
+                    android:textColor="@color/white"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/toValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="@dimen/margin_small"
+                    android:layout_marginStart="@dimen/margin_small"
+                    android:textColorHint="@color/white"
+                    android:hint="@string/zero"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/big_input"
+                    tools:text="0" />
+
+            </RelativeLayout>
+
+
+            <TextView
+                android:id="@+id/exchange_rate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginEnd="@dimen/margin_small"
+                android:layout_marginStart="@dimen/margin_small"
+                android:layout_marginTop="@dimen/margin_medium"
+                android:alpha="0.6"
+                android:text="1 BCH ~ 0.46BTC"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:visibility="invisible" />
+
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <Button
+                    android:id="@+id/buttonContinue"
+                    style="@style/MyceliumButtonModern"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_margin="8dp"
+                    android:text="@string/button_continue"
+                    android:textSize="16sp" />
+            </FrameLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <include
+        layout="@layout/layout_value_keyboard"
+        android:visibility="gone" />
+</LinearLayout>

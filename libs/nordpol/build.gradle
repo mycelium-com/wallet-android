@@ -2,7 +2,8 @@ apply plugin: 'com.android.library'
 
 buildscript {
     repositories {
-        mavenCentral()
+        google()
+        jcenter()
     }
 
     dependencies {
@@ -11,7 +12,7 @@ buildscript {
 }
 
 android {
-    compileSdkVersion 19
+    compileSdkVersion androidCompileSdkVersion
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
@@ -22,7 +23,4 @@ android {
     lintOptions {
         ignoreWarnings true
     }
-
 }
-
-

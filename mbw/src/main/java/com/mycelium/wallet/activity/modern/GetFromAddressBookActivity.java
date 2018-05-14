@@ -38,13 +38,13 @@ import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBar.Tab;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.modern.adapter.TabsAdapter;
 
-public class GetFromAddressBookActivity extends ActionBarActivity {
+public class GetFromAddressBookActivity extends AppCompatActivity {
    ViewPager mViewPager;
    TabsAdapter mTabsAdapter;
 

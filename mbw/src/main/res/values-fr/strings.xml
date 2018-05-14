@@ -118,7 +118,7 @@
   <string name="backup_legacy_warning">Vous allez sauvegarder les comptes à adresse unique de votre portefeuille. \nCette sauvegarde ne contiendra pas votre master seed, aucun de vos comptes HD ne peut être restauré depuis celle-ci !\n\nSouhaitez-vous continuer ?</string>
   <string name="export_to_clipboard_warning">AVERTISSEMENT : Exporter la clé privée vers le presse-papier l\'expose à toutes les autres applications de votre appareil.\n\nNote : Garder votre clé privée dans le presse-papier ne suffit pas, vous devez également la coller à un endroit sûr.\n\nVoulez-vous continuer ?</string>
   <string name="found_clipboard_private_key_title">Clé privée trouvée dans le presse-papier</string>
-  <string name="found_clipboard_private_keys_message">Le presse-papier contient une clé privée.\r\nVoulez-vous effacer le presse-papier ?</string>
+  <string name="found_clipboard_private_keys_message">Le presse-papier contient une clé privée.\nVoulez-vous effacer le presse-papier ?</string>
   <string name="exchange_source_not_available">Taux de change non disponible pour %1$s</string>
   <string name="my_own_address_warning">Remarque : Vous envoyez vers l\'une de vos propres adresses.</string>
   <string name="read_only_warning">AVERTISSEMENT : Votre portefeuille n\'a pas la clé privée de cette adresse.\nVous ne pouvez pas dépenser les fonds sans avoir la clé privée.</string>
@@ -138,7 +138,7 @@
   <string name="active_accounts_empty">(Vide)</string>
   <string name="activate_action">Activer</string>
   <string name="archive_action">Archiver</string>
-  <string name="question_archive_account">Les comptes archivés ne sont pas surveillés, vous ne pouvez voir ni le solde ni l\'adresse de réception, et ne pouvez pas travailler avec ce compte.\r\n\r\nLes comptes archivés peuvent être activés de nouveau.\r\n\r\nSouhaitez-vous archiver ce compte ?</string>
+  <string name="question_archive_account">Les comptes archivés ne sont pas surveillés, vous ne pouvez voir ni le solde ni l\'adresse de réception, et ne pouvez pas travailler avec ce compte.\n\nLes comptes archivés peuvent être activés de nouveau.\n\nSouhaitez-vous archiver ce compte ?</string>
   <string name="master_seed_configuration_title">Bienvenue sur Mycelium</string>
   <string name="master_seed_configuration_description">Voulez-vous restaurer une sauvegarde, ou créer un nouveau portefeuille ?</string>
   <string name="master_seed_create_new_button">Créer</string>
@@ -181,7 +181,6 @@
   <string name="verify_backup_master_seed">Votre master seed n\'a pas été vérifiée.</string>
   <string name="verify_backup_no_such_record">La clé privée ne correspond à aucune de vos adresses Bitcoin.</string>
   <string name="verify_backup_ok">Sauvegarde de la clé privée vérifiée avec succès pour l\'adresse suivante :\n\n%1$s</string>
-  <string name="legacy_account_with_funds">Compte non HD avec des fonds</string>
   <string name="wrong_seed">La numérisation ne correspond pas à votre master seed.</string>
   <string name="backup_missing">Sauvegarde manquante</string>
   <string name="verify_backup_title">Sauvegarde et vérification</string>
@@ -197,7 +196,7 @@
   <string name="encrypted_pdf_backup_document_ready">Document PDF créé</string>
   <string name="encrypted_pdf_backup_sharing">Partage du document PDF&#8230;</string>
   <string name="encrypted_pdf_backup_email_title">Sauvegarde de portefeuille Mycelium</string>
-  <string name="encrypted_pdf_backup_email_text">Vous trouverez ci-joint la sauvegarde de votre portefeuille Mycelium.\r\n\r\nVeuillez suivre les étapes suivantes afin de sécuriser les fonds :\r\n1. Imprimer le document PDF.\r\n2. Écrire les 15 caractères affichés sur votre appareil Android dans les cases bleues à cet effet.\r\n3. S\'assurer que vous parvenez à importer les clés privées à votre portefeuille Mycelium.\r\n4. Ranger l\'impression en lieu sûr.</string>
+  <string name="encrypted_pdf_backup_email_text">Vous trouverez ci-joint la sauvegarde de votre portefeuille Mycelium.\n\nVeuillez suivre les étapes suivantes afin de sécuriser les fonds :\n1. Imprimer le document PDF.\n2. Écrire les 15 caractères affichés sur votre appareil Android dans les cases bleues à cet effet.\n3. S\'assurer que vous parvenez à importer les clés privées à votre portefeuille Mycelium.\n4. Ranger l\'impression en lieu sûr.</string>
   <string name="share_pdf">Partager PDF</string>
   <string name="share_with">Partager avec&#8230;</string>
   <string name="import_decrypt_key_title">Déchiffrement de clé privée</string>
@@ -223,7 +222,6 @@
   <string name="unlock_label">Déverrouiller</string>
   <string name="lock_label">Verrouiller</string>
   <string name="secure_my_funds">Sécuriser mes fonds</string>
-  <string name="move_legacy_funds_message">Votre portefeuille contient au moins un compte non HD avec des fonds.\n\n Pour garantir la sécurité de vos fonds et améliorer la confidentialité de vos transactions, vous pouvez transférer ces fonds vers un de vos comptes HD.\n\nVeuillez consulter la section Comptes pour plus d\'informations.</string>
   <string name="ignore_warnings_title">Ignorer les avertissements</string>
   <string name="ignore_warnings_description">Voulez-vous ignorer l\'avertissement expliquant que ce compte non HD détient des fonds ?</string>
   <string name="explore">Explorer</string>
@@ -811,7 +809,7 @@
   <string name="warning_reason_unconfirmed_parent">Parent non confirmé</string>
   <string name="warning_reason_doublespend">Double dépense détectée</string>
   <string name="opening_url_in_browser">Ouverture du lien URL dans le navigateur...</string>
-  <string name="incoming_payment">"Versement entrant : "</string>
+  <string name="incoming_payment">Versement entrant : %s</string>
   <string name="warning_amount_does_not_match">ATTENTION : le montant ne correspond pas !</string>
   <string name="mycelium_terms_of_use">Conditions d\'utilisation de Mycelium</string>
   <!-- Credit Card -->

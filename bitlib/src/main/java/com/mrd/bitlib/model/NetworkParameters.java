@@ -89,38 +89,42 @@ public class NetworkParameters implements Serializable {
    private final byte[] _packetMagicBytes;
    private final NetworkType _networkType;
 
-   private enum NetworkType {
+   public enum NetworkType {
       PRODNET, TESTNET, REGTEST
    }
 
    private NetworkParameters(NetworkType networkType) {
       _networkType = networkType;
-      if (networkType == NetworkType.PRODNET) {
-         _standardAddressHeader = 0x00;
-         _multisigAddressHeader = 0x05;
-         _genesisBlock = PRODNET_GENESIS_BLOCK;
-         _port = 8333;
-         _packetMagic = 0xf9beb4d9;
-         _packetMagicBytes = new byte[] { (byte) 0xf9, (byte) 0xbe, (byte) 0xb4, (byte) 0xd9 };
-         _bip44_coin_type = HdKeyPath.BIP44_PRODNET;
-      } else if (networkType == NetworkType.TESTNET) {
-         _standardAddressHeader = 0x6F;
-         _multisigAddressHeader = 0xC4;
-         _genesisBlock = TESTNET_GENESIS_BLOCK;
-         _port = 18333;
-         _packetMagic = 0x0b110907;
-         _packetMagicBytes = new byte[] { (byte) 0x0b, (byte) 0x11, (byte) 0x09, (byte) 0x07 };
-         _bip44_coin_type = HdKeyPath.BIP44_TESTNET;
-      } else if (networkType == NetworkType.REGTEST) {
-         _standardAddressHeader = 0x6F;
-         _multisigAddressHeader = 0xC4;
-         _genesisBlock = REGTEST_GENESIS_BLOCK;
-         _port = 18444;
-         _packetMagic = 0xfabfb5da;
-         _packetMagicBytes = new byte[] { (byte) 0xfa, (byte) 0xbf, (byte) 0xb5, (byte) 0xda };
-         _bip44_coin_type = HdKeyPath.BIP44_TESTNET;
-      } else {
-         throw new RuntimeException("unknown network " + networkType.toString());
+      switch (networkType) {
+         case PRODNET:
+            _standardAddressHeader = 0x00;
+            _multisigAddressHeader = 0x05;
+            _genesisBlock = PRODNET_GENESIS_BLOCK;
+            _port = 8333;
+            _packetMagic = 0xf9beb4d9;
+            _packetMagicBytes = new byte[]{(byte) 0xf9, (byte) 0xbe, (byte) 0xb4, (byte) 0xd9};
+            _bip44_coin_type = HdKeyPath.BIP44_PRODNET;
+            break;
+         case TESTNET:
+            _standardAddressHeader = 0x6F;
+            _multisigAddressHeader = 0xC4;
+            _genesisBlock = TESTNET_GENESIS_BLOCK;
+            _port = 18333;
+            _packetMagic = 0x0b110907;
+            _packetMagicBytes = new byte[]{(byte) 0x0b, (byte) 0x11, (byte) 0x09, (byte) 0x07};
+            _bip44_coin_type = HdKeyPath.BIP44_TESTNET;
+            break;
+         case REGTEST:
+            _standardAddressHeader = 0x6F;
+            _multisigAddressHeader = 0xC4;
+            _genesisBlock = REGTEST_GENESIS_BLOCK;
+            _port = 18444;
+            _packetMagic = 0xfabfb5da;
+            _packetMagicBytes = new byte[]{(byte) 0xfa, (byte) 0xbf, (byte) 0xb5, (byte) 0xda};
+            _bip44_coin_type = HdKeyPath.BIP44_TESTNET;
+            break;
+         default:
+            throw new RuntimeException("unknown network " + networkType.toString());
       }
    }
 
@@ -204,5 +208,3 @@ public class NetworkParameters implements Serializable {
       return _bip44_coin_type;
    }
 }
-
-

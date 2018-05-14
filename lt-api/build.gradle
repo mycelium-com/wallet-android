@@ -1,14 +1,17 @@
 apply plugin: 'java'
 
 repositories {
-    mavenCentral()
+    google()
+    jcenter()
 }
 
 dependencies {
-    compile project(includePrefix +':bitlib')
-    compile project(includePrefix +':mbwlib')
+    implementation project(includePrefix +':bitlib')
+    implementation project(includePrefix +':mbwlib')
 
-    compile 'com.fasterxml.jackson.core:jackson-annotations:2.5.1'
-    compile 'com.fasterxml.jackson.core:jackson-databind:2.5.1'
-    testCompile "junit:junit:$junitVersion"
+    implementation guavaArtifact
+    implementation 'com.squareup.okhttp:okhttp:2.7.5'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.8.4'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.8.4'
+    testImplementation "junit:junit:$junitVersion"
 }

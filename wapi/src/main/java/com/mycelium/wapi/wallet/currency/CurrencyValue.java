@@ -43,10 +43,13 @@ import java.math.BigDecimal;
 
 public abstract class CurrencyValue implements Serializable {
    public static final String BTC = "BTC";
+   public static final String BCH = "BCH";
 
    public abstract String getCurrency();
 
    public abstract BigDecimal getValue();
+
+   public abstract long getLongValue();
 
    public boolean isZero() {
       return BigDecimal.ZERO.compareTo(getValue()) == 0;
@@ -91,6 +94,10 @@ public abstract class CurrencyValue implements Serializable {
 
    public boolean isBtc() {
       return getCurrency().equals(BTC);
+   }
+
+   public boolean isBch() {
+      return getCurrency().equals(BCH);
    }
 
    public boolean isFiat() {

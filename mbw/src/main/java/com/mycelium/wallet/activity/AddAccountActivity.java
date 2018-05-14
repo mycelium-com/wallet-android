@@ -43,19 +43,26 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.View;
 import android.view.WindowManager;
+
 import com.google.common.base.Preconditions;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.HdAccountCreated;
+import com.mycelium.wallet.modularisation.BCHHelper;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.squareup.otto.Bus;
+import com.squareup.otto.Subscribe;
 
 import java.util.UUID;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class AddAccountActivity extends Activity {
    public static void callMe(Fragment fragment, int requestCode) {
@@ -65,6 +72,7 @@ public class AddAccountActivity extends Activity {
 
    public static final String RESULT_KEY = "account";
    public static final String RESULT_MSG = "result_msg";
+   public static final String IS_UPGRADE = "account_upgrade";
 
    private static final int IMPORT_SEED_CODE = 0;
    private static final int ADD_ADVANCED_CODE = 1;
@@ -72,11 +80,15 @@ public class AddAccountActivity extends Activity {
    private MbwManager _mbwManager;
    private ProgressDialog _progress;
 
+   @BindView(R.id.btHdBchCreate)
+   View hdBchCreate;
+
    @Override
    public void onCreate(Bundle savedInstanceState) {
       this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
       super.onCreate(savedInstanceState);
       setContentView(R.layout.add_account_activity);
+      ButterKnife.bind(this);
       _mbwManager = MbwManager.getInstance(this);
       _toaster = new Toaster(this);
 
@@ -93,6 +105,12 @@ public class AddAccountActivity extends Activity {
       final View coluCreate = findViewById(R.id.btColuCreate);
       coluCreate.setOnClickListener(createColuAccount);
       _progress = new ProgressDialog(this);
+      hdBchCreate.setVisibility(BCHHelper.isModulePaired(getApplicationContext()) ? View.VISIBLE : View.GONE);
+   }
+
+   @OnClick(R.id.btHdBchCreate)
+   void onAddBchHD(){
+      BCHHelper.bchTechnologyPreviewDialog(this);
    }
 
    View.OnClickListener advancedClickListener = new View.OnClickListener() {
@@ -159,7 +177,7 @@ public class AddAccountActivity extends Activity {
    private class HdCreationAsyncTask extends AsyncTask<Void, Integer, UUID> {
       private Bus bus;
 
-      public HdCreationAsyncTask(Bus bus) {
+      HdCreationAsyncTask(Bus bus) {
          this.bus = bus;
       }
 
@@ -181,7 +199,7 @@ public class AddAccountActivity extends Activity {
       }
    }
 
-   @com.squareup.otto.Subscribe
+   @Subscribe
    public void hdAccountCreated(HdAccountCreated event) {
       _progress.dismiss();
       finishOk(event.account);

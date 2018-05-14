@@ -14,6 +14,7 @@ import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.Transaction;
+import com.mycelium.lt.api.model.Ad;
 import com.mycelium.wallet.MbwEnvironment;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.activity.util.BlockExplorer;
@@ -472,7 +473,7 @@ public class ColuManager implements AccountProvider {
         addAssetAccountUUID(coluAsset, createdAccountInfo.id);
 
         ColuAccount account = new ColuAccount(
-                ColuManager.this, metadataStorage, address,
+                ColuManager.this, createdAccountInfo.accountBacking, metadataStorage, address,
                 coluAsset
         );
 
@@ -501,11 +502,11 @@ public class ColuManager implements AccountProvider {
 
             if (accountKey == null) {
                 account = new ColuAccount(
-                        ColuManager.this, metadataStorage, singleAddressAccount.getAddress(),
+                        ColuManager.this, createdAccountInfo.accountBacking, metadataStorage, singleAddressAccount.getAddress(),
                         coluAsset);
             } else {
                 account = new ColuAccount(
-                        ColuManager.this, metadataStorage, accountKey,
+                        ColuManager.this, createdAccountInfo.accountBacking, metadataStorage, accountKey,
                         coluAsset
                 );
             }
@@ -541,7 +542,7 @@ public class ColuManager implements AccountProvider {
         }
 
         ColuAccount account = new ColuAccount(
-                ColuManager.this, metadataStorage, accountKey,
+                ColuManager.this, createdAccountInfo.accountBacking, metadataStorage, accountKey,
                 coluAsset
         );
 
@@ -851,6 +852,15 @@ public class ColuManager implements AccountProvider {
             if (asset.contentEquals(assetName)) {
                 return true;
             }
+        }
+        return false;
+    }
+
+    public boolean isColoredAddress(Address address) {
+        try {
+            return coluClient.getAddressTransactions(address).numOfTransactions != 0;
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return false;
     }
