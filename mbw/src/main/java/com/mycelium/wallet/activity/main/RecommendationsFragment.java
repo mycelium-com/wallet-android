@@ -34,26 +34,24 @@
 
 package com.mycelium.wallet.activity.main;
 
-import java.util.Calendar;
-import java.util.Date;
-
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.activity.settings.SettingsPreference;
 import com.mycelium.wallet.activity.util.PartnerInfo;
 import com.mycelium.wallet.activity.util.RecommendationAdapter;
+import com.mycelium.wallet.external.Ads;
 
 import java.util.ArrayList;
 
@@ -143,6 +141,16 @@ public class RecommendationsFragment extends Fragment {
             }
         });
 
+        ImageView bannerImage = root.findViewById(R.id.bannerImage);
+        if (SettingsPreference.getInstance().isApexEnabled()) {
+            bannerImage.setImageDrawable(getResources().getDrawable(R.drawable.apex_banner));
+            bannerImage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Ads.INSTANCE.openApex(getActivity());
+                }
+            });
+        }
         return root;
     }
 

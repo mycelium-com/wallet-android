@@ -716,6 +716,21 @@ public class SettingsActivity extends PreferenceActivity {
          }
       });
       external.addPreference(cbService);
+
+      final CheckBoxPreference cbServiceApex = new CheckBoxPreference(this);
+      cbServiceApex.setTitle(R.string.settings_apex_title);
+      cbServiceApex.setSummary(R.string.settings_apex_summary);
+      cbServiceApex.setChecked(SettingsPreference.getInstance().isApexEnabled());
+      cbServiceApex.setWidgetLayoutResource(R.layout.preference_checkbox);
+      cbServiceApex.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+         @Override
+         public boolean onPreferenceClick(Preference preference) {
+            CheckBoxPreference p = (CheckBoxPreference) preference;
+            SettingsPreference.getInstance().setEnableApex(p.isChecked());
+            return true;
+         }
+      });
+      external.addPreference(cbServiceApex);
    }
 
    @Override

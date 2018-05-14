@@ -59,6 +59,7 @@ import com.mycelium.wallet.activity.main.model.ActionButton;
 import com.mycelium.wallet.activity.settings.SettingsPreference;
 import com.mycelium.wallet.event.PageSelectedEvent;
 import com.mycelium.wallet.event.SelectedAccountChanged;
+import com.mycelium.wallet.external.Ads;
 import com.mycelium.wallet.external.BuySellSelectActivity;
 import com.mycelium.wallet.external.BuySellServiceDescriptor;
 import com.mycelium.wallet.external.changelly.ChangellyActivity;
@@ -128,6 +129,7 @@ public class BuySellFragment extends Fragment {
                     }
                 }));
                 scrollTo = addMyDfs(actions, scrollTo);
+                addApex(actions);
                 if (showButton) {
                     actions.add(new ActionButton(getString(R.string.gd_buy_sell_button), new Runnable() {
                         @Override
@@ -143,12 +145,25 @@ public class BuySellFragment extends Fragment {
         }
     }
 
+    private void addApex(List<ActionButton> actions) {
+        if (SettingsPreference.getInstance().isApexEnabled()) {
+            ActionButton actionButton = new ActionButton(getString(R.string.buy_apex_token), R.drawable.logo_apex_token, new Runnable() {
+                @Override
+                public void run() {
+                    Ads.INSTANCE.openApex(getActivity());
+                }
+            });
+            actionButton.textColor = getResources().getColor(R.color.white);
+            actions.add(actionButton);
+        }
+    }
+
     private int addMyDfs(List<ActionButton> actions, int scrollTo) {
         if (SettingsPreference.getInstance().isMyDFSEnabled()) {
             ActionButton actionButton = new ActionButton(getString(R.string.buy_mydfs_token), R.drawable.ic_stars_black_18px, new Runnable() {
                 @Override
                 public void run() {
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://mydfs.net/?ref=mycelium")));
+                    Ads.INSTANCE.openMydfs(getActivity());
                 }
             });
             actionButton.textColor = getResources().getColor(R.color.white);
@@ -218,7 +233,7 @@ public class BuySellFragment extends Fragment {
 
     @Subscribe
     public void pageSelectedEvent(PageSelectedEvent event) {
-        if(event.position == 1) {
+        if (event.position == 1) {
             recreateActions();
         }
     }

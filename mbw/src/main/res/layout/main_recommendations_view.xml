@@ -19,6 +19,12 @@
         android:paddingBottom="12dp"
         android:text="@string/partner_header_text"/>
 
+  <ImageView
+      android:id="@+id/bannerImage"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:adjustViewBounds="true"/>
+
     <ListView android:id="@+id/list"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent" />
