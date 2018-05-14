@@ -53,6 +53,7 @@ import com.mycelium.wallet.activity.main.model.RecommendationBanner;
 import com.mycelium.wallet.activity.main.model.RecommendationFooter;
 import com.mycelium.wallet.activity.main.model.RecommendationHeader;
 import com.mycelium.wallet.activity.main.model.RecommendationInfo;
+import com.mycelium.wallet.activity.settings.SettingsPreference;
 import com.mycelium.wallet.activity.view.DividerItemDecoration;
 import com.mycelium.wallet.external.Ads;
 
@@ -87,8 +88,12 @@ public class RecommendationsFragment extends Fragment {
 
         recommendationsList.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
         List<RecommendationInfo> list = new ArrayList<>();
+        int fromItem = 1;
         list.add(new RecommendationHeader());
-        list.add(new RecommendationBanner(getResources().getDrawable(R.drawable.apex_banner)));
+        if (SettingsPreference.getInstance().isApexEnabled()) {
+            list.add(new RecommendationBanner(getResources().getDrawable(R.drawable.apex_banner)));
+            fromItem++;
+        }
 
         list.add(getPartnerInfo(partner_ledger, partner_ledger_short, partner_ledger_info, partner_ledger_url, R.drawable.ledger_icon));
         list.add(getPartnerInfo(partner_trezor, partner_trezor_short, partner_trezor_info, partner_trezor_url, R.drawable.trezor2));
@@ -148,8 +153,9 @@ public class RecommendationsFragment extends Fragment {
                 Ads.INSTANCE.openApex(getActivity());
             }
         });
-        recommendationsList.addItemDecoration(new DividerItemDecoration(getResources().getDrawable(R.drawable.divider_account_list)
-                , LinearLayoutManager.VERTICAL));
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(getResources().getDrawable(R.drawable.divider_account_list), LinearLayoutManager.VERTICAL);
+        dividerItemDecoration.setFromItem(fromItem);
+        recommendationsList.addItemDecoration(dividerItemDecoration);
         recommendationsList.setAdapter(adapter);
         return root;
     }

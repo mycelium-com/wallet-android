@@ -11,11 +11,16 @@ public class DividerItemDecoration extends RecyclerView.ItemDecoration {
     private Drawable mDivider;
     private int mOrientation;
     private Rect imgPadding = new Rect();
+    private int fromItem = 0;
 
     public DividerItemDecoration(Drawable divider, int orientation) {
         mDivider = divider;
         mOrientation = orientation;
         mDivider.getPadding(imgPadding);
+    }
+
+    public void setFromItem(int fromItem) {
+        this.fromItem = fromItem;
     }
 
     @Override
@@ -43,7 +48,7 @@ public class DividerItemDecoration extends RecyclerView.ItemDecoration {
         int dividerBottom = parent.getHeight() - parent.getPaddingBottom() - imgPadding.bottom;
 
         int childCount = parent.getChildCount();
-        for (int i = 0; i < childCount - 1; i++) {
+        for (int i = fromItem; i < childCount - 1; i++) {
             View child = parent.getChildAt(i);
 
             RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) child.getLayoutParams();
@@ -61,7 +66,7 @@ public class DividerItemDecoration extends RecyclerView.ItemDecoration {
         int dividerRight = parent.getWidth() - parent.getPaddingRight();
 
         int childCount = parent.getChildCount();
-        for (int i = 0; i < childCount - 1; i++) {
+        for (int i = fromItem; i < childCount - 1; i++) {
             View child = parent.getChildAt(i);
 
             RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) child.getLayoutParams();
