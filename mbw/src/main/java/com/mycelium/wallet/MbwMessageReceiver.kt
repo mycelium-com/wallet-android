@@ -47,12 +47,10 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
     private val eventBus: Bus = MbwManager.getInstance(context).eventBus
 
     override fun onMessage(callingPackageName: String, intent: Intent) {
-        Thread({
-            when (callingPackageName) {
-                getSpvModuleName(BCHBIP44) -> onMessageFromSpvModuleBch(intent, getModule(callingPackageName))
-                else -> Log.e(TAG, "Ignoring unexpected package $callingPackageName calling with intent $intent.")
-            }
-        }).start()
+        when (callingPackageName) {
+            getSpvModuleName(BCHBIP44) -> onMessageFromSpvModuleBch(intent, getModule(callingPackageName))
+            else -> Log.e(TAG, "Ignoring unexpected package $callingPackageName calling with intent $intent.")
+        }
     }
 
     private fun getModule(packageName: String): Module? =
