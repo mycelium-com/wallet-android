@@ -40,20 +40,24 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.TextView;
 
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.activity.settings.SettingsPreference;
-import com.mycelium.wallet.activity.util.PartnerInfo;
-import com.mycelium.wallet.activity.util.RecommendationAdapter;
+import com.mycelium.wallet.activity.main.adapter.RecommendationAdapter;
+import com.mycelium.wallet.activity.main.model.PartnerInfo;
+import com.mycelium.wallet.activity.main.model.RecommendationBanner;
+import com.mycelium.wallet.activity.main.model.RecommendationFooter;
+import com.mycelium.wallet.activity.main.model.RecommendationHeader;
+import com.mycelium.wallet.activity.main.model.RecommendationInfo;
+import com.mycelium.wallet.activity.view.DividerItemDecoration;
 import com.mycelium.wallet.external.Ads;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.mycelium.wallet.R.string.cancel;
 import static com.mycelium.wallet.R.string.ok;
@@ -73,16 +77,18 @@ import static com.mycelium.wallet.R.string.partner_trezor_url;
 import static com.mycelium.wallet.R.string.warning_partner;
 
 public class RecommendationsFragment extends Fragment {
-    ListView recommendationsList;
-    TextView moreInformation;
+    RecyclerView recommendationsList;
     private AlertDialog alertDialog;
 
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.main_recommendations_view, container, false);
+        recommendationsList = root.findViewById(R.id.list);
 
-        recommendationsList = (ListView) root.findViewById(R.id.list);
-        ArrayList<PartnerInfo> list = new ArrayList<>();
+        recommendationsList.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
+        List<RecommendationInfo> list = new ArrayList<>();
+        list.add(new RecommendationHeader());
+        list.add(new RecommendationBanner(getResources().getDrawable(R.drawable.apex_banner)));
 
         list.add(getPartnerInfo(partner_ledger, partner_ledger_short, partner_ledger_info, partner_ledger_url, R.drawable.ledger_icon));
         list.add(getPartnerInfo(partner_trezor, partner_trezor_short, partner_trezor_info, partner_trezor_url, R.drawable.trezor2));
@@ -90,32 +96,12 @@ public class RecommendationsFragment extends Fragment {
 
         list.add(getPartnerInfo(R.string.partner_safervpn, R.string.partner_safervpn_short, R.string.partner_safervpn_info, R.string.partner_safervpn_url, R.drawable.safervpn_icon_small));
 
-        View footerView = inflater.inflate(R.layout.main_recommendations_list_footer, null, false);
-        recommendationsList.addFooterView(footerView);
-        moreInformation = (TextView) footerView.findViewById(R.id.tvMoreInformation);
-        moreInformation.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
-                builder.setTitle(R.string.your_privacy_out_priority);
-                builder.setMessage(partner_more_info_text);
-                builder.setPositiveButton(ok,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                            }
-                        });
-                builder.setIcon(R.drawable.mycelium_logo_transp_small);
-                alertDialog = builder.create();
-                alertDialog.show();
-            }
-        });
-        RecommendationAdapter adapter = new RecommendationAdapter(getActivity(), R.layout.main_recommendations_list_item, list);
-        recommendationsList.setAdapter(adapter);
+        list.add(new RecommendationFooter());
+        RecommendationAdapter adapter = new RecommendationAdapter(list);
 
         adapter.setClickListener(new RecommendationAdapter.ClickListener() {
             @Override
-            public void itemClick(final PartnerInfo bean) {
+            public void onClick(final PartnerInfo bean) {
                 if (bean.getInfo() != null && bean.getInfo().length() > 0) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                     builder.setMessage(bean.getInfo());
@@ -138,19 +124,33 @@ public class RecommendationsFragment extends Fragment {
                         startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(bean.getUri())));
                     }
                 }
+
+            }
+
+            @Override
+            public void onClick(RecommendationFooter recommendationFooter) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle(R.string.your_privacy_out_priority);
+                builder.setMessage(partner_more_info_text);
+                builder.setPositiveButton(ok,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                            }
+                        });
+                builder.setIcon(R.drawable.mycelium_logo_transp_small);
+                alertDialog = builder.create();
+                alertDialog.show();
+            }
+
+            @Override
+            public void onClick(RecommendationBanner recommendationBanner) {
+                Ads.INSTANCE.openApex(getActivity());
             }
         });
-
-        ImageView bannerImage = root.findViewById(R.id.bannerImage);
-        if (SettingsPreference.getInstance().isApexEnabled()) {
-            bannerImage.setImageDrawable(getResources().getDrawable(R.drawable.apex_banner));
-            bannerImage.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Ads.INSTANCE.openApex(getActivity());
-                }
-            });
-        }
+        recommendationsList.addItemDecoration(new DividerItemDecoration(getResources().getDrawable(R.drawable.divider_account_list)
+                , LinearLayoutManager.VERTICAL));
+        recommendationsList.setAdapter(adapter);
         return root;
     }
 

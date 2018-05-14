@@ -36,7 +36,6 @@ package com.mycelium.wallet.activity.main;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -160,7 +159,7 @@ public class BuySellFragment extends Fragment {
 
     private int addMyDfs(List<ActionButton> actions, int scrollTo) {
         if (SettingsPreference.getInstance().isMyDFSEnabled()) {
-            ActionButton actionButton = new ActionButton(getString(R.string.buy_mydfs_token), R.drawable.ic_stars_black_18px, new Runnable() {
+            ActionButton actionButton = new ActionButton(getString(R.string.buy_mydfs_token), R.drawable.ic_stars, new Runnable() {
                 @Override
                 public void run() {
                     Ads.INSTANCE.openMydfs(getActivity());

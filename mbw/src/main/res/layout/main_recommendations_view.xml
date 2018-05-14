@@ -1,31 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-  <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-      android:layout_width="fill_parent" android:layout_height="fill_parent"
-      android:orientation="vertical">
-    <TextView
-        android:id="@+id/tvPartnerHeaderTitle"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="12dp"
-        android:paddingLeft="12dp"
-        android:textStyle="bold"
-        android:text="@string/partner_header_title"/>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/tvPartnerHeaderText"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:paddingLeft="12dp"
-        android:paddingBottom="12dp"
-        android:text="@string/partner_header_text"/>
-
-  <ImageView
-      android:id="@+id/bannerImage"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:adjustViewBounds="true"/>
-
-    <ListView android:id="@+id/list"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent" />
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 </LinearLayout>

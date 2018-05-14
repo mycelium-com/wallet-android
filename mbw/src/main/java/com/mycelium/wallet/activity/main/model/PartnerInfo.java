@@ -32,9 +32,10 @@
  * fitness for a particular purpose and non-infringement.
  */
 
-package com.mycelium.wallet.activity.util;
+package com.mycelium.wallet.activity.main.model;
 
-public class PartnerInfo {
+public class PartnerInfo extends RecommendationInfo{
+    public static final int PARTNER_TYPE = 1;
     private final String name;
     private final String description;
     private final String info;
@@ -47,6 +48,7 @@ public class PartnerInfo {
     }
 
     public PartnerInfo(String name, String description, String info, String uri, int icon, int smallIcon) {
+        super(PARTNER_TYPE);
         this.name = name;
         this.description = description;
         this.info = info;
