@@ -80,6 +80,7 @@ public class BuySellFragment extends Fragment implements ButtonClickListener {
     public static final int ALTCOIN_ACTION = 2;
     public static final int BTC_ACTION = 3;
     public static final int MYDFS_ACTION = 4;
+    public static final int APEX_ACTION = 5;
     private MbwManager _mbwManager;
 
     @BindView(R.id.button_list)
@@ -137,12 +138,7 @@ public class BuySellFragment extends Fragment implements ButtonClickListener {
 
     private void addApex(List<ActionButton> actions) {
         if (SettingsPreference.getInstance().isApexEnabled()) {
-            ActionButton actionButton = new ActionButton(getString(R.string.buy_apex_token), R.drawable.logo_apex_token, new Runnable() {
-                @Override
-                public void run() {
-                    Ads.INSTANCE.openApex(getActivity());
-                }
-            });
+            ActionButton actionButton = new ActionButton(APEX_ACTION, getString(R.string.buy_apex_token), R.drawable.logo_apex_token);
             actionButton.textColor = getResources().getColor(R.color.white);
             actions.add(actionButton);
         }
@@ -150,7 +146,7 @@ public class BuySellFragment extends Fragment implements ButtonClickListener {
 
     private int addMyDfs(List<ActionButton> actions, int scrollTo) {
         if (SettingsPreference.getInstance().isMyDFSEnabled()) {
-            ActionButton actionButton = new ActionButton(MYDFS_ACTION, getString(R.string.buy_mydfs_token), R.drawable.ic_stars_black_18px);
+            ActionButton actionButton = new ActionButton(MYDFS_ACTION, getString(R.string.buy_mydfs_token), R.drawable.ic_stars);
             actionButton.textColor = getResources().getColor(R.color.white);
             actions.add(actionButton);
             scrollTo = actions.size() - 1;
@@ -172,6 +168,9 @@ public class BuySellFragment extends Fragment implements ButtonClickListener {
                 break;
             case MYDFS_ACTION:
                 Ads.INSTANCE.openMydfs(getActivity());
+                break;
+            case APEX_ACTION:
+                Ads.INSTANCE.openApex(getActivity());
                 break;
         }
     }
