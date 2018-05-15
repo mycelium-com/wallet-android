@@ -36,7 +36,6 @@ package com.mycelium.wallet.activity.main;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -60,6 +59,7 @@ import com.mycelium.wallet.activity.main.model.ActionButton;
 import com.mycelium.wallet.activity.settings.SettingsPreference;
 import com.mycelium.wallet.event.PageSelectedEvent;
 import com.mycelium.wallet.event.SelectedAccountChanged;
+import com.mycelium.wallet.external.Ads;
 import com.mycelium.wallet.external.BuySellSelectActivity;
 import com.mycelium.wallet.external.BuySellServiceDescriptor;
 import com.mycelium.wallet.external.changelly.ChangellyActivity;
@@ -124,6 +124,7 @@ public class BuySellFragment extends Fragment implements ButtonClickListener {
             default:
                 actions.add(new ActionButton(ALTCOIN_ACTION, getString(R.string.exchange_altcoins_to_btc)));
                 scrollTo = addMyDfs(actions, scrollTo);
+                addApex(actions);
                 if (showButton) {
                     actions.add(new ActionButton(BTC_ACTION, getString(R.string.gd_buy_sell_button)));
                 }
@@ -131,6 +132,19 @@ public class BuySellFragment extends Fragment implements ButtonClickListener {
         buttonAdapter.setButtons(actions);
         if (scrollTo != 0) {
             recyclerView.postDelayed(new ScrollToRunner(scrollTo), 500);
+        }
+    }
+
+    private void addApex(List<ActionButton> actions) {
+        if (SettingsPreference.getInstance().isApexEnabled()) {
+            ActionButton actionButton = new ActionButton(getString(R.string.buy_apex_token), R.drawable.logo_apex_token, new Runnable() {
+                @Override
+                public void run() {
+                    Ads.INSTANCE.openApex(getActivity());
+                }
+            });
+            actionButton.textColor = getResources().getColor(R.color.white);
+            actions.add(actionButton);
         }
     }
 
@@ -157,7 +171,7 @@ public class BuySellFragment extends Fragment implements ButtonClickListener {
                 startActivity(new Intent(getActivity(), BuySellSelectActivity.class));
                 break;
             case MYDFS_ACTION:
-                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://mydfs.net/?ref=mycelium")));
+                Ads.INSTANCE.openMydfs(getActivity());
                 break;
         }
     }
