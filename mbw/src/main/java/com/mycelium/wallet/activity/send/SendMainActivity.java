@@ -814,7 +814,7 @@ public class SendMainActivity extends Activity {
                                     SendMainActivity.this.finish();
                                  } else {
                                     makeText(SendMainActivity.this, R.string.coinapult_failed_to_broadcast, LENGTH_SHORT).show();
-                                    updateUi();
+                                    SendMainActivity.this.finish();
                                  }
                               }
                            }.execute(_preparedCoinapult);

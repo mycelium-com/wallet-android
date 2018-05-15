@@ -220,9 +220,9 @@ class CommunicationManager private constructor(val context: Context, val modular
 
         @Synchronized
         @JvmStatic
-        fun init(context: Context, spvApiVersion: Int) {
+        fun init(context: Context) {
             if (INSTANCE == null) {
-                INSTANCE = CommunicationManager(context, spvApiVersion)
+                INSTANCE = CommunicationManager(context, BuildConfig.ModuleApiVersion)
             }
         }
 

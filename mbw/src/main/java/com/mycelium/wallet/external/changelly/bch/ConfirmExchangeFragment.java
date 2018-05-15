@@ -113,13 +113,14 @@ public class ConfirmExchangeFragment extends Fragment {
     WalletAccount fromAccount;
     WalletAccount toAccount;
     Double amount;
+    Double sentAmount;
 
     private ChangellyAPIService.ChangellyTransactionOffer offer;
     private ProgressDialog progressDialog;
     private Receiver receiver;
 
     private String lastOperationId;
-    private String toCachedValue;
+    private String toValue;
 
     private AlertDialog downloadConfirmationDialog;
 
@@ -129,17 +130,23 @@ public class ConfirmExchangeFragment extends Fragment {
         setRetainInstance(true);
         UUID toAddress = (UUID) getArguments().getSerializable(Constants.DESTADDRESS);
         UUID fromAddress = (UUID) getArguments().getSerializable(Constants.FROM_ADDRESS);
-        toCachedValue = getArguments().getString(Constants.TO_AMOUNT);
+        toValue = getArguments().getString(Constants.TO_AMOUNT);
         amount = getArguments().getDouble(Constants.FROM_AMOUNT);
         mbwManager = MbwManager.getInstance(getActivity());
         mbwManager.getEventBus().register(this);
         fromAccount = mbwManager.getWalletManager(false).getAccount(fromAddress);
         toAccount = mbwManager.getWalletManager(false).getAccount(toAddress);
         receiver = new Receiver();
-        for (String action : new String[]{ChangellyService.INFO_TRANSACTION, ChangellyService.INFO_ERROR}) {
+        for (String action : new String[]{ChangellyService.INFO_TRANSACTION
+                , ChangellyService.INFO_ERROR
+                , ChangellyService.INFO_EXCH_AMOUNT}) {
             IntentFilter intentFilter = new IntentFilter(action);
             LocalBroadcastManager.getInstance(getActivity()).registerReceiver(receiver, intentFilter);
         }
+        BigDecimal txFee = UtilsKt.estimateFeeFromTransferrableAmount(
+                fromAccount, mbwManager, BitcoinCash.valueOf(amount).getLongValue());
+        sentAmount = amount - txFee.doubleValue();
+        createOffer();
     }
 
     @OnClick(R.id.buttonContinue)
@@ -148,7 +155,7 @@ public class ConfirmExchangeFragment extends Fragment {
             @Override
             public void run() {
                 buttonContinue.setEnabled(false);
-                long fromValue = ExactBitcoinCashValue.from(BigDecimal.valueOf(offer.amountFrom)).getLongValue();
+                long fromValue = ExactBitcoinCashValue.from(BigDecimal.valueOf(sentAmount)).getLongValue();
 
                 lastOperationId = UUID.randomUUID().toString();
 
@@ -193,6 +200,11 @@ public class ConfirmExchangeFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_exchage_confirm, container, false);
         ButterKnife.bind(this, view);
         updateUI();
+        if (offer == null) {
+            progressBar.setVisibility(View.VISIBLE);
+            offerUpdateText.setText(R.string.updating_offer);
+            buttonContinue.setEnabled(false);
+        }
         return view;
     }
 
@@ -210,12 +222,7 @@ public class ConfirmExchangeFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        createOffer();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
+        getRate();
     }
 
     @Override
@@ -229,8 +236,7 @@ public class ConfirmExchangeFragment extends Fragment {
             CurrencyValue currencyValueTo = null;
             try {
                 currencyValueTo = mbwManager.getCurrencySwitcher().getAsFiatValue(
-                        ExactBitcoinValue.from(new BigDecimal(offer.amountTo)));
-
+                        ExactBitcoinValue.from(new BigDecimal(toValue)));
             } catch (NumberFormatException ignore) {
             }
             if (currencyValueTo != null && currencyValueTo.getValue() != null) {
@@ -244,34 +250,31 @@ public class ConfirmExchangeFragment extends Fragment {
 
 
     private void createOffer() {
-        BigDecimal txFee = UtilsKt.estimateFeeFromTransferrableAmount(
-                fromAccount, mbwManager, BitcoinCash.valueOf(amount).getLongValue());
-
         Intent changellyServiceIntent = new Intent(getActivity(), ChangellyService.class)
                 .setAction(ChangellyService.ACTION_CREATE_TRANSACTION)
                 .putExtra(ChangellyService.FROM, ChangellyService.BCH)
                 .putExtra(ChangellyService.TO, ChangellyService.BTC)
-                .putExtra(ChangellyService.AMOUNT, amount - txFee.doubleValue())
+                .putExtra(ChangellyService.AMOUNT, sentAmount)
                 .putExtra(ChangellyService.DESTADDRESS, toAccount.getReceivingAddress().get().toString());
         getActivity().startService(changellyServiceIntent);
-        progressBar.setVisibility(View.VISIBLE);
-        offerUpdateText.setText(R.string.updating_offer);
-        buttonContinue.setEnabled(false);
+
+    }
+
+    private void getRate() {
+        Intent changellyServiceIntent = new Intent(getActivity(), ChangellyService.class)
+                .setAction(ChangellyService.ACTION_GET_EXCHANGE_AMOUNT)
+                .putExtra(ChangellyService.FROM, ChangellyService.BCH)
+                .putExtra(ChangellyService.TO, ChangellyService.BTC)
+                .putExtra(ChangellyService.AMOUNT, sentAmount);
+        getActivity().startService(changellyServiceIntent);
     }
 
     private void updateUI() {
         if (isAdded()) {
-            if (offer != null) {
-                fromAmount.setText(getString(R.string.value_currency, decimalFormat.format(amount)
-                        , offer.currencyFrom));
-                toAmount.setText(getString(R.string.value_currency, decimalFormat.format(offer.amountTo)
-                        , offer.currencyTo));
-            } else {
-                fromAmount.setText(getString(R.string.value_currency, decimalFormat.format(amount)
-                        , ChangellyService.BCH));
-                toAmount.setText(getString(R.string.value_currency, toCachedValue
-                        , ChangellyService.BTC));
-            }
+            fromAmount.setText(getString(R.string.value_currency, decimalFormat.format(amount)
+                    , ChangellyService.BCH));
+            toAmount.setText(getString(R.string.value_currency, toValue
+                    , ChangellyService.BTC));
             updateRate();
         }
     }
@@ -282,17 +285,14 @@ public class ConfirmExchangeFragment extends Fragment {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            progressBar.setVisibility(View.INVISIBLE);
             switch (intent.getAction()) {
                 case ChangellyService.INFO_TRANSACTION:
                     buttonContinue.setEnabled(true);
                     offer = (ChangellyAPIService.ChangellyTransactionOffer) intent.getSerializableExtra(ChangellyService.OFFER);
                     updateUI();
-                    offerUpdateText.removeCallbacks(updateOffer);
-                    autoUpdateTime = 0;
-                    offerUpdateText.post(updateOffer);
                     break;
                 case INFO_ERROR:
+                    progressBar.setVisibility(View.INVISIBLE);
                     new AlertDialog.Builder(getActivity(), R.style.MyceliumModern_Dialog)
                             .setMessage(R.string.exchange_service_unavailable)
                             .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
@@ -301,6 +301,14 @@ public class ConfirmExchangeFragment extends Fragment {
                                     getFragmentManager().popBackStack();
                                 }
                             }).create().show();
+                    break;
+                case ChangellyService.INFO_EXCH_AMOUNT:
+                    progressBar.setVisibility(View.INVISIBLE);
+                    toValue = decimalFormat.format(intent.getDoubleExtra(ChangellyService.AMOUNT, 0));
+                    offerUpdateText.removeCallbacks(updateOffer);
+                    autoUpdateTime = 0;
+                    offerUpdateText.post(updateOffer);
+                    updateUI();
                     break;
             }
         }
@@ -319,7 +327,7 @@ public class ConfirmExchangeFragment extends Fragment {
             if (autoUpdateTime < UPDATE_TIME) {
                 offerUpdateText.postDelayed(this, TimeUnit.SECONDS.toMillis(1));
             } else {
-                createOffer();
+                getRate();
             }
         }
     };
@@ -354,7 +362,7 @@ public class ConfirmExchangeFragment extends Fragment {
         order.exchangingCurrency = CurrencyValue.BCH;
 
         order.receivingAddress = toAccount.getReceivingAddress().get().toString();
-        order.receivingAmount = decimalFormat.format(offer.amountTo);
+        order.receivingAmount = toValue;
         order.receivingCurrency = CurrencyValue.BTC;
         order.timestamp = SimpleDateFormat.getDateTimeInstance(SimpleDateFormat.LONG, SimpleDateFormat.LONG, Locale.ENGLISH)
                 .format(new Date());

@@ -92,7 +92,7 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
                                    .build());
         }
         super.onCreate();
-        CommunicationManager.init(this, com.mycelium.spvmodulecontract.BuildConfig.SpvApiVersion);
+        CommunicationManager.init(this);
         pairSpvModules(CommunicationManager.getInstance());
         cleanModulesIfFirstRun(this, getSharedPreferences(BCHHelper.BCH_PREFS, MODE_PRIVATE));
         moduleMessageReceiver = new MbwMessageReceiver(this);
@@ -109,8 +109,8 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
                 String message = se.getMessage();
                 if(message.contains("Version conflict")) {
                     String[] strings = message.split("\\|");
-                    int otherSpvApiVersion = Integer.decode(strings[1]);
-                    moduleVersionErrors.add(new ModuleVersionError(moduleId, otherSpvApiVersion));
+                    int otherModuleApiVersion = Integer.decode(strings[1]);
+                    moduleVersionErrors.add(new ModuleVersionError(moduleId, otherModuleApiVersion));
                 } else {
                     Log.w("WalletApplication", message);
                 }

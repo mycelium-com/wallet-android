@@ -15,7 +15,6 @@ import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -90,8 +89,7 @@ public class Bip44BCHAccount extends Bip44Account {
 
     @Override
     public boolean isVisible() {
-        if ((spvBalanceFetcher.getSyncProgressPercents() == 100 || !spvBalanceFetcher.isFirstSync())
-                && !visible) {
+        if (!visible && (spvBalanceFetcher.getSyncProgressPercents() == 100 || spvBalanceFetcher.isAccountSynced(this))) {
             if (getAccountType() == ACCOUNT_TYPE_FROM_MASTERSEED)
                 visible = !spvBalanceFetcher.retrieveTransactionSummaryByHdAccountIndex(getId().toString(), getAccountIndex()).isEmpty();
             else

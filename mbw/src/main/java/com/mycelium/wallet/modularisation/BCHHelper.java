@@ -31,8 +31,8 @@ public class BCHHelper {
     public static final String BCH_FIRST_UPDATE = "bch_first_update_page";
     private static final String BCH_INSTALLED = "bch_installed_page";
     public static final String BCH_PREFS = "bch_prefs";
+    public static final String ALREADY_FOUND_ACCOUNT = "already_found_account";
     private static final String IS_FIRST_SYNC = "is_first_sync";
-    private static final String ALREADY_FOUND_ACCOUNT = "already_found_account";
 
     public static void firstBCHPages(final Context context) {
         final Module bchModule = GooglePlayModuleCollection.getModules(context).get("bch");
