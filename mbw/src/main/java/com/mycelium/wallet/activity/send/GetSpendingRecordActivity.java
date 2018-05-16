@@ -53,6 +53,7 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.modern.RecordRowBuilder;
+import com.mycelium.wallet.activity.modern.adapter.holder.AccountViewHolder;
 import com.mycelium.wallet.activity.modern.model.ViewAccountModel;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -69,6 +70,7 @@ public class GetSpendingRecordActivity extends Activity {
 
    private ListView listView;
    private AccountsAdapter accountsAdapter;
+   private RecordRowBuilder builder;
 
    public static void callMeWithResult(Activity currentActivity, BitcoinUri uri, int request) {
       Intent intent = new Intent(currentActivity, GetSpendingRecordActivity.class);
@@ -87,6 +89,7 @@ public class GetSpendingRecordActivity extends Activity {
       this.requestWindowFeature(Window.FEATURE_NO_TITLE);
       super.onCreate(savedInstanceState);
       setContentView(R.layout.get_spending_record_activity);
+      builder = new RecordRowBuilder(_mbwManager, getResources());
       listView = findViewById(R.id.lvRecords);
       listView.setOnItemClickListener(new RecordClicked());
       _mbwManager = MbwManager.getInstance(this.getApplication());
@@ -119,6 +122,7 @@ public class GetSpendingRecordActivity extends Activity {
       } else {
          _showAccounts = true;
       }
+
    }
 
    private void callSendInitActivity(WalletAccount account) {
@@ -174,7 +178,6 @@ public class GetSpendingRecordActivity extends Activity {
          listView.setVisibility(View.GONE);
          warningNoSpendingAccounts.setVisibility(View.VISIBLE);
       } else {
-         RecordRowBuilder builder = new RecordRowBuilder(_mbwManager, getResources(), LayoutInflater.from(this));
          List<ViewAccountModel> list = builder.convertList(Utils.sortAccounts(spendingAccounts, storage));
          accountsAdapter = new AccountsAdapter(this, list);
          listView.setAdapter(accountsAdapter);
@@ -184,21 +187,24 @@ public class GetSpendingRecordActivity extends Activity {
    }
 
    class AccountsAdapter extends ArrayAdapter<ViewAccountModel> {
-      private Context _context;
+      private LayoutInflater inflater;
 
       AccountsAdapter(Context context, List<ViewAccountModel> accounts) {
          super(context, R.layout.record_row, accounts);
-         _context = context;
+         inflater = LayoutInflater.from(context);
       }
 
-      @Override
-      @NonNull
-      public View getView(int position, View convertView, @NonNull ViewGroup parent) {
-         LayoutInflater inflater = (LayoutInflater) _context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-         ViewAccountModel account = getItem(position);
-         RecordRowBuilder recordRowBuilder = new RecordRowBuilder(_mbwManager, getResources(), inflater);
-         return recordRowBuilder.buildRecordView(parent, account,
-               false, false, convertView);
-      }
+       @Override
+       @NonNull
+       public View getView(int position, View convertView, @NonNull ViewGroup parent) {
+           ViewAccountModel account = getItem(position);
+           if (convertView == null) {
+               convertView = inflater.inflate(R.layout.record_row, null, false);
+               convertView.setTag(new AccountViewHolder(convertView));
+           }
+           RecordRowBuilder recordRowBuilder = new RecordRowBuilder(_mbwManager, getResources());
+           recordRowBuilder.buildRecordView((AccountViewHolder) convertView.getTag(), account, false, false);
+           return convertView;
+       }
    }
 }

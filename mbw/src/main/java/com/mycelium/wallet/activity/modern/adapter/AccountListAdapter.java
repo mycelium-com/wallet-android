@@ -3,7 +3,6 @@ package com.mycelium.wallet.activity.modern.adapter;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.view.LayoutInflater;
@@ -72,7 +71,7 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         this.mbwManager = mbwManager;
         this.context = context;
         layoutInflater = LayoutInflater.from(context);
-        builder = new RecordRowBuilder(mbwManager, context.getResources(), layoutInflater);
+        builder = new RecordRowBuilder(mbwManager, context.getResources());
         pagePrefs = context.getSharedPreferences("account_list", Context.MODE_PRIVATE);
     }
 
@@ -107,8 +106,9 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         }
         return position;
     }
+
     public void updateData() {
-        new AsyncTask<Void, List<Item>, List<Item>>(){
+        new AsyncTask<Void, List<Item>, List<Item>>() {
             @Override
             protected List<Item> doInBackground(Void... voids) {
                 List<Item> result = new ArrayList<>();
@@ -225,9 +225,9 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         if (viewType == ACCOUNT_TYPE) {
             AccountViewHolder accountHolder = (AccountViewHolder) holder;
             final ViewAccountModel account = item.walletAccount;
-            builder.buildRecordView(null, account
+            builder.buildRecordView(accountHolder, account
                     , Objects.equals(mbwManager.getSelectedAccount().getId(), account.accountId)
-                    , Objects.equals(focusedAccountId, account.accountId), holder.itemView);
+                    , Objects.equals(focusedAccountId, account.accountId));
             accountHolder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
