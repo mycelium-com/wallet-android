@@ -47,8 +47,13 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import com.mycelium.wallet.*;
+
+import com.mycelium.wallet.BitcoinUri;
+import com.mycelium.wallet.MbwManager;
+import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.modern.RecordRowBuilder;
+import com.mycelium.wallet.activity.modern.model.ViewAccountModel;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.WalletAccount;
 
@@ -61,6 +66,9 @@ public class GetSpendingRecordActivity extends Activity {
    private MbwManager _mbwManager;
    private boolean _showAccounts = false;
    private byte[] _rawPr;
+
+   private ListView listView;
+   private AccountsAdapter accountsAdapter;
 
    public static void callMeWithResult(Activity currentActivity, BitcoinUri uri, int request) {
       Intent intent = new Intent(currentActivity, GetSpendingRecordActivity.class);
@@ -79,7 +87,8 @@ public class GetSpendingRecordActivity extends Activity {
       this.requestWindowFeature(Window.FEATURE_NO_TITLE);
       super.onCreate(savedInstanceState);
       setContentView(R.layout.get_spending_record_activity);
-      ((ListView) findViewById(R.id.lvRecords)).setOnItemClickListener(new RecordClicked());
+      listView = findViewById(R.id.lvRecords);
+      listView.setOnItemClickListener(new RecordClicked());
       _mbwManager = MbwManager.getInstance(this.getApplication());
 
       // Get intent parameters
@@ -130,10 +139,8 @@ public class GetSpendingRecordActivity extends Activity {
    class RecordClicked implements OnItemClickListener {
       @Override
       public void onItemClick(AdapterView<?> list, View v, int position, long id) {
-         if (v.getTag() == null || !(v.getTag() instanceof WalletAccount)) {
-            return;
-         }
-         WalletAccount account = (WalletAccount) v.getTag();
+         ViewAccountModel model = accountsAdapter.getItem(position);
+         WalletAccount account = _mbwManager.getWalletManager(false).getAccount(model.accountId);
          callSendInitActivity(account);
          GetSpendingRecordActivity.this.finish();
       }
@@ -147,7 +154,6 @@ public class GetSpendingRecordActivity extends Activity {
 
    private void update() {
       View warningNoSpendingAccounts = findViewById(R.id.tvNoSpendingAccounts);
-      ListView listView = (ListView) findViewById(R.id.lvRecords);
       MetadataStorage storage = _mbwManager.getMetadataStorage();
       //get accounts with key and positive balance
       List<WalletAccount> spendingAccounts = _mbwManager.getWalletManager(false).getSpendingAccountsWithBalance();
@@ -168,17 +174,19 @@ public class GetSpendingRecordActivity extends Activity {
          listView.setVisibility(View.GONE);
          warningNoSpendingAccounts.setVisibility(View.VISIBLE);
       } else {
-         AccountsAdapter accountsAdapter = new AccountsAdapter(this, Utils.sortAccounts(spendingAccounts, storage));
+         RecordRowBuilder builder = new RecordRowBuilder(_mbwManager, getResources(), LayoutInflater.from(this));
+         List<ViewAccountModel> list = builder.convertList(Utils.sortAccounts(spendingAccounts, storage));
+         accountsAdapter = new AccountsAdapter(this, list);
          listView.setAdapter(accountsAdapter);
          listView.setVisibility(View.VISIBLE);
          warningNoSpendingAccounts.setVisibility(View.GONE);
       }
    }
 
-   class AccountsAdapter extends ArrayAdapter<WalletAccount> {
+   class AccountsAdapter extends ArrayAdapter<ViewAccountModel> {
       private Context _context;
 
-      AccountsAdapter(Context context, List<WalletAccount> accounts) {
+      AccountsAdapter(Context context, List<ViewAccountModel> accounts) {
          super(context, R.layout.record_row, accounts);
          _context = context;
       }
@@ -187,7 +195,7 @@ public class GetSpendingRecordActivity extends Activity {
       @NonNull
       public View getView(int position, View convertView, @NonNull ViewGroup parent) {
          LayoutInflater inflater = (LayoutInflater) _context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-         WalletAccount account = getItem(position);
+         ViewAccountModel account = getItem(position);
          RecordRowBuilder recordRowBuilder = new RecordRowBuilder(_mbwManager, getResources(), inflater);
          return recordRowBuilder.buildRecordView(parent, account,
                false, false, convertView);
