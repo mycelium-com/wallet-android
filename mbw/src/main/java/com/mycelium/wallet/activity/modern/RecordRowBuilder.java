@@ -69,12 +69,10 @@ public class RecordRowBuilder {
         this.resources = resources;
     }
 
-    public View buildRecordView(AccountViewHolder holder, ViewAccountModel model, boolean isSelected, boolean hasFocus) {
+    public void buildRecordView(AccountViewHolder holder, ViewAccountModel model, boolean isSelected, boolean hasFocus) {
         View view = holder.itemView;
         // Make grey if not part of the balance
         Utils.setAlpha(view, !isSelected ? 0.5f : 1f);
-
-        int textColor = resources.getColor(R.color.white);
 
         // Show focus if applicable
         view.setBackgroundColor(resources.getColor(hasFocus ? R.color.selectedrecord : R.color.transparent));
@@ -103,6 +101,7 @@ public class RecordRowBuilder {
         } else {
             holder.tvWhatIsIt.setVisibility(View.GONE);
         }
+        int textColor = resources.getColor(R.color.white);
         if (model.label.length() == 0) {
             holder.tvLabel.setVisibility(View.GONE);
         } else {
@@ -112,30 +111,26 @@ public class RecordRowBuilder {
             holder.tvLabel.setTextColor(textColor);
         }
 
-
         holder.tvAddress.setText(model.displayAddress);
         holder.tvAddress.setTextColor(textColor);
 
         // Set balance
         if (model.isActive) {
             CurrencyBasedBalance balance = model.balance;
-            view.findViewById(R.id.tvBalance).setVisibility(View.VISIBLE);
+            holder.tvBalance.setVisibility(View.VISIBLE);
             String balanceString = Utils.getFormattedValueWithUnit(balance.confirmed, mbwManager.getBitcoinDenomination());
             if (model.accountType == WalletAccount.Type.COLU) {
                 balanceString = Utils.getColuFormattedValueWithUnit(balance.confirmed);
             }
-            TextView tvBalance = view.findViewById(R.id.tvBalance);
-            tvBalance.setText(balanceString);
-            tvBalance.setTextColor(textColor);
+            holder.tvBalance.setText(balanceString);
+            holder.tvBalance.setTextColor(textColor);
 
             // Show legacy account with funds warning if necessary
-
-            TextView backupMissing = view.findViewById(R.id.tvBackupMissingWarning);
-            backupMissing.setVisibility(model.showBackupMissingWarning ? View.VISIBLE : View.GONE);
+            holder.backupMissing.setVisibility(model.showBackupMissingWarning ? View.VISIBLE : View.GONE);
             if (mbwManager.getMetadataStorage().getOtherAccountBackupState(model.accountId) == MetadataStorage.BackupState.NOT_VERIFIED) {
-                backupMissing.setText(R.string.backup_not_verified);
+                holder.backupMissing.setText(R.string.backup_not_verified);
             } else {
-                backupMissing.setText(R.string.backup_missing);
+                holder.backupMissing.setText(R.string.backup_missing);
             }
             holder.tvAccountType.setVisibility(View.GONE);
 
@@ -155,8 +150,6 @@ public class RecordRowBuilder {
         // Show/hide trader account message
         holder.tvTraderKey.setVisibility(model.accountId.equals(mbwManager.getLocalTraderManager().getLocalTraderAccountId())
                 ? View.VISIBLE : View.GONE);
-
-        return view;
     }
 
     public ViewAccountModel convert(WalletAccount walletAccount) {
