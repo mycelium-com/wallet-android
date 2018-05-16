@@ -42,6 +42,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.view.ViewPager;
@@ -540,9 +541,21 @@ public class ModernMain extends AppCompatActivity {
    @Subscribe
    public void syncStopped(SyncStopped event) {
       setRefreshAnimation();
-      if(BCHHelper.getBCHSyncProgress(this) == 100) {
-         BCHHelper.bchSynced(this);
-      }
+      // Sometime app stack on BCHHelper.getBCHSyncProgress, so we call it in diff thread
+      new AsyncTask<Void, Void, Float>() {
+         @Override
+         protected Float doInBackground(Void... voids) {
+            return BCHHelper.getBCHSyncProgress(ModernMain.this);
+         }
+
+         @Override
+         protected void onPostExecute(Float progress) {
+            super.onPostExecute(progress);
+            if(progress == 100) {
+               BCHHelper.bchSynced(ModernMain.this);
+            }
+         }
+      }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
    }
 
    @Subscribe

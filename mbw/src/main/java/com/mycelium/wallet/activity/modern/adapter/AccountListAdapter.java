@@ -116,7 +116,9 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
                 result.addAll(addGroup(R.string.active_hd_accounts_name, GROUP_TITLE_TYPE, am.getBTCBip44Accounts().values()));
                 result.addAll(addGroup(context.getString(R.string.active_bitcoin_sa_group_name), GROUP_TITLE_TYPE, am.getBTCSingleAddressAccounts().values()));
-                publishProgress(result);
+                if(itemList.isEmpty()) {
+                    publishProgress(result);
+                }
                 result.addAll(addGroup(R.string.bitcoin_cash_hd, GROUP_TITLE_TYPE, am.getBCHBip44Accounts().values()));
                 result.addAll(addGroup(R.string.bitcoin_cash_sa, GROUP_TITLE_TYPE, am.getBCHSingleAddressAccounts().values()));
 
