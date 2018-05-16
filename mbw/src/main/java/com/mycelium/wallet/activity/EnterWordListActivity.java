@@ -35,13 +35,15 @@
 package com.mycelium.wallet.activity;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.text.InputType;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.*;
@@ -132,7 +134,7 @@ public class EnterWordListActivity extends AppCompatActivity implements WordAuto
          }
       });
 
-      AlertDialog.Builder builder = new AlertDialog.Builder(this);
+      AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.MyceliumModern_Dialog);
       builder.setTitle(R.string.import_words_title);
       builder.setMessage(R.string.import_wordlist_questions)
             .setView(checkBoxView)
@@ -196,11 +198,12 @@ public class EnterWordListActivity extends AppCompatActivity implements WordAuto
 
    private void askForPassphrase() {
       if (usesPassphrase) {
-         final EditText pass = new EditText(this);
+         View view = LayoutInflater.from(this).inflate(R.layout.layout_password, null);
+         final EditText pass = view.findViewById(R.id.et_password);
 
-         AlertDialog.Builder builder = new AlertDialog.Builder(this);
+         AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.MyceliumModern_Dialog);
          builder.setTitle(R.string.type_password_title);
-         builder.setView(pass)
+         builder.setView(view)
                .setCancelable(false)
                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                   public void onClick(DialogInterface dialog, int id) {
