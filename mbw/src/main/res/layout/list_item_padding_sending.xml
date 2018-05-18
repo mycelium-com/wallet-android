@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="120dp"
+    android:layout_height="75dp"
+    android:background="@drawable/sender_recyclerview_item_background_selector"
+    android:fontFamily="sans-serif-medium"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:text="@string/exchange_sending"
+    android:textColor="@color/white"
+    android:textSize="14sp" />

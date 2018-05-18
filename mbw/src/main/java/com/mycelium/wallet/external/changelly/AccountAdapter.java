@@ -24,20 +24,24 @@ public class AccountAdapter extends SelectableRecyclerView.Adapter<RecyclerView.
     public enum AccountUseType {
         OUT(R.drawable.sender_recyclerview_item_background_selector_red
                 , R.drawable.recyclerview_item_bottom_rectangle_selector
-                , Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, R.dimen.recycler_item_rectangle_height),
+                , Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, R.dimen.recycler_item_rectangle_height
+                , R.layout.list_item_padding_sending),
         IN(R.drawable.sender_recyclerview_item_background_selector2
                 , R.drawable.recyclerview_item_top_rectangle_selector
-                , Gravity.TOP | Gravity.CENTER_HORIZONTAL, R.dimen.recycler_item_triangle_height);
+                , Gravity.TOP | Gravity.CENTER_HORIZONTAL, R.dimen.recycler_item_triangle_height
+                , R.layout.list_item_padding_receiving);
         public int background;
         public int gravity;
         public int heightRes;
         public int indicatorImg;
+        public int paddingLayout;
 
-        AccountUseType(int background, int indicatorImg, int gravity, int height) {
+        AccountUseType(int background, int indicatorImg, int gravity, int height, int paddingLayout) {
             this.background = background;
             this.indicatorImg = indicatorImg;
             this.gravity = gravity;
             this.heightRes = height;
+            this.paddingLayout = paddingLayout;
         }
     }
 
@@ -101,7 +105,7 @@ public class AccountAdapter extends SelectableRecyclerView.Adapter<RecyclerView.
             imageView.setLayoutParams(layoutParams);
             return new ViewHolder(v);
         } else {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_padding_sender,
+            View view = LayoutInflater.from(parent.getContext()).inflate(accountUseType.paddingLayout,
                     parent, false);
             view.setBackgroundResource(accountUseType.background);
             return new ViewHolder(view);
