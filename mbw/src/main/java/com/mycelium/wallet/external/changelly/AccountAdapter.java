@@ -108,7 +108,7 @@ public class AccountAdapter extends SelectableRecyclerView.Adapter<RecyclerView.
             View view = LayoutInflater.from(parent.getContext()).inflate(accountUseType.paddingLayout,
                     parent, false);
             view.setBackgroundResource(accountUseType.background);
-            return new ViewHolder(view);
+            return new PaddingViewHolder(view);
         }
     }
 
@@ -129,6 +129,7 @@ public class AccountAdapter extends SelectableRecyclerView.Adapter<RecyclerView.
             RecyclerView.LayoutParams layoutParams = (RecyclerView.LayoutParams) holder.itemView.getLayoutParams();
             layoutParams.width = paddingWidth;
             holder.itemView.setLayoutParams(layoutParams);
+            holder.itemView.setVisibility(getItemCount() > 3 || position == 0 ? View.VISIBLE : View.INVISIBLE);
         }
     }
 
@@ -150,9 +151,15 @@ public class AccountAdapter extends SelectableRecyclerView.Adapter<RecyclerView.
 
         public ViewHolder(View v) {
             super(v);
-            categoryTextView = (TextView) v.findViewById(R.id.categorytextView);
-            itemTextView = (TextView) v.findViewById(R.id.itemTextView);
+            categoryTextView = v.findViewById(R.id.categorytextView);
+            itemTextView = v.findViewById(R.id.itemTextView);
             valueTextView = (TextView) v.findViewById(R.id.valueTextView);
+        }
+    }
+
+    public static class PaddingViewHolder extends RecyclerView.ViewHolder {
+        public PaddingViewHolder(View v) {
+            super(v);
         }
     }
 }
