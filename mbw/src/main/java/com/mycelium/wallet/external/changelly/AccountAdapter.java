@@ -97,7 +97,7 @@ public class AccountAdapter extends SelectableRecyclerView.Adapter<RecyclerView.
             View v = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.recyclerview_item_fee_lvl, parent, false);
             v.setBackgroundResource(accountUseType.background);
-            ImageView imageView = (ImageView) v.findViewById(R.id.rectangle);
+            ImageView imageView = v.findViewById(R.id.rectangle);
             imageView.setImageResource(accountUseType.indicatorImg);
             FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) imageView.getLayoutParams();
             layoutParams.gravity = accountUseType.gravity;
