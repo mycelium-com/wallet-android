@@ -191,7 +191,7 @@ public class AccountsFragment extends Fragment {
          UUID accountId = (UUID) intent.getSerializableExtra(AddAccountActivity.RESULT_KEY);
          CoinapultAccount account = (CoinapultAccount) _mbwManager.getWalletManager(false).getAccount(accountId);
          _mbwManager.setSelectedAccount(accountId);
-         accountListAdapter.setFocusedAccount(account);
+         accountListAdapter.setFocusedAccountId(account.getId());
          updateIncludingMenus();
 
       } else if (requestCode == ADD_RECORD_RESULT_CODE && resultCode == Activity.RESULT_OK) {
@@ -203,7 +203,7 @@ public class AccountsFragment extends Fragment {
             if (account.isActive()) {
                _mbwManager.setSelectedAccount(accountid);
             }
-            accountListAdapter.setFocusedAccount(account);
+            accountListAdapter.setFocusedAccountId(account.getId());
             updateIncludingMenus();
             if (account.getType() != WalletAccount.Type.COLU && !intent.getBooleanExtra(AddAccountActivity.IS_UPGRADE, false)) {
                setNameForNewAccount(account);
@@ -524,7 +524,7 @@ public class AccountsFragment extends Fragment {
    };
 
    private void updateIncludingMenus() {
-      WalletAccount account = accountListAdapter.getFocusedAccount();
+      WalletAccount account = accountListAdapter.getFocusedAccountId();
       boolean isBch = account.getType() == WalletAccount.Type.BCHSINGLEADDRESS
               || account.getType() == WalletAccount.Type.BCHBIP44;
 
@@ -621,7 +621,7 @@ public class AccountsFragment extends Fragment {
                activateSelected();
                return true;
             } else if (id == R.id.miSetLabel) {
-               setLabelOnAccount(accountListAdapter.getFocusedAccount(), "", true);
+               setLabelOnAccount(accountListAdapter.getFocusedAccountId(), "", true);
                return true;
             } else if (id == R.id.miDeleteRecord) {
                deleteSelected();
@@ -667,9 +667,9 @@ public class AccountsFragment extends Fragment {
          public void onDestroyActionMode(ActionMode actionMode) {
             currentActionMode = null;
             // Loose focus
-            if (accountListAdapter.getFocusedAccount() != null) {
-               accountListAdapter.setFocusedAccount(null);
-               update();
+            if (accountListAdapter.getFocusedAccountId() != null) {
+               accountListAdapter.setFocusedAccountId(null);
+//               update();
             }
          }
       };
@@ -678,9 +678,9 @@ public class AccountsFragment extends Fragment {
       // startSupportActionMode above, as it calls onDestroyActionMode when
       // starting for some reason, and this would clear the focus and force
       // an update.
-      accountListAdapter.setFocusedAccount(account);
+      accountListAdapter.setFocusedAccountId(account.getId());
 
-      update();
+//      update();
    }
 
    //todo: maybe move it to another class along with the other coinaspult mail stuff? would require passing the context for dialog boxes though.
@@ -820,7 +820,7 @@ public class AccountsFragment extends Fragment {
       if (!AccountsFragment.this.isAdded()) {
          return;
       }
-      WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
+      WalletAccount _focusedAccount = accountListAdapter.getFocusedAccountId();
       if (_focusedAccount instanceof SingleAddressAccount || _focusedAccount instanceof ColuAccount) {
          //start legacy backup verification
          VerifyBackupActivity.callMe(getActivity());
@@ -831,7 +831,7 @@ public class AccountsFragment extends Fragment {
       if (!AccountsFragment.this.isAdded()) {
          return;
       }
-      WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
+      WalletAccount _focusedAccount = accountListAdapter.getFocusedAccountId();
       if(_focusedAccount instanceof ColuAccount) {
          //ColuAccount class can be single or HD
          //TODO: test if account is single address or HD and do wordlist backup instead
@@ -850,7 +850,7 @@ public class AccountsFragment extends Fragment {
 
    private void showOutputs() {
       Intent intent = new Intent(getActivity(), UnspentOutputsActivity.class);
-      WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
+      WalletAccount _focusedAccount = accountListAdapter.getFocusedAccountId();
       intent.putExtra("account", _focusedAccount.getId());
       startActivity(intent);
    }
@@ -866,7 +866,7 @@ public class AccountsFragment extends Fragment {
             if (!AccountsFragment.this.isAdded()) {
                return;
             }
-            WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
+            WalletAccount _focusedAccount = accountListAdapter.getFocusedAccountId();
             if (_focusedAccount instanceof CoinapultAccount) {
                CoinapultManager coinapultManager = _mbwManager.getCoinapultManager();
                MessageSigningActivity.callMe(getActivity(), coinapultManager.getAccountKey());
@@ -952,7 +952,7 @@ public class AccountsFragment extends Fragment {
       if (!AccountsFragment.this.isAdded()) {
          return;
       }
-      final WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
+      final WalletAccount _focusedAccount = accountListAdapter.getFocusedAccountId();
       if (_focusedAccount.isActive() && _mbwManager.getWalletManager(false).getActiveAccounts().size() < 2) {
          _toaster.toast(R.string.keep_one_active, false);
          return;
@@ -974,7 +974,7 @@ public class AccountsFragment extends Fragment {
       if (!isAdded()) {
          return;
       }
-      accountListAdapter.getFocusedAccount().dropCachedData();
+      accountListAdapter.getFocusedAccountId().dropCachedData();
       _mbwManager.getWalletManager(false).startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
       _mbwManager.getColuManager().startSynchronization();
    }
@@ -1040,7 +1040,7 @@ public class AccountsFragment extends Fragment {
             if (!AccountsFragment.this.isAdded()) {
                return;
             }
-            activate(accountListAdapter.getFocusedAccount());
+            activate(accountListAdapter.getFocusedAccountId());
          }
 
       });
@@ -1072,7 +1072,7 @@ public class AccountsFragment extends Fragment {
          _toaster.toast(R.string.keep_one_active, false);
          return;
       }
-      final WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
+      final WalletAccount _focusedAccount = accountListAdapter.getFocusedAccountId();
       if (_focusedAccount.getType() == WalletAccount.Type.COINAPULT) {
          _mbwManager.runPinProtectedFunction(getActivity(), new Runnable() {
 
@@ -1118,7 +1118,7 @@ public class AccountsFragment extends Fragment {
          _toaster.toast(R.string.keep_one_active, false);
          return;
       }
-      final WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
+      final WalletAccount _focusedAccount = accountListAdapter.getFocusedAccountId();
       if (_focusedAccount instanceof Bip44Account) {
          final Bip44Account account = (Bip44Account) _focusedAccount;
          if (account.hasHadActivity()) {
@@ -1136,7 +1136,7 @@ public class AccountsFragment extends Fragment {
                //setselected also broadcasts AccountChanged event, which will cause an ui update
                _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
                //we dont want to show the context menu for the automatically selected account
-               accountListAdapter.setFocusedAccount(null);
+               accountListAdapter.setFocusedAccountId(null);
                finishCurrentActionMode();
             }
          });
