@@ -701,36 +701,39 @@ public class SettingsActivity extends PreferenceActivity {
          });
          external.addPreference(cbService);
       }
+      if(!SettingsPreference.getInstance().isEndedMyDFS()) {
+         final CheckBoxPreference cbService = new CheckBoxPreference(this);
+         cbService.setTitle(R.string.settings_mydfs_title);
+         cbService.setSummary(R.string.settings_mydfs_summary);
+         cbService.setChecked(SettingsPreference.getInstance().isMyDFSEnabled());
+         cbService.setWidgetLayoutResource(R.layout.preference_checkbox);
+         cbService.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+               CheckBoxPreference p = (CheckBoxPreference) preference;
+               SettingsPreference.getInstance().setEnableMyDFS(p.isChecked());
+               return true;
+            }
+         });
+         external.addPreference(cbService);
+      }
 
-      final CheckBoxPreference cbService = new CheckBoxPreference(this);
-      cbService.setTitle(R.string.settings_mydfs_title);
-      cbService.setSummary(R.string.settings_mydfs_summary);
-      cbService.setChecked(SettingsPreference.getInstance().isMyDFSEnabled());
-      cbService.setWidgetLayoutResource(R.layout.preference_checkbox);
-      cbService.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-         @Override
-         public boolean onPreferenceClick(Preference preference) {
-            CheckBoxPreference p = (CheckBoxPreference) preference;
-            SettingsPreference.getInstance().setEnableMyDFS(p.isChecked());
-            return true;
-         }
-      });
-      external.addPreference(cbService);
-
-      final CheckBoxPreference cbServiceApex = new CheckBoxPreference(this);
-      cbServiceApex.setTitle(R.string.settings_apex_title);
-      cbServiceApex.setSummary(R.string.settings_apex_summary);
-      cbServiceApex.setChecked(SettingsPreference.getInstance().isApexEnabled());
-      cbServiceApex.setWidgetLayoutResource(R.layout.preference_checkbox);
-      cbServiceApex.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-         @Override
-         public boolean onPreferenceClick(Preference preference) {
-            CheckBoxPreference p = (CheckBoxPreference) preference;
-            SettingsPreference.getInstance().setEnableApex(p.isChecked());
-            return true;
-         }
-      });
-      external.addPreference(cbServiceApex);
+      if(!SettingsPreference.getInstance().isEndedApex()) {
+         final CheckBoxPreference cbServiceApex = new CheckBoxPreference(this);
+         cbServiceApex.setTitle(R.string.settings_apex_title);
+         cbServiceApex.setSummary(R.string.settings_apex_summary);
+         cbServiceApex.setChecked(SettingsPreference.getInstance().isApexEnabled());
+         cbServiceApex.setWidgetLayoutResource(R.layout.preference_checkbox);
+         cbServiceApex.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+               CheckBoxPreference p = (CheckBoxPreference) preference;
+               SettingsPreference.getInstance().setEnableApex(p.isChecked());
+               return true;
+            }
+         });
+         external.addPreference(cbServiceApex);
+      }
    }
 
    @Override
