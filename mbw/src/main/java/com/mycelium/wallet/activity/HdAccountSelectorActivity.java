@@ -67,7 +67,7 @@ import java.util.UUID;
 public abstract class HdAccountSelectorActivity extends Activity implements MasterseedPasswordSetter {
    protected final static int REQUEST_SEND = 1;
    public static final String PASSPHRASE_FRAGMENT_TAG = "passphrase";
-   protected ArrayList<HdAccountWrapper> accounts = new ArrayList<HdAccountWrapper>();
+   protected ArrayList<HdAccountWrapper> accounts = new ArrayList<>();
    protected AccountsAdapter accountsAdapter;
    protected AbstractAccountScanManager masterseedScanManager;
 
@@ -85,8 +85,8 @@ public abstract class HdAccountSelectorActivity extends Activity implements Mast
 
       setView();
 
-      lvAccounts = (ListView)findViewById(R.id.lvAccounts);
-      txtStatus = (TextView)findViewById(R.id.txtStatus);
+      lvAccounts = findViewById(R.id.lvAccounts);
+      txtStatus = findViewById(R.id.txtStatus);
 
       // Accounts listview + adapter
       accountsAdapter = new AccountsAdapter(this, R.id.lvAccounts, accounts);
@@ -223,15 +223,15 @@ public abstract class HdAccountSelectorActivity extends Activity implements Mast
    }
 
    protected class AccountsAdapter extends ArrayAdapter<HdAccountWrapper>{
+      private LayoutInflater inflater;
 
       private AccountsAdapter(Context context, int resource, List<HdAccountWrapper> objects) {
          super(context, resource, objects);
+         inflater = LayoutInflater.from(getContext());
       }
 
       @Override
       public View getView(int position, View convertView, ViewGroup parent) {
-         LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
          View row;
          if (convertView == null) {
             row = inflater.inflate(R.layout.record_row, parent, false);
@@ -255,6 +255,7 @@ public abstract class HdAccountSelectorActivity extends Activity implements Mast
          ((ImageView)row.findViewById(R.id.ivIcon)).setImageDrawable(drawableForAccount);
 
          row.findViewById(R.id.tvBackupMissingWarning).setVisibility(View.GONE);
+         row.findViewById(R.id.tvAccountType).setVisibility(View.GONE);
 
          return row;
       }
