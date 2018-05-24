@@ -83,7 +83,7 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         this.itemSelectListener = itemSelectListener;
     }
 
-    public WalletAccount getFocusedAccountId() {
+    public WalletAccount getFocusedAccount() {
         return mbwManager.getWalletManager(false).getAccount(focusedAccountId);
     }
 
