@@ -118,7 +118,7 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         }
 
         private void checkWeakReferences() throws WeakReferenceNullException {
-            if(wrContext.get() == null || wrAdapter.get() == null) {
+            if (wrContext.get() == null || wrAdapter.get() == null) {
                 throw new WeakReferenceNullException();
             }
         }
@@ -132,7 +132,7 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 checkWeakReferences();
                 result.addAll(addGroup(wrContext.get().getString(R.string.active_bitcoin_sa_group_name), GROUP_TITLE_TYPE, am.getBTCSingleAddressAccounts().values()));
                 checkWeakReferences();
-                if(wrAdapter.get().itemList.isEmpty()) {
+                if (wrAdapter.get().itemList.isEmpty()) {
                     publishProgress(result);
                 }
                 result.addAll(addGroup(R.string.bitcoin_cash_hd, GROUP_TITLE_TYPE, am.getBCHBip44Accounts().values()));
@@ -187,7 +187,7 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         @Override
         protected final void onProgressUpdate(List<Item>... values) {
             super.onProgressUpdate(values);
-            if(wrAdapter.get() == null || wrContext.get() == null) {
+            if (wrAdapter.get() == null || wrContext.get() == null) {
                 return;
             }
             wrAdapter.get().itemList = values[0];

@@ -14,7 +14,6 @@ import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.Transaction;
-import com.mycelium.lt.api.model.Ad;
 import com.mycelium.wallet.MbwEnvironment;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.activity.util.BlockExplorer;
@@ -77,6 +76,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.Executors;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -329,13 +329,12 @@ public class ColuManager implements AccountProvider {
         // all accounts with a balance > 0
         // but do it in background, as this function gets called via the constructor, which
         // gets called in the MbwManager constructor
-        new AsyncTask<Void, Void, Void>() {
+        Executors.newSingleThreadExecutor().execute(new Runnable() {
             @Override
-            protected Void doInBackground(Void... params) {
+            public void run() {
                 scanForAccounts();
-                return null;
             }
-        }.execute();
+        });
     }
 
     class CreatedAccountInfo {
