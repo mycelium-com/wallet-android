@@ -523,7 +523,8 @@ public class ModernMain extends AppCompatActivity {
    @Subscribe
    public void syncStopped(SyncStopped event) {
       setRefreshAnimation();
-      // Sometime app stack on BCHHelper.getBCHSyncProgress, so we call it in diff thread
+      // On big wallets, loading the module to retrieve the sync status can take a long time. To
+      // avoid ANRs, run this on an AsyncTask
       new AsyncTask<Void, Void, Float>() {
          @Override
          protected Float doInBackground(Void... voids) {
