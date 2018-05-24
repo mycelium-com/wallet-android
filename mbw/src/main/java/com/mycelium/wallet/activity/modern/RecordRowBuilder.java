@@ -39,9 +39,7 @@ import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.text.Html;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.TextView;
 
 import com.google.common.base.Optional;
 import com.mrd.bitlib.model.Address;
@@ -158,6 +156,7 @@ public class RecordRowBuilder {
 
         result.drawableForAccount = Utils.getDrawableForAccount(walletAccount, false, resources);
         result.drawableForAccountSelected = Utils.getDrawableForAccount(walletAccount, true, resources);
+        result.accountType = walletAccount.getType();
 
 
         WalletAccount linked = Utils.getLinkedAccount(walletAccount, mbwManager.getColuManager().getAccounts().values());
