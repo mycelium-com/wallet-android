@@ -207,14 +207,12 @@ public class Utils {
    }
 
    public static boolean isConnected(Context context) {
-      ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-      NetworkInfo[] NI = cm.getAllNetworkInfo();
-      for (NetworkInfo aNI : NI) {
-         if (aNI.isConnected()) {
-            return true;
-         }
-      }
-      return false;
+      ConnectivityManager cm =
+              (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+      NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+      return activeNetwork != null &&
+              activeNetwork.isConnectedOrConnecting();
    }
 
    public static void toastConnectionError(Context context) {

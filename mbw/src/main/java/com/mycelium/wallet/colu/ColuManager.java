@@ -14,7 +14,6 @@ import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.Transaction;
-import com.mycelium.lt.api.model.Ad;
 import com.mycelium.wallet.MbwEnvironment;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.activity.util.BlockExplorer;
@@ -77,6 +76,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.Executors;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -96,6 +96,7 @@ public class ColuManager implements AccountProvider {
     private NetworkParameters _network;
     private final SecureKeyValueStore _secureKeyValueStore;
     private WalletManager.State state;
+    private volatile boolean isNetworkConnected;
     private Map<ColuAccount.ColuAssetType, AssetMetadata> assetsMetadata = new HashMap<>();
 
     public static final int TIME_INTERVAL_BETWEEN_BALANCE_FUNDING_CHECKS = 50;
@@ -108,7 +109,7 @@ public class ColuManager implements AccountProvider {
     public ColuManager(SecureKeyValueStore secureKeyValueStore, SqliteColuManagerBacking backing,
                        MbwManager manager, MbwEnvironment env,
                        final Bus eventBus, Handler handler,
-                       MetadataStorage metadataStorage) {
+                       MetadataStorage metadataStorage, boolean isNetworkConnected) {
         this._secureKeyValueStore = secureKeyValueStore;
         this._backing = backing;
         this.env = env;
@@ -116,6 +117,7 @@ public class ColuManager implements AccountProvider {
         this.eventBus = eventBus;
         this.handler = handler;
         this.metadataStorage = metadataStorage;
+        this.isNetworkConnected = isNetworkConnected;
         eventTranslator = new EventTranslator(handler, eventBus);
 
         //Setting up the network
@@ -329,13 +331,19 @@ public class ColuManager implements AccountProvider {
         // all accounts with a balance > 0
         // but do it in background, as this function gets called via the constructor, which
         // gets called in the MbwManager constructor
-        new AsyncTask<Void, Void, Void>() {
+        Executors.newSingleThreadExecutor().execute(new Runnable() {
             @Override
-            protected Void doInBackground(Void... params) {
+            public void run() {
+                if (!isNetworkConnected) {
+                    return;
+                }
                 scanForAccounts();
-                return null;
             }
-        }.execute();
+        });
+    }
+
+    public void setNetworkConnected(boolean networkConnected) {
+        isNetworkConnected = networkConnected;
     }
 
     class CreatedAccountInfo {
@@ -890,6 +898,9 @@ public class ColuManager implements AccountProvider {
     }
 
     public void startSynchronization() {
+        if (!isNetworkConnected) {
+            return;
+        }
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected void onPreExecute() {
