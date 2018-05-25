@@ -96,6 +96,7 @@ public class ColuManager implements AccountProvider {
     private NetworkParameters _network;
     private final SecureKeyValueStore _secureKeyValueStore;
     private WalletManager.State state;
+    private volatile boolean isNetworkConnected;
     private Map<ColuAccount.ColuAssetType, AssetMetadata> assetsMetadata = new HashMap<>();
 
     public static final int TIME_INTERVAL_BETWEEN_BALANCE_FUNDING_CHECKS = 50;
@@ -108,7 +109,7 @@ public class ColuManager implements AccountProvider {
     public ColuManager(SecureKeyValueStore secureKeyValueStore, SqliteColuManagerBacking backing,
                        MbwManager manager, MbwEnvironment env,
                        final Bus eventBus, Handler handler,
-                       MetadataStorage metadataStorage) {
+                       MetadataStorage metadataStorage, boolean isNetworkConnected) {
         this._secureKeyValueStore = secureKeyValueStore;
         this._backing = backing;
         this.env = env;
@@ -116,6 +117,7 @@ public class ColuManager implements AccountProvider {
         this.eventBus = eventBus;
         this.handler = handler;
         this.metadataStorage = metadataStorage;
+        this.isNetworkConnected = isNetworkConnected;
         eventTranslator = new EventTranslator(handler, eventBus);
 
         //Setting up the network
@@ -332,9 +334,16 @@ public class ColuManager implements AccountProvider {
         Executors.newSingleThreadExecutor().execute(new Runnable() {
             @Override
             public void run() {
+                if (!isNetworkConnected) {
+                    return;
+                }
                 scanForAccounts();
             }
         });
+    }
+
+    public void setNetworkConnected(boolean networkConnected) {
+        isNetworkConnected = networkConnected;
     }
 
     class CreatedAccountInfo {
@@ -889,6 +898,9 @@ public class ColuManager implements AccountProvider {
     }
 
     public void startSynchronization() {
+        if (!isNetworkConnected) {
+            return;
+        }
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected void onPreExecute() {
