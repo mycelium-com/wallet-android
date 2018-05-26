@@ -1215,6 +1215,8 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="settings_apex_title">Enable APEX token</string>
     <string name="settings_apex_summary">Show APEX token buy option</string>
     <string name="buy_apex_token">BUY APEX TOKEN</string>
+    <string name="exchange_sending">SENDING\nADDRESS</string>
+    <string name="exchange_receiving">RECEIVING\nADDRESS</string>
     <plurals name="account_label">
         <item quantity="one">Account label:\n%s</item>
         <item quantity="other">Accounts labels:\n%s</item>

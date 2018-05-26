@@ -17,18 +17,20 @@
             android:id="@+id/categorytextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:fontFamily="sans-serif"
             android:gravity="center_horizontal"
             android:lines="1"
             android:textColor="@color/horizontalpicker_text_color"
-            android:textSize="10sp"
+            android:textSize="12sp"
             tools:text="My BTC Account" />
 
         <TextView
             android:id="@+id/itemTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
             android:ellipsize="end"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center_horizontal"
             android:singleLine="true"
             android:textColor="@color/horizontalpicker_text_color"
             android:textSize="14sp"
@@ -38,12 +40,13 @@
             android:id="@+id/valueTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
             android:ellipsize="middle"
+            android:fontFamily="sans-serif"
+            android:gravity="center_horizontal"
+            android:singleLine="true"
             android:textColor="@color/horizontalpicker_text_color"
-            android:textSize="10sp"
-            tools:text="0.5556 BTC"
-            android:singleLine="true" />
+            android:textSize="12sp"
+            tools:text="0.5556 BTC" />
     </LinearLayout>
 
     <ImageView
@@ -51,7 +54,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="top|center_horizontal"
-        android:scaleType="center"
         android:duplicateParentState="true"
+        android:scaleType="center"
         android:src="@drawable/recyclerview_item_bottom_rectangle_selector" />
 </FrameLayout>

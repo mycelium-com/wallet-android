@@ -20,10 +20,22 @@ public class ButtonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private static final int BUTTON = 1;
     private List<ActionButton> buttons = new ArrayList<>();
 
+    private ButtonClickListener clickListener;
+
     public void setButtons(List<ActionButton> buttons) {
+        boolean update = true;
+        if (buttons.equals(this.buttons)) {
+            update = false;
+        }
         this.buttons.clear();
         this.buttons.addAll(buttons);
-        notifyDataSetChanged();
+        if (update) {
+            notifyDataSetChanged();
+        }
+    }
+
+    public void setClickListener(ButtonClickListener clickListener) {
+        this.clickListener = clickListener;
     }
 
     @NonNull
@@ -53,8 +65,8 @@ public class ButtonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (actionButton.task != null) {
-                        actionButton.task.run();
+                    if (clickListener != null) {
+                        clickListener.onClick(actionButton);
                     }
                 }
             });
@@ -97,7 +109,7 @@ public class ButtonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         public ButtonHolder(View itemView) {
             super(itemView);
-            button = (Button) itemView.findViewById(R.id.btn_action);
+            button = itemView.findViewById(R.id.btn_action);
         }
     }
 

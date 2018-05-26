@@ -191,7 +191,7 @@ public class AccountsFragment extends Fragment {
          UUID accountId = (UUID) intent.getSerializableExtra(AddAccountActivity.RESULT_KEY);
          CoinapultAccount account = (CoinapultAccount) _mbwManager.getWalletManager(false).getAccount(accountId);
          _mbwManager.setSelectedAccount(accountId);
-         accountListAdapter.setFocusedAccount(account);
+         accountListAdapter.setFocusedAccountId(account.getId());
          updateIncludingMenus();
 
       } else if (requestCode == ADD_RECORD_RESULT_CODE && resultCode == Activity.RESULT_OK) {
@@ -203,7 +203,7 @@ public class AccountsFragment extends Fragment {
             if (account.isActive()) {
                _mbwManager.setSelectedAccount(accountid);
             }
-            accountListAdapter.setFocusedAccount(account);
+            accountListAdapter.setFocusedAccountId(account.getId());
             updateIncludingMenus();
             if (account.getType() != WalletAccount.Type.COLU && !intent.getBooleanExtra(AddAccountActivity.IS_UPGRADE, false)) {
                setNameForNewAccount(account);
@@ -668,8 +668,8 @@ public class AccountsFragment extends Fragment {
             currentActionMode = null;
             // Loose focus
             if (accountListAdapter.getFocusedAccount() != null) {
-               accountListAdapter.setFocusedAccount(null);
-               update();
+               accountListAdapter.setFocusedAccountId(null);
+//               update();
             }
          }
       };
@@ -678,9 +678,9 @@ public class AccountsFragment extends Fragment {
       // startSupportActionMode above, as it calls onDestroyActionMode when
       // starting for some reason, and this would clear the focus and force
       // an update.
-      accountListAdapter.setFocusedAccount(account);
+      accountListAdapter.setFocusedAccountId(account.getId());
 
-      update();
+//      update();
    }
 
    //todo: maybe move it to another class along with the other coinaspult mail stuff? would require passing the context for dialog boxes though.
@@ -1136,7 +1136,7 @@ public class AccountsFragment extends Fragment {
                //setselected also broadcasts AccountChanged event, which will cause an ui update
                _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
                //we dont want to show the context menu for the automatically selected account
-               accountListAdapter.setFocusedAccount(null);
+               accountListAdapter.setFocusedAccountId(null);
                finishCurrentActionMode();
             }
          });
