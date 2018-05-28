@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:custom="http://schemas.android.com/apk/res-auto"
               xmlns:tools="http://schemas.android.com/tools"
-              android:layout_width="fill_parent"
+              android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:orientation="vertical">
 
@@ -52,43 +52,6 @@
             custom:hideOnNoExchangeRate="true"
             />
 
-
-    <!-- Colu satoshi balance -->
-
-    <!--<LinearLayout-->
-        <!--android:id="@+id/llColuSatoshiBalance"-->
-        <!--android:layout_width="fill_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:orientation="vertical" -->
-        <!--android:visibility="gone">-->
-
-        <!--<LinearLayout-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:orientation="horizontal"-->
-                <!--android:layout_gravity="center_horizontal"-->
-                <!--android:gravity="center_horizontal"-->
-                <!--&gt;-->
-
-            <!--<TextView-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:layout_margin="0dp"-->
-                <!--android:text="tx funding balance: "-->
-                <!--tools:text="tx funding balance: "-->
-                <!--android:textSize="16sp" />-->
-
-            <!--<TextView-->
-                <!--android:id="@+id/tvColuSatoshiBalance"-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:layout_margin="0dp"-->
-                <!--tools:text="21000 sat"-->
-                <!--android:textSize="16sp" />-->
-        <!--</LinearLayout>-->
-
-      <!--</LinearLayout>-->
-
         <TextView
             android:id="@+id/tvReceiving"
             android:layout_width="wrap_content"
@@ -130,48 +93,48 @@
             android:textSize="16sp" />
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="fill_parent"
+
+    <include
+        layout="@layout/layout_account_actoins"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="5dp"
-        android:layout_marginTop="5dp"
-        android:orientation="horizontal" >
-
-        <Button
-            android:id="@+id/btSend"
-            style="@style/MyceliumButton"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/send"
-            android:textSize="20sp" />
-
-        <ImageView
-                android:id="@+id/btScan"
-                style="@style/MyceliumButton"
-                android:layout_width="?attr/actionBarSize"
-                android:layout_height="fill_parent"
-                android:src="@drawable/photo"
-                android:contentDescription="@string/scan_qr_code"/>
-
-        <Button
-            android:id="@+id/btReceive"
-            style="@style/MyceliumButton"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/receive"
-            android:textSize="20sp" />
-    </LinearLayout>
+        android:layout_marginTop="@dimen/margin_large"
+        android:layout_marginBottom="@dimen/margin_medium"/>
 
     <TextView
         android:id="@+id/tvBtcRate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="5dp"
-        android:gravity="center_horizontal"
         android:textColor="@color/lightgrey"
-        android:textSize="18sp" />
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:layout_marginBottom="@dimen/margin_medium"
+        android:textSize="18sp"
+        tools:text="1 BTC ~ USD 10" />
 
+    <LinearLayout
+        android:id="@+id/exchangeSourceLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginLeft="4dp"
+        android:layout_marginBottom="@dimen/margin_medium"
+        android:gravity="center">
+
+        <TextView
+            android:id="@+id/exchangeSource"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:textColor="@color/lightgrey"
+            android:textSize="18sp" />
+
+        <ImageView
+            android:id="@+id/exchangeSourceArrow"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            custom:srcCompat="@drawable/ic_arrow_drop_down" />
+    </LinearLayout>
 </LinearLayout>

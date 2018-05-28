@@ -22,7 +22,7 @@ import com.google.common.base.Preconditions;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.rmc.adapter.AddressWidgetAdapter;
-import com.mycelium.wallet.activity.rmc.view.ViewPagerIndicator;
+import com.mycelium.wallet.activity.view.ViewPagerIndicator;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.BalanceChanged;
 import com.mycelium.wallet.event.ReceivingAddressChanged;

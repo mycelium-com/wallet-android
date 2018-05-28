@@ -46,9 +46,12 @@ import android.widget.Toast;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.Sha256Hash;
+import com.mycelium.modularizationtools.CommunicationManager;
+import com.mycelium.spvmodule.IntentContract;
 import com.mycelium.wallet.*;
 import com.mycelium.wallet.event.SyncFailed;
 import com.mycelium.wallet.event.SyncStopped;
+import com.mycelium.wallet.modularisation.GooglePlayModuleCollection;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.squareup.otto.Subscribe;
@@ -121,7 +124,16 @@ public class BroadcastTransactionActivity extends Activity {
       AsyncTask<Void, Integer, WalletAccount.BroadcastResult> task = new AsyncTask<Void, Integer, WalletAccount.BroadcastResult>() {
          @Override
          protected WalletAccount.BroadcastResult doInBackground(Void... args) {
-            return _account.broadcastTransaction(_transaction);
+            if (!Utils.isConnected(BroadcastTransactionActivity.this)) {
+               return WalletAccount.BroadcastResult.NO_SERVER_CONNECTION;
+            }
+            if (CommunicationManager.getInstance().getPairedModules()
+                    .contains(GooglePlayModuleCollection.getModules(getApplicationContext()).get("btc"))) {
+                  Intent intent = IntentContract.BroadcastTransaction.createIntent(_transaction.toBytes());
+                  WalletApplication.sendToSpv(intent, _mbwManager.getSelectedAccount().getType());
+                  return WalletAccount.BroadcastResult.SUCCESS;
+             }
+             return _account.broadcastTransaction(_transaction);
          }
 
          @Override

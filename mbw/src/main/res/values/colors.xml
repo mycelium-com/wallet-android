@@ -15,6 +15,7 @@
     <color name="mycelium_midblue">#3e9bd3</color>
     <color name="mycelium_brightblue">#5fcbf2</color>
 
+
     <color name="greenblue">#0FF</color>
     <color name="darkgrey">#444</color>
     <color name="darkdarkgrey">#222</color>
@@ -27,7 +28,6 @@
     <color name="semidarkyellow">#cc0</color>
     <!--<color name="selectedrecord">#04222f</color>-->
     <color name="selectedrecord">#002e3e</color>
-    <color name="transparent">#00000000</color>
     <color name="transparentgrey">#88888888</color>
     <color name="buttoncolor">#ff1c3d5c</color>
     <color name="fnbuttoncolor">#ff112639</color>
@@ -44,8 +44,14 @@
     <color name="horizontalpicker_text_color">#fff</color>
     <color name="fee_recycler_item_selected">#363d46</color>
     <color name="fee_recycler_item">#2c3239</color>
-    <color name="sender_recyclerview_background2">#61b687</color>
+    <color name="sender_recyclerview_background_red">#fb746d</color>
+    <color name="sender_recyclerview_background_selected_red">#fb827b</color>
+    <color name="sender_recyclerview_background_green">#61b687</color>
     <color name="sender_recyclerview_background_selected2">#84c8a2</color>
+    <color name="scan_background">#3F4F57</color>
+    <color name="new_btn_text_color">#5d5d5d</color>
+    <color name="common_blue">#5aa7e6</color>
+    <color name="transparentaction">#22888888</color>
 
     <fraction name="background_alpha">50%</fraction>
 </resources>

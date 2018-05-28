@@ -84,7 +84,7 @@ public class IdentityAccountKeyManager extends Bip44AccountKeyManager {
       byte[] hash = getBitidWebsiteHash(website);
 
       // get the private and public date from cache, if available
-      byte[] privKeyBytes = _secureKeyValueStore.getEncryptedValue(getKeyNodeId(hash), cipher);
+      byte[] privKeyBytes = _secureKeyValueStore.getDecryptedValue(getKeyNodeId(hash), cipher);
       byte[] pubKeyBytes = _secureKeyValueStore.getPlaintextValue(getKeyNodeId(hash));
 
       if (privKeyBytes != null && pubKeyBytes != null) {
@@ -93,7 +93,7 @@ public class IdentityAccountKeyManager extends Bip44AccountKeyManager {
       }
       // we need to calculate the key
       byte[] accountNodeId = getAccountNodeId();
-      byte[] accountNodeBytes = _secureKeyValueStore.getEncryptedValue(accountNodeId, cipher);
+      byte[] accountNodeBytes = _secureKeyValueStore.getDecryptedValue(accountNodeId, cipher);
       HdKeyNode accountNode;
       try {
          accountNode = HdKeyNode.fromCustomByteformat(accountNodeBytes);

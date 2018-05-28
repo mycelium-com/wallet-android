@@ -10,14 +10,13 @@ import java.security.SecureRandom;
 import static org.junit.Assert.assertTrue;
 
 public class SecureKeyValueStoreTest {
-
    private static final byte[] ID_1 = HexUtils.toBytes("000102030405060708090a0b0c0d0e0f");
    private static final byte[] VALUE_1 = HexUtils.toBytes("0123456789abcdef");
 
    private static class MyRandomSource implements RandomSource {
       SecureRandom _rnd;
 
-      public MyRandomSource() {
+      MyRandomSource() {
          _rnd = new SecureRandom(new byte[]{42});
       }
 
@@ -25,7 +24,6 @@ public class SecureKeyValueStoreTest {
       public void nextBytes(byte[] bytes) {
          _rnd.nextBytes(bytes);
       }
-
    }
 
    @Test
@@ -33,7 +31,7 @@ public class SecureKeyValueStoreTest {
       SecureKeyValueStore store = new SecureKeyValueStore(new InMemoryWalletManagerBacking(), new MyRandomSource());
       KeyCipher cipher = AesKeyCipher.defaultKeyCipher();
       store.encryptAndStoreValue(ID_1, VALUE_1, cipher);
-      byte[] result = store.getEncryptedValue(ID_1, cipher);
+      byte[] result = store.getDecryptedValue(ID_1, cipher);
       assertTrue(BitUtils.areEqual(result, VALUE_1));
    }
 
@@ -44,5 +42,4 @@ public class SecureKeyValueStoreTest {
       byte[] result = store.getPlaintextValue(ID_1);
       assertTrue(BitUtils.areEqual(result, VALUE_1));
    }
-
 }

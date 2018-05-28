@@ -111,4 +111,9 @@ public class EventTranslator implements WalletManager.Observer, ExchangeRateMana
    public void refreshingExchangeRatesFailed() {
       postEvent(new RefreshingExchangeRatesFailed());
    }
+
+   @Override
+   public void exchangeSourceChanged() {
+      postEvent(new ExchangeSourceChanged());
+   }
 }

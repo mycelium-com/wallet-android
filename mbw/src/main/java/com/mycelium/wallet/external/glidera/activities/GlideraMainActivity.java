@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBar.Tab;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 
 import com.mycelium.wallet.MbwManager;
@@ -15,7 +15,7 @@ import com.mycelium.wallet.external.glidera.fragments.GlideraBuyFragment;
 import com.mycelium.wallet.external.glidera.fragments.GlideraSellFragment;
 import com.mycelium.wallet.external.glidera.fragments.GlideraTransactionHistoryFragment;
 
-public class GlideraMainActivity extends ActionBarActivity {
+public class GlideraMainActivity extends AppCompatActivity {
    private Tab buyBitcoinTab;
 
    @Override

@@ -117,7 +117,7 @@
   <string name="backup_legacy_warning">Πρόκειται να κάνετε αντίγραφο ασφαλείας των Λογαριασμών Μονής Διεύθυνσης του πορτοφολιού σας.\nΤο αντίγραφο αυτό ΔΕΝ θα περιέχει τον Κεντρικό Κωδικό (σπόρο), οι HD λογαριασμοί σας ΔΕΝ μπορούν να αποκατασταθούν από αυτό!\n\nΘέλετε να συνεχίσετε;</string>
   <string name="export_to_clipboard_warning">Προσοχή: Η εξαγωγή των μυστικών κλειδιών του λογαριασμού σας στο πρόχειρο τα εκθέτει σε άλλες εφαρμογές της συσκευής.\n\nΣημείωση: Δεν αρκεί να αποθηκεύσετε τα μυστικά δεδομένα στο πρόχειρο, θα πρέπει να τα επικολλήσετε κάπου με ασφάλεια.\n\nΘέλετε να συνεχίσετε;</string>
   <string name="found_clipboard_private_key_title">Βρέθηκε Μυστικό Κλειδί στο Πρόχειρο</string>
-  <string name="found_clipboard_private_keys_message">Το πρόχειρο περιέχει ένα μυστικό κλειδί.\r\nΘέλετε να καθαρίσετε το πρόχειρο;</string>
+  <string name="found_clipboard_private_keys_message">Το πρόχειρο περιέχει ένα μυστικό κλειδί.\nΘέλετε να καθαρίσετε το πρόχειρο;</string>
   <string name="exchange_source_not_available">Ισοτιμία μη διαθέσιμη για %1$s</string>
   <string name="my_own_address_warning">Σημείωση: Πρόκειται να στείλετε σε μία δική σας διεύθυνση.</string>
   <string name="read_only_warning">Προσοχή: Το πορτοφόλι σας δεν περιέχει το μυστικό κλειδί για τη διεύθυνση αυτή.\nΔε θα μπορείτε να ξοδέψετε τα εισερχόμενα χρήματα εκτός κι αν έχετε το μυστικό κλειδί αποθηκευμένο αλλού.</string>
@@ -137,7 +137,7 @@
   <string name="active_accounts_empty">(Κενό)</string>
   <string name="activate_action">Ενεργοποίηση</string>
   <string name="archive_action">Αρχειοθέτηση</string>
-  <string name="question_archive_account">Οι Αρχειοθετημένοι Λογαριασμοί δεν παρακολουθούνται. Δε θα μπορείτε να δείτε την τρέχουσα αξία και τη διεύθυνση λήψης ή να δουλέψετε με το λογαριασμό\r\n\r\nΟι Αρχειοθετημένοι λογαριασμοί μπορούν να επανενεργοποιηθούν.\r\n\r\nΘέλετε να αρχειοθετήσετε αυτό το λογαριασμό;</string>
+  <string name="question_archive_account">Οι Αρχειοθετημένοι Λογαριασμοί δεν παρακολουθούνται. Δε θα μπορείτε να δείτε την τρέχουσα αξία και τη διεύθυνση λήψης ή να δουλέψετε με το λογαριασμό\n\nΟι Αρχειοθετημένοι λογαριασμοί μπορούν να επανενεργοποιηθούν.\n\nΘέλετε να αρχειοθετήσετε αυτό το λογαριασμό;</string>
   <string name="master_seed_configuration_title">Καλωσήρθατε στο Mycelium</string>
   <string name="master_seed_configuration_description">Θέλετε να επαναφέρετε αντίγραφο ασφαλείας, ή να δημιουργήσετε καινούριο πορτοφόλι;</string>
   <string name="master_seed_create_new_button">Δημιουργία Νέου</string>
@@ -180,7 +180,6 @@
   <string name="verify_backup_master_seed">Ο κεντρικός κωδικός (σπόρος) δεν έχει επιβεβαιωθεί.</string>
   <string name="verify_backup_no_such_record">Το μυστικό κλειδί δεν ταιριάζει με καμμία από τις διευθύνσεις σας.</string>
   <string name="verify_backup_ok">Το αντίγραφο ασφαλείας μυστικού κλειδιού επιβεβαιώθηκε επιτυχώς για την διεύθυνση:\n\n%1$s</string>
-  <string name="legacy_account_with_funds">Παλαιού τύπου λογαριασμός με κεφάλαια</string>
   <string name="wrong_seed">Ο κωδικός-σπόρος που σαρώθηκε δεν ταιριάζει με τον κεντρικό κωδικό σας.</string>
   <string name="backup_missing">Χωρίς αντίγραφο ασφαλείας</string>
   <string name="verify_backup_title">Αντίγραφο Ασφαλείας κι Επιβεβαίωση</string>
@@ -196,7 +195,7 @@
   <string name="encrypted_pdf_backup_document_ready">Το έγγραφο PDF δημιουργήθηκε</string>
   <string name="encrypted_pdf_backup_sharing">Το έγγραφο PDF αποστέλλεται&#8230;</string>
   <string name="encrypted_pdf_backup_email_title">Αντίγραφο Ασφαλείας Πορτοφολιού Mycelium</string>
-  <string name="encrypted_pdf_backup_email_text">Επισυνάπτεται το αντίγραφο ασφαλείας του πορτοφολιού Mycelium.\r\n\r\nΑκολουθήστε τα παρακάτω απλά βήματα για να διασφαλίσετε τα κεφάλαιά σας\r\n1. Εκτυπώστε το έγγραφο PDF.\r\n2. Σημειώστε τον κωδικό 15 χαρακτήρων από την οθόνη της συσκευής σας στα μπλε κουτιά της εκτύπωσης.\r\n3. Επιβεβαιώστε ότι μπορείτε να εισαγάγετε τα μυστικά κλειδιά στην εφαρμογή Mycelium.\r\n4. Αποθηκεύστε την εκτύπωση σε ασφαλές σημείο.</string>
+  <string name="encrypted_pdf_backup_email_text">Επισυνάπτεται το αντίγραφο ασφαλείας του πορτοφολιού Mycelium.\n\nΑκολουθήστε τα παρακάτω απλά βήματα για να διασφαλίσετε τα κεφάλαιά σας\n1. Εκτυπώστε το έγγραφο PDF.\n2. Σημειώστε τον κωδικό 15 χαρακτήρων από την οθόνη της συσκευής σας στα μπλε κουτιά της εκτύπωσης.\n3. Επιβεβαιώστε ότι μπορείτε να εισαγάγετε τα μυστικά κλειδιά στην εφαρμογή Mycelium.\n4. Αποθηκεύστε την εκτύπωση σε ασφαλές σημείο.</string>
   <string name="share_pdf">Αποστολή PDF</string>
   <string name="share_with">Αποστολή με&#8230;</string>
   <string name="import_decrypt_key_title">Αποκρυπτογράφηση Μυστικού Κλειδιού</string>
@@ -220,7 +219,6 @@
   <string name="unlock_label">Ξεκλείδωμα</string>
   <string name="lock_label">Κλείδωμα</string>
   <string name="secure_my_funds">Ασφάλιση Κεφαλαίων Μου</string>
-  <string name="move_legacy_funds_message">Το πορτοφόλι σας έχει έναν ή περισσότερους παλαιού τύπου λογαριασμούς που περιέχουν κεφάλαια.\n\nΓια να διασφαλίσετε την ασφάλεια των κεφαλαίων αυτών και να βελτιώσετε την ανωνυμία σας θα πρέπει να τα μεταφέρετε σε έναν από τους HD λογαριασμούς σας\n\nΜεταβείτε στην καρτέλα Λογαριασμοί για λεπτομέρειες.</string>
   <string name="ignore_warnings_title">Αγνόηση Προειδοποιήσεων</string>
   <string name="ignore_warnings_description">Θέλετε να αγνοήσετε τα μηνύματα που ειδοποιούν ότι αυτός ο παλαιού τύπου λογαριασμός περιέχει κεφάλαια;</string>
   <string name="explore">Εξερεύνηση</string>

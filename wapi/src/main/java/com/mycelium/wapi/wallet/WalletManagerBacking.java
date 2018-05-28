@@ -31,6 +31,8 @@ public interface WalletManagerBacking extends SecureKeyValueStoreBacking {
 
    void createBip44AccountContext(Bip44AccountContext context);
 
+   void upgradeBip44AccountContext(Bip44AccountContext context);
+
    List<Bip44AccountContext> loadBip44AccountContexts();
 
    Bip44AccountBacking getBip44AccountBacking(UUID accountId);

@@ -1,0 +1,27 @@
+apply plugin: 'com.android.library'
+repositories {
+    google()
+}
+
+android {
+    compileSdkVersion androidCompileSdkVersion
+    buildToolsVersion androidSdkBuildVersion
+
+    defaultConfig {
+        minSdkVersion 19
+        targetSdkVersion 23
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+    }
+}
+
+dependencies {
+    implementation "com.android.support:recyclerview-v7:$androidSupportVersion"
+}
+

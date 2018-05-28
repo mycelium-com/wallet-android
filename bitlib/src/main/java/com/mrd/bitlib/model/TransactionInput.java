@@ -28,27 +28,6 @@ import com.mrd.bitlib.util.Sha256Hash;
 public class TransactionInput implements Serializable {
    private static final long serialVersionUID = 1L;
    private static final long SEQUENCE_NO_RBF = 0xFFFFFFFEL; // MAX_INT-1 as unsigned int, anything below is RBF able
-
-   public static class TransactionInputParsingException extends Exception {
-      private static final long serialVersionUID = 1L;
-
-      public TransactionInputParsingException(byte[] script) {
-         this(script, null);
-      }
-
-      public TransactionInputParsingException(byte[] script, Exception e) {
-         super("Unable to parse transaction input: " + HexUtils.toHex(script), e);
-      }
-
-      public TransactionInputParsingException(String message) {
-         this(message, null);
-      }
-
-      public TransactionInputParsingException(String message, Exception e) {
-         super(message, e );
-      }
-   }
-
    private static final int NO_SEQUENCE = -1;
 
    public OutPoint outPoint;
@@ -123,10 +102,8 @@ public class TransactionInput implements Serializable {
 
    @Override
    public String toString() {
-      StringBuilder sb = new StringBuilder();
-      sb.append("outpoint: ").append(outPoint.hash).append(':').append(outPoint.index);
-      sb.append(" scriptSize: ").append(script.getScriptBytes().length);
-      return sb.toString();
+      return "outpoint: " + outPoint.hash + ':' + outPoint.index +
+              " scriptSize: " + script.getScriptBytes().length;
    }
 
    @Override
@@ -146,4 +123,23 @@ public class TransactionInput implements Serializable {
       return outPoint.equals(otherInput.outPoint);
    }
 
+   public static class TransactionInputParsingException extends Exception {
+      private static final long serialVersionUID = 1L;
+
+      public TransactionInputParsingException(byte[] script) {
+         this(script, null);
+      }
+
+      public TransactionInputParsingException(byte[] script, Exception e) {
+         super("Unable to parse transaction input: " + HexUtils.toHex(script), e);
+      }
+
+      public TransactionInputParsingException(String message) {
+         this(message, null);
+      }
+
+      public TransactionInputParsingException(String message, Exception e) {
+         super(message, e );
+      }
+   }
 }

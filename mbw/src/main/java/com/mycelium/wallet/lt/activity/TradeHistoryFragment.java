@@ -72,9 +72,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class TradeHistoryFragment extends Fragment {
    private MbwManager _mbwManager;
    private LocalTraderManager _ltManager;
-   // TODO: 11/26/15 why exactly should this warning be suppressed? Could we agree to always set a reason for ignoring warnings. I'd like to remove it. It does nothing as far as I can see.
-   @SuppressWarnings("unused")
-   private TradeSession _selectedTradeSession;
    private Wrapper _myAdapter;
 
    @Override
@@ -119,7 +116,6 @@ public class TradeHistoryFragment extends Fragment {
    private OnItemClickListener itemListClickListener = new OnItemClickListener() {
       @Override
       public void onItemClick(AdapterView<?> listView, final View view, int position, long id) {
-         _selectedTradeSession = (TradeSession) view.getTag();
          TradeActivity.callMe(TradeHistoryFragment.this.getActivity(), ((TradeSession) view.getTag()));
       }
    };

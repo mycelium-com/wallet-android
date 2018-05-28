@@ -46,7 +46,7 @@ import android.os.Handler;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBar.Tab;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -61,7 +61,6 @@ import com.mycelium.lt.api.LtApi;
 import com.mycelium.lt.api.model.TraderInfo;
 import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.export.ExportAsQrCodeActivity;
-import com.mycelium.wallet.external.BuySellSelectFragment;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.activity.buy.AdSearchFragment;
@@ -73,7 +72,7 @@ import com.mycelium.wapi.wallet.ExportableAccount;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
 
-public class LtMainActivity extends ActionBarActivity {
+public class LtMainActivity extends AppCompatActivity {
    public static final String TAB_TO_SELECT = "tabToSelect";
 
    public enum TAB_TYPE {
@@ -262,12 +261,6 @@ public class LtMainActivity extends ActionBarActivity {
       }
 
       if (itemId == android.R.id.home) {
-        // Respond to the action bar's home button, navigates to parent activity
-        Intent intent = new Intent(this, BuySellSelectFragment.class);
-        //This flag causes the back stack to be cleared until modern main is on top
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
-
         finish();
         return true;
       }

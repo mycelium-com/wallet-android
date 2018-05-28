@@ -41,16 +41,14 @@ import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
-import android.widget.ImageView;
 
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 
-//TODO: upgrade to android support v7 >>19.1.0
-@SuppressLint("AppCompatCustomView")
-public class QrImageView extends ImageView {
+public class QrImageView extends AppCompatImageView {
    private static final int[] ALPHA_VALUES = new int[] { 170, 70, 255 };
 
    private String qrCodeText;

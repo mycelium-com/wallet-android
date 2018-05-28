@@ -33,5 +33,4 @@ public class ScriptOutputError extends ScriptOutput implements Serializable {
       // We cannot determine the address from scripts with errors
       return Address.getNullAddress(network);
    }
-
 }

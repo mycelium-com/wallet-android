@@ -69,10 +69,8 @@ public class IndependentTransactionOutput implements Serializable {
 
    @Override
    public String toString() {
-      StringBuilder sb = new StringBuilder();
-      sb.append("outPoint:").append(outPoint).append(" height:").append(height).append(" value: ").append(value)
-            .append("isCoinbase: ").append(isCoinbase).append(" script: ").append(script.dump());
-      return sb.toString();
+      return "outPoint:" + outPoint + " height:" + height + " value: " + value +
+              "isCoinbase: " + isCoinbase + " script: " + script.dump();
    }
 
    @Override
@@ -91,5 +89,4 @@ public class IndependentTransactionOutput implements Serializable {
       IndependentTransactionOutput other = (IndependentTransactionOutput) obj;
       return outPoint.equals(other.outPoint);
    }
-
 }

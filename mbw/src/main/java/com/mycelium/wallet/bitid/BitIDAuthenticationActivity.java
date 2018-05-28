@@ -40,7 +40,7 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -54,7 +54,7 @@ import com.mycelium.wallet.persistence.MetadataStorage;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
-public class BitIDAuthenticationActivity extends ActionBarActivity {
+public class BitIDAuthenticationActivity extends AppCompatActivity {
 
    private static final String ERROR_TEXT = "errortext";
    private static final String QUESTION_TEXT = "questiontext";

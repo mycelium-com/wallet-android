@@ -39,6 +39,9 @@ public class CurrencyBasedBalance {
    public final static CurrencyBasedBalance ZERO_BITCOIN_BALANCE = new CurrencyBasedBalance(
          ExactBitcoinValue.ZERO, ExactBitcoinValue.ZERO, ExactBitcoinValue.ZERO);
 
+   public final static CurrencyBasedBalance ZERO_BITCOIN_CASH_BALANCE = new CurrencyBasedBalance(
+         ExactBitcoinCashValue.ZERO, ExactBitcoinCashValue.ZERO, ExactBitcoinCashValue.ZERO);
+
    public final ExactCurrencyValue confirmed;
    public final ExactCurrencyValue sending;
    public final ExactCurrencyValue receiving;

@@ -167,10 +167,9 @@ public abstract class Script implements Serializable {
          int index = 0;
          reader.reset();
          while (reader.available() > 0) {
-
             // Get opcode
             int opcode = reader.get();
-            if (opcode >= (int) 0xF0) {
+            if (opcode >= 0xF0) {
                opcode = (opcode << 8) | (reader.get() & 0xFF);
             }
 
@@ -206,7 +205,7 @@ public abstract class Script implements Serializable {
 
          // Get opcode
          int opcode = reader.get();
-         if (opcode >= (int) 0xF0) {
+         if (opcode >= 0xF0) {
             opcode = (opcode << 8) | (reader.get() & 0xFF);
          }
 
@@ -288,7 +287,7 @@ public abstract class Script implements Serializable {
       return _scriptBytes;
    }
 
-   protected static final byte[] scriptEncodeChunks(byte[][] chunks) {
+   protected static byte[] scriptEncodeChunks(byte[][] chunks) {
       byte[] buf = new byte[calculateByteSize(chunks)];
       int index = 0;
       for (byte[] chunk : chunks) {
@@ -322,7 +321,7 @@ public abstract class Script implements Serializable {
       return buf;
    }
 
-   private static final int calculateByteSize(byte[][] chunks) {
+   private static int calculateByteSize(byte[][] chunks) {
       int size = 0;
       for (byte[] chunk : chunks) {
          if (chunk.length == 1) {
@@ -339,5 +338,4 @@ public abstract class Script implements Serializable {
       }
       return size;
    }
-
 }

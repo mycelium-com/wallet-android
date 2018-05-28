@@ -22,9 +22,23 @@ import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
 import com.mrd.bitlib.StandardTransactionBuilder.UnsignedTransaction;
-import com.mrd.bitlib.crypto.*;
-import com.mrd.bitlib.model.*;
+import com.mrd.bitlib.crypto.BitcoinSigner;
+import com.mrd.bitlib.crypto.IPrivateKeyRing;
+import com.mrd.bitlib.crypto.IPublicKeyRing;
+import com.mrd.bitlib.crypto.InMemoryPrivateKey;
+import com.mrd.bitlib.crypto.PublicKey;
+import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.NetworkParameters;
+import com.mrd.bitlib.model.OutPoint;
+import com.mrd.bitlib.model.OutputList;
+import com.mrd.bitlib.model.Script;
+import com.mrd.bitlib.model.ScriptOutput;
+import com.mrd.bitlib.model.ScriptOutputStrange;
+import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.model.Transaction.TransactionParsingException;
+import com.mrd.bitlib.model.TransactionInput;
+import com.mrd.bitlib.model.TransactionOutput;
+import com.mrd.bitlib.model.UnspentTransactionOutput;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.HashUtils;
@@ -43,7 +57,13 @@ import com.mycelium.wapi.api.response.BroadcastTransactionResponse;
 import com.mycelium.wapi.api.response.CheckTransactionsResponse;
 import com.mycelium.wapi.api.response.GetTransactionsResponse;
 import com.mycelium.wapi.api.response.QueryUnspentOutputsResponse;
-import com.mycelium.wapi.model.*;
+import com.mycelium.wapi.model.Balance;
+import com.mycelium.wapi.model.TransactionDetails;
+import com.mycelium.wapi.model.TransactionEx;
+import com.mycelium.wapi.model.TransactionOutputEx;
+import com.mycelium.wapi.model.TransactionOutputSummary;
+import com.mycelium.wapi.model.TransactionStatus;
+import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
 import com.mycelium.wapi.wallet.WalletManager.Event;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
@@ -53,7 +73,19 @@ import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 
 import java.nio.ByteBuffer;
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 import static com.mrd.bitlib.StandardTransactionBuilder.createOutput;
 import static com.mrd.bitlib.StandardTransactionBuilder.estimateTransactionSize;
@@ -77,7 +109,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
    protected Balance _cachedBalance;
 
    private EventHandler _eventHandler;
-   private AccountBacking _backing;
+   private final AccountBacking _backing;
 
    protected AbstractAccount(AccountBacking backing, NetworkParameters network, Wapi wapi) {
       _network = network;
@@ -875,9 +907,19 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
          byte[] scriptBytes = curOutput.script.getScriptBytes();
          //Check the protocol identifier 0x4343 ASCII representation of the string CC ("Colored Coins")
          if (curOutput.value == 0 && coluTransferInstructionsParser.isValidColuScript(scriptBytes)) {
-            return coluTransferInstructionsParser.retrieveOutputIndexesFromScript(scriptBytes);
+            List<Integer> indexesList = coluTransferInstructionsParser.retrieveOutputIndexesFromScript(scriptBytes);
+            //Since all assets with remaining amounts are automatically transferred to the last output,
+            //add the last output to indexes list.
+            //At least CC transaction could consist of have two outputs if it has no change - dust output that represents
+            //transferred assets value and an empty output containing OP_RETURN data.
+            //If the CC transaction has the change to transfer, it will be represented at least as the third dust output
+            if (tx.outputs.length > 2) {
+               indexesList.add(tx.outputs.length - 1);
+            }
+            return indexesList;
          }
       }
+
       return new ArrayList<>();
    }
 
@@ -1100,8 +1142,10 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       // We make a copy of the reference for a reason. Otherwise the balance
       // might change right when we make a copy
       Balance b = _cachedBalance;
-      return new Balance(b.confirmed, b.pendingReceiving, b.pendingSending, b.pendingChange, b.updateTime,
-            b.blockHeight, isSynchronizing(), b.allowsZeroConfSpending);
+      return b != null ? new Balance(b.confirmed, b.pendingReceiving, b.pendingSending, b.pendingChange, b.updateTime,
+              b.blockHeight, isSynchronizing(), b.allowsZeroConfSpending)
+              : new Balance(0, 0, 0, 0, 0, 0, isSynchronizing(), false);
+
    }
 
    @Override

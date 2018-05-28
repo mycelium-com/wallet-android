@@ -32,7 +32,6 @@ public class ScriptInput extends Script {
       } else {
          return new ScriptInput(scriptBytes);
       }
-
    }
 
    /**

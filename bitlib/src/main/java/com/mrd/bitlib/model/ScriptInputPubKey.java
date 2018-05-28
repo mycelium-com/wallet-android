@@ -109,5 +109,4 @@ public class ScriptInputPubKey extends ScriptInput {
       writer.putBytes(bytes[1]);
       return writer.toBytes();
    }
-
 }

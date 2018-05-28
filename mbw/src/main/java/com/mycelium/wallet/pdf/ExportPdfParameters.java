@@ -34,7 +34,6 @@
 
 package com.mycelium.wallet.pdf;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Iterables;
@@ -49,22 +48,17 @@ public class ExportPdfParameters implements Serializable {
 
    public final long time;
    public final String exportFormatString;
-   public final Optional<ExportDistiller.ExportEntry> masterSeed;
    private final List<ExportDistiller.ExportEntry> active;
    private final List<ExportDistiller.ExportEntry> archived;
    private final List<ExportDistiller.ExportEntry> allEntries;
 
-   public ExportPdfParameters(long time, String exportFormatString, Optional<ExportDistiller.ExportEntry> masterSeed,
+   public ExportPdfParameters(long time, String exportFormatString,
                               List<ExportDistiller.ExportEntry> active, List<ExportDistiller.ExportEntry> archived) {
       this.time = time;
       this.exportFormatString = exportFormatString;
-      this.masterSeed = masterSeed;
       this.active = active;
       this.archived = archived;
-      allEntries = new LinkedList<ExportDistiller.ExportEntry>();
-      if (masterSeed.isPresent()) {
-         allEntries.add(masterSeed.get());
-      }
+      allEntries = new LinkedList<>();
       allEntries.addAll(active);
       allEntries.addAll(archived);
    }

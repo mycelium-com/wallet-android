@@ -131,14 +131,14 @@ public class StandardTransactionBuilder {
          Transaction transaction = new Transaction(1, inputs, _outputs, getLockTime());
 
          for (int i = 0; i < _funding.length; i++) {
-            UnspentTransactionOutput f = _funding[i];
+            UnspentTransactionOutput utxo = _funding[i];
 
             // Make sure that we only work on standard output scripts
-            if (!(f.script instanceof ScriptOutputStandard)) {
+            if (!(utxo.script instanceof ScriptOutputStandard)) {
                throw new RuntimeException("Unsupported script");
             }
             // Find the address of the funding
-            byte[] addressBytes = ((ScriptOutputStandard) f.script).getAddressBytes();
+            byte[] addressBytes = ((ScriptOutputStandard) utxo.script).getAddressBytes();
             Address address = Address.fromStandardBytes(addressBytes, _network);
 
             // Find the key to sign with

@@ -75,10 +75,8 @@ public class SourcedTransactionOutput implements Serializable {
 
    @Override
    public String toString() {
-      StringBuilder sb = new StringBuilder();
-      sb.append("outPoint:").append(outPoint).append(" value: ").append(value).append(" receiver: ").append(address)
-            .append(" senders: ").append(senders).append(" scriptLength: ").append(script.length);
-      return sb.toString();
+      return "outPoint:" + outPoint + " value: " + value + " receiver: " + address +
+              " senders: " + senders + " scriptLength: " + script.length;
    }
 
    @Override
@@ -97,5 +95,4 @@ public class SourcedTransactionOutput implements Serializable {
       SourcedTransactionOutput other = (SourcedTransactionOutput) obj;
       return outPoint.equals(other.outPoint);
    }
-
 }

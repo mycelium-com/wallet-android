@@ -52,6 +52,11 @@ public class ExactFiatValue extends ExactCurrencyValue {
    }
 
    @Override
+   public long getLongValue() {
+      throw new UnsupportedOperationException();
+   }
+
+   @Override
    public BigDecimal getValue() {
       return value;
    }

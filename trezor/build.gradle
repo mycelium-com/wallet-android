@@ -2,7 +2,8 @@ apply plugin: 'com.android.library'
 
 buildscript {
     repositories {
-        mavenCentral()
+        google()
+        jcenter()
     }
 
     dependencies {
@@ -11,18 +12,19 @@ buildscript {
 }
 
 repositories {
-    mavenCentral()
+    google()
+    jcenter()
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:19.1.0'
-    compile 'com.google.protobuf:protobuf-java:2.5.0'
+    implementation 'com.android.support:support-v4:19.1.0'
+    implementation 'com.google.protobuf:protobuf-java:3.1.0'
 
-    testCompile "junit:junit:$junitVersion"
+    testImplementation "junit:junit:$junitVersion"
 }
 
 android {
-    compileSdkVersion 19
+    compileSdkVersion androidCompileSdkVersion
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
@@ -35,5 +37,4 @@ android {
         quiet false
         showAll true
     }
-
 }

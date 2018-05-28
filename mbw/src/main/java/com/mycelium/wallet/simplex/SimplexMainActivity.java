@@ -29,6 +29,9 @@ import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
  */
 
 public class SimplexMainActivity extends Activity {
+    private static final int ERROR_CONTACTING_SERVER = 0x101;
+    private static final int ERROR_INVALID_PACKAGE_NAME = 0x102;
+    private static final int ERROR_NON_MATCHING_UID = 0x103;
 
     //the event bus entities
     private static final Bus _eventBus = new Bus(ThreadEnforcer.ANY, "Simplex");
@@ -65,6 +68,14 @@ public class SimplexMainActivity extends Activity {
             public void onClick(View v) {
                 setLayout(SimplexUITypes.Loading);
                 simplexAsync.run();
+            }
+        });
+
+        Button cancelButton = findViewById(R.id.btCancel);
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
             }
         });
 
@@ -125,17 +136,23 @@ public class SimplexMainActivity extends Activity {
     }
 
     private void redirectWebView(String siteUrl, int responseCode, String signedData, String signature) {
-        Log.d("Simplex", "RedirectWebView...");
-        String fullSiteUrl = String.format("%s?nonce=%s&wallet_address=%s&lvlcode=%s&lvlsignedData=%s&signature=%s", siteUrl, _simplexNonce.simplexNonce, _walletAddress, responseCode, signedData, signature);
-        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(fullSiteUrl));
-        Log.d("webview post nonce", String.valueOf(_simplexNonce.simplexNonce));
-        Log.d("webview post wallet", _walletAddress);
-        Log.d("webview post lvlCode", String.valueOf(responseCode));
-        Log.d("webview post signedData", signedData);
-        Log.d("webview post signature", signature);
-        setLayout(SimplexUITypes.WebView);
-        startActivity(browserIntent);
-
+        if (responseCode != ERROR_CONTACTING_SERVER && responseCode != ERROR_INVALID_PACKAGE_NAME && responseCode != ERROR_NON_MATCHING_UID) {
+            Log.d("Simplex", "RedirectWebView...");
+            String fullSiteUrl = String.format("%s?nonce=%s&wallet_address=%s&lvlcode=%s&lvlsignedData=%s&signature=%s", siteUrl, _simplexNonce.simplexNonce, _walletAddress, responseCode, signedData, signature);
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(fullSiteUrl));
+            Log.d("webview post nonce", String.valueOf(_simplexNonce.simplexNonce));
+            Log.d("webview post wallet", _walletAddress);
+            Log.d("webview post lvlCode", String.valueOf(responseCode));
+            Log.d("webview post signedData", signedData);
+            Log.d("webview post signature", signature);
+            setLayout(SimplexUITypes.WebView);
+            startActivity(browserIntent);
+        } else {
+            SimplexError error = new SimplexError();
+            error.activityHandler = new Handler(this.getMainLooper());
+            error.message = getString(R.string.gp_required);
+            displayError(error);
+        }
     }
 
     /** Simplex App Auth logic End **/
@@ -161,8 +178,29 @@ public class SimplexMainActivity extends Activity {
         }
     }
 
-    @Subscribe
     public void displayError(final SimplexError error) {
+        Log.i("simplex", error.message);
+        // Don't update UI if Activity is finishing.
+        if (isFinishing())
+            return;
+
+        error.activityHandler.post(new Runnable() {
+            public void run() {
+                //update the UI
+                TextView errorTextView = findViewById(R.id.tvSimplexError);
+                TextView cancelButton = findViewById(R.id.btCancel);
+                cancelButton.setVisibility(View.VISIBLE);
+                String errorMessage;
+                errorMessage = error.message;
+
+                errorTextView.setText(errorMessage);
+                setLayout(SimplexUITypes.RetryLater);
+            }
+        });
+    }
+
+    @Subscribe
+    public void displayRetryError(final SimplexError error) {
         Log.i("simplex", error.message);
         // Don't update UI if Activity is finishing.
         if (isFinishing())
