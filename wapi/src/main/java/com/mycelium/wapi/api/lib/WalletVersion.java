@@ -6,8 +6,6 @@ import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.mycelium.wapi.api.response.VersionInfoExResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,7 +13,6 @@ import java.net.URI;
 import java.util.*;
 
 public class WalletVersion {
-   private static final Logger logger = LoggerFactory.getLogger(WalletVersion.class);
    public int major;
    public int minor;
    public int patch;
@@ -23,15 +20,20 @@ public class WalletVersion {
    public String variant;
 
    private static Map<String, Set<WalletVersion>> latestVersionsEx;
+   private static final File walletVersionsSource = new File("config/wallet_versions.json");
+   private static long lastModified = walletVersionsSource.lastModified();
    static {
+      readVersions();
+   }
+
+   private static void readVersions() {
       ObjectMapper mapper = new ObjectMapper();
-      File inputFile = new File("config/wallet_versions.json");
       try {
-         latestVersionsEx = mapper.readValue(inputFile, new TypeReference<Map<String, HashSet<WalletVersion>>>(){});
-      } catch (IOException e) {
-         logger.error(e.getMessage());
+         latestVersionsEx = mapper.readValue(walletVersionsSource, new TypeReference<Map<String, HashSet<WalletVersion>>>(){});
+      } catch (IOException ignored) {
       }
    }
+
 
    private WalletVersion() {
 
@@ -89,7 +91,10 @@ public class WalletVersion {
    }
 
    public static VersionInfoExResponse responseVersionEx(String branch, String version){
-
+      if (lastModified < walletVersionsSource.lastModified()) {
+         lastModified = walletVersionsSource.lastModified();
+         readVersions();
+      }
       WalletVersion clientVersion = WalletVersion.from(version);
       if (clientVersion == null) {
          return null;
