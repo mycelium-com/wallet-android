@@ -29,7 +29,7 @@ public interface SpvBalanceFetcher {
     Address getCurrentReceiveAddressUnrelated(String guid);
     IssuedKeysInfo getPrivateKeysCount(int accountIndex);
     IssuedKeysInfo getPrivateKeysCountUnrelated(String guid);
-    boolean isFirstSync();
+    boolean isAccountSynced(WalletAccount account);
     void forceCleanCache();
     long calculateMaxSpendableAmount(int accountIndex, String txFee, float txFeeFactor);
     long calculateMaxSpendableAmountUnrelatedAccount(String guid, String txFee, float txFeeFactor);

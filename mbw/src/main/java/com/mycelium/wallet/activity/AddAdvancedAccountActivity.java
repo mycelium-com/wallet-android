@@ -44,6 +44,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -60,6 +61,7 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.util.ImportCoCoHDAccount;
 import com.mycelium.wallet.colu.ColuAccount;
+import com.mycelium.wallet.colu.ColuCurrencyValue;
 import com.mycelium.wallet.colu.ColuManager;
 import com.mycelium.wallet.extsig.keepkey.activity.KeepKeyAccountImportActivity;
 import com.mycelium.wallet.extsig.ledger.activity.LedgerAccountImportActivity;
@@ -72,6 +74,7 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -247,6 +250,7 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
 
    private void createAskForNetworkDialog(final HdKeyNode hdKeyNode) {
       new AlertDialog.Builder(this)
+              .setTitle(R.string.coco_service_unavailable)
               .setMessage(R.string.connection_unavailable)
               .setCancelable(true)
               .setPositiveButton(R.string.try_again, new DialogInterface.OnClickListener() {
@@ -368,13 +372,12 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
             }
             break;
          case 0:
-            new Toaster(this).toast("root level account import will soon be available for ColoredCoins accounts.", false);
 //            // This branch is created to support import CoCo from bip32 accout
-//            if (hdKeyNode.isPrivateHdKeyNode()) {
-//               returnBip32Account(hdKeyNode);
-//            } else {
-//               new Toaster(this).toast(getString(R.string.import_xpub_should_xpriv), false);
-//            }
+            if (hdKeyNode.isPrivateHdKeyNode()) {
+               returnBip32Account(hdKeyNode);
+            } else {
+               new Toaster(this).toast(getString(R.string.import_xpub_should_xpriv), false);
+            }
             break;
          default:
             String errorMessage = this.getString(R.string.import_xpub_wrong_depth, Integer.toString(depth));
@@ -635,14 +638,36 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
    }
 
    @Override
-   public void finishCoCoFound(final UUID account, final int accountsFound) {
+   public void finishCoCoFound(final UUID firstAddedAccount, int accountsCreated, int existingAccountsFound,
+                               BigDecimal mtFound, BigDecimal massFound, BigDecimal rmcFound) {
+      List<String> amountStrings = new ArrayList<>();
+      if (rmcFound.compareTo(BigDecimal.ZERO) > 0) {
+         amountStrings.add(Utils.getColuFormattedValueWithUnit(new ColuCurrencyValue(rmcFound, "RMC")));
+      }
+      if (mtFound.compareTo(BigDecimal.ZERO) > 0) {
+         amountStrings.add(Utils.getColuFormattedValueWithUnit(new ColuCurrencyValue(mtFound, "MT")));
+      }
+      if (massFound.compareTo(BigDecimal.ZERO) > 0) {
+         amountStrings.add(Utils.getColuFormattedValueWithUnit(new ColuCurrencyValue(massFound, "MSS")));
+      }
+      String fundsFound = TextUtils.join(", ", amountStrings);
+      String message = null;
+      String accountsCreatedString = getResources().getQuantityString(R.plurals.new_accounts_created, accountsCreated, accountsCreated);
+      String existingFoundString = getResources().getQuantityString(R.plurals.existing_accounts_found, existingAccountsFound, existingAccountsFound);
+      if (accountsCreated > 0 && existingAccountsFound == 0) {
+         message = getString(R.string.d_coco_created, fundsFound, accountsCreatedString);
+      } else if (accountsCreated > 0 && existingAccountsFound > 0) {
+         message = getString(R.string.d_coco_created_existing_found, fundsFound, accountsCreatedString, existingFoundString);
+      } else if (existingAccountsFound > 0) {
+         message = getString(R.string.d_coco_existing_found, fundsFound, existingFoundString);
+      }
       new AlertDialog.Builder(this)
-              .setTitle(R.string.scan_completed)
-              .setMessage(getString(R.string.d_coco_created, accountsFound))
+              .setTitle(R.string.coco_found)
+              .setMessage(message)
               .setPositiveButton(R.string.button_continue, new DialogInterface.OnClickListener() {
                  @Override
                  public void onClick(DialogInterface dialogInterface, int i) {
-                    finishOk(account, false);
+                    finishOk(firstAddedAccount, false);
                  }
               })
               .create()
@@ -652,10 +677,10 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
    @Override
    public void finishCoCoNotFound(final HdKeyNode hdKeyNode) {
       new AlertDialog.Builder(this)
-              .setTitle(R.string.scan_completed)
+              .setTitle(R.string.coco_not_found)
               .setMessage(R.string.no_digital_asset)
               .setPositiveButton(R.string.close, null)
-              .setNegativeButton(R.string.try_again, new DialogInterface.OnClickListener() {
+              .setNegativeButton(R.string.rescan, new DialogInterface.OnClickListener() {
                  @Override
                  public void onClick(DialogInterface dialog, int id) {
                     ImportCoCoHDAccount importCoCoHDAccount = new ImportCoCoHDAccount(AddAdvancedAccountActivity.this, hdKeyNode);

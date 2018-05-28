@@ -1,7 +1,11 @@
 apply plugin: 'com.android.library'
+repositories {
+    google()
+}
 
 android {
     compileSdkVersion androidCompileSdkVersion
+    buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
         minSdkVersion 19
@@ -18,5 +22,6 @@ android {
 }
 
 dependencies {
+    implementation "com.android.support:recyclerview-v7:$androidSupportVersion"
 }
 

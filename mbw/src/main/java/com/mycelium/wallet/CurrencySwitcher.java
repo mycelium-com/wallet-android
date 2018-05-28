@@ -93,14 +93,22 @@ public class CurrencySwitcher {
 
    public void setCurrency(final String setToCurrency) {
       //TODO need no accurate detect is colu currency
-      if (!setToCurrency.equals(CurrencyValue.BTC)
-              && !setToCurrency.equals(CurrencyValue.BCH)
-              && !setToCurrency.equals("RMC")
-              && !setToCurrency.equals("MT")
-              && !setToCurrency.equals("MSS")) {
+      if (isFiatCurrency(setToCurrency)) {
          currentFiatCurrency = setToCurrency;
       }
       currentCurrency = setToCurrency;
+   }
+
+   public boolean isFiatCurrency(String currency) {
+      return !currency.equals(CurrencyValue.BTC)
+              && !currency.equals(CurrencyValue.BCH)
+              && !currency.equals("RMC")
+              && !currency.equals("MT")
+              && !currency.equals("MSS");
+   }
+
+   public String getDefaultCurrency() {
+      return defaultCurrency;
    }
 
    public String getCurrentFiatCurrency() {

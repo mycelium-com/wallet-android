@@ -16,7 +16,7 @@ import java.util.*
 
 object AccountManager : AccountProvider {
     val accounts: HashMap<UUID, WalletAccount> = hashMapOf()
-    val archivedAccounts: HashMap<UUID, WalletAccount> = hashMapOf()
+    private val archivedAccounts: HashMap<UUID, WalletAccount> = hashMapOf()
     val masterSeedAccounts: HashMap<UUID, WalletAccount> = hashMapOf()
 
     init {
@@ -67,6 +67,10 @@ object AccountManager : AccountProvider {
 
     fun getBTCMasterSeedAccounts(): ImmutableMap<UUID, WalletAccount> = ImmutableMap.copyOf<UUID, WalletAccount>(masterSeedAccounts.filter {
         it.value.type == BTCBIP44 && it.value.isVisible
+    })
+
+    fun getArchivedAccounts() : ImmutableMap<UUID, WalletAccount> = ImmutableMap.copyOf<UUID, WalletAccount>(archivedAccounts.filter {
+        it.value.isVisible
     })
 
     override fun getAccount(uuid: UUID?): WalletAccount? = accounts[uuid]

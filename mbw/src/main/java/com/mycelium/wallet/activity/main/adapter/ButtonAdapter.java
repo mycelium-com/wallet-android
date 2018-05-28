@@ -20,12 +20,22 @@ public class ButtonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private static final int BUTTON = 1;
     private List<ActionButton> buttons = new ArrayList<>();
 
+    private ButtonClickListener clickListener;
+
     public void setButtons(List<ActionButton> buttons) {
+        boolean update = true;
+        if (buttons.equals(this.buttons)) {
+            update = false;
+        }
         this.buttons.clear();
-        this.buttons.add(null);
         this.buttons.addAll(buttons);
-        this.buttons.add(null);
-        notifyDataSetChanged();
+        if (update) {
+            notifyDataSetChanged();
+        }
+    }
+
+    public void setClickListener(ButtonClickListener clickListener) {
+        this.clickListener = clickListener;
     }
 
     @NonNull
@@ -47,21 +57,16 @@ public class ButtonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             Button button = ((ButtonHolder) holder).button;
             button.setText(actionButton.text);
             button.setCompoundDrawablesWithIntrinsicBounds(actionButton.icon, 0, 0, 0);
-            if (actionButton.textColor != 0) {
-                button.setTextColor(actionButton.textColor);
-            }
-            if (actionButton.icon != 0) {
-                button.setPadding(button.getResources().getDimensionPixelSize(R.dimen.button_padding)
-                        , button.getPaddingTop(), button.getPaddingRight(), button.getPaddingBottom());
-            } else {
-                button.setPadding(button.getResources().getDimensionPixelSize(R.dimen.button_padding_large)
-                        , button.getPaddingTop(), button.getPaddingRight(), button.getPaddingBottom());
-            }
+            button.setTextColor(actionButton.textColor != 0 ?
+                    actionButton.textColor : button.getResources().getColor(R.color.btn_text_color));
+            button.setPadding(button.getResources().getDimensionPixelSize(actionButton.icon != 0 ?
+                            R.dimen.button_padding : R.dimen.button_padding_large)
+                    , button.getPaddingTop(), button.getPaddingRight(), button.getPaddingBottom());
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (actionButton.task != null) {
-                        actionButton.task.run();
+                    if (clickListener != null) {
+                        clickListener.onClick(actionButton);
                     }
                 }
             });
@@ -104,7 +109,7 @@ public class ButtonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         public ButtonHolder(View itemView) {
             super(itemView);
-            button = (Button) itemView.findViewById(R.id.btn_action);
+            button = itemView.findViewById(R.id.btn_action);
         }
     }
 

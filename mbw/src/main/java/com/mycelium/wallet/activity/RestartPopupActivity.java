@@ -34,6 +34,7 @@ public class RestartPopupActivity extends Activity {
                 });
         AlertDialog alertDialog = Builder.create();
         alertDialog.setCanceledOnTouchOutside(false);
+        alertDialog.setCancelable(false);
         alertDialog.show();
     }
 

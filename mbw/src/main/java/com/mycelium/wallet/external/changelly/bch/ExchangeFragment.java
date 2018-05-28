@@ -48,7 +48,9 @@ import com.squareup.otto.Subscribe;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import butterknife.BindView;
@@ -484,19 +486,6 @@ public class ExchangeFragment extends Fragment {
             buttonContinue.setEnabled(false);
             toast("Please wait while loading minimum amount information.");
             return false;
-        } else if (checkMin && dblAmount.compareTo(minAmount) < 0) {
-            buttonContinue.setEnabled(false);
-            if (dblAmount != 0 || dblAmountTo != 0) {
-                TextView tvError = valueKeyboard.getVisibility() == View.VISIBLE
-                        && valueKeyboard.getInputTextView() == toValue
-                        ? tvErrorTo : tvErrorFrom;
-                tvError.setText(getString(R.string.exchange_minimum_amount
-                        , decimalFormat.format(minAmount), "BCH"));
-                tvError.setVisibility(View.VISIBLE);
-
-                exchangeFiatRate.setVisibility(View.INVISIBLE);
-            }
-            return false;
         } else if (fromAccount.getCurrencyBasedBalance().confirmed.getValue().compareTo(BigDecimal.valueOf(dblAmount)) < 0) {
             buttonContinue.setEnabled(false);
             TextView tvError = valueKeyboard.getVisibility() == View.VISIBLE
@@ -506,9 +495,37 @@ public class ExchangeFragment extends Fragment {
             tvError.setVisibility(View.VISIBLE);
             exchangeFiatRate.setVisibility(View.INVISIBLE);
             return false;
+        } else if (checkMin && minAmount != NOT_LOADED
+                && dblAmount.compareTo(getMinAmountWithFee()) < 0) {
+            buttonContinue.setEnabled(false);
+            if (dblAmount != 0 || dblAmountTo != 0) {
+                TextView tvError = valueKeyboard.getVisibility() == View.VISIBLE
+                        && valueKeyboard.getInputTextView() == toValue
+                        ? tvErrorTo : tvErrorFrom;
+                tvError.setText(getString(R.string.exchange_minimum_amount
+                        , decimalFormat.format(getMinAmountWithFee()), "BCH"));
+                tvError.setVisibility(View.VISIBLE);
+
+                exchangeFiatRate.setVisibility(View.INVISIBLE);
+            }
+            return false;
         }
         buttonContinue.setEnabled(true);
         return true;
+    }
+
+    private Map<WalletAccount, Double> cachedMinAmountWithFee = new HashMap<>();
+
+    private double getMinAmountWithFee() {
+        WalletAccount account = fromAccountAdapter.getItem(fromRecyclerView.getSelectedItem()).account;
+        Double result = cachedMinAmountWithFee.get(account);
+        if (result == null) {
+            BigDecimal txFee = UtilsKt.estimateFeeFromTransferrableAmount(account
+                    , mbwManager, BitcoinCash.nearestValue(minAmount).getLongValue());
+            result = minAmount + txFee.doubleValue();
+            cachedMinAmountWithFee.put(account, result);
+        }
+        return result;
     }
 
     private void updateUi() {
@@ -550,16 +567,11 @@ public class ExchangeFragment extends Fragment {
                 case ChangellyService.INFO_MIN_AMOUNT:
                     amount = intent.getDoubleExtra(ChangellyService.AMOUNT, NOT_LOADED);
                     if (amount != NOT_LOADED) {
-                        BigDecimal val = BigDecimal.valueOf(amount);
-                        BigDecimal txFee = UtilsKt.estimateFeeFromTransferrableAmount(
-                                fromAccountAdapter.getItem(fromRecyclerView.getSelectedItem()).account,
-                                mbwManager, BitcoinCash.nearestValue(val).getLongValue());
-                        Log.d(TAG, "Received minimum amount: " + amount + " TX Fee: " + txFee.toPlainString());
-
+                        cachedMinAmountWithFee.clear();
                         sharedPreferences.edit()
                                 .putFloat(BCH_MIN_EXCHANGE_VALUE, (float) amount)
                                 .apply();
-                        minAmount = amount + txFee.doubleValue();
+                        minAmount = amount;
                     }
                     break;
                 case ChangellyService.INFO_EXCH_AMOUNT:

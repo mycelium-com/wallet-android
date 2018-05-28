@@ -42,6 +42,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.view.ViewPager;
@@ -150,25 +151,7 @@ public class ModernMain extends AppCompatActivity {
       bar.setDisplayShowHomeEnabled(true);
       bar.setIcon(R.drawable.action_bar_logo);
 
-      // Load the theme-background (usually happens in styles.xml) but use a lower
-      // pixel format, this saves around 10MB of allocated memory
-      // persist the loaded Bitmap in the context of mbw-manager and reuse it every time this activity gets created
-      try {
-         BitmapDrawable background = (BitmapDrawable) _mbwManager.getBackgroundObjectsCache().get("mainBackground" +
-                 getResources().getConfiguration().orientation, new Callable<BitmapDrawable>() {
-            @Override
-            public BitmapDrawable call() throws Exception {
-               BitmapFactory.Options options = new BitmapFactory.Options();
-               options.inPreferredConfig = Bitmap.Config.RGB_565;
-               Bitmap background = BitmapFactory.decodeResource(getResources(), R.drawable.background_witherrors_dimmed, options);
-               BitmapDrawable drawable = new BitmapDrawable(getResources(), background);
-               drawable.setGravity(Gravity.CENTER);
-               return drawable;
-            }
-         });
-         getWindow().setBackgroundDrawable(background);
-      } catch (ExecutionException ignore) {
-      }
+      getWindow().setBackgroundDrawableResource(R.drawable.background_witherrors_dimmed);
 
       mTabsAdapter = new TabsAdapter(this, mViewPager, _mbwManager);
       mAccountsTab = bar.newTab();
@@ -540,9 +523,21 @@ public class ModernMain extends AppCompatActivity {
    @Subscribe
    public void syncStopped(SyncStopped event) {
       setRefreshAnimation();
-      if(BCHHelper.getBCHSyncProgress(this) == 100) {
-         BCHHelper.bchSynced(this);
-      }
+      // Sometime app stack on BCHHelper.getBCHSyncProgress, so we call it in diff thread
+      new AsyncTask<Void, Void, Float>() {
+         @Override
+         protected Float doInBackground(Void... voids) {
+            return BCHHelper.getBCHSyncProgress(ModernMain.this);
+         }
+
+         @Override
+         protected void onPostExecute(Float progress) {
+            super.onPostExecute(progress);
+            if(progress == 100) {
+               BCHHelper.bchSynced(ModernMain.this);
+            }
+         }
+      }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
    }
 
    @Subscribe

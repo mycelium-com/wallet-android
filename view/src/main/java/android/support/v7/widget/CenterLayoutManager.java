@@ -1,10 +1,7 @@
-package com.mycelium.wallet.activity.util;
+package android.support.v7.widget;
 
 import android.content.Context;
 import android.graphics.PointF;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.LinearSmoothScroller;
-import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 
 public class CenterLayoutManager extends LinearLayoutManager {

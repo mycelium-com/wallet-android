@@ -2,6 +2,7 @@ package com.mycelium.wallet.modularisation
 
 
 import android.content.Context
+import android.content.Context.MODE_PRIVATE
 import android.database.Cursor
 import android.net.Uri
 import com.google.common.base.Optional
@@ -19,6 +20,8 @@ import com.mycelium.spvmodule.providers.TransactionContract.GetSyncProgress
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.WalletApplication
 import com.mycelium.wallet.WalletApplication.getSpvModuleName
+import com.mycelium.wallet.modularisation.BCHHelper.ALREADY_FOUND_ACCOUNT
+import com.mycelium.wallet.modularisation.BCHHelper.BCH_PREFS
 import com.mycelium.wapi.model.IssuedKeysInfo
 import com.mycelium.wapi.model.TransactionDetails
 import com.mycelium.wapi.model.TransactionSummary
@@ -256,7 +259,7 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
             } else {
                 0f
             }
-            if(syncProgress == 100f) {
+            if (syncProgress == 100f) {
                 sharedPreference.edit().putBoolean("is_first_sync", false).apply()
             }
             lastSyncProgressTime = System.currentTimeMillis()
@@ -264,7 +267,10 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
         }
     }
 
-    override fun isFirstSync() = sharedPreference.getBoolean("is_first_sync", true)
+    override fun isAccountSynced(account: WalletAccount?): Boolean {
+        val sharedPreferences = context.getSharedPreferences(BCH_PREFS, MODE_PRIVATE)
+        return sharedPreferences.getBoolean(ALREADY_FOUND_ACCOUNT + account!!.id.toString(), false)
+    }
 
     override fun getCurrentReceiveAddress(accountIndex: Int): Address? {
         val uri = CurrentReceiveAddress.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHBIP44)).buildUpon().build()

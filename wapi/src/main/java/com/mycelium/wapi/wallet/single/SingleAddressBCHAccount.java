@@ -81,8 +81,7 @@ public class SingleAddressBCHAccount extends SingleAddressAccount {
 
     @Override
     public boolean isVisible() {
-        if ((spvBalanceFetcher.getSyncProgressPercents() == 100 || !spvBalanceFetcher.isFirstSync())
-                && !visible) {
+        if (!visible && (spvBalanceFetcher.getSyncProgressPercents() == 100 || spvBalanceFetcher.isAccountSynced(this))) {
             visible = !spvBalanceFetcher.retrieveTransactionsSummaryByUnrelatedAccountId(getId().toString()).isEmpty();
         }
         return visible;
