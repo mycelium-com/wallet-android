@@ -1407,4 +1407,9 @@ public class MbwManager {
    public ServerFeatures getServerFeatures() {
       return _wapiElectrumX.serverFeatures();
    }
+
+   public Double estimateFee(int nBlocks) {
+      return _wapiElectrumX.estimateFee(nBlocks);
+   }
+
 }

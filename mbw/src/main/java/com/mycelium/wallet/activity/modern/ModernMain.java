@@ -431,6 +431,8 @@ public class ModernMain extends AppCompatActivity {
             }
 
             ServerFeatures serverFeatures = _mbwManager.getServerFeatures();
+            Double estimatedFee = _mbwManager.estimateFee(1);
+
 
             _mbwManager.getWalletManager(false).startSynchronization(syncMode);
             _mbwManager.getColuManager().startSynchronization();

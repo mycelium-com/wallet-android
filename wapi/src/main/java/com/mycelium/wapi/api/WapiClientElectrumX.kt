@@ -1,20 +1,19 @@
 package com.mycelium.wapi.api
 
 import com.google.gson.annotations.SerializedName
+import com.megiontechnologies.Bitcoins
 import com.mycelium.WapiLogger
 import com.mycelium.net.ServerEndpoints
 import com.mycelium.wapi.api.jsonrpc.JsonRpcTcpClient
 import com.mycelium.wapi.api.jsonrpc.RpcParams
+import com.mycelium.wapi.api.lib.FeeEstimation
+import com.mycelium.wapi.api.lib.FeeEstimationMap
 import com.mycelium.wapi.api.request.BroadcastTransactionRequest
 import com.mycelium.wapi.api.request.CheckTransactionsRequest
 import com.mycelium.wapi.api.request.GetTransactionsRequest
 import com.mycelium.wapi.api.request.QueryTransactionInventoryRequest
 import com.mycelium.wapi.api.request.QueryUnspentOutputsRequest
-import com.mycelium.wapi.api.response.BroadcastTransactionResponse
-import com.mycelium.wapi.api.response.CheckTransactionsResponse
-import com.mycelium.wapi.api.response.GetTransactionsResponse
-import com.mycelium.wapi.api.response.QueryTransactionInventoryResponse
-import com.mycelium.wapi.api.response.QueryUnspentOutputsResponse
+import com.mycelium.wapi.api.response.*
 
 /**
  * This is a Wapi Client that avoids calls that require BQS by talking to ElectrumX for related calls
@@ -73,7 +72,13 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, 
         val response = jsonRpcTcpClient.write("server.features", RpcParams.listParams(), 50000)
         return response.getResult(ServerFeatures::class.java)!!
     }
+
+    fun estimateFee(nBlocks : Int): Double {
+        val response = jsonRpcTcpClient.write("blockchain.estimatefee", RpcParams.listParams(1), 50000)
+        return response.getResult(Double::class.java)!!
+    }
 }
+
 
 data class ServerFeatures (
     @SerializedName("server_version") val serverVersion: String

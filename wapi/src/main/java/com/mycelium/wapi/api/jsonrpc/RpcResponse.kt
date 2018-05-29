@@ -1,7 +1,7 @@
 package com.mycelium.wapi.api.jsonrpc
 
 import com.google.gson.Gson
-import com.google.gson.JsonObject
+import com.google.gson.JsonElement
 import com.google.gson.annotations.SerializedName
 
 class RpcResponse {
@@ -19,7 +19,7 @@ class RpcResponse {
 
     val id: Any = NO_ID
     val error: RpcError? = null
-    private val result: JsonObject? = null
+    private val result: JsonElement? = null
 
     val isVoid: Boolean
         get() = hasResult && result == null
