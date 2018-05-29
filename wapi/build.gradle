@@ -4,7 +4,6 @@ apply plugin: 'kotlin'
 repositories {
     google()
     jcenter()
-    mavenCentral()
 }
 
 dependencies {
@@ -19,7 +18,7 @@ dependencies {
     implementation guavaArtifact
     implementation 'com.google.code.findbugs:annotations:3.0.1'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    implementation 'info.laht:YAJ-RPC:0.7'
+    implementation "com.google.code.gson:gson:2.8.4"
 }
 
 buildscript {

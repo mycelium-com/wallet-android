@@ -1,8 +1,10 @@
 package com.mycelium.wapi.api
 
+import com.google.gson.annotations.SerializedName
 import com.mycelium.WapiLogger
 import com.mycelium.net.ServerEndpoints
 import com.mycelium.wapi.api.jsonrpc.JsonRpcTcpClient
+import com.mycelium.wapi.api.jsonrpc.RpcParams
 import com.mycelium.wapi.api.request.BroadcastTransactionRequest
 import com.mycelium.wapi.api.request.CheckTransactionsRequest
 import com.mycelium.wapi.api.request.GetTransactionsRequest
@@ -13,16 +15,20 @@ import com.mycelium.wapi.api.response.CheckTransactionsResponse
 import com.mycelium.wapi.api.response.GetTransactionsResponse
 import com.mycelium.wapi.api.response.QueryTransactionInventoryResponse
 import com.mycelium.wapi.api.response.QueryUnspentOutputsResponse
-import info.laht.yajrpc.RpcParams
-
 
 /**
  * This is a Wapi Client that avoids calls that require BQS by talking to ElectrumX for related calls
  */
 class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, versionCode: String) : WapiClient(serverEndpoints, logger, versionCode) {
 
-    val jsonRpcTcpClient = JsonRpcTcpClient("electrumx-1.mycelium.com", 50002)
+    private lateinit var jsonRpcTcpClient: JsonRpcTcpClient
 
+    fun start() {
+        Thread {
+            jsonRpcTcpClient = JsonRpcTcpClient("electrumx-1.mycelium.com", 50002)
+            jsonRpcTcpClient.start()
+        }.start()
+    }
     override fun queryUnspentOutputs(request: QueryUnspentOutputsRequest): WapiResponse<QueryUnspentOutputsResponse> {
 //        public final Collection<Address> addresses;
 
@@ -63,9 +69,12 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, 
         return WapiResponse<CheckTransactionsResponse>();
     }
 
-    fun serverBanner(): String {
-        val response = jsonRpcTcpClient.write("server.banner", RpcParams.listParams())
-        return response.getResult(String::class.java)!!
+    fun serverFeatures(): ServerFeatures {
+        val response = jsonRpcTcpClient.write("server.features", RpcParams.listParams(), 50000)
+        return response.getResult(ServerFeatures::class.java)!!
     }
 }
 
+data class ServerFeatures (
+    @SerializedName("server_version") val serverVersion: String
+)

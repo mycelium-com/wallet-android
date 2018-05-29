@@ -38,9 +38,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -52,7 +49,6 @@ import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -91,6 +87,7 @@ import com.mycelium.wallet.event.TorStateChanged;
 import com.mycelium.wallet.event.TransactionBroadcasted;
 import com.mycelium.wallet.modularisation.BCHHelper;
 import com.mycelium.wallet.modularisation.ModularisationVersionHelper;
+import com.mycelium.wapi.api.ServerFeatures;
 import com.mycelium.wapi.api.response.Feature;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
@@ -104,8 +101,6 @@ import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 
 import de.cketti.library.changelog.ChangeLog;
 import info.guardianproject.onionkit.ui.OrbotHelper;
@@ -434,6 +429,9 @@ public class ModernMain extends AppCompatActivity {
                // if we are in the accounts tab, sync all accounts if the users forces a sync
                syncMode = SyncMode.NORMAL_ALL_ACCOUNTS_FORCED;
             }
+
+            ServerFeatures serverFeatures = _mbwManager.getServerFeatures();
+
             _mbwManager.getWalletManager(false).startSynchronization(syncMode);
             _mbwManager.getColuManager().startSynchronization();
             // also fetch a new exchange rate, if necessary

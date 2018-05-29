@@ -103,6 +103,7 @@ import com.mycelium.wallet.modularisation.SpvBchFetcher;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.persistence.TradeSessionDb;
 import com.mycelium.wallet.wapi.SqliteWalletManagerBackingWrapper;
+import com.mycelium.wapi.api.ServerFeatures;
 import com.mycelium.wapi.api.WapiClient;
 import com.mycelium.wapi.api.WapiClientElectrumX;
 import com.mycelium.wapi.wallet.AccountProvider;
@@ -241,7 +242,7 @@ public class MbwManager {
 
       _wapi = initWapi();
       _wapiElectrumX = new WapiClientElectrumX(_environment.getWapiEndpoints(), retainingWapiLogger, version);
-      _wapiElectrumX.serverBanner();
+       _wapiElectrumX.start();
 
       _httpErrorCollector = HttpErrorCollector.registerInVM(_applicationContext, _wapi);
 
@@ -1401,5 +1402,9 @@ public class MbwManager {
       getWalletManager(false).startSynchronization(syncMode);
       // also fetch a new exchange rate, if necessary
       getExchangeRateManager().requestOptionalRefresh();
+   }
+
+   public ServerFeatures getServerFeatures() {
+      return _wapiElectrumX.serverFeatures();
    }
 }
