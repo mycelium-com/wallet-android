@@ -106,7 +106,6 @@ public class TransactionDetailsActivity extends Activity {
       tvHash.setColuMode(coluMode);
       tvHash.setTransaction(_tx);
 
-
       // Set Confirmed
       int confirmations = _tx.calculateConfirmations(_mbwManager.getSelectedAccount().getBlockChainHeight());
 
@@ -118,8 +117,8 @@ public class TransactionDetailsActivity extends Activity {
       }
 
       // check if tx is in outgoing queue
-      TransactionConfirmationsDisplay confirmationsDisplay = (TransactionConfirmationsDisplay) findViewById(R.id.tcdConfirmations);
-      TextView confirmationsCount = (TextView) findViewById(R.id.tvConfirmations);
+      TransactionConfirmationsDisplay confirmationsDisplay = findViewById(R.id.tcdConfirmations);
+      TextView confirmationsCount = findViewById(R.id.tvConfirmations);
 
       if (_txs!=null && _txs.isQueuedOutgoing){
          confirmationsDisplay.setNeedsBroadcast();
@@ -143,15 +142,15 @@ public class TransactionDetailsActivity extends Activity {
       ((TextView) findViewById(R.id.tvTime)).setText(timeString);
 
       // Set Inputs
-      LinearLayout inputs = (LinearLayout) findViewById(R.id.llInputs);
-      if(_tx.inputs != null) {
+      LinearLayout inputs = findViewById(R.id.llInputs);
+      if (_tx.inputs != null && (_tx.inputs.length != 1 || _tx.inputs[0].value != 0)) {
          for (TransactionDetails.Item item : _tx.inputs) {
             inputs.addView(getItemView(item));
          }
       }
 
       // Set Outputs
-      LinearLayout outputs = (LinearLayout) findViewById(R.id.llOutputs);
+      LinearLayout outputs = findViewById(R.id.llOutputs);
       if(_tx.outputs != null) {
          for (TransactionDetails.Item item : _tx.outputs) {
             outputs.addView(getItemView(item));
@@ -176,7 +175,7 @@ public class TransactionDetailsActivity extends Activity {
          }
          ((TextView) findViewById(R.id.tvFee)).setText(fee);
       } else {
-         ((TextView) findViewById(R.id.tvFee)).setText("Click on transaction hash to check in Block Explorer");
+         ((TextView) findViewById(R.id.tvFee)).setText(R.string.no_transaction_details);
          ((TextView) findViewById(R.id.tvInputsLabel)).setVisibility(View.GONE);
       }
    }
