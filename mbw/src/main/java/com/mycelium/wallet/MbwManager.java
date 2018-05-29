@@ -104,6 +104,7 @@ import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.persistence.TradeSessionDb;
 import com.mycelium.wallet.wapi.SqliteWalletManagerBackingWrapper;
 import com.mycelium.wapi.api.WapiClient;
+import com.mycelium.wapi.api.WapiClientElectrumX;
 import com.mycelium.wapi.wallet.AccountProvider;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.IdentityAccountKeyManager;
@@ -187,6 +188,7 @@ public class MbwManager {
    private final KeepKeyManager _keepkeyManager;
    private final LedgerManager _ledgerManager;
    private final WapiClient _wapi;
+   private final WapiClientElectrumX _wapiElectrumX;
 
    private final LtApiClient _ltApi;
    private Handler _torHandler;
@@ -238,6 +240,9 @@ public class MbwManager {
       }
 
       _wapi = initWapi();
+      _wapiElectrumX = new WapiClientElectrumX(_environment.getWapiEndpoints(), retainingWapiLogger, version);
+      _wapiElectrumX.serverBanner();
+
       _httpErrorCollector = HttpErrorCollector.registerInVM(_applicationContext, _wapi);
 
       _randomSource = new AndroidRandomSource();
