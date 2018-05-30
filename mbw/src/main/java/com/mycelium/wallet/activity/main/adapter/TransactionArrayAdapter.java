@@ -195,7 +195,7 @@ public class TransactionArrayAdapter extends ArrayAdapter<TransactionSummary> {
       TextView tvLabel = (TextView) rowView.findViewById(R.id.tvTransactionLabel);
       String label = _storage.getLabelByTransaction(record.txid);
       if(exchangeTransactions.contains(record.txid.toString())) {
-         label = "Exchange BCH to BTC " + label;
+         //label = "Exchange BCH to BTC " + label;
       }
       if (label.length() == 0) {
          // if we have no txLabel show the confirmation state instead - to keep they layout ballanced
