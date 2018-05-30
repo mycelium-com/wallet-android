@@ -390,7 +390,7 @@ public class MbwManager {
               _environment,
               _eventBus,
               new Handler(_applicationContext.getMainLooper()),
-              _storage));
+              _storage, Utils.isConnected(context)));
    }
 
    private void createTempWalletManager() {
@@ -588,7 +588,7 @@ public class MbwManager {
       SpvBalanceFetcher spvBchFetcher = getSpvBchFetcher();
       // Create and return wallet manager
       WalletManager walletManager = new WalletManager(secureKeyValueStore,
-              backing, environment.getNetwork(), _wapi, externalSignatureProviderProxy, spvBchFetcher);
+              backing, environment.getNetwork(), _wapi, externalSignatureProviderProxy, spvBchFetcher, Utils.isConnected(context));
 
       // notify the walletManager about the current selected account
       UUID lastSelectedAccountId = getLastSelectedAccountId();
@@ -639,7 +639,7 @@ public class MbwManager {
 
       // Create and return wallet manager
       WalletManager walletManager = new WalletManager(secureKeyValueStore,
-              backing, environment.getNetwork(), _wapi, null, getSpvBchFetcher());
+              backing, environment.getNetwork(), _wapi, null, getSpvBchFetcher(), Utils.isConnected(_applicationContext));
 
       walletManager.disableTransactionHistorySynchronization();
       return walletManager;
@@ -1387,18 +1387,5 @@ public class MbwManager {
          }
       }, 1, SECONDS);
 
-   }
-
-   /**
-    * Refresh transaction data and exchange rates.
-    */
-   public void manualRefresh(SyncMode syncMode) {
-      //switch server every third time the refresh button gets hit
-      if (new Random().nextInt(3) == 0) {
-         switchServer();
-      }
-      getWalletManager(false).startSynchronization(syncMode);
-      // also fetch a new exchange rate, if necessary
-      getExchangeRateManager().requestOptionalRefresh();
    }
 }
