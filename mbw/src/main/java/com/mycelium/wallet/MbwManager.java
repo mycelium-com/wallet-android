@@ -594,7 +594,7 @@ public class MbwManager {
       SpvBalanceFetcher spvBchFetcher = getSpvBchFetcher();
       // Create and return wallet manager
       WalletManager walletManager = new WalletManager(secureKeyValueStore,
-              backing, environment.getNetwork(), _wapi, externalSignatureProviderProxy, spvBchFetcher);
+              backing, environment.getNetwork(), _wapi, externalSignatureProviderProxy, spvBchFetcher, _wapiElectrumX);
 
       // notify the walletManager about the current selected account
       UUID lastSelectedAccountId = getLastSelectedAccountId();
@@ -645,7 +645,7 @@ public class MbwManager {
 
       // Create and return wallet manager
       WalletManager walletManager = new WalletManager(secureKeyValueStore,
-              backing, environment.getNetwork(), _wapi, null, getSpvBchFetcher());
+              backing, environment.getNetwork(), _wapi, null, getSpvBchFetcher(), _wapiElectrumX);
 
       walletManager.disableTransactionHistorySynchronization();
       return walletManager;
@@ -1271,6 +1271,8 @@ public class MbwManager {
    public WapiClient getWapi() {
       return _wapi;
    }
+
+   public WapiClient getWapiElectrumX() {return _wapiElectrumX;}
 
    public EvictingQueue<LogEntry> getWapiLogs() {
       return _wapiLogs;

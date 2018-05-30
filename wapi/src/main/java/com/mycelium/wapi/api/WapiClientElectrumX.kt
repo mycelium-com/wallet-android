@@ -2,12 +2,12 @@ package com.mycelium.wapi.api
 
 import com.google.gson.annotations.SerializedName
 import com.megiontechnologies.Bitcoins
+import com.mrd.bitlib.util.HexUtils
+import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.WapiLogger
 import com.mycelium.net.ServerEndpoints
 import com.mycelium.wapi.api.jsonrpc.JsonRpcTcpClient
 import com.mycelium.wapi.api.jsonrpc.RpcParams
-import com.mycelium.wapi.api.lib.FeeEstimation
-import com.mycelium.wapi.api.lib.FeeEstimationMap
 import com.mycelium.wapi.api.request.BroadcastTransactionRequest
 import com.mycelium.wapi.api.request.CheckTransactionsRequest
 import com.mycelium.wapi.api.request.GetTransactionsRequest
@@ -24,7 +24,7 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, 
 
     fun start() {
         Thread {
-            jsonRpcTcpClient = JsonRpcTcpClient("electrumx-1.mycelium.com", 50002)
+            jsonRpcTcpClient = JsonRpcTcpClient("electrumx-1.mycelium.com", 50012)
             jsonRpcTcpClient.start()
         }.start()
     }
@@ -54,11 +54,11 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, 
     }
 
     override fun broadcastTransaction(request: BroadcastTransactionRequest): WapiResponse<BroadcastTransactionResponse> {
-      //  return WapiResponse(BroadcastTransactionResponse(
-      //          response?.success ?: false,
-      //          Sha256Hash.fromString(response?.txid)))
+        val txHex = HexUtils.toHex(request.rawTransaction)
+        val response = jsonRpcTcpClient.write("blockchain.transaction.broadcast", RpcParams.listParams(txHex), 50000)
+        var txId = response.getResult(String::class.java)!!
 
-        return WapiResponse<BroadcastTransactionResponse>();
+        return WapiResponse(BroadcastTransactionResponse(true, Sha256Hash.fromString(txId)))
     }
 
     override fun checkTransactions(request: CheckTransactionsRequest): WapiResponse<CheckTransactionsResponse> {

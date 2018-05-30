@@ -51,8 +51,8 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
    private SingleAddressAccountBacking _backing;
 
    public SingleAddressAccount(SingleAddressAccountContext context, PublicPrivateKeyStore keyStore,
-                               NetworkParameters network, SingleAddressAccountBacking backing, Wapi wapi) {
-      super(backing, network, wapi);
+                               NetworkParameters network, SingleAddressAccountBacking backing, Wapi wapi, Wapi wapiSecond) {
+      super(backing, network, wapi, wapiSecond);
       _backing = backing;
       type = WalletAccount.Type.BTCSINGLEADDRESS;
       _context = context;
