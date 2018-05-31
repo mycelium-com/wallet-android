@@ -132,6 +132,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.Timer;
@@ -1410,7 +1411,7 @@ public class MbwManager {
       return _wapiElectrumX.serverFeatures();
    }
 
-   public Double estimateFee(int nBlocks) {
+   public Map<Integer, Double> estimateFee(Integer[] nBlocks) {
       return _wapiElectrumX.estimateFee(nBlocks);
    }
 

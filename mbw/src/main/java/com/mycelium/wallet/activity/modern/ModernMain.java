@@ -97,6 +97,7 @@ import com.squareup.otto.Subscribe;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -431,8 +432,7 @@ public class ModernMain extends AppCompatActivity {
             }
 
             ServerFeatures serverFeatures = _mbwManager.getServerFeatures();
-            Double estimatedFee = _mbwManager.estimateFee(1);
-
+            Map<Integer, Double> estimatedFees = _mbwManager.estimateFee(new Integer[] { 1, 3, 5});
 
             _mbwManager.getWalletManager(false).startSynchronization(syncMode);
             _mbwManager.getColuManager().startSynchronization();

@@ -21,13 +21,13 @@ open class JsonRpcTcpClient(
     private val `in` = BufferedReader(InputStreamReader((socket.getInputStream())))
     private val out = BufferedOutputStream(socket.getOutputStream())
 
-    private val callbacks = mutableMapOf<String, Consumer<RpcResponse>>()
+    private val callbacks = mutableMapOf<String, Consumer<AbstractResponse>>()
 
     fun notify(methodName: String, params: RpcParams) {
         internalWrite(RpcRequestOut(methodName, params).let { it.toJson() })
     }
 
-    fun writeAsync(methodName: String, params: RpcParams, callback: Consumer<RpcResponse>) {
+    fun writeAsync(methodName: String, params: RpcParams, callback: Consumer<AbstractResponse>) {
         val request = RpcRequestOut(methodName, params).apply {
             id = UUID.randomUUID().toString()
             callbacks[id.toString()] = callback
@@ -37,6 +37,32 @@ open class JsonRpcTcpClient(
 
 
     @Throws(TimeoutException::class)
+    fun write(requests: List<RpcRequestOut>, timeOut: Long): BatchedRpcResponse {
+        var response: BatchedRpcResponse? = null
+        val latch = CountDownLatch(1)
+
+        requests.forEach {
+            it.id = UUID.randomUUID().toString()
+        }
+
+        val compoundIds = requests.map {it.id.toString()}.toTypedArray().sortedArray().joinToString { it }
+
+        callbacks[compoundIds] = {
+            response = it as BatchedRpcResponse
+            latch.countDown()
+        }
+
+        val batchedRequest = '[' + requests.map { it.toJson() }.joinToString() + ']'
+        internalWrite(batchedRequest)
+
+        if (!latch.await(timeOut, TimeUnit.MILLISECONDS)) {
+            throw TimeoutException("Timeout")
+        }
+
+        return response!!
+    }
+
+    @Throws(TimeoutException::class)
     fun write(methodName: String, params: RpcParams, timeOut: Long): RpcResponse {
 
         var response: RpcResponse? = null
@@ -44,7 +70,7 @@ open class JsonRpcTcpClient(
         val request = RpcRequestOut(methodName, params).apply {
             id = UUID.randomUUID().toString()
             callbacks[id.toString()] = {
-                response = it
+                response = it as RpcResponse
                 latch.countDown()
             }
         }.let { it.toJson() }
@@ -69,9 +95,18 @@ open class JsonRpcTcpClient(
     fun close() = socket.close()
 
     fun messageReceived(message: String) {
-        val response = RpcResponse.fromJson(message)
-        if (response.error != null) {
+        val isBatched = message[0] == '['
+
+        if (isBatched) {
+            val response = BatchedRpcResponse.fromJson(message)
+            val compoundId = response.responses.map {it.id.toString()}.toTypedArray().sortedArray().joinToString { it }
+
+            callbacks[compoundId]?.also { callback ->
+                callback.invoke(response)
+            }
+            callbacks.remove(compoundId)
         } else {
+            val response = RpcResponse.fromJson(message)
             val id = response.id.toString()
             callbacks[id]?.also { callback ->
                 callback.invoke(response)

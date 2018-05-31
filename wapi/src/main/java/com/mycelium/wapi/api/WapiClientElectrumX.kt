@@ -1,13 +1,15 @@
 package com.mycelium.wapi.api
 
+import com.google.gson.JsonArray
 import com.google.gson.annotations.SerializedName
-import com.megiontechnologies.Bitcoins
 import com.mrd.bitlib.util.HexUtils
 import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.WapiLogger
 import com.mycelium.net.ServerEndpoints
 import com.mycelium.wapi.api.jsonrpc.JsonRpcTcpClient
+import com.mycelium.wapi.api.jsonrpc.RPC
 import com.mycelium.wapi.api.jsonrpc.RpcParams
+import com.mycelium.wapi.api.jsonrpc.RpcRequestOut
 import com.mycelium.wapi.api.request.BroadcastTransactionRequest
 import com.mycelium.wapi.api.request.CheckTransactionsRequest
 import com.mycelium.wapi.api.request.GetTransactionsRequest
@@ -73,9 +75,23 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, 
         return response.getResult(ServerFeatures::class.java)!!
     }
 
-    fun estimateFee(nBlocks : Int): Double {
-        val response = jsonRpcTcpClient.write("blockchain.estimatefee", RpcParams.listParams(1), 50000)
-        return response.getResult(Double::class.java)!!
+    fun estimateFee(blocks : Array<Int>): Map<Int, Double> {
+        var requestsList = ArrayList<RpcRequestOut>()
+        blocks.forEach { nBlocks ->
+            requestsList.add(RpcRequestOut("blockchain.estimatefee", RpcParams.listParams(nBlocks)))
+        }
+
+        val response = jsonRpcTcpClient.write(requestsList, 5000)
+        val estimatesArray = response.responses
+
+        var results = HashMap<Int, Double>()
+
+        estimatesArray.forEachIndexed { index, response ->
+            val estimate = response.getResult(Double::class.java)!!
+            results.put(blocks[index], estimate)
+        }
+
+        return results
     }
 }
 
