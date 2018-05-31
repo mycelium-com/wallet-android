@@ -7,7 +7,7 @@ ext {
     androidSdkBuildVersion = '27.0.3'
     androidSupportVersion = '27.1.0'
     junitVersion = '4.12'
-    kotlin_version = '1.2.31'
+    kotlin_version = '1.2.41'
 
     projectRootDir = project.rootDir.getPath()
     commonDebugKeystore = rootProject.file('debug.keystore')

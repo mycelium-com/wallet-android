@@ -11,11 +11,8 @@ import java.util.concurrent.TimeoutException
 
 typealias Consumer<T> = (T) -> Unit
 
-open class JsonRpcTcpClient(
-        host: String,
-        port: Int
-) {
-
+open class JsonRpcTcpClient(host: String,
+                            port: Int) {
     private val ssf = SSLSocketFactory.getDefault() as SSLSocketFactory
     private val socket: Socket = ssf.createSocket(host, port)
     private val `in` = BufferedReader(InputStreamReader((socket.getInputStream())))
@@ -24,17 +21,16 @@ open class JsonRpcTcpClient(
     private val callbacks = mutableMapOf<String, Consumer<AbstractResponse>>()
 
     fun notify(methodName: String, params: RpcParams) {
-        internalWrite(RpcRequestOut(methodName, params).let { it.toJson() })
+        internalWrite(RpcRequestOut(methodName, params).toJson())
     }
 
     fun writeAsync(methodName: String, params: RpcParams, callback: Consumer<AbstractResponse>) {
         val request = RpcRequestOut(methodName, params).apply {
             id = UUID.randomUUID().toString()
             callbacks[id.toString()] = callback
-        }.let { it.toJson() }
+        }.toJson()
         internalWrite(request)
     }
-
 
     @Throws(TimeoutException::class)
     fun write(requests: List<RpcRequestOut>, timeOut: Long): BatchedRpcResponse {
@@ -64,7 +60,6 @@ open class JsonRpcTcpClient(
 
     @Throws(TimeoutException::class)
     fun write(methodName: String, params: RpcParams, timeOut: Long): RpcResponse {
-
         var response: RpcResponse? = null
         val latch = CountDownLatch(1)
         val request = RpcRequestOut(methodName, params).apply {
@@ -73,13 +68,12 @@ open class JsonRpcTcpClient(
                 response = it as RpcResponse
                 latch.countDown()
             }
-        }.let { it.toJson() }
+        }.toJson()
         internalWrite(request)
         if (!latch.await(timeOut, TimeUnit.MILLISECONDS)) {
             throw TimeoutException("Timeout")
         }
         return response!!
-
     }
 
     fun start() {
@@ -87,14 +81,13 @@ open class JsonRpcTcpClient(
             while (true) {
                 messageReceived(`in`.readLine())
             }
-        } catch (ex: IOException) {
+        } catch (ignore: IOException) {
         }
     }
 
-
     fun close() = socket.close()
 
-    fun messageReceived(message: String) {
+    private fun messageReceived(message: String) {
         val isBatched = message[0] == '['
 
         if (isBatched) {
@@ -115,12 +108,11 @@ open class JsonRpcTcpClient(
         }
     }
 
-    fun internalWrite(msg: String) {
+    private fun internalWrite(msg: String) {
         Thread {
             val bytes = (msg + "\n").toByteArray()
             out.write(bytes)
             out.flush()
         }.start()
     }
-
 }
