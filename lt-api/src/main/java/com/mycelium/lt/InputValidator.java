@@ -20,7 +20,6 @@ import com.google.common.base.CharMatcher;
 import static com.google.common.base.CharMatcher.*;
 
 public class InputValidator {
-
    private static final int MAXIMUM_TRADER_NAME_LENGTH = 20;
    private static final int MINIMUM_TRADER_NAME_LENGTH = 3;
    private static final CharMatcher VALID_USER_CHARS =

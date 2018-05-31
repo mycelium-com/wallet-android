@@ -3,6 +3,7 @@ package com.mycelium.wapi.wallet.bip44;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.wallet.Bip44AccountBacking;
+import com.mycelium.wapi.wallet.SpvBalanceFetcher;
 
 
 public class Bip44PubOnlyAccount extends Bip44Account {

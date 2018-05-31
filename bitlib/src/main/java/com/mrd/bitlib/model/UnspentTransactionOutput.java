@@ -64,10 +64,8 @@ public class UnspentTransactionOutput implements Serializable {
 
    @Override
    public String toString() {
-      StringBuilder sb = new StringBuilder();
-      sb.append("outPoint:").append(outPoint).append(" height:").append(height).append(" value: ").append(value)
-            .append(" script: ").append(script.dump());
-      return sb.toString();
+      return "outPoint:" + outPoint + " height:" + height + " value: " + value +
+              " script: " + script.dump();
    }
 
    @Override
@@ -86,5 +84,4 @@ public class UnspentTransactionOutput implements Serializable {
       UnspentTransactionOutput other = (UnspentTransactionOutput) obj;
       return outPoint.equals(other.outPoint);
    }
-
 }

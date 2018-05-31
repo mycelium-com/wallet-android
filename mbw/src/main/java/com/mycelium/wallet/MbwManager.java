@@ -45,6 +45,7 @@ import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.StrictMode;
 import android.os.Vibrator;
 import android.support.annotation.Nullable;
 import android.util.DisplayMetrics;
@@ -61,7 +62,6 @@ import com.google.common.collect.EvictingQueue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Ints;
-import com.megiontechnologies.Bitcoins;
 import com.mrd.bitlib.crypto.Bip39;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
@@ -75,6 +75,7 @@ import com.mrd.bitlib.util.CoinUtil.Denomination;
 import com.mrd.bitlib.util.HashUtils;
 import com.mycelium.WapiLogger;
 import com.mycelium.lt.api.LtApiClient;
+import com.mycelium.modularizationtools.CommunicationManager;
 import com.mycelium.net.ServerEndpointType;
 import com.mycelium.net.TorManager;
 import com.mycelium.net.TorManagerOrbot;
@@ -97,6 +98,8 @@ import com.mycelium.wallet.extsig.keepkey.KeepKeyManager;
 import com.mycelium.wallet.extsig.ledger.LedgerManager;
 import com.mycelium.wallet.extsig.trezor.TrezorManager;
 import com.mycelium.wallet.lt.LocalTraderManager;
+import com.mycelium.wallet.modularisation.GooglePlayModuleCollection;
+import com.mycelium.wallet.modularisation.SpvBchFetcher;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.persistence.TradeSessionDb;
 import com.mycelium.wallet.wapi.SqliteWalletManagerBackingWrapper;
@@ -107,6 +110,7 @@ import com.mycelium.wapi.wallet.IdentityAccountKeyManager;
 import com.mycelium.wapi.wallet.InMemoryWalletManagerBacking;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SecureKeyValueStore;
+import com.mycelium.wapi.wallet.SpvBalanceFetcher;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
@@ -119,6 +123,7 @@ import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -136,8 +141,6 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 
-import static android.os.Build.VERSION.SDK_INT;
-import static android.os.Build.VERSION_CODES.GINGERBREAD;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class MbwManager {
@@ -168,7 +171,13 @@ public class MbwManager {
 
    public static synchronized MbwManager getInstance(Context context) {
       if (_instance == null) {
-         _instance = new MbwManager(context);
+         if(BuildConfig.DEBUG) {
+            StrictMode.ThreadPolicy threadPolicy = StrictMode.allowThreadDiskReads();
+            _instance = new MbwManager(context);
+            StrictMode.setThreadPolicy(threadPolicy);
+         } else {
+            _instance = new MbwManager(context);
+         }
       }
       return _instance;
    }
@@ -182,7 +191,6 @@ public class MbwManager {
    private final LtApiClient _ltApi;
    private Handler _torHandler;
    private Context _applicationContext;
-   private AddressBookManager _addressBookManager;
    private MetadataStorage _storage;
    private LocalTraderManager _localTraderManager;
    private Pin _pin;
@@ -211,7 +219,7 @@ public class MbwManager {
 
    private MbwManager(Context evilContext) {
       _applicationContext = Preconditions.checkNotNull(evilContext.getApplicationContext());
-      _environment = MbwEnvironment.verifyEnvironment(_applicationContext);
+      _environment = MbwEnvironment.verifyEnvironment();
       String version = VersionManager.determineVersion(_applicationContext);
 
       // Preferences
@@ -231,11 +239,6 @@ public class MbwManager {
 
       _wapi = initWapi();
       _httpErrorCollector = HttpErrorCollector.registerInVM(_applicationContext, _wapi);
-
-      if (SDK_INT < GINGERBREAD) {
-         // Disable HTTP keep-alive on systems predating Gingerbread
-         System.setProperty("http.keepAlive", "false");
-      }
 
       _randomSource = new AndroidRandomSource();
 
@@ -259,7 +262,6 @@ public class MbwManager {
       WindowManager windowManager = (WindowManager) _applicationContext.getSystemService(Context.WINDOW_SERVICE);
       windowManager.getDefaultDisplay().getMetrics(dm);
 
-      _addressBookManager = new AddressBookManager(_applicationContext);
       _storage = new MetadataStorage(_applicationContext);
       _language = preferences.getString(Constants.LANGUAGE_SETTING, Locale.getDefault().getLanguage());
       _versionManager = new VersionManager(_applicationContext, _language, new AndroidAsyncApi(_wapi, _eventBus), version, _eventBus);
@@ -267,7 +269,7 @@ public class MbwManager {
       Set<String> currencyList = getPreferences().getStringSet(Constants.SELECTED_CURRENCIES, null);
       //TODO: get it through coluManager instead ?
       Set<String> fiatCurrencies = new HashSet<>();
-      if (currencyList == null) {
+      if (currencyList == null || currencyList.isEmpty()) {
          //if there is no list take the default currency
          fiatCurrencies.add(Constants.DEFAULT_CURRENCY);
       } else {
@@ -372,8 +374,7 @@ public class MbwManager {
    }
 
 
-   private Optional<ColuManager> createColuManager(final Context context, MbwEnvironment environment) {
-
+   private Optional<ColuManager> createColuManager(final Context context) {
       // Create persisted account backing
       // we never talk directly to this class. Instead, we use SecureKeyValueStore API
       SqliteColuManagerBacking coluBacking = new SqliteColuManagerBacking(context);
@@ -389,14 +390,7 @@ public class MbwManager {
               _environment,
               _eventBus,
               new Handler(_applicationContext.getMainLooper()),
-              _storage,
-              _exchangeRateManager, // not sure we need this one for colu
-              retainingWapiLogger));
-/*
-      } else {
-         return Optional.absent();
-      }
-      */
+              _storage));
    }
 
    private void createTempWalletManager() {
@@ -546,8 +540,6 @@ public class MbwManager {
             }
          }
       }
-
-      migrateAddressAndAccountLabelsToMetadataStorage();
    }
 
    private List<Record> loadClassicRecords() {
@@ -572,24 +564,6 @@ public class MbwManager {
       return recordList;
    }
 
-   private void migrateAddressAndAccountLabelsToMetadataStorage() {
-      List<AddressBookManager.Entry> entries = _addressBookManager.getEntries();
-      for (AddressBookManager.Entry entry : entries) {
-
-         Address address = entry.getAddress();
-         String label = entry.getName();
-         //check whether this is actually an addressbook entry, or the name of an account
-         UUID accountid = SingleAddressAccount.calculateId(address);
-         if (_walletManager.getAccountIds().contains(accountid)) {
-            //its one of our accounts, so we name it
-            _storage.storeAccountLabel(accountid, label);
-         } else {
-            //we just put it into the addressbook
-            _storage.storeAddressLabel(address, label);
-         }
-      }
-   }
-
    /**
     * Create a Wallet Manager instance
     *
@@ -611,16 +585,42 @@ public class MbwManager {
               getLedgerManager()
       );
 
+      SpvBalanceFetcher spvBchFetcher = getSpvBchFetcher();
       // Create and return wallet manager
       WalletManager walletManager = new WalletManager(secureKeyValueStore,
-              backing, environment.getNetwork(), _wapi, externalSignatureProviderProxy);
+              backing, environment.getNetwork(), _wapi, externalSignatureProviderProxy, spvBchFetcher);
 
       // notify the walletManager about the current selected account
       UUID lastSelectedAccountId = getLastSelectedAccountId();
       if (lastSelectedAccountId != null) {
          walletManager.setActiveAccount(lastSelectedAccountId);
       }
+
+      importLabelsToBch(walletManager);
+
       return walletManager;
+   }
+
+   public void importLabelsToBch(WalletManager walletManager) {
+      if (getSpvBchFetcher() == null)
+         return;
+      List<WalletAccount> accounts = new ArrayList<>();
+      accounts.addAll(walletManager.getActiveAccounts());
+      accounts.addAll(walletManager.getArchivedAccounts());
+      for (WalletAccount walletAccount : accounts) {
+         if (walletAccount.getType() == WalletAccount.Type.BTCSINGLEADDRESS
+                 || walletAccount.getType() == WalletAccount.Type.BTCBIP44) {
+            UUID bchId = getBitcoinCashAccountId(walletAccount);
+            String bchLabel = getMetadataStorage().getLabelByAccount(bchId);
+            if (bchLabel == null || bchLabel.isEmpty()) {
+               getMetadataStorage().storeAccountLabel(bchId, getMetadataStorage().getLabelByAccount(walletAccount.getId()));
+            }
+         }
+      }
+   }
+
+   public static UUID getBitcoinCashAccountId(WalletAccount walletAccount) {
+      return UUID.nameUUIDFromBytes(("BCH" + walletAccount.getId().toString()).getBytes());
    }
 
    /**
@@ -636,14 +636,23 @@ public class MbwManager {
       // Create secure storage instance
       SecureKeyValueStore secureKeyValueStore = new SecureKeyValueStore(backing, new AndroidRandomSource());
 
+
       // Create and return wallet manager
       WalletManager walletManager = new WalletManager(secureKeyValueStore,
-              backing, environment.getNetwork(), _wapi, null);
+              backing, environment.getNetwork(), _wapi, null, getSpvBchFetcher());
 
       walletManager.disableTransactionHistorySynchronization();
       return walletManager;
    }
 
+   public SpvBalanceFetcher getSpvBchFetcher() {
+      SpvBalanceFetcher result = null;
+      if (CommunicationManager.getInstance().getPairedModules()
+              .contains(GooglePlayModuleCollection.getModules(_applicationContext).get("bch"))) {
+         result = new SpvBchFetcher(_applicationContext);
+      }
+      return result;
+   }
 
    public String getFiatCurrency() {
       return _currencySwitcher.getCurrentFiatCurrency();
@@ -1022,24 +1031,18 @@ public class MbwManager {
       return _environment;
    }
 
-   /**
-    * Get the brand of the wallet. This allows us to behave differently
-    * depending on the brand of the wallet.
-    */
-   public String getBrand() {
-      return _environment.getBrand();
-   }
-
    public void reportIgnoredException(Throwable e) {
-      if (_httpErrorCollector != null) {
-         RuntimeException msg = new RuntimeException("We caught an exception that we chose to ignore.\n", e);
-         _httpErrorCollector.reportErrorToServer(msg);
-      }
+      reportIgnoredException(null, e);
    }
 
-   public void reportIgnoredException(String Message, Throwable e) {
+   public void reportIgnoredException(String message, Throwable e) {
       if (_httpErrorCollector != null) {
-         RuntimeException msg = new RuntimeException("We caught an exception that we chose to ignore.\n" + Message + "\n", e);
+         if(null != message && message.length() > 0) {
+            message += "\n";
+         } else {
+            message = "";
+         }
+         RuntimeException msg = new RuntimeException("We caught an exception that we chose to ignore.\n" + message, e);
          _httpErrorCollector.reportErrorToServer(msg);
       }
    }
@@ -1056,14 +1059,14 @@ public class MbwManager {
       this._language = _language;
       SharedPreferences.Editor editor = getEditor();
       editor.putString(Constants.LANGUAGE_SETTING, _language);
-      editor.commit();
+      editor.apply();
    }
 
    public void setTorMode(ServerEndpointType.Types torMode) {
       this._torMode = torMode;
       SharedPreferences.Editor editor = getEditor();
       editor.putString(Constants.TOR_MODE, torMode.toString());
-      editor.commit();
+      editor.apply();
 
       ServerEndpointType serverEndpointType = ServerEndpointType.fromType(torMode);
       if (serverEndpointType.mightUseTor()) {
@@ -1136,7 +1139,7 @@ public class MbwManager {
             // We had a bug that allowed it, and the app will crash always after restart.
             _walletManager.activateFirstAccount();
          }
-         uuid = _walletManager.getActiveAccounts().get(0).getId();
+         uuid = _walletManager.getActiveAccounts(WalletAccount.Type.BTCBIP44).get(0).getId();
          setSelectedAccount(uuid);
       }
 
@@ -1325,7 +1328,7 @@ public class MbwManager {
          return _coluManager.get();
       } else {
          synchronized (this) {
-            _coluManager = createColuManager(_applicationContext, _environment);
+            _coluManager = createColuManager(_applicationContext);
             if (_coluManager.isPresent()) {
                return _coluManager.get();
             } else {

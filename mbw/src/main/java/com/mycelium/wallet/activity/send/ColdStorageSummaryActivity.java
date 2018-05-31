@@ -157,7 +157,6 @@ public class ColdStorageSummaryActivity extends Activity {
                public void onClick(View arg0) {
                   Intent intent = SendMainActivity.getIntent(ColdStorageSummaryActivity.this, _account.getId(), true);
                   ColdStorageSummaryActivity.this.startActivityForResult(intent, SEND_MAIN_REQUEST_CODE);
-                  finish();
                }
             });
          } else {
@@ -171,7 +170,6 @@ public class ColdStorageSummaryActivity extends Activity {
    @Override
    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
       if (requestCode == SEND_MAIN_REQUEST_CODE) {
-         _mbwManager.forgetColdStorageWalletManager();
          setResult(resultCode, data);
          finish();
       } else {

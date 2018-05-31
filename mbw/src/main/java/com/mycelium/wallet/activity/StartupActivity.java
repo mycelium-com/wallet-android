@@ -53,6 +53,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.io.ByteStreams;
 import com.mrd.bitlib.crypto.Bip39;
+import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.BitcoinUri;
@@ -79,8 +80,11 @@ import com.mycelium.wapi.wallet.bip44.Bip44Account;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.UUID;
+
+import static com.mycelium.wallet.StringHandleConfig.PrivateKeyAction.getPrivateKey;
 
 public class StartupActivity extends Activity {
    private static final int MINIMUM_SPLASH_TIME = 500;
@@ -130,15 +134,8 @@ public class StartupActivity extends Activity {
          _mbwManager = MbwManager.getInstance(StartupActivity.this.getApplication());
 
          //in case this is a fresh startup, import backup or create new seed
-         if (_mbwManager.getWalletManager(false).getAccountIds().isEmpty()) {
+         if (!_mbwManager.getWalletManager(false).hasBip32MasterSeed()) {
             initMasterSeed();
-            //we return here, delayed finish will get posted once have our first account
-            return;
-         } else if (!_mbwManager.getWalletManager(false).hasBip32MasterSeed()) {
-            //user has accounts, but no seed. we just create one for him
-            //first show an upgrade info, then make seed
-            showUpgradeInfo();
-            //the Asynctask will execute delayedfinish
             return;
          }
 
@@ -158,37 +155,17 @@ public class StartupActivity extends Activity {
       private boolean hasPrivateKeyOnClipboard(NetworkParameters network) {
          // do we have a private key on the clipboard?
          try {
-            new InMemoryPrivateKey(Utils.getClipboardString(StartupActivity.this), network);
+            Optional<InMemoryPrivateKey> key = getPrivateKey(network, Utils.getClipboardString(StartupActivity.this));
+            if (key.isPresent()) {
+               return true;
+            }
+            HdKeyNode.parse(Utils.getClipboardString(StartupActivity.this), network);
             return true;
-         } catch (IllegalArgumentException e) {
+         } catch (HdKeyNode.KeyGenerationException ex) {
             return false;
          }
       }
    };
-
-   private void showUpgradeInfo() {
-      //show upgrade info
-      new AlertDialog.Builder(this)
-              .setTitle(R.string.title_upgrade_info)
-              .setMessage(R.string.release_notes_hd)
-              .setPositiveButton(R.string.button_continue, new DialogInterface.OnClickListener() {
-                 public void onClick(DialogInterface dialog, int which) {
-                    // continue with master seed init
-                    startMasterSeedTask();
-                 }
-              })
-              .setNegativeButton(R.string.butto_show_release_notes, new DialogInterface.OnClickListener() {
-                 public void onClick(DialogInterface dialog, int which) {
-                    // navigate to website
-                    Intent intent = new Intent(Intent.ACTION_VIEW);
-                    intent.setData(Uri.parse(Constants.MYCELIUM_2_RELEASE_NOTES_URL));
-                    startActivity(intent);
-                    //and get everything up while they read it :)
-                    startMasterSeedTask();
-                 }
-              })
-              .show();
-   }
 
    private void initMasterSeed() {
       new AlertDialog
@@ -216,15 +193,25 @@ public class StartupActivity extends Activity {
       _progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
       _progress.setMessage(getString(R.string.preparing_wallet_on_first_startup_info));
       _progress.show();
-      new ConfigureSeedAsyncTask().execute();
+      new ConfigureSeedAsyncTask(new WeakReference<>(this)).execute();
    }
 
-   private class ConfigureSeedAsyncTask extends AsyncTask<Void, Integer, UUID> {
+   private static class ConfigureSeedAsyncTask extends AsyncTask<Void, Integer, UUID> {
+      private WeakReference<StartupActivity> startupActivity;
+
+      ConfigureSeedAsyncTask(WeakReference<StartupActivity> startupActivity) {
+         this.startupActivity = startupActivity;
+      }
+
       @Override
       protected UUID doInBackground(Void... params) {
-         Bip39.MasterSeed masterSeed = Bip39.createRandomMasterSeed(_mbwManager.getRandomSource());
+         StartupActivity activity = this.startupActivity.get();
+         if(activity == null) {
+            return null;
+         }
+         Bip39.MasterSeed masterSeed = Bip39.createRandomMasterSeed(activity._mbwManager.getRandomSource());
          try {
-            WalletManager walletManager = _mbwManager.getWalletManager(false);
+            WalletManager walletManager = activity._mbwManager.getWalletManager(false);
             walletManager.configureBip32MasterSeed(masterSeed, AesKeyCipher.defaultKeyCipher());
             return walletManager.createAdditionalBip44Account(AesKeyCipher.defaultKeyCipher());
          } catch (KeyCipher.InvalidKeyCipher e) {
@@ -234,13 +221,17 @@ public class StartupActivity extends Activity {
 
       @Override
       protected void onPostExecute(UUID accountid) {
-         _progress.dismiss();
+         StartupActivity activity = this.startupActivity.get();
+         if(accountid == null || activity == null) {
+            return;
+         }
+         activity._progress.dismiss();
          //set default label for the created HD account
-         WalletAccount account = _mbwManager.getWalletManager(false).getAccount(accountid);
-         String defaultName = getString(R.string.account) + " " + (((Bip44Account) account).getAccountIndex() + 1);
-         _mbwManager.getMetadataStorage().storeAccountLabel(accountid, defaultName);
+         WalletAccount account = activity._mbwManager.getWalletManager(false).getAccount(accountid);
+         String defaultName = activity.getString(R.string.account) + " " + (((Bip44Account) account).getAccountIndex() + 1);
+         activity._mbwManager.getMetadataStorage().storeAccountLabel(accountid, defaultName);
          //finish initialization
-         delayedFinish.run();
+         activity.delayedFinish.run();
       }
    }
 

@@ -139,7 +139,7 @@ public class SecureKeyValueStore {
     * @return The value associated with the specified ID, or null of no value was found
     * @throws InvalidKeyCipher if the specified encryption key is invalid
     */
-   public synchronized byte[] getEncryptedValue(byte[] id, KeyCipher userCipher) throws InvalidKeyCipher {
+   public synchronized byte[] getDecryptedValue(byte[] id, KeyCipher userCipher) throws InvalidKeyCipher {
       if (id.length == 0) {
          throw new RuntimeException("IDs cannot have zero length");
       }
@@ -169,7 +169,7 @@ public class SecureKeyValueStore {
    }
 
    public void deleteEncryptedValue(byte[] id, KeyCipher userCipher) throws InvalidKeyCipher {
-      AesKeyCipher kekCipher = getKeyEncryptionKey(userCipher); // may throw InvalidKeyCipher
+      getKeyEncryptionKey(userCipher); // may throw InvalidKeyCipher
       _backing.deleteValue(getRealId(id, true));
    }
 

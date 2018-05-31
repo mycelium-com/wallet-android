@@ -138,7 +138,7 @@
   <string name="active_accounts_empty">(Prazno)</string>
   <string name="activate_action">Aktiviraj</string>
   <string name="archive_action">Arhiviraj</string>
-  <string name="question_archive_account">Na arhiviranih računih se ne spremljajo transakcije, na njih ne morete videti stanja in prejemnega naslov ter z njimi na noben način ne morete delati.\r\n\r\nArhivirane račune je vedno mogoče ponovno aktivirati.\r\n\r\nŽelite sedaj arhivirati ta račun?</string>
+  <string name="question_archive_account">Na arhiviranih računih se ne spremljajo transakcije, na njih ne morete videti stanja in prejemnega naslov ter z njimi na noben način ne morete delati.\n\nArhivirane račune je vedno mogoče ponovno aktivirati.\n\nŽelite sedaj arhivirati ta račun?</string>
   <string name="master_seed_configuration_title">Dobrodošli v Myceliumu</string>
   <string name="master_seed_configuration_description">Ali želite obnoviti rezervno kopijo ali ustvariti novo denarnico?</string>
   <string name="master_seed_create_new_button">Ustvari novo</string>
@@ -181,7 +181,6 @@
   <string name="verify_backup_master_seed">Vaše glavno seme ni preverjeno.</string>
   <string name="verify_backup_no_such_record">Zasebni ključ ne ujema z nobenim od vaših Bitcoin naslovov.</string>
   <string name="verify_backup_ok">Rezervna kopija zasebnih ključev je bila uspešno preverjena za naslednje naslove:\n\n%1$s</string>
-  <string name="legacy_account_with_funds">Podedovan račun s sredstvi</string>
   <string name="wrong_seed">Prečitano seme se ne ujema z vašim glavnim semenom.</string>
   <string name="backup_missing">Rezervna kopija manjka</string>
   <string name="verify_backup_title">Rezervna kopija, preverba</string>
@@ -197,7 +196,7 @@
   <string name="encrypted_pdf_backup_document_ready">PDF-dokument pripravljen</string>
   <string name="encrypted_pdf_backup_sharing">Pošiljanje dokumenta&#8230;</string>
   <string name="encrypted_pdf_backup_email_title">Rezervna kopija denarnice Mycelium</string>
-  <string name="encrypted_pdf_backup_email_text">V prilogi je rezervna kopija vaše denarnice Mycelium.\r\n\r\nZa zaščito svojih sredstev sledite tem enostavnim korakom:\r\n1. Natisnite priloženi dokument.\r\n2. Prepišite 15 črk z zaslona svoje denarnice v modra polja na natisnjenem dokumentu.\r\n3. Preverite, da lahko zasebne ključe uspešno uvozite v denarnico Mycelium.\r\n4. Varno shranite natisnjeni dokument.</string>
+  <string name="encrypted_pdf_backup_email_text">V prilogi je rezervna kopija vaše denarnice Mycelium.\n\nZa zaščito svojih sredstev sledite tem enostavnim korakom:\n1. Natisnite priloženi dokument.\n2. Prepišite 15 črk z zaslona svoje denarnice v modra polja na natisnjenem dokumentu.\n3. Preverite, da lahko zasebne ključe uspešno uvozite v denarnico Mycelium.\n4. Varno shranite natisnjeni dokument.</string>
   <string name="share_pdf">Deli PDF</string>
   <string name="share_with">Deli z&#8230;</string>
   <string name="import_decrypt_key_title">Dešifriranje zasebnih ključev</string>
@@ -223,7 +222,6 @@
   <string name="unlock_label">Odkleni</string>
   <string name="lock_label">Zakleni</string>
   <string name="secure_my_funds">Zaščitite svoja sredstva</string>
-  <string name="move_legacy_funds_message">Vaša denarnica vsebuje enega ali več podedovanih računov, ki vsebujejo sredstva.\n\nČe želite zagotoviti varnost teh sredstev in izboljšati svojo zasebnost plačevanja, morate prenesti ta sredstva v enega od svojih HD-računov.\n\nZa podrobnosti pojdite na zavihek Računi.</string>
   <string name="ignore_warnings_title">Prezri opozorila</string>
   <string name="ignore_warnings_description">Ali želite prezreti opozorila, da ta podedovani račun vsebuje sredstva, in ali imate varno rezervno kopijo ustreznega zasebnega ključa?</string>
   <string name="explore">Raziskuj</string>
@@ -517,9 +515,7 @@
   <string name="decryption_password_hint">VNE SIT EVA ŠEG ESL O</string>
   <string name="dont_allow_archiving_unused_notification">Nerabljenega HD-računa ne morete arhivirati</string>
   <string name="newly_generated_coins_from_coinbase">Novonastali novci</string>
-  <string name="release_notes_hd">Najboljša mobilna denarnica na svetu je pravkar postala še boljša.\n\nIzdelava varne rezervne kopije je sedaj enostavna, novi HD-računi pa bolje kot kdajkoli skrbijo za vašo zasebnost.\n\nPodrobnosti si oglejte v Opombah ob izdaji.</string>
-  <string name="title_upgrade_info">Dobrodošli v Myceliumu 2.0</string>
-  <string name="button_continue">Naprej</string>
+    <string name="button_continue">Naprej</string>
   <string name="butto_show_release_notes">Prikaži podrobnosti</string>
   <string name="word_does_not_exist_in_wordlist">Besede, ki ste jo vnesli, ni na seznamu besed</string>
   <string name="pref_legacy_backup_title">Rezervna kopija podedovanih računov</string>

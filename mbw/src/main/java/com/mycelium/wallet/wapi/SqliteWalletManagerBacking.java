@@ -224,6 +224,10 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
       }
    }
 
+   @Override
+   public void upgradeBip44AccountContext(Bip44AccountContext context) {
+      updateBip44AccountContext(context);
+   }
 
    private void updateBip44AccountContext(Bip44AccountContext context) {
       //UPDATE bip44 SET archived=?,blockheight=?,lastExternalIndexWithActivity=?,lastInternalIndexWithActivity=?,firstMonitoredInternalIndex=?,lastDiscovery=?,accountType=?,accountSubId=? WHERE id=?
@@ -929,6 +933,10 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
             db.execSQL("ALTER TABLE bip44 ADD COLUMN accountType INTEGER DEFAULT 0");
             db.execSQL("ALTER TABLE bip44 ADD COLUMN accountSubId INTEGER DEFAULT 0");
          }
+      }
+
+      @Override
+      public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
       }
    }
 }

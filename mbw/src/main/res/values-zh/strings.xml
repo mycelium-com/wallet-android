@@ -118,7 +118,7 @@
   <string name="backup_legacy_warning">您将备份您钱包中单地址帐户。\n 这份备份将不会包含您的主种子，您的HD帐户不可以从它进行恢复 ！\n\n 您还要继续吗？</string>
   <string name="export_to_clipboard_warning">警告：将导出密钥到剪贴板将公开给您的手机\n\n注意：您必须粘贴它到安全的地方\n\n您要继续吗</string>
   <string name="found_clipboard_private_key_title">剪贴板中发现私钥</string>
-  <string name="found_clipboard_private_keys_message">密匙在剪贴板上\r\n您想删除它码</string>
+  <string name="found_clipboard_private_keys_message">密匙在剪贴板上\n您想删除它码</string>
   <string name="exchange_source_not_available">无法获得%1$s汇率</string>
   <string name="my_own_address_warning">注意：您正在发送给您自己的一个地址</string>
   <string name="read_only_warning">警告：您的钱包没有此地址的私钥．\n除非您在其他的地方有此地址的私钥，否则您将不能用接受的比特币进行消费．</string>
@@ -138,7 +138,7 @@
   <string name="active_accounts_empty">\"(\"空\")\"</string>
   <string name="activate_action">激活</string>
   <string name="archive_action">存档</string>
-  <string name="question_archive_account">存档帐户没有被监测、 你不能看到帐户余额和接收地址。请不要对这个帐户进行操作.\r\n\r\n存档帐户可以被再次激活.\r\n\r\n您需要存档该帐户吗？</string>
+  <string name="question_archive_account">存档帐户没有被监测、 你不能看到帐户余额和接收地址。请不要对这个帐户进行操作.\n\n存档帐户可以被再次激活.\n\n您需要存档该帐户吗？</string>
   <string name="master_seed_configuration_title">欢迎来到Mycelium</string>
   <string name="master_seed_configuration_description">你想还原备份，还是创建一个新钱包？</string>
   <string name="master_seed_create_new_button">新建</string>
@@ -181,7 +181,6 @@
   <string name="verify_backup_master_seed">您的主种子尚未被验证。</string>
   <string name="verify_backup_no_such_record">此私钥不匹配任何您的比特币地址</string>
   <string name="verify_backup_ok">成功验证一下地址备份:\n\n%1$s</string>
-  <string name="legacy_account_with_funds">內含资金的旧帐户</string>
   <string name="wrong_seed">扫描的种子与您的主种子不匹配。</string>
   <string name="backup_missing">备份丢失</string>
   <string name="verify_backup_title">备份和验证</string>
@@ -197,7 +196,7 @@
   <string name="encrypted_pdf_backup_document_ready">创建PDF文件成功</string>
   <string name="encrypted_pdf_backup_sharing">正在共享PDF文件</string>
   <string name="encrypted_pdf_backup_email_title">Mycelium钱包备份</string>
-  <string name="encrypted_pdf_backup_email_text">您的Mycelium钱包备份已经链接．\r\n\r\n请执行下列步骤来保护您的资金:\r\n1. 打印PDF文件\r\n2. 从Android设备显示屏到打印文件的蓝框中依次写一下15个字符的密码\r\n3. 验证您可是否以导入私钥到您的Mycelium钱包\r\n4. 把打印文件存储在一个安全的地方</string>
+  <string name="encrypted_pdf_backup_email_text">您的Mycelium钱包备份已经链接．\n\n请执行下列步骤来保护您的资金:\n1. 打印PDF文件\n2. 从Android设备显示屏到打印文件的蓝框中依次写一下15个字符的密码\n3. 验证您可是否以导入私钥到您的Mycelium钱包\n4. 把打印文件存储在一个安全的地方</string>
   <string name="share_pdf">共享PDF</string>
   <string name="share_with">共享与</string>
   <string name="import_decrypt_key_title">私钥解密</string>
@@ -223,7 +222,6 @@
   <string name="unlock_label">不加锁</string>
   <string name="lock_label">加锁</string>
   <string name="secure_my_funds">保护我的资金</string>
-  <string name="move_legacy_funds_message">您的钱包里有一个或多个有资金的旧帐户.\n\n为确保您的资金安全以及提高您的匿名性，你应该将这些资金移动到您的HD帐户中.\n\n请点击帐户选项卡获取详细信息。</string>
   <string name="ignore_warnings_title">忽略警告</string>
   <string name="ignore_warnings_description">您想要忽略提示旧帐户有资金的警告吗？</string>
   <string name="explore">探索</string>
@@ -526,9 +524,7 @@
   <string name="decryption_password_hint">YOU RPA SSW ORD ABC D</string>
   <string name="dont_allow_archiving_unused_notification">您不能存档未使用的HD帐户</string>
   <string name="newly_generated_coins_from_coinbase">新生成的硬币</string>
-  <string name="release_notes_hd">世界最佳手机钱包刚升级.\n\n 安全备份现在轻而易举。新的HD帐户让您比以往任何时候更加匿名！\n\n 请阅读更新说明，了解详细信息。</string>
-  <string name="title_upgrade_info">欢迎光临Mycelium 2.0</string>
-  <string name="button_continue">继续…</string>
+    <string name="button_continue">继续…</string>
   <string name="butto_show_release_notes">显示详细信息</string>
   <string name="word_does_not_exist_in_wordlist">您输入的单词不在单词列表中</string>
   <string name="pref_legacy_backup_title">旧版本备份</string>
@@ -805,7 +801,7 @@
   <string name="warning_reason_unconfirmed_parent">未经证实的父母</string>
   <string name="warning_reason_doublespend">检测到双重支付</string>
   <string name="opening_url_in_browser">在浏览器中打开 URL...</string>
-  <string name="incoming_payment">"收款: "</string>
+  <string name="incoming_payment">收款: %s</string>
   <string name="warning_amount_does_not_match">警告 ︰ 金额不符 ！</string>
   <string name="mycelium_terms_of_use">Mycelium使用条款</string>
   <!-- Credit Card -->

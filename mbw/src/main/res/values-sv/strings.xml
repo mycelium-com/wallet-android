@@ -117,7 +117,7 @@
   <string name="backup_legacy_warning">Du kommer att säkerhetskopiera dina konton med fast adress i din plånbok.\nDenna säkerhetskopia kommer inte att innehålla ditt huvudfrö, ingen av dina HD-konton kan återskapas från den!.\n\nVill du fortsätta?</string>
   <string name="export_to_clipboard_warning">Varning: Att exportera privat kontoinformation till urklipp, exponerar det för alla andra applikationer på din enhet.\n\nNotera: Det är inte nog med att lagra din privata information i urklipp, du måste även klistra in det på en säker plats.\n\nVill du fortsätta?</string>
   <string name="found_clipboard_private_key_title">Privat nyckel hittad i urklipp</string>
-  <string name="found_clipboard_private_keys_message">Urklipp innehåller en privat nyckel.\r\nVill du rensa urklipp?</string>
+  <string name="found_clipboard_private_keys_message">Urklipp innehåller en privat nyckel.\nVill du rensa urklipp?</string>
   <string name="exchange_source_not_available">Växlingskurs inte tillgänglig för %1$s</string>
   <string name="my_own_address_warning">Notera: Du skickar till en av dina egna adresser.</string>
   <string name="read_only_warning">Varning: Din plånbok har inte den privata nyckeln för denna adress.\nDu kan inte spendera mottagna pengar så till vida du inte har den privata nyckeln någon annanstans.</string>
@@ -137,7 +137,7 @@
   <string name="active_accounts_empty">(Tom)</string>
   <string name="activate_action">Aktivera</string>
   <string name="archive_action">Arkivera</string>
-  <string name="question_archive_account">Arkiverade konton är inte övervakade, du kan inte se saldot och mottagaradress och inte använda kontot överhuvudtaget.\r\n\r\nArkiverade konton kan aktiveras igen.\r\n\r\n.Vill du arkivera detta konto?</string>
+  <string name="question_archive_account">Arkiverade konton är inte övervakade, du kan inte se saldot och mottagaradress och inte använda kontot överhuvudtaget.\n\nArkiverade konton kan aktiveras igen.\n\n.Vill du arkivera detta konto?</string>
   <string name="master_seed_configuration_title">Välkommen till Mycelium</string>
   <string name="master_seed_configuration_description">Vill du återskapa en säkerhetskopia, eller skapa en ny plånbok?</string>
   <string name="master_seed_create_new_button">Skapa ny</string>
@@ -180,7 +180,6 @@
   <string name="verify_backup_master_seed">Ditt huvudfrö har inte verifierats.</string>
   <string name="verify_backup_no_such_record">Den privata nyckeln överensstämmer inte med någon av dina bitcoin-adresser.</string>
   <string name="verify_backup_ok">Säkerhetskopia av privat nyckel har lyckats verifieras för följande adress:\n\n%1$s</string>
-  <string name="legacy_account_with_funds">Äldre konto med tillgångar</string>
   <string name="wrong_seed">Det inlästa fröet överensstämmer inte med ditt huvudfrö.</string>
   <string name="backup_missing">Säkerhetskopia saknas</string>
   <string name="verify_backup_title">Säkerhetskopiera och verifiera</string>
@@ -196,7 +195,7 @@
   <string name="encrypted_pdf_backup_document_ready">PDF-dokument skapat</string>
   <string name="encrypted_pdf_backup_sharing">Delar PDF-dokument&#8230;</string>
   <string name="encrypted_pdf_backup_email_title">Säkerhetskopia av plånboken Mycelium</string>
-  <string name="encrypted_pdf_backup_email_text">Din säkerhetskopia av plånboken Mycelium är bifogad.\r\n\r\nFölj dessa enkla steg för att säkra dina tillgångar:\r\n1. Skriv ut PDF-dokumentet\r\n2. Skriv ner det 15 tecken långa lösenordet från skärmen på din Android-enhet i de blåa boxarna på utskriften.\r\n3. Verifiera att du kan importera de privata nycklarna till din Mycelium-plånbok.\r\n4. Förvara utskriften på en säker plats.</string>
+  <string name="encrypted_pdf_backup_email_text">Din säkerhetskopia av plånboken Mycelium är bifogad.\n\nFölj dessa enkla steg för att säkra dina tillgångar:\n1. Skriv ut PDF-dokumentet\n2. Skriv ner det 15 tecken långa lösenordet från skärmen på din Android-enhet i de blåa boxarna på utskriften.\n3. Verifiera att du kan importera de privata nycklarna till din Mycelium-plånbok.\n4. Förvara utskriften på en säker plats.</string>
   <string name="share_pdf">Dela PDF</string>
   <string name="share_with">Dela med&#8230;</string>
   <string name="import_decrypt_key_title">Dekryptering av privat nyckel</string>
@@ -221,7 +220,6 @@
   <string name="unlock_label">Lås upp</string>
   <string name="lock_label">Lås</string>
   <string name="secure_my_funds">Säkra mina tillgångar</string>
-  <string name="move_legacy_funds_message">Din plånbok har en eller fler äldre konton med tillgångar.\n\nFör att säkerställa att dina tillgångar är säkra och för att förbättra din anonymitet bör du flytta dessa tillgångar till en av dina HD-konton.\n\nGå till Kontofliken för detaljer.</string>
   <string name="ignore_warnings_title">Ignorera varningar</string>
   <string name="ignore_warnings_description">Vill du ignorera varningar som förklarar att detta äldre konto håller tillgångar?</string>
   <string name="explore">Utforska</string>
@@ -511,9 +509,7 @@
   <string name="title_wrong_password">Felaktigt lösenord, försök igen</string>
   <string name="dont_allow_archiving_unused_notification">Du kan inte arkivera ett oanvänt HD-konto</string>
   <string name="newly_generated_coins_from_coinbase">Nyligen genererade bitcoins</string>
-  <string name="release_notes_hd">Världens bästa mobila plånbok blev just bättre.\n\nAtt skapa en säker säkerhetskopia är nu en barnlek, och nya HD-konton gör dig mer anonym än någonsin!\n\nKolla in kommentarerna till utgåvan för detaljer.</string>
-  <string name="title_upgrade_info">Välkommen till Mycelium 2.0</string>
-  <string name="button_continue">Fortsätt</string>
+    <string name="button_continue">Fortsätt</string>
   <string name="butto_show_release_notes">Visa detaljer</string>
   <string name="word_does_not_exist_in_wordlist">Ordet du angav finns inte med i ordlistan</string>
   <string name="pref_legacy_backup_title">Säkerhetskopia av äldre typ</string>

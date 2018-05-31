@@ -5,10 +5,6 @@ import com.google.api.client.util.Key;
 
 import java.util.List;
 
-/**
- * Created by omerio on 07.07.2017.
- */
-
 public class Vout {
     public static class Json extends GenericJson {
         @Key

@@ -35,8 +35,6 @@
 package com.mycelium.wallet.activity.main;
 
 import android.app.Activity;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -47,6 +45,7 @@ import android.widget.TextView;
 
 import com.google.common.base.Preconditions;
 import com.mycelium.net.ServerEndpointType;
+import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.rmc.RMCAddressFragment;
@@ -88,15 +87,8 @@ public class BalanceMasterFragment extends Fragment {
     public void onResume() {
         Activity activity = getActivity();
         // Set beta build
-        PackageInfo pInfo;
-        try {
-            pInfo = activity.getPackageManager().getPackageInfo(activity.getPackageName(), 0);
-            ((TextView) activity.findViewById(R.id.tvBuildText)).setText(getResources().getString(R.string.build_text,
-                    pInfo.versionName));
-        } catch (NameNotFoundException e) {
-            // Ignore
-            //todo insert uncaught error handler
-        }
+        ((TextView) activity.findViewById(R.id.tvBuildText)).setText(getResources().getString(R.string.build_text,
+                BuildConfig.VERSION_NAME));
 
         MbwManager mbwManager = MbwManager.getInstance(activity);
         tvTor = (TextView) activity.findViewById(R.id.tvTorState);
@@ -134,16 +126,11 @@ public class BalanceMasterFragment extends Fragment {
         fragmentTransaction.commitAllowingStateLoss();
     }
 
-
     private void showTorState(int percentage) {
-        if (percentage == 0) {
-            tvTor.setText("");
-        } else if (percentage == 100) {
+        if (percentage == 0 || percentage == 100) {
             tvTor.setText("");
         } else {
             tvTor.setText(getString(R.string.tor_state_init));
         }
     }
-
-
 }

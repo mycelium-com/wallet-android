@@ -120,7 +120,7 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="backup_legacy_warning">Sie erstellen das Backup für die Konten mit einer einzelnen Adresse in Ihrer Wallet.\nDieses Backup ist ohne Ihre Master Seed, keines Ihrer HD Konten kann so wiederhergestellt werden!\n\nMöchten Sie fortfahren?</string>
   <string name="export_to_clipboard_warning">Hinweis:Sie kopieren nun den privaten Schlüssel in die Zwischenablage. Damit es er für alle anderen Apps auf Ihrem Gerät zugänglich.\n\nBeachten Sie: Es genügt nicht, Ihren privaten Schlüssel in der Zwischenablage abzulegen, Sie müssen ihn auch anderswo sicher ablegen.\n\nMöchten Sie fortfahren?</string>
   <string name="found_clipboard_private_key_title">Privater Schlüssel in der Zwischenablage gefunden</string>
-  <string name="found_clipboard_private_keys_message">In Ihrer Zwischenablage befindet sich ein privater Schlüssel.\r\nMöchten Sie ihn löschen?</string>
+  <string name="found_clipboard_private_keys_message">In Ihrer Zwischenablage befindet sich ein privater Schlüssel.\nMöchten Sie ihn löschen?</string>
   <string name="exchange_source_not_available">Wechselkurs für %1$s nicht verfügbar</string>
   <string name="my_own_address_warning">Achtung: Sie senden Bitcoins zu einer Ihrer eigenen Adressen</string>
   <string name="read_only_warning">Hinweis: Ihre Wallet hat keinen privaten Schlüssel für diese Adresse. \nSie können erhaltene Bitcoins nur ausgeben, wenn Sie den privaten Schlüssel an einem anderen Ort haben.</string>
@@ -140,7 +140,7 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="active_accounts_empty">(Leer)</string>
   <string name="activate_action">Aktivieren</string>
   <string name="archive_action">Archivieren</string>
-  <string name="question_archive_account">Archivierte Konten werden nicht überwacht. Sie können weder Guthaben noch Ihre Empfangsadresse nicht sehen und nicht mit diesem Konto arbeiten.\r\n\r\nArchivierte Konten können jederzeit wieder aktiviert werden.\r\n\r\nMöchten Sie dieses Konto archivieren ?</string>
+  <string name="question_archive_account">Archivierte Konten werden nicht überwacht. Sie können weder Guthaben noch Ihre Empfangsadresse nicht sehen und nicht mit diesem Konto arbeiten.\n\nArchivierte Konten können jederzeit wieder aktiviert werden.\n\nMöchten Sie dieses Konto archivieren ?</string>
   <string name="master_seed_configuration_title">Willkommen bei Mycelium</string>
   <string name="master_seed_configuration_description">Möchten Sie ein Backup wiederherstellen oder eine neue Wallet erstellen?</string>
   <string name="master_seed_create_new_button">Neu erstellen</string>
@@ -183,7 +183,6 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="verify_backup_master_seed">Ihr Master Seed wurde nicht überprüft.</string>
   <string name="verify_backup_no_such_record">Dieser private Schlüssel stimmt mit keiner Ihrer Bitcoin-Adressen überein.</string>
   <string name="verify_backup_ok">Backup der privaten Schlüssel erfolgreich überprüft für die folgende Adresse:\n\n%1$s</string>
-  <string name="legacy_account_with_funds">Altdaten-Konto mit verfügbaren Bitcoins</string>
   <string name="wrong_seed">Das gescannte Master Seed entspricht nicht Ihrem Master Seed.</string>
   <string name="backup_missing">Fehlendes Backup</string>
   <string name="verify_backup_title">Backup und überprüfen</string>
@@ -199,7 +198,7 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="encrypted_pdf_backup_document_ready">PDF-Dokument erstellt</string>
   <string name="encrypted_pdf_backup_sharing">PDF-Dokument teilen&#8230;</string>
   <string name="encrypted_pdf_backup_email_title">Mycelium Wallet Backup</string>
-  <string name="encrypted_pdf_backup_email_text">Sie finden Ihr Mycelium Wallet Backup im Anhang.\r\n\r\nMit diesen einfachen Schritten sichern Sie nun Ihre Bitcoins:\r\n1. PDF-Dokument drucken.\r\n2. Das 15-Zeichen lange Passwort vom Display Ihres Android-Geräts abschreiben und in die vorgesehenen Kästchen auf Ihrem Ausdruck eintragen.\r\n3. Prüfen Sie, ob Sie die privaten Schlüssel in Ihr Mycelium Wallet importieren können.\r\n4. Bewahren Sie den Ausdruck an einem sicheren Ort auf.</string>
+  <string name="encrypted_pdf_backup_email_text">Sie finden Ihr Mycelium Wallet Backup im Anhang.\n\nMit diesen einfachen Schritten sichern Sie nun Ihre Bitcoins:\n1. PDF-Dokument drucken.\n2. Das 15-Zeichen lange Passwort vom Display Ihres Android-Geräts abschreiben und in die vorgesehenen Kästchen auf Ihrem Ausdruck eintragen.\n3. Prüfen Sie, ob Sie die privaten Schlüssel in Ihr Mycelium Wallet importieren können.\n4. Bewahren Sie den Ausdruck an einem sicheren Ort auf.</string>
   <string name="share_pdf">PDF-Dokument teilen</string>
   <string name="share_with">Teilen mit&#8230;</string>
   <string name="import_decrypt_key_title">Privaten Schlüssel entschlüsseln</string>
@@ -225,7 +224,6 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="unlock_label">Entsperren</string>
   <string name="lock_label">Sperren</string>
   <string name="secure_my_funds">Meine Bitcoins sichern</string>
-  <string name="move_legacy_funds_message">Ihre Wallet hat ein oder mehrere Altdaten-Konten, die Bitcoins enthalten.\n\nUm sicherzustellen, dass Ihre Bitcoins sicher sind und um Ihre Anonymität zu verbessern, sollten Sie diese Bitcoins auf eines Ihrer HD-Konten verschieben.\n\nBitte tippen Sie auf die Registerkarte \"Konten\" um weitere Details zu sehen.</string>
   <string name="ignore_warnings_title">Warnungen ignorieren</string>
   <string name="ignore_warnings_description">Wollen Sie weitere Warnungen ignorieren, dass dieses Altdaten-Konto Bitcoins enthält und Sie ein sicheres Backup des privaten Schlüssels haben?</string>
   <string name="explore">Erkunde Umgebung</string>
@@ -530,9 +528,7 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="title_wrong_password">Falsches Passwort, bitte versuchen Sie es erneut</string>
   <string name="dont_allow_archiving_unused_notification">Nicht verwendete HD-Konten können nicht archiviert werden</string>
   <string name="newly_generated_coins_from_coinbase">Neu generierte Bitcoins</string>
-  <string name="release_notes_hd">Die weltweit beste Bitcoin-Wallet für Mobiltelefone wurde noch weiter verbessert.\n\nEin sicheres Backup zu machen ist nun ein Kinderspiel und die neuen HD-Konten machen Sie noch anonymer im Umgang mit Bitcoins! \n\nFür weitere Details schauen sie sich die Versionshinweise an.</string>
-  <string name="title_upgrade_info">Willkommen zu Mycelium 2.0</string>
-  <string name="button_continue">Weiter</string>
+    <string name="button_continue">Weiter</string>
   <string name="butto_show_release_notes">Details anzeigen</string>
   <string name="word_does_not_exist_in_wordlist">Das von Ihnen eingegebene Wort existiert nicht in der Wortliste</string>
   <string name="pref_legacy_backup_title">Legacy Backup</string>
@@ -811,7 +807,7 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="warning_reason_unconfirmed_parent">Unbestätigte Vorgänger-Transaktion</string>
   <string name="warning_reason_doublespend">Konfliktzahlung erkannt</string>
   <string name="opening_url_in_browser">URL in Browser öffnen...</string>
-  <string name="incoming_payment">"Zahlungseingang: "</string>
+  <string name="incoming_payment">Zahlungseingang: %s</string>
   <string name="warning_amount_does_not_match">Warnung: Betrag stimmt nicht überein!</string>
   <string name="mycelium_terms_of_use">Mycelium Nutzungsbedingungen</string>
   <!-- Credit Card -->

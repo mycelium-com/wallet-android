@@ -58,11 +58,6 @@ public class MbwProdEnvironment extends MbwEnvironment {
     */
    private static final String myceliumLegacyThumbprint = "B3:42:65:33:40:F5:B9:1B:DA:A2:C8:7A:F5:4C:7C:5D:A9:63:C4:C3";
 
-
-   public MbwProdEnvironment(String brand) {
-      super(brand);
-   }
-
    @Override
    public NetworkParameters getNetwork() {
       return NetworkParameters.productionNetwork;

@@ -28,7 +28,6 @@ import com.mrd.bitlib.util.HashUtils;
  * Implementation of a Galois Field (2^8)
  */
 public class Gf256 {
-
    public static final int DEFAULT_POLYNOMIAL = 0x11d;
 
    /**
@@ -88,18 +87,18 @@ public class Gf256 {
       Preconditions.checkState(b == 1);
    }
 
-   private final int log(int n) {
+   private int log(int n) {
       return _logTable[n];
    }
 
-   private final int exp(int n) {
+   private int exp(int n) {
       return _expTable[n];
    }
 
    /**
     * Addition. This is a simple X-or of two byte arrays
     */
-   private final byte[] add(byte[] a, byte[] b) {
+   private byte[] add(byte[] a, byte[] b) {
       Preconditions.checkState(a.length == b.length);
       byte[] c = new byte[a.length];
       for (int i = 0; i < a.length; i++) {
@@ -111,14 +110,14 @@ public class Gf256 {
    /**
     * Addition. This is a simple X-or of two bytes
     */
-   private final byte add(byte a, byte b) {
+   private byte add(byte a, byte b) {
       return (byte) (a ^ b);
    }
 
    /**
     * Substitution, same as addition
     */
-   private final byte sub(byte a, byte b) {
+   private byte sub(byte a, byte b) {
       return add(a, b);
    }
 
@@ -137,7 +136,7 @@ public class Gf256 {
    /**
     * Multiplication.
     */
-   private final byte mul(byte a, byte b) {
+   private byte mul(byte a, byte b) {
       if (a == 0 || b == 0) {
          return 0;
       } else {
@@ -151,7 +150,7 @@ public class Gf256 {
    /**
     * Division.
     */
-   private final byte div(byte a, byte b) {
+   private byte div(byte a, byte b) {
       if (b == 0) {
          throw new RuntimeException("Division by zero");
       }
@@ -167,7 +166,7 @@ public class Gf256 {
       return n % 255 + (n < 0 ? 255 : 0);
    }
 
-   private final int b2i(byte b) {
+   private int b2i(byte b) {
       return ((int) b) & 0xFF;
    }
 
@@ -235,7 +234,7 @@ public class Gf256 {
       return a;
    }
 
-   private static final byte[] byteArrayOf(byte b, int length) {
+   private static byte[] byteArrayOf(byte b, int length) {
       byte[] result = new byte[length];
       for (int i = 0; i < length; i++) {
          result[i] = b;
@@ -267,5 +266,4 @@ public class Gf256 {
       }
       return shareList;
    }
-
 }

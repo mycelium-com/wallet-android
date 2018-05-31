@@ -69,22 +69,19 @@ public class ServerEndpoints {
       return currentEndpoint;
    }
 
-   public synchronized HttpEndpoint switchToNextEndpoint(){
+   public synchronized void switchToNextEndpoint(){
       HttpEndpoint selectedEndpoint;
       int cnt=0;
+      int tmpCurrentEndpoint = currentEndpoint;
       do{
-         currentEndpoint++;
-         if (currentEndpoint >= endpoints.size()) {
-            currentEndpoint = 0;
-         }
-         selectedEndpoint = endpoints.get(currentEndpoint);
+         tmpCurrentEndpoint = (tmpCurrentEndpoint + 1) % endpoints.size();
+         selectedEndpoint = endpoints.get(tmpCurrentEndpoint);
          cnt++;
          if (cnt>endpoints.size()){
             throw new RuntimeException("No valid next Endpoint found, " + allowedEndpointTypes.toString());
          }
       }while(!allowedEndpointTypes.isValid(selectedEndpoint.getClass()));
-
-      return selectedEndpoint;
+      currentEndpoint = tmpCurrentEndpoint;
    }
 
    public void setAllowedEndpointTypes(ServerEndpointType types){

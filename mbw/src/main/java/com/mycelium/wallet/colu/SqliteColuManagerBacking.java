@@ -40,7 +40,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
 import android.util.Log;
-import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.*;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.HashUtils;
@@ -58,10 +57,11 @@ import com.mycelium.wapi.wallet.single.SingleAddressAccountContext;
 
 import java.util.*;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.mycelium.wallet.persistence.SQLiteQueryWithBlobs.uuidToBytes;
 
 public class SqliteColuManagerBacking implements WalletManagerBacking {
-   private static final String LOG_TAG = "SqliteColuManagerBacking";
+   private static final String LOG_TAG = "SqliteColuManagerBackin";
    private static final String TABLE_KV = "kv";
    private static final int DEFAULT_SUB_ID = 0;
    private SQLiteDatabase _database;
@@ -224,6 +224,10 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
       }
    }
 
+   @Override
+   public void upgradeBip44AccountContext(Bip44AccountContext context) {
+      updateBip44AccountContext(context);
+   }
 
    private void updateBip44AccountContext(Bip44AccountContext context) {
       //UPDATE bip44 SET archived=?,blockheight=?,lastExternalIndexWithActivity=?,lastInternalIndexWithActivity=?,firstMonitoredInternalIndex=?,lastDiscovery=?,accountType=?,accountSubId=? WHERE id=?
@@ -339,16 +343,12 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
 
    @Override
    public Bip44AccountBacking getBip44AccountBacking(UUID accountId) {
-      SqliteColuAccountBacking backing = _backings.get(accountId);
-      Preconditions.checkNotNull(backing);
-      return backing;
+      return checkNotNull(_backings.get(accountId));
    }
 
    @Override
    public SingleAddressAccountBacking getSingleAddressAccountBacking(UUID accountId) {
-      SqliteColuAccountBacking backing = _backings.get(accountId);
-      Preconditions.checkNotNull(backing);
-      return backing;
+      return checkNotNull(_backings.get(accountId));
    }
 
    @Override

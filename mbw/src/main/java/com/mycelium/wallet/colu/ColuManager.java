@@ -6,7 +6,6 @@ import android.util.Log;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
@@ -15,8 +14,7 @@ import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.Transaction;
-import com.mycelium.WapiLogger;
-import com.mycelium.wallet.ExchangeRateManager;
+import com.mycelium.lt.api.model.Ad;
 import com.mycelium.wallet.MbwEnvironment;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.activity.util.BlockExplorer;
@@ -80,21 +78,20 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-public class ColuManager implements AccountProvider {
+import static com.google.common.base.Preconditions.checkNotNull;
 
+public class ColuManager implements AccountProvider {
     private static final String TAG = "ColuManager";
-    public static final int MAX_ACCOUNTS_NUMBER = 1000;
+    private static final int MAX_ACCOUNTS_NUMBER = 1000;
 
     private final MbwEnvironment env;
     private final MbwManager mgr;
     private final Bus eventBus;
     private final Handler handler;
-    private final ExchangeRateManager exchangeRateManager;
     private final ColuClient coluClient;
     private final Map<UUID, WalletAccount> _walletAccounts;
     private final MetadataStorage metadataStorage;
     private SqliteColuManagerBacking _backing;
-    private final WapiLogger logger;
     private final HashMap<UUID, ColuAccount> coluAccounts;
     private NetworkParameters _network;
     private final SecureKeyValueStore _secureKeyValueStore;
@@ -103,17 +100,15 @@ public class ColuManager implements AccountProvider {
 
     public static final int TIME_INTERVAL_BETWEEN_BALANCE_FUNDING_CHECKS = 50;
     public static final int METADATA_OUTPUT_SIZE = 1;
-    public static final int AVERAGE_COLU_TX_SIZE = 212;
+    private static final int AVERAGE_COLU_TX_SIZE = 212;
 
-    final org.bitcoinj.core.NetworkParameters netParams;
-    final org.bitcoinj.core.Context context;
+    private final org.bitcoinj.core.NetworkParameters netParams;
     private EventTranslator eventTranslator;
 
     public ColuManager(SecureKeyValueStore secureKeyValueStore, SqliteColuManagerBacking backing,
                        MbwManager manager, MbwEnvironment env,
                        final Bus eventBus, Handler handler,
-                       MetadataStorage metadataStorage, ExchangeRateManager exchangeRateManager,
-                       WapiLogger logger) {
+                       MetadataStorage metadataStorage) {
         this._secureKeyValueStore = secureKeyValueStore;
         this._backing = backing;
         this.env = env;
@@ -121,8 +116,6 @@ public class ColuManager implements AccountProvider {
         this.eventBus = eventBus;
         this.handler = handler;
         this.metadataStorage = metadataStorage;
-        this.exchangeRateManager = exchangeRateManager;
-        this.logger = logger;
         eventTranslator = new EventTranslator(handler, eventBus);
 
         //Setting up the network
@@ -135,7 +128,6 @@ public class ColuManager implements AccountProvider {
             this.netParams = RegTestParams.get();
         }
 
-        this.context = org.bitcoinj.core.Context.getOrCreate(netParams);
         this._walletAccounts = Maps.newHashMap();
 
         coluClient = createClient();
@@ -153,7 +145,7 @@ public class ColuManager implements AccountProvider {
 
     private void loadAssetsMetadata() {
         for (ColuAccount.ColuAssetType assetType : ColuAccount.ColuAssetType.values()) {
-            String id = ColuAccount.ColuAsset.getByType(assetType).id;
+            String id = checkNotNull(ColuAccount.ColuAsset.getByType(assetType)).id;
             Optional<BigDecimal> coinSupply = metadataStorage.getColuAssetCoinSupply(id);
             if (coinSupply.isPresent()) {
                 assetsMetadata.put(assetType, new AssetMetadata(id, coinSupply.get()));
@@ -163,9 +155,9 @@ public class ColuManager implements AccountProvider {
 
     public BlockExplorer getBlockExplorer() {
         String baseUrl;
-        if (this._network.isProdnet()) {
+        if (_network.isProdnet()) {
             baseUrl = "http://coloredcoins.org/explorer/";
-        } else if (this._network.isTestnet()) {
+        } else if (_network.isTestnet()) {
             baseUrl = "http://coloredcoins.org/explorer/testnet/";
         } else {
             baseUrl = "http://coloredcoins.org/explorer/testnet/";
@@ -201,13 +193,6 @@ public class ColuManager implements AccountProvider {
         return mgr.getWapi();
     }
 
-    public boolean hasAccountWithType(ColuAccount.ColuAssetType type) {
-        for (WalletAccount account : getAccounts().values()) {
-            if (account instanceof ColuAccount && ((ColuAccount) account).getColuAsset().assetType == type) return true;
-        }
-        return false;
-    }
-
     public boolean hasAccountWithType(Address address, ColuAccount.ColuAssetType type) {
         for (WalletAccount account : getAccounts().values()) {
             if (account instanceof ColuAccount
@@ -223,10 +208,7 @@ public class ColuManager implements AccountProvider {
         return false;
     }
 
-
-
     public Transaction signTransaction(ColuBroadcastTxHex.Json txid, ColuAccount coluAccount) {
-
         if (txid == null) {
             Log.e(TAG, "signTransaction: No transaction to sign !");
             return null;
@@ -239,7 +221,6 @@ public class ColuManager implements AccountProvider {
         // use bitcoinj classes and two methods above to generate signatures
         // and sign transaction
         // then convert to mycelium wallet transaction format
-        Log.d(TAG, "signTransaction: Starting signTransaction process and mapping data to bitcoinj classes");
         // Step 1: map to bitcoinj classes
 
         // DEV only 1 key
@@ -279,7 +260,6 @@ public class ColuManager implements AccountProvider {
             Log.e(TAG, "signTransaction: Error parsing bitcoinj transaction ! msg: " + e.getMessage());
             return null;
         }
-        Log.d(TAG, "signTransaction: Parsed bitlib transaction: " + signedBitlibTransaction.toString());
         return signedBitlibTransaction;
     }
 
@@ -289,26 +269,17 @@ public class ColuManager implements AccountProvider {
                                                  long feePerKb) {
 
         if (_receivingAddress != null && nativeAmount != null) {
-            Log.d(TAG, "prepareColuTx receivingAddress=" + _receivingAddress.toString()
-                    + " nativeAmount=" + nativeAmount.toString());
             List<Address> srcList = coluAccount.getSendingAddresses();
-            if (srcList == null) {
-                Log.e(TAG, "Error: srcList is empty.");
-            } else if (srcList.size() == 0) {
-                Log.e(TAG, "Error: srcList has size 0.");
-            }
-
             try {
                 ColuBroadcastTxHex.Json txid = coluClient.prepareTransaction(_receivingAddress, srcList, nativeAmount, coluAccount, getColuTransactionFee(feePerKb));
 
                 if (txid != null) {
-                    Log.d(TAG, "Received unsigned transaction: " + txid.txHex);
                     return txid;
                 } else {
                     Log.e(TAG, "Did not receive unsigned transaction from colu server.");
                 }
             } catch (IOException e) {
-                Log.d(TAG, "prepareColuTx interrupted with IOException. Message: " + e.getMessage());
+                Log.e(TAG, "prepareColuTx interrupted with IOException. Message: " + e.getMessage());
             }
         } else {
             Log.e(TAG, "prepareColuTx _receivingAddress or nativeAmount is null !");
@@ -320,10 +291,8 @@ public class ColuManager implements AccountProvider {
         String coluSignedTransactionStr = coluSignedTransaction.toString();
         if (coluSignedTransactionStr != null && !coluSignedTransactionStr.isEmpty()) {
             try {
-                Log.d(TAG, "Broadcasting colu tx " + coluSignedTransactionStr);
                 ColuBroadcastTxId.Json txJson = coluClient.broadcastTransaction(coluSignedTransaction);
                 if (txJson != null) {
-                    Log.d(TAG, "broadcastTransaction: broadcast txid " + txJson.txid);
                     return true;
                 } else {
                     Log.w(TAG, "broadcastTransaction: no txid returned !");
@@ -336,22 +305,20 @@ public class ColuManager implements AccountProvider {
     }
 
     private void loadAccounts() {
-        Log.d(TAG, "ColuAssetIds=" + metadataStorage.getColuAssetIds());
         //TODO: migrate assets list from metadataStorage to backing as a cache table
         //TODO: auto-discover assets at load time by querying ColoredCoins servers instead on relying on local data
         loadSingleAddressAccounts();
         Iterable<String> assetsId = Splitter.on(",").split(metadataStorage.getColuAssetIds());
         for (String assetId : assetsId) {
             if (!Strings.isNullOrEmpty(assetId)) {
-                Log.d(TAG, "loadAccounts: assetid=" + assetId);
                 ColuAccount.ColuAsset assetDefinition = ColuAccount.ColuAsset.getAssetMap().get(assetId);
                 if (assetDefinition == null) {
                     Log.e(TAG, "loadAccounts: could not find asset with id " + assetId);
                 } else {
                     UUID[] uuids = getAssetAccountUUIDs(assetDefinition);
                     if (uuids.length > 0) {
-                        for (int i = 0; i < uuids.length; i++) {
-                            loadColuAccount(assetDefinition, uuids[i]);
+                        for (UUID uuid : uuids) {
+                            loadColuAccount(assetDefinition, uuid);
                         }
                     }
                 }
@@ -371,10 +338,9 @@ public class ColuManager implements AccountProvider {
         }.execute();
     }
 
-
     class CreatedAccountInfo {
         public UUID id;
-        public AccountBacking accountBacking;
+        AccountBacking accountBacking;
     }
     /**
      * Create a new account using a single private key and address
@@ -383,12 +349,8 @@ public class ColuManager implements AccountProvider {
      * @param cipher     the cipher used to encrypt the private key. Must be the same
      *                   cipher as the one used by the secure storage instance
      * @return the ID of the new account
-     * @throws InvalidKeyCipher
      */
-    public CreatedAccountInfo createSingleAddressAccount(InMemoryPrivateKey privateKey, KeyCipher cipher) throws InvalidKeyCipher {
-        if (privateKey == null) {
-            Log.d(TAG, "createSingleAddressAccount: null private key !");
-        }
+    private CreatedAccountInfo createSingleAddressAccount(InMemoryPrivateKey privateKey, KeyCipher cipher) throws InvalidKeyCipher {
         PublicKey publicKey = privateKey.getPublicKey();
         Address address = publicKey.toAddress(_network);
         PublicPrivateKeyStore store = new PublicPrivateKeyStore(_secureKeyValueStore);
@@ -402,15 +364,14 @@ public class ColuManager implements AccountProvider {
      * @param address the address to use
      * @return the ID of the new account
      */
-    public CreatedAccountInfo createSingleAddressAccount(Address address) {
+    private CreatedAccountInfo createSingleAddressAccount(Address address) {
         CreatedAccountInfo createdAccountInfo = new CreatedAccountInfo();
         createdAccountInfo.id = SingleAddressAccount.calculateId(address);
         _backing.beginTransaction();
         try {
             SingleAddressAccountContext singleAccountContext = new SingleAddressAccountContext(createdAccountInfo.id, address, false, 0);
             _backing.createSingleAddressAccountContext(singleAccountContext);
-            SingleAddressAccountBacking accountBacking = _backing.getSingleAddressAccountBacking(singleAccountContext.getId());
-            Preconditions.checkNotNull(accountBacking);
+            SingleAddressAccountBacking accountBacking = checkNotNull(_backing.getSingleAddressAccountBacking(singleAccountContext.getId()));
             singleAccountContext.persist(accountBacking);
             createdAccountInfo.accountBacking = accountBacking;
             _backing.setTransactionSuccessful();
@@ -425,26 +386,23 @@ public class ColuManager implements AccountProvider {
     }
 
     // convenience method to make it easier to migrate from metadataStorage to backing later on
-    public UUID[] getAssetAccountUUIDs(ColuAccount.ColuAsset coluAsset) {
-        Log.d(TAG, "Looking for UUID associated to coluAsset " + coluAsset.id);
+    private UUID[] getAssetAccountUUIDs(ColuAccount.ColuAsset coluAsset) {
         return metadataStorage.getColuAssetUUIDs(coluAsset.id);
     }
 
-    public void addAssetAccountUUID(ColuAccount.ColuAsset coluAsset, UUID uuid) {
-        Log.d(TAG, "Associating " + uuid.toString() + " with asset " + coluAsset.id);
+    private void addAssetAccountUUID(ColuAccount.ColuAsset coluAsset, UUID uuid) {
         metadataStorage.addColuAssetUUIDs(coluAsset.id, uuid);
     }
 
-    public void removeAssetAccountUUID(ColuAccount.ColuAsset coluAsset, UUID uuid) {
-        Log.d(TAG, "Deleting UUID association for " + coluAsset.id);
+    private void removeAssetAccountUUID(ColuAccount.ColuAsset coluAsset, UUID uuid) {
         metadataStorage.removeColuAssetUUIDs(coluAsset.id, uuid);
     }
 
-    public void storeColuBalance(UUID coluAccountUuid, String balance) {
+    private void storeColuBalance(UUID coluAccountUuid, String balance) {
         metadataStorage.storeColuBalance(coluAccountUuid, balance);
     }
 
-    public Optional<String> getColuBalance(UUID coluAccountUuid) {
+    Optional<String> getColuBalance(UUID coluAccountUuid) {
         return metadataStorage.getColuBalance(coluAccountUuid);
     }
 
@@ -460,7 +418,6 @@ public class ColuManager implements AccountProvider {
     }
 
     public void deleteAccount(ColuAccount account) {
-        Log.d(TAG, "deleteAccount: attempting to delete account.");
         // find asset
         // disable account
         // remove key from storage
@@ -468,11 +425,8 @@ public class ColuManager implements AccountProvider {
         SingleAddressAccount acc = (SingleAddressAccount) _walletAccounts.get(uuid);
         try {
             acc.forgetPrivateKey(AesKeyCipher.defaultKeyCipher());
-            Log.d(TAG, "deleteAccount: forgot private key.");
-            Log.d(TAG, " _walletAccounts.size=" + _walletAccounts.size() + " coluAccounts.size=" + coluAccounts.size());
             _walletAccounts.remove(uuid);
             coluAccounts.remove(account.getId());
-            Log.d(TAG, " _walletAccounts.size=" + _walletAccounts.size() + " coluAccounts.size=" + coluAccounts.size());
             removeAssetAccountUUID(account.getColuAsset(), uuid);
             saveEnabledAssetIds();
         } catch (InvalidKeyCipher e) {
@@ -481,7 +435,7 @@ public class ColuManager implements AccountProvider {
     }
 
     private void createColuAccountLabel(ColuAccount account) {
-        String proposedLabel = "";
+        String proposedLabel;
         int i = 1;
 
         while (i < MAX_ACCOUNTS_NUMBER){
@@ -489,9 +443,9 @@ public class ColuManager implements AccountProvider {
 
             boolean foundExistingLabel = false;
             for (ColuAccount coluAccount : coluAccounts.values()) {
-                if (!coluAccount.getColuAsset().equals(account.getColuAsset()) || coluAccount.getLabel() == null)
+                if (!coluAccount.getColuAsset().equals(account.getColuAsset()) || coluAccount.getLabel() == null) {
                     continue;
-
+                }
                 String curLabel = coluAccount.getLabel();
                 if (proposedLabel.equals(curLabel)) {
                     foundExistingLabel = true;
@@ -520,7 +474,7 @@ public class ColuManager implements AccountProvider {
 
         ColuAccount account = new ColuAccount(
                 ColuManager.this, createdAccountInfo.accountBacking, metadataStorage, address,
-                exchangeRateManager, handler, eventBus, logger, coluAsset
+                coluAsset
         );
 
         coluAccounts.put(account.getId(), account);
@@ -533,14 +487,12 @@ public class ColuManager implements AccountProvider {
 
     private void loadColuAccount(ColuAccount.ColuAsset coluAsset, UUID uuid) {
         try {
-            Log.d(TAG, "Loading colu account with single address account " + uuid.toString());
-
             CreatedAccountInfo createdAccountInfo = new CreatedAccountInfo();
             SingleAddressAccount singleAddressAccount;
 
-            if (!_walletAccounts.containsKey(uuid))
+            if (!_walletAccounts.containsKey(uuid)) {
                 return;
-
+            }
             createdAccountInfo.id = uuid;
             singleAddressAccount = (SingleAddressAccount) _walletAccounts.get(createdAccountInfo.id);
             InMemoryPrivateKey accountKey = singleAddressAccount.getPrivateKey(AesKeyCipher.defaultKeyCipher());
@@ -551,11 +503,11 @@ public class ColuManager implements AccountProvider {
             if (accountKey == null) {
                 account = new ColuAccount(
                         ColuManager.this, createdAccountInfo.accountBacking, metadataStorage, singleAddressAccount.getAddress(),
-                        exchangeRateManager, handler, eventBus, logger, coluAsset);
+                        coluAsset);
             } else {
                 account = new ColuAccount(
                         ColuManager.this, createdAccountInfo.accountBacking, metadataStorage, accountKey,
-                        exchangeRateManager, coluAsset
+                        coluAsset
                 );
             }
 
@@ -569,7 +521,6 @@ public class ColuManager implements AccountProvider {
     }
 
     private ColuAccount createAccount(ColuAccount.ColuAsset coluAsset, InMemoryPrivateKey importKey) {
-
         if (coluAsset == null) {
             Log.e(TAG, "createAccount called without asset !");
             return null;
@@ -586,14 +537,13 @@ public class ColuManager implements AccountProvider {
             }
             createdAccountInfo = createSingleAddressAccount(accountKey, AesKeyCipher.defaultKeyCipher());
             addAssetAccountUUID(coluAsset, createdAccountInfo.id);
-            Log.d(TAG, "createAccount: new key " + accountKey.getBase58EncodedPrivateKey(getNetwork()));
         } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
             throw new RuntimeException(invalidKeyCipher);
         }
 
         ColuAccount account = new ColuAccount(
                 ColuManager.this, createdAccountInfo.accountBacking, metadataStorage, accountKey,
-                exchangeRateManager, coluAsset
+                coluAsset
         );
 
         coluAccounts.put(account.getId(), account);
@@ -605,15 +555,12 @@ public class ColuManager implements AccountProvider {
     }
 
     private void loadSingleAddressAccounts() {
-        Log.d(TAG, "Loading single address accounts");
         List<SingleAddressAccountContext> contexts = _backing.loadSingleAddressAccountContexts();
         for (SingleAddressAccountContext context : contexts) {
             PublicPrivateKeyStore store = new PublicPrivateKeyStore(_secureKeyValueStore);
-            SingleAddressAccountBacking accountBacking = _backing.getSingleAddressAccountBacking(context.getId());
-            Preconditions.checkNotNull(accountBacking);
+            SingleAddressAccountBacking accountBacking = checkNotNull(_backing.getSingleAddressAccountBacking(context.getId()));
             SingleAddressAccount account = new SingleAddressAccount(context, store, _network, accountBacking, getWapi());
             addAccount(account);
-
 
             for(ColuAccount coluAccount : coluAccounts.values()) {
                 if (coluAccount.getAddress().equals(account.getAddress())) {
@@ -622,15 +569,13 @@ public class ColuManager implements AccountProvider {
                     metadataStorage.storeAccountLabel(account.getId(), accountLabel + " Bitcoin");
                     break;
                 }
-
             }
         }
     }
 
-    public void addAccount(AbstractAccount account) {
+    private void addAccount(AbstractAccount account) {
         synchronized (_walletAccounts) {
             _walletAccounts.put(account.getId(), account);
-            Log.d(TAG, "Account Added: " + account.getId());
         }
     }
 
@@ -640,9 +585,9 @@ public class ColuManager implements AccountProvider {
 
     public UUID enableReadOnlyAsset(ColuAccount.ColuAsset coluAsset, Address address) {
         //Make check to ensure the address is not in use
-        if (isAddressInUse(address))
+        if (isAddressInUse(address)) {
             return null;
-
+        }
         UUID uuid = ColuAccount.getGuidForAsset(coluAsset, address.getAllAddressBytes());
 
         if (coluAccounts.containsKey(uuid)) {
@@ -664,13 +609,13 @@ public class ColuManager implements AccountProvider {
 
         return newAccount.getId();
     }
+
     // enables account associated with asset
     public UUID enableAsset(ColuAccount.ColuAsset coluAsset, InMemoryPrivateKey key) {
         //Make check to ensure the address is not in use
-        if (key != null && isAddressInUse(key.getPublicKey().toAddress(getNetwork())))
+        if (key != null && isAddressInUse(key.getPublicKey().toAddress(getNetwork()))) {
             return null;
-
-
+        }
 
         if (key != null) {
             UUID uuid = ColuAccount.getGuidForAsset(coluAsset, key.getPublicKey().toAddress(getNetwork()).getAllAddressBytes());
@@ -680,7 +625,7 @@ public class ColuManager implements AccountProvider {
             }
         }
 
-        ColuAccount newAccount = createAccount(coluAsset, key);
+        ColuAccount newAccount = checkNotNull(createAccount(coluAsset, key));
 
         // broadcast event, so that the UI shows the newly added account
         handler.post(new Runnable() {
@@ -717,10 +662,10 @@ public class ColuManager implements AccountProvider {
     }
 
     // this method updates balances for all colu accounts
-    public boolean scanForAccounts() {
+    public void scanForAccounts() {
         try {
             for (ColuAccount.ColuAssetType assetType : ColuAccount.ColuAssetType.values()) {
-                String id = ColuAccount.ColuAsset.getByType(assetType).id;
+                String id = checkNotNull(ColuAccount.ColuAsset.getByType(assetType)).id;
                 AssetMetadata assetMetadata = coluClient.getMetadata(id);
                 assetsMetadata.put(assetType, assetMetadata);
                 metadataStorage.storeColuAssetCoinSupply(id, assetMetadata.getTotalSupply());
@@ -730,10 +675,8 @@ public class ColuManager implements AccountProvider {
         }
         try {
             getBalances();
-            return true;
         } catch (Exception e) {
             Log.e(TAG, "error while scanning for accounts: " + e.getMessage());
-            return false;
         }
     }
 
@@ -746,7 +689,7 @@ public class ColuManager implements AccountProvider {
         return new ColuClient(_network);
     }
 
-    public void getBalances() throws Exception {
+    private void getBalances() throws Exception {
         Log.e(TAG, "ColuManager::getBalances start");
         for (HashMap.Entry entry : coluAccounts.entrySet()) {
             Log.e(TAG, "ColuManager::getBalances in loop");
@@ -758,7 +701,7 @@ public class ColuManager implements AccountProvider {
         }   // for loop over accounts
     }
 
-    public void updateAccountBalance(ColuAccount account) throws IOException {
+    void updateAccountBalance(ColuAccount account) throws IOException {
         Optional<Address> address = account.getReceivingAddress(); // for single address account
         if (!address.isPresent()) {
             return;
@@ -775,17 +718,14 @@ public class ColuManager implements AccountProvider {
             return;
         }
 
-        Log.d(TAG, "Retrieving addressInfoWithTransactions");
         // retrieve history from colu server
         AddressTransactionsInfo.Json addressInfoWithTransactions = coluClient.getAddressTransactions(address.get());
         if (addressInfoWithTransactions == null) {
-            Log.d(TAG, " addressInfoWithTransactios is null");
             return;
         }
 
         getAddressBalance(addressInfoWithTransactions, account);
 
-        Log.d(TAG, "retrieved addressInfoWithTransactions");
         if (addressInfoWithTransactions.transactions != null && addressInfoWithTransactions.transactions.size() > 0) {
             account.setHistory(addressInfoWithTransactions.transactions);
             for (Tx.Json historyTx : addressInfoWithTransactions.transactions) {
@@ -798,7 +738,7 @@ public class ColuManager implements AccountProvider {
                     .getResult();
             account.setBlockChainHeight(unspentOutputResponse.height);
         } catch (WapiException e) {
-            Log.d(TAG, "Warning ! Error accessing unspent outputs response: " + e.getMessage());
+            Log.w(TAG, "Warning ! Error accessing unspent outputs response: " + e.getMessage());
         }
 
         account.setUtxos(addressInfoWithTransactions.utxos);
@@ -808,14 +748,12 @@ public class ColuManager implements AccountProvider {
         WapiResponse<GetTransactionsResponse> wapiResponse = wapiClient.getTransactions(trRequest);
         GetTransactionsResponse trResponse = null;
         if (wapiResponse == null) {
-            Log.d(TAG, "Warning ! Could not fetch wapiresponse. Some data may be unavailable.");
             return;
         }
-        Log.d(TAG, "Received wapiResponse, extracting result");
         try {
             trResponse = wapiResponse.getResult();
         } catch (Exception e) {
-            Log.d(TAG, "Warning ! Error accessing transaction response: " + e.getMessage());
+            Log.w(TAG, "Warning ! Error accessing transaction response: " + e.getMessage());
         }
 
         if (trResponse != null && trResponse.transactions != null) {
@@ -823,7 +761,7 @@ public class ColuManager implements AccountProvider {
         }
     }
 
-    private CurrencyBasedBalance getAddressBalance(AddressTransactionsInfo.Json atInfo, ColuAccount account) {
+    private void getAddressBalance(AddressTransactionsInfo.Json atInfo, ColuAccount account) {
         long assetConfirmedAmount = 0;
         long assetReceivingAmount = 0;
         long assetSendingAmount = 0;
@@ -833,8 +771,9 @@ public class ColuManager implements AccountProvider {
         long satoshiBtcOnlyAmount = 0;
 
         for(Tx.Json tx : atInfo.transactions) {
-            if (tx.blockheight != -1)
+            if (tx.blockheight != -1) {
                 continue;
+            }
 
             boolean isInitiatedByMe = false;
 
@@ -848,8 +787,9 @@ public class ColuManager implements AccountProvider {
                 if (vout.scriptPubKey.addresses != null)
                     if (!account.ownAddress(vout.scriptPubKey.addresses)) {
                         for (Asset.Json asset : vout.assets) {
-                            if (!asset.assetId.equals(account.getColuAsset().id))
+                            if (!asset.assetId.equals(account.getColuAsset().id)) {
                                 continue;
+                            }
                             if (isInitiatedByMe) {
                                 assetSendingAmount += asset.amount;
                                 assetScale = asset.divisibility;
@@ -857,14 +797,13 @@ public class ColuManager implements AccountProvider {
                         }
                     } else {
                         for (Asset.Json asset : vout.assets) {
-                            if (!asset.assetId.equals(account.getColuAsset().id))
+                            if (!asset.assetId.equals(account.getColuAsset().id)) {
                                 continue;
-
+                            }
                             if (!isInitiatedByMe) {
                                 assetReceivingAmount += asset.amount;
                                 assetScale = asset.divisibility;
                             }
-
                         }
                     }
             }
@@ -902,7 +841,6 @@ public class ColuManager implements AccountProvider {
         account.setBtcOnlyAmount(satoshiBtcOnlyAmount);
 
         storeColuBalance(account.getUuid(), assetConfirmedBalance.toString());
-        return newBalanceFiat;
     }
 
     public ColuClient getClient() {
@@ -918,6 +856,15 @@ public class ColuManager implements AccountProvider {
         return false;
     }
 
+    public boolean isColoredAddress(Address address) {
+        try {
+            return coluClient.getAddressTransactions(address).numOfTransactions != 0;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     public Set<ColuAccount.ColuAsset> getColuAddressAssets(Address address) throws IOException {
 
         Set<ColuAccount.ColuAsset> assetsList = new HashSet<>();
@@ -926,12 +873,9 @@ public class ColuManager implements AccountProvider {
 
         if (addressInfo != null) {
             if (addressInfo.utxos != null) {
-                Log.d(TAG, "isColuAddress: processing " + addressInfo.utxos.size() + " utxos.");
                 for (Utxo.Json utxo : addressInfo.utxos) {
-                    Log.d(TAG, "isColuAddress: utxo " + utxo.txid);
                     // adding utxo to list of txid list request
                     for (Asset.Json txidAsset : utxo.assets) {
-                        Log.d(TAG, "isColuAddress: utxo " + utxo.txid + " asset " + txidAsset.assetId);
                         for (String knownAssetId : ColuAccount.ColuAsset.getAssetMap().keySet()) {
                             if (txidAsset.assetId.equals(knownAssetId)) {
                                 ColuAccount.ColuAsset asset =  ColuAccount.ColuAsset.getAssetMap().get(knownAssetId);
@@ -945,15 +889,10 @@ public class ColuManager implements AccountProvider {
         return assetsList;
     }
 
-    public Set<ColuAccount.ColuAsset> getColuAddressAssets(PublicKey key) throws IOException {
-        return getColuAddressAssets(key.toAddress(getNetwork()));
-    }
-
     public void startSynchronization() {
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected void onPreExecute() {
-                super.onPreExecute();
                 eventTranslator.onWalletStateChanged(null, state = WalletManager.State.SYNCHRONIZING);
             }
 
@@ -965,7 +904,6 @@ public class ColuManager implements AccountProvider {
 
             @Override
             protected void onPostExecute(Void aVoid) {
-                super.onPostExecute(aVoid);
                 eventBus.post(new BalanceChanged(null));
                 eventTranslator.onWalletStateChanged(null, state = WalletManager.State.READY);
             }

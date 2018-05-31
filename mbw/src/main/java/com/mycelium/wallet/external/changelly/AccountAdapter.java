@@ -16,16 +16,43 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.bip44.Bip44Account;
-import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class AccountAdapter extends SelectableRecyclerView.Adapter<RecyclerView.ViewHolder> {
+    public enum AccountUseType {
+        OUT(R.drawable.sender_recyclerview_item_background_selector_red
+                , R.drawable.recyclerview_item_bottom_rectangle_selector
+                , Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, R.dimen.recycler_item_rectangle_height
+                , R.layout.list_item_padding_sending),
+        IN(R.drawable.sender_recyclerview_item_background_selector2
+                , R.drawable.recyclerview_item_top_rectangle_selector
+                , Gravity.TOP | Gravity.CENTER_HORIZONTAL, R.dimen.recycler_item_triangle_height
+                , R.layout.list_item_padding_receiving);
+        public int background;
+        public int gravity;
+        public int heightRes;
+        public int indicatorImg;
+        public int paddingLayout;
+
+        AccountUseType(int background, int indicatorImg, int gravity, int height, int paddingLayout) {
+            this.background = background;
+            this.indicatorImg = indicatorImg;
+            this.gravity = gravity;
+            this.heightRes = height;
+            this.paddingLayout = paddingLayout;
+        }
+    }
+
     private List<Item> items = new ArrayList<>();
     private int paddingWidth = 0;
     private MbwManager mbwManager;
+    private AccountUseType accountUseType = AccountUseType.IN;
+
+    public void setAccountUseType(AccountUseType accountUseType) {
+        this.accountUseType = accountUseType;
+    }
 
     public AccountAdapter(MbwManager mbwManager, List<WalletAccount> accounts, int paddingWidth) {
         this.mbwManager = mbwManager;
@@ -33,9 +60,7 @@ public class AccountAdapter extends SelectableRecyclerView.Adapter<RecyclerView.
         items.add(new Item(null, VIEW_TYPE_PADDING));
         accounts = Utils.sortAccounts(accounts, mbwManager.getMetadataStorage());
         for (WalletAccount account : accounts) {
-            if (account instanceof Bip44Account || account instanceof SingleAddressAccount) {
-                items.add(new Item(account, VIEW_TYPE_ITEM));
-            }
+            items.add(new Item(account, VIEW_TYPE_ITEM));
         }
         items.add(new Item(null, VIEW_TYPE_PADDING));
     }
@@ -50,8 +75,8 @@ public class AccountAdapter extends SelectableRecyclerView.Adapter<RecyclerView.
             this.account = account;
         }
 
-        int type;
-        WalletAccount account;
+        public int type;
+        public WalletAccount account;
     }
 
     @Override
@@ -71,22 +96,19 @@ public class AccountAdapter extends SelectableRecyclerView.Adapter<RecyclerView.
             // create a new view
             View v = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.recyclerview_item_fee_lvl, parent, false);
-            v.setBackgroundResource(R.drawable.sender_recyclerview_item_background_selector2);
-            ImageView imageView = (ImageView) v.findViewById(R.id.rectangle);
-            imageView.setImageResource(R.drawable.recyclerview_item_top_rectangle_selector);
+            v.setBackgroundResource(accountUseType.background);
+            ImageView imageView = v.findViewById(R.id.rectangle);
+            imageView.setImageResource(accountUseType.indicatorImg);
             FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) imageView.getLayoutParams();
-            layoutParams.gravity = Gravity.TOP | Gravity.CENTER_HORIZONTAL;
-            layoutParams.height = parent.getResources().getDimensionPixelSize(R.dimen.recycler_item_triangle_height);
+            layoutParams.gravity = accountUseType.gravity;
+            layoutParams.height = parent.getResources().getDimensionPixelSize(accountUseType.heightRes);
             imageView.setLayoutParams(layoutParams);
             return new ViewHolder(v);
         } else {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_padding_sender,
+            View view = LayoutInflater.from(parent.getContext()).inflate(accountUseType.paddingLayout,
                     parent, false);
-            view.setBackgroundResource(R.drawable.sender_recyclerview_item_background_selector2);
-            RecyclerView.LayoutParams layoutParams = (RecyclerView.LayoutParams) view.getLayoutParams();
-            layoutParams.width = paddingWidth;
-            view.setLayoutParams(layoutParams);
-            return new ViewHolder(view);
+            view.setBackgroundResource(accountUseType.background);
+            return new PaddingViewHolder(view);
         }
     }
 
@@ -99,9 +121,15 @@ public class AccountAdapter extends SelectableRecyclerView.Adapter<RecyclerView.
             Item item = items.get(position);
             viewHolder.categoryTextView.setText(mbwManager.getMetadataStorage().getLabelByAccount(item.account.getId()));
             CoinUtil.Denomination denomination = mbwManager.getBitcoinDenomination();
-            viewHolder.itemTextView.setText(CoinUtil.valueString(item.account.getCurrencyBasedBalance().confirmed.getValue()
-                    , denomination, false) + " " + denomination.getUnicodeName());
-            viewHolder.valueTextView.setText(item.account.getReceivingAddress().get().toString());
+            viewHolder.itemTextView.setText(Utils.getFormattedValueWithUnit(item.account.getCurrencyBasedBalance().confirmed, denomination));
+            if (item.account.getReceivingAddress().isPresent()) {
+                viewHolder.valueTextView.setText(item.account.getReceivingAddress().get().toString());
+            }
+        } else {
+            RecyclerView.LayoutParams layoutParams = (RecyclerView.LayoutParams) holder.itemView.getLayoutParams();
+            layoutParams.width = paddingWidth;
+            holder.itemView.setLayoutParams(layoutParams);
+            holder.itemView.setVisibility(getItemCount() > 3 || position == 0 ? View.VISIBLE : View.INVISIBLE);
         }
     }
 
@@ -123,9 +151,15 @@ public class AccountAdapter extends SelectableRecyclerView.Adapter<RecyclerView.
 
         public ViewHolder(View v) {
             super(v);
-            categoryTextView = (TextView) v.findViewById(R.id.categorytextView);
-            itemTextView = (TextView) v.findViewById(R.id.itemTextView);
+            categoryTextView = v.findViewById(R.id.categorytextView);
+            itemTextView = v.findViewById(R.id.itemTextView);
             valueTextView = (TextView) v.findViewById(R.id.valueTextView);
+        }
+    }
+
+    public static class PaddingViewHolder extends RecyclerView.ViewHolder {
+        public PaddingViewHolder(View v) {
+            super(v);
         }
     }
 }

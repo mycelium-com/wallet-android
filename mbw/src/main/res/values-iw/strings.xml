@@ -94,7 +94,7 @@
   <string name="payment_request">בקשת תשלום</string>
   <string name="export_to_clipboard_warning">אזהרה: ייצוא המפתח הפרטי ללוח (clipboard) חושף אותו לכל שאר היישומים שבמכשירך.\n\nהערה: אין זה מספיק לשמור את המפתח הפרטי בלוח, עליך גם להדביקו במקום בטוח.\n\nהאם ברצונך להמשיך?</string>
   <string name="found_clipboard_private_key_title">מפתח פרטי נמצא בלוח (clipboard)</string>
-  <string name="found_clipboard_private_keys_message">הלוח (clipboard) מכיל מפתח פרטי.\r\nהאם ברצונך למחוק אותו?</string>
+  <string name="found_clipboard_private_keys_message">הלוח (clipboard) מכיל מפתח פרטי.\nהאם ברצונך למחוק אותו?</string>
   <string name="exchange_source_not_available">לא קיים שער המרה עבור %1$s</string>
   <string name="my_own_address_warning">הערה: הינך שולח/ת לאחד מכתובותיך שלך.</string>
   <string name="read_only_warning">אזהרה: הארנק שלך אינו מחזיק במפתח הפרטי עבור כתובת זו.\nאינך יכול/ה להשתמש במטבעות שיתקבלו אלא אם ברשותך המפתח הפרטי במקום אחר.</string>
@@ -142,7 +142,7 @@
   <string name="encrypted_pdf_backup_document_ready">קובץ PDF נוצר</string>
   <string name="encrypted_pdf_backup_sharing">משתף קובץ PDF&#8230;</string>
   <string name="encrypted_pdf_backup_email_title">גיבוי ארנק Mycelium</string>
-  <string name="encrypted_pdf_backup_email_text">גיבוי הארנק שלך מצורף.\r\n\r\nבצע/י את הצעדים הבאים לאבטחת כספך:\r\n1. הדפס/י את קובץ הPDF.\r\n2. כתוב את הסיסמא באורך 15 התווים ממסך מכשיר האנדרואיד שלך לקופסאות הכחולות שבהדפסה.\r\n3. וודא/י שבאפשרותך לייבא את המפתחות הפרטיים שלך לארנק שלך.\r\n4. שמור את ההדפסה במקום בטוח.</string>
+  <string name="encrypted_pdf_backup_email_text">גיבוי הארנק שלך מצורף.\n\nבצע/י את הצעדים הבאים לאבטחת כספך:\n1. הדפס/י את קובץ הPDF.\n2. כתוב את הסיסמא באורך 15 התווים ממסך מכשיר האנדרואיד שלך לקופסאות הכחולות שבהדפסה.\n3. וודא/י שבאפשרותך לייבא את המפתחות הפרטיים שלך לארנק שלך.\n4. שמור את ההדפסה במקום בטוח.</string>
   <string name="share_pdf">שתף PDF</string>
   <string name="share_with">שתף בעזרת&#8230;</string>
   <string name="import_decrypt_key_title">פיענוח מפתח פרטי</string>

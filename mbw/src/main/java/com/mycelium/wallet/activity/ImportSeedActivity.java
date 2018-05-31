@@ -36,8 +36,8 @@ package com.mycelium.wallet.activity;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.WindowManager;
 import com.mycelium.wallet.R;
@@ -45,7 +45,7 @@ import com.mycelium.wallet.StringHandleConfig;
 
 import java.util.UUID;
 
-public class ImportSeedActivity extends ActionBarActivity {
+public class ImportSeedActivity extends AppCompatActivity {
 
    public static void callMe(Activity activity, int requestCode) {
       Intent intent = new Intent(activity, ImportSeedActivity.class);

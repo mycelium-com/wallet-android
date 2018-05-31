@@ -29,11 +29,19 @@ import com.mycelium.wapi.api.request.QueryTransactionInventoryRequest;
 import com.mycelium.wapi.api.response.GetTransactionsResponse;
 import com.mycelium.wapi.model.Balance;
 import com.mycelium.wapi.model.TransactionEx;
-import com.mycelium.wapi.wallet.*;
+import com.mycelium.wapi.wallet.AbstractAccount;
+import com.mycelium.wapi.wallet.ExportableAccount;
+import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
+import com.mycelium.wapi.wallet.SingleAddressAccountBacking;
+import com.mycelium.wapi.wallet.SyncMode;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager.Event;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.UUID;
 
 public class SingleAddressAccount extends AbstractAccount implements ExportableAccount {
    private SingleAddressAccountContext _context;
@@ -46,6 +54,7 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
                                NetworkParameters network, SingleAddressAccountBacking backing, Wapi wapi) {
       super(backing, network, wapi);
       _backing = backing;
+      type = WalletAccount.Type.BTCSINGLEADDRESS;
       _context = context;
       _addressList = new ArrayList<Address>(1);
       _addressList.add(_context.getAddress());

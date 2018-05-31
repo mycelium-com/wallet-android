@@ -37,7 +37,9 @@ package com.mycelium.wallet.activity.main;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -45,6 +47,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.TextView;
 
 import com.google.common.base.Optional;
@@ -59,25 +63,54 @@ import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.BalanceChanged;
 import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.persistence.MetadataStorage;
-import com.mycelium.wapi.model.Balance;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bip44.Bip44Account;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.squareup.otto.Subscribe;
 
+import java.util.concurrent.TimeUnit;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnCheckedChanged;
+import butterknife.OnClick;
+
 public class NoticeFragment extends Fragment {
 
+   public static final String LATER_CLICK_TIME = "later_click_time";
+   public static final String NOTICE = "notice";
+   private static final String LATER_CLICK_TIME_MASTER_SEED = "later_click_time_master_seed";
+
    private enum Notice {
-      BACKUP_MISSING, SINGLEKEY_BACKUP_MISSING, MOVE_LEGACY_FUNDS, RESET_PIN_AVAILABLE, RESET_PIN_IN_PROGRESS, NONE
+      BACKUP_MISSING
+      , SINGLEKEY_BACKUP_MISSING, SINGLEKEY_VERIFY_MISSING
+      , RESET_PIN_AVAILABLE, RESET_PIN_IN_PROGRESS, NONE;
    }
 
    private MbwManager _mbwManager;
    private View _root;
    private Notice _notice;
+   private SharedPreferences sharedPreferences;
+
+   @BindView(R.id.tvBackupMissing)
+   TextView backupMissing;
+
+   @BindView(R.id.backup_missing_layout)
+   View backupMissingLayout;
+
+   @BindView(R.id.btnFirst)
+   Button btnFirst;
+
+   @BindView(R.id.btnSecond)
+   Button btnSecond;
+
+   @BindView(R.id.cbRisks)
+   CheckBox cbRisks;
 
    @Override
    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
       _root = Preconditions.checkNotNull(inflater.inflate(R.layout.main_notice_fragment, container, false));
+      ButterKnife.bind(this, _root);
       return _root;
    }
 
@@ -85,6 +118,7 @@ public class NoticeFragment extends Fragment {
    public void onCreate(Bundle savedInstanceState) {
       setHasOptionsMenu(false);
       super.onCreate(savedInstanceState);
+      sharedPreferences = getActivity().getSharedPreferences(NOTICE, Context.MODE_PRIVATE);
    }
 
    @Override
@@ -98,7 +132,6 @@ public class NoticeFragment extends Fragment {
       _mbwManager.getEventBus().register(this);
       _notice = determineNotice();
       _root.findViewById(R.id.btWarning).setOnClickListener(warningClickListener);
-      _root.findViewById(R.id.btBackupMissing).setOnClickListener(noticeClickListener);
       _root.findViewById(R.id.btPinResetNotice).setOnClickListener(noticeClickListener);
       updateUi();
       super.onResume();
@@ -110,56 +143,6 @@ public class NoticeFragment extends Fragment {
       super.onPause();
    }
 
-//   private Notice determineNotice() {
-//      List<WalletAccount> accounts = _mbwManager.getWalletManager(false).getActiveAccounts();
-//      MetadataStorage meta = _mbwManager.getMetadataStorage();
-//
-//      Optional<Integer> resetPinRemainingBlocksCount = _mbwManager.getResetPinRemainingBlocksCount();
-//      // Check first if a Pin-Reset is now possible
-//      if (resetPinRemainingBlocksCount.isPresent() && resetPinRemainingBlocksCount.get()==0){
-//         return Notice.RESET_PIN_AVAILABLE;
-//      }
-//
-//      // Then check if a Pin-Reset is in process
-//      if (resetPinRemainingBlocksCount.isPresent()){
-//         return Notice.RESET_PIN_IN_PROGRESS;
-//      }
-//
-//      // First check if we have HD accounts with funds, but have no master seed backup
-//      if (meta.getMasterSeedBackupState() != MetadataStorage.BackupState.VERIFIED) {
-//         for (WalletAccount account : accounts) {
-//            if (account instanceof Bip44Account) {
-//               Bip44Account ba = (Bip44Account) account;
-//               Balance balance = ba.getBalance();
-//               if (balance.getReceivingBalance() + balance.getSpendableBalance() > 0) {
-//                  // We have an HD account with funds, and no master seed backup, tell the user to act
-//                  return Notice.BACKUP_MISSING;
-//               }
-//            }
-//         }
-//      }
-//
-//      // Then check if there are some SingleAddressAccounts with funds on it
-//      for (WalletAccount account : accounts){
-//         if (account instanceof SingleAddressAccount && account.canSpend()){
-//            if (meta.getOtherAccountBackupState(account.getId()) != MetadataStorage.BackupState.VERIFIED){
-//               Balance balance = account.getBalance();
-//               if (balance.getReceivingBalance() + balance.getSpendableBalance() > 0){
-//                  return Notice.SINGLEKEY_BACKUP_MISSING;
-//               }
-//            }
-//         }
-//      }
-//
-//      // Second check whether to warn about legacy accounts with funds
-//      for (WalletAccount account : accounts) {
-//         if (RecordRowBuilder.showLegacyAccountWarning(account, _mbwManager)) {
-//            return Notice.MOVE_LEGACY_FUNDS;
-//         }
-//      }
-//
-//      return Notice.NONE;
-//   }
 
    private Notice determineNotice() {
       WalletAccount account = _mbwManager.getSelectedAccount();
@@ -179,32 +162,63 @@ public class NoticeFragment extends Fragment {
       // First check if we have HD accounts with funds, but have no master seed backup
       if (meta.getMasterSeedBackupState() != MetadataStorage.BackupState.VERIFIED) {
          if (account instanceof Bip44Account) {
-            Bip44Account ba = (Bip44Account) account;
-            Balance balance = ba.getBalance();
-            if (balance.getReceivingBalance() + balance.getSpendableBalance() > 0) {
-               // We have an HD account with funds, and no master seed backup, tell the user to act
-               return Notice.BACKUP_MISSING;
-            }
+            /*
+              We have an HD account and no master seed backup, tell the user to act
+              We shouldn't check balance, in security reason user should create backup
+              and then receive money otherwise he can lost money in case delete application or lost phone
+             */
+            return Notice.BACKUP_MISSING;
          }
       }
 
       // Then check if there are some SingleAddressAccounts with funds on it
       if ((account instanceof ColuAccount || account instanceof SingleAddressAccount) && account.canSpend()) {
-         if (meta.getOtherAccountBackupState(account.getId()) != MetadataStorage.BackupState.VERIFIED) {
+         MetadataStorage.BackupState state = meta.getOtherAccountBackupState(account.getId());
+         if(state == MetadataStorage.BackupState.NOT_VERIFIED) {
+            return Notice.SINGLEKEY_VERIFY_MISSING;
+         } else if (state != MetadataStorage.BackupState.VERIFIED
+                 && state != MetadataStorage.BackupState.IGNORED) {
             return Notice.SINGLEKEY_BACKUP_MISSING;
          }
-      }
-
-      // Second check whether to warn about legacy accounts with funds
-      if (RecordRowBuilder.showLegacyAccountWarning(account, _mbwManager)) {
-         return Notice.MOVE_LEGACY_FUNDS;
       }
 
       return Notice.NONE;
    }
 
-   private OnClickListener noticeClickListener = new OnClickListener() {
+   @OnClick(R.id.backup_missing_layout)
+   void backupMissingClick() {
+      noticeClickListener.onClick(null);
+   }
 
+   @OnClick(R.id.btnSecond)
+   void secondButtonClick() {
+      WalletAccount account = _mbwManager.getSelectedAccount();
+      switch (_notice) {
+         case SINGLEKEY_VERIFY_MISSING:
+            showSingleKeyBackupWarning();
+            break;
+         case SINGLEKEY_BACKUP_MISSING:
+            backupMissingLayout.setVisibility(View.GONE);
+            sharedPreferences.edit()
+                    .putLong(LATER_CLICK_TIME + account.getId(), System.currentTimeMillis())
+                    .apply();
+            break;
+         case BACKUP_MISSING:
+            backupMissingLayout.setVisibility(View.GONE);
+            sharedPreferences.edit()
+                    .putLong(LATER_CLICK_TIME_MASTER_SEED, System.currentTimeMillis())
+                    .apply();
+            break;
+         default:
+            break;
+      }
+   }
+   @OnCheckedChanged(R.id.cbRisks)
+   void riskAccepted(boolean checked) {
+      btnSecond.setEnabled(checked);
+   }
+
+   private OnClickListener noticeClickListener = new OnClickListener() {
       @Override
       public void onClick(View v) {
          switch (_notice) {
@@ -218,14 +232,13 @@ public class NoticeFragment extends Fragment {
             case SINGLEKEY_BACKUP_MISSING:
                showSingleKeyBackupWarning();
                break;
-            case MOVE_LEGACY_FUNDS:
-               showMoveLegacyFundsWarning();
+            case SINGLEKEY_VERIFY_MISSING:
+               showSingleKeyVerifyWarning();
                break;
             default:
                break;
          }
       }
-
    };
 
    private void showPinResetWarning() {
@@ -238,7 +251,7 @@ public class NoticeFragment extends Fragment {
 
       if (resetPinRemainingBlocksCount.get()==0){
          // delay is done
-         _mbwManager.showClearPinDialog(this.getActivity(), Optional.<Runnable>of(new Runnable() {
+         _mbwManager.showClearPinDialog(getActivity(), Optional.<Runnable>of(new Runnable() {
             @Override
             public void run() {
                recheckNotice();
@@ -248,9 +261,9 @@ public class NoticeFragment extends Fragment {
       }
 
       // delay is still remaining, provide option to abort
-      String remaining = Utils.formatBlockcountAsApproxDuration(this.getActivity(), resetPinRemainingBlocksCount.or(1));
-      new AlertDialog.Builder(this.getActivity())
-            .setMessage(String.format(this.getActivity().getString(R.string.pin_forgotten_abort_pin_reset), remaining))
+      String remaining = Utils.formatBlockcountAsApproxDuration(getActivity(), resetPinRemainingBlocksCount.or(1));
+      new AlertDialog.Builder(getActivity())
+            .setMessage(String.format(getActivity().getString(R.string.pin_forgotten_abort_pin_reset), remaining))
             .setTitle(this.getActivity().getString(R.string.pin_forgotten_reset_pin_dialog_title))
             .setPositiveButton(this.getActivity().getString(R.string.yes), new DialogInterface.OnClickListener() {
                @Override
@@ -269,7 +282,6 @@ public class NoticeFragment extends Fragment {
    }
 
    private OnClickListener warningClickListener = new OnClickListener() {
-
       @Override
       public void onClick(View v) {
          if (!shouldWarnAboutHeartbleedBug()) {
@@ -293,47 +305,16 @@ public class NoticeFragment extends Fragment {
       Utils.pinProtectedBackup(getActivity());
    }
 
-   private void showMoveLegacyFundsWarning() {
+   private void showSingleKeyVerifyWarning() {
       if (!isAdded()) {
          return;
       }
-      Utils.showSimpleMessageDialog(getActivity(), R.string.move_legacy_funds_message);
+      VerifyBackupActivity.callMe(getActivity());
    }
 
    private boolean shouldWarnAboutHeartbleedBug() {
       // The Heartbleed bug is only present in Android version 4.1.1
       return Build.VERSION.RELEASE.equals("4.1.1");
-   }
-
-
-   //this got replaced by VerifyWordlistBackup, but stays here unused, in case we ever need again the old backup functionality
-   private class VerifyBackupDialog extends Dialog {
-
-      public VerifyBackupDialog(final Activity activity) {
-         super(activity);
-         this.setContentView(R.layout.backup_verification_warning_dialog);
-         this.setTitle(R.string.verify_backup_title);
-
-         findViewById(R.id.btBackup).setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-               VerifyBackupDialog.this.dismiss();
-               Utils.pinProtectedBackup(activity);
-            }
-
-         });
-
-         findViewById(R.id.btVerifyBackup).setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-               VerifyBackupDialog.this.dismiss();
-               VerifyBackupActivity.callMe(activity);
-            }
-
-         });
-      }
    }
 
    private void updateUi() {
@@ -343,12 +324,36 @@ public class NoticeFragment extends Fragment {
 
       // Show button, that a PIN reset is in progress and allow to abort it
       _root.findViewById(R.id.btPinResetNotice).setVisibility(_notice == Notice.RESET_PIN_AVAILABLE || _notice == Notice.RESET_PIN_IN_PROGRESS ? View.VISIBLE : View.GONE);
-
+      WalletAccount account = _mbwManager.getSelectedAccount();
       // Only show the "Secure My Funds" button when necessary
-      _root.findViewById(R.id.btBackupMissing).setVisibility(_notice == Notice.BACKUP_MISSING || _notice == Notice.SINGLEKEY_BACKUP_MISSING ? View.VISIBLE : View.GONE);
-      if(_notice == Notice.SINGLEKEY_BACKUP_MISSING) {
-         ((TextView)_root.findViewById(R.id.btBackupMissing)).setText(getString(R.string.create_backup));
+      backupMissingLayout.setVisibility(
+              (_notice == Notice.BACKUP_MISSING && TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis() - sharedPreferences.getLong(LATER_CLICK_TIME_MASTER_SEED, 0)) > 0)
+              || (_notice == Notice.SINGLEKEY_BACKUP_MISSING && TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis() - sharedPreferences.getLong(LATER_CLICK_TIME + account.getId(), 0)) > 0)
+              || _notice == Notice.SINGLEKEY_VERIFY_MISSING
+              ? View.VISIBLE : View.GONE);
+
+      if(_notice == Notice.SINGLEKEY_VERIFY_MISSING) {
+         backupMissing.setText(R.string.singlekey_verify_notice);
+         btnFirst.setText(R.string.verify);
+         btnSecond.setText(R.string.backup);
+         cbRisks.setVisibility(View.GONE);
+         btnSecond.setEnabled(true);
+      } else if(_notice == Notice.SINGLEKEY_BACKUP_MISSING) {
+         backupMissing.setText(R.string.single_address_backup_missing);
+         btnFirst.setText(R.string.backup_now);
+         btnSecond.setText(R.string.backup_later);
+         cbRisks.setVisibility(View.VISIBLE);
+         cbRisks.setChecked(false);
+         btnSecond.setEnabled(false);
+      } else if(_notice == Notice.BACKUP_MISSING) {
+         backupMissing.setText(R.string.wallet_backup_missing);
+         btnFirst.setText(R.string.backup_now);
+         btnSecond.setText(R.string.backup_later);
+         cbRisks.setVisibility(View.VISIBLE);
+         cbRisks.setChecked(false);
+         btnSecond.setEnabled(false);
       }
+
 
       // Only show the heartbleed warning when necessary
       _root.findViewById(R.id.btWarning).setVisibility(shouldWarnAboutHeartbleedBug() ? View.VISIBLE : View.GONE);
@@ -356,11 +361,8 @@ public class NoticeFragment extends Fragment {
    }
 
    private void recheckNotice() {
-      Notice notice = determineNotice();
-      if (_notice != notice) {
-         _notice = notice;
-         updateUi();
-      }
+      _notice = determineNotice();
+      updateUi();
    }
 
    @Subscribe

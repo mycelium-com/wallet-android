@@ -118,7 +118,7 @@
   <string name="backup_legacy_warning">Vas a hacer una copia de seguridad de las cuentas de dirección única de tu monedero.\nEste respaldo no contendrá la semilla, ninguna de tus cuentas puede ser restaurada desde ella\n\n¿Quieres proceder?</string>
   <string name="export_to_clipboard_warning">Atención: Exportar la clave privada al portapapeles la expone a todas las otras aplicaciones en tu dispositivo.\n\n Nota: No es suficiente almacenar la clave privada en el portapapeles, también tienes que pegarla en algún lugar seguro.\n\n¿Deseas continuar?</string>
   <string name="found_clipboard_private_key_title">Clave privada encontrada en el portapapeles</string>
-  <string name="found_clipboard_private_keys_message">El portapapeles contiene una clave privada.\r\n¿Deseas limpiar el portapapeles?</string>
+  <string name="found_clipboard_private_keys_message">El portapapeles contiene una clave privada.\n¿Deseas limpiar el portapapeles?</string>
   <string name="exchange_source_not_available">Tipo de cambio actual no disponible para %1$s</string>
   <string name="my_own_address_warning">Nota: Estás enviando a una de tus propias direcciones.</string>
   <string name="read_only_warning">Atención: Tu monedero no dispone de la clave privada para esta dirección.\nNo puedes gastar los bitcoin recibidos a no ser que dispongas de la clave privada en algún otro lugar.</string>
@@ -138,7 +138,7 @@
   <string name="active_accounts_empty">(Vacío)</string>
   <string name="activate_action">Activar</string>
   <string name="archive_action">Archivar</string>
-  <string name="question_archive_account">Las cuentas archivadas no son supervisadas, no puedes ver el balance ni las direcciones de recepción ni trabajar con la cuenta de ninguna manera.\r\n\r\nLas cuentas archivadas pueden ser activadas de nuevo.\r\n\r\n¿Quieres archivar esta cuenta?</string>
+  <string name="question_archive_account">Las cuentas archivadas no son supervisadas, no puedes ver el balance ni las direcciones de recepción ni trabajar con la cuenta de ninguna manera.\n\nLas cuentas archivadas pueden ser activadas de nuevo.\n\n¿Quieres archivar esta cuenta?</string>
   <string name="master_seed_configuration_title">Bienvenido a Mycelium</string>
   <string name="master_seed_configuration_description">¿Deseas restaurar una copia de seguridad o crear un nuevo monedero?</string>
   <string name="master_seed_create_new_button">Crear nueva</string>
@@ -181,7 +181,6 @@
   <string name="verify_backup_master_seed">Tu semilla no ha sido comprobada.</string>
   <string name="verify_backup_no_such_record">La clave privada no coincide con ninguna de tus direcciones de Bitcoins.</string>
   <string name="verify_backup_ok">Se ha comprobado con éxito la copia de seguridad de la clave privada para la dirección:\n\n%1$s</string>
-  <string name="legacy_account_with_funds">Cuenta obsoleta con fondos</string>
   <string name="wrong_seed">La semilla escaneada no coincide con la tuya.</string>
   <string name="backup_missing">Copia de seguridad inexistente</string>
   <string name="verify_backup_title">Realizar copia de seguridad y comprobar</string>
@@ -197,7 +196,7 @@
   <string name="encrypted_pdf_backup_document_ready">Documento PDF creado</string>
   <string name="encrypted_pdf_backup_sharing">Compartir documentos PDF...</string>
   <string name="encrypted_pdf_backup_email_title">Copia de seguridad de Mycelium Wallet</string>
-  <string name="encrypted_pdf_backup_email_text">Adjuntamos la copia de seguridad de tu monedero Mycelium \r\n\r\nSigue estos sencillos pasos para asegurar tus fondos:\r\n1. Imprime el documento en PDF.\r\n2. Escribe la contraseña de 15 caracteres que aparece en la pantalla de tu dispositivo Android en los recuadros azules de la hoja impresa.\r\n3. Comprueba que puedes importar las claves a tu Mycelium Wallet.\r\n4. Almacena la hoja impresa en un lugar seguro.</string>
+  <string name="encrypted_pdf_backup_email_text">Adjuntamos la copia de seguridad de tu monedero Mycelium \n\nSigue estos sencillos pasos para asegurar tus fondos:\n1. Imprime el documento en PDF.\n2. Escribe la contraseña de 15 caracteres que aparece en la pantalla de tu dispositivo Android en los recuadros azules de la hoja impresa.\n3. Comprueba que puedes importar las claves a tu Mycelium Wallet.\n4. Almacena la hoja impresa en un lugar seguro.</string>
   <string name="share_pdf">Compartir PDF</string>
   <string name="share_with">Compartir con...</string>
   <string name="import_decrypt_key_title">Descifrado de Clave Privada</string>
@@ -223,7 +222,6 @@
   <string name="unlock_label">Desbloquear</string>
   <string name="lock_label">Bloquear</string>
   <string name="secure_my_funds">Asegurar mis fondos</string>
-  <string name="move_legacy_funds_message">Tu monedero tiene una o más cuentas obsoletas con fondos.\n\nPara asegurar que tus fondos están seguros y mejorar tu anonimato deberías mover tus fondos a una cuenta HD.\n\nPor favor ve a la pestaña Cuentas para más detalles.</string>
   <string name="ignore_warnings_title">Ignorar los avisos</string>
   <string name="ignore_warnings_description">¿Deseas ignorar los avisos explicativos de que esta cuenta obsoleta tiene fondos?</string>
   <string name="explore">Explorar</string>
@@ -521,8 +519,6 @@
   <string name="title_wrong_password">Contraseña incorrecta, inténtalo de nuevo</string>
   <string name="dont_allow_archiving_unused_notification">No puedes archivar una cuenta HD sin usar</string>
   <string name="newly_generated_coins_from_coinbase">Monedas generadas recientemente</string>
-  <string name="release_notes_hd">El mejor monedero para móviles del mundo acaba de mejorar.\n\nHacer un respaldo seguro es fácil, y las nuevas cuentas HD te hacen más anónimo que nunca\n\nRevisa las notas de la versión para más detalles.</string>
-  <string name="title_upgrade_info">Bienvenido a Mycelium 2.0</string>
   <string name="button_continue">Continuar</string>
   <string name="butto_show_release_notes">Mostrar detalles</string>
   <string name="word_does_not_exist_in_wordlist">La palabra que has escrito no existe en la lista de palabras</string>
@@ -780,7 +776,7 @@
   <string name="warning_reason_unconfirmed_parent">Transacción previa no confirmada</string>
   <string name="warning_reason_doublespend">Doble gasto detectado</string>
   <string name="opening_url_in_browser">Abriendo URL en el navegador...</string>
-  <string name="incoming_payment">"Pago recibido: "</string>
+  <string name="incoming_payment">Pago recibido: %s</string>
   <string name="warning_amount_does_not_match">Aviso: La cantidad no coincide.</string>
   <!-- Credit Card -->
   <!-- Credit Card End-->

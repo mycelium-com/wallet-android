@@ -22,14 +22,29 @@ import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
 import com.mrd.bitlib.StandardTransactionBuilder.UnsignedTransaction;
-import com.mrd.bitlib.crypto.*;
-import com.mrd.bitlib.model.*;
+import com.mrd.bitlib.crypto.BitcoinSigner;
+import com.mrd.bitlib.crypto.IPrivateKeyRing;
+import com.mrd.bitlib.crypto.IPublicKeyRing;
+import com.mrd.bitlib.crypto.InMemoryPrivateKey;
+import com.mrd.bitlib.crypto.PublicKey;
+import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.NetworkParameters;
+import com.mrd.bitlib.model.OutPoint;
+import com.mrd.bitlib.model.OutputList;
+import com.mrd.bitlib.model.Script;
+import com.mrd.bitlib.model.ScriptOutput;
+import com.mrd.bitlib.model.ScriptOutputStrange;
+import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.model.Transaction.TransactionParsingException;
+import com.mrd.bitlib.model.TransactionInput;
+import com.mrd.bitlib.model.TransactionOutput;
+import com.mrd.bitlib.model.UnspentTransactionOutput;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.WapiLogger;
+import com.mycelium.wapi.ColuTransferInstructionsParser;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.api.WapiResponse;
@@ -42,7 +57,13 @@ import com.mycelium.wapi.api.response.BroadcastTransactionResponse;
 import com.mycelium.wapi.api.response.CheckTransactionsResponse;
 import com.mycelium.wapi.api.response.GetTransactionsResponse;
 import com.mycelium.wapi.api.response.QueryUnspentOutputsResponse;
-import com.mycelium.wapi.model.*;
+import com.mycelium.wapi.model.Balance;
+import com.mycelium.wapi.model.TransactionDetails;
+import com.mycelium.wapi.model.TransactionEx;
+import com.mycelium.wapi.model.TransactionOutputEx;
+import com.mycelium.wapi.model.TransactionOutputSummary;
+import com.mycelium.wapi.model.TransactionStatus;
+import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
 import com.mycelium.wapi.wallet.WalletManager.Event;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
@@ -51,7 +72,20 @@ import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 
 import java.nio.ByteBuffer;
-import java.util.*;
+import java.text.ParseException;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 import static com.mrd.bitlib.StandardTransactionBuilder.createOutput;
 import static com.mrd.bitlib.StandardTransactionBuilder.estimateTransactionSize;
@@ -62,6 +96,7 @@ import static java.util.Collections.singletonList;
 public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
    private static final int COINBASE_MIN_CONFIRMATIONS = 100;
    private static final int MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY = 50;
+   private final ColuTransferInstructionsParser coluTransferInstructionsParser;
 
    public interface EventHandler {
       void onEvent(UUID accountId, Event event);
@@ -74,13 +109,14 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
    protected Balance _cachedBalance;
 
    private EventHandler _eventHandler;
-   private AccountBacking _backing;
+   private final AccountBacking _backing;
 
    protected AbstractAccount(AccountBacking backing, NetworkParameters network, Wapi wapi) {
       _network = network;
       _logger = wapi.getLogger();
       _wapi = wapi;
       _backing = backing;
+      coluTransferInstructionsParser = new ColuTransferInstructionsParser(_logger);
    }
 
    @Override
@@ -858,30 +894,59 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
    
    // TODO: 07.10.17 these values are subject to change and not a solid way to detect cc outputs.
    public static final int COLU_MAX_DUST_OUTPUT_SIZE_TESTNET = 600;
-   public static final int COLU_MAX_DUST_OUTPUT_SIZE_MAINNET = 6000;
+   public static final int COLU_MAX_DUST_OUTPUT_SIZE_MAINNET = 10000;
 
-   private boolean isColuTransaction(Transaction tx) {
+   //Retrieves indexes of colu outputs if the transaction is determined to be colu transaction
+   //In the case of non-colu transaction returns empty list
+   private List<Integer> getColuOutputIndexes(Transaction tx) throws ParseException {
+      if (tx == null) {
+         return new ArrayList<>();
+      }
       for(int i = 0 ; i < tx.outputs.length;i++) {
          TransactionOutput curOutput = tx.outputs[i];
          byte[] scriptBytes = curOutput.script.getScriptBytes();
          //Check the protocol identifier 0x4343 ASCII representation of the string CC ("Colored Coins")
-         if (curOutput.value == 0 && scriptBytes.length >= 4 && scriptBytes[2] == 0x43 && scriptBytes[3] == 0x43) {
-            return true;
+         if (curOutput.value == 0 && coluTransferInstructionsParser.isValidColuScript(scriptBytes)) {
+            List<Integer> indexesList = coluTransferInstructionsParser.retrieveOutputIndexesFromScript(scriptBytes);
+            //Since all assets with remaining amounts are automatically transferred to the last output,
+            //add the last output to indexes list.
+            //At least CC transaction could consist of have two outputs if it has no change - dust output that represents
+            //transferred assets value and an empty output containing OP_RETURN data.
+            //If the CC transaction has the change to transfer, it will be represented at least as the third dust output
+            if (tx.outputs.length > 2) {
+               indexesList.add(tx.outputs.length - 1);
+            }
+            return indexesList;
          }
       }
-      return false;
+
+      return new ArrayList<>();
+   }
+
+   private boolean isColuTransaction(Transaction tx) {
+      try {
+         return !getColuOutputIndexes(tx).isEmpty();
+      } catch (ParseException e) {
+         // the current only use case is safe to be treated as not colored-coin even though we might misinterpret a colored-coin script.
+         return false;
+      }
    }
 
    private boolean isColuDustOutput(TransactionOutputEx output) {
-      boolean isColuTransaction = isColuTransaction(TransactionEx.toTransaction(_backing.getTransaction(output.outPoint.hash)));
-
-      if (isColuTransaction) {
-         int coluDustOutputSize = this._network.isTestnet() ? COLU_MAX_DUST_OUTPUT_SIZE_TESTNET : COLU_MAX_DUST_OUTPUT_SIZE_MAINNET;
+      Transaction transaction = TransactionEx.toTransaction(_backing.getTransaction(output.outPoint.hash));
+      try {
+         if (getColuOutputIndexes(transaction).contains(output.outPoint.index)) {
+            return true;
+         }
+      } catch (ParseException e) {
+         // better safe than sorry:
+         // if we can't interpret the script, we assume it is a colore coin output as before introducing the script interpretation.
+         // usually we can read the script, so bigger colored coins txos get interpreted as such and smaller utxos are spendable
+         int coluDustOutputSize = _network.isTestnet() ? COLU_MAX_DUST_OUTPUT_SIZE_TESTNET : COLU_MAX_DUST_OUTPUT_SIZE_MAINNET;
          if (output.value <= coluDustOutputSize) {
             return true;
          }
       }
-
       return false;
    }
 
@@ -968,12 +1033,9 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
          stb.createUnsignedTransaction(spendableOutputs, getChangeAddress(), new PublicKeyRing(), _network, minerFeePerKbToUse);
          // We have enough to pay the fees, return the amount as the maximum
          return ExactBitcoinValue.from(satoshis);
-      } catch (InsufficientFundsException e) {
+      } catch (InsufficientFundsException | StandardTransactionBuilder.UnableToBuildTransactionException e) {
          // TODO: 25.06.17 here is where the loop was triggered, what I don't understand how another round could help in any case. Neither is there any tests. :(
          // We cannot send this amount, try again with a little higher fee continue
-         return ZERO;
-      } catch (StandardTransactionBuilder.UnableToBuildTransactionException e) {
-         // something unexpected happened while building the max-amount tx. be cautious here and don't allow spending
          return ZERO;
       }
    }
@@ -1080,8 +1142,10 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       // We make a copy of the reference for a reason. Otherwise the balance
       // might change right when we make a copy
       Balance b = _cachedBalance;
-      return new Balance(b.confirmed, b.pendingReceiving, b.pendingSending, b.pendingChange, b.updateTime,
-            b.blockHeight, isSynchronizing(), b.allowsZeroConfSpending);
+      return b != null ? new Balance(b.confirmed, b.pendingReceiving, b.pendingSending, b.pendingChange, b.updateTime,
+              b.blockHeight, isSynchronizing(), b.allowsZeroConfSpending)
+              : new Balance(0, 0, 0, 0, 0, 0, isSynchronizing(), false);
+
    }
 
    @Override
@@ -1238,7 +1302,6 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       return list;
    }
 
-
    protected boolean monitorYoungTransactions() {
       Collection<TransactionEx> list = _backing.getYoungTransactions(5, getBlockChainHeight());
       if (list.isEmpty()) {
@@ -1368,9 +1431,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
          }
          throw new RuntimeException("Unable to find private key for address " + address.toString());
       }
-
    }
-
 
    @Override
    public TransactionSummary getTransactionSummary(Sha256Hash txid) {

@@ -25,7 +25,7 @@
         android:layout_height="wrap_content"
         android:hint="@string/lt_location_hint"
         android:inputType="textPostalAddress|textMultiLine"
-        android:popupBackground="@drawable/abc_menu_dropdown_panel_holo_dark"/>
+        android:popupBackground="@drawable/semi_black"/>
 
     <View
         android:layout_width="1dp"

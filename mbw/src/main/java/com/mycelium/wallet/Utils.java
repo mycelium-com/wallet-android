@@ -34,6 +34,7 @@
 
 package com.mycelium.wallet;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -41,6 +42,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -49,8 +51,13 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.support.annotation.StringRes;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.text.ClipboardManager;
+import android.text.Html;
 import android.text.format.DateFormat;
+import android.util.Log;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -79,12 +86,14 @@ import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.CoinUtil;
+import com.mycelium.modularizationtools.model.Module;
 import com.mycelium.wallet.activity.AdditionalBackupWarningActivity;
 import com.mycelium.wallet.activity.BackupWordListActivity;
 import com.mycelium.wallet.activity.export.BackupToPdfActivity;
 import com.mycelium.wallet.activity.export.ExportAsQrCodeActivity;
 import com.mycelium.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wallet.colu.ColuAccount;
+import com.mycelium.wallet.modularisation.GooglePlayModuleCollection;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.ExportableAccount;
@@ -95,8 +104,8 @@ import com.mycelium.wapi.wallet.bip44.Bip44AccountExternalSignature;
 import com.mycelium.wapi.wallet.bip44.Bip44PubOnlyAccount;
 import com.mycelium.wapi.wallet.currency.BitcoinValue;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
+import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
-import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 
 import org.ocpsoft.prettytime.Duration;
 import org.ocpsoft.prettytime.PrettyTime;
@@ -110,12 +119,13 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
 
 import javax.annotation.Nullable;
+
+import static com.mycelium.wallet.Constants.TAG;
 
 public class Utils {
    private static final DecimalFormat FIAT_FORMAT;
@@ -169,7 +179,7 @@ public class Utils {
    }
 
    public static Bitmap getMinimalQRCodeBitmap(String url) {
-      Hashtable<EncodeHintType, Object> hints = new Hashtable<EncodeHintType, Object>();
+      Hashtable<EncodeHintType, Object> hints = new Hashtable<>();
       hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.M);
       hints.put(EncodeHintType.MARGIN, 5);
 
@@ -318,10 +328,10 @@ public class Utils {
       final View layout = inflater.inflate(R.layout.simple_message_dialog, null);
       AlertDialog.Builder builder = new AlertDialog.Builder(context).setView(layout);
       final AlertDialog dialog = builder.create();
-      TextView tvMessage = ((TextView) layout.findViewById(R.id.tvMessage));
+      TextView tvMessage = layout.findViewById(R.id.tvMessage);
       tvMessage.setText(message);
 
-      TextView okButton = (TextView) layout.findViewById(R.id.btOk);
+      TextView okButton = layout.findViewById(R.id.btOk);
       okButton.setText(okayButtonText);
       okButton.setOnClickListener(new OnClickListener() {
 
@@ -385,9 +395,9 @@ public class Utils {
       final View layout = inflater.inflate(R.layout.optional_message_dialog, null);
       AlertDialog.Builder builder = new AlertDialog.Builder(context).setView(layout);
       final AlertDialog dialog = builder.create();
-      TextView tvMessage = ((TextView) layout.findViewById(R.id.tvMessage));
+      TextView tvMessage = layout.findViewById(R.id.tvMessage);
       tvMessage.setText(message);
-      CheckBox cb = (CheckBox) layout.findViewById(R.id.checkbox);
+      CheckBox cb = layout.findViewById(R.id.checkbox);
       cb.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
          @Override
@@ -425,7 +435,6 @@ public class Utils {
       return Joiner.on(joiner).join(parts);
    }
 
-
    public static Double getFiatValue(long satoshis, Double oneBtcInFiat) {
       if (oneBtcInFiat == null) {
          return null;
@@ -441,7 +450,7 @@ public class Utils {
       return FIAT_FORMAT.format(converted);
    }
 
-   private static HashMap<Integer, DecimalFormat> formatCache = new HashMap<Integer, DecimalFormat>(2);
+   private static SparseArray<DecimalFormat> formatCache = new SparseArray<>(2);
 
    public static String formatFiatValueAsString(BigDecimal fiat) {
       return FIAT_FORMAT.format(fiat);
@@ -454,17 +463,21 @@ public class Utils {
    }
 
    public static String formatFiatWithUnit(CurrencyValue fiat) {
-      return FIAT_FORMAT.format(fiat.getValue()) + " " + fiat.getCurrency();
+      try {
+         return FIAT_FORMAT.format(fiat.getValue()) + " " + fiat.getCurrency();
+      } catch (Exception e) {
+         Log.e(TAG, e.getMessage());
+         return "???";
+      }
    }
 
    public static String getFiatValueAsString(long satoshis, Double oneBtcInFiat, int precision) {
-
       Double converted = getFiatValue(satoshis, oneBtcInFiat);
       if (converted == null) {
          return null;
       }
 
-      if (!formatCache.containsKey(precision)) {
+      if (formatCache.get(precision) == null) {
          DecimalFormat fiatFormat = (DecimalFormat) FIAT_FORMAT.clone();
          fiatFormat.setMaximumFractionDigits(precision);
          formatCache.put(precision, fiatFormat);
@@ -677,21 +690,31 @@ public class Utils {
          AdditionalBackupWarningActivity.callMe(parent);
       } else {
          // first backup
-         AlertDialog.Builder builder = new AlertDialog.Builder(parent);
-         builder.setMessage(R.string.backup_all_warning).setCancelable(true)
-               .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                  public void onClick(DialogInterface dialog, int id) {
-                     dialog.dismiss();
-                     BackupWordListActivity.callMe(parent);
-                  }
-               }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-            }
-         });
-         AlertDialog alertDialog = builder.create();
-         alertDialog.show();
+         new AlertDialog.Builder(parent)
+                 .setMessage(R.string.backup_all_warning)
+                 .setCancelable(true)
+                 .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                       dialog.dismiss();
+                       BackupWordListActivity.callMe(parent);
+                    }
+                 })
+                 .setNegativeButton(R.string.no, null)
+                 .create()
+                 .show();
       }
+   }
 
+   public static boolean isAppInstalled(Context context, String uri) {
+      PackageManager pm = context.getPackageManager();
+      boolean installed;
+      try {
+         pm.getPackageInfo(uri, PackageManager.GET_ACTIVITIES);
+         installed = true;
+      } catch (PackageManager.NameNotFoundException e) {
+         installed = false;
+      }
+      return installed;
    }
 
    public static void pinProtectedBackup(final Activity activity) {
@@ -776,22 +799,22 @@ public class Utils {
 
    public static List<WalletAccount> sortAccounts(final List<WalletAccount> accounts, final MetadataStorage storage) {
       Ordering<WalletAccount> type = Ordering.natural().onResultOf(new Function<WalletAccount, Integer>() {
-         @Nullable
          @Override
          public Integer apply(@Nullable WalletAccount input) {
-            if (input instanceof Bip44Account) {
-               return 0;
+            switch (input.getType()) {
+               case BTCBIP44:
+               case BCHBIP44:
+                  return 0;
+               case BTCSINGLEADDRESS:
+               case BCHSINGLEADDRESS:
+                  return checkIsLinked(input, accounts) ? 5 : 1;
+               case COLU:
+                  return 5;
+               case COINAPULT:
+                  return 6; //coinapult last
+               default:
+                  return 4;
             }
-            if (input instanceof SingleAddressAccount) {
-              return checkIsLinked(input, accounts) ? 3 : 1;
-            }
-            if(input instanceof ColuAccount) {
-               return 3;
-            }
-            if (input instanceof CoinapultAccount) {
-               return 4; //coinapult last
-            }
-            return 2;
          }
       });
       Ordering<WalletAccount> index = Ordering.natural().onResultOf(new Function<WalletAccount, Integer>() {
@@ -809,10 +832,26 @@ public class Utils {
       Comparator<WalletAccount> linked = new Comparator<WalletAccount>() {
          @Override
          public int compare(WalletAccount w1, WalletAccount w2) {
-            if (w1 instanceof ColuAccount) {
+            if (w1.getType() == WalletAccount.Type.COLU) {
                return ((ColuAccount) w1).getLinkedAccount().getId().equals(w2.getId()) ? -1 : 0;
-            } else if (w2 instanceof ColuAccount) {
+            } else if (w2.getType() == WalletAccount.Type.COLU) {
                return ((ColuAccount) w2).getLinkedAccount().getId().equals(w1.getId()) ? 1 : 0;
+            } else if (w1.getType() == WalletAccount.Type.BCHBIP44
+                    && w2.getType() == WalletAccount.Type.BTCBIP44
+                    && MbwManager.getBitcoinCashAccountId(w2).equals(w1.getId())) {
+               return 1;
+            } else if (w1.getType() == WalletAccount.Type.BTCBIP44
+                    && w2.getType() == WalletAccount.Type.BCHBIP44
+                    && MbwManager.getBitcoinCashAccountId(w1).equals(w2.getId())) {
+               return -1;
+            } else if (w1.getType() == WalletAccount.Type.BCHSINGLEADDRESS
+                    && w2.getType() == WalletAccount.Type.BTCSINGLEADDRESS
+                    && MbwManager.getBitcoinCashAccountId(w2).equals(w1.getId())) {
+               return 1;
+            } else if (w1.getType() == WalletAccount.Type.BTCSINGLEADDRESS
+                    && w2.getType() == WalletAccount.Type.BCHSINGLEADDRESS
+                    && MbwManager.getBitcoinCashAccountId(w1).equals(w2.getId())) {
+               return -1;
             } else {
                return 0;
             }
@@ -908,7 +947,10 @@ public class Utils {
    }
 
    public static boolean isAllowedForLocalTrader(WalletAccount account) {
-      if (account instanceof CoinapultAccount) {
+      if (account instanceof CoinapultAccount
+              || account.getType() == WalletAccount.Type.BCHBIP44
+              || account.getType() == WalletAccount.Type.BCHSINGLEADDRESS
+              || account.getType() == WalletAccount.Type.COLU) {
          return false; //we do not support coinapult accs in lt (yet)
       }
       if (!account.getReceivingAddress().isPresent()) {
@@ -942,7 +984,7 @@ public class Utils {
       if (val == null) {
          return "";
       }
-      if (value.isBtc()) {
+      if (value.isBtc() || value.isBch()) {
          return CoinUtil.valueString(val, denomination, false);
       } else {
 
@@ -965,7 +1007,7 @@ public class Utils {
                denomination, precision
          );
       } else {
-         if (!formatCache.containsKey(precision)) {
+         if (formatCache.get(precision) == null) {
             DecimalFormat fiatFormat = (DecimalFormat) FIAT_FORMAT.clone();
             fiatFormat.setMaximumFractionDigits(precision);
             formatCache.put(precision, fiatFormat);
@@ -981,6 +1023,8 @@ public class Utils {
 
       if (value.isBtc()) {
          return getFormattedValueWithUnit((BitcoinValue) value, denomination);
+      } else if(value.isBch()) {
+        return getFormattedValueWithUnit(ExactBitcoinCashValue.from(value.getValue()), denomination);
       } else {
          BigDecimal val = value.getValue();
          if (val == null) {
@@ -1011,6 +1055,14 @@ public class Utils {
       return String.format("%s %s", CoinUtil.valueString(val, denomination, false), denomination.getUnicodeName());
    }
 
+   public static String getFormattedValueWithUnit(ExactBitcoinCashValue value, CoinUtil.Denomination denomination) {
+      BigDecimal val = value.getValue();
+      if (val == null) {
+         return "";
+      }
+      return String.format("%s %s", CoinUtil.valueString(val, denomination, false), denomination.getUnicodeName().replace("BTC", "BCH"));
+   }
+
 
       public static String getFormattedValueWithUnit(CurrencyValue value, CoinUtil.Denomination denomination, int precision) {
       if (value == null) {
@@ -1027,7 +1079,7 @@ public class Utils {
                      denomination, precision), denomination.getUnicodeName()
          );
       } else {
-         if (!formatCache.containsKey(precision)) {
+         if (formatCache.get(precision) == null) {
             DecimalFormat fiatFormat = (DecimalFormat) FIAT_FORMAT.clone();
             fiatFormat.setMaximumFractionDigits(precision);
             formatCache.put(precision, fiatFormat);
@@ -1048,5 +1100,41 @@ public class Utils {
       } else {
          return false;
       }
+   }
+
+   public static final int REQUEST_CAMERA = 9465169;
+
+   /**
+    * Request camera access if not already granted
+    *
+    * @return true if write permission was already been granted
+    */
+   public static boolean hasOrRequestCameraAccess(Activity activity) {
+      return hasOrRequestAccess(activity, Manifest.permission.CAMERA, REQUEST_CAMERA);
+   }
+
+   public static final int REQUEST_LOCATION = 9465199;
+
+   /**
+    * Request camera access if not already granted
+    *
+    * @return true if write permission was already been granted
+    */
+   public static boolean hasOrRequestLocationAccess(Activity activity) {
+      return hasOrRequestAccess(activity, Manifest.permission.ACCESS_COARSE_LOCATION, REQUEST_LOCATION);
+   }
+
+   /**
+    * Request permission if not already granted
+    *
+    * @return true if write permission was already been granted
+    */
+   public static boolean hasOrRequestAccess(Activity activity, String permission, int requestCode) {
+      boolean hasPermission = (ContextCompat.checkSelfPermission(activity, permission)
+              == PackageManager.PERMISSION_GRANTED);
+      if (!hasPermission) {
+         ActivityCompat.requestPermissions(activity, new String[]{permission}, requestCode);
+      }
+      return hasPermission;
    }
 }

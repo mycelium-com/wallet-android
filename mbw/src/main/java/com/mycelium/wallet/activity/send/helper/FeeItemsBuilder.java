@@ -72,7 +72,7 @@ public class FeeItemsBuilder {
         return feeItems;
     }
 
-    private void addItemsInRange(List<FeeItem> feeItems, FeeItemsAlgorithm algorithm, int txSize) {
+    public void addItemsInRange(List<FeeItem> feeItems, FeeItemsAlgorithm algorithm, int txSize) {
         for (int i = algorithm.getMinPosition(); i < algorithm.getMaxPosition(); i++) {
             FeeItem feeItem = createFeeItem(txSize, algorithm.computeValue(i));
             if (feeItems.size() == 0 || feeItems.get(feeItems.size() - 1).feePerKb < feeItem.feePerKb) { // avoid duplication
@@ -82,7 +82,7 @@ public class FeeItemsBuilder {
     }
 
     @NonNull
-    private FeeItem createFeeItem(int txSize, long feePerKb) {
+    public FeeItem createFeeItem(int txSize, long feePerKb) {
         ExactBitcoinValue bitcoinValue;
         if (_mbwManager.getSelectedAccount() instanceof ColuAccount) {
             long fundingAmountToSend = _mbwManager.getColuManager().getColuTransactionFee(feePerKb);

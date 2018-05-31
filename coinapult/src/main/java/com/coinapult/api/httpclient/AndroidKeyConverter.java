@@ -4,7 +4,6 @@ import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.ec.Point;
 
 import org.spongycastle.jcajce.provider.asymmetric.util.EC5Util;
-import org.spongycastle.jce.provider.BouncyCastleProvider;
 import org.spongycastle.jce.ECNamedCurveTable;
 import org.spongycastle.jce.spec.ECNamedCurveParameterSpec;
 import org.spongycastle.math.ec.custom.sec.SecP256K1Curve;
@@ -15,14 +14,7 @@ import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.spec.*;
 
-/**
- * Created by Andreas on 12.11.2014.
- */
 public class AndroidKeyConverter {
-   static {
-      Security.insertProviderAt(new BouncyCastleProvider(),1); //spongy
-   }
-
    public static PublicKey makePubKey(BigInteger x, BigInteger y)  {
       try {
          KeyFactory keyFactory = KeyFactory.getInstance("EC");
@@ -33,9 +25,7 @@ public class AndroidKeyConverter {
          ECPoint ecpubPoint = convertECPoint(ecpubPoint_SC);
          ECPublicKey publicKey = (ECPublicKey) keyFactory.generatePublic(new ECPublicKeySpec(ecpubPoint, secp256k1));
          return publicKey;
-      } catch (InvalidKeySpecException e) {
-         throw new RuntimeException(e);
-      } catch (NoSuchAlgorithmException e) {
+      } catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
          throw new RuntimeException(e);
       }
    }
@@ -51,9 +41,7 @@ public class AndroidKeyConverter {
          org.spongycastle.math.ec.ECPoint ecpubPoint = new org.spongycastle.math.ec.custom.sec.SecP256K1Curve().createPoint(pubPoint.getX().toBigInteger(), pubPoint.getY().toBigInteger());
          PublicKey publicKey = keyFactory.generatePublic(new org.spongycastle.jce.spec.ECPublicKeySpec(ecpubPoint, secp256k1));
          return new KeyPair(publicKey, bcpriv);
-      } catch (InvalidKeySpecException e) {
-         throw new RuntimeException(e);
-      } catch (NoSuchAlgorithmException e) {
+      } catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
          throw new RuntimeException(e);
       } catch (NoSuchProviderException e) {
          throw new RuntimeException(e);

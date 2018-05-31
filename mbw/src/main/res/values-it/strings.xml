@@ -118,7 +118,7 @@
   <string name="backup_legacy_warning">Sarà eseguito un backup del singolo indirizzo nel tuo portafogli. \nQuesto backup non conterrà alcun master seed, nessuno account HD potrà essere ripristinato da esso!\n\nDesideri continuare?</string>
   <string name="export_to_clipboard_warning">Attenzione: esportando la chiave privata negli appunti la renderà esposta a tutte le altre applicazioni installate sul tuo dispositivo.\n\nNota: non basta memorizzare la chiave privata negli appunti, dovrai incollarla in un posto sicuro.\n\nDesideri continuare?</string>
   <string name="found_clipboard_private_key_title">Chiave privata trovata negli appunti</string>
-  <string name="found_clipboard_private_keys_message">Chiave privata trovata negli appunti.\r\nDesideri rimuoverla?</string>
+  <string name="found_clipboard_private_keys_message">Chiave privata trovata negli appunti.\nDesideri rimuoverla?</string>
   <string name="exchange_source_not_available">Tasso di cambio non disponibile per %1$s</string>
   <string name="my_own_address_warning">Nota: Stai per inviare ad uno dei tuoi indirizzi.</string>
   <string name="read_only_warning">Attenzione: Il portafogli non contiene la chiave privata per questo indirizzo. \nNon puoi spendere bitcoin se non possiedi la chiave privata.</string>
@@ -138,7 +138,7 @@
   <string name="active_accounts_empty">(Vuoto)</string>
   <string name="activate_action">Attiva</string>
   <string name="archive_action">Archivia</string>
-  <string name="question_archive_account">Gli account archiviati non sono monitorati, non sarà possibile vedere il saldo o l\'indirizzo di ricezione, nè utilizzarli in alcuna maniera.\r\n\r\nGli account archiviati possono sempre essere riattivati.\r\n\r\nDesideri archiviare questo account?</string>
+  <string name="question_archive_account">Gli account archiviati non sono monitorati, non sarà possibile vedere il saldo o l\'indirizzo di ricezione, nè utilizzarli in alcuna maniera.\n\nGli account archiviati possono sempre essere riattivati.\n\nDesideri archiviare questo account?</string>
   <string name="master_seed_configuration_title">Benvenuti a Mycelium</string>
   <string name="master_seed_configuration_description">Desideri ripristinare un backup, o creare un nuovo portafogli?</string>
   <string name="master_seed_create_new_button">Crea nuovo</string>
@@ -181,7 +181,6 @@
   <string name="verify_backup_master_seed">Il master seed non è stato verificato.</string>
   <string name="verify_backup_no_such_record">La chiave privata non corrisponde a nessuno dei tuoi indirizzi bitcoin.</string>
   <string name="verify_backup_ok">Backup della chiave privata verificato con successo per il seguente indirizzo:\n\n%1$s</string>
-  <string name="legacy_account_with_funds">Account di tipo non HD con fondi</string>
   <string name="wrong_seed">Il numero scandito non corrisponde al tuo master seed.</string>
   <string name="backup_missing">Backup assente</string>
   <string name="verify_backup_title">Eseguire il backup e la verifica</string>
@@ -197,7 +196,7 @@
   <string name="encrypted_pdf_backup_document_ready">Documento PDF creato</string>
   <string name="encrypted_pdf_backup_sharing">Condivisione del documento PDF&#8230;</string>
   <string name="encrypted_pdf_backup_email_title">Mycelium Wallet Backup</string>
-  <string name="encrypted_pdf_backup_email_text">Il backup del tuo portafogli Mycelium è allegato.\r\n\r\nSegui questi semplici passi per mettere al sicuro i tuoi fondi:\r\n1. Stampa il documento PDF.\r\n2. Annota nelle caselle blu la password di 15 caratteri che vedi sul display.\r\n3. Verifica che sia possibile importare le chiavi private del portafogli Mycelium.\r\n4. Metti il documento al sicuro.</string>
+  <string name="encrypted_pdf_backup_email_text">Il backup del tuo portafogli Mycelium è allegato.\n\nSegui questi semplici passi per mettere al sicuro i tuoi fondi:\n1. Stampa il documento PDF.\n2. Annota nelle caselle blu la password di 15 caratteri che vedi sul display.\n3. Verifica che sia possibile importare le chiavi private del portafogli Mycelium.\n4. Metti il documento al sicuro.</string>
   <string name="share_pdf">Condividi il PDF</string>
   <string name="share_with">Condividi tramite&#8230;</string>
   <string name="import_decrypt_key_title">Decodifica della chiave privata</string>
@@ -223,7 +222,6 @@
   <string name="unlock_label">Sblocca</string>
   <string name="lock_label">Blocca</string>
   <string name="secure_my_funds">Proteggi i miei fondi</string>
-  <string name="move_legacy_funds_message">Il portafogli contiene uno o più account non HD contenenti bitcoin.\n\nPer assicurarsi che i tuoi fondi siano al sicuro e per aumentare la tua anonimità dovresti spostare i fondi in uno dei tuoi account HD.\n\nVai alla scheda \"Account\" per maggiori dettagli.</string>
   <string name="ignore_warnings_title">Ignorare gli avvisi</string>
   <string name="ignore_warnings_description">Desideri ignorare gli avvertimenti che questo account non HD contiene fondi, e che possiedi un backup verificato della chiave privata?</string>
   <string name="explore">Esplora</string>
@@ -517,9 +515,7 @@
   <string name="title_wrong_password">Password errata, riprovare</string>
   <string name="dont_allow_archiving_unused_notification">Non è possibile archiviare un account HD inutilizzato</string>
   <string name="newly_generated_coins_from_coinbase">Monete appena generate</string>
-  <string name="release_notes_hd">Il miglior portafogli mobile del mondo si è evoluto.\n\nCreare backup sicuri è ora un gioco da ragazzi, e i nuovi account HD ti danno una maggiore anonimità!\n\nLeggi le note di rilascio per i dettagli.</string>
-  <string name="title_upgrade_info">Mycelium 2.0</string>
-  <string name="button_continue">Continua</string>
+    <string name="button_continue">Continua</string>
   <string name="butto_show_release_notes">Mostra dettagli</string>
   <string name="word_does_not_exist_in_wordlist">La parola che hai digitato non è presente nella lista di parole</string>
   <string name="pref_legacy_backup_title">Backup non HD</string>

@@ -42,6 +42,15 @@ public interface WalletAccount {
 
    enum BroadcastResult { SUCCESS, REJECTED, NO_SERVER_CONNECTION}
 
+   enum Type {
+      BTCSINGLEADDRESS, BTCBIP44,
+      BCHSINGLEADDRESS, BCHBIP44,
+      COINAPULT, COLU, UNKNOWN,
+      DASH,
+   }
+
+   Type getType();
+
    /**
     * Get the network that this account is for.
     *
@@ -341,6 +350,12 @@ public interface WalletAccount {
     * Returns the account native currency as a ISO String, e.g. "BTC", "USD", ...
     */
    String getAccountDefaultCurrency();
+
+
+   /**
+    * Is the account visible in UI
+    */
+   boolean isVisible();
 
    /**
     * Class representing a receiver of funds

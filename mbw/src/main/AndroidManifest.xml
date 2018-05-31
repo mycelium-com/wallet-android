@@ -3,7 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.mycelium.wallet">
 
-    <!-- Note that the permission below depends on the package and must be changed for each build target -->
     <permission
         android:name="${applicationId}.permission.C2D_MESSAGE"
         android:protectionLevel="signature" />
@@ -25,11 +24,6 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <!-- location for local trader -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-
-    <!-- we really don't want to spy on our users -->
-    <uses-permission
-        android:name="android.permission.READ_CONTACTS"
-        tools:node="remove" />
 
     <!-- the license checker -->
     <uses-permission android:name="com.android.vending.CHECK_LICENSE" />
@@ -65,7 +59,14 @@
                 <category android:name="${applicationId}" />
             </intent-filter>
         </receiver>
-
+        <receiver android:name=".PackageRemovedReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_ADDED"/>
+                <action android:name="android.intent.action.PACKAGE_REPLACED"/>
+                <action android:name="android.intent.action.PACKAGE_REMOVED"/>
+                <data android:scheme="package"/>
+            </intent-filter>
+        </receiver>
         <!-- file provider to enable secure intent sharing for encrypted backups -->
         <provider
             android:name="android.support.v4.content.FileProvider"
@@ -238,6 +239,8 @@
         <activity android:name=".lt.activity.sell.CreateOrEditAdActivity" />
         <activity android:name=".lt.activity.SendRequestActivity" />
         <activity android:name=".activity.UpdateNotificationActivity" />
+        <activity android:name=".activity.RestartPopupActivity"
+            android:theme="@style/MyceliumModern.Dialog.Transparent" />
         <activity android:name=".activity.PinProtectedActivity" />
         <activity android:name=".activity.MessageSigningActivity" />
         <activity android:name=".activity.ImportSeedActivity" />
@@ -268,11 +271,13 @@
         <activity android:name=".activity.pop.PopActivity" />
         <activity android:name=".activity.pop.PopSelectTransactionActivity" />
         <activity android:name=".external.glidera.activities.GlideraSendToNextStep" />
-        <activity android:name=".external.BuySellSelectFragment" />
+        <activity android:name=".external.BuySellSelectActivity" />
         <activity android:name=".external.glidera.activities.GlideraMainActivity" />
         <activity android:name=".external.glidera.activities.GlideraTransaction" />
         <activity android:name=".activity.send.GetBtcAccountForFeeActivity" />
         <activity android:name=".activity.MessageVerifyActivity"/>
+        <activity android:name=".external.changelly.bch.ExchangeActivity"
+            android:theme="@style/MyceliumExchange"/>
     </application>
 
 </manifest>

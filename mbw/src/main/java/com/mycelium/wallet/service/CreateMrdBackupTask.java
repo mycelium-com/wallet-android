@@ -36,8 +36,6 @@ package com.mycelium.wallet.service;
 
 import android.content.Context;
 
-import com.google.common.base.Optional;
-import com.mrd.bitlib.crypto.Bip39;
 import com.mrd.bitlib.crypto.MrdExport;
 import com.mrd.bitlib.crypto.MrdExport.V1.EncryptionParameters;
 import com.mrd.bitlib.crypto.MrdExport.V1.KdfParameters;
@@ -74,16 +72,17 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
       public String address;
       public String base58PrivateKey;
       public String label;
+      private final WalletAccount.Type accountType;
 
-      public EntryToExport(String address, String base58PrivateKey, String label) {
+      public EntryToExport(String address, String base58PrivateKey, String label, WalletAccount.Type accountType) {
          this.address = address;
          this.base58PrivateKey = base58PrivateKey;
          this.label = label;
+         this.accountType = accountType;
       }
    }
 
    private KdfParameters _kdfParameters;
-   private Bip39.MasterSeed _masterSeed;
    private List<EntryToExport> _active;
    private List<EntryToExport> _archived;
    private NetworkParameters _network;
@@ -99,17 +98,21 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
       _kdfParameters = kdfParameters;
 
       // Populate the active and archived entries to export
-      _active = new LinkedList<EntryToExport>();
-      _archived = new LinkedList<EntryToExport>();
+      _active = new LinkedList<>();
+      _archived = new LinkedList<>();
       List<WalletAccount> accounts = new ArrayList<>();
       for (UUID id : walletManager.getAccountIds()) {
          accounts.add(walletManager.getAccount(id));
       }
       accounts = Utils.sortAccounts(accounts, storage);
+      EntryToExport entry;
       for (WalletAccount account : accounts) {
          //TODO: add check whether coluaccount is in hd or singleaddress mode
+         entry = null;
          if (account instanceof SingleAddressAccount) {
-            EntryToExport entry;
+            if (!account.isVisible()) {
+               continue;
+            }
             SingleAddressAccount a = (SingleAddressAccount) account;
             Address address = a.getAddress();
             String label = storage.getLabelByAccount(a.getId());
@@ -122,14 +125,8 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
                   throw new RuntimeException(e);
                }
             }
-            entry = new EntryToExport(address.toString(), base58EncodedPrivateKey, label);
-            if (a.isActive()) {
-               _active.add(entry);
-            } else {
-               _archived.add(entry);
-            }
+            entry = new EntryToExport(address.toString(), base58EncodedPrivateKey, label, account.getType());
          } else if (account instanceof ColuAccount) {
-            EntryToExport entry;
             ColuAccount a = (ColuAccount) account;
             String label = storage.getLabelByAccount(a.getId());
             String base58EncodedPrivateKey = null;
@@ -137,12 +134,15 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
             if (a.canSpend()) {
                base58EncodedPrivateKey = a.getPrivateKey().getBase58EncodedPrivateKey(network);
             }
-            entry = new EntryToExport(address.toString(), base58EncodedPrivateKey, label);
-            if (a.isActive()) {
+            entry = new EntryToExport(address.toString(), base58EncodedPrivateKey, label, account.getType());
+         }
+         if (entry != null) {
+            if (account.isActive()) {
                _active.add(entry);
             } else {
                _archived.add(entry);
             }
+            storage.setOtherAccountBackupState(account.getId(), MetadataStorage.BackupState.NOT_VERIFIED);
          }
       }
 
@@ -168,32 +168,23 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
          _encryptionProgress = 0D;
          double increment = 1D / (_active.size() + _archived.size());
 
-         // Encrypt Master seed if present
-         Optional<ExportEntry> encryptedMasterSeed;
-         if (_masterSeed == null) {
-            encryptedMasterSeed = Optional.absent();
-         } else {
-            String e = MrdExport.V1.encryptMasterSeed(encryptionParameters, _masterSeed, _network);
-             encryptedMasterSeed = Optional.of(new ExportEntry(null, null, e, null));
-         }
-
          // Encrypt active
-         List<ExportEntry> encryptedActiveKeys = new LinkedList<ExportEntry>();
+         List<ExportEntry> encryptedActiveKeys = new LinkedList<>();
          for (EntryToExport e : _active) {
-            encryptedActiveKeys.add(createExportEntry(e, encryptionParameters, _network));
+            encryptedActiveKeys.add(createExportEntry(e, encryptionParameters, _network, e.accountType));
             _encryptionProgress += increment;
          }
          // Encrypt archived
-         List<ExportEntry> encryptedArchivedKeys = new LinkedList<ExportEntry>();
+         List<ExportEntry> encryptedArchivedKeys = new LinkedList<>();
          for (EntryToExport e : _archived) {
-            encryptedArchivedKeys.add(createExportEntry(e, encryptionParameters, _network));
+            encryptedArchivedKeys.add(createExportEntry(e, encryptionParameters, _network, e.accountType));
             _encryptionProgress += increment;
          }
 
          // Generate PDF document
          String exportFormatString = "Mycelium Backup 1.1";
          ExportPdfParameters exportParameters = new ExportPdfParameters(new Date().getTime(), exportFormatString,
-               encryptedMasterSeed, encryptedActiveKeys, encryptedArchivedKeys);
+               encryptedActiveKeys, encryptedArchivedKeys);
          _pdfProgress = new ExportProgressTracker(exportParameters.getAllEntries());
          ExportDistiller.exportPrivateKeysToFile(context, exportParameters, _pdfProgress, _exportFilePath);
       } catch (OutOfMemoryError e) {
@@ -212,12 +203,12 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
    }
 
    private static ExportEntry createExportEntry(EntryToExport toExport, EncryptionParameters parameters,
-                                                NetworkParameters network) {
+                                                NetworkParameters network, WalletAccount.Type accountType) {
       String encrypted = null;
       if (toExport.base58PrivateKey != null) {
          encrypted = MrdExport.V1.encryptPrivateKey(parameters, toExport.base58PrivateKey, network);
       }
-      return new ExportEntry(toExport.address, encrypted, null, toExport.label);
+      return new ExportEntry(toExport.address, encrypted, null, toExport.label, accountType);
    }
 
    @Override

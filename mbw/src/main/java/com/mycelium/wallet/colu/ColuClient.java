@@ -6,6 +6,7 @@ import com.google.api.client.http.HttpTransport;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.Transaction;
+import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.wallet.AdvancedHttpClient;
 import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.colu.json.AddressInfo;
@@ -34,17 +35,16 @@ import java.util.logging.Logger;
  * Client for the Colu HTTP API.
  */
 public class ColuClient {
-
     private static final String TAG = "ColuClient";
 
-    public static final boolean coluAutoSelectUtxo = true;
+    private static final boolean coluAutoSelectUtxo = true;
 
     public NetworkParameters network;
 
     private AdvancedHttpClient coloredCoinsClient;
     private AdvancedHttpClient blockExplorerClient;
 
-    public ColuClient(NetworkParameters network) {
+    ColuClient(NetworkParameters network) {
         this.coloredCoinsClient = new AdvancedHttpClient(BuildConfig.ColoredCoinsApiURLs);
         this.blockExplorerClient = new AdvancedHttpClient(BuildConfig.ColuBlockExplorerApiURLs);
         this.network = network;
@@ -60,7 +60,7 @@ public class ColuClient {
         Security.addProvider(new BouncyCastleProvider());
     }
 
-    public AssetMetadata getMetadata(String assetId) throws IOException {
+    AssetMetadata getMetadata(String assetId) throws IOException {
         String endpoint = "assetmetadata/" + assetId;
         return coloredCoinsClient.sendGetRequest(AssetMetadata.class, endpoint);
     }
@@ -70,17 +70,16 @@ public class ColuClient {
         return coloredCoinsClient.sendGetRequest(AddressInfo.Json.class, endpoint);
     }
 
-    public AddressTransactionsInfo.Json getAddressTransactions(Address address) throws IOException {
+    AddressTransactionsInfo.Json getAddressTransactions(Address address) throws IOException {
         String endpoint = "getaddressinfowithtransactions?address=" + address.toString();
         return blockExplorerClient.sendGetRequest(AddressTransactionsInfo.Json.class, endpoint);
     }
 
     //TODO: move most of the logic to ColuManager
-    public ColuBroadcastTxHex.Json prepareTransaction(Address destAddress, List<Address> src,
-                                                      ExactCurrencyValue nativeAmount, ColuAccount coluAccount,
-                                                      long txFee)
-            throws IOException {
-        Log.d(TAG, "prepareTransaction");
+    ColuBroadcastTxHex.Json prepareTransaction(Address destAddress, List<Address> src,
+            ExactCurrencyValue nativeAmount, ColuAccount coluAccount,
+            long txFee)
+    throws IOException {
         if (destAddress == null) {
             Log.e(TAG, "destAddress is null");
             return null;
@@ -93,10 +92,8 @@ public class ColuClient {
             Log.e(TAG, "nativeAmount is null");
             return null;
         }
-        Log.d(TAG, "destAddress=" + destAddress.toString() + " src nb addr=" + src.size() + " src0=" + src.get(0).toString() + " nativeAmount=" + nativeAmount.toString());
-        Log.d(TAG, " txFee=" + txFee);
         ColuTransactionRequest.Json request = new ColuTransactionRequest.Json();
-        List<ColuTxDest.Json> to = new LinkedList<ColuTxDest.Json>();
+        List<ColuTxDest.Json> to = new LinkedList<>();
         ColuTxDest.Json dest = new ColuTxDest.Json();
         dest.address = destAddress.toString();
         BigDecimal amountAssetSatoshi = (nativeAmount.getValue().multiply(new BigDecimal(10).pow(coluAccount.getColuAsset().scale)));
@@ -113,7 +110,7 @@ public class ColuClient {
 
         // v1: let colu chose source tx
         if (ColuClient.coluAutoSelectUtxo) {
-            LinkedList<String> from = new LinkedList<String>();
+            LinkedList<String> from = new LinkedList<>();
             for (Address addr : src) {
                 from.add(addr.toString());
             }
@@ -121,44 +118,32 @@ public class ColuClient {
             request.financeOutputTxid = "";
         } else {
             // v2: chose utxo ourselves
-            LinkedList<String> sendutxo = new LinkedList<String>();
+            LinkedList<String> sendutxo = new LinkedList<>();
             double selectedAmount = 0;
             double selectedSatoshiAmount = 0;
             for (Address addr : src) {
-                Log.d(TAG, "Selected address " + addr.toString());
                 // get list of address utxo and filter out those who have asset
                 List<Utxo.Json> addressUnspent = coluAccount.getAddressUnspent(addr.toString());
-                Log.d(TAG, "addressUnspent.size=" + addressUnspent.size());
                 for (Utxo.Json utxo : addressUnspent) {
-                    Log.d(TAG, "Processing " + utxo.txid + ":" + utxo.index);
-
                     // case 1: this is a BTC/satoshi utxo, we select it for fee finance
                     // Colu server will only take as much as it needs from the utxo we send it
                     if (utxo.assets == null || utxo.assets.size() == 0) {
-                        Log.d(TAG, "utxo without asset, use it for fee ");
-                        Log.d(TAG, "txid: " + utxo.txid + ":" + utxo.index + " value: " + utxo.value);
                         sendutxo.add(utxo.txid + ":" + utxo.index);
                         selectedSatoshiAmount = selectedSatoshiAmount + utxo.value;
                     }
                     // case 2: asset utxo. If it is of the type we care, and we need more, select it.
                     for (Asset.Json asset : utxo.assets) {
-                        Log.d(TAG, "Evaluating asset " + asset.assetId);
                         if (asset.assetId.compareTo(coluAccount.getColuAsset().id) == 0) {
                             if (selectedAmount < dest.amount) {
                                 sendutxo.add(utxo.txid + ":" + utxo.index);
                                 selectedAmount = selectedAmount + asset.amount;
-                                Log.d(TAG, "Selected output " + utxo.txid + ":" + utxo.index +
-                                        " and added amount " + asset.amount);
-                                Log.d(TAG, "Current amount is " + selectedAmount);
                             }
                         } else if (asset.assetId.isEmpty() || asset.assetId.compareTo("") == 0) {
-                            Log.d(TAG, "utxo with empty asset, use it for fee ");
-                            Log.d(TAG, "txid: " + utxo.txid + ":" + utxo.index + " value: " + utxo.value);
                             sendutxo.add(utxo.txid + ":" + utxo.index);
                             selectedSatoshiAmount = selectedSatoshiAmount + utxo.value;
                         }
                     }
-                }  // end for
+                }
             }
             request.sendutxo = sendutxo;
             // do we need to set this one as well ?
@@ -167,19 +152,10 @@ public class ColuClient {
         return coloredCoinsClient.sendPostRequest(ColuBroadcastTxHex.Json.class, "sendasset", null, request);
     }
 
-    public static String bytesToHex(byte[] in) {
-        final StringBuilder builder = new StringBuilder();
-        for (byte b : in) {
-            builder.append(String.format("%02x", b));
-        }
-        return builder.toString();
-    }
-
-    public ColuBroadcastTxId.Json broadcastTransaction(Transaction coluSignedTransaction) throws IOException {
+    ColuBroadcastTxId.Json broadcastTransaction(Transaction coluSignedTransaction) throws IOException {
         ColuBroadcastTxHex.Json tx = new ColuBroadcastTxHex.Json();
         byte[] signedTr = coluSignedTransaction.toBytes();
-        tx.txHex = bytesToHex(signedTr);
-        Log.d(TAG, "broadcastTransaction: hexbytes=" + tx.txHex);
+        tx.txHex = HexUtils.toHex(signedTr);
         return coloredCoinsClient.sendPostRequest(ColuBroadcastTxId.Json.class, "broadcast", null, tx);
     }
 }

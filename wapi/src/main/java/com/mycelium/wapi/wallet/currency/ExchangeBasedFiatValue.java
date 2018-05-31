@@ -55,4 +55,9 @@ public class ExchangeBasedFiatValue extends ExchangeBasedCurrencyValue {
       return value;
    }
 
+   @Override
+   public long getLongValue() {
+      throw new UnsupportedOperationException();
+   }
+
 }

@@ -99,6 +99,7 @@ public class StringHandlerActivity extends Activity {
    public static final int IMPORT_ENCRYPTED_MASTER_SEED_CODE = 2;
    public static final int IMPORT_ENCRYPTED_BIP38_PRIVATE_KEY_CODE = 3;
    public static final int IMPORT_SSS_CONTENT_CODE = 4;
+   public static final int SEND_INITIALIZATION_CODE = 5;
 
    private MbwManager _mbwManager;
    private StringHandleConfig _stringHandleConfig = null;
@@ -116,22 +117,34 @@ public class StringHandlerActivity extends Activity {
    @Override
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
       if (Activity.RESULT_CANCELED == resultCode) {
+          if (requestCode == SEND_INITIALIZATION_CODE) {
+             _mbwManager.forgetColdStorageWalletManager();
+          }
          finishError(R.string.cancelled);
          return;
       }
 
       String content;
-      if (IMPORT_ENCRYPTED_BIP38_PRIVATE_KEY_CODE == requestCode) {
-         content = intent.getStringExtra("base58Key");
-      } else if (IMPORT_ENCRYPTED_PRIVATE_KEY_CODE == requestCode) {
-         content = handleDecryptedMrdPrivateKey(intent);
-      } else if (IMPORT_ENCRYPTED_MASTER_SEED_CODE == requestCode) {
-         content = HexUtils.toHex(handleDecryptedMrdMasterSeed(intent).toBytes(false));
-      } else if (IMPORT_SSS_CONTENT_CODE == requestCode) {
-         content = intent.getStringExtra("secret");
-      } else {
-         //todo: what kind of error should we throw?
-         return;
+      switch (requestCode) {
+         case IMPORT_ENCRYPTED_BIP38_PRIVATE_KEY_CODE:
+            content = intent.getStringExtra("base58Key");
+            break;
+         case IMPORT_ENCRYPTED_PRIVATE_KEY_CODE:
+            content = handleDecryptedMrdPrivateKey(intent);
+            break;
+         case IMPORT_ENCRYPTED_MASTER_SEED_CODE:
+            content = HexUtils.toHex(handleDecryptedMrdMasterSeed(intent).toBytes(false));
+            break;
+         case IMPORT_SSS_CONTENT_CODE:
+            content = intent.getStringExtra("secret");
+            break;
+         case SEND_INITIALIZATION_CODE:
+            _mbwManager.forgetColdStorageWalletManager();
+            finishOk();
+            return;
+         default:
+            //todo: what kind of error should we throw?
+            return;
       }
       handleContentString(content);
    }

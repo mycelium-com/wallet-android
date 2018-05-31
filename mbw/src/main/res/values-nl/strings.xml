@@ -117,7 +117,7 @@
   <string name="backup_legacy_warning">U maakt een back-up van het Eén Adres Account in uw portemonnee. \nDeze backup bevat niet uw master seed, geen van uw HD accounts kan hiermee worden hersteld!\n\nWilt u doorgaan?</string>
   <string name="export_to_clipboard_warning">Waarschuwing: Door de private key te exporteren naar het klembord stelt u deze bloot aan alle andere apps op uw apparaat .\n\nOpmerking: Het volstaat niet om uw persoonlijke sleutel naar het klembord te kopiëren, u dient deze ook ergens veilig op te slaan / plakken.\n\nWilt u doorgaan?</string>
   <string name="found_clipboard_private_key_title">Private key gevonden op klembord</string>
-  <string name="found_clipboard_private_keys_message">Het klembord bevat een private key.\r\nWilt u deze verwijderen?</string>
+  <string name="found_clipboard_private_keys_message">Het klembord bevat een private key.\nWilt u deze verwijderen?</string>
   <string name="exchange_source_not_available">Wisselkoers is momenteel niet beschikbaar voor %1$s</string>
   <string name="my_own_address_warning">Opmerking: U verzendt naar een van uw eigen adressen.</string>
   <string name="read_only_warning">Waarschuwing: Uw portemonnee beschikt niet over de private key voor dit adres \nU kunt ontvangen munten niet uitgeven tenzij u elders beschikt over de private key van dit Bitcoin adres.</string>
@@ -137,7 +137,7 @@
   <string name="active_accounts_empty">(Leeg)</string>
   <string name="activate_action">Activeren</string>
   <string name="archive_action">Archiveren</string>
-  <string name="question_archive_account">Gearchiveerde accounts worden niet bijgehouden. U kunt het saldo niet zien en u kunt het account niet gebruiken.\r\n\r\nGearchiveerde accounts kunnen later weer geactiveerd worden. \r\n\r\nWilt u dit account archiveren?</string>
+  <string name="question_archive_account">Gearchiveerde accounts worden niet bijgehouden. U kunt het saldo niet zien en u kunt het account niet gebruiken.\n\nGearchiveerde accounts kunnen later weer geactiveerd worden. \n\nWilt u dit account archiveren?</string>
   <string name="master_seed_configuration_title">Welkom bij Mycelium</string>
   <string name="master_seed_configuration_description">Wilt u een back-up terugzetten, of een nieuwe portemonnee aanmaken?</string>
   <string name="master_seed_create_new_button">Nieuwe aanmaken</string>
@@ -180,7 +180,6 @@
   <string name="verify_backup_master_seed">Uw master seed is niet geverifieerd.</string>
   <string name="verify_backup_no_such_record">De private key komt niet overeen met een van uw Bitcoin adressen.</string>
   <string name="verify_backup_ok">Private key back-up geverifieerd voor het volgende address:\n\n%1$s</string>
-  <string name="legacy_account_with_funds">Ouder account met tegoeden</string>
   <string name="wrong_seed">De gescande Seed komt niet overeen met uw Master Seed.</string>
   <string name="backup_missing">Back-up ontbreekt</string>
   <string name="verify_backup_title">Back-up en verifieer</string>
@@ -196,7 +195,7 @@
   <string name="encrypted_pdf_backup_document_ready">PDF-document is aangemaakt</string>
   <string name="encrypted_pdf_backup_sharing">PDF-document delen&#8230;</string>
   <string name="encrypted_pdf_backup_email_title">Mycelium wallet back-up</string>
-  <string name="encrypted_pdf_backup_email_text">Uw Mycelium back-up is bijgesloten. \r\n\r\nVolg deze eenvoudige stappen om uw Bitcoins veilig te stellen.\r\n1. Afdrukken van het PDF-document.\r\n2. Schrijf het wachtwoord van 15-tekens dat weergegeven wordt op uw Android apparaat in de blauwe kaders van de papieren afdruk.\r\n3. Controleer of u de private keys naar uw Mycelium Wallet kunt importeren.\r\n4. Bewaar de afdruk op een veilige plaats.</string>
+  <string name="encrypted_pdf_backup_email_text">Uw Mycelium back-up is bijgesloten. \n\nVolg deze eenvoudige stappen om uw Bitcoins veilig te stellen.\n1. Afdrukken van het PDF-document.\n2. Schrijf het wachtwoord van 15-tekens dat weergegeven wordt op uw Android apparaat in de blauwe kaders van de papieren afdruk.\n3. Controleer of u de private keys naar uw Mycelium Wallet kunt importeren.\n4. Bewaar de afdruk op een veilige plaats.</string>
   <string name="share_pdf">PDF delen</string>
   <string name="share_with">Delen met&#8230;</string>
   <string name="import_decrypt_key_title">Private key decodering</string>
@@ -221,7 +220,6 @@
   <string name="unlock_label">Ontgrendelen</string>
   <string name="lock_label">Vergrendelen</string>
   <string name="secure_my_funds">Beveilig mijn tegoeden</string>
-  <string name="move_legacy_funds_message">Uw portemonnee heeft een of meer oudere accounts met tegoeden.\n\nZorg ervoor dat uw geld veilig is en ter verbetering van uw anonimiteit dient u uw fondsen te verplaatsen naar een van uw HD accounts.\n\nGa naar het tabblad rekeningen voor meer informatie.</string>
   <string name="ignore_warnings_title">Negeer de waarschuwingen</string>
   <string name="ignore_warnings_description">Wilt u waarschuwingen negeren dat er nog tegoed staat op dit bestaande account?</string>
   <string name="explore">Verkennen</string>
@@ -518,9 +516,7 @@
   <string name="decryption_password_hint">YOU RPA SSW ORD ABC D</string>
   <string name="dont_allow_archiving_unused_notification">U kunt een ongebruikt HD-account niet archiveren</string>
   <string name="newly_generated_coins_from_coinbase">Nieuw gegenereerde coins</string>
-  <string name="release_notes_hd">\'s Werelds beste mobiele portemonnee is zojuist verbeterd.\n\nHet maken van een veilige back-up is nu een fluitje van een cent en nieuwe HD accounts maken u anoniemer dan ooit!\n\nLees de release notes voor meer informatie.</string>
-  <string name="title_upgrade_info">Welkom bij Mycelium 2.0</string>
-  <string name="button_continue">Doorgaan</string>
+    <string name="button_continue">Doorgaan</string>
   <string name="butto_show_release_notes">Details tonen</string>
   <string name="word_does_not_exist_in_wordlist">Het woord dat u heeft ingevoerd bestaat niet in de woordenlijst</string>
   <string name="pref_legacy_backup_title">Oudere back-up</string>

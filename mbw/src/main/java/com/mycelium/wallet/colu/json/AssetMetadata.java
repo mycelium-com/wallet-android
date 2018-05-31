@@ -14,9 +14,6 @@ public class AssetMetadata {
     @Key
     public long totalSupply;
 
-    public AssetMetadata() {
-    }
-
     public AssetMetadata(String assetId, BigDecimal value) {
         this.assetId = assetId;
         this.divisibility = value.scale();

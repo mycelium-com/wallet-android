@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list xmlns:android="http://schemas.android.com/apk/res/android"
+    android:oneshot="false">
+    <item android:duration="1000">
+        <shape android:shape="rectangle">
+            <solid android:color="#fb746d" />
+            <size
+                android:width="2dp"
+                android:height="36sp" />
+        </shape>
+    </item>
+    <item android:duration="1000">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/transparent" />
+            <size
+                android:width="2dp"
+                android:height="36sp" />
+        </shape>
+    </item>
+</animation-list>

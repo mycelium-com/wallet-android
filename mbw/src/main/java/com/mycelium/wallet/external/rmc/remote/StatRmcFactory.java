@@ -7,15 +7,10 @@ import com.mycelium.wallet.api.retrofit.JacksonConverter;
 import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
 
-/**
- *
- */
-
 public class StatRmcFactory {
     private static final String STAT_RMC_ENDPOINT = "https://stat.rmc.one/api";
 
     public static StatRmcService getService() {
-
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         objectMapper.configure(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT, true);

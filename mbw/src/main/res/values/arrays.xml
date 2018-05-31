@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="MissingTranslation">
     <string-array name="changelly_skip_currencies">
         <item>AEON</item>
         <item>ARDR</item>
+        <item>BCH</item>
         <item>DCT</item>
         <item>GBG</item>
         <item>GOLOS</item>

@@ -117,7 +117,7 @@
   <string name="backup_legacy_warning">Kjo krijon një kopje rezervë të një adrese të vetme në kuletën tuaj. \nKjo kopje rezervë nuk përmban master seed, asnjë HD llogari nuk mund të rikthehet nga kjo!\n\nDoni të vazhdoni?</string>
   <string name="export_to_clipboard_warning">Paralajmërim: Eksportimi i të dhënave të llogaris suaj në memorje ekspozon këto të dhëna tek të gjithë aplikacionet tjera në pajisjen tuaj.\n\nNjoftim: Mjafton të ruani të dhënat private në memorje por gjithashtu duhet të ngjisni sigurtë atë.\n\nDoni të vazhdoni?</string>
   <string name="found_clipboard_private_key_title">Është gjetur çelës privat në memorje</string>
-  <string name="found_clipboard_private_keys_message">Memorja përmban një çelës privat.\r\nDoni ta fshini nga memorja?</string>
+  <string name="found_clipboard_private_keys_message">Memorja përmban një çelës privat.\nDoni ta fshini nga memorja?</string>
   <string name="exchange_source_not_available">Kursi i këmbimit nuk është në dispozicion për %1$s</string>
   <string name="my_own_address_warning">Njoftim: Jeni duke dërguar monedha në një nga adresat e juaja.</string>
   <string name="read_only_warning">Paralajmerim: Kuleta juaj nuk ka çelësin privat për këtë adresë.\nNuk mund të shpenzoni monedhat që keni pranuar, përveç nëse e keni çelësin privat diku tjetër.</string>
@@ -137,7 +137,7 @@
   <string name="active_accounts_empty">(Zbrazët)</string>
   <string name="activate_action">Aktivizo</string>
   <string name="archive_action">Arkivi</string>
-  <string name="question_archive_account">Llogaritë e arkivuara nuk monitorohen, nuk mund të shihni bilancin dhe adredat dhe nuk punojnë me llogarinë.\r\n\r\nLlogaritë e arkivuara mund të aktivizohen prapë.\r\n\r\nDoni të arkivoni këtë llogari?</string>
+  <string name="question_archive_account">Llogaritë e arkivuara nuk monitorohen, nuk mund të shihni bilancin dhe adredat dhe nuk punojnë me llogarinë.\n\nLlogaritë e arkivuara mund të aktivizohen prapë.\n\nDoni të arkivoni këtë llogari?</string>
   <string name="master_seed_configuration_title">Mirësevini në Mycelium</string>
   <string name="master_seed_configuration_description">Doni të riktheni një kopje rezervë, apo krijoni një kulet të re?</string>
   <string name="master_seed_create_new_button">Krijo të re</string>
@@ -180,7 +180,6 @@
   <string name="verify_backup_master_seed">Master seed i juaj nuk është verifikuar.</string>
   <string name="verify_backup_no_such_record">Ky çelës privat nuk përputhet me asnjë Bitcoin adresë.</string>
   <string name="verify_backup_ok">Kopja rezervë e çelësit privat është verifikuar me sukses për këtë adresë:\n\n%1$s</string>
-  <string name="legacy_account_with_funds">Llogari e trashëguar me fonde</string>
   <string name="wrong_seed">Seed i skanuar nuk përputhet me master seed.</string>
   <string name="backup_missing">Mungon kopja rezervë</string>
   <string name="verify_backup_title">Verifiko dhe bëj një kopje rezervë</string>
@@ -196,7 +195,7 @@
   <string name="encrypted_pdf_backup_document_ready">PDF dokumenti u krijua</string>
   <string name="encrypted_pdf_backup_sharing">Duke e ndarë PDF dokumentin&#8230;</string>
   <string name="encrypted_pdf_backup_email_title">Kopja rezervë Mycelium Wallet</string>
-  <string name="encrypted_pdf_backup_email_text">Mycelium kopja rezervë e kuletës suaj është e bashkangjitur.\r\n\r\nNdjeki këta hapa për të ruajtur fondet e juaja:\r\n1. Printo PDF dokumentin.\r\n2. Shkruaj fjalëkalimin 15 karakterësh nga Android pajisja juaj në katrorët e kaltërt të dokumentit të printuar.\r\n3. Verifiko se mund të importosh çelësat privat në Mycelium Wallet.\r\n4. Ruaj dokumentin e printuar në një vend të sigurtë.</string>
+  <string name="encrypted_pdf_backup_email_text">Mycelium kopja rezervë e kuletës suaj është e bashkangjitur.\n\nNdjeki këta hapa për të ruajtur fondet e juaja:\n1. Printo PDF dokumentin.\n2. Shkruaj fjalëkalimin 15 karakterësh nga Android pajisja juaj në katrorët e kaltërt të dokumentit të printuar.\n3. Verifiko se mund të importosh çelësat privat në Mycelium Wallet.\n4. Ruaj dokumentin e printuar në një vend të sigurtë.</string>
   <string name="share_pdf">Ndaje PDF</string>
   <string name="share_with">Ndaje me&#8230;</string>
   <string name="import_decrypt_key_title">Dekriptimi i çelësit privat</string>
@@ -220,7 +219,6 @@
   <string name="unlock_label">Hape</string>
   <string name="lock_label">Mbylle</string>
   <string name="secure_my_funds">Siguro fondet mia</string>
-  <string name="move_legacy_funds_message">Kuleta juaj ka një apo më shumë llogari të trashëguara me fonde.\n\nQë të siguroheni që fondet e juaja janë të sigurta dhe që të përmirësoni anonimitetin tuaj duhet që të zhvendosni fondet në një nga HD llogaritë e juaja.\n\nJu lutem shikoni tek menyja Llogaritë për detaje.</string>
   <string name="ignore_warnings_title">Injoro paralajmërimet</string>
   <string name="ignore_warnings_description">Doni të injoroni paralajmërimet që ju sqaron se kjo është llogari e trashëguar që mban fondet e juaja?</string>
   <string name="explore">Eksploro</string>
@@ -509,9 +507,7 @@
   <string name="title_wrong_password">Fjalëkalim i gabuar, ju lutem provoni prapë</string>
   <string name="dont_allow_archiving_unused_notification">Nuk mund të arkivoni një HD llogari të pashfrytëzuar</string>
   <string name="newly_generated_coins_from_coinbase">Monedha sapo të gjeneruara</string>
-  <string name="release_notes_hd">Kuleta më e mirë në botë veq sa u bë edhe më e mirë.\n\nTash krijimi i një kopje rezervë është e lehtë, dhe llogaritë HD të reja ju bën më anonim se kurrë!\n\nShikoni listen e ndryshimeve për detaje.</string>
-  <string name="title_upgrade_info">Mirësevini në Mycelium 2.0</string>
-  <string name="button_continue">Vazhdo</string>
+    <string name="button_continue">Vazhdo</string>
   <string name="butto_show_release_notes">Trego detajet</string>
   <string name="word_does_not_exist_in_wordlist">Fjalët që shënuat nuk ekzistojn në listën e fjalëve</string>
   <string name="pref_legacy_backup_title">Kopje rezervë e trashëguar</string>

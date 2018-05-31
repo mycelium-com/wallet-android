@@ -118,7 +118,7 @@
   <string name="backup_legacy_warning">Ще направите резервно копие на сметките с единични адреси във Вашия портфейл.\nТова копие не съдържа Вашия Master Seed и вашите HD сметки не могат да бъдат възстановени чрез него.\n\nЖелаете ли да продължите?</string>
   <string name="export_to_clipboard_warning">Внимание: експортирането на лични данни от сметката в клипборда ги прави достъпни за всички други приложения на устройството Ви.\n\nЗабележка: не е достатъчно да съхраните личните данни в клипборда, трябва след това да ги поставите някъде на сигурно място.\n\nЖелаете ли да продължите?</string>
   <string name="found_clipboard_private_key_title">Частен ключ намерен в клипборда</string>
-  <string name="found_clipboard_private_keys_message">Клипбордът съдържа частен ключ.\r\nЖелаете ли да го изчистите?</string>
+  <string name="found_clipboard_private_keys_message">Клипбордът съдържа частен ключ.\nЖелаете ли да го изчистите?</string>
   <string name="exchange_source_not_available">Обменният курс на %1$s не е наличен</string>
   <string name="my_own_address_warning">Забележка: изпращате към ваш собствен адрес.</string>
   <string name="read_only_warning">Внимание: вашият портфейл не съдържа частния ключ за този адрес.\nНе можете да харчите получени на него суми освен ако не разполагате с частния ключ другаде.</string>
@@ -138,7 +138,7 @@
   <string name="active_accounts_empty">(празно)</string>
   <string name="activate_action">Активирай</string>
   <string name="archive_action">Архивирай</string>
-  <string name="question_archive_account">Архивираните сметки не се наблюдават, няма да можете да виждате баланса и получаващите адреси и да работите със сметката.\r\n\r\nАрхивитаните сметки могат да бъдат активирани отново.\r\n\r\nЖелаете ли да архивирате тази сметка?</string>
+  <string name="question_archive_account">Архивираните сметки не се наблюдават, няма да можете да виждате баланса и получаващите адреси и да работите със сметката.\n\nАрхивитаните сметки могат да бъдат активирани отново.\n\nЖелаете ли да архивирате тази сметка?</string>
   <string name="master_seed_configuration_title">Добре дошли в Mycelium</string>
   <string name="master_seed_configuration_description">Желаете ли да възстановите резервно копие или да създадете нов портфейл?</string>
   <string name="master_seed_create_new_button">Създай нов</string>
@@ -181,7 +181,6 @@
   <string name="verify_backup_master_seed">Вашият master seed не е проверен.</string>
   <string name="verify_backup_no_such_record">Частният ключ не съответства на никой от вашите биткоин адреси.</string>
   <string name="verify_backup_ok">Копието на частния ключ е успешно проверено за следния адрес:\n\n%1$s</string>
-  <string name="legacy_account_with_funds">Стар тип сметка с пари</string>
   <string name="wrong_seed">Сканираният seed не съответства на вашия master seed.</string>
   <string name="backup_missing">Резервно копие липсва</string>
   <string name="verify_backup_title">Резервно копие и проверка</string>
@@ -197,7 +196,7 @@
   <string name="encrypted_pdf_backup_document_ready">PDF документът е създаден</string>
   <string name="encrypted_pdf_backup_sharing">Споделяне на PDF документа&#8230;</string>
   <string name="encrypted_pdf_backup_email_title">Резервно копие на Mycelium портфейл</string>
-  <string name="encrypted_pdf_backup_email_text">Вашето резервно копие на Mycelium портфейлът е прикачено.\r\n\r\nСледвайте тези прости стъпки, за да подсигурите вашите средства:\r\n\1. Разпечатайте PDF документа.\r\n2. Запишете 15-символната парола от дисплея на вашето Android устройство в сините квадратчета на разпечатката.\r\n3. Проверете че можете да импортирате частните ключове във вашия Mycelium портфейл.\r\n4. Запазете разпечатката на сигурно място.</string>
+  <string name="encrypted_pdf_backup_email_text">Вашето резервно копие на Mycelium портфейлът е прикачено.\n\nСледвайте тези прости стъпки, за да подсигурите вашите средства:\n\1. Разпечатайте PDF документа.\n2. Запишете 15-символната парола от дисплея на вашето Android устройство в сините квадратчета на разпечатката.\n3. Проверете че можете да импортирате частните ключове във вашия Mycelium портфейл.\n4. Запазете разпечатката на сигурно място.</string>
   <string name="share_pdf">Споделяна на PDF</string>
   <string name="share_with">Споделете с&#8230;</string>
   <string name="import_decrypt_key_title">Декриптиране на частен ключ</string>
@@ -223,7 +222,6 @@
   <string name="unlock_label">Отключване</string>
   <string name="lock_label">Заключване</string>
   <string name="secure_my_funds">Подсигури парите ми</string>
-  <string name="move_legacy_funds_message">Този портфейл има една или повече стари сметки с налични средства.\n\nЗа да се уверите че парите ви са подсигурени и да подобрите анонимността си, трябва да преместите тези средства към някоя от вашите HD сметки.\n\nМоля, преминете към раздел \"Сметки\" за подробности.</string>
   <string name="ignore_warnings_title">Игнориране на предупрежденията</string>
   <string name="ignore_warnings_description">Желаете ли да игнорирате предупрежденията, обясняващи че тази стара сметка съдържа средства?</string>
   <string name="explore">Разглеждане</string>
@@ -526,8 +524,6 @@
   <string name="title_wrong_password">Грешна парола, моля опитайте отново</string>
   <string name="dont_allow_archiving_unused_notification">Не може да архивирате неизползвана HD сметка</string>
   <string name="newly_generated_coins_from_coinbase">Новогенерирани биткоини</string>
-  <string name="release_notes_hd">Най-добрият мобилен портфейл в света стана още по-добър.\n\nПравенето на сигурно резервно копие сега е лесно, а с новите HD сметки можете да бъдете по-анонимни от всякога!\n\nПроверете бележките към изданието за подробности.</string>
-  <string name="title_upgrade_info">Добре дошли в Mycelium 2.0</string>
   <string name="button_continue">Продължи</string>
   <string name="butto_show_release_notes">Покажи детайли</string>
   <string name="word_does_not_exist_in_wordlist">Думата, която написахте, не съществува в списъка с думи</string>

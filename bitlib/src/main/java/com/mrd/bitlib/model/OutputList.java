@@ -6,7 +6,6 @@ import com.mrd.bitlib.TransactionUtils;
 import java.util.ArrayList;
 
 public class OutputList extends ArrayList<TransactionOutput> {
-
    public boolean add(long value, ScriptOutput script){
       Preconditions.checkArgument(value >= 0);
       return this.add(new TransactionOutput(value, script));
@@ -17,7 +16,6 @@ public class OutputList extends ArrayList<TransactionOutput> {
       for (TransactionOutput out : this){
          sum += out.value;
       }
-
       return sum;
    }
 

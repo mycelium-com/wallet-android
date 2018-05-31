@@ -23,15 +23,15 @@
 
         <ImageView
             android:id="@+id/ivTorIcon"
-            android:layout_width="@dimen/abc_action_bar_progress_bar_size"
-            android:layout_height="@dimen/abc_action_bar_progress_bar_size"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
             android:layout_gravity="center"
             android:src="@drawable/tor"/>
 
         <ProgressBar
             android:padding="4dp"
-            android:layout_width="@dimen/abc_action_bar_progress_bar_size"
-            android:layout_height="@dimen/abc_action_bar_progress_bar_size"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
             android:layout_gravity="center"
             style="?indeterminateProgressStyle"/>
 

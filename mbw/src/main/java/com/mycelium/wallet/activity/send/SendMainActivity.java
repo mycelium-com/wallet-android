@@ -75,11 +75,11 @@ import com.mycelium.paymentrequest.PaymentRequestException;
 import com.mycelium.paymentrequest.PaymentRequestInformation;
 import com.mycelium.wallet.BitcoinUri;
 import com.mycelium.wallet.BitcoinUriWithAddress;
+import com.mycelium.wallet.ColuAssetUri;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.MinerFee;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.ColuAssetUri;
 import com.mycelium.wallet.StringHandleConfig;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.GetAmountActivity;
@@ -94,6 +94,7 @@ import com.mycelium.wallet.activity.send.helper.FeeItemsBuilder;
 import com.mycelium.wallet.activity.send.model.FeeItem;
 import com.mycelium.wallet.activity.send.model.FeeLvlItem;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
+import com.mycelium.wallet.activity.util.AccountDisplayType;
 import com.mycelium.wallet.activity.util.AnimationUtils;
 import com.mycelium.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wallet.colu.ColuAccount;
@@ -438,14 +439,16 @@ public class SendMainActivity extends Activity {
         transactionFiatValuePref = getSharedPreferences(TRANSACTION_FIAT_VALUE, MODE_PRIVATE);
 
     }
+
     private FeeViewAdapter feeViewAdapter;
     private boolean showSendBtn = true;
 
     private void initFeeView() {
         feeValueList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-
+        feeValueList.setHasFixedSize(true);
         feeViewAdapter = new FeeViewAdapter(feeFirstItemWidth);
         feeItemsBuilder = new FeeItemsBuilder(_mbwManager);
+        feeValueList.setAdapter(feeViewAdapter);
         feeValueList.setSelectListener(new SelectListener() {
             @Override
             public void onSelect(RecyclerView.Adapter adapter, int position) {
@@ -457,21 +460,19 @@ public class SendMainActivity extends Activity {
                 updateFeeText();
                 updateError();
                 btSend.setEnabled(_transactionStatus == TransactionStatus.OK);
-                ScrollView scrollView = (ScrollView) findViewById(R.id.root);
+                ScrollView scrollView = findViewById(R.id.root);
 
                 if(showSendBtn && scrollView.getMaxScrollAmount() - scrollView.getScaleY() > 0) {
                     scrollView.smoothScrollBy(0, scrollView.getMaxScrollAmount());
                     showSendBtn = false;
                 }
-
             }
         });
-        feeValueList.setAdapter(feeViewAdapter);
-        feeValueList.setHasFixedSize(true);
     }
 
     private void initFeeLvlView() {
         feeLvlList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        feeLvlList.setHasFixedSize(true);
         List<MinerFee> fees = Arrays.asList(MinerFee.values());
         List<FeeLvlItem> feeLvlItems = new ArrayList<>();
         feeLvlItems.add(new FeeLvlItem(null, null, SelectableRecyclerView.Adapter.VIEW_TYPE_PADDING));
@@ -482,19 +483,6 @@ public class SendMainActivity extends Activity {
         feeLvlItems.add(new FeeLvlItem(null, null, SelectableRecyclerView.Adapter.VIEW_TYPE_PADDING));
 
         final FeeLvlViewAdapter feeLvlViewAdapter = new FeeLvlViewAdapter(feeLvlItems, feeFirstItemWidth);
-
-        feeLvlList.setSelectListener(new SelectListener() {
-            @Override
-            public void onSelect(RecyclerView.Adapter adapter, int position) {
-                FeeLvlItem item = ((FeeLvlViewAdapter) adapter).getItem(position);
-                feeLvl = item.minerFee;
-                feePerKbValue = feeLvl.getFeePerKb(feeEstimation).getLongValue();
-                List<FeeItem> feeItems = feeItemsBuilder.getFeeItemList(feeLvl, estimateTxSize());
-                feeViewAdapter.setDataset(feeItems);
-                feeValueList.setSelectedItem(new FeeItem(feePerKbValue, null, null, FeeViewAdapter.VIEW_TYPE_ITEM));
-            }
-        });
-
         feeLvlList.setAdapter(feeLvlViewAdapter);
 
         int selectedIndex = -1;
@@ -505,9 +493,19 @@ public class SendMainActivity extends Activity {
                 break;
             }
         }
-
+        feeLvlList.setSelectListener(new SelectListener() {
+            @Override
+            public void onSelect(RecyclerView.Adapter adapter, int position) {
+                FeeLvlItem item = ((FeeLvlViewAdapter) adapter).getItem(position);
+                feeLvl = item.minerFee;
+                feePerKbValue = feeLvl.getFeePerKb(feeEstimation).getLongValue();
+                _transactionStatus = tryCreateUnsignedTransaction();
+                List<FeeItem> feeItems = feeItemsBuilder.getFeeItemList(feeLvl, estimateTxSize());
+                feeViewAdapter.setDataset(feeItems);
+                feeValueList.setSelectedItem(new FeeItem(feePerKbValue, null, null, FeeViewAdapter.VIEW_TYPE_ITEM));
+            }
+        });
         feeLvlList.setSelectedItem(selectedIndex);
-        feeLvlList.setHasFixedSize(true);
     }
 
     private int estimateTxSize() {
@@ -674,6 +672,8 @@ public class SendMainActivity extends Activity {
    @OnClick(R.id.btManualEntry)
    void onClickManualEntry() {
       Intent intent = new Intent(this, ManualAddressEntry.class);
+      intent.putExtra(ACCOUNT, _account.getId());
+      intent.putExtra(IS_COLD_STORAGE, _isColdStorage);
       startActivityForResult(intent, MANUAL_ENTRY_RESULT_CODE);
    }
 
@@ -683,8 +683,8 @@ public class SendMainActivity extends Activity {
       if (uri != null) {
          makeText(this, getResources().getString(R.string.using_address_from_clipboard), LENGTH_SHORT).show();
          _receivingAddress = uri.address;
-         if (uri.amount != null) {
-            _amountToSend = ExactBitcoinValue.from(uri.amount);
+         if (uri.amount != null && uri.amount >= 0) {
+             _amountToSend = ExactBitcoinValue.from(uri.amount);
          }
          _transactionStatus = tryCreateUnsignedTransaction();
          updateUi();
@@ -698,7 +698,8 @@ public class SendMainActivity extends Activity {
          // if no amount is set so far, use an unknown amount but in the current accounts currency
          presetAmount = ExactCurrencyValue.from(null, _account.getAccountDefaultCurrency());
       }
-      GetAmountActivity.callMeToSend(this, GET_AMOUNT_RESULT_CODE, _account.getId(), presetAmount, feePerKbValue, _isColdStorage);
+      GetAmountActivity.callMeToSend(this, GET_AMOUNT_RESULT_CODE, _account.getId(), presetAmount, feePerKbValue,
+              AccountDisplayType.getAccountType(_account), _isColdStorage);
    }
 
    @OnClick(R.id.btSend)
@@ -813,7 +814,7 @@ public class SendMainActivity extends Activity {
                                     SendMainActivity.this.finish();
                                  } else {
                                     makeText(SendMainActivity.this, R.string.coinapult_failed_to_broadcast, LENGTH_SHORT).show();
-                                    updateUi();
+                                    SendMainActivity.this.finish();
                                  }
                               }
                            }.execute(_preparedCoinapult);
@@ -1139,7 +1140,7 @@ public class SendMainActivity extends Activity {
         llRecipientAddress.setVisibility(View.VISIBLE);
         llEnterRecipient.setVisibility(View.GONE);
 
-      // See if the address is in the address book or one of our accounts
+        // See if the address is in the address book or one of our accounts
         String label = null;
         if (_receivingLabel != null) {
             label = _receivingLabel;

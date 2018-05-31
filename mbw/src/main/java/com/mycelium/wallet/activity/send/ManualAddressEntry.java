@@ -50,6 +50,9 @@ import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.colu.ColuAccount;
+import com.mycelium.wapi.wallet.WalletAccount;
+
+import java.util.UUID;
 
 public class ManualAddressEntry extends Activity {
 
@@ -63,14 +66,17 @@ public class ManualAddressEntry extends Activity {
       this.requestWindowFeature(Window.FEATURE_NO_TITLE);
       super.onCreate(savedInstanceState);
       setContentView(R.layout.manual_entry);
+      boolean isColdStorage = getIntent().getBooleanExtra(SendMainActivity.IS_COLD_STORAGE, false);
+      UUID accountUUID = (UUID) getIntent().getSerializableExtra(SendMainActivity.ACCOUNT);
 
       _mbwManager = MbwManager.getInstance(this);
       ((EditText) findViewById(R.id.etAddress)).addTextChangedListener(textWatcher);
       findViewById(R.id.btOk).setOnClickListener(okClickListener);
       ((EditText) findViewById(R.id.etAddress)).setInputType(InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE);
 
-      if(_mbwManager.getSelectedAccount() instanceof ColuAccount) {
-         ColuAccount coluAccount = (ColuAccount) _mbwManager.getSelectedAccount();
+      WalletAccount account = _mbwManager.getWalletManager(isColdStorage).getAccount(accountUUID);
+      if(account instanceof ColuAccount) {
+         ColuAccount coluAccount = (ColuAccount) account;
          ((TextView) findViewById(R.id.title)).setText(getString(R.string.enter_address, coluAccount.getColuAsset().name));
          ((TextView) findViewById(R.id.tvBitcoinAddressValid)).setText(getString(R.string.address_valid, coluAccount.getColuAsset().name));
          ((TextView) findViewById(R.id.tvBitcoinAddressInvalid)).setText(getString(R.string.address_invalid, coluAccount.getColuAsset().name));
@@ -93,7 +99,7 @@ public class ManualAddressEntry extends Activity {
    @Override
    public void onSaveInstanceState(Bundle savedInstanceState) {
       super.onSaveInstanceState(savedInstanceState);
-      savedInstanceState.putSerializable("entered", findViewById(R.id.etAddress).toString());
+      savedInstanceState.putSerializable("entered", ((EditText) findViewById(R.id.etAddress)).getText().toString());
    }
 
    OnClickListener okClickListener = new OnClickListener() {

@@ -5,7 +5,6 @@ import com.google.common.primitives.UnsignedInteger;
 
 
 public class Bip44Chain extends Bip44Account {
-
    public Bip44Chain(Bip44Account parent, UnsignedInteger index, boolean hardened) {
       super(parent, index, hardened);
    }
@@ -24,7 +23,6 @@ public class Bip44Chain extends Bip44Account {
       }else{
          throw new RuntimeException("No chaintyp present");
       }
-
    }
 
    @Override

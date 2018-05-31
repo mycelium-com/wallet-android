@@ -104,6 +104,9 @@ public class EnterTextDialog {
          _newText = newText;
          _oldText = oldText;
       }
+      public void onDismiss() {
+
+      }
    }
 
    public static void show(final Context context, int titleResourceId, String hintText, final String currentText,
@@ -185,6 +188,9 @@ public class EnterTextDialog {
                if (imm != null) {
                   imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
                }
+               if(enterNameHandler != null) {
+                  enterNameHandler.onDismiss();
+               }
             }
          });
 
@@ -192,6 +198,14 @@ public class EnterTextDialog {
          // For > Android 4.x set the input-mode for the dialog-box, so that the keyboard pops up
          dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
          et.setSelectAllOnFocus(true);
+         dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialogInterface) {
+               if(enterNameHandler != null) {
+                  enterNameHandler.onDismiss();
+               }
+            }
+         });
       }
 
 
