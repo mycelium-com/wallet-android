@@ -151,7 +151,7 @@ public class ModernMain extends AppCompatActivity {
       bar.setDisplayShowHomeEnabled(true);
       bar.setIcon(R.drawable.action_bar_logo);
 
-      getWindow().setBackgroundDrawableResource(R.drawable.background_witherrors_dimmed);
+      getWindow().setBackgroundDrawableResource(R.drawable.background_main);
 
       mTabsAdapter = new TabsAdapter(this, mViewPager, _mbwManager);
       mAccountsTab = bar.newTab();
