@@ -1,34 +1,40 @@
 package com.mycelium.wapi.api
 
-import com.google.gson.JsonArray
 import com.google.gson.annotations.SerializedName
+import com.megiontechnologies.Bitcoins
 import com.mrd.bitlib.util.HexUtils
 import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.WapiLogger
 import com.mycelium.net.ServerEndpoints
 import com.mycelium.wapi.api.jsonrpc.JsonRpcTcpClient
-import com.mycelium.wapi.api.jsonrpc.RPC
 import com.mycelium.wapi.api.jsonrpc.RpcParams
 import com.mycelium.wapi.api.jsonrpc.RpcRequestOut
-import com.mycelium.wapi.api.request.BroadcastTransactionRequest
-import com.mycelium.wapi.api.request.CheckTransactionsRequest
-import com.mycelium.wapi.api.request.GetTransactionsRequest
-import com.mycelium.wapi.api.request.QueryTransactionInventoryRequest
-import com.mycelium.wapi.api.request.QueryUnspentOutputsRequest
+import com.mycelium.wapi.api.lib.FeeEstimation
+import com.mycelium.wapi.api.lib.FeeEstimationMap
+import com.mycelium.wapi.api.request.*
 import com.mycelium.wapi.api.response.*
+import java.util.*
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
+import kotlin.concurrent.thread
 
 /**
  * This is a Wapi Client that avoids calls that require BQS by talking to ElectrumX for related calls
  */
 class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, versionCode: String) : WapiClient(serverEndpoints, logger, versionCode) {
+    @Volatile private lateinit var jsonRpcTcpClient: JsonRpcTcpClient
 
-    private lateinit var jsonRpcTcpClient: JsonRpcTcpClient
-
-    fun start() {
-        Thread {
+    init {
+        val latch = CountDownLatch(1)
+        thread(start = true) {
             jsonRpcTcpClient = JsonRpcTcpClient("electrumx-1.mycelium.com", 50012)
+            latch.countDown()
             jsonRpcTcpClient.start()
-        }.start()
+        }
+        if (!latch.await(10, TimeUnit.SECONDS)) {
+            throw TimeoutException("JsonRpcTcpClient failed to start within time.")
+        }
     }
 
     override fun queryUnspentOutputs(request: QueryUnspentOutputsRequest): WapiResponse<QueryUnspentOutputsResponse> {
