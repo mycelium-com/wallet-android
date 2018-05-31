@@ -2,6 +2,9 @@ package com.mycelium.wapi.api
 
 import com.google.gson.annotations.SerializedName
 import com.megiontechnologies.Bitcoins
+import com.mrd.bitlib.StandardTransactionBuilder
+import com.mrd.bitlib.model.NetworkParameters
+import com.mrd.bitlib.model.OutPoint
 import com.mrd.bitlib.util.HexUtils
 import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.WapiLogger
@@ -13,6 +16,7 @@ import com.mycelium.wapi.api.lib.FeeEstimation
 import com.mycelium.wapi.api.lib.FeeEstimationMap
 import com.mycelium.wapi.api.request.*
 import com.mycelium.wapi.api.response.*
+import com.mycelium.wapi.model.TransactionOutputEx
 import java.util.*
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
@@ -38,13 +42,23 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, 
     }
 
     override fun queryUnspentOutputs(request: QueryUnspentOutputsRequest): WapiResponse<QueryUnspentOutputsResponse> {
-//        public final Collection<Address> addresses;
-
+        val unspent: ArrayList<TransactionOutputEx> = ArrayList()
+        for (address in request.addresses) {
+            val addrHex = address.toString()
+            val response = jsonRpcTcpClient.write("blockchain.address.listunspent", RpcParams.listParams(addrHex), 50000)
+            val outputs = response.getResult(Array<UnspentOutputs>::class.java)
+            val script = StandardTransactionBuilder.createOutput(address, 1000, NetworkParameters.testNetwork).script
+            outputs!!.forEach {
+                unspent.add(TransactionOutputEx(OutPoint(Sha256Hash.fromString(it.txHash), it.txPos), it.height,
+                        it.value, script.scriptBytes,
+                        script.isCoinBase))
+            }
+        }
 //        public final int height;
 //        public final Collection<TransactionOutputEx> unspent;
         @Suppress("UseExpressionBody")
         // TODO: implement
-        return super.queryUnspentOutputs(request)
+        return WapiResponse(QueryUnspentOutputsResponse(unspent[0].height, unspent))
     }
 
     override fun queryTransactionInventory(request: QueryTransactionInventoryRequest): WapiResponse<QueryTransactionInventoryResponse> {
@@ -111,4 +125,11 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, 
 
 data class ServerFeatures (
     @SerializedName("server_version") val serverVersion: String
+)
+
+data class UnspentOutputs(
+        @SerializedName("tx_hash") val txHash: String,
+        @SerializedName("tx_pos") val txPos: Int,
+        @SerializedName("height") val height: Int,
+        @SerializedName("value") val value: Long
 )
