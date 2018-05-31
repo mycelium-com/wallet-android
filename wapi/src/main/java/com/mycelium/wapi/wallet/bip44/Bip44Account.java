@@ -66,8 +66,8 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
     protected volatile boolean _isSynchronizing;
 
     public Bip44Account(Bip44AccountContext context, Bip44AccountKeyManager keyManager,
-                        NetworkParameters network, Bip44AccountBacking backing, Wapi wapi, Wapi wapiSecond) {
-        super(backing, network, wapi, wapiSecond);
+                        NetworkParameters network, Bip44AccountBacking backing, Wapi wapi) {
+        super(backing, network, wapi);
         _backing = backing;
         _keyManager = keyManager;
         _context = context;

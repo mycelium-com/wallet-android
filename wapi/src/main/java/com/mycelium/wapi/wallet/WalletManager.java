@@ -104,7 +104,6 @@ public class WalletManager {
     private AccountEventManager _accountEventManager;
     private NetworkParameters _network;
     private Wapi _wapi;
-    private Wapi _wapiSecond;
     private WapiLogger _logger;
     private final ExternalSignatureProviderProxy _signatureProviders;
     private IdentityAccountKeyManager _identityAccountKeyManager;
@@ -119,12 +118,11 @@ public class WalletManager {
      * @param wapi    the Wapi instance to use
      */
     public WalletManager(SecureKeyValueStore secureKeyValueStore, WalletManagerBacking backing,
-                         NetworkParameters network, Wapi wapi, ExternalSignatureProviderProxy signatureProviders, SpvBalanceFetcher spvBalanceFetcher, Wapi wapiSecond) {
+                         NetworkParameters network, Wapi wapi, ExternalSignatureProviderProxy signatureProviders, SpvBalanceFetcher spvBalanceFetcher) {
         _secureKeyValueStore = secureKeyValueStore;
         _backing = backing;
         _network = network;
         _wapi = wapi;
-        _wapiSecond = wapiSecond;
         _signatureProviders = signatureProviders;
         _logger = _wapi.getLogger();
         _walletAccounts = Maps.newHashMap();
@@ -209,13 +207,13 @@ public class WalletManager {
                 _backing.createSingleAddressAccountContext(context);
                 SingleAddressAccountBacking accountBacking = checkNotNull(_backing.getSingleAddressAccountBacking(context.getId()));
                 PublicPrivateKeyStore store = new PublicPrivateKeyStore(_secureKeyValueStore);
-                SingleAddressAccount account = new SingleAddressAccount(context, store, _network, accountBacking, _wapi, _wapiSecond);
+                SingleAddressAccount account = new SingleAddressAccount(context, store, _network, accountBacking, _wapi);
                 context.persist(accountBacking);
                 _backing.setTransactionSuccessful();
                 addAccount(account);
 
                 if (_spvBalanceFetcher != null) {
-                    SingleAddressBCHAccount singleAddressBCHAccount = new SingleAddressBCHAccount(context, store, _network, accountBacking, _wapi, _spvBalanceFetcher, _wapiSecond);
+                    SingleAddressBCHAccount singleAddressBCHAccount = new SingleAddressBCHAccount(context, store, _network, accountBacking, _wapi, _spvBalanceFetcher);
                     addAccount(singleAddressBCHAccount);
                     _btcToBchAccounts.put(account.getId(), singleAddressBCHAccount.getId());
                     _spvBalanceFetcher.requestTransactionsFromUnrelatedAccountAsync(singleAddressBCHAccount.getId().toString(), /* IntentContract.UNRELATED_ACCOUNT_TYPE_SA */2);
@@ -285,9 +283,9 @@ public class WalletManager {
                 // Create actual account
                 Bip44Account account;
                 if (hdKeyNode.isPrivateHdKeyNode()) {
-                    account = new Bip44Account(context, keyManager, _network, accountBacking, _wapi, _wapiSecond);
+                    account = new Bip44Account(context, keyManager, _network, accountBacking, _wapi);
                 } else {
-                    account = new Bip44PubOnlyAccount(context, keyManager, _network, accountBacking, _wapi, _wapiSecond);
+                    account = new Bip44PubOnlyAccount(context, keyManager, _network, accountBacking, _wapi);
                 }
 
                 // Finally persist context and add account
@@ -303,9 +301,9 @@ public class WalletManager {
                 if (_spvBalanceFetcher != null) {
                     Bip44BCHAccount bip44BCHAccount;
                     if (hdKeyNode.isPrivateHdKeyNode()) {
-                        bip44BCHAccount = new Bip44BCHAccount(context, keyManager, _network, accountBacking, _wapi, _spvBalanceFetcher, _wapiSecond);
+                        bip44BCHAccount = new Bip44BCHAccount(context, keyManager, _network, accountBacking, _wapi, _spvBalanceFetcher);
                     } else {
-                        bip44BCHAccount = new Bip44BCHPubOnlyAccount(context, keyManager, _network, accountBacking, _wapi, _spvBalanceFetcher, _wapiSecond);
+                        bip44BCHAccount = new Bip44BCHPubOnlyAccount(context, keyManager, _network, accountBacking, _wapi, _spvBalanceFetcher);
                     }
                     addAccount(bip44BCHAccount);
                     _btcToBchAccounts.put(account.getId(), bip44BCHAccount.getId());
@@ -341,7 +339,7 @@ public class WalletManager {
                 Bip44AccountBacking accountBacking = getBip44AccountBacking(context.getId());
 
                 // Create actual account
-                Bip44Account account = new Bip44AccountExternalSignature(context, keyManager, _network, accountBacking, _wapi, externalSignatureProvider, _wapiSecond);
+                Bip44Account account = new Bip44AccountExternalSignature(context, keyManager, _network, accountBacking, _wapi, externalSignatureProvider);
 
                 // Finally persist context and add account
                 context.persist(accountBacking);
@@ -722,19 +720,19 @@ public class WalletManager {
             case ACCOUNT_TYPE_FROM_MASTERSEED:
                 // Normal account - derived from masterseed
                 keyManager = new Bip44AccountKeyManager(context.getAccountIndex(), _network, _secureKeyValueStore);
-                account = new Bip44Account(context, keyManager, _network, accountBacking, _wapi, _wapiSecond);
+                account = new Bip44Account(context, keyManager, _network, accountBacking, _wapi);
                 break;
             case ACCOUNT_TYPE_UNRELATED_X_PUB:
                 // Imported xPub-based account
                 SecureKeyValueStore subKeyStore = _secureKeyValueStore.getSubKeyStore(context.getAccountSubId());
                 keyManager = new Bip44PubOnlyAccountKeyManager(context.getAccountIndex(), _network, subKeyStore);
-                account = new Bip44PubOnlyAccount(context, keyManager, _network, accountBacking, _wapi, _wapiSecond);
+                account = new Bip44PubOnlyAccount(context, keyManager, _network, accountBacking, _wapi);
                 break;
             case ACCOUNT_TYPE_UNRELATED_X_PRIV:
                 // Imported xPriv-based account
                 SecureKeyValueStore subKeyStoreXpriv = _secureKeyValueStore.getSubKeyStore(context.getAccountSubId());
                 keyManager = new Bip44AccountKeyManager(context.getAccountIndex(), _network, subKeyStoreXpriv);
-                account = new Bip44Account(context, keyManager, _network, accountBacking, _wapi, _wapiSecond);
+                account = new Bip44Account(context, keyManager, _network, accountBacking, _wapi);
                 break;
             case ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR:
                 SecureKeyValueStore subKeyStoreTrezor = _secureKeyValueStore.getSubKeyStore(context.getAccountSubId());
@@ -745,8 +743,7 @@ public class WalletManager {
                     _network,
                     accountBacking,
                     _wapi,
-                    _signatureProviders.get(ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR),
-                    _wapiSecond
+                    _signatureProviders.get(ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR)
                 );
                 break;
             case ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER:
@@ -758,8 +755,7 @@ public class WalletManager {
                     _network,
                     accountBacking,
                     _wapi,
-                    _signatureProviders.get(ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER),
-                        _wapiSecond
+                    _signatureProviders.get(ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER)
                 );
                 break;
             case ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY:
@@ -771,8 +767,7 @@ public class WalletManager {
                     _network,
                     accountBacking,
                     _wapi,
-                    _signatureProviders.get(ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY),
-                        _wapiSecond
+                    _signatureProviders.get(ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY)
                 );
                 break;
             default:
@@ -787,10 +782,10 @@ public class WalletManager {
 
                 switch (context.getAccountType()) {
                     case ACCOUNT_TYPE_UNRELATED_X_PUB:
-                        bchAccount = new Bip44BCHPubOnlyAccount(context, keyManager, _network, accountBacking, _wapi, _spvBalanceFetcher, _wapiSecond);
+                        bchAccount = new Bip44BCHPubOnlyAccount(context, keyManager, _network, accountBacking, _wapi, _spvBalanceFetcher);
                         break;
                     default:
-                        bchAccount = new Bip44BCHAccount(context, keyManager, _network, accountBacking, _wapi, _spvBalanceFetcher, _wapiSecond);
+                        bchAccount = new Bip44BCHAccount(context, keyManager, _network, accountBacking, _wapi, _spvBalanceFetcher);
                 }
 
                 addAccount(bchAccount);
@@ -811,11 +806,11 @@ public class WalletManager {
         for (SingleAddressAccountContext context : contexts) {
             PublicPrivateKeyStore store = new PublicPrivateKeyStore(_secureKeyValueStore);
             SingleAddressAccountBacking accountBacking = checkNotNull(_backing.getSingleAddressAccountBacking(context.getId()));
-            SingleAddressAccount account = new SingleAddressAccount(context, store, _network, accountBacking, _wapi, _wapiSecond);
+            SingleAddressAccount account = new SingleAddressAccount(context, store, _network, accountBacking, _wapi);
             addAccount(account);
 
             if (_spvBalanceFetcher != null) {
-                SingleAddressBCHAccount bchAccount = new SingleAddressBCHAccount(context, store, _network, accountBacking, _wapi, _spvBalanceFetcher, _wapiSecond);
+                SingleAddressBCHAccount bchAccount = new SingleAddressBCHAccount(context, store, _network, accountBacking, _wapi, _spvBalanceFetcher);
                 addAccount(bchAccount);
                 _btcToBchAccounts.put(account.getId(), bchAccount.getId());
                 _spvBalanceFetcher.requestTransactionsFromUnrelatedAccountAsync(bchAccount.getId().toString(), /* IntentContract.UNRELATED_ACCOUNT_TYPE_SA */ 2);
@@ -1194,7 +1189,7 @@ public class WalletManager {
                 Bip44AccountBacking accountBacking = getBip44AccountBacking(context.getId());
 
                 // Create actual account
-                Bip44Account account = new Bip44Account(context, keyManager, _network, accountBacking, _wapi, _wapiSecond);
+                Bip44Account account = new Bip44Account(context, keyManager, _network, accountBacking, _wapi);
 
                 // Finally persist context and add account
                 context.persist(accountBacking);
@@ -1240,7 +1235,7 @@ public class WalletManager {
                 Bip44AccountBacking accountBacking = getBip44AccountBacking(context.getId());
 
                 // Create actual account
-                Bip44Account account = new Bip44Account(context, keyManager, _network, accountBacking, _wapi, _wapiSecond);
+                Bip44Account account = new Bip44Account(context, keyManager, _network, accountBacking, _wapi);
 
                 // Finally persist context and add account
                 context.persist(accountBacking);
@@ -1249,7 +1244,7 @@ public class WalletManager {
                 _bip44Accounts.add(account);
 
                 if(_spvBalanceFetcher != null) {
-                    Bip44BCHAccount bip44BCHAccount = new Bip44BCHAccount(context, keyManager, _network, accountBacking, _wapi, _spvBalanceFetcher, _wapiSecond);
+                    Bip44BCHAccount bip44BCHAccount = new Bip44BCHAccount(context, keyManager, _network, accountBacking, _wapi, _spvBalanceFetcher);
                     _spvBalanceFetcher.requestTransactionsAsync(bip44BCHAccount.getAccountIndex());
                     addAccount(bip44BCHAccount);
                     _btcToBchAccounts.put(account.getId(), bip44BCHAccount.getId());

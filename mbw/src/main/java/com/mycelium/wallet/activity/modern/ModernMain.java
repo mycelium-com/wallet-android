@@ -87,7 +87,6 @@ import com.mycelium.wallet.event.TorStateChanged;
 import com.mycelium.wallet.event.TransactionBroadcasted;
 import com.mycelium.wallet.modularisation.BCHHelper;
 import com.mycelium.wallet.modularisation.ModularisationVersionHelper;
-import com.mycelium.wapi.api.ServerFeatures;
 import com.mycelium.wapi.api.response.Feature;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
@@ -97,7 +96,6 @@ import com.squareup.otto.Subscribe;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -430,10 +428,6 @@ public class ModernMain extends AppCompatActivity {
                // if we are in the accounts tab, sync all accounts if the users forces a sync
                syncMode = SyncMode.NORMAL_ALL_ACCOUNTS_FORCED;
             }
-
-            ServerFeatures serverFeatures = _mbwManager.getServerFeatures();
-            Map<Integer, Double> estimatedFees = _mbwManager.estimateFee(new Integer[] { 1, 3, 5});
-
             _mbwManager.getWalletManager(false).startSynchronization(syncMode);
             _mbwManager.getColuManager().startSynchronization();
             // also fetch a new exchange rate, if necessary

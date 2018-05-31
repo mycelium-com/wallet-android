@@ -30,18 +30,21 @@ public class Bip44BCHAccount extends Bip44Account {
         return CurrencyValue.BCH;
     }
 
-    public Bip44BCHAccount(Bip44AccountContext context, Bip44AccountKeyManager keyManager, NetworkParameters network, Bip44AccountBacking backing, Wapi wapi, SpvBalanceFetcher spvBalanceFetcher, Wapi wapiSecond) {
-        super(context, keyManager, network, backing, wapi, wapiSecond);
+    public Bip44BCHAccount(Bip44AccountContext context, Bip44AccountKeyManager keyManager,
+                           NetworkParameters network, Bip44AccountBacking backing, Wapi wapi,
+                           SpvBalanceFetcher spvBalanceFetcher) {
+        super(context, keyManager, network, backing, wapi);
         this.spvBalanceFetcher = spvBalanceFetcher;
         this.type = Type.BCHBIP44;
     }
 
     @Override
     public CurrencyBasedBalance getCurrencyBasedBalance() {
-        if (getAccountType() == ACCOUNT_TYPE_FROM_MASTERSEED)
+        if (getAccountType() == ACCOUNT_TYPE_FROM_MASTERSEED) {
             return spvBalanceFetcher.retrieveByHdAccountIndex(getId().toString(), getAccountIndex());
-        else
+        } else {
             return spvBalanceFetcher.retrieveByUnrelatedAccountId(getId().toString());
+        }
     }
 
     @Override
@@ -49,10 +52,11 @@ public class Bip44BCHAccount extends Bip44Account {
         //TODO Refactor the code and make the proper usage of minerFeePerKbToUse parameter
         String txFee = "NORMAL";
         float txFeeFactor = 1.0f;
-        if (getAccountType() == ACCOUNT_TYPE_FROM_MASTERSEED)
+        if (getAccountType() == ACCOUNT_TYPE_FROM_MASTERSEED) {
             return ExactBitcoinCashValue.from(spvBalanceFetcher.calculateMaxSpendableAmount(getAccountIndex(), txFee, txFeeFactor));
-        else
+        } else {
             return ExactBitcoinCashValue.from(spvBalanceFetcher.calculateMaxSpendableAmountUnrelatedAccount(getId().toString(), txFee, txFeeFactor));
+        }
     }
 
     @Override
@@ -73,27 +77,30 @@ public class Bip44BCHAccount extends Bip44Account {
 
     @Override
     public List<TransactionSummary> getTransactionHistory(int offset, int limit) {
-        if (getAccountType() == ACCOUNT_TYPE_FROM_MASTERSEED)
+        if (getAccountType() == ACCOUNT_TYPE_FROM_MASTERSEED) {
             return spvBalanceFetcher.retrieveTransactionSummaryByHdAccountIndex(getId().toString(), getAccountIndex());
-        else
+        } else {
             return spvBalanceFetcher.retrieveTransactionSummaryByUnrelatedAccountId(getId().toString());
+        }
     }
 
     @Override
     public List<TransactionSummary> getTransactionsSince(Long receivingSince) {
-        if (getAccountType() == ACCOUNT_TYPE_FROM_MASTERSEED)
+        if (getAccountType() == ACCOUNT_TYPE_FROM_MASTERSEED) {
             return spvBalanceFetcher.retrieveTransactionSummaryByHdAccountIndex(getId().toString(), getAccountIndex(), receivingSince);
-        else
+        } else {
             return spvBalanceFetcher.retrieveTransactionSummaryByUnrelatedAccountId(getId().toString(), receivingSince);
+        }
     }
 
     @Override
     public boolean isVisible() {
         if (!visible && (spvBalanceFetcher.getSyncProgressPercents() == 100 || spvBalanceFetcher.isAccountSynced(this))) {
-            if (getAccountType() == ACCOUNT_TYPE_FROM_MASTERSEED)
+            if (getAccountType() == ACCOUNT_TYPE_FROM_MASTERSEED) {
                 visible = !spvBalanceFetcher.retrieveTransactionSummaryByHdAccountIndex(getId().toString(), getAccountIndex()).isEmpty();
-            else
+            } else {
                 visible = !spvBalanceFetcher.retrieveTransactionSummaryByUnrelatedAccountId(getId().toString()).isEmpty();
+            }
         }
         return visible;
     }

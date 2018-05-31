@@ -1,7 +1,6 @@
 package com.mycelium.wapi.wallet.bip44;
 
 import com.google.common.base.Optional;
-import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.StandardTransactionBuilder.UnsignedTransaction;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.Transaction;
@@ -12,8 +11,11 @@ import com.mycelium.wapi.wallet.KeyCipher;
 public class Bip44AccountExternalSignature extends Bip44PubOnlyAccount {
    private final ExternalSignatureProvider _sigProvider;
 
-   public Bip44AccountExternalSignature(Bip44AccountContext context, Bip44AccountKeyManager keyManager, NetworkParameters network, Bip44AccountBacking backing, Wapi wapi, ExternalSignatureProvider signatureProvider, Wapi wapiSecond) {
-      super(context, keyManager, network, backing, wapi, wapiSecond);
+   public Bip44AccountExternalSignature(Bip44AccountContext context,
+                                        Bip44AccountKeyManager keyManager,
+                                        NetworkParameters network, Bip44AccountBacking backing,
+                                        Wapi wapi, ExternalSignatureProvider signatureProvider) {
+      super(context, keyManager, network, backing, wapi);
       _sigProvider = signatureProvider;
    }
 

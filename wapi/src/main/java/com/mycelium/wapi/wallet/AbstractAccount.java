@@ -104,7 +104,6 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
 
    protected final NetworkParameters _network;
    protected final Wapi _wapi;
-   protected final Wapi _wapiSecond;
    protected final WapiLogger _logger;
    protected boolean _allowZeroConfSpending = true;      //on per default, we warn users if they use it
    protected Balance _cachedBalance;
@@ -112,11 +111,10 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
    private EventHandler _eventHandler;
    private final AccountBacking _backing;
 
-   protected AbstractAccount(AccountBacking backing, NetworkParameters network, Wapi wapi, Wapi wapiSecond) {
+   protected AbstractAccount(AccountBacking backing, NetworkParameters network, Wapi wapi) {
       _network = network;
       _logger = wapi.getLogger();
       _wapi = wapi;
-      _wapiSecond = wapiSecond;
       _backing = backing;
       coluTransferInstructionsParser = new ColuTransferInstructionsParser(_logger);
    }
@@ -647,7 +645,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
    public synchronized BroadcastResult broadcastTransaction(Transaction transaction) {
       checkNotArchived();
       try {
-         WapiResponse<BroadcastTransactionResponse> response = _wapiSecond.broadcastTransaction(
+         WapiResponse<BroadcastTransactionResponse> response = _wapi.broadcastTransaction(
                new BroadcastTransactionRequest(Wapi.VERSION, transaction.toBytes()));
          if (response.getErrorCode() == Wapi.ERROR_CODE_SUCCESS) {
             if (response.getResult().success) {

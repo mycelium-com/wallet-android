@@ -103,7 +103,6 @@ import com.mycelium.wallet.modularisation.SpvBchFetcher;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.persistence.TradeSessionDb;
 import com.mycelium.wallet.wapi.SqliteWalletManagerBackingWrapper;
-import com.mycelium.wapi.api.ServerFeatures;
 import com.mycelium.wapi.api.WapiClient;
 import com.mycelium.wapi.api.WapiClientElectrumX;
 import com.mycelium.wapi.wallet.AccountProvider;
@@ -132,7 +131,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.Timer;
@@ -190,7 +188,6 @@ public class MbwManager {
    private final KeepKeyManager _keepkeyManager;
    private final LedgerManager _ledgerManager;
    private final WapiClient _wapi;
-   private final WapiClientElectrumX _wapiElectrumX;
 
    private final LtApiClient _ltApi;
    private Handler _torHandler;
@@ -242,8 +239,6 @@ public class MbwManager {
       }
 
       _wapi = initWapi();
-      _wapiElectrumX = new WapiClientElectrumX(_environment.getWapiEndpoints(), retainingWapiLogger, version);
-       _wapiElectrumX.start();
 
       _httpErrorCollector = HttpErrorCollector.registerInVM(_applicationContext, _wapi);
 
@@ -432,7 +427,7 @@ public class MbwManager {
       _wapiLogs.add(new LogEntry(message, level, new Date()));
    }
 
-   public WapiLogger retainingWapiLogger = new WapiLogger() {
+   private WapiLogger retainingWapiLogger = new WapiLogger() {
       @Override
       public void logError(String message) {
          Log.e("Wapi", message);
@@ -465,7 +460,7 @@ public class MbwManager {
          version = "na";
       }
 
-      return new WapiClient(_environment.getWapiEndpoints(), retainingWapiLogger, version);
+      return new WapiClientElectrumX(_environment.getWapiEndpoints(), retainingWapiLogger, version);
    }
 
    private void initTor() {
@@ -595,7 +590,7 @@ public class MbwManager {
       SpvBalanceFetcher spvBchFetcher = getSpvBchFetcher();
       // Create and return wallet manager
       WalletManager walletManager = new WalletManager(secureKeyValueStore,
-              backing, environment.getNetwork(), _wapi, externalSignatureProviderProxy, spvBchFetcher, _wapiElectrumX);
+              backing, environment.getNetwork(), _wapi, externalSignatureProviderProxy, spvBchFetcher);
 
       // notify the walletManager about the current selected account
       UUID lastSelectedAccountId = getLastSelectedAccountId();
@@ -646,7 +641,7 @@ public class MbwManager {
 
       // Create and return wallet manager
       WalletManager walletManager = new WalletManager(secureKeyValueStore,
-              backing, environment.getNetwork(), _wapi, null, getSpvBchFetcher(), _wapiElectrumX);
+              backing, environment.getNetwork(), _wapi, null, getSpvBchFetcher());
 
       walletManager.disableTransactionHistorySynchronization();
       return walletManager;
@@ -1273,8 +1268,6 @@ public class MbwManager {
       return _wapi;
    }
 
-   public WapiClient getWapiElectrumX() {return _wapiElectrumX;}
-
    public EvictingQueue<LogEntry> getWapiLogs() {
       return _wapiLogs;
    }
@@ -1406,13 +1399,4 @@ public class MbwManager {
       // also fetch a new exchange rate, if necessary
       getExchangeRateManager().requestOptionalRefresh();
    }
-
-   public ServerFeatures getServerFeatures() {
-      return _wapiElectrumX.serverFeatures();
-   }
-
-   public Map<Integer, Double> estimateFee(Integer[] nBlocks) {
-      return _wapiElectrumX.estimateFee(nBlocks);
-   }
-
 }

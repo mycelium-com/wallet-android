@@ -193,10 +193,6 @@ public class ColuManager implements AccountProvider {
         return mgr.getWapi();
     }
 
-    public WapiClient getWapiElectrumX() {
-        return mgr.getWapiElectrumX();
-    }
-
     public boolean hasAccountWithType(Address address, ColuAccount.ColuAssetType type) {
         for (WalletAccount account : getAccounts().values()) {
             if (account instanceof ColuAccount
@@ -563,7 +559,7 @@ public class ColuManager implements AccountProvider {
         for (SingleAddressAccountContext context : contexts) {
             PublicPrivateKeyStore store = new PublicPrivateKeyStore(_secureKeyValueStore);
             SingleAddressAccountBacking accountBacking = checkNotNull(_backing.getSingleAddressAccountBacking(context.getId()));
-            SingleAddressAccount account = new SingleAddressAccount(context, store, _network, accountBacking, getWapi(),getWapiElectrumX());
+            SingleAddressAccount account = new SingleAddressAccount(context, store, _network, accountBacking, getWapi());
             addAccount(account);
 
             for(ColuAccount coluAccount : coluAccounts.values()) {

@@ -7,8 +7,8 @@ import com.mycelium.wapi.wallet.SpvBalanceFetcher;
 
 
 public class Bip44PubOnlyAccount extends Bip44Account {
-   public Bip44PubOnlyAccount(Bip44AccountContext context, Bip44AccountKeyManager keyManager, NetworkParameters network, Bip44AccountBacking backing, Wapi wapi, Wapi wapiSecond) {
-      super(context, keyManager, network, backing, wapi, wapiSecond);
+   public Bip44PubOnlyAccount(Bip44AccountContext context, Bip44AccountKeyManager keyManager, NetworkParameters network, Bip44AccountBacking backing, Wapi wapi) {
+      super(context, keyManager, network, backing, wapi);
    }
 
    @Override
