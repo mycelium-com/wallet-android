@@ -19,6 +19,7 @@ import java.util.*
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
+import kotlin.collections.ArrayList
 import kotlin.concurrent.thread
 
 /**
@@ -46,21 +47,24 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, 
 
     override fun queryUnspentOutputs(request: QueryUnspentOutputsRequest): WapiResponse<QueryUnspentOutputsResponse> {
         val unspent: ArrayList<TransactionOutputEx> = ArrayList()
-        for (address in request.addresses) {
-            val addrHex = address.toString()
-            val response = jsonRpcTcpClient.write(LIST_UNSPENT_METHOD, RpcParams.listParams(addrHex), 50000)
-            val outputs = response.getResult(Array<UnspentOutputs>::class.java)
-            val script = StandardTransactionBuilder.createOutput(address, 1000, NetworkParameters.testNetwork).script
-            outputs!!.forEach {
-                unspent.add(TransactionOutputEx(OutPoint(Sha256Hash.fromString(it.txHash), it.txPos), it.height,
-                        it.value, script.scriptBytes,
-                        script.isCoinBase))
-            }
+        val requestsList = ArrayList<RpcRequestOut>()
+        val requestAddressesList = ArrayList(request.addresses)
+        requestAddressesList.forEach {
+            val addrHex = it.toString()
+            requestsList.add(RpcRequestOut(LIST_UNSPENT_METHOD, RpcParams.listParams(addrHex)))
         }
-//        public final int height;
-//        public final Collection<TransactionOutputEx> unspent;
-        @Suppress("UseExpressionBody")
-        // TODO: implement
+        val unspentsArray = jsonRpcTcpClient.write(requestsList, 50000).responses
+        unspentsArray.forEachIndexed {
+            index, responce ->
+                val outputs = responce.getResult(Array<UnspentOutputs>::class.java)
+                val script = StandardTransactionBuilder.createOutput(requestAddressesList[index], 1000, NetworkParameters.testNetwork).script
+                outputs!!.forEach {
+                    unspent.add(TransactionOutputEx(OutPoint(Sha256Hash.fromString(it.txHash), it.txPos), it.height,
+                            it.value, script.scriptBytes,
+                            script.isCoinBase))
+                }
+        }
+
         return WapiResponse(QueryUnspentOutputsResponse(blockHeight, unspent))
     }
 
