@@ -80,16 +80,6 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, 
     }
 
     override fun checkTransactions(request: CheckTransactionsRequest): WapiResponse<CheckTransactionsResponse> {
-//        public final List<Sha256Hash> txIds;
-
-//        public final Collection<TransactionStatus> transactions;
-//        this.txid = txid;
-//        this.found = found;
-//        this.height = height;
-//        this.time = time;
-//        this.unconfirmedChainLength = unconfirmedChainLength;
-//        this.rbfRisk = rbfRisk;
-
         val requestsList = request.txIds.map {
             RpcRequestOut("blockchain.transaction.get",
                     RpcParams.mapParams(
@@ -101,18 +91,17 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, 
             if (it.hasError) {
                 logger.logError("checkTransactions failed: ${it.error}")
             }
-            // TODO: why is tx null??!!
             val tx = it.getResult(TransactionX::class.java)
             if(tx == null) {
                 null
             } else {
                 TransactionStatus(
                         Sha256Hash.fromString(tx.hash),
-                        true,
-                        tx.time,
-                        bestChainHeight - tx.confirmations,
-                        2,
-                        true)
+                        true, // TODO: check?
+                        tx.time, // TODO: check?
+                        bestChainHeight - tx.confirmations, // TODO: fix!!
+                        2, // TODO: fix!
+                        true) // TODO: fix!
             }
         }.filter { it != null }
         return WapiResponse(CheckTransactionsResponse(transactionsArray))
