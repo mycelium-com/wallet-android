@@ -63,10 +63,10 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, 
         requestsList.forEachIndexed { index, request ->
             requestsIndexesMap[request.id.toString()] = index
         }
-        unspentsArray.forEach { responce ->
-            val outputs = responce.getResult(Array<UnspentOutputs>::class.java)
+        unspentsArray.forEach { response ->
+            val outputs = response.getResult(Array<UnspentOutputs>::class.java)
             outputs!!.forEach {
-                val script = StandardTransactionBuilder.createOutput(requestAddressesList[requestsIndexesMap[responce.id.toString()]!!],
+                val script = StandardTransactionBuilder.createOutput(requestAddressesList[requestsIndexesMap[response.id.toString()]!!],
                         it.value, NetworkParameters.testNetwork).script
                 unspent.add(TransactionOutputEx(OutPoint(Sha256Hash.fromString(it.txHash), it.txPos), it.height,
                         it.value, script.scriptBytes,
@@ -78,15 +78,23 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, 
     }
 
     override fun queryTransactionInventory(request: QueryTransactionInventoryRequest): WapiResponse<QueryTransactionInventoryResponse> {
-//        public final List<Address> addresses;
-//        public final int limit;
+        val txIds: ArrayList<Sha256Hash> = ArrayList()
+        val requestsList = ArrayList<RpcRequestOut>(request.addresses.size)
+        request.addresses.forEach {
+            val addrHex = it.toString()
+            requestsList.add(RpcRequestOut(GET_HISTORY_METHOD, RpcParams.listParams(addrHex)))
+        }
+        val transactionHistoryArray = jsonRpcTcpClient.write(requestsList, 50000).responses
 
-//        public final int height;
-//        public final List<Sha256Hash> txIds;
+        val outputs = ArrayList<TransactionHistoryInfo>()
+        transactionHistoryArray.forEach {
+            outputs.addAll(it.getResult(Array<TransactionHistoryInfo>::class.java)!!)
+        }
+        outputs.sort()
+        txIds.addAll(outputs.slice(IntRange(0, Math.min(request.limit, outputs.size) - 1))
+                .map { Sha256Hash.fromString(it.tx_hash) })
 
-        @Suppress("UseExpressionBody")
-        // TODO: implement
-        return super.queryTransactionInventory(request)
+        return WapiResponse(QueryTransactionInventoryResponse(bestChainHeight, txIds))
     }
 
     override fun getTransactions(request: GetTransactionsRequest): WapiResponse<GetTransactionsResponse> {
@@ -163,6 +171,8 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, 
         private const val BROADCAST_METHOD = "blockchain.transaction.broadcast"
         private const val FEATURES_METHOD = "server.features"
         private const val HEADRES_SUBSCRIBE_METHOD = "blockchain.headers.subscribe"
+        @Deprecated("Address must be replaced with script")
+        private const val GET_HISTORY_METHOD = "blockchain.address.get_history"
     }
 }
 
@@ -189,3 +199,25 @@ data class BlockHeader(
         @SerializedName("height") val height: Int,
         @SerializedName("hex") val hex: String
 )
+
+data class TransactionHistoryInfo(
+        @SerializedName("fee") val fee: Int,
+        @SerializedName("height") val height: Int,
+        @SerializedName("tx_hash") val tx_hash: String
+) : Comparable<TransactionHistoryInfo> {
+    /**
+     * Sort by height, largest height first
+     */
+    override fun compareTo(other: TransactionHistoryInfo): Int {
+        // Make pending transaction have maximum height
+        val myHeight = if (height == -1) Integer.MAX_VALUE else height
+        val otherHeight = if (other.height == -1) Integer.MAX_VALUE else other.height
+
+        return when {
+            myHeight < otherHeight -> 1
+            myHeight > otherHeight -> -1
+            else -> 0
+        }
+    }
+
+}
