@@ -28,13 +28,14 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, 
     init {
         val latch = CountDownLatch(1)
         thread(start = true) {
-            jsonRpcTcpClient = JsonRpcTcpClient("electrumx-1.mycelium.com", 50012)
+            jsonRpcTcpClient = JsonRpcTcpClient("electrumx-1.mycelium.com", 50012, logger)
             latch.countDown()
             jsonRpcTcpClient.start()
         }
         if (!latch.await(10, TimeUnit.SECONDS)) {
             throw TimeoutException("JsonRpcTcpClient failed to start within time.")
         }
+        logger.logInfo("ElectrumX server version is ${serverFeatures().serverVersion}.")
     }
 
     override fun queryUnspentOutputs(request: QueryUnspentOutputsRequest): WapiResponse<QueryUnspentOutputsResponse> {
@@ -107,7 +108,6 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, 
         return response.getResult(ServerFeatures::class.java)!!
     }
 }
-
 
 data class ServerFeatures (
     @SerializedName("server_version") val serverVersion: String
