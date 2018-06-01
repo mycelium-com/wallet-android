@@ -12,19 +12,27 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class NewsViewHolder extends RecyclerView.ViewHolder {
-    @BindView(R.id.image)
-    ImageView imageView;
-
     @BindView(R.id.title)
-    TextView title;
+    public TextView title;
 
     @BindView(R.id.description)
-    TextView description;
+    public TextView description;
+
+    @BindView(R.id.date)
+    public TextView date;
+
+    @BindView(R.id.bt_share)
+    public View share;
+
+    @BindView(R.id.author)
+    public TextView author;
+
+    @BindView(R.id.logo)
+    public ImageView authorLogo;
+
 
     public NewsViewHolder(View itemView) {
         super(itemView);
         ButterKnife.bind(this, itemView);
-        title.setText("Lorem ipsum");
-        description.setText("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.");
     }
 }
