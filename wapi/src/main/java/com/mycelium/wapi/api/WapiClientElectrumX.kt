@@ -30,7 +30,7 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, 
     @Volatile private lateinit var jsonRpcTcpClient: JsonRpcTcpClient
     private var bestChainHeight = -1
 
-    private val receiveHeaderCallback = { responce: AbstractResponse -> blockHeight = (responce as RpcResponse).getResult(BlockHeader::class.java)!!.height }
+    private val receiveHeaderCallback = { responce: AbstractResponse -> bestChainHeight = (responce as RpcResponse).getResult(BlockHeader::class.java)!!.height }
 
     init {
         val latch = CountDownLatch(1)
@@ -66,7 +66,7 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, 
                 }
         }
 
-        return WapiResponse(QueryUnspentOutputsResponse(blockHeight, unspent))
+        return WapiResponse(QueryUnspentOutputsResponse(bestChainHeight, unspent))
     }
 
     override fun queryTransactionInventory(request: QueryTransactionInventoryRequest): WapiResponse<QueryTransactionInventoryResponse> {
