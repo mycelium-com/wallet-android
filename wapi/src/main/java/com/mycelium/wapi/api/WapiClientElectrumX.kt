@@ -49,17 +49,23 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, 
     override fun queryUnspentOutputs(request: QueryUnspentOutputsRequest): WapiResponse<QueryUnspentOutputsResponse> {
         val unspent: ArrayList<TransactionOutputEx> = ArrayList()
         val requestsList = ArrayList<RpcRequestOut>()
+        val requestsIndexesMap = HashMap<String, Int>()
         val requestAddressesList = ArrayList(request.addresses)
         requestAddressesList.forEach {
             val addrHex = it.toString()
             requestsList.add(RpcRequestOut(LIST_UNSPENT_METHOD, RpcParams.listParams(addrHex)))
         }
         val unspentsArray = jsonRpcTcpClient.write(requestsList, 50000).responses
+
+        //Fill temporary indexes map in order to find right address
+        requestsList.forEachIndexed { index, request ->
+            requestsIndexesMap.put(request.id.toString(), index)
+        }
         unspentsArray.forEachIndexed {
             index, responce ->
                 val outputs = responce.getResult(Array<UnspentOutputs>::class.java)
                 outputs!!.forEach {
-                    val script = StandardTransactionBuilder.createOutput(requestAddressesList[index], it.value, NetworkParameters.testNetwork).script
+                    val script = StandardTransactionBuilder.createOutput(requestAddressesList[requestsIndexesMap.get(responce.id.toString())!!], it.value, NetworkParameters.testNetwork).script
                     unspent.add(TransactionOutputEx(OutPoint(Sha256Hash.fromString(it.txHash), it.txPos), it.height,
                             it.value, script.scriptBytes,
                             script.isCoinBase))
