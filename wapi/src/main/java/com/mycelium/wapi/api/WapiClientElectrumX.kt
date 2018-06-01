@@ -27,8 +27,10 @@ import kotlin.concurrent.thread
  * This is a Wapi Client that avoids calls that require BQS by talking to ElectrumX for related calls
  */
 class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, versionCode: String) : WapiClient(serverEndpoints, logger, versionCode) {
-    @Volatile private lateinit var jsonRpcTcpClient: JsonRpcTcpClient
-    @Volatile private var bestChainHeight = -1
+    @Volatile
+    private lateinit var jsonRpcTcpClient: JsonRpcTcpClient
+    @Volatile
+    private var bestChainHeight = -1
 
     private val receiveHeaderCallback = { responce: AbstractResponse -> bestChainHeight = (responce as RpcResponse).getResult(BlockHeader::class.java)!!.height }
 
@@ -59,17 +61,17 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, 
 
         //Fill temporary indexes map in order to find right address
         requestsList.forEachIndexed { index, request ->
-            requestsIndexesMap.put(request.id.toString(), index)
+            requestsIndexesMap[request.id.toString()] = index
         }
-        unspentsArray.forEachIndexed {
-            index, responce ->
-                val outputs = responce.getResult(Array<UnspentOutputs>::class.java)
-                outputs!!.forEach {
-                    val script = StandardTransactionBuilder.createOutput(requestAddressesList[requestsIndexesMap.get(responce.id.toString())!!], it.value, NetworkParameters.testNetwork).script
-                    unspent.add(TransactionOutputEx(OutPoint(Sha256Hash.fromString(it.txHash), it.txPos), it.height,
-                            it.value, script.scriptBytes,
-                            script.isCoinBase))
-                }
+        unspentsArray.forEach { responce ->
+            val outputs = responce.getResult(Array<UnspentOutputs>::class.java)
+            outputs!!.forEach {
+                val script = StandardTransactionBuilder.createOutput(requestAddressesList[requestsIndexesMap[responce.id.toString()]!!],
+                        it.value, NetworkParameters.testNetwork).script
+                unspent.add(TransactionOutputEx(OutPoint(Sha256Hash.fromString(it.txHash), it.txPos), it.height,
+                        it.value, script.scriptBytes,
+                        script.isCoinBase))
+            }
         }
 
         return WapiResponse(QueryUnspentOutputsResponse(bestChainHeight, unspent))
@@ -117,7 +119,7 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, 
                 logger.logError("checkTransactions failed: ${it.error}")
             }
             val tx = it.getResult(TransactionX::class.java)
-            if(tx == null) {
+            if (tx == null) {
                 null
             } else {
                 TransactionStatus(
@@ -167,6 +169,7 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, 
 data class ServerFeatures(
         @SerializedName("server_version") val serverVersion: String
 )
+
 data class TransactionX(
         @SerializedName("hash") val hash: String,
         @SerializedName("blockhash") val blockhash: String,
