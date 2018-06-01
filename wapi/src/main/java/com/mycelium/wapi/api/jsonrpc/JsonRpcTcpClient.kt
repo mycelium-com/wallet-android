@@ -1,5 +1,6 @@
 package com.mycelium.wapi.api.jsonrpc
 
+import com.mycelium.WapiLogger
 import java.io.*
 import java.net.Socket
 import javax.net.ssl.SSLSocketFactory
@@ -8,11 +9,13 @@ import java.util.*
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
+import kotlin.concurrent.thread
 
 typealias Consumer<T> = (T) -> Unit
 
 open class JsonRpcTcpClient(host: String,
-                            port: Int) {
+                            port: Int,
+                            val logger: WapiLogger) {
     private val ssf = SSLSocketFactory.getDefault() as SSLSocketFactory
     private val socket: Socket = ssf.createSocket(host, port)
     private val `in` = BufferedReader(InputStreamReader((socket.getInputStream())))
@@ -77,6 +80,20 @@ open class JsonRpcTcpClient(host: String,
     }
 
     fun start() {
+        thread(start = true) {
+            write("server.version", RpcParams.mapParams(
+                    "client_name" to "wapi",
+                    "protocol_version" to "1.2"),
+                    60000)
+            while(true) {
+                try {
+                    Thread.sleep(10000)
+                } catch (ignore: InterruptedException) {
+                }
+                val pong = write("server.ping", RpcMapParams(emptyMap<String, String>()), 60000)
+                logger.logInfo("Pong! $pong")
+            }
+        }
         try {
             while (true) {
                 messageReceived(`in`.readLine())
@@ -109,10 +126,10 @@ open class JsonRpcTcpClient(host: String,
     }
 
     private fun internalWrite(msg: String) {
-        Thread {
+        thread(start = true) {
             val bytes = (msg + "\n").toByteArray()
             out.write(bytes)
             out.flush()
-        }.start()
+        }
     }
 }

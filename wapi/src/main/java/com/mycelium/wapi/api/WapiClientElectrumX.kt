@@ -15,6 +15,7 @@ import com.mycelium.wapi.api.lib.FeeEstimationMap
 import com.mycelium.wapi.api.request.*
 import com.mycelium.wapi.api.response.*
 import com.mycelium.wapi.model.TransactionOutputEx
+import com.mycelium.wapi.model.TransactionStatus
 import java.util.*
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
@@ -26,22 +27,22 @@ import kotlin.concurrent.thread
  * This is a Wapi Client that avoids calls that require BQS by talking to ElectrumX for related calls
  */
 class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, versionCode: String) : WapiClient(serverEndpoints, logger, versionCode) {
-    @Volatile
-    private lateinit var jsonRpcTcpClient: JsonRpcTcpClient
-    private var blockHeight = 0
+    @Volatile private lateinit var jsonRpcTcpClient: JsonRpcTcpClient
+    private var bestChainHeight = -1
 
     private val receiveHeaderCallback = { responce: AbstractResponse -> blockHeight = (responce as RpcResponse).getResult(BlockHeader::class.java)!!.height }
 
     init {
         val latch = CountDownLatch(1)
         thread(start = true) {
-            jsonRpcTcpClient = JsonRpcTcpClient("electrumx-1.mycelium.com", 50012)
+            jsonRpcTcpClient = JsonRpcTcpClient("electrumx-1.mycelium.com", 50012, logger)
             latch.countDown()
             jsonRpcTcpClient.start()
         }
         if (!latch.await(10, TimeUnit.SECONDS)) {
             throw TimeoutException("JsonRpcTcpClient failed to start within time.")
         }
+        logger.logInfo("ElectrumX server version is ${serverFeatures().serverVersion}.")
         jsonRpcTcpClient.writeAsync(HEADRES_SUBSCRIBE_METHOD, RpcParams.listParams(true), receiveHeaderCallback)
     }
 
@@ -98,12 +99,31 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, 
     }
 
     override fun checkTransactions(request: CheckTransactionsRequest): WapiResponse<CheckTransactionsResponse> {
-//        public final List<Sha256Hash> txIds;
-//        public final Collection<TransactionStatus> transactions;
+        val requestsList = request.txIds.map {
+            RpcRequestOut("blockchain.transaction.get",
+                    RpcParams.mapParams(
+                            "tx_hash" to it.toHex(),
+                            "verbose" to true))
+        }.toList()
 
-        @Suppress("UseExpressionBody")
-        // TODO: implement
-        return super.checkTransactions(request)
+        val transactionsArray = jsonRpcTcpClient.write(requestsList, 15000).responses.map {
+            if (it.hasError) {
+                logger.logError("checkTransactions failed: ${it.error}")
+            }
+            val tx = it.getResult(TransactionX::class.java)
+            if(tx == null) {
+                null
+            } else {
+                TransactionStatus(
+                        Sha256Hash.fromString(tx.hash),
+                        true, // TODO: check?
+                        tx.time, // TODO: check?
+                        bestChainHeight - tx.confirmations, // TODO: fix!!
+                        2, // TODO: fix!
+                        true) // TODO: fix!
+            }
+        }.filter { it != null }
+        return WapiResponse(CheckTransactionsResponse(transactionsArray))
     }
 
     override fun getMinerFeeEstimations(): WapiResponse<MinerFeeEstimationResponse> {
@@ -138,9 +158,15 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, 
     }
 }
 
-
 data class ServerFeatures(
         @SerializedName("server_version") val serverVersion: String
+)
+data class TransactionX(
+        @SerializedName("hash") val hash: String,
+        @SerializedName("blockhash") val blockhash: String,
+        @SerializedName("blocktime") val blocktime: Long,
+        @SerializedName("confirmations") val confirmations: Int,
+        @SerializedName("time") val time: Int
 )
 
 data class UnspentOutputs(
