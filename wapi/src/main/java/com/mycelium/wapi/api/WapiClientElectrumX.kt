@@ -13,6 +13,7 @@ import com.mycelium.wapi.api.lib.FeeEstimation
 import com.mycelium.wapi.api.lib.FeeEstimationMap
 import com.mycelium.wapi.api.request.*
 import com.mycelium.wapi.api.response.*
+import com.mycelium.wapi.model.TransactionStatus
 import java.util.*
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
@@ -24,6 +25,7 @@ import kotlin.concurrent.thread
  */
 class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, versionCode: String) : WapiClient(serverEndpoints, logger, versionCode) {
     @Volatile private lateinit var jsonRpcTcpClient: JsonRpcTcpClient
+    private var bestChainHeight = -1
 
     init {
         val latch = CountDownLatch(1)
@@ -79,11 +81,41 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, 
 
     override fun checkTransactions(request: CheckTransactionsRequest): WapiResponse<CheckTransactionsResponse> {
 //        public final List<Sha256Hash> txIds;
-//        public final Collection<TransactionStatus> transactions;
 
-        @Suppress("UseExpressionBody")
-        // TODO: implement
-        return super.checkTransactions(request)
+//        public final Collection<TransactionStatus> transactions;
+//        this.txid = txid;
+//        this.found = found;
+//        this.height = height;
+//        this.time = time;
+//        this.unconfirmedChainLength = unconfirmedChainLength;
+//        this.rbfRisk = rbfRisk;
+
+        val requestsList = request.txIds.map {
+            RpcRequestOut("blockchain.transaction.get",
+                    RpcParams.mapParams(
+                            "tx_hash" to it.toHex(),
+                            "verbose" to true))
+        }.toList()
+
+        val transactionsArray = jsonRpcTcpClient.write(requestsList, 15000).responses.map {
+            if (it.hasError) {
+                logger.logError("checkTransactions failed: ${it.error}")
+            }
+            // TODO: why is tx null??!!
+            val tx = it.getResult(TransactionX::class.java)
+            if(tx == null) {
+                null
+            } else {
+                TransactionStatus(
+                        Sha256Hash.fromString(tx.hash),
+                        true,
+                        tx.time,
+                        bestChainHeight - tx.confirmations,
+                        2,
+                        true)
+            }
+        }.filter { it != null }
+        return WapiResponse(CheckTransactionsResponse(transactionsArray))
     }
 
     override fun getMinerFeeEstimations(): WapiResponse<MinerFeeEstimationResponse> {
@@ -111,4 +143,11 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, 
 
 data class ServerFeatures (
     @SerializedName("server_version") val serverVersion: String
+)
+data class TransactionX(
+        @SerializedName("hash") val hash: String,
+        @SerializedName("blockhash") val blockhash: String,
+        @SerializedName("blocktime") val blocktime: Long,
+        @SerializedName("confirmations") val confirmations: Int,
+        @SerializedName("time") val time: Int
 )
