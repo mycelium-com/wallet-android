@@ -28,7 +28,7 @@ import kotlin.concurrent.thread
  */
 class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, versionCode: String) : WapiClient(serverEndpoints, logger, versionCode) {
     @Volatile private lateinit var jsonRpcTcpClient: JsonRpcTcpClient
-    private var bestChainHeight = -1
+    @Volatile private var bestChainHeight = -1
 
     private val receiveHeaderCallback = { responce: AbstractResponse -> bestChainHeight = (responce as RpcResponse).getResult(BlockHeader::class.java)!!.height }
 
