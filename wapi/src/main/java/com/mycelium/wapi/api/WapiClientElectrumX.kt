@@ -13,6 +13,7 @@ import com.mycelium.net.ServerEndpoints
 import com.mycelium.wapi.api.jsonrpc.*
 import com.mycelium.wapi.api.lib.FeeEstimation
 import com.mycelium.wapi.api.lib.FeeEstimationMap
+import com.mycelium.wapi.api.lib.TransactionExApi
 import com.mycelium.wapi.api.request.*
 import com.mycelium.wapi.api.response.*
 import com.mycelium.wapi.model.TransactionOutputEx
@@ -93,13 +94,17 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, 
     }
 
     override fun getTransactions(request: GetTransactionsRequest): WapiResponse<GetTransactionsResponse> {
-//        public final Collection<Sha256Hash> txIds;
-
-//        public final Collection<TransactionExApi> transactions;
-
-        @Suppress("UseExpressionBody")
-        // TODO: implement
-        return super.getTransactions(request)
+        val transactions = getTransactionsWithParentLookupConverted(request.txIds.map { it.toHex() }, {
+            tx, unconfirmedChainLength, rbfRisk ->
+            TransactionExApi(
+                    Sha256Hash.fromString(tx.hash),
+                    if (tx.confirmations > 0) bestChainHeight - tx.confirmations else -1,
+                    if (tx.time == 0) (Date().time / 1000).toInt() else tx.time,
+                    HexUtils.toBytes(tx.hex),
+                    unconfirmedChainLength, // 0 or 1. we don't dig deeper. 1 == unconfirmed parent
+                    rbfRisk)
+        })
+        return WapiResponse(GetTransactionsResponse(transactions))
     }
 
     override fun broadcastTransaction(request: BroadcastTransactionRequest): WapiResponse<BroadcastTransactionResponse> {
@@ -114,26 +119,8 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, 
     }
 
     override fun checkTransactions(request: CheckTransactionsRequest): WapiResponse<CheckTransactionsResponse> {
-        val transactionsArray = getTransactions(request.txIds.map { it.toHex() })
-        // check for unconfirmed transactions' parents for confirmations and RBF
-        val neededParentTxids = transactionsArray.filter { it.confirmations == 0 }.map { it.hash }
-        val parentTransactionsArray = getTransactions(neededParentTxids)
-        val transactionStatusArray = transactionsArray.map { tx ->
-            var unconfirmedChainLength = 0
-            var rbfRisk = false
-            if (tx.confirmations == 0) {
-                // if unconfirmed chain length is one, see if it is two (or more)
-                // see if it or parent is RBF
-                val parentTransactions = parentTransactionsArray.filter { ptx ->
-                    ptx.hash == tx.hash
-                }
-                rbfRisk = isRbf(tx.vin) || parentTransactions.any { ptx ->
-                    isRbf(ptx.vin)
-                }
-                if (parentTransactions.any { ptx -> ptx.confirmations == 0}) {
-                    unconfirmedChainLength = 1
-                }
-            }
+        val transactionsArray = getTransactionsWithParentLookupConverted(request.txIds.map { it.toHex() }, {
+            tx, unconfirmedChainLength, rbfRisk ->
             TransactionStatus(
                     Sha256Hash.fromString(tx.hash),
                     true,
@@ -141,11 +128,34 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, 
                     if (tx.confirmations > 0) bestChainHeight - tx.confirmations else -1,
                     unconfirmedChainLength, // 0 or 1. we don't dig deeper. 1 == unconfirmed parent
                     rbfRisk)
-        }
-        return WapiResponse(CheckTransactionsResponse(transactionStatusArray))
+        })
+        return WapiResponse(CheckTransactionsResponse(transactionsArray))
     }
 
-    private fun getTransactions(txids: Collection<String>): List<TransactionX> {
+    private fun <T> getTransactionsWithParentLookupConverted(
+            txids: Collection<String>,
+            conversion: (tx: TransactionX, unconfirmedChainLength: Int, rbfRisk: Boolean) -> T): List<T> {
+        val transactionsArray = getTransactionXs(txids)
+        // check for unconfirmed transactions' parents for confirmations and RBF
+        val neededParentTxids = transactionsArray.filter { it.confirmations == 0 }.map { it.hash }
+        val relatedTransactions = getTransactionXs(neededParentTxids)
+        return transactionsArray.map { tx ->
+            var unconfirmedChainLength = 0
+            var rbfRisk = false
+            if (tx.confirmations == 0) {
+                // if unconfirmed chain length is one, see if it is two (or more)
+                // see if it or parent is RBF
+                val txParents = relatedTransactions.filter { ptx -> ptx.hash == tx.hash }
+                rbfRisk = isRbf(tx.vin) || txParents.any { ptx -> isRbf(ptx.vin) }
+                if (txParents.any { ptx -> ptx.confirmations == 0 }) {
+                    unconfirmedChainLength = 1
+                }
+            }
+            conversion(tx, unconfirmedChainLength, rbfRisk)
+        }
+    }
+
+    private fun getTransactionXs(txids: Collection<String>): List<TransactionX> {
         if (txids.isEmpty()) {
             return emptyList()
         }
@@ -159,8 +169,10 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, 
         return jsonRpcTcpClient.write(requestsList, 15000).responses.map {
             if (it.hasError) {
                 logger.logError("checkTransactions failed: ${it.error}")
+                null
+            } else {
+                it.getResult(TransactionX::class.java)
             }
-            it.getResult(TransactionX::class.java)
         }.filterNotNull()
     }
 
@@ -205,18 +217,18 @@ data class ServerFeatures(
 )
 
 data class TransactionX(
-        val hash: String,
-        val blockhash: String,
-        val blocktime: Long,
-        val confirmations: Int,
-        val time: Int,
-        val vin: Array<TransactionInputX>,
-        var rbfRisk: Boolean
+        @SerializedName("hash") val hash: String,
+        @SerializedName("blockhash") val blockhash: String,
+        @SerializedName("blocktime") val blocktime: Long,
+        @SerializedName("confirmations") val confirmations: Int,
+        @SerializedName("time") val time: Int,
+        @SerializedName("hex") val hex: String,
+        @SerializedName("vin") val vin: Array<TransactionInputX>
 )
 
 data class TransactionInputX(
-        val txid: String,
-        val sequence: Long
+        @SerializedName("txid") val txid: String,
+        @SerializedName("sequence") val sequence: Long
 )
 
 data class UnspentOutputs(
