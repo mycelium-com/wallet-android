@@ -8,14 +8,10 @@ class RpcRequestOut(
         val methodName: String,
         val params: RpcParams = RpcNoParams
 ) {
-
     var id: Any = NO_ID
 
     @SerializedName(JSON_RPC_IDENTIFIER)
     var version = JSON_RPC_VERSION
 
-    fun toJson(): String {
-        return RPC.toJson(this)
-    }
-
+    fun toJson(): String = RPC.toJson(this)
 }

@@ -7,13 +7,8 @@ import com.google.gson.annotations.SerializedName
 open class AbstractResponse
 
 class RpcResponse : AbstractResponse() {
-
     companion object {
-
-        fun fromJson(json: String): RpcResponse {
-            return RPC.fromJson(json, RpcResponse::class.java)
-        }
-
+        fun fromJson(json: String): RpcResponse = RPC.fromJson(json, RpcResponse::class.java)
     }
 
     @SerializedName(JSON_RPC_IDENTIFIER)
@@ -39,19 +34,20 @@ class RpcResponse : AbstractResponse() {
         } else null
     }
 
-    @Suppress("IMPLICIT_CAST_TO_ANY")
-    override fun toString(): String {
-        return "JsonRPCResponse{" + "$JSON_RPC_IDENTIFIER=$version, $ID_KEY=$id, response=${(if (hasError) error else result)}}"
-    }
+    override fun toString() =
+            "JsonRPCResponse{$JSON_RPC_IDENTIFIER=$version, $ID_KEY=$id, response=${(
+                    if (hasError)
+                        error.toString()
+                    else
+                        result.toString()
+                    )}}"
 }
 
 class BatchedRpcResponse (responsessArr: Array<RpcResponse>): AbstractResponse() {
-
     val responses = responsessArr
 
     companion object {
-        fun fromJson(json: String): BatchedRpcResponse {
-            return BatchedRpcResponse(RPC.fromJson(json, Array<RpcResponse>::class.java))
-        }
+        fun fromJson(json: String) =
+                BatchedRpcResponse(RPC.fromJson(json, Array<RpcResponse>::class.java))
     }
 }
