@@ -39,7 +39,7 @@ public class TransactionUtils {
    /**
     * The minimum output value allowed when relaying transactions
     */
-   public static final long MINIMUM_OUTPUT_VALUE = 5460;
+   public static final long MINIMUM_OUTPUT_VALUE = 547;
 
    /**
     * Determine whether a transaction has sufficient fees according to default miner settings
