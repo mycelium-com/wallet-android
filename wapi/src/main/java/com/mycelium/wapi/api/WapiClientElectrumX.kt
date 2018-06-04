@@ -1,5 +1,6 @@
 package com.mycelium.wapi.api
 
+import com.google.common.primitives.UnsignedInteger
 import com.google.gson.annotations.SerializedName
 import com.megiontechnologies.Bitcoins
 import com.mrd.bitlib.StandardTransactionBuilder
@@ -113,32 +114,57 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, 
     }
 
     override fun checkTransactions(request: CheckTransactionsRequest): WapiResponse<CheckTransactionsResponse> {
-        val requestsList = request.txIds.map {
-            RpcRequestOut("blockchain.transaction.get",
+        val transactionsArray = getTransactions(request.txIds.map { it.toHex() })
+        // check for unconfirmed transactions' parents for confirmations and RBF
+        val neededParentTxids = transactionsArray.filter { it.confirmations == 0 }.map { it.hash }
+        val parentTransactionsArray = getTransactions(neededParentTxids)
+        val transactionStatusArray = transactionsArray.map { tx ->
+            var unconfirmedChainLength = 0
+            var rbfRisk = false
+            if (tx.confirmations == 0) {
+                // if unconfirmed chain length is one, see if it is two (or more)
+                // see if it or parent is RBF
+                val parentTransactions = parentTransactionsArray.filter { ptx ->
+                    ptx.hash == tx.hash
+                }
+                rbfRisk = isRbf(tx.vin) || parentTransactions.any { ptx ->
+                    isRbf(ptx.vin)
+                }
+                if (parentTransactions.any { ptx -> ptx.confirmations == 0}) {
+                    unconfirmedChainLength = 1
+                }
+            }
+            TransactionStatus(
+                    Sha256Hash.fromString(tx.hash),
+                    true,
+                    if (tx.time == 0) (Date().time / 1000).toInt() else tx.time,
+                    if (tx.confirmations > 0) bestChainHeight - tx.confirmations else -1,
+                    unconfirmedChainLength, // 0 or 1. we don't dig deeper. 1 == unconfirmed parent
+                    rbfRisk)
+        }
+        return WapiResponse(CheckTransactionsResponse(transactionStatusArray))
+    }
+
+    private fun getTransactions(txids: Collection<String>): List<TransactionX> {
+        if (txids.isEmpty()) {
+            return emptyList()
+        }
+        val requestsList = txids.map {
+            RpcRequestOut(GET_TRANSACTION_METHOD,
                     RpcParams.mapParams(
-                            "tx_hash" to it.toHex(),
+                            "tx_hash" to it,
                             "verbose" to true))
         }.toList()
 
-        val transactionsArray = jsonRpcTcpClient.write(requestsList, 15000).responses.map {
+        return jsonRpcTcpClient.write(requestsList, 15000).responses.map {
             if (it.hasError) {
                 logger.logError("checkTransactions failed: ${it.error}")
             }
-            val tx = it.getResult(TransactionX::class.java)
-            if (tx == null) {
-                null
-            } else {
-                TransactionStatus(
-                        Sha256Hash.fromString(tx.hash),
-                        true, // TODO: check?
-                        tx.time, // TODO: check?
-                        bestChainHeight - tx.confirmations, // TODO: fix!!
-                        2, // TODO: fix!
-                        true) // TODO: fix!
-            }
-        }.filter { it != null }
-        return WapiResponse(CheckTransactionsResponse(transactionsArray))
+            it.getResult(TransactionX::class.java)
+        }.filterNotNull()
     }
+
+    private fun isRbf(vin: Array<TransactionInputX>) = vin.any { it.sequence < NON_RBF_SEQUENCE }
 
     override fun getMinerFeeEstimations(): WapiResponse<MinerFeeEstimationResponse> {
         val blocks: Array<Int> = arrayOf(1, 2, 3, 4, 5, 10, 15, 20) // this is what the wapi server used
@@ -167,8 +193,10 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, 
         private const val LIST_UNSPENT_METHOD = "blockchain.address.listunspent"
         private const val ESTIMATE_FEE_METHOD = "blockchain.estimatefee"
         private const val BROADCAST_METHOD = "blockchain.transaction.broadcast"
+        private const val GET_TRANSACTION_METHOD = "blockchain.transaction.get"
         private const val FEATURES_METHOD = "server.features"
         private const val HEADRES_SUBSCRIBE_METHOD = "blockchain.headers.subscribe"
+        private val NON_RBF_SEQUENCE = UnsignedInteger.MAX_VALUE.toLong()
     }
 }
 
@@ -177,11 +205,18 @@ data class ServerFeatures(
 )
 
 data class TransactionX(
-        @SerializedName("hash") val hash: String,
-        @SerializedName("blockhash") val blockhash: String,
-        @SerializedName("blocktime") val blocktime: Long,
-        @SerializedName("confirmations") val confirmations: Int,
-        @SerializedName("time") val time: Int
+        val hash: String,
+        val blockhash: String,
+        val blocktime: Long,
+        val confirmations: Int,
+        val time: Int,
+        val vin: Array<TransactionInputX>,
+        var rbfRisk: Boolean
+)
+
+data class TransactionInputX(
+        val txid: String,
+        val sequence: Long
 )
 
 data class UnspentOutputs(
