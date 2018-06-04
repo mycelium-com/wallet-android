@@ -43,7 +43,7 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, 
             latch.countDown()
             jsonRpcTcpClient.start()
         }
-        if (!latch.await(10, TimeUnit.SECONDS)) {
+        if (!latch.await(30, TimeUnit.SECONDS)) {
             throw TimeoutException("JsonRpcTcpClient failed to start within time.")
         }
         logger.logInfo("ElectrumX server version is ${serverFeatures().serverVersion}.")
@@ -104,6 +104,10 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, 
     override fun broadcastTransaction(request: BroadcastTransactionRequest): WapiResponse<BroadcastTransactionResponse> {
         val txHex = HexUtils.toHex(request.rawTransaction)
         val response = jsonRpcTcpClient.write(BROADCAST_METHOD, RpcParams.listParams(txHex), 50000)
+        if (response.hasError) {
+            logger.logError(response.error?.toString())
+            return WapiResponse(BroadcastTransactionResponse(false, null))
+        }
         val txId = response.getResult(String::class.java)!!
         return WapiResponse(BroadcastTransactionResponse(true, Sha256Hash.fromString(txId)))
     }
