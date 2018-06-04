@@ -28,7 +28,8 @@ import kotlin.concurrent.thread
 /**
  * This is a Wapi Client that avoids calls that require BQS by talking to ElectrumX for related calls
  */
-class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, versionCode: String) : WapiClient(serverEndpoints, logger, versionCode) {
+class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, versionCode: String)
+    : WapiClient(serverEndpoints, logger, versionCode) {
     @Volatile
     private lateinit var jsonRpcTcpClient: JsonRpcTcpClient
     @Volatile
@@ -102,8 +103,7 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, 
     }
 
     override fun getTransactions(request: GetTransactionsRequest): WapiResponse<GetTransactionsResponse> {
-        val transactions = getTransactionsWithParentLookupConverted(request.txIds.map { it.toHex() }, {
-            tx, unconfirmedChainLength, rbfRisk ->
+        val transactions = getTransactionsWithParentLookupConverted(request.txIds.map { it.toHex() }, { tx, unconfirmedChainLength, rbfRisk ->
             TransactionExApi(
                     Sha256Hash.fromString(tx.hash),
                     if (tx.confirmations > 0) bestChainHeight - tx.confirmations else -1,
@@ -127,8 +127,7 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, 
     }
 
     override fun checkTransactions(request: CheckTransactionsRequest): WapiResponse<CheckTransactionsResponse> {
-        val transactionsArray = getTransactionsWithParentLookupConverted(request.txIds.map { it.toHex() }, {
-            tx, unconfirmedChainLength, rbfRisk ->
+        val transactionsArray = getTransactionsWithParentLookupConverted(request.txIds.map { it.toHex() }, { tx, unconfirmedChainLength, rbfRisk ->
             TransactionStatus(
                     Sha256Hash.fromString(tx.hash),
                     true,
@@ -144,23 +143,40 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, 
             txids: Collection<String>,
             conversion: (tx: TransactionX, unconfirmedChainLength: Int, rbfRisk: Boolean) -> T): List<T> {
         val transactionsArray = getTransactionXs(txids)
-        // check for unconfirmed transactions' parents for confirmations and RBF
-        val neededParentTxids = transactionsArray.filter { it.confirmations == 0 }.map { it.hash }
+        // check for unconfirmed transactions parents for confirmations and RBF
+        val neededParentTxids = getUnconfirmedTxsParents(transactionsArray)
         val relatedTransactions = getTransactionXs(neededParentTxids)
         return transactionsArray.map { tx ->
-            var unconfirmedChainLength = 0
-            var rbfRisk = false
-            if (tx.confirmations == 0) {
-                // if unconfirmed chain length is one, see if it is two (or more)
-                // see if it or parent is RBF
-                val txParents = relatedTransactions.filter { ptx -> ptx.hash == tx.hash }
-                rbfRisk = isRbf(tx.vin) || txParents.any { ptx -> isRbf(ptx.vin) }
-                if (txParents.any { ptx -> ptx.confirmations == 0 }) {
-                    unconfirmedChainLength = 1
-                }
-            }
+            val (unconfirmedChainLength, rbfRisk) = checkConfirmationsRbf(tx, relatedTransactions)
             conversion(tx, unconfirmedChainLength, rbfRisk)
         }
+    }
+
+    /**
+     * This method is inteded to check if tx has unconfirmed parents and have Rbf risk.
+     * @param tx transaction to check
+     * @param relatedTransactions parent transactions
+     * @return Pair<Int, Boolean>, where Int 1 if unconfirmed parrent exists and Boolean is RbfRisk indicator.
+     */
+    private fun checkConfirmationsRbf(tx: TransactionX, relatedTransactions: List<TransactionX>): Pair<Int, Boolean> {
+        var unconfirmedChainLength = 0
+        var rbfRisk = false
+        if (tx.confirmations == 0) {
+            // if unconfirmed chain length is one, see if it is two (or more)
+            // see if it or parent is RBF
+            val txParents = relatedTransactions.filter { ptx -> ptx.hash == tx.hash }
+            rbfRisk = isRbf(tx.vin) || txParents.any { ptx -> isRbf(ptx.vin) }
+            if (txParents.any { ptx -> ptx.confirmations == 0 }) {
+                unconfirmedChainLength = 1
+            }
+        }
+        return Pair(unconfirmedChainLength, rbfRisk)
+    }
+
+    private fun getUnconfirmedTxsParents(transactionsArray: List<TransactionX>): List<String> {
+        return transactionsArray.filter { it.confirmations == 0 }
+                .flatMap { it.vin.asList() }
+                .map { it.txid }
     }
 
     private fun getTransactionXs(txids: Collection<String>): List<TransactionX> {
