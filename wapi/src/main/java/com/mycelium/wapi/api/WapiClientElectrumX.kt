@@ -82,15 +82,23 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, 
     }
 
     override fun queryTransactionInventory(request: QueryTransactionInventoryRequest): WapiResponse<QueryTransactionInventoryResponse> {
-//        public final List<Address> addresses;
-//        public final int limit;
+        val txIds: ArrayList<Sha256Hash> = ArrayList()
+        val requestsList = ArrayList<RpcRequestOut>(request.addresses.size)
+        request.addresses.forEach {
+            val addrHex = it.toString()
+            requestsList.add(RpcRequestOut(GET_HISTORY_METHOD, RpcParams.listParams(addrHex)))
+        }
+        val transactionHistoryArray = jsonRpcTcpClient.write(requestsList, 50000).responses
 
-//        public final int height;
-//        public final List<Sha256Hash> txIds;
+        val outputs = ArrayList<TransactionHistoryInfo>()
+        transactionHistoryArray.forEach {
+            outputs.addAll(it.getResult(Array<TransactionHistoryInfo>::class.java)!!)
+        }
+        outputs.sort()
+        txIds.addAll(outputs.slice(IntRange(0, Math.min(request.limit, outputs.size) - 1))
+                .map { Sha256Hash.fromString(it.tx_hash) })
 
-        @Suppress("UseExpressionBody")
-        // TODO: implement
-        return super.queryTransactionInventory(request)
+        return WapiResponse(QueryTransactionInventoryResponse(bestChainHeight, txIds))
     }
 
     override fun getTransactions(request: GetTransactionsRequest): WapiResponse<GetTransactionsResponse> {
@@ -208,6 +216,8 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, 
         private const val GET_TRANSACTION_METHOD = "blockchain.transaction.get"
         private const val FEATURES_METHOD = "server.features"
         private const val HEADRES_SUBSCRIBE_METHOD = "blockchain.headers.subscribe"
+        @Deprecated("Address must be replaced with script")
+        private const val GET_HISTORY_METHOD = "blockchain.address.get_history"
         private val NON_RBF_SEQUENCE = UnsignedInteger.MAX_VALUE.toLong()
     }
 }
@@ -242,3 +252,25 @@ data class BlockHeader(
         val height: Int,
         val hex: String
 )
+
+data class TransactionHistoryInfo(
+        @SerializedName("fee") val fee: Int,
+        @SerializedName("height") val height: Int,
+        @SerializedName("tx_hash") val tx_hash: String
+) : Comparable<TransactionHistoryInfo> {
+    /**
+     * Sort by height, largest height first
+     */
+    override fun compareTo(other: TransactionHistoryInfo): Int {
+        // Make pending transaction have maximum height
+        val myHeight = if (height == -1) Integer.MAX_VALUE else height
+        val otherHeight = if (other.height == -1) Integer.MAX_VALUE else other.height
+
+        return when {
+            myHeight < otherHeight -> 1
+            myHeight > otherHeight -> -1
+            else -> 0
+        }
+    }
+
+}
