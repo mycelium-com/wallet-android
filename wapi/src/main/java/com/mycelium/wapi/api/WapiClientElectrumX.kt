@@ -217,28 +217,28 @@ data class ServerFeatures(
 )
 
 data class TransactionX(
-        @SerializedName("hash") val hash: String,
-        @SerializedName("blockhash") val blockhash: String,
-        @SerializedName("blocktime") val blocktime: Long,
-        @SerializedName("confirmations") val confirmations: Int,
-        @SerializedName("time") val time: Int,
-        @SerializedName("hex") val hex: String,
-        @SerializedName("vin") val vin: Array<TransactionInputX>
+        val hash: String,
+        val blockhash: String,
+        val blocktime: Long,
+        val confirmations: Int,
+        val time: Int,
+        val hex: String,
+        val vin: Array<TransactionInputX>
 )
 
 data class TransactionInputX(
-        @SerializedName("txid") val txid: String,
-        @SerializedName("sequence") val sequence: Long
+        val txid: String,
+        val sequence: Long
 )
 
 data class UnspentOutputs(
         @SerializedName("tx_hash") val txHash: String,
         @SerializedName("tx_pos") val txPos: Int,
-        @SerializedName("height") val height: Int,
-        @SerializedName("value") val value: Long
+        val height: Int,
+        val value: Long
 )
 
 data class BlockHeader(
-        @SerializedName("height") val height: Int,
-        @SerializedName("hex") val hex: String
+        val height: Int,
+        val hex: String
 )
