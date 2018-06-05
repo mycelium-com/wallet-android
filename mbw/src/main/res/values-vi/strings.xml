@@ -25,7 +25,6 @@
   <string name="send">Gửi</string>
   <string name="receive">Nhận</string>
   <string name="private_key_deleted">Private key đã xóa.</string>
-  <string name="account_deleted">Tài khoản đã xóa</string>
   <string name="enter_recipient_title">Nhập địa chỉ người nhận</string>
   <string name="recipient_title">Địa chỉ người nhận</string>
   <string name="amount_label">Số lượng:</string>
@@ -45,7 +44,6 @@
   <string name="synchronizing">Đồng bộ hóa</string>
   <string name="transaction_not_sent">Giao dịch không thành công</string>
   <string name="queue_transaction_message">Lan truyền giao dịch thất bại.\nBạn có muốn đưa giao dịch vào hàng đợi, để nó có thể được gửi đi tự động khi bạn trực tuyến?</string>
-  <string name="transaction_sent">Giao dịch đã được gửi</string>
   <string name="export">Xuất</string>
   <string name="backup_private_key">Sao lưu</string>
   <string name="copy_to_clipboard">Chép vào clipboard</string>
@@ -117,7 +115,6 @@
   <string name="backup_all_warning">Bạn nên sao lưu seed chính cho ví của bạn.\nMột bản sao lưu seed chính cho phép bạn khôi phục khoản tiền được lưu trữ trong tài khoản HD của bạn nếu như thiết bị này bị mất hoặc hỏng.\n\nBạn có muốn làm điều này bây giờ không?</string>
   <string name="export_to_clipboard_warning">Chú ý: Xuất private key ra bộ nhớ clipboard khiến tất cả các ứng dụng khác trong máy của bạn có thể thấy được nó.\n\nGhi chú: Copy private key của bạn vào clipboard là chưa đủ, bạn còn phải paste nó vào một nơi an toàn.\n\nBạn có muốn tiếp tục không?</string>
   <string name="found_clipboard_private_key_title">Private Key được phát hiện trong bộ nhớ clipboard</string>
-  <string name="found_clipboard_private_keys_message">Bộ nhớ clipboard đang chứa một private key.\nBạn có muốn xóa nó không?</string>
   <string name="exchange_source_not_available">Tỉ giá chuyển đổi tại %1$s hiện không hoạt động</string>
   <string name="my_own_address_warning">Bạn đang chuyển bitcoins đến một trong những địa chỉ của chính bạn.</string>
   <string name="read_only_warning">Chú ý: Ví của bạn hiện không có private key cho địa chỉ này.\nBạn không thể gửi được bitcoin trong ví trừ khi bạn có được private key.</string>
@@ -165,7 +162,6 @@
   <string name="encrypted_pdf_backup_document_ready">Đã tạo văn bản PDF</string>
   <string name="encrypted_pdf_backup_sharing">Chia sẻ tài liệu PDF&#8230;</string>
   <string name="encrypted_pdf_backup_email_title">Sao lưu Ví Mycelium</string>
-  <string name="encrypted_pdf_backup_email_text">Bản sao lưu ví Mycelium của bạn đã được đính kèm.\n\nLàm theo những bước đơn giản này để bảo vệ số tiền của bạn:\n1. In ra văn bản PDF.\n2. Viết lại mật khẩu 15 kí tự từ màn hình thiết bị Android vào những khung màu xanh của bản in.\n3. Xác nhận rằng bạn có thể nhập các private key vào Ví Mycelium\n4. Cất giữ văn bản ở một nơi an toàn.</string>
   <string name="share_pdf">Chia sẻ PDF</string>
   <string name="share_with">Chia sẻ với&#8230;</string>
   <string name="import_decrypt_key_title">Giải mã private key</string>
@@ -387,6 +383,16 @@
   <!-- BitID end -->
   <!-- from libNetCipher -->
   <!--/ from libNetCipher -->
+  <!--<string name="colu_tos_link">Open Colu Terms and Conditions</string>-->
+  <!-- <string name="colu_tos_link_url">https://www.colu.com/TOS</string>-->
+  <!--<string name="colu_tos">By clicking "OK" you agree to use Colored Coin technology, third party-->
+  <!--blockchain technology developer. All your interactions with Colu are outside of-->
+  <!--Mycelium’s control and are subject to Colu’s T&amp;C and Privacy Policy.-->
+  <!--Please read them carefully before providing any personal information.-->
+  <!--MYCELIUM ACCEPTS NO RESPONSIBILITY AND WILL NOT BE LIABLE FOR ANY LOSS-->
+  <!--OR DAMAGE WHATSOEVER SUFFERED AS A RESULT OF ACCESSING, USE OF, OR-->
+  <!--RELIANCE UPON COLU’S INFORMATION AND SERVICES.</string>-->
+  <!--    <string name="colu_backup_info">Your Colu account access-key gets derived from your masterseed. If you have a valid backup, the access to your Colu account is also included.</string>  -->
   <!-- Credit Card -->
   <!-- Credit Card End-->
   <!-- GlideraService Start -->
