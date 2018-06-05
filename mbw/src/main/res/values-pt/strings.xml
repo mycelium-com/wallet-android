@@ -25,7 +25,6 @@
   <string name="send">Enviar</string>
   <string name="receive">Receber</string>
   <string name="private_key_deleted">Chave privada apagada.</string>
-  <string name="account_deleted">Conta apagada</string>
   <string name="enter_recipient_title">Insira o Endereço do Recipiente</string>
   <string name="recipient_title">Endereço do Recipiente</string>
   <string name="amount_label">Quantia:</string>
@@ -45,7 +44,6 @@
   <string name="synchronizing">Sincronizando</string>
   <string name="transaction_not_sent">Erro ao transmitir a transação</string>
   <string name="queue_transaction_message">Erro ao transmitir a transação.\nVocê gostaria de colocar a transação em espera, de maneira que ela seja enviada automaticamente quando você ficar online?</string>
-  <string name="transaction_sent">Transação enviada</string>
   <string name="export">Exportar</string>
   <string name="backup_private_key">Backup</string>
   <string name="copy_to_clipboard">Copiar para a área de transferência</string>
@@ -115,10 +113,8 @@
   <string name="payment_request">Solicitação de Pagamento</string>
   <string name="export_account_data_warning">Você está prestes a exportar dados sensíveis da conta selecionada.\n\nQualquer um que obtiver acesso a essas chaves poderá tomar posse dos bitcoins ou obter informações que podem comprometer sua privacidade.\n\nVocê quer continuar?</string>
   <string name="backup_all_warning">Você deveria fazer um backup da semente mestre de sua carteira.\nUma backup da semente mestre permite que você restaure os fundos armazenado nas suas contas HD caso o seu dispositivo seja perdido ou parar de funcionar.\n\nVocê quer fazer isso agora?</string>
-  <string name="backup_legacy_warning">Você irá fazer backup das contas de endereço único de sua carteira. \nEsse backup não irá conter sua semente mestre, nenhuma das suas contas HD poderá ser restaurada a partir dele!\n\nVocê quer continuar?</string>
   <string name="export_to_clipboard_warning">Aviso: Exportar os dados privados da conta para a sua área de transferência os expõe para todos os outros aplicativos do seu dispositivo.\n\nNota: Não é suficiente armazenar seus dados privados na área de transferência, você também precisa colar esses dados em algum lugar seguro.\n\nVocê quer continuar?</string>
   <string name="found_clipboard_private_key_title">Chave Privada Encontrada na Área de Transferência</string>
-  <string name="found_clipboard_private_keys_message">A área de transferência contém uma chave privada.\nVocê quer limpar a área de transferência?</string>
   <string name="exchange_source_not_available">Taxa de corretagem não disponível para %1$s</string>
   <string name="my_own_address_warning">Nota: Você está enviando para um de seus próprios endereços.</string>
   <string name="read_only_warning">Aviso: A sua carteira não tem a chave privada para esse endereço.\nVocê não pode gastar os bitcoins recebidos, a menos que você tenha a chave privada anota em outro lugar.</string>
@@ -132,13 +128,10 @@
   <string name="cold_storage_desc">Você está prestes a gastar a partir da chave privada do armazenamento frio. Ela pode ser uma chave privada em um backup de papel ou em um caixa eletrônico de Bitcoin. Os seguintes formatos são suportados:\nChave Privada, Semente Mestre, xPriv Key\n\nAssim que a transação for enviada, todos os históricos dela serão apagados da memória interna.</string>
   <string name="keep_account_address">Somenta apagar a chave privada e manter o endereço como uma conta somente-leitura</string>
   <string name="manual_entry">Inserir Manualmente</string>
-  <string name="active_hd_accounts_name">Minhas Contas HD</string>
-  <string name="active_other_accounts_name">Outras Contas</string>
   <string name="archive_name">Arquivo</string>
   <string name="active_accounts_empty">(Vazio)</string>
   <string name="activate_action">Ativar</string>
   <string name="archive_action">Arquivar</string>
-  <string name="question_archive_account">Contas arquivadas não serão monitoradas. Você não poderá ver o saldo, nem o endereço de recebimento, assim como não poderá trabalhar com elas.\n\nAs contas arquivadas podem ser ativadas novamente no futuro.\n\nVocê quer arquivas essa conta?</string>
   <string name="master_seed_configuration_title">Bem-vindo(a) à Mycelium</string>
   <string name="master_seed_configuration_description">Você quer restaurar um backup ou criar uma nova carteira?</string>
   <string name="master_seed_create_new_button">Criar Nova</string>
@@ -168,12 +161,9 @@
   <string name="delete_account_message">Você quer apagar essa conta?</string>
   <string name="confirm_delete_pk_title">Você tem certeza?</string>
   <string name="confirm_delete_pk_with_balance">Essa ação é irreversível!\n\nEndereço atual:\n%1$s\n\nContém %2$s\n\nVocê quer deletá-lo?</string>
-  <string name="confirm_delete_pk_with_balance_with_label">Essa ação é irreversível!\n\nEtiqueta da Conta:\n%1$s\n\nEndereço atual:\n%2$s\n\nContém %3$s\n\nVocê quer deletá-lo?</string>
   <string name="confirm_delete_pk_without_balance">Essa ação é irreversível!\n\nEndereço atual:\n%1$s\n\nVocê quer deletá-lo?</string>
-  <string name="confirm_delete_pk_without_balance_with_label">Essa ação é irreversível!\n\nEtiqueta da conta:\n%1$s\n\nEndereço atual:\n%2$s\n\nVocê quer deletá-lo?</string>
   <string name="verify_private_key_backup">Verificar Backup</string>
   <string name="verify_backup_dialog_title">Verificar Backup da Chave Privada</string>
-  <string name="verify_backup_desc">Ter um backup adequado é um passo fundamental na administração dos seus fundos em Bitcoin.\n\nAo verificar o backup você se certifica que o seu backup funciona e que você não irá perder seus fundos se você perder ou estragar o seu dispositivo Android.</string>
   <string name="verify_backup_scan_desc">Verifique o seu backup escaneando o código QR da chave privada ou da semente mestre.\nVários formatos são aceitos, incluindo o backup em papel criptografado da Mycelium.</string>
   <string name="verify_backup_clipboard_desc">Verifique o backup da chave privada verificando a chave privada a partir da área de transferência.</string>
   <string name="verify_backup_num_keys">Você possui %1$s chaves que nunca foram verificadas.</string>
@@ -196,7 +186,6 @@
   <string name="encrypted_pdf_backup_document_ready">Documento PDF criado</string>
   <string name="encrypted_pdf_backup_sharing">Compartilhando documento PDF&#8230;</string>
   <string name="encrypted_pdf_backup_email_title">Backup da carteira Mycelium</string>
-  <string name="encrypted_pdf_backup_email_text">Seu backup da carteira Mycelium está anexado.\n\nSiga esses passos para proteger os seus fundos:\n1. Imprima o documento PDF.\n2. Anote, nas caixas azuis da folha impressa, a senha de 15 caracteres exibida na tela do seu dispositivo Android.\n3. Verique que você consegue importar as chaves privadas paara a sua carteira Mycelium.\n4. Armazene a folha impressa em um lugar seguro.</string>
   <string name="share_pdf">Compartilhar PDF</string>
   <string name="share_with">Compartilhar com&#8230;</string>
   <string name="import_decrypt_key_title">Descriptografando a Chave Privada</string>
@@ -470,8 +459,6 @@
   <string name="invalid_bitid_uri">BitID URI Inválido</string>
   <!-- BitID end -->
   <string name="selected_archived_warning">Você não pode trabalhar com contas arquivadas.</string>
-  <string name="selected_hd_info">Você agora está trabalhando nessa Conta HD.</string>
-  <string name="selected_single_info">Você agora está trabalhando nesse endereço único.</string>
   <string name="transaction_not_broadcasted_info">Não foi possível transmitir</string>
   <string name="hd_account_creation_started">Criando nova Conta HD&#8230;</string>
   <string name="preparing_wallet_on_first_startup_info">Preparando carteira&#8230;</string>
@@ -520,7 +507,7 @@
   <string name="title_wrong_password">Senha incorreta, tente novamente</string>
   <string name="dont_allow_archiving_unused_notification">Você não pode arquivar uma Conta HD não-utilizada</string>
   <string name="newly_generated_coins_from_coinbase">Moedas recém-geradas</string>
-    <string name="button_continue">Continuar</string>
+  <string name="button_continue">Continuar</string>
   <string name="butto_show_release_notes">Mostrar Detalhes</string>
   <string name="word_does_not_exist_in_wordlist">A palavra que você inseriu não existe na lista de palavras</string>
   <string name="pref_legacy_backup_title">Backup de carteira herdada (legacy)</string>
@@ -536,7 +523,6 @@
   <string name="dont_allow_hiding_used_notification">Você não pode esconder uma conta usada, mas você pode arquivá-la</string>
   <string name="pref_miner_fee_title">Taxa do Minerador (%1$s)</string>
   <string name="pref_miner_fee_block_summary">As transações são enviadas com uma taxa para o minerador para serem incluídas dentro do(s) próximo(s) %1s bloco(s) em média.</string>
-  <string name="miner_fee_lowprio_name">Baixa prioridade</string>
   <string name="miner_fee_economic_name">Econômica</string>
   <string name="miner_fee_normal_name">Normal</string>
   <string name="miner_fee_priority_name">Alta prioridade</string>
@@ -573,8 +559,6 @@
   <string name="lt_confirm_delete_trader_message">Você quer apagar sua identidade de trader local? Todas informações e avaliações de trade serão removidas permanentemente e não poderão ser recuperadas.</string>
   <string name="rescan_account_menu_item">Recarregar Conta</string>
   <string name="add_advanced_account_warning">Aviso:\n Essas chaves não serão incluídas no Backup da sua Semente Mestre. Você deve se assegurar que você tem um backup separado para elas.</string>
-  <string name="new_random_key_desc">Gerar uma nova chave aleatória</string>
-  <string name="generate_new_key">Gerar</string>
   <string name="new_bitcoin_address_created">Uma nova chave privada aleatória foi gerada com os seguintes endereços Bitcoin:</string>
   <string name="shuffle">Gerar (embaralhar)</string>
   <string name="toast_warning_low_fee">pode demorar mais para confirmar</string>
@@ -707,7 +691,6 @@
   <string name="payment_request_message_to_merchant">Sua mensagem para o comerciante (opcional)</string>
   <string name="payment_request_warning_no_sig">A origem dessa solicitação de pagamento não pode ser verificada, porque não possui uma assinatura.\n\nPor favor tome cuidado, pois pode haver alguém a interceptando e alterando os endereços de pagamento.</string>
   <string name="label_cold_storage_external_signing">Assinar com:</string>
-  <string name="spending_unconfirmed_warning">Aviso: gastando fundos não-confirmados</string>
   <string name="spending_unconfirmed_title">Gastando fundos não-confirmados</string>
   <string name="spending_unconfirmed_description">A sua transação está usando fundos que ainda não foram incluídos em um bloco na cadeia de blocos (blockchain). Se por qualquer motivo a transação que enviar esses bitcoins para você falhar ou permanecer não-confirmada, sua transação não funcionará ou também permanecerá não-confirmada.</string>
   <string name="label_unverified_recipient">Recipiente não-verificado</string>
@@ -760,6 +743,16 @@
   <string name="coinapult_create_account">Criando conta Coinapult&#8230;</string>
   <string name="coinapult_backup_info">A chave de acesso para a sua conta Coinapult é derivada a partir de sua semente mestre. Se você tem um backup válido, o acesso à sua conta coinapult também está incluído nele.</string>
   <string name="coinapult_currency_account">Conta em %1$s</string>
+  <!--<string name="colu_tos_link">Open Colu Terms and Conditions</string>-->
+  <!-- <string name="colu_tos_link_url">https://www.colu.com/TOS</string>-->
+  <!--<string name="colu_tos">By clicking "OK" you agree to use Colored Coin technology, third party-->
+  <!--blockchain technology developer. All your interactions with Colu are outside of-->
+  <!--Mycelium’s control and are subject to Colu’s T&amp;C and Privacy Policy.-->
+  <!--Please read them carefully before providing any personal information.-->
+  <!--MYCELIUM ACCEPTS NO RESPONSIBILITY AND WILL NOT BE LIABLE FOR ANY LOSS-->
+  <!--OR DAMAGE WHATSOEVER SUFFERED AS A RESULT OF ACCESSING, USE OF, OR-->
+  <!--RELIANCE UPON COLU’S INFORMATION AND SERVICES.</string>-->
+  <!--    <string name="colu_backup_info">Your Colu account access-key gets derived from your masterseed. If you have a valid backup, the access to your Colu account is also included.</string>  -->
   <string name="copy">Copiar</string>
   <string name="lt_backup_lt_id">Fazer Backup da Identidade de Trader</string>
   <string name="lt_confirm_backup_trader_message">Você está prestes a exportar dados sensíveis de sua conta de trader local. Qualquer pessoa que obter acesso a essas chaves poderá usar sua conta de trader local e agir em seu nome. Você gostaria de continuar?</string>
@@ -790,8 +783,6 @@
   <string name="warning_reason_rbf">RBF</string>
   <string name="warning_reason_unconfirmed_parent">Transação pai não confirmada</string>
   <string name="warning_reason_doublespend">Gasto duplo detectado</string>
-  <string name="opening_url_in_browser">Abrindo URL no Navegador...</string>
-  <string name="incoming_payment">Pagamento recebido: %s</string>
   <string name="warning_amount_does_not_match">Aviso: a quantia não corresponde!</string>
   <string name="mycelium_terms_of_use">Termos de Uso da Mycelium</string>
   <!-- Credit Card -->

@@ -25,7 +25,6 @@
   <string name="send">Kirim</string>
   <string name="receive">Terima</string>
   <string name="private_key_deleted">Private key dihapus.</string>
-  <string name="account_deleted">Akun dihapus</string>
   <string name="enter_recipient_title">Masukkan alamat Penerima</string>
   <string name="recipient_title">Alamat Penerima</string>
   <string name="amount_label">Jumlah:</string>
@@ -41,7 +40,6 @@
   <string name="miner_fee_label">Miner fee:</string>
   <string name="miner_fee_title">Miner Fee</string>
   <string name="synchronizing">Sinkronasi</string>
-  <string name="transaction_sent">Transaksi telah dikirim</string>
   <string name="export">Ekspor</string>
   <string name="backup_private_key">Backup</string>
   <string name="copy_to_clipboard">Salin ke Clipboard</string>
@@ -106,8 +104,6 @@
   <string name="cold_storage">Cold Storage</string>
   <string name="cold_storage_title">Pengeluaran Cold Storage</string>
   <string name="manual_entry">Entri Manual</string>
-  <string name="active_hd_accounts_name">Akun HD saya</string>
-  <string name="active_other_accounts_name">Akun Lain</string>
   <string name="archive_name">Menyimpan arsip</string>
   <string name="active_accounts_empty">(Kosong)</string>
   <string name="activate_action">Aktivasi</string>
@@ -278,7 +274,6 @@
   <string name="sign_bitid">Masuk</string>
   <string name="bitid_sslproblem">Masalah SSL</string>
   <!-- BitID end -->
-  <string name="selected_hd_info">Anda sekarang bekerja pada akun HD ini.</string>
   <string name="hd_account_creation_started">Membuat akun HD baru&#8230;</string>
   <string name="preparing_wallet_on_first_startup_info">Mempersiapkan wallet&#8230;</string>
   <string name="importing_master_seed_from_wordlist">Menghitung Master Seed&#8230;</string>
@@ -354,6 +349,16 @@
   <string name="coinapult_tos_link">Buka Syarat dan Ketentuan Coinapult</string>
   <string name="coinapult_create_account">Membuat akun Coinapult&#8230;</string>
   <string name="coinapult_currency_account">%1$s Akun</string>
+  <!--<string name="colu_tos_link">Open Colu Terms and Conditions</string>-->
+  <!-- <string name="colu_tos_link_url">https://www.colu.com/TOS</string>-->
+  <!--<string name="colu_tos">By clicking "OK" you agree to use Colored Coin technology, third party-->
+  <!--blockchain technology developer. All your interactions with Colu are outside of-->
+  <!--Mycelium’s control and are subject to Colu’s T&amp;C and Privacy Policy.-->
+  <!--Please read them carefully before providing any personal information.-->
+  <!--MYCELIUM ACCEPTS NO RESPONSIBILITY AND WILL NOT BE LIABLE FOR ANY LOSS-->
+  <!--OR DAMAGE WHATSOEVER SUFFERED AS A RESULT OF ACCESSING, USE OF, OR-->
+  <!--RELIANCE UPON COLU’S INFORMATION AND SERVICES.</string>-->
+  <!--    <string name="colu_backup_info">Your Colu account access-key gets derived from your masterseed. If you have a valid backup, the access to your Colu account is also included.</string>  -->
   <string name="copy">Salin</string>
   <string name="masterseed">Masterseed</string>
   <string name="pop_date">Waktu/Tanggal</string>
