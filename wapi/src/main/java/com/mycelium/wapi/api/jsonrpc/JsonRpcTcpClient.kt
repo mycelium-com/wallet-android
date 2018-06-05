@@ -16,12 +16,15 @@ typealias Consumer<T> = (T) -> Unit
 open class JsonRpcTcpClient(host: String,
                             port: Int,
                             val logger: WapiLogger) {
+    private val socketHost = host
+    private val socketPort = port
     private val ssf = SSLSocketFactory.getDefault() as SSLSocketFactory
-    private val socket: Socket = ssf.createSocket(host, port)
-    private val `in` = BufferedReader(InputStreamReader((socket.getInputStream())))
-    private val out = BufferedOutputStream(socket.getOutputStream())
+    private var socket: Socket? = null
+    private var `in` : BufferedReader? = null
+    private var out : BufferedOutputStream? = null
 
     private val callbacks = mutableMapOf<String, Consumer<AbstractResponse>>()
+
 
     fun notify(methodName: String, params: RpcParams) {
         internalWrite(RpcRequestOut(methodName, params).toJson())
@@ -81,28 +84,71 @@ open class JsonRpcTcpClient(host: String,
 
     fun start() {
         thread(start = true) {
-            write("server.version", RpcParams.mapParams(
-                    "client_name" to "wapi",
-                    "protocol_version" to "1.2"),
-                    60000)
+            try {
+                write("server.version", RpcParams.mapParams(
+                        "client_name" to "wapi",
+                        "protocol_version" to "1.2"),
+                        60000)
+            } catch (ex : IOException) {
+                ex.printStackTrace()
+            }
+
             while(true) {
+
                 try {
-                    Thread.sleep(10000)
-                } catch (ignore: InterruptedException) {
+                    try {
+                        Thread.sleep(10000)
+                    } catch (ignore: InterruptedException) {
+                    }
+                    val pong = write("server.ping", RpcMapParams(emptyMap<String, String>()), 60000)
+                    logger.logInfo("Pong! $pong")
+                } catch (ex : IOException) {
+                    ex.printStackTrace()
                 }
-                val pong = write("server.ping", RpcMapParams(emptyMap<String, String>()), 60000)
-                logger.logInfo("Pong! $pong")
             }
         }
-        try {
-            while (true) {
-                messageReceived(`in`.readLine())
+
+        while (true) {
+            try {
+                if (isConnected()) {
+                    var line: String? = `in`!!.readLine()
+                    messageReceived(line!!)
+                } else {
+                    if (!connectSocket()){
+                        sleep(500)
+                    }
+                }
+            } catch (ignore: IOException) {
             }
-        } catch (ignore: IOException) {
         }
     }
 
-    fun close() = socket.close()
+    fun isConnected() : Boolean {
+        if (socket == null)
+            return false
+        return socket!!.isConnected
+    }
+
+    fun connectSocket(): Boolean {
+        try {
+            socket = ssf.createSocket(socketHost, socketPort)
+            `in` = BufferedReader(InputStreamReader((socket!!.getInputStream())))
+            out = BufferedOutputStream(socket!!.getOutputStream())
+            return true
+        } catch (ex : Exception) {
+            return false
+        }
+
+    }
+
+    private fun sleep(ms: Long) {
+        try {
+            Thread.sleep(ms)
+        } catch (ignore: InterruptedException) {
+        }
+    }
+
+    fun close() = socket?.close()
 
     private fun messageReceived(message: String) {
         val isBatched = message[0] == '['
@@ -126,10 +172,17 @@ open class JsonRpcTcpClient(host: String,
     }
 
     private fun internalWrite(msg: String) {
+        if (!isConnected())
+            return
+
         thread(start = true) {
-            val bytes = (msg + "\n").toByteArray()
-            out.write(bytes)
-            out.flush()
+            try {
+                val bytes = (msg + "\n").toByteArray()
+                out!!.write(bytes)
+                out!!.flush()
+            } catch (ex : Exception) {
+                ex.printStackTrace()
+            }
         }
     }
 }

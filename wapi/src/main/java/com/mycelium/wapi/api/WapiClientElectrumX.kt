@@ -28,8 +28,7 @@ import kotlin.concurrent.thread
 /**
  * This is a Wapi Client that avoids calls that require BQS by talking to ElectrumX for related calls
  */
-class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, versionCode: String)
-    : WapiClient(serverEndpoints, logger, versionCode) {
+class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, versionCode: String) : WapiClient(serverEndpoints, logger, versionCode), ConnectionMonitor.ConnectionObserver {
     @Volatile
     private lateinit var jsonRpcTcpClient: JsonRpcTcpClient
     @Volatile
@@ -39,21 +38,45 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, 
         bestChainHeight = (response as RpcResponse).getResult(BlockHeader::class.java)!!.height
     }
 
+    fun isConnected() : Boolean {
+        return jsonRpcTcpClient.isConnected()
+    }
+
     init {
         val latch = CountDownLatch(1)
         thread(start = true) {
-            jsonRpcTcpClient = JsonRpcTcpClient("electrumx-1.mycelium.com", 50012, logger)
-            latch.countDown()
-            jsonRpcTcpClient.start()
+            while(true) {
+                try {
+                    jsonRpcTcpClient = JsonRpcTcpClient("electrumx-1.mycelium.com", 50012, logger)
+                    if (jsonRpcTcpClient.connectSocket()) {
+                        latch.countDown()
+                        jsonRpcTcpClient.start()
+                        break
+                    }
+                } catch (ex: Exception) {
+                    ex.printStackTrace()
+                }
+
+                try {
+                    Thread.sleep(500)
+                } catch(ie : InterruptedException) {
+                }
+            }
+
+            logger.logInfo("ElectrumX server version is ${serverFeatures().serverVersion}.")
+            jsonRpcTcpClient.writeAsync(HEADRES_SUBSCRIBE_METHOD, RpcParams.listParams(true), receiveHeaderCallback)
         }
-        if (!latch.await(30, TimeUnit.SECONDS)) {
-            throw TimeoutException("JsonRpcTcpClient failed to start within time.")
-        }
-        logger.logInfo("ElectrumX server version is ${serverFeatures().serverVersion}.")
-        jsonRpcTcpClient.writeAsync(HEADRES_SUBSCRIBE_METHOD, RpcParams.listParams(true), receiveHeaderCallback)
+    }
+
+    override fun connectionChanged(e: ConnectionMonitor.ConnectionEvent?) {
+
     }
 
     override fun queryUnspentOutputs(request: QueryUnspentOutputsRequest): WapiResponse<QueryUnspentOutputsResponse> {
+        if (!isConnected()) {
+            return WapiResponse<QueryUnspentOutputsResponse>(Wapi.ERROR_CODE_NO_SERVER_CONNECTION, null)
+        }
+
         val unspent: ArrayList<TransactionOutputEx> = ArrayList()
         val requestsList = ArrayList<RpcRequestOut>()
         val requestsIndexesMap = HashMap<String, Int>()
@@ -83,6 +106,10 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, 
     }
 
     override fun queryTransactionInventory(request: QueryTransactionInventoryRequest): WapiResponse<QueryTransactionInventoryResponse> {
+        if (!isConnected()) {
+            return WapiResponse<QueryTransactionInventoryResponse>(Wapi.ERROR_CODE_NO_SERVER_CONNECTION, null)
+        }
+
         val txIds: ArrayList<Sha256Hash> = ArrayList()
         val requestsList = ArrayList<RpcRequestOut>(request.addresses.size)
         request.addresses.forEach {
@@ -103,6 +130,10 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, 
     }
 
     override fun getTransactions(request: GetTransactionsRequest): WapiResponse<GetTransactionsResponse> {
+        if (!isConnected()) {
+            return WapiResponse<GetTransactionsResponse>(Wapi.ERROR_CODE_NO_SERVER_CONNECTION, null)
+        }
+
         val transactions = getTransactionsWithParentLookupConverted(request.txIds.map { it.toHex() }, { tx, unconfirmedChainLength, rbfRisk ->
             TransactionExApi(
                     Sha256Hash.fromString(tx.hash),
@@ -116,6 +147,10 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, 
     }
 
     override fun broadcastTransaction(request: BroadcastTransactionRequest): WapiResponse<BroadcastTransactionResponse> {
+        if (!isConnected()) {
+            return WapiResponse<BroadcastTransactionResponse>(Wapi.ERROR_CODE_NO_SERVER_CONNECTION, null)
+        }
+
         val txHex = HexUtils.toHex(request.rawTransaction)
         val response = jsonRpcTcpClient.write(BROADCAST_METHOD, RpcParams.listParams(txHex), 50000)
         if (response.hasError) {
@@ -127,6 +162,13 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, 
     }
 
     override fun checkTransactions(request: CheckTransactionsRequest): WapiResponse<CheckTransactionsResponse> {
+        if (!isConnected()) {
+            return WapiResponse<CheckTransactionsResponse>(Wapi.ERROR_CODE_NO_SERVER_CONNECTION, null)
+        }
+
+        if (!isConnected())
+            return WapiResponse<CheckTransactionsResponse>(Wapi.ERROR_CODE_NO_SERVER_CONNECTION, null)
+
         // TODO: make the transaction "check" use blockchain.address.subscribe instead of repeated
         // polling of blockchain.transaction.get
         val transactionsArray = getTransactionsWithParentLookupConverted(request.txIds.map { it.toHex() }, { tx, unconfirmedChainLength, rbfRisk ->
@@ -205,6 +247,10 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, 
     private fun isRbf(vin: Array<TransactionInputX>) = vin.any { it.sequence < NON_RBF_SEQUENCE }
 
     override fun getMinerFeeEstimations(): WapiResponse<MinerFeeEstimationResponse> {
+        if (!isConnected()) {
+            return WapiResponse<MinerFeeEstimationResponse>(Wapi.ERROR_CODE_NO_SERVER_CONNECTION, null)
+        }
+
         val blocks: Array<Int> = arrayOf(1, 2, 3, 4, 5, 10, 15, 20) // this is what the wapi server used
         val requestsList = ArrayList<RpcRequestOut>()
         blocks.forEach { nBlocks ->
