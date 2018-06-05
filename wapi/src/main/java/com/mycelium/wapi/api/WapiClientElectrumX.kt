@@ -127,6 +127,8 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, 
     }
 
     override fun checkTransactions(request: CheckTransactionsRequest): WapiResponse<CheckTransactionsResponse> {
+        // TODO: make the transaction "check" use blockchain.address.subscribe instead of repeated
+        // polling of blockchain.transaction.get
         val transactionsArray = getTransactionsWithParentLookupConverted(request.txIds.map { it.toHex() }, { tx, unconfirmedChainLength, rbfRisk ->
             TransactionStatus(
                     Sha256Hash.fromString(tx.hash),
