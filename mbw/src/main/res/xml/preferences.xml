@@ -17,31 +17,18 @@
         android:layout="@layout/preference_category_layout"
         android:title="Security and privacy">
         <Preference
-            android:key="clearPin"
-            android:layout="@layout/preference_layout"
-            android:summary="@string/pref_clear_pin_summary"
-            android:title="@string/pref_clear_pin" />
-        <Preference
-            android:key="setPin"
-            android:layout="@layout/preference_layout"
-            android:summary="@string/pref_set_pin_summary"
-            android:title="@string/pref_set_pin" />
-        <CheckBoxPreference
-            android:key="requirePinOnStartup"
-            android:layout="@layout/preference_layout"
-            android:summary="@string/pref_pin_require_on_startup_summary"
-            android:title="@string/pref_pin_require_on_startup"
-            android:widgetLayout="@layout/preference_checkbox" />
-
-        <Preference
             android:icon="@drawable/ic_security"
             android:key="pincode"
-            android:title="PIN Code" />
+            android:layout="@layout/preference_layout"
+            android:title="@string/pin_code" />
 
-        <SwitchPreference
+        <CheckBoxPreference
             android:icon="@drawable/ic_fingerprint"
             android:key="fingerprint"
-            android:title="Unlock with your fingerprint" />
+            android:layout="@layout/preference_layout"
+            android:title="Unlock with your fingerprint"
+            android:widgetLayout="@layout/preference_switch" />
+
         <ListPreference
             android:icon="@drawable/ic_tor"
             android:inputType="text"
@@ -51,12 +38,14 @@
             android:title="@string/useTor" />
     </PreferenceCategory>
 
-    <Preference
-        android:icon="@drawable/ic_settings_backup"
-        android:key="backup"
-        android:layout="@layout/preference_layout_item"
-        android:title="@string/backup"
-        android:widgetLayout="@layout/preference_arrow" />
+    <PreferenceCategory android:layout="@layout/preference_category_layout">
+        <Preference
+            android:icon="@drawable/ic_settings_backup"
+            android:key="backup"
+            android:layout="@layout/preference_layout"
+            android:title="@string/backup"
+            android:widgetLayout="@layout/preference_arrow" />
+    </PreferenceCategory>
 
     <PreferenceCategory
         android:key="modulesPrefs"
@@ -69,7 +58,7 @@
         android:title="Currencies">
         <ListPreference
             android:key="bitcoin_denomination"
-            android:layout="@layout/preference_layout"
+            android:layout="@layout/preference_layout_no_icon"
             android:summary="@string/pref_bitcoin_denomination_summary"
             android:title="@string/pref_bitcoin_denomination"
             android:widgetLayout="@layout/preference_arrow" />
@@ -94,12 +83,16 @@
         android:layout="@layout/preference_category_layout"
         android:title="Transactions">
         <ListPreference
+            android:icon="@drawable/ic_exchange_coin"
             android:key="block_explorer"
-            android:layout="@layout/preference_layout" />
+            android:layout="@layout/preference_layout"
+            android:widgetLayout="@layout/preference_arrow" />
 
         <ListPreference
+            android:icon="@drawable/ic_mining"
             android:key="miner_fee"
-            android:layout="@layout/preference_layout" />
+            android:layout="@layout/preference_layout"
+            android:widgetLayout="@layout/preference_arrow" />
     </PreferenceCategory>
 
 
@@ -108,26 +101,27 @@
         android:key="localtraderPrefs"
         android:layout="@layout/preference_category_layout"
         android:title="Mycelium services">
-        <SwitchPreference
+        <CheckBoxPreference
             android:icon="@drawable/ic_trading"
             android:key="ltDisable"
             android:layout="@layout/preference_layout"
             android:summary="@string/lt_disable_preference_summary"
-            android:title="@string/lt_disable_preference" />
+            android:title="@string/lt_disable_preference"
+            android:widgetLayout="@layout/preference_switch" />
 
         <CheckBoxPreference
             android:key="ltNotificationSound"
             android:layout="@layout/preference_layout"
             android:summary="@string/lt_sound_on_trade_preference_summary"
             android:title="@string/lt_sound_on_trade_preference"
-            android:widgetLayout="@layout/preference_checkbox" />
+            android:widgetLayout="@layout/preference_switch" />
 
         <CheckBoxPreference
             android:key="ltMilesKilometers"
             android:layout="@layout/preference_layout"
             android:summary="@string/lt_miles_kilometers_preference_summary"
             android:title="@string/lt_miles_kilometers_preference"
-            android:widgetLayout="@layout/preference_checkbox" />
+            android:widgetLayout="@layout/preference_switch" />
 
         <Preference
             android:key="ltNotificationEmail2"
@@ -145,10 +139,10 @@
 
         <CheckBoxPreference
             android:key="showBip44Path"
-            android:layout="@layout/preference_layout"
+            android:layout="@layout/preference_layout_no_icon"
             android:summary="Show the BIP44 address path for the current address on the homescreen"
             android:title="Show address path"
-            android:widgetLayout="@layout/preference_checkbox" />
+            android:widgetLayout="@layout/preference_switch" />
     </PreferenceCategory>
 
 
@@ -162,18 +156,28 @@
             android:layout="@layout/preference_layout"
             android:summary="@string/ledger_disable_tee_preference_summary"
             android:title="@string/ledger_disable_tee_preference"
-            android:widgetLayout="@layout/preference_checkbox" />
+            android:widgetLayout="@layout/preference_switch" />
         <Preference
             android:key="ledgerUnpluggedAID"
-            android:layout="@layout/preference_layout"
+            android:layout="@layout/preference_layout_no_icon"
             android:summary="@string/ledger_unplugged_aid_preference_summary"
             android:title="@string/ledger_unplugged_aid_preference" />
     </PreferenceCategory>
 
-    <!-- External services -->
-    <PreferenceCategory
-        android:key="external"
-        android:layout="@layout/preference_category_layout"
-        android:title="External Services" />
+    <PreferenceCategory android:layout="@layout/preference_category_layout">
+        <Preference
+            android:key="external_services"
+            android:layout="@layout/preference_layout_no_icon"
+            android:title="@string/external_service"
+            android:widgetLayout="@layout/preference_arrow" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:layout="@layout/preference_category_layout">
+        <Preference
+            android:key="updates"
+            android:layout="@layout/preference_layout_no_icon"
+            android:title="@string/updates"
+            android:widgetLayout="@layout/preference_arrow" />
+    </PreferenceCategory>
 
 </PreferenceScreen>

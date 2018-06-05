@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.support.annotation.Nullable;
+import android.support.v7.app.ActionBar;
+import android.view.MenuItem;
 
 import com.google.common.base.Preconditions;
 import com.mycelium.wallet.MbwManager;
@@ -24,6 +26,14 @@ public class BackupFragment extends PreferenceFragment {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.preferences_backup);
         _mbwManager = MbwManager.getInstance(getActivity().getApplication());
+
+        setHasOptionsMenu(true);
+        ActionBar actionBar = ((SettingsActivity) getActivity()).getSupportActionBar();
+        actionBar.setTitle(R.string.backup);
+        actionBar.setHomeAsUpIndicator(R.drawable.ic_back_arrow);
+        actionBar.setDisplayShowHomeEnabled(false);
+        actionBar.setDisplayHomeAsUpEnabled(true);
+
         // Legacy backup function
         Preference legacyBackup = Preconditions.checkNotNull(findPreference("legacyBackup"));
         legacyBackup.setOnPreferenceClickListener(legacyBackupClickListener);
@@ -32,6 +42,15 @@ public class BackupFragment extends PreferenceFragment {
         Preference legacyBackupVerify = Preconditions.checkNotNull(findPreference("legacyBackupVerify"));
         legacyBackupVerify.setOnPreferenceClickListener(legacyBackupVerifyClickListener);
 
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            getFragmentManager().popBackStack();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

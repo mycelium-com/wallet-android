@@ -7,11 +7,12 @@ import android.view.View;
 import android.widget.Button;
 
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.activity.settings.ModulePreference;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class TwoButtonsPreference extends Preference {
+public class TwoButtonsPreference extends Preference implements ModulePreference {
     @BindView(R.id.top_button)
     Button topButton;
 
@@ -73,5 +74,15 @@ public class TwoButtonsPreference extends Preference {
         if (topButton != null) {
             topButton.setText(topButtonText);
         }
+    }
+
+    @Override
+    public void setSyncStateText(String syncStatus) {
+
+    }
+
+    @Override
+    public void setUnderIconText(String underIconText) {
+
     }
 }

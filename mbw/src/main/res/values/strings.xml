@@ -1218,6 +1218,10 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="exchange_sending">SENDING\nADDRESS</string>
     <string name="exchange_receiving">RECEIVING\nADDRESS</string>
     <string name="pref_language">Language</string>
+    <string name="version">version</string>
+    <string name="updates">Updates</string>
+    <string name="external_service">External Services</string>
+    <string name="pin_code">PIN Code</string>
     <plurals name="account_label">
         <item quantity="one">Account label:\n%s</item>
         <item quantity="other">Accounts labels:\n%s</item>

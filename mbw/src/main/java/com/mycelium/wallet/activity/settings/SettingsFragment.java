@@ -12,27 +12,27 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
-import android.preference.SwitchPreference;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.SearchView;
 import android.text.Html;
 import android.text.InputType;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.CharMatcher;
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
@@ -50,12 +50,10 @@ import com.mycelium.wallet.MinerFee;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.WalletApplication;
-import com.mycelium.wallet.activity.export.VerifyBackupActivity;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.view.ButtonPreference;
 import com.mycelium.wallet.activity.view.TwoButtonsPreference;
 import com.mycelium.wallet.event.SpvSyncChanged;
-import com.mycelium.wallet.external.BuySellServiceDescriptor;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.api.GetTraderInfo;
@@ -64,7 +62,6 @@ import com.mycelium.wallet.modularisation.BCHHelper;
 import com.mycelium.wallet.modularisation.GooglePlayModuleCollection;
 import com.mycelium.wallet.modularisation.ModularisationVersionHelper;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.squareup.otto.Subscribe;
 
 import java.text.DecimalFormat;
@@ -98,53 +95,10 @@ public class SettingsFragment extends PreferenceFragment {
             return true;
         }
     };
-    private final Preference.OnPreferenceClickListener setPinClickListener = new Preference.OnPreferenceClickListener() {
-        public boolean onPreferenceClick(Preference preference) {
-            _mbwManager.showSetPinDialog(getActivity(), Optional.<Runnable>of(new Runnable() {
-                        @Override
-                        public void run() {
-                            updateClearPin();
-                            updatePinAtStartup();
-                        }
-                    })
-            );
-            return true;
-        }
-    };
 
-    private final Preference.OnPreferenceChangeListener setPinOnStartupClickListener = new Preference.OnPreferenceChangeListener() {
-        @Override
-        public boolean onPreferenceChange(final Preference preference, Object o) {
-            _mbwManager.runPinProtectedFunction(getActivity(), new Runnable() {
-                        @Override
-                        public void run() {
-                            // toggle it here
-                            boolean checked = !((CheckBoxPreference) preference).isChecked();
-                            _mbwManager.setPinRequiredOnStartup(checked);
-                            ((CheckBoxPreference) preference).setChecked(_mbwManager.getPinRequiredOnStartup());
-                        }
-                    }
-            );
-
-            // dont automatically take the new value, lets to it in our the pin protected runnable
-            return false;
-        }
-    };
-    private final Preference.OnPreferenceClickListener clearPinClickListener = new Preference.OnPreferenceClickListener() {
-        public boolean onPreferenceClick(Preference preference) {
-            _mbwManager.showClearPinDialog(getActivity(), Optional.<Runnable>of(new Runnable() {
-                @Override
-                public void run() {
-                    updateClearPin();
-                    updatePinAtStartup();
-                }
-            }));
-            return true;
-        }
-    };
     private final Preference.OnPreferenceClickListener ltDisableLocalTraderClickListener = new Preference.OnPreferenceClickListener() {
         public boolean onPreferenceClick(Preference preference) {
-            SwitchPreference p = (SwitchPreference) preference;
+            CheckBoxPreference p = (CheckBoxPreference) preference;
             _ltManager.setLocalTraderDisabled(p.isChecked());
             applyLocalTraderEnablement();
             return true;
@@ -359,19 +313,22 @@ public class SettingsFragment extends PreferenceFragment {
             }
         });
 
-        // Set PIN
-        Preference setPin = Preconditions.checkNotNull(findPreference("setPin"));
-        setPin.setOnPreferenceClickListener(setPinClickListener);
-
-        // Clear PIN
-        updateClearPin();
-
-        // PIN required on startup
-        updatePinAtStartup();
+        Preference pincodePreference = findPreference("pincode");
+        pincodePreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                getFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.fragment_container, new PinCodeFragment())
+                        .addToBackStack("pincode")
+                        .commitAllowingStateLoss();
+                return true;
+            }
+        });
 
 
         // Local Trader
-        SwitchPreference ltDisable = (SwitchPreference) findPreference("ltDisable");
+        CheckBoxPreference ltDisable = (CheckBoxPreference) findPreference("ltDisable");
         ltDisable.setChecked(_ltManager.isLocalTraderDisabled());
         ltDisable.setOnPreferenceClickListener(ltDisableLocalTraderClickListener);
 
@@ -440,7 +397,18 @@ public class SettingsFragment extends PreferenceFragment {
         applyLocalTraderEnablement();
 
 
-        initExternalSettings();
+        Preference backupPreference = findPreference("backup");
+        backupPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                getFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.fragment_container, new BackupFragment())
+                        .addToBackStack("backup")
+                        .commitAllowingStateLoss();
+                return true;
+            }
+        });
 
         // external Services
 
@@ -454,6 +422,31 @@ public class SettingsFragment extends PreferenceFragment {
         }
         processUnpairedModules(modulesPrefs);
 
+        Preference externalPreference = findPreference("external_services");
+        externalPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                getFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.fragment_container, new ExternalServiceFragment())
+                        .addToBackStack("external_services")
+                        .commitAllowingStateLoss();
+                return true;
+            }
+        });
+
+        Preference versionPreference = findPreference("updates");
+        versionPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                getFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.fragment_container, new VersionFragment())
+                        .addToBackStack("version")
+                        .commitAllowingStateLoss();
+                return true;
+            }
+        });
     }
 
     List<Preference> preferenceList = new ArrayList<>();
@@ -487,6 +480,18 @@ public class SettingsFragment extends PreferenceFragment {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String s) {
+                findSearchResult(s);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String s) {
+                findSearchResult(s);
+
+                return true;
+            }
+
+            private void findSearchResult(String s) {
                 getPreferenceScreen().removeAll();
                 for (Preference preferenceCat : preferenceList) {
                     if (preferenceCat instanceof PreferenceCategory) {
@@ -502,37 +507,14 @@ public class SettingsFragment extends PreferenceFragment {
                         }
                     }
                 }
-                return true;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String s) {
-                return false;
             }
         });
-    }
+        ActionBar actionBar = ((SettingsActivity) getActivity()).getSupportActionBar();
+        actionBar.setDisplayShowHomeEnabled(true);
+        actionBar.setDisplayHomeAsUpEnabled(false);
+        actionBar.setIcon(R.drawable.action_bar_logo);
+        actionBar.setTitle(R.string.settings);
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")
-    @VisibleForTesting
-    static boolean isNumber(String text) {
-        try {
-            Double.parseDouble(text);
-        } catch (NumberFormatException ignore) {
-            return false;
-        }
-        return true;
-    }
-
-    @VisibleForTesting
-    static String extractAmount(CharSequence s) {
-        String amt = AMOUNT.retainFrom(s).replace(",", ".");
-        int commaIdx = amt.indexOf(".");
-        if (commaIdx > -1) {
-            String cents = amt.substring(commaIdx + 1, Math.min(amt.length(), commaIdx + 3));
-            String euros = amt.substring(0, commaIdx);
-            return euros + "." + cents;
-        }
-        return amt;
     }
 
     private void processPairedModules(PreferenceCategory modulesPrefs) {
@@ -607,7 +589,7 @@ public class SettingsFragment extends PreferenceFragment {
         preference.setLayoutResource(R.layout.preference_layout);
         preference.setTitle(Html.fromHtml(module.getName()));
         preference.setKey("Module_" + module.getModulePackage());
-//        updateModulePreference(preference, module, BCHHelper.getBCHSyncProgress(getActivity()));
+        updateModulePreference(preference, module, BCHHelper.getBCHSyncProgress(getActivity()));
         preference.setButtonsText(getString(R.string.uninstall), getString(R.string.update));
         preference.setTopButtonClickListener(new View.OnClickListener() {
             @Override
@@ -657,16 +639,13 @@ public class SettingsFragment extends PreferenceFragment {
         }
     }
 
-    private void updateModulePreference(ButtonPreference preference, Module module, float progress) {
+    private void updateModulePreference(ModulePreference preference, Module module, float progress) {
         if (preference != null) {
             DecimalFormat format = new DecimalFormat(progress < 0.1f ? "#.###" : "#.##");
 
             String syncStatus = progress == 100F ? getString(R.string.fully_synced)
                     : getString(R.string.sync_progress, format.format(progress));
-            preference.setSummary(Html.fromHtml(module.getDescription()
-                    /*+ "<br/><br/>"
-                    + addColorHtmlTag(syncStatus, "#00CC00")*/));
-
+            preference.setSummary(Html.fromHtml(module.getDescription()));
             preference.setSyncStateText(syncStatus);
         }
     }
@@ -677,72 +656,6 @@ public class SettingsFragment extends PreferenceFragment {
         String bchPackage = "Module_" + WalletApplication.getSpvModuleName(WalletAccount.Type.BCHBIP44);
         Preference preference = modulesPrefs.findPreference(bchPackage);
         updateModulePreference((ButtonPreference) preference, syncChanged.module, syncChanged.chainDownloadPercentDone);
-    }
-
-    private String addColorHtmlTag(String input, String color) {
-        return "<font color=\"" + color + "\">" + input + "</font>";
-    }
-
-    void initExternalSettings() {
-        final PreferenceCategory external = (PreferenceCategory) findPreference("external");
-        final List<BuySellServiceDescriptor> buySellServices = _mbwManager.getEnvironmentSettings().getBuySellServices();
-
-        for (final BuySellServiceDescriptor buySellService : buySellServices) {
-            if (!buySellService.showEnableInSettings()) {
-                continue;
-            }
-
-            final CheckBoxPreference cbService = new CheckBoxPreference(getActivity());
-            final String enableTitle = getResources().getString(R.string.settings_service_enabled,
-                    getResources().getString(buySellService.title)
-            );
-            cbService.setTitle(enableTitle);
-            cbService.setSummary(buySellService.settingDescription);
-            cbService.setChecked(buySellService.isEnabled(_mbwManager));
-            cbService.setWidgetLayoutResource(R.layout.preference_checkbox);
-            cbService.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                @Override
-                public boolean onPreferenceClick(Preference preference) {
-                    CheckBoxPreference p = (CheckBoxPreference) preference;
-                    buySellService.setEnabled(_mbwManager, p.isChecked());
-                    return true;
-                }
-            });
-            external.addPreference(cbService);
-        }
-        if (!SettingsPreference.getInstance().isEndedMyDFS()) {
-            final CheckBoxPreference cbService = new CheckBoxPreference(getActivity());
-            cbService.setTitle(R.string.settings_mydfs_title);
-            cbService.setSummary(R.string.settings_mydfs_summary);
-            cbService.setChecked(SettingsPreference.getInstance().isMyDFSEnabled());
-            cbService.setWidgetLayoutResource(R.layout.preference_checkbox);
-            cbService.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                @Override
-                public boolean onPreferenceClick(Preference preference) {
-                    CheckBoxPreference p = (CheckBoxPreference) preference;
-                    SettingsPreference.getInstance().setEnableMyDFS(p.isChecked());
-                    return true;
-                }
-            });
-            external.addPreference(cbService);
-        }
-
-        if (!SettingsPreference.getInstance().isEndedApex()) {
-            final CheckBoxPreference cbServiceApex = new CheckBoxPreference(getActivity());
-            cbServiceApex.setTitle(R.string.settings_apex_title);
-            cbServiceApex.setSummary(R.string.settings_apex_summary);
-            cbServiceApex.setChecked(SettingsPreference.getInstance().isApexEnabled());
-            cbServiceApex.setWidgetLayoutResource(R.layout.preference_checkbox);
-            cbServiceApex.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                @Override
-                public boolean onPreferenceClick(Preference preference) {
-                    CheckBoxPreference p = (CheckBoxPreference) preference;
-                    SettingsPreference.getInstance().setEnableApex(p.isChecked());
-                    return true;
-                }
-            });
-            external.addPreference(cbServiceApex);
-        }
     }
 
     @Override
@@ -766,7 +679,7 @@ public class SettingsFragment extends PreferenceFragment {
     private void setupLocalTraderSettings() {
         if (!_ltManager.hasLocalTraderAccount()) {
             PreferenceCategory localTraderPrefs = (PreferenceCategory) findPreference("localtraderPrefs");
-            SwitchPreference disableLt = (SwitchPreference) findPreference("ltDisable");
+            CheckBoxPreference disableLt = (CheckBoxPreference) findPreference("ltDisable");
             if (localTraderPrefs != null) {
                 localTraderPrefs.removeAll();
                 //its important we keep this prefs, so users can still enable / disable lt without having an account
@@ -885,20 +798,6 @@ public class SettingsFragment extends PreferenceFragment {
     private String getBlockExplorerSummary() {
         return getResources().getString(R.string.block_explorer_summary,
                 _mbwManager._blockExplorerManager.getBlockExplorer().getTitle());
-    }
-
-    @SuppressWarnings("deprecation")
-    private void updateClearPin() {
-        Preference clearPin = findPreference("clearPin");
-        clearPin.setEnabled(_mbwManager.isPinProtected());
-        clearPin.setOnPreferenceClickListener(clearPinClickListener);
-    }
-
-    private void updatePinAtStartup() {
-        CheckBoxPreference setPinRequiredStartup = (CheckBoxPreference) Preconditions.checkNotNull(findPreference("requirePinOnStartup"));
-        setPinRequiredStartup.setOnPreferenceChangeListener(setPinOnStartupClickListener);
-        setPinRequiredStartup.setEnabled(_mbwManager.isPinProtected());
-        setPinRequiredStartup.setChecked(_mbwManager.isPinProtected() && _mbwManager.getPinRequiredOnStartup());
     }
 
     private class SubscribeToServerResponse extends LocalTraderEventSubscriber {

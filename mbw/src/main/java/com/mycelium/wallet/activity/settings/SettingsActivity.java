@@ -62,9 +62,6 @@ public class SettingsActivity extends AppCompatActivity {
 
         ActionBar bar = getSupportActionBar();
         bar.setDisplayShowTitleEnabled(true);
-        bar.setDisplayShowHomeEnabled(true);
-        bar.setIcon(R.drawable.action_bar_logo);
-        bar.setTitle(R.string.settings);
 
         getFragmentManager()
                 .beginTransaction()

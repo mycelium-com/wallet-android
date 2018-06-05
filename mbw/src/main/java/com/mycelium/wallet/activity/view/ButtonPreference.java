@@ -8,12 +8,13 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.activity.settings.ModulePreference;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class ButtonPreference extends Preference {
+public class ButtonPreference extends Preference implements ModulePreference {
     @BindView(R.id.preference_button)
     Button button;
 
