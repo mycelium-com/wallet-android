@@ -67,6 +67,14 @@
 
     <style name="MyceliumSettings" parent="MyceliumModern">
         <item name="colorAccent">@color/lightgrey</item>
+        <item name="android:actionBarStyle">@style/MyceliumSettings.ActionBar</item>
+        <item name="actionBarStyle">@style/MyceliumSettings.ActionBar</item>
+    </style>
+
+    <style name="MyceliumSettings.ActionBar" parent="Widget.AppCompat.Light.ActionBar">
+        <item name="background">@color/pref_background</item>
+        <item name="android:height">56dp</item>
+        <item name="height">56dp</item>
     </style>
 
     <!-- Application theme. Theme.AppCompat.Base.CompactMenu.Dialog -->

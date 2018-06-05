@@ -96,7 +96,7 @@
     <string name="pref_exchange_source_with_value">Exchange Source (%1$s)</string>
     <string name="pref_exchange_source_summary">Select the source for obtaining exchange rates between Bitcoin and fiat currencies</string>
     <string name="pref_bitcoin_denomination">Bitcoin Denomination</string>
-    <string name="pref_bitcoin_denomination_with_denomination">Denomination (%1$s)</string>
+    <string name="pref_bitcoin_denomination_with_denomination">Cryptocurrency denomination (%1$s)</string>
     <string name="pref_bitcoin_denomination_summary">Set preferred Bitcoin denomination. BTC, mBTC, or μBTC</string>
     <string name="pref_advanced_settings">Advanced Settings</string>
     <string name="pref_socks_proxy">Socks Proxy</string>
@@ -308,8 +308,8 @@
     <string name="lt_ad_created">Ad created</string>
     <string name="lt_ad_edited">Ad edited</string>
     <string name="lt_pref_category">Local Trader</string>
-    <string name="lt_disable_preference">Disable Local Trader</string>
-    <string name="lt_disable_preference_summary">Disable Local Trader functionality</string>
+    <string name="lt_disable_preference">Local Trader</string>
+    <string name="lt_disable_preference_summary">Local Trader functionality</string>
     <string name="lt_sound_on_trade_preference">Play Sound on Trade Activity</string>
     <string name="lt_sound_on_trade_preference_summary">Play a notification sound when trade activity occurs</string>
     <string name="lt_use_email_for_notifications">Use email for notifications</string>
@@ -1217,6 +1217,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="buy_apex_token">BUY APEX TOKEN</string>
     <string name="exchange_sending">SENDING\nADDRESS</string>
     <string name="exchange_receiving">RECEIVING\nADDRESS</string>
+    <string name="pref_language">Language</string>
     <plurals name="account_label">
         <item quantity="one">Account label:\n%s</item>
         <item quantity="other">Accounts labels:\n%s</item>

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.preference.Preference;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.mycelium.wallet.R;
 
@@ -16,8 +17,17 @@ public class ButtonPreference extends Preference {
     @BindView(R.id.preference_button)
     Button button;
 
+    @BindView(R.id.under_icon_text)
+    TextView underIconTextView;
+
+    @BindView(R.id.sync_state)
+    TextView syncState;
+
+
     private View.OnClickListener buttonClickListener;
     private String buttonText;
+    private String underIconText;
+    private String syncStateText;
     private boolean buttonEnabled = true;
 
     public ButtonPreference(Context context) {
@@ -30,6 +40,8 @@ public class ButtonPreference extends Preference {
         super.onBindView(view);
         ButterKnife.bind(this, view);
         button.setText(buttonText);
+        underIconTextView.setText(underIconText);
+        syncState.setText(syncStateText);
         setButtonEnabled(buttonEnabled);
     }
 
@@ -56,6 +68,20 @@ public class ButtonPreference extends Preference {
         buttonText = text;
         if (button != null) {
             button.setText(text);
+        }
+    }
+
+    public void setUnderIconText(String underIconText) {
+        this.underIconText = underIconText;
+        if (underIconTextView != null) {
+            underIconTextView.setText(underIconText);
+        }
+    }
+
+    public void setSyncStateText(String syncStateText) {
+        this.syncStateText = syncStateText;
+        if (syncState != null) {
+            syncState.setText(syncStateText);
         }
     }
 

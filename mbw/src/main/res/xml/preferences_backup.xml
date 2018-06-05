@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <Preference
+        android:key="legacyBackup"
+        android:layout="@layout/preference_layout"
+        android:summary="@string/pref_legacy_backup_summary"
+        android:title="@string/pref_legacy_backup_title" />
+    <Preference
+        android:key="legacyBackupVerify"
+        android:layout="@layout/preference_layout"
+        android:summary="@string/pref_legacy_backup_verify_summary"
+        android:title="@string/pref_legacy_backup_verify_title"
+        android:widgetLayout="@layout/preference_arrow" />
+
+</PreferenceScreen>

@@ -2,40 +2,50 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:baselineAligned="false"
-    android:gravity="center_vertical"
-    android:minHeight="?android:attr/listPreferredItemHeight"
-    android:paddingLeft="16dp"
-    android:paddingRight="16dp">
+    android:orientation="vertical">
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="24dp"
+        android:background="#252525" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:baselineAligned="false"
+        android:gravity="center_vertical"
+        android:minHeight="?android:attr/listPreferredItemHeight"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp">
 
 
-    <ImageView
+        <ImageView
             android:id="@android:id/icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:paddingRight="8dip" />
 
-    <RelativeLayout
+        <RelativeLayout
             android:layout_width="0dip"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
             android:layout_weight="1"
-        android:layout_marginLeft="16dp"
             android:paddingBottom="6dip"
             android:paddingRight="1dip"
-            android:paddingTop="6dip" >
+            android:paddingTop="6dip">
 
-        <TextView
+            <TextView
                 android:id="@android:id/title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ellipsize="marquee"
                 android:fadingEdge="horizontal"
-                android:textColor="@color/preference_title_color"
+                android:singleLine="true"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:singleLine="true" />
+                android:textColor="@color/preference_title_color" />
 
-        <TextView
+            <TextView
                 android:id="@android:id/summary"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -43,11 +53,11 @@
                 android:layout_below="@android:id/title"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="#b8bcbf" />
-    </RelativeLayout>
+        </RelativeLayout>
 
-    <!-- Preference should place its actual preference widget here. -->
+        <!-- Preference should place its actual preference widget here. -->
 
-    <LinearLayout
+        <LinearLayout
             android:id="@android:id/widget_frame"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
@@ -55,4 +65,5 @@
             android:minWidth="48dp"
             android:orientation="vertical" />
 
+    </LinearLayout>
 </LinearLayout>

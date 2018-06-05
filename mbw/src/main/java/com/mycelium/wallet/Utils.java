@@ -43,6 +43,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -54,7 +55,6 @@ import android.support.annotation.StringRes;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.text.ClipboardManager;
-import android.text.Html;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.util.SparseArray;
@@ -86,14 +86,12 @@ import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.CoinUtil;
-import com.mycelium.modularizationtools.model.Module;
 import com.mycelium.wallet.activity.AdditionalBackupWarningActivity;
 import com.mycelium.wallet.activity.BackupWordListActivity;
 import com.mycelium.wallet.activity.export.BackupToPdfActivity;
 import com.mycelium.wallet.activity.export.ExportAsQrCodeActivity;
 import com.mycelium.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wallet.colu.ColuAccount;
-import com.mycelium.wallet.modularisation.GooglePlayModuleCollection;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.ExportableAccount;
@@ -176,6 +174,12 @@ public class Utils {
        * null; if (!lang.equals("en")) { settingsEn =
        * defaultResources.getString(resId); } return settingsEn;
        */
+   }
+
+   public static Resources getResourcesByLocale(Resources res, String localeName) {
+      Configuration conf = new Configuration(res.getConfiguration());
+      conf.locale = new Locale(localeName);
+      return new Resources(res.getAssets(), res.getDisplayMetrics(), conf);
    }
 
    public static Bitmap getMinimalQRCodeBitmap(String url) {
