@@ -6,6 +6,7 @@ import com.megiontechnologies.Bitcoins
 import com.mrd.bitlib.StandardTransactionBuilder
 import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.model.OutPoint
+import com.mrd.bitlib.model.Transaction
 import com.mrd.bitlib.util.HexUtils
 import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.WapiLogger
@@ -105,10 +106,10 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, 
     override fun getTransactions(request: GetTransactionsRequest): WapiResponse<GetTransactionsResponse> {
         val transactions = getTransactionsWithParentLookupConverted(request.txIds.map { it.toHex() }, { tx, unconfirmedChainLength, rbfRisk ->
             TransactionExApi(
-                    Sha256Hash.fromString(tx.hash),
+                    Sha256Hash.fromString(tx.txid),
                     if (tx.confirmations > 0) bestChainHeight - tx.confirmations else -1,
                     if (tx.time == 0) (Date().time / 1000).toInt() else tx.time,
-                    HexUtils.toBytes(tx.hex),
+                    Transaction.fromBytes(HexUtils.toBytes(tx.hex)).toBytes(), // TODO SEGWIT remove when implemeted. Decreases sync speed twice
                     unconfirmedChainLength, // 0 or 1. we don't dig deeper. 1 == unconfirmed parent
                     rbfRisk)
         })
@@ -131,7 +132,7 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, 
         // polling of blockchain.transaction.get
         val transactionsArray = getTransactionsWithParentLookupConverted(request.txIds.map { it.toHex() }, { tx, unconfirmedChainLength, rbfRisk ->
             TransactionStatus(
-                    Sha256Hash.fromString(tx.hash),
+                    Sha256Hash.fromString(tx.txid),
                     true,
                     if (tx.time == 0) (Date().time / 1000).toInt() else tx.time,
                     if (tx.confirmations > 0) bestChainHeight - tx.confirmations else -1,
@@ -166,7 +167,7 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, 
         if (tx.confirmations == 0) {
             // if unconfirmed chain length is one, see if it is two (or more)
             // see if it or parent is RBF
-            val txParents = relatedTransactions.filter { ptx -> ptx.hash == tx.hash }
+            val txParents = relatedTransactions.filter { ptx -> ptx.txid == tx.txid }
             rbfRisk = isRbf(tx.vin) || txParents.any { ptx -> isRbf(ptx.vin) }
             if (txParents.any { ptx -> ptx.confirmations == 0 }) {
                 unconfirmedChainLength = 1
@@ -245,12 +246,13 @@ data class ServerFeatures(
 )
 
 data class TransactionX(
-        val hash: String,
         val blockhash: String,
         val blocktime: Long,
         val confirmations: Int,
-        val time: Int,
+        val hash: String,
         val hex: String,
+        val time: Int,
+        val txid: String,
         val vin: Array<TransactionInputX>
 )
 
