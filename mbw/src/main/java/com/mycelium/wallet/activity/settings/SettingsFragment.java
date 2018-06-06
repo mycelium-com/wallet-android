@@ -7,26 +7,24 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.CheckBoxPreference;
-import android.preference.ListPreference;
-import android.preference.Preference;
-import android.preference.PreferenceCategory;
-import android.preference.PreferenceFragment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.preference.CheckBoxPreference;
+import android.support.v7.preference.ListPreference;
+import android.support.v7.preference.Preference;
+import android.support.v7.preference.PreferenceCategory;
+import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.SearchView;
 import android.text.Html;
 import android.text.InputType;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -73,7 +71,7 @@ import info.guardianproject.onionkit.ui.OrbotHelper;
 
 import static android.app.Activity.RESULT_CANCELED;
 
-public class SettingsFragment extends PreferenceFragment {
+public class SettingsFragment extends PreferenceFragmentCompat {
 
     public static final CharMatcher AMOUNT = CharMatcher.JAVA_DIGIT.or(CharMatcher.anyOf(".,"));
     private static final int REQUEST_CODE_UNINSTALL = 1;
@@ -179,8 +177,7 @@ public class SettingsFragment extends PreferenceFragment {
 
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         addPreferencesFromResource(R.xml.preferences);
         setHasOptionsMenu(true);
 
@@ -312,6 +309,21 @@ public class SettingsFragment extends PreferenceFragment {
                 return true;
             }
         });
+
+        Preference notificationPreference = findPreference("notifications");
+        if (notificationPreference != null) {
+            notificationPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    getFragmentManager()
+                            .beginTransaction()
+                            .replace(R.id.fragment_container, new NotificationsFragment())
+                            .addToBackStack("pincode")
+                            .commitAllowingStateLoss();
+                    return true;
+                }
+            });
+        }
 
         Preference pincodePreference = findPreference("pincode");
         pincodePreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -447,6 +459,7 @@ public class SettingsFragment extends PreferenceFragment {
                 return true;
             }
         });
+
     }
 
     List<Preference> preferenceList = new ArrayList<>();

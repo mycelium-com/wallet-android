@@ -3,12 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="24dp"
-        android:background="#252525" />
+    android:orientation="vertical"
+    android:paddingTop="24dp">
 
     <TextView
         android:id="@android:id/title"
@@ -16,7 +12,7 @@
         android:layout_height="wrap_content"
         android:background="#2c2c2c"
         android:fontFamily="sans-serif"
-        android:paddingBottom="@dimen/margin_small"
+        android:paddingBottom="10dp"
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
         android:paddingTop="8dp"

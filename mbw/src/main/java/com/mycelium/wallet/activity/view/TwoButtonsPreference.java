@@ -2,7 +2,8 @@ package com.mycelium.wallet.activity.view;
 
 
 import android.content.Context;
-import android.preference.Preference;
+import android.support.v7.preference.Preference;
+import android.support.v7.preference.PreferenceViewHolder;
 import android.view.View;
 import android.widget.Button;
 
@@ -32,9 +33,9 @@ public class TwoButtonsPreference extends Preference implements ModulePreference
     }
 
     @Override
-    protected void onBindView(final View view) {
-        super.onBindView(view);
-        ButterKnife.bind(this, view);
+    public void onBindViewHolder(PreferenceViewHolder holder) {
+        super.onBindViewHolder(holder);
+        ButterKnife.bind(this, holder.itemView);
         topButton.setText(topButtonText);
         bottomButton.setText(bottomButtonText);
         topButton.setEnabled(topButtonEnabled);

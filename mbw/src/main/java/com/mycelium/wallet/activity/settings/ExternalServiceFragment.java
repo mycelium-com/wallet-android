@@ -1,12 +1,11 @@
 package com.mycelium.wallet.activity.settings;
 
 import android.os.Bundle;
-import android.preference.CheckBoxPreference;
-import android.preference.Preference;
-import android.preference.PreferenceCategory;
-import android.preference.PreferenceFragment;
-import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
+import android.support.v7.preference.CheckBoxPreference;
+import android.support.v7.preference.Preference;
+import android.support.v7.preference.PreferenceCategory;
+import android.support.v7.preference.PreferenceFragmentCompat;
 import android.view.MenuItem;
 
 import com.mycelium.wallet.MbwManager;
@@ -15,12 +14,11 @@ import com.mycelium.wallet.external.BuySellServiceDescriptor;
 
 import java.util.List;
 
-public class ExternalServiceFragment extends PreferenceFragment {
+public class ExternalServiceFragment extends PreferenceFragmentCompat {
     private MbwManager _mbwManager;
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         addPreferencesFromResource(R.xml.preferences_external_service);
         _mbwManager = MbwManager.getInstance(getActivity().getApplication());
 
@@ -44,6 +42,7 @@ public class ExternalServiceFragment extends PreferenceFragment {
                     getResources().getString(buySellService.title)
             );
             cbService.setTitle(enableTitle);
+            cbService.setLayoutResource(R.layout.preference_layout);
             cbService.setSummary(buySellService.settingDescription);
             cbService.setChecked(buySellService.isEnabled(_mbwManager));
             cbService.setWidgetLayoutResource(R.layout.preference_switch);
@@ -63,6 +62,7 @@ public class ExternalServiceFragment extends PreferenceFragment {
             cbService.setTitle(R.string.settings_mydfs_title);
             cbService.setSummary(R.string.settings_mydfs_summary);
             cbService.setChecked(SettingsPreference.getInstance().isMyDFSEnabled());
+            cbService.setLayoutResource(R.layout.preference_layout);
             cbService.setWidgetLayoutResource(R.layout.preference_switch);
             cbService.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
@@ -80,6 +80,7 @@ public class ExternalServiceFragment extends PreferenceFragment {
             cbServiceApex.setTitle(R.string.settings_apex_title);
             cbServiceApex.setSummary(R.string.settings_apex_summary);
             cbServiceApex.setChecked(SettingsPreference.getInstance().isApexEnabled());
+            cbServiceApex.setLayoutResource(R.layout.preference_layout);
             cbServiceApex.setWidgetLayoutResource(R.layout.preference_switch);
             cbServiceApex.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
@@ -91,7 +92,6 @@ public class ExternalServiceFragment extends PreferenceFragment {
             });
             preferenceCategory.addPreference(cbServiceApex);
         }
-
     }
 
     @Override

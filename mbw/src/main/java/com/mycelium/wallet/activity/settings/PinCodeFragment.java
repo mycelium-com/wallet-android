@@ -1,11 +1,10 @@
 package com.mycelium.wallet.activity.settings;
 
 import android.os.Bundle;
-import android.preference.CheckBoxPreference;
-import android.preference.Preference;
-import android.preference.PreferenceFragment;
-import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
+import android.support.v7.preference.CheckBoxPreference;
+import android.support.v7.preference.Preference;
+import android.support.v7.preference.PreferenceFragmentCompat;
 import android.view.MenuItem;
 
 import com.google.common.base.Optional;
@@ -13,11 +12,11 @@ import com.google.common.base.Preconditions;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 
-public class PinCodeFragment extends PreferenceFragment {
+public class PinCodeFragment extends PreferenceFragmentCompat {
     private MbwManager _mbwManager;
+
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         addPreferencesFromResource(R.xml.preferences_pincode);
         _mbwManager = MbwManager.getInstance(getActivity().getApplication());
 
@@ -37,7 +36,6 @@ public class PinCodeFragment extends PreferenceFragment {
 
         // PIN required on startup
         updatePinAtStartup();
-
     }
 
     @Override

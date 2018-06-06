@@ -67,8 +67,22 @@
 
     <style name="MyceliumSettings" parent="MyceliumModern">
         <item name="colorAccent">@color/lightgrey</item>
+        <item name="colorControlActivated">@color/common_blue</item>
         <item name="android:actionBarStyle">@style/MyceliumSettings.ActionBar</item>
         <item name="actionBarStyle">@style/MyceliumSettings.ActionBar</item>
+        <item name="android:alertDialogTheme">@style/MyceliumModern.Dialog</item>
+        <item name="android:listDivider">@drawable/pref_list_divider</item>
+        <item name="preferenceTheme">@style/MyceliumSettingsPreferenceThemeOverlay
+        </item>
+    </style>
+
+    <style name="MyceliumSettingsPreferenceThemeOverlay" parent="PreferenceThemeOverlay.v14.Material">
+        <item name="preferenceFragmentCompatStyle">@style/MyceliumSettingsPreferenceFragment</item>
+        <item name="preferenceFragmentStyle">@style/MyceliumSettingsPreferenceFragment</item>
+    </style>
+
+    <style name="MyceliumSettingsPreferenceFragment" parent="PreferenceFragment.Material">
+        <item name="android:divider">@drawable/pref_list_divider</item>
     </style>
 
     <style name="MyceliumSettings.ActionBar" parent="Widget.AppCompat.Light.ActionBar">

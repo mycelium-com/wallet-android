@@ -309,7 +309,7 @@
     <string name="lt_ad_edited">Ad edited</string>
     <string name="lt_pref_category">Local Trader</string>
     <string name="lt_disable_preference">Local Trader</string>
-    <string name="lt_disable_preference_summary">Local Trader functionality</string>
+    <string name="lt_disable_preference_summary">Disable local trader functionality</string>
     <string name="lt_sound_on_trade_preference">Play Sound on Trade Activity</string>
     <string name="lt_sound_on_trade_preference_summary">Play a notification sound when trade activity occurs</string>
     <string name="lt_use_email_for_notifications">Use email for notifications</string>
@@ -1222,6 +1222,16 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="updates">Updates</string>
     <string name="external_service">External Services</string>
     <string name="pin_code">PIN Code</string>
+    <string name="notifications">Notifications</string>
+    <string name="personalization">Personalization</string>
+    <string name="security_and_privacy">Security and privacy</string>
+    <string name="modules">Modules</string>
+    <string name="currencies">Currencies</string>
+    <string name="transactions">Transactions</string>
+    <string name="mycelium_services">Mycelium services</string>
+    <string name="hardware_wallets">Hardware wallets</string>
+    <string name="show_address_path">Show address path</string>
+    <string name="backup_lower">Backup</string>
     <plurals name="account_label">
         <item quantity="one">Account label:\n%s</item>
         <item quantity="other">Accounts labels:\n%s</item>

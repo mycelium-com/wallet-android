@@ -8,8 +8,6 @@
     <PreferenceCategory android:layout="@layout/preference_category_layout">
         <Preference
             android:key="application"
-            android:layout="@layout/preference_layout_no_icon"
-            android:summary="version 2.10.5.8"
-            android:title="Mycelium Wallet" />
+            android:layout="@layout/preference_layout_no_icon" />
     </PreferenceCategory>
 </PreferenceScreen>

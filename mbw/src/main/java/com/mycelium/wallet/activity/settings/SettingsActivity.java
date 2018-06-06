@@ -63,7 +63,7 @@ public class SettingsActivity extends AppCompatActivity {
         ActionBar bar = getSupportActionBar();
         bar.setDisplayShowTitleEnabled(true);
 
-        getFragmentManager()
+        getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragment_container, new SettingsFragment())
                 .commit();

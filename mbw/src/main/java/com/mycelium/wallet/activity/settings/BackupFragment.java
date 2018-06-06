@@ -1,10 +1,10 @@
 package com.mycelium.wallet.activity.settings;
 
 import android.os.Bundle;
-import android.preference.Preference;
-import android.preference.PreferenceFragment;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
+import android.support.v7.preference.Preference;
+import android.support.v7.preference.PreferenceFragmentCompat;
 import android.view.MenuItem;
 
 import com.google.common.base.Preconditions;
@@ -17,19 +17,18 @@ import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 
 import java.util.List;
 
-public class BackupFragment extends PreferenceFragment {
+public class BackupFragment extends PreferenceFragmentCompat {
 
     private MbwManager _mbwManager;
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         addPreferencesFromResource(R.xml.preferences_backup);
         _mbwManager = MbwManager.getInstance(getActivity().getApplication());
 
         setHasOptionsMenu(true);
         ActionBar actionBar = ((SettingsActivity) getActivity()).getSupportActionBar();
-        actionBar.setTitle(R.string.backup);
+        actionBar.setTitle(R.string.backup_lower);
         actionBar.setHomeAsUpIndicator(R.drawable.ic_back_arrow);
         actionBar.setDisplayShowHomeEnabled(false);
         actionBar.setDisplayHomeAsUpEnabled(true);
@@ -41,7 +40,6 @@ public class BackupFragment extends PreferenceFragment {
         // Legacy backup function
         Preference legacyBackupVerify = Preconditions.checkNotNull(findPreference("legacyBackupVerify"));
         legacyBackupVerify.setOnPreferenceClickListener(legacyBackupVerifyClickListener);
-
     }
 
     @Override
