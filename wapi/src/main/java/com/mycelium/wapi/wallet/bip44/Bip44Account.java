@@ -107,8 +107,10 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
         if (_context.isArchived()) {
             return;
         }
+        _context.setArchived(true);
         clearInternalStateInt(true);
         _context.persistIfNecessary(_backing);
+
     }
 
     @Override
@@ -116,6 +118,7 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
         if (!_context.isArchived()) {
             return;
         }
+        _context.setArchived(false);
         clearInternalStateInt(false);
         _context.persistIfNecessary(_backing);
     }
