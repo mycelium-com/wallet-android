@@ -175,8 +175,12 @@ public class Transaction implements Serializable {
     }
 
     public byte[] toBytes() {
+        return toBytes(true);
+    }
+
+    public byte[] toBytes(boolean asSegwit) {
         ByteWriter writer = new ByteWriter(1024);
-        toByteWriter(writer);
+        toByteWriter(writer, asSegwit);
         return writer.toBytes();
     }
 
@@ -191,7 +195,7 @@ public class Transaction implements Serializable {
      * This method serializes transaction according to <a href="https://github.com/bitcoin/bips/blob/master/bip-0144.mediawiki">BIP144</a>
      */
     public void toByteWriter(ByteWriter writer) {
-        toByteWriter(writer, hasWitness());
+        toByteWriter(writer, true);
     }
 
     /**
@@ -201,15 +205,37 @@ public class Transaction implements Serializable {
      */
     public void toByteWriter(ByteWriter writer, boolean asSegwit) {
         writer.putIntLE(version);
+        boolean isSegWitMode = asSegwit && (hasWitness() || isCoinbase());
+        if (isSegWitMode) {
+            writer.putCompactInt(0); //marker
+            writer.putCompactInt(1); //flag
+        }
+        writeInputs(writer);
+        writeOutputs(writer);
+        if (isSegWitMode) {
+            writeWitness(writer);
+        }
+        writer.putIntLE(lockTime);
+    }
+
+    private void writeWitness(ByteWriter writer) {
+        for (TransactionInput input : inputs) {
+            input.getWitness().toByteWriter(writer);
+        }
+    }
+
+    private void writeInputs(ByteWriter writer) {
         writer.putCompactInt(inputs.length);
         for (TransactionInput input : inputs) {
             input.toByteWriter(writer);
         }
+    }
+
+    private void writeOutputs(ByteWriter writer) {
         writer.putCompactInt(outputs.length);
         for (TransactionOutput output : outputs) {
             output.toByteWriter(writer);
         }
-        writer.putIntLE(lockTime);
     }
 
     public Transaction(int version, TransactionInput[] inputs, TransactionOutput[] outputs, int lockTime) {
