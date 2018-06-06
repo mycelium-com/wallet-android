@@ -84,7 +84,7 @@ public class Transaction implements Serializable {
             reader.get();
             byte flag = peekflag(reader);
             if (flag == 1) {
-               //segwit it's segwit
+               //it's segwit
                reader.get();
                useSegwit = true;
             } else {
