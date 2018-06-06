@@ -77,34 +77,83 @@ public class Transaction implements Serializable {
       int size = reader.available();
       try {
          int version = reader.getIntLE();
-         int numInputs = (int) reader.getCompactInt();
-         TransactionInput[] inputs = new TransactionInput[numInputs];
-         for (int i = 0; i < numInputs; i++) {
-            try {
-               inputs[i] = TransactionInput.fromByteReader(reader);
-            } catch (TransactionInputParsingException e) {
-               throw new TransactionParsingException("Unable to parse transaction input at index " + i + ": "
-                     + e.getMessage(), e);
-            } catch (IllegalStateException e) {
-               throw new TransactionParsingException("ISE - Unable to parse transaction input at index " + i + ": "
-                     + e.getMessage(), e);
+         boolean useSegwit = false;
+         byte marker = peekByte(reader);
+         if (marker == 0) {
+            //segwit possible
+            reader.get();
+            byte flag = peekByte(reader);
+            if (flag == 1) {
+               //it's segwit
+               reader.get();
+               useSegwit = true;
+            } else {
+               throw new TransactionParsingException("Unable to parse segwit transaction. Flag must be 0x01");
             }
          }
-         int numOutputs = (int) reader.getCompactInt();
-         TransactionOutput[] outputs = new TransactionOutput[numOutputs];
-         for (int i = 0; i < numOutputs; i++) {
-            try {
-               outputs[i] = TransactionOutput.fromByteReader(reader);
-            } catch (TransactionOutputParsingException e) {
-               throw new TransactionParsingException("Unable to parse transaction output at index " + i + ": "
-                     + e.getMessage());
-            }
+
+         TransactionInput[] inputs = parseTransactionInputs(reader);
+         TransactionOutput[] outputs = parseTransactionOutputs(reader);
+
+         if (useSegwit) {
+            parseWitness(reader, inputs);
          }
+
          int lockTime = reader.getIntLE();
          return new Transaction(version, inputs, outputs, lockTime, size, knownTransactionHash);
       } catch (InsufficientBytesException e) {
          throw new TransactionParsingException(e.getMessage());
       }
+   }
+
+   private static void parseWitness(ByteReader reader, TransactionInput[] inputs) throws InsufficientBytesException {
+      for (TransactionInput input : inputs) {
+         long stackSize = reader.getCompactInt();
+         TransactionWitness witness = new TransactionWitness((int) stackSize);
+         input.setWitness(witness);
+         for (int y = 0; y < stackSize; y++) {
+            long pushSize = reader.getCompactInt();
+            byte[] push = reader.getBytes((int) pushSize);
+            witness.setStack(y, push);
+         }
+      }
+   }
+
+   private static TransactionOutput[] parseTransactionOutputs(ByteReader reader) throws InsufficientBytesException, TransactionParsingException {
+      int numOutputs = (int) reader.getCompactInt();
+      TransactionOutput[] outputs = new TransactionOutput[numOutputs];
+      for (int i = 0; i < numOutputs; i++) {
+         try {
+            outputs[i] = TransactionOutput.fromByteReader(reader);
+         } catch (TransactionOutputParsingException e) {
+            throw new TransactionParsingException("Unable to parse transaction output at index " + i + ": "
+                  + e.getMessage());
+         }
+      }
+      return outputs;
+   }
+
+   private static TransactionInput[] parseTransactionInputs(ByteReader reader) throws InsufficientBytesException, TransactionParsingException {
+      int numInputs = (int) reader.getCompactInt();
+      TransactionInput[] inputs = new TransactionInput[numInputs];
+      for (int i = 0; i < numInputs; i++) {
+         try {
+            inputs[i] = TransactionInput.fromByteReader(reader);
+         } catch (TransactionInputParsingException e) {
+            throw new TransactionParsingException("Unable to parse transaction input at index " + i + ": "
+                  + e.getMessage(), e);
+         } catch (IllegalStateException e) {
+            throw new TransactionParsingException("ISE - Unable to parse transaction input at index " + i + ": "
+                  + e.getMessage(), e);
+         }
+      }
+      return inputs;
+   }
+
+   private static byte peekByte(ByteReader reader) throws InsufficientBytesException {
+      byte b = reader.get();
+      reader.setPosition(reader.getPosition() - 1);
+      return b;
    }
 
    public Transaction copy() {
