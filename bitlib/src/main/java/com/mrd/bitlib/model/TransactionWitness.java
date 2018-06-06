@@ -2,10 +2,11 @@ package com.mrd.bitlib.model;
 
 import com.mrd.bitlib.util.ByteWriter;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-class TransactionWitness {
+class TransactionWitness implements Serializable {
     public static final TransactionWitness EMPTY = new TransactionWitness(0);
 
     private final List<byte[]> stack;

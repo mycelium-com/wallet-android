@@ -41,6 +41,7 @@ public class Transaction implements Serializable {
     private static final long ONE_uBTC_IN_SATOSHIS = 100;
     private static final long ONE_mBTC_IN_SATOSHIS = 1000 * ONE_uBTC_IN_SATOSHIS;
     public static final long MAX_MINER_FEE_PER_KB = 200L * ONE_mBTC_IN_SATOSHIS; // 20000sat/B
+    private final boolean isSegwit;
 
     public int version;
     public final TransactionInput[] inputs;
@@ -60,7 +61,7 @@ public class Transaction implements Serializable {
         for (UnspentTransactionOutput u : unsignedTransaction.getFundingOutputs()) {
             inputs[idx++] = new TransactionInput(u.outPoint, new ScriptInput(u.script.getScriptBytes()));
         }
-        return new Transaction(1, inputs, unsignedTransaction.getOutputs(), 0);
+        return new Transaction(1, inputs, unsignedTransaction.getOutputs(), 0, false);
     }
 
     public static Transaction fromBytes(byte[] transaction) throws TransactionParsingException {
@@ -100,7 +101,7 @@ public class Transaction implements Serializable {
             }
 
             int lockTime = reader.getIntLE();
-            return new Transaction(version, inputs, outputs, lockTime, size, knownTransactionHash);
+            return new Transaction(version, inputs, outputs, lockTime, size, knownTransactionHash, useSegwit);
         } catch (InsufficientBytesException e) {
             throw new TransactionParsingException(e.getMessage());
         }
@@ -205,7 +206,7 @@ public class Transaction implements Serializable {
      */
     public void toByteWriter(ByteWriter writer, boolean asSegwit) {
         writer.putIntLE(version);
-        boolean isSegWitMode = asSegwit && (hasWitness() || isCoinbase());
+        boolean isSegWitMode = asSegwit && (isSegwit);
         if (isSegWitMode) {
             writer.putCompactInt(0); //marker
             writer.putCompactInt(1); //flag
@@ -238,16 +239,17 @@ public class Transaction implements Serializable {
         }
     }
 
-    public Transaction(int version, TransactionInput[] inputs, TransactionOutput[] outputs, int lockTime) {
-        this(version, inputs, outputs, lockTime, -1);
+    public Transaction(int version, TransactionInput[] inputs, TransactionOutput[] outputs, int lockTime, boolean isSegwit) {
+        this(version, inputs, outputs, lockTime, -1, isSegwit);
     }
 
-    private Transaction(int version, TransactionInput[] inputs, TransactionOutput[] outputs, int lockTime, int txSize) {
+    private Transaction(int version, TransactionInput[] inputs, TransactionOutput[] outputs, int lockTime, int txSize, boolean isSegwit) {
         this.version = version;
         this.inputs = inputs;
         this.outputs = outputs;
         this.lockTime = lockTime;
         this._txSize = txSize;
+        this.isSegwit = isSegwit;
     }
 
     public Transaction(Transaction copyFrom) {
@@ -257,12 +259,13 @@ public class Transaction implements Serializable {
         this.lockTime = copyFrom.lockTime;
         this._txSize = copyFrom._txSize;
         this._hash = copyFrom._hash;
+        this.isSegwit = copyFrom.isSegwit;
     }
 
     // we already know the hash of this transaction, dont recompute it
     protected Transaction(int version, TransactionInput[] inputs, TransactionOutput[] outputs, int lockTime,
-                          int txSize, Sha256Hash knownTransactionHash) {
-        this(version, inputs, outputs, lockTime, txSize);
+                          int txSize, Sha256Hash knownTransactionHash, boolean isSegwit) {
+        this(version, inputs, outputs, lockTime, txSize, isSegwit);
         this._hash = knownTransactionHash;
     }
 
