@@ -9,14 +9,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="Invoice #236745237"
+        android:text="@string/invoice"
         android:textSize="20sp" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Company details"
+        android:text="@string/company_details"
         android:textSize="12sp" />
 
     <TextView
@@ -45,7 +45,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Amount"
+        android:text="@string/amount"
         android:textSize="12sp" />
 
     <TextView
@@ -60,14 +60,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Payment details"
+        android:text="@string/payment_details"
         android:textSize="12sp" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="2dp"
-        android:text="RMC account info here. example: ASDSAGDJH324234GSD234KJASDG"
+        android:text="@string/rmc_account_info_example"
         android:textSize="16sp" />
 
     <TextView
@@ -76,7 +76,7 @@
         android:layout_marginTop="16dp"
         android:drawableLeft="@drawable/holo_dark_ic_action_warning_yellow"
         android:drawablePadding="8dp"
-        android:text="RMC will be sent to your RMC account as soon as we receive your payment. You can always check the status of this payment at your bank"
+        android:text="@string/rmc_will_be_sent_to_your_rmc_account"
         android:textSize="12sp" />
 
     <Button
@@ -88,7 +88,7 @@
         android:layout_margin="16dp"
         android:paddingLeft="32dp"
         android:paddingRight="32dp"
-        android:text="Save invoice"
+        android:text="@string/save_invoice"
         android:textSize="20sp" />
 
 </LinearLayout>

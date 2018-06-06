@@ -11,7 +11,7 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="16dp"
         android:gravity="center_horizontal"
-        android:text="Please enter amount"
+        android:text="@string/enter_amount"
         android:textSize="24sp" />
 
     <LinearLayout

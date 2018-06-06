@@ -21,7 +21,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:gravity="center_horizontal"
-        android:text="How would you like to pay?"
+        android:text="@string/how_pay"
         android:textSize="24sp" />
 
     <LinearLayout

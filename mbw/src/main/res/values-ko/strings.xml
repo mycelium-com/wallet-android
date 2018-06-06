@@ -30,7 +30,6 @@
   <string name="miner_fee_title">채굴자 수수료</string>
   <string name="synchronizing">동기화</string>
   <string name="transaction_not_sent">거래전송이 실패하였습니다. </string>
-  <string name="transaction_sent">거래 전송</string>
   <string name="export">보내기</string>
   <string name="backup_private_key">백업</string>
   <string name="copy_to_clipboard">클립보드에 복사</string>
@@ -95,7 +94,6 @@
   <string name="payment_request">지불 요청</string>
   <string name="export_to_clipboard_warning">경고: 클립보드로 개인 키를 인출하는것은 고객의 device에 있는 다른 모든 앱에 개인 키를 노출시키는 겁니다. \n\n 참조: 클립보드에 개인 키를 저장하는것은 바람직스럽지 않고, 보다 안전한 곳에 저장해야 합니다.\n\n 그래도 계속 하시겠습니까?</string>
   <string name="found_clipboard_private_key_title">개인 키를 클립보드에서 찾음</string>
-  <string name="found_clipboard_private_keys_message">클립보드에 개인 키가 있습니다.\n 이것을 삭제하시겠습니까?</string>
   <string name="my_own_address_warning">참고: 고객께서 고객 자신의 여러 주소중 하나의 주소로 비트코인을 전송할려고 합니다.</string>
   <string name="read_only_warning">경고: 고객의 지갑에는 이 주소의 개인 키가 없습니다.\n 고객께서는 개인 키가 없으시면 코인을 수신하실 수 없습니다. </string>
   <string name="add_to_address_book_dialog_title">주소 추가</string>
@@ -141,7 +139,6 @@
   <string name="encrypted_pdf_backup_document_ready">PDF 문서 만들기 완료</string>
   <string name="encrypted_pdf_backup_sharing">PDF 문서 공유...</string>
   <string name="encrypted_pdf_backup_email_title">Mycelium 지갑 백업</string>
-  <string name="encrypted_pdf_backup_email_text">고객의 Mycelium 지갑백업이 첨부되어 있습니다.\n\n 고객의 비트코인을 안전하게 보관하기 위해서는 다음과 같은 절차를 거쳐야 합니다:\n1. PDF document 인쇄하기.\n2. 고객의 Android device에서 보여지는 15 문자로 구성된 비밀번호를 적고 인쇄하십시요.\n3. 고객의 Mycelium 지갑으로 개인 키를 넣을 수 있는지를 확인 하십시요.\n4.인쇄된 내용을 안전한 곳에 보관하십시요</string>
   <string name="share_pdf">PDF를 공유</string>
   <string name="share_with">와 공유 하는...</string>
   <string name="import_decrypt_key_title">개인 키 암호 해독</string>
@@ -192,6 +189,16 @@
   <string name="show_public_data">공개</string>
   <!-- from libNetCipher -->
   <!--/ from libNetCipher -->
+  <!--<string name="colu_tos_link">Open Colu Terms and Conditions</string>-->
+  <!-- <string name="colu_tos_link_url">https://www.colu.com/TOS</string>-->
+  <!--<string name="colu_tos">By clicking "OK" you agree to use Colored Coin technology, third party-->
+  <!--blockchain technology developer. All your interactions with Colu are outside of-->
+  <!--Mycelium’s control and are subject to Colu’s T&amp;C and Privacy Policy.-->
+  <!--Please read them carefully before providing any personal information.-->
+  <!--MYCELIUM ACCEPTS NO RESPONSIBILITY AND WILL NOT BE LIABLE FOR ANY LOSS-->
+  <!--OR DAMAGE WHATSOEVER SUFFERED AS A RESULT OF ACCESSING, USE OF, OR-->
+  <!--RELIANCE UPON COLU’S INFORMATION AND SERVICES.</string>-->
+  <!--    <string name="colu_backup_info">Your Colu account access-key gets derived from your masterseed. If you have a valid backup, the access to your Colu account is also included.</string>  -->
   <!-- Credit Card -->
   <!-- Credit Card End-->
   <!-- GlideraService Start -->

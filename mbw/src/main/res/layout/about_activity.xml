@@ -257,7 +257,7 @@
         <Button
             android:layout_width="@dimen/about_buttonsize"
             android:layout_height="wrap_content"
-            android:text="Connection Logs"
+            android:text="@string/connection_logs"
             android:id="@+id/bt_show_server_info"
             android:layout_marginBottom="@dimen/buttonspacing" />
 

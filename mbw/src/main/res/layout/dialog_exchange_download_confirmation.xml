@@ -102,7 +102,7 @@
         android:layout_marginTop="24dp"
         android:drawableLeft="@drawable/wallet_receive_icon"
         android:drawablePadding="10dp"
-        android:text="CONFIRMATION"
+        android:text="@string/confirmation_headline"
         android:textColor="@color/btn_text_color_white"
         android:textSize="14sp" />
 

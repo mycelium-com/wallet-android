@@ -67,7 +67,7 @@
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:text="Warning"
+                        android:text="@string/warning"
                         android:textColor="@color/buttonredcolor"
                         android:textStyle="bold"
                         android:paddingBottom="10dp"
@@ -77,7 +77,7 @@
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:text="Only copy this key in a secure environment.\nAnyone who has access to it gains control over all current and in the future available bitcoin for this account.\n\nLong-press here to show the \nQR-Code "/>
+                        android:text="@string/copy_key_in_a_secure_environment"/>
             </LinearLayout>
 
             <com.mycelium.wallet.activity.util.QrImageView

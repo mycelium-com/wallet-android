@@ -90,7 +90,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="@dimen/margin_medium"
-        android:text="Exchange more"
+        android:text="@string/exchange_more"
         android:textSize="18sp" />
 
     <TextView
@@ -107,6 +107,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:text="Check your balance"
+        android:text="@string/check_your_balance"
         android:textSize="18sp" />
 </LinearLayout>

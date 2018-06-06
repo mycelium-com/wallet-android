@@ -4,7 +4,7 @@
         tools:ignore="MissingTranslation">
 
     <string name="contact_email">support@mycelium.com</string>
-    <string name="authors">Jan Møller\nAndreas Petersson\nDmitry Murashchik\nDaniel Weigl\nJan Dreske\nConstantin Vennekel\nLeo Wandersleb\nDaniel Krawisz\nJerome Rousselot\nElvis Kurtnebiev\nSergey Dolgopolov</string>
+    <string name="authors">Jan Møller\nAndreas Petersson\nDmitry Murashchik\nDaniel Weigl\nJan Dreske\nConstantin Vennekel\nLeo Wandersleb\nDaniel Krawisz\nJerome Rousselot\nElvis Kurtnebiev\nSergey Dolgopolov\nSergey Lappo\nNadezhda Poletova</string>
     <string name="btc">BTC</string>
 
     <string name="one">1</string>

@@ -54,7 +54,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:contentDescription="Captcha, sorry - no accessible option available for now"
+                    android:contentDescription="@string/captcha_no_accessible"
                     android:padding="0dp" />
 
                 <ImageButton
@@ -65,7 +65,7 @@
                     android:layout_gravity="center_vertical"
                     android:layout_marginLeft="20dp"
                     android:background="@drawable/btn_blue_slim"
-                    android:contentDescription="Get a new captcha"
+                    android:contentDescription="@string/new_captcha"
                     android:src="@android:drawable/ic_menu_rotate" />
             </LinearLayout>
         </FrameLayout>

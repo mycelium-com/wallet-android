@@ -97,7 +97,7 @@
             android:layout_gravity="center"
             android:singleLine="true"
             android:layout_toRightOf="@+id/profit_meter"
-            android:text="Accrued income"
+            android:text="@string/accrued_income"
             android:textColor="@color/white" />
 
         <TextView

@@ -19,7 +19,7 @@
                 android:gravity="center"
                 android:paddingTop="5dp"
                 android:textSize="14sp"
-                android:text="Enter the corresponding letter from your ledger keycard"
+                android:text="@string/enter_corresponding_letter"
                 />
     </LinearLayout>
 

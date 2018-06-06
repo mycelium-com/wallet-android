@@ -25,7 +25,6 @@
   <string name="send">Enviar</string>
   <string name="receive">Recibir</string>
   <string name="private_key_deleted">Clave Privada borrada.</string>
-  <string name="account_deleted">Cuenta eliminada</string>
   <string name="enter_recipient_title">Introduce la Dirección del Destinatario</string>
   <string name="recipient_title">Dirección del destinatario</string>
   <string name="amount_label">Importe:</string>
@@ -45,7 +44,6 @@
   <string name="synchronizing">Sincronizando</string>
   <string name="transaction_not_sent">No se pudo transmitir la transacción</string>
   <string name="queue_transaction_message">Error al transmitir la transacción.\n¿Deseas poner en la cola la transacción para que sea enviada automáticamente una vez que esté online?</string>
-  <string name="transaction_sent">Transacción enviada</string>
   <string name="export">Exportar</string>
   <string name="backup_private_key">Copia de seguridad</string>
   <string name="copy_to_clipboard">Copiar en el portapapeles</string>
@@ -115,10 +113,8 @@
   <string name="payment_request">Solicitud de Pago</string>
   <string name="export_account_data_warning">Estás a punto de exportar datos sensibles de la cuenta seleccionada.\n\nCualquiera que tenga acceso a esas claves puede tanto tomar posesión de los bitcoin que controla la cuenta u obtener información que pueda vulnerar tu privacidad.\n\n¿Quieres continuar?</string>
   <string name="backup_all_warning">Deberías hacer una copia de seguridad de la semilla de tu monedero.\nUna copia de seguridad de tu semilla te permite restaurar tus fondos en tus cuentas HD si ttu dispositivo se pierde o resulta dañado.\n\n¿Quieres hacerlo ahora?</string>
-  <string name="backup_legacy_warning">Vas a hacer una copia de seguridad de las cuentas de dirección única de tu monedero.\nEste respaldo no contendrá la semilla, ninguna de tus cuentas puede ser restaurada desde ella\n\n¿Quieres proceder?</string>
   <string name="export_to_clipboard_warning">Atención: Exportar la clave privada al portapapeles la expone a todas las otras aplicaciones en tu dispositivo.\n\n Nota: No es suficiente almacenar la clave privada en el portapapeles, también tienes que pegarla en algún lugar seguro.\n\n¿Deseas continuar?</string>
   <string name="found_clipboard_private_key_title">Clave privada encontrada en el portapapeles</string>
-  <string name="found_clipboard_private_keys_message">El portapapeles contiene una clave privada.\n¿Deseas limpiar el portapapeles?</string>
   <string name="exchange_source_not_available">Tipo de cambio actual no disponible para %1$s</string>
   <string name="my_own_address_warning">Nota: Estás enviando a una de tus propias direcciones.</string>
   <string name="read_only_warning">Atención: Tu monedero no dispone de la clave privada para esta dirección.\nNo puedes gastar los bitcoin recibidos a no ser que dispongas de la clave privada en algún otro lugar.</string>
@@ -132,13 +128,10 @@
   <string name="cold_storage_desc">Estás a punto de hacer un pago desde una clave privada almacenada en frío. Esta podría ser una copia de seguridad de papel o un ticket de un cajero automático de Bitcoin. Los siguientes formatos están soportados:\nClave privada, Semilla, Clave xPriv\n\nUna vez que la operación ha sido enviada se borrará cualquier rastro de ella de la memoria interna.</string>
   <string name="keep_account_address">Eliminar solo la clave privada y mantenerla como cuenta de solo lectura</string>
   <string name="manual_entry">Entrada Manual</string>
-  <string name="active_hd_accounts_name">Mis cuentas HD</string>
-  <string name="active_other_accounts_name">Otras cuentas</string>
   <string name="archive_name">Archivadas</string>
   <string name="active_accounts_empty">(Vacío)</string>
   <string name="activate_action">Activar</string>
   <string name="archive_action">Archivar</string>
-  <string name="question_archive_account">Las cuentas archivadas no son supervisadas, no puedes ver el balance ni las direcciones de recepción ni trabajar con la cuenta de ninguna manera.\n\nLas cuentas archivadas pueden ser activadas de nuevo.\n\n¿Quieres archivar esta cuenta?</string>
   <string name="master_seed_configuration_title">Bienvenido a Mycelium</string>
   <string name="master_seed_configuration_description">¿Deseas restaurar una copia de seguridad o crear un nuevo monedero?</string>
   <string name="master_seed_create_new_button">Crear nueva</string>
@@ -168,12 +161,9 @@
   <string name="delete_account_message">¿Quieres eliminar esta cuenta?</string>
   <string name="confirm_delete_pk_title">¿Estás seguro?</string>
   <string name="confirm_delete_pk_with_balance">¡Esto no se puede desahacer!\n\nLa dirección actual:\n%1$s\n\n contiene %2$s\n\n¿Quieres eliminarla?</string>
-  <string name="confirm_delete_pk_with_balance_with_label">¡Esto no se puede deshacer!\n\nEtiqueta:\n%1$s\n\nDirección actual:\n%2$s\n\nContiene%3$s\n\n¿Quieres eliminarla?</string>
   <string name="confirm_delete_pk_without_balance">¡Esto no se puede deshacer!\n\nDirección actual:\n%1$s\n\n¿Quieres eliminarla?</string>
-  <string name="confirm_delete_pk_without_balance_with_label">¡Esto no se puede deshacer!\n\nEtiqueta:\n%1$s\n\nDirección actual:\n%2$s\n\n¿Quieres eliminarla?</string>
   <string name="verify_private_key_backup">Verificar copia de seguridad</string>
   <string name="verify_backup_dialog_title">Verificar copia de seguridad de la clave privada</string>
-  <string name="verify_backup_desc">Realizar una copia de seguridad correcta de la clave privada es primordial cuando se gestionan fondos en Bitcoins.\n\nComprobando tu copia de seguridad, te aseguras de que funciona y de que no perderás tus fondos si se perdiera o estropeara tu dispositivo Android.</string>
   <string name="verify_backup_scan_desc">Verifica tu copia de seguridad escaneando el código QR de la clave privada o la semilla.\nSe aceptan varios formatos, incluido la copia de seguridad cifrada en papel de Mycelium.</string>
   <string name="verify_backup_clipboard_desc">Verifica la copia de seguridad de la clave privada tomando la clave privada del portapapeles.</string>
   <string name="verify_backup_num_keys">Dispones de %1$s claves que no se han comprobado nunca.</string>
@@ -196,7 +186,6 @@
   <string name="encrypted_pdf_backup_document_ready">Documento PDF creado</string>
   <string name="encrypted_pdf_backup_sharing">Compartir documentos PDF...</string>
   <string name="encrypted_pdf_backup_email_title">Copia de seguridad de Mycelium Wallet</string>
-  <string name="encrypted_pdf_backup_email_text">Adjuntamos la copia de seguridad de tu monedero Mycelium \n\nSigue estos sencillos pasos para asegurar tus fondos:\n1. Imprime el documento en PDF.\n2. Escribe la contraseña de 15 caracteres que aparece en la pantalla de tu dispositivo Android en los recuadros azules de la hoja impresa.\n3. Comprueba que puedes importar las claves a tu Mycelium Wallet.\n4. Almacena la hoja impresa en un lugar seguro.</string>
   <string name="share_pdf">Compartir PDF</string>
   <string name="share_with">Compartir con...</string>
   <string name="import_decrypt_key_title">Descifrado de Clave Privada</string>
@@ -469,8 +458,6 @@
   <string name="invalid_bitid_uri">URI BitID inválida</string>
   <!-- BitID end -->
   <string name="selected_archived_warning">No puedes trabajar en cuentas archivadas.</string>
-  <string name="selected_hd_info">Ahora estás trabajando con esta cuenta HD.</string>
-  <string name="selected_single_info">Ahora estás trabajando en esta dirección única.</string>
   <string name="transaction_not_broadcasted_info">No se puede transmitir</string>
   <string name="hd_account_creation_started">Crear nueva cuenta HD&#8230;</string>
   <string name="preparing_wallet_on_first_startup_info">Preparando monedero&#8230;</string>
@@ -536,7 +523,6 @@
   <string name="dont_allow_hiding_used_notification">No puedes esconder una cuenta sin usar, pero puedes archivarla</string>
   <string name="pref_miner_fee_title">Coste de operación (%1$s)</string>
   <string name="pref_miner_fee_block_summary">Las operaciones son enviadas con un coste de operación para ser incluidas en el(los) próximo(s) %1s bloque(s) de media.</string>
-  <string name="miner_fee_lowprio_name">Baja prioridad</string>
   <string name="miner_fee_economic_name">Económico</string>
   <string name="miner_fee_normal_name">Normal</string>
   <string name="miner_fee_priority_name">Prioritario</string>
@@ -573,8 +559,6 @@
   <string name="lt_confirm_delete_trader_message">¿Quieres eliminar tu identidad de Compra-Venta Local? Toda la información de operaciones y valoraciones será eliminada permanentemente y no podrán ser recuperadas.</string>
   <string name="rescan_account_menu_item">Actualizar cuenta</string>
   <string name="add_advanced_account_warning">Aviso:\n Estas claves no serán incluidas en la copia de seguridad de la semilla. Debes asegurarte de que haces una copia de seguridad de ellas por separado.</string>
-  <string name="new_random_key_desc">Generar nueva clave aleatoria</string>
-  <string name="generate_new_key">Generar</string>
   <string name="new_bitcoin_address_created">Se ha generado una nueva clave privada aleatoria con la siguiente dirección Bitcoin:</string>
   <string name="shuffle">Mezclar</string>
   <string name="toast_warning_low_fee">puede llevar más tiempo para confirmar</string>
@@ -691,7 +675,6 @@
   <string name="payment_request_error_while_getting_ack">No se pudo enviar el pago al servidor.\n%s\n\nEl pago no será transmitido.</string>
   <string name="payment_request_warning_no_sig">El origen de esta petición de pago no se puede verificar, porque no tiene firma.\n\nPor favor, sé cuidadoso, porque alguien puede estar interceptando y cambiando las direcciones de pago.</string>
   <string name="label_cold_storage_external_signing">Firmar con:</string>
-  <string name="spending_unconfirmed_warning">Advertencia: Estás usando fondos no confirmados</string>
   <string name="spending_unconfirmed_title">Pagando con fondos sin confirmar</string>
   <string name="spending_unconfirmed_description">Tu transacción usa fondos que no han sido incluidos en un bloque de bitcoin aún. Si por alguna razón la transacción que envía esos bitcoin falla o permanece sin confirmar, tu transacción también fallará o permanecerá sin confirmar.</string>
   <string name="label_unverified_recipient">destinatario no verificado</string>
@@ -744,6 +727,16 @@
   <string name="coinapult_create_account">Creando cuenta Coinapult&#8230;</string>
   <string name="coinapult_backup_info">Tu clave de acceso a la cuenta de Coinapult deriva de tu semilla. Si tienes una copia de seguridad válida, el acceso a tu cuenta Coinapult también está incluido.</string>
   <string name="coinapult_currency_account">Cuenta %1$s</string>
+  <!--<string name="colu_tos_link">Open Colu Terms and Conditions</string>-->
+  <!-- <string name="colu_tos_link_url">https://www.colu.com/TOS</string>-->
+  <!--<string name="colu_tos">By clicking "OK" you agree to use Colored Coin technology, third party-->
+  <!--blockchain technology developer. All your interactions with Colu are outside of-->
+  <!--Mycelium’s control and are subject to Colu’s T&amp;C and Privacy Policy.-->
+  <!--Please read them carefully before providing any personal information.-->
+  <!--MYCELIUM ACCEPTS NO RESPONSIBILITY AND WILL NOT BE LIABLE FOR ANY LOSS-->
+  <!--OR DAMAGE WHATSOEVER SUFFERED AS A RESULT OF ACCESSING, USE OF, OR-->
+  <!--RELIANCE UPON COLU’S INFORMATION AND SERVICES.</string>-->
+  <!--    <string name="colu_backup_info">Your Colu account access-key gets derived from your masterseed. If you have a valid backup, the access to your Colu account is also included.</string>  -->
   <string name="copy">Copiar</string>
   <string name="lt_backup_lt_id">Copia de seguridad de la identidad del operador</string>
   <string name="lt_confirm_backup_trader_message">Estás a punto de exportar datos sensibles de tu cuenta de Compra-Venta Local. Cualquiera que tenga acceso a esas claves puede tomar control de tu cuenta de Compra-Venta Local y actuar en tu nombre. ¿Quieres continuar?</string>
@@ -775,8 +768,6 @@
   <string name="warning_reason_rbf">RBF</string>
   <string name="warning_reason_unconfirmed_parent">Transacción previa no confirmada</string>
   <string name="warning_reason_doublespend">Doble gasto detectado</string>
-  <string name="opening_url_in_browser">Abriendo URL en el navegador...</string>
-  <string name="incoming_payment">Pago recibido: %s</string>
   <string name="warning_amount_does_not_match">Aviso: La cantidad no coincide.</string>
   <!-- Credit Card -->
   <!-- Credit Card End-->

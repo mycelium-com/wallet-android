@@ -29,7 +29,6 @@
   <string name="miner_fee_title">עמלת כרייה</string>
   <string name="synchronizing">מסתנכרן</string>
   <string name="transaction_not_sent">שליחת הפעולה נכשל</string>
-  <string name="transaction_sent">הפעולה נשלחה</string>
   <string name="export">ייצא</string>
   <string name="backup_private_key">גיבוי</string>
   <string name="copy_to_clipboard">העתק</string>
@@ -94,7 +93,6 @@
   <string name="payment_request">בקשת תשלום</string>
   <string name="export_to_clipboard_warning">אזהרה: ייצוא המפתח הפרטי ללוח (clipboard) חושף אותו לכל שאר היישומים שבמכשירך.\n\nהערה: אין זה מספיק לשמור את המפתח הפרטי בלוח, עליך גם להדביקו במקום בטוח.\n\nהאם ברצונך להמשיך?</string>
   <string name="found_clipboard_private_key_title">מפתח פרטי נמצא בלוח (clipboard)</string>
-  <string name="found_clipboard_private_keys_message">הלוח (clipboard) מכיל מפתח פרטי.\nהאם ברצונך למחוק אותו?</string>
   <string name="exchange_source_not_available">לא קיים שער המרה עבור %1$s</string>
   <string name="my_own_address_warning">הערה: הינך שולח/ת לאחד מכתובותיך שלך.</string>
   <string name="read_only_warning">אזהרה: הארנק שלך אינו מחזיק במפתח הפרטי עבור כתובת זו.\nאינך יכול/ה להשתמש במטבעות שיתקבלו אלא אם ברשותך המפתח הפרטי במקום אחר.</string>
@@ -142,7 +140,6 @@
   <string name="encrypted_pdf_backup_document_ready">קובץ PDF נוצר</string>
   <string name="encrypted_pdf_backup_sharing">משתף קובץ PDF&#8230;</string>
   <string name="encrypted_pdf_backup_email_title">גיבוי ארנק Mycelium</string>
-  <string name="encrypted_pdf_backup_email_text">גיבוי הארנק שלך מצורף.\n\nבצע/י את הצעדים הבאים לאבטחת כספך:\n1. הדפס/י את קובץ הPDF.\n2. כתוב את הסיסמא באורך 15 התווים ממסך מכשיר האנדרואיד שלך לקופסאות הכחולות שבהדפסה.\n3. וודא/י שבאפשרותך לייבא את המפתחות הפרטיים שלך לארנק שלך.\n4. שמור את ההדפסה במקום בטוח.</string>
   <string name="share_pdf">שתף PDF</string>
   <string name="share_with">שתף בעזרת&#8230;</string>
   <string name="import_decrypt_key_title">פיענוח מפתח פרטי</string>
@@ -207,6 +204,16 @@
   <!-- BitID end -->
   <!-- from libNetCipher -->
   <!--/ from libNetCipher -->
+  <!--<string name="colu_tos_link">Open Colu Terms and Conditions</string>-->
+  <!-- <string name="colu_tos_link_url">https://www.colu.com/TOS</string>-->
+  <!--<string name="colu_tos">By clicking "OK" you agree to use Colored Coin technology, third party-->
+  <!--blockchain technology developer. All your interactions with Colu are outside of-->
+  <!--Mycelium’s control and are subject to Colu’s T&amp;C and Privacy Policy.-->
+  <!--Please read them carefully before providing any personal information.-->
+  <!--MYCELIUM ACCEPTS NO RESPONSIBILITY AND WILL NOT BE LIABLE FOR ANY LOSS-->
+  <!--OR DAMAGE WHATSOEVER SUFFERED AS A RESULT OF ACCESSING, USE OF, OR-->
+  <!--RELIANCE UPON COLU’S INFORMATION AND SERVICES.</string>-->
+  <!--    <string name="colu_backup_info">Your Colu account access-key gets derived from your masterseed. If you have a valid backup, the access to your Colu account is also included.</string>  -->
   <!-- Credit Card -->
   <!-- Credit Card End-->
   <!-- GlideraService Start -->

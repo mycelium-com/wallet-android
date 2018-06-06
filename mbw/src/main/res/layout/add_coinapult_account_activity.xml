@@ -61,7 +61,7 @@
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
                 android:textColor="@color/red"
-                android:text="Note: When you store funds in Coinapult accounts, you are trusting a third party.\n"
+                android:text="@string/store_funds_in_coinapult_accounts"
                 />
 
         <Button

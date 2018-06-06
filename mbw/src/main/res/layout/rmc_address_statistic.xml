@@ -30,7 +30,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="8dp"
-                android:text="My first RMC account"
+                android:text="@string/first_rmc_account"
                 android:textColor="@color/white"
                 android:textSize="15sp"
                 android:typeface="monospace" />
@@ -70,7 +70,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Total RMC supply:"
+                android:text="@string/total_rmc_supply"
                 android:textColor="@color/white"
                 android:textSize="15sp" />
 

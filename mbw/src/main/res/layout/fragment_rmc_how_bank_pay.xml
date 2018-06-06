@@ -10,7 +10,7 @@
         android:layout_gravity="center_horizontal"
         android:layout_margin="16dp"
         android:gravity="center"
-        android:text="Please choose the payment method"
+        android:text="@string/choose_payment_method"
         android:textSize="24sp" />
 
     <LinearLayout
@@ -40,7 +40,7 @@
             android:layout_margin="16dp"
             android:paddingLeft="32dp"
             android:paddingRight="32dp"
-            android:text="Other"
+            android:text="@string/other"
             android:textSize="20sp" />
 
 

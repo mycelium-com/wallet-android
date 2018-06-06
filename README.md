@@ -158,6 +158,8 @@ Authors
  - Jerome Rousselot
  - Elvis Kurtnebiev
  - Sergey Dolgopolov
+ - Sergey Lappo
+ - Nadezhda Poletova
 
 Credits
 =======
