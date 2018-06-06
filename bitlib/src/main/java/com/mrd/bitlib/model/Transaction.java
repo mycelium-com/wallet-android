@@ -78,11 +78,11 @@ public class Transaction implements Serializable {
         try {
             int version = reader.getIntLE();
             boolean useSegwit = false;
-            byte marker = peekMarker(reader);
+            byte marker = peekByte(reader);
             if (marker == 0) {
                 //segwit possible
                 reader.get();
-                byte flag = peekflag(reader);
+                byte flag = peekByte(reader);
                 if (flag == 1) {
                     //it's segwit
                     reader.get();
@@ -159,16 +159,10 @@ public class Transaction implements Serializable {
         return false;
     }
 
-    private static byte peekMarker(ByteReader reader) throws InsufficientBytesException {
-        byte marker = reader.get();
+    private static byte peekByte(ByteReader reader) throws InsufficientBytesException {
+        byte b = reader.get();
         reader.setPosition(reader.getPosition() - 1);
-        return marker;
-    }
-
-    private static byte peekflag(ByteReader reader) throws InsufficientBytesException {
-        byte flag = reader.get();
-        reader.setPosition(reader.getPosition() - 1);
-        return flag;
+        return b;
     }
 
     public Transaction copy() {
@@ -202,6 +196,7 @@ public class Transaction implements Serializable {
 
     /**
      * Same as {@link #toByteWriter(ByteWriter)}, but allows to enforce SegWit tx serialization to classic format.
+     *
      * @param asSegwit if true tx would be serialized according bip144 standard.
      */
     public void toByteWriter(ByteWriter writer, boolean asSegwit) {

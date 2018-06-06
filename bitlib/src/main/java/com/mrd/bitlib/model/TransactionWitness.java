@@ -7,10 +7,9 @@ class TransactionWitness {
     public static final TransactionWitness EMPTY = new TransactionWitness(0);
 
     private final List<byte[]> stack;
-    private final int MAX_INITIAL_ARRAY_LENGTH;
+    private static final int MAX_INITIAL_ARRAY_LENGTH = 20;
 
     public TransactionWitness(int pushCount) {
-        MAX_INITIAL_ARRAY_LENGTH = 20;
         stack = new ArrayList<>(Math.min(pushCount, MAX_INITIAL_ARRAY_LENGTH));
     }
 
