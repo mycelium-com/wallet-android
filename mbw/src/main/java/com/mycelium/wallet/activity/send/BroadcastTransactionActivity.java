@@ -202,13 +202,13 @@ public class BroadcastTransactionActivity extends Activity {
    private void setResultOkay() {
       //store the transaction label if there is one
       if (_transactionLabel != null) {
-         _mbwManager.getMetadataStorage().storeTransactionLabel(_transaction.getHash(), _transactionLabel);
+         _mbwManager.getMetadataStorage().storeTransactionLabel(_transaction.getId(), _transactionLabel);
       }
 
       // Include the transaction hash in the response
       Intent result = new Intent()
               .putExtra(Constants.TRANSACTION_FIAT_VALUE_KEY, _fiatValue)
-              .putExtra(Constants.TRANSACTION_HASH_INTENT_KEY, _transaction.getHash().toString());
+              .putExtra(Constants.TRANSACTION_ID_INTENT_KEY, _transaction.getId().toString());
       setResult(RESULT_OK, result);
    }
 

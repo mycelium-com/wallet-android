@@ -301,7 +301,7 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
             TransactionInput ak_input = currentTx.inputs[txRequestDetailsType.getRequestIndex()];
 
 
-            ByteString prevHash = ByteString.copyFrom(ak_input.outPoint.hash.getBytes());
+            ByteString prevHash = ByteString.copyFrom(ak_input.outPoint.txid.getBytes());
             ByteString scriptSig = ByteString.copyFrom(ak_input.script.getScriptBytes());
             TrezorType.TxInputType.Builder txInputBuilder = TrezorType.TxInputType.newBuilder()
                   .setPrevHash(prevHash)

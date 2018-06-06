@@ -269,6 +269,15 @@ public class Transaction implements Serializable {
         this._hash = knownTransactionHash;
     }
 
+    public Sha256Hash getId() {
+        if (_hash == null) {
+            ByteWriter writer = new ByteWriter(2000);
+            toByteWriter(writer, false);
+            _hash = HashUtils.doubleSha256(writer.toBytes()).reverse();
+        }
+        return _hash;
+    }
+
     public Sha256Hash getHash() {
         if (_hash == null) {
             ByteWriter writer = new ByteWriter(2000);
@@ -331,7 +340,7 @@ public class Transaction implements Serializable {
 
     @Override
     public String toString() {
-        return String.valueOf(getHash()) + " in: " + inputs.length + " out: " + outputs.length;
+        return String.valueOf(getId()) + " in: " + inputs.length + " out: " + outputs.length;
     }
 
     @Override

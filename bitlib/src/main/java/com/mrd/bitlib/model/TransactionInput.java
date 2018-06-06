@@ -84,7 +84,7 @@ public class TransactionInput implements Serializable {
    }
 
    public void toByteWriter(ByteWriter writer) {
-      writer.putSha256Hash(outPoint.hash, true);
+      writer.putSha256Hash(outPoint.txid, true);
       writer.putIntLE(outPoint.index);
       byte[] script = getScript().getScriptBytes();
       writer.putCompactInt(script.length);
@@ -98,7 +98,7 @@ public class TransactionInput implements Serializable {
          return null;
       }
       ByteWriter writer = new ByteWriter(32 + 4 + scriptBytes.length + 4);
-      writer.putSha256Hash(outPoint.hash, true);
+      writer.putSha256Hash(outPoint.txid, true);
       writer.putIntLE(outPoint.index);
       writer.putBytes(scriptBytes);
       writer.putIntLE(sequence);
@@ -107,13 +107,13 @@ public class TransactionInput implements Serializable {
 
    @Override
    public String toString() {
-      return "outpoint: " + outPoint.hash + ':' + outPoint.index +
+      return "outpoint: " + outPoint.txid + ':' + outPoint.index +
               " scriptSize: " + script.getScriptBytes().length;
    }
 
    @Override
    public int hashCode() {
-      return outPoint.hash.hashCode() + outPoint.index;
+      return outPoint.txid.hashCode() + outPoint.index;
    }
 
    @Override

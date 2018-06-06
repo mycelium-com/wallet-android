@@ -688,18 +688,18 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
             for (TransactionInput input : transaction.inputs) {
                refersOutpoint.add(input.outPoint);
             }
-            putTxRefersParentTransaction(transaction.getHash(), refersOutpoint);
+            putTxRefersParentTransaction(transaction.getId(), refersOutpoint);
          } catch (Transaction.TransactionParsingException e) {
             Log.w(LOG_TAG, "Unable to decode transaction: " + e.getMessage());
          }
       }
 
       @Override
-      public TransactionEx getTransaction(Sha256Hash hash) {
+      public TransactionEx getTransaction(Sha256Hash txid) {
          Cursor cursor = null;
          try {
             SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(_db);
-            blobQuery.bindBlob(1, hash.getBytes());
+            blobQuery.bindBlob(1, txid.getBytes());
             cursor = blobQuery.query(false, txTableName, new String[]{"height", "time", "binary"}, "id = ?", null,
                   null, null, null, null);
             if (cursor.moveToNext()) {
@@ -707,7 +707,7 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
                if (height == Integer.MAX_VALUE) {
                   height = -1;
                }
-               return new TransactionEx(hash, height, cursor.getInt(1), cursor.getBlob(2));
+               return new TransactionEx(txid, txid, height, cursor.getInt(1), cursor.getBlob(2));
             }
             return null;
          } finally {
@@ -750,7 +750,8 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
             cursor = _db.rawQuery("SELECT id, time, binary FROM " + txTableName + " WHERE height = 2147483647",
                   new String[]{});
             while (cursor.moveToNext()) {
-               TransactionEx tex = new TransactionEx(new Sha256Hash(cursor.getBlob(0)), -1, cursor.getInt(1),
+               Sha256Hash txid = new Sha256Hash(cursor.getBlob(0));
+               TransactionEx tex = new TransactionEx(txid, txid, -1, cursor.getInt(1),
                      cursor.getBlob(2));
                list.add(tex);
             }
@@ -776,7 +777,8 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
                if (height == Integer.MAX_VALUE) {
                   height = -1;
                }
-               TransactionEx tex = new TransactionEx(new Sha256Hash(cursor.getBlob(0)), height, cursor.getInt(2),
+               Sha256Hash txid = new Sha256Hash(cursor.getBlob(0));
+               TransactionEx tex = new TransactionEx(txid, txid, height, cursor.getInt(2),
                      cursor.getBlob(3));
                list.add(tex);
             }
@@ -845,7 +847,8 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
                         + " ORDER BY height desc limit ? offset ?",
                   new String[]{Integer.toString(limit), Integer.toString(offset)});
             while (cursor.moveToNext()) {
-               TransactionEx tex = new TransactionEx(new Sha256Hash(cursor.getBlob(0)), cursor.getInt(1),
+               Sha256Hash txid = new Sha256Hash(cursor.getBlob(0));
+               TransactionEx tex = new TransactionEx(txid, txid, cursor.getInt(1),
                      cursor.getInt(2), cursor.getBlob(3));
                list.add(tex);
             }
@@ -867,7 +870,8 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
                         + " ORDER BY height desc",
                   new String[]{Long.toString(since / 1000)});
             while (cursor.moveToNext()) {
-               TransactionEx tex = new TransactionEx(new Sha256Hash(cursor.getBlob(0)), cursor.getInt(1),
+               Sha256Hash txid = new Sha256Hash(cursor.getBlob(0));
+               TransactionEx tex = new TransactionEx(txid, txid, cursor.getInt(1),
                      cursor.getInt(2), cursor.getBlob(3));
                list.add(tex);
             }

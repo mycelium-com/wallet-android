@@ -107,11 +107,13 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, 
     override fun getTransactions(request: GetTransactionsRequest): WapiResponse<GetTransactionsResponse> {
         val transactions = getTransactionsWithParentLookupConverted(request.txIds.map { it.toHex() }, { tx, unconfirmedChainLength, rbfRisk ->
             val txIdString = Sha256Hash.fromString(tx.txid)
+            val txHashString = Sha256Hash.fromString(tx.hash)
             TransactionExApi(
                     txIdString,
+                    txHashString,
                     if (tx.confirmations > 0) bestChainHeight - tx.confirmations else -1,
                     if (tx.time == 0) (Date().time / 1000).toInt() else tx.time,
-                    Transaction.fromByteReader(ByteReader(HexUtils.toBytes(tx.hex)), txIdString).toBytes(), // TODO SEGWIT remove when implemeted. Decreases sync speed twice
+                    HexUtils.toBytes(tx.hex),
                     unconfirmedChainLength, // 0 or 1. we don't dig deeper. 1 == unconfirmed parent
                     rbfRisk)
         })

@@ -56,7 +56,7 @@ public class Sha256Hash implements Serializable, Comparable<Sha256Hash> {
    }
 
    /**
-    * takes 32 bytes and stores them as hash. does not actually hash, this is
+    * takes 32 bytes and stores them as hash. does not actually txid, this is
     * done in HashUtils
     * 
     * @param bytes

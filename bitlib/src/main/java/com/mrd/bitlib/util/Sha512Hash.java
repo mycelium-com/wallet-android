@@ -43,7 +43,7 @@ public class Sha512Hash implements Serializable, Comparable<Sha512Hash> {
    }
 
    /**
-    * Takes 64 bytes and stores them as hash. does not actually hash, this is done in HashUtils
+    * Takes 64 bytes and stores them as hash. does not actually txid, this is done in HashUtils
     * @param bytes to be stored
     */
    public static Sha512Hash of(byte[] bytes) {

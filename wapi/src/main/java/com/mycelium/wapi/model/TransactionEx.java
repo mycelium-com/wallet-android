@@ -34,15 +34,18 @@ public class TransactionEx implements Serializable, Comparable<TransactionEx> {
    @JsonProperty
    public final Sha256Hash txid;
    @JsonProperty
+   public final Sha256Hash txHash;
+   @JsonProperty
    public final int height; // -1 means unconfirmed
    @JsonProperty
    public final int time;
    @JsonProperty
    public final byte[] binary;
 
-   public TransactionEx(@JsonProperty("txid") Sha256Hash txid, @JsonProperty("height") int height,
+   public TransactionEx(@JsonProperty("txid") Sha256Hash txid, @JsonProperty("txid") Sha256Hash txHash, @JsonProperty("height") int height,
                         @JsonProperty("time") int time, @JsonProperty("binary") byte[] binary) {
       this.txid = txid;
+      this.txHash = txHash;
       this.height = height;
       this.time = time;
       this.binary = binary;
@@ -73,13 +76,13 @@ public class TransactionEx implements Serializable, Comparable<TransactionEx> {
 
    public static TransactionEx fromUnconfirmedTransaction(Transaction t) {
       int now = (int) (System.currentTimeMillis() / 1000);
-      return new TransactionEx(t.getHash(), -1, now, t.toBytes());
+      return new TransactionEx(t.getId(), t.getHash(), -1, now, t.toBytes());
    }
 
    public static TransactionEx fromUnconfirmedTransaction(byte[] rawTransaction) {
       int now = (int) (System.currentTimeMillis() / 1000);
-      Sha256Hash hash = HashUtils.doubleSha256(rawTransaction).reverse();
-      return new TransactionEx(hash, -1, now, rawTransaction);
+      Sha256Hash txid = HashUtils.doubleSha256(rawTransaction).reverse();
+      return new TransactionEx(txid, txid, -1, now, rawTransaction); //TODO Segwit change
    }
 
    public static Transaction toTransaction(TransactionEx tex) {
