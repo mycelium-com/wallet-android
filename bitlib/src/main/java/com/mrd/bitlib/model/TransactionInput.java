@@ -71,6 +71,10 @@ public class TransactionInput implements Serializable {
       this(outPoint, script, NO_SEQUENCE);
    }
 
+   public boolean hasWitness() {
+      return witness != null && witness.getStackSize() != 0;
+   }
+
    public ScriptInput getScript() {
       return script;
    }

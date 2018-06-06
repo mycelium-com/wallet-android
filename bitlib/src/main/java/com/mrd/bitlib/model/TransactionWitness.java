@@ -20,4 +20,8 @@ class TransactionWitness {
         }
         stack.set(i, value);
     }
+
+    public int getStackSize() {
+        return stack.size();
+    }
 }
