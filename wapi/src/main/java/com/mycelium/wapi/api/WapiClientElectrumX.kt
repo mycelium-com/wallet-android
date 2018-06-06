@@ -7,6 +7,7 @@ import com.mrd.bitlib.StandardTransactionBuilder
 import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.model.OutPoint
 import com.mrd.bitlib.model.Transaction
+import com.mrd.bitlib.util.ByteReader
 import com.mrd.bitlib.util.HexUtils
 import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.WapiLogger
@@ -109,7 +110,8 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, 
                     Sha256Hash.fromString(tx.txid),
                     if (tx.confirmations > 0) bestChainHeight - tx.confirmations else -1,
                     if (tx.time == 0) (Date().time / 1000).toInt() else tx.time,
-                    Transaction.fromBytes(HexUtils.toBytes(tx.hex)).toBytes(), // TODO SEGWIT remove when implemeted. Decreases sync speed twice
+                    Transaction.fromByteReader(ByteReader(HexUtils.toBytes(tx.hex)),
+                            Sha256Hash.fromString(tx.hash)).toBytes(), // TODO SEGWIT remove when implemeted. Decreases sync speed twice
                     unconfirmedChainLength, // 0 or 1. we don't dig deeper. 1 == unconfirmed parent
                     rbfRisk)
         })
