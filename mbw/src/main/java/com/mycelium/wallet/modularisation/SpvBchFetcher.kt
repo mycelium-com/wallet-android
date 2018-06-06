@@ -41,7 +41,11 @@ import kotlin.math.min
 import com.mycelium.spvmodule.providers.TransactionContract.TransactionSummary as SpvTxSummary
 
 class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
-    val sharedPreference = context.getSharedPreferences("spvbalancefetcher", Context.MODE_PRIVATE)
+    private val sharedPreference = context.getSharedPreferences("spvbalancefetcher", Context.MODE_PRIVATE)
+    @Volatile
+    private var syncProgress = 0f
+    @Volatile
+    private var lastSyncProgressTime = 0L
 
     override fun retrieveByHdAccountIndex(id: String, accountIndex: Int): CurrencyBasedBalance {
         val uri = AccountBalance.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHBIP44)).buildUpon().appendEncodedPath(id).build()
@@ -245,8 +249,7 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
         val service = IntentContract.RemoveUnrelatedAccount.createIntent(guid)
         WalletApplication.sendToSpv(service, WalletAccount.Type.BCHSINGLEADDRESS)
     }
-    var syncProgress = 0f
-    var lastSyncProgressTime = 0L
+
     override fun getSyncProgressPercents(): Float {
         // optimization, some time very often getSyncProgressPercents called from ui thread
         if(System.currentTimeMillis() - lastSyncProgressTime < 20000) {
