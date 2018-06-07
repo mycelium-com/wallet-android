@@ -122,6 +122,8 @@ open class JsonRpcTcpClient(val endpoints : Array<TcpEndpoint>,
                     isConnected = true
                     notifyListeners()
                 } catch(ex: Exception) {
+                    isConnected = false
+                    // Sleep for some time before moving to the next endpoint
                     Thread.sleep(INTERVAL_BETWEEN_SOCKET_RECONNECTS)
                     curEdpointIndex = (curEdpointIndex + 1) % endpoints.size
                     continue
