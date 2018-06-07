@@ -121,6 +121,7 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
                     isConnected = true
                     notifyListeners()
                 } catch(ex: Exception) {
+                    close()
                     isConnected = false
                     // Sleep for some time before moving to the next endpoint
                     Thread.sleep(INTERVAL_BETWEEN_SOCKET_RECONNECTS)
@@ -130,21 +131,19 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
 
                 // Inner loop for reading data from socket. If the connection breaks, we should
                 // exit this loop and try creating new socket in order to restore connection
-                while(true) {
-                    try {
-                        val line: String? = `in`!!.readLine()
-
-                        // There can be a use case when BufferedReader.readline() returns null
-                        if (line == null) {
-                            continue
-                        }
-
-                        messageReceived(line!!)
-                    } catch(ex: IOException) {
-                        isConnected = false
-                        notifyListeners()
-                        break
+                try {
+                    while (true) {
+                        val line = incoming!!.readLine()
+                                // There can be a use case when BufferedReader.readline() returns null
+                                ?: continue
+                        messageReceived(line)
                     }
+                } catch (exception: Exception) {
+                    logger.logError("receiving failed: ${exception.message}")
+                } finally {
+                    close()
+                    isConnected = false
+                    notifyListeners()
                 }
             }
         }
