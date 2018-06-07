@@ -82,7 +82,7 @@ public class MbwTestEnvironment extends MbwEnvironment {
    }
 
    private static final List<TcpEndpoint> electrumEndpoints = new ArrayList<TcpEndpoint>(){{
-      add(new TcpEndpoint("electrumx-1.mycelium.com", 500012));
+      add(new TcpEndpoint("electrumx-1.mycelium.com", 50012));
    }};
 
    @Override

@@ -85,7 +85,7 @@ public class MbwRegTestEnvironment extends MbwEnvironment {
    }
 
    private static final List<TcpEndpoint> electrumEndpoints = new ArrayList<TcpEndpoint>(){{
-      add(new TcpEndpoint("localhost", 500012));
+      add(new TcpEndpoint("localhost", 50012));
    }};
 
    @Override
