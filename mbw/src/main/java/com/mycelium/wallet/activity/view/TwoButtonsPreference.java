@@ -6,9 +6,12 @@ import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceViewHolder;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.settings.ModulePreference;
+
+import javax.annotation.Nullable;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -20,12 +23,23 @@ public class TwoButtonsPreference extends Preference implements ModulePreference
     @BindView(R.id.bottom_button)
     Button bottomButton;
 
+    @Nullable
+    @BindView(R.id.under_icon_text)
+    TextView underIconTextView;
+
+    @Nullable
+    @BindView(R.id.sync_state)
+    TextView syncState;
+
+
     private View.OnClickListener topButtonClickListener;
     private View.OnClickListener bottomButtonClickListener;
     private String topButtonText;
     private String bottomButtonText;
     private boolean topButtonEnabled;
     private boolean bottomButtonEnabled;
+    private String underIconText;
+    private String syncStateText;
 
     public TwoButtonsPreference(Context context) {
         super(context);
@@ -42,6 +56,12 @@ public class TwoButtonsPreference extends Preference implements ModulePreference
         bottomButton.setEnabled(bottomButtonEnabled);
         topButton.setOnClickListener(topButtonClickListener);
         bottomButton.setOnClickListener(bottomButtonClickListener);
+        if (underIconTextView != null) {
+            underIconTextView.setText(underIconText);
+        }
+        if (syncState != null) {
+            syncState.setText(syncStateText);
+        }
     }
 
     public void setTopButtonClickListener(View.OnClickListener buttonClickListener) {
@@ -77,13 +97,17 @@ public class TwoButtonsPreference extends Preference implements ModulePreference
         }
     }
 
-    @Override
-    public void setSyncStateText(String syncStatus) {
-
+    public void setUnderIconText(String underIconText) {
+        this.underIconText = underIconText;
+        if (underIconTextView != null) {
+            underIconTextView.setText(underIconText);
+        }
     }
 
-    @Override
-    public void setUnderIconText(String underIconText) {
-
+    public void setSyncStateText(String syncStateText) {
+        this.syncStateText = syncStateText;
+        if (syncState != null) {
+            syncState.setText(syncStateText);
+        }
     }
 }

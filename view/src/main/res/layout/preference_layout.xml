@@ -49,12 +49,11 @@
 
     <!-- Preference should place its actual preference widget here. -->
 
-    <LinearLayout
+    <FrameLayout
         android:id="@android:id/widget_frame"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:gravity="center"
-        android:minWidth="48dp"
         android:orientation="vertical" />
 
 </LinearLayout>
