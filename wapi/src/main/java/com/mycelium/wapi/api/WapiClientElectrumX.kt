@@ -27,9 +27,12 @@ import kotlin.collections.ArrayList
 /**
  * This is a Wapi Client that avoids calls that require BQS by talking to ElectrumX for related calls
  */
-class WapiClientElectrumX(serverEndpoints: ServerEndpoints, endpoints: Array<TcpEndpoint>, logger: WapiLogger, versionCode: String) : WapiClient(serverEndpoints, logger, versionCode), ConnectionMonitor.ConnectionObserver {
-    val DEFAULT_RESPONSE_TIMEOUT = 10000L
-
+class WapiClientElectrumX(
+        serverEndpoints: ServerEndpoints,
+        endpoints: Array<TcpEndpoint>,
+        logger: WapiLogger,
+        versionCode: String)
+    : WapiClient(serverEndpoints, logger, versionCode), ConnectionMonitor.ConnectionObserver {
     @Volatile
     private var jsonRpcTcpClient = JsonRpcTcpClient(endpoints, logger)
     @Volatile
@@ -108,7 +111,7 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, endpoints: Array<Tcp
     }
 
     override fun getTransactions(request: GetTransactionsRequest): WapiResponse<GetTransactionsResponse> {
-        try {
+        return try {
             val transactions = getTransactionsWithParentLookupConverted(request.txIds.map { it.toHex() }, { tx, unconfirmedChainLength, rbfRisk ->
                 val txIdString = Sha256Hash.fromString(tx.txid)
                 TransactionExApi(
@@ -119,14 +122,13 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, endpoints: Array<Tcp
                         unconfirmedChainLength, // 0 or 1. we don't dig deeper. 1 == unconfirmed parent
                         rbfRisk)
             })
-            return WapiResponse(GetTransactionsResponse(transactions))
+            WapiResponse(GetTransactionsResponse(transactions))
         } catch(ex : TimeoutException) {
-            return WapiResponse<GetTransactionsResponse>(Wapi.ERROR_CODE_NO_SERVER_CONNECTION, null)
+            WapiResponse<GetTransactionsResponse>(Wapi.ERROR_CODE_NO_SERVER_CONNECTION, null)
         }
     }
 
     override fun broadcastTransaction(request: BroadcastTransactionRequest): WapiResponse<BroadcastTransactionResponse> {
-
         try {
             val txHex = HexUtils.toHex(request.rawTransaction)
             val response = jsonRpcTcpClient.write(BROADCAST_METHOD, RpcParams.listParams(txHex), DEFAULT_RESPONSE_TIMEOUT)
@@ -211,14 +213,14 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, endpoints: Array<Tcp
                             "verbose" to true))
         }.toList()
 
-        return jsonRpcTcpClient.write(requestsList, DEFAULT_RESPONSE_TIMEOUT).responses.map {
+        return jsonRpcTcpClient.write(requestsList, DEFAULT_RESPONSE_TIMEOUT).responses.mapNotNull {
             if (it.hasError) {
                 logger.logError("checkTransactions failed: ${it.error}")
                 null
             } else {
                 it.getResult(TransactionX::class.java)
             }
-        }.filterNotNull()
+        }
     }
 
     private fun isRbf(vin: Array<TransactionInputX>) = vin.any { it.sequence < NON_RBF_SEQUENCE }
@@ -260,6 +262,7 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, endpoints: Array<Tcp
         @Deprecated("Address must be replaced with script")
         private const val GET_HISTORY_METHOD = "blockchain.address.get_history"
         private val NON_RBF_SEQUENCE = UnsignedInteger.MAX_VALUE.toLong()
+        const val DEFAULT_RESPONSE_TIMEOUT = 10000L
     }
 }
 
@@ -314,5 +317,4 @@ data class TransactionHistoryInfo(
             else -> 0
         }
     }
-
 }

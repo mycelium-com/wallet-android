@@ -2,36 +2,36 @@ package com.mycelium.wapi.api.jsonrpc
 
 import com.mycelium.WapiLogger
 import com.mycelium.wapi.api.ConnectionMonitor
-import java.io.*
+import com.mycelium.wapi.api.ConnectionMonitor.ConnectionEvent.*
+import java.io.BufferedOutputStream
+import java.io.BufferedReader
+import java.io.InputStreamReader
 import java.net.Socket
-import javax.net.ssl.SSLSocketFactory
-
 import java.util.*
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
+import javax.net.ssl.SSLSocketFactory
 import kotlin.concurrent.thread
 
 typealias Consumer<T> = (T) -> Unit
 
 class TcpEndpoint(val host: String, val port: Int)
 
-open class JsonRpcTcpClient(val endpoints : Array<TcpEndpoint>,
+open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
                             val logger: WapiLogger) : ConnectionMonitor {
     private val observers = ArrayList<ConnectionMonitor.ConnectionObserver>()
-    private val INTERVAL_BETWEEN_SOCKET_RECONNECTS = 5000L
-
-    private var curEdpointIndex = 0
+    private var curEndpointIndex = 0
     private val ssf = SSLSocketFactory.getDefault() as SSLSocketFactory
 
     @Volatile
-    public var isConnected = false
+    private var isConnected = false
     @Volatile
     private var socket: Socket? = null
     @Volatile
-    private var `in` : BufferedReader? = null
+    private var incoming : BufferedReader? = null
     @Volatile
-    private var out : BufferedOutputStream? = null
+    private var outgoing : BufferedOutputStream? = null
 
     private val callbacks = mutableMapOf<String, Consumer<AbstractResponse>>()
 
@@ -64,14 +64,14 @@ open class JsonRpcTcpClient(val endpoints : Array<TcpEndpoint>,
             it.id = UUID.randomUUID().toString()
         }
 
-        val compoundIds = requests.map {it.id.toString()}.toTypedArray().sortedArray().joinToString { it }
+        val compoundIds = requests.map {it.id.toString()}.toTypedArray().sortedArray().joinToString()
 
         callbacks[compoundIds] = {
             response = it as BatchedRpcResponse
             latch.countDown()
         }
 
-        val batchedRequest = '[' + requests.map { it.toJson() }.joinToString() + ']'
+        val batchedRequest = '[' + requests.joinToString { it.toJson() } + ']'
         internalWrite(batchedRequest)
 
         if (!latch.await(timeOut, TimeUnit.MILLISECONDS)) {
@@ -99,33 +99,28 @@ open class JsonRpcTcpClient(val endpoints : Array<TcpEndpoint>,
         return response!!
     }
 
-    fun notifyListeners() {
-        this.observers.forEach {
-            if (isConnected) {
-                it.connectionChanged(ConnectionMonitor.ConnectionEvent.WENT_ONLINE)
-            } else {
-                it.connectionChanged(ConnectionMonitor.ConnectionEvent.WENT_OFFLINE)
-            }
+    private fun notifyListeners() {
+        observers.forEach {
+            it.connectionChanged(if (isConnected) WENT_ONLINE else WENT_OFFLINE)
         }
     }
 
     fun start() {
         thread(start = true) {
-
             while(true) {
-                val currentEndpoint = endpoints.get(curEdpointIndex)
+                val currentEndpoint = endpoints[curEndpointIndex]
                 try {
                     socket = ssf.createSocket(currentEndpoint.host, currentEndpoint.port)
                     socket!!.keepAlive = true
-                    `in` = BufferedReader(InputStreamReader((socket!!.getInputStream())))
-                    out = BufferedOutputStream(socket!!.getOutputStream())
+                    incoming = BufferedReader(InputStreamReader(socket!!.getInputStream()))
+                    outgoing = BufferedOutputStream(socket!!.getOutputStream())
                     isConnected = true
                     notifyListeners()
                 } catch(ex: Exception) {
                     isConnected = false
                     // Sleep for some time before moving to the next endpoint
                     Thread.sleep(INTERVAL_BETWEEN_SOCKET_RECONNECTS)
-                    curEdpointIndex = (curEdpointIndex + 1) % endpoints.size
+                    curEndpointIndex = (curEndpointIndex + 1) % endpoints.size
                     continue
                 }
 
@@ -148,16 +143,13 @@ open class JsonRpcTcpClient(val endpoints : Array<TcpEndpoint>,
                     }
                 }
             }
-
         }
     }
-
 
     fun close() = socket?.close()
 
     private fun messageReceived(message: String) {
         val isBatched = message[0] == '['
-
         if (isBatched) {
             val response = BatchedRpcResponse.fromJson(message)
             val compoundId = response.responses.map {it.id.toString()}.toTypedArray().sortedArray().joinToString { it }
@@ -180,11 +172,14 @@ open class JsonRpcTcpClient(val endpoints : Array<TcpEndpoint>,
         thread(start = true) {
             try {
                 val bytes = (msg + "\n").toByteArray()
-                out!!.write(bytes)
-                out!!.flush()
+                outgoing!!.write(bytes)
+                outgoing!!.flush()
             } catch (ex : Exception) {
                 ex.printStackTrace()
             }
         }
+    }
+    companion object {
+        private const val INTERVAL_BETWEEN_SOCKET_RECONNECTS = 5000L
     }
 }
