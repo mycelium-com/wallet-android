@@ -105,8 +105,6 @@ import com.mycelium.wallet.persistence.TradeSessionDb;
 import com.mycelium.wallet.wapi.SqliteWalletManagerBackingWrapper;
 import com.mycelium.wapi.api.WapiClient;
 import com.mycelium.wapi.api.WapiClientElectrumX;
-import com.mycelium.wapi.api.ConnectionMonitor;
-import com.mycelium.wapi.api.ConnectionMonitor.ConnectionObserver;
 import com.mycelium.wapi.wallet.AccountProvider;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.IdentityAccountKeyManager;
@@ -146,7 +144,7 @@ import java.util.logging.Level;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-public class MbwManager implements ConnectionMonitor {
+public class MbwManager {
    private static final String PROXY_HOST = "socksProxyHost";
    private static final String PROXY_PORT = "socksProxyPort";
    private static final String SELECTED_ACCOUNT = "selectedAccount";
@@ -326,16 +324,6 @@ public class MbwManager implements ConnectionMonitor {
                       _environment.getBlockExplorerList().get(0).getIdentifier()));
    }
 
-   @Override
-   public void register(ConnectionObserver o) {
-
-   }
-
-   @Override
-   public void unregister(ConnectionObserver o) {
-
-   }
-
    private class InitColuManagerTask extends AsyncTask<Void, Void, Optional<ColuManager>> {
       protected Optional<ColuManager> doInBackground(Void... params) {
          return Optional.of(getColuManager());
@@ -472,9 +460,7 @@ public class MbwManager implements ConnectionMonitor {
          version = "na";
       }
 
-      WapiClientElectrumX wapiClientElectrumX = new WapiClientElectrumX(_environment.getWapiEndpoints(), retainingWapiLogger, version);
-      this.register(wapiClientElectrumX);
-      return wapiClientElectrumX;
+      return new WapiClientElectrumX(_environment.getWapiEndpoints(), retainingWapiLogger, version);
    }
 
    private void initTor() {

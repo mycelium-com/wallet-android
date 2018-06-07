@@ -1,6 +1,7 @@
 package com.mycelium.wapi.api.jsonrpc
 
 import com.mycelium.WapiLogger
+import com.mycelium.wapi.api.ConnectionMonitor
 import java.io.*
 import java.net.Socket
 import javax.net.ssl.SSLSocketFactory
@@ -13,18 +14,34 @@ import kotlin.concurrent.thread
 
 typealias Consumer<T> = (T) -> Unit
 
-open class JsonRpcTcpClient(host: String,
-                            port: Int,
-                            val logger: WapiLogger) {
-    private val socketHost = host
-    private val socketPort = port
+class TcpEndpoint(val host: String, val port: Int)
+
+open class JsonRpcTcpClient(val endpoints : Array<TcpEndpoint>,
+                            val logger: WapiLogger) : ConnectionMonitor {
+    private val observers = ArrayList<ConnectionMonitor.ConnectionObserver>()
+    private val INTERVAL_BETWEEN_SOCKET_RECONNECTS = 5000L
+
+    private var curEdpointIndex = 0
     private val ssf = SSLSocketFactory.getDefault() as SSLSocketFactory
+
+    @Volatile
+    public var isConnected = false
+    @Volatile
     private var socket: Socket? = null
+    @Volatile
     private var `in` : BufferedReader? = null
+    @Volatile
     private var out : BufferedOutputStream? = null
 
     private val callbacks = mutableMapOf<String, Consumer<AbstractResponse>>()
 
+    override fun register(o: ConnectionMonitor.ConnectionObserver?) {
+        observers.add(o!!)
+    }
+
+    override fun unregister(o: ConnectionMonitor.ConnectionObserver?) {
+        observers.remove(o!!)
+    }
 
     fun notify(methodName: String, params: RpcParams) {
         internalWrite(RpcRequestOut(methodName, params).toJson())
@@ -82,71 +99,49 @@ open class JsonRpcTcpClient(host: String,
         return response!!
     }
 
+    fun notifyListeners() {
+        this.observers.forEach {
+            if (isConnected) {
+                it.connectionChanged(ConnectionMonitor.ConnectionEvent.WENT_ONLINE)
+            } else {
+                it.connectionChanged(ConnectionMonitor.ConnectionEvent.WENT_OFFLINE)
+            }
+        }
+    }
+
     fun start() {
         thread(start = true) {
-            try {
-                write("server.version", RpcParams.mapParams(
-                        "client_name" to "wapi",
-                        "protocol_version" to "1.2"),
-                        60000)
-            } catch (ex : IOException) {
-                ex.printStackTrace()
-            }
 
             while(true) {
-
+                val currentEndpoint = endpoints.get(curEdpointIndex)
                 try {
+                    socket = ssf.createSocket(currentEndpoint.host, currentEndpoint.port)
+                    socket!!.keepAlive = true
+                    `in` = BufferedReader(InputStreamReader((socket!!.getInputStream())))
+                    out = BufferedOutputStream(socket!!.getOutputStream())
+                    isConnected = true
+                    notifyListeners()
+                } catch(ex: Exception) {
+                    Thread.sleep(INTERVAL_BETWEEN_SOCKET_RECONNECTS)
+                    curEdpointIndex = (curEdpointIndex + 1) % endpoints.size
+                    continue
+                }
+
+                while(true) {
                     try {
-                        Thread.sleep(10000)
-                    } catch (ignore: InterruptedException) {
-                    }
-                    val pong = write("server.ping", RpcMapParams(emptyMap<String, String>()), 60000)
-                    logger.logInfo("Pong! $pong")
-                } catch (ex : IOException) {
-                    ex.printStackTrace()
-                }
-            }
-        }
-
-        while (true) {
-            try {
-                if (isConnected()) {
-                    var line: String? = `in`!!.readLine()
-                    messageReceived(line!!)
-                } else {
-                    if (!connectSocket()){
-                        sleep(500)
+                        val line: String = `in`!!.readLine()
+                        messageReceived(line)
+                    } catch(ex: IOException) {
+                        isConnected = false
+                        notifyListeners()
+                        break
                     }
                 }
-            } catch (ignore: IOException) {
             }
+
         }
     }
 
-    fun isConnected() : Boolean {
-        if (socket == null)
-            return false
-        return socket!!.isConnected
-    }
-
-    fun connectSocket(): Boolean {
-        try {
-            socket = ssf.createSocket(socketHost, socketPort)
-            `in` = BufferedReader(InputStreamReader((socket!!.getInputStream())))
-            out = BufferedOutputStream(socket!!.getOutputStream())
-            return true
-        } catch (ex : Exception) {
-            return false
-        }
-
-    }
-
-    private fun sleep(ms: Long) {
-        try {
-            Thread.sleep(ms)
-        } catch (ignore: InterruptedException) {
-        }
-    }
 
     fun close() = socket?.close()
 
@@ -172,9 +167,6 @@ open class JsonRpcTcpClient(host: String,
     }
 
     private fun internalWrite(msg: String) {
-        if (!isConnected())
-            return
-
         thread(start = true) {
             try {
                 val bytes = (msg + "\n").toByteArray()
