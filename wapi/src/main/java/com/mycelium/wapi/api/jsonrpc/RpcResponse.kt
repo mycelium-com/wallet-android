@@ -9,6 +9,7 @@ open class AbstractResponse
 class RpcResponse : AbstractResponse() {
     companion object {
         fun fromJson(json: String): RpcResponse = RPC.fromJson(json, RpcResponse::class.java)
+        val NO_RESPONSE = RpcResponse()
     }
 
     @SerializedName(JSON_RPC_IDENTIFIER)

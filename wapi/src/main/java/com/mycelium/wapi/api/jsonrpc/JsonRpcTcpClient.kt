@@ -81,6 +81,9 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
         return response!!
     }
 
+    /**
+     * blocking if timeOut > 0. Returns NO_RESPONSE non-blocking else.
+     */
     @Throws(TimeoutException::class)
     fun write(methodName: String, params: RpcParams, timeOut: Long): RpcResponse {
         var response: RpcResponse? = null
@@ -93,6 +96,9 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
             }
         }.toJson()
         internalWrite(request)
+        if (timeOut <= 0) {
+            return RpcResponse.NO_RESPONSE
+        }
         if (!latch.await(timeOut, TimeUnit.MILLISECONDS)) {
             throw TimeoutException("Timeout")
         }
@@ -117,7 +123,7 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
                     write("server.version", RpcParams.mapParams(
                             "client_name" to "wapi",
                             "protocol_version" to "1.2"),
-                            10000)
+                            -1)
                     isConnected = true
                     notifyListeners()
                 } catch(ex: Exception) {
