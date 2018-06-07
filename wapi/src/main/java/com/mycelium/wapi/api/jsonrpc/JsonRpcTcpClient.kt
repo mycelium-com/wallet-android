@@ -133,8 +133,14 @@ open class JsonRpcTcpClient(val endpoints : Array<TcpEndpoint>,
                 // exit this loop and try creating new socket in order to restore connection
                 while(true) {
                     try {
-                        val line: String = `in`!!.readLine()
-                        messageReceived(line)
+                        val line: String? = `in`!!.readLine()
+
+                        // There can be a use case when BufferedReader.readline() returns null
+                        if (line == null) {
+                            continue
+                        }
+
+                        messageReceived(line!!)
                     } catch(ex: IOException) {
                         isConnected = false
                         notifyListeners()
