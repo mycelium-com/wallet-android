@@ -127,6 +127,8 @@ open class JsonRpcTcpClient(val endpoints : Array<TcpEndpoint>,
                     continue
                 }
 
+                // Inner loop for reading data from socket. If the connection breaks, we should
+                // exit this loop and try creating new socket in order to restore connection
                 while(true) {
                     try {
                         val line: String = `in`!!.readLine()
