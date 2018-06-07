@@ -114,6 +114,10 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
                     socket!!.keepAlive = true
                     incoming = BufferedReader(InputStreamReader(socket!!.getInputStream()))
                     outgoing = BufferedOutputStream(socket!!.getOutputStream())
+                    write("server.version", RpcParams.mapParams(
+                            "client_name" to "wapi",
+                            "protocol_version" to "1.2"),
+                            10000)
                     isConnected = true
                     notifyListeners()
                 } catch(ex: Exception) {
