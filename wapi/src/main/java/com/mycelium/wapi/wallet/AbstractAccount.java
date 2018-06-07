@@ -456,7 +456,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
             // This is the end users protection against a rogue server that lies
             // about the value of an output and makes you pay a large fee.
             Sha256Hash hash = HashUtils.doubleSha256(tx.binary).reverse();
-            if (hash.equals(tx.txHash)) {
+            if (hash.equals(tx.hash)) {
                parentTransactions.put(tx.txid, tx);
             } else {
                _logger.logError("Failed to validate transaction hash from server. Expected: " + tx.txid
@@ -1378,7 +1378,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
             // The transaction got a new height or timestamp. There could be
             // several reasons for that. It got a new timestamp from the server,
             // it confirmed, or might also be a reorg.
-            TransactionEx newTex = new TransactionEx(localTransactionEx.txid, localTransactionEx.txHash, t.height, t.time, localTransactionEx.binary);
+            TransactionEx newTex = new TransactionEx(localTransactionEx.txid, localTransactionEx.hash, t.height, t.time, localTransactionEx.binary);
             _logger.logInfo(String.format("Replacing: %s With: %s", localTransactionEx.toString(), newTex.toString()));
             postEvent(Event.TRANSACTION_HISTORY_CHANGED);
             _backing.deleteTransaction(localTransactionEx.txid);

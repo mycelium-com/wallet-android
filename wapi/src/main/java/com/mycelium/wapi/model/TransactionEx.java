@@ -34,7 +34,7 @@ public class TransactionEx implements Serializable, Comparable<TransactionEx> {
    @JsonProperty
    public final Sha256Hash txid;
    @JsonProperty
-   public final Sha256Hash txHash;
+   public final Sha256Hash hash;
    @JsonProperty
    public final int height; // -1 means unconfirmed
    @JsonProperty
@@ -42,10 +42,10 @@ public class TransactionEx implements Serializable, Comparable<TransactionEx> {
    @JsonProperty
    public final byte[] binary;
 
-   public TransactionEx(@JsonProperty("txid") Sha256Hash txid, @JsonProperty("txid") Sha256Hash txHash, @JsonProperty("height") int height,
+   public TransactionEx(@JsonProperty("txid") Sha256Hash txid, @JsonProperty("txid") Sha256Hash hash, @JsonProperty("height") int height,
                         @JsonProperty("time") int time, @JsonProperty("binary") byte[] binary) {
       this.txid = txid;
-      this.txHash = txHash;
+      this.hash = hash;
       this.height = height;
       this.time = time;
       this.binary = binary;
