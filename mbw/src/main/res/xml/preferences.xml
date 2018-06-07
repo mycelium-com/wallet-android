@@ -19,11 +19,12 @@
     <PreferenceCategory
         android:layout="@layout/preference_category_layout"
         android:title="@string/security_and_privacy">
-        <Preference
+        <com.mycelium.wallet.activity.view.OnOffPreference
             android:icon="@drawable/ic_security"
             android:key="pincode"
             android:layout="@layout/preference_layout"
-            android:title="@string/pin_code" />
+            android:title="@string/pin_code"
+            android:widgetLayout="@layout/preference_on_off"/>
 
         <!--<CheckBoxPreference-->
         <!--android:icon="@drawable/ic_fingerprint"-->

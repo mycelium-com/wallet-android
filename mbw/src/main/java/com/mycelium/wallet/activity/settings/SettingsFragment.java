@@ -21,6 +21,7 @@ import android.support.v7.widget.SearchView;
 import android.text.Html;
 import android.text.InputType;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -50,6 +51,7 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.WalletApplication;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.view.ButtonPreference;
+import com.mycelium.wallet.activity.view.OnOffPreference;
 import com.mycelium.wallet.activity.view.TwoButtonsPreference;
 import com.mycelium.wallet.event.SpvSyncChanged;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
@@ -138,7 +140,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         private EditText aidEdit;
 
         public boolean onPreferenceClick(Preference preference) {
-            AlertDialog.Builder b = new AlertDialog.Builder(getActivity(), R.style.MyceliumModern_Dialog);
+            AlertDialog.Builder b = new AlertDialog.Builder(getActivity(), R.style.MyceliumSettings_Dialog);
             b.setTitle(getString(R.string.ledger_set_unplugged_aid_title));
             b.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                 @Override
@@ -158,18 +160,11 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 }
             });
             b.setNegativeButton(R.string.cancel, null);
-
-            aidEdit = new EditText(getActivity());
+            View view = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_ledger_aid, null);
+            aidEdit = view.findViewById(R.id.edit_text);
             aidEdit.setInputType(InputType.TYPE_CLASS_TEXT);
             aidEdit.setText(_mbwManager.getLedgerManager().getUnpluggedAID());
-            LinearLayout llDialog = new LinearLayout(getActivity());
-            llDialog.setOrientation(LinearLayout.VERTICAL);
-            llDialog.setPadding(10, 10, 10, 10);
-            TextView tvInfo = new TextView(getActivity());
-            tvInfo.setText(getString(R.string.ledger_unplugged_aid));
-            llDialog.addView(tvInfo);
-            llDialog.addView(aidEdit);
-            b.setView(llDialog);
+            b.setView(view);
             b.show();
             return true;
         }
@@ -325,7 +320,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             });
         }
 
-        Preference pincodePreference = findPreference("pincode");
+        OnOffPreference pincodePreference = (OnOffPreference) findPreference("pincode");
         pincodePreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
@@ -337,6 +332,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 return true;
             }
         });
+        pincodePreference.setWidgetText(_mbwManager.isPinProtected() ? "on" : "off");
 
 
         // Local Trader
@@ -599,7 +595,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
     private TwoButtonsPreference createUpdateRequiredPreference(final Module module) {
         final TwoButtonsPreference preference = new TwoButtonsPreference(getActivity());
-        preference.setLayoutResource(R.layout.preference_layout);
+        preference.setLayoutResource(R.layout.preference_module_layout);
         preference.setTitle(Html.fromHtml(module.getName()));
         preference.setKey("Module_" + module.getModulePackage());
         updateModulePreference(preference, module, BCHHelper.getBCHSyncProgress(getActivity()));
@@ -825,7 +821,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         @Override
         public void onLtTraderInfoFetched(final TraderInfo info, GetTraderInfo request) {
             pleaseWait.dismiss();
-            AlertDialog.Builder b = new AlertDialog.Builder(getActivity());
+            AlertDialog.Builder b = new AlertDialog.Builder(getActivity(), R.style.MyceliumSettings_Dialog);
             b.setTitle(getString(R.string.lt_set_email_title));
             b.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                 @Override

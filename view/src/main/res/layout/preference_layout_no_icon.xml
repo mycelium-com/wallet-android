@@ -42,7 +42,7 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:gravity="center"
-        android:minWidth="48dp"
+        android:layout_gravity="center"
         android:orientation="vertical" />
 
 </LinearLayout>

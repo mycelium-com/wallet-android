@@ -81,7 +81,7 @@ public class SetLocalCurrencyActivity extends AppCompatActivity {
             selected.add(CurrencyCode.valueOf(currency));
         }
 
-        List<CurrencyCode> codes = Arrays.asList(CurrencyCode.values());
+        List<CurrencyCode> codes = new ArrayList<>(Arrays.asList(CurrencyCode.values()));
         codes.remove(CurrencyCode.UNKNOWN); // don't know what is UNKNOWN, so hide this for user
 
         Collections.sort(codes, new Comparator<CurrencyCode>() {
@@ -161,6 +161,9 @@ public class SetLocalCurrencyActivity extends AppCompatActivity {
         Set<String> currencyList = new HashSet<>();
         for (CurrencyCode currencyCode : _adapter.getSelected()) {
             currencyList.add(currencyCode.getShortString());
+        }
+        if (currencyList.isEmpty()) {
+            currencyList.add(CurrencyCode.USD.getShortString());
         }
         MbwManager.getInstance(this).setCurrencyList(currencyList);
     }

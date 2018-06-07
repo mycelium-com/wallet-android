@@ -2,21 +2,18 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory android:layout="@layout/preference_category_layout">
         <CheckBoxPreference
-            android:key="clearPin"
+            android:key="setPin"
             android:layout="@layout/preference_layout_no_icon"
-            android:summary="@string/pref_clear_pin_summary"
-            android:title="@string/pref_clear_pin"
+            android:summary="@string/pref_set_pin_summary"
+            android:title="@string/pref_set_pin"
             android:widgetLayout="@layout/preference_switch" />
+
         <CheckBoxPreference
             android:key="requirePinOnStartup"
             android:layout="@layout/preference_layout_no_icon"
             android:summary="@string/pref_pin_require_on_startup_summary"
             android:title="@string/pref_pin_require_on_startup"
+            android:dependency="setPin"
             android:widgetLayout="@layout/preference_switch" />
-        <Preference
-            android:key="setPin"
-            android:layout="@layout/preference_layout_no_icon"
-            android:summary="@string/pref_set_pin_summary"
-            android:title="@string/pref_set_pin" />
     </PreferenceCategory>
 </PreferenceScreen>

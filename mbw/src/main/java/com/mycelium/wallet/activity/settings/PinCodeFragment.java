@@ -15,6 +15,9 @@ import com.mycelium.wallet.R;
 public class PinCodeFragment extends PreferenceFragmentCompat {
     private MbwManager _mbwManager;
 
+    private CheckBoxPreference setPin;
+    private CheckBoxPreference setPinRequiredStartup;
+
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         addPreferencesFromResource(R.xml.preferences_pincode);
@@ -28,14 +31,12 @@ public class PinCodeFragment extends PreferenceFragmentCompat {
         actionBar.setDisplayHomeAsUpEnabled(true);
 
         // Set PIN
-        Preference setPin = Preconditions.checkNotNull(findPreference("setPin"));
+        setPin = (CheckBoxPreference) Preconditions.checkNotNull(findPreference("setPin"));
         setPin.setOnPreferenceClickListener(setPinClickListener);
 
-        // Clear PIN
-        updateClearPin();
-
-        // PIN required on startup
-        updatePinAtStartup();
+        setPinRequiredStartup = (CheckBoxPreference) Preconditions.checkNotNull(findPreference("requirePinOnStartup"));
+        setPinRequiredStartup.setOnPreferenceChangeListener(setPinOnStartupClickListener);
+        update();
     }
 
     @Override
@@ -49,14 +50,24 @@ public class PinCodeFragment extends PreferenceFragmentCompat {
 
     private final Preference.OnPreferenceClickListener setPinClickListener = new Preference.OnPreferenceClickListener() {
         public boolean onPreferenceClick(Preference preference) {
-            _mbwManager.showSetPinDialog(getActivity(), Optional.<Runnable>of(new Runnable() {
-                        @Override
-                        public void run() {
-                            updateClearPin();
-                            updatePinAtStartup();
-                        }
-                    })
-            );
+            if(setPin.isChecked()) {
+                _mbwManager.showSetPinDialog(getActivity(), Optional.<Runnable>of(new Runnable() {
+                            @Override
+                            public void run() {
+
+                                update();
+                            }
+                        })
+                );
+            } else {
+                _mbwManager.showClearPinDialog(getActivity(), Optional.<Runnable>of(new Runnable() {
+                            @Override
+                            public void run() {
+                                update();
+                            }
+                        })
+                );
+            }
             return true;
         }
     };
@@ -70,7 +81,7 @@ public class PinCodeFragment extends PreferenceFragmentCompat {
                             // toggle it here
                             boolean checked = !((CheckBoxPreference) preference).isChecked();
                             _mbwManager.setPinRequiredOnStartup(checked);
-                            ((CheckBoxPreference) preference).setChecked(_mbwManager.getPinRequiredOnStartup());
+                            update();
                         }
                     }
             );
@@ -79,30 +90,9 @@ public class PinCodeFragment extends PreferenceFragmentCompat {
             return false;
         }
     };
-    private final Preference.OnPreferenceClickListener clearPinClickListener = new Preference.OnPreferenceClickListener() {
-        public boolean onPreferenceClick(Preference preference) {
-            _mbwManager.showClearPinDialog(getActivity(), Optional.<Runnable>of(new Runnable() {
-                @Override
-                public void run() {
-                    updateClearPin();
-                    updatePinAtStartup();
-                }
-            }));
-            return true;
-        }
-    };
 
-    @SuppressWarnings("deprecation")
-    private void updateClearPin() {
-        Preference clearPin = findPreference("clearPin");
-        clearPin.setEnabled(_mbwManager.isPinProtected());
-        clearPin.setOnPreferenceClickListener(clearPinClickListener);
-    }
-
-    private void updatePinAtStartup() {
-        CheckBoxPreference setPinRequiredStartup = (CheckBoxPreference) Preconditions.checkNotNull(findPreference("requirePinOnStartup"));
-        setPinRequiredStartup.setOnPreferenceChangeListener(setPinOnStartupClickListener);
-        setPinRequiredStartup.setEnabled(_mbwManager.isPinProtected());
+    void update() {
+        setPin.setChecked(_mbwManager.isPinProtected());
         setPinRequiredStartup.setChecked(_mbwManager.isPinProtected() && _mbwManager.getPinRequiredOnStartup());
     }
 

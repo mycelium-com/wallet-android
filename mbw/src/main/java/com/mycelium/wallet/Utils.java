@@ -37,7 +37,6 @@ package com.mycelium.wallet;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -54,6 +53,7 @@ import android.net.Uri;
 import android.support.annotation.StringRes;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.text.ClipboardManager;
 import android.text.format.DateFormat;
 import android.util.Log;
@@ -246,7 +246,7 @@ public class Utils {
 
    public static void showSimpleMessageDialog(final Context context, int messageResource, Runnable postRunner) {
       String message = context.getResources().getString(messageResource);
-      showSimpleMessageDialog(context, message, postRunner);
+      showSimpleMessageDialog(context, message, null, postRunner);
    }
 
    /**
@@ -330,32 +330,26 @@ public class Utils {
                                               @StringRes int okayButtonText, final Runnable postRunner) {
       LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
       final View layout = inflater.inflate(R.layout.simple_message_dialog, null);
-      AlertDialog.Builder builder = new AlertDialog.Builder(context).setView(layout);
-      final AlertDialog dialog = builder.create();
       TextView tvMessage = layout.findViewById(R.id.tvMessage);
       tvMessage.setText(message);
-
-      TextView okButton = layout.findViewById(R.id.btOk);
-      okButton.setText(okayButtonText);
-      okButton.setOnClickListener(new OnClickListener() {
-
+      AlertDialog.Builder builder = new AlertDialog.Builder(context).setView(layout);
+      builder.setPositiveButton(okayButtonText, new DialogInterface.OnClickListener() {
          @Override
-         public void onClick(View v) {
-            dialog.dismiss();
+         public void onClick(DialogInterface dialogInterface, int i) {
             if (okayRunner != null) {
                okayRunner.run();
             }
          }
       });
-
-      dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+      builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
          @Override
-         public void onDismiss(DialogInterface dialog) {
+         public void onDismiss(DialogInterface dialogInterface) {
             if (postRunner != null) {
                postRunner.run();
             }
          }
       });
+      final AlertDialog dialog = builder.create();
       dialog.show();
    }
 

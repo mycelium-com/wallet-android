@@ -68,15 +68,35 @@
     <style name="MyceliumSettings" parent="MyceliumModern">
         <item name="colorAccent">@color/lightgrey</item>
         <item name="colorControlActivated">@color/common_blue</item>
+        <item name="android:colorControlActivated" tools:ignore="NewApi">@color/common_blue</item>
         <item name="android:actionBarStyle">@style/MyceliumSettings.ActionBar</item>
         <item name="actionBarStyle">@style/MyceliumSettings.ActionBar</item>
-        <item name="android:alertDialogTheme">@style/MyceliumModern.Dialog</item>
-        <item name="alertDialogTheme">@style/MyceliumModern.Dialog</item>
+        <item name="android:alertDialogTheme">@style/MyceliumSettings.Dialog</item>
+        <item name="alertDialogTheme">@style/MyceliumSettings.Dialog</item>
         <item name="android:listDivider">@drawable/pref_list_divider</item>
         <item name="preferenceTheme">@style/MyceliumSettingsPreferenceThemeOverlay
         </item>
     </style>
 
+    <style name="MyceliumSettings.Dialog" parent="MyceliumModern.Dialog">
+        <item name="colorAccent">@color/common_blue</item>
+        <item name="android:colorAccent" tools:ignore="NewApi">@color/common_blue</item>
+        <item name="buttonBarButtonStyle">@style/MyceliumSettings.ButtonBarButtonStyle</item>
+        <item name="android:windowTitleStyle">@style/MyceliumSettings.DialogTitle</item>
+    </style>
+
+    <style name="MyceliumSettings.DialogTitle">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
+    <style name="MyceliumSettings.ButtonBarButtonStyle" parent="Widget.AppCompat.Button.Borderless">
+        <item name="android:textColor">@color/common_blue</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">normal</item>
+    </style>
     <style name="MyceliumSettingsPreferenceThemeOverlay" parent="PreferenceThemeOverlay.v14.Material">
         <item name="preferenceFragmentCompatStyle">@style/MyceliumSettingsPreferenceFragment</item>
         <item name="preferenceFragmentStyle">@style/MyceliumSettingsPreferenceFragment</item>
