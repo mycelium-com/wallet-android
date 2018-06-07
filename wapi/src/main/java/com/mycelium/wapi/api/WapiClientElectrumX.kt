@@ -27,11 +27,11 @@ import kotlin.collections.ArrayList
 /**
  * This is a Wapi Client that avoids calls that require BQS by talking to ElectrumX for related calls
  */
-class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, versionCode: String) : WapiClient(serverEndpoints, logger, versionCode), ConnectionMonitor.ConnectionObserver {
+class WapiClientElectrumX(serverEndpoints: ServerEndpoints, endpoints: Array<TcpEndpoint>, logger: WapiLogger, versionCode: String) : WapiClient(serverEndpoints, logger, versionCode), ConnectionMonitor.ConnectionObserver {
     val DEFAULT_RESPONSE_TIMEOUT = 10000L
 
     @Volatile
-    private var jsonRpcTcpClient = JsonRpcTcpClient(arrayOf(TcpEndpoint("electrumx-1.mycelium.com", 50012)), logger)
+    private var jsonRpcTcpClient = JsonRpcTcpClient(endpoints, logger)
     @Volatile
     private var bestChainHeight = -1
 
@@ -108,17 +108,21 @@ class WapiClientElectrumX(serverEndpoints: ServerEndpoints, logger: WapiLogger, 
     }
 
     override fun getTransactions(request: GetTransactionsRequest): WapiResponse<GetTransactionsResponse> {
-        val transactions = getTransactionsWithParentLookupConverted(request.txIds.map { it.toHex() }, { tx, unconfirmedChainLength, rbfRisk ->
-            val txIdString = Sha256Hash.fromString(tx.txid)
-            TransactionExApi(
-                    txIdString,
-                    if (tx.confirmations > 0) bestChainHeight - tx.confirmations else -1,
-                    if (tx.time == 0) (Date().time / 1000).toInt() else tx.time,
-                    Transaction.fromByteReader(ByteReader(HexUtils.toBytes(tx.hex)), txIdString).toBytes(), // TODO SEGWIT remove when implemeted. Decreases sync speed twice
-                    unconfirmedChainLength, // 0 or 1. we don't dig deeper. 1 == unconfirmed parent
-                    rbfRisk)
-        })
-        return WapiResponse(GetTransactionsResponse(transactions))
+        try {
+            val transactions = getTransactionsWithParentLookupConverted(request.txIds.map { it.toHex() }, { tx, unconfirmedChainLength, rbfRisk ->
+                val txIdString = Sha256Hash.fromString(tx.txid)
+                TransactionExApi(
+                        txIdString,
+                        if (tx.confirmations > 0) bestChainHeight - tx.confirmations else -1,
+                        if (tx.time == 0) (Date().time / 1000).toInt() else tx.time,
+                        Transaction.fromByteReader(ByteReader(HexUtils.toBytes(tx.hex)), txIdString).toBytes(), // TODO SEGWIT remove when implemeted. Decreases sync speed twice
+                        unconfirmedChainLength, // 0 or 1. we don't dig deeper. 1 == unconfirmed parent
+                        rbfRisk)
+            })
+            return WapiResponse(GetTransactionsResponse(transactions))
+        } catch(ex : TimeoutException) {
+            return WapiResponse<GetTransactionsResponse>(Wapi.ERROR_CODE_NO_SERVER_CONNECTION, null)
+        }
     }
 
     override fun broadcastTransaction(request: BroadcastTransactionRequest): WapiResponse<BroadcastTransactionResponse> {
