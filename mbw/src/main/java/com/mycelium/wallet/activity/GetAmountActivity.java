@@ -238,7 +238,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
 
    @OnClick(R.id.btOk)
    void onOkClick() {
-      if (CurrencyValue.isNullOrZero(_amount)) {
+      if (CurrencyValue.isNullOrZero(_amount) && isSendMode) {
          return;
       }
 
@@ -493,16 +493,16 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
    }
 
    private void checkEntry() {
-      if (CurrencyValue.isNullOrZero(_amount)) {
-         // Nothing entered
-         tvAmount.setTextColor(getResources().getColor(R.color.white));
-         btOk.setEnabled(false);
-         return;
-      }
-      if (isSendMode && !CurrencyValue.isNullOrZero(_amount) /*|| !_mbwManager.getColuManager().isColuAsset(_amount.getCurrency())*/) {
+      if (isSendMode ){
+         if(CurrencyValue.isNullOrZero(_amount)) {
+            // Nothing entered
+            tvAmount.setTextColor(getResources().getColor(R.color.white));
+            btOk.setEnabled(false);
+         } else {
             AmountValidation result = checkTransaction();
             // Enable/disable Ok button
             btOk.setEnabled(result == AmountValidation.Ok && !_amount.isZero());
+         }
       } else {
          btOk.setEnabled(true);
       }
