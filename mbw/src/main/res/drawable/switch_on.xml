@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="38dp"
+    android:height="23dp"
+    android:viewportWidth="38"
+    android:viewportHeight="23">
+
+    <path
+        android:fillType="evenOdd"
+        android:pathData="M-3-1h40v24H-3z" />
+    <path
+        android:fillColor="#5AA7E6"
+        android:fillAlpha=".5"
+        android:fillType="evenOdd"
+        android:strokeAlpha=".5"
+        android:strokeWidth="1"
+        android:pathData="M34 11c0 3.9-3.1 7-7 7H7c-3.9 0-7-3.1-7-7s3.1-7 7-7h20c3.9 0 7 3.1 7 7z" />
+    <group
+            android:translateX="-3"
+            android:translateY="-1">
+        <path
+            android:fillColor="#000"
+            android:fillType="evenOdd"
+            android:pathData="M 30 2 C 35.5228474983 2 40 6.47715250169 40 12 C 40 17.5228474983 35.5228474983 22 30 22 C 24.4771525017 22 20 17.5228474983 20 12 C 20 6.47715250169 24.4771525017 2 30 2 Z" />
+        <path
+            android:fillColor="#5AA7E6"
+            android:fillType="evenOdd"
+            android:pathData="M 30 2 C 35.5228474983 2 40 6.47715250169 40 12 C 40 17.5228474983 35.5228474983 22 30 22 C 24.4771525017 22 20 17.5228474983 20 12 C 20 6.47715250169 24.4771525017 2 30 2 Z" />
+        <path
+            android:fillColor="#5AA7E6"
+            android:fillType="evenOdd"
+            android:pathData="M 30 2 C 35.5228474983 2 40 6.47715250169 40 12 C 40 17.5228474983 35.5228474983 22 30 22 C 24.4771525017 22 20 17.5228474983 20 12 C 20 6.47715250169 24.4771525017 2 30 2 Z" />
+        <path
+            android:fillType="evenOdd"
+            android:pathData="M 30 2.25 C 35.3847763109 2.25 39.75 6.61522368915 39.75 12 C 39.75 17.3847763109 35.3847763109 21.75 30 21.75 C 24.6152236891 21.75 20.25 17.3847763109 20.25 12 C 20.25 6.61522368915 24.6152236891 2.25 30 2.25 Z" />
+        <path
+            android:fillType="evenOdd"
+            android:pathData="M 30 2.25 C 35.3847763109 2.25 39.75 6.61522368915 39.75 12 C 39.75 17.3847763109 35.3847763109 21.75 30 21.75 C 24.6152236891 21.75 20.25 17.3847763109 20.25 12 C 20.25 6.61522368915 24.6152236891 2.25 30 2.25 Z" />
+    </group>
+</vector>

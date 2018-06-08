@@ -1,30 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/two_button_layout"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:gravity="right"
     android:orientation="horizontal">
 
 
     <Button xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/bottom_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="32dp"
+        android:background="@color/transparent"
+        android:focusable="false"
+        android:text="@string/ok"
+        android:textSize="14sp"
+        android:textColor="@color/common_blue"/>
+
+    <Button xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/top_button"
-        style="@style/MyceliumButtonModern"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@color/transparent"
         android:focusable="false"
         android:text="@string/ok"
         android:textColor="@color/grey"
-        android:textSize="16sp" />
+        android:textSize="14sp" />
 
-    <Button xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/bottom_button"
-        style="@style/MyceliumButtonModern"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-
-        android:background="@color/transparent"
-        android:focusable="false"
-        android:text="@string/ok"
-        android:textSize="16sp" />
 </LinearLayout>

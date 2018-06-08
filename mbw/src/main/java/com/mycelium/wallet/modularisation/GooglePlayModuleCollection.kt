@@ -1,6 +1,7 @@
 package com.mycelium.wallet.modularisation
 
 import android.content.Context
+import android.graphics.drawable.Drawable
 import com.mycelium.modularizationtools.model.Module
 import com.mycelium.wallet.R
 import com.mycelium.wallet.WalletApplication
@@ -18,4 +19,12 @@ object GooglePlayModuleCollection {
     @JvmStatic
     fun getModuleByPackage(context: Context, packageName: String) =
             getModules(context).values.first { it.modulePackage == packageName }
+
+    @JvmStatic
+    fun getBigLogos(context: Context): Map<String, Drawable> =
+            hashMapOf(WalletApplication.getSpvModuleName(WalletAccount.Type.BCHBIP44) to context.resources.getDrawable(R.drawable.image_bch_module))
+
+    @JvmStatic
+    fun getBigLogo(context: Context, packageName: String) =
+            getBigLogos(context).get(packageName)
 }

@@ -332,7 +332,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 return true;
             }
         });
-        pincodePreference.setWidgetText(_mbwManager.isPinProtected() ? "on" : "off");
+        pincodePreference.setWidgetText(_mbwManager.isPinProtected() ? "On" : "Off");
 
 
         // Local Trader
@@ -426,6 +426,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         } else {
             Preference preference = new Preference(getActivity());
             preference.setTitle(R.string.no_connected_modules);
+            preference.setLayoutResource(R.layout.preference_layout_no_icon);
             modulesPrefs.addPreference(preference);
         }
         processUnpairedModules(modulesPrefs);
@@ -520,10 +521,19 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         });
         ActionBar actionBar = ((SettingsActivity) getActivity()).getSupportActionBar();
         actionBar.setDisplayShowHomeEnabled(true);
-        actionBar.setDisplayHomeAsUpEnabled(false);
-        actionBar.setIcon(R.drawable.action_bar_logo);
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setHomeAsUpIndicator(R.drawable.ic_back_arrow);
         actionBar.setTitle(R.string.settings);
 
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            getActivity().finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void processPairedModules(PreferenceCategory modulesPrefs) {
@@ -547,6 +557,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                     modulesPrefs.addPreference(preference);
                 } else {
                     ButtonPreference installPreference = new ButtonPreference(getActivity());
+                    installPreference.setIcon(GooglePlayModuleCollection.getBigLogo(getActivity(), module.getModulePackage()));
                     installPreference.setButtonText(getString(R.string.install));
                     installPreference.setButtonClickListener(getInstallClickListener(module));
                     installPreference.setTitle(Html.fromHtml(module.getName()));
@@ -563,7 +574,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         preference.setLayoutResource(R.layout.preference_module_layout);
         preference.setTitle(Html.fromHtml(module.getName()));
         preference.setKey("Module_" + module.getModulePackage());
-        preference.setIcon(R.drawable.image_bch_module);
+        preference.setIcon(GooglePlayModuleCollection.getBigLogo(getActivity(), module.getModulePackage()));
         updateModulePreference(preference, module, BCHHelper.getBCHSyncProgress(getActivity()));
         preference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
@@ -598,6 +609,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         preference.setLayoutResource(R.layout.preference_module_layout);
         preference.setTitle(Html.fromHtml(module.getName()));
         preference.setKey("Module_" + module.getModulePackage());
+        preference.setIcon(GooglePlayModuleCollection.getBigLogo(getActivity(), module.getModulePackage()));
         updateModulePreference(preference, module, BCHHelper.getBCHSyncProgress(getActivity()));
         preference.setButtonsText(getString(R.string.uninstall), getString(R.string.update));
         preference.setTopButtonClickListener(new View.OnClickListener() {
