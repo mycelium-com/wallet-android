@@ -58,6 +58,12 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
         internalWrite(request)
     }
 
+    /**
+     * Computes a "short" compound ID based on an array of IDs.
+     */
+    private fun compoundId(ids: Array<String>): String = ids.sortedArray().joinToString("")
+    //return HashUtils.sha256(string.toByteArray()).toHex()
+
     @Throws(TimeoutException::class)
     fun write(requests: List<RpcRequestOut>, timeOut: Long): BatchedRpcResponse {
         var response: BatchedRpcResponse? = null
@@ -67,9 +73,9 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
             it.id = nextRequestId.getAndIncrement().toString()
         }
 
-        val compoundIds = requests.map {it.id.toString()}.toTypedArray().sortedArray().joinToString()
+        val compoundId = compoundId(requests.map {it.id.toString()}.toTypedArray())
 
-        callbacks[compoundIds] = {
+        callbacks[compoundId] = {
             response = it as BatchedRpcResponse
             latch.countDown()
         }
@@ -151,7 +157,7 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
         val isBatched = message[0] == '['
         if (isBatched) {
             val response = BatchedRpcResponse.fromJson(message)
-            val compoundId = response.responses.map {it.id.toString()}.toTypedArray().sortedArray().joinToString { it }
+            val compoundId = compoundId(response.responses.map {it.id.toString()}.toTypedArray())
 
             callbacks[compoundId]?.also { callback ->
                 callback.invoke(response)
