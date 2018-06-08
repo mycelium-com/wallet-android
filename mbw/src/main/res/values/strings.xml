@@ -961,7 +961,7 @@
     <string name="rmc_yes">Yes</string>
     <string name="rmc_no">No</string>
     <string name="rmc_return_of_investment">Return on Investment</string>
-    <string name="rmc_not_forgot_active_day">To get maximum Return <font color="#ff8838">do not miss the day</font>\nwhen it becomes active. <font color="#4583de">Set reminder?</font></string>
+    <string name="rmc_not_forgot_active_day">To get maximum return <font color="#ff8838">do not miss the day</font>\nwhen it becomes active. <font color="#4583de">Set reminder?</font></string>
     <string name="rmc_select_account_for_receive_rmc">Select account for receive RMC</string>
     <string name="address_title">%s Address</string>
     <string name="rmc_send_warning" formatted="false">%1$s is an asset (token) issued on Bitcoin blockchain as  colored coin.
@@ -1028,7 +1028,7 @@ You can either add miner\'s fee from any account with bitcoins every time you ma
     <string name="rmc_minimum_amount_to_buy_is_0_1_rmc">Minimum amount to buy is 0.1 RMC</string>
     <string name="weeks">days</string>
     <string name="rmc_price_fluctations">RMC price in BTC/ETH is approximate due to exchange rate fluctuations. Final RMC price will be set in a payment request.</string>
-    <string name="colu_before_sending_make_sure">Before sending your digital assets make sure you are sendnig to digital assets address but not the random bitcoin address. Click <font color="#4583de">here</font> to see the procedure to restore your digital assets.</string>
+    <string name="colu_before_sending_make_sure">Before sending your digital assets make sure you are sending to digital assets address but not the random bitcoin address. Click <font color="#4583de">here</font> to see the procedure to restore your digital assets.</string>
     <string name="rmc_bitcoin_acc_what_is_it">"RMC bitcoin" is a "Bitcoin Single Address" account linked to your RMC account.
 This account allows you to spend BTC, received from the RMC pool.
 All new bitcoins, mined by the pool, are proportionally distributed among RMC bitcoin accounts.
