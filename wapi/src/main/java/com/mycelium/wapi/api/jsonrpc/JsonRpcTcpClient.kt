@@ -11,6 +11,7 @@ import java.util.*
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
+import java.util.concurrent.atomic.AtomicInteger
 import javax.net.ssl.SSLSocketFactory
 import kotlin.concurrent.thread
 
@@ -21,7 +22,7 @@ class TcpEndpoint(val host: String, val port: Int)
 open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
                             val logger: WapiLogger) : ConnectionMonitor {
     private val observers = ArrayList<ConnectionMonitor.ConnectionObserver>()
-    private var curEndpointIndex = 0
+    private var curEndpointIndex = (Math.random() * endpoints.size).toInt()
     private val ssf = SSLSocketFactory.getDefault() as SSLSocketFactory
 
     @Volatile
@@ -44,12 +45,14 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
     }
 
     fun notify(methodName: String, params: RpcParams) {
-        internalWrite(RpcRequestOut(methodName, params).toJson())
+        internalWrite(RpcRequestOut(methodName, params).apply {
+            id = nextRequestId.getAndIncrement().toString()
+        }.toJson())
     }
 
     fun writeAsync(methodName: String, params: RpcParams, callback: Consumer<AbstractResponse>) {
         val request = RpcRequestOut(methodName, params).apply {
-            id = UUID.randomUUID().toString()
+            id = nextRequestId.getAndIncrement().toString()
             callbacks[id.toString()] = callback
         }.toJson()
         internalWrite(request)
@@ -61,7 +64,7 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
         val latch = CountDownLatch(1)
 
         requests.forEach {
-            it.id = UUID.randomUUID().toString()
+            it.id = nextRequestId.getAndIncrement().toString()
         }
 
         val compoundIds = requests.map {it.id.toString()}.toTypedArray().sortedArray().joinToString()
@@ -81,24 +84,18 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
         return response!!
     }
 
-    /**
-     * blocking if timeOut > 0. Returns NO_RESPONSE non-blocking else.
-     */
     @Throws(TimeoutException::class)
     fun write(methodName: String, params: RpcParams, timeOut: Long): RpcResponse {
         var response: RpcResponse? = null
         val latch = CountDownLatch(1)
         val request = RpcRequestOut(methodName, params).apply {
-            id = UUID.randomUUID().toString()
+            id = nextRequestId.getAndIncrement().toString()
             callbacks[id.toString()] = {
                 response = it as RpcResponse
                 latch.countDown()
             }
         }.toJson()
         internalWrite(request)
-        if (timeOut <= 0) {
-            return RpcResponse.NO_RESPONSE
-        }
         if (!latch.await(timeOut, TimeUnit.MILLISECONDS)) {
             throw TimeoutException("Timeout")
         }
@@ -121,37 +118,29 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
                     incoming = BufferedReader(InputStreamReader(socket!!.getInputStream()))
                     outgoing = BufferedOutputStream(socket!!.getOutputStream())
                     callbacks.clear()
-                    write("server.version", RpcParams.mapParams(
+                    notify("server.version", RpcParams.mapParams(
                             "client_name" to "wapi",
-                            "protocol_version" to "1.2"),
-                            -1)
+                            "protocol_version" to "1.2"))
                     isConnected = true
                     notifyListeners()
-                } catch(ex: Exception) {
-                    close()
-                    isConnected = false
-                    // Sleep for some time before moving to the next endpoint
-                    Thread.sleep(INTERVAL_BETWEEN_SOCKET_RECONNECTS)
-                    curEndpointIndex = (curEndpointIndex + 1) % endpoints.size
-                    continue
-                }
 
-                // Inner loop for reading data from socket. If the connection breaks, we should
-                // exit this loop and try creating new socket in order to restore connection
-                try {
-                    while (true) {
+                    // Inner loop for reading data from socket. If the connection breaks, we should
+                    // exit this loop and try creating new socket in order to restore connection
+                    while (isConnected) {
                         val line = incoming!!.readLine()
                                 // There can be a use case when BufferedReader.readline() returns null
                                 ?: continue
                         messageReceived(line)
                     }
                 } catch (exception: Exception) {
-                    logger.logError("receiving failed: ${exception.message}")
-                } finally {
-                    close()
-                    isConnected = false
-                    notifyListeners()
+                    logger.logError("Socket creation or receiving failed: ${exception.message}")
                 }
+                close()
+                isConnected = false
+                notifyListeners()
+                // Sleep for some time before moving to the next endpoint
+                Thread.sleep(INTERVAL_BETWEEN_SOCKET_RECONNECTS)
+                curEndpointIndex = (curEndpointIndex + 1) % endpoints.size
             }
         }
     }
@@ -191,5 +180,6 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
     }
     companion object {
         private const val INTERVAL_BETWEEN_SOCKET_RECONNECTS = 5000L
+        private val nextRequestId = AtomicInteger(0)
     }
 }
