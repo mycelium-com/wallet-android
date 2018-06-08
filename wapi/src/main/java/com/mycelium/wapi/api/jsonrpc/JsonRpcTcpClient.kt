@@ -1,39 +1,68 @@
 package com.mycelium.wapi.api.jsonrpc
 
 import com.mycelium.WapiLogger
-import java.io.*
+import com.mycelium.wapi.api.ConnectionMonitor
+import com.mycelium.wapi.api.ConnectionMonitor.ConnectionEvent.*
+import java.io.BufferedOutputStream
+import java.io.BufferedReader
+import java.io.InputStreamReader
 import java.net.Socket
-import javax.net.ssl.SSLSocketFactory
-
 import java.util.*
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
+import java.util.concurrent.atomic.AtomicInteger
+import javax.net.ssl.SSLSocketFactory
 import kotlin.concurrent.thread
 
 typealias Consumer<T> = (T) -> Unit
 
-open class JsonRpcTcpClient(host: String,
-                            port: Int,
-                            val logger: WapiLogger) {
+class TcpEndpoint(val host: String, val port: Int)
+
+open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
+                            val logger: WapiLogger) : ConnectionMonitor {
+    private val observers = ArrayList<ConnectionMonitor.ConnectionObserver>()
+    private var curEndpointIndex = (Math.random() * endpoints.size).toInt()
     private val ssf = SSLSocketFactory.getDefault() as SSLSocketFactory
-    private val socket: Socket = ssf.createSocket(host, port)
-    private val `in` = BufferedReader(InputStreamReader((socket.getInputStream())))
-    private val out = BufferedOutputStream(socket.getOutputStream())
+
+    @Volatile
+    private var isConnected = false
+    @Volatile
+    private var socket: Socket? = null
+    @Volatile
+    private var incoming : BufferedReader? = null
+    @Volatile
+    private var outgoing : BufferedOutputStream? = null
 
     private val callbacks = mutableMapOf<String, Consumer<AbstractResponse>>()
 
+    override fun register(o: ConnectionMonitor.ConnectionObserver?) {
+        observers.add(o!!)
+    }
+
+    override fun unregister(o: ConnectionMonitor.ConnectionObserver?) {
+        observers.remove(o!!)
+    }
+
     fun notify(methodName: String, params: RpcParams) {
-        internalWrite(RpcRequestOut(methodName, params).toJson())
+        internalWrite(RpcRequestOut(methodName, params).apply {
+            id = nextRequestId.getAndIncrement().toString()
+        }.toJson())
     }
 
     fun writeAsync(methodName: String, params: RpcParams, callback: Consumer<AbstractResponse>) {
         val request = RpcRequestOut(methodName, params).apply {
-            id = UUID.randomUUID().toString()
+            id = nextRequestId.getAndIncrement().toString()
             callbacks[id.toString()] = callback
         }.toJson()
         internalWrite(request)
     }
+
+    /**
+     * Computes a "short" compound ID based on an array of IDs.
+     */
+    private fun compoundId(ids: Array<String>): String = ids.sortedArray().joinToString("")
+    //return HashUtils.sha256(string.toByteArray()).toHex()
 
     @Throws(TimeoutException::class)
     fun write(requests: List<RpcRequestOut>, timeOut: Long): BatchedRpcResponse {
@@ -41,17 +70,17 @@ open class JsonRpcTcpClient(host: String,
         val latch = CountDownLatch(1)
 
         requests.forEach {
-            it.id = UUID.randomUUID().toString()
+            it.id = nextRequestId.getAndIncrement().toString()
         }
 
-        val compoundIds = requests.map {it.id.toString()}.toTypedArray().sortedArray().joinToString { it }
+        val compoundId = compoundId(requests.map {it.id.toString()}.toTypedArray())
 
-        callbacks[compoundIds] = {
+        callbacks[compoundId] = {
             response = it as BatchedRpcResponse
             latch.countDown()
         }
 
-        val batchedRequest = '[' + requests.map { it.toJson() }.joinToString() + ']'
+        val batchedRequest = '[' + requests.joinToString { it.toJson() } + ']'
         internalWrite(batchedRequest)
 
         if (!latch.await(timeOut, TimeUnit.MILLISECONDS)) {
@@ -66,7 +95,7 @@ open class JsonRpcTcpClient(host: String,
         var response: RpcResponse? = null
         val latch = CountDownLatch(1)
         val request = RpcRequestOut(methodName, params).apply {
-            id = UUID.randomUUID().toString()
+            id = nextRequestId.getAndIncrement().toString()
             callbacks[id.toString()] = {
                 response = it as RpcResponse
                 latch.countDown()
@@ -79,37 +108,56 @@ open class JsonRpcTcpClient(host: String,
         return response!!
     }
 
-    fun start() {
-        thread(start = true) {
-            write("server.version", RpcParams.mapParams(
-                    "client_name" to "wapi",
-                    "protocol_version" to "1.2"),
-                    60000)
-            while(true) {
-                try {
-                    Thread.sleep(10000)
-                } catch (ignore: InterruptedException) {
-                }
-                val pong = write("server.ping", RpcMapParams(emptyMap<String, String>()), 60000)
-                logger.logInfo("Pong! $pong")
-            }
-        }
-        try {
-            while (true) {
-                messageReceived(`in`.readLine())
-            }
-        } catch (ignore: IOException) {
+    private fun notifyListeners() {
+        observers.forEach {
+            it.connectionChanged(if (isConnected) WENT_ONLINE else WENT_OFFLINE)
         }
     }
 
-    fun close() = socket.close()
+    fun start() {
+        thread(start = true) {
+            while(true) {
+                val currentEndpoint = endpoints[curEndpointIndex]
+                try {
+                    socket = ssf.createSocket(currentEndpoint.host, currentEndpoint.port)
+                    socket!!.keepAlive = true
+                    incoming = BufferedReader(InputStreamReader(socket!!.getInputStream()))
+                    outgoing = BufferedOutputStream(socket!!.getOutputStream())
+                    callbacks.clear()
+                    notify("server.version", RpcParams.mapParams(
+                            "client_name" to "wapi",
+                            "protocol_version" to "1.2"))
+                    isConnected = true
+                    notifyListeners()
+
+                    // Inner loop for reading data from socket. If the connection breaks, we should
+                    // exit this loop and try creating new socket in order to restore connection
+                    while (isConnected) {
+                        val line = incoming!!.readLine()
+                                // There can be a use case when BufferedReader.readline() returns null
+                                ?: continue
+                        messageReceived(line)
+                    }
+                } catch (exception: Exception) {
+                    logger.logError("Socket creation or receiving failed: ${exception.message}")
+                }
+                close()
+                isConnected = false
+                notifyListeners()
+                // Sleep for some time before moving to the next endpoint
+                Thread.sleep(INTERVAL_BETWEEN_SOCKET_RECONNECTS)
+                curEndpointIndex = (curEndpointIndex + 1) % endpoints.size
+            }
+        }
+    }
+
+    fun close() = socket?.close()
 
     private fun messageReceived(message: String) {
         val isBatched = message[0] == '['
-
         if (isBatched) {
             val response = BatchedRpcResponse.fromJson(message)
-            val compoundId = response.responses.map {it.id.toString()}.toTypedArray().sortedArray().joinToString { it }
+            val compoundId = compoundId(response.responses.map {it.id.toString()}.toTypedArray())
 
             callbacks[compoundId]?.also { callback ->
                 callback.invoke(response)
@@ -127,9 +175,17 @@ open class JsonRpcTcpClient(host: String,
 
     private fun internalWrite(msg: String) {
         thread(start = true) {
-            val bytes = (msg + "\n").toByteArray()
-            out.write(bytes)
-            out.flush()
+            try {
+                val bytes = (msg + "\n").toByteArray()
+                outgoing!!.write(bytes)
+                outgoing!!.flush()
+            } catch (ex : Exception) {
+                ex.printStackTrace()
+            }
         }
+    }
+    companion object {
+        private const val INTERVAL_BETWEEN_SOCKET_RECONNECTS = 5000L
+        private val nextRequestId = AtomicInteger(0)
     }
 }

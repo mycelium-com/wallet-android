@@ -105,6 +105,7 @@ import com.mycelium.wallet.persistence.TradeSessionDb;
 import com.mycelium.wallet.wapi.SqliteWalletManagerBackingWrapper;
 import com.mycelium.wapi.api.WapiClient;
 import com.mycelium.wapi.api.WapiClientElectrumX;
+import com.mycelium.wapi.api.jsonrpc.TcpEndpoint;
 import com.mycelium.wapi.wallet.AccountProvider;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.IdentityAccountKeyManager;
@@ -460,7 +461,8 @@ public class MbwManager {
          version = "na";
       }
 
-      return new WapiClientElectrumX(_environment.getWapiEndpoints(), retainingWapiLogger, version);
+      List<TcpEndpoint> tcpEndpoints = _environment.getElectrumEndpoints();
+      return new WapiClientElectrumX(_environment.getWapiEndpoints(), tcpEndpoints.toArray(new TcpEndpoint[tcpEndpoints.size()]), retainingWapiLogger, version);
    }
 
    private void initTor() {
