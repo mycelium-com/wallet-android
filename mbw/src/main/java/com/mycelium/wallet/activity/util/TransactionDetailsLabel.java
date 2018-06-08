@@ -37,10 +37,12 @@ package com.mycelium.wallet.activity.util;
 import android.content.Context;
 import android.util.AttributeSet;
 
+import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.net.ServerEndpointType;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wapi.model.TransactionDetails;
+import com.mycelium.wapi.wallet.WalletAccount;
 
 public class TransactionDetailsLabel extends GenericBlockExplorerLabel {
    private TransactionDetails transaction;
@@ -77,12 +79,27 @@ public class TransactionDetailsLabel extends GenericBlockExplorerLabel {
       return blockExplorer.getUrl(transaction,MbwManager.getInstance(getContext()).getTorMode() == ServerEndpointType.Types.ONLY_TOR);
    }
 
-   public void setTransaction(final TransactionDetails tx){
+   public void setTransaction(final TransactionDetails tx) {
       this.transaction = tx;
       update_ui();
-      if(coluMode) {
+      if (coluMode) {
          setHandler(MbwManager.getInstance(getContext()).getColuManager().getBlockExplorer());
-      }else {
+      } else if (MbwManager.getInstance(getContext()).getSelectedAccount().getType() ==
+              WalletAccount.Type.BCHSINGLEADDRESS
+              || MbwManager.getInstance(getContext()).getSelectedAccount().getType() ==
+              WalletAccount.Type.BCHBIP44) {
+         if (MbwManager.getInstance(getContext()).getNetwork().getNetworkType() == NetworkParameters.NetworkType.PRODNET) {
+            setHandler(new BlockExplorer("BTL", "blockTrail",
+                    "https://www.blocktrail.com/BCC/address/",
+                    "https://www.blocktrail.com/BCC/tx/",
+                    null, null));
+         } else {
+            setHandler(new BlockExplorer("BTL", "blockTrail",
+                    "https://www.blocktrail.com/tBCC/address/",
+                    "https://www.blocktrail.com/tBCC/tx/",
+                    null, null));
+         }
+      } else {
          setHandler(MbwManager.getInstance(getContext())._blockExplorerManager.getBlockExplorer());
       }
    }

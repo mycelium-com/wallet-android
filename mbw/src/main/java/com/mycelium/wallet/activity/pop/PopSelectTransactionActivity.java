@@ -37,13 +37,18 @@ package com.mycelium.wallet.activity.pop;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.*;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.ListFragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wallet.MbwManager;
@@ -184,7 +189,8 @@ public class PopSelectTransactionActivity extends AppCompatActivity implements A
          WalletAccount account = mbwManager.getSelectedAccount();
 
          List<TransactionSummary> history = account.getTransactionHistory(0, 1000);
-         List<TransactionSummary> list = new ArrayList<TransactionSummary>();
+
+         List<TransactionSummary> list = new ArrayList<>();
 
          for (TransactionSummary transactionSummary : history) {
             if (transactionSummary.isIncoming) {
