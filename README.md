@@ -6,17 +6,15 @@ In order to receive updates quicker than others, you need to do two things:
 1. Join [the G+ group](https://plus.google.com/communities/102264813364583686576)
 so you are eligible for testing
 2. Then explicitly enable beta versions of the software in
-[Google play](https://play.google.com/apps/testing/com.mycelium.wallet)
+[Google Play](https://play.google.com/apps/testing/com.mycelium.wallet)
 
-As Beta Testers, please make sure you have a recent **backup of the masterseed** and
-all **private keys** inside Mycelium. Beta testers will experience many bugs.
+As beta testers, please make sure you have a recent **backup of the masterseed** and all **private keys** inside Mycelium. Beta testers will experience many bugs.
 So far, restoring the wallet from masterseed has never been necessary, but we offer no guarantees.
 
 Building
 ========
 
-To build everything from source, simply checkout the source and build using gradle.
-On the build system you need:
+To build everything from source, simply checkout the source and build using gradle on the build system you need:
 
  * JDK 1.7
 
@@ -53,7 +51,7 @@ Windows type:
 
     gradlew.bat clean test mbw::asProdRel mbw::asBtRel
 
- - Voila, look into `mbw/build/outputs/apk/` to see the generated apk. 
+ - Voila, look into `mbw/build/outputs/apk/` to see the generated apk.
    There are versions for both prodnet and testnet.
 
 Alternatively you can install the latest version from the [Play Store](https://play.google.com/store/apps/details?id=com.mycelium.wallet).
@@ -63,16 +61,15 @@ If you cannot access the Play store, you can obtain the apk directly from https:
 Deterministic builds
 ====================
 
-To validate the Mycelium image you obtain from Google Play Store, you can rebuild the Mycelium wallet yourself using
-Docker and compare both images following these steps:
- 
-* Create your own Doker image
+To validate the Mycelium image you obtain from Google Play Store, you can rebuild the Mycelium wallet yourself using Docker and compare both images following these steps:
+
+* Create your own Docker image
 
         $ docker build . --tag mycelium-wallet .
 
   Check that this step succeeds by listing the available docker images:
 
-        $ docker images 
+        $ docker images
 
 * Build Mycelium using Docker
 
@@ -80,7 +77,7 @@ Docker and compare both images following these steps:
 
   After this step succeeds, the mycelium unsigned apk is in `mbw/builds/outputs/apk`.
   You may need to create a `gradle.properties` file and set
-  
+
         org.gradle.jvmargs = -Xmx5120m
 
 * Retrieve Google Play Mycelium APK from your phone
@@ -97,7 +94,7 @@ Docker and compare both images following these steps:
 
         $ wget https://raw.githubusercontent.com/WhisperSystems/Signal-Android/master/apkdiff/apkdiff.py
         python apkdiff.py mycelium-signed.apk mbw/build/outputs/apk/.....your-prodnet.apk
-        
+
 * You might have to `sudo chown -R $USER:$USER .` as the docker user might create files that you have no access to under your normal user.
 
 This work is based on WhisperSystems Signal reproducible builds:
@@ -123,7 +120,7 @@ With the Mycelium Bitcoin Wallet you can send and receive Bitcoins using your mo
  - [Mycelium Entropy](https://mycelium.com/entropy) compatible Shamir-Secret-Shared 2-out-of-3 keys spending
  - Secure your wallet with a PIN
  - Compatible with other bitcoin services through the `bitcoin:` URI scheme
- 
+
 
 Please note that bitcoin is still experimental and this app comes with no warranty - while we make sure to adhere to the highest standards of software craftsmanship we can not exclude that the software contains bugs. Please make sure you have backups of your private keys and do not use this for more than you are willing to lose.
 
@@ -148,26 +145,26 @@ More features:
 Authors
 =======
  - Jan Møller
- - Andreas Petersson
- - Daniel Weigl
- - Jan Dreske
+ - [Andreas Petersson](https://github.com/apetersson)
+ - [Daniel Weigl](https://github.com/DanielWeigl)
+ - [Jan Dreske](https://github.com/jandreske)
  - Dmitry Murashchik
  - Constantin Vennekel
- - Leo Wandersleb
+ - [Leo Wandersleb](https://github.com/Giszmo)
  - Daniel Krawisz
  - Jerome Rousselot
  - Elvis Kurtnebiev
- - Sergey Dolgopolov
+ - [Sergey Dolgopolov](https://github.com/itserg)
 
 Credits
 =======
 Thanks to all collaborators who provided us with code or helped us with integrations!
 Just to name a few:
 
- - Nicolas Bacca from Ledger
+ - [Nicolas Bacca from Ledger](https://github.com/btchip)
  - Sipa, Marek and others from Trezor
  - Jani and Aleš from Cashila
- - Kalle Rosenbaum, Bip120/121
+ - [Kalle Rosenbaum, Bip120/121](https://github.com/kallerosenbaum)
  - David and Alex from Glidera
  - [Wiz](https://twitter.com/wiz) for helping us with KeepKey
  - Tom Bitton and Asa Zaidman from Simplex

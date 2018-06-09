@@ -39,10 +39,13 @@ import java.math.BigDecimal;
 public abstract class ExactCurrencyValue extends CurrencyValue {
 
    public static ExactCurrencyValue from(BigDecimal value, String currency) {
-      if (currency.equals(CurrencyValue.BTC)) {
-         return new ExactBitcoinValue(value);
-      } else {
-         return new ExactFiatValue(value, currency);
+      switch (currency) {
+         case CurrencyValue.BTC:
+            return ExactBitcoinValue.from(value);
+         case CurrencyValue.BCH:
+            return ExactBitcoinCashValue.from(value);
+         default:
+            return new ExactFiatValue(value, currency);
       }
    }
 

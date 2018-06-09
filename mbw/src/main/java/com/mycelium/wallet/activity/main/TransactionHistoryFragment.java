@@ -50,8 +50,6 @@ import android.support.v4.app.ShareCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
-import android.text.Html;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -71,7 +69,6 @@ import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
-import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.DataExport;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.MinerFee;
@@ -94,14 +91,12 @@ import com.mycelium.wapi.model.TransactionDetails;
 import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.AbstractAccount;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.squareup.otto.Subscribe;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -135,24 +130,6 @@ public class TransactionHistoryFragment extends Fragment {
    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
       _root = inflater.inflate(R.layout.main_transaction_history_view, container, false);
       ButterKnife.bind(this, _root);
-      WalletAccount account = _mbwManager.getSelectedAccount();
-      if(account.getType() == WalletAccount.Type.BCHSINGLEADDRESS
-              ||  account.getType() == WalletAccount.Type.BCHBIP44) {
-         final String queryCurrency = BuildConfig.FLAVOR.equals("btctestnet") ? "tBCC" : "BCC";
-         noTransactionMessage.setText(Html.fromHtml(getString(R.string.bch_technology_preview)
-                 + "<br/>" + getString(R.string.bch_you_can_transaction_on_explorer, queryCurrency)));
-         noTransactionMessage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-               try {
-                  startActivity(Intent.parseUri("https://www.blocktrail.com/" + queryCurrency, Intent.URI_INTENT_SCHEME));
-               } catch (URISyntaxException e) {
-                  Log.e("TransactionFragment", "start blocktrail", e);
-               }
-            }
-         });
-         btnReload.setVisibility(View.GONE);
-      }
       btnReload.setOnClickListener(new View.OnClickListener() {
          @Override
          public void onClick(View view) {
@@ -249,14 +226,12 @@ public class TransactionHistoryFragment extends Fragment {
          return;
       }
       WalletAccount account = _mbwManager.getSelectedAccount();
-      if (account.isArchived()
-              || account.getType() == WalletAccount.Type.BCHSINGLEADDRESS
-              || account.getType() == WalletAccount.Type.BCHBIP44) {
+      if (account.isArchived()) {
          _root.findViewById(R.id.llNoRecords).setVisibility(View.VISIBLE);
          _root.findViewById(R.id.lvTransactionHistory).setVisibility(View.GONE);
          return;
       }
-      List<TransactionSummary> history = account.getTransactionHistory(0, 20);
+      List <TransactionSummary> history = account.getTransactionHistory(0, 20);
       Collections.sort(history);
       Collections.reverse(history);
       if (history.isEmpty()) {
@@ -344,14 +319,27 @@ public class TransactionHistoryFragment extends Fragment {
                   }
 
                   private void updateActionBar(ActionMode actionMode, Menu menu) {
-                     checkNotNull(menu.findItem(R.id.miAddToAddressBook)).setVisible(record.hasAddressBook());
-                     checkNotNull(menu.findItem(R.id.miCancelTransaction)).setVisible(record.canCancel());
                      checkNotNull(menu.findItem(R.id.miShowDetails)).setVisible(record.hasDetails());
                      checkNotNull(menu.findItem(R.id.miShowCoinapultDebug)).setVisible(record.canCoinapult());
-                     checkNotNull(menu.findItem(R.id.miRebroadcastTransaction)).setVisible((record.confirmations == 0) && !record.canCoinapult());
-                     checkNotNull(menu.findItem(R.id.miShare)).setVisible(!record.canCoinapult());
-                     checkNotNull(menu.findItem(R.id.miBumpFee)).setVisible((record.confirmations == 0) && !record.canCoinapult());
-                     checkNotNull(menu.findItem(R.id.miDeleteUnconfirmedTransaction)).setVisible(record.confirmations == 0);
+                     checkNotNull(menu.findItem(R.id.miAddToAddressBook)).setVisible(record.hasAddressBook());
+                     if((_mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHBIP44
+                         || _mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHSINGLEADDRESS)) {
+                       checkNotNull(menu.findItem(R.id.miCancelTransaction)).setVisible(false);
+                       checkNotNull(menu.findItem(R.id.miRebroadcastTransaction)).setVisible(false);
+                       checkNotNull(menu.findItem(R.id.miBumpFee)).setVisible(false);
+                       checkNotNull(menu.findItem(R.id.miDeleteUnconfirmedTransaction)).setVisible(false);
+                       checkNotNull(menu.findItem(R.id.miShare)).setVisible(false);
+                     } else {
+                       checkNotNull(menu.findItem(R.id.miCancelTransaction)).setVisible(record.canCancel());
+                       checkNotNull(menu.findItem(R.id.miRebroadcastTransaction))
+                           .setVisible((record.confirmations == 0) && !record.canCoinapult());
+                       checkNotNull(menu.findItem(R.id.miBumpFee))
+                           .setVisible((record.confirmations == 0) && !record.canCoinapult());
+                       checkNotNull(menu.findItem(R.id.miDeleteUnconfirmedTransaction))
+                           .setVisible(record.confirmations == 0);
+                       checkNotNull(menu.findItem(R.id.miShare)).setVisible(!record.canCoinapult());
+
+                     }
                      currentActionMode = actionMode;
                      ((ListView) _root.findViewById(R.id.lvTransactionHistory)).setItemChecked(position, true);
                   }
@@ -504,7 +492,19 @@ public class TransactionHistoryFragment extends Fragment {
                                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                                       @Override
                                       public void onClick(DialogInterface dialog, int which) {
-                                         String transaction = HexUtils.toHex(_mbwManager.getSelectedAccount().getTransaction(record.txid).binary);
+                                         String transaction;
+                                         if(_mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHBIP44
+                                             || _mbwManager.getSelectedAccount().getType()
+                                             == WalletAccount.Type.BCHSINGLEADDRESS) {
+                                            //TODO Module should provide full bytes of transaction.
+                                            transaction = HexUtils.toHex(_mbwManager.getSelectedAccount()
+                                                .getTransactionSummary(record.txid).txid.getBytes());
+                                         } else {
+                                            transaction = HexUtils.toHex(_mbwManager
+                                                .getSelectedAccount()
+                                                .getTransaction(record.txid).binary);
+                                         }
+
                                          Intent shareIntent = new Intent(Intent.ACTION_SEND);
                                          shareIntent.setType("text/plain");
                                          shareIntent.putExtra(Intent.EXTRA_TEXT, transaction);
@@ -604,10 +604,10 @@ public class TransactionHistoryFragment extends Fragment {
 
       @Override
       protected boolean cacheInBackground() {
-         WalletAccount acc = _mbwManager.getSelectedAccount();
+         WalletAccount account = _mbwManager.getSelectedAccount();
          synchronized (_toAddLock) {
             lastOffset += chunkSize;
-            _toAdd = acc.getTransactionHistory(lastOffset, chunkSize);
+            _toAdd = account.getTransactionHistory(lastOffset, chunkSize);
          }
          return _toAdd.size() == chunkSize;
       }
@@ -627,7 +627,11 @@ public class TransactionHistoryFragment extends Fragment {
       MetadataStorage metaData = _mbwManager.getMetadataStorage();
       try {
          String fileName = "MyceliumExport_" + System.currentTimeMillis() + ".csv";
-         File historyData = DataExport.getTxHistoryCsv(account, metaData, getActivity().getFileStreamPath(fileName));
+
+         List<TransactionSummary> history = account.getTransactionHistory(0, Integer.MAX_VALUE);
+
+         File historyData = DataExport.getTxHistoryCsv(account, history, metaData,
+             getActivity().getFileStreamPath(fileName));
          PackageManager packageManager = Preconditions.checkNotNull(getActivity().getPackageManager());
          PackageInfo packageInfo = packageManager.getPackageInfo(getActivity().getPackageName(), PackageManager.GET_PROVIDERS);
          for (ProviderInfo info : packageInfo.providers) {
