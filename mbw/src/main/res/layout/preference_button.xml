@@ -12,6 +12,9 @@
         android:background="@color/transparent"
         android:focusable="false"
         android:textSize="14sp"
+        android:fontFamily="sans-serif-medium"
+        android:textAllCaps="true"
+        android:textStyle="normal"
         android:textColor="@color/common_blue"
         tools:text="UNINSTALL" />
 </FrameLayout>
