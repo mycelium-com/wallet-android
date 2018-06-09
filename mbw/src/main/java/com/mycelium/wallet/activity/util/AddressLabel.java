@@ -38,9 +38,11 @@ import android.content.Context;
 import android.util.AttributeSet;
 
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.net.ServerEndpointType;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wapi.wallet.WalletAccount;
 
 public class AddressLabel extends GenericBlockExplorerLabel {
    private Address address;
@@ -77,11 +79,26 @@ public class AddressLabel extends GenericBlockExplorerLabel {
       this.coluMode = coluMode;
    }
 
-   public void setAddress(final Address address){
+   public void setAddress(final Address address) {
       this.address = address;
       update_ui();
-      if(coluMode) {
+      if (coluMode) {
          setHandler(MbwManager.getInstance(getContext()).getColuManager().getBlockExplorer());
+      } else if (MbwManager.getInstance(getContext()).getSelectedAccount().getType() ==
+              WalletAccount.Type.BCHSINGLEADDRESS
+              || MbwManager.getInstance(getContext()).getSelectedAccount().getType() ==
+              WalletAccount.Type.BCHBIP44) {
+         if (MbwManager.getInstance(getContext()).getNetwork().getNetworkType() == NetworkParameters.NetworkType.PRODNET) {
+            setHandler(new BlockExplorer("BTL", "blockTrail",
+                    "https://www.blocktrail.com/BCC/address/",
+                    "https://www.blocktrail.com/BCC/tx/",
+                    null, null));
+         } else {
+            setHandler(new BlockExplorer("BTL", "blockTrail",
+                    "https://www.blocktrail.com/tBCC/address/",
+                    "https://www.blocktrail.com/tBCC/tx/",
+                    null, null));
+         }
       } else {
          setHandler(MbwManager.getInstance(getContext())._blockExplorerManager.getBlockExplorer());
       }

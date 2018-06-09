@@ -34,11 +34,6 @@
 
 package com.mycelium.wallet.activity;
 
-import java.math.BigDecimal;
-import java.text.DateFormat;
-import java.util.Date;
-import java.util.Locale;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.Bundle;
@@ -48,8 +43,8 @@ import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
-
 import android.widget.Toast;
+
 import com.mrd.bitlib.util.CoinUtil;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wallet.MbwManager;
@@ -62,6 +57,12 @@ import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.colu.json.ColuTxDetailsItem;
 import com.mycelium.wapi.model.TransactionDetails;
 import com.mycelium.wapi.model.TransactionSummary;
+import com.mycelium.wapi.wallet.WalletAccount;
+
+import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class TransactionDetailsActivity extends Activity {
 
@@ -101,13 +102,13 @@ public class TransactionDetailsActivity extends Activity {
 
    private void updateUi() {
       // Set Hash
-      TransactionDetailsLabel tvHash = ((TransactionDetailsLabel) findViewById(R.id.tvHash));
+      TransactionDetailsLabel tvHash = findViewById(R.id.tvHash);
       tvHash.setColuMode(coluMode);
       tvHash.setTransaction(_tx);
 
-
       // Set Confirmed
       int confirmations = _tx.calculateConfirmations(_mbwManager.getSelectedAccount().getBlockChainHeight());
+
       String confirmed;
       if (_tx.height > 0) {
          confirmed = getResources().getString(R.string.confirmed_in_block, _tx.height);
@@ -116,8 +117,8 @@ public class TransactionDetailsActivity extends Activity {
       }
 
       // check if tx is in outgoing queue
-      TransactionConfirmationsDisplay confirmationsDisplay = (TransactionConfirmationsDisplay) findViewById(R.id.tcdConfirmations);
-      TextView confirmationsCount = (TextView) findViewById(R.id.tvConfirmations);
+      TransactionConfirmationsDisplay confirmationsDisplay = findViewById(R.id.tcdConfirmations);
+      TextView confirmationsCount = findViewById(R.id.tvConfirmations);
 
       if (_txs!=null && _txs.isQueuedOutgoing){
          confirmationsDisplay.setNeedsBroadcast();
@@ -126,7 +127,6 @@ public class TransactionDetailsActivity extends Activity {
       }else {
          confirmationsDisplay.setConfirmations(confirmations);
          confirmationsCount.setText(String.valueOf(confirmations));
-
       }
 
       ((TextView) findViewById(R.id.tvConfirmed)).setText(confirmed);
@@ -142,15 +142,15 @@ public class TransactionDetailsActivity extends Activity {
       ((TextView) findViewById(R.id.tvTime)).setText(timeString);
 
       // Set Inputs
-      LinearLayout inputs = (LinearLayout) findViewById(R.id.llInputs);
-      if(_tx.inputs != null) {
+      LinearLayout inputs = findViewById(R.id.llInputs);
+      if (_tx.inputs != null && (_tx.inputs.length != 1 || _tx.inputs[0].value != 0)) {
          for (TransactionDetails.Item item : _tx.inputs) {
             inputs.addView(getItemView(item));
          }
       }
 
       // Set Outputs
-      LinearLayout outputs = (LinearLayout) findViewById(R.id.llOutputs);
+      LinearLayout outputs = findViewById(R.id.llOutputs);
       if(_tx.outputs != null) {
          for (TransactionDetails.Item item : _tx.outputs) {
             outputs.addView(getItemView(item));
@@ -159,14 +159,25 @@ public class TransactionDetailsActivity extends Activity {
 
       // Set Fee
       final long txFeeTotal = getFee(_tx);
-      String fee = _mbwManager.getBtcValueString(txFeeTotal);
-
-      if (_tx.rawSize > 0) {
-         final long txFeePerSat = txFeeTotal / _tx.rawSize;
-         fee += String.format("\n%d sat/byte", txFeePerSat);
+      String fee;
+      if(txFeeTotal > 0) {
+         ((TextView) findViewById(R.id.tvFeeLabel)).setVisibility(View.VISIBLE);
+         ((TextView) findViewById(R.id.tvInputsLabel)).setVisibility(View.VISIBLE);
+         if (_mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHSINGLEADDRESS
+             || _mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHBIP44) {
+            fee = _mbwManager.getBchValueString(txFeeTotal);
+         } else {
+            fee = _mbwManager.getBtcValueString(txFeeTotal);
+         }
+         if (_tx.rawSize > 0) {
+            final long txFeePerSat = txFeeTotal / _tx.rawSize;
+            fee += String.format("\n%d sat/byte", txFeePerSat);
+         }
+         ((TextView) findViewById(R.id.tvFee)).setText(fee);
+      } else {
+         ((TextView) findViewById(R.id.tvFee)).setText(R.string.no_transaction_details);
+         ((TextView) findViewById(R.id.tvInputsLabel)).setVisibility(View.GONE);
       }
-      ((TextView) findViewById(R.id.tvFee)).setText(fee);
-
    }
 
    private long getFee(TransactionDetails tx) {
@@ -227,7 +238,12 @@ public class TransactionDetailsActivity extends Activity {
       TextView tv = new TextView(this);
       tv.setLayoutParams(FPWC);
       tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
-      tv.setText(_mbwManager.getBtcValueString(value));
+      if(_mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHSINGLEADDRESS
+          || _mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHBIP44) {
+         tv.setText(_mbwManager.getBchValueString(value));
+      } else {
+         tv.setText(_mbwManager.getBtcValueString(value));
+      }
       tv.setTextColor(_white_color);
       tv.setTag(tag);
 

@@ -238,7 +238,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
 
    @OnClick(R.id.btOk)
    void onOkClick() {
-      if (CurrencyValue.isNullOrZero(_amount)) {
+      if (CurrencyValue.isNullOrZero(_amount) && isSendMode) {
          return;
       }
 
@@ -400,7 +400,6 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
    @Override
    protected void onResume() {
       _mbwManager.getEventBus().register(this);
-
       _mbwManager.getExchangeRateManager().requestOptionalRefresh();
       if(!isColu) {
          btCurrency.setEnabled(_mbwManager.hasFiatCurrency()
@@ -408,7 +407,6 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
                  && _amount != null && !_mbwManager.getColuManager().isColuAsset(_amount.getCurrency())
          );
       }
-
       btPaste.setVisibility(enablePaste() ? View.VISIBLE : View.GONE);
       super.onResume();
    }
@@ -417,7 +415,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
    protected void onPause() {
       _mbwManager.getEventBus().unregister(this);
       CurrencySwitcher currencySwitcher = _mbwManager.getCurrencySwitcher();
-      currencySwitcher.setCurrency(currencySwitcher.getCurrentFiatCurrency());
+      currencySwitcher.setCurrency(currencySwitcher.getCurrentCurrency());
       super.onPause();
    }
 
@@ -467,8 +465,6 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
    private void updateAmountsDisplay(String amountText) {
       // update main-currency display
       tvAmount.setText(amountText);
-
-
       // Set alternate amount if we can
       if (!_mbwManager.hasFiatCurrency()
             || _mbwManager.getColuManager().isColuAsset(_amount.getCurrency())
@@ -479,7 +475,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          CurrencyValue convertedAmount;
          if (mainCurrencyType.getAccountLabel().equals(_mbwManager.getCurrencySwitcher().getCurrentCurrency())) {
             // Show Fiat as alternate amount
-            String currency = MbwManager.getInstance(getApplication()).getFiatCurrency();
+            String currency = _mbwManager.getFiatCurrency();
             convertedAmount = ExchangeBasedCurrencyValue.fromValue(
                   _amount, currency, _mbwManager.getExchangeRateManager());
          } else {
@@ -497,16 +493,16 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
    }
 
    private void checkEntry() {
-      if (CurrencyValue.isNullOrZero(_amount)) {
-         // Nothing entered
-         tvAmount.setTextColor(getResources().getColor(R.color.white));
-         btOk.setEnabled(false);
-         return;
-      }
-      if (isSendMode && !CurrencyValue.isNullOrZero(_amount) /*|| !_mbwManager.getColuManager().isColuAsset(_amount.getCurrency())*/) {
+      if (isSendMode ){
+         if(CurrencyValue.isNullOrZero(_amount)) {
+            // Nothing entered
+            tvAmount.setTextColor(getResources().getColor(R.color.white));
+            btOk.setEnabled(false);
+         } else {
             AmountValidation result = checkTransaction();
             // Enable/disable Ok button
             btOk.setEnabled(result == AmountValidation.Ok && !_amount.isZero());
+         }
       } else {
          btOk.setEnabled(true);
       }
