@@ -1,26 +1,26 @@
 Beta channel
 ============
 
-In order to receive updates quicker than others, you need to do two things:
+Beta testers receive updates quicker than other users.  To receive beta updates, you need to do two things:
 
 1. Join [the G+ group](https://plus.google.com/communities/102264813364583686576)
 so you are eligible for testing
-2. Then explicitly enable beta versions of the software in
+2. Explicitly enable beta versions of the software in
 [Google play](https://play.google.com/apps/testing/com.mycelium.wallet)
 
-As Beta Testers, please make sure you have a recent **backup of the masterseed** and
-all **private keys** inside Mycelium. Beta testers will experience many bugs.
-So far, restoring the wallet from masterseed has never been necessary, but we offer no guarantees.
+Beta Testers should make sure they have a recent **backup of the masterseed** and
+all **private keys** inside Mycelium. Beta testers will experience many bugs as their testing.
+So far, restoring the wallet from the masterseed has not been necessary, however, we offer no guarantees about the future.
 
 Building
 ========
 
-To build everything from source, simply checkout the source and build using gradle.
+To build everything from source, checkout the source and build using gradle.
 On the build system you need:
 
  * JDK 1.7
 
-Then you need to use the Android SDK manager to install the following components:
+You also need to use the Android SDK manager to install the following components:
 
  * `ANDROID_HOME` environment variable pointing to the directory where the SDK is installed
  * Android SDK Tools 22.6.4
@@ -39,26 +39,28 @@ The project layout is designed to be used with a recent version of Android Studi
 
 #### Build commands
 
-On the console type:
+1. At the console prompt type the following to checkout the source:
 
     git clone https://github.com/mycelium-com/wallet-android.git
     cd wallet-android
     git submodule update --init --recursive
 
-Linux/Mac type:
+2. To build, type the command appropriate for your system:
 
-    ./gradlew clean test mbw::asProdRel mbw::asBtRel
+    On Linux/Mac type the following to build the source:
 
-Windows type:
+        ./gradlew clean test mbw::asProdRel mbw::asBtRel
 
-    gradlew.bat clean test mbw::asProdRel mbw::asBtRel
+    On Windows type the following to build the source:
 
- - Voila, look into `mbw/build/outputs/apk/` to see the generated apk. 
+        gradlew.bat clean test mbw::asProdRel mbw::asBtRel
+
+3. Voila, look into `mbw/build/outputs/apk/` to see the generated APK. 
    There are versions for both prodnet and testnet.
 
 Alternatively you can install the latest version from the [Play Store](https://play.google.com/store/apps/details?id=com.mycelium.wallet).
 
-If you cannot access the Play store, you can obtain the apk directly from https://mycelium.com/bitcoinwallet
+If you cannot access the Play store, you can obtain the APK directly from https://mycelium.com/bitcoinwallet
 
 Deterministic builds
 ====================
@@ -66,7 +68,7 @@ Deterministic builds
 To validate the Mycelium image you obtain from Google Play Store, you can rebuild the Mycelium wallet yourself using
 Docker and compare both images following these steps:
  
-* Create your own Doker image
+1. Create your own Docker image
 
         $ docker build . --tag mycelium-wallet .
 
@@ -74,16 +76,16 @@ Docker and compare both images following these steps:
 
         $ docker images 
 
-* Build Mycelium using Docker
+2. Build Mycelium using Docker
 
         $ docker run --rm -v $(pwd):/project -w /project mycelium-wallet ./gradlew mbw::clean mbw::assembleProdnetRelease
 
-  After this step succeeds, the mycelium unsigned apk is in `mbw/builds/outputs/apk`.
+  After this step succeeds, the mycelium unsigned APK is in `mbw/builds/outputs/apk`.
   You may need to create a `gradle.properties` file and set
   
         org.gradle.jvmargs = -Xmx5120m
 
-* Retrieve Google Play Mycelium APK from your phone
+3. Retrieve Google Play Mycelium APK from your phone
   Gets package path:
 
         $ adb shell pm path com.mycelium.wallet
@@ -93,12 +95,12 @@ Docker and compare both images following these steps:
 
         $ adb pull /data/app/com.mycelium.wallet-1/base.apk mycelium-signed.apk
 
-* Compare signed apk with unsigned locally built apk using Signal apkdiff
+4. Compare signed APK with unsigned locally built APK using Signal apkdiff
 
         $ wget https://raw.githubusercontent.com/WhisperSystems/Signal-Android/master/apkdiff/apkdiff.py
         python apkdiff.py mycelium-signed.apk mbw/build/outputs/apk/.....your-prodnet.apk
         
-* You might have to `sudo chown -R $USER:$USER .` as the docker user might create files that you have no access to under your normal user.
+Note: You might have to `sudo chown -R $USER:$USER .` as the docker user might create files that you have no access to under your normal user.
 
 This work is based on WhisperSystems Signal reproducible builds:
 
@@ -125,13 +127,13 @@ With the Mycelium Bitcoin Wallet you can send and receive Bitcoins using your mo
  - Compatible with other bitcoin services through the `bitcoin:` URI scheme
  
 
-Please note that bitcoin is still experimental and this app comes with no warranty - while we make sure to adhere to the highest standards of software craftsmanship we can not exclude that the software contains bugs. Please make sure you have backups of your private keys and do not use this for more than you are willing to lose.
+Please note that Bitcoin is still experimental and this app comes with no warranty. While we make sure to adhere to the highest standards of software craftsmanship, we cannot guarantee that the software does not contain bugs. Please make sure you have backups of your private keys and do not use this software to manage more Bitcoins than you are willing to lose.
 
 This application's source is published at https://github.com/mycelium-com/wallet
 We need your feedback. If you have a suggestion or a bug to report [create an issue](https://github.com/mycelium-com/wallet/issues).
 
 More features:
- - Sources [available for review](https://github.com/mycelium-com/wallet-android)
+ - Source code is [available for review](https://github.com/mycelium-com/wallet-android)
  - Multiple HD accounts, private keys, external xPub or xPriv accounts
  - Multiple Bitcoin denominations: BTC, mBTC, bits and uBTC
  - View your balance in multiple fiat currencies: USD, AUD, CAD, CHF, CNY, DKK, EUR, GBP, HKD, JPY, NZD, PLN, RUB, SEK, SGD, THB, and many more
