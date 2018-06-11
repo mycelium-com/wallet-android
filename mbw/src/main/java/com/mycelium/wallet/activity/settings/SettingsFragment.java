@@ -317,7 +317,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 return true;
             }
         });
-
+        modulesPrefs.removeAll();
         if (!CommunicationManager.getInstance().getPairedModules().isEmpty()) {
             processPairedModules(modulesPrefs);
         } else {
