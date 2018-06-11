@@ -5,7 +5,7 @@ ext {
     slf4jVersion = '1.7.2'
     androidCompileSdkVersion = 27
     androidSdkBuildVersion = '27.0.3'
-    androidSupportVersion = '27.1.0'
+    androidSupportVersion = '27.1.1'
     junitVersion = '4.12'
     kotlin_version = '1.2.40'
 
