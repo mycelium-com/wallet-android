@@ -1,38 +1,48 @@
 package com.mycelium.wapi.api.lib;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.mycelium.wapi.api.response.VersionInfoExResponse;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URI;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class WalletVersion {
-   final public int major;
-   final public int minor;
-   final public int maintenance;
-   final public String variant;
+   public int major;
+   public int minor;
+   public int patch;
+   public int maintenance;
+   public String variant;
 
-   // latest Version pre minSDK-Update
-   private static WalletVersion noUpdatePrior = WalletVersion.from("2.0.7");
+   private static Map<String, Set<WalletVersion>> latestVersionsEx;
+   private static final File walletVersionsSource = new File("config/wallet_versions.json");
+   private static long lastModified = walletVersionsSource.lastModified();
+   static {
+      readVersions();
+   }
 
-   private static Set<WalletVersion> latestVersions = ImmutableSet.of(
-         WalletVersion.from("2.8.5"),
-         WalletVersion.from("2.8.5-TESTNET"),
-         WalletVersion.from("1.3.3-BOG"));
+   private static void readVersions() {
+      ObjectMapper mapper = new ObjectMapper();
+      try {
+         latestVersionsEx = mapper.readValue(walletVersionsSource, new TypeReference<Map<String, HashSet<WalletVersion>>>(){});
+      } catch (IOException ignored) {
+      }
+   }
 
-   private static Map<String, Set<WalletVersion>> latestVersionsEx = ImmutableMap.of(
-         "android", latestVersions
-   );
 
+   private WalletVersion() {
 
-   public WalletVersion(int major, int minor, int maintenance, String variant) {
+   }
+
+   public WalletVersion(int major, int minor, int patch, int maintenance, String variant) {
       this.major = major;
       this.minor = minor;
+      this.patch = patch;
       this.maintenance = maintenance;
       this.variant = variant;
    }
@@ -51,49 +61,40 @@ public class WalletVersion {
       String variantWithDash = version.substring(versionNumber.length());
       final String versionVariant = CharMatcher.anyOf("-").trimLeadingFrom(variantWithDash);
       ImmutableList<String> versions = ImmutableList.copyOf(Splitter.on(".").split(versionNumber));
-      if (versions.size() != 3)
+      if (versions.size() != 4)
          return null;
       return new WalletVersion(Integer.valueOf(versions.get(0)), Integer.valueOf(versions.get(1)),
-            Integer.valueOf(versions.get(2)), versionVariant);
+            Integer.valueOf(versions.get(2)), Integer.valueOf(versions.get(3)), versionVariant);
    }
 
    /**
-    * 
+    *
     * @param client
     *           to compare to.
     * @return true if this object is strictly greater than the client argument.
     *         if the variant is different returns false.
     */
    public boolean isGreaterThan(WalletVersion client) {
-      if (!variant.equals(client.variant)) {
+      if (!Objects.equals(variant,client.variant)) {
          return false;
       }
       if (major == client.major) {
          if (minor == client.minor) {
-            return maintenance > client.maintenance;
+            if (patch == client.patch) {
+               return maintenance > client.maintenance;
+            }
+            return patch > client.patch;
          }
          return minor > client.minor;
       }
       return major > client.major;
    }
 
-   public static String responseVersion(String clientVersion) {
-      WalletVersion client = from(clientVersion);
-
-      // only replay with an update info, if the client is already on the highest minSdk Level
-      if (client.isGreaterThan(noUpdatePrior)) {
-         for (WalletVersion latestVersion : latestVersions) {
-            if (latestVersion.isGreaterThan(client)) {
-               return latestVersion.toString();
-            }
-         }
-      }
-
-      return clientVersion;
-   }
-
    public static VersionInfoExResponse responseVersionEx(String branch, String version){
-
+      if (lastModified < walletVersionsSource.lastModified()) {
+         lastModified = walletVersionsSource.lastModified();
+         readVersions();
+      }
       WalletVersion clientVersion = WalletVersion.from(version);
       if (clientVersion == null) {
          return null;
@@ -111,7 +112,7 @@ public class WalletVersion {
 
          for (WalletVersion latestVersion : walletVersions) {
             if (latestVersion.isGreaterThan(clientVersion)) {
-               return  new VersionInfoExResponse(latestVersion.toString(), "Update available", URI.create("https://wallet.mycelium.com/contact.html"), null);
+               return new VersionInfoExResponse(latestVersion.toString(), "Update available", URI.create("https://wallet.mycelium.com/contact.html"), null);
             }
          }
       }
@@ -123,6 +124,6 @@ public class WalletVersion {
    @Override
    public String toString() {
       String variant = !"".equals(this.variant) ? "-" + this.variant : "";
-      return major + "." + minor + "." + maintenance + variant;
+      return major + "." + minor + "." + patch + "." + maintenance + variant;
    }
 }
