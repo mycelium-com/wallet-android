@@ -119,7 +119,7 @@ public class MbwProdEnvironment extends MbwEnvironment {
    }
 
    private static final List<TcpEndpoint> electrumEndpoints = new ArrayList<TcpEndpoint>(){{
-      add(new TcpEndpoint("electrumx-1.mycelium.com", 50001));
+      add(new TcpEndpoint("electrumx-1.mycelium.com", 50002));
    }};
 
    @Override
@@ -145,7 +145,7 @@ public class MbwProdEnvironment extends MbwEnvironment {
    }};
 
    public List<BlockExplorer> getBlockExplorerList() {
-      return new ArrayList<BlockExplorer>(prodnetExplorerClearEndpoints);
+      return new ArrayList<>(prodnetExplorerClearEndpoints);
    }
 
    public List<BuySellServiceDescriptor> getBuySellServices(){
