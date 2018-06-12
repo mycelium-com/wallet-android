@@ -225,6 +225,7 @@ class WapiClientElectrumX(
 
     private fun isRbf(vin: Array<TransactionInputX>) = vin.any { it.sequence < NON_RBF_SEQUENCE }
 
+/*
     override fun getMinerFeeEstimations(): WapiResponse<MinerFeeEstimationResponse> {
         try {
             val blocks: Array<Int> = arrayOf(1, 2, 3, 4, 5, 10, 15, 20) // this is what the wapi server used
@@ -245,6 +246,7 @@ class WapiClientElectrumX(
             return WapiResponse<MinerFeeEstimationResponse>(Wapi.ERROR_CODE_NO_SERVER_CONNECTION, null)
         }
     }
+*/
 
     fun serverFeatures(): ServerFeatures {
         val response = jsonRpcTcpClient.write(FEATURES_METHOD, RpcParams.listParams(), DEFAULT_RESPONSE_TIMEOUT)
