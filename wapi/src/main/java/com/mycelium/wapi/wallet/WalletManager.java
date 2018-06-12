@@ -110,6 +110,7 @@ public class WalletManager {
     private volatile UUID _activeAccountId;
     private FeeEstimation _lastFeeEstimations = FeeEstimation.DEFAULT;
     private SpvBalanceFetcher _spvBalanceFetcher;
+    private volatile boolean isNetworkConnected;
     /**
      * Create a new wallet manager instance
      *
@@ -118,7 +119,8 @@ public class WalletManager {
      * @param wapi    the Wapi instance to use
      */
     public WalletManager(SecureKeyValueStore secureKeyValueStore, WalletManagerBacking backing,
-                         NetworkParameters network, Wapi wapi, ExternalSignatureProviderProxy signatureProviders, SpvBalanceFetcher spvBalanceFetcher) {
+                         NetworkParameters network, Wapi wapi, ExternalSignatureProviderProxy signatureProviders,
+                         SpvBalanceFetcher spvBalanceFetcher, boolean isNetworkConnected) {
         _secureKeyValueStore = secureKeyValueStore;
         _backing = backing;
         _network = network;
@@ -132,6 +134,7 @@ public class WalletManager {
         _observers = new LinkedList<>();
         _spvBalanceFetcher = spvBalanceFetcher;
         _btcToBchAccounts = new HashMap<>();
+        this.isNetworkConnected = isNetworkConnected;
         loadAccounts();
     }
 
@@ -588,6 +591,9 @@ public class WalletManager {
     }
 
     public void startSynchronization(SyncMode mode) {
+        if (!isNetworkConnected) {
+            return;
+        }
         // Launch synchronizer thread
         Synchronizer synchronizer;
         if (hasAccount(_activeAccountId)) {
@@ -601,24 +607,14 @@ public class WalletManager {
     }
 
     public void startSynchronization(UUID receivingAcc) {
+        if (!isNetworkConnected) {
+            return;
+        }
         // Launch synchronizer thread
         SynchronizeAbleWalletAccount activeAccount = (SynchronizeAbleWalletAccount) getAccount(receivingAcc);
         startSynchronizationThread(new Synchronizer(SyncMode.NORMAL, activeAccount));
     }
 
-    /**
-     * Make the wallet manager synchronize only a subset of some addresses of a specific account
-     * <p>
-     * Synchronization occurs in the background. To get feedback register an
-     * observer.
-     */
-    /*
-    public void startFastSynchronization(AbstractAccount forAccount, Collection<Address> addressesToWatch) {
-       // Launch fastSynchronizer thread
-       Synchronizer fastSynchronizer = new FastSynchronizer(forAccount, addressesToWatch);
-       startSynchronizationThread(fastSynchronizer);
-    }
-    */
     private synchronized void startSynchronizationThread(Synchronizer synchronizer) {
         if (_synchronizationThread != null) {
             // Already running
@@ -826,6 +822,10 @@ public class WalletManager {
         }
     }
 
+    public void setNetworkConnected(boolean networkConnected) {
+        isNetworkConnected = networkConnected;
+    }
+
     private class Synchronizer implements Runnable {
         private final SyncMode syncMode;
         private final SynchronizeAbleWalletAccount currentAccount;
@@ -845,21 +845,23 @@ public class WalletManager {
             setStateAndNotify(State.SYNCHRONIZING);
             try {
                 synchronized (_walletAccounts) {
-                    if (!syncMode.ignoreMinerFeeFetch &&
-                            (_lastFeeEstimations == null || _lastFeeEstimations.isExpired(MIN_AGE_FEE_ESTIMATION))) {
-                        // only fetch the fee estimations if the latest available fee is older than MIN_AGE_FEE_ESTIMATION
-                        fetchFeeEstimation();
-                    }
+                    if (isNetworkConnected) {
+                        if (!syncMode.ignoreMinerFeeFetch &&
+                                (_lastFeeEstimations == null || _lastFeeEstimations.isExpired(MIN_AGE_FEE_ESTIMATION))) {
+                            // only fetch the fee estimations if the latest available fee is older than MIN_AGE_FEE_ESTIMATION
+                            fetchFeeEstimation();
+                        }
 
-                    // If we have any lingering outgoing transactions broadcast them now
-                    // this function goes over all accounts - it is reasonable to
-                    // exclude this from SyncMode.onlyActiveAccount behaviour
-                    if (!broadcastOutgoingTransactions()) {
-                        return;
-                    }
+                        // If we have any lingering outgoing transactions broadcast them now
+                        // this function goes over all accounts - it is reasonable to
+                        // exclude this from SyncMode.onlyActiveAccount behaviour
+                        if (!broadcastOutgoingTransactions()) {
+                            return;
+                        }
 
-                    // Synchronize selected accounts with the blockchain
-                    synchronize();
+                        // Synchronize selected accounts with the blockchain
+                        synchronize();
+                    }
                 }
             } finally {
                 _synchronizationThread = null;

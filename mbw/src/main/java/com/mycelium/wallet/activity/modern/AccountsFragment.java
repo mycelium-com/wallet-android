@@ -524,7 +524,7 @@ public class AccountsFragment extends Fragment {
    };
 
    private void updateIncludingMenus() {
-      WalletAccount account = accountListAdapter.getFocusedAccountId();
+      WalletAccount account = accountListAdapter.getFocusedAccount();
       boolean isBch = account.getType() == WalletAccount.Type.BCHSINGLEADDRESS
               || account.getType() == WalletAccount.Type.BCHBIP44;
 
@@ -621,7 +621,7 @@ public class AccountsFragment extends Fragment {
                activateSelected();
                return true;
             } else if (id == R.id.miSetLabel) {
-               setLabelOnAccount(accountListAdapter.getFocusedAccountId(), "", true);
+               setLabelOnAccount(accountListAdapter.getFocusedAccount(), "", true);
                return true;
             } else if (id == R.id.miDeleteRecord) {
                deleteSelected();
@@ -667,7 +667,7 @@ public class AccountsFragment extends Fragment {
          public void onDestroyActionMode(ActionMode actionMode) {
             currentActionMode = null;
             // Loose focus
-            if (accountListAdapter.getFocusedAccountId() != null) {
+            if (accountListAdapter.getFocusedAccount() != null) {
                accountListAdapter.setFocusedAccountId(null);
 //               update();
             }
@@ -820,7 +820,7 @@ public class AccountsFragment extends Fragment {
       if (!AccountsFragment.this.isAdded()) {
          return;
       }
-      WalletAccount _focusedAccount = accountListAdapter.getFocusedAccountId();
+      WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
       if (_focusedAccount instanceof SingleAddressAccount || _focusedAccount instanceof ColuAccount) {
          //start legacy backup verification
          VerifyBackupActivity.callMe(getActivity());
@@ -831,7 +831,7 @@ public class AccountsFragment extends Fragment {
       if (!AccountsFragment.this.isAdded()) {
          return;
       }
-      WalletAccount _focusedAccount = accountListAdapter.getFocusedAccountId();
+      WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
       if(_focusedAccount instanceof ColuAccount) {
          //ColuAccount class can be single or HD
          //TODO: test if account is single address or HD and do wordlist backup instead
@@ -850,7 +850,7 @@ public class AccountsFragment extends Fragment {
 
    private void showOutputs() {
       Intent intent = new Intent(getActivity(), UnspentOutputsActivity.class);
-      WalletAccount _focusedAccount = accountListAdapter.getFocusedAccountId();
+      WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
       intent.putExtra("account", _focusedAccount.getId());
       startActivity(intent);
    }
@@ -866,7 +866,7 @@ public class AccountsFragment extends Fragment {
             if (!AccountsFragment.this.isAdded()) {
                return;
             }
-            WalletAccount _focusedAccount = accountListAdapter.getFocusedAccountId();
+            WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
             if (_focusedAccount instanceof CoinapultAccount) {
                CoinapultManager coinapultManager = _mbwManager.getCoinapultManager();
                MessageSigningActivity.callMe(getActivity(), coinapultManager.getAccountKey());
@@ -952,7 +952,7 @@ public class AccountsFragment extends Fragment {
       if (!AccountsFragment.this.isAdded()) {
          return;
       }
-      final WalletAccount _focusedAccount = accountListAdapter.getFocusedAccountId();
+      final WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
       if (_focusedAccount.isActive() && _mbwManager.getWalletManager(false).getActiveAccounts().size() < 2) {
          _toaster.toast(R.string.keep_one_active, false);
          return;
@@ -974,7 +974,7 @@ public class AccountsFragment extends Fragment {
       if (!isAdded()) {
          return;
       }
-      accountListAdapter.getFocusedAccountId().dropCachedData();
+      accountListAdapter.getFocusedAccount().dropCachedData();
       _mbwManager.getWalletManager(false).startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
       _mbwManager.getColuManager().startSynchronization();
    }
@@ -1040,7 +1040,7 @@ public class AccountsFragment extends Fragment {
             if (!AccountsFragment.this.isAdded()) {
                return;
             }
-            activate(accountListAdapter.getFocusedAccountId());
+            activate(accountListAdapter.getFocusedAccount());
          }
 
       });
@@ -1072,7 +1072,7 @@ public class AccountsFragment extends Fragment {
          _toaster.toast(R.string.keep_one_active, false);
          return;
       }
-      final WalletAccount _focusedAccount = accountListAdapter.getFocusedAccountId();
+      final WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
       if (_focusedAccount.getType() == WalletAccount.Type.COINAPULT) {
          _mbwManager.runPinProtectedFunction(getActivity(), new Runnable() {
 
@@ -1118,7 +1118,7 @@ public class AccountsFragment extends Fragment {
          _toaster.toast(R.string.keep_one_active, false);
          return;
       }
-      final WalletAccount _focusedAccount = accountListAdapter.getFocusedAccountId();
+      final WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
       if (_focusedAccount instanceof Bip44Account) {
          final Bip44Account account = (Bip44Account) _focusedAccount;
          if (account.hasHadActivity()) {
