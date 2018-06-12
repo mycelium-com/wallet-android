@@ -219,6 +219,8 @@ public class MbwManager {
     private EvictingQueue<LogEntry> _wapiLogs = EvictingQueue.create(100);
     private Cache<String, Object> _semiPersistingBackgroundObjects = CacheBuilder.newBuilder().maximumSize(10).build();
 
+    private WalletConfiguration configuration;
+
     private MbwManager(Context evilContext) {
         _applicationContext = Preconditions.checkNotNull(evilContext.getApplicationContext());
         _environment = MbwEnvironment.verifyEnvironment();
@@ -228,6 +230,8 @@ public class MbwManager {
         SharedPreferences preferences = getPreferences();
         // setProxy(preferences.getString(Constants.PROXY_SETTING, ""));
         // Initialize proxy early, to enable error reporting during startup..
+
+        configuration = new WalletConfiguration(preferences, getNetwork());
 
         _eventBus = new Bus();
         _eventBus.register(this);
@@ -459,7 +463,7 @@ public class MbwManager {
             version = "na";
         }
 
-        List<TcpEndpoint> tcpEndpoints = _environment.getElectrumEndpoints();
+        List<TcpEndpoint> tcpEndpoints = configuration.getElectrumEndpoints();
         return new WapiClientElectrumX(_environment.getWapiEndpoints(), tcpEndpoints.toArray(new TcpEndpoint[tcpEndpoints.size()]), retainingWapiLogger, version);
     }
 
