@@ -114,4 +114,8 @@ public interface Constants {
    int WAIT_SECONDS_BEFORE_ADDITIONAL_BACKUP = 60;
 
    String FAILED_PIN_COUNT = "failedPinCount";
+
+   String SETTING_TOR = "useTor";
+   String SETTING_DENOMINATION = "bitcoin_denomination";
+   String SETTING_MINER_FEE = "miner_fee";
 }

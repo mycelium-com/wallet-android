@@ -543,7 +543,7 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="direct_apk_link_label">Direkter\nDownload</string>
   <string name="hide_unused_account_menu">Konto löschen</string>
   <string name="dont_allow_hiding_used_notification">Sie können ein verwendetes Konto nicht ausblenden, aber Sie können es archivieren</string>
-  <string name="pref_miner_fee_title">Miner-Gebühr (%1$s)</string>
+  <string name="pref_miner_fee_title">Miner-Gebühr</string>
   <string name="pref_miner_fee_block_summary">Transaktionen werden mit einer Miner-Gebühr gesendet, damit diese innerhalb der nächsten (durchschn.) %1s Blöcke ausgeführt wird.</string>
   <string name="miner_fee_lowprio_name">Niedrigste Priorität</string>
   <string name="miner_fee_economic_name">Economy</string>
@@ -745,7 +745,7 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="description_rebroadcast_transaction">Übertragen Sie diese Transaktion erneut an den Server. Dies kann verwendet werden, wenn sie vermuten, dass das Netzwerk ihre Transaktion nicht angenommen oder fallen gelassen hat, da sie eine lange Zeit nicht bestätigt wurde zum Beispiel. Möchten Sie diese Transaktion erneut übersenden?</string>
   <string name="message_rebroadcast_successfull">Die Transaktion wurde erfolgreich übermittelt.</string>
   <string name="message_rebroadcast_failed">Die Übertragung ist fehlgeschlagen, bitte überprüfen Sie Ihre Internetverbindung und synchronisieren Sie Ihre Wallet.</string>
-  <string name="block_explorer_title">Block Explorer (%1$s)</string>
+  <string name="block_explorer_title">Block explorer</string>
   <string name="block_explorer_summary">Transaktionsdetails werden mittels des %1$s Block-Explorers nachgeschlagen</string>
   <string name="lt_warning_wrong_account_type">Local Trader funktioniert nicht mit dem ausgewählten Konten-Typ. Bitte wählen Sie ein anderes Konto.</string>
   <string name="lt_account_not_allowed">Der ausgewählte Konto-Typ funktioniert nicht mit Local-Trader. Sie müssen ein anderes Konto auswählen um diesen Handel auszuführen.</string>

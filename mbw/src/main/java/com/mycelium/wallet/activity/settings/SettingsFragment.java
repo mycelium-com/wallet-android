@@ -5,17 +5,24 @@ import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.v4.app.DialogFragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.preference.CheckBoxPreference;
+import android.support.v7.preference.EditTextPreference;
+import android.support.v7.preference.EditTextPreferenceDialogFragmentCompat;
 import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceCategory;
 import android.support.v7.preference.PreferenceFragmentCompat;
+import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.AppCompatEditText;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.text.Html;
 import android.text.InputType;
@@ -49,6 +56,8 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.WalletApplication;
 import com.mycelium.wallet.activity.modern.Toaster;
+import com.mycelium.wallet.activity.settings.adapter.DialogListAdapter;
+import com.mycelium.wallet.activity.settings.helper.DisplayPreferenceDialogHandler;
 import com.mycelium.wallet.activity.view.ButtonPreference;
 import com.mycelium.wallet.activity.view.OnOffPreference;
 import com.mycelium.wallet.activity.view.TwoButtonsPreference;
@@ -76,6 +85,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
     public static final CharMatcher AMOUNT = CharMatcher.JAVA_DIGIT.or(CharMatcher.anyOf(".,"));
     private static final int REQUEST_CODE_UNINSTALL = 1;
+    private static final String DIALOG_FRAGMENT_TAG = "SettingsFragment";
 
 
     private ListPreference language;
@@ -102,6 +112,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private PreferenceCategory ledger;
     private Preference ltNotificationEmail;
     private PreferenceCategory localTraderPrefs;
+
+    private DisplayPreferenceDialogHandler displayPreferenceDialogHandler;
 
     private List<Preference> preferenceList = new ArrayList<>();
 
@@ -156,7 +168,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         private EditText aidEdit;
 
         public boolean onPreferenceClick(Preference preference) {
-            AlertDialog.Builder b = new AlertDialog.Builder(getActivity(), R.style.MyceliumSettings_Dialog);
+            AlertDialog.Builder b = new AlertDialog.Builder(getActivity(), R.style.MyceliumSettings_Dialog_Small);
             b.setTitle(getString(R.string.ledger_set_unplugged_aid_title));
             b.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                 @Override
@@ -195,9 +207,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         _mbwManager = MbwManager.getInstance(getActivity().getApplication());
         _ltManager = _mbwManager.getLocalTraderManager();
         // Bitcoin Denomination
-        _bitcoinDenomination = (ListPreference) findPreference("bitcoin_denomination");
+        _bitcoinDenomination = (ListPreference) findPreference(Constants.SETTING_DENOMINATION);
         // Miner Fee
-        _minerFee = (ListPreference) findPreference("miner_fee");
+        _minerFee = (ListPreference) findPreference(Constants.SETTING_MINER_FEE);
         //Block Explorer
         _blockExplorer = (ListPreference) findPreference("block_explorer");
         //localcurrency
@@ -208,7 +220,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         notificationPreference = findPreference("notifications");
         pincodePreference = (OnOffPreference) findPreference("pincode");
         // Socks Proxy
-        useTor = Preconditions.checkNotNull((ListPreference) findPreference("useTor"));
+        useTor = Preconditions.checkNotNull((ListPreference) findPreference(Constants.SETTING_TOR));
         showBip44Path = (CheckBoxPreference) findPreference("showBip44Path");
         ledgerDisableTee = (CheckBoxPreference) findPreference("ledgerDisableTee");
         ledgerSetUnpluggedAID = findPreference("ledgerUnpluggedAID");
@@ -223,11 +235,12 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         ledger = (PreferenceCategory) findPreference("ledger");
         ltNotificationEmail = findPreference("ltNotificationEmail2");
         localTraderPrefs = (PreferenceCategory) findPreference("localtraderPrefs");
+
+        displayPreferenceDialogHandler  = new DisplayPreferenceDialogHandler(getActivity());
     }
 
     @Override
     protected void onBindPreferences() {
-        Log.e("!!!", "onBindPreferences");
         language.setTitle(getLanguageSettingTitle());
         language.setDefaultValue(Locale.getDefault().getLanguage());
         language.setSummary(_mbwManager.getLanguage());
@@ -344,7 +357,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 return true;
             }
         });
-
         _localCurrency.setOnPreferenceClickListener(localCurrencyClickListener);
         _localCurrency.setTitle(localCurrencyTitle());
 
@@ -374,7 +386,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 return true;
             }
         });
-
         _blockExplorer.setTitle(getBlockExplorerTitle());
         _blockExplorer.setSummary(getBlockExplorerSummary());
         _blockExplorer.setValue(_mbwManager._blockExplorerManager.getBlockExplorer().getIdentifier());
@@ -391,7 +402,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 return true;
             }
         });
-
         _minerFee.setTitle(getMinerFeeTitle());
         _minerFee.setSummary(getMinerFeeSummary());
         _minerFee.setValue(_mbwManager.getMinerFee().toString());
@@ -421,7 +431,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         });
 
         // Local Trader
-
         localTraderDisable.setChecked(_ltManager.isLocalTraderDisabled());
         localTraderDisable.setOnPreferenceClickListener(ltDisableLocalTraderClickListener);
 
@@ -432,11 +441,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
         _ltMilesKilometers.setChecked(_ltManager.useMiles());
         _ltMilesKilometers.setOnPreferenceClickListener(ltMilesKilometersClickListener);
-
         // show bip44 path
         showBip44Path.setChecked(_mbwManager.getMetadataStorage().getShowBip44Path());
         showBip44Path.setOnPreferenceClickListener(showBip44PathClickListener);
-
         boolean isTeeAvailable = LedgerTransportTEEProxyFactory.isServiceAvailable(getActivity());
         if (isTeeAvailable) {
             ledgerDisableTee.setChecked(_mbwManager.getLedgerManager().getDisableTEE());
@@ -446,9 +453,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         }
 
         ledgerSetUnpluggedAID.setOnPreferenceClickListener(onClickLedgerSetUnpluggedAID);
-
         applyLocalTraderEnablement();
-
 
         externalPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
@@ -461,7 +466,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 return true;
             }
         });
-
         versionPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
@@ -473,7 +477,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 return true;
             }
         });
-        Log.e("!!!", "onBindPreferences end");
     }
 
     @Override
@@ -590,7 +593,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         preference.setTitle(Html.fromHtml(module.getName()));
         preference.setKey("Module_" + module.getModulePackage());
         preference.setIcon(GooglePlayModuleCollection.getBigLogo(getActivity(), module.getModulePackage()));
-        updateModulePreference(preference, module, BCHHelper.getBCHSyncProgress(getActivity()));
+        updateModulePreference(preference, module);
+        updateModuleSyncAsync(preference);
         preference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
@@ -625,7 +629,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         preference.setTitle(Html.fromHtml(module.getName()));
         preference.setKey("Module_" + module.getModulePackage());
         preference.setIcon(GooglePlayModuleCollection.getBigLogo(getActivity(), module.getModulePackage()));
-        updateModulePreference(preference, module, BCHHelper.getBCHSyncProgress(getActivity()));
+        updateModulePreference(preference, module);
+        updateModuleSyncAsync(preference);
         preference.setButtonsText(getString(R.string.uninstall), getString(R.string.update));
         preference.setTopButtonClickListener(new View.OnClickListener() {
             @Override
@@ -638,6 +643,30 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         });
         preference.setBottomButtonClickListener(getInstallClickListener(module));
         return preference;
+    }
+
+    private void updateModuleSyncAsync(final ModulePreference preference) {
+        new UpdateModuleSync(preference).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+    }
+
+    public static class UpdateModuleSync extends AsyncTask<Void, Void, Float> {
+
+        private ModulePreference preference;
+
+        public UpdateModuleSync(ModulePreference preference) {
+            this.preference = preference;
+        }
+
+        @Override
+        protected Float doInBackground(Void... voids) {
+            return BCHHelper.getBCHSyncProgress(preference.getContext());
+        }
+
+        @Override
+        protected void onPostExecute(Float aFloat) {
+            super.onPostExecute(aFloat);
+            updateModulePreferenceSync(preference, aFloat);
+        }
     }
 
     @NonNull
@@ -674,28 +703,31 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         }
     }
 
-    private void updateModulePreference(ModulePreference preference, Module module, float progress) {
+    private void updateModulePreference(Preference preference, Module module) {
         if (preference != null) {
-            DecimalFormat format = new DecimalFormat(progress < 0.1f ? "#.###" : "#.##");
-
-            String syncStatus = progress == 100F ? getString(R.string.fully_synced)
-                    : getString(R.string.sync_progress, format.format(progress));
             preference.setSummary(Html.fromHtml(module.getDescription()));
-            preference.setSyncStateText(syncStatus);
         }
+    }
+
+    private static void updateModulePreferenceSync(ModulePreference preference, float progress) {
+        DecimalFormat format = new DecimalFormat(progress < 0.1f ? "#.###" : "#.##");
+        String syncStatus = progress == 100F ? preference.getContext().getString(R.string.fully_synced)
+                : preference.getContext().getString(R.string.sync_progress, format.format(progress));
+        preference.setSyncStateText(syncStatus);
     }
 
     @Subscribe
     public void onSyncStateChanged(SpvSyncChanged syncChanged) {
         String bchPackage = "Module_" + WalletApplication.getSpvModuleName(WalletAccount.Type.BCHBIP44);
         Preference preference = modulesPrefs.findPreference(bchPackage);
-        updateModulePreference((ButtonPreference) preference, syncChanged.module, syncChanged.chainDownloadPercentDone);
+        updateModulePreferenceSync((ButtonPreference) preference, syncChanged.chainDownloadPercentDone);
     }
 
     @Override
     public void onResume() {
         setupLocalTraderSettings();
         _localCurrency.setTitle(localCurrencyTitle());
+        _localCurrency.setSummary(localCurrencySummary());
         _mbwManager.getEventBus().register(this);
         super.onResume();
     }
@@ -775,23 +807,26 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     }
 
     private String getUseTorTitle() {
-        if (_mbwManager.getTorMode() == ServerEndpointType.Types.ONLY_HTTPS) {
-            return getResources().getString(R.string.useTorOnlyHttps);
-        } else if (_mbwManager.getTorMode() == ServerEndpointType.Types.ONLY_TOR) {
-            return getResources().getString(R.string.useTorOnlyExternalTor);
-        } else {
-            return getResources().getString(R.string.useTorBoth);
-        }
+        return getResources().getString(R.string.useTor);
     }
 
     private String localCurrencyTitle() {
+        return getResources().getString(R.string.pref_local_currency);
+    }
+
+    private String localCurrencySummary() {
         if (_mbwManager.hasFiatCurrency()) {
             String currency = _mbwManager.getFiatCurrency();
-            if (_mbwManager.getCurrencyList().size() > 1) {
-                //multiple selected, add ...
-                currency = currency + "...";
+            List<String> currencyList = _mbwManager.getCurrencyList();
+            currencyList.remove(currency);
+            for (int i = 0; i < Math.min(currencyList.size(), 2); i++) {
+                currency += ", " + currencyList.get(i);
             }
-            return getResources().getString(R.string.pref_local_currency_with_currency, currency);
+            if (_mbwManager.getCurrencyList().size() > 3) {
+                //multiple selected, add ...
+                currency += "...";
+            }
+            return currency;
         } else {
             //nothing selected
             return getResources().getString(R.string.pref_no_fiat_selected);
@@ -799,21 +834,15 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     }
 
     private String exchangeSourceTitle() {
-        String name = _mbwManager.getExchangeRateManager().getCurrentExchangeSourceName();
-        if (name == null) {
-            name = "";
-        }
-        return getResources().getString(R.string.pref_exchange_source_with_value, name);
+        return getResources().getString(R.string.pref_exchange_source);
     }
 
     private String bitcoinDenominationTitle() {
-        return getResources().getString(R.string.pref_bitcoin_denomination_with_denomination,
-                _mbwManager.getBitcoinDenomination().getAsciiName());
+        return getResources().getString(R.string.pref_bitcoin_denomination);
     }
 
     private String getMinerFeeTitle() {
-        return getResources().getString(R.string.pref_miner_fee_title,
-                _mbwManager.getMinerFee().getMinerFeeName(getActivity()));
+        return getResources().getString(R.string.pref_miner_fee_title);
     }
 
     private String getMinerFeeSummary() {
@@ -822,13 +851,11 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     }
 
     private String getBlockExplorerTitle() {
-        return getResources().getString(R.string.block_explorer_title,
-                _mbwManager._blockExplorerManager.getBlockExplorer().getTitle());
+        return getResources().getString(R.string.block_explorer_title);
     }
 
     private String getBlockExplorerSummary() {
-        return getResources().getString(R.string.block_explorer_summary,
-                _mbwManager._blockExplorerManager.getBlockExplorer().getTitle());
+        return getResources().getString(R.string.block_explorer_summary_2);
     }
 
     private class SubscribeToServerResponse extends LocalTraderEventSubscriber {
@@ -893,4 +920,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         }
     }
 
+    @Override
+    public void onDisplayPreferenceDialog(Preference preference) {
+        displayPreferenceDialogHandler.onDisplayPreferenceDialog(preference);
+    }
 }

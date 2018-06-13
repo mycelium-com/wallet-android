@@ -531,7 +531,7 @@
   <string name="direct_apk_link_label">Directe\ndownload</string>
   <string name="hide_unused_account_menu">Account verwijderen</string>
   <string name="dont_allow_hiding_used_notification">U kunt een gebruikt account niet verbergen, maar u kunt het archiveren</string>
-  <string name="pref_miner_fee_title">Miner Fee (%1$s)</string>
+  <string name="pref_miner_fee_title">Miner fee</string>
   <string name="miner_fee_economic_name">Economisch</string>
   <string name="miner_fee_normal_name">Normaal</string>
   <string name="miner_fee_priority_name">Prioriteit</string>

@@ -89,15 +89,15 @@
     <string name="pref_clear_pin_summary">Clear the current PIN code</string>
     <string name="pref_set_pin">Set PIN Code</string>
     <string name="pref_set_pin_summary">Set a PIN code that restricts access to sending coins, exporting private keys, and changing the PIN code</string>
-    <string name="pref_local_currency">Local Currency</string>
-    <string name="pref_local_currency_with_currency">Local Currency (%1$s)</string>
+    <string name="pref_local_currency">Fiat Currencies</string>
+    <string name="pref_local_currency_with_currency">Fiat Currency (%1$s)</string>
     <string name="pref_local_currency_summary">Select the local fiat currency</string>
-    <string name="pref_exchange_source">Exchange Source</string>
+    <string name="pref_exchange_source">Exchange source</string>
     <string name="pref_exchange_source_with_value">Exchange Source (%1$s)</string>
     <string name="pref_exchange_source_summary">Select the source for obtaining exchange rates between Bitcoin and fiat currencies</string>
-    <string name="pref_bitcoin_denomination">Bitcoin Denomination</string>
+    <string name="pref_bitcoin_denomination">Cryptocurrency denomination</string>
     <string name="pref_bitcoin_denomination_with_denomination">Cryptocurrency denomination (%1$s)</string>
-    <string name="pref_bitcoin_denomination_summary">Set preferred Bitcoin denomination. BTC, mBTC, or μBTC</string>
+    <string name="pref_bitcoin_denomination_summary">Set preferred Bitcoin denomination\nBTC, mBTC, or μBTC</string>
     <string name="pref_advanced_settings">Advanced Settings</string>
     <string name="pref_socks_proxy">Socks Proxy</string>
     <string name="pref_socks_proxy_enabled">Socks Proxy (Enabled)</string>
@@ -566,7 +566,7 @@
     <string name="direct_apk_link_label">Direct\ndownload</string>
     <string name="hide_unused_account_menu">Delete Account</string>
     <string name="dont_allow_hiding_used_notification">You cannot hide a used account, but you can archive it</string>
-    <string name="pref_miner_fee_title">Miner Fee (%1$s)</string>
+    <string name="pref_miner_fee_title">Miner fee</string>
     <string name="pref_miner_fee_block_summary">Transactions are sent with a miner fee to get included within the next %1s block(s) on average.</string>
     <string name="miner_fee_lowprio_name">Low-priority</string>
     <string name="miner_fee_economic_name">Economic</string>
@@ -675,8 +675,8 @@
     <string name="pref_ledger_title">Ledger Hardware Wallet</string>
     <string name="ledger_disable_tee_preference">Disable TEE support</string>
     <string name="ledger_disable_tee_preference_summary">Disable Trusted Execution Environment support if present to use a different Ledger Hardware Wallet</string>
-    <string name="ledger_unplugged_aid_preference">Set Ledger Unplugged AID</string>
-    <string name="ledger_unplugged_aid_preference_summary">Support a different AID for Ledger Unplugged custom builds</string>
+    <string name="ledger_unplugged_aid_preference">Set Ledger unplugged AID</string>
+    <string name="ledger_unplugged_aid_preference_summary">Support a different AID for ledger\nunplugged custom builds</string>
 
     <string name="select_local_currencies">Select your currencies</string>
     <string name="show_public_or_private_data">Show</string>
@@ -687,11 +687,11 @@
     <string name="reset_pin_button">Reset Pin</string>
     <string name="wrong_pin_message">You have entered a wrong pin.\n\n If you have forgotten your pin you can reset it.</string>
     <string name="pref_no_fiat_selected">No fiat currency selected</string>
-    <string name="useTor">Use tor-network</string>
+    <string name="useTor">Tor network</string>
     <string name="useTorDescription">Use the tor-network to communicate with the backend servers.\nThis improves your privacy and may route around restrictive Firewalls. But it may slowdown the performance of this app.</string>
-    <string name="useTorOnlyExternalTor">Use tor-network (external tor)</string>
-    <string name="useTorOnlyHttps">Use tor-Network (only https)</string>
-    <string name="useTorBoth">Use tor-Network (both)</string>
+    <string name="useTorOnlyExternalTor">Tor network (external tor)</string>
+    <string name="useTorOnlyHttps">Tor network (only https)</string>
+    <string name="useTorBoth">Tor network (both)</string>
     <string name="last_log_entries">Last log entries</string>
     <string name="use_https">Use https</string>
     <string name="use_external_tor">Use external tor (Orbot)</string>
@@ -780,8 +780,9 @@
     <string name="description_bump_fee">Send a transaction that increases the fee for this unconfirmed transaction.\n\nDo you want to spend %2$s to get the fee to %1$dsat/B?</string>
     <string name="message_rebroadcast_successfull">The transaction was successfully broadcast.</string>
     <string name="message_rebroadcast_failed">Broadcast failed, please check your internet connection and synchronize your wallet.</string>
-    <string name="block_explorer_title">Block Explorer (%1$s)</string>
+    <string name="block_explorer_title">Block explorers</string>
     <string name="block_explorer_summary">Transaction details are looked up using the %1$s Block Explorer</string>
+    <string name="block_explorer_summary_2">Allows you to find any transaction\nin the blockchain</string>
     <string name="lt_warning_wrong_account_type">Local Trader does not work with the selected account type, please select another account.</string>
     <string name="lt_account_not_allowed">The selected account type does not work with local trader. You need to select another account to perform this trade.</string>
 
@@ -1148,7 +1149,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="install">Install</string>
     <string name="no_spendable_accounts">No spendable accounts</string>
     <string name="digital_assets">Digital Assets</string>
-    <string name="sync_progress">Sync progress: %s%%.</string>
+    <string name="sync_progress">Sync progress: %s%%</string>
     <string name="how_is_it_calculated">How is it calculated?</string>
     <string name="how_is_it_calculated_text">The \"Spendable Amount\" is the account\'s balance minus the cost to spend it.\n\nThe costs depend on the number of UTXOs and the miner fee level that you chose.\n\nYou can review your UTXO count in the Accounts tab, selecting your account and then using the context menu.\n\nIf you have more than 300 UTXOs, your spendable amount might further be limited by Bitcoin\'s transaction size limit. In this case you might need more than one transaction to spend all your funds.</string>
     <string name="import_xpub_should_xpriv">Only spendable accounts with Digital Assets are supported for account level 0. Please use xpriv instead of xpub</string>
@@ -1199,7 +1200,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="offer_auto_updated">The offer will be auto-updated after %d seconds.</string>
     <string name="updating_offer">Updating offer…</string>
     <string name="module_uninstall_progress">Uninstalling…</string>
-    <string name="fully_synced">Fully synced.</string>
+    <string name="fully_synced">Fully synced</string>
     <string name="to_get_your_bitcoin_cash_retrieved"><![CDATA[To get your Bitcoin <font color="#f08c18">Cash</font> retrieved this newly installed module needs some time for synchronisation. It might take from 20 min to several hours, depending on the amount of transactions. When synchronisation is done the information dialog will appear.<br/><br/>You can check the synchronisation progress in notification drawer or Settings -> Bitcoin <font color="#f08c18">Cash</font> module section.<br/><br/>Bitcoin <font color="#f08c18">Cash</font> linked account will be created for every BTC account containing Bitcoin <font color="#f08c18">Cash</font> which has not been retrieved yet.<br/><br/>Go to Balance tab of your Bitcoin <font color="#f08c18">Cash</font> account to instantly exchange it to BTC.]]></string>
     <string name="exchanging">exchanging</string>
     <string name="receiving_exchange">receiving</string>
@@ -1235,6 +1236,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="fiat_currency">Fiat Currency</string>
     <string name="search">Search</string>
     <string name="no_transaction_details">Сheck in Block Explorer using the hash link above.</string>
+    <string name="show_bip_description">Show the BIP44 address path for the current address on the home screen</string>
     <plurals name="account_label">
         <item quantity="one">Account label:\n%s</item>
         <item quantity="other">Accounts labels:\n%s</item>
