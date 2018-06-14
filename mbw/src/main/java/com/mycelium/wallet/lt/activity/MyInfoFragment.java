@@ -50,6 +50,7 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
+import com.mycelium.wallet.lt.api.DeleteTrader;
 import com.mycelium.wallet.lt.api.GetTraderInfo;
 import com.mycelium.wallet.lt.api.Request;
 
@@ -137,6 +138,11 @@ public class MyInfoFragment extends Fragment {
       @Override
       public void onLtTraderInfoFetched(TraderInfo info, GetTraderInfo request) {
          updateUi();
+      }
+
+      @Override
+       public void onLtAccountDeleted(DeleteTrader request){
+          updateUi();
       }
    };
 
