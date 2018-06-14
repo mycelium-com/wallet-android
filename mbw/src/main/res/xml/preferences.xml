@@ -8,6 +8,7 @@
         <ListPreference
             android:icon="@drawable/ic_language_24_px"
             android:key="user_language"
+            android:dialogTitle="@string/pref_change_language"
             android:layout="@layout/preference_key_value_layout"
             android:title="@string/pref_language" />
         <!--<Preference-->
@@ -19,12 +20,11 @@
     <PreferenceCategory
         android:layout="@layout/preference_category_layout"
         android:title="@string/security_and_privacy">
-        <com.mycelium.wallet.activity.view.OnOffPreference
+        <Preference
             android:icon="@drawable/ic_security"
             android:key="pincode"
-            android:layout="@layout/preference_layout"
-            android:title="@string/pin_code"
-            android:widgetLayout="@layout/preference_on_off"/>
+            android:layout="@layout/preference_key_value_layout"
+            android:title="@string/pin_code" />
 
         <!--<CheckBoxPreference-->
         <!--android:icon="@drawable/ic_fingerprint"-->
@@ -32,13 +32,14 @@
         <!--android:layout="@layout/preference_layout"-->
         <!--android:title="Unlock with your fingerprint"-->
         <!--android:widgetLayout="@layout/preference_switch" />-->
-        <ListPreference
+        <CheckBoxPreference
             android:icon="@drawable/ic_tor"
-            android:inputType="text"
             android:key="useTor"
+            android:persistent="false"
             android:layout="@layout/preference_layout"
             android:summary="@string/useTorDescription"
-            android:title="@string/useTor" />
+            android:title="@string/useTor"
+            android:widgetLayout="@layout/preference_switch" />
     </PreferenceCategory>
 
     <PreferenceCategory android:layout="@layout/preference_category_layout">
@@ -55,16 +56,15 @@
         android:layout="@layout/preference_category_layout"
         android:title="@string/modules" />
 
-    <!--Modules-->
     <PreferenceCategory
         android:layout="@layout/preference_category_layout"
         android:title="@string/currencies">
         <ListPreference
+            android:dialogTitle="Bitcoin denomination"
             android:key="bitcoin_denomination"
             android:layout="@layout/preference_layout_no_icon"
             android:summary="@string/pref_bitcoin_denomination_summary"
             android:title="@string/pref_bitcoin_denomination"
-            android:dialogTitle="Bitcoin denomination"
             android:widgetLayout="@layout/preference_arrow" />
         <Preference
             android:icon="@drawable/ic_pref_fiat"
@@ -87,17 +87,17 @@
         android:layout="@layout/preference_category_layout"
         android:title="@string/transactions">
         <ListPreference
+            android:dialogTitle="Block explorer"
             android:icon="@drawable/ic_exchange_coin"
             android:key="block_explorer"
             android:layout="@layout/preference_layout"
-            android:dialogTitle="Block explorer"
             android:widgetLayout="@layout/preference_arrow" />
 
         <ListPreference
             android:icon="@drawable/ic_mining"
             android:key="miner_fee"
-            android:title="@string/miner_fee_title"
             android:layout="@layout/preference_layout"
+            android:title="@string/miner_fee_title"
             android:widgetLayout="@layout/preference_arrow" />
     </PreferenceCategory>
 

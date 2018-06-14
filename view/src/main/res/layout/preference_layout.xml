@@ -23,10 +23,10 @@
     <LinearLayout
         android:layout_width="0dip"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="28dp"
         android:layout_weight="1"
-        android:orientation="vertical"
-        android:paddingRight="1dip">
+        android:orientation="vertical">
 
         <TextView
             android:id="@android:id/title"
@@ -34,17 +34,19 @@
             android:layout_height="wrap_content"
             android:ellipsize="marquee"
             android:fadingEdge="horizontal"
+            android:fontFamily="sans-serif"
             android:singleLine="true"
-            android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="@color/preference_title_color"
+            android:textSize="16sp"
             tools:text="title" />
 
         <TextView
             android:id="@android:id/summary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="#b8bcbf" />
+            android:fontFamily="sans-serif"
+            android:textColor="#b8bcbf"
+            android:textSize="14sp" />
     </LinearLayout>
 
     <!-- Preference should place its actual preference widget here. -->
@@ -53,8 +55,8 @@
         android:id="@android:id/widget_frame"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center"
         android:layout_gravity="center"
+        android:gravity="center"
         android:orientation="vertical" />
 
 </LinearLayout>

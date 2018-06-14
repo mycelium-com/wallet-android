@@ -15,6 +15,7 @@
         android:layout_width="0dip"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:layout_marginEnd="28dp"
         android:orientation="vertical">
 
         <TextView
@@ -25,14 +26,16 @@
             android:fadingEdge="horizontal"
             android:singleLine="true"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textColor="@color/preference_title_color" />
+            android:textColor="@color/preference_title_color"
+            android:textSize="16sp"/>
 
         <TextView
             android:id="@android:id/summary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="#b8bcbf" />
+            android:textColor="#b8bcbf"
+            android:textSize="14sp"/>
     </LinearLayout>
 
     <!-- Preference should place its actual preference widget here. -->

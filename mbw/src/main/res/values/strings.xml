@@ -688,7 +688,7 @@
     <string name="wrong_pin_message">You have entered a wrong pin.\n\n If you have forgotten your pin you can reset it.</string>
     <string name="pref_no_fiat_selected">No fiat currency selected</string>
     <string name="useTor">Tor network</string>
-    <string name="useTorDescription">Use the tor-network to communicate with the backend servers.\nThis improves your privacy and may route around restrictive Firewalls. But it may slowdown the performance of this app.</string>
+    <string name="useTorDescription">Use the tor-network to communicate with the backend servers. This improves your privacy and may route around restrictive Firewalls. But it may slowdown the performance of this app.</string>
     <string name="useTorOnlyExternalTor">Tor network (external tor)</string>
     <string name="useTorOnlyHttps">Tor network (only https)</string>
     <string name="useTorBoth">Tor network (both)</string>

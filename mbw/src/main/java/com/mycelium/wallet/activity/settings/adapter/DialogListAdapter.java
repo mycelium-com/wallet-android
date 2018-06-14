@@ -33,6 +33,10 @@ public class DialogListAdapter extends RecyclerView.Adapter<DialogListAdapter.Vi
         notifyItemChanged(selected);
     }
 
+    public int getSelected() {
+        return selected;
+    }
+
     public void setClickListener(ClickListener clickListener) {
         this.clickListener = clickListener;
     }

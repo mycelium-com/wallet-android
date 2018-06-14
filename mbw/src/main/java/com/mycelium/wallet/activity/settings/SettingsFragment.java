@@ -4,24 +4,25 @@ import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.preference.CheckBoxPreference;
-import android.support.v7.preference.EditTextPreference;
-import android.support.v7.preference.EditTextPreferenceDialogFragmentCompat;
 import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceCategory;
 import android.support.v7.preference.PreferenceFragmentCompat;
-import android.support.v7.preference.PreferenceManager;
+import android.support.v7.preference.PreferenceViewHolder;
 import android.support.v7.widget.AppCompatEditText;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.text.Html;
@@ -32,6 +33,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -56,10 +58,8 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.WalletApplication;
 import com.mycelium.wallet.activity.modern.Toaster;
-import com.mycelium.wallet.activity.settings.adapter.DialogListAdapter;
 import com.mycelium.wallet.activity.settings.helper.DisplayPreferenceDialogHandler;
 import com.mycelium.wallet.activity.view.ButtonPreference;
-import com.mycelium.wallet.activity.view.OnOffPreference;
 import com.mycelium.wallet.activity.view.TwoButtonsPreference;
 import com.mycelium.wallet.event.SpvSyncChanged;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
@@ -98,9 +98,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private LocalTraderManager _ltManager;
     private ListPreference _minerFee;
     private ListPreference _blockExplorer;
-    private OnOffPreference pincodePreference;
+    private Preference pincodePreference;
     private Preference notificationPreference;
-    private ListPreference useTor;
+    private CheckBoxPreference useTor;
     private Preference backupPreference;
     private PreferenceCategory modulesPrefs;
     private Preference externalPreference;
@@ -218,9 +218,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         _exchangeSource = (ListPreference) findPreference("exchange_source");
         language = (ListPreference) findPreference(Constants.LANGUAGE_SETTING);
         notificationPreference = findPreference("notifications");
-        pincodePreference = (OnOffPreference) findPreference("pincode");
+        pincodePreference = findPreference("pincode");
         // Socks Proxy
-        useTor = Preconditions.checkNotNull((ListPreference) findPreference(Constants.SETTING_TOR));
+        useTor = (CheckBoxPreference) Preconditions.checkNotNull(findPreference(Constants.SETTING_TOR));
         showBip44Path = (CheckBoxPreference) findPreference("showBip44Path");
         ledgerDisableTee = (CheckBoxPreference) findPreference("ledgerDisableTee");
         ledgerSetUnpluggedAID = findPreference("ledgerUnpluggedAID");
@@ -236,7 +236,17 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         ltNotificationEmail = findPreference("ltNotificationEmail2");
         localTraderPrefs = (PreferenceCategory) findPreference("localtraderPrefs");
 
-        displayPreferenceDialogHandler  = new DisplayPreferenceDialogHandler(getActivity());
+        displayPreferenceDialogHandler = new DisplayPreferenceDialogHandler(getActivity());
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = super.onCreateView(inflater, container, savedInstanceState);
+        getListView().removeItemDecorationAt(0);
+        DividerDecoration dividerDecoration = new DividerDecoration();
+        dividerDecoration.setDivider(getResources().getDrawable(R.drawable.pref_list_divider));
+        getListView().addItemDecoration(dividerDecoration);
+        return view;
     }
 
     @Override
@@ -289,32 +299,21 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 return true;
             }
         });
-        pincodePreference.setWidgetText(_mbwManager.isPinProtected() ? "On" : "Off");
+        pincodePreference.setSummary(_mbwManager.isPinProtected() ? "On" : "Off");
 
 
         useTor.setTitle(getUseTorTitle());
-        useTor.setEntries(new String[]{
-                getString(R.string.use_https),
-                getString(R.string.use_external_tor),
-//            getString(R.string.both),
-        });
-        useTor.setEntryValues(new String[]{
-                ServerEndpointType.Types.ONLY_HTTPS.toString(),
-                ServerEndpointType.Types.ONLY_TOR.toString(),
-                //      ServerEndpointType.Types.HTTPS_AND_TOR.toString(),
-        });
-        useTor.setValue(_mbwManager.getTorMode().toString());
-        useTor.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+        useTor.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                if (newValue.equals(ServerEndpointType.Types.ONLY_TOR.toString())) {
+            public boolean onPreferenceClick(Preference preference) {
+                if (useTor.isChecked()) {
                     OrbotHelper obh = new OrbotHelper(getActivity());
                     if (!obh.isOrbotInstalled()) {
                         obh.promptToInstall(getActivity());
                     }
                 }
-                _mbwManager.setTorMode(ServerEndpointType.Types.valueOf((String) newValue));
-                useTor.setTitle(getUseTorTitle());
+                _mbwManager.setTorMode(useTor.isChecked()
+                        ? ServerEndpointType.Types.ONLY_TOR : ServerEndpointType.Types.ONLY_HTTPS);
                 return true;
             }
         });
@@ -521,16 +520,28 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
             private void findSearchResult(String s) {
                 getPreferenceScreen().removeAll();
+                List<Preference> prefs = new ArrayList<>();
                 for (Preference preferenceCat : preferenceList) {
                     if (preferenceCat instanceof PreferenceCategory) {
                         PreferenceCategory preferenceCategory = (PreferenceCategory) preferenceCat;
+
+                        prefs.clear();
                         for (int i = 0; i < preferenceCategory.getPreferenceCount(); i++) {
                             Preference preference = preferenceCategory.getPreference(i);
                             if (preference.getTitle() != null
                                     && preference.getTitle().toString().toLowerCase().contains(s.toLowerCase())
                                     || preference.getSummary() != null
                                     && preference.getSummary().toString().toLowerCase().contains(s.toLowerCase())) {
-                                getPreferenceScreen().addPreference(preference);
+                                prefs.add(preference);
+                            }
+                        }
+                        if(!prefs.isEmpty()) {
+                            PreferenceCategory preferenceCategory1 = new PreferenceCategory(getContext());
+                            preferenceCategory1.setLayoutResource(preferenceCategory.getLayoutResource());
+                            preferenceCategory1.setTitle(preferenceCategory.getTitle());
+                            getPreferenceScreen().addPreference(preferenceCategory1);
+                            for (Preference pref : prefs) {
+                                preferenceCategory1.addPreference(pref);
                             }
                         }
                     }
@@ -923,5 +934,88 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     @Override
     public void onDisplayPreferenceDialog(Preference preference) {
         displayPreferenceDialogHandler.onDisplayPreferenceDialog(preference);
+    }
+
+    private class DividerDecoration extends RecyclerView.ItemDecoration {
+
+        private Drawable mDivider;
+        private int mDividerHeight;
+        private boolean mAllowDividerAfterLastItem = true;
+
+        private int iconDividerLeft;
+        private Paint paint = new Paint() {{
+            setColor(Color.parseColor("#2c2c2c"));
+        }};
+
+        DividerDecoration() {
+            iconDividerLeft = getResources().getDimensionPixelSize(R.dimen.pref_divider_margin);
+        }
+
+        @Override
+        public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {
+            if (mDivider == null) {
+                return;
+            }
+            final int childCount = parent.getChildCount();
+            final int width = parent.getWidth();
+            for (int childViewIndex = 0; childViewIndex < childCount; childViewIndex++) {
+                final View view = parent.getChildAt(childViewIndex);
+                if (shouldDrawDividerBelow(view, parent)) {
+                    int left = 0;
+                    if (view.findViewById(android.R.id.icon) != null) {
+                        left = iconDividerLeft;
+                    }
+                    int top = (int) view.getY() + view.getHeight();
+                    c.drawRect(0, top, width, top + mDividerHeight, paint);
+                    mDivider.setBounds(left, top, width, top + mDividerHeight);
+                    mDivider.draw(c);
+                }
+            }
+        }
+
+        @Override
+        public void getItemOffsets(Rect outRect, View view, RecyclerView parent,
+                                   RecyclerView.State state) {
+            if (shouldDrawDividerBelow(view, parent)) {
+                outRect.bottom = mDividerHeight;
+            }
+        }
+
+        private boolean shouldDrawDividerBelow(View view, RecyclerView parent) {
+            final RecyclerView.ViewHolder holder = parent.getChildViewHolder(view);
+            final boolean dividerAllowedBelow = holder instanceof PreferenceViewHolder
+                    && ((PreferenceViewHolder) holder).isDividerAllowedBelow();
+            if (!dividerAllowedBelow) {
+                return false;
+            }
+            boolean nextAllowed = mAllowDividerAfterLastItem;
+            int index = parent.indexOfChild(view);
+            if (index < parent.getChildCount() - 1) {
+                final View nextView = parent.getChildAt(index + 1);
+                final RecyclerView.ViewHolder nextHolder = parent.getChildViewHolder(nextView);
+                nextAllowed = nextHolder instanceof PreferenceViewHolder
+                        && ((PreferenceViewHolder) nextHolder).isDividerAllowedAbove();
+            }
+            return nextAllowed;
+        }
+
+        public void setDivider(Drawable divider) {
+            if (divider != null) {
+                mDividerHeight = divider.getIntrinsicHeight();
+            } else {
+                mDividerHeight = 0;
+            }
+            mDivider = divider;
+            getListView().invalidateItemDecorations();
+        }
+
+        public void setDividerHeight(int dividerHeight) {
+            mDividerHeight = dividerHeight;
+            getListView().invalidateItemDecorations();
+        }
+
+        public void setAllowDividerAfterLastItem(boolean allowDividerAfterLastItem) {
+            mAllowDividerAfterLastItem = allowDividerAfterLastItem;
+        }
     }
 }

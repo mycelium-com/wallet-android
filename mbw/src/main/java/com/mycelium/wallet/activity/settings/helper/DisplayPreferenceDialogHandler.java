@@ -9,6 +9,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.TextView;
 
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.R;
@@ -26,7 +27,6 @@ public class DisplayPreferenceDialogHandler implements PreferenceManager.OnDispl
     public void onDisplayPreferenceDialog(Preference preference) {
         int theme = R.style.MyceliumSettings_Dialog;
         switch (preference.getKey()) {
-            case Constants.SETTING_TOR:
             case Constants.SETTING_DENOMINATION:
             case Constants.SETTING_MINER_FEE:
                 theme = R.style.MyceliumSettings_Dialog_Small;
@@ -37,28 +37,33 @@ public class DisplayPreferenceDialogHandler implements PreferenceManager.OnDispl
             final ListPreference listPreference = (ListPreference) preference;
 
             View view = LayoutInflater.from(context).inflate(R.layout.dialog_pref_list, null);
+            TextView title = view.findViewById(R.id.title);
+            title.setText(listPreference.getDialogTitle());
             final RecyclerView listView = view.findViewById(android.R.id.list);
             listView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
 
             final int selectedIndex = listPreference.findIndexOfValue(listPreference.getValue());
-            DialogListAdapter arrayAdapter = new DialogListAdapter(listPreference.getEntries(), selectedIndex);
+            final DialogListAdapter arrayAdapter = new DialogListAdapter(listPreference.getEntries(), selectedIndex);
             listView.setAdapter(arrayAdapter);
-            arrayAdapter.setClickListener(new DialogListAdapter.ClickListener() {
+            listView.scrollToPosition(selectedIndex);
+            view.findViewById(R.id.buttonCancel).setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(String val, int position) {
-                    String value = listPreference.getEntryValues()[position].toString();
-                    if (listPreference.callChangeListener(value)) {
-                        listPreference.setValue(value);
-                    }
+                public void onClick(View view) {
                     alertDialog.dismiss();
                 }
             });
-            listView.scrollToPosition(selectedIndex);
 
+            view.findViewById(R.id.buttonok).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    String value = listPreference.getEntryValues()[arrayAdapter.getSelected()].toString();
+                    if (listPreference.callChangeListener(value)) {
+                        listPreference.setValue(value);
+                    }
+                }
+            });
             alertDialog = new AlertDialog.Builder(context, theme)
-                    .setTitle(listPreference.getDialogTitle())
                     .setView(view)
-                    .setNegativeButton(R.string.cancel, null)
                     .create();
             alertDialog.show();
         } else {

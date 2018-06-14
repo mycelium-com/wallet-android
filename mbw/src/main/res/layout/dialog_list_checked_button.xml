@@ -2,19 +2,18 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="48dp">
 
     <RadioButton
         android:id="@+id/checkbox"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginStart="18dp"
         android:fontFamily="sans-serif"
+        android:gravity="center_vertical"
         android:lineSpacingExtra="8sp"
-        android:paddingBottom="14dp"
         android:paddingEnd="24dp"
         android:paddingStart="24dp"
-        android:layout_marginStart="24dp"
-        android:paddingTop="14dp"
         android:textColor="#ffffff"
         android:textSize="16sp"
         android:textStyle="normal"
