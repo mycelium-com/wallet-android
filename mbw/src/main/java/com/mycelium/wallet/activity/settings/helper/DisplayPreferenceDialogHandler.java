@@ -56,6 +56,7 @@ public class DisplayPreferenceDialogHandler implements PreferenceManager.OnDispl
             view.findViewById(R.id.buttonok).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    alertDialog.dismiss();
                     String value = listPreference.getEntryValues()[arrayAdapter.getSelected()].toString();
                     if (listPreference.callChangeListener(value)) {
                         listPreference.setValue(value);

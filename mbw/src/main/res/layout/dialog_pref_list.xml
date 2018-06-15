@@ -34,7 +34,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="#1a1a1a" />
+        android:background="@drawable/pref_list_divider" />
 
     <LinearLayout
         android:layout_width="match_parent"

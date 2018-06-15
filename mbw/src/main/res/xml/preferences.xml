@@ -182,4 +182,7 @@
             android:title="@string/updates"
             android:widgetLayout="@layout/preference_arrow" />
     </PreferenceCategory>
+
+    <PreferenceCategory android:key="space"
+        android:layout="@layout/preference_category_layout" />
 </PreferenceScreen>

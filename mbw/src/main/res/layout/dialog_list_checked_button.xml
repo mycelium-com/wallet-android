@@ -10,7 +10,7 @@
         android:layout_height="match_parent"
         android:layout_marginStart="18dp"
         android:fontFamily="sans-serif"
-        android:gravity="center_vertical"
+        android:gravity="center_vertical|left"
         android:lineSpacingExtra="8sp"
         android:paddingEnd="24dp"
         android:paddingStart="24dp"

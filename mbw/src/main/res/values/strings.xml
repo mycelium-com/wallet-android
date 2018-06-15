@@ -567,7 +567,7 @@
     <string name="hide_unused_account_menu">Delete Account</string>
     <string name="dont_allow_hiding_used_notification">You cannot hide a used account, but you can archive it</string>
     <string name="pref_miner_fee_title">Miner fee</string>
-    <string name="pref_miner_fee_block_summary">Transactions are sent with a miner fee to get included within the next %1s block(s) on average.</string>
+    <string name="pref_miner_fee_block_summary">Transactions are sent with a miner fee to get included within the next %1s block(s) on average</string>
     <string name="miner_fee_lowprio_name">Low-priority</string>
     <string name="miner_fee_economic_name">Economic</string>
     <string name="miner_fee_normal_name">Normal</string>
@@ -688,7 +688,7 @@
     <string name="wrong_pin_message">You have entered a wrong pin.\n\n If you have forgotten your pin you can reset it.</string>
     <string name="pref_no_fiat_selected">No fiat currency selected</string>
     <string name="useTor">Tor network</string>
-    <string name="useTorDescription">Use the tor-network to communicate with the backend servers. This improves your privacy and may route around restrictive Firewalls. But it may slowdown the performance of this app.</string>
+    <string name="useTorDescription">Use the tor-network to communicate with the backend servers. This improves your privacy and may route around restrictive Firewalls. But it may slowdown the performance of this app</string>
     <string name="useTorOnlyExternalTor">Tor network (external tor)</string>
     <string name="useTorOnlyHttps">Tor network (only https)</string>
     <string name="useTorBoth">Tor network (both)</string>
