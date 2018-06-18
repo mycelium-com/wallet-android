@@ -245,6 +245,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         getListView().removeItemDecorationAt(0);
         DividerDecoration dividerDecoration = new DividerDecoration();
         dividerDecoration.setDivider(getResources().getDrawable(R.drawable.pref_list_divider));
+        dividerDecoration.setAllowDividerAfterLastItem(false);
         getListView().addItemDecoration(dividerDecoration);
         return view;
     }
