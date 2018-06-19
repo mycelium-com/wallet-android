@@ -66,7 +66,9 @@ import com.mrd.bitlib.crypto.Bip39;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.MrdExport;
+import com.mrd.bitlib.crypto.PrivateKey;
 import com.mrd.bitlib.crypto.RandomSource;
+import com.mrd.bitlib.crypto.SignedMessage;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.BitUtils;
@@ -130,7 +132,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Random;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -1387,5 +1388,36 @@ public class MbwManager {
          }
       }, 1, SECONDS);
 
+   }
+
+   // Derivation constants for mycelium messages' signing key
+   private static final int DERIVATION_NUMBER_LEVEL_ONE = 1234;
+   private static final int DERIVATION_NUMBER_LEVEL_TWO = 7865;
+
+   // Returns the public part of mycelium messages' signing key called 'myceliumId'
+   public String getMyceliumId() {
+      try {
+         PrivateKey privateKey = getMessagesSigningKey();
+         return privateKey.getPublicKey().toString();
+      } catch (Exception ex){
+         return "";
+      }
+   }
+
+   // Derives a key for signing messages (messages signing key) from the master seed
+   private PrivateKey getMessagesSigningKey() throws KeyCipher.InvalidKeyCipher {
+      Bip39.MasterSeed seed = getWalletManager(false).getMasterSeed(AesKeyCipher.defaultKeyCipher());
+      return HdKeyNode.fromSeed(seed.getBip32Seed()).createChildNode(DERIVATION_NUMBER_LEVEL_ONE).createChildNode(DERIVATION_NUMBER_LEVEL_TWO).getPrivateKey();
+   }
+
+   // Signs a message using the mycelium messages' signing key
+   public String signMessage(String unsignedMessage) {
+      try {
+         PrivateKey privateKey = getMessagesSigningKey();
+         SignedMessage signedMessage = privateKey.signMessage(unsignedMessage);
+         return signedMessage.getBase64Signature();
+      } catch (Exception ex){
+         return "";
+      }
    }
 }
