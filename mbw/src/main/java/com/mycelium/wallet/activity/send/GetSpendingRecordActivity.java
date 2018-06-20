@@ -89,10 +89,10 @@ public class GetSpendingRecordActivity extends Activity {
       this.requestWindowFeature(Window.FEATURE_NO_TITLE);
       super.onCreate(savedInstanceState);
       setContentView(R.layout.get_spending_record_activity);
+      _mbwManager = MbwManager.getInstance(this.getApplication());
       builder = new RecordRowBuilder(_mbwManager, getResources());
       listView = findViewById(R.id.lvRecords);
       listView.setOnItemClickListener(new RecordClicked());
-      _mbwManager = MbwManager.getInstance(this.getApplication());
 
       // Get intent parameters
       _uri = (BitcoinUri) getIntent().getSerializableExtra("uri");
