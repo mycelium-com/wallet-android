@@ -127,8 +127,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 2100508
-        versionName '2.10.5.8'
+        versionCode 2100602
+        versionName '2.10.6.2'
         multiDexEnabled true
 
         minSdkVersion 19
@@ -195,6 +195,8 @@ android {
                 ColuBlockExplorerApiURLs = '{"https://coloredcoins.gear.mycelium.com/api/", "https://explorer.coloredcoins.org/api/"}'
                 RMCChangeAddress = "18c91fJmVg7btPjxpwrhgwd37GkVghq9me"
 
+                ElectrumServers = '{"tcp-tls://electrumx-1.mycelium.com:50001"}'
+
                 appIdSpvBch = [release: "com.mycelium.module.spvbch",
                                debug  : "com.mycelium.module.spvbch.debug"]
             }
@@ -214,6 +216,8 @@ android {
                 ColuBlockExplorerApiURLs = '{"http://testnet.explorer.coloredcoins.org/api/"}'
                 RMCChangeAddress = "mx92L6iuCfxQUz4cLNU4jJpfWbavVHgYj9"
 
+                ElectrumServers = '{"tcp-tls://electrumx-1.mycelium.com:50012"}'
+
                 appIdSpvBch = [release: "com.mycelium.module.spvbch.testnet",
                                debug  : "com.mycelium.module.spvbch.testnet.debug"]
             }
@@ -230,7 +234,7 @@ android {
         variant.buildConfigField "String[]", "ColoredCoinsApiURLs", "${flavor.ext.ColoredCoinsApiURLs}"
         variant.buildConfigField "String[]", "ColuBlockExplorerApiURLs", "${flavor.ext.ColuBlockExplorerApiURLs}"
         variant.buildConfigField "String", "RMCChangeAddress", "\"${flavor.ext.RMCChangeAddress}\""
-
+        variant.buildConfigField "String[]", "ElectrumServers", "${flavor.ext.ElectrumServers}"
         variant.buildConfigField "String", "appIdSpvBch", "\"${flavor.ext.appIdSpvBch[variant.buildType.name]}\""
     }
 

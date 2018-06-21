@@ -36,6 +36,7 @@ package com.mycelium.wallet;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.StrictMode;
@@ -63,6 +64,7 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
     private static WalletApplication INSTANCE;
 
     private static Map<WalletAccount.Type, String> spvModulesMapping = initTrustedSpvModulesMapping();
+    private NetworkChangedReceiver networkChangedReceiver;
 
     static {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
@@ -98,6 +100,13 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         moduleMessageReceiver = new MbwMessageReceiver(this);
         MbwManager mbwManager = MbwManager.getInstance(this);
         applyLanguageChange(getBaseContext(), mbwManager.getLanguage());
+        IntentFilter connectivityChangeFilter = new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE");
+        initNetworkStateHandler(connectivityChangeFilter);
+    }
+
+    private void initNetworkStateHandler(IntentFilter connectivityChangeFilter) {
+        networkChangedReceiver = new NetworkChangedReceiver();
+        registerReceiver(networkChangedReceiver, connectivityChangeFilter);
     }
 
     public List<ModuleVersionError> moduleVersionErrors = new ArrayList<>();
@@ -162,6 +171,12 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
     @Override
     public void onMessage(@NonNull String callingPackageName, @NonNull Intent intent) {
         moduleMessageReceiver.onMessage(callingPackageName, intent);
+    }
+
+    @Override
+    public void onTerminate() {
+        super.onTerminate();
+        unregisterReceiver(networkChangedReceiver);
     }
 
     public static String getSpvModuleName(WalletAccount.Type accountType) {

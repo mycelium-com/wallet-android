@@ -124,6 +124,9 @@ public class BroadcastTransactionActivity extends Activity {
       AsyncTask<Void, Integer, WalletAccount.BroadcastResult> task = new AsyncTask<Void, Integer, WalletAccount.BroadcastResult>() {
          @Override
          protected WalletAccount.BroadcastResult doInBackground(Void... args) {
+            if (!Utils.isConnected(BroadcastTransactionActivity.this)) {
+               return WalletAccount.BroadcastResult.NO_SERVER_CONNECTION;
+            }
             if (CommunicationManager.getInstance().getPairedModules()
                     .contains(GooglePlayModuleCollection.getModules(getApplicationContext()).get("btc"))) {
                   Intent intent = IntentContract.BroadcastTransaction.createIntent(_transaction.toBytes());

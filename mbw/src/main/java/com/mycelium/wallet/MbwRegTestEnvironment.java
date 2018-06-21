@@ -44,6 +44,7 @@ import com.mycelium.wallet.external.CreditCardBuyServiceDescription;
 import com.mycelium.wallet.external.GlideraServiceDescription;
 import com.mycelium.wallet.external.LocalTraderServiceDescription;
 import com.mycelium.wallet.external.SimplexServiceDescription;
+import com.mycelium.wapi.api.jsonrpc.TcpEndpoint;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -82,6 +83,13 @@ public class MbwRegTestEnvironment extends MbwEnvironment {
    public ServerEndpoints getWapiEndpoints() {
       return  testnetWapiEndpoints;
    }
+
+   private static final List<TcpEndpoint> electrumEndpoints = new ArrayList<TcpEndpoint>(){{
+      add(new TcpEndpoint("localhost", 50012));
+   }};
+
+   @Override
+   public List<TcpEndpoint> getElectrumEndpoints() {return electrumEndpoints;}
 
    /**
     * Available BlockExplorers

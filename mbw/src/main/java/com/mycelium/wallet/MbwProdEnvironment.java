@@ -45,6 +45,7 @@ import com.mycelium.wallet.external.BuySellServiceDescriptor;
 import com.mycelium.wallet.external.GlideraServiceDescription;
 import com.mycelium.wallet.external.LocalTraderServiceDescription;
 import com.mycelium.wallet.external.SimplexServiceDescription;
+import com.mycelium.wapi.api.jsonrpc.TcpEndpoint;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -117,6 +118,13 @@ public class MbwProdEnvironment extends MbwEnvironment {
       return prodnetWapiServerEndpoints;
    }
 
+   private static final List<TcpEndpoint> electrumEndpoints = new ArrayList<TcpEndpoint>(){{
+      add(new TcpEndpoint("electrumx-1.mycelium.com", 50002));
+   }};
+
+   @Override
+   public List<TcpEndpoint> getElectrumEndpoints() {return electrumEndpoints;}
+
    /**
     * Available BlockExplorers
     * <p>
@@ -137,7 +145,7 @@ public class MbwProdEnvironment extends MbwEnvironment {
    }};
 
    public List<BlockExplorer> getBlockExplorerList() {
-      return new ArrayList<BlockExplorer>(prodnetExplorerClearEndpoints);
+      return new ArrayList<>(prodnetExplorerClearEndpoints);
    }
 
    public List<BuySellServiceDescriptor> getBuySellServices(){
