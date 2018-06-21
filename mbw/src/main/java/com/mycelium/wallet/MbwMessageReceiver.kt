@@ -74,6 +74,24 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 notifySatoshisReceived()
             }
 
+            // MBW receives 'com.mycelium.wallet.getMyceliumId' message
+            // when the module requested myceliumId
+            "com.mycelium.wallet.getMyceliumId" -> {
+                val mbwManager = MbwManager.getInstance(context)
+                val service = IntentContract.MyceliumIdTransfer.createIntent(mbwManager.myceliumId)
+                WalletApplication.sendToSpv(service, BCHBIP44)
+            }
+
+            // MBW receives 'com.mycelium.wallet.signData' message
+            // when the module requested MBW to sign the message
+            "com.mycelium.wallet.signData" -> {
+                val mbwManager = MbwManager.getInstance(context)
+                val message = intent.getStringExtra(IntentContract.MESSAGE)
+                val signature = mbwManager.signMessage(message)
+                val service = IntentContract.TransferSignedData.createIntent(message, signature)
+                WalletApplication.sendToSpv(service, BCHBIP44)
+            }
+
             "com.mycelium.wallet.blockchainState" -> {
                 val bestChainDate = intent.getLongExtra("best_chain_date", 0L)
                 val bestChainHeight = intent.getIntExtra("best_chain_height", 0)
