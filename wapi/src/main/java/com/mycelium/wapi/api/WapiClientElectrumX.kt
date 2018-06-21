@@ -81,7 +81,7 @@ class WapiClientElectrumX(
             }
 
             return WapiResponse(QueryUnspentOutputsResponse(bestChainHeight, unspent))
-        } catch (ex : TimeoutException) {
+        } catch (ex: TimeoutException) {
             return WapiResponse<QueryUnspentOutputsResponse>(Wapi.ERROR_CODE_NO_SERVER_CONNECTION, null)
         }
     }
@@ -105,7 +105,7 @@ class WapiClientElectrumX(
                     .map { Sha256Hash.fromString(it.tx_hash) })
 
             return WapiResponse(QueryTransactionInventoryResponse(bestChainHeight, txIds))
-        } catch (ex : TimeoutException) {
+        } catch (ex: TimeoutException) {
             return WapiResponse<QueryTransactionInventoryResponse>(Wapi.ERROR_CODE_NO_SERVER_CONNECTION, null)
         }
     }
@@ -123,7 +123,7 @@ class WapiClientElectrumX(
                         rbfRisk)
             })
             WapiResponse(GetTransactionsResponse(transactions))
-        } catch(ex : TimeoutException) {
+        } catch (ex: TimeoutException) {
             WapiResponse<GetTransactionsResponse>(Wapi.ERROR_CODE_NO_SERVER_CONNECTION, null)
         }
     }
@@ -138,7 +138,7 @@ class WapiClientElectrumX(
             }
             val txId = response.getResult(String::class.java)!!
             return WapiResponse(BroadcastTransactionResponse(true, Sha256Hash.fromString(txId)))
-        } catch (ex : TimeoutException) {
+        } catch (ex: TimeoutException) {
             return WapiResponse<BroadcastTransactionResponse>(Wapi.ERROR_CODE_NO_SERVER_CONNECTION, null)
         }
     }
@@ -157,7 +157,7 @@ class WapiClientElectrumX(
                         rbfRisk)
             })
             return WapiResponse(CheckTransactionsResponse(transactionsArray))
-        } catch (ex : TimeoutException) {
+        } catch (ex: TimeoutException) {
             return WapiResponse<CheckTransactionsResponse>(Wapi.ERROR_CODE_NO_SERVER_CONNECTION, null)
         }
     }
@@ -225,7 +225,6 @@ class WapiClientElectrumX(
 
     private fun isRbf(vin: Array<TransactionInputX>) = vin.any { it.sequence < NON_RBF_SEQUENCE }
 
-/*
     override fun getMinerFeeEstimations(): WapiResponse<MinerFeeEstimationResponse> {
         try {
             val blocks: Array<Int> = arrayOf(1, 2, 3, 4, 5, 10, 15, 20) // this is what the wapi server used
@@ -246,7 +245,6 @@ class WapiClientElectrumX(
             return WapiResponse<MinerFeeEstimationResponse>(Wapi.ERROR_CODE_NO_SERVER_CONNECTION, null)
         }
     }
-*/
 
     fun serverFeatures(): ServerFeatures {
         val response = jsonRpcTcpClient.write(FEATURES_METHOD, RpcParams.listParams(), DEFAULT_RESPONSE_TIMEOUT)
