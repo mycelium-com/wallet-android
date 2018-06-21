@@ -73,7 +73,7 @@ class WapiClientElectrumX(
                 val outputs = response.getResult(Array<UnspentOutputs>::class.java)
                 outputs!!.forEach {
                     val script = StandardTransactionBuilder.createOutput(requestAddressesList[requestsIndexesMap[response.id.toString()]!!],
-                            it.value, NetworkParameters.testNetwork).script
+                            it.value, requestAddressesList[0].network).script
                     unspent.add(TransactionOutputEx(OutPoint(Sha256Hash.fromString(it.txHash), it.txPos), it.height,
                             it.value, script.scriptBytes,
                             script.isCoinBase))
@@ -81,7 +81,7 @@ class WapiClientElectrumX(
             }
 
             return WapiResponse(QueryUnspentOutputsResponse(bestChainHeight, unspent))
-        } catch (ex : TimeoutException) {
+        } catch (ex: TimeoutException) {
             return WapiResponse<QueryUnspentOutputsResponse>(Wapi.ERROR_CODE_NO_SERVER_CONNECTION, null)
         }
     }
@@ -105,7 +105,7 @@ class WapiClientElectrumX(
                     .map { Sha256Hash.fromString(it.tx_hash) })
 
             return WapiResponse(QueryTransactionInventoryResponse(bestChainHeight, txIds))
-        } catch (ex : TimeoutException) {
+        } catch (ex: TimeoutException) {
             return WapiResponse<QueryTransactionInventoryResponse>(Wapi.ERROR_CODE_NO_SERVER_CONNECTION, null)
         }
     }
@@ -118,14 +118,14 @@ class WapiClientElectrumX(
                 TransactionExApi(
                         txIdString,
                         txHashString,
-                        if (tx.confirmations > 0) bestChainHeight - tx.confirmations else -1,
+                        if (tx.confirmations > 0) bestChainHeight - tx.confirmations + 1 else -1,
                         if (tx.time == 0) (Date().time / 1000).toInt() else tx.time,
                         Transaction.fromByteReader(ByteReader(HexUtils.toBytes(tx.hex)), txIdString).toBytes(), // TODO SEGWIT remove when implemeted. Decreases sync speed twice
                         unconfirmedChainLength, // 0 or 1. we don't dig deeper. 1 == unconfirmed parent
                         rbfRisk)
             }
             WapiResponse(GetTransactionsResponse(transactions))
-        } catch(ex : TimeoutException) {
+        } catch (ex: TimeoutException) {
             WapiResponse<GetTransactionsResponse>(Wapi.ERROR_CODE_NO_SERVER_CONNECTION, null)
         }
     }
@@ -140,7 +140,7 @@ class WapiClientElectrumX(
             }
             val txId = response.getResult(String::class.java)!!
             return WapiResponse(BroadcastTransactionResponse(true, Sha256Hash.fromString(txId)))
-        } catch (ex : TimeoutException) {
+        } catch (ex: TimeoutException) {
             return WapiResponse<BroadcastTransactionResponse>(Wapi.ERROR_CODE_NO_SERVER_CONNECTION, null)
         }
     }
@@ -154,12 +154,12 @@ class WapiClientElectrumX(
                         Sha256Hash.fromString(tx.txid),
                         true,
                         if (tx.time == 0) (Date().time / 1000).toInt() else tx.time,
-                        if (tx.confirmations > 0) bestChainHeight - tx.confirmations else -1,
+                        if (tx.confirmations > 0) bestChainHeight - tx.confirmations + 1 else -1,
                         unconfirmedChainLength, // 0 or 1. we don't dig deeper. 1 == unconfirmed parent
                         rbfRisk)
             }
             return WapiResponse(CheckTransactionsResponse(transactionsArray))
-        } catch (ex : TimeoutException) {
+        } catch (ex: TimeoutException) {
             return WapiResponse<CheckTransactionsResponse>(Wapi.ERROR_CODE_NO_SERVER_CONNECTION, null)
         }
     }
@@ -213,21 +213,22 @@ class WapiClientElectrumX(
                     RpcParams.mapParams(
                             "tx_hash" to it,
                             "verbose" to true))
-        }.toList()
+        }.toList().chunked(GET_TRANSACTION_BATCH_LIMIT)
 
-        return jsonRpcTcpClient.write(requestsList, DEFAULT_RESPONSE_TIMEOUT).responses.mapNotNull {
-            if (it.hasError) {
-                logger.logError("checkTransactions failed: ${it.error}")
-                null
-            } else {
-                it.getResult(TransactionX::class.java)
+        return requestsList.flatMap {
+            jsonRpcTcpClient.write(it, DEFAULT_RESPONSE_TIMEOUT).responses.mapNotNull {
+                if (it.hasError) {
+                    logger.logError("checkTransactions failed: ${it.error}")
+                    null
+                } else {
+                    it.getResult(TransactionX::class.java)
+                }
             }
         }
     }
 
     private fun isRbf(vin: Array<TransactionInputX>) = vin.any { it.sequence < NON_RBF_SEQUENCE }
 
-/*
     override fun getMinerFeeEstimations(): WapiResponse<MinerFeeEstimationResponse> {
         try {
             val blocks: Array<Int> = arrayOf(1, 2, 3, 4, 5, 10, 15, 20) // this is what the wapi server used
@@ -248,7 +249,6 @@ class WapiClientElectrumX(
             return WapiResponse<MinerFeeEstimationResponse>(Wapi.ERROR_CODE_NO_SERVER_CONNECTION, null)
         }
     }
-*/
 
     fun serverFeatures(): ServerFeatures {
         val response = jsonRpcTcpClient.write(FEATURES_METHOD, RpcParams.listParams(), DEFAULT_RESPONSE_TIMEOUT)
@@ -266,7 +266,8 @@ class WapiClientElectrumX(
         @Deprecated("Address must be replaced with script")
         private const val GET_HISTORY_METHOD = "blockchain.address.get_history"
         private val NON_RBF_SEQUENCE = UnsignedInteger.MAX_VALUE.toLong()
-        const val DEFAULT_RESPONSE_TIMEOUT = 10000L
+        private const val DEFAULT_RESPONSE_TIMEOUT = 10000L
+        private const val GET_TRANSACTION_BATCH_LIMIT = 10
     }
 }
 
