@@ -211,14 +211,16 @@ class WapiClientElectrumX(
                     RpcParams.mapParams(
                             "tx_hash" to it,
                             "verbose" to true))
-        }.toList()
+        }.toList().chunked(GET_TRANSACTION_BATCH_LIMIT)
 
-        return jsonRpcTcpClient.write(requestsList, DEFAULT_RESPONSE_TIMEOUT).responses.mapNotNull {
-            if (it.hasError) {
-                logger.logError("checkTransactions failed: ${it.error}")
-                null
-            } else {
-                it.getResult(TransactionX::class.java)
+        return requestsList.flatMap {
+            jsonRpcTcpClient.write(it, DEFAULT_RESPONSE_TIMEOUT).responses.mapNotNull {
+                if (it.hasError) {
+                    logger.logError("checkTransactions failed: ${it.error}")
+                    null
+                } else {
+                    it.getResult(TransactionX::class.java)
+                }
             }
         }
     }
@@ -227,7 +229,7 @@ class WapiClientElectrumX(
 
     override fun getMinerFeeEstimations(): WapiResponse<MinerFeeEstimationResponse> {
         try {
-            val blocks: Array<Int> = arrayOf(1, 2, 3, 4, 5, 10, 15, 20) // this is what the wapi server used
+            val blocks: Array<Int> = arrayOf(1, 2, Companion.GET_TRANSACTION_BATCH_LIMIT, 4, 5, 10, 15, 20) // this is what the wapi server used
             val requestsList = ArrayList<RpcRequestOut>()
             blocks.forEach { nBlocks ->
                 requestsList.add(RpcRequestOut(ESTIMATE_FEE_METHOD, RpcParams.listParams(nBlocks)))
@@ -262,7 +264,8 @@ class WapiClientElectrumX(
         @Deprecated("Address must be replaced with script")
         private const val GET_HISTORY_METHOD = "blockchain.address.get_history"
         private val NON_RBF_SEQUENCE = UnsignedInteger.MAX_VALUE.toLong()
-        const val DEFAULT_RESPONSE_TIMEOUT = 10000L
+        private const val DEFAULT_RESPONSE_TIMEOUT = 10000L
+        private const val GET_TRANSACTION_BATCH_LIMIT = 10
     }
 }
 
