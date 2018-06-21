@@ -75,7 +75,7 @@ public class IndependentTransactionOutput implements Serializable {
 
    @Override
    public int hashCode() {
-      return outPoint.hash.hashCode() + outPoint.index;
+      return outPoint.txid.hashCode() + outPoint.index;
    }
 
    @Override

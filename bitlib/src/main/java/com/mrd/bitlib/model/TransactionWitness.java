@@ -1,9 +1,12 @@
 package com.mrd.bitlib.model;
 
+import com.mrd.bitlib.util.ByteWriter;
+
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-class TransactionWitness {
+class TransactionWitness implements Serializable {
     public static final TransactionWitness EMPTY = new TransactionWitness(0);
 
     private final List<byte[]> stack;
@@ -18,5 +21,17 @@ class TransactionWitness {
             stack.add(new byte[]{});
         }
         stack.set(i, value);
+    }
+
+    public int getStackSize() {
+        return stack.size();
+    }
+
+    public void toByteWriter(ByteWriter writer) {
+        writer.putCompactInt(stack.size());
+        for (byte[] element : stack) {
+            writer.putCompactInt(element.length);
+            writer.putBytes(element);
+        }
     }
 }

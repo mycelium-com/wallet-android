@@ -112,16 +112,18 @@ class WapiClientElectrumX(
 
     override fun getTransactions(request: GetTransactionsRequest): WapiResponse<GetTransactionsResponse> {
         return try {
-            val transactions = getTransactionsWithParentLookupConverted(request.txIds.map { it.toHex() }, { tx, unconfirmedChainLength, rbfRisk ->
+            val transactions = getTransactionsWithParentLookupConverted(request.txIds.map { it.toHex() }) { tx, unconfirmedChainLength, rbfRisk ->
                 val txIdString = Sha256Hash.fromString(tx.txid)
+                val txHashString = Sha256Hash.fromString(tx.hash)
                 TransactionExApi(
                         txIdString,
+                        txHashString,
                         if (tx.confirmations > 0) bestChainHeight - tx.confirmations + 1 else -1,
                         if (tx.time == 0) (Date().time / 1000).toInt() else tx.time,
                         Transaction.fromByteReader(ByteReader(HexUtils.toBytes(tx.hex)), txIdString).toBytes(), // TODO SEGWIT remove when implemeted. Decreases sync speed twice
                         unconfirmedChainLength, // 0 or 1. we don't dig deeper. 1 == unconfirmed parent
                         rbfRisk)
-            })
+            }
             WapiResponse(GetTransactionsResponse(transactions))
         } catch (ex: TimeoutException) {
             WapiResponse<GetTransactionsResponse>(Wapi.ERROR_CODE_NO_SERVER_CONNECTION, null)
@@ -147,7 +149,7 @@ class WapiClientElectrumX(
         try {
             // TODO: make the transaction "check" use blockchain.address.subscribe instead of repeated
             // polling of blockchain.transaction.get
-            val transactionsArray = getTransactionsWithParentLookupConverted(request.txIds.map { it.toHex() }, { tx, unconfirmedChainLength, rbfRisk ->
+            val transactionsArray = getTransactionsWithParentLookupConverted(request.txIds.map { it.toHex() }) { tx, unconfirmedChainLength, rbfRisk ->
                 TransactionStatus(
                         Sha256Hash.fromString(tx.txid),
                         true,
@@ -155,7 +157,7 @@ class WapiClientElectrumX(
                         if (tx.confirmations > 0) bestChainHeight - tx.confirmations + 1 else -1,
                         unconfirmedChainLength, // 0 or 1. we don't dig deeper. 1 == unconfirmed parent
                         rbfRisk)
-            })
+            }
             return WapiResponse(CheckTransactionsResponse(transactionsArray))
         } catch (ex: TimeoutException) {
             return WapiResponse<CheckTransactionsResponse>(Wapi.ERROR_CODE_NO_SERVER_CONNECTION, null)
