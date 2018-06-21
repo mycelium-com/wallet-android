@@ -71,6 +71,5 @@ public class DisplayPreferenceDialogHandler implements PreferenceManager.OnDispl
             throw new IllegalArgumentException("Tried to display dialog for unknown " +
                     "preference type. Did you forget to override onDisplayPreferenceDialog()?");
         }
-
     }
 }

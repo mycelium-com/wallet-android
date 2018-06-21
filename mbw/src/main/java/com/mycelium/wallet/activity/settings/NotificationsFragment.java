@@ -10,7 +10,6 @@ import android.view.MenuItem;
 import com.mycelium.wallet.R;
 
 public class NotificationsFragment extends PreferenceFragmentCompat {
-
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         addPreferencesFromResource(R.xml.preferences_notifications);

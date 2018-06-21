@@ -1,5 +1,6 @@
 package com.mycelium.wallet.activity.settings.adapter;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
@@ -37,8 +38,9 @@ public class LocalCurrencyAdapter extends ArrayAdapter<CurrencyCode> {
         notifyDataSetChanged();
     }
 
+    @NonNull
     @Override
-    public View getView(int pos, View convertView, ViewGroup parent) {
+    public View getView(int pos, View convertView, @NonNull ViewGroup parent) {
         if (convertView == null) {
             convertView = inflater.inflate(R.layout.listview_item_with_checkbox, null);
         }
