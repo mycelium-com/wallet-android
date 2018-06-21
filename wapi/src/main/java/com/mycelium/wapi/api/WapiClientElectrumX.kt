@@ -229,7 +229,7 @@ class WapiClientElectrumX(
 
     override fun getMinerFeeEstimations(): WapiResponse<MinerFeeEstimationResponse> {
         try {
-            val blocks: Array<Int> = arrayOf(1, 2, Companion.GET_TRANSACTION_BATCH_LIMIT, 4, 5, 10, 15, 20) // this is what the wapi server used
+            val blocks: Array<Int> = arrayOf(1, 2, 3, 4, 5, 10, 15, 20) // this is what the wapi server used
             val requestsList = ArrayList<RpcRequestOut>()
             blocks.forEach { nBlocks ->
                 requestsList.add(RpcRequestOut(ESTIMATE_FEE_METHOD, RpcParams.listParams(nBlocks)))
