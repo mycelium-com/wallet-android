@@ -116,7 +116,7 @@ class WapiClientElectrumX(
                 val txIdString = Sha256Hash.fromString(tx.txid)
                 TransactionExApi(
                         txIdString,
-                        if (tx.confirmations > 0) bestChainHeight - tx.confirmations else -1,
+                        if (tx.confirmations > 0) bestChainHeight - tx.confirmations + 1 else -1,
                         if (tx.time == 0) (Date().time / 1000).toInt() else tx.time,
                         Transaction.fromByteReader(ByteReader(HexUtils.toBytes(tx.hex)), txIdString).toBytes(), // TODO SEGWIT remove when implemeted. Decreases sync speed twice
                         unconfirmedChainLength, // 0 or 1. we don't dig deeper. 1 == unconfirmed parent
@@ -152,7 +152,7 @@ class WapiClientElectrumX(
                         Sha256Hash.fromString(tx.txid),
                         true,
                         if (tx.time == 0) (Date().time / 1000).toInt() else tx.time,
-                        if (tx.confirmations > 0) bestChainHeight - tx.confirmations else -1,
+                        if (tx.confirmations > 0) bestChainHeight - tx.confirmations + 1 else -1,
                         unconfirmedChainLength, // 0 or 1. we don't dig deeper. 1 == unconfirmed parent
                         rbfRisk)
             })
