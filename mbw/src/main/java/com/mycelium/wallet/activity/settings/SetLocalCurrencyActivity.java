@@ -59,7 +59,6 @@ import java.util.List;
 import java.util.Set;
 
 public class SetLocalCurrencyActivity extends AppCompatActivity {
-
     public static void callMe(Activity currentActivity) {
         Intent intent = new Intent(currentActivity, SetLocalCurrencyActivity.class);
         currentActivity.startActivity(intent);

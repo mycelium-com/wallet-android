@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DialogListAdapter extends RecyclerView.Adapter<DialogListAdapter.ViewHolder> {
-
     private int selected;
     private List<String> data = new ArrayList<>();
     private ClickListener clickListener;
@@ -37,6 +36,7 @@ public class DialogListAdapter extends RecyclerView.Adapter<DialogListAdapter.Vi
         return selected;
     }
 
+    @SuppressWarnings("unused") // TODO: use this to save the user clicks
     public void setClickListener(ClickListener clickListener) {
         this.clickListener = clickListener;
     }
@@ -48,7 +48,7 @@ public class DialogListAdapter extends RecyclerView.Adapter<DialogListAdapter.Vi
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
         final String item = data.get(position);
         holder.checkedTextView.setText(item);
         holder.checkedTextView.setOnCheckedChangeListener(null);
@@ -57,12 +57,13 @@ public class DialogListAdapter extends RecyclerView.Adapter<DialogListAdapter.Vi
             @Override
             public void onCheckedChanged(final CompoundButton compoundButton, boolean b) {
                 if (b) {
-                    setSelected(position);
+                    final int pos = holder.getAdapterPosition();
+                    setSelected(pos);
                     if (clickListener != null) {
                         compoundButton.postDelayed(new Runnable() {
                             @Override
                             public void run() {
-                                clickListener.onClick(data.get(position), position);
+                                clickListener.onClick(data.get(pos), pos);
                             }
                         }, 200); // need to user see click reaction
                     }

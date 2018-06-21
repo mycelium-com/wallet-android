@@ -50,23 +50,16 @@ public class PinCodeFragment extends PreferenceFragmentCompat {
 
     private final Preference.OnPreferenceClickListener setPinClickListener = new Preference.OnPreferenceClickListener() {
         public boolean onPreferenceClick(Preference preference) {
+            Optional<Runnable> afterDialogClosed = Optional.<Runnable>of(new Runnable() {
+                @Override
+                public void run() {
+                    update();
+                }
+            });
             if(setPin.isChecked()) {
-                _mbwManager.showSetPinDialog(getActivity(), Optional.<Runnable>of(new Runnable() {
-                            @Override
-                            public void run() {
-
-                                update();
-                            }
-                        })
-                );
+                _mbwManager.showSetPinDialog(getActivity(), afterDialogClosed);
             } else {
-                _mbwManager.showClearPinDialog(getActivity(), Optional.<Runnable>of(new Runnable() {
-                            @Override
-                            public void run() {
-                                update();
-                            }
-                        })
-                );
+                _mbwManager.showClearPinDialog(getActivity(), afterDialogClosed);
             }
             return true;
         }
@@ -86,7 +79,7 @@ public class PinCodeFragment extends PreferenceFragmentCompat {
                     }
             );
 
-            // dont automatically take the new value, lets to it in our the pin protected runnable
+            // don't automatically take the new value, lets do it in the pin protected runnable
             return false;
         }
     };
@@ -95,5 +88,4 @@ public class PinCodeFragment extends PreferenceFragmentCompat {
         setPin.setChecked(_mbwManager.isPinProtected());
         setPinRequiredStartup.setChecked(_mbwManager.isPinProtected() && _mbwManager.getPinRequiredOnStartup());
     }
-
 }

@@ -31,7 +31,6 @@ public class TwoButtonsPreference extends Preference implements ModulePreference
     @BindView(R.id.sync_state)
     TextView syncState;
 
-
     private View.OnClickListener topButtonClickListener;
     private View.OnClickListener bottomButtonClickListener;
     private String topButtonText;
