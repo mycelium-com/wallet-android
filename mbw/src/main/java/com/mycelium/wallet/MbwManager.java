@@ -759,7 +759,7 @@ public class MbwManager {
    public void showSetPinDialog(final Activity activity, final Optional<Runnable> afterDialogClosed) {
       // Must make a backup before setting PIN
       if (this.getMetadataStorage().getMasterSeedBackupState() != MetadataStorage.BackupState.VERIFIED) {
-         Utils.showSimpleMessageDialog(activity, R.string.pin_backup_first);
+         Utils.showSimpleMessageDialog(activity, R.string.pin_backup_first, afterDialogClosed.get());
          return;
       }
 

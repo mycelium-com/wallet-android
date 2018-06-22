@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#2c2c2c"
+    android:padding="16dp">
+
+    <ImageView
+        android:id="@android:id/icon"
+        android:layout_width="94dp"
+        android:layout_height="94dp"
+        android:src="@drawable/image_bch_module" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@android:id/icon"
+        android:orientation="vertical"
+        android:layout_marginLeft="16dp">
+
+        <TextView
+            android:id="@android:id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif"
+            android:ellipsize="end"
+            android:lines="1"
+            android:textColor="@color/preference_title_color"
+            android:textSize="16sp"
+            tools:text="Mycelium Bitcoin Cash Module Bitcoin Cash Module" />
+
+
+        <TextView
+            android:id="@android:id/summary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif"
+            android:textColor="#bdbdbd"
+            android:textSize="14sp"
+            android:textStyle="normal"
+            tools:text="Mycelium Bitcoin Cash Module\nSummary Cash Module Summary" />
+
+        <TextView
+            android:id="@+id/sync_state"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:fontFamily="sans-serif"
+            android:textColor="#77c298"
+            android:textSize="14sp"
+            android:textStyle="normal"
+            tools:text="Fully synced" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_below="@android:id/icon"
+        android:layout_marginLeft="16dp"
+        android:layout_toRightOf="@android:id/icon"
+        android:background="#252525" />
+
+    <TextView
+        android:id="@+id/under_icon_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@android:id/icon"
+        android:layout_alignRight="@android:id/icon"
+        android:layout_below="@android:id/icon"
+        android:layout_marginTop="10dp"
+        android:fontFamily="sans-serif"
+        android:gravity="center"
+        android:lineSpacingExtra="4sp"
+        android:textColor="#ffffff"
+        android:textSize="12sp"
+        android:textStyle="normal"
+        tools:text="BCH Module" />
+
+
+    <FrameLayout
+        android:id="@android:id/widget_frame"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@android:id/icon"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_toRightOf="@android:id/icon" />
+
+</RelativeLayout>

@@ -534,7 +534,7 @@
   <string name="direct_apk_link_label">Download\ndireto</string>
   <string name="hide_unused_account_menu">Apagar Conta</string>
   <string name="dont_allow_hiding_used_notification">Você não pode esconder uma conta usada, mas você pode arquivá-la</string>
-  <string name="pref_miner_fee_title">Taxa do Minerador (%1$s)</string>
+  <string name="pref_miner_fee_title">Taxa do Minerador</string>
   <string name="pref_miner_fee_block_summary">As transações são enviadas com uma taxa para o minerador para serem incluídas dentro do(s) próximo(s) %1s bloco(s) em média.</string>
   <string name="miner_fee_lowprio_name">Baixa prioridade</string>
   <string name="miner_fee_economic_name">Econômica</string>
@@ -730,7 +730,7 @@
   <string name="description_rebroadcast_transaction">Re-envie essa transação para o servidor para transmiti-la. Essa função pode ser usada se você suspeitar que a rede não a propagou ou foi descartada, porque ela não foi confirmada por um longo período, por exemplo. Você gostaria de re-transmitir essa transação?</string>
   <string name="message_rebroadcast_successfull">A transação foi transmitida com sucesso.</string>
   <string name="message_rebroadcast_failed">A transmissão falhou. Por favor cheque a sua conexão de internet e sincronize a sua carteira.</string>
-  <string name="block_explorer_title">Navegador de Blocos (%1$s)</string>
+  <string name="block_explorer_title">Navegador de Blocos</string>
   <string name="block_explorer_summary">Os detalhes da transação são verificados com o Explorador de Blocos %1$s</string>
   <string name="lt_warning_wrong_account_type">O Trader Local não funciona com o tipo de conta selecionado, por favor escolha outra conta.</string>
   <string name="lt_account_not_allowed">O tipo de conta selecionado não funciona com o trader local. Você precisa selecionar outra conta para realizar esse trade.</string>

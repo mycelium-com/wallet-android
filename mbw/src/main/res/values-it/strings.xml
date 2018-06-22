@@ -530,7 +530,7 @@
   <string name="direct_apk_link_label">Download\ndiretto</string>
   <string name="hide_unused_account_menu">Elimina l\'account</string>
   <string name="dont_allow_hiding_used_notification">Non è possibile nascondere un account utilizzato, ma puoi archiviarlo</string>
-  <string name="pref_miner_fee_title">Commissione (%1$s)</string>
+  <string name="pref_miner_fee_title">Commissione</string>
   <string name="pref_miner_fee_block_summary">Alle transazioni verrà aggiunta una commissione (miner fee) per essere incluse, in media, entro i prossimi %1s blocchi.</string>
   <string name="miner_fee_lowprio_name">Bassa priorità</string>
   <string name="miner_fee_economic_name">Economica</string>
@@ -691,7 +691,7 @@
   <string name="rebroadcast_transaction_title">Ritrasmette la transazione</string>
   <string name="description_rebroadcast_transaction">Sottoponi di nuovo questa transazione al server per trasmetterla. Questa opzione può essere usata, ad esempio, se si sospetta che la rete non abbia propagato la transazione o sia stata rimosssa perché non confermata per un lungo periodo. Desideri ritrasmettere questa transazione?</string>
   <string name="message_rebroadcast_failed">Trasmissione non riuscita, controlla la connessione a internet e sincronizzare il tuo portafoglio.</string>
-  <string name="block_explorer_title">Block Explorer (%1$s)</string>
+  <string name="block_explorer_title">Block explorer</string>
   <string name="block_explorer_summary">Dettagli e statistiche sulle transazioni saranno consultati usando il servizio block explorer di %1$s</string>
   <string name="lt_warning_wrong_account_type">Local Trader non funziona con il tipo di account selezionato, selezionare un altro account.</string>
   <string name="coinapult_sending_via_coinapult">Invio di bitcoin tramite Coinapult</string>

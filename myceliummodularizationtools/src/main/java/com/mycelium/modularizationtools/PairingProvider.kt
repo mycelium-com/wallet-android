@@ -2,9 +2,11 @@ package com.mycelium.modularizationtools
 
 import android.content.ContentProvider
 import android.content.ContentValues
+import android.content.pm.PackageManager
 import android.database.Cursor
 import android.database.MatrixCursor
 import android.net.Uri
+
 
 /**
  * This ContentProvider serves to authenticate one app against another.
@@ -31,9 +33,15 @@ open class PairingProvider : ContentProvider() {
         val sessionKey = selectionArgs!![0].toLong()
         val version = selectionArgs[1].toInt()
         CommunicationManager.getInstance().pair(callingPackage, sessionKey, version)
-        val cursor = MatrixCursor(arrayOf("name", "shortName", "description"))
-
-        cursor.addRow(arrayOf(context.getString(R.string.module_name), context.getString(R.string.module_short_name),context.getString(R.string.module_description)))
+        val cursor = MatrixCursor(arrayOf("name", "shortName", "description", "version"))
+        var versionName = ""
+        try {
+            val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+            versionName = packageInfo.versionName
+        } catch (ignore: PackageManager.NameNotFoundException) {
+        }
+        cursor.addRow(arrayOf(context.getString(R.string.module_name), context.getString(R.string.module_short_name)
+                , context.getString(R.string.module_description), versionName))
         return cursor
     }
 

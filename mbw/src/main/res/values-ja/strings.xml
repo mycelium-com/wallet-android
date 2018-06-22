@@ -520,7 +520,7 @@
   <string name="direct_apk_link_label">ダイレクト\nダウンロード</string>
   <string name="hide_unused_account_menu">アカウントを削除</string>
   <string name="dont_allow_hiding_used_notification">使用履歴のあるアカウントは隠すことができませんが、アーカイブにすることはできます。</string>
-  <string name="pref_miner_fee_title">手数料 (%1$s)</string>
+  <string name="pref_miner_fee_title">手数料</string>
   <string name="miner_fee_lowprio_name">低優先度</string>
   <string name="miner_fee_economic_name">節約</string>
   <string name="miner_fee_normal_name">普通</string>

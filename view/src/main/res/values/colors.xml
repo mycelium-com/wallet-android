@@ -3,4 +3,5 @@
     <color name="transparent">#00000000</color>
     <color name="color_accent">#31b7e4</color>
     <color name="white">#fff</color>
+    <color name="common_blue">#5aa7e6</color>
 </resources>
