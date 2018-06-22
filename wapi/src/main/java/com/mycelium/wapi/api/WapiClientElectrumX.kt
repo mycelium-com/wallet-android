@@ -221,7 +221,14 @@ class WapiClientElectrumX(
                     logger.logError("checkTransactions failed: ${it.error}")
                     null
                 } else {
-                    it.getResult(TransactionX::class.java)
+                    it.getResult(TransactionX::class.java).apply {
+                        // Since our electrumX does not send vin's anymore, parse transaction hex
+                        // by ourselves and extract inputs information
+                        val tx = Transaction.fromBytes(HexUtils.toBytes(this!!.hex))
+                        this.vin = tx.inputs.map {
+                            TransactionInputX(it.outPoint.txid.toString(), it.sequence.toLong())
+                        }.toTypedArray()
+                    }
                 }
             }
         }
@@ -283,7 +290,7 @@ data class TransactionX(
         val hex: String,
         val time: Int,
         val txid: String,
-        val vin: Array<TransactionInputX>
+        var vin: Array<TransactionInputX>
 )
 
 data class TransactionInputX(
