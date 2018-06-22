@@ -763,7 +763,7 @@ public class MbwManager {
 
     public void showSetPinDialog(final Activity activity, final Optional<Runnable> afterDialogClosed) {
         // Must make a backup before setting PIN
-        if (getMetadataStorage().getMasterSeedBackupState() != MetadataStorage.BackupState.VERIFIED) {
+        if (this.getMetadataStorage().getMasterSeedBackupState() != MetadataStorage.BackupState.VERIFIED) {
             Utils.showSimpleMessageDialog(activity, R.string.pin_backup_first);
             return;
         }
@@ -963,6 +963,10 @@ public class MbwManager {
 
     public String getBtcValueString(long satoshis) {
         return _currencySwitcher.getBtcValueString(satoshis);
+    }
+
+    public String getBchValueString(long satoshis) {
+        return _currencySwitcher.getBchValueString(satoshis);
     }
 
     public boolean isKeyManagementLocked() {

@@ -2,7 +2,9 @@ package com.mycelium.wapi.wallet.single;
 
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
+import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.api.Wapi;
+import com.mycelium.wapi.model.TransactionDetails;
 import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.SingleAddressAccountBacking;
 import com.mycelium.wapi.wallet.SpvBalanceFetcher;
@@ -56,18 +58,34 @@ public class SingleAddressBCHAccount extends SingleAddressAccount {
 
     @Override
     public List<TransactionSummary> getTransactionHistory(int offset, int limit) {
-        return spvBalanceFetcher.retrieveTransactionSummaryByUnrelatedAccountId(getId().toString());
+        return spvBalanceFetcher.retrieveTransactionsSummaryByUnrelatedAccountId(getId().toString(), offset, limit);
     }
 
     @Override
     public List<TransactionSummary> getTransactionsSince(Long receivingSince) {
-        return spvBalanceFetcher.retrieveTransactionSummaryByUnrelatedAccountId(getId().toString(), receivingSince);
+        return spvBalanceFetcher.retrieveTransactionsSummaryByUnrelatedAccountId(getId().toString(), receivingSince);
+    }
+
+    @Override
+    public TransactionDetails getTransactionDetails(Sha256Hash txid) {
+        return spvBalanceFetcher.retrieveTransactionDetails(txid);
+    }
+
+    @Override
+    public TransactionSummary getTransactionSummary(Sha256Hash txid) {
+        List<TransactionSummary> transactions = spvBalanceFetcher.retrieveTransactionsSummaryByUnrelatedAccountId(getId().toString());
+        for (TransactionSummary transaction : transactions) {
+            if(transaction.txid.equals(txid)) {
+                return transaction;
+            }
+        }
+        return null;
     }
 
     @Override
     public boolean isVisible() {
         if (!visible && (spvBalanceFetcher.getSyncProgressPercents() == 100 || spvBalanceFetcher.isAccountSynced(this))) {
-            visible = !spvBalanceFetcher.retrieveTransactionSummaryByUnrelatedAccountId(getId().toString()).isEmpty();
+            visible = !spvBalanceFetcher.retrieveTransactionsSummaryByUnrelatedAccountId(getId().toString()).isEmpty();
         }
         return visible;
     }

@@ -33,6 +33,11 @@ public class CoinUtil {
    private static final BigDecimal mBTC_IN_SATOSHIS = new BigDecimal(100000);
    private static final BigDecimal uBTC_IN_SATOSHIS = new BigDecimal(100);
    private static final BigDecimal BITS_IN_SATOSHIS = new BigDecimal(100);
+
+   private static final BigDecimal BCH_IN_SATOSHIS = new BigDecimal(100000000);
+   private static final BigDecimal mBCH_IN_SATOSHIS = new BigDecimal(100000);
+   private static final BigDecimal uBCH_IN_SATOSHIS = new BigDecimal(100);
+
    private static final DecimalFormat COIN_FORMAT;
 
    static {
@@ -50,6 +55,9 @@ public class CoinUtil {
       BTC(8, "BTC", "BTC", BTC_IN_SATOSHIS),
       mBTC(5, "mBTC", "mBTC", mBTC_IN_SATOSHIS),
       uBTC(2, "uBTC", "\u00B5BTC", uBTC_IN_SATOSHIS),
+      BCH(8, "BCH", "BCH", BCH_IN_SATOSHIS),
+      mBCH(5, "mBCH", "mBCH", mBCH_IN_SATOSHIS),
+      uBCH(2, "uBCH", "\u00B5BCH", uBCH_IN_SATOSHIS),
       BITS(2, "bits", "bits", BITS_IN_SATOSHIS);
 
       private final int _decimalPlaces;
@@ -96,6 +104,12 @@ public class CoinUtil {
                return mBTC;
             case "uBTC":
                return uBTC;
+            case "BCH":
+               return BCH;
+            case "mBCH":
+               return mBCH;
+            case "uBCH":
+               return uBCH;
             case "bits":
                return BITS;
             default:

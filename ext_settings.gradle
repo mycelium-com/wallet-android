@@ -1,11 +1,11 @@
 // keep that file in sync with ext_settings.gradle in the internal big repository
 ext {
     guavaArtifact = 'com.google.guava:guava:23.0-android'
-    androidBuildArtifact = 'com.android.tools.build:gradle:3.1.1'
+    androidBuildArtifact = 'com.android.tools.build:gradle:3.1.2'
     slf4jVersion = '1.7.2'
     androidCompileSdkVersion = 27
     androidSdkBuildVersion = '27.0.3'
-    androidSupportVersion = '27.1.0'
+    androidSupportVersion = '27.1.1'
     junitVersion = '4.12'
     kotlin_version = '1.2.41'
 

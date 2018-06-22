@@ -157,25 +157,25 @@ public class StandardTransactionBuilderTest {
 
     @Test
     public void testCreateUnsignedTransactionWithoutChange() throws Exception {
-        // UTXOs worth 2BTCs + 70000 satoshis, should result in 2 in 1 out. 2000 satoshis will be
+        int feeExpected = StandardTransactionBuilder.estimateTransactionSize(1, 1) * 200; //68000
+        long utxoAvailable = 2 * SATOSHIS_PER_BITCOIN + feeExpected + MINIMUM_OUTPUT_VALUE - 10;
+        // UTXOs worth utxoAvailable satoshis, should result in 1 in 1 out.
+        // MINIMUM_OUTPUT_VALUE - 10 satoshis will be
         // left out because it is inferior of the MINIMUM_OUTPUT_VALUE.
-        int feeExpected = StandardTransactionBuilder.estimateTransactionSize(2, 1) * 200; //68000
         Collection<UnspentTransactionOutput> inventory = ImmutableList.of(
-            getUtxo(ADDRS[0], SATOSHIS_PER_BITCOIN),
-            getUtxo(ADDRS[0], SATOSHIS_PER_BITCOIN + 70000)
+            getUtxo(ADDRS[0], utxoAvailable)
         );
         testme.addOutput(ADDRS[2], 2 * SATOSHIS_PER_BITCOIN);
         UnsignedTransaction tx = testme.createUnsignedTransaction(inventory, ADDRS[3], KEY_RING,
             testNetwork, 200000);
         UnspentTransactionOutput[] inputs = tx.getFundingOutputs();
-        assertEquals(2, inputs.length);
-        assertEquals(2 * SATOSHIS_PER_BITCOIN + 70000,
-            inputs[0].value + inputs[1].value);
+        assertEquals(1, inputs.length);
+        assertEquals(utxoAvailable, inputs[0].value);
 
         TransactionOutput[] outputs = tx.getOutputs();
         assertEquals(1, outputs.length);
-        assertTrue(tx.calculateFee() <= feeExpected + MINIMUM_OUTPUT_VALUE);
-        assertTrue(tx.calculateFee() >= feeExpected);
+        assertTrue(tx.calculateFee() < feeExpected + MINIMUM_OUTPUT_VALUE);
+        assertTrue(tx.calculateFee() > feeExpected);
         assertEquals(ADDRS[2], outputs[0].script.getAddress(testNetwork));
     }
 

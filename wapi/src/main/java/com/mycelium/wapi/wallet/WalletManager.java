@@ -587,7 +587,7 @@ public class WalletManager {
      * observer.
      */
     public void startSynchronization() {
-        startSynchronization(SyncMode.NORMAL);
+        startSynchronization(SyncMode.NORMAL_FORCED);
     }
 
     public void startSynchronization(SyncMode mode) {
