@@ -482,23 +482,19 @@ public class ModernMain extends AppCompatActivity {
       startActivity(intent);
       Toast.makeText(this, R.string.going_to_mycelium_com_help, Toast.LENGTH_LONG).show();
    }
-   private WalletManager.State commonSyncState;
+
    public void setRefreshAnimation() {
       if (refreshItem != null) {
          if (_mbwManager.getWalletManager(false).getState() == WalletManager.State.SYNCHRONIZING
                  || _mbwManager.getColuManager().getState() == WalletManager.State.SYNCHRONIZING) {
-            if(commonSyncState != WalletManager.State.SYNCHRONIZING) {
-               showRefresh();
-            }
+            showRefresh();
          } else {
-            commonSyncState = WalletManager.State.READY;
             refreshItem.setActionView(null);
          }
       }
    }
 
    private void showRefresh() {
-      commonSyncState = WalletManager.State.SYNCHRONIZING;
       MenuItem menuItem = refreshItem.setActionView(R.layout.actionbar_indeterminate_progress);
       ImageView ivTorIcon = menuItem.getActionView().findViewById(R.id.ivTorIcon);
 

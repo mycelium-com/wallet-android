@@ -195,7 +195,7 @@ android {
                 ColuBlockExplorerApiURLs = '{"https://coloredcoins.gear.mycelium.com/api/", "https://explorer.coloredcoins.org/api/"}'
                 RMCChangeAddress = "18c91fJmVg7btPjxpwrhgwd37GkVghq9me"
 
-                ElectrumServers = '{"tcp-tls://electrumx-1.mycelium.com:50001"}'
+                ElectrumServers = '{"tcp-tls://electrumx.mycelium.com:4431"}'
 
                 appIdSpvBch = [release: "com.mycelium.module.spvbch",
                                debug  : "com.mycelium.module.spvbch.debug"]
@@ -216,7 +216,7 @@ android {
                 ColuBlockExplorerApiURLs = '{"http://testnet.explorer.coloredcoins.org/api/"}'
                 RMCChangeAddress = "mx92L6iuCfxQUz4cLNU4jJpfWbavVHgYj9"
 
-                ElectrumServers = '{"tcp-tls://electrumx-1.mycelium.com:50012"}'
+                ElectrumServers = '{"tcp-tls://electrumx.mycelium.com:4432"}'
 
                 appIdSpvBch = [release: "com.mycelium.module.spvbch.testnet",
                                debug  : "com.mycelium.module.spvbch.testnet.debug"]

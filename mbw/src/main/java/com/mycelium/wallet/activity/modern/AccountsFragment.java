@@ -121,13 +121,17 @@ public class AccountsFragment extends Fragment {
    private RecyclerView rvRecords;
    private View llLocked;
    private AccountListAdapter accountListAdapter;
+   private View root;
 
    /**
     * Called when the activity is first created.
     */
    @Override
    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-      return inflater.inflate(R.layout.records_activity, container, false);
+      if (root == null) {
+         root = inflater.inflate(R.layout.records_activity, container, false);
+      }
+      return root;
    }
 
    @Override
