@@ -57,6 +57,7 @@ class UpdateTxHistoryTask extends AsyncTask<Void, Void, List<TransactionSummary>
             fragment.showHistory(false);
         } else {
             fragment.showHistory(true);
+            wrapper.notifyDataSetChanged();
         }
         fragment.refreshList();
         FragmentActivity activity = fragment.getActivity();
