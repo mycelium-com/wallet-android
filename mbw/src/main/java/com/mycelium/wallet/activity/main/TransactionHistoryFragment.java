@@ -167,8 +167,12 @@ public class TransactionHistoryFragment extends Fragment {
    @Override
    public void onResume() {
       _mbwManager.getEventBus().register(this);
-      new UpdateTxHistoryTask(this, _mbwManager, wrapper, history).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+      updateTransactionHistory();
       super.onResume();
+   }
+
+   private void updateTransactionHistory() {
+      new UpdateTxHistoryTask(this, _mbwManager, wrapper, history).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
    }
 
    @Override
@@ -191,7 +195,7 @@ public class TransactionHistoryFragment extends Fragment {
 
    @Subscribe
    public void syncStopped(SyncStopped event) {
-      new UpdateTxHistoryTask(this, _mbwManager, wrapper, history).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+      updateTransactionHistory();
    }
 
    @Subscribe
@@ -392,7 +396,7 @@ public class TransactionHistoryFragment extends Fragment {
                                       public void onClick(DialogInterface dialog, int which) {
                                          boolean okay = _mbwManager.getSelectedAccount().cancelQueuedTransaction(record.txid);
                                          dialog.dismiss();
-                                         new UpdateTxHistoryTask(TransactionHistoryFragment.this, _mbwManager, wrapper, history).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                                         updateTransactionHistory();
                                          if (okay) {
                                             Utils.showSimpleMessageDialog(getActivity(), _context.getString(R.string.remove_queued_transaction_hint));
                                          } else {
@@ -417,7 +421,7 @@ public class TransactionHistoryFragment extends Fragment {
                                       public void onClick(DialogInterface dialog, int which) {
                                          _mbwManager.getSelectedAccount().deleteTransaction(record.txid);
                                          dialog.dismiss();
-                                         new UpdateTxHistoryTask(TransactionHistoryFragment.this, _mbwManager, wrapper, history).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                                         updateTransactionHistory();
                                       }
                                    })
                                    .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
@@ -558,7 +562,7 @@ public class TransactionHistoryFragment extends Fragment {
       @Override
       public void OnAddressLabelChanged(Address address, String label) {
          _mbwManager.getEventBus().post(new AddressBookChanged());
-         new UpdateTxHistoryTask(TransactionHistoryFragment.this, _mbwManager, wrapper, history).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+         updateTransactionHistory();
       }
    };
 
@@ -570,7 +574,7 @@ public class TransactionHistoryFragment extends Fragment {
 
       @Override
       public void OnTransactionLabelChanged(Sha256Hash txid, String label) {
-         new UpdateTxHistoryTask(TransactionHistoryFragment.this, _mbwManager, wrapper, history).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+         updateTransactionHistory();
       }
    };
 

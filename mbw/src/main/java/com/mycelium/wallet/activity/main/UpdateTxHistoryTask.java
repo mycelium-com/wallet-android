@@ -19,7 +19,6 @@ class UpdateTxHistoryTask extends AsyncTask<Void, Void, List<TransactionSummary>
 
     UpdateTxHistoryTask(TransactionHistoryFragment fragment, MbwManager mbwManager, TransactionHistoryFragment.Wrapper wrapper,
                         List<TransactionSummary> history) {
-        super();
         this.fragment = fragment;
         this.mbwManager = mbwManager;
         this.wrapper = wrapper;
