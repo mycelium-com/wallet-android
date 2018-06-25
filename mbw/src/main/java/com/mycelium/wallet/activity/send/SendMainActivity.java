@@ -1551,7 +1551,7 @@ public class SendMainActivity extends Activity {
         } else if (requestCode == BROADCAST_REQUEST_CODE) {
             // return result from broadcast
             if (resultCode == RESULT_OK) {
-                transactionFiatValuePref.edit().putString(intent.getStringExtra(Constants.TRANSACTION_HASH_INTENT_KEY)
+                transactionFiatValuePref.edit().putString(intent.getStringExtra(Constants.TRANSACTION_ID_INTENT_KEY)
                         , intent.getStringExtra(Constants.TRANSACTION_FIAT_VALUE_KEY)).apply();
             }
             this.setResult(resultCode, intent);

@@ -480,8 +480,8 @@ public class StartupActivity extends Activity {
             if (resultCode == RESULT_OK) {
                Bundle extras = Preconditions.checkNotNull(data.getExtras());
                for(String key: extras.keySet()) {
-                  // make sure we only share TRANSACTION_HASH_INTENT_KEY with external caller
-                  if(!key.equals(Constants.TRANSACTION_HASH_INTENT_KEY)) {
+                  // make sure we only share TRANSACTION_ID_INTENT_KEY with external caller
+                  if(!key.equals(Constants.TRANSACTION_ID_INTENT_KEY)) {
                      data.removeExtra(key);
                   }
                }

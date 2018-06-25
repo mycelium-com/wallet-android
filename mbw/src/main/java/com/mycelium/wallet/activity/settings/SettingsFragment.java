@@ -82,11 +82,8 @@ import info.guardianproject.onionkit.ui.OrbotHelper;
 import static android.app.Activity.RESULT_CANCELED;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
-
-    public static final CharMatcher AMOUNT = CharMatcher.JAVA_DIGIT.or(CharMatcher.anyOf(".,"));
+    public static final CharMatcher AMOUNT = CharMatcher.javaDigit().or(CharMatcher.anyOf(".,"));
     private static final int REQUEST_CODE_UNINSTALL = 1;
-    private static final String DIALOG_FRAGMENT_TAG = "SettingsFragment";
-
 
     private ListPreference language;
     private ListPreference _bitcoinDenomination;
@@ -198,7 +195,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         }
     };
 
-
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         addPreferencesFromResource(R.xml.preferences);
@@ -302,7 +298,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         });
         pincodePreference.setSummary(_mbwManager.isPinProtected() ? "On" : "Off");
 
-
         useTor.setTitle(getUseTorTitle());
         useTor.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
@@ -341,7 +336,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         }
         processUnpairedModules(modulesPrefs);
 
-        _bitcoinDenomination.setTitle(bitcoinDenominationTitle());
         _bitcoinDenomination.setDefaultValue(_mbwManager.getBitcoinDenomination().toString());
         _bitcoinDenomination.setValue(_mbwManager.getBitcoinDenomination().toString());
         CharSequence[] denominations = new CharSequence[]{CoinUtil.Denomination.BTC.toString(), CoinUtil.Denomination.mBTC.toString(),
@@ -349,11 +343,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         _bitcoinDenomination.setEntries(denominations);
         _bitcoinDenomination.setEntryValues(denominations);
         _bitcoinDenomination.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 _mbwManager.setBitcoinDenomination(CoinUtil.Denomination.fromString(newValue.toString()));
-                _bitcoinDenomination.setTitle(bitcoinDenominationTitle());
                 return true;
             }
         });
@@ -376,33 +368,24 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             _exchangeSource.setDefaultValue(currentName);
             _exchangeSource.setValue(currentName);
         }
-        _exchangeSource.setTitle(exchangeSourceTitle());
         _exchangeSource.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 _mbwManager.getExchangeRateManager().setCurrentExchangeSourceName(newValue.toString());
-                _exchangeSource.setTitle(exchangeSourceTitle());
                 return true;
             }
         });
-        _blockExplorer.setTitle(getBlockExplorerTitle());
-        _blockExplorer.setSummary(getBlockExplorerSummary());
         _blockExplorer.setValue(_mbwManager._blockExplorerManager.getBlockExplorer().getIdentifier());
         CharSequence[] blockExplorerNames = _mbwManager._blockExplorerManager.getBlockExplorerNames(_mbwManager._blockExplorerManager.getAllBlockExplorer());
         CharSequence[] blockExplorerValues = _mbwManager._blockExplorerManager.getBlockExplorerIds();
         _blockExplorer.setEntries(blockExplorerNames);
         _blockExplorer.setEntryValues(blockExplorerValues);
         _blockExplorer.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 _mbwManager.setBlockExplorer(_mbwManager._blockExplorerManager.getBlockExplorerById(newValue.toString()));
-                _blockExplorer.setTitle(getBlockExplorerTitle());
-                _blockExplorer.setSummary(getBlockExplorerSummary());
                 return true;
             }
         });
-        _minerFee.setTitle(getMinerFeeTitle());
         _minerFee.setSummary(getMinerFeeSummary());
         _minerFee.setValue(_mbwManager.getMinerFee().toString());
         CharSequence[] minerFees = new CharSequence[]{
@@ -418,11 +401,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         _minerFee.setEntries(minerFeeNames);
         _minerFee.setEntryValues(minerFees);
         _minerFee.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 _mbwManager.setMinerFee(MinerFee.fromString(newValue.toString()));
-                _minerFee.setTitle(getMinerFeeTitle());
                 _minerFee.setSummary(getMinerFeeSummary());
                 String description = _mbwManager.getMinerFee().getMinerFeeDescription(getActivity());
                 Utils.showSimpleMessageDialog(getActivity(), description);
@@ -663,7 +644,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     }
 
     public static class UpdateModuleSync extends AsyncTask<Void, Void, Float> {
-
         private ModulePreference preference;
 
         public UpdateModuleSync(ModulePreference preference) {
@@ -833,6 +813,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             List<String> currencyList = _mbwManager.getCurrencyList();
             currencyList.remove(currency);
             for (int i = 0; i < Math.min(currencyList.size(), 2); i++) {
+                //noinspection StringConcatenationInLoop
                 currency += ", " + currencyList.get(i);
             }
             if (_mbwManager.getCurrencyList().size() > 3) {
@@ -846,33 +827,12 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         }
     }
 
-    private String exchangeSourceTitle() {
-        return getResources().getString(R.string.pref_exchange_source);
-    }
-
-    private String bitcoinDenominationTitle() {
-        return getResources().getString(R.string.pref_bitcoin_denomination);
-    }
-
-    private String getMinerFeeTitle() {
-        return getResources().getString(R.string.pref_miner_fee_title);
-    }
-
     private String getMinerFeeSummary() {
         return getResources().getString(R.string.pref_miner_fee_block_summary,
                 Integer.toString(_mbwManager.getMinerFee().getNBlocks()));
     }
 
-    private String getBlockExplorerTitle() {
-        return getResources().getString(R.string.block_explorer_title);
-    }
-
-    private String getBlockExplorerSummary() {
-        return getResources().getString(R.string.block_explorer_summary_2);
-    }
-
     private class SubscribeToServerResponse extends LocalTraderEventSubscriber {
-
         private Button okButton;
         private EditText emailEdit;
 

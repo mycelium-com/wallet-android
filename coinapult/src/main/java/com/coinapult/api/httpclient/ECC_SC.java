@@ -1,8 +1,6 @@
 package com.coinapult.api.httpclient;
 
 import org.spongycastle.asn1.*;
-import org.spongycastle.jce.provider.BouncyCastleProvider;
-import org.spongycastle.openssl.PEMException;
 import org.spongycastle.openssl.PEMKeyPair;
 import org.spongycastle.openssl.PEMParser;
 import org.spongycastle.openssl.jcajce.JcaPEMKeyConverter;
@@ -15,8 +13,7 @@ import java.security.*;
 public class ECC_SC implements EccUtil {
    private static final String ECDSA = "SHA256withECDSA";
 
-   public boolean verifySign(String signature, String origdata,
-                             PublicKey pub) {
+   public boolean verifySign(String signature, String origdata, PublicKey pub) {
       try {
          Signature dsa = Signature.getInstance(ECDSA);
          dsa.initVerify(pub);
@@ -62,9 +59,6 @@ public class ECC_SC implements EccUtil {
          parser.close();
 
          return converter.getKeyPair((PEMKeyPair) obj);
-      } catch (
-            org.spongycastle.openssl.PEMException e) {
-         throw new RuntimeException(e);
       } catch (IOException e) {
          throw new RuntimeException(e);
       }
@@ -75,10 +69,6 @@ public class ECC_SC implements EccUtil {
       BigInteger y= new BigInteger("75636774962004883403879667389924175484183873092966382079409006435518206433630");
       return AndroidKeyConverter.makePubKey(x, y);
    }
-
-
-
-
 
    @Override
    public String generateSign(String signdata, PrivateKey eccPriv) {
@@ -97,17 +87,8 @@ public class ECC_SC implements EccUtil {
          String first = r.toString(16);
          String second = s.toString(16);
          return first +"|"+ second;
-      } catch (PEMException e) {
-         throw new RuntimeException(e);
-      } catch (IOException e) {
-         throw new RuntimeException(e);
-      } catch (NoSuchAlgorithmException e) {
-         throw new RuntimeException(e);
-      } catch (InvalidKeyException e) {
-         throw new RuntimeException(e);
-      } catch (SignatureException e) {
+      } catch (IOException | NoSuchAlgorithmException | SignatureException | InvalidKeyException e) {
          throw new RuntimeException(e);
       }
    }
-
 }

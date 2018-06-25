@@ -90,6 +90,8 @@
             android:dialogTitle="Block explorer"
             android:icon="@drawable/ic_exchange_coin"
             android:key="block_explorer"
+            android:title="@string/block_explorer_title"
+            android:summary="@string/block_explorer_summary_2"
             android:layout="@layout/preference_layout"
             android:widgetLayout="@layout/preference_arrow" />
 
@@ -97,7 +99,7 @@
             android:icon="@drawable/ic_mining"
             android:key="miner_fee"
             android:layout="@layout/preference_layout"
-            android:title="@string/miner_fee_title"
+            android:title="@string/pref_miner_fee_title"
             android:widgetLayout="@layout/preference_arrow" />
     </PreferenceCategory>
 

@@ -25,33 +25,33 @@ import com.mrd.bitlib.util.Sha256Hash;
 import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
 
 /**
- * OutPoint is a reference to a particular 0-based output index of a given transaction identified by its hash.
+ * OutPoint is a reference to a particular 0-based output index of a given transaction identified by its txid.
  *
  * A hash of all 0s is spent from in Coinbase Transactions.
  */
 public class OutPoint implements Serializable {
    private static final long serialVersionUID = 1L;
 
-   // A coinbase transaction spends from the hash 00000... (not the hash(00000...) ). COINBASE_OUTPOINT is just that: 000000...:0
+   // A coinbase transaction spends from the hash 00000... (not the txid(00000...) ). COINBASE_OUTPOINT is just that: 000000...:0
    // Or is it 0000...:Integer.MAX_VALUE?
    // So far, the index of the COINBASE_OUTPOINT isn't being used.
    public static final OutPoint COINBASE_OUTPOINT = new OutPoint(Sha256Hash.ZERO_HASH, 0xFFFFFFFF);
-   public Sha256Hash hash;
+   public Sha256Hash txid;
    public int index;
 
-   public OutPoint(Sha256Hash hash, int index) {
-      this.hash = hash;
+   public OutPoint(Sha256Hash txid, int index) {
+      this.txid = txid;
       this.index = index;
    }
 
    public OutPoint(ByteReader reader) throws InsufficientBytesException {
-      this.hash = reader.getSha256Hash();
+      this.txid = reader.getSha256Hash();
       this.index = (int) reader.getCompactInt();
    }
 
    @Override
    public int hashCode() {
-      return hash.hashCode() + index;
+      return txid.hashCode() + index;
    }
 
    @Override
@@ -59,16 +59,16 @@ public class OutPoint implements Serializable {
       if (!(other instanceof OutPoint)) {
          return false;
       }
-      return hash.equals(((OutPoint) other).hash) && index == ((OutPoint) other).index;
+      return txid.equals(((OutPoint) other).txid) && index == ((OutPoint) other).index;
    }
 
    @Override
    public String toString() {
-      return String.valueOf(hash) + ':' + index;
+      return String.valueOf(txid) + ':' + index;
    }
 
    public ByteWriter toByteWriter(ByteWriter writer) {
-      writer.putSha256Hash(hash);
+      writer.putSha256Hash(txid);
       writer.putCompactInt(index);
       return writer;
    }

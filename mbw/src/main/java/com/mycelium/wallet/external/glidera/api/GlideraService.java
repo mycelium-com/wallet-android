@@ -113,7 +113,7 @@ public class GlideraService {
       }
 
       /**
-       * The Sha256 HMAC hash of the message. Use the secret matching the access_key to hash the message.
+       * The Sha256 HMAC hash of the message. Use the secret matching the access_key to txid the message.
        * The message is the concatenation of the X-ACCESS-NONCE + URI of the request + message body JSON.
        * The final X-ACCESS-SIGNATURE is the HmacSha256 of the UTF-8 encoding of the message as a Hex encoded string
        */

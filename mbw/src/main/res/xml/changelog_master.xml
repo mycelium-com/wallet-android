@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="2.10.6" versioncode="2100600">
+        <change>BCH transaction history</change>
+        <change>bugs fixed</change>
+    </release>
     <release version="2.10.5" versioncode="2100500">
         <change>Mycelium modular architecture. Starting now Mycelium Wallet becomes highly expandable thanks to the new modular architecture which allows building modules as separate apps. It can be used to add new cryptocurrencies as well as any third-party services while maintaining the high security of your funds.</change>
         <change>Bitcoin Cash Module. Bitcoin Cash functionality is a technology preview of the modular architecture capabilities. You can only exchange your BCH to BTC so far. Fully functional BCH module will be available soon. Special thanks to all our contributors and beta testers! Please note that at this stage, while we do provide dedicated BCH full nodes, communication with these is not yet encrypted.</change>
