@@ -20,7 +20,10 @@ public class SingleAddressBCHAccount extends SingleAddressAccount {
     private SpvBalanceFetcher spvBalanceFetcher;
     private boolean visible;
 
-    public SingleAddressBCHAccount(SingleAddressAccountContext context, PublicPrivateKeyStore keyStore, NetworkParameters network, SingleAddressAccountBacking backing, Wapi wapi, SpvBalanceFetcher spvBalanceFetcher) {
+    public SingleAddressBCHAccount(SingleAddressAccountContext context,
+                                   PublicPrivateKeyStore keyStore, NetworkParameters network,
+                                   SingleAddressAccountBacking backing, Wapi wapi,
+                                   SpvBalanceFetcher spvBalanceFetcher) {
         super(context, keyStore, network, backing, wapi);
         this.spvBalanceFetcher = spvBalanceFetcher;
         this.type = Type.BCHSINGLEADDRESS;

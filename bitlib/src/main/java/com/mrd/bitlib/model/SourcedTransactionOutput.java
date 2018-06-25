@@ -81,7 +81,7 @@ public class SourcedTransactionOutput implements Serializable {
 
    @Override
    public int hashCode() {
-      return outPoint.hash.hashCode() + outPoint.index;
+      return outPoint.txid.hashCode() + outPoint.index;
    }
 
    @Override

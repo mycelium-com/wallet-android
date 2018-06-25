@@ -172,7 +172,7 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
       // check if a trezor is attached and connect to it, otherwise loop and check periodically
 
       // wait until a device is connected
-      while (!getSignatureDevice().isDevicePluggedIn(context)) {
+      while (!getSignatureDevice().isDevicePluggedIn()) {
          try {
             setState(Status.unableToScan, currentAccountState);
             Thread.sleep(4000);
@@ -301,7 +301,7 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
             TransactionInput ak_input = currentTx.inputs[txRequestDetailsType.getRequestIndex()];
 
 
-            ByteString prevHash = ByteString.copyFrom(ak_input.outPoint.hash.getBytes());
+            ByteString prevHash = ByteString.copyFrom(ak_input.outPoint.txid.getBytes());
             ByteString scriptSig = ByteString.copyFrom(ak_input.script.getScriptBytes());
             TrezorType.TxInputType.Builder txInputBuilder = TrezorType.TxInputType.newBuilder()
                   .setPrevHash(prevHash)

@@ -16,7 +16,6 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public abstract class ExternalSignatureDevice {
@@ -28,7 +27,7 @@ public abstract class ExternalSignatureDevice {
     private UsbManager usbManager;
     private UsbInterface iface;
 
-    private final LinkedBlockingQueue<Boolean> gotRights = new LinkedBlockingQueue<Boolean>(1);
+    private final LinkedBlockingQueue<Boolean> gotRights = new LinkedBlockingQueue<>(1);
 
     /**
      * Receives broadcast when a supported USB device is attached, detached or
@@ -38,7 +37,7 @@ public abstract class ExternalSignatureDevice {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            UsbDevice usbDevice = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+            UsbDevice usbDevice = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
             String deviceName = usbDevice.getDeviceName();
 
             if (ACTION_USB_PERMISSION.equals(action)) {
@@ -66,17 +65,14 @@ public abstract class ExternalSignatureDevice {
 
     abstract public String getDeviceConfiguratorAppName();
 
-
-    private UsbDevice getExtSigDevice(Context context) {
+    private UsbDevice getExtSigDevice() {
         if (usbManager == null) {
             return null;
         }
 
         HashMap<String, UsbDevice> deviceList = usbManager.getDeviceList();
-        Iterator<UsbDevice> deviceIterator = deviceList.values().iterator();
 
-        while (deviceIterator.hasNext()) {
-            UsbDevice device = deviceIterator.next();
+        for (UsbDevice device : deviceList.values()) {
             // check if the device has the expected usb id
             if (!getUsbId().isSame(device.getVendorId(), device.getProductId())) {
                 continue;
@@ -126,12 +122,12 @@ public abstract class ExternalSignatureDevice {
         return null;
     }
 
-    public boolean isDevicePluggedIn(Context context) {
+    public boolean isDevicePluggedIn() {
         if (usbManager == null) {
             return false;
         }
 
-        return (getExtSigDevice(context) != null);
+        return (getExtSigDevice() != null);
     }
 
     public boolean connect(final Context context) {
@@ -143,7 +139,7 @@ public abstract class ExternalSignatureDevice {
         filter.addAction(ACTION_USB_PERMISSION);
         context.registerReceiver(mUsbReceiver, filter);
 
-        final UsbDevice extSigDevice = getExtSigDevice(context);
+        final UsbDevice extSigDevice = getExtSigDevice();
         if (extSigDevice == null) {
             return false;
         }
@@ -165,7 +161,6 @@ public abstract class ExternalSignatureDevice {
             } catch (InterruptedException ignored) {
             }
         }
-
     }
 
 
@@ -234,56 +229,44 @@ public abstract class ExternalSignatureDevice {
     }
 
     private Message parseMessageFromBytes(MessageType type, byte[] data) {
-        Message msg = null;
         Log.i(TAG, String.format("Parsing %s (%d bytes):", type, data.length));
         try {
-            if (type.getNumber() == MessageType.MessageType_Success_VALUE) {
-                msg = Success.parseFrom(data);
-            }
-            if (type.getNumber() == MessageType.MessageType_Failure_VALUE) {
-                msg = Failure.parseFrom(data);
-            }
-            if (type.getNumber() == MessageType.MessageType_Entropy_VALUE) {
-                msg = Entropy.parseFrom(data);
-            }
-            if (type.getNumber() == MessageType.MessageType_PublicKey_VALUE) {
-                msg = PublicKey.parseFrom(data);
-            }
-            if (type.getNumber() == MessageType.MessageType_Features_VALUE) {
-                msg = Features.parseFrom(data);
-            }
-            if (type.getNumber() == MessageType.MessageType_PinMatrixRequest_VALUE) {
-                msg = PinMatrixRequest.parseFrom(data);
-            }
-            if (type.getNumber() == MessageType.MessageType_TxRequest_VALUE) {
-                msg = TxRequest.parseFrom(data);
-            }
-            if (type.getNumber() == MessageType.MessageType_ButtonRequest_VALUE) {
-                msg = ButtonRequest.parseFrom(data);
-            }
-            if (type.getNumber() == MessageType.MessageType_Address_VALUE) {
-                msg = Address.parseFrom(data);
-            }
-            if (type.getNumber() == MessageType.MessageType_EntropyRequest_VALUE) {
-                msg = EntropyRequest.parseFrom(data);
-            }
-            if (type.getNumber() == MessageType.MessageType_MessageSignature_VALUE) {
-                msg = MessageSignature.parseFrom(data);
-            }
-            if (type.getNumber() == MessageType.MessageType_PassphraseRequest_VALUE) {
-                msg = PassphraseRequest.parseFrom(data);
-            }
-            if (type.getNumber() == MessageType.MessageType_TxSize_VALUE) {
-                msg = TxSize.parseFrom(data);
-            }
-            if (type.getNumber() == MessageType.MessageType_WordRequest_VALUE) {
-                msg = WordRequest.parseFrom(data);
+            switch (type) {
+                case MessageType_Success:
+                    return Success.parseFrom(data);
+                case MessageType_Failure:
+                    return Failure.parseFrom(data);
+                case MessageType_Entropy:
+                    return Entropy.parseFrom(data);
+                case MessageType_PublicKey:
+                    return PublicKey.parseFrom(data);
+                case MessageType_Features:
+                    return Features.parseFrom(data);
+                case MessageType_PinMatrixRequest:
+                    return PinMatrixRequest.parseFrom(data);
+                case MessageType_TxRequest:
+                    return TxRequest.parseFrom(data);
+                case MessageType_ButtonRequest:
+                    return ButtonRequest.parseFrom(data);
+                case MessageType_Address:
+                    return Address.parseFrom(data);
+                case MessageType_EntropyRequest:
+                    return EntropyRequest.parseFrom(data);
+                case MessageType_MessageSignature:
+                    return MessageSignature.parseFrom(data);
+                case MessageType_PassphraseRequest:
+                    return PassphraseRequest.parseFrom(data);
+                case MessageType_TxSize:
+                    return TxSize.parseFrom(data);
+                case MessageType_WordRequest:
+                    return WordRequest.parseFrom(data);
+                default:
+                    return null;
             }
         } catch (InvalidProtocolBufferException e) {
             Log.e(TAG, e.toString());
             return null;
         }
-        return msg;
     }
 
     private Message messageRead() {
@@ -345,7 +328,7 @@ public abstract class ExternalSignatureDevice {
     }
 
     protected interface UsbDeviceId {
-        public boolean isSame(int vendorId, int deviceId);
+        boolean isSame(int vendorId, int deviceId);
     }
 
     protected static class SingleUsbDeviceId implements UsbDeviceId {

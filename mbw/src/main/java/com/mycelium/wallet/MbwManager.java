@@ -106,6 +106,8 @@ import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.persistence.TradeSessionDb;
 import com.mycelium.wallet.wapi.SqliteWalletManagerBackingWrapper;
 import com.mycelium.wapi.api.WapiClient;
+import com.mycelium.wapi.api.WapiClientElectrumX;
+import com.mycelium.wapi.api.jsonrpc.TcpEndpoint;
 import com.mycelium.wapi.wallet.AccountProvider;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.IdentityAccountKeyManager;
@@ -218,6 +220,8 @@ public class MbwManager {
    private EvictingQueue<LogEntry> _wapiLogs = EvictingQueue.create(100);
    private Cache<String, Object> _semiPersistingBackgroundObjects = CacheBuilder.newBuilder().maximumSize(10).build();
 
+   private WalletConfiguration configuration;
+
    private MbwManager(Context evilContext) {
       _applicationContext = Preconditions.checkNotNull(evilContext.getApplicationContext());
       _environment = MbwEnvironment.verifyEnvironment();
@@ -227,6 +231,8 @@ public class MbwManager {
       SharedPreferences preferences = getPreferences();
       // setProxy(preferences.getString(Constants.PROXY_SETTING, ""));
       // Initialize proxy early, to enable error reporting during startup..
+
+      configuration = new WalletConfiguration(preferences, getNetwork());
 
       _eventBus = new Bus();
       _eventBus.register(this);
@@ -459,7 +465,8 @@ public class MbwManager {
          version = "na";
       }
 
-      return new WapiClient(_environment.getWapiEndpoints(), retainingWapiLogger, version);
+        List<TcpEndpoint> tcpEndpoints = configuration.getElectrumEndpoints();
+        return new WapiClientElectrumX(_environment.getWapiEndpoints(), tcpEndpoints.toArray(new TcpEndpoint[tcpEndpoints.size()]), retainingWapiLogger, version);
    }
 
    private void initTor() {
