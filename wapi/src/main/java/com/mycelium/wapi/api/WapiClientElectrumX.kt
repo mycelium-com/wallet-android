@@ -37,13 +37,13 @@ class WapiClientElectrumX(
         versionCode: String)
     : WapiClient(serverEndpoints, logger, versionCode), ConnectionMonitor.ConnectionObserver {
     @Volatile
-    private var jsonRpcTcpClient = JsonRpcTcpClient(endpoints, logger)
-    @Volatile
-    private var jsonRpcTcpClientsList = listOf(jsonRpcTcpClient,
+    private var jsonRpcTcpClientsList = listOf(JsonRpcTcpClient(endpoints, logger),
             JsonRpcTcpClient(endpoints, logger),
             JsonRpcTcpClient(endpoints, logger),
             JsonRpcTcpClient(endpoints, logger),
             JsonRpcTcpClient(endpoints, logger))
+    @Volatile
+    private var jsonRpcTcpClient = jsonRpcTcpClientsList[0]
     @Volatile
     private var bestChainHeight = -1
 
@@ -52,9 +52,10 @@ class WapiClientElectrumX(
     }
 
     init {
-        jsonRpcTcpClient.register(this)
-        jsonRpcTcpClient.start()
-        jsonRpcTcpClientsList.forEach { it.start() }
+        jsonRpcTcpClientsList.forEach {
+            it.register(this)
+            it.start()
+        }
     }
 
     override fun connectionChanged(e: ConnectionMonitor.ConnectionEvent?) {
@@ -299,7 +300,7 @@ class WapiClientElectrumX(
         @Deprecated("Address must be replaced with script")
         private const val GET_HISTORY_METHOD = "blockchain.address.get_history"
         private val NON_RBF_SEQUENCE = UnsignedInteger.MAX_VALUE.toLong()
-        private const val DEFAULT_RESPONSE_TIMEOUT = 20000L
+        private const val DEFAULT_RESPONSE_TIMEOUT = 10000L
         private const val GET_TRANSACTION_BATCH_LIMIT = 10
     }
 }

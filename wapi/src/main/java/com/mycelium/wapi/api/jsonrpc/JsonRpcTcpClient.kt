@@ -11,6 +11,7 @@ import java.util.*
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import javax.net.ssl.SSLSocketFactory
 import kotlin.concurrent.thread
@@ -34,6 +35,7 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
     @Volatile
     private var outgoing : BufferedOutputStream? = null
     private val nextRequestId = AtomicInteger(0)
+    private val isStarted = AtomicBoolean(false)
 
     private val callbacks = mutableMapOf<String, Consumer<AbstractResponse>>()
 
@@ -117,7 +119,11 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
         }
     }
 
+    @Throws(IllegalStateException::class)
     fun start() {
+        if (isStarted.compareAndSet(true, true)) {
+            throw IllegalStateException("RPC client could not be started twice.")
+        }
         thread(start = true) {
             while(true) {
                 val currentEndpoint = endpoints[curEndpointIndex]
