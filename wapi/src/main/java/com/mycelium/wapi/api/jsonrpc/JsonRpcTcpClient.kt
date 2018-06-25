@@ -11,6 +11,7 @@ import java.util.*
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import javax.net.ssl.SSLSocketFactory
 import kotlin.concurrent.thread
@@ -33,6 +34,8 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
     private var incoming : BufferedReader? = null
     @Volatile
     private var outgoing : BufferedOutputStream? = null
+    private val nextRequestId = AtomicInteger(0)
+    private val isStarted = AtomicBoolean(false)
 
     private val callbacks = mutableMapOf<String, Consumer<AbstractResponse>>()
 
@@ -65,6 +68,7 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
     //return HashUtils.sha256(string.toByteArray()).toHex()
 
     @Throws(TimeoutException::class)
+    @Synchronized
     fun write(requests: List<RpcRequestOut>, timeOut: Long): BatchedRpcResponse {
         var response: BatchedRpcResponse? = null
         val latch = CountDownLatch(1)
@@ -91,6 +95,7 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
     }
 
     @Throws(TimeoutException::class)
+    @Synchronized
     fun write(methodName: String, params: RpcParams, timeOut: Long): RpcResponse {
         var response: RpcResponse? = null
         val latch = CountDownLatch(1)
@@ -114,7 +119,11 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
         }
     }
 
+    @Throws(IllegalStateException::class)
     fun start() {
+        if (isStarted.compareAndSet(true, true)) {
+            throw IllegalStateException("RPC client could not be started twice.")
+        }
         thread(start = true) {
             while(true) {
                 val currentEndpoint = endpoints[curEndpointIndex]
@@ -154,6 +163,9 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
     fun close() = socket?.close()
 
     private fun messageReceived(message: String) {
+        if (message.contains("error")) {
+            logger.logError(message)
+        }
         val isBatched = message[0] == '['
         if (isBatched) {
             val response = BatchedRpcResponse.fromJson(message)
@@ -186,6 +198,5 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
     }
     companion object {
         private const val INTERVAL_BETWEEN_SOCKET_RECONNECTS = 5000L
-        private val nextRequestId = AtomicInteger(0)
     }
 }

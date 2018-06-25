@@ -4,7 +4,6 @@ import com.google.common.primitives.UnsignedInteger
 import com.google.gson.annotations.SerializedName
 import com.megiontechnologies.Bitcoins
 import com.mrd.bitlib.StandardTransactionBuilder
-import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.model.OutPoint
 import com.mrd.bitlib.model.Transaction
 import com.mrd.bitlib.util.ByteReader
@@ -20,8 +19,12 @@ import com.mycelium.wapi.api.request.*
 import com.mycelium.wapi.api.response.*
 import com.mycelium.wapi.model.TransactionOutputEx
 import com.mycelium.wapi.model.TransactionStatus
+import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.experimental.runBlocking
 import java.util.*
 import java.util.concurrent.TimeoutException
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.collections.ArrayList
 
 /**
@@ -34,7 +37,13 @@ class WapiClientElectrumX(
         versionCode: String)
     : WapiClient(serverEndpoints, logger, versionCode), ConnectionMonitor.ConnectionObserver {
     @Volatile
-    private var jsonRpcTcpClient = JsonRpcTcpClient(endpoints, logger)
+    private var jsonRpcTcpClientsList = listOf(JsonRpcTcpClient(endpoints, logger),
+            JsonRpcTcpClient(endpoints, logger),
+            JsonRpcTcpClient(endpoints, logger),
+            JsonRpcTcpClient(endpoints, logger),
+            JsonRpcTcpClient(endpoints, logger))
+    @Volatile
+    private var jsonRpcTcpClient = jsonRpcTcpClientsList[0]
     @Volatile
     private var bestChainHeight = -1
 
@@ -43,8 +52,10 @@ class WapiClientElectrumX(
     }
 
     init {
-        jsonRpcTcpClient.register(this)
-        jsonRpcTcpClient.start()
+        jsonRpcTcpClientsList.forEach {
+            it.register(this)
+            it.start()
+        }
     }
 
     override fun connectionChanged(e: ConnectionMonitor.ConnectionEvent?) {
@@ -214,25 +225,41 @@ class WapiClientElectrumX(
                             "tx_hash" to it,
                             "verbose" to true))
         }.toList().chunked(GET_TRANSACTION_BATCH_LIMIT)
+        return requestTransactionsAsync(requestsList)
+    }
 
-        return requestsList.flatMap {
-            jsonRpcTcpClient.write(it, DEFAULT_RESPONSE_TIMEOUT).responses.mapNotNull {
-                if (it.hasError) {
-                    logger.logError("checkTransactions failed: ${it.error}")
-                    null
-                } else {
-                    it.getResult(TransactionX::class.java).apply {
-                        // Since our electrumX does not send vin's anymore, parse transaction hex
-                        // by ourselves and extract inputs information
-                        val tx = Transaction.fromBytes(HexUtils.toBytes(this!!.hex))
-                        this.vin = tx.inputs.map {
-                            val sequence =  if (it.sequence == -1) NON_RBF_SEQUENCE else it.sequence.toLong()
-                            TransactionInputX(it.outPoint.txid.toString(), sequence)
-                        }.toTypedArray()
+    /**
+     * This method is inteded to request transactions from different connections using endpoints list.
+     */
+    private fun requestTransactionsAsync(requestsList: List<List<RpcRequestOut>>): List<TransactionX> {
+        val nextEndopintId = AtomicInteger(0)
+        return requestsList.pFlatMap {
+            val endpointId = nextEndopintId.getAndIncrement() % jsonRpcTcpClientsList.size
+            jsonRpcTcpClientsList[endpointId]
+                    .write(it, DEFAULT_RESPONSE_TIMEOUT)
+                    .responses
+                    .mapNotNull {
+                        if (it.hasError) {
+                            logger.logError("checkTransactions failed: ${it.error}")
+                            null
+                        } else {
+                            it.getResult(TransactionX::class.java).apply {
+                                // Since our electrumX does not send vin's anymore, parse transaction hex
+                                // by ourselves and extract inputs information
+                                val tx = Transaction.fromBytes(HexUtils.toBytes(this!!.hex))
+                                this.vin = tx.inputs.map {
+                                    val sequence =  if (it.sequence == -1) NON_RBF_SEQUENCE else it.sequence.toLong()
+                                    TransactionInputX(it.outPoint.txid.toString(), sequence)
+                                }.toTypedArray()
+                            }
+                        }
                     }
-                }
-            }
         }
+    }
+
+    private fun <A, B>List<A>.pFlatMap(f: suspend (A) -> List<B>): List<B> = runBlocking {
+        map { async(CommonPool) { f(it) } }
+                .flatMap { it.await() }
     }
 
     private fun isRbf(vin: Array<TransactionInputX>) = vin.any { it.sequence < NON_RBF_SEQUENCE }
