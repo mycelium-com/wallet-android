@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
     <release version="2.11" versioncode="2110000">
-        <change>Basic SegWit support</change>
+        <change>SegWit: Unconfirmed SegWit transactions are now shown</change>
         <change>ElectrumX as backend for Bitcoin</change>
         <change>Settings Design</change>
         <change>bugs fixed</change>
