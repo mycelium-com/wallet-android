@@ -248,7 +248,8 @@ class WapiClientElectrumX(
                                 // by ourselves and extract inputs information
                                 val tx = Transaction.fromBytes(HexUtils.toBytes(this!!.hex))
                                 this.vin = tx.inputs.map {
-                                    TransactionInputX(it.outPoint.txid.toString(), it.sequence.toLong())
+                                    val sequence =  if (it.sequence == -1) NON_RBF_SEQUENCE else it.sequence.toLong()
+                                    TransactionInputX(it.outPoint.txid.toString(), sequence)
                                 }.toTypedArray()
                             }
                         }
