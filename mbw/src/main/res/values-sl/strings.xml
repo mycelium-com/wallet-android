@@ -530,7 +530,7 @@
   <string name="direct_apk_link_label">Neposreden\nprenos</string>
   <string name="hide_unused_account_menu">Izbriši račun</string>
   <string name="dont_allow_hiding_used_notification">Uporabljenega računa ne morete skriti, lahko pa ga arhivirate</string>
-  <string name="pref_miner_fee_title">Prispevek za rudarje (%1$s)</string>
+  <string name="pref_miner_fee_title">Prispevek za rudarje</string>
   <string name="miner_fee_lowprio_name">Nizka prednost</string>
   <string name="miner_fee_economic_name">Varčno</string>
   <string name="miner_fee_normal_name">Običajno</string>
@@ -685,7 +685,7 @@
   <string name="menu_item_delete_unconfirmed_transaction">Izbriši nepotrjeno nakazilo</string>
   <string name="delete_unconfirmed_transaction_title">Izbriši nepotrjeno nakazilo</string>
   <string name="rebroadcast_transaction_title">Ponovno pošlji nakazilo</string>
-  <string name="block_explorer_title">Raziskovalec blokov (%1$s)</string>
+  <string name="block_explorer_title">Raziskovalec blokov</string>
   <string name="pop_amount_title">Znesek</string>
   <string name="pop_date">Čas</string>
   <string name="pop_transaction_amount">Znesek</string>

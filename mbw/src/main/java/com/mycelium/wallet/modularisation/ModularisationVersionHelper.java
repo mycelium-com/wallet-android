@@ -31,7 +31,7 @@ public class ModularisationVersionHelper {
         List<WalletApplication.ModuleVersionError> errorList = WalletApplication.getInstance().moduleVersionErrors;
         for (WalletApplication.ModuleVersionError moduleVersionError : errorList) {
             Module module = GooglePlayModuleCollection.getModuleByPackage(parent, moduleVersionError.moduleId);
-            Module wallet = new Module(BuildConfig.APPLICATION_ID, "<b>Mycelium Wallet</b>", "<b>Mycelium Wallet</b>", "");
+            Module wallet = new Module(BuildConfig.APPLICATION_ID, "<b>Mycelium Wallet</b>", "<b>Mycelium Wallet</b>", "", "");
             final Module needsUpdate;
             if (moduleVersionError.expected > com.mycelium.modularizationtools.BuildConfig.ModuleApiVersion) {
                 needsUpdate = wallet;

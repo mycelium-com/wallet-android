@@ -522,7 +522,7 @@
   <string name="direct_apk_link_label">Απευθείας\nκατέβασμα</string>
   <string name="hide_unused_account_menu">Διαγραφή Λογαριασμού</string>
   <string name="dont_allow_hiding_used_notification">Δεν μπορείτε να κρύψετε ένα χρησιμοποιημένο λογαριασμό, μπορείτε όμως να τον αρχειοθετήσετε</string>
-  <string name="pref_miner_fee_title">Τέλος Αποστολής (%1$s)</string>
+  <string name="pref_miner_fee_title">Τέλος Αποστολής</string>
   <string name="pref_miner_fee_block_summary">Με αυτό το τέλος, οι συναλλαγές που στέλνονται θα εισάγονται στο blockchain κατά μέσο όρο εντος %1s block(s).</string>
   <string name="miner_fee_lowprio_name">Χαμηλή προτεραιότητα</string>
   <string name="miner_fee_economic_name">Οικονομικό</string>
@@ -689,7 +689,7 @@
   <string name="rebroadcast_transaction_title">Επαναποστολή συναλλαγής</string>
   <string name="description_rebroadcast_transaction">Υποβολή εκ νέου της συναλλαγής στο διακομιστή για αποστολή. Αυτό μπορεί να χρησιμοποιηθεί εαν υποψιάζετσε ότι το δίκτυο δεν έχει μεταδώσει τη συναλλαγή ή την ξέχασε επειδή δεν ενσωματώθηκε στο blockchian για πολύ καιρό. Θέλετε να στείλετε ξανά τη συναλλαγή αυτή;</string>
   <string name="message_rebroadcast_failed">Η αποστολή απέτυχε, παρακαλώ ελέγξτε τη σύνδεσή σας και συγχρονιστε το πορτοφόλι σας.</string>
-  <string name="block_explorer_title">Εξερευνητής Block (%1$s)</string>
+  <string name="block_explorer_title">Εξερευνητής Block</string>
   <string name="block_explorer_summary">Οι λεπτομέρειες της συναλλαγής ερευνώνται με χρήση του %1$s Εξερευνητή Block</string>
   <string name="lt_warning_wrong_account_type">Οι Τοπικές Συναλλαγές δεν λειτουργούν με τον επιλεγμένο τύπο λογαριασμού, παρακαλώ επιλέξτε άλλο λογαριασμό.</string>
   <string name="lt_account_not_allowed">Ο επιλεγμένος τύπος λογαριασμού δε λειτουργεί με τις Τοπικές Συναλλαγές. Πρέπει να επιλέξετε διαφορετικό λογαριασμό για να πραγματοποιήσετε αυτή τη συναλλαγή.</string>

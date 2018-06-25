@@ -120,10 +120,16 @@ class CommunicationManager private constructor(val context: Context, val modular
                     cursor ?: return false // if the other module is not returning a proper Cursor, pairing fails here
                     pair(packageName, key, modularizationApiVersion)
                     cursor.moveToFirst()
+                    var version = ""
+                    try {
+                        version = cursor.getString(cursor.getColumnIndex("version"))
+                    } catch (ignore: Exception) {
+                    }
                     pairedModules.add(Module(packageName
                             , cursor.getString(cursor.getColumnIndex("name"))
                             , cursor.getString(cursor.getColumnIndex("shortName"))
-                            , cursor.getString(cursor.getColumnIndex("description"))))
+                            , cursor.getString(cursor.getColumnIndex("description"))
+                            , version))
                     success = true
                 }
         Log.d(LOG_TAG, "It took ${System.currentTimeMillis()-startTimeMillis}ms to ${if(success) "" else "not "} pair with $packageName.")

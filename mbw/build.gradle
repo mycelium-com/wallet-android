@@ -71,6 +71,7 @@ dependencies {
     implementation "com.android.support:animated-vector-drawable:$androidSupportVersion"
     implementation "com.android.support:recyclerview-v7:$androidSupportVersion"
     implementation "com.android.support:gridlayout-v7:$androidSupportVersion"
+    implementation "com.android.support:preference-v7:$androidSupportVersion"
     implementation 'org.ocpsoft.prettytime:prettytime:3.2.5.Final'
     implementation 'de.cketti.library.changelog:ckchangelog:1.2.2'
     implementation 'com.squareup.retrofit:retrofit:1.9.0'
