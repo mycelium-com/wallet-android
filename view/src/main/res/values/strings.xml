@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">view</string>
+    <string name="fully_synced">Fully synced</string>
+    <string name="sync_progress">Sync progress: %s%%</string>
+    <string name="cancel">Cancel</string>
+    <string name="ok">ok</string>
 </resources>

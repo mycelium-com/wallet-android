@@ -587,6 +587,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                     modulesPrefs.addPreference(preference);
                 } else {
                     ButtonPreference installPreference = new ButtonPreference(getActivity());
+                    installPreference.setLayoutResource(R.layout.preference_module_layout);
                     installPreference.setIcon(GooglePlayModuleCollection.getBigLogo(getActivity(), module.getModulePackage()));
                     installPreference.setButtonText(getString(R.string.install));
                     installPreference.setButtonClickListener(getInstallClickListener(module));

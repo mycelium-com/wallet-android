@@ -3,7 +3,7 @@
     android:key="myceliumPreferences">
 
     <PreferenceCategory
-        android:layout="@layout/preference_category_layout"
+        android:layout="@layout/preference_category_layout_first_item"
         android:title="@string/personalization">
         <ListPreference
             android:icon="@drawable/ic_language_24_px"
@@ -184,5 +184,5 @@
     </PreferenceCategory>
 
     <PreferenceCategory android:key="space"
-        android:layout="@layout/preference_category_layout" />
+        android:layout="@layout/preference_category_end_space" />
 </PreferenceScreen>

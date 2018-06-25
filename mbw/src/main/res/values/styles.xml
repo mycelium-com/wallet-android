@@ -73,6 +73,8 @@
         <item name="actionBarStyle">@style/MyceliumSettings.ActionBar</item>
         <item name="preferenceTheme">@style/MyceliumSettingsPreferenceThemeOverlay
         </item>
+        <item name="preference_module_item_color">@color/preference_item_color</item>
+        <item name="preference_module_divider_color">@color/preference_background</item>
     </style>
 
     <style name="MyceliumSettings.Dialog" parent="MyceliumSettings.Dialog.Small">
