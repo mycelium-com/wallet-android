@@ -43,9 +43,11 @@ import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.ShareCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
@@ -120,23 +122,31 @@ public class TransactionHistoryFragment extends Fragment {
    private volatile Map<Address, String> _addressBook;
    @BindView(R.id.no_transaction_message)
    TextView noTransactionMessage;
+   private List<TransactionSummary> history = new ArrayList<>();
 
    @BindView(R.id.btRescan)
    View btnReload;
 
    private Wrapper wrapper;
+   private WalletAccount walletAccount;
 
    @Override
-   public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-      _root = inflater.inflate(R.layout.main_transaction_history_view, container, false);
-      ButterKnife.bind(this, _root);
-      btnReload.setOnClickListener(new View.OnClickListener() {
-         @Override
-         public void onClick(View view) {
-            _mbwManager.getSelectedAccount().dropCachedData();
-            _mbwManager.getWalletManager(false).startSynchronization();
-         }
-      });
+   public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+      if (walletAccount != _mbwManager.getSelectedAccount()) {
+         walletAccount = _mbwManager.getSelectedAccount();
+         wrapper = null;
+      }
+      if (_root == null) {
+         _root = inflater.inflate(R.layout.main_transaction_history_view, container, false);
+         ButterKnife.bind(this, _root);
+         btnReload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+               _mbwManager.getSelectedAccount().dropCachedData();
+               _mbwManager.getWalletManager(false).startSynchronization();
+            }
+         });
+      }
       return _root;
    }
 
@@ -161,6 +171,10 @@ public class TransactionHistoryFragment extends Fragment {
       _mbwManager.getEventBus().register(this);
       updateTransactionHistory();
       super.onResume();
+   }
+
+   private void updateTransactionHistory() {
+      new UpdateTxHistoryTask(this, _mbwManager, wrapper, history).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
    }
 
    @Override
@@ -191,7 +205,7 @@ public class TransactionHistoryFragment extends Fragment {
       refreshList();
    }
 
-   private void refreshList() {
+   void refreshList() {
       ((ListView) _root.findViewById(R.id.lvTransactionHistory)).invalidateViews();
    }
 
@@ -220,31 +234,14 @@ public class TransactionHistoryFragment extends Fragment {
       startActivity(intent);
    }
 
-   @SuppressWarnings("unchecked")
-   private void updateTransactionHistory() {
-      if (!isAdded()) {
-         return;
-      }
-      WalletAccount account = _mbwManager.getSelectedAccount();
-      if (account.isArchived()) {
-         _root.findViewById(R.id.llNoRecords).setVisibility(View.VISIBLE);
-         _root.findViewById(R.id.lvTransactionHistory).setVisibility(View.GONE);
-         return;
-      }
-      List <TransactionSummary> history = account.getTransactionHistory(0, 20);
-      Collections.sort(history);
-      Collections.reverse(history);
-      if (history.isEmpty()) {
-         _root.findViewById(R.id.llNoRecords).setVisibility(View.VISIBLE);
-         _root.findViewById(R.id.lvTransactionHistory).setVisibility(View.GONE);
-      } else {
-         _root.findViewById(R.id.llNoRecords).setVisibility(View.GONE);
-         _root.findViewById(R.id.lvTransactionHistory).setVisibility(View.VISIBLE);
-         wrapper = new Wrapper(getActivity(), history);
-         ((ListView) _root.findViewById(R.id.lvTransactionHistory)).setAdapter(wrapper);
-         refreshList();
-      }
-      getActivity().invalidateOptionsMenu();
+   void showHistory(boolean visible) {
+      _root.findViewById(R.id.llNoRecords).setVisibility(visible ? View.GONE : View.VISIBLE);
+      _root.findViewById(R.id.lvTransactionHistory).setVisibility(visible ? View.VISIBLE : View.GONE);
+   }
+
+   public void updateWrapper(Wrapper wrapper) {
+      this.wrapper = wrapper;
+      ((ListView) _root.findViewById(R.id.lvTransactionHistory)).setAdapter(wrapper);
    }
 
    @Override
@@ -583,13 +580,70 @@ public class TransactionHistoryFragment extends Fragment {
       }
    };
 
-   private class Wrapper extends EndlessAdapter {
+   private static class UpdateTxHistoryTask extends AsyncTask<Void, Void, List<TransactionSummary>> {
+      private final TransactionHistoryFragment fragment;
+      private final MbwManager mbwManager;
+      private List<TransactionSummary> history;
+      private WalletAccount account;
+      private TransactionHistoryFragment.Wrapper wrapper;
+
+      UpdateTxHistoryTask(TransactionHistoryFragment fragment, MbwManager mbwManager, TransactionHistoryFragment.Wrapper wrapper,
+                          List<TransactionSummary> history) {
+         this.fragment = fragment;
+         this.mbwManager = mbwManager;
+         this.wrapper = wrapper;
+         this.history = history;
+      }
+
+      @Override
+      protected void onPreExecute() {
+         if (!fragment.isAdded()) {
+            cancel(true);
+         }
+         account = mbwManager.getSelectedAccount();
+         if (account.isArchived()) {
+            fragment.showHistory(false);
+            cancel(true);
+         }
+         if (wrapper == null) {
+            fragment.showHistory(true);
+            wrapper = fragment.new Wrapper(fragment.getActivity(), history);
+            fragment.updateWrapper(wrapper);
+         }
+      }
+
+      @Override
+      protected List<TransactionSummary> doInBackground(Void... voids) {
+         return account.getTransactionHistory(0, Math.max(20, history.size()));
+      }
+
+      @Override
+      protected void onPostExecute(List<TransactionSummary> transactionSummaries) {
+         history.clear();
+         history.addAll(transactionSummaries);
+         Collections.sort(history);
+         Collections.reverse(history);
+         if (history.isEmpty()) {
+            fragment.showHistory(false);
+         } else {
+            fragment.showHistory(true);
+            wrapper.notifyDataSetChanged();
+         }
+         fragment.refreshList();
+         FragmentActivity activity = fragment.getActivity();
+         if (activity != null) {
+            activity.invalidateOptionsMenu();
+         }
+      }
+   }
+
+   class Wrapper extends EndlessAdapter {
       private List<TransactionSummary> _toAdd;
       private final Object _toAddLock = new Object();
       private int lastOffset;
       private int chunkSize;
 
-      private Wrapper(Context context, List<TransactionSummary> transactions) {
+      Wrapper(Context context, List<TransactionSummary> transactions) {
          super(new TransactionHistoryAdapter(context, transactions));
          _toAdd = new ArrayList<>();
          lastOffset = 0;
