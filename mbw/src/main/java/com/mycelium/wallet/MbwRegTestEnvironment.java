@@ -84,13 +84,6 @@ public class MbwRegTestEnvironment extends MbwEnvironment {
       return  testnetWapiEndpoints;
    }
 
-   private static final List<TcpEndpoint> electrumEndpoints = new ArrayList<TcpEndpoint>(){{
-      add(new TcpEndpoint("localhost", 50012));
-   }};
-
-   @Override
-   public List<TcpEndpoint> getElectrumEndpoints() {return electrumEndpoints;}
-
    /**
     * Available BlockExplorers
     *

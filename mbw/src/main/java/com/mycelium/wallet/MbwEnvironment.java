@@ -59,7 +59,6 @@ public abstract class MbwEnvironment {
    public abstract NetworkParameters getNetwork();
    public abstract ServerEndpoints getLtEndpoints();
    public abstract ServerEndpoints getWapiEndpoints();
-   public abstract List<TcpEndpoint> getElectrumEndpoints();
    public abstract List<BlockExplorer> getBlockExplorerList();
    public abstract List<BuySellServiceDescriptor> getBuySellServices();
 }
