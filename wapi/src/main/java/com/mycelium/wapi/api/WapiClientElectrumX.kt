@@ -200,7 +200,7 @@ class WapiClientElectrumX(
         if (tx.confirmations == 0) {
             // if unconfirmed chain length is one, see if it is two (or more)
             // see if it or parent is RBF
-            val txParents = relatedTransactions.filter { ptx -> ptx.txid == tx.txid }
+            val txParents = relatedTransactions.filter { ptx -> tx.vin.any { it.txid == ptx.txid } }
             rbfRisk = isRbf(tx.vin) || txParents.any { ptx -> isRbf(ptx.vin) }
             if (txParents.any { ptx -> ptx.confirmations == 0 }) {
                 unconfirmedChainLength = 1
