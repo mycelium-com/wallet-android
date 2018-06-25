@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="2.11" versioncode="2110000">
+        <change>Basic SegWit support</change>
+        <change>ElectrumX as backend for Bitcoin</change>
+        <change>Settings Design</change>
+        <change>bugs fixed</change>
+    </release>
     <release version="2.10.6" versioncode="2100600">
         <change>BCH transaction history</change>
         <change>bugs fixed</change>
