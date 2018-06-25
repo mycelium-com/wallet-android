@@ -133,7 +133,7 @@ public class SQLiteQueryWithBlobs {
 
    public static byte[] outPointToBytes(OutPoint outPoint) {
       byte[] bytes = new byte[34];
-      System.arraycopy(outPoint.hash.getBytes(), 0, bytes, 0, Sha256Hash.HASH_LENGTH);
+      System.arraycopy(outPoint.txid.getBytes(), 0, bytes, 0, Sha256Hash.HASH_LENGTH);
       bytes[32] = (byte) (outPoint.index & 0xFF);
       bytes[33] = (byte) ((outPoint.index >> 8) & 0xFF);
       return bytes;

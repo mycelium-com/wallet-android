@@ -45,6 +45,7 @@ import com.mycelium.wallet.external.BuySellServiceDescriptor;
 import com.mycelium.wallet.external.GlideraServiceDescription;
 import com.mycelium.wallet.external.LocalTraderServiceDescription;
 import com.mycelium.wallet.external.SimplexServiceDescription;
+import com.mycelium.wapi.api.jsonrpc.TcpEndpoint;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -90,17 +91,13 @@ public class MbwProdEnvironment extends MbwEnvironment {
     */
    private static final HttpEndpoint[] prodnetWapiEndpoints = new HttpEndpoint[]{
            // mws 2,6,7,8
+           new HttpsEndpoint("https://wapi-htz.mycelium.com:4430", "14:83:CB:96:48:E0:7F:96:D0:C3:78:17:98:6F:E3:72:4C:34:E5:07"),
            new HttpsEndpoint("https://mws20.mycelium.com/wapi", "65:1B:FF:6B:8C:7F:C8:1C:8E:14:77:1E:74:9C:F7:E5:46:42:BA:E0"),
-           new HttpsEndpoint("https://mws60.mycelium.com/wapi", "47:F1:F1:21:F3:90:39:05:D7:21:B6:1B:EB:79:B1:40:44:A1:6F:46"),
-           new HttpsEndpoint("https://mws70.mycelium.com/wapi", "9E:90:62:24:F7:71:83:FB:B6:B1:D6:4D:C2:78:4A:5D:29:3F:B5:BB"),
-           new HttpsEndpoint("https://mws80.mycelium.com/wapi", "EB:4C:27:A5:A3:8B:DF:E1:34:60:0A:97:57:3F:FA:FF:43:E0:EA:67"),
 
 
            // Also try to connect to the nodes via a hardcoded IP, in case the DNS has some problems
+           new HttpsEndpoint("https://195.201.81.32:4430", "14:83:CB:96:48:E0:7F:96:D0:C3:78:17:98:6F:E3:72:4C:34:E5:07"),   // hetzner load balanced
            new HttpsEndpoint("https://138.201.206.35/wapi", myceliumLegacyThumbprint),   // mws2
-           new HttpsEndpoint("https://46.4.101.162/wapi", myceliumLegacyThumbprint),  // mws6
-           new HttpsEndpoint("https://46.4.3.125/wapi", myceliumLegacyThumbprint),     // mws7
-           new HttpsEndpoint("https://188.40.73.130/wapi", myceliumLegacyThumbprint),     // mws8
 
            // tor hidden services
            new TorHttpsEndpoint("https://n76y5k3le2zi73bw.onion/wapi", "8D:47:91:A1:EA:9B:CE:E5:A1:9E:38:5B:74:A7:45:0C:88:8F:57:E8"),
@@ -137,7 +134,7 @@ public class MbwProdEnvironment extends MbwEnvironment {
    }};
 
    public List<BlockExplorer> getBlockExplorerList() {
-      return new ArrayList<BlockExplorer>(prodnetExplorerClearEndpoints);
+      return new ArrayList<>(prodnetExplorerClearEndpoints);
    }
 
    public List<BuySellServiceDescriptor> getBuySellServices(){

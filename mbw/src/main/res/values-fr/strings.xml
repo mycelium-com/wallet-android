@@ -542,7 +542,7 @@
   <string name="direct_apk_link_label">Téléchargement\ndirect</string>
   <string name="hide_unused_account_menu">Supprimer le compte</string>
   <string name="dont_allow_hiding_used_notification">Vous ne pouvez pas masquer un compte utilisé, mais vous pouvez l\'archiver</string>
-  <string name="pref_miner_fee_title">Frais de transaction (%1$s)</string>
+  <string name="pref_miner_fee_title">Frais de transaction</string>
   <string name="pref_miner_fee_block_summary">Les transactions sont envoyées avec des frais de mineur pour être incluses dans le(s) prochain(s) %1s bloc(s) en moyenne.</string>
   <string name="miner_fee_lowprio_name">Faible priorité</string>
   <string name="miner_fee_economic_name">Économiques</string>
@@ -747,7 +747,7 @@
   <string name="description_bump_fee">Envoyer une transaction qui augmentera les frais pour cette transaction.\n\nConfirmées que vous voulez passer à %2$s pour obtenir le frais de %1$dsat/B ?</string>
   <string name="message_rebroadcast_successfull">La transaction a été diffusée avec succès.</string>
   <string name="message_rebroadcast_failed">La diffusion a échoué, vérifiez votre connexion internet et synchronisez votre portefeuille.</string>
-  <string name="block_explorer_title">Explorateur de blocs (%1$s)</string>
+  <string name="block_explorer_title">Explorateur de blocs</string>
   <string name="block_explorer_summary">Les détails de la transaction peuvent être consultés en utilisant l\'explorateur de blocs %1$s</string>
   <string name="lt_warning_wrong_account_type">Marchand Local ne fonctionne pas avec le type de compte sélectionné, veuillez sélectionner un autre compte.</string>
   <string name="lt_account_not_allowed">Le type de compte sélectionné ne fonctionne pas avec Marchand Local. Vous devez sélectionner un autre compte pour effectuer cet échange.</string>

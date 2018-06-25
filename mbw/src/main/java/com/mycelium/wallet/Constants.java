@@ -100,7 +100,7 @@ public interface Constants {
 
    String IGNORE_NEW_API = "NewApi";
 
-   String TRANSACTION_HASH_INTENT_KEY = "transaction_hash";
+   String TRANSACTION_ID_INTENT_KEY = "transaction_id";
    String TRANSACTION_FIAT_VALUE_KEY = "transaction_fiat_value";
 
    int BITCOIN_BLOCKS_PER_DAY = (24 * 60) / 10;
@@ -114,4 +114,8 @@ public interface Constants {
    int WAIT_SECONDS_BEFORE_ADDITIONAL_BACKUP = 60;
 
    String FAILED_PIN_COUNT = "failedPinCount";
+
+   String SETTING_TOR = "useTor";
+   String SETTING_DENOMINATION = "bitcoin_denomination";
+   String SETTING_MINER_FEE = "miner_fee";
 }

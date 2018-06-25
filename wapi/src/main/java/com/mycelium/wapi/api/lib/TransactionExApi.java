@@ -21,12 +21,13 @@ public class TransactionExApi extends TransactionEx {
 
    public TransactionExApi(
          @JsonProperty("txid") Sha256Hash txid,
+         @JsonProperty("txhash") Sha256Hash txHash,
          @JsonProperty("height") int height,
          @JsonProperty("time") int time,
          @JsonProperty("binary") byte[] binary,
          @JsonProperty("unconf_chain") int unconfirmedChainLength,
          @JsonProperty("rbf") boolean rbfRisk) {
-      super(txid, height, time, binary);
+      super(txid, txHash, height, time, binary);
       this.unconfirmedChainLength = unconfirmedChainLength;
       this.rbfRisk = rbfRisk;
    }

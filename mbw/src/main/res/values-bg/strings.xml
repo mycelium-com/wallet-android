@@ -539,7 +539,7 @@
   <string name="direct_apk_link_label">Директно\nизтегляне</string>
   <string name="hide_unused_account_menu">Изтриване на сметка</string>
   <string name="dont_allow_hiding_used_notification">Не можете да скриете използвана сметка, но можете да я архивирате</string>
-  <string name="pref_miner_fee_title">Такса (%1$s)</string>
+  <string name="pref_miner_fee_title">Такса</string>
   <string name="pref_miner_fee_block_summary">Трансакциите се пращат с такса, за да бъдат включени в следващя %1s блок средно.</string>
   <string name="miner_fee_lowprio_name">Ниско приоритетна</string>
   <string name="miner_fee_economic_name">Икономична</string>

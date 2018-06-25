@@ -535,7 +535,7 @@
   <string name="direct_apk_link_label">直接\n下載</string>
   <string name="hide_unused_account_menu">帳戶刪除</string>
   <string name="dont_allow_hiding_used_notification">您不能隱藏已使用帳戶，但您可以將其存檔</string>
-  <string name="pref_miner_fee_title">礦工費 (%1$s)</string>
+  <string name="pref_miner_fee_title">礦工費</string>
   <string name="pref_miner_fee_block_summary">一般發送帶有礦工費的交易會涉及到下一個%1s秒數據塊“(”們“)”。</string>
   <string name="miner_fee_lowprio_name">經濟調度</string>
   <string name="miner_fee_economic_name">經濟</string>
@@ -731,7 +731,7 @@
   <string name="description_rebroadcast_transaction">重新提交這筆交易到服務器進行播報。如果您懷疑網絡沒有播報您的交易或著數據包已經丟失，因為已經很長時間沒有得到確認。你想要重新播報這筆交易嗎？</string>
   <string name="message_rebroadcast_successfull">交易已成功播報．</string>
   <string name="message_rebroadcast_failed">播報失敗，請檢查您的 internet 連接，並且同步您的錢包。</string>
-  <string name="block_explorer_title">區塊瀏覽器 \"(\"%1$s\")\"</string>
+  <string name="block_explorer_title">區塊瀏覽器</string>
   <string name="block_explorer_summary">使用%1$s區塊瀏覽器尋找交易細節</string>
   <string name="lt_warning_wrong_account_type">本地商家與所選帳戶類型不匹配，請選擇另一個帳戶。</string>
   <string name="lt_account_not_allowed">所選的賬戶類型不能與本地商家進行交易。您需要選擇要另一個帳戶來進行這種貿易。</string>

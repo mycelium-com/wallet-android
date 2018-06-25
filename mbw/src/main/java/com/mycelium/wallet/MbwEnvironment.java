@@ -38,6 +38,7 @@ import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.net.ServerEndpoints;
 import com.mycelium.wallet.activity.util.BlockExplorer;
 import com.mycelium.wallet.external.BuySellServiceDescriptor;
+import com.mycelium.wapi.api.jsonrpc.TcpEndpoint;
 
 import java.util.List;
 

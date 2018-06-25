@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="48dp">
+
+    <RadioButton
+        android:id="@+id/checkbox"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginStart="18dp"
+        android:fontFamily="sans-serif"
+        android:gravity="center_vertical|left"
+        android:lineSpacingExtra="8sp"
+        android:paddingEnd="24dp"
+        android:paddingStart="24dp"
+        android:textColor="#ffffff"
+        android:textSize="16sp"
+        android:textStyle="normal"
+        tools:text="text" />
+
+</FrameLayout>

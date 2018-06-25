@@ -534,7 +534,7 @@
   <string name="direct_apk_link_label">Descarga\nDirecta</string>
   <string name="hide_unused_account_menu">Eliminar cuenta</string>
   <string name="dont_allow_hiding_used_notification">No puedes esconder una cuenta sin usar, pero puedes archivarla</string>
-  <string name="pref_miner_fee_title">Coste de operación (%1$s)</string>
+  <string name="pref_miner_fee_title">Coste de operación</string>
   <string name="pref_miner_fee_block_summary">Las operaciones son enviadas con un coste de operación para ser incluidas en el(los) próximo(s) %1s bloque(s) de media.</string>
   <string name="miner_fee_lowprio_name">Baja prioridad</string>
   <string name="miner_fee_economic_name">Económico</string>
@@ -714,7 +714,7 @@
   <string name="description_rebroadcast_transaction">Reenviar esta transacción al servidor para transmitirla. Esto puede usarse si sospechas que la red no ha propagado la transacción o la ha olvidado, debido a un largo periodo de tiempo sin recibir confirmación por ejemplo. ¿Quieres retransmitir esta transacción?</string>
   <string name="message_rebroadcast_successfull">La transacción fue transmitida correctamente.</string>
   <string name="message_rebroadcast_failed">Transmisión fallida, por favor comprueba tu conexión a internet y sincroniza el monedero.</string>
-  <string name="block_explorer_title">Explorador de bloque (%1$s)</string>
+  <string name="block_explorer_title">Explorador de bloque</string>
   <string name="block_explorer_summary">Los detalles de la transacción se pueden consultar usando el explorador de bloques %1$s</string>
   <string name="lt_warning_wrong_account_type">Compra-Venta Local no funciona con el tipo de cuenta seleccionada, por favor selecciona otra cuenta.</string>
   <string name="lt_account_not_allowed">El tipo de la cuenta seleccionada no funciona con la compra-venta local. Necesitas seleccionar otra cuenta para realizar esta operación.</string>

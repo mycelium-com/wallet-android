@@ -56,7 +56,7 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
       _backing = backing;
       type = WalletAccount.Type.BTCSINGLEADDRESS;
       _context = context;
-      _addressList = new ArrayList<Address>(1);
+      _addressList = new ArrayList<>(1);
       _addressList.add(_context.getAddress());
       _keyStore = keyStore;
       _cachedBalance = _context.isArchived() ? new Balance(0, 0, 0, 0, 0, 0, false, _allowZeroConfSpending) : calculateLocalBalance();
@@ -161,7 +161,7 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
       }
 
       // Figure out whether there are any transactions we need to fetch
-      List<Sha256Hash> toFetch = new LinkedList<Sha256Hash>();
+      List<Sha256Hash> toFetch = new LinkedList<>();
       for (Sha256Hash id : discovered) {
          if (!_backing.hasTransaction(id)) {
             toFetch.add(id);

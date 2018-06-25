@@ -38,9 +38,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -52,7 +49,6 @@ import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -104,8 +100,6 @@ import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 
 import de.cketti.library.changelog.ChangeLog;
 import info.guardianproject.onionkit.ui.OrbotHelper;
@@ -491,23 +485,19 @@ public class ModernMain extends AppCompatActivity {
       startActivity(intent);
       Toast.makeText(this, R.string.going_to_mycelium_com_help, Toast.LENGTH_LONG).show();
    }
-   private WalletManager.State commonSyncState;
+
    public void setRefreshAnimation() {
       if (refreshItem != null) {
          if (_mbwManager.getWalletManager(false).getState() == WalletManager.State.SYNCHRONIZING
                  || _mbwManager.getColuManager().getState() == WalletManager.State.SYNCHRONIZING) {
-            if(commonSyncState != WalletManager.State.SYNCHRONIZING) {
-               showRefresh();
-            }
+            showRefresh();
          } else {
-            commonSyncState = WalletManager.State.READY;
             refreshItem.setActionView(null);
          }
       }
    }
 
    private void showRefresh() {
-      commonSyncState = WalletManager.State.SYNCHRONIZING;
       MenuItem menuItem = refreshItem.setActionView(R.layout.actionbar_indeterminate_progress);
       ImageView ivTorIcon = menuItem.getActionView().findViewById(R.id.ivTorIcon);
 
