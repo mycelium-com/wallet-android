@@ -52,6 +52,7 @@
     <color name="new_btn_text_color">#5d5d5d</color>
     <color name="transparentaction">#22888888</color>
     <color name="pref_background">#2c2c2c</color>
+    <color name="btn_text_color">#5aa7e6</color>
 
     <fraction name="background_alpha">50%</fraction>
 </resources>

@@ -340,5 +340,8 @@
         <item name="android:paddingEnd">@dimen/button_padding_large</item>
     </style>
 
-    <color name="btn_text_color">#5aa7e6</color>
+    <style name="MyceliumNews" parent="MyceliumModern">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
 </resources>

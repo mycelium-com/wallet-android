@@ -24,13 +24,6 @@ public class NewsViewHolder extends RecyclerView.ViewHolder {
     @BindView(R.id.bt_share)
     public View share;
 
-    @BindView(R.id.author)
-    public TextView author;
-
-    @BindView(R.id.logo)
-    public ImageView authorLogo;
-
-
     public NewsViewHolder(View itemView) {
         super(itemView);
         ButterKnife.bind(this, itemView);
