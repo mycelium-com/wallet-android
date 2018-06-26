@@ -50,12 +50,7 @@ open class Bip44BCHAccount(context: Bip44AccountContext, keyManager: Bip44Accoun
     override fun getTransactionSummary(txid: Sha256Hash): TransactionSummary? {
         val transactions = spvBalanceFetcher.retrieveTransactionsSummaryByHdAccountIndex(id.toString(),
                 accountIndex)
-        for (transaction in transactions) {
-            if (transaction.txid == txid) {
-                return transaction
-            }
-        }
-        return null
+        return transactions.firstOrNull { it.txid == txid }
     }
 
     override fun calculateMaxSpendableAmount(minerFeePerKbToUse: Long): ExactCurrencyValue {
@@ -112,12 +107,12 @@ open class Bip44BCHAccount(context: Bip44AccountContext, keyManager: Bip44Accoun
     }
 
     override fun getPrivateKeyCount(): Int {
-        if (accountType == ACCOUNT_TYPE_FROM_MASTERSEED) {
+        return if (accountType == ACCOUNT_TYPE_FROM_MASTERSEED) {
             val info = spvBalanceFetcher.getPrivateKeysCount(accountIndex)
-            return info.externalKeys + info.internalKeys
+            info.externalKeys + info.internalKeys
         } else {
             val info = spvBalanceFetcher.getPrivateKeysCountUnrelated(id.toString())
-            return info.externalKeys + info.internalKeys
+            info.externalKeys + info.internalKeys
         }
     }
 
@@ -146,6 +141,6 @@ open class Bip44BCHAccount(context: Bip44AccountContext, keyManager: Bip44Accoun
     }
 
     companion object {
-        private const val forkBlock = 478559
+        private const val forkBlock = 0
     }
 }
