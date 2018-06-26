@@ -99,6 +99,7 @@ import com.squareup.otto.Subscribe;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -174,7 +175,7 @@ public class TransactionHistoryFragment extends Fragment {
    }
 
    private void updateTransactionHistory() {
-      new UpdateTxHistoryTask(this, _mbwManager, wrapper, history).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+      new UpdateTxHistoryTask(new WeakReference<>(this), _mbwManager, wrapper, history).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
    }
 
    @Override
@@ -581,15 +582,15 @@ public class TransactionHistoryFragment extends Fragment {
    };
 
    private static class UpdateTxHistoryTask extends AsyncTask<Void, Void, List<TransactionSummary>> {
-      private final TransactionHistoryFragment fragment;
+      private final WeakReference<TransactionHistoryFragment> fragmentReference;
       private final MbwManager mbwManager;
       private List<TransactionSummary> history;
       private WalletAccount account;
       private TransactionHistoryFragment.Wrapper wrapper;
 
-      UpdateTxHistoryTask(TransactionHistoryFragment fragment, MbwManager mbwManager, TransactionHistoryFragment.Wrapper wrapper,
+      UpdateTxHistoryTask(WeakReference<TransactionHistoryFragment> fragmentReference, MbwManager mbwManager, TransactionHistoryFragment.Wrapper wrapper,
                           List<TransactionSummary> history) {
-         this.fragment = fragment;
+         this.fragmentReference = fragmentReference;
          this.mbwManager = mbwManager;
          this.wrapper = wrapper;
          this.history = history;
@@ -597,6 +598,10 @@ public class TransactionHistoryFragment extends Fragment {
 
       @Override
       protected void onPreExecute() {
+         TransactionHistoryFragment fragment = this.fragmentReference.get();
+         if (fragment == null) {
+            cancel(true);
+         }
          if (!fragment.isAdded()) {
             cancel(true);
          }
@@ -619,16 +624,16 @@ public class TransactionHistoryFragment extends Fragment {
 
       @Override
       protected void onPostExecute(List<TransactionSummary> transactionSummaries) {
+         TransactionHistoryFragment fragment = this.fragmentReference.get();
+         if (fragment == null) {
+            cancel(true);
+         }
          history.clear();
          history.addAll(transactionSummaries);
          Collections.sort(history);
          Collections.reverse(history);
-         if (history.isEmpty()) {
-            fragment.showHistory(false);
-         } else {
-            fragment.showHistory(true);
-            wrapper.notifyDataSetChanged();
-         }
+         wrapper.notifyDataSetChanged();
+         fragment.showHistory(!history.isEmpty());
          fragment.refreshList();
          FragmentActivity activity = fragment.getActivity();
          if (activity != null) {
