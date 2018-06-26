@@ -40,6 +40,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
 import android.util.Log;
+
+import com.google.common.base.Strings;
 import com.mrd.bitlib.model.*;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.HashUtils;
@@ -667,6 +669,26 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
             if (cursor != null) {
                cursor.close();
             }
+         }
+      }
+
+      @Override
+      public void putTransactions(List<TransactionEx> transactions) {
+         StringBuilder updateQuery = new StringBuilder("INSERT OR REPLACE INTO " + txTableName + " VALUES ");
+         updateQuery.append(Strings.repeat(" (?,?,?,?,?), ", transactions.size() - 1));
+         updateQuery.append(" (?,?,?,?,?); ");
+         SQLiteStatement updateStatement = _database.compileStatement(updateQuery.toString());
+         for (int x = 0; x < transactions.size(); x++) {
+            updateStatement.bindBlob(x + 1, transactions.get(x).txid.getBytes());
+            updateStatement.bindBlob(x + 2, transactions.get(x).hash.getBytes());
+            updateStatement.bindLong(x + 3, transactions.get(x).height == -1 ? Integer.MAX_VALUE : transactions.get(x).height);
+            updateStatement.bindLong(x + 4, transactions.get(x).time);
+            updateStatement.bindBlob(x + 5, transactions.get(x).binary);
+         }
+         updateStatement.executeInsert();
+
+         for (TransactionEx transaction : transactions) {
+            putReferencedOutputs(transaction.binary);
          }
       }
 

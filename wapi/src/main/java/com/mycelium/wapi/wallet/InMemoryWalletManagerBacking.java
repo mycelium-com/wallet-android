@@ -19,6 +19,7 @@ package com.mycelium.wapi.wallet;
 
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.OutPoint;
+import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.model.TransactionEx;
@@ -240,6 +241,13 @@ public class InMemoryWalletManagerBacking implements WalletManagerBacking {
       @Override
       public boolean hasParentTransactionOutput(OutPoint outPoint) {
          return _parentOutputs.containsKey(outPoint);
+      }
+
+      @Override
+      public void putTransactions(List<TransactionEx> transactions) {
+         for (TransactionEx transaction : transactions) {
+            _transactions.put(transaction.txid, transaction);
+         }
       }
 
       @Override

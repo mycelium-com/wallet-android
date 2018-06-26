@@ -41,11 +41,13 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
 import android.util.Log;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import com.mrd.bitlib.model.*;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
+import com.mrd.bitlib.util.StringUtils;
 import com.mycelium.wallet.persistence.SQLiteQueryWithBlobs;
 import com.mycelium.wapi.api.exception.DbCorruptedException;
 import com.mycelium.wapi.model.TransactionEx;
@@ -671,6 +673,26 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
             if (cursor != null) {
                cursor.close();
             }
+         }
+      }
+
+      @Override
+      public void putTransactions(List<TransactionEx> transactions) {
+         String updateQuery = "INSERT OR REPLACE INTO " + txTableName + " VALUES "
+                 + Strings.repeat(" (?,?,?,?,?), ", transactions.size() - 1) + " (?,?,?,?,?); ";
+         SQLiteStatement updateStatement = _database.compileStatement(updateQuery);
+         for (int x = 0; x < transactions.size(); x++) {
+            int index = x * 5;
+            updateStatement.bindBlob(index + 1, transactions.get(x).txid.getBytes());
+            updateStatement.bindBlob(index + 2, transactions.get(x).hash.getBytes());
+            updateStatement.bindLong(index + 3, transactions.get(x).height == -1 ? Integer.MAX_VALUE : transactions.get(x).height);
+            updateStatement.bindLong(index + 4, transactions.get(x).time);
+            updateStatement.bindBlob(index + 5, transactions.get(x).binary);
+         }
+         updateStatement.executeInsert();
+
+         for (TransactionEx transaction : transactions) {
+            putReferencedOutputs(transaction.binary);
          }
       }
 

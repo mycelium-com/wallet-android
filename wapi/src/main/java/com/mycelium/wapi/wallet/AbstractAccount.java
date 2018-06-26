@@ -95,7 +95,7 @@ import static java.util.Collections.singletonList;
 
 public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
    private static final int COINBASE_MIN_CONFIRMATIONS = 100;
-   private static final int MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY = 50;
+   private static final int MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY = 150;
    private final ColuTransferInstructionsParser coluTransferInstructionsParser;
 
    public interface EventHandler {
@@ -337,39 +337,9 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       return newUtxos;
    }
 
-   @SuppressWarnings("NewApi")
-   protected WapiResponse<GetTransactionsResponse> getTransactionsBatched(Collection<Sha256Hash> txids) throws WapiException {
-      if (txids.size() > MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY) {
-         final ArrayDeque<Sha256Hash> queue = new ArrayDeque<>(txids);
-         Sha256Hash elem;
-         ArrayList<Sha256Hash> toFetch = new ArrayList<>(MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY);
-         final LinkedList<TransactionExApi> results = new LinkedList<>();
-         while ((elem = queue.poll()) != null) {
-            toFetch.add(elem);
-            if (toFetch.size() == MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY) {
-               handleGetTransactionsResponseWapiResponse(toFetch, results);
-               syncTotalRetrievedTransactions += toFetch.size();
-               toFetch.clear();
-            }
-         }
-         if (toFetch.size() > 0) {
-            handleGetTransactionsResponseWapiResponse(toFetch, results);
-            syncTotalRetrievedTransactions += toFetch.size();
-            updateSyncProgress();
-         }
-         return new WapiResponse<>(new GetTransactionsResponse(results));
-      } else {
-         syncTotalRetrievedTransactions += txids.size();
-         updateSyncProgress();
-         final GetTransactionsRequest fullRequest = new GetTransactionsRequest(Wapi.VERSION, txids);
-         return _wapi.getTransactions(fullRequest);
-      }
-   }
-
-   private void handleGetTransactionsResponseWapiResponse(ArrayList<Sha256Hash> toFetch, LinkedList<TransactionExApi> results) throws WapiException {
-      final GetTransactionsRequest partialRequest = new GetTransactionsRequest(Wapi.VERSION, toFetch);
-      final WapiResponse<GetTransactionsResponse> partialResponse = _wapi.getTransactions(partialRequest);
-      results.addAll(partialResponse.getResult().transactions);
+   protected WapiResponse<GetTransactionsResponse> getTransactionsBatched(Collection<Sha256Hash> txids)  {
+      final GetTransactionsRequest fullRequest = new GetTransactionsRequest(Wapi.VERSION, txids);
+      return _wapi.getTransactions(fullRequest);
    }
 
    protected abstract boolean doDiscoveryForAddresses(List<Address> lookAhead) throws WapiException;
@@ -402,8 +372,8 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
 
    private void handleNewExternalTransactionsInt(Collection<TransactionExApi> transactions) throws WapiException {
       // Transform and put into two arrays with matching indexes
-      ArrayList<TransactionEx> texArray = new ArrayList<>(transactions.size());
-      ArrayList<Transaction> txArray = new ArrayList<>(transactions.size());
+      List<TransactionEx> texArray = new ArrayList<>(transactions.size());
+      List<Transaction> txArray = new ArrayList<>(transactions.size());
       for (TransactionEx tex : transactions) {
          try {
             txArray.add(Transaction.fromByteReader(new ByteReader(tex.binary)));
@@ -418,14 +388,20 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       fetchStoreAndValidateParentOutputs(txArray);
 
       // Store transaction locally
+      _backing.beginTransaction();
+      try {
+         _backing.putTransactions(texArray);
+         _backing.setTransactionSuccessful();
+      } finally {
+         _backing.endTransaction();
+      }
       for (int i = 0; i < txArray.size(); i++) {
          final TransactionEx transactionEx = texArray.get(i);
-         _backing.putTransaction(transactionEx);
          onNewTransaction(transactionEx, txArray.get(i));
       }
    }
 
-   private void fetchStoreAndValidateParentOutputs(ArrayList<Transaction> transactions) throws WapiException {
+   private void fetchStoreAndValidateParentOutputs(List<Transaction> transactions) throws WapiException {
       Map<Sha256Hash, TransactionEx> parentTransactions = new HashMap<>();
       Map<OutPoint, TransactionOutputEx> parentOutputs = new HashMap<>();
 
@@ -508,8 +484,14 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       }
 
       // Persist
-      for (TransactionOutputEx output : toPersist) {
-         _backing.putParentTransactionOutput(output);
+      _backing.beginTransaction();
+      try {
+         for (TransactionOutputEx output : toPersist) {
+            _backing.putParentTransactionOutput(output);
+         }
+         _backing.setTransactionSuccessful();
+      } finally {
+         _backing.endTransaction();
       }
    }
 
