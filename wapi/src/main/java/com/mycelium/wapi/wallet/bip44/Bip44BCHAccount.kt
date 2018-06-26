@@ -141,6 +141,6 @@ open class Bip44BCHAccount(context: Bip44AccountContext, keyManager: Bip44Accoun
     }
 
     companion object {
-        private const val forkBlock = 0
+        private const val forkBlock = 478559
     }
 }
