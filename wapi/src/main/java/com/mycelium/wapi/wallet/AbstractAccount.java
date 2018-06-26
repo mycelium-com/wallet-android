@@ -110,6 +110,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
 
    private EventHandler _eventHandler;
    private final AccountBacking _backing;
+   protected int syncTotalRetrievedTransactions = 0;
 
    protected AbstractAccount(AccountBacking backing, NetworkParameters network, Wapi wapi) {
       _network = network;
@@ -347,14 +348,19 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
             toFetch.add(elem);
             if (toFetch.size() == MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY) {
                handleGetTransactionsResponseWapiResponse(toFetch, results);
+               syncTotalRetrievedTransactions += toFetch.size();
                toFetch.clear();
             }
          }
          if (toFetch.size() > 0) {
             handleGetTransactionsResponseWapiResponse(toFetch, results);
+            syncTotalRetrievedTransactions += toFetch.size();
+            updateSyncProgress();
          }
          return new WapiResponse<>(new GetTransactionsResponse(results));
       } else {
+         syncTotalRetrievedTransactions += txids.size();
+         updateSyncProgress();
          final GetTransactionsRequest fullRequest = new GetTransactionsRequest(Wapi.VERSION, txids);
          return _wapi.getTransactions(fullRequest);
       }
@@ -379,6 +385,8 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
    protected void handleNewExternalTransactions(Collection<TransactionExApi> transactions) throws WapiException {
       if (transactions.size() <= MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY) {
          handleNewExternalTransactionsInt(transactions);
+         syncTotalRetrievedTransactions += transactions.size();
+         updateSyncProgress();
       } else {
          // We have quite a list of transactions to handle, do it in batches
          ArrayList<TransactionExApi> all = new ArrayList<>(transactions);
@@ -386,6 +394,8 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
             int endIndex = Math.min(all.size(), i + MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY);
             Collection<TransactionExApi> sub = all.subList(i, endIndex);
             handleNewExternalTransactionsInt(sub);
+            syncTotalRetrievedTransactions += (endIndex - i);
+            updateSyncProgress();
          }
       }
    }
@@ -1552,6 +1562,14 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
 
    public AccountBacking getAccountBacking() {
       return this._backing;
+   }
+
+   public int getSyncTotalRetrievedTransactions() {
+      return syncTotalRetrievedTransactions;
+   }
+
+   public void updateSyncProgress() {
+      postEvent(Event.SYNC_PROGRESS_UPDATED);
    }
 }
 

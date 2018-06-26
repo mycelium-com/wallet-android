@@ -97,6 +97,9 @@ public class EventTranslator implements WalletManager.Observer, ExchangeRateMana
             Optional<Address> receivingAddress = wallet.getAccount(accountId).getReceivingAddress();
             postEvent(new ReceivingAddressChanged(receivingAddress));
             break;
+         case SYNC_PROGRESS_UPDATED:
+            postEvent(new SyncProgressUpdated(accountId));
+            break;
          default:
             //unknown event
       }

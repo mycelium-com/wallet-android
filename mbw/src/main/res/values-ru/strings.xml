@@ -420,6 +420,7 @@
   <string name="cs_address_description">Вы отсканировали биткой адрес. Вы можете видеть баланс адреса, но не можете тратить с него.</string>
   <string name="contains_keys">Содержит %1$s закрытых ключей.</string>
   <string name="contains_addresses">Содержит %1$s адресов.</string>
+  <string name="sync_total_retrieved_transactions">Синхронизация. %1$s транзакций обработано.</string>
   <string name="archiving_account_title">Архивирование счёта</string>
   <string name="new_version_exists">Доступна новая версия</string>
   <string name="check_update">Проверить обновления</string>
