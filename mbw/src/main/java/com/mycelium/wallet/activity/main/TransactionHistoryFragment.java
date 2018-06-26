@@ -175,7 +175,7 @@ public class TransactionHistoryFragment extends Fragment {
    }
 
    private void updateTransactionHistory() {
-      new UpdateTxHistoryTask(new WeakReference<>(this), _mbwManager, wrapper, history).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+      new UpdateTxHistoryTask(this, _mbwManager, wrapper, history).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
    }
 
    @Override
@@ -588,9 +588,9 @@ public class TransactionHistoryFragment extends Fragment {
       private WalletAccount account;
       private TransactionHistoryFragment.Wrapper wrapper;
 
-      UpdateTxHistoryTask(WeakReference<TransactionHistoryFragment> fragmentReference, MbwManager mbwManager, TransactionHistoryFragment.Wrapper wrapper,
+      UpdateTxHistoryTask(TransactionHistoryFragment fragmentReference, MbwManager mbwManager, TransactionHistoryFragment.Wrapper wrapper,
                           List<TransactionSummary> history) {
-         this.fragmentReference = fragmentReference;
+         this.fragmentReference = new WeakReference<>(fragmentReference);
          this.mbwManager = mbwManager;
          this.wrapper = wrapper;
          this.history = history;
