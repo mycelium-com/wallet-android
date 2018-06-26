@@ -87,6 +87,7 @@ import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.BalanceChanged;
 import com.mycelium.wallet.event.ExtraAccountsChanged;
 import com.mycelium.wallet.event.ReceivingAddressChanged;
+import com.mycelium.wallet.event.SyncProgressUpdated;
 import com.mycelium.wallet.event.SyncStarted;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.persistence.MetadataStorage;
@@ -1233,4 +1234,8 @@ public class AccountsFragment extends Fragment {
       update();
    }
 
+   @Subscribe
+   public void syncProgressUpdated(SyncProgressUpdated event) {
+      update();
+   }
 }

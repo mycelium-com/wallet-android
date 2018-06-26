@@ -273,6 +273,7 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
     public synchronized boolean doSynchronization(SyncMode mode) {
         checkNotArchived();
         _isSynchronizing = true;
+        syncTotalRetrievedTransactions = 0;
         _logger.logInfo("Starting sync: " + mode);
         if (needsDiscovery()) {
             mode = SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED;
@@ -289,6 +290,7 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
             return updateUnspentOutputs(mode);
         } finally {
             _isSynchronizing = false;
+            syncTotalRetrievedTransactions = 0;
         }
     }
 

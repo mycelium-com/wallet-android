@@ -18,4 +18,5 @@ public class ViewAccountModel {
     public Drawable drawableForAccountSelected;
     public boolean isRMCLinkedAccount;
     public boolean showBackupMissingWarning;
+    public int syncTotalRetrievedTransactions;
 }

@@ -117,6 +117,7 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
    public synchronized boolean doSynchronization(SyncMode mode) {
       checkNotArchived();
       _isSynchronizing = true;
+      syncTotalRetrievedTransactions = 0;
       try {
 
          if (synchronizeUnspentOutputs(_addressList) == -1) {
@@ -144,6 +145,7 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
          return true;
       } finally {
          _isSynchronizing = false;
+         syncTotalRetrievedTransactions = 0;
       }
 
    }
