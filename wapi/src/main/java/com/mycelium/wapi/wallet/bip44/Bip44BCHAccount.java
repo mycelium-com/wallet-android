@@ -17,6 +17,7 @@ import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -97,10 +98,21 @@ public class Bip44BCHAccount extends Bip44Account {
     @Override
     public List<TransactionSummary> getTransactionHistory(int offset, int limit) {
         if (getAccountType() == ACCOUNT_TYPE_FROM_MASTERSEED) {
-            return spvBalanceFetcher.retrieveTransactionsSummaryByHdAccountIndex(getId().toString(), getAccountIndex(), offset, limit);
+            return filterBtcTransactions(spvBalanceFetcher.retrieveTransactionsSummaryByHdAccountIndex(getId().toString(), getAccountIndex(), offset, limit));
         } else {
-            return spvBalanceFetcher.retrieveTransactionsSummaryByUnrelatedAccountId(getId().toString(), offset, limit);
+            return filterBtcTransactions(spvBalanceFetcher.retrieveTransactionsSummaryByUnrelatedAccountId(getId().toString(), offset, limit));
         }
+    }
+
+    private List<TransactionSummary> filterBtcTransactions(List<TransactionSummary> transactionSummaries) {
+        List<TransactionSummary> filteredTransactions = new ArrayList<>(transactionSummaries);
+        for (TransactionSummary transactionSummary : transactionSummaries) {
+            final int forkBlock = 478559;
+            if (transactionSummary.height < forkBlock) {
+                filteredTransactions.remove(transactionSummary);
+            }
+        }
+        return filteredTransactions;
     }
 
     @Override

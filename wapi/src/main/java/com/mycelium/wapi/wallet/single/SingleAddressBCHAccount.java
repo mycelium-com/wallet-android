@@ -13,6 +13,7 @@ import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -58,7 +59,18 @@ public class SingleAddressBCHAccount extends SingleAddressAccount {
 
     @Override
     public List<TransactionSummary> getTransactionHistory(int offset, int limit) {
-        return spvBalanceFetcher.retrieveTransactionsSummaryByUnrelatedAccountId(getId().toString(), offset, limit);
+        return filterBtcTransactions(spvBalanceFetcher.retrieveTransactionsSummaryByUnrelatedAccountId(getId().toString(), offset, limit));
+    }
+
+    private List<TransactionSummary> filterBtcTransactions(List<TransactionSummary> transactionSummaries) {
+        List<TransactionSummary> filteredTransactions = new ArrayList<>(transactionSummaries);
+        for (TransactionSummary transactionSummary : transactionSummaries) {
+            final int forkBlock = 478559;
+            if (transactionSummary.height < forkBlock) {
+                filteredTransactions.remove(transactionSummary);
+            }
+        }
+        return filteredTransactions;
     }
 
     @Override
