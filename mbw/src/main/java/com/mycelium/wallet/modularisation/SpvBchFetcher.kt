@@ -184,15 +184,15 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
         val selection = TransactionContract.TransactionDetails.SELECTION_ACCOUNT_INDEX
         val account = mbwManager.selectedAccount
         val contentResolver = context.contentResolver
-        var selectionArgs : Array<String>? = null
-        if (account.type == WalletAccount.Type.BTCBIP44 || account.type == WalletAccount.Type.BCHBIP44) {
+        val selectionArgs = if ((account.type == WalletAccount.Type.BTCBIP44 || account.type == WalletAccount.Type.BCHBIP44)
+                && mbwManager.selectedAccount.isDerivedFromInternalMasterseed) {
             val accountIndex = (mbwManager.selectedAccount as Bip44Account).accountIndex
-            selectionArgs = arrayOf(Integer.toString(accountIndex))
-        } else if (account.type == WalletAccount.Type.BTCSINGLEADDRESS || account.type == WalletAccount.Type.BCHSINGLEADDRESS) {
+            arrayOf(Integer.toString(accountIndex))
+        } else {
             val accountId = account.id
-            selectionArgs = arrayOf(accountId.toString())
+            arrayOf(accountId.toString())
         }
-        contentResolver.query(uri, null, selection, selectionArgs!!, null).use {
+        contentResolver.query(uri, null, selection, selectionArgs, null).use {
             if (it?.moveToNext() == true) {
                 transactionDetails = transactionDetailsFrom(it)
             }
