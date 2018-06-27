@@ -15,6 +15,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import javax.net.ssl.SSLSocketFactory
 import kotlin.concurrent.thread
+import kotlin.concurrent.timerTask
 
 typealias Consumer<T> = (T) -> Unit
 
@@ -36,6 +37,8 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
     private var outgoing : BufferedOutputStream? = null
     private val nextRequestId = AtomicInteger(0)
     private val isStarted = AtomicBoolean(false)
+    // Timer responsible for periodically executing ping requests
+    private val pingTimer = Timer()
 
     private val callbacks = mutableMapOf<String, Consumer<AbstractResponse>>()
 
@@ -139,6 +142,11 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
                     isConnected = true
                     notifyListeners()
 
+                    // Schedule periodic ping requests execution
+                    pingTimer.scheduleAtFixedRate (timerTask {
+                        sendPingMessage()
+                    }, 0, INTERVAL_BETWEEN_PING_REQUESTS)
+
                     // Inner loop for reading data from socket. If the connection breaks, we should
                     // exit this loop and try creating new socket in order to restore connection
                     while (isConnected) {
@@ -185,6 +193,16 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
         }
     }
 
+    // Send ping message. It is expected to be executed in the dedicated timer thread
+    private fun sendPingMessage() {
+        try {
+            val pong = write("server.ping", RpcMapParams(emptyMap<String, String>()), DEFAULT_RESPONSE_TIMEOUT)
+            logger.logInfo("Pong! $pong " + Date().toString())
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+        }
+    }
+
     private fun internalWrite(msg: String) {
         thread(start = true) {
             try {
@@ -198,5 +216,7 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
     }
     companion object {
         private const val INTERVAL_BETWEEN_SOCKET_RECONNECTS = 5000L
+        private const val INTERVAL_BETWEEN_PING_REQUESTS = 10000L
+        private const val DEFAULT_RESPONSE_TIMEOUT = 10000L
     }
 }
