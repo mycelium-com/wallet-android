@@ -42,10 +42,6 @@ class WapiClientElectrumX(
             JsonRpcTcpClient(endpoints, logger),
             JsonRpcTcpClient(endpoints, logger),
             JsonRpcTcpClient(endpoints, logger))
-    @Volatile
-    private var possibleSave = 0
-    @Volatile
-    private var total = 0
 
     @Volatile
     private var jsonRpcTcpClient = jsonRpcTcpClientsList[0]
@@ -218,11 +214,6 @@ class WapiClientElectrumX(
     private fun getTransactionXs(txids: Collection<String>): List<TransactionX> {
         if (txids.isEmpty()) {
             return emptyList()
-        }
-        total += txids.size
-        if (txids.distinct().size != txids.size) {
-            possibleSave += txids.size - txids.distinct().size
-            logger.logError("Possible save $possibleSave, total is $total")
         }
         val requestsList = txids.map {
             RpcRequestOut(GET_TRANSACTION_METHOD,

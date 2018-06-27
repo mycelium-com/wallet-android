@@ -246,7 +246,7 @@ public class InMemoryWalletManagerBacking implements WalletManagerBacking {
       @Override
       public void putTransactions(List<TransactionEx> transactions) {
          for (TransactionEx transaction : transactions) {
-            _transactions.put(transaction.txid, transaction);
+            putTransaction(transaction);
          }
       }
 
@@ -267,8 +267,7 @@ public class InMemoryWalletManagerBacking implements WalletManagerBacking {
 
       @Override
       public List<TransactionEx> getTransactionHistory(int offset, int limit) {
-         List<TransactionEx> list = new ArrayList<>();
-         list.addAll(_transactions.values());
+         List<TransactionEx> list = new ArrayList<>(_transactions.values());
          Collections.sort(list);
          if (offset >= list.size()) {
             return Collections.emptyList();
@@ -279,8 +278,7 @@ public class InMemoryWalletManagerBacking implements WalletManagerBacking {
 
       @Override
       public List<TransactionEx> getTransactionsSince(long since) {
-         List<TransactionEx> list = new ArrayList<>();
-         list.addAll(_transactions.values());
+         List<TransactionEx> list = new ArrayList<>(_transactions.values());
          Collections.sort(list);
          final ArrayList<TransactionEx> result = new ArrayList<>();
          for (TransactionEx entry : list) {

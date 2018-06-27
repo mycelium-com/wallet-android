@@ -674,21 +674,27 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
 
       @Override
       public void putTransactions(List<TransactionEx> transactions) {
-         StringBuilder updateQuery = new StringBuilder("INSERT OR REPLACE INTO " + txTableName + " VALUES ");
-         updateQuery.append(Strings.repeat(" (?,?,?,?,?), ", transactions.size() - 1));
-         updateQuery.append(" (?,?,?,?,?); ");
-         SQLiteStatement updateStatement = _database.compileStatement(updateQuery.toString());
-         for (int x = 0; x < transactions.size(); x++) {
-            updateStatement.bindBlob(x + 1, transactions.get(x).txid.getBytes());
-            updateStatement.bindBlob(x + 2, transactions.get(x).hash.getBytes());
-            updateStatement.bindLong(x + 3, transactions.get(x).height == -1 ? Integer.MAX_VALUE : transactions.get(x).height);
-            updateStatement.bindLong(x + 4, transactions.get(x).time);
-            updateStatement.bindBlob(x + 5, transactions.get(x).binary);
-         }
-         updateStatement.executeInsert();
+         _database.beginTransaction();
+         String updateQuery = "INSERT OR REPLACE INTO " + txTableName + " VALUES "
+                 + Strings.repeat(" (?,?,?,?,?), ", transactions.size() - 1) + " (?,?,?,?,?); ";
+         SQLiteStatement updateStatement = _database.compileStatement(updateQuery);
+         try {
+            for (int x = 0; x < transactions.size(); x++) {
+               int index = x * 5;
+               updateStatement.bindBlob(index + 1, transactions.get(x).txid.getBytes());
+               updateStatement.bindBlob(index + 2, transactions.get(x).hash.getBytes());
+               updateStatement.bindLong(index + 3, transactions.get(x).height == -1 ? Integer.MAX_VALUE : transactions.get(x).height);
+               updateStatement.bindLong(index + 4, transactions.get(x).time);
+               updateStatement.bindBlob(index + 5, transactions.get(x).binary);
+            }
+            updateStatement.executeInsert();
 
-         for (TransactionEx transaction : transactions) {
-            putReferencedOutputs(transaction.binary);
+            for (TransactionEx transaction : transactions) {
+               putReferencedOutputs(transaction.binary);
+            }
+            _database.setTransactionSuccessful();
+         } finally {
+            _database.endTransaction();
          }
       }
 

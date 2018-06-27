@@ -388,13 +388,8 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       fetchStoreAndValidateParentOutputs(txArray);
 
       // Store transaction locally
-      _backing.beginTransaction();
-      try {
-         _backing.putTransactions(texArray);
-         _backing.setTransactionSuccessful();
-      } finally {
-         _backing.endTransaction();
-      }
+      _backing.putTransactions(texArray);
+
       for (int i = 0; i < txArray.size(); i++) {
          final TransactionEx transactionEx = texArray.get(i);
          onNewTransaction(transactionEx, txArray.get(i));
