@@ -580,6 +580,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private ButtonPreference createUninstallableModulePreference(final Module module) {
         final ButtonPreference preference = new ButtonPreference(getActivity());
         preference.setLayoutResource(R.layout.preference_module_layout);
+        preference.setWidgetLayoutResource(R.layout.preference_button_uninstall);
         preference.setTitle(Html.fromHtml(module.getName()));
         preference.setKey("Module_" + module.getModulePackage());
         preference.setIcon(GooglePlayModuleCollection.getBigLogo(getActivity(), module.getModulePackage()));

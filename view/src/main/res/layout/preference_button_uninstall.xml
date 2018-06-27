@@ -16,6 +16,6 @@
         android:fontFamily="sans-serif-medium"
         android:textAllCaps="true"
         android:textStyle="normal"
-        android:textColor="@color/common_blue"
+        android:textColor="@color/grey"
         tools:text="UNINSTALL" />
 </FrameLayout>
