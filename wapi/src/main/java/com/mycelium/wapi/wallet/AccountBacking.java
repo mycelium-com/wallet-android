@@ -44,6 +44,8 @@ public interface AccountBacking {
 
    void putUnspentOutput(TransactionOutputEx output);
 
+   void putParentTransactionOuputs(List<TransactionOutputEx> outputsList);
+
    void putParentTransactionOutput(TransactionOutputEx output);
 
    TransactionOutputEx getParentTransactionOutput(OutPoint outPoint);

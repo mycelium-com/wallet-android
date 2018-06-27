@@ -95,7 +95,7 @@ import static java.util.Collections.singletonList;
 
 public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
    private static final int COINBASE_MIN_CONFIRMATIONS = 100;
-   private static final int MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY = 150;
+   private static final int MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY = 199;
    private final ColuTransferInstructionsParser coluTransferInstructionsParser;
 
    public interface EventHandler {
@@ -479,14 +479,16 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       }
 
       // Persist
-      _backing.beginTransaction();
-      try {
-         for (TransactionOutputEx output : toPersist) {
-            _backing.putParentTransactionOutput(output);
+      if (toPersist.size() <= MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY) {
+         _backing.putParentTransactionOuputs(toPersist);
+      } else {
+         // We have quite a list of transactions to handle, do it in batches
+         ArrayList<TransactionOutputEx> all = new ArrayList<>(toPersist);
+         for (int i = 0; i < all.size(); i += MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY) {
+            int endIndex = Math.min(all.size(), i + MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY);
+            List<TransactionOutputEx> sub = all.subList(i, endIndex);
+            _backing.putParentTransactionOuputs(sub);
          }
-         _backing.setTransactionSuccessful();
-      } finally {
-         _backing.endTransaction();
       }
    }
 

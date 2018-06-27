@@ -593,6 +593,31 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
       }
 
       @Override
+      public void putParentTransactionOuputs(List<TransactionOutputEx> outputsList) {
+         if (outputsList.isEmpty()) {
+            return;
+         }
+         _database.beginTransaction();
+         String updateQuery = "INSERT OR REPLACE INTO " + ptxoTableName + " VALUES "
+                 + Strings.repeat(" (?,?,?,?,?), ", outputsList.size() - 1) + " (?,?,?,?,?); ";
+         SQLiteStatement updateStatement = _database.compileStatement(updateQuery);
+         try {
+            for (int x = 0; x < outputsList.size(); x++) {
+               int index = x * 5;
+               updateStatement.bindBlob(index + 1, SQLiteQueryWithBlobs.outPointToBytes(outputsList.get(x).outPoint));
+               updateStatement.bindLong(index + 2, outputsList.get(x).height);
+               updateStatement.bindLong(index + 3, outputsList.get(x).value);
+               updateStatement.bindLong(index + 4, outputsList.get(x).isCoinBase ? 1 : 0);
+               updateStatement.bindBlob(index + 5, outputsList.get(x).script);
+            }
+            updateStatement.executeInsert();
+            _database.setTransactionSuccessful();
+         } finally {
+            _database.endTransaction();
+         }
+      }
+
+      @Override
       public void putParentTransactionOutput(TransactionOutputEx output) {
          _insertOrReplacePtxo.bindBlob(1, SQLiteQueryWithBlobs.outPointToBytes(output.outPoint));
          _insertOrReplacePtxo.bindLong(2, output.height);
@@ -674,6 +699,9 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
 
       @Override
       public void putTransactions(List<TransactionEx> transactions) {
+         if (transactions.isEmpty()) {
+            return;
+         }
          _database.beginTransaction();
          String updateQuery = "INSERT OR REPLACE INTO " + txTableName + " VALUES "
                  + Strings.repeat(" (?,?,?,?,?), ", transactions.size() - 1) + " (?,?,?,?,?); ";

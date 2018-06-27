@@ -229,6 +229,13 @@ public class InMemoryWalletManagerBacking implements WalletManagerBacking {
       }
 
       @Override
+      public void putParentTransactionOuputs(List<TransactionOutputEx> outputsList) {
+         for (TransactionOutputEx outputEx : outputsList) {
+            putParentTransactionOutput(outputEx);
+         }
+      }
+
+      @Override
       public void putParentTransactionOutput(TransactionOutputEx output) {
          _parentOutputs.put(output.outPoint, output);
       }
