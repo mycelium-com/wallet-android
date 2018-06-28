@@ -39,15 +39,18 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
+import android.text.TextUtils;
 import android.util.Log;
+
 import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-import com.mrd.bitlib.model.*;
+import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.OutPoint;
+import com.mrd.bitlib.model.Transaction;
+import com.mrd.bitlib.model.TransactionInput;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
-import com.mrd.bitlib.util.StringUtils;
 import com.mycelium.wallet.persistence.SQLiteQueryWithBlobs;
 import com.mycelium.wapi.api.exception.DbCorruptedException;
 import com.mycelium.wapi.model.TransactionEx;
@@ -58,7 +61,15 @@ import com.mycelium.wapi.wallet.WalletManagerBacking;
 import com.mycelium.wapi.wallet.bip44.Bip44AccountContext;
 import com.mycelium.wapi.wallet.single.SingleAddressAccountContext;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import static com.mycelium.wallet.persistence.SQLiteQueryWithBlobs.uuidToBytes;
 
@@ -596,23 +607,23 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
          _deleteUtxo.execute();
       }
 
-      @Override
       public void putParentTransactionOuputs(List<TransactionOutputEx> outputsList) {
          if (outputsList.isEmpty()) {
             return;
          }
          _database.beginTransaction();
          String updateQuery = "INSERT OR REPLACE INTO " + ptxoTableName + " VALUES "
-                 + Strings.repeat(" (?,?,?,?,?), ", outputsList.size() - 1) + " (?,?,?,?,?); ";
+                 + TextUtils.join(",", Collections.nCopies(outputsList.size(), " (?,?,?,?,?) "));
          SQLiteStatement updateStatement = _database.compileStatement(updateQuery);
          try {
-            for (int x = 0; x < outputsList.size(); x++) {
-               int index = x * 5;
-               updateStatement.bindBlob(index + 1, SQLiteQueryWithBlobs.outPointToBytes(outputsList.get(x).outPoint));
-               updateStatement.bindLong(index + 2, outputsList.get(x).height);
-               updateStatement.bindLong(index + 3, outputsList.get(x).value);
-               updateStatement.bindLong(index + 4, outputsList.get(x).isCoinBase ? 1 : 0);
-               updateStatement.bindBlob(index + 5, outputsList.get(x).script);
+            for (int i = 0; i < outputsList.size(); i++) {
+               int index = i * 5;
+               final TransactionOutputEx outputEx = outputsList.get(i);
+               updateStatement.bindBlob(index + 1, SQLiteQueryWithBlobs.outPointToBytes(outputEx.outPoint));
+               updateStatement.bindLong(index + 2, outputEx.height);
+               updateStatement.bindLong(index + 3, outputEx.value);
+               updateStatement.bindLong(index + 4, outputEx.isCoinBase ? 1 : 0);
+               updateStatement.bindBlob(index + 5, outputEx.script);
             }
             updateStatement.executeInsert();
             _database.setTransactionSuccessful();
@@ -708,16 +719,17 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
          }
          _database.beginTransaction();
          String updateQuery = "INSERT OR REPLACE INTO " + txTableName + " VALUES "
-                 + Strings.repeat(" (?,?,?,?,?), ", transactions.size() - 1) + " (?,?,?,?,?); ";
+                 + TextUtils.join(",", Collections.nCopies(transactions.size(), " (?,?,?,?,?) "));
          SQLiteStatement updateStatement = _database.compileStatement(updateQuery);
          try {
-            for (int x = 0; x < transactions.size(); x++) {
-               int index = x * 5;
-               updateStatement.bindBlob(index + 1, transactions.get(x).txid.getBytes());
-               updateStatement.bindBlob(index + 2, transactions.get(x).hash.getBytes());
-               updateStatement.bindLong(index + 3, transactions.get(x).height == -1 ? Integer.MAX_VALUE : transactions.get(x).height);
-               updateStatement.bindLong(index + 4, transactions.get(x).time);
-               updateStatement.bindBlob(index + 5, transactions.get(x).binary);
+            for (int i = 0; i < transactions.size(); i++) {
+               int index = i * 5;
+               final TransactionEx transactionEx = transactions.get(i);
+               updateStatement.bindBlob(index + 1, transactionEx.txid.getBytes());
+               updateStatement.bindBlob(index + 2, transactionEx.hash.getBytes());
+               updateStatement.bindLong(index + 3, transactionEx.height == -1 ? Integer.MAX_VALUE : transactionEx.height);
+               updateStatement.bindLong(index + 4, transactionEx.time);
+               updateStatement.bindBlob(index + 5, transactionEx.binary);
             }
             updateStatement.executeInsert();
 
