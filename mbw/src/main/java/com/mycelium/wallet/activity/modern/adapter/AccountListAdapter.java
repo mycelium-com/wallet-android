@@ -18,6 +18,8 @@ import com.mycelium.wallet.activity.modern.adapter.holder.AccountViewHolder;
 import com.mycelium.wallet.activity.modern.adapter.holder.ArchivedGroupTitleViewHolder;
 import com.mycelium.wallet.activity.modern.adapter.holder.GroupTitleViewHolder;
 import com.mycelium.wallet.activity.modern.adapter.holder.TotalViewHolder;
+import com.mycelium.wallet.activity.modern.model.accounts.AccountItem;
+import com.mycelium.wallet.activity.modern.model.accounts.AccountsListModel;
 import com.mycelium.wallet.activity.modern.model.ViewAccountModel;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.currency.CurrencySum;
@@ -28,10 +30,10 @@ import java.util.Objects;
 import java.util.UUID;
 
 public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    static final int GROUP_TITLE_TYPE = 2;
-    static final int ACCOUNT_TYPE = 3;
-    static final int TOTAL_BALANCE_TYPE = 4;
-    static final int GROUP_ARCHIVED_TITLE_TYPE = 5;
+    public static final int GROUP_TITLE_TYPE = 2;
+    public static final int ACCOUNT_TYPE = 3;
+    public static final int TOTAL_BALANCE_TYPE = 4;
+    public static final int GROUP_ARCHIVED_TITLE_TYPE = 5;
 
     private List<AccountItem> itemList = new ArrayList<>();
     private UUID focusedAccountId;
@@ -168,12 +170,8 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             });
             groupHolder.expandIcon.setRotation(pagePrefs.getBoolean(item.title, true) ? 180 : 0);
             CurrencySum sum = getSpendableBalance(item.walletAccountList);
-            if (sum != null) {
-                groupHolder.tvBalance.setValue(sum);
-                groupHolder.tvBalance.setVisibility(View.VISIBLE);
-            } else {
-                groupHolder.tvBalance.setVisibility(View.GONE);
-            }
+            groupHolder.tvBalance.setValue(sum);
+            groupHolder.tvBalance.setVisibility(View.VISIBLE);
         } else if (viewType == GROUP_ARCHIVED_TITLE_TYPE) {
             ArchivedGroupTitleViewHolder groupHolder = (ArchivedGroupTitleViewHolder) holder;
             groupHolder.tvTitle.setText(Html.fromHtml(item.title));
@@ -192,9 +190,7 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         } else if (viewType == TOTAL_BALANCE_TYPE) {
             TotalViewHolder totalHolder = (TotalViewHolder) holder;
             CurrencySum sum = getSpendableBalance(item.walletAccountList);
-            if (sum != null) {
-                totalHolder.tcdBalance.setValue(sum);
-            }
+            totalHolder.tcdBalance.setValue(sum);
         }
     }
 

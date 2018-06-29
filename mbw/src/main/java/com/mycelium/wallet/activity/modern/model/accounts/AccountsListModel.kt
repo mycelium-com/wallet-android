@@ -1,8 +1,7 @@
-package com.mycelium.wallet.activity.modern.adapter
+package com.mycelium.wallet.activity.modern.model.accounts
 
 import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
-import android.arch.lifecycle.LiveData
 import android.content.Context
 import com.mycelium.wallet.MbwManager
 

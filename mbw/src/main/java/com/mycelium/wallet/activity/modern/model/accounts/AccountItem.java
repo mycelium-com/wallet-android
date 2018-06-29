@@ -1,15 +1,15 @@
-package com.mycelium.wallet.activity.modern.adapter;
+package com.mycelium.wallet.activity.modern.model.accounts;
 
 import com.mycelium.wallet.activity.modern.model.ViewAccountModel;
 
 import java.util.List;
 
 public class AccountItem {
-    int type;
-    ViewAccountModel walletAccount;
+    public final int type;
+    public ViewAccountModel walletAccount;
 
-    String title;
-    List<ViewAccountModel> walletAccountList;
+    public String title;
+    public List<ViewAccountModel> walletAccountList;
 
     AccountItem(int type, ViewAccountModel walletAccount) {
         this.type = type;

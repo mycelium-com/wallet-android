@@ -1,4 +1,4 @@
-package com.mycelium.wallet.activity.modern.adapter
+package com.mycelium.wallet.activity.modern.model.accounts
 
 import android.annotation.SuppressLint
 import android.app.Application
@@ -10,6 +10,7 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.modern.RecordRowBuilder
+import com.mycelium.wallet.activity.modern.adapter.AccountListAdapter
 import com.mycelium.wallet.colu.ColuAccount
 import com.mycelium.wallet.event.*
 import com.mycelium.wallet.persistence.MetadataStorage
