@@ -431,8 +431,9 @@ public class ModernMain extends AppCompatActivity {
             }
             _mbwManager.getWalletManager(false).startSynchronization(syncMode);
 
-            // Run Colu synchronization only if the current account type is COLU
-            if (_mbwManager.getSelectedAccount().getType() == WalletAccount.Type.COLU) {
+            // Run Colu synchronization if we need to sync all accounts or when only current account
+            // should be synced and it has COLU type
+            if (!syncMode.onlyActiveAccount || _mbwManager.getSelectedAccount().getType() == WalletAccount.Type.COLU) {
                _mbwManager.getColuManager().startSynchronization();
             }
 
@@ -452,11 +453,12 @@ public class ModernMain extends AppCompatActivity {
             _mbwManager.getSelectedAccount().dropCachedData();
             _mbwManager.getWalletManager(false).startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
 
-            // Run Colu synchronization only if the current account type is COLU
+            // Since the Sync mode SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCE (sync only active account) -
+            // run colu synchronization only if the current account type is COLU
             if (_mbwManager.getSelectedAccount().getType() == WalletAccount.Type.COLU) {
                _mbwManager.getColuManager().startSynchronization();
             }
-            
+
             break;
 
          case R.id.miVerifyMessage:
