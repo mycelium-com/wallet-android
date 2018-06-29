@@ -176,10 +176,12 @@ public class Utils {
        */
    }
 
-   public static Resources getResourcesByLocale(Resources res, String localeName) {
-      Configuration conf = new Configuration(res.getConfiguration());
-      conf.locale = new Locale(localeName);
-      return new Resources(res.getAssets(), res.getDisplayMetrics(), conf);
+   public static Resources getResourcesByLocale(Context context, String localeName) {
+      Configuration conf = context.getResources().getConfiguration();
+      conf = new Configuration(conf);
+      conf.setLocale(new Locale(localeName));
+      Context localizedContext = context.createConfigurationContext(conf);
+      return localizedContext.getResources();
    }
 
    public static Bitmap getMinimalQRCodeBitmap(String url) {

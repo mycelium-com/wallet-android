@@ -768,7 +768,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
     private String getLanguageSettingTitle() {
         String displayed = getResources().getString(R.string.pref_language);
-        String english = Utils.getResourcesByLocale(getResources(), "en")
+        String english = Utils.getResourcesByLocale(getActivity(), "en")
                 .getString(R.string.pref_language);
         return english.equals(displayed) ? displayed : displayed + " / " + english;
     }
