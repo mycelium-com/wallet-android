@@ -50,6 +50,7 @@ import com.mycelium.lt.api.model.TraderInfo;
 import com.mycelium.modularizationtools.CommunicationManager;
 import com.mycelium.modularizationtools.model.Module;
 import com.mycelium.net.ServerEndpointType;
+import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wallet.MbwManager;
@@ -69,11 +70,13 @@ import com.mycelium.wallet.lt.api.SetNotificationMail;
 import com.mycelium.wallet.modularisation.BCHHelper;
 import com.mycelium.wallet.modularisation.GooglePlayModuleCollection;
 import com.mycelium.wallet.modularisation.ModularisationVersionHelper;
+import com.mycelium.wapi.api.lib.CurrencyCode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.squareup.otto.Subscribe;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -84,6 +87,8 @@ import static android.app.Activity.RESULT_CANCELED;
 public class SettingsFragment extends PreferenceFragmentCompat {
     public static final CharMatcher AMOUNT = CharMatcher.javaDigit().or(CharMatcher.anyOf(".,"));
     private static final int REQUEST_CODE_UNINSTALL = 1;
+    // adding extra info to preferences (for search)
+    private static final String EXTRA_SETTINGS_OPTIONS = "SettingsExtras";
 
     private ListPreference language;
     private ListPreference _bitcoinDenomination;
@@ -113,7 +118,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private DisplayPreferenceDialogHandler displayPreferenceDialogHandler;
 
     private List<Preference> preferenceList = new ArrayList<>();
-
     private final Preference.OnPreferenceClickListener localCurrencyClickListener = new Preference.OnPreferenceClickListener() {
         public boolean onPreferenceClick(Preference preference) {
             SetLocalCurrencyActivity.callMe(getActivity());
@@ -466,6 +470,65 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 return true;
             }
         });
+
+        addExtraSearchOptions(exchangeSourceNamesList, blockExplorerNames);
+    }
+
+    private void addExtraSearchOptions(List<String> exchangeSourceNamesList, CharSequence[] blockExplorerNames){
+        // adding extra languages for search
+        StringBuilder extraLanguages = new StringBuilder(" ");
+        for (String lang : getResources().getStringArray(R.array.languages_desc))
+            extraLanguages.append(lang);
+        language.getExtras().putString(EXTRA_SETTINGS_OPTIONS, extraLanguages.toString());
+
+        // extra pin
+        String extraPinWords = " " +
+                getString(R.string.pref_set_pin_summary) +
+                getString(R.string.pref_set_pin) +
+                getString(R.string.pref_pin_require_on_startup_summary) +
+                getString(R.string.pref_pin_require_on_startup);
+        pincodePreference.getExtras().putString(EXTRA_SETTINGS_OPTIONS, extraPinWords);
+
+        // extra backup
+        String extraBackupWords = " " +
+                getString(R.string.pref_legacy_backup_summary) +
+                getString(R.string.pref_legacy_backup_title) +
+                getString(R.string.pref_legacy_backup_verify_summary) +
+                getString(R.string.pref_legacy_backup_verify_title);
+        backupPreference.getExtras().putString(EXTRA_SETTINGS_OPTIONS, extraBackupWords);
+
+        String denominations = CoinUtil.Denomination.BTC.toString() + CoinUtil.Denomination.mBTC.toString() +
+                CoinUtil.Denomination.uBTC.toString() + CoinUtil.Denomination.BITS.toString();
+        _bitcoinDenomination.getExtras().putString(EXTRA_SETTINGS_OPTIONS, denominations);
+
+        List<CurrencyCode> codes = new ArrayList<>(Arrays.asList(CurrencyCode.values()));
+        StringBuilder extraFiat = new StringBuilder(" ");
+        for (CurrencyCode fiat : codes)
+            extraFiat.append(fiat.getShortString()).append(fiat.getName());
+        _localCurrency.getExtras().putString(EXTRA_SETTINGS_OPTIONS, extraFiat.toString());
+
+        StringBuilder extraExchanges = new StringBuilder(" ");
+        for (String exchange : exchangeSourceNamesList)
+            extraExchanges.append(exchange);
+        _exchangeSource.getExtras().putString(EXTRA_SETTINGS_OPTIONS, extraExchanges.toString());
+
+        StringBuilder extraBEN = new StringBuilder(" ");
+        for (CharSequence ben: blockExplorerNames)
+            extraBEN.append(ben.toString());
+        _blockExplorer.getExtras().putString(EXTRA_SETTINGS_OPTIONS, extraBEN.toString());
+
+        String externalPrefs = " " +
+                getString(R.string.si_buy_sell) +
+                getString(R.string.si_setting_show_button_summary) +
+                getString(R.string.gd_buy_sell) +
+                getString(R.string.glidera_setting_show_button_summary);
+        externalPreference.getExtras().putString(EXTRA_SETTINGS_OPTIONS, externalPrefs);
+
+        String extraVersion = " " +
+                getString(R.string.app_name) +
+                getString(R.string.version) +
+                BuildConfig.VERSION_NAME;
+        versionPreference.getExtras().putString(EXTRA_SETTINGS_OPTIONS, extraVersion);
     }
 
     @Override
@@ -518,10 +581,17 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                         prefs.clear();
                         for (int i = 0; i < preferenceCategory.getPreferenceCount(); i++) {
                             Preference preference = preferenceCategory.getPreference(i);
+
+                            String additionalInfo = " ";
+                            if(preference.getExtras() != null && preference.getExtras().getString(EXTRA_SETTINGS_OPTIONS) != null)
+                                additionalInfo = preference.getExtras().getString(EXTRA_SETTINGS_OPTIONS);
+
                             if (preference.getTitle() != null
                                     && preference.getTitle().toString().toLowerCase().contains(s.toLowerCase())
                                     || preference.getSummary() != null
-                                    && preference.getSummary().toString().toLowerCase().contains(s.toLowerCase())) {
+                                    && preference.getSummary().toString().toLowerCase().contains(s.toLowerCase())
+                                    || additionalInfo!=null
+                                    && additionalInfo.toLowerCase().contains(s.toLowerCase())) {
                                 prefs.add(preference);
                             }
                         }
