@@ -91,6 +91,7 @@ import com.mycelium.wapi.api.response.Feature;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SyncMode;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.squareup.otto.Subscribe;
 
@@ -429,7 +430,12 @@ public class ModernMain extends AppCompatActivity {
                syncMode = SyncMode.NORMAL_ALL_ACCOUNTS_FORCED;
             }
             _mbwManager.getWalletManager(false).startSynchronization(syncMode);
-            _mbwManager.getColuManager().startSynchronization();
+
+            // Run Colu synchronization only if the current account type is COLU
+            if (_mbwManager.getSelectedAccount().getType() == WalletAccount.Type.COLU) {
+               _mbwManager.getColuManager().startSynchronization();
+            }
+
             // also fetch a new exchange rate, if necessary
             _mbwManager.getExchangeRateManager().requestOptionalRefresh();
             showRefresh(); // without this call sometime user not see click feedback
@@ -445,7 +451,12 @@ public class ModernMain extends AppCompatActivity {
          case R.id.miRescanTransactions:
             _mbwManager.getSelectedAccount().dropCachedData();
             _mbwManager.getWalletManager(false).startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
-            _mbwManager.getColuManager().startSynchronization();
+
+            // Run Colu synchronization only if the current account type is COLU
+            if (_mbwManager.getSelectedAccount().getType() == WalletAccount.Type.COLU) {
+               _mbwManager.getColuManager().startSynchronization();
+            }
+            
             break;
 
          case R.id.miVerifyMessage:
