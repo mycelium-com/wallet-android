@@ -18,26 +18,47 @@ import com.mycelium.wapi.wallet.WalletAccount
 import com.squareup.otto.Subscribe
 import java.util.*
 
-class AccountsLiveData(val context: Application, val mbwManager: MbwManager, val pagePrefs: SharedPreferences) : LiveData<List<AccountItem>>() {
+/**
+ * This class is intended to monitor current accounts and must post changes as soon as accounts list was updated.
+ * @param pagePrefs is used to determine which groups are collapsed
+ * @see AccountsLiveData.getValue retuns list of current accounts, with filtered hidden ones.
+ *
+ * @author Sergey Lappo
+ * @since 30.07.2018
+ */
+class AccountsLiveData(private val context: Application, private val mbwManager: MbwManager,
+                       private val pagePrefs: SharedPreferences) : LiveData<List<AccountItem>>() {
     private val builder = RecordRowBuilder(mbwManager, context.resources)
+    // List of all currently available accounts
     private var accountsList = Collections.emptyList<AccountItem>()
 
     init {
         value = Collections.emptyList()
+        updateData()
     }
 
     override fun onActive() {
-        super.onActive()
         mbwManager.eventBus.register(this)
     }
 
     override fun onInactive() {
-        super.onInactive()
         mbwManager.eventBus.unregister(this)
     }
 
+    @Subscribe
+    fun onAccountsListChanged(event: AccountListChanged) {
+        updateData()
+    }
+
+    @Subscribe
+    fun onGroupCollapsed(event: AccountGroupCollapsed) {
+        updateList()
+    }
+
+    /**
+     * Leak might not occur, as only application context passed and whole class don't contains any Activity related contexts
+     */
     @SuppressLint("StaticFieldLeak")
-    //Leak might not occur, as only application context passed and whole class don't contains any Activity related contexts
     private inner class DataUpdateAsyncTask internal constructor(val context: Application) : AsyncTask<Void, List<AccountItem>, List<AccountItem>>() {
         override fun doInBackground(vararg voids: Void): List<AccountItem> {
             val am = AccountManager
@@ -114,16 +135,15 @@ class AccountsLiveData(val context: Application, val mbwManager: MbwManager, val
         DataUpdateAsyncTask(context).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
     }
 
-    @Subscribe
-    fun onAccountsListChanged(event: AccountListChanged) {
-        updateData()
-    }
-
-    fun updateList() {
+    /**
+     * This method is mainly intended to be able to quickly collapse groups.
+     */
+    private fun updateList() {
         var isCollapsed = false
         value = accountsList!!.filter {
             if (it.title == null) {
-                return@filter !isCollapsed
+                println("${it.walletAccount.displayAddress} is $isCollapsed")
+                return@filter isCollapsed
             } else {
                 isCollapsed = pagePrefs.getBoolean(it.title, true)
                 return@filter true

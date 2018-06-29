@@ -21,6 +21,8 @@ import com.mycelium.wallet.activity.modern.adapter.holder.TotalViewHolder;
 import com.mycelium.wallet.activity.modern.model.accounts.AccountItem;
 import com.mycelium.wallet.activity.modern.model.accounts.AccountsListModel;
 import com.mycelium.wallet.activity.modern.model.ViewAccountModel;
+import com.mycelium.wallet.event.AccountGroupCollapsed;
+import com.mycelium.wallet.event.AccountListChanged;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.currency.CurrencySum;
 
@@ -165,7 +167,7 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 public void onClick(View view) {
                     boolean isGroupVisible = !pagePrefs.getBoolean(item.title, true);
                     pagePrefs.edit().putBoolean(item.title, isGroupVisible).apply();
-                    listModel.getAccountsData().updateList();
+                    mbwManager.getEventBus().post(new AccountGroupCollapsed());
                 }
             });
             groupHolder.expandIcon.setRotation(pagePrefs.getBoolean(item.title, true) ? 180 : 0);
@@ -183,7 +185,7 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 public void onClick(View view) {
                     boolean isGroupVisible = !pagePrefs.getBoolean(item.title, true);
                     pagePrefs.edit().putBoolean(item.title, isGroupVisible).apply();
-                    listModel.getAccountsData().updateList();
+                    mbwManager.getEventBus().post(new AccountGroupCollapsed());
                 }
             });
             groupHolder.expandIcon.setRotation(pagePrefs.getBoolean(item.title, true) ? 180 : 0);

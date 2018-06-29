@@ -5,6 +5,7 @@ import android.os.Handler
 import android.os.Looper
 import com.google.common.collect.ImmutableMap
 import com.mycelium.wallet.event.AccountChanged
+import com.mycelium.wallet.event.AccountListChanged
 import com.mycelium.wallet.event.ExtraAccountsChanged
 import com.mycelium.wallet.event.SelectedAccountChanged
 import com.mycelium.wapi.wallet.AccountProvider
@@ -33,8 +34,8 @@ object AccountManager : AccountProvider {
     }
 
     class FillAccountsTask : AsyncTask<Void, Void, Void>() {
+        val mbwManager = MbwManager.getInstance(WalletApplication.getInstance())!!
         override fun doInBackground(vararg params: Void): Void? {
-            val mbwManager = MbwManager.getInstance(WalletApplication.getInstance())
             val walletManager: WalletManager = mbwManager.getWalletManager(false)
             accountsSemaphore.acquire(100)
             accounts.clear()
@@ -49,6 +50,10 @@ object AccountManager : AccountProvider {
             masterSeedAccounts.putAll(walletManager.activeMasterseedAccounts)
             masterSeedAccountsSemaphore.release(100)
             return null
+        }
+
+        override fun onPostExecute(result: Void?) {
+            mbwManager.eventBus.post(AccountListChanged())
         }
     }
 
