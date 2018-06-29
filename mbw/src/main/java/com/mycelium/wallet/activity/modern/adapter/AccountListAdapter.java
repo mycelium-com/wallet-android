@@ -27,6 +27,7 @@ import com.mycelium.wapi.wallet.currency.CurrencySum;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -109,112 +110,124 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     }
 
     private static class DataUpdateAsyncTask extends AsyncTask<Void, List<Item>, List<Item>> {
-        WeakReference<Context> wrContext;
-        WeakReference<AccountListAdapter> wrAdapter;
+        private final WeakReference<Context> wrContext;
+        private final WeakReference<AccountListAdapter> wrAdapter;
+        private final WeakReference<List<Item>> wrAccountsList;
 
-        DataUpdateAsyncTask(Context context, AccountListAdapter adapter) {
+        DataUpdateAsyncTask(Context context, AccountListAdapter adapter, List<Item> accountsList) {
             wrContext = new WeakReference<>(context);
             wrAdapter = new WeakReference<>(adapter);
-        }
-
-        private void checkWeakReferences() throws WeakReferenceNullException {
-            if (wrContext.get() == null || wrAdapter.get() == null) {
-                throw new WeakReferenceNullException();
-            }
+            wrAccountsList = new WeakReference<>(accountsList);
         }
 
         @Override
         protected List<Item> doInBackground(Void... voids) {
-            try {
-                AccountManager am = AccountManager.INSTANCE;
+            AccountManager am = AccountManager.INSTANCE;
 
-                List<Item> result = new ArrayList<>(addGroup(R.string.active_hd_accounts_name, GROUP_TITLE_TYPE, am.getBTCBip44Accounts().values()));
-                checkWeakReferences();
-                result.addAll(addGroup(wrContext.get().getString(R.string.active_bitcoin_sa_group_name), GROUP_TITLE_TYPE, am.getBTCSingleAddressAccounts().values()));
-                checkWeakReferences();
-                if (wrAdapter.get().itemList.isEmpty()) {
-                    publishProgress(result);
-                }
-                result.addAll(addGroup(R.string.bitcoin_cash_hd, GROUP_TITLE_TYPE, am.getBCHBip44Accounts().values()));
-                result.addAll(addGroup(R.string.bitcoin_cash_sa, GROUP_TITLE_TYPE, am.getBCHSingleAddressAccounts().values()));
-
-                List<WalletAccount> coluAccounts = new ArrayList<>();
-                for (WalletAccount walletAccount : am.getColuAccounts().values()) {
-                    coluAccounts.add(walletAccount);
-                    coluAccounts.add(((ColuAccount) walletAccount).getLinkedAccount());
-                }
-                result.addAll(addGroup(R.string.digital_assets, GROUP_TITLE_TYPE, coluAccounts));
-
-                List<WalletAccount> accounts = am.getActiveAccounts().values().asList();
-                List<WalletAccount> other = new ArrayList<>();
-                for (WalletAccount account : accounts) {
-                    switch (account.getType()) {
-                        case BTCSINGLEADDRESS:
-                        case BTCBIP44:
-                        case BCHSINGLEADDRESS:
-                        case BCHBIP44:
-                        case COLU:
-                            break;
-                        default:
-                            other.add(account);
-                            break;
-                    }
-                }
-                result.addAll(addGroup(R.string.active_other_accounts_name, GROUP_TITLE_TYPE, other));
-
-                checkWeakReferences();
-                result.add(new Item(TOTAL_BALANCE_TYPE, "", wrAdapter.get().builder.convertList(am.getActiveAccounts().values().asList())));
-                result.addAll(addGroup(R.string.archive_name, GROUP_ARCHIVED_TITLE_TYPE, am.getArchivedAccounts().values()));
-                return result;
-            } catch (WeakReferenceNullException ignore) {
-                return null;
+            List<Item> accountsList = addGroup(R.string.active_hd_accounts_name, GROUP_TITLE_TYPE, am.getBTCBip44Accounts().values());
+            accountsList.addAll(addGroup(wrContext.get().getString(R.string.active_bitcoin_sa_group_name), GROUP_TITLE_TYPE, am.getBTCSingleAddressAccounts().values()));
+            final AccountListAdapter listAdapter = wrAdapter.get();
+            if (listAdapter == null) {
+                cancel(true);
+                return Collections.emptyList();
             }
+            if (wrAdapter.get().itemList.isEmpty()) {
+                publishProgress(accountsList);
+            }
+            accountsList.addAll(addGroup(R.string.bitcoin_cash_hd, GROUP_TITLE_TYPE, am.getBCHBip44Accounts().values()));
+            accountsList.addAll(addGroup(R.string.bitcoin_cash_sa, GROUP_TITLE_TYPE, am.getBCHSingleAddressAccounts().values()));
+
+            List<WalletAccount> coluAccounts = new ArrayList<>();
+            for (WalletAccount walletAccount : am.getColuAccounts().values()) {
+                coluAccounts.add(walletAccount);
+                coluAccounts.add(((ColuAccount) walletAccount).getLinkedAccount());
+            }
+            accountsList.addAll(addGroup(R.string.digital_assets, GROUP_TITLE_TYPE, coluAccounts));
+            List<WalletAccount> accounts = am.getActiveAccounts().values().asList();
+            List<WalletAccount> other = new ArrayList<>();
+            for (WalletAccount account : accounts) {
+                switch (account.getType()) {
+                    case BTCSINGLEADDRESS:
+                    case BTCBIP44:
+                    case BCHSINGLEADDRESS:
+                    case BCHBIP44:
+                    case COLU:
+                        break;
+                    default:
+                        other.add(account);
+                        break;
+                }
+            }
+            accountsList.addAll(addGroup(R.string.active_other_accounts_name, GROUP_TITLE_TYPE, other));
+
+            accountsList.add(new Item(TOTAL_BALANCE_TYPE, "", listAdapter.builder.convertList(am.getActiveAccounts().values().asList())));
+            accountsList.addAll(addGroup(R.string.archive_name, GROUP_ARCHIVED_TITLE_TYPE, am.getArchivedAccounts().values()));
+            return accountsList;
         }
 
         @Override
         protected void onPostExecute(List<Item> items) {
             super.onPostExecute(items);
-            try {
-                checkWeakReferences();
-            } catch (WeakReferenceNullException ignore) {
+            final AccountListAdapter listAdapter = wrAdapter.get();
+            final List<Item> accountsList = wrAccountsList.get();
+            if (listAdapter == null || accountsList == null) {
+                cancel(true);
                 return;
             }
-            wrAdapter.get().itemList = items;
-            wrAdapter.get().notifyDataSetChanged();
+            accountsList.clear();
+            accountsList.addAll(items);
+            listAdapter.notifyDataSetChanged();
         }
 
         @SafeVarargs
         @Override
         protected final void onProgressUpdate(List<Item>... values) {
             super.onProgressUpdate(values);
-            if (wrAdapter.get() == null || wrContext.get() == null) {
+            final AccountListAdapter listAdapter = wrAdapter.get();
+            final Context context = wrContext.get();
+            final List<Item> accountsList = wrAccountsList.get();
+            if (listAdapter == null || context == null || accountsList == null) {
+                cancel(true);
                 return;
             }
-            wrAdapter.get().itemList = values[0];
-            wrAdapter.get().notifyDataSetChanged();
+            accountsList.clear();
+            accountsList.addAll(values[0]);
+            listAdapter.notifyDataSetChanged();
         }
 
-        private List<Item> addGroup(int titleId, int titleType, Collection<WalletAccount> accounts) throws WeakReferenceNullException {
-            checkWeakReferences();
-            return addGroup(wrContext.get().getString(titleId), titleType, accounts);
+        private List<Item> addGroup(int titleId, int titleType, Collection<WalletAccount> accounts) {
+            final Context context = wrContext.get();
+            if (context == null) {
+                cancel(true);
+                return Collections.emptyList();
+            }
+            return addGroup(context.getString(titleId), titleType, accounts);
         }
 
-        private List<Item> addGroup(String title, int titleType, Collection<WalletAccount> accounts) throws WeakReferenceNullException {
-            checkWeakReferences();
-            MetadataStorage storage = wrAdapter.get().mbwManager.getMetadataStorage();
+        private List<Item> addGroup(String title, int titleType, Collection<WalletAccount> accounts) {
+            final AccountListAdapter listAdapter = wrAdapter.get();
+            if (listAdapter == null) {
+                cancel(true);
+                return Collections.emptyList();
+            }
+            MetadataStorage storage = listAdapter.mbwManager.getMetadataStorage();
             return buildGroup(new ArrayList<>(accounts), storage, title, titleType);
         }
 
-        private List<Item> buildGroup(List<WalletAccount> accountList, MetadataStorage storage, String title, int type) throws WeakReferenceNullException {
+        private List<Item> buildGroup(List<WalletAccount> accountList, MetadataStorage storage, String title, int type) {
             List<WalletAccount> accounts = Utils.sortAccounts(accountList, storage);
 
-            checkWeakReferences();
-            List<ViewAccountModel> viewAccountList = wrAdapter.get().builder.convertList(accounts);
+            final AccountListAdapter listAdapter = wrAdapter.get();
+            if (listAdapter == null) {
+                cancel(true);
+                return Collections.emptyList();
+            }
+            List<ViewAccountModel> viewAccountList = listAdapter.builder.convertList(accounts);
 
             List<Item> result = new ArrayList<>();
             if (!viewAccountList.isEmpty()) {
                 result.add(new Item(type, title, viewAccountList));
-                if (wrAdapter.get().pagePrefs.getBoolean(title, true)) {
+                if (listAdapter.pagePrefs.getBoolean(title, true)) {
                     for (ViewAccountModel account : viewAccountList) {
                         result.add(new Item(ACCOUNT_TYPE, account));
                     }
@@ -222,12 +235,10 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             }
             return result;
         }
-
-        private class WeakReferenceNullException extends Exception {};
     }
 
     public void updateData() {
-        new DataUpdateAsyncTask(context, this).executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
+        new DataUpdateAsyncTask(context, this, itemList).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     @Override

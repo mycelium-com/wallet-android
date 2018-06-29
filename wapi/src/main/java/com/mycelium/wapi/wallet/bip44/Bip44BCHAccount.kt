@@ -97,13 +97,20 @@ open class Bip44BCHAccount(context: Bip44AccountContext, keyManager: Bip44Accoun
 
     override fun isVisible(): Boolean {
         if (!visible && (spvBalanceFetcher.syncProgressPercents == 100f || spvBalanceFetcher.isAccountSynced(this))) {
-            visible = if (accountType == ACCOUNT_TYPE_FROM_MASTERSEED) {
-                !spvBalanceFetcher.retrieveTransactionsSummaryByHdAccountIndex(id.toString(), accountIndex).isEmpty()
-            } else {
-                !spvBalanceFetcher.retrieveTransactionsSummaryByUnrelatedAccountId(id.toString()).isEmpty()
+            visible = checkVisibility()
+            if (visible) {
+                spvBalanceFetcher.setVisible(this)
             }
         }
         return visible
+    }
+
+    private fun checkVisibility(): Boolean {
+        return spvBalanceFetcher.isAccountVisible(this) || if (accountType == ACCOUNT_TYPE_FROM_MASTERSEED) {
+            !spvBalanceFetcher.retrieveTransactionsSummaryByHdAccountIndex(id.toString(), accountIndex).isEmpty()
+        } else {
+            !spvBalanceFetcher.retrieveTransactionsSummaryByUnrelatedAccountId(id.toString()).isEmpty()
+        }
     }
 
     override fun getPrivateKeyCount(): Int {

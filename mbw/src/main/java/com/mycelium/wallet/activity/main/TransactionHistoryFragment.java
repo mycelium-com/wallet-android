@@ -84,6 +84,7 @@ import com.mycelium.wallet.activity.send.SignTransactionActivity;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
 import com.mycelium.wallet.coinapult.CoinapultTransactionSummary;
 import com.mycelium.wallet.colu.ColuAccount;
+import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.AddressBookChanged;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
@@ -101,7 +102,6 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -129,14 +129,9 @@ public class TransactionHistoryFragment extends Fragment {
    View btnReload;
 
    private Wrapper wrapper;
-   private WalletAccount walletAccount;
 
    @Override
    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-      if (walletAccount != _mbwManager.getSelectedAccount()) {
-         walletAccount = _mbwManager.getSelectedAccount();
-         wrapper = null;
-      }
       if (_root == null) {
          _root = inflater.inflate(R.layout.main_transaction_history_view, container, false);
          ButterKnife.bind(this, _root);
@@ -197,9 +192,13 @@ public class TransactionHistoryFragment extends Fragment {
    }
 
    @Subscribe
-   public void syncStopped(SyncStopped event) {
+   public void accountChaned(AccountChanged event) {
+      wrapper = null;
       updateTransactionHistory();
    }
+
+   @Subscribe
+   public void syncStopped(SyncStopped event) { updateTransactionHistory(); }
 
    @Subscribe
    public void exchangeRateChanged(ExchangeRatesRefreshed event) {
@@ -581,7 +580,7 @@ public class TransactionHistoryFragment extends Fragment {
       }
    };
 
-   private static class UpdateTxHistoryTask extends AsyncTask<Void, Void, List<TransactionSummary>> {
+   private static class UpdateTxHistoryTask extends AsyncTask<Void, List<TransactionSummary>, List<TransactionSummary>> {
       private final WeakReference<TransactionHistoryFragment> fragmentReference;
       private final MbwManager mbwManager;
       private List<TransactionSummary> history;
@@ -601,19 +600,23 @@ public class TransactionHistoryFragment extends Fragment {
          TransactionHistoryFragment fragment = this.fragmentReference.get();
          if (fragment == null) {
             cancel(true);
+            return;
          }
          if (!fragment.isAdded()) {
             cancel(true);
+            return;
          }
          account = mbwManager.getSelectedAccount();
          if (account.isArchived()) {
             fragment.showHistory(false);
             cancel(true);
+            return;
          }
          if (wrapper == null) {
-            fragment.showHistory(true);
+            history.clear();
             wrapper = fragment.new Wrapper(fragment.getActivity(), history);
             fragment.updateWrapper(wrapper);
+            fragment.showHistory(true);
          }
       }
 
@@ -627,11 +630,10 @@ public class TransactionHistoryFragment extends Fragment {
          TransactionHistoryFragment fragment = this.fragmentReference.get();
          if (fragment == null) {
             cancel(true);
+            return;
          }
          history.clear();
          history.addAll(transactionSummaries);
-         Collections.sort(history);
-         Collections.reverse(history);
          wrapper.notifyDataSetChanged();
          fragment.showHistory(!history.isEmpty());
          fragment.refreshList();

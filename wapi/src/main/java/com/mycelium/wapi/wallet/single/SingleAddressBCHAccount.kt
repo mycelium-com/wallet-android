@@ -65,7 +65,11 @@ class SingleAddressBCHAccount(context: SingleAddressAccountContext,
 
     override fun isVisible(): Boolean {
         if (!visible && (spvBalanceFetcher.syncProgressPercents == 100f || spvBalanceFetcher.isAccountSynced(this))) {
-            visible = !spvBalanceFetcher.retrieveTransactionsSummaryByUnrelatedAccountId(id.toString()).isEmpty()
+            visible = spvBalanceFetcher.isAccountVisible(this) ||
+                    !spvBalanceFetcher.retrieveTransactionsSummaryByUnrelatedAccountId(id.toString()).isEmpty()
+            if (visible) {
+                spvBalanceFetcher.setVisible(this)
+            }
         }
         return visible
     }

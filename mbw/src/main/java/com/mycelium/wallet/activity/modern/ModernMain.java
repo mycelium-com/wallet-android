@@ -147,6 +147,7 @@ public class ModernMain extends AppCompatActivity {
 
       getWindow().setBackgroundDrawableResource(R.drawable.background_main);
 
+      mViewPager.setOffscreenPageLimit(4);
       mTabsAdapter = new TabsAdapter(this, mViewPager, _mbwManager);
       mAccountsTab = bar.newTab();
       mTabsAdapter.addTab(mAccountsTab.setText(getString(R.string.tab_accounts)), AccountsFragment.class, null);
@@ -530,7 +531,7 @@ public class ModernMain extends AppCompatActivity {
          protected void onPostExecute(Float progress) {
             super.onPostExecute(progress);
             if(progress == 100) {
-               BCHHelper.bchSynced(ModernMain.this);
+               new BCHHelper.BCHSyncedAsyncTask(ModernMain.this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             }
          }
       }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
@@ -568,7 +569,7 @@ public class ModernMain extends AppCompatActivity {
    @Subscribe
    public void onSpvSynced(SpvSyncChanged spvSyncChanged) {
       if (spvSyncChanged.chainDownloadPercentDone == 100) {
-         BCHHelper.bchSynced(this);
+         new BCHHelper.BCHSyncedAsyncTask(ModernMain.this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
       }
    }
 }

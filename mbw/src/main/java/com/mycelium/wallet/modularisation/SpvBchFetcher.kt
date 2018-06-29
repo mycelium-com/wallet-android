@@ -20,8 +20,7 @@ import com.mycelium.spvmodule.providers.TransactionContract.GetSyncProgress
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.WalletApplication
 import com.mycelium.wallet.WalletApplication.getSpvModuleName
-import com.mycelium.wallet.modularisation.BCHHelper.ALREADY_FOUND_ACCOUNT
-import com.mycelium.wallet.modularisation.BCHHelper.BCH_PREFS
+import com.mycelium.wallet.modularisation.BCHHelper.*
 import com.mycelium.wapi.model.IssuedKeysInfo
 import com.mycelium.wapi.model.TransactionDetails
 import com.mycelium.wapi.model.TransactionSummary
@@ -273,6 +272,18 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
     override fun isAccountSynced(account: WalletAccount?): Boolean {
         val sharedPreferences = context.getSharedPreferences(BCH_PREFS, MODE_PRIVATE)
         return sharedPreferences.getBoolean(ALREADY_FOUND_ACCOUNT + account!!.id.toString(), false)
+    }
+
+    override fun isAccountVisible(account: WalletAccount?): Boolean {
+        val sharedPreferences = context.getSharedPreferences(BCH_PREFS, MODE_PRIVATE)
+        return sharedPreferences.getBoolean(IS_ACCOUNT_VISIBLE + account!!.id.toString(), false)
+    }
+
+    override fun setVisible(account: WalletAccount?) {
+        val sharedPreferences = context.getSharedPreferences(BCH_PREFS, MODE_PRIVATE)
+        sharedPreferences.edit()
+                .putBoolean(IS_ACCOUNT_VISIBLE + account!!.id.toString(), true)
+                .apply()
     }
 
     override fun getCurrentReceiveAddress(accountIndex: Int): Address? {

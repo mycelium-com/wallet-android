@@ -18,7 +18,6 @@ package com.commonsware.cwac.endless;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -287,8 +286,7 @@ abstract public class EndlessAdapter extends AdapterWrapper {
   @TargetApi(11)
   private <T> void executeAsyncTask(AsyncTask<T, ?, ?> task,
                                     T... params) {
-    if (!isSerialized
-        && (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)) {
+    if (!isSerialized) {
       task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
     }
     else {

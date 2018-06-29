@@ -144,14 +144,18 @@ public class AccountsFragment extends Fragment {
    @Override
    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
       super.onViewCreated(view, savedInstanceState);
-      rvRecords = view.findViewById(R.id.rvRecords);
-      rvRecords.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
-      accountListAdapter = new AccountListAdapter(getActivity(), _mbwManager);
-      rvRecords.setAdapter(accountListAdapter);
-      rvRecords.addItemDecoration(new DividerItemDecoration(getResources().getDrawable(R.drawable.divider_account_list)
-              , LinearLayoutManager.VERTICAL));
-      rvRecords.setHasFixedSize(true);
-      llLocked = view.findViewById(R.id.llLocked);
+      if (rvRecords == null) {
+         rvRecords = view.findViewById(R.id.rvRecords);
+         rvRecords.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
+         accountListAdapter = new AccountListAdapter(getActivity(), _mbwManager);
+         rvRecords.setAdapter(accountListAdapter);
+         rvRecords.addItemDecoration(new DividerItemDecoration(getResources().getDrawable(R.drawable.divider_account_list)
+                 , LinearLayoutManager.VERTICAL));
+         rvRecords.setHasFixedSize(true);
+      }
+      if (llLocked == null) {
+         llLocked = view.findViewById(R.id.llLocked);
+      }
       accountListAdapter.setItemClickListener(recordAddressClickListener);
       accountListAdapter.setItemSelectListener(recordStarClickListener);
    }
@@ -622,50 +626,52 @@ public class AccountsFragment extends Fragment {
                return true;
             }
             int id = menuItem.getItemId();
-            if (id == R.id.miActivate) {
-               activateSelected();
-               return true;
-            } else if (id == R.id.miSetLabel) {
-               setLabelOnAccount(accountListAdapter.getFocusedAccount(), "", true);
-               return true;
-            } else if (id == R.id.miDeleteRecord) {
-               deleteSelected();
-               return true;
-            } else if (id == R.id.miArchive) {
-               archiveSelected();
-               return true;
-            } else if (id == R.id.miHideUnusedAccount) {
-               hideSelected();
-               return true;
-            } else if (id == R.id.miExport) {
-               exportSelectedPrivateKey();
-               return true;
-            } else if (id == R.id.miSignMessage) {
-               signMessage();
-               return true;
-            } else if (id == R.id.miDetach) {
-               detachFromLocalTrader();
-               return true;
-            } else if (id == R.id.miShowOutputs) {
-               showOutputs();
-               return true;
-            } else if (id == R.id.miMakeBackup) {
-               makeBackup();
-               return true;
-            } else if (id == R.id.miSingleKeyBackupVerify) {
-               verifySingleKeyBackup();
-               return true;
-            } else if (id == R.id.miRescan) {
-               rescan();
-               return true;
-            } else if (id == R.id.miSetMail) {
-               setCoinapultMail();
-               return true;
-            } else if (id == R.id.miVerifyMail) {
-               verifyCoinapultMail();
-               return true;
+            switch (id) {
+               case R.id.miActivate:
+                  activateSelected();
+                  return true;
+               case R.id.miSetLabel:
+                  setLabelOnAccount(accountListAdapter.getFocusedAccount(), "", true);
+                  return true;
+               case R.id.miDeleteRecord:
+                  deleteSelected();
+                  return true;
+               case R.id.miArchive:
+                  archiveSelected();
+                  return true;
+               case R.id.miHideUnusedAccount:
+                  hideSelected();
+                  return true;
+               case R.id.miExport:
+                  exportSelectedPrivateKey();
+                  return true;
+               case R.id.miSignMessage:
+                  signMessage();
+                  return true;
+               case R.id.miDetach:
+                  detachFromLocalTrader();
+                  return true;
+               case R.id.miShowOutputs:
+                  showOutputs();
+                  return true;
+               case R.id.miMakeBackup:
+                  makeBackup();
+                  return true;
+               case R.id.miSingleKeyBackupVerify:
+                  verifySingleKeyBackup();
+                  return true;
+               case R.id.miRescan:
+                  rescan();
+                  return true;
+               case R.id.miSetMail:
+                  setCoinapultMail();
+                  return true;
+               case R.id.miVerifyMail:
+                  verifyCoinapultMail();
+                  return true;
+               default:
+                  return false;
             }
-            return false;
          }
 
          @Override
