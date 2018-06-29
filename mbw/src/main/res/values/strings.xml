@@ -449,6 +449,7 @@
     <string name="cs_address_description">You have scanned a Bitcoin address. You can view the balance but not spend from it.</string>
     <string name="contains_keys">Contains %1$s private keys.</string>
     <string name="contains_addresses">Contains %1$s addresses.</string>
+    <string name="sync_total_retrieved_transactions">Syncing: %1$s transactions retrieved.</string>
     <string name="archiving_account_title">Archiving Account</string>
     <string name="new_version_exists">A new Version is available</string>
     <string name="check_update">Check for Update</string>
@@ -1218,6 +1219,8 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="buy_apex_token">BUY APEX TOKEN</string>
     <string name="exchange_sending">SENDING\nADDRESS</string>
     <string name="exchange_receiving">RECEIVING\nADDRESS</string>
+    <string name="what_is_sync">What is sync?</string>
+    <string name="what_is_sync_description" >Sync is a process of retrieving your account\'s transactions from a blockchain. A number of retrieved transaction is shown upon every successful sync attempt.\n\nSync speed depends on your network connection and number of transactions. If you have thousands of transactions this process might take a couple of hours or more.</string>
     <string name="pref_language">Language</string>
     <string name="version">version</string>
     <string name="updates">Updates</string>

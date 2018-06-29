@@ -27,6 +27,7 @@ import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.api.request.QueryTransactionInventoryRequest;
 import com.mycelium.wapi.api.response.GetTransactionsResponse;
+import com.mycelium.wapi.api.response.QueryTransactionInventoryResponse;
 import com.mycelium.wapi.model.Balance;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.wallet.AbstractAccount;
@@ -117,6 +118,7 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
    public synchronized boolean doSynchronization(SyncMode mode) {
       checkNotArchived();
       _isSynchronizing = true;
+      syncTotalRetrievedTransactions = 0;
       try {
 
          if (synchronizeUnspentOutputs(_addressList) == -1) {
@@ -144,6 +146,7 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
          return true;
       } finally {
          _isSynchronizing = false;
+         syncTotalRetrievedTransactions = 0;
       }
 
    }
@@ -152,8 +155,10 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
       // Get the latest transactions
       List<Sha256Hash> discovered;
       try {
-         discovered = _wapi.queryTransactionInventory(new QueryTransactionInventoryRequest(Wapi.VERSION, _addressList, 30))
-               .getResult().txIds;
+         final QueryTransactionInventoryResponse result = _wapi.queryTransactionInventory(new QueryTransactionInventoryRequest(Wapi.VERSION, _addressList, 30))
+                 .getResult();
+         setBlockChainHeight(result.height);
+         discovered = result.txIds;
       } catch (WapiException e) {
          _logger.logError("Server connection failed with error code: " + e.errorCode, e);
          postEvent(Event.SERVER_CONNECTION_ERROR);

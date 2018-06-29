@@ -42,6 +42,7 @@ class WapiClientElectrumX(
             JsonRpcTcpClient(endpoints, logger),
             JsonRpcTcpClient(endpoints, logger),
             JsonRpcTcpClient(endpoints, logger))
+
     @Volatile
     private var jsonRpcTcpClient = jsonRpcTcpClientsList[0]
     @Volatile
@@ -99,7 +100,6 @@ class WapiClientElectrumX(
 
     override fun queryTransactionInventory(request: QueryTransactionInventoryRequest): WapiResponse<QueryTransactionInventoryResponse> {
         try {
-            val txIds: ArrayList<Sha256Hash> = ArrayList()
             val requestsList = ArrayList<RpcRequestOut>(request.addresses.size)
             request.addresses.forEach {
                 val addrHex = it.toString()
@@ -107,13 +107,9 @@ class WapiClientElectrumX(
             }
             val transactionHistoryArray = jsonRpcTcpClient.write(requestsList, DEFAULT_RESPONSE_TIMEOUT).responses
 
-            val outputs = ArrayList<TransactionHistoryInfo>()
-            transactionHistoryArray.forEach {
-                outputs.addAll(it.getResult(Array<TransactionHistoryInfo>::class.java)!!)
-            }
-            outputs.sort()
-            txIds.addAll(outputs.slice(IntRange(0, Math.min(request.limit, outputs.size) - 1))
-                    .map { Sha256Hash.fromString(it.tx_hash) })
+            val outputs = transactionHistoryArray.flatMap { it.getResult(Array<TransactionHistoryInfo>::class.java)!!.asIterable() }
+            val txIds = outputs.slice(IntRange(0, Math.min(request.limit, outputs.size) - 1))
+                    .map { Sha256Hash.fromString(it.tx_hash) }
 
             return WapiResponse(QueryTransactionInventoryResponse(bestChainHeight, txIds))
         } catch (ex: TimeoutException) {
