@@ -838,4 +838,5 @@
     <item quantity="many">Имена счетов:\n%s</item>
     <item quantity="other">Имена счетов:\n%s</item>
   </plurals>
+  <string name="pref_language">Язык</string>
 </resources>
