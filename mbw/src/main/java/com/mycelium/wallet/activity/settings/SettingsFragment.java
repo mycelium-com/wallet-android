@@ -290,6 +290,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             public boolean onPreferenceClick(Preference preference) {
                 getFragmentManager()
                         .beginTransaction()
+                        .setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out,
+                                R.anim.slide_left_in, R.anim.slide_right_out)
                         .replace(R.id.fragment_container, new PinCodeFragment())
                         .addToBackStack("pincode")
                         .commitAllowingStateLoss();
@@ -319,6 +321,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             public boolean onPreferenceClick(Preference preference) {
                 getFragmentManager()
                         .beginTransaction()
+                        .setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out,
+                                R.anim.slide_left_in, R.anim.slide_right_out)
                         .replace(R.id.fragment_container, new BackupFragment())
                         .addToBackStack("backup")
                         .commitAllowingStateLoss();
@@ -441,6 +445,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             public boolean onPreferenceClick(Preference preference) {
                 getFragmentManager()
                         .beginTransaction()
+                        .setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out,
+                                R.anim.slide_left_in, R.anim.slide_right_out)
                         .replace(R.id.fragment_container, new ExternalServiceFragment())
                         .addToBackStack("external_services")
                         .commitAllowingStateLoss();
@@ -452,6 +458,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             public boolean onPreferenceClick(Preference preference) {
                 getFragmentManager()
                         .beginTransaction()
+                        .setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out,
+                                R.anim.slide_left_in, R.anim.slide_right_out)
                         .replace(R.id.fragment_container, new VersionFragment())
                         .addToBackStack("version")
                         .commitAllowingStateLoss();
