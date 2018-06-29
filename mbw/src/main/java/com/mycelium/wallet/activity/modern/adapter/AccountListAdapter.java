@@ -1,80 +1,67 @@
 package com.mycelium.wallet.activity.modern.adapter;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.mycelium.wallet.AccountManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.modern.RecordRowBuilder;
 import com.mycelium.wallet.activity.modern.adapter.holder.AccountViewHolder;
 import com.mycelium.wallet.activity.modern.adapter.holder.ArchivedGroupTitleViewHolder;
 import com.mycelium.wallet.activity.modern.adapter.holder.GroupTitleViewHolder;
 import com.mycelium.wallet.activity.modern.adapter.holder.TotalViewHolder;
 import com.mycelium.wallet.activity.modern.model.ViewAccountModel;
-import com.mycelium.wallet.colu.ColuAccount;
-import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.currency.CurrencySum;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
 public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    private static final int GROUP_TITLE_TYPE = 2;
-    private static final int ACCOUNT_TYPE = 3;
-    private static final int TOTAL_BALANCE_TYPE = 4;
-    private static final int GROUP_ARCHIVED_TITLE_TYPE = 5;
+    static final int GROUP_TITLE_TYPE = 2;
+    static final int ACCOUNT_TYPE = 3;
+    static final int TOTAL_BALANCE_TYPE = 4;
+    static final int GROUP_ARCHIVED_TITLE_TYPE = 5;
 
-    private List<Item> itemList = new ArrayList<>();
+    private List<AccountItem> itemList = new ArrayList<>();
     private UUID focusedAccountId;
 
     private ItemClickListener itemClickListener;
     private ItemSelectListener itemSelectListener;
-
-    static class Item {
-        int type;
-        ViewAccountModel walletAccount;
-
-        String title;
-        List<ViewAccountModel> walletAccountList;
-
-        public Item(int type, ViewAccountModel walletAccount) {
-            this.type = type;
-            this.walletAccount = walletAccount;
-        }
-
-        public Item(int type, String title, List<ViewAccountModel> walletAccountList) {
-            this.type = type;
-            this.title = title;
-            this.walletAccountList = walletAccountList;
-        }
-    }
 
     private MbwManager mbwManager;
     private RecordRowBuilder builder;
     private LayoutInflater layoutInflater;
     private Context context;
     private SharedPreferences pagePrefs;
+    private AccountsListModel listModel;
 
-    public AccountListAdapter(Context context, MbwManager mbwManager) {
+    public AccountListAdapter(Fragment fragment, MbwManager mbwManager) {
+        listModel = ViewModelProviders.of(fragment).get(AccountsListModel.class);
         this.mbwManager = mbwManager;
-        this.context = context;
+        this.context = fragment.getContext();
         layoutInflater = LayoutInflater.from(context);
         builder = new RecordRowBuilder(mbwManager, context.getResources());
         pagePrefs = context.getSharedPreferences("account_list", Context.MODE_PRIVATE);
+        listModel.getAccountsData().observe(fragment, new Observer<List<? extends AccountItem>>() {
+            @Override
+            public void onChanged(List<? extends AccountItem> accountItems) {
+                itemList.clear();
+                itemList.addAll(accountItems);
+                notifyDataSetChanged();
+            }
+        });
+        itemList.addAll(listModel.getAccountsData().getValue());
     }
 
     public void setItemClickListener(ItemClickListener itemClickListener) {
@@ -99,7 +86,7 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     private int findPosition(UUID account) {
         int position = -1;
         for (int i = 0; i < itemList.size(); i++) {
-            Item item = itemList.get(i);
+            AccountItem item = itemList.get(i);
             if (item.walletAccount != null
                     && Objects.equals(item.walletAccount.accountId, account)) {
                 position = i;
@@ -107,138 +94,6 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             }
         }
         return position;
-    }
-
-    private static class DataUpdateAsyncTask extends AsyncTask<Void, List<Item>, List<Item>> {
-        private final WeakReference<Context> wrContext;
-        private final WeakReference<AccountListAdapter> wrAdapter;
-        private final WeakReference<List<Item>> wrAccountsList;
-
-        DataUpdateAsyncTask(Context context, AccountListAdapter adapter, List<Item> accountsList) {
-            wrContext = new WeakReference<>(context);
-            wrAdapter = new WeakReference<>(adapter);
-            wrAccountsList = new WeakReference<>(accountsList);
-        }
-
-        @Override
-        protected List<Item> doInBackground(Void... voids) {
-            AccountManager am = AccountManager.INSTANCE;
-
-            List<Item> accountsList = addGroup(R.string.active_hd_accounts_name, GROUP_TITLE_TYPE, am.getBTCBip44Accounts().values());
-            accountsList.addAll(addGroup(wrContext.get().getString(R.string.active_bitcoin_sa_group_name), GROUP_TITLE_TYPE, am.getBTCSingleAddressAccounts().values()));
-            final AccountListAdapter listAdapter = wrAdapter.get();
-            if (listAdapter == null) {
-                cancel(true);
-                return Collections.emptyList();
-            }
-            if (wrAdapter.get().itemList.isEmpty()) {
-                publishProgress(accountsList);
-            }
-            accountsList.addAll(addGroup(R.string.bitcoin_cash_hd, GROUP_TITLE_TYPE, am.getBCHBip44Accounts().values()));
-            accountsList.addAll(addGroup(R.string.bitcoin_cash_sa, GROUP_TITLE_TYPE, am.getBCHSingleAddressAccounts().values()));
-
-            List<WalletAccount> coluAccounts = new ArrayList<>();
-            for (WalletAccount walletAccount : am.getColuAccounts().values()) {
-                coluAccounts.add(walletAccount);
-                coluAccounts.add(((ColuAccount) walletAccount).getLinkedAccount());
-            }
-            accountsList.addAll(addGroup(R.string.digital_assets, GROUP_TITLE_TYPE, coluAccounts));
-            List<WalletAccount> accounts = am.getActiveAccounts().values().asList();
-            List<WalletAccount> other = new ArrayList<>();
-            for (WalletAccount account : accounts) {
-                switch (account.getType()) {
-                    case BTCSINGLEADDRESS:
-                    case BTCBIP44:
-                    case BCHSINGLEADDRESS:
-                    case BCHBIP44:
-                    case COLU:
-                        break;
-                    default:
-                        other.add(account);
-                        break;
-                }
-            }
-            accountsList.addAll(addGroup(R.string.active_other_accounts_name, GROUP_TITLE_TYPE, other));
-
-            accountsList.add(new Item(TOTAL_BALANCE_TYPE, "", listAdapter.builder.convertList(am.getActiveAccounts().values().asList())));
-            accountsList.addAll(addGroup(R.string.archive_name, GROUP_ARCHIVED_TITLE_TYPE, am.getArchivedAccounts().values()));
-            return accountsList;
-        }
-
-        @Override
-        protected void onPostExecute(List<Item> items) {
-            super.onPostExecute(items);
-            final AccountListAdapter listAdapter = wrAdapter.get();
-            final List<Item> accountsList = wrAccountsList.get();
-            if (listAdapter == null || accountsList == null) {
-                cancel(true);
-                return;
-            }
-            accountsList.clear();
-            accountsList.addAll(items);
-            listAdapter.notifyDataSetChanged();
-        }
-
-        @SafeVarargs
-        @Override
-        protected final void onProgressUpdate(List<Item>... values) {
-            super.onProgressUpdate(values);
-            final AccountListAdapter listAdapter = wrAdapter.get();
-            final Context context = wrContext.get();
-            final List<Item> accountsList = wrAccountsList.get();
-            if (listAdapter == null || context == null || accountsList == null) {
-                cancel(true);
-                return;
-            }
-            accountsList.clear();
-            accountsList.addAll(values[0]);
-            listAdapter.notifyDataSetChanged();
-        }
-
-        private List<Item> addGroup(int titleId, int titleType, Collection<WalletAccount> accounts) {
-            final Context context = wrContext.get();
-            if (context == null) {
-                cancel(true);
-                return Collections.emptyList();
-            }
-            return addGroup(context.getString(titleId), titleType, accounts);
-        }
-
-        private List<Item> addGroup(String title, int titleType, Collection<WalletAccount> accounts) {
-            final AccountListAdapter listAdapter = wrAdapter.get();
-            if (listAdapter == null) {
-                cancel(true);
-                return Collections.emptyList();
-            }
-            MetadataStorage storage = listAdapter.mbwManager.getMetadataStorage();
-            return buildGroup(new ArrayList<>(accounts), storage, title, titleType);
-        }
-
-        private List<Item> buildGroup(List<WalletAccount> accountList, MetadataStorage storage, String title, int type) {
-            List<WalletAccount> accounts = Utils.sortAccounts(accountList, storage);
-
-            final AccountListAdapter listAdapter = wrAdapter.get();
-            if (listAdapter == null) {
-                cancel(true);
-                return Collections.emptyList();
-            }
-            List<ViewAccountModel> viewAccountList = listAdapter.builder.convertList(accounts);
-
-            List<Item> result = new ArrayList<>();
-            if (!viewAccountList.isEmpty()) {
-                result.add(new Item(type, title, viewAccountList));
-                if (listAdapter.pagePrefs.getBoolean(title, true)) {
-                    for (ViewAccountModel account : viewAccountList) {
-                        result.add(new Item(ACCOUNT_TYPE, account));
-                    }
-                }
-            }
-            return result;
-        }
-    }
-
-    public void updateData() {
-        new DataUpdateAsyncTask(context, this, itemList).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     @Override
@@ -268,7 +123,7 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        final Item item = itemList.get(position);
+        final AccountItem item = itemList.get(position);
         int viewType = item.type;
         if (viewType == ACCOUNT_TYPE) {
             AccountViewHolder accountHolder = (AccountViewHolder) holder;
@@ -308,7 +163,7 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 public void onClick(View view) {
                     boolean isGroupVisible = !pagePrefs.getBoolean(item.title, true);
                     pagePrefs.edit().putBoolean(item.title, isGroupVisible).apply();
-                    updateData();
+                    listModel.getAccountsData().updateList();
                 }
             });
             groupHolder.expandIcon.setRotation(pagePrefs.getBoolean(item.title, true) ? 180 : 0);
@@ -330,7 +185,7 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 public void onClick(View view) {
                     boolean isGroupVisible = !pagePrefs.getBoolean(item.title, true);
                     pagePrefs.edit().putBoolean(item.title, isGroupVisible).apply();
-                    updateData();
+                    listModel.getAccountsData().updateList();
                 }
             });
             groupHolder.expandIcon.setRotation(pagePrefs.getBoolean(item.title, true) ? 180 : 0);

@@ -84,6 +84,7 @@ import com.mycelium.wallet.coinapult.CoinapultManager;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.colu.ColuManager;
 import com.mycelium.wallet.event.AccountChanged;
+import com.mycelium.wallet.event.AccountListChanged;
 import com.mycelium.wallet.event.BalanceChanged;
 import com.mycelium.wallet.event.ExtraAccountsChanged;
 import com.mycelium.wallet.event.ReceivingAddressChanged;
@@ -124,6 +125,12 @@ public class AccountsFragment extends Fragment {
    private AccountListAdapter accountListAdapter;
    private View root;
 
+   @Override
+   public void onCreate(Bundle savedInstanceState) {
+      super.onCreate(savedInstanceState);
+      setHasOptionsMenu(true);
+   }
+
    /**
     * Called when the activity is first created.
     */
@@ -136,18 +143,12 @@ public class AccountsFragment extends Fragment {
    }
 
    @Override
-   public void onCreate(Bundle savedInstanceState) {
-      super.onCreate(savedInstanceState);
-      setHasOptionsMenu(true);
-   }
-
-   @Override
    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
       super.onViewCreated(view, savedInstanceState);
       if (rvRecords == null) {
          rvRecords = view.findViewById(R.id.rvRecords);
          rvRecords.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
-         accountListAdapter = new AccountListAdapter(getActivity(), _mbwManager);
+         accountListAdapter = new AccountListAdapter(this, _mbwManager);
          rvRecords.setAdapter(accountListAdapter);
          rvRecords.addItemDecoration(new DividerItemDecoration(getResources().getDrawable(R.drawable.divider_account_list)
                  , LinearLayoutManager.VERTICAL));
@@ -497,13 +498,6 @@ public class AccountsFragment extends Fragment {
          // Make all the key management functionality available to experts
          rvRecords.setVisibility(View.VISIBLE);
          llLocked.setVisibility(View.GONE);
-         //this sould fix crash when delete account
-         rvRecords.post(new Runnable() {
-            @Override
-            public void run() {
-               accountListAdapter.updateData();
-            }
-         });
       }
    }
 
@@ -1214,34 +1208,42 @@ public class AccountsFragment extends Fragment {
    @Subscribe()
    public void onExtraAccountsChanged(ExtraAccountsChanged event) {
       update();
+      _mbwManager.getEventBus().post(new AccountListChanged());
    }
 
    @Subscribe
    public void addressChanged(ReceivingAddressChanged event) {
       update();
+      _mbwManager.getEventBus().post(new AccountListChanged());
    }
 
    @Subscribe
    public void balanceChanged(BalanceChanged event) {
       update();
+      _mbwManager.getEventBus().post(new AccountListChanged());
    }
 
    @Subscribe
    public void syncStarted(SyncStarted event) {
+      update();
+      _mbwManager.getEventBus().post(new AccountListChanged());
    }
 
    @Subscribe
    public void syncStopped(SyncStopped event) {
       update();
+      _mbwManager.getEventBus().post(new AccountListChanged());
    }
 
    @Subscribe
    public void accountChanged(AccountChanged event) {
       update();
+      _mbwManager.getEventBus().post(new AccountListChanged());
    }
 
    @Subscribe
    public void syncProgressUpdated(SyncProgressUpdated event) {
       update();
+      _mbwManager.getEventBus().post(new AccountListChanged());
    }
 }
