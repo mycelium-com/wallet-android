@@ -9,8 +9,5 @@ package com.mycelium.wallet.event
  * @see BalanceChanged
  * @see ReceivingAddressChanged
  * @see ExtraAccountsChanged
- *
- * @author Sergey Lappo
- * @since 30.07.2018
  */
 class AccountListChanged

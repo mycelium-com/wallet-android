@@ -22,9 +22,6 @@ import java.util.*
  * This class is intended to monitor current accounts and must post changes as soon as accounts list was updated.
  * @param pagePrefs is used to determine which groups are collapsed
  * @see AccountsLiveData.getValue retuns list of current accounts, with filtered hidden ones.
- *
- * @author Sergey Lappo
- * @since 30.07.2018
  */
 class AccountsLiveData(private val context: Application, private val mbwManager: MbwManager,
                        private val pagePrefs: SharedPreferences) : LiveData<List<AccountItem>>() {

@@ -46,14 +46,13 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     private MbwManager mbwManager;
     private RecordRowBuilder builder;
     private LayoutInflater layoutInflater;
-    private Context context;
     private SharedPreferences pagePrefs;
-    private AccountsListModel listModel;
 
     public AccountListAdapter(Fragment fragment, MbwManager mbwManager) {
-        listModel = ViewModelProviders.of(fragment).get(AccountsListModel.class);
+        AccountsListModel listModel = ViewModelProviders.of(fragment).get(AccountsListModel.class);
+        Context context = fragment.getContext();
         this.mbwManager = mbwManager;
-        this.context = fragment.getContext();
+
         layoutInflater = LayoutInflater.from(context);
         builder = new RecordRowBuilder(mbwManager, context.getResources());
         pagePrefs = context.getSharedPreferences("account_list", Context.MODE_PRIVATE);
