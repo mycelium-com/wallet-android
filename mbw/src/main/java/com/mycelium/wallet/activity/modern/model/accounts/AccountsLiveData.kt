@@ -139,7 +139,6 @@ class AccountsLiveData(private val context: Application, private val mbwManager:
         var isCollapsed = false
         value = accountsList!!.filter {
             if (it.title == null) {
-                println("${it.walletAccount.displayAddress} is $isCollapsed")
                 return@filter isCollapsed
             } else {
                 isCollapsed = pagePrefs.getBoolean(it.title, true)

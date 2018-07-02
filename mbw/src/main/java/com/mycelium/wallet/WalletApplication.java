@@ -128,9 +128,9 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
     }
 
     private void cleanModulesIfFirstRun(Context context, SharedPreferences sharedPreferences) {
-//        if (!sharedPreferences.getBoolean(BCHHelper.BCH_FIRST_UPDATE, false) && BCHHelper.isModulePaired(context)) {
-//            MbwManager.getInstance(context).getSpvBchFetcher().forceCleanCache();
-//        }
+        if (!sharedPreferences.getBoolean(BCHHelper.BCH_FIRST_UPDATE, false) && BCHHelper.isModulePaired(context)) {
+            MbwManager.getInstance(context).getSpvBchFetcher().forceCleanCache();
+        }
     }
 
     @Override
