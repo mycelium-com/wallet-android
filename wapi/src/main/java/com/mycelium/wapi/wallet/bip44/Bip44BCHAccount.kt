@@ -77,6 +77,10 @@ open class Bip44BCHAccount(context: Bip44AccountContext, keyManager: Bip44Accoun
         return blockChainHeight
     }
 
+    override fun dropCachedData() {
+        //BCH account have no separate context, so no cashed data, nothing to drop here
+    }
+
     override fun getTransactionHistory(offset: Int, limit: Int): List<TransactionSummary> {
         return if (accountType == ACCOUNT_TYPE_FROM_MASTERSEED) {
             spvBalanceFetcher.retrieveTransactionsSummaryByHdAccountIndex(id.toString(), accountIndex, offset, limit)
