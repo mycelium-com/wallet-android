@@ -531,7 +531,7 @@ public class ModernMain extends AppCompatActivity {
          protected void onPostExecute(Float progress) {
             super.onPostExecute(progress);
             if(progress == 100) {
-               new BCHHelper.BCHSyncedAsyncTask(ModernMain.this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+               BCHHelper.bchSynced(ModernMain.this);
             }
          }
       }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
@@ -569,7 +569,7 @@ public class ModernMain extends AppCompatActivity {
    @Subscribe
    public void onSpvSynced(SpvSyncChanged spvSyncChanged) {
       if (spvSyncChanged.chainDownloadPercentDone == 100) {
-         new BCHHelper.BCHSyncedAsyncTask(ModernMain.this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+         BCHHelper.bchSynced(ModernMain.this);
       }
    }
 }

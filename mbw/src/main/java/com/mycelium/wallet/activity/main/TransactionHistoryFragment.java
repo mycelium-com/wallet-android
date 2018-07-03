@@ -150,18 +150,16 @@ public class TransactionHistoryFragment extends Fragment {
       if (wrapper == null) {
          wrapper = new Wrapper(getActivity(), history);
          updateWrapper(wrapper);
-         if (!model.getTransactionHistory().hasObservers()) {
-            model.getTransactionHistory().observe(this, new Observer<List<? extends TransactionSummary>>() {
-               @Override
-               public void onChanged(@Nullable List<? extends TransactionSummary> transactionSummaries) {
-                  history.clear();
-                  history.addAll(transactionSummaries);
-                  wrapper.notifyDataSetChanged();
-                  showHistory(!history.isEmpty());
-                  refreshList();
-               }
-            });
-         }
+         model.getTransactionHistory().observe(this, new Observer<List<? extends TransactionSummary>>() {
+            @Override
+            public void onChanged(@Nullable List<? extends TransactionSummary> transactionSummaries) {
+               history.clear();
+               history.addAll(transactionSummaries);
+               wrapper.notifyDataSetChanged();
+               showHistory(!history.isEmpty());
+               refreshList();
+            }
+         });
       }
    }
 

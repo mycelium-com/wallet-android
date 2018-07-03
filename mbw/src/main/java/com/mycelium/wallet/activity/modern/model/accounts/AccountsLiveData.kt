@@ -139,10 +139,10 @@ class AccountsLiveData(private val context: Application, private val mbwManager:
         var isCollapsed = false
         value = accountsList!!.filter {
             if (it.title == null) {
-                return@filter isCollapsed
+                isCollapsed
             } else {
                 isCollapsed = pagePrefs.getBoolean(it.title, true)
-                return@filter true
+                true
             }
         }
     }

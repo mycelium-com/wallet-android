@@ -24,7 +24,7 @@ object AccountManager : AccountProvider {
     private val archivedAccounts: HashMap<UUID, WalletAccount> = hashMapOf()
     private val archivedAccountsSemaphore = Semaphore(100)
     private val masterSeedAccounts: HashMap<UUID, WalletAccount> = hashMapOf()
-    private val masterSeedAccountsSemaphore  = Semaphore(100)
+    private val masterSeedAccountsSemaphore = Semaphore(100)
 
     init {
         Handler(Looper.getMainLooper()).post {
@@ -59,14 +59,10 @@ object AccountManager : AccountProvider {
 
     override fun getAccounts(): ImmutableMap<UUID, WalletAccount> = ImmutableMap.copyOf<UUID, WalletAccount>(accounts)
 
-    fun getBTCSingleAddressAccounts(): ImmutableMap<UUID, WalletAccount> {
-        accountsSemaphore.acquire()
-        val filteredAccounts = ImmutableMap.copyOf<UUID, WalletAccount>(accounts.filter {
-            it.value.type == BTCSINGLEADDRESS && !Utils.checkIsLinked(it.value, accounts.values)
-        })
-        accountsSemaphore.release()
-        return filteredAccounts
-    }
+    fun getBTCSingleAddressAccounts(): ImmutableMap<UUID, WalletAccount> =
+            getFilteredAccounts(accountsSemaphore, accounts) {
+                it.value.type == BTCSINGLEADDRESS && !Utils.checkIsLinked(it.value, accounts.values)
+            }
 
     fun getBTCBip44Accounts() = getAccountsByType(BTCBIP44)
 
@@ -80,44 +76,25 @@ object AccountManager : AccountProvider {
 
     fun getDashAccounts() = getAccountsByType(DASH)
 
-    fun getActiveAccounts(): ImmutableMap<UUID, WalletAccount> {
-        accountsSemaphore.acquire()
-        val filteredAccounts = ImmutableMap.copyOf<UUID, WalletAccount>(
-                synchronized(accounts) {
-                    accounts.filter {
-                        it.value.isVisible
-                    }
-                })
-        accountsSemaphore.release()
-        return filteredAccounts
-    }
+    fun getActiveAccounts(): ImmutableMap<UUID, WalletAccount> =
+            getFilteredAccounts(accountsSemaphore, accounts) {
+                it.value.isVisible
+            }
 
-    private fun getAccountsByType(coinType: Type): ImmutableMap<UUID, WalletAccount> {
-        accountsSemaphore.acquire()
-        val filteredAccounts = ImmutableMap.copyOf<UUID, WalletAccount>(accounts.filter {
-            it.value.type == coinType && it.value.isVisible
-        })
-        accountsSemaphore.release()
-        return filteredAccounts
-    }
+    private fun getAccountsByType(coinType: Type): ImmutableMap<UUID, WalletAccount> =
+            getFilteredAccounts(accountsSemaphore, accounts) {
+                it.value.type == coinType && it.value.isVisible
+            }
 
-    fun getBTCMasterSeedAccounts(): ImmutableMap<UUID, WalletAccount> {
-        masterSeedAccountsSemaphore.acquire()
-        val filteredAccounts = ImmutableMap.copyOf<UUID, WalletAccount>(masterSeedAccounts.filter {
-            it.value.type == BTCBIP44 && it.value.isVisible
-        })
-        masterSeedAccountsSemaphore.release()
-        return filteredAccounts
-    }
+    fun getBTCMasterSeedAccounts(): ImmutableMap<UUID, WalletAccount> =
+            getFilteredAccounts(masterSeedAccountsSemaphore, masterSeedAccounts) {
+                it.value.type == BTCBIP44 && it.value.isVisible
+            }
 
-    fun getArchivedAccounts() : ImmutableMap<UUID, WalletAccount> {
-        archivedAccountsSemaphore.acquire()
-        val filteredAccounts = ImmutableMap.copyOf<UUID, WalletAccount>(archivedAccounts.filter {
-            it.value.isVisible
-        })
-        archivedAccountsSemaphore.release()
-        return filteredAccounts
-    }
+    fun getArchivedAccounts(): ImmutableMap<UUID, WalletAccount> =
+            getFilteredAccounts(archivedAccountsSemaphore, archivedAccounts) {
+                it.value.isVisible
+            }
 
     override fun getAccount(uuid: UUID?): WalletAccount? = accounts[uuid]
 
@@ -144,6 +121,14 @@ object AccountManager : AccountProvider {
     @Subscribe
     fun extraAccountsChanged(event: ExtraAccountsChanged) {
         FillAccountsTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
+    }
+
+    private fun getFilteredAccounts(s: Semaphore, accounts: Map<UUID, WalletAccount>,
+                                    filter: (mapEntry: Map.Entry<UUID, WalletAccount>) -> Boolean): ImmutableMap<UUID, WalletAccount> {
+        s.acquire()
+        val filteredAccounts = ImmutableMap.copyOf<UUID, WalletAccount>(accounts.filter { filter(it) })
+        s.release()
+        return filteredAccounts
     }
 }
 

@@ -90,8 +90,8 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         int position = -1;
         for (int i = 0; i < itemList.size(); i++) {
             AccountItem item = itemList.get(i);
-            if (item.walletAccount != null
-                    && Objects.equals(item.walletAccount.accountId, account)) {
+            if (item.getWalletAccount() != null
+                    && Objects.equals(item.getWalletAccount().accountId, account)) {
                 position = i;
                 break;
             }
@@ -127,10 +127,10 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         final AccountItem item = itemList.get(position);
-        int viewType = item.type;
+        int viewType = item.getType();
         if (viewType == ACCOUNT_TYPE) {
             AccountViewHolder accountHolder = (AccountViewHolder) holder;
-            final ViewAccountModel account = item.walletAccount;
+            final ViewAccountModel account = item.getWalletAccount();
             builder.buildRecordView(accountHolder, account
                     , Objects.equals(mbwManager.getSelectedAccount().getId(), account.accountId)
                     , Objects.equals(focusedAccountId, account.accountId));
@@ -157,40 +157,40 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             });
         } else if (viewType == GROUP_TITLE_TYPE) {
             GroupTitleViewHolder groupHolder = (GroupTitleViewHolder) holder;
-            groupHolder.tvTitle.setText(Html.fromHtml(item.title));
-            int count = item.walletAccountList.size();
+            groupHolder.tvTitle.setText(Html.fromHtml(item.getTitle()));
+            int count = item.getWalletAccountList().size();
             groupHolder.tvAccountsCount.setVisibility(count > 0 ? View.VISIBLE : View.GONE);
             groupHolder.tvAccountsCount.setText("(" + count + ")");
             groupHolder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    boolean isGroupVisible = !pagePrefs.getBoolean(item.title, true);
-                    pagePrefs.edit().putBoolean(item.title, isGroupVisible).apply();
+                    boolean isGroupVisible = !pagePrefs.getBoolean(item.getTitle(), true);
+                    pagePrefs.edit().putBoolean(item.getTitle(), isGroupVisible).apply();
                     mbwManager.getEventBus().post(new AccountGroupCollapsed());
                 }
             });
-            groupHolder.expandIcon.setRotation(pagePrefs.getBoolean(item.title, true) ? 180 : 0);
-            CurrencySum sum = getSpendableBalance(item.walletAccountList);
+            groupHolder.expandIcon.setRotation(pagePrefs.getBoolean(item.getTitle(), true) ? 180 : 0);
+            CurrencySum sum = getSpendableBalance(item.getWalletAccountList());
             groupHolder.tvBalance.setValue(sum);
             groupHolder.tvBalance.setVisibility(View.VISIBLE);
         } else if (viewType == GROUP_ARCHIVED_TITLE_TYPE) {
             ArchivedGroupTitleViewHolder groupHolder = (ArchivedGroupTitleViewHolder) holder;
-            groupHolder.tvTitle.setText(Html.fromHtml(item.title));
-            int count = item.walletAccountList.size();
+            groupHolder.tvTitle.setText(Html.fromHtml(item.getTitle()));
+            int count = item.getWalletAccountList().size();
             groupHolder.tvAccountsCount.setVisibility(count > 0 ? View.VISIBLE : View.GONE);
             groupHolder.tvAccountsCount.setText("(" + count + ")");
             groupHolder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    boolean isGroupVisible = !pagePrefs.getBoolean(item.title, true);
-                    pagePrefs.edit().putBoolean(item.title, isGroupVisible).apply();
+                    boolean isGroupVisible = !pagePrefs.getBoolean(item.getTitle(), true);
+                    pagePrefs.edit().putBoolean(item.getTitle(), isGroupVisible).apply();
                     mbwManager.getEventBus().post(new AccountGroupCollapsed());
                 }
             });
-            groupHolder.expandIcon.setRotation(pagePrefs.getBoolean(item.title, true) ? 180 : 0);
+            groupHolder.expandIcon.setRotation(pagePrefs.getBoolean(item.getTitle(), true) ? 180 : 0);
         } else if (viewType == TOTAL_BALANCE_TYPE) {
             TotalViewHolder totalHolder = (TotalViewHolder) holder;
-            CurrencySum sum = getSpendableBalance(item.walletAccountList);
+            CurrencySum sum = getSpendableBalance(item.getWalletAccountList());
             totalHolder.tcdBalance.setValue(sum);
         }
     }
@@ -212,7 +212,7 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     @Override
     public int getItemViewType(int position) {
-        return itemList.get(position).type;
+        return itemList.get(position).getType();
     }
 
     public interface ItemClickListener {

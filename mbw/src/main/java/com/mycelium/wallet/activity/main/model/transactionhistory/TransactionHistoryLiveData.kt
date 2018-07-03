@@ -8,6 +8,8 @@ import com.mycelium.wallet.event.*
 import com.mycelium.wapi.model.TransactionSummary
 import com.squareup.otto.Subscribe
 import java.lang.ref.WeakReference
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 import kotlin.collections.ArrayList
 
 /**
@@ -19,9 +21,12 @@ class TransactionHistoryLiveData(val mbwManager: MbwManager) : LiveData<List<Tra
     // Used to store reference for task from syncProgressUpdated().
     // Using weak reference as as soon as task completed it's irrelevant.
     private var syncProgressTaskWR: WeakReference<AsyncTask<Void, MutableList<TransactionSummary>, MutableList<TransactionSummary>>>? = null
+    @Volatile
+    private var executorService: ExecutorService
 
     init {
         value = historyList
+        executorService = Executors.newCachedThreadPool()
         startHistoryUpdate()
     }
 
@@ -44,9 +49,9 @@ class TransactionHistoryLiveData(val mbwManager: MbwManager) : LiveData<List<Tra
         mbwManager.eventBus.unregister(this)
     }
 
-    private fun startHistoryUpdate(): AsyncTask<Void, MutableList<TransactionSummary>, MutableList<TransactionSummary>> {
-        return UpdateTxHistoryTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
-    }
+    private fun startHistoryUpdate(): AsyncTask<Void, MutableList<TransactionSummary>, MutableList<TransactionSummary>> =
+            UpdateTxHistoryTask().executeOnExecutor(executorService)
+
 
     /**
      * Leak might not occur, as only application context passed and whole class don't contains any Activity related contexts
@@ -57,13 +62,11 @@ class TransactionHistoryLiveData(val mbwManager: MbwManager) : LiveData<List<Tra
         override fun onPreExecute() {
             if (account.isArchived) {
                 cancel(true)
-                return
             }
         }
 
-        override fun doInBackground(vararg voids: Void): MutableList<TransactionSummary> {
-            return account.getTransactionHistory(0, Math.max(20, value!!.size))
-        }
+        override fun doInBackground(vararg voids: Void): MutableList<TransactionSummary>  =
+            account.getTransactionHistory(0, Math.max(20, value!!.size))
 
         override fun onPostExecute(transactionSummaries: MutableList<TransactionSummary>) {
             if (account === mbwManager.selectedAccount) {
@@ -79,6 +82,9 @@ class TransactionHistoryLiveData(val mbwManager: MbwManager) : LiveData<List<Tra
 
     @Subscribe
     fun selectedAccountChanged(event: SelectedAccountChanged) {
+        val oldExecutor = executorService
+        executorService = Executors.newCachedThreadPool()
+        oldExecutor.shutdownNow()
         if (event.account != account.id) {
             account = mbwManager.selectedAccount
             updateValue(ArrayList())

@@ -104,6 +104,7 @@ import com.mycelium.wapi.wallet.bip44.Bip44PubOnlyAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
+import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
 import java.util.List;
@@ -124,6 +125,7 @@ public class AccountsFragment extends Fragment {
    private View llLocked;
    private AccountListAdapter accountListAdapter;
    private View root;
+   private Bus eventBus;
 
    @Override
    public void onCreate(Bundle savedInstanceState) {
@@ -166,13 +168,14 @@ public class AccountsFragment extends Fragment {
       _mbwManager = MbwManager.getInstance(context);
       walletManager = _mbwManager.getWalletManager(false);
       _storage = _mbwManager.getMetadataStorage();
+      eventBus = _mbwManager.getEventBus();
       _toaster = new Toaster(this);
       super.onAttach(context);
    }
 
    @Override
    public void onResume() {
-      _mbwManager.getEventBus().register(this);
+      eventBus.register(this);
       getView().findViewById(R.id.btUnlock).setOnClickListener(unlockClickedListener);
       update();
       _progress = new ProgressDialog(getActivity());
@@ -182,7 +185,7 @@ public class AccountsFragment extends Fragment {
    @Override
    public void onPause() {
       _progress.dismiss();
-      _mbwManager.getEventBus().unregister(this);
+      eventBus.unregister(this);
       super.onPause();
    }
 
@@ -218,8 +221,8 @@ public class AccountsFragment extends Fragment {
             if (account.getType() != WalletAccount.Type.COLU && !intent.getBooleanExtra(AddAccountActivity.IS_UPGRADE, false)) {
                setNameForNewAccount(account);
             }
-            _mbwManager.getEventBus().post(new ExtraAccountsChanged());
-            _mbwManager.getEventBus().post(new AccountChanged(accountid));
+            eventBus.post(new ExtraAccountsChanged());
+            eventBus.post(new AccountChanged(accountid));
          }
       } else if(requestCode == ADD_RECORD_RESULT_CODE && resultCode == AddAdvancedAccountActivity.RESULT_MSG) {
          new AlertDialog.Builder(getActivity())
@@ -369,7 +372,7 @@ public class AccountsFragment extends Fragment {
                                  _storage.deleteAccountMetadata(accountToDelete.getId());
                                  _toaster.toast("Deleting account.", false);
                                  _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
-                                 _mbwManager.getEventBus().post(new ExtraAccountsChanged()); // do we need to pass UUID ?
+                                 eventBus.post(new ExtraAccountsChanged()); // do we need to pass UUID ?
                               }
                            } catch (Exception e) {
                               // make a message !
@@ -391,11 +394,11 @@ public class AccountsFragment extends Fragment {
                            _storage.deleteAccountMetadata(accountToDelete.getId());
                            _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
                            _toaster.toast(R.string.account_deleted, false);
-                           _mbwManager.getEventBus().post(new ExtraAccountsChanged());
+                           eventBus.post(new ExtraAccountsChanged());
                         }
                      }
                      finishCurrentActionMode();
-                     _mbwManager.getEventBus().post(new AccountChanged(accountToDelete.getId()));
+                     eventBus.post(new AccountChanged(accountToDelete.getId()));
                   }
                });
                confirmDeleteDialog.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
@@ -426,8 +429,8 @@ public class AccountsFragment extends Fragment {
                }
                _storage.deleteAccountMetadata(accountToDelete.getId());
                finishCurrentActionMode();
-               _mbwManager.getEventBus().post(new AccountChanged(accountToDelete.getId()));
-               _mbwManager.getEventBus().post(new ExtraAccountsChanged());
+               eventBus.post(new AccountChanged(accountToDelete.getId()));
+               eventBus.post(new ExtraAccountsChanged());
                _toaster.toast(R.string.account_deleted, false);
             }
          }
@@ -499,6 +502,7 @@ public class AccountsFragment extends Fragment {
          rvRecords.setVisibility(View.VISIBLE);
          llLocked.setVisibility(View.GONE);
       }
+      eventBus.post(new AccountListChanged());
    }
 
    private ActionMode currentActionMode;
@@ -1166,7 +1170,7 @@ public class AccountsFragment extends Fragment {
                        correspondingBCHAccount.archiveAccount();
                     }
                     _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
-                    _mbwManager.getEventBus().post(new AccountChanged(account.getId()));
+                    eventBus.post(new AccountChanged(account.getId()));
                     updateIncludingMenus();
                     _toaster.toast(R.string.archived, false);
                  }
@@ -1207,43 +1211,41 @@ public class AccountsFragment extends Fragment {
 
    @Subscribe()
    public void onExtraAccountsChanged(ExtraAccountsChanged event) {
-      update();
-      _mbwManager.getEventBus().post(new AccountListChanged());
+      updateAndPostEvent();
    }
 
    @Subscribe
    public void addressChanged(ReceivingAddressChanged event) {
-      update();
-      _mbwManager.getEventBus().post(new AccountListChanged());
+      updateAndPostEvent();
    }
 
    @Subscribe
    public void balanceChanged(BalanceChanged event) {
-      update();
-      _mbwManager.getEventBus().post(new AccountListChanged());
+      updateAndPostEvent();
    }
 
    @Subscribe
    public void syncStarted(SyncStarted event) {
-      update();
-      _mbwManager.getEventBus().post(new AccountListChanged());
+      updateAndPostEvent();
    }
 
    @Subscribe
    public void syncStopped(SyncStopped event) {
-      update();
-      _mbwManager.getEventBus().post(new AccountListChanged());
+      updateAndPostEvent();
    }
 
    @Subscribe
    public void accountChanged(AccountChanged event) {
-      update();
-      _mbwManager.getEventBus().post(new AccountListChanged());
+      updateAndPostEvent();
    }
 
    @Subscribe
    public void syncProgressUpdated(SyncProgressUpdated event) {
+      updateAndPostEvent();
+   }
+
+   private void updateAndPostEvent() {
       update();
-      _mbwManager.getEventBus().post(new AccountListChanged());
+      eventBus.post(new AccountListChanged());
    }
 }
