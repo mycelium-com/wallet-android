@@ -17,6 +17,8 @@ import com.mycelium.wallet.persistence.MetadataStorage
 import com.mycelium.wapi.wallet.WalletAccount
 import com.squareup.otto.Subscribe
 import java.util.*
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
 /**
  * This class is intended to monitor current accounts and must post changes as soon as accounts list was updated.
@@ -28,9 +30,11 @@ class AccountsLiveData(private val context: Application, private val mbwManager:
     private val builder = RecordRowBuilder(mbwManager, context.resources)
     // List of all currently available accounts
     private var accountsList = Collections.emptyList<AccountItem>()
+    private val executionService: ExecutorService
 
     init {
         value = Collections.emptyList()
+        executionService = Executors.newCachedThreadPool()
         updateData()
     }
 
@@ -129,7 +133,7 @@ class AccountsLiveData(private val context: Application, private val mbwManager:
     }
 
     private fun updateData() {
-        DataUpdateAsyncTask(context).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
+        DataUpdateAsyncTask(context).executeOnExecutor(executionService)
     }
 
     /**
@@ -137,13 +141,16 @@ class AccountsLiveData(private val context: Application, private val mbwManager:
      */
     private fun updateList() {
         var isCollapsed = false
-        value = accountsList!!.filter {
+        val tempValue = accountsList!!.filter {
             if (it.title == null) {
                 isCollapsed
             } else {
                 isCollapsed = pagePrefs.getBoolean(it.title, true)
                 true
             }
+        }
+        if (tempValue != value) {
+            value = tempValue
         }
     }
 }

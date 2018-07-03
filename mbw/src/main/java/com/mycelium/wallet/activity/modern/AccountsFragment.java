@@ -678,7 +678,6 @@ public class AccountsFragment extends Fragment {
             // Loose focus
             if (accountListAdapter.getFocusedAccount() != null) {
                accountListAdapter.setFocusedAccountId(null);
-//               update();
             }
          }
       };
@@ -688,8 +687,6 @@ public class AccountsFragment extends Fragment {
       // starting for some reason, and this would clear the focus and force
       // an update.
       accountListAdapter.setFocusedAccountId(account.getId());
-
-//      update();
    }
 
    //todo: maybe move it to another class along with the other coinaspult mail stuff? would require passing the context for dialog boxes though.
@@ -1211,41 +1208,36 @@ public class AccountsFragment extends Fragment {
 
    @Subscribe()
    public void onExtraAccountsChanged(ExtraAccountsChanged event) {
-      updateAndPostEvent();
+      update();
    }
 
    @Subscribe
    public void addressChanged(ReceivingAddressChanged event) {
-      updateAndPostEvent();
+      update();
    }
 
    @Subscribe
    public void balanceChanged(BalanceChanged event) {
-      updateAndPostEvent();
+      update();
    }
 
    @Subscribe
    public void syncStarted(SyncStarted event) {
-      updateAndPostEvent();
+      update();
    }
 
    @Subscribe
    public void syncStopped(SyncStopped event) {
-      updateAndPostEvent();
+      update();
    }
 
    @Subscribe
    public void accountChanged(AccountChanged event) {
-      updateAndPostEvent();
+      update();
    }
 
    @Subscribe
    public void syncProgressUpdated(SyncProgressUpdated event) {
-      updateAndPostEvent();
-   }
-
-   private void updateAndPostEvent() {
       update();
-      eventBus.post(new AccountListChanged());
    }
 }

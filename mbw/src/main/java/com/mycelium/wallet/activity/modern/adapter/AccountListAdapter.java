@@ -22,7 +22,6 @@ import com.mycelium.wallet.activity.modern.model.accounts.AccountItem;
 import com.mycelium.wallet.activity.modern.model.accounts.AccountsListModel;
 import com.mycelium.wallet.activity.modern.model.ViewAccountModel;
 import com.mycelium.wallet.event.AccountGroupCollapsed;
-import com.mycelium.wallet.event.AccountListChanged;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.currency.CurrencySum;
 
@@ -80,23 +79,8 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     }
 
     public void setFocusedAccountId(UUID focusedAccountId) {
-        int oldFocusedPosition = findPosition(this.focusedAccountId);
         this.focusedAccountId = focusedAccountId;
-        notifyItemChanged(oldFocusedPosition);
-        notifyItemChanged(findPosition(this.focusedAccountId));
-    }
-
-    private int findPosition(UUID account) {
-        int position = -1;
-        for (int i = 0; i < itemList.size(); i++) {
-            AccountItem item = itemList.get(i);
-            if (item.getWalletAccount() != null
-                    && Objects.equals(item.getWalletAccount().accountId, account)) {
-                position = i;
-                break;
-            }
-        }
-        return position;
+        notifyDataSetChanged(); // Somewhy in other cases android would not update alpha value
     }
 
     @Override
