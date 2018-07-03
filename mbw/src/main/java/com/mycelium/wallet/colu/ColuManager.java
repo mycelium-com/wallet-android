@@ -337,7 +337,7 @@ public class ColuManager implements AccountProvider {
                 if (!isNetworkConnected) {
                     return;
                 }
-                scanForAccounts();
+                scanForAccounts(SyncMode.FULL_SYNC_ALL_ACCOUNTS);
             }
         });
     }
@@ -669,20 +669,37 @@ public class ColuManager implements AccountProvider {
         return coluAccounts.get(id);
     }
 
-    // this method updates balances for all colu accounts
-    public void scanForAccounts() {
+    // Updates balances for colu accounts
+    public void scanForAccounts(SyncMode mode) {
+        // We run Colu synchronization if we need to sync all accounts or the only active account
+        // should be synced and it has COLU type
+        if (mode.onlyActiveAccount && mgr.getSelectedAccount().getType() != WalletAccount.Type.COLU) {
+            return;
+        }
+
         try {
-            for (ColuAccount.ColuAssetType assetType : ColuAccount.ColuAssetType.values()) {
-                String id = checkNotNull(ColuAccount.ColuAsset.getByType(assetType)).id;
-                AssetMetadata assetMetadata = coluClient.getMetadata(id);
-                assetsMetadata.put(assetType, assetMetadata);
-                metadataStorage.storeColuAssetCoinSupply(id, assetMetadata.getTotalSupply());
+            // If we need to handle only active account - get metadata for it only
+            if (mode.onlyActiveAccount) {
+                ColuAccount account = (ColuAccount)mgr.getSelectedAccount();
+                ColuAccount.ColuAsset asset = account.getColuAsset();
+                AssetMetadata assetMetadata = coluClient.getMetadata(asset.id);
+                assetsMetadata.put(asset.assetType, assetMetadata);
+                metadataStorage.storeColuAssetCoinSupply(asset.id, assetMetadata.getTotalSupply());
+            }
+            else {
+                // Sync all accounts
+                for (ColuAccount.ColuAssetType assetType : ColuAccount.ColuAssetType.values()) {
+                    String id = checkNotNull(ColuAccount.ColuAsset.getByType(assetType)).id;
+                    AssetMetadata assetMetadata = coluClient.getMetadata(id);
+                    assetsMetadata.put(assetType, assetMetadata);
+                    metadataStorage.storeColuAssetCoinSupply(id, assetMetadata.getTotalSupply());
+                }
             }
         } catch (Exception e) {
             Log.e(TAG, "error while get asset metadata: " + e.getMessage());
         }
         try {
-            getBalances();
+            getBalances(mode);
         } catch (Exception e) {
             Log.e(TAG, "error while scanning for accounts: " + e.getMessage());
         }
@@ -697,16 +714,22 @@ public class ColuManager implements AccountProvider {
         return new ColuClient(_network);
     }
 
-    private void getBalances() throws Exception {
+    private void getBalances(SyncMode syncMode) throws Exception {
         Log.e(TAG, "ColuManager::getBalances start");
-        for (HashMap.Entry entry : coluAccounts.entrySet()) {
-            Log.e(TAG, "ColuManager::getBalances in loop");
-            UUID uuid = (UUID) entry.getKey();
-            ColuAccount account = (ColuAccount) entry.getValue();
-            Log.e(TAG, "ColuManager::getBalances in loop uuid=" + uuid.toString() + " asset " + account.getColuAsset().id);
 
+        if (syncMode.onlyActiveAccount) {
+            ColuAccount account = (ColuAccount)mgr.getSelectedAccount();
             account.doSynchronization(SyncMode.NORMAL);
-        }   // for loop over accounts
+        } else {
+            for (HashMap.Entry entry : coluAccounts.entrySet()) {
+                Log.e(TAG, "ColuManager::getBalances in loop");
+                UUID uuid = (UUID) entry.getKey();
+                ColuAccount account = (ColuAccount) entry.getValue();
+                Log.e(TAG, "ColuManager::getBalances in loop uuid=" + uuid.toString() + " asset " + account.getColuAsset().id);
+
+                account.doSynchronization(SyncMode.NORMAL);
+            }   // for loop over accounts
+        }
     }
 
     void updateAccountBalance(ColuAccount account) throws IOException {
@@ -897,7 +920,8 @@ public class ColuManager implements AccountProvider {
         return assetsList;
     }
 
-    public void startSynchronization() {
+    public void startSynchronization(SyncMode mode) {
+        final SyncMode syncMode = mode;
         if (!isNetworkConnected) {
             return;
         }
@@ -909,7 +933,7 @@ public class ColuManager implements AccountProvider {
 
             @Override
             protected Void doInBackground(Void... voids) {
-                scanForAccounts();
+                scanForAccounts(syncMode);
                 return null;
             }
 
