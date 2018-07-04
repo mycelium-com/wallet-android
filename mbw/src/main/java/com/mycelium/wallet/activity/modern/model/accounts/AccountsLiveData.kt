@@ -93,6 +93,19 @@ class AccountsLiveData(private val context: Application, private val mbwManager:
 
             accountsList.add(AccountItem(AccountListAdapter.TOTAL_BALANCE_TYPE, "", builder.convertList(am.getActiveAccounts().values.asList())))
             accountsList.addAll(addGroup(R.string.archive_name, AccountListAdapter.GROUP_ARCHIVED_TITLE_TYPE, am.getArchivedAccounts().values))
+
+            var isCollapsed = false
+            val tempValue = accountsList.filter {
+                if (it.title == null) {
+                    isCollapsed
+                } else {
+                    isCollapsed = pagePrefs.getBoolean(it.title, true)
+                    true
+                }
+            }
+            if (tempValue == value) {
+                cancel(true)
+            }
             return accountsList
         }
 
@@ -141,16 +154,13 @@ class AccountsLiveData(private val context: Application, private val mbwManager:
      */
     private fun updateList() {
         var isCollapsed = false
-        val tempValue = accountsList!!.filter {
+        value = accountsList!!.filter {
             if (it.title == null) {
                 isCollapsed
             } else {
                 isCollapsed = pagePrefs.getBoolean(it.title, true)
                 true
             }
-        }
-        if (tempValue != value) {
-            value = tempValue
         }
     }
 }
