@@ -53,7 +53,7 @@ abstract public class EndlessAdapter extends AdapterWrapper {
   abstract protected void appendCachedData();
 
   private View pendingView=null;
-  private AtomicBoolean keepOnAppending=new AtomicBoolean(true);
+  protected AtomicBoolean keepOnAppending=new AtomicBoolean(true);
   private Context context;
   private int pendingResource=-1;
   private boolean isSerialized=false;
@@ -289,12 +289,6 @@ abstract public class EndlessAdapter extends AdapterWrapper {
     } else {
       task.execute(params);
     }
-  }
-
-  @Override
-  public void notifyDataSetChanged() {
-    setKeepOnAppending(true);
-    super.notifyDataSetChanged();
   }
 
   private void setKeepOnAppending(boolean newValue) {

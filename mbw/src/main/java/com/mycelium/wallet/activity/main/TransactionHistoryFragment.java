@@ -609,6 +609,7 @@ public class TransactionHistoryFragment extends Fragment {
       public void notifyDataSetChanged() {
          if (getWrappedAdapter().getCount() < lastOffset) {
             lastOffset = getWrappedAdapter().getCount();
+            keepOnAppending.set(true);
          }
          super.notifyDataSetChanged();
       }
