@@ -30,6 +30,8 @@ public interface SpvBalanceFetcher {
     IssuedKeysInfo getPrivateKeysCount(int accountIndex);
     IssuedKeysInfo getPrivateKeysCountUnrelated(String guid);
     boolean isAccountSynced(WalletAccount account);
+    boolean isAccountVisible(WalletAccount account);
+    void setVisible(WalletAccount account);
     void forceCleanCache();
     long calculateMaxSpendableAmount(int accountIndex, String txFee, float txFeeFactor);
     long calculateMaxSpendableAmountUnrelatedAccount(String guid, String txFee, float txFeeFactor);

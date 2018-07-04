@@ -176,10 +176,10 @@ public class MbwManager {
       if (_instance == null) {
          if(BuildConfig.DEBUG) {
             StrictMode.ThreadPolicy threadPolicy = StrictMode.allowThreadDiskReads();
-            _instance = new MbwManager(context);
+            _instance = new MbwManager(context.getApplicationContext());
             StrictMode.setThreadPolicy(threadPolicy);
          } else {
-            _instance = new MbwManager(context);
+            _instance = new MbwManager(context.getApplicationContext());
          }
       }
       return _instance;

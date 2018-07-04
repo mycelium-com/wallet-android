@@ -63,9 +63,17 @@ class SingleAddressBCHAccount(context: SingleAddressAccountContext,
         return transactions.firstOrNull { it.txid == txid }
     }
 
+    override fun dropCachedData() {
+        //BCH account have no separate context, so no cashed data, nothing to drop here
+    }
+
     override fun isVisible(): Boolean {
         if (!visible && (spvBalanceFetcher.syncProgressPercents == 100f || spvBalanceFetcher.isAccountSynced(this))) {
-            visible = !spvBalanceFetcher.retrieveTransactionsSummaryByUnrelatedAccountId(id.toString()).isEmpty()
+            visible = spvBalanceFetcher.isAccountVisible(this) ||
+                    !spvBalanceFetcher.retrieveTransactionsSummaryByUnrelatedAccountId(id.toString()).isEmpty()
+            if (visible) {
+                spvBalanceFetcher.setVisible(this)
+            }
         }
         return visible
     }
