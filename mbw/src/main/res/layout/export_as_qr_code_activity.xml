@@ -17,7 +17,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:text="@string/export"
-                android:textSize="30sp" />
+                android:textSize="28sp" />
 
         <View
                 android:layout_width="fill_parent"
@@ -27,14 +27,49 @@
                 android:id="@+id/tvShow"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/show_public_or_private_data"/>
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:textSize="12sp"
+                android:gravity="center"/>
 
-        <Switch
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Public"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"/>
+
+            <Switch
                 android:id="@+id/swSelectData"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textOn="@string/show_private_data"
-                android:textOff="@string/show_public_data"/>
+                android:textOff="@string/show_public_data"
+                android:theme="@style/Switch"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Private"/>
+
+        </LinearLayout>
+
         <TextView
                 android:id="@+id/tvWarning"
                 android:layout_width="wrap_content"

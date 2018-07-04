@@ -50,7 +50,7 @@
     <string name="transaction_not_sent">Failed to broadcast transaction</string>
     <string name="queue_transaction_message">Failed to broadcast transaction.\nWould you like to queue the transaction so it gets sent automatically once you get online?</string>
     <string name="transaction_sent">Transaction sent.</string>
-    <string name="export">Export</string>
+    <string name="export">Export account keys</string>
     <string name="backup_private_key">Backup</string>
     <string name="copy_to_clipboard">Copy to Clipboard</string>
     <string name="copy_address_to_clipboard">Copy address to Clipboard</string>
