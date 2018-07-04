@@ -25,7 +25,6 @@
   <string name="send">Отправить</string>
   <string name="receive">Получить</string>
   <string name="private_key_deleted">Приватный ключ удален.</string>
-  <string name="account_deleted">Счёт удалён</string>
   <string name="enter_recipient_title">Введите адрес получателя</string>
   <string name="recipient_title">Адрес получателя</string>
   <string name="amount_label">Количество:</string>
@@ -45,8 +44,6 @@
   <string name="synchronizing">Синхронизация</string>
   <string name="transaction_not_sent">Не удалось передать транзакцию</string>
   <string name="queue_transaction_message">Не удалось передать транзакцию. \nвы  бы хотели  поставить транзакцию в очередь, чтобы она была  отправлена автоматически, как только вы будете онлайн?</string>
-  <string name="transaction_sent">Транзакция совершена</string>
-  <string name="export">Экспортировать</string>
   <string name="backup_private_key">Резервное копирование</string>
   <string name="copy_to_clipboard">Копировать в буфер обмена</string>
   <string name="copy_private_key_to_clipboard">Скопировать  приватный ключ в буфер обмена</string>
@@ -83,15 +80,9 @@
   <string name="pref_clear_pin_summary">Удалить текущий PIN-код</string>
   <string name="pref_set_pin">Установить ПИН-код</string>
   <string name="pref_set_pin_summary">Установите PIN-код,  ограничивающий доступ к отправке биткойнов, экспорту приватных  ключей и изменению PIN-кода</string>
-  <string name="pref_local_currency">Местная валюта</string>
-  <string name="pref_local_currency_with_currency">Местная валюта (%1$s)</string>
   <string name="pref_local_currency_summary">Выберите местную валюту</string>
-  <string name="pref_exchange_source">Биржа</string>
   <string name="pref_exchange_source_with_value">Биржа(%1$s)</string>
   <string name="pref_exchange_source_summary">Выберите источник для получения обменного курса между биткойном и фиатными  валютами</string>
-  <string name="pref_bitcoin_denomination">Номинал биткойна</string>
-  <string name="pref_bitcoin_denomination_with_denomination">Номинал (%1$s)</string>
-  <string name="pref_bitcoin_denomination_summary">Установите предпочтительную форму  деноминации биткойна. BTC, mBTC или μBTC</string>
   <string name="pref_advanced_settings">Расширенные настройки</string>
   <string name="pref_socks_proxy">SOCKS прокси</string>
   <string name="pref_socks_proxy_enabled">SOCKS прокси (включено)</string>
@@ -117,7 +108,6 @@
   <string name="backup_all_warning">Вам необходимо сделать резервную копию мастер-ключа вашего бумажника.\nОна позволяет вам восстановить все ваши средства на ваших HD счетах, если ваше устройство потеряется или выйдет из строя.\n\nВы хотите это сделать сейчас?</string>
   <string name="export_to_clipboard_warning">Предупреждение: Экспорт закрытого ключа счёта в буфер обмена делает его доступным для других приложений на вашем устройстве.\n\nДержать ваш закрытый ключ в буфере обмена рискованно, необходимо скопировать его куда либо в безопасное место.\n\nХотите продолжить?</string>
   <string name="found_clipboard_private_key_title">В буфере обмена обнаружен приватный ключ</string>
-  <string name="found_clipboard_private_keys_message">Буфер обмена содержит приватный ключ.\nВы хотите удалить его?</string>
   <string name="exchange_source_not_available">Обменный курс %1$s недоступен</string>
   <string name="my_own_address_warning">Примечание: Вы отправляете на один из ваших собственных адресов.</string>
   <string name="read_only_warning">Предупреждение: Ваш кошелек не имеет приватного ключа для этого адреса. \nВы не  сможете потратить  полученные на него биткойны, если у вас нет где-либо приватного ключа к  этому  адресу.</string>
@@ -131,13 +121,10 @@
   <string name="cold_storage_desc">Вы собираетесь забрать средства посредством закрытого ключа \"холодного хранилища\". Это может быть закрытый ключ с бумажного носителя или закрытый ключ с листка Биткойн банкомата. Следующие форматы поддерживаются:\nЗакрытый ключ, Мастер-ключ (seed) HD кошелька, xPriv Ключ\n\nКак только транзакция будет передана в сеть, все следы будут удалены из памяти.</string>
   <string name="keep_account_address">Удалить только закрытый ключ и оставить счёт только для просмотра</string>
   <string name="manual_entry">Ручной ввод</string>
-  <string name="active_hd_accounts_name">Мои HD счета</string>
-  <string name="active_other_accounts_name">Другие счета</string>
   <string name="archive_name">Архивированные</string>
   <string name="active_accounts_empty">(Пустой)</string>
   <string name="activate_action">Активировать</string>
   <string name="archive_action">Архивировать</string>
-  <string name="question_archive_account">Архивированные счета не мониторятся, вы не сможете увидеть баланс или адреса для приёма монет, а также ничего не сможете делать с этими счетами.\n\nАрхивированные счета могут быть активированы снова.\n\nВы хотите архивировать этот счёт?</string>
   <string name="master_seed_configuration_title">Добро пожаловать в Mycelium !</string>
   <string name="master_seed_configuration_description">Вы хотите восстановить из резервной копии, или создать новый кошелёк?</string>
   <string name="master_seed_create_new_button">Создать новый</string>
@@ -192,7 +179,6 @@
   <string name="encrypted_pdf_backup_document_ready">PDF документ создан</string>
   <string name="encrypted_pdf_backup_sharing">Поделиться PDF документом&#8230;</string>
   <string name="encrypted_pdf_backup_email_title">Резервная копия Mycelium Wallet</string>
-  <string name="encrypted_pdf_backup_email_text">Это резервная копия вашего Mycelium Wallet.\n\nВыполните эти простые действия, чтобы защитить ваши средства: \n1. Распечатайте PDF документ.\n2. Впишите 16-символьный пароль с экрана вашего  устройства в  синие окошки на распечатке.\n3. Убедитесь, что вы можете импортировать приватные ключи в ваш Mycelium Wallet (функция \"Проверить резервную копию\").\n4 Храните распечатку в безопасном месте.</string>
   <string name="share_pdf">Отправить PDF</string>
   <string name="share_with">Отправить ...</string>
   <string name="import_decrypt_key_title">Расшифровка приватного ключа</string>
@@ -289,8 +275,6 @@
   <string name="lt_ad_created">Объявление создано</string>
   <string name="lt_ad_edited"> Объявление отредактировано</string>
   <string name="lt_pref_category">Local Trader</string>
-  <string name="lt_disable_preference">Отключить Local Trader</string>
-  <string name="lt_disable_preference_summary">Отключить функционал Local Trader</string>
   <string name="lt_sound_on_trade_preference">Воспроизведение звука при торговой деятельности</string>
   <string name="lt_sound_on_trade_preference_summary">Звуковое уведомление при возникновении торговой деятельности</string>
   <string name="lt_use_email_for_notifications">Использовать электронную почту для уведомлений</string>
@@ -510,7 +494,7 @@
   <string name="title_wrong_password">Неверный пароль, пожалуйста введите еще раз</string>
   <string name="dont_allow_archiving_unused_notification">Нельзя архивировать неиспользованный HD аккаунт</string>
   <string name="newly_generated_coins_from_coinbase">Новые созданные биткойны</string>
-    <string name="button_continue">Продолжить</string>
+  <string name="button_continue">Продолжить</string>
   <string name="butto_show_release_notes">Показать детали</string>
   <string name="word_does_not_exist_in_wordlist">Слово, которое вы ввели, не существует в списке слов</string>
   <string name="pref_legacy_backup_title">Резервная копия старого образца</string>
@@ -525,9 +509,6 @@
   <string name="direct_apk_link_label">Прямая\nзагрузка</string>
   <string name="hide_unused_account_menu">Удалить счёт</string>
   <string name="dont_allow_hiding_used_notification">Вы не можете спрятать использованный аккаунт, но вы можете архивировать его</string>
-  <string name="pref_miner_fee_title">Вознаграждение майнерам</string>
-  <string name="pref_miner_fee_block_summary">Транзакция отправлена с такой комиссией, что будет включена примерно в течении %1s блок(ов).</string>
-  <string name="miner_fee_lowprio_name">Низкий приоритет</string>
   <string name="miner_fee_economic_name">Эконом</string>
   <string name="miner_fee_normal_name">Норма</string>
   <string name="miner_fee_priority_name">Приоритет</string>
@@ -564,8 +545,6 @@
   <string name="lt_confirm_delete_trader_message">Вы хотите удалить  вашу информацию? Вся торговая информация и рейтинги будут окончательно удалены и не могут быть восстановлены.</string>
   <string name="rescan_account_menu_item">Обновить счёт</string>
   <string name="add_advanced_account_warning">Предупреждение: \n, эти ключи не будут включены в Резервную Копию на основе  Master Seed. Вы должны убедиться, что у вас есть  для  них отдельная Резервная Копия, с  совершенно другим порядком создания.</string>
-  <string name="new_random_key_desc">Сгенерировать новый случайный биткойн адрес</string>
-  <string name="generate_new_key">Сгенерировать</string>
   <string name="new_bitcoin_address_created">Был создан новый случайный приватный ключ со следующим биткойн  адресом:</string>
   <string name="shuffle">Еще раз</string>
   <string name="toast_warning_low_fee">может занять больше времени для  подтверждения</string>
@@ -604,8 +583,6 @@
   <string name="pref_ledger_title">Ledger Аппаратный Кошелёк</string>
   <string name="ledger_disable_tee_preference">Отключить поддержку TEE</string>
   <string name="ledger_disable_tee_preference_summary">Отключите поддержку \"Окружение Доверительного Исполнения\" (TEE) если вы хотите использовать разные аппаратные кошельки Ledger</string>
-  <string name="ledger_unplugged_aid_preference">Установка Ledger Unplugged AID</string>
-  <string name="ledger_unplugged_aid_preference_summary">Поддержка разных AID для Ledger Unplugged индивидуальных сборок</string>
   <string name="select_local_currencies">Выберите ваши валюты</string>
   <string name="show_public_or_private_data">Показать</string>
   <string name="show_private_data">приватный</string>
@@ -615,11 +592,6 @@
   <string name="reset_pin_button">Переустановить ПИН-код</string>
   <string name="wrong_pin_message">Вы ввели неправильный PIN-код. \n\n, если вы забыли свой PIN-код, вы можете переустановить его.</string>
   <string name="pref_no_fiat_selected">Не выбрана  фиатная валюта</string>
-  <string name="useTor">Использовать сеть tor</string>
-  <string name="useTorDescription">Используйте  сети tor для взаимодействия с  бэкэнд серверами. \nЭто улучшает вашу конфиденциальность и помогает обойти  ограничители брандмауэров. Но это может замедлить производительность данного приложения.</string>
-  <string name="useTorOnlyExternalTor">Использовать сеть tor (внешней тор)</string>
-  <string name="useTorOnlyHttps">Использовать сеть tor (только https)</string>
-  <string name="useTorBoth">Использовать сеть tor (оба)</string>
   <string name="last_log_entries">Последние записи журнала</string>
   <string name="use_https">Использование https</string>
   <string name="use_external_tor">Использовать внешний tor (Orbot)</string>
@@ -675,7 +647,6 @@
   <string name="payment_request_message_to_merchant">Ваше сообщение продавцу (опционально)</string>
   <string name="payment_request_warning_no_sig">Происхождение этого запроса на оплату не может быть проверено, потому что не содержит цифровой подписи.\n\nПожалуйста, будьте осторожны - это может произойти в случае, если кто-то перехватил и изменил запрос на оплату, сделав подмену адреса для получения средств от вас на подложный адрес.</string>
   <string name="label_cold_storage_external_signing">Подписать:</string>
-  <string name="spending_unconfirmed_warning">Предупреждение: расходование неподтверждённых средств</string>
   <string name="spending_unconfirmed_title">Расходование неподтверждённых средств</string>
   <string name="spending_unconfirmed_description">Ваша транзакция (А) расходует средства из другой транзакции (Б), которая ещё не получила подтверждений. Если по какой либо причине транзакция Б не будет подтверждена, то транзакция А также не получит подтверждения, так как зависит от неё.</string>
   <string name="label_unverified_recipient">непроверенный получатель</string>
@@ -697,7 +668,6 @@
   <string name="rebroadcast_transaction_title">Ретранслировать транзакцию</string>
   <string name="description_rebroadcast_transaction">Повторить отправку транзакции на сервер для её дальнейшей ретрансляции. Это делается, например, в случаях, если вы думаете, что сеть забыла о вашей транзакции по той причине, что она долго не подтверждалась. Хотите ретранслировать эту транзакцию?</string>
   <string name="message_rebroadcast_failed">Ретрансляция не состоялась - пожалуйста, проверьте ваше интернет соединение и синхронизируйте ваш кошелёк.</string>
-  <string name="block_explorer_title">Просмотрщик блоков</string>
   <string name="block_explorer_summary">Детали транзакции будут показаны с помощью %1$s \"Просмотрщика Блоков\"</string>
   <string name="lt_warning_wrong_account_type">Local Trader не работает с выбранным типом счёта - пожалуйста, выберете другой счёт.</string>
   <string name="lt_account_not_allowed">Выбранный тип счёта не работает с Local Trader. Вам необходимо выбрать другой счёт для выполнения этой сделки.</string>
@@ -727,6 +697,16 @@
   <string name="coinapult_create_account">Создание учётной записи Coinapult&#8230;</string>
   <string name="coinapult_backup_info">Ключ доступа к учетной записи Coinapult формируется из вашего мастер-ключа seed. Если у вас есть резервная копия вашего мастер-ключа seed, доступ к вашей учетной записи Coinapult также будет работать.</string>
   <string name="coinapult_currency_account">%1$s Счёт</string>
+  <!--<string name="colu_tos_link">Open Colu Terms and Conditions</string>-->
+  <!-- <string name="colu_tos_link_url">https://www.colu.com/TOS</string>-->
+  <!--<string name="colu_tos">By clicking "OK" you agree to use Colored Coin technology, third party-->
+  <!--blockchain technology developer. All your interactions with Colu are outside of-->
+  <!--Mycelium’s control and are subject to Colu’s T&amp;C and Privacy Policy.-->
+  <!--Please read them carefully before providing any personal information.-->
+  <!--MYCELIUM ACCEPTS NO RESPONSIBILITY AND WILL NOT BE LIABLE FOR ANY LOSS-->
+  <!--OR DAMAGE WHATSOEVER SUFFERED AS A RESULT OF ACCESSING, USE OF, OR-->
+  <!--RELIANCE UPON COLU’S INFORMATION AND SERVICES.</string>-->
+  <!--    <string name="colu_backup_info">Your Colu account access-key gets derived from your masterseed. If you have a valid backup, the access to your Colu account is also included.</string>  -->
   <string name="copy">Копировать</string>
   <string name="lt_backup_lt_id">Резервная копия идентификатора Trader</string>
   <string name="lt_confirm_backup_trader_message">Вы собираетесь экспортировать конфиденциальные данные вашей учётной записи Local Trader. Любой, кто получит доступ к этим ключам, может работать от вашей учётной записи Local Trader и действовать от вашего имени. Вы хотите продолжить?</string>
@@ -754,89 +734,11 @@
   <string name="pop_transaction_info_advice">Проверьте ниже платёжную информацию для доказательства</string>
   <string name="import_xpub_wrong_depth">Вы можете импортировать счёт уровня (3) xpub адресов.\nЭто уровень %1$s.</string>
   <string name="buy_one">Покупка&#8230;</string>
-  <string name="opening_url_in_browser">Открытие адреса в броузере...</string>
   <!-- Credit Card -->
   <!-- Credit Card End-->
   <!-- GlideraService Start -->
   <!-- GlideraService End -->
   <!-- Simplex start -->
   <!-- Simplex end -->
-  <string name="copy_address_to_clipboard">Скопировать адрес в буфер обмена</string>
-  <string name="copy_amount_to_clipboard">Скопировать сумму в буфер обмена</string>
-  <string name="backup_legacy_warning">Сделайте резервную копию вашего закрытого ключа! \n\nЭто займет 2 минуты, но может спасти миллионы! Наличие надлежащего резервного копирования является краеугольным камнем при управлении цифровыми активами или цифровыми активами.\n\nНе  используйте Mycelium  без создания и верификации резервного копирования всех ваших счетов - если вы потеряете ваш смартфон и не имеете резервного копирования ваши биткойны и цифровые активы будут потеряны навсегда.\n\nПродолжим?</string>
-  <string name="verify_backup_desc">Надлежащее резервное копирование приватного ключа является краеугольным камнем при управлении вашими биткойнами и цифровыми активами.\n\nОсуществив проверку резервного копирования, вы убеждаетесь, что ваша резервная копия в порядке и что вы не потеряете ваши средства, даже если ваше устройство потеряется или повредится.</string>
-  <string name="confirm_delete_pk_without_balance_with_label">Это не может быть отменено!\n\n%1$s\n\nТекущий адрес:\n%2$s\n\nВы хотите удалить его?</string>
-  <string name="confirm_delete_pk_with_balance_with_label">Это не может быть отменено!\n\n%1$s\n\nТекущий адрес:\n%2$s\n\nОн содержит %3$s\n\nВы хотите удалить его?\n?</string>
-  <string name="selected_hd_info">Теперь вы работаете на этой HD учетной записи.</string>
-  <string name="selected_single_info">Теперь вы работаете на учетной записи с одиночным адресом.</string>
-  <string name="colu_add_mass_account">Добавить Mass счёт</string>
-  <string name="colu_account_notes">Хранить digital assets в Mycelium.</string>
-  <string name="colu_add_cc_account">Добавить Digital Asset счет</string>
-  <string name="colu">Цифровой актив</string>
-  <string name="colu_select_an_account_type">Пожалуйста, выберите цифровой актив</string>
-  <string name="colu_create_account">Создать %s аккаунт</string>
-  <string name="colu_creating_account">Создание %s аккаунта</string>
-  <string name="colu_unable_to_create_account">Не удается создать учетную запись Colored Coin</string>
-  <string name="colu_backup_info">Ключ доступа к аккаунтам цифровых активов генерируется и хранится независимо от других ваших счетов. Вам будет нужно сделать его резервное копирование отдельно от вашего основного счета.</string>
-  <string name="colu_sending_via_colu">Отправление Colored Coin assets.</string>
-  <string name="colu_failed_to_prepare">Не удалось подготовить Colored Coin транзакцию! Убедитесь, что вы фондировали один из Bitcoin аккаунтов с mBTC (до $10) для выполнения транзакций.</string>
-  <string name="colu_failed_to_broadcast">Ошибка при передачи Colored Coin транзакции.</string>
-  <string name="colu_succeeded_to_broadcast">Colored Coin транзакция отправлена.</string>
-  <string name="colu_rmc_tokens">RMC</string>
-  <string name="gd_buy_sell_rmc_button">Купить RMC</string>
-  <string name="learn_more_rmc"><u>Узнать больше о RMC</u></string>
-  <string name="mycelium_no_responaility_rmc">Если вы продолжите, вы соглашаетесь взаимодействовать с RMC,  являющимся сторонним сервисом. Все ваши взаимодействия с RMC находятся вне контроля Mycelium и регулируются  пользовательским соглашением, условиями использования и политикой конфиденциальности RMC. Пожалуйста, прочтите их внимательно. Личная информация не будет собрана, сохранена или используема Mycelium.\n\nMYCELIUM не принимает  никакой ответственности и  не будет быть ответственной стороной в случае  любой  возможной потери или ущерба,  понесенных в результате доступа, использования, или полагания на предоставленную эмитентом RMC информацию и услуги</string>
-  <string name="rmc_generate_new_account">Создать новый RMC аккаунт</string>
-  <string name="rmc_you_buying">Вы покупаете %1$s</string>
-  <string name="rmc_your_new_account">Ваш новый RMC счет</string>
-  <string name="rmc_use_this_account_to_receive_your_rmc">Использовать этот аккаунт для получения RMC?</string>
-  <string name="rmc_yes">Да</string>
-  <string name="rmc_no">Нет</string>
-  <string name="rmc_return_of_investment">Окупаемость инвестиций</string>
-  <string name="rmc_not_forgot_active_day">Для получения максимальной прибыли <font color="#ff8838"> не пропустите день</font> \n когда кнопка станет активной. <font color="#4583de"> Напомнить?</font></string>
-  <string name="rmc_select_account_for_receive_rmc">Выберите аккаунт для получения RMC</string>
-  <string name="address_title">%s Адрес</string>
-  <string name="rmc_reminder">RMC напоминание</string>
-  <string name="rmc_active_in_159_days">Активна через %d дней</string>
-  <string name="bitcoin_altcoin_mining_button">Кнопка добычи Bitcoin/Altcoin</string>
-  <string name="rmc_remind_by_email">Напомнить по email</string>
-  <string name="rmc_recieve_push_notification">Получать уведомления</string>
-  <string name="rmc_add_to_google_calendar">Добавить в календарь Google</string>
-  <string name="create_backup">Создать Резервную Копию</string>
-  <string name="label">Имя:</string>
-  <string name="rmc_account">Счет:</string>
-  <string name="verify">Проверить</string>
-  <string name="share_x_address">Поделиться %s адресом</string>
-  <string name="your_rmc_hash_power_th_s">Ваша RMC хэш мощность (TH/s):</string>
-  <string name="total_rmc_hash_power_ph_s">Общая RMC хэш мощность (PH/s):</string>
-  <string name="enter_address">Введите %s адрес</string>
-  <string name="address_valid">%s адрес действительный</string>
-  <string name="address_invalid">Неверный %s адрес</string>
-  <string name="rmc_activate_rmc">Активировать RMC для максимальной прибыли</string>
-  <string name="rmc_activate">Активировать RMC</string>
-  <string name="save">Сохранить</string>
-  <string name="partner_more_info"><u>Ваша конфиденциальность является нашим главным приоритетом</u></string>
-  <string name="your_privacy_out_priority">Ваша конфиденциальность является нашим главным приоритетом</string>
-  <string name="rmc_payment_success">Оплата прошла! Вы получите ваши активы после трех подтверждений.</string>
-  <string name="rmc_please_enter_amount">Введите сумму</string>
-  <string name="rmc_minimum_amount_to_buy_is_0_1_rmc">Минимальная сумма 0,1 RMC</string>
-  <string name="weeks">дни</string>
-  <string name="rmc_price_fluctations">Цена RMC в BTC/ETH приблизительна из-за колебаний обменного курса. Актуальная цена RMC формируется в момент оплаты.</string>
-  <string name="colu_before_sending_make_sure">Перед отправкой ваших digital assets убедитесь что отправляете на digital assets адрес, а не на случайный bitcoin адрес. Нажмите <font color="#4583de">здесь</font> чтобы увидеть процедуру восстановления ваших digital assets.</string>
-  <string name="rmc_bitcoin_acc_what_is_it">"RMC Bitcoin" является "Bitcoin Single Address" счётом, связанным с вашим RMC счётом. Данный счёт позволяет распоряжаться BTC, начисленными пулом владельцу RMC актива. Новые BTC, добытые RMC пулом, пропорционально распределяются между счетами "RMC Bitcoin".
-    \n
-    Для исключения возможности непреднамеренного "сжигания" цифровых активов на вашем адресе при формирован транзакции со связанного BTC аккаунта, неизрасходованные выходы (UTXO) цифровых активов и их технические транзакции (так называемая "пыль") не учитываются.</string>
-  <string name="what_is_it">Что это?</string>
-  <string name="error_start_google_calendar">Что-то не так с google календарем</string>
-  <string name="both_rmc_will_deleted" formatted="false">Оба %s и %s аккаунта будут удалены.</string>
-  <string name="tips_rmc_check_address">Если вы отправили digital assets на случайный bitcoin адрес, они не уничтожаются. \nЧтобы получить их у вас есть два варианта: \n1) Использовать digital assets API, вручную отправить ваши assets обратно на адрес управляемого Mycelium Wallet. \n2) Отправить запрос в Mycelium Wallet support для получения ваших assets. За данную услугу может взиматься дополнительная плата. Вы получите подробную информацию после контакта с support.\n\nВ обоих случаях, вы должны иметь закрытый ключ адреса на который вы отправили digital assets.</string>
-  <string name="selected_colu_info">Теперь вы работаете на этой %s учетной записи.</string>
-  <string name="colu_error_deleting">Ошибка при удалении Colored Coin счета</string>
-  <plurals name="account_label">
-    <item quantity="one">Имя счета:\n%s</item>
-    <item quantity="few">Имена счетов:\n%s</item>
-    <item quantity="many">Имена счетов:\n%s</item>
-    <item quantity="other">Имена счетов:\n%s</item>
-  </plurals>
-  <string name="pref_language">Язык</string>
+  <string name="create_backup">Создать резервную копию</string>
 </resources>

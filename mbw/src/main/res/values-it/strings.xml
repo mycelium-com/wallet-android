@@ -25,7 +25,6 @@
   <string name="send">Invia</string>
   <string name="receive">Ricevi</string>
   <string name="private_key_deleted">Chiave privata eliminata.</string>
-  <string name="account_deleted">Account eliminato</string>
   <string name="enter_recipient_title">Inserisci indirizzo destinatario</string>
   <string name="recipient_title">Indirizzo destinatario</string>
   <string name="amount_label">Importo:</string>
@@ -45,8 +44,6 @@
   <string name="synchronizing">Sincronizzazione</string>
   <string name="transaction_not_sent">Invio della transazione fallito</string>
   <string name="queue_transaction_message">Trasmissione della transazione fallita.\nDesideri accodare la transazione in modo che venga inviata automaticamente una volta online?</string>
-  <string name="transaction_sent">Transazione inviata</string>
-  <string name="export">Esporta</string>
   <string name="backup_private_key">Backup</string>
   <string name="copy_to_clipboard">Copia negli appunti</string>
   <string name="copy_private_key_to_clipboard">Copia la chiave privata negli appunti</string>
@@ -83,15 +80,9 @@
   <string name="pref_clear_pin_summary">Rimuovi il codice PIN attuale</string>
   <string name="pref_set_pin">Imposta codice PIN</string>
   <string name="pref_set_pin_summary">Imposta un PIN per bloccare l\'invio di bitcoin, l\'esportazione di chiavi private e la modifica del codice PIN stesso</string>
-  <string name="pref_local_currency">Valuta locale</string>
-  <string name="pref_local_currency_with_currency">Valuta locale (%1$s)</string>
   <string name="pref_local_currency_summary">Seleziona una o più valute fiat locali</string>
-  <string name="pref_exchange_source">Exchange</string>
   <string name="pref_exchange_source_with_value">Exchange (%1$s)</string>
   <string name="pref_exchange_source_summary">Seleziona l\'exchange (borsa valute) da cui ottenere il tasso di cambio tra Bitcoin e valute fiat</string>
-  <string name="pref_bitcoin_denomination">Denominazione dei Bitcoin</string>
-  <string name="pref_bitcoin_denomination_with_denomination">Denominazione (%1$s)</string>
-  <string name="pref_bitcoin_denomination_summary">Imposta la denominazione preferita per i Bitcoin. BTC, mBTC o μBTC</string>
   <string name="pref_advanced_settings">Impostazioni avanzate</string>
   <string name="pref_socks_proxy">Proxy SOCKS</string>
   <string name="pref_socks_proxy_enabled">Proxy SOCKS (abilitato)</string>
@@ -115,13 +106,11 @@
   <string name="payment_request">Richiesta di pagamento</string>
   <string name="export_account_data_warning">Stai per esportare dati sensibili dall\'account selezionato.\n\nChiunque ottenga l\'accesso di queste chiavi potrà impossessarsi dei bitcoin od ottenere informazioni private.\n\nDesideri continuare?</string>
   <string name="backup_all_warning">Si consiglia di eseguire un backup del master seed del portafogli.\nUn backup del master seed permette di ripristinare i tuoi fondi nel caso il dispositivo vada smarrito o danneggiato.\n\nDesideri farlo ora?</string>
-  <string name="backup_legacy_warning">Sarà eseguito un backup del singolo indirizzo nel tuo portafogli. \nQuesto backup non conterrà alcun master seed, nessuno account HD potrà essere ripristinato da esso!\n\nDesideri continuare?</string>
   <string name="export_to_clipboard_warning">Attenzione: esportando la chiave privata negli appunti la renderà esposta a tutte le altre applicazioni installate sul tuo dispositivo.\n\nNota: non basta memorizzare la chiave privata negli appunti, dovrai incollarla in un posto sicuro.\n\nDesideri continuare?</string>
   <string name="found_clipboard_private_key_title">Chiave privata trovata negli appunti</string>
-  <string name="found_clipboard_private_keys_message">Chiave privata trovata negli appunti.\nDesideri rimuoverla?</string>
   <string name="exchange_source_not_available">Tasso di cambio non disponibile per %1$s</string>
   <string name="my_own_address_warning">Nota: Stai per inviare ad uno dei tuoi indirizzi.</string>
-  <string name="read_only_warning">Attenzione: Il portafogli non contiene la chiave privata per questo indirizzo. \nNon puoi spendere bitcoin se non possiedi la chiave privata.</string>
+  <string name="read_only_warning">Attenzione: Il portafogli non contiene la chiave privata di questo indirizzo. \nNon puoi spendere bitcoin senza possedere la chiave privata associata all\'indirizzo.</string>
   <string name="add_to_address_book_dialog_title">Aggiungi indirizzo alla rubrica</string>
   <string name="scan_address_book_desc">Scandisci un indirizzo bitcoin.</string>
   <string name="clipboard_address_book_desc">Importa indirizzo bitcoin dagli appunti.</string>
@@ -132,13 +121,10 @@
   <string name="cold_storage_desc">Stai per inviare bitcoin da una chiave privata in cold storage. Potrebbe trattarsi di un backup stampato di una chiave privata o di un tagliando di un ATM Bitcoin. Sono supportati i seguenti formati:\nChiave privata, Master Seed, xPriv Key\n\nUna volta eseguita la transazione ogni traccia della chiave privata sarà rimossa dalla memoria.</string>
   <string name="keep_account_address">Elimina la chiave privata e conserva l\'account in sola lettura</string>
   <string name="manual_entry">Inserisci manualmente</string>
-  <string name="active_hd_accounts_name">Miei account HD</string>
-  <string name="active_other_accounts_name">Altri account</string>
   <string name="archive_name">Archiviate</string>
   <string name="active_accounts_empty">(Vuoto)</string>
   <string name="activate_action">Attiva</string>
   <string name="archive_action">Archivia</string>
-  <string name="question_archive_account">Gli account archiviati non sono monitorati, non sarà possibile vedere il saldo o l\'indirizzo di ricezione, nè utilizzarli in alcuna maniera.\n\nGli account archiviati possono sempre essere riattivati.\n\nDesideri archiviare questo account?</string>
   <string name="master_seed_configuration_title">Benvenuti a Mycelium</string>
   <string name="master_seed_configuration_description">Desideri ripristinare un backup, o creare un nuovo portafogli?</string>
   <string name="master_seed_create_new_button">Crea nuovo</string>
@@ -168,12 +154,9 @@
   <string name="delete_account_message">Desideri eliminare questo account?</string>
   <string name="confirm_delete_pk_title">Confermi?</string>
   <string name="confirm_delete_pk_with_balance">Questa azione non potrà essere annullata!\n\nL\'indirizzo attuale:\n%1$s\n\nIt contiene %2$s\n\nDesideri eliminarla?</string>
-  <string name="confirm_delete_pk_with_balance_with_label">Questa azione non potrà essere annullata!\n\nEtichetta account:\n%1$s\n\nIndirizzo attuale:\n%2$s\n\nIt contiene %3$s\n\nDesideri eliminarlo?</string>
   <string name="confirm_delete_pk_without_balance">Questa azione non potrà essere annullata!\n\nIndirizzo attuale:\n%1$s\n\nDesideri eliminarlo?</string>
-  <string name="confirm_delete_pk_without_balance_with_label">Questa azione non potrà essere annullata!\n\nEtichetta account:\n%1$s\n\nIndirizzo attuale:\n%2$s\n\nDesideri eliminarlo?</string>
   <string name="verify_private_key_backup">Verifica del backup</string>
   <string name="verify_backup_dialog_title">Verifica backup della chiave privata</string>
-  <string name="verify_backup_desc">Un corretto backup della chiave privata è basilare per la gestione dei tuoi fondi in Bitcoin.\n\nVerificando il backup ti accerti che questo sia funzionante e, quindi, che i tuoi fondi non vadano persi nel caso il tuo dispositivo vada smarrito o danneggiato.</string>
   <string name="verify_backup_scan_desc">Verifica il backup scandendo il codice QR della tua chiave privata o del master seed.\nSono supportati vari formati, compreso il backup crittografato e stampato su carta di Mycelium.</string>
   <string name="verify_backup_clipboard_desc">Verifica il backup della chiave privata copiata negli appunti.</string>
   <string name="verify_backup_num_keys">Hai %1$s chiavi che non sono mai state verificate.</string>
@@ -196,7 +179,6 @@
   <string name="encrypted_pdf_backup_document_ready">Documento PDF creato</string>
   <string name="encrypted_pdf_backup_sharing">Condivisione del documento PDF&#8230;</string>
   <string name="encrypted_pdf_backup_email_title">Mycelium Wallet Backup</string>
-  <string name="encrypted_pdf_backup_email_text">Il backup del tuo portafogli Mycelium è allegato.\n\nSegui questi semplici passi per mettere al sicuro i tuoi fondi:\n1. Stampa il documento PDF.\n2. Annota nelle caselle blu la password di 15 caratteri che vedi sul display.\n3. Verifica che sia possibile importare le chiavi private del portafogli Mycelium.\n4. Metti il documento al sicuro.</string>
   <string name="share_pdf">Condividi il PDF</string>
   <string name="share_with">Condividi tramite&#8230;</string>
   <string name="import_decrypt_key_title">Decodifica della chiave privata</string>
@@ -293,8 +275,6 @@
   <string name="lt_ad_created">Annuncio creato</string>
   <string name="lt_ad_edited">Annuncio modificato</string>
   <string name="lt_pref_category">Local Trader</string>
-  <string name="lt_disable_preference">Disabilita Local Trader</string>
-  <string name="lt_disable_preference_summary">Disabilita la funzione Local Trader</string>
   <string name="lt_sound_on_trade_preference">Riproduci suono in caso di attività di scambio</string>
   <string name="lt_sound_on_trade_preference_summary">Riproduci una notifica audio durante l\'attività di scambio</string>
   <string name="lt_use_email_for_notifications">Utilizza l\'email per le notifiche</string>
@@ -395,6 +375,7 @@
   <string name="lt_deactivate_menu">Disattiva</string>
   <string name="lt_price_of_one_btc_label">(Per 1 BTC)</string>
   <string name="lt_confirm_title">Conferma</string>
+  <string name="lt_confirm_cash_received">Hai ricevuto %1$d %2$s e sei pronto ad inviare i bitcoin a %3$s?</string>
   <string name="lt_confirm_stop">Desideri fermare questo scambio?\"</string>
   <string name="lt_confirm_abort">Visto che entrambi avete accettato l\'affare il tuo punteggio potrebbe subire una penalità.\nVuoi interrompere questo scambio?\"</string>
   <string name="lt_enter_location_tite">Immettere la posizione</string>
@@ -418,6 +399,13 @@
   <string name="lt_set_email_info">Imposta un indirizzo email per ricevere le notifiche da Local Trader.</string>
   <string name="lt_email_please_verify_message">Ti è stata inviata una mail di verifica - clicca sul link fornito per attivare il tuo indirizzo di posta elettronica.</string>
   <string name="lt_set_email_title">Inserisci l\'indirizzo e-mail</string>
+  <string name="lt_change_payout_address">Modifica l\'indirizzo di pagamento</string>
+  <string name="lt_warn_account_not_spandable">L\'indirizzo di invio selezionato (%s) non è utilizzabile.\n\n È necessario disporre di una copia di sicurezza della chiave privata per evitare di perdere i bitcoin che riceverai.</string>
+  <string name="lt_mycelium_marketplace_description">Trova utenti di Mycelium nella tua zona che comprano/vendono bitcoin.</string>
+  <string name="lt_missing_fx_rate">Il prezzo attuale non è disponibile</string>
+  <string name="lt_price_source_not_available">non disponibile!</string>
+  <string name="lt_cash_only_hint_be_your_own_bank">Sii la tua banca:</string>
+  <string name="lt_cash_only_hint_cash_only">Scambio faccia a faccia, solo contanti.</string>
   <!-- LT end -->
   <string name="cs_private_key_description">Stai usando una chiave privata con il seguente indirizzo Bitcoin:</string>
   <string name="cs_address_description">Hai scansionato un indirizzo Bitcoin. Puoi vedere il saldo ma non puoi prelevare da li.</string>
@@ -466,8 +454,7 @@
   <string name="invalid_bitid_uri">URI BitID non valido</string>
   <!-- BitID end -->
   <string name="selected_archived_warning">Non è possibile lavorare su account archiviati.</string>
-  <string name="selected_hd_info">Stai lavorando su questo account HD.</string>
-  <string name="selected_single_info">Stai lavorando su questo singolo indirizzo.</string>
+  <string name="transaction_not_broadcasted_info">Impossibile trasmettere</string>
   <string name="hd_account_creation_started">Creazione di nuovi Account HD&#8230;</string>
   <string name="preparing_wallet_on_first_startup_info">Preparazione portafogli...</string>
   <string name="importing_master_seed_from_wordlist">Calcolo del Master Seed&#8230;</string>
@@ -515,7 +502,7 @@
   <string name="title_wrong_password">Password errata, riprovare</string>
   <string name="dont_allow_archiving_unused_notification">Non è possibile archiviare un account HD inutilizzato</string>
   <string name="newly_generated_coins_from_coinbase">Monete appena generate</string>
-    <string name="button_continue">Continua</string>
+  <string name="button_continue">Continua</string>
   <string name="butto_show_release_notes">Mostra dettagli</string>
   <string name="word_does_not_exist_in_wordlist">La parola che hai digitato non è presente nella lista di parole</string>
   <string name="pref_legacy_backup_title">Backup non HD</string>
@@ -530,9 +517,6 @@
   <string name="direct_apk_link_label">Download\ndiretto</string>
   <string name="hide_unused_account_menu">Elimina l\'account</string>
   <string name="dont_allow_hiding_used_notification">Non è possibile nascondere un account utilizzato, ma puoi archiviarlo</string>
-  <string name="pref_miner_fee_title">Commissione</string>
-  <string name="pref_miner_fee_block_summary">Alle transazioni verrà aggiunta una commissione (miner fee) per essere incluse, in media, entro i prossimi %1s blocchi.</string>
-  <string name="miner_fee_lowprio_name">Bassa priorità</string>
   <string name="miner_fee_economic_name">Economica</string>
   <string name="miner_fee_normal_name">Normale</string>
   <string name="miner_fee_priority_name">Prioritaria</string>
@@ -554,6 +538,7 @@
   <string name="pin_unresettable_pin_info">Se scordi il PIN, l\'unica opzione possibile è quella di recuperarlo dal tuo backup.</string>
   <string name="pin_forgotten_button">Ho dimenticato il PIN</string>
   <string name="pin_forgotten_reset_pin_dialog_title">Ripristino Pin</string>
+  <string name="pin_forgotten_reset_pin_dialog_content">Per ragioni di sicurezza dovrai attendere circa %1$s prima che il PIN sia rimosso.\n\nDesideri iniziare la procedura di reset del PIN ora?</string>
   <string name="pin_forgotten_reset_wait_button_text">Attendere %s</string>
   <string name="pin_forgotten_abort_pin_reset">Procedura di reset del PIN in corso. È necessario attendere %1$s prima di poter impostare nuovamente il tuo PIN.\n\nSi desidera annullare l\'operazione di reset?</string>
   <string name="pin_reset_in_progress_alert">Reset del PIN in corso</string>
@@ -567,19 +552,44 @@
   <string name="lt_confirm_delete_history">Desideri eliminare le informazioni di questo scambio dal dispositivo?</string>
   <string name="lt_confirm_delete_trader_message">Desideri eliminare la tua identità di Local Trader? Tutte le informazioni di scambio e i voti saranno rimossi definitivamente, senza possibilità di recupero.</string>
   <string name="rescan_account_menu_item">Ricarica conto</string>
-  <string name="new_random_key_desc">Genera nuova chiave casuale</string>
-  <string name="generate_new_key">Genera</string>
+  <string name="add_advanced_account_warning">Avviso:\n queste chiavi non verranno incluse nel backup del master seed. Assicurati di averne un backup separato.</string>
   <string name="new_bitcoin_address_created">Una nuova chiave privata casuale è stata generata con il seguente indirizzo Bitcoin:</string>
   <string name="shuffle">Mischia</string>
   <string name="toast_warning_low_fee">potrebbe richiedere più tempo per confermarsi</string>
   <string name="account_number">Account %d</string>
   <string name="account_found">%s trovato</string>
+  <string name="ext_sig_initial_status">Si prega di collegare il dispositivo</string>
+  <string name="ext_sig_scanning_status">Dispositivo individuato - scansione degli account</string>
   <string name="account_balance_sending_amount">(invio di %s)</string>
   <string name="trezor_cold_storage_header">Trezor Cold Storage</string>
+  <string name="connect_your_ext_sig_device_info">Funziona solo con dispositivi che supportano USB-OTG (on-the-go).\n\nPer collegare il dispositivo è necessario un adattatore o un cavo USB-OTG. Collega il dispositivo col suo cavo USB al lato client e il lato host al telefono/tablet.</string>
+  <string name="select_ext_sig_account_to_spend_from">Seleziona l\'account da cui inviare bitcoin</string>
+  <string name="ext_sig_passphrase_description">Inserisci la passphrase opzionale</string>
+  <string name="ext_sig_show_passphrase">Visualizza la passphrase</string>
   <string name="trezor">Trezor</string>
   <string name="trezor_import_account">Importare un conto Trezor-HD</string>
   <string name="trezor_name">Trezor:</string>
+  <string name="ext_sig_import_account_caption">Importa un account</string>
+  <string name="ext_sig_select_account_to_import">Seleziona l\'account da importare</string>
+  <string name="ext_sig_verify_transaction_on_device">Verifica e conferma la\ntransazione sul tuo dispositivo</string>
+  <string name="ext_sig_amount">Importo:</string>
+  <string name="ext_sig_to">A:</string>
+  <string name="ext_sig_fee">Commissione:</string>
+  <string name="ext_sig_total">Totale:</string>
+  <string name="ext_sig_please_plug_in">Si prega di collegare il dispositivo</string>
+  <string name="ext_sig_next_unused_account_info">Questa opzione consente di importare il prossimo account inutilizzato da questo dispositivo. Verrà visualizzato in altri portafogli solo nel caso in cui vengano inviati bitcoin sull\'account medesimo.</string>
+  <string name="ext_sig_next_unused_account_button">Importa il prossimo account inutilizzato&#8230;</string>
+  <string name="ext_sig_new_firmware">È disponibile un nuovo firmware&#8230;</string>
+  <string name="ext_sig_configuration_dialog_title">Configurazione dispositivo</string>
+  <string name="ext_sig_device_not_initialized">Dispositivo non è inizializzato. È necessario usare un\'applicazione esterna per impostare il dispositivo al suo primo utilizzo.</string>
+  <string name="external_app_needed">Per aggiornare il dispositivo è necessaria un\'applicazione esterna, fare clic su OK per lanciarla.</string>
   <string name="trezor_new_firmware_description">È disponibile un nuovo firmware per il Trezor.\nPer favore collegati a MyTrezor.com su un PC per aggiornare il tuo Trezor.</string>
+  <string name="ext_sig_unnamed">(senza nome)</string>
+  <string name="keepkey_cold_storage_header">Cold storage di KeepKey</string>
+  <string name="keepkey">KeepKey</string>
+  <string name="keepkey_name">KeepKey:</string>
+  <string name="keepkey_new_firmware_description">È disponibile un nuovo firmware per KeepKey. \nSi prega di usare l\'estensione di Chrome per KeepKey su un PC per aggiornare il dispositivo.</string>
+  <string name="keepkey_import_account">Importa un account KeepKey HD</string>
   <string name="ledger_scanning_status">Ledger Wallet in funzione - scansione degli account</string>
   <string name="ledger_cold_storage_header">Ledger Wallet</string>
   <string name="connect_your_ledger_info">Il Ledger Nano funziona solo con dispositivi che supportano USB-OTG (on-the-go).\n\nPer collegarsi è necessario un adattatore o un cavo USB-OTG. Collega il Ledger Nano sul lato client e il lato host al telefono/tablet.</string>
@@ -592,9 +602,11 @@
   <string name="ledger_fee">Commissione:</string>
   <string name="ledger_total">Totale:</string>
   <string name="ledger">Ledger</string>
+  <string name="ledger_next_unused_account_info">Questa opzione importerà il successivo account inutilizzato dal Ledger Wallet</string>
   <string name="ledger_next_unused_account_button">Importa il prossimo account inutilizzato&#8230;</string>
   <string name="ledger_powercycle">Rimuovi il Ledger Wallet, connettilo ad un altra applicazione/computer per leggere il secondo fattore di tastiera, quindi connettilo di nuovo per proseguire</string>
   <string name="ledger_enter_pin">Inserisci il PIN del Ledger Wallet</string>
+  <string name="ledger_enter_transaction_pin">Inserisci la 2FA del Ledger Wallet</string>
   <string name="ledger_enter_2fa_pin">Conferma l\'indirizzo di uscita (output) tramite la Security Card</string>
   <string name="ledger_please_wait">Attendere prego ...</string>
   <string name="ledger_unplugged_aid">AID di Ledger Unplugged</string>
@@ -603,8 +615,6 @@
   <string name="pref_ledger_title">Ledger Hardware Wallet</string>
   <string name="ledger_disable_tee_preference">Disattiva il supporto di TEE</string>
   <string name="ledger_disable_tee_preference_summary">Disattiva, se presente, il supporto al Trusted Execution Environment per usare un diverso Ledger Hardware Wallet</string>
-  <string name="ledger_unplugged_aid_preference">Imposta AID di Ledger Unplugged</string>
-  <string name="ledger_unplugged_aid_preference_summary">Supporto di un AID diverso per build customizzati di Ledger Unplugged</string>
   <string name="select_local_currencies">Seleziona le tue valute</string>
   <string name="show_public_or_private_data">Mostra</string>
   <string name="show_private_data">privati</string>
@@ -614,11 +624,6 @@
   <string name="reset_pin_button">Ripristino Pin</string>
   <string name="wrong_pin_message">PIN di accesso errato. \n\n se l\'hai scordato è possibile reimpostarlo.</string>
   <string name="pref_no_fiat_selected">Nessuna moneta fiat selezionata</string>
-  <string name="useTor">Utilizzare la rete-tor</string>
-  <string name="useTorDescription">Usa la rete Tor per la comunicazione con i server.\nL\'opzione aumenta la tua privacy e potrebbe permette di aggirare alcuni firewall restrittivi. Questa funzione può rallentare le prestazioni dell\'applicazione.</string>
-  <string name="useTorOnlyExternalTor">Utilizzare la rete-tor (tor esterno)</string>
-  <string name="useTorOnlyHttps">Utilizzare la rete-tor (solo https)</string>
-  <string name="useTorBoth">Utilizzare la rete-tor (entrambi)</string>
   <string name="use_https">Utilizzare https</string>
   <string name="use_external_tor">Usare tor esterno (Orbot)</string>
   <string name="both">Entrambi</string>
@@ -669,6 +674,7 @@
   <string name="payment_request_message">Messaggio</string>
   <string name="payment_request_created">Creata</string>
   <string name="payment_request_expires">Scade il</string>
+  <string name="payment_request_warning_no_sig">L\'origine di questa richiesta di pagamento non può essere verificata perché non è firmata.\n\nSi consiglia molta cautela, in quanto potrebbe essere intercettata e di conseguenza esserne modificati gli indirizzi di pagamento.</string>
   <string name="label_cold_storage_external_signing">Firma con:</string>
   <string name="spending_unconfirmed_title">Spesa di fondi non confermati</string>
   <string name="spending_unconfirmed_description">La transazione utilizza fondi che non sono ancora stati inclusi in un blocco bitcoin. Se per qualsiasi motivo la transazione che invia questi bitcoin dovesse fallire o rimanere non confermata, anche la tua transazione fallirà o rimarrà non confermata.</string>
@@ -691,7 +697,6 @@
   <string name="rebroadcast_transaction_title">Ritrasmette la transazione</string>
   <string name="description_rebroadcast_transaction">Sottoponi di nuovo questa transazione al server per trasmetterla. Questa opzione può essere usata, ad esempio, se si sospetta che la rete non abbia propagato la transazione o sia stata rimosssa perché non confermata per un lungo periodo. Desideri ritrasmettere questa transazione?</string>
   <string name="message_rebroadcast_failed">Trasmissione non riuscita, controlla la connessione a internet e sincronizzare il tuo portafoglio.</string>
-  <string name="block_explorer_title">Block explorer</string>
   <string name="block_explorer_summary">Dettagli e statistiche sulle transazioni saranno consultati usando il servizio block explorer di %1$s</string>
   <string name="lt_warning_wrong_account_type">Local Trader non funziona con il tipo di account selezionato, selezionare un altro account.</string>
   <string name="coinapult_sending_via_coinapult">Invio di bitcoin tramite Coinapult</string>
@@ -713,25 +718,114 @@
   <string name="coinapult_verify_mail_error">Errore durante la verifica dell\'indirizzo email. Assicurarti che di aver copiato completamente e correttamente il link di verifica.</string>
   <string name="coinapult_unable_to_create_account">Impossibile creare l\'account coinapult</string>
   <string name="coinapult_add_locks_account">Aggiungi un account Coinapult Locks</string>
+  <string name="coinapult_tos_link">Termini e condizioni di Coinapult</string>
+  <string name="coinapult_tos_question">Per creare un account Coinapult è necessario accettare i termini e le condizioni</string>
+  <string name="coinapult_mail_question">Desideri fornire il tuo indirizzo di posta elettronica?</string>
+  <string name="coinapult_create_account">Creazione account di Coinapult&#8230;</string>
+  <string name="coinapult_backup_info">La chiave di accesso all\'account Coinapult deriva dal tuo masterseed. Se disponi di un backup valido, anche l\'accesso al tuo account Coinapult è incluso.</string>
   <string name="coinapult_currency_account">%1$s Account</string>
+  <!--<string name="colu_tos_link">Open Colu Terms and Conditions</string>-->
+  <!-- <string name="colu_tos_link_url">https://www.colu.com/TOS</string>-->
+  <!--<string name="colu_tos">By clicking "OK" you agree to use Colored Coin technology, third party-->
+  <!--blockchain technology developer. All your interactions with Colu are outside of-->
+  <!--Mycelium’s control and are subject to Colu’s T&amp;C and Privacy Policy.-->
+  <!--Please read them carefully before providing any personal information.-->
+  <!--MYCELIUM ACCEPTS NO RESPONSIBILITY AND WILL NOT BE LIABLE FOR ANY LOSS-->
+  <!--OR DAMAGE WHATSOEVER SUFFERED AS A RESULT OF ACCESSING, USE OF, OR-->
+  <!--RELIANCE UPON COLU’S INFORMATION AND SERVICES.</string>-->
+  <!--    <string name="colu_backup_info">Your Colu account access-key gets derived from your masterseed. If you have a valid backup, the access to your Colu account is also included.</string>  -->
   <string name="copy">Copia</string>
+  <string name="masterseed">Masterseed</string>
+  <string name="bip32_root_account">Account root</string>
+  <string name="pop_invalid_pop_uri">URI della richiesta pop non valido</string>
+  <string name="pop_amount_title">Importo pagato</string>
+  <string name="pop_date">Data/ora</string>
+  <string name="pop_send_pop_to">Autentica a</string>
+  <string name="pop_transaction_info">Attesta il pagamento</string>
   <string name="pop_transaction_id">Hash</string>
   <string name="pop_transaction_amount">Importo</string>
+  <string name="pop_transaction_label">Etichetta</string>
+  <string name="pop_no_transaction_selected">Nessuna transazione selezionata</string>
   <string name="pop_send_pop">Prova di pagamento</string>
   <string name="pop_prove">Prova</string>
   <string name="pop_select_other_tx">Seleziona un\'altra</string>
   <string name="pop_invalid_pop">La prova di pagamento non è valida</string>
   <string name="pop_message_from_server">Messaggio dal server:</string>
+  <string name="pop_no_matching_transaction">Nessun pagamento corrisponde ai parametri. Si prega di selezionare manualmente una transazione da autenticare.</string>
   <string name="pop_matching_transactions">Transazioni corrispondenti</string>
   <string name="pop_non_matching_transactions">Altre transazioni</string>
+  <string name="pop_success">Autentica completata con successo</string>
+  <string name="pop_no_matching_transactions">Non sono state trovate transazioni corrispondenti alla richiesta PoP. È possibile selezionare una transazione non corrispondente.</string>
+  <string name="pop_transaction_info_advice">Controlla qui sotto le informazioni del pagamento da verificare</string>
   <string name="import_xpub_wrong_depth">È possibile importare solo indirizzi di account di livello (3) xpub.\nQuesto è di livello %1$s.</string>
   <string name="buy_one">Acquistalo&#8230;</string>
+  <string name="warning_risky_unconfirmed">Attenzione: attendi almeno una conferma! (%s)</string>
   <string name="warning_reason_rbf">RBF</string>
-  <string name="opening_url_in_browser">Apri nel browser...</string>
+  <string name="warning_reason_doublespend">Rilevato doublespend</string>
+  <string name="warning_amount_does_not_match">Attenzione: l\'importo non corrisponde!</string>
+  <string name="mycelium_terms_of_use">Condizioni d\'uso di Mycelium</string>
   <!-- Credit Card -->
+  <string name="credit_card_buy">Carta di credito</string>
+  <string name="credit_card_buy_description">Compra bitcoin con carta di credito</string>
+  <string name="credit_card_buy_setting_description">Compra bitcoin usando una carta di credito</string>
   <!-- Credit Card End-->
   <!-- GlideraService Start -->
+  <string name="gd_buy_sell_button">Compra / Vendi bitcoin</string>
+  <string name="gd_buy_sell">Glidera</string>
+  <string name="gd_buy_sell_description">Compra/vendi bitcoin da Glidera tramite conto bancario USA o Canadese.</string>
+  <string name="gd_buy_tab">Compra</string>
+  <string name="gd_sell_tab">Vendi</string>
+  <string name="gd_transaction_history_tab">Cronologia</string>
+  <string name="gd_glidera">Glidera</string>
+  <string name="gd_delivery_date">Data di invio:</string>
+  <string name="gd_date">Data:</string>
+  <string name="gd_action">Azione:</string>
+  <string name="gd_amount">Importo:</string>
+  <string name="gd_pricing">Prezzi:</string>
+  <string name="gd_price">Prezzo:</string>
+  <string name="gd_status">Stato:</string>
+  <string name="gd_fee">Commissione:</string>
+  <string name="gd_total">Totale:</string>
+  <string name="gd_transaction_hash">Hash della transazione:</string>
+  <string name="gd_glidera_transaction_number">Glidera #:</string>
+  <string name="gd_subtotal">Subtotale:</string>
+  <string name="gd_transaction_receipt">Ricevuta della transazione</string>
+  <string name="gd_transaction_error">Si è verificato un errore durante l\'elaborazione di questa transazione.  Si prega contattare il supporto Glidera all\'indirizzo support@glidera.io.</string>
+  <string name="gd_resend_code">Invia di nuovo il codice</string>
+  <string name="gd_cancel">Annulla</string>
+  <string name="gd_continue">Continua</string>
+  <string name="gd_amount_to_buy">Importo da comprare</string>
+  <string name="gd_sell_bitcoin">Vendi bitcoin</string>
+  <string name="gd_buy_bitcoin">Compra bitcoin</string>
+  <string name="gd_rate">Tasso:</string>
+  <string name="gd_bitcoin">Bitcoin:</string>
+  <string name="gd_summary">Riepilogo</string>
+  <string name="gd_btc">BTC</string>
+  <string name="gd_dollar_symbol">$</string>
+  <string name="gd_btc_symbol">฿</string>
+  <string name="gd_amount_to_sell">Importo da vendere</string>
+  <string name="gd_loading">Caricamento&#8230;</string>
+  <string name="gd_error_unable_to_connect">Impossibile connettersi a Glidera - %s</string>
+  <string name="gd_buy_sell_amount_x_in_btc_for_amount_y_in_fiat">%1$s per %2$s</string>
+  <string name="error_details">Dettagli dell\'errore</string>
+  <string name="glidera_setting_show_button_summary">Visualizza l\'opzione di acquisto/vendita di Glidera</string>
   <!-- GlideraService End -->
+  <string name="settings_service_enabled">Attiva %1$s</string>
   <!-- Simplex start -->
+  <string name="si_buy_sell">Carta di credito</string>
+  <string name="si_simplex">Simplex</string>
+  <string name="si_buy_sell_description">Compra bitcoin in modo sicuro e veloce tramite carta di credito.</string>
+  <string name="si_setting_show_button_summary">Visualizza l\'opzione di acquisto di Simplex</string>
+  <string name="si_loading">caricamento&#8230;</string>
+  <string name="si_error_message">messaggio di errore</string>
+  <string name="si_retry">Riprova</string>
   <!-- Simplex end -->
+  <string name="label_single_key_icon">una singola chiave</string>
+  <string name="partner_ledger">Ledger</string>
+  <string name="partner_ledger_url">https://www.ledgerwallet.com/r/494d?path=/products</string>
+  <string name="partner_trezor">Trezor</string>
+  <string name="partner_trezor_url">https://shop.trezor.io/?a=mycelium.com</string>
+  <string name="partner_purse">Purse</string>
+  <string name="partner_purse_url">https://purse.io/?_a=MYCELIUM</string>
+  <string name="your_privacy_out_priority">La tua privacy è la nostra priorità</string>
 </resources>

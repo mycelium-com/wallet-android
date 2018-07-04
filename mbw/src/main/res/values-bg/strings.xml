@@ -25,7 +25,6 @@
   <string name="send">Изпрати</string>
   <string name="receive">Приеми</string>
   <string name="private_key_deleted">Частният ключ е изтрит.</string>
-  <string name="account_deleted">Сметката е изтрита</string>
   <string name="enter_recipient_title">Въведете приемащия адрес</string>
   <string name="recipient_title">Приемащ адрес</string>
   <string name="amount_label">Сума:</string>
@@ -45,8 +44,6 @@
   <string name="synchronizing">Синхронизиране</string>
   <string name="transaction_not_sent">Неуспешно предаване на транзакция</string>
   <string name="queue_transaction_message">Неуспешно предаване на транзакция.\nЖелаете ли да изпратите транзакцията автоматично когато това е възможно?</string>
-  <string name="transaction_sent">Транзакцияте е изпратена</string>
-  <string name="export">Експортиране</string>
   <string name="backup_private_key">Резервно копие</string>
   <string name="copy_to_clipboard">Копиране в клипборда</string>
   <string name="copy_private_key_to_clipboard">Копиране на частен ключ в клипборда</string>
@@ -83,15 +80,9 @@
   <string name="pref_clear_pin_summary">Премахване на текущия ПИН код</string>
   <string name="pref_set_pin">Задай ПИН код</string>
   <string name="pref_set_pin_summary">Задаване на ПИН код, който ограничава изпращането на биткоин, експортирането на лични ключове и смяната на ПИН кода</string>
-  <string name="pref_local_currency">Местна валута</string>
-  <string name="pref_local_currency_with_currency">Местна валута (%1$s)</string>
   <string name="pref_local_currency_summary">Изберете местната валута</string>
-  <string name="pref_exchange_source">Източник за обменния курс</string>
   <string name="pref_exchange_source_with_value">Източник за обменния курс (%1$s)</string>
   <string name="pref_exchange_source_summary">Изберете източника за обменния курс между биткоин и национални валути</string>
-  <string name="pref_bitcoin_denomination">Биткоин деноминация</string>
-  <string name="pref_bitcoin_denomination_with_denomination">Деноминация (%1$s)</string>
-  <string name="pref_bitcoin_denomination_summary">Задайте предпочитаната биткоин деноминация: BTC, mBTC или μBTC</string>
   <string name="pref_advanced_settings">Разширени настройки</string>
   <string name="pref_socks_proxy">Socks прокси</string>
   <string name="pref_socks_proxy_enabled">Socks прокси (разрешен)</string>
@@ -115,10 +106,8 @@
   <string name="payment_request">Заявка за плащане</string>
   <string name="export_account_data_warning">Предстои да експортирате поверителни данни от избраната сметка.\n\nВсеки, който получи достъп да тези ключове, може да поеме контрол над биткоините в нея или да получи Ваша лична информация.\n\nЖелаете ли да продължите?</string>
   <string name="backup_all_warning">Трябва да направите резервно копие на Master Seed-а на Вашия портфейл.\nРезервно копие на Master Seed-а Ви позволява да възстановите парите, съхранени в HD сметките в случай че устройството Ви се загуби или повреди.\n\nЖелаете ли да направите това сега?</string>
-  <string name="backup_legacy_warning">Ще направите резервно копие на сметките с единични адреси във Вашия портфейл.\nТова копие не съдържа Вашия Master Seed и вашите HD сметки не могат да бъдат възстановени чрез него.\n\nЖелаете ли да продължите?</string>
   <string name="export_to_clipboard_warning">Внимание: експортирането на лични данни от сметката в клипборда ги прави достъпни за всички други приложения на устройството Ви.\n\nЗабележка: не е достатъчно да съхраните личните данни в клипборда, трябва след това да ги поставите някъде на сигурно място.\n\nЖелаете ли да продължите?</string>
   <string name="found_clipboard_private_key_title">Частен ключ намерен в клипборда</string>
-  <string name="found_clipboard_private_keys_message">Клипбордът съдържа частен ключ.\nЖелаете ли да го изчистите?</string>
   <string name="exchange_source_not_available">Обменният курс на %1$s не е наличен</string>
   <string name="my_own_address_warning">Забележка: изпращате към ваш собствен адрес.</string>
   <string name="read_only_warning">Внимание: вашият портфейл не съдържа частния ключ за този адрес.\nНе можете да харчите получени на него суми освен ако не разполагате с частния ключ другаде.</string>
@@ -132,13 +121,10 @@
   <string name="cold_storage_desc">Ще похарчите сума от частен ключ в замразено хранилище. Това би могъл да е частен ключ на хартиено резервно копие или бележка от биткоин банкомат. Поддържат се следните формати:\nЧастенн ключ, Master Seed, xPriv ключ\n\nСлед като транзакцията бъде пратена, висчки следи от ключа ще бъдат заличени от вътрешната памет.</string>
   <string name="keep_account_address">Изтрий само частния ключ и запази като сметка само за четене</string>
   <string name="manual_entry">Ръчно въвеждане</string>
-  <string name="active_hd_accounts_name">Моите HD сметки</string>
-  <string name="active_other_accounts_name">Други сметки</string>
   <string name="archive_name">Архивирани</string>
   <string name="active_accounts_empty">(празно)</string>
   <string name="activate_action">Активирай</string>
   <string name="archive_action">Архивирай</string>
-  <string name="question_archive_account">Архивираните сметки не се наблюдават, няма да можете да виждате баланса и получаващите адреси и да работите със сметката.\n\nАрхивитаните сметки могат да бъдат активирани отново.\n\nЖелаете ли да архивирате тази сметка?</string>
   <string name="master_seed_configuration_title">Добре дошли в Mycelium</string>
   <string name="master_seed_configuration_description">Желаете ли да възстановите резервно копие или да създадете нов портфейл?</string>
   <string name="master_seed_create_new_button">Създай нов</string>
@@ -168,12 +154,9 @@
   <string name="delete_account_message">Желаете ли да изтриете тази сметка?</string>
   <string name="confirm_delete_pk_title">Сигурни ли сте?</string>
   <string name="confirm_delete_pk_with_balance">Това не може да бъде отменено!\n\nТекущ адрес:\n%1$s\n\nТой съдържа %2$s\n\nЖелаете ли да го изтриете?</string>
-  <string name="confirm_delete_pk_with_balance_with_label">Това не може да бъде отменено!\n\nИме на сметка:\n%1$s\n\nТекущ адрес:\n%2$s\n\nТой съдържа %3$s\n\nЖелаете ли да го изтриете?</string>
   <string name="confirm_delete_pk_without_balance">Това не може да бъде отменено!\n\nТекущ адрес:\n%1$s\n\nЖелаете ли да го изтриете?</string>
-  <string name="confirm_delete_pk_without_balance_with_label">Това не може да бъде отменено!\n\nИме на сметка:\n%1$s\n\nТекущ адрес:\n%2$s\n\nЖелаете ли да го изтриете?</string>
   <string name="verify_private_key_backup">Проверка на резервно копие</string>
   <string name="verify_backup_dialog_title">Проверка на резервно копие на частен ключ</string>
-  <string name="verify_backup_desc">Пазенето на резервно копие е от първостепенна важност при управлението на Биткоин финансите ви.\n\nЧрез проверка на резервното ви копие вие ще се уверите че то работи и няма да изгубите парите си ако вашето Android устройство се изгуби или повреди.</string>
   <string name="verify_backup_scan_desc">Проверка на резервното ви копие чрез сканиране на частния ключ или master seed QR код.\nПриемат се няколко формата, включително криптирано хартиено копие на Mycelium.</string>
   <string name="verify_backup_clipboard_desc">Проверка на резервно копие на частен ключ чрез взимане на частния ключ от клипборда.</string>
   <string name="verify_backup_num_keys">Имате %1$s ключа, които не са проверявани.</string>
@@ -196,7 +179,6 @@
   <string name="encrypted_pdf_backup_document_ready">PDF документът е създаден</string>
   <string name="encrypted_pdf_backup_sharing">Споделяне на PDF документа&#8230;</string>
   <string name="encrypted_pdf_backup_email_title">Резервно копие на Mycelium портфейл</string>
-  <string name="encrypted_pdf_backup_email_text">Вашето резервно копие на Mycelium портфейлът е прикачено.\n\nСледвайте тези прости стъпки, за да подсигурите вашите средства:\n\1. Разпечатайте PDF документа.\n2. Запишете 15-символната парола от дисплея на вашето Android устройство в сините квадратчета на разпечатката.\n3. Проверете че можете да импортирате частните ключове във вашия Mycelium портфейл.\n4. Запазете разпечатката на сигурно място.</string>
   <string name="share_pdf">Споделяна на PDF</string>
   <string name="share_with">Споделете с&#8230;</string>
   <string name="import_decrypt_key_title">Декриптиране на частен ключ</string>
@@ -293,8 +275,6 @@
   <string name="lt_ad_created">Обявата е създадена</string>
   <string name="lt_ad_edited">Обявате е редактирана</string>
   <string name="lt_pref_category">Local Trader</string>
-  <string name="lt_disable_preference">Забраняване на Local Trader</string>
-  <string name="lt_disable_preference_summary">Забраняване на функционалността Local Trader</string>
   <string name="lt_sound_on_trade_preference">Произвеждай звук при активност по сделка</string>
   <string name="lt_sound_on_trade_preference_summary">Покажи нотификация когато възникне активност по сделка</string>
   <string name="lt_use_email_for_notifications">Използване на имейл за известия</string>
@@ -474,8 +454,6 @@
   <string name="invalid_bitid_uri">Невалиден BitID адрес</string>
   <!-- BitID end -->
   <string name="selected_archived_warning">Не можете да работите с архивирани сметки.</string>
-  <string name="selected_hd_info">В момента работите с тази HD сметка.</string>
-  <string name="selected_single_info">В момента работите с този единичен адрес.</string>
   <string name="transaction_not_broadcasted_info">Не може да се предаде</string>
   <string name="hd_account_creation_started">Създаване на нова HD сметка&#8230;</string>
   <string name="preparing_wallet_on_first_startup_info">Подготовка на портфейла&#8230;</string>
@@ -539,9 +517,6 @@
   <string name="direct_apk_link_label">Директно\nизтегляне</string>
   <string name="hide_unused_account_menu">Изтриване на сметка</string>
   <string name="dont_allow_hiding_used_notification">Не можете да скриете използвана сметка, но можете да я архивирате</string>
-  <string name="pref_miner_fee_title">Такса</string>
-  <string name="pref_miner_fee_block_summary">Трансакциите се пращат с такса, за да бъдат включени в следващя %1s блок средно.</string>
-  <string name="miner_fee_lowprio_name">Ниско приоритетна</string>
   <string name="miner_fee_economic_name">Икономична</string>
   <string name="miner_fee_normal_name">Нормална</string>
   <string name="miner_fee_priority_name">Приоритетна</string>
@@ -580,8 +555,6 @@
   <string name="lt_confirm_delete_trader_message">Желаете ли да изтриете вашата local trader самоличност? Цялата информация за сделки и оценки ще бъде премахната завинаги и няма да може да бъде възстановена.</string>
   <string name="rescan_account_menu_item">Презареждане на сметка</string>
   <string name="add_advanced_account_warning">Предупреждение:\n Тези ключове няма да бъдат включени във вашето резервно копие на Master-Seed. Трябва да се уверите че имате отделно тяхно резервно копие.</string>
-  <string name="new_random_key_desc">Генериране на нов случаен ключ</string>
-  <string name="generate_new_key">Генериране</string>
   <string name="new_bitcoin_address_created">Нов случаен частен ключ е генериран със следния Биткоин адрес:</string>
   <string name="shuffle">Друг</string>
   <string name="toast_warning_low_fee">може да отнеме повече време за потвърждение</string>
@@ -646,8 +619,6 @@
   <string name="pref_ledger_title">Хардуерен портфейл Ledger</string>
   <string name="ledger_disable_tee_preference">Изключване на TEE поддръжка</string>
   <string name="ledger_disable_tee_preference_summary">Изключване на поддръжка на доверена среда на изпълнение, ако е налична, за ползване на различен хардуерен портфейл Ledger</string>
-  <string name="ledger_unplugged_aid_preference">Задаване на Ledger Unplugged AID</string>
-  <string name="ledger_unplugged_aid_preference_summary">Поддръжка на различен AID за персонализирани версии на Ledger Unplugged</string>
   <string name="select_local_currencies">Изберете вашите валути</string>
   <string name="show_public_or_private_data">Покажи</string>
   <string name="show_private_data">частни</string>
@@ -657,11 +628,6 @@
   <string name="reset_pin_button">Ресетиране на Пин</string>
   <string name="wrong_pin_message">Въвели сте грешен Пин.\n\n ако сте забравили вашия Пин, можете да го възстановите.</string>
   <string name="pref_no_fiat_selected">Не е избрана национална валута</string>
-  <string name="useTor">Използвайте tor-мрежа</string>
-  <string name="useTorDescription">Използване на tor-мрежата за комуникация с backend сървърите.\nТова подобрява вашата поверителност и може да заобиколи рестриктивни защитни стени. Но това може и да забави производителността на приложението.</string>
-  <string name="useTorOnlyExternalTor">Изоплзвайте tor-мрежа (външен tor)</string>
-  <string name="useTorOnlyHttps">Използвайте tor-мрежа (само https)</string>
-  <string name="useTorBoth">Използвайте tor-мрежа (и двете)</string>
   <string name="last_log_entries">Последни записи</string>
   <string name="use_https">Използвайте https</string>
   <string name="use_external_tor">Използвайте външен тор (Orbot)</string>
@@ -699,6 +665,16 @@
   <string name="remove_queued_transaction_title">Чакаща трансакция</string>
   <string name="remove_queued_transaction_hint">Балансът ви ще бъде коригиран след следващата синхронизация с мрежата</string>
   <string name="remove_queued_transaction_error">Не може да се премахне трансакцията</string>
+  <!--<string name="colu_tos_link">Open Colu Terms and Conditions</string>-->
+  <!-- <string name="colu_tos_link_url">https://www.colu.com/TOS</string>-->
+  <!--<string name="colu_tos">By clicking "OK" you agree to use Colored Coin technology, third party-->
+  <!--blockchain technology developer. All your interactions with Colu are outside of-->
+  <!--Mycelium’s control and are subject to Colu’s T&amp;C and Privacy Policy.-->
+  <!--Please read them carefully before providing any personal information.-->
+  <!--MYCELIUM ACCEPTS NO RESPONSIBILITY AND WILL NOT BE LIABLE FOR ANY LOSS-->
+  <!--OR DAMAGE WHATSOEVER SUFFERED AS A RESULT OF ACCESSING, USE OF, OR-->
+  <!--RELIANCE UPON COLU’S INFORMATION AND SERVICES.</string>-->
+  <!--    <string name="colu_backup_info">Your Colu account access-key gets derived from your masterseed. If you have a valid backup, the access to your Colu account is also included.</string>  -->
   <!-- Credit Card -->
   <!-- Credit Card End-->
   <!-- GlideraService Start -->

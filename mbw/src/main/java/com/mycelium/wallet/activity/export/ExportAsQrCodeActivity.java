@@ -98,7 +98,6 @@ public class ExportAsQrCodeActivity extends Activity {
          });
       } else {
          swSelectData.setVisibility(View.GONE);
-         findViewById(R.id.tvShow).setVisibility(View.GONE);
       }
 
       findViewById(R.id.llPrivKeyWarning).setOnLongClickListener(new View.OnLongClickListener() {

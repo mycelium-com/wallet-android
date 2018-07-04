@@ -23,7 +23,6 @@
   <string name="send">Wyślij</string>
   <string name="receive">Otrzymaj</string>
   <string name="private_key_deleted">Klucz prywatny został usunięty.</string>
-  <string name="account_deleted">Konto usunięte</string>
   <string name="enter_recipient_title">Wprowadz adres odbiorcy BTC </string>
   <string name="recipient_title">Adres odbiorcy</string>
   <string name="amount_label">Kwota:</string>
@@ -42,8 +41,6 @@
   <string name="synchronizing">Synchronizuje</string>
   <string name="transaction_not_sent">Transakcja nie zrealizowana</string>
   <string name="queue_transaction_message">Twoja transakcja nie powiodła się.\nChciałbyś dodać transakcję do kolejki w celu wysłania kiedy znowu będziesz online?</string>
-  <string name="transaction_sent">Transakcja wysyłana</string>
-  <string name="export">Eksport</string>
   <string name="backup_private_key">Kopia zapasowa</string>
   <string name="copy_to_clipboard">Kopiuj do schowka</string>
   <string name="copy_private_key_to_clipboard">Skopiuj klucz prywatny klucz do schowka</string>
@@ -79,15 +76,9 @@
   <string name="pref_clear_pin_summary">Usuń bieżący PIN</string>
   <string name="pref_set_pin">Ustaw kod PIN</string>
   <string name="pref_set_pin_summary">Ustaw kod PIN, który ogranicza dostęp do wysyłania monet, eksportowania kluczy prywatnych i zmiany kodu PIN</string>
-  <string name="pref_local_currency">Waluta lokalna</string>
-  <string name="pref_local_currency_with_currency">Waluta lokalna (%1$s)</string>
   <string name="pref_local_currency_summary">Wybierz lokalna walutę fiduracyjną ($, PLN, £)</string>
-  <string name="pref_exchange_source">Kantor źródłowy</string>
   <string name="pref_exchange_source_with_value">Kantor źródłowy (%1$s)</string>
   <string name="pref_exchange_source_summary">Wybierz kantor źródłowy do uzyskiwania kursów wymiany walut Bitcoin i fiduracyjnej</string>
-  <string name="pref_bitcoin_denomination">Denominacja BTC</string>
-  <string name="pref_bitcoin_denomination_with_denomination">Denominacja (%1$s)</string>
-  <string name="pref_bitcoin_denomination_summary">Ustaw preferowany nominał.. BTC, mBTC, lub μBTC</string>
   <string name="pref_advanced_settings">Ustawienia zaawansowane</string>
   <string name="pref_socks_proxy">Socks Proxy</string>
   <string name="pref_socks_proxy_enabled">Socks Proxy (Włączone)</string>
@@ -107,10 +98,8 @@
   <string name="edit">Edytuj</string>
   <string name="delete">Usuń</string>
   <string name="payment_request">Zarządzaj płatnościami</string>
-  <string name="backup_legacy_warning">Zaraz wykonasz kopię zapasową pojedynczego adresu w swoim portfelu.\nTa kopia nie obejmuje Twojego Master Seed, żadne z Twoich kont HD nie będzie przywrócone!\n\nChcesz kontyuować?</string>
   <string name="export_to_clipboard_warning">UWAGA: Eksportowanie klucza prywatnego do schowka może zostać przechwycone przez inne aplikacje na Twoim urządzeniu.\n\nNote: Skopiowanie do schowka nie wystarcza, musisz jeszcze wkleić zawartość w bezpieczne miejsce.\n\n Czy chcesz kontynuować?</string>
   <string name="found_clipboard_private_key_title">Znaleziono klucz prywatny w schowku</string>
-  <string name="found_clipboard_private_keys_message">Schowek zawiera klucz prywatny.\nChcesz go usunac?</string>
   <string name="exchange_source_not_available">Kurs nie jest dostępny dla %1$s</string>
   <string name="my_own_address_warning">Uwaga: wysyłasz do jednego ze swoich adresów.</string>
   <string name="read_only_warning">Uwaga: Twój portfel nie zawiera klucza prywatnego do tego adresu.\n Nie masz dostępu do otrzymanych funduszy bez klucza prywatnego - możesz go dodać.</string>
@@ -159,7 +148,6 @@
   <string name="encrypted_pdf_backup_document_ready">Plik PDF utworzony</string>
   <string name="encrypted_pdf_backup_sharing">Udostępnianie dokumentów PDF...</string>
   <string name="encrypted_pdf_backup_email_title">Kopia zapasowa portfela Mycelium</string>
-  <string name="encrypted_pdf_backup_email_text">Dołączono kopię zapasową portfela Mycelium\n\n Wykonaj następujące polecenia aby zabezpieczyć swoje fundusze: \n1. Wydrukuj dokument PDF \n2. Wpisz wyświetlone 15-znakowe hasło w niebieskie pola .\n3. Sprawdź czy wydrukowane klucze możesz zaimportować do portfela Mycelium \n4 i. Wydruk należy przechowywać w bardzo bezpiecznym miejscu.</string>
   <string name="share_pdf">Udostepnij PDF</string>
   <string name="share_with">Podziel się z...</string>
   <string name="import_decrypt_key_title">Odszyfrowywanie klucza prywatnego</string>
@@ -226,8 +214,6 @@
   <string name="lt_create_order_description">Dodatkowy opis zamówienia:</string>
   <string name="lt_create_order_description_too_long">Opis jest zbyt długi</string>
   <string name="lt_pref_category">Lokalny handlowiec</string>
-  <string name="lt_disable_preference">Wyłączyć lokalnego handlowcę</string>
-  <string name="lt_disable_preference_summary">Funkcja Local Trader wyłączona</string>
   <string name="lt_sound_on_trade_preference">Włącz dźwięk przy transakcjach</string>
   <string name="lt_sound_on_trade_preference_summary">Powiadom dźwiękowo gdy wystąpi transakcja</string>
   <string name="lt_miles_kilometers_preference">Używaj MIl by określić dystans</string>
@@ -346,6 +332,16 @@
   <!-- BitID end -->
   <!-- from libNetCipher -->
   <!--/ from libNetCipher -->
+  <!--<string name="colu_tos_link">Open Colu Terms and Conditions</string>-->
+  <!-- <string name="colu_tos_link_url">https://www.colu.com/TOS</string>-->
+  <!--<string name="colu_tos">By clicking "OK" you agree to use Colored Coin technology, third party-->
+  <!--blockchain technology developer. All your interactions with Colu are outside of-->
+  <!--Mycelium’s control and are subject to Colu’s T&amp;C and Privacy Policy.-->
+  <!--Please read them carefully before providing any personal information.-->
+  <!--MYCELIUM ACCEPTS NO RESPONSIBILITY AND WILL NOT BE LIABLE FOR ANY LOSS-->
+  <!--OR DAMAGE WHATSOEVER SUFFERED AS A RESULT OF ACCESSING, USE OF, OR-->
+  <!--RELIANCE UPON COLU’S INFORMATION AND SERVICES.</string>-->
+  <!--    <string name="colu_backup_info">Your Colu account access-key gets derived from your masterseed. If you have a valid backup, the access to your Colu account is also included.</string>  -->
   <!-- Credit Card -->
   <!-- Credit Card End-->
   <!-- GlideraService Start -->

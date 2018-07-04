@@ -25,7 +25,6 @@
   <string name="send">送金</string>
   <string name="receive">受信</string>
   <string name="private_key_deleted">秘密鍵が削除されました。</string>
-  <string name="account_deleted">アカウントは消去されました</string>
   <string name="enter_recipient_title">送金先のアドレスを入力して下さい</string>
   <string name="recipient_title">送金先アドレス</string>
   <string name="amount_label">金額：</string>
@@ -44,8 +43,6 @@
   <string name="synchronizing">同期しています...</string>
   <string name="transaction_not_sent">取引の配信に失敗しました。</string>
   <string name="queue_transaction_message">一斉通報トランザクションに失敗しました。\nオンラインになると自動的に送信されるよう、取引をキュー（待ち行列）に入れますか？</string>
-  <string name="transaction_sent">取引送信完了</string>
-  <string name="export">エクスポート</string>
   <string name="backup_private_key">バックアップ</string>
   <string name="copy_to_clipboard">クリップボードにコピー</string>
   <string name="copy_private_key_to_clipboard">クリップボードに秘密鍵をコピー</string>
@@ -82,15 +79,9 @@
   <string name="pref_clear_pin_summary">現在設定された暗証番号を削除します。</string>
   <string name="pref_set_pin">暗証番号の設定</string>
   <string name="pref_set_pin_summary">暗証番号を設定すると、送金、秘密鍵のエクスポート、暗証番号の設定がロックされます。</string>
-  <string name="pref_local_currency">表示通貨</string>
-  <string name="pref_local_currency_with_currency">表示通貨 (%1$s)</string>
   <string name="pref_local_currency_summary">表示通貨を選択して下さい。</string>
-  <string name="pref_exchange_source">BTC価格情報</string>
   <string name="pref_exchange_source_with_value">価格の情報源 (%1$s)</string>
   <string name="pref_exchange_source_summary">ビットコインと紙幣の為替レートを取得する取引所を選択して下さい。</string>
-  <string name="pref_bitcoin_denomination">ビットコインの単位選択</string>
-  <string name="pref_bitcoin_denomination_with_denomination">単位 (%1$s)</string>
-  <string name="pref_bitcoin_denomination_summary">ビットコインのデノミを BTC, mBTC, または μBTC に設定します。</string>
   <string name="pref_advanced_settings">詳細設定</string>
   <string name="pref_socks_proxy">SOCKS プロキシ</string>
   <string name="pref_socks_proxy_enabled">SOCKS プロキシ (有効)</string>
@@ -114,10 +105,8 @@
   <string name="payment_request">支払い請求</string>
   <string name="export_account_data_warning">あなたは選択したアカウントから、極秘データをエクスポートしようとしています。\n\nこのキーにアクセスできた人は誰でも、ビットコインの所有権を得てコントロールしたり、あなたのプライバシーを崩壊させるような情報を入手できます。\n\nこのまま続けますか？</string>
   <string name="backup_all_warning">ウオレットのマスター・シードをバックアップして下さい。\nマスター・シードをバックアップすることで、もしデバイスを失くしたり壊しても、あなたの階層的決定性アカウントにある資産を復元することができます。\n\n今、そうしますか？</string>
-  <string name="backup_legacy_warning">あなたのウォレットにある単一アドレスのアカウントのみがバックアップされます。\nこのバックアップにはマスターシードが含まれていないため、HDアカウントの復元はできません！\n\nご了承の上、続けますか？</string>
   <string name="export_to_clipboard_warning">注意：クリップボードに秘密鍵をコピーすると、他のアプリに安易に読み取られてしまいます。\n\n備考：クリップボードにコピーするだけでは秘密鍵のバックアップが不十分です。安全な場所に貼り付けて保存しなければいけません。\n\n続けますか？</string>
   <string name="found_clipboard_private_key_title">クリップボードに秘密鍵を見つけました。</string>
-  <string name="found_clipboard_private_keys_message">クリップボードに秘密鍵がコピーされています。\nクリップボードから削除しますか？</string>
   <string name="exchange_source_not_available">%1$s の為替レートが不明</string>
   <string name="my_own_address_warning">メモ：送金先にご自身のアドレスが入っています。</string>
   <string name="read_only_warning">注意：あなたの財布にはこのアドレスを解除する秘密鍵がありません。\nこのアドレスのビットコインを送るには秘密鍵を入力する必要があります。</string>
@@ -131,13 +120,10 @@
   <string name="cold_storage_desc">中断中の秘密鍵から、資金を使用することができます。これは紙面の秘密鍵か、ビットコインのＡＴＭ伝票になります。以下の形式が可能です：\n秘密鍵、マスター・シード、xPriv Key\n\n一度取引が送信されると、すべての痕跡は内臓メモリーから消去されます。</string>
   <string name="keep_account_address">秘密鍵のみを消去し、読み取り専用のアカウントとして保存</string>
   <string name="manual_entry">手入力</string>
-  <string name="active_hd_accounts_name">私の階層的決定性アカウント</string>
-  <string name="active_other_accounts_name">その他のアカウント</string>
   <string name="archive_name">アーカイブ</string>
   <string name="active_accounts_empty">（真空）</string>
   <string name="activate_action">有効にする</string>
   <string name="archive_action">アドレスをアーカイブへ</string>
-  <string name="question_archive_account">アーカイブされたアカウントは監視されておらず、残高と受け取りアドレスが見えないため、このアカウントでは何も行えません。\n\nアーカイブされたアカウントは再度アクティブにすることができます。\n\nこのアカウントをアーカイブしますか？</string>
   <string name="master_seed_configuration_title">ようこそ！</string>
   <string name="master_seed_configuration_description">バックアップを復元しますか？または新しいウォレットを作成しますか？</string>
   <string name="master_seed_create_new_button">新規作成</string>
@@ -167,12 +153,9 @@
   <string name="delete_account_message">このアカウントを削除しますか？</string>
   <string name="confirm_delete_pk_title">一度削除されたものはバックアップされてなければ復元できませんが、本当に宜しいですか？</string>
   <string name="confirm_delete_pk_with_balance">これは取り消しができません！\n\n現在のアドレス：\n%1$s\n\n含まれているのは %2$s\n\n削除しますか？</string>
-  <string name="confirm_delete_pk_with_balance_with_label">これは取り消しができません！\n\n\アカウントのラベル：\n%1$s\n\n現在のアドレス：\n%2$s\n\n含まれているのは %3$s\n\n削除しますか？</string>
   <string name="confirm_delete_pk_without_balance">これは取り消しができません！\n\n\現在のアドレス：\n%1$s\n\n削除しますか？</string>
-  <string name="confirm_delete_pk_without_balance_with_label">これは取り消しができません！\n\n\アカウントのラベル：\n%1$s\n\n現在のアドレス：\n%2$s\n\n削除しますか？</string>
   <string name="verify_private_key_backup">バックアップの確認</string>
   <string name="verify_backup_dialog_title">秘密キーのバックアップを確認します</string>
-  <string name="verify_backup_desc">ビットコインを管理する際、正しくバックアップを行うことは不可欠です。\n\nバックアップを確認することで、バックアップが正常に作動していることを確かめ、Androidデバイスがなくなったり、損傷した場合でもお金を失うことがありません。</string>
   <string name="verify_backup_scan_desc">秘密鍵またはマスターシードQRコードをスキャンし、バックアップをご確認下さい。\nMyceliumの暗号化された紙のバックアップを含むいくつかのフォーマットが利用可能です。</string>
   <string name="verify_backup_clipboard_desc">クリップボードから秘密キーを取得し、秘密キーのバックアップを確認します。</string>
   <string name="verify_backup_num_keys">確認されていないキーが%1$sあります。 </string>
@@ -195,7 +178,6 @@
   <string name="encrypted_pdf_backup_document_ready">PDF文書が作成されました</string>
   <string name="encrypted_pdf_backup_sharing">PDF文書を共有しています&#8230;</string>
   <string name="encrypted_pdf_backup_email_title">Myceliumウォレットのバックアップ</string>
-  <string name="encrypted_pdf_backup_email_text">Myceliumウォレットのバックアップが添付されています。\n\n以下のシンプルなステップを行い資金を安全に保管して下さい：\n1. PDF文書を印刷する\n2. アンドロイドデバイスに表示されている15文字のパスワードを印刷した文書の青いボックスに書き留める\n3. 秘密キーを自分のMuseliumウォレットにインポートできることを確認する\n4. 印刷した文書を安全な場所に保管する</string>
   <string name="share_pdf">PDFの共有</string>
   <string name="share_with">共有する</string>
   <string name="import_decrypt_key_title">秘密キーの復号化</string>
@@ -289,8 +271,6 @@
   <string name="lt_ad_created">広告が作成されました</string>
   <string name="lt_ad_edited">広告が編集されました</string>
   <string name="lt_pref_category">ローカルのトレーダー</string>
-  <string name="lt_disable_preference">ローカルのトレーダーを無効にする</string>
-  <string name="lt_disable_preference_summary">ローカルのトレーダーの機能を無効にする</string>
   <string name="lt_sound_on_trade_preference">取引中にサウンドを再生する</string>
   <string name="lt_sound_on_trade_preference_summary">取引が発生したら通知サウンドを再生する</string>
   <string name="lt_use_email_for_notifications">通知にEメールを使用する。</string>
@@ -456,8 +436,6 @@
   <string name="invalid_bitid_uri">無効なBitID　URIです。</string>
   <!-- BitID end -->
   <string name="selected_archived_warning">アーカイブされたアカウントで行えません。</string>
-  <string name="selected_hd_info">今この階層的決定性アカウントを使っています。</string>
-  <string name="selected_single_info">このシングルアカウントで現在行っています。</string>
   <string name="hd_account_creation_started">階層的決定性アカウントを作成中です&#8230;</string>
   <string name="preparing_wallet_on_first_startup_info">ウォレットを準備中&#8230;</string>
   <string name="importing_master_seed_from_wordlist">マスターシードを計算中&#8230;</string>
@@ -505,7 +483,7 @@
   <string name="decryption_password_hint">YOU RPA SSW ORD ABC D</string>
   <string name="dont_allow_archiving_unused_notification">未使用の階層的決定性アカウントはアーカイブできません。</string>
   <string name="newly_generated_coins_from_coinbase">新しいビットコイン</string>
-    <string name="button_continue">続ける</string>
+  <string name="button_continue">続ける</string>
   <string name="butto_show_release_notes">詳細へ</string>
   <string name="word_does_not_exist_in_wordlist">あなたが入力したワードは、ワードリストにはありません。</string>
   <string name="pref_legacy_backup_title">レガシー・バックアップ</string>
@@ -520,8 +498,6 @@
   <string name="direct_apk_link_label">ダイレクト\nダウンロード</string>
   <string name="hide_unused_account_menu">アカウントを削除</string>
   <string name="dont_allow_hiding_used_notification">使用履歴のあるアカウントは隠すことができませんが、アーカイブにすることはできます。</string>
-  <string name="pref_miner_fee_title">手数料</string>
-  <string name="miner_fee_lowprio_name">低優先度</string>
   <string name="miner_fee_economic_name">節約</string>
   <string name="miner_fee_normal_name">普通</string>
   <string name="miner_fee_priority_name">優先度</string>
@@ -558,8 +534,6 @@
   <string name="lt_confirm_delete_trader_message">あなたのローカルトレーダーのアカウントを削除しますか。すべての取引情報および評価は完全に削除されるので、回復することはできません。</string>
   <string name="rescan_account_menu_item">アカウントの再読込</string>
   <string name="add_advanced_account_warning">警告：\nこれらのキーは、マスター・シード・バックアップには含まれません。それらは必ず別にバックアップするようにして下さい。</string>
-  <string name="new_random_key_desc">新しいランダムキーを作成</string>
-  <string name="generate_new_key">作成</string>
   <string name="new_bitcoin_address_created">新しいランダム秘密鍵、以下のビットコインのアドレスで作成されました：</string>
   <string name="shuffle">シャッフル</string>
   <string name="toast_warning_low_fee">承認に時間がかかるかもしれません</string>
@@ -591,11 +565,6 @@
   <string name="reset_pin_button">暗証番号リセット</string>
   <string name="wrong_pin_message">ピンナンバーが違います。\n\n もしピンナンバーを忘れた場合は、リセットができます。</string>
   <string name="pref_no_fiat_selected">認可済み通貨が選択されていません</string>
-  <string name="useTor">Torネットワークをご使用</string>
-  <string name="useTorDescription">バックエンドサーバーとの交信にはTorネットワークをご使用下さい。\nこれは、あなたのプライバシーを向上させ、制限のあるファイアーウォールへとルートを取ることもあります。ですが、アプリのパフォーマンスが低下することもあります。\n外部アプリは必要ありません。</string>
-  <string name="useTorOnlyExternalTor">Torネットワーク（外部Tor）をご使用</string>
-  <string name="useTorOnlyHttps">Torネットワーク（HTTPSのみ）をご使用</string>
-  <string name="useTorBoth">Torネットワーク（両方）をご使用</string>
   <string name="last_log_entries">最終ログ項目</string>
   <string name="use_https">HTTPSをご使用下さい</string>
   <string name="use_external_tor">外部 Tor (Orbot) をご使用</string>
@@ -634,8 +603,17 @@
   <string name="payment_request_expires">有効期限</string>
   <string name="payment_request_message_to_merchant">お店へのメッセージ (任意)</string>
   <string name="label_cold_storage_external_signing">署名元：</string>
-  <string name="spending_unconfirmed_warning">注意： 未承認のビットコインを送ろうとしています。</string>
   <string name="transaction_history_title">取引履歴</string>
+  <!--<string name="colu_tos_link">Open Colu Terms and Conditions</string>-->
+  <!-- <string name="colu_tos_link_url">https://www.colu.com/TOS</string>-->
+  <!--<string name="colu_tos">By clicking "OK" you agree to use Colored Coin technology, third party-->
+  <!--blockchain technology developer. All your interactions with Colu are outside of-->
+  <!--Mycelium’s control and are subject to Colu’s T&amp;C and Privacy Policy.-->
+  <!--Please read them carefully before providing any personal information.-->
+  <!--MYCELIUM ACCEPTS NO RESPONSIBILITY AND WILL NOT BE LIABLE FOR ANY LOSS-->
+  <!--OR DAMAGE WHATSOEVER SUFFERED AS A RESULT OF ACCESSING, USE OF, OR-->
+  <!--RELIANCE UPON COLU’S INFORMATION AND SERVICES.</string>-->
+  <!--    <string name="colu_backup_info">Your Colu account access-key gets derived from your masterseed. If you have a valid backup, the access to your Colu account is also included.</string>  -->
   <!-- Credit Card -->
   <!-- Credit Card End-->
   <!-- GlideraService Start -->

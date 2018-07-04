@@ -25,7 +25,6 @@
   <string name="send">Dërgo</string>
   <string name="receive">Prano</string>
   <string name="private_key_deleted">Çelësi privat është fshirë.</string>
-  <string name="account_deleted">Llogaria është fshirë</string>
   <string name="enter_recipient_title">Shkruaj adresën e marrësit</string>
   <string name="recipient_title">Adresa e marrësit</string>
   <string name="amount_label">Shuma:</string>
@@ -44,8 +43,6 @@
   <string name="synchronizing">Duke u sinkronizuar</string>
   <string name="transaction_not_sent">Transmetimi i transaksionit dështoj</string>
   <string name="queue_transaction_message">Transmetimi i transaksionit dështoj.\nDoni që ky transaksion të transmetohet automatikisht posa të jeni online?</string>
-  <string name="transaction_sent">Transaksioni u dërgua</string>
-  <string name="export">Eksporto</string>
   <string name="backup_private_key">Ruaj një kopje rezervë</string>
   <string name="copy_to_clipboard">Kopjo ne memorje</string>
   <string name="copy_private_key_to_clipboard">Kopjo çelësin privat në memorje</string>
@@ -82,15 +79,9 @@
   <string name="pref_clear_pin_summary">Fshij PIN kodin aktual</string>
   <string name="pref_set_pin">Cakto PIN kodin</string>
   <string name="pref_set_pin_summary">Cakto nje PIN kod që ndalon qasjen për të dërguar monedha, eskportuar çelësat privat, dhe ndryshimin e PIN kodit</string>
-  <string name="pref_local_currency">Valuta lokale</string>
-  <string name="pref_local_currency_with_currency">Valuta lokale (%1$s)</string>
   <string name="pref_local_currency_summary">Zgjedh valutën lokale</string>
-  <string name="pref_exchange_source">Burimi i këmbimores</string>
   <string name="pref_exchange_source_with_value">Burimi i këmbimores (%1$s)</string>
   <string name="pref_exchange_source_summary">Zgjedh burimin e këmbimores për të marrë kursin e këmbimit ndërmjet Bitcoin dhe monedhave tradicionale</string>
-  <string name="pref_bitcoin_denomination">Bitcoin njësit</string>
-  <string name="pref_bitcoin_denomination_with_denomination">Njësia (%1$s)</string>
-  <string name="pref_bitcoin_denomination_summary">Caktoni njësin e preferuar të Bitcoin. BTC, mBTC, ose μBTC</string>
   <string name="pref_advanced_settings">Konfigurimi i avancuar</string>
   <string name="pref_socks_proxy">Socks Proxy</string>
   <string name="pref_socks_proxy_enabled">Socks Proxy (Aktivizuar)</string>
@@ -114,10 +105,8 @@
   <string name="payment_request">Kërkesa për pages</string>
   <string name="export_account_data_warning">Jeni duke eksportuar të dhëna sensitive të llogarisë.\n\nÇdokush që ka çasje tek këta çelësa mund të marrë kontrollin e bitcoin-ave apo të merrë informata dhe të ju cënoj privatësin.\n\nDoni të vazhdoni?</string>
   <string name="backup_all_warning">Duhet të krijoni një kopje rezervë të master seed të kuletës suaj.\nNjë kopje rezervë e master seed ju lejon juve të riktheni fondet që janë ne HD llogaritë e juaja nëse pajisja juaj humbet apo dëmtohet.\n\nDoni ta bëni këtë tash?</string>
-  <string name="backup_legacy_warning">Kjo krijon një kopje rezervë të një adrese të vetme në kuletën tuaj. \nKjo kopje rezervë nuk përmban master seed, asnjë HD llogari nuk mund të rikthehet nga kjo!\n\nDoni të vazhdoni?</string>
   <string name="export_to_clipboard_warning">Paralajmërim: Eksportimi i të dhënave të llogaris suaj në memorje ekspozon këto të dhëna tek të gjithë aplikacionet tjera në pajisjen tuaj.\n\nNjoftim: Mjafton të ruani të dhënat private në memorje por gjithashtu duhet të ngjisni sigurtë atë.\n\nDoni të vazhdoni?</string>
   <string name="found_clipboard_private_key_title">Është gjetur çelës privat në memorje</string>
-  <string name="found_clipboard_private_keys_message">Memorja përmban një çelës privat.\nDoni ta fshini nga memorja?</string>
   <string name="exchange_source_not_available">Kursi i këmbimit nuk është në dispozicion për %1$s</string>
   <string name="my_own_address_warning">Njoftim: Jeni duke dërguar monedha në një nga adresat e juaja.</string>
   <string name="read_only_warning">Paralajmerim: Kuleta juaj nuk ka çelësin privat për këtë adresë.\nNuk mund të shpenzoni monedhat që keni pranuar, përveç nëse e keni çelësin privat diku tjetër.</string>
@@ -131,13 +120,10 @@
   <string name="cold_storage_desc">Jeni duke shpenzuar nga një çelës privat në cold storage. Kjo mund të jetë një kopje rezervë e një çelësi privat e gjeneruar nga një Bitcoin ATM. Keto formate mbështeten:\nÇelës privat, Master Seed, xPriv çelës\n\nPosa transaksioni është transmetuar çdo gjurmë e tij do të fshihet nga memorja interne.</string>
   <string name="keep_account_address">Fshini vetëm çelësin privat dhe mbaj vetëm si llogari nën vëzhgim</string>
   <string name="manual_entry">Shënim manual</string>
-  <string name="active_hd_accounts_name">HD llogaritë e mia</string>
-  <string name="active_other_accounts_name">Llogarit tjera</string>
   <string name="archive_name">Arkivuar</string>
   <string name="active_accounts_empty">(Zbrazët)</string>
   <string name="activate_action">Aktivizo</string>
   <string name="archive_action">Arkivi</string>
-  <string name="question_archive_account">Llogaritë e arkivuara nuk monitorohen, nuk mund të shihni bilancin dhe adredat dhe nuk punojnë me llogarinë.\n\nLlogaritë e arkivuara mund të aktivizohen prapë.\n\nDoni të arkivoni këtë llogari?</string>
   <string name="master_seed_configuration_title">Mirësevini në Mycelium</string>
   <string name="master_seed_configuration_description">Doni të riktheni një kopje rezervë, apo krijoni një kulet të re?</string>
   <string name="master_seed_create_new_button">Krijo të re</string>
@@ -167,12 +153,9 @@
   <string name="delete_account_message">A doni të fshini këtë llogari?</string>
   <string name="confirm_delete_pk_title">A jeni i sigurtë?</string>
   <string name="confirm_delete_pk_with_balance">Ky veprim nuk kthehet prapa!\n\nKjo adresë:\n%1$s\n\nPërmban %2$s\n\nDoni ta fshini atë?</string>
-  <string name="confirm_delete_pk_with_balance_with_label">Ky veprim nuk kthehet prapa!\n\nLlogaria me etiketimin:\n%1$s\n\nKjo adresë:\n%2$s\n\n përmban %3$s\n\nDoni ta fshini atë?</string>
   <string name="confirm_delete_pk_without_balance">Ky veprim nuk kthehet prapa!\n\nKjo adresë:\n%1$s\n\nDoni ta fshini atë?</string>
-  <string name="confirm_delete_pk_without_balance_with_label">Ky veprim nuk kthehet prapa!\n\nLlogaria me etiketim:\n%1$s\n\nKjo adresë:\n%2$s\n\nDoni ta fshini atë?</string>
   <string name="verify_private_key_backup">Verifiko kopjen rezervë</string>
   <string name="verify_backup_dialog_title">Verifiko kopjen rezervë të çelësit privat</string>
-  <string name="verify_backup_desc">Të keni një kopje të duhur rezervë është shumë e rëndësishme në menaxhimin e fondeve të juaja te Bitcoin-ave.\n\nDuke verifikuar kopjen e juaj rezervë ju siguroheni që kopja juaj punon dhe nuk i humbisni fondet e juaja në rast se Android pajisja juaj humbet apo dëmtohet.</string>
   <string name="verify_backup_scan_desc">Verifikoni kopjen e juaj rezerë duke skanuar QR kodin e çelësit privat ose master seed.\nDisa formate pranohen, duke përfshirë edhe kopjen rezervë të enkriptuar të Mycelium.</string>
   <string name="verify_backup_clipboard_desc">Verifiko kopjen rezervë të çelësit privat duke marrë çelësin privat nga memorja.</string>
   <string name="verify_backup_num_keys">Keni %1$s çelësa që nuk janë verifikuar kurrë.</string>
@@ -195,7 +178,6 @@
   <string name="encrypted_pdf_backup_document_ready">PDF dokumenti u krijua</string>
   <string name="encrypted_pdf_backup_sharing">Duke e ndarë PDF dokumentin&#8230;</string>
   <string name="encrypted_pdf_backup_email_title">Kopja rezervë Mycelium Wallet</string>
-  <string name="encrypted_pdf_backup_email_text">Mycelium kopja rezervë e kuletës suaj është e bashkangjitur.\n\nNdjeki këta hapa për të ruajtur fondet e juaja:\n1. Printo PDF dokumentin.\n2. Shkruaj fjalëkalimin 15 karakterësh nga Android pajisja juaj në katrorët e kaltërt të dokumentit të printuar.\n3. Verifiko se mund të importosh çelësat privat në Mycelium Wallet.\n4. Ruaj dokumentin e printuar në një vend të sigurtë.</string>
   <string name="share_pdf">Ndaje PDF</string>
   <string name="share_with">Ndaje me&#8230;</string>
   <string name="import_decrypt_key_title">Dekriptimi i çelësit privat</string>
@@ -289,8 +271,6 @@
   <string name="lt_ad_created">Reklama u krijua</string>
   <string name="lt_ad_edited">Reklama u ndryshua</string>
   <string name="lt_pref_category">Tregëtar lokal</string>
-  <string name="lt_disable_preference">Ç\'aktivizo Tregëtimin lokal</string>
-  <string name="lt_disable_preference_summary">Ç\'aktivizo funksionalitetin e Tregëtimit lokal</string>
   <string name="lt_sound_on_trade_preference">Luaj një tingull kur ka aktivitet tregëtar</string>
   <string name="lt_sound_on_trade_preference_summary">Luaj një tingull për të njoftuar kur ndodhë një aktivitet tregëtar</string>
   <string name="lt_use_email_for_notifications">Përdor email për njoftime</string>
@@ -460,8 +440,6 @@
   <string name="invalid_bitid_uri">BitID URI jovalid</string>
   <!-- BitID end -->
   <string name="selected_archived_warning">Nuk mund të punoni me llogaritë e arkivuara.</string>
-  <string name="selected_hd_info">Tash jeni duke punuar me këtë HD llogari.</string>
-  <string name="selected_single_info">Jeni duke punuar me këtë adresë të vetme.</string>
   <string name="hd_account_creation_started">Duke krijuar HD llogari të re&#8230;</string>
   <string name="preparing_wallet_on_first_startup_info">Duke pregaditur kuletën&#8230;</string>
   <string name="importing_master_seed_from_wordlist">Duke kalkuluar Master Seed&#8230;</string>
@@ -507,7 +485,7 @@
   <string name="title_wrong_password">Fjalëkalim i gabuar, ju lutem provoni prapë</string>
   <string name="dont_allow_archiving_unused_notification">Nuk mund të arkivoni një HD llogari të pashfrytëzuar</string>
   <string name="newly_generated_coins_from_coinbase">Monedha sapo të gjeneruara</string>
-    <string name="button_continue">Vazhdo</string>
+  <string name="button_continue">Vazhdo</string>
   <string name="butto_show_release_notes">Trego detajet</string>
   <string name="word_does_not_exist_in_wordlist">Fjalët që shënuat nuk ekzistojn në listën e fjalëve</string>
   <string name="pref_legacy_backup_title">Kopje rezervë e trashëguar</string>
@@ -522,9 +500,6 @@
   <string name="direct_apk_link_label">Shkarko\ndirekt</string>
   <string name="hide_unused_account_menu">Fshij llogarinë</string>
   <string name="dont_allow_hiding_used_notification">Nuk mund ta fshihni një llogari të përdorur, por mund ta arkivoni atë</string>
-  <string name="pref_miner_fee_title">Tarifa</string>
-  <string name="pref_miner_fee_block_summary">Transaksionet janë dërguar me një tarifë që të përfshihen përafërsisht në blloqet %1s.</string>
-  <string name="miner_fee_lowprio_name">Prioritet i ulët</string>
   <string name="miner_fee_economic_name">Ekonomik</string>
   <string name="miner_fee_normal_name">Normal</string>
   <string name="miner_fee_priority_name">Prioritet</string>
@@ -561,8 +536,6 @@
   <string name="lt_confirm_delete_trader_message">Doni të fshini identitetin e Tregtarit Lokal? Të gjitha informatat të tregtis dhe shkallët që keni do të fshihen përgjithmon dhe nuk mund të rikthehen.</string>
   <string name="rescan_account_menu_item">Ringarko llogarinë</string>
   <string name="add_advanced_account_warning">Paralajmërim:\n Keta çelësa nuk do të përfshihen në kopjen rezervë të Master Seed. Duhet të siguroheni që të keni një kopje rezervë të ndare për keta çelësa.</string>
-  <string name="new_random_key_desc">Gjenero një çelës të ri të rastësishëm</string>
-  <string name="generate_new_key">Gjenero</string>
   <string name="new_bitcoin_address_created">Një çelës privat i rastësishëm është gjeneruar me këtë Bitcoin adresë:</string>
   <string name="shuffle">Përziej</string>
   <string name="toast_warning_low_fee">mund të merr kohë më shumë për konfirmim</string>
@@ -604,11 +577,6 @@
   <string name="reset_pin_button">Reseto PIN</string>
   <string name="wrong_pin_message">Keni shënuar PIN të gabuar.\n\n Nëse keni harruar PIN mund ta resetoni.</string>
   <string name="pref_no_fiat_selected">Asnjë monedhë tradicionale nuk është zgjedhur</string>
-  <string name="useTor">Përdor rrjetin Tor</string>
-  <string name="useTorDescription">Përdor Tor rrjetin për të komunikuar me serverët.\nKjo përmirëson privaticitetin tuaj dhe kalon komunikimin përmes firewall kufizues. Por kjo mund të ngadalson performancën e këtij aplikacioni.</string>
-  <string name="useTorOnlyExternalTor">Përdor tor-rrjetin (tor i jashtëm)</string>
-  <string name="useTorOnlyHttps">Përdor tor-rrjetin (vetëm https)</string>
-  <string name="useTorBoth">Përdor tor-rrjetin (të dyjat)</string>
   <string name="last_log_entries">Hyrjet e fundit</string>
   <string name="use_https">Përdor https</string>
   <string name="use_external_tor">Përdor tor (Orbot) të jashtëm</string>
@@ -653,7 +621,6 @@
   <string name="payment_request_invalid_signature">firmë invalide</string>
   <string name="payment_request_amount_to_pay">Shuma për tu paguar</string>
   <string name="label_cold_storage_external_signing">Firmos me:</string>
-  <string name="spending_unconfirmed_warning">Paralajmërim: po shpenzoni fonde të pakonfirmuara</string>
   <string name="spending_unconfirmed_title">Duke shpenzuar fonde të pakonfirmuara</string>
   <string name="spending_unconfirmed_description">Transaksioni juaj përdor fonde të cilat akoma nuk janë përfshirë në asnjë bitcoin bllok. Nëse pët ndonjë arsye transaksioni që ju dergoj këto fonde dështon apo qëndron i pakonfirumar, gjithashtu edhe transaksioni juaj do të dështoj apo qëndroj i pakonfirmuar.</string>
   <string name="coinapult_mail_verification_description">Ju lutem vendosni linkun e verifikimit nga Coinapult email në fushën më poshtë.</string>
@@ -661,6 +628,16 @@
   <string name="coinapult_tos_link">Hapë Termat dhe Kushtet të Coinapult</string>
   <string name="coinapult_tos_question">Për të krijuar një Coinapult Llogari ju duhet t\'i pranoni Termat dhe Kushtet</string>
   <string name="coinapult_mail_question">Doni të jepni email adresën tuaj?</string>
+  <!--<string name="colu_tos_link">Open Colu Terms and Conditions</string>-->
+  <!-- <string name="colu_tos_link_url">https://www.colu.com/TOS</string>-->
+  <!--<string name="colu_tos">By clicking "OK" you agree to use Colored Coin technology, third party-->
+  <!--blockchain technology developer. All your interactions with Colu are outside of-->
+  <!--Mycelium’s control and are subject to Colu’s T&amp;C and Privacy Policy.-->
+  <!--Please read them carefully before providing any personal information.-->
+  <!--MYCELIUM ACCEPTS NO RESPONSIBILITY AND WILL NOT BE LIABLE FOR ANY LOSS-->
+  <!--OR DAMAGE WHATSOEVER SUFFERED AS A RESULT OF ACCESSING, USE OF, OR-->
+  <!--RELIANCE UPON COLU’S INFORMATION AND SERVICES.</string>-->
+  <!--    <string name="colu_backup_info">Your Colu account access-key gets derived from your masterseed. If you have a valid backup, the access to your Colu account is also included.</string>  -->
   <string name="copy">Kopjo</string>
   <!-- Credit Card -->
   <!-- Credit Card End-->

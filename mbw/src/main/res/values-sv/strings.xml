@@ -25,7 +25,6 @@
   <string name="send">Skicka</string>
   <string name="receive">Ta emot</string>
   <string name="private_key_deleted">Privat nyckel borttagen.</string>
-  <string name="account_deleted">Kontot borttaget</string>
   <string name="enter_recipient_title">Ange mottagaradress</string>
   <string name="recipient_title">Mottagaradress</string>
   <string name="amount_label">Belopp:</string>
@@ -44,8 +43,6 @@
   <string name="synchronizing">Synkroniserar</string>
   <string name="transaction_not_sent">Misslyckades med att sända transaktion</string>
   <string name="queue_transaction_message">Misslyckades med att sända transaktion.\nÖnskar du köa upp transaktionen så att den automatiskt sänds när du ansluts till nätverket?</string>
-  <string name="transaction_sent">Transaktion skickad</string>
-  <string name="export">Exportera</string>
   <string name="backup_private_key">Säkerhetskopiera</string>
   <string name="copy_to_clipboard">Kopiera till urklipp</string>
   <string name="copy_private_key_to_clipboard">Kopiera privat nyckel till urklipp</string>
@@ -82,15 +79,9 @@
   <string name="pref_clear_pin_summary">Töm den nuvarande PIN-koden</string>
   <string name="pref_set_pin">Ange PIN-kod</string>
   <string name="pref_set_pin_summary">Ange en PIN-kod som begränsar åtkomst för att skicka pengar, exportera privata nycklar och ändra PIN-koden</string>
-  <string name="pref_local_currency">Lokal valuta</string>
-  <string name="pref_local_currency_with_currency">Lokal valuta (%1$s)</string>
   <string name="pref_local_currency_summary">Välj den lokala fiat-valutan</string>
-  <string name="pref_exchange_source">Växlingskälla</string>
   <string name="pref_exchange_source_with_value">Växlingskälla (%1$s)</string>
   <string name="pref_exchange_source_summary">Välj källa för att erhålla växelkurser mellan bitcoin och fiat-valutor</string>
-  <string name="pref_bitcoin_denomination">Bitcoin valör</string>
-  <string name="pref_bitcoin_denomination_with_denomination">Valör (%1$s)</string>
-  <string name="pref_bitcoin_denomination_summary">Ställ in önskad bitcoin valör. BTC, mBTC eller μBTC</string>
   <string name="pref_advanced_settings">Avancerade inställningar</string>
   <string name="pref_socks_proxy">Socks Proxy</string>
   <string name="pref_socks_proxy_enabled">Socks Proxy (Aktiverad)</string>
@@ -114,10 +105,8 @@
   <string name="payment_request">Betalningsförfrågan</string>
   <string name="export_account_data_warning">Du är på väg att exportera känsligt data för det valda kontot.\n\nDen som kommer åt dessa nycklar kan antingen ta kontroll över de bitcoin som de kontrollerar eller erhålla information som kringgår ditt integritetsskydd.\n\nVill du fortsätta?</string>
   <string name="backup_all_warning">Du bör säkerhetskopiera huvudfröet för din plånbok.\nEn säkerhetskopia av ditt huvudfrö låter dig återskapa dina tillgångar som lagras på ditt HD-konto om din enhet förloras eller skadas.\n\nVill du göra det nu?</string>
-  <string name="backup_legacy_warning">Du kommer att säkerhetskopiera dina konton med fast adress i din plånbok.\nDenna säkerhetskopia kommer inte att innehålla ditt huvudfrö, ingen av dina HD-konton kan återskapas från den!.\n\nVill du fortsätta?</string>
   <string name="export_to_clipboard_warning">Varning: Att exportera privat kontoinformation till urklipp, exponerar det för alla andra applikationer på din enhet.\n\nNotera: Det är inte nog med att lagra din privata information i urklipp, du måste även klistra in det på en säker plats.\n\nVill du fortsätta?</string>
   <string name="found_clipboard_private_key_title">Privat nyckel hittad i urklipp</string>
-  <string name="found_clipboard_private_keys_message">Urklipp innehåller en privat nyckel.\nVill du rensa urklipp?</string>
   <string name="exchange_source_not_available">Växlingskurs inte tillgänglig för %1$s</string>
   <string name="my_own_address_warning">Notera: Du skickar till en av dina egna adresser.</string>
   <string name="read_only_warning">Varning: Din plånbok har inte den privata nyckeln för denna adress.\nDu kan inte spendera mottagna pengar så till vida du inte har den privata nyckeln någon annanstans.</string>
@@ -131,13 +120,10 @@
   <string name="cold_storage_desc">Du är på väg att spendera från en privat nyckel i kallförvaring. Detta kan vara en säkerhetskopia på papper av en privatnyckel eller ett kvitto med privat nyckel från en bitcoin-bankomat. Följande format stöds:\nPrivat nyckel, Huvudfrö, xPriv-nyckel\n\nNär transaktionen har skickats kommer varje spår av den att raderas från internminnet.</string>
   <string name="keep_account_address">Radera endast den privata nyckeln och behåll som ett endast läsbart konto</string>
   <string name="manual_entry">Manuell inmatning</string>
-  <string name="active_hd_accounts_name">Mina HD-konton</string>
-  <string name="active_other_accounts_name">Andra konton</string>
   <string name="archive_name">Arkiverade</string>
   <string name="active_accounts_empty">(Tom)</string>
   <string name="activate_action">Aktivera</string>
   <string name="archive_action">Arkivera</string>
-  <string name="question_archive_account">Arkiverade konton är inte övervakade, du kan inte se saldot och mottagaradress och inte använda kontot överhuvudtaget.\n\nArkiverade konton kan aktiveras igen.\n\n.Vill du arkivera detta konto?</string>
   <string name="master_seed_configuration_title">Välkommen till Mycelium</string>
   <string name="master_seed_configuration_description">Vill du återskapa en säkerhetskopia, eller skapa en ny plånbok?</string>
   <string name="master_seed_create_new_button">Skapa ny</string>
@@ -167,12 +153,9 @@
   <string name="delete_account_message">Vill du ta bort detta konto?</string>
   <string name="confirm_delete_pk_title">Är du säker?</string>
   <string name="confirm_delete_pk_with_balance">Detta kan inte ångras!\n\nNuvarande adress:\n%1$s\n\nDet innehåller %2$s\n\nVill du ta bort det?</string>
-  <string name="confirm_delete_pk_with_balance_with_label">Detta kan inte ångras!\n\nKontoetikett:\n%1$s\n\nNuvarande adress:\n%2$s\n\nDet innehåller %3$s\n\nVill du ta bort det?</string>
   <string name="confirm_delete_pk_without_balance">Detta kan inte ångras!\n\nNuvarande adress:\n%1$s\n\nVill du ta bort det?</string>
-  <string name="confirm_delete_pk_without_balance_with_label">Detta kan inte ångras!\n\nKontoetikett:\n%1$s\n\nNuvarande adress:\n%2$s\n\nVill du ta bort det?</string>
   <string name="verify_private_key_backup">Verifiera säkerhetskopia</string>
   <string name="verify_backup_dialog_title">Verifiera säkerhetskopia av privat nyckel</string>
-  <string name="verify_backup_desc">Att ha en ordentlig säkerhetskopia är en hörnsten när du hanterar dina bitcoin-tillgångar.\n\nGenom att verifiera din säkerhetskopia säkerställer du att den fungerar och att du inte förlorar några tillgångar om din Android-enhet förloras eller skadas.</string>
   <string name="verify_backup_scan_desc">Verifiera din säkerhetskopia genom att läsa in den privata nyckelns eller huvudfröets QR-kod.\nFlera format accepteras, inklusive Myceliums krypterade pappersbackup.</string>
   <string name="verify_backup_clipboard_desc">Verifiera säkerhetskopia av privat nyckel genom att hämta privat nyckel från urklipp.</string>
   <string name="verify_backup_num_keys">Du har %1$s nycklar som aldrig verifierats.</string>
@@ -195,7 +178,6 @@
   <string name="encrypted_pdf_backup_document_ready">PDF-dokument skapat</string>
   <string name="encrypted_pdf_backup_sharing">Delar PDF-dokument&#8230;</string>
   <string name="encrypted_pdf_backup_email_title">Säkerhetskopia av plånboken Mycelium</string>
-  <string name="encrypted_pdf_backup_email_text">Din säkerhetskopia av plånboken Mycelium är bifogad.\n\nFölj dessa enkla steg för att säkra dina tillgångar:\n1. Skriv ut PDF-dokumentet\n2. Skriv ner det 15 tecken långa lösenordet från skärmen på din Android-enhet i de blåa boxarna på utskriften.\n3. Verifiera att du kan importera de privata nycklarna till din Mycelium-plånbok.\n4. Förvara utskriften på en säker plats.</string>
   <string name="share_pdf">Dela PDF</string>
   <string name="share_with">Dela med&#8230;</string>
   <string name="import_decrypt_key_title">Dekryptering av privat nyckel</string>
@@ -290,8 +272,6 @@
   <string name="lt_ad_created">Annons skapad</string>
   <string name="lt_ad_edited">Annons redigerad</string>
   <string name="lt_pref_category">Lokal handel</string>
-  <string name="lt_disable_preference">Inaktivera lokal handel</string>
-  <string name="lt_disable_preference_summary">Inaktivera funktionen lokal handel</string>
   <string name="lt_sound_on_trade_preference">Spela upp ljud för handelsaktivitet</string>
   <string name="lt_sound_on_trade_preference_summary">Spela upp ett aviseringsljud vid handelsaktivitet</string>
   <string name="lt_use_email_for_notifications">Använd e-post för aviseringar</string>
@@ -462,8 +442,6 @@
   <string name="invalid_bitid_uri">Ogiltig BitID-URI</string>
   <!-- BitID end -->
   <string name="selected_archived_warning">Du kan inte arbeta med arkiverade konton.</string>
-  <string name="selected_hd_info">Du arbetar nu med detta HD-konto.</string>
-  <string name="selected_single_info">Du arbetar nu med denna fasta adress.</string>
   <string name="hd_account_creation_started">Skapar nytt HD-konto&#8230;</string>
   <string name="preparing_wallet_on_first_startup_info">Förbereder plånbok&#8230;</string>
   <string name="importing_master_seed_from_wordlist">Beräknar huvudfrö&#8230;</string>
@@ -509,7 +487,7 @@
   <string name="title_wrong_password">Felaktigt lösenord, försök igen</string>
   <string name="dont_allow_archiving_unused_notification">Du kan inte arkivera ett oanvänt HD-konto</string>
   <string name="newly_generated_coins_from_coinbase">Nyligen genererade bitcoins</string>
-    <string name="button_continue">Fortsätt</string>
+  <string name="button_continue">Fortsätt</string>
   <string name="butto_show_release_notes">Visa detaljer</string>
   <string name="word_does_not_exist_in_wordlist">Ordet du angav finns inte med i ordlistan</string>
   <string name="pref_legacy_backup_title">Säkerhetskopia av äldre typ</string>
@@ -524,9 +502,6 @@
   <string name="direct_apk_link_label">Direkt\nnerladdning</string>
   <string name="hide_unused_account_menu">Ta bort konto</string>
   <string name="dont_allow_hiding_used_notification">Du kan inte dölja ett använt konto, men du kan arkivera det</string>
-  <string name="pref_miner_fee_title">Transaktionsavgift</string>
-  <string name="pref_miner_fee_block_summary">Transaktioner skickas med en transaktionsavgift för att inkluderas bland nästa %1s block i genomsnitt.</string>
-  <string name="miner_fee_lowprio_name">Låg prio</string>
   <string name="miner_fee_economic_name">Ekonomi</string>
   <string name="miner_fee_normal_name">Normal</string>
   <string name="miner_fee_priority_name">Prioritet</string>
@@ -563,8 +538,6 @@
   <string name="lt_confirm_delete_trader_message">Vill du ta bort din identitet för lokal handel? All handelsinformation och betyg kommer att tas bort permanent och kan inte återskapas.</string>
   <string name="rescan_account_menu_item">Ladda om konto</string>
   <string name="add_advanced_account_warning">Varning:\n Dessa nycklar kommer inte att inkluderas i din backup av huvudfrö. Du måste säkerställa att du har en separat backup av dem.</string>
-  <string name="new_random_key_desc">Generera ny slumpad nyckel</string>
-  <string name="generate_new_key">Generera</string>
   <string name="new_bitcoin_address_created">En ny slumpad privat nyckel har genererats med följande bitcoin-adress:</string>
   <string name="shuffle">Blanda</string>
   <string name="toast_warning_low_fee">kan ta längre att bekräfta</string>
@@ -607,11 +580,6 @@
   <string name="reset_pin_button">Återställ PIN-kod</string>
   <string name="wrong_pin_message">Du har angett en felaktig PIN-kod.\n\n Om du har glömt din PIN-kod kan du återställa den.</string>
   <string name="pref_no_fiat_selected">Ingen fiat-valuta vald</string>
-  <string name="useTor">Använd tor-nätverk</string>
-  <string name="useTorDescription">Använd tor-nätverket för att kommunicera med bakändeservrar.\nDetta förbättrar din integritet och kan ta sig förbi restriktiva brandväggar. Men det kan göra applikationens prestanda långsammare.</string>
-  <string name="useTorOnlyExternalTor">Använd tor-nätverk (extern tor)</string>
-  <string name="useTorOnlyHttps">Använd tor-nätverk (endast https)</string>
-  <string name="useTorBoth">Använd tor-nätverk (båda)</string>
   <string name="last_log_entries">Senaste loggposter</string>
   <string name="use_https">Använd https</string>
   <string name="use_external_tor">Använd extern tor (Orbot)</string>
@@ -649,9 +617,18 @@
   <string name="remove_queued_transaction_hint">Ditt saldo kommer att vara korrigerat efter nästa synkronisering med nätverket</string>
   <string name="remove_queued_transaction_error">Kunde inte ta bort transaktion</string>
   <string name="label_cold_storage_external_signing">Signera med:</string>
-  <string name="spending_unconfirmed_warning">Varning: spenderar obekräftade tillgångar</string>
   <string name="spending_unconfirmed_title">Spenderar obekräftade tillgångar</string>
   <string name="spending_unconfirmed_description">Din transaktion använder tillgångar som ännu inte har inkluderats i ett bitcoin-block. Om, av någon anledning, transaktionen som skickar dessa bitcoins till dig misslyckas eller förblir obekräftad, kommer även din transaktion att misslyckas eller förbli obekräftad.</string>
+  <!--<string name="colu_tos_link">Open Colu Terms and Conditions</string>-->
+  <!-- <string name="colu_tos_link_url">https://www.colu.com/TOS</string>-->
+  <!--<string name="colu_tos">By clicking "OK" you agree to use Colored Coin technology, third party-->
+  <!--blockchain technology developer. All your interactions with Colu are outside of-->
+  <!--Mycelium’s control and are subject to Colu’s T&amp;C and Privacy Policy.-->
+  <!--Please read them carefully before providing any personal information.-->
+  <!--MYCELIUM ACCEPTS NO RESPONSIBILITY AND WILL NOT BE LIABLE FOR ANY LOSS-->
+  <!--OR DAMAGE WHATSOEVER SUFFERED AS A RESULT OF ACCESSING, USE OF, OR-->
+  <!--RELIANCE UPON COLU’S INFORMATION AND SERVICES.</string>-->
+  <!--    <string name="colu_backup_info">Your Colu account access-key gets derived from your masterseed. If you have a valid backup, the access to your Colu account is also included.</string>  -->
   <!-- Credit Card -->
   <!-- Credit Card End-->
   <!-- GlideraService Start -->
