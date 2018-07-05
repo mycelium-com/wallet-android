@@ -35,8 +35,6 @@
   <string name="miner_fee_title">Taxa pentru Mineri</string>
   <string name="synchronizing">Sincronizare</string>
   <string name="transaction_not_sent">Tranzacţia nu s-a trimis</string>
-  <string name="transaction_sent">Tranzacţie trimisă</string>
-  <string name="export">Exportă</string>
   <string name="backup_private_key">Backup</string>
   <string name="copy_to_clipboard">Copiere în Clipboard</string>
   <string name="copy_private_key_to_clipboard">Copiere Cheie Privată în Clipboard</string>
@@ -71,15 +69,9 @@
   <string name="pref_clear_pin_summary">Şterge codul PIN</string>
   <string name="pref_set_pin">Setează codul PIN</string>
   <string name="pref_set_pin_summary">Setează un cod PIN pentru a restricţiona trimiterea de bitcoin, exportarea cheilor private şi schimbarea codului PIN</string>
-  <string name="pref_local_currency">Moneda Locală</string>
-  <string name="pref_local_currency_with_currency">Moneda Locală (%1$s)</string>
   <string name="pref_local_currency_summary">Selectează moneda locală folosită</string>
-  <string name="pref_exchange_source">Sursa pentru cursul bitcoin</string>
   <string name="pref_exchange_source_with_value">Sursa de Exchange (%1$s)</string>
   <string name="pref_exchange_source_summary">Selectează sursa din care vrei să obţii cursul dintre Bitcoin şi valutele fiat</string>
-  <string name="pref_bitcoin_denomination">Denominaţie Bitcoin</string>
-  <string name="pref_bitcoin_denomination_with_denomination">Denominaţie (%1$s)</string>
-  <string name="pref_bitcoin_denomination_summary">Alege denominaţia preferată pentru bitcoin. BTC, mBTC, sau μBTC</string>
   <string name="pref_advanced_settings">Setări Avansate</string>
   <string name="pref_socks_proxy">Socks Proxy</string>
   <string name="pref_socks_proxy_enabled">Socks Proxy (Activat)</string>
@@ -99,7 +91,6 @@
   <string name="delete">Șterge</string>
   <string name="payment_request">Cerere de Plată</string>
   <string name="found_clipboard_private_key_title">Cheie privată descoperită în Clipboard</string>
-  <string name="found_clipboard_private_keys_message">Clipboard-ul conţine o cheie privată.\nVrei să o ştergi?</string>
   <string name="add_to_address_book_dialog_title">Adaugă adresă</string>
   <string name="scan_address_book_desc">Scanează Adresa Bitcoin.</string>
   <string name="clipboard_address_book_desc">Preia adresa Bitcoin din clipboard.</string>
@@ -258,6 +249,16 @@
   <!-- BitID end -->
   <!-- from libNetCipher -->
   <!--/ from libNetCipher -->
+  <!--<string name="colu_tos_link">Open Colu Terms and Conditions</string>-->
+  <!-- <string name="colu_tos_link_url">https://www.colu.com/TOS</string>-->
+  <!--<string name="colu_tos">By clicking "OK" you agree to use Colored Coin technology, third party-->
+  <!--blockchain technology developer. All your interactions with Colu are outside of-->
+  <!--Mycelium’s control and are subject to Colu’s T&amp;C and Privacy Policy.-->
+  <!--Please read them carefully before providing any personal information.-->
+  <!--MYCELIUM ACCEPTS NO RESPONSIBILITY AND WILL NOT BE LIABLE FOR ANY LOSS-->
+  <!--OR DAMAGE WHATSOEVER SUFFERED AS A RESULT OF ACCESSING, USE OF, OR-->
+  <!--RELIANCE UPON COLU’S INFORMATION AND SERVICES.</string>-->
+  <!--    <string name="colu_backup_info">Your Colu account access-key gets derived from your masterseed. If you have a valid backup, the access to your Colu account is also included.</string>  -->
   <!-- Credit Card -->
   <!-- Credit Card End-->
   <!-- GlideraService Start -->

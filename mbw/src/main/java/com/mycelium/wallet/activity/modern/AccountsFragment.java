@@ -248,38 +248,39 @@ public class AccountsFragment extends Fragment {
       final WalletAccount account = _mbwManager.getSelectedAccount();
       final WalletAccount linkedAccount = Utils.getLinkedAccount(account, _mbwManager.getColuManager().getAccounts().values());
       if (account.getType() == WalletAccount.Type.COLU) {
-         deleteDialog.setMessage(getString(R.string.delete_account_message) + " " + _mbwManager.getMetadataStorage()
-                 .getLabelByAccount(account.getId()) + " holding " + account.getBalance().getSpendableBalance() +
+         deleteDialog.setMessage(getString(R.string.delete_account_message,
+                 _mbwManager.getMetadataStorage().getLabelByAccount(account.getId())
+                 + " holding " + account.getBalance().getSpendableBalance() +
                  " " + account.getAccountDefaultCurrency() + " and " + _mbwManager.getMetadataStorage()
                  .getLabelByAccount(((ColuAccount) account).getLinkedAccount().getId()) + " holding " +
-                 linkedAccount.getBalance().getSpendableBalance() + " " + linkedAccount.getAccountDefaultCurrency()
-                 + "?" + "\n" + getString(R.string.both_rmc_will_deleted
+                 linkedAccount.getBalance().getSpendableBalance() + " " + linkedAccount.getAccountDefaultCurrency())
+                 + "\n" + getString(R.string.both_rmc_will_deleted
                  , _mbwManager.getMetadataStorage().getLabelByAccount(account.getId())
                  , _mbwManager.getMetadataStorage().getLabelByAccount(((ColuAccount) account).getLinkedAccount().getId())));
       } else if (linkedAccount != null) {
-         deleteDialog.setMessage(getString(R.string.delete_account_message) + " " + _mbwManager.getMetadataStorage()
+         deleteDialog.setMessage(getString(R.string.delete_account_message, _mbwManager.getMetadataStorage()
                  .getLabelByAccount(account.getId()) + " holding " + account.getBalance().getSpendableBalance() + " " +
                  account.getAccountDefaultCurrency() + " and " + _mbwManager.getMetadataStorage()
                  .getLabelByAccount(linkedAccount.getId()) + " holding " + linkedAccount.getBalance().getSpendableBalance() +
-                 " " + linkedAccount.getAccountDefaultCurrency() + "?"
+                 " " + linkedAccount.getAccountDefaultCurrency())
                  + "\n" + getString(R.string.both_rmc_will_deleted
                  , _mbwManager.getMetadataStorage().getLabelByAccount(account.getId())
                  , _mbwManager.getMetadataStorage().getLabelByAccount(linkedAccount.getId())));
       } else {
          WalletAccount correspondingBCHAccount = _mbwManager.getWalletManager(false).getAccount(MbwManager.getBitcoinCashAccountId(account));
          if (correspondingBCHAccount != null && correspondingBCHAccount.isVisible()) {
-            deleteDialog.setMessage(getString(R.string.delete_account_message) + " " + _mbwManager.getMetadataStorage()
+            deleteDialog.setMessage(getString(R.string.delete_account_message, _mbwManager.getMetadataStorage()
                     .getLabelByAccount(account.getId()) + " holding " + account.getBalance().getSpendableBalance() + " " +
                     account.getAccountDefaultCurrency() + " and " + _mbwManager.getMetadataStorage()
                     .getLabelByAccount(correspondingBCHAccount.getId()) + " holding " + linkedAccount.getBalance().getSpendableBalance() +
-                    " " + linkedAccount.getAccountDefaultCurrency()
+                    " " + linkedAccount.getAccountDefaultCurrency())
                     + "\n" + getString(R.string.both_bch_will_deleted
                     , _mbwManager.getMetadataStorage().getLabelByAccount(account.getId())
                     , _mbwManager.getMetadataStorage().getLabelByAccount(correspondingBCHAccount.getId())));
          } else {
-            deleteDialog.setMessage(getString(R.string.delete_account_message) + " " + _mbwManager.getMetadataStorage()
+            deleteDialog.setMessage(getString(R.string.delete_account_message, _mbwManager.getMetadataStorage()
                     .getLabelByAccount(account.getId()) + " holding " + account.getBalance().getSpendableBalance() + " " +
-                    account.getAccountDefaultCurrency() + "?");
+                    account.getAccountDefaultCurrency() ));
          }
       }
 
