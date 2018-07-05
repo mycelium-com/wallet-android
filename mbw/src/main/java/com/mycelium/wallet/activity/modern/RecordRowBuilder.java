@@ -114,11 +114,13 @@ public class RecordRowBuilder {
 
         if (model.syncTotalRetrievedTransactions == 0) {
             holder.tvProgressLayout.setVisibility(View.GONE);
-         } else {
+        } else {
             holder.tvProgressLayout.setVisibility(View.VISIBLE);
-            holder.tvProgress.setText(resources.getString(R.string.sync_total_retrieved_transactions, Integer.toString(model.syncTotalRetrievedTransactions)));
-            holder.tvWhatIsSync.findViewById(R.id.tvWhatIsSync).setOnClickListener(whatIsSyncHandler);
+            holder.tvProgress.setText(resources.getString(R.string.sync_total_retrieved_transactions,
+                    Integer.toString(model.syncTotalRetrievedTransactions)));
+            holder.ivWhatIsSync.setOnClickListener(whatIsSyncHandler);
         }
+
         // Set balance
         if (model.isActive) {
             CurrencyBasedBalance balance = model.balance;
@@ -158,14 +160,17 @@ public class RecordRowBuilder {
     }
 
     private View.OnClickListener whatIsSyncHandler = new View.OnClickListener() {
-       @Override
+        @Override
         public void onClick(View view) {
-           new AlertDialog.Builder(view.getContext())
+            AlertDialog dialog = new AlertDialog.Builder(view.getContext(), R.style.MyceliumModern_Dialog)
+                    .setTitle(resources.getString(R.string.what_is_sync))
                     .setMessage(resources.getString(R.string.what_is_sync_description))
                     .setPositiveButton(R.string.button_ok, null)
-                    .create()
-                    .show();
-           }
+                    .create();
+
+            dialog.show();
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(resources.getColor(R.color.mycelium_midblue));
+        }
     };
 
     public ViewAccountModel convert(WalletAccount walletAccount) {
