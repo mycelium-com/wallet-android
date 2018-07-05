@@ -48,6 +48,7 @@ import android.util.Log;
 import com.mycelium.modularizationtools.CommunicationManager;
 import com.mycelium.modularizationtools.ModuleMessageReceiver;
 import com.mycelium.wallet.activity.settings.SettingsPreference;
+import com.mycelium.wallet.external.news.database.NewsDatabase;
 import com.mycelium.wallet.modularisation.BCHHelper;
 import com.mycelium.wapi.wallet.WalletAccount;
 
@@ -102,6 +103,7 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         applyLanguageChange(getBaseContext(), mbwManager.getLanguage());
         IntentFilter connectivityChangeFilter = new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE");
         initNetworkStateHandler(connectivityChangeFilter);
+        NewsDatabase.INSTANCE.initilize(this);
     }
 
     private void initNetworkStateHandler(IntentFilter connectivityChangeFilter) {

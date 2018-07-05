@@ -6,9 +6,6 @@ import android.text.Html
 import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import com.bumptech.glide.Glide
-import com.bumptech.glide.request.target.SimpleTarget
-import com.bumptech.glide.request.transition.Transition
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.adapter.holder.LinksViewHolder
 import com.mycelium.wallet.activity.modern.adapter.holder.NewsViewHolder
@@ -20,14 +17,15 @@ import java.util.*
 class NewsAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var data: List<News> = ArrayList()
+    private var nativeData: List<News> = ArrayList()
     var shareClickListener: ((news: News) -> Unit)? = null
     var openClickListener: ((news: News) -> Unit)? = null
 
     fun setData(data: List<News>) {
         this.data = data
+        this.nativeData = data
         notifyDataSetChanged()
     }
-
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         if (viewType == TYPE_NEWS) {
@@ -42,27 +40,9 @@ class NewsAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             val newsViewHolder = holder as NewsViewHolder
             val news = data[position - 1]
             newsViewHolder.title.text = news.title
-            newsViewHolder.itemView.category.text = news.categories.values.elementAt(0).name
-            newsViewHolder.description.text = Html.fromHtml(news.content, Html.ImageGetter { s ->
-                if (!images.containsKey(s)) {
-                    Glide.with(newsViewHolder.description.context)
-                            .load(s)
-                            .into(object : SimpleTarget<Drawable>() {
-                                override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
-                                    val viewWidth = newsViewHolder.description.width
-                                    if (resource.intrinsicWidth < viewWidth) {
-                                        resource.setBounds(0, 0, resource.intrinsicWidth, resource.intrinsicHeight)
-                                    } else {
-                                        resource.setBounds(0, 0, viewWidth, viewWidth * resource.intrinsicHeight / resource.intrinsicWidth)
-                                    }
-                                    images[s] = resource
-                                    notifyItemChanged(holder.adapterPosition)
-                                }
-                            })
-                }
-                images[s]
-            }, null)
-            newsViewHolder.date.text = DateUtils.getRelativeTimeSpanString(news.date.time)
+            newsViewHolder.itemView.category.text = if (news.categories.values.isNotEmpty()) news.categories.values.elementAt(0).name else null
+            newsViewHolder.description.text = Html.fromHtml(news.content)
+            newsViewHolder.date.text = "${DateUtils.getRelativeTimeSpanString(news.date.time)} ${newsViewHolder.date.resources.getString(R.string.bullet)} ${news.author.name}"
             newsViewHolder.share.setOnClickListener {
                 shareClickListener?.invoke(news)
             }

@@ -22,7 +22,7 @@ class NewsActivity : AppCompatActivity() {
         content.text = Html.fromHtml(news.content)
         tvTitle.text = news.title
         tvDate.text = DateUtils.getRelativeTimeSpanString(news.date.time)
-        category.text = news.categories.values.elementAt(0).name
+        category.text = if (news.categories.values.isNotEmpty()) news.categories.values.elementAt(0).name else null
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

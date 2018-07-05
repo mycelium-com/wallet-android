@@ -7,6 +7,9 @@ import java.util.Date;
 import java.util.Map;
 
 public class News implements Serializable {
+    @JsonProperty("ID")
+    public int id;
+
     @JsonProperty("title")
     public String title;
 
@@ -15,6 +18,9 @@ public class News implements Serializable {
 
     @JsonProperty("date")
     public Date date;
+
+    @JsonProperty("author")
+    public Author author;
 
     @JsonProperty("short_URL")
     public String link;

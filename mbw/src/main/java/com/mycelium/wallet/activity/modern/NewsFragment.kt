@@ -1,36 +1,31 @@
 package com.mycelium.wallet.activity.modern
 
-import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.AsyncTask
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v7.app.AlertDialog
 import android.support.v7.widget.LinearLayoutManager
-import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.support.v7.widget.SearchView
+import android.view.*
 import butterknife.ButterKnife
-import com.fasterxml.jackson.core.JsonProcessingException
-import com.fasterxml.jackson.core.type.TypeReference
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.adapter.NewsAdapter
+import com.mycelium.wallet.external.news.GetNewsTask
 import com.mycelium.wallet.external.news.NewsFactory
-import com.mycelium.wallet.external.news.model.News
+import com.mycelium.wallet.external.news.database.NewsDatabase
+import com.mycelium.wallet.external.news.model.Category
 import kotlinx.android.synthetic.main.fragment_news.*
-import java.io.IOException
 
 
 class NewsFragment : Fragment() {
 
     private var adapter: NewsAdapter? = null
-    private var sharedPreferences: SharedPreferences? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        sharedPreferences = activity?.getSharedPreferences("news", Context.MODE_PRIVATE)
+        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -56,33 +51,71 @@ class NewsFragment : Fragment() {
             intent.putExtra("news", it)
             startActivity(intent)
         }
-        val savedNews = sharedPreferences?.getString("news", null)
-        if (savedNews != null) {
-            try {
-                adapter?.setData(NewsFactory.objectMapper.readValue<Any>(savedNews, object : TypeReference<List<News>>() {
 
-                }) as List<News>)
-            } catch (e: IOException) {
-                Log.e("NewsFragment", "", e)
-            }
-
+        val task = GetNewsTask(null, listOf())
+        task.listener = {
+            adapter?.setData(it)
         }
-        object : AsyncTask<Void, Void, List<News>>() {
-            override fun doInBackground(vararg voids: Void): List<News> {
-                return NewsFactory.getService().posts().posts
-            }
+        task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
 
-            override fun onPostExecute(news: List<News>) {
-                super.onPostExecute(news)
-                adapter?.setData(news)
+        object : AsyncTask<Void, Void, Unit>() {
+            override fun doInBackground(vararg voids: Void) {
                 try {
-                    val s = NewsFactory.objectMapper.writeValueAsString(news)
-                    sharedPreferences?.edit()?.putString("news", s)?.apply()
-                } catch (e: JsonProcessingException) {
-                    e.printStackTrace()
+                    val news = NewsFactory.getService().posts().posts
+                    NewsDatabase.saveNews(news)
+                } catch (e: Exception) {
                 }
-
             }
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater?.inflate(R.menu.news, menu)
+
+        val searchItem = menu?.findItem(R.id.action_search)
+        val searchView = searchItem?.actionView as SearchView
+        searchView.setOnSearchClickListener {
+
+        }
+        searchView.setOnCloseListener {
+            false
+        }
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(s: String): Boolean {
+                GetNewsTask(s, listOf()).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
+                return true
+            }
+
+            override fun onQueryTextChange(s: String): Boolean {
+                return true
+            }
+        })
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        if (item?.itemId == R.id.action_filter) {
+            activity?.let {
+                val filter = mutableSetOf<Int>()
+                var categories = mutableListOf<Category>()
+                NewsDatabase.getCategories().forEach {  }
+                AlertDialog.Builder(it, R.style.MyceliumModern_Dialog)
+                        .setTitle("Select flows")
+                        .setMultiChoiceItems(arrayOf("News", "Must Read"), BooleanArray(2), DialogInterface.OnMultiChoiceClickListener { dialogInterface, which, isChecked ->
+                            if (isChecked) {
+                                filter.add(which)
+                            } else {
+                                filter.remove(which)
+                            }
+                        })
+                        .setNegativeButton(R.string.button_cancel, null)
+                        .setPositiveButton(R.string.button_ok, DialogInterface.OnClickListener { dialogInterface, i ->
+
+                        })
+                        .create()
+                        .show()
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 }

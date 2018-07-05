@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:gravity="bottom">
+        <shape>
+            <gradient
+                android:angle="-90"
+                android:endColor="#00252525"
+                android:startColor="#64252525" />
+            <corners
+                android:bottomLeftRadius="8dp"
+                android:bottomRightRadius="8dp" />
+            <size android:height="16dp" />
+        </shape>
+    </item>
+    <!--<item-->
+        <!--android:bottom="16dp"-->
+        <!--android:gravity="left">-->
+        <!--<shape>-->
+            <!--<gradient-->
+                <!--android:angle="0"-->
+                <!--android:endColor="#00252525"-->
+                <!--android:startColor="#64252525" />-->
+            <!--<corners android:topLeftRadius="8dp" />-->
+            <!--&lt;!&ndash;<size android:width="10dp" />&ndash;&gt;-->
+        <!--</shape>-->
+    <!--</item>-->
+    <!--<item-->
+        <!--android:bottom="16dp"-->
+        <!--android:gravity="right">-->
+        <!--<shape>-->
+            <!--<gradient-->
+                <!--android:angle="180"-->
+                <!--android:endColor="#00252525"-->
+                <!--android:startColor="#64252525" />-->
+            <!--<corners android:topRightRadius="8dp" />-->
+            <!--&lt;!&ndash;<size android:width="10dp" />&ndash;&gt;-->
+        <!--</shape>-->
+    <!--</item>-->
+    <item
+        android:bottom="8dp"
+        android:left="2dp"
+        android:right="2dp">
+        <shape>
+            <solid android:color="#1a1a1a" />
+            <corners android:radius="8dp" />
+        </shape>
+    </item>
+</layer-list>
