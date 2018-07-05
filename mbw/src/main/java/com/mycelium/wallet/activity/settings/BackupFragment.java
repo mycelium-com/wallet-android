@@ -22,11 +22,8 @@ public class BackupFragment extends PreferenceFragmentCompat {
     private static final String ARG_PREFS_ROOT = "preference_root_key";
     private String mRootKey;
 
-    private static final String ARG_FRAGMENT_OPEN_TYPE = "fragment_open_type";
+    public static final String ARG_FRAGMENT_OPEN_TYPE = "fragment_open_type";
     private int mOpenType;
-    public static final int OPEN_NONE = 0;
-    public static final int OPEN_LEGACY_BACKUP = 1;
-    public static final int OPEN_LEGACY_BACKUP_VERIFY = 2;
 
     private Preference legacyBackup;
     private Preference legacyBackupVerify;
@@ -34,10 +31,9 @@ public class BackupFragment extends PreferenceFragmentCompat {
     private MbwManager _mbwManager;
 
 
-    public static BackupFragment newInstance(int code, String pageId){
+    public static BackupFragment newInstance(String pageId){
         BackupFragment fragment = new BackupFragment();
         Bundle args = new Bundle();
-        args.putInt(ARG_FRAGMENT_OPEN_TYPE, code);
         args.putString(ARG_PREFS_ROOT, pageId);
         fragment.setArguments(args);
         return fragment;
@@ -46,7 +42,7 @@ public class BackupFragment extends PreferenceFragmentCompat {
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         if (getArguments() != null) {
-            mOpenType = getArguments().getInt(ARG_FRAGMENT_OPEN_TYPE);
+            mOpenType = getArguments().getInt(ARG_FRAGMENT_OPEN_TYPE,-1);
             mRootKey = getArguments().getString(ARG_PREFS_ROOT);
         }
 
@@ -75,12 +71,10 @@ public class BackupFragment extends PreferenceFragmentCompat {
     @SuppressLint("RestrictedApi")
     public void simulateClick(int openType){
         switch (openType){
-            case OPEN_NONE:
-                break;
-            case OPEN_LEGACY_BACKUP:
+            case 0:
                 legacyBackup.performClick();
                 break;
-            case OPEN_LEGACY_BACKUP_VERIFY:
+            case 1:
                 legacyBackupVerify.performClick();
                 break;
         }

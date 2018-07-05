@@ -16,7 +16,7 @@ import com.mycelium.wallet.R;
 public class PinCodeFragment extends PreferenceFragmentCompat {
 
     private static final String ARG_PREFS_ROOT = "preference_root_key";
-    private static final String ARG_FRAGMENT_OPEN_TYPE = "fragment_open_type";
+    public static final String ARG_FRAGMENT_OPEN_TYPE = "fragment_open_type";
     private String mRootKey;
     private int mOpenType;
 
@@ -25,14 +25,10 @@ public class PinCodeFragment extends PreferenceFragmentCompat {
     // preferences
     private CheckBoxPreference setPin;
     private CheckBoxPreference setPinRequiredStartup;
-    public static final int OPEN_NONE = 0;
-    public static final int OPEN_SET_PIN = 1;
-    public static final int OPEN_SET_PIN_REQUEST_STARTUP = 2;
 
-    public static PinCodeFragment newInstance(int code, String pageId) {
+    public static PinCodeFragment newInstance(String pageId) {
         PinCodeFragment fragment = new PinCodeFragment();
         Bundle args = new Bundle();
-        args.putInt(ARG_FRAGMENT_OPEN_TYPE, code);
         args.putString(ARG_PREFS_ROOT, pageId);
         fragment.setArguments(args);
         return fragment;
@@ -42,7 +38,7 @@ public class PinCodeFragment extends PreferenceFragmentCompat {
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         if (getArguments() != null) {
-            mOpenType = getArguments().getInt(ARG_FRAGMENT_OPEN_TYPE);
+            mOpenType = getArguments().getInt(ARG_FRAGMENT_OPEN_TYPE, -1);
             mRootKey = getArguments().getString(ARG_PREFS_ROOT);
         }
 
@@ -121,12 +117,10 @@ public class PinCodeFragment extends PreferenceFragmentCompat {
     @SuppressLint("RestrictedApi")
     public void simulateClick(int openType) {
         switch (openType){
-            case OPEN_NONE:
-                break;
-            case OPEN_SET_PIN:
+            case 0:
                 setPin.performClick();
                 break;
-            case OPEN_SET_PIN_REQUEST_STARTUP:
+            case 1:
                 setPinRequiredStartup.performClick();
                 break;
         }

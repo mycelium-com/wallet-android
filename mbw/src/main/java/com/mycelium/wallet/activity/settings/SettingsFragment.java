@@ -75,6 +75,7 @@ import com.squareup.otto.Subscribe;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -82,7 +83,7 @@ import info.guardianproject.onionkit.ui.OrbotHelper;
 
 import static android.app.Activity.RESULT_CANCELED;
 
-public class SettingsFragment extends PreferenceFragmentCompat {//implements PreferenceFragmentCompat.OnPreferenceStartScreenCallback {
+public class SettingsFragment extends PreferenceFragmentCompat {
     public static final CharMatcher AMOUNT = CharMatcher.javaDigit().or(CharMatcher.anyOf(".,"));
     private static final int REQUEST_CODE_UNINSTALL = 1;
     // adding extra info to preferences (for search)
@@ -116,9 +117,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {//implements Pre
     private DisplayPreferenceDialogHandler displayPreferenceDialogHandler;
 
     // sub screens and their preferences
-    private PreferenceScreen backupPS;
+    private PreferenceScreen backupPreferenceScreen;
     private List<Preference> backupPrefs = new ArrayList<>();
-    private PreferenceScreen pinPS;
+    private PreferenceScreen pinPreferenceScreen;
     private List<Preference> pinPrefs = new ArrayList<>();
 
     // lists to manipulate with search
@@ -244,11 +245,10 @@ public class SettingsFragment extends PreferenceFragmentCompat {//implements Pre
         displayPreferenceDialogHandler = new DisplayPreferenceDialogHandler(getActivity());
 
         // sub screens and sub prefs
-        backupPS = (PreferenceScreen) findPreference("backup");
-        createSubPreferences(backupPS, backupPrefs);
-        pinPS = (PreferenceScreen) findPreference("pincode");
-        createSubPreferences(pinPS, pinPrefs);
-        // todo other part
+        backupPreferenceScreen = (PreferenceScreen) findPreference("backup");
+        createSubPreferences(backupPreferenceScreen, backupPrefs);
+        pinPreferenceScreen = (PreferenceScreen) findPreference("pincode");
+        createSubPreferences(pinPreferenceScreen, pinPrefs);
 
 
         // adding prefs for search
@@ -259,11 +259,12 @@ public class SettingsFragment extends PreferenceFragmentCompat {//implements Pre
             foundPrefList.add(getPreferenceScreen().getPreference(i));
         }
         // adding hidden prefs
-        for (int i = 0; i < backupPS.getPreferenceCount(); i++)
-            foundPrefList.add(backupPS.getPreference(i));
-        for (int i = 0; i < pinPS.getPreferenceCount(); i++)
-            foundPrefList.add(pinPS.getPreference(i));
-        // todo add other prefs
+        List<PreferenceScreen> hiddenPreferencesScreenList = Arrays.asList(backupPreferenceScreen, pinPreferenceScreen);
+        for (PreferenceScreen preferenceScreen: hiddenPreferencesScreenList) {
+            for (int i = 0; i < preferenceScreen.getPreferenceCount(); i++) {
+                foundPrefList.add(preferenceScreen.getPreference(i));
+            }
+        }
     }
 
     /**
@@ -279,6 +280,10 @@ public class SettingsFragment extends PreferenceFragmentCompat {//implements Pre
                     Preference pref = findPreference(prefCat.getPreference(j).getKey());
                     subPrefs.add(pref);
                 }
+            }
+            else {
+                Preference pref = findPreference(preferenceScreen.getPreference(i).getKey());
+                subPrefs.add(pref);
             }
         }
     }
@@ -332,20 +337,20 @@ public class SettingsFragment extends PreferenceFragmentCompat {//implements Pre
             });
         }
 
-        pinPS.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+        pinPreferenceScreen.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 getFragmentManager()
                         .beginTransaction()
                         .setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out,
                                 R.anim.slide_left_in, R.anim.slide_right_out)
-                        .replace(R.id.fragment_container, PinCodeFragment.newInstance(PinCodeFragment.OPEN_NONE, pinPS.getKey()))
+                        .replace(R.id.fragment_container, PinCodeFragment.newInstance(pinPreferenceScreen.getKey()))
                         .addToBackStack("pincode")
                         .commitAllowingStateLoss();
                 return true;
             }
         });
-        pinPS.setSummary(_mbwManager.isPinProtected() ? "On" : "Off");
+        pinPreferenceScreen.setSummary(_mbwManager.isPinProtected() ? "On" : "Off");
 
         useTor.setTitle(getUseTorTitle());
         useTor.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -363,14 +368,14 @@ public class SettingsFragment extends PreferenceFragmentCompat {//implements Pre
             }
         });
 
-        backupPS.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+        backupPreferenceScreen.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 getFragmentManager()
                         .beginTransaction()
                         .setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out,
                                 R.anim.slide_left_in, R.anim.slide_right_out)
-                        .replace(R.id.fragment_container, BackupFragment.newInstance(BackupFragment.OPEN_NONE, backupPS.getKey()))
+                        .replace(R.id.fragment_container, BackupFragment.newInstance(backupPreferenceScreen.getKey()))
                         .addToBackStack("backup")
                         .commitAllowingStateLoss();
                 return true;
@@ -518,19 +523,25 @@ public class SettingsFragment extends PreferenceFragmentCompat {//implements Pre
     }
 
     private void bindSubPrefs() {
-        // each i corresponds to i+1 in simulateClick(i) in seb-setting's fragment
+        // each i corresponds to openType in simulateClick(i) in sub-setting's fragment
+
         for (int i = 0; i < backupPrefs.size(); i++) {
             Preference pref = backupPrefs.get(i);
 
-            final int finalI = i + 1;
+            final int finalI = i;
             pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
+                    BackupFragment backupFragment = BackupFragment.newInstance(backupPreferenceScreen.getKey());
+                    Bundle args = new Bundle();
+                    args.putInt(BackupFragment.ARG_FRAGMENT_OPEN_TYPE, finalI);
+                    backupFragment.setArguments(args);
+
                     getFragmentManager()
                             .beginTransaction()
                             .setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out,
                                     R.anim.slide_left_in, R.anim.slide_right_out)
-                            .replace(R.id.fragment_container, BackupFragment.newInstance(finalI, backupPS.getKey()))
+                            .replace(R.id.fragment_container, backupFragment)
                             .addToBackStack("backup")
                             .commitAllowingStateLoss();
                     return true;
@@ -541,15 +552,20 @@ public class SettingsFragment extends PreferenceFragmentCompat {//implements Pre
         for (int i = 0; i < pinPrefs.size(); i++) {
             Preference pref = pinPrefs.get(i);
 
-            final int finalI = i + 1;
+            final int finalI = i;
             pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
+                    PinCodeFragment pinFragment = PinCodeFragment.newInstance(pinPreferenceScreen.getKey());
+                    Bundle args = new Bundle();
+                    args.putInt(BackupFragment.ARG_FRAGMENT_OPEN_TYPE, finalI);
+                    pinFragment.setArguments(args);
+
                     getFragmentManager()
                             .beginTransaction()
                             .setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out,
                                     R.anim.slide_left_in, R.anim.slide_right_out)
-                            .replace(R.id.fragment_container, PinCodeFragment.newInstance(finalI, pinPS.getKey()))
+                            .replace(R.id.fragment_container, pinFragment)
                             .addToBackStack("pincode")
                             .commitAllowingStateLoss();
                     return true;
@@ -584,8 +600,12 @@ public class SettingsFragment extends PreferenceFragmentCompat {//implements Pre
 
             @Override
             public boolean onQueryTextChange(String s) {
-                if (s.length() == 0) refreshPreferences();
-                else findSearchResult(s);
+                if (s.length() == 0) {
+                    refreshPreferences();
+                }
+                else {
+                    findSearchResult(s);
+                }
                 return true;
             }
 
@@ -593,19 +613,17 @@ public class SettingsFragment extends PreferenceFragmentCompat {//implements Pre
                 getPreferenceScreen().removeAll();
                 List<Preference> prefs = new ArrayList<>();
                 for (Preference preferenceCat : foundPrefList) {
+                    prefs.clear();
+
                     if (preferenceCat instanceof PreferenceCategory) {
                         PreferenceCategory preferenceCategory = (PreferenceCategory) preferenceCat;
 
-                        prefs.clear();
                         for (int i = 0; i < preferenceCategory.getPreferenceCount(); i++) {
                             Preference preference = preferenceCategory.getPreference(i);
 
-                            if (preference.getTitle() != null
-                                    && preference.getTitle().toString().toLowerCase().contains(s.toLowerCase())
-                                    || preference.getSummary() != null
-                                    && preference.getSummary().toString().toLowerCase().contains(s.toLowerCase())) {
-                                if(preference.getDependency() == null)
-                                    prefs.add(preference);
+                            if ((isTitleValid(preference, s) || isSummaryValid(preference, s))
+                                    && isIndependent(preference)) {
+                                prefs.add(preference);
                             }
                         }
                         if(!prefs.isEmpty()) {
@@ -617,9 +635,29 @@ public class SettingsFragment extends PreferenceFragmentCompat {//implements Pre
                                 preferenceCategory1.addPreference(pref);
                             }
                         }
+                    } else {
+                        if ((isTitleValid(preferenceCat, s) || isSummaryValid(preferenceCat, s))
+                                && isIndependent(preferenceCat)) {
+                            getPreferenceScreen().addPreference(preferenceCat);
+                        }
                     }
                 }
             }
+
+            private boolean isTitleValid(Preference preference, String search) {
+                return preference.getTitle() != null
+                        && preference.getTitle().toString().toLowerCase().contains(search.toLowerCase());
+            }
+
+            private boolean isSummaryValid(Preference preference, String search) {
+                return preference.getSummary() != null
+                        && preference.getSummary().toString().toLowerCase().contains(search.toLowerCase());
+            }
+
+            private boolean isIndependent(Preference preference) {
+                return preference.getDependency() == null;
+            }
+
         });
         ActionBar actionBar = ((SettingsActivity) getActivity()).getSupportActionBar();
         actionBar.setDisplayShowHomeEnabled(true);
