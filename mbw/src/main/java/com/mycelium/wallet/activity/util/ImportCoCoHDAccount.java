@@ -12,6 +12,7 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.colu.ColuManager;
+import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
 
 import java.io.IOException;
@@ -71,7 +72,7 @@ public class ImportCoCoHDAccount extends AsyncTask<Void, Integer, UUID> {
         }
 
         //Make sure that accounts are up to date
-        coluManager.scanForAccounts();
+        coluManager.scanForAccounts(SyncMode.FULL_SYNC_ALL_ACCOUNTS);
         for (WalletAccount account : accountsCreated) {
             BigDecimal spendableBalance = account.getCurrencyBasedBalance().confirmed.getValue();
             switch (((ColuAccount) account).getColuAsset().assetType) {
