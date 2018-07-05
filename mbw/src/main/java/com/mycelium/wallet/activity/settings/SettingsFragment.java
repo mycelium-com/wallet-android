@@ -816,8 +816,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 for (int index = 0; index < modulesPrefs.getPreferenceCount(); index++) {
                     Preference preferenceButton = modulesPrefs.getPreference(index);
                     if (preferenceButton instanceof ButtonPreference) {
-                        if (ModularisationVersionHelper.isUpdateRequired(getActivity(), preferenceButton.getKey().replace("Module_", "")))
+                        if (!ModularisationVersionHelper.isUpdateRequired(getActivity(), preferenceButton.getKey().replace("Module_", ""))) {
                             preferenceButton.setEnabled(true);
+                        }
                     } else if (preferenceButton instanceof TwoButtonsPreference) {
                         ((TwoButtonsPreference) preferenceButton).setEnabled(false, true, true);
                     }
