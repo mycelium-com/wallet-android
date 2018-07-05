@@ -353,6 +353,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         pinPreferenceScreen.setSummary(_mbwManager.isPinProtected() ? "On" : "Off");
 
         useTor.setTitle(getUseTorTitle());
+        useTor.setChecked(_mbwManager.getTorMode() == ServerEndpointType.Types.ONLY_TOR);
         useTor.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
