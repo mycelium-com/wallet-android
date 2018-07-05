@@ -340,5 +340,10 @@
         <item name="android:paddingEnd">@dimen/button_padding_large</item>
     </style>
 
+    <style name="Switch" parent="Theme.AppCompat.Light">
+        <item name="colorControlActivated">@android:color/holo_red_light</item>
+        <item name="colorSwitchThumbNormal">@android:color/darker_gray</item>
+    </style>
+
     <color name="btn_text_color">#5aa7e6</color>
 </resources>
