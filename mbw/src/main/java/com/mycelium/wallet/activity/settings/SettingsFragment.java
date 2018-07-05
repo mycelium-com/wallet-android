@@ -21,6 +21,7 @@ import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceCategory;
 import android.support.v7.preference.PreferenceFragmentCompat;
+import android.support.v7.preference.PreferenceScreen;
 import android.support.v7.preference.PreferenceViewHolder;
 import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.RecyclerView;
@@ -74,6 +75,7 @@ import com.squareup.otto.Subscribe;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -84,6 +86,10 @@ import static android.app.Activity.RESULT_CANCELED;
 public class SettingsFragment extends PreferenceFragmentCompat {
     public static final CharMatcher AMOUNT = CharMatcher.javaDigit().or(CharMatcher.anyOf(".,"));
     private static final int REQUEST_CODE_UNINSTALL = 1;
+    // adding extra info to preferences (for search)
+    private static final String TAG = "settingsfragmenttag";
+
+    private SearchView searchView;
 
     private ListPreference language;
     private ListPreference _bitcoinDenomination;
@@ -95,10 +101,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private LocalTraderManager _ltManager;
     private ListPreference _minerFee;
     private ListPreference _blockExplorer;
-    private Preference pincodePreference;
     private Preference notificationPreference;
     private CheckBoxPreference useTor;
-    private Preference backupPreference;
     private PreferenceCategory modulesPrefs;
     private Preference externalPreference;
     private Preference versionPreference;
@@ -112,7 +116,15 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
     private DisplayPreferenceDialogHandler displayPreferenceDialogHandler;
 
-    private List<Preference> preferenceList = new ArrayList<>();
+    // sub screens and their preferences
+    private PreferenceScreen backupPreferenceScreen;
+    private List<Preference> backupPrefs = new ArrayList<>();
+    private PreferenceScreen pinPreferenceScreen;
+    private List<Preference> pinPrefs = new ArrayList<>();
+
+    // lists to manipulate with search
+    private List<Preference> rootPreferenceList = new ArrayList<>();
+    private List<Preference> foundPrefList = new ArrayList<>();
 
     private final Preference.OnPreferenceClickListener localCurrencyClickListener = new Preference.OnPreferenceClickListener() {
         public boolean onPreferenceClick(Preference preference) {
@@ -214,13 +226,11 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         _exchangeSource = (ListPreference) findPreference("exchange_source");
         language = (ListPreference) findPreference(Constants.LANGUAGE_SETTING);
         notificationPreference = findPreference("notifications");
-        pincodePreference = findPreference("pincode");
         // Socks Proxy
         useTor = (CheckBoxPreference) Preconditions.checkNotNull(findPreference(Constants.SETTING_TOR));
         showBip44Path = (CheckBoxPreference) findPreference("showBip44Path");
         ledgerDisableTee = (CheckBoxPreference) findPreference("ledgerDisableTee");
         ledgerSetUnpluggedAID = findPreference("ledgerUnpluggedAID");
-        backupPreference = findPreference("backup");
         // external Services
         modulesPrefs = (PreferenceCategory) findPreference("modulesPrefs");
         localTraderDisable = (CheckBoxPreference) findPreference("ltDisable");
@@ -233,6 +243,49 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         localTraderPrefs = (PreferenceCategory) findPreference("localtraderPrefs");
 
         displayPreferenceDialogHandler = new DisplayPreferenceDialogHandler(getActivity());
+
+        // sub screens and sub prefs
+        backupPreferenceScreen = (PreferenceScreen) findPreference("backup");
+        createSubPreferences(backupPreferenceScreen, backupPrefs);
+        pinPreferenceScreen = (PreferenceScreen) findPreference("pincode");
+        createSubPreferences(pinPreferenceScreen, pinPrefs);
+
+
+        // adding prefs for search
+        rootPreferenceList.clear();
+        foundPrefList.clear();
+        for (int i = 0; i < getPreferenceScreen().getPreferenceCount(); i++) {
+            rootPreferenceList.add(getPreferenceScreen().getPreference(i));
+            foundPrefList.add(getPreferenceScreen().getPreference(i));
+        }
+        // adding hidden prefs
+        List<PreferenceScreen> hiddenPreferencesScreenList = Arrays.asList(backupPreferenceScreen, pinPreferenceScreen);
+        for (PreferenceScreen preferenceScreen: hiddenPreferencesScreenList) {
+            for (int i = 0; i < preferenceScreen.getPreferenceCount(); i++) {
+                foundPrefList.add(preferenceScreen.getPreference(i));
+            }
+        }
+    }
+
+    /**
+     * Initializes sub preferences that are in preferences.xml
+     * @param preferenceScreen The PreferenceScreen that hosts sub-settings
+     * @param subPrefs Array list is needed to bind the preferences in bindSubPrefs()
+     */
+    private void createSubPreferences(PreferenceScreen preferenceScreen, List<Preference> subPrefs) {
+        for (int i = 0; i < preferenceScreen.getPreferenceCount(); i++) {
+            if (preferenceScreen.getPreference(i) instanceof PreferenceCategory) {
+                PreferenceCategory prefCat = (PreferenceCategory) preferenceScreen.getPreference(i);
+                for (int j = 0; j < prefCat.getPreferenceCount(); j++) {
+                    Preference pref = findPreference(prefCat.getPreference(j).getKey());
+                    subPrefs.add(pref);
+                }
+            }
+            else {
+                Preference pref = findPreference(preferenceScreen.getPreference(i).getKey());
+                subPrefs.add(pref);
+            }
+        }
     }
 
     @Override
@@ -270,7 +323,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 return true;
             }
         });
-
         if (notificationPreference != null) {
             notificationPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
@@ -285,20 +337,20 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             });
         }
 
-        pincodePreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+        pinPreferenceScreen.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 getFragmentManager()
                         .beginTransaction()
                         .setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out,
                                 R.anim.slide_left_in, R.anim.slide_right_out)
-                        .replace(R.id.fragment_container, new PinCodeFragment())
+                        .replace(R.id.fragment_container, PinCodeFragment.newInstance(pinPreferenceScreen.getKey()))
                         .addToBackStack("pincode")
                         .commitAllowingStateLoss();
                 return true;
             }
         });
-        pincodePreference.setSummary(_mbwManager.isPinProtected() ? "On" : "Off");
+        pinPreferenceScreen.setSummary(_mbwManager.isPinProtected() ? "On" : "Off");
 
         useTor.setTitle(getUseTorTitle());
         useTor.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -316,14 +368,14 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             }
         });
 
-        backupPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+        backupPreferenceScreen.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 getFragmentManager()
                         .beginTransaction()
                         .setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out,
                                 R.anim.slide_left_in, R.anim.slide_right_out)
-                        .replace(R.id.fragment_container, new BackupFragment())
+                        .replace(R.id.fragment_container, BackupFragment.newInstance(backupPreferenceScreen.getKey()))
                         .addToBackStack("backup")
                         .commitAllowingStateLoss();
                 return true;
@@ -466,31 +518,76 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 return true;
             }
         });
+
+        bindSubPrefs();
     }
+
+    private void bindSubPrefs() {
+        // each i corresponds to openType in simulateClick(i) in sub-setting's fragment
+
+        for (int i = 0; i < backupPrefs.size(); i++) {
+            Preference pref = backupPrefs.get(i);
+
+            final int finalI = i;
+            pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    BackupFragment backupFragment = BackupFragment.newInstance(backupPreferenceScreen.getKey());
+                    Bundle args = new Bundle();
+                    args.putInt(BackupFragment.ARG_FRAGMENT_OPEN_TYPE, finalI);
+                    backupFragment.setArguments(args);
+
+                    getFragmentManager()
+                            .beginTransaction()
+                            .setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out,
+                                    R.anim.slide_left_in, R.anim.slide_right_out)
+                            .replace(R.id.fragment_container, backupFragment)
+                            .addToBackStack("backup")
+                            .commitAllowingStateLoss();
+                    return true;
+                }
+            });
+        }
+
+        for (int i = 0; i < pinPrefs.size(); i++) {
+            Preference pref = pinPrefs.get(i);
+
+            final int finalI = i;
+            pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    PinCodeFragment pinFragment = PinCodeFragment.newInstance(pinPreferenceScreen.getKey());
+                    Bundle args = new Bundle();
+                    args.putInt(BackupFragment.ARG_FRAGMENT_OPEN_TYPE, finalI);
+                    pinFragment.setArguments(args);
+
+                    getFragmentManager()
+                            .beginTransaction()
+                            .setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out,
+                                    R.anim.slide_left_in, R.anim.slide_right_out)
+                            .replace(R.id.fragment_container, pinFragment)
+                            .addToBackStack("pincode")
+                            .commitAllowingStateLoss();
+                    return true;
+                }
+            });
+        }
+
+    }
+
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.menu_settings, menu);
 
-
         MenuItem searchItem = menu.findItem(R.id.action_search);
-        SearchView searchView = (SearchView) searchItem.getActionView();
-        searchView.setOnSearchClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                for (int i = 0; i < getPreferenceScreen().getPreferenceCount(); i++) {
-                    preferenceList.add(getPreferenceScreen().getPreference(i));
-                }
-            }
-        });
+        searchView = (SearchView) searchItem.getActionView();
+
         searchView.setOnCloseListener(new SearchView.OnCloseListener() {
             @Override
             public boolean onClose() {
-                getPreferenceScreen().removeAll();
-                for (Preference preference : preferenceList) {
-                    getPreferenceScreen().addPreference(preference);
-                }
+                refreshPreferences();
                 return false;
             }
         });
@@ -503,25 +600,29 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
             @Override
             public boolean onQueryTextChange(String s) {
-                findSearchResult(s);
-
+                if (s.length() == 0) {
+                    refreshPreferences();
+                }
+                else {
+                    findSearchResult(s);
+                }
                 return true;
             }
 
             private void findSearchResult(String s) {
                 getPreferenceScreen().removeAll();
                 List<Preference> prefs = new ArrayList<>();
-                for (Preference preferenceCat : preferenceList) {
+                for (Preference preferenceCat : foundPrefList) {
+                    prefs.clear();
+
                     if (preferenceCat instanceof PreferenceCategory) {
                         PreferenceCategory preferenceCategory = (PreferenceCategory) preferenceCat;
 
-                        prefs.clear();
                         for (int i = 0; i < preferenceCategory.getPreferenceCount(); i++) {
                             Preference preference = preferenceCategory.getPreference(i);
-                            if (preference.getTitle() != null
-                                    && preference.getTitle().toString().toLowerCase().contains(s.toLowerCase())
-                                    || preference.getSummary() != null
-                                    && preference.getSummary().toString().toLowerCase().contains(s.toLowerCase())) {
+
+                            if ((isTitleValid(preference, s) || isSummaryValid(preference, s))
+                                    && isIndependent(preference)) {
                                 prefs.add(preference);
                             }
                         }
@@ -534,22 +635,44 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                                 preferenceCategory1.addPreference(pref);
                             }
                         }
+                    } else {
+                        if ((isTitleValid(preferenceCat, s) || isSummaryValid(preferenceCat, s))
+                                && isIndependent(preferenceCat)) {
+                            getPreferenceScreen().addPreference(preferenceCat);
+                        }
                     }
                 }
             }
+
+            private boolean isTitleValid(Preference preference, String search) {
+                return preference.getTitle() != null
+                        && preference.getTitle().toString().toLowerCase().contains(search.toLowerCase());
+            }
+
+            private boolean isSummaryValid(Preference preference, String search) {
+                return preference.getSummary() != null
+                        && preference.getSummary().toString().toLowerCase().contains(search.toLowerCase());
+            }
+
+            private boolean isIndependent(Preference preference) {
+                return preference.getDependency() == null;
+            }
+
         });
         ActionBar actionBar = ((SettingsActivity) getActivity()).getSupportActionBar();
         actionBar.setDisplayShowHomeEnabled(true);
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setHomeAsUpIndicator(R.drawable.ic_back_arrow);
         actionBar.setTitle(R.string.settings);
-
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            getActivity().finish();
+            if(searchView.isIconified())
+                getActivity().finish();
+            else
+                searchView.setIconified(true);
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -738,7 +861,15 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     @Override
     public void onPause() {
         _mbwManager.getEventBus().unregister(this);
+        refreshPreferences();
         super.onPause();
+    }
+
+    private void refreshPreferences()
+    {
+        getPreferenceScreen().removeAll();
+        for (Preference preference : rootPreferenceList)
+            getPreferenceScreen().addPreference(preference);
     }
 
     @SuppressWarnings("deprecation")

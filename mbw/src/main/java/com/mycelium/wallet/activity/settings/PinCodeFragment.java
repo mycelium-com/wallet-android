@@ -1,5 +1,6 @@
 package com.mycelium.wallet.activity.settings;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.preference.CheckBoxPreference;
@@ -13,14 +14,36 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 
 public class PinCodeFragment extends PreferenceFragmentCompat {
+
+    private static final String ARG_PREFS_ROOT = "preference_root_key";
+    public static final String ARG_FRAGMENT_OPEN_TYPE = "fragment_open_type";
+    private String mRootKey;
+    private int mOpenType;
+
     private MbwManager _mbwManager;
 
+    // preferences
     private CheckBoxPreference setPin;
     private CheckBoxPreference setPinRequiredStartup;
 
+    public static PinCodeFragment newInstance(String pageId) {
+        PinCodeFragment fragment = new PinCodeFragment();
+        Bundle args = new Bundle();
+        args.putString(ARG_PREFS_ROOT, pageId);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-        addPreferencesFromResource(R.xml.preferences_pincode);
+        if (getArguments() != null) {
+            mOpenType = getArguments().getInt(ARG_FRAGMENT_OPEN_TYPE, -1);
+            mRootKey = getArguments().getString(ARG_PREFS_ROOT);
+        }
+
+        setPreferencesFromResource(R.xml.preferences, mRootKey);
+
         _mbwManager = MbwManager.getInstance(getActivity().getApplication());
 
         setHasOptionsMenu(true);
@@ -37,6 +60,8 @@ public class PinCodeFragment extends PreferenceFragmentCompat {
         setPinRequiredStartup = (CheckBoxPreference) Preconditions.checkNotNull(findPreference("requirePinOnStartup"));
         setPinRequiredStartup.setOnPreferenceChangeListener(setPinOnStartupClickListener);
         update();
+
+        simulateClick(mOpenType);
     }
 
     @Override
@@ -87,5 +112,17 @@ public class PinCodeFragment extends PreferenceFragmentCompat {
     void update() {
         setPin.setChecked(_mbwManager.isPinProtected());
         setPinRequiredStartup.setChecked(_mbwManager.isPinProtected() && _mbwManager.getPinRequiredOnStartup());
+    }
+
+    @SuppressLint("RestrictedApi")
+    public void simulateClick(int openType) {
+        switch (openType){
+            case 0:
+                setPin.performClick();
+                break;
+            case 1:
+                setPinRequiredStartup.performClick();
+                break;
+        }
     }
 }
