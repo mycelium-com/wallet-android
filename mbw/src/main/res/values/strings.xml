@@ -449,7 +449,8 @@
     <string name="cs_address_description">You have scanned a Bitcoin address. You can view the balance but not spend from it.</string>
     <string name="contains_keys">Contains %1$s private keys.</string>
     <string name="contains_addresses">Contains %1$s addresses.</string>
-    <string name="sync_total_retrieved_transactions">Syncing: %1$s transactions retrieved.</string>
+    <!--<string name="sync_total_retrieved_transactions">Syncing: %1$s transactions retrieved.</string>-->
+    <string name="sync_total_retrieved_transactions">Syncing in progress: %1$s transactions retrieved</string>
     <string name="archiving_account_title">Archiving Account</string>
     <string name="new_version_exists">A new Version is available</string>
     <string name="check_update">Check for Update</string>
