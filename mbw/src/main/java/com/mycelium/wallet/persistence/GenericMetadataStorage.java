@@ -55,7 +55,7 @@ class GenericMetadataStorage {
    private static final String TABLE_TRANSACTION_LABELS = "transactionlabels";
    // the actual and only table
    private static final String TABLE_KEY_VALUE_STORE = "keyValueStore";
-   private final SQLiteStatement getLabelQuery;
+   private final SQLiteStatement getKeyCategoryQuery;
 
    private class OpenHelper extends SQLiteOpenHelper {
       private static final String DATABASE_NAME = "mds.db";
@@ -88,7 +88,7 @@ class GenericMetadataStorage {
       OpenHelper openHelper = new OpenHelper(context);
       _db = openHelper.getWritableDatabase();
       _insertOrReplaceKeyValueEntry = _db.compileStatement("INSERT OR REPLACE INTO " + TABLE_KEY_VALUE_STORE + " VALUES (?,?,?)");
-      getLabelQuery = _db.compileStatement("SELECT value FROM " + TABLE_KEY_VALUE_STORE + " WHERE (key = ? and category = ?) LIMIT 1");
+      getKeyCategoryQuery = _db.compileStatement("SELECT value FROM " + TABLE_KEY_VALUE_STORE + " WHERE (key = ? and category = ?) LIMIT 1");
    }
 
    void storeKeyCategoryValueEntry(final MetadataKeyCategory keyCategory, final String value){
@@ -125,9 +125,9 @@ class GenericMetadataStorage {
 
    private synchronized Optional<String> getKeyCategoryValueEntry(final String key, final String category){
       try {
-         getLabelQuery.bindString(1, key);
-         getLabelQuery.bindString(2, category);
-         return Optional.of(getLabelQuery.simpleQueryForString());
+         getKeyCategoryQuery.bindString(1, key);
+         getKeyCategoryQuery.bindString(2, category);
+         return Optional.of(getKeyCategoryQuery.simpleQueryForString());
       } catch (SQLiteDoneException ignore){
          return Optional.absent();
       }

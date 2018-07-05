@@ -122,7 +122,13 @@ public class TransactionHistoryFragment extends Fragment {
    private MetadataStorage _storage;
    private View _root;
    private ActionMode currentActionMode;
-   private AtomicBoolean isLoadingPossible = new AtomicBoolean(true);
+   /**
+    * This field shows if {@link Preloader} may be started (initial - true).
+    * After {@link TransactionHistoryFragment#selectedAccountChanged} it's true
+    * Before {@link Preloader} started it's set to false to prevent multiple-loadings.
+    * When {@link Preloader#doInBackground(Void...)} finishes it's routine it's setting true if limit was reached, else false
+    */
+   private final AtomicBoolean isLoadingPossible = new AtomicBoolean(true);
    @BindView(R.id.no_transaction_message)
    TextView noTransactionMessage;
    private List<TransactionSummary> history = new ArrayList<>();
