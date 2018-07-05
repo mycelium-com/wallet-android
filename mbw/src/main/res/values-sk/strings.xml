@@ -29,8 +29,6 @@
   <string name="miner_fee_title">Poplatok za transakciu</string>
   <string name="synchronizing">Synchronizuje sa</string>
   <string name="transaction_not_sent">Neúspešne sa odoslala transakcia</string>
-  <string name="transaction_sent">Transakcia bola odoslaná</string>
-  <string name="export">Exportovať</string>
   <string name="backup_private_key">Zálohovať</string>
   <string name="copy_to_clipboard">Skopírovať do Schránky</string>
   <string name="copy_private_key_to_clipboard">Skopírovať Privátny Kľúč do Schránky</string>
@@ -65,15 +63,9 @@
   <string name="pref_clear_pin_summary">Vymazať aktuálny PIN kód</string>
   <string name="pref_set_pin">Nastav PIN kód</string>
   <string name="pref_set_pin_summary">Nastavenie PIN kódu obmedzuje posielanie bitcoinov, exportovanie Privátných Kľúčov, a menenie PIN kódu</string>
-  <string name="pref_local_currency">Lokálna Mena</string>
-  <string name="pref_local_currency_with_currency">Lokálna Mena (%1$s)</string>
   <string name="pref_local_currency_summary">Vyberte Lokálnu Fiat Menu</string>
-  <string name="pref_exchange_source">Burzový Zdroj</string>
   <string name="pref_exchange_source_with_value">Burzový Zdroj (%1$s)</string>
   <string name="pref_exchange_source_summary">Vyberte zdroj pre sťahovanie výmenného kurzu medzi Bitcoinom a fiatovými menami</string>
-  <string name="pref_bitcoin_denomination">Denominácia Bitcoinu</string>
-  <string name="pref_bitcoin_denomination_with_denomination">Denominácia (%1$s)</string>
-  <string name="pref_bitcoin_denomination_summary">Nastavte preferovanú denomináciu Bitcoinu. BTC, mBTC alebo μBTC</string>
   <string name="pref_advanced_settings">Pokročilé Nastavenia</string>
   <string name="pref_socks_proxy">Socks Proxy</string>
   <string name="pref_socks_proxy_enabled">Socks Proxy (Používa sa)</string>
@@ -94,7 +86,6 @@
   <string name="payment_request">Žiadosť o Platbu</string>
   <string name="export_to_clipboard_warning">Upozornenie: Exportovanie Privátneho Kľúča do Schránky ho vystavuje všetkým ostatným aplikáciam na Vašom Zariadení.\n\nPoznámka: Nie je bezpečné skladovať Váš Privátny Kľúč v Schránke, musíte ho prilepiť na bezpečné miesto.\n\nChcete pokračovať?</string>
   <string name="found_clipboard_private_key_title">Nájdený Privátny Kľúč v Schránke</string>
-  <string name="found_clipboard_private_keys_message">Schránka obsahuje Privátny Kľúč.\nChcete ho z nej vymazať?</string>
   <string name="exchange_source_not_available">Výmenný kurz nie je dostupný pre %1$s</string>
   <string name="my_own_address_warning">Poznámka: Posielate si na jednu z Vaších vlastných Adries.</string>
   <string name="read_only_warning">Upozornenie: Vaša peňaženka nemá Privátny Kľúč pre túto Adresu.\nNedokážete používať mince naň prijaté dokiaľ nemáte Privátny Kľuč niekde.</string>
@@ -142,7 +133,6 @@
   <string name="encrypted_pdf_backup_document_ready">PDF dokument bol vytvorený</string>
   <string name="encrypted_pdf_backup_sharing">Zdieľajte PDF dokument&#8230;</string>
   <string name="encrypted_pdf_backup_email_title">Záloha Peňaženky Mycelium</string>
-  <string name="encrypted_pdf_backup_email_text">Vaša Záloha Peňaženky Mycelium je priložená.\n\nNasledujte tieto jednoduché kroky pre zabezpečenie Vaších financií:\n1. Vytlačte si PDF dokument.\n2. Zapíšte si 15 znakové heslo z displeju Vášho Androidového zariadenia do modrých políčiek na papieri.\n3. Overte si či môžte importovať Privátne Kľúče do Vašej Mycelium Peňaženky.\n4. Skladujte výtlačok na bezpečnom mieste.</string>
   <string name="share_pdf">Zdieľaj PDF</string>
   <string name="share_with">Zdieľaj s&#8230;</string>
   <string name="import_decrypt_key_title">Dekrypcia Privátného Kľúča</string>
@@ -223,6 +213,16 @@
   <!-- BitID end -->
   <!-- from libNetCipher -->
   <!--/ from libNetCipher -->
+  <!--<string name="colu_tos_link">Open Colu Terms and Conditions</string>-->
+  <!-- <string name="colu_tos_link_url">https://www.colu.com/TOS</string>-->
+  <!--<string name="colu_tos">By clicking "OK" you agree to use Colored Coin technology, third party-->
+  <!--blockchain technology developer. All your interactions with Colu are outside of-->
+  <!--Mycelium’s control and are subject to Colu’s T&amp;C and Privacy Policy.-->
+  <!--Please read them carefully before providing any personal information.-->
+  <!--MYCELIUM ACCEPTS NO RESPONSIBILITY AND WILL NOT BE LIABLE FOR ANY LOSS-->
+  <!--OR DAMAGE WHATSOEVER SUFFERED AS A RESULT OF ACCESSING, USE OF, OR-->
+  <!--RELIANCE UPON COLU’S INFORMATION AND SERVICES.</string>-->
+  <!--    <string name="colu_backup_info">Your Colu account access-key gets derived from your masterseed. If you have a valid backup, the access to your Colu account is also included.</string>  -->
   <!-- Credit Card -->
   <!-- Credit Card End-->
   <!-- GlideraService Start -->
