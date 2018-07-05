@@ -45,6 +45,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -59,11 +60,11 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.commonsware.cwac.endless.EndlessAdapter;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.UnableToBuildTransactionException;
@@ -88,6 +89,7 @@ import com.mycelium.wallet.coinapult.CoinapultTransactionSummary;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.AddressBookChanged;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
+import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wallet.event.TransactionLabelChanged;
 import com.mycelium.wallet.persistence.MetadataStorage;
@@ -103,6 +105,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -119,6 +122,13 @@ public class TransactionHistoryFragment extends Fragment {
    private MetadataStorage _storage;
    private View _root;
    private ActionMode currentActionMode;
+   /**
+    * This field shows if {@link Preloader} may be started (initial - true).
+    * After {@link TransactionHistoryFragment#selectedAccountChanged} it's true
+    * Before {@link Preloader} started it's set to false to prevent multiple-loadings.
+    * When {@link Preloader#doInBackground(Void...)} finishes it's routine it's setting true if limit was reached, else false
+    */
+   private final AtomicBoolean isLoadingPossible = new AtomicBoolean(true);
    @BindView(R.id.no_transaction_message)
    TextView noTransactionMessage;
    private List<TransactionSummary> history = new ArrayList<>();
@@ -126,8 +136,9 @@ public class TransactionHistoryFragment extends Fragment {
    @BindView(R.id.btRescan)
    View btnReload;
 
-   private Wrapper wrapper;
+   private TransactionHistoryAdapter adapter;
    private TransactionHistoryModel model;
+   private ListView listView;
 
    @Override
    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -147,15 +158,16 @@ public class TransactionHistoryFragment extends Fragment {
 
    @Override
    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-      if (wrapper == null) {
-         wrapper = new Wrapper(getActivity(), history);
-         updateWrapper(wrapper);
+      listView = _root.findViewById(R.id.lvTransactionHistory);
+      if (adapter == null) {
+         adapter = new TransactionHistoryAdapter(getActivity(), history);
+         updateWrapper(adapter);
          model.getTransactionHistory().observe(this, new Observer<List<? extends TransactionSummary>>() {
             @Override
             public void onChanged(@Nullable List<? extends TransactionSummary> transactionSummaries) {
                history.clear();
                history.addAll(transactionSummaries);
-               wrapper.notifyDataSetChanged();
+               adapter.notifyDataSetChanged();
                showHistory(!history.isEmpty());
                refreshList();
             }
@@ -209,7 +221,7 @@ public class TransactionHistoryFragment extends Fragment {
    }
 
    void refreshList() {
-      ((ListView) _root.findViewById(R.id.lvTransactionHistory)).invalidateViews();
+      listView.invalidateViews();
    }
 
    @Subscribe
@@ -221,6 +233,12 @@ public class TransactionHistoryFragment extends Fragment {
    public void addressBookEntryChanged(AddressBookChanged event) {
       model.cacheAddressBook();
       refreshList();
+   }
+
+   @Subscribe
+   public void selectedAccountChanged(SelectedAccountChanged event) {
+      isLoadingPossible.set(true);
+      listView.setSelection(0);
    }
 
    private void doShowDetails(TransactionSummary selected) {
@@ -235,12 +253,71 @@ public class TransactionHistoryFragment extends Fragment {
 
    void showHistory(boolean visible) {
       _root.findViewById(R.id.llNoRecords).setVisibility(visible ? View.GONE : View.VISIBLE);
-      _root.findViewById(R.id.lvTransactionHistory).setVisibility(visible ? View.VISIBLE : View.GONE);
+      listView.setVisibility(visible ? View.VISIBLE : View.GONE);
    }
 
-   public void updateWrapper(Wrapper wrapper) {
-      this.wrapper = wrapper;
-      ((ListView) _root.findViewById(R.id.lvTransactionHistory)).setAdapter(wrapper);
+   public void updateWrapper(TransactionHistoryAdapter adapter) {
+      this.adapter = adapter;
+      listView.setAdapter(adapter);
+      listView.setOnScrollListener(new AbsListView.OnScrollListener() {
+         private static final int OFFSET = 20;
+         private final List<TransactionSummary> toAdd = new ArrayList<>();
+         @Override
+         public void onScrollStateChanged(AbsListView view, int scrollState) {
+            synchronized (toAdd) {
+               if (!toAdd.isEmpty() && view.getLastVisiblePosition() == history.size() - 1) {
+                  model.getTransactionHistory().appendList(toAdd);
+                  toAdd.clear();
+               }
+            }
+         }
+
+         @Override
+         public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+            if (firstVisibleItem + visibleItemCount >= totalItemCount - OFFSET) {
+               boolean toAddEmpty;
+               synchronized (toAdd) {
+                  toAddEmpty = toAdd.isEmpty();
+               }
+               if (toAddEmpty && isLoadingPossible.compareAndSet(true, false)) {
+                  new Preloader(toAdd, _mbwManager.getSelectedAccount(), totalItemCount,
+                          OFFSET, isLoadingPossible).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+               }
+               if (firstVisibleItem + visibleItemCount == totalItemCount && !toAddEmpty) {
+                  synchronized (toAdd) {
+                     model.getTransactionHistory().appendList(toAdd);
+                     toAdd.clear();
+                  }
+               }
+            }
+         }
+      });
+   }
+
+   static class Preloader extends AsyncTask<Void, Void, Void> {
+      private final List<TransactionSummary> toAdd;
+      private final WalletAccount account;
+      private final int offset;
+      private final int limit;
+      private final AtomicBoolean success;
+
+      Preloader(List<TransactionSummary> toAdd, WalletAccount account, int offset, int limit, AtomicBoolean success) {
+         this.toAdd = toAdd;
+         this.account = account;
+         this.offset = offset;
+         this.limit = limit;
+         this.success = success;
+      }
+
+      @Override
+      protected Void doInBackground(Void... voids) {
+         List<TransactionSummary> preloadedData = account.getTransactionHistory(offset, limit);
+         synchronized (toAdd) {
+            toAdd.addAll(preloadedData);
+            success.set(toAdd.size() == limit);
+         }
+         return null;
+      }
    }
 
    @Override
@@ -260,7 +337,7 @@ public class TransactionHistoryFragment extends Fragment {
    @Override
    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
       super.onCreateOptionsMenu(menu, inflater);
-      if(wrapper != null && wrapper.getCount() > 0) {
+      if (adapter != null && adapter.getCount() > 0) {
          inflater.inflate(R.menu.export_history, menu);
       }
    }
@@ -337,7 +414,7 @@ public class TransactionHistoryFragment extends Fragment {
 
                      }
                      currentActionMode = actionMode;
-                     ((ListView) _root.findViewById(R.id.lvTransactionHistory)).setItemChecked(position, true);
+                     listView.setItemChecked(position, true);
                   }
 
                   @Override
@@ -515,7 +592,7 @@ public class TransactionHistoryFragment extends Fragment {
 
                   @Override
                   public void onDestroyActionMode(ActionMode actionMode) {
-                     ((ListView) _root.findViewById(R.id.lvTransactionHistory)).setItemChecked(position, false);
+                     listView.setItemChecked(position, false);
                      currentActionMode = null;
                   }
                });
@@ -576,52 +653,7 @@ public class TransactionHistoryFragment extends Fragment {
       }
    };
 
-   class Wrapper extends EndlessAdapter {
-      private List<TransactionSummary> _toAdd;
-      private final Object _toAddLock = new Object();
-      private int lastOffset;
-      private int chunkSize;
 
-      Wrapper(Context context, List<TransactionSummary> transactions) {
-         super(new TransactionHistoryAdapter(context, transactions));
-         _toAdd = new ArrayList<>();
-         lastOffset = 20;
-         chunkSize = 20;
-      }
-
-      @Override
-      protected View getPendingView(ViewGroup parent) {
-         //this is an empty view, getting more transaction details is fast at the moment
-         return LayoutInflater.from(parent.getContext()).inflate(R.layout.transaction_history_fetching, null);
-      }
-
-      @Override
-      protected boolean cacheInBackground() {
-         WalletAccount account = _mbwManager.getSelectedAccount();
-         synchronized (_toAddLock) {
-            lastOffset += chunkSize;
-            _toAdd = account.getTransactionHistory(lastOffset, chunkSize);
-         }
-         return _toAdd.size() == chunkSize;
-      }
-
-      @Override
-      public void notifyDataSetChanged() {
-         if (getWrappedAdapter().getCount() < lastOffset) {
-            lastOffset = getWrappedAdapter().getCount();
-            keepOnAppending.set(true);
-         }
-         super.notifyDataSetChanged();
-      }
-
-      @Override
-      protected void appendCachedData() {
-         synchronized (_toAddLock) {
-            model.getTransactionHistory().appendList(_toAdd);
-            _toAdd.clear();
-         }
-      }
-   }
 
    private void shareTransactionHistory() {
       WalletAccount account = _mbwManager.getSelectedAccount();
