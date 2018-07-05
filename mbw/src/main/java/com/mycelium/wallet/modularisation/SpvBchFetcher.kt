@@ -20,8 +20,7 @@ import com.mycelium.spvmodule.providers.TransactionContract.GetSyncProgress
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.WalletApplication
 import com.mycelium.wallet.WalletApplication.getSpvModuleName
-import com.mycelium.wallet.modularisation.BCHHelper.ALREADY_FOUND_ACCOUNT
-import com.mycelium.wallet.modularisation.BCHHelper.BCH_PREFS
+import com.mycelium.wallet.modularisation.BCHHelper.*
 import com.mycelium.wapi.model.IssuedKeysInfo
 import com.mycelium.wapi.model.TransactionDetails
 import com.mycelium.wapi.model.TransactionSummary
@@ -29,11 +28,9 @@ import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal
 import com.mycelium.wapi.wallet.SpvBalanceFetcher
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.bip44.Bip44Account
-import com.mycelium.wapi.wallet.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue
-import com.mycelium.wapi.wallet.single.SingleAddressBCHAccount
 import java.math.BigDecimal
 import java.util.*
 import kotlin.collections.ArrayList
@@ -184,15 +181,15 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
         val selection = TransactionContract.TransactionDetails.SELECTION_ACCOUNT_INDEX
         val account = mbwManager.selectedAccount
         val contentResolver = context.contentResolver
-        var selectionArgs : Array<String>? = null
-        if (account.type == WalletAccount.Type.BTCBIP44 || account.type == WalletAccount.Type.BCHBIP44) {
+        val selectionArgs = if ((account.type == WalletAccount.Type.BTCBIP44 || account.type == WalletAccount.Type.BCHBIP44)
+                && mbwManager.selectedAccount.isDerivedFromInternalMasterseed) {
             val accountIndex = (mbwManager.selectedAccount as Bip44Account).accountIndex
-            selectionArgs = arrayOf(Integer.toString(accountIndex))
-        } else if (account.type == WalletAccount.Type.BTCSINGLEADDRESS || account.type == WalletAccount.Type.BCHSINGLEADDRESS) {
+            arrayOf(Integer.toString(accountIndex))
+        } else {
             val accountId = account.id
-            selectionArgs = arrayOf(accountId.toString())
+            arrayOf(accountId.toString())
         }
-        contentResolver.query(uri, null, selection, selectionArgs!!, null).use {
+        contentResolver.query(uri, null, selection, selectionArgs, null).use {
             if (it?.moveToNext() == true) {
                 transactionDetails = transactionDetailsFrom(it)
             }
@@ -273,6 +270,18 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
     override fun isAccountSynced(account: WalletAccount?): Boolean {
         val sharedPreferences = context.getSharedPreferences(BCH_PREFS, MODE_PRIVATE)
         return sharedPreferences.getBoolean(ALREADY_FOUND_ACCOUNT + account!!.id.toString(), false)
+    }
+
+    override fun isAccountVisible(account: WalletAccount?): Boolean {
+        val sharedPreferences = context.getSharedPreferences(BCH_PREFS, MODE_PRIVATE)
+        return sharedPreferences.getBoolean(IS_ACCOUNT_VISIBLE + account!!.id.toString(), false)
+    }
+
+    override fun setVisible(account: WalletAccount?) {
+        val sharedPreferences = context.getSharedPreferences(BCH_PREFS, MODE_PRIVATE)
+        sharedPreferences.edit()
+                .putBoolean(IS_ACCOUNT_VISIBLE + account!!.id.toString(), true)
+                .apply()
     }
 
     override fun getCurrentReceiveAddress(accountIndex: Int): Address? {

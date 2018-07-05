@@ -290,6 +290,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             public boolean onPreferenceClick(Preference preference) {
                 getFragmentManager()
                         .beginTransaction()
+                        .setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out,
+                                R.anim.slide_left_in, R.anim.slide_right_out)
                         .replace(R.id.fragment_container, new PinCodeFragment())
                         .addToBackStack("pincode")
                         .commitAllowingStateLoss();
@@ -319,6 +321,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             public boolean onPreferenceClick(Preference preference) {
                 getFragmentManager()
                         .beginTransaction()
+                        .setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out,
+                                R.anim.slide_left_in, R.anim.slide_right_out)
                         .replace(R.id.fragment_container, new BackupFragment())
                         .addToBackStack("backup")
                         .commitAllowingStateLoss();
@@ -436,6 +440,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             public boolean onPreferenceClick(Preference preference) {
                 getFragmentManager()
                         .beginTransaction()
+                        .setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out,
+                                R.anim.slide_left_in, R.anim.slide_right_out)
                         .replace(R.id.fragment_container, new ExternalServiceFragment())
                         .addToBackStack("external_services")
                         .commitAllowingStateLoss();
@@ -447,6 +453,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             public boolean onPreferenceClick(Preference preference) {
                 getFragmentManager()
                         .beginTransaction()
+                        .setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out,
+                                R.anim.slide_left_in, R.anim.slide_right_out)
                         .replace(R.id.fragment_container, new VersionFragment())
                         .addToBackStack("version")
                         .commitAllowingStateLoss();
@@ -767,7 +775,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
     private String getLanguageSettingTitle() {
         String displayed = getResources().getString(R.string.pref_language);
-        String english = Utils.getResourcesByLocale(getResources(), "en")
+        String english = Utils.getResourcesByLocale(getActivity(), "en")
                 .getString(R.string.pref_language);
         return english.equals(displayed) ? displayed : displayed + " / " + english;
     }

@@ -1357,6 +1357,10 @@ public class WalletManager {
         /**
          * The receiving address of an account has been updated
          */
-        RECEIVING_ADDRESS_CHANGED
+        RECEIVING_ADDRESS_CHANGED,
+        /**
+         * Sync progress updated
+         */
+        SYNC_PROGRESS_UPDATED
     }
 }

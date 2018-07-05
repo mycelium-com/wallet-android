@@ -34,6 +34,7 @@ import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.api.lib.TransactionExApi;
 import com.mycelium.wapi.api.request.QueryTransactionInventoryRequest;
+import com.mycelium.wapi.api.response.QueryTransactionInventoryResponse;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputEx;
 import com.mycelium.wapi.wallet.AbstractAccount;
@@ -273,6 +274,7 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
     public synchronized boolean doSynchronization(SyncMode mode) {
         checkNotArchived();
         _isSynchronizing = true;
+        syncTotalRetrievedTransactions = 0;
         _logger.logInfo("Starting sync: " + mode);
         if (needsDiscovery()) {
             mode = SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED;
@@ -289,6 +291,7 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
             return updateUnspentOutputs(mode);
         } finally {
             _isSynchronizing = false;
+            syncTotalRetrievedTransactions = 0;
         }
     }
 
@@ -323,7 +326,7 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
         ensureAddressIndexes();
 
         // Make look ahead address list
-        List<Address> lookAhead = new ArrayList<Address>(EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH + INTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH);
+        List<Address> lookAhead = new ArrayList<>(EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH + INTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH);
 
         final BiMap<Integer, Address> extInverse = _externalAddresses.inverse();
         final BiMap<Integer, Address> intInverse = _internalAddresses.inverse();
@@ -343,8 +346,10 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
     @Override
     protected boolean doDiscoveryForAddresses(List<Address> lookAhead) throws WapiException {
         // Do look ahead query
-        List<Sha256Hash> ids = _wapi.queryTransactionInventory(
-                new QueryTransactionInventoryRequest(Wapi.VERSION, lookAhead, Wapi.MAX_TRANSACTION_INVENTORY_LIMIT)).getResult().txIds;
+        final QueryTransactionInventoryResponse result = _wapi.queryTransactionInventory(
+                new QueryTransactionInventoryRequest(Wapi.VERSION, lookAhead, Wapi.MAX_TRANSACTION_INVENTORY_LIMIT)).getResult();
+        setBlockChainHeight(result.height);
+        List<Sha256Hash> ids = result.txIds;
         if (ids.isEmpty()) {
             // nothing found
             return false;
@@ -356,7 +361,7 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
         handleNewExternalTransactions(transactions);
         // Return true if the last external or internal index has changed
         boolean indexHasChanged = lastExternalIndexBefore != _context.getLastExternalIndexWithActivity() || lastInternalIndexBefore != _context.getLastInternalIndexWithActivity();
-        ;
+
         return indexHasChanged;
     }
 

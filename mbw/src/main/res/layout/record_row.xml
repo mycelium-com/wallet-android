@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
               android:layout_width="fill_parent"
               android:layout_height="wrap_content"
               android:gravity="center_vertical"
@@ -106,6 +107,48 @@
                 android:padding="0dp"
                 android:textSize="16sp" >
         </TextView>
+
+        <LinearLayout
+            android:id="@+id/tvProgressLayout"
+            android:layout_width="match_parent"
+            android:layout_height="32dp"
+            android:orientation="vertical">
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="8dp"
+                android:indeterminate="true"/>
+
+            <LinearLayout
+                android:layout_marginTop="2dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center">
+
+                <TextView
+                    android:id="@+id/tvProgress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:singleLine="true"
+                    android:textSize="12sp"
+                    android:textColor="@color/mycelium_midblue"/>
+
+                <ImageView
+                    android:id="@+id/ivWhatIsSync"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginRight="4dp"
+                    app:srcCompat="@drawable/ic_info"
+                    android:tint="@color/mycelium_midblue"/>
+            </LinearLayout>
+
+
+        </LinearLayout>
 
         <TextView
                 android:id="@+id/tvBackupMissingWarning"

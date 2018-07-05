@@ -802,4 +802,8 @@ public class CoinapultAccount extends SynchronizeAbleWalletAccount {
       return getCoinapultCurrency().name;
    }
 
+   @Override
+   public int getSyncTotalRetrievedTransactions() {
+      return 0;
+   }
 }

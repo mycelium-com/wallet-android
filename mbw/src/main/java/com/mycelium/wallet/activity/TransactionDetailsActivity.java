@@ -143,9 +143,15 @@ public class TransactionDetailsActivity extends Activity {
 
       // Set Inputs
       LinearLayout inputs = findViewById(R.id.llInputs);
-      if (_tx.inputs != null && (_tx.inputs.length != 1 || _tx.inputs[0].value != 0)) {
-         for (TransactionDetails.Item item : _tx.inputs) {
-            inputs.addView(getItemView(item));
+      if (_tx.inputs != null) {
+         int sum = 0;
+         for (TransactionDetails.Item input : _tx.inputs) {
+            sum += input.value;
+         }
+         if (sum != 0) {
+            for (TransactionDetails.Item item : _tx.inputs) {
+               inputs.addView(getItemView(item));
+            }
          }
       }
 

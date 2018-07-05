@@ -17,6 +17,10 @@ public class AccountViewHolder extends RecyclerView.ViewHolder {
     public TextView tvAccountType;
     public TextView tvBalance;
     public TextView backupMissing;
+    public TextView tvProgress;
+    public View tvProgressLayout;
+    public ImageView ivWhatIsSync;
+
     public View tvTraderKey;
 
     public AccountViewHolder(View itemView) {
@@ -30,5 +34,8 @@ public class AccountViewHolder extends RecyclerView.ViewHolder {
         tvBalance = itemView.findViewById(R.id.tvBalance);
         backupMissing = itemView.findViewById(R.id.tvBackupMissingWarning);
         tvTraderKey = itemView.findViewById(R.id.tvTraderKey);
+        tvProgress = itemView.findViewById(R.id.tvProgress);
+        tvProgressLayout = itemView.findViewById(R.id.tvProgressLayout);
+        ivWhatIsSync = itemView.findViewById(R.id.ivWhatIsSync);
     }
 }
