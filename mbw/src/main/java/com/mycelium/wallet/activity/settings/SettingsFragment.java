@@ -21,6 +21,7 @@ import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceCategory;
 import android.support.v7.preference.PreferenceFragmentCompat;
+import android.support.v7.preference.PreferenceScreen;
 import android.support.v7.preference.PreferenceViewHolder;
 import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.RecyclerView;
@@ -50,7 +51,6 @@ import com.mycelium.lt.api.model.TraderInfo;
 import com.mycelium.modularizationtools.CommunicationManager;
 import com.mycelium.modularizationtools.model.Module;
 import com.mycelium.net.ServerEndpointType;
-import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wallet.MbwManager;
@@ -70,13 +70,11 @@ import com.mycelium.wallet.lt.api.SetNotificationMail;
 import com.mycelium.wallet.modularisation.BCHHelper;
 import com.mycelium.wallet.modularisation.GooglePlayModuleCollection;
 import com.mycelium.wallet.modularisation.ModularisationVersionHelper;
-import com.mycelium.wapi.api.lib.CurrencyCode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.squareup.otto.Subscribe;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -84,11 +82,13 @@ import info.guardianproject.onionkit.ui.OrbotHelper;
 
 import static android.app.Activity.RESULT_CANCELED;
 
-public class SettingsFragment extends PreferenceFragmentCompat {
+public class SettingsFragment extends PreferenceFragmentCompat {//implements PreferenceFragmentCompat.OnPreferenceStartScreenCallback {
     public static final CharMatcher AMOUNT = CharMatcher.javaDigit().or(CharMatcher.anyOf(".,"));
     private static final int REQUEST_CODE_UNINSTALL = 1;
     // adding extra info to preferences (for search)
-    private static final String EXTRA_SETTINGS_OPTIONS = "SettingsExtras";
+    private static final String TAG = "settingsfragmenttag";
+
+    private SearchView searchView;
 
     private ListPreference language;
     private ListPreference _bitcoinDenomination;
@@ -100,10 +100,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private LocalTraderManager _ltManager;
     private ListPreference _minerFee;
     private ListPreference _blockExplorer;
-    private Preference pincodePreference;
     private Preference notificationPreference;
     private CheckBoxPreference useTor;
-    private Preference backupPreference;
     private PreferenceCategory modulesPrefs;
     private Preference externalPreference;
     private Preference versionPreference;
@@ -117,7 +115,16 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
     private DisplayPreferenceDialogHandler displayPreferenceDialogHandler;
 
-    private List<Preference> preferenceList = new ArrayList<>();
+    // sub screens and their preferences
+    private PreferenceScreen backupPS;
+    private List<Preference> backupPrefs = new ArrayList<>();
+    private PreferenceScreen pinPS;
+    private List<Preference> pinPrefs = new ArrayList<>();
+
+    // lists to manipulate with search
+    private List<Preference> rootPreferenceList = new ArrayList<>();
+    private List<Preference> foundPrefList = new ArrayList<>();
+
     private final Preference.OnPreferenceClickListener localCurrencyClickListener = new Preference.OnPreferenceClickListener() {
         public boolean onPreferenceClick(Preference preference) {
             SetLocalCurrencyActivity.callMe(getActivity());
@@ -218,13 +225,11 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         _exchangeSource = (ListPreference) findPreference("exchange_source");
         language = (ListPreference) findPreference(Constants.LANGUAGE_SETTING);
         notificationPreference = findPreference("notifications");
-        pincodePreference = findPreference("pincode");
         // Socks Proxy
         useTor = (CheckBoxPreference) Preconditions.checkNotNull(findPreference(Constants.SETTING_TOR));
         showBip44Path = (CheckBoxPreference) findPreference("showBip44Path");
         ledgerDisableTee = (CheckBoxPreference) findPreference("ledgerDisableTee");
         ledgerSetUnpluggedAID = findPreference("ledgerUnpluggedAID");
-        backupPreference = findPreference("backup");
         // external Services
         modulesPrefs = (PreferenceCategory) findPreference("modulesPrefs");
         localTraderDisable = (CheckBoxPreference) findPreference("ltDisable");
@@ -237,6 +242,45 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         localTraderPrefs = (PreferenceCategory) findPreference("localtraderPrefs");
 
         displayPreferenceDialogHandler = new DisplayPreferenceDialogHandler(getActivity());
+
+        // sub screens and sub prefs
+        backupPS = (PreferenceScreen) findPreference("backup");
+        createSubPreferences(backupPS, backupPrefs);
+        pinPS = (PreferenceScreen) findPreference("pincode");
+        createSubPreferences(pinPS, pinPrefs);
+        // todo other part
+
+
+        // adding prefs for search
+        rootPreferenceList.clear();
+        foundPrefList.clear();
+        for (int i = 0; i < getPreferenceScreen().getPreferenceCount(); i++) {
+            rootPreferenceList.add(getPreferenceScreen().getPreference(i));
+            foundPrefList.add(getPreferenceScreen().getPreference(i));
+        }
+        // adding hidden prefs
+        for (int i = 0; i < backupPS.getPreferenceCount(); i++)
+            foundPrefList.add(backupPS.getPreference(i));
+        for (int i = 0; i < pinPS.getPreferenceCount(); i++)
+            foundPrefList.add(pinPS.getPreference(i));
+        // todo add other prefs
+    }
+
+    /**
+     * Initializes sub preferences that are in preferences.xml
+     * @param preferenceScreen The PreferenceScreen that hosts sub-settings
+     * @param subPrefs Array list is needed to bind the preferences in bindSubPrefs()
+     */
+    private void createSubPreferences(PreferenceScreen preferenceScreen, List<Preference> subPrefs) {
+        for (int i = 0; i < preferenceScreen.getPreferenceCount(); i++) {
+            if (preferenceScreen.getPreference(i) instanceof PreferenceCategory) {
+                PreferenceCategory prefCat = (PreferenceCategory) preferenceScreen.getPreference(i);
+                for (int j = 0; j < prefCat.getPreferenceCount(); j++) {
+                    Preference pref = findPreference(prefCat.getPreference(j).getKey());
+                    subPrefs.add(pref);
+                }
+            }
+        }
     }
 
     @Override
@@ -274,7 +318,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 return true;
             }
         });
-
         if (notificationPreference != null) {
             notificationPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
@@ -289,20 +332,20 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             });
         }
 
-        pincodePreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+        pinPS.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 getFragmentManager()
                         .beginTransaction()
                         .setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out,
                                 R.anim.slide_left_in, R.anim.slide_right_out)
-                        .replace(R.id.fragment_container, new PinCodeFragment())
+                        .replace(R.id.fragment_container, PinCodeFragment.newInstance(PinCodeFragment.OPEN_NONE, pinPS.getKey()))
                         .addToBackStack("pincode")
                         .commitAllowingStateLoss();
                 return true;
             }
         });
-        pincodePreference.setSummary(_mbwManager.isPinProtected() ? "On" : "Off");
+        pinPS.setSummary(_mbwManager.isPinProtected() ? "On" : "Off");
 
         useTor.setTitle(getUseTorTitle());
         useTor.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -320,14 +363,14 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             }
         });
 
-        backupPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+        backupPS.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 getFragmentManager()
                         .beginTransaction()
                         .setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out,
                                 R.anim.slide_left_in, R.anim.slide_right_out)
-                        .replace(R.id.fragment_container, new BackupFragment())
+                        .replace(R.id.fragment_container, BackupFragment.newInstance(BackupFragment.OPEN_NONE, backupPS.getKey()))
                         .addToBackStack("backup")
                         .commitAllowingStateLoss();
                 return true;
@@ -471,89 +514,64 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             }
         });
 
-        addExtraSearchOptions(exchangeSourceNamesList, blockExplorerNames);
+        bindSubPrefs();
     }
 
-    private void addExtraSearchOptions(List<String> exchangeSourceNamesList, CharSequence[] blockExplorerNames){
-        // adding extra languages for search
-        StringBuilder extraLanguages = new StringBuilder(" ");
-        for (String lang : getResources().getStringArray(R.array.languages_desc))
-            extraLanguages.append(lang);
-        language.getExtras().putString(EXTRA_SETTINGS_OPTIONS, extraLanguages.toString());
+    private void bindSubPrefs() {
+        // each i corresponds to i+1 in simulateClick(i) in seb-setting's fragment
+        for (int i = 0; i < backupPrefs.size(); i++) {
+            Preference pref = backupPrefs.get(i);
 
-        // extra pin
-        String extraPinWords = " " +
-                getString(R.string.pref_set_pin_summary) +
-                getString(R.string.pref_set_pin) +
-                getString(R.string.pref_pin_require_on_startup_summary) +
-                getString(R.string.pref_pin_require_on_startup);
-        pincodePreference.getExtras().putString(EXTRA_SETTINGS_OPTIONS, extraPinWords);
+            final int finalI = i + 1;
+            pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    getFragmentManager()
+                            .beginTransaction()
+                            .setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out,
+                                    R.anim.slide_left_in, R.anim.slide_right_out)
+                            .replace(R.id.fragment_container, BackupFragment.newInstance(finalI, backupPS.getKey()))
+                            .addToBackStack("backup")
+                            .commitAllowingStateLoss();
+                    return true;
+                }
+            });
+        }
 
-        // extra backup
-        String extraBackupWords = " " +
-                getString(R.string.pref_legacy_backup_summary) +
-                getString(R.string.pref_legacy_backup_title) +
-                getString(R.string.pref_legacy_backup_verify_summary) +
-                getString(R.string.pref_legacy_backup_verify_title);
-        backupPreference.getExtras().putString(EXTRA_SETTINGS_OPTIONS, extraBackupWords);
+        for (int i = 0; i < pinPrefs.size(); i++) {
+            Preference pref = pinPrefs.get(i);
 
-        String denominations = CoinUtil.Denomination.BTC.toString() + CoinUtil.Denomination.mBTC.toString() +
-                CoinUtil.Denomination.uBTC.toString() + CoinUtil.Denomination.BITS.toString();
-        _bitcoinDenomination.getExtras().putString(EXTRA_SETTINGS_OPTIONS, denominations);
+            final int finalI = i + 1;
+            pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    getFragmentManager()
+                            .beginTransaction()
+                            .setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out,
+                                    R.anim.slide_left_in, R.anim.slide_right_out)
+                            .replace(R.id.fragment_container, PinCodeFragment.newInstance(finalI, pinPS.getKey()))
+                            .addToBackStack("pincode")
+                            .commitAllowingStateLoss();
+                    return true;
+                }
+            });
+        }
 
-        List<CurrencyCode> codes = new ArrayList<>(Arrays.asList(CurrencyCode.values()));
-        StringBuilder extraFiat = new StringBuilder(" ");
-        for (CurrencyCode fiat : codes)
-            extraFiat.append(fiat.getShortString()).append(fiat.getName());
-        _localCurrency.getExtras().putString(EXTRA_SETTINGS_OPTIONS, extraFiat.toString());
-
-        StringBuilder extraExchanges = new StringBuilder(" ");
-        for (String exchange : exchangeSourceNamesList)
-            extraExchanges.append(exchange);
-        _exchangeSource.getExtras().putString(EXTRA_SETTINGS_OPTIONS, extraExchanges.toString());
-
-        StringBuilder extraBEN = new StringBuilder(" ");
-        for (CharSequence ben: blockExplorerNames)
-            extraBEN.append(ben.toString());
-        _blockExplorer.getExtras().putString(EXTRA_SETTINGS_OPTIONS, extraBEN.toString());
-
-        String externalPrefs = " " +
-                getString(R.string.si_buy_sell) +
-                getString(R.string.si_setting_show_button_summary) +
-                getString(R.string.gd_buy_sell) +
-                getString(R.string.glidera_setting_show_button_summary);
-        externalPreference.getExtras().putString(EXTRA_SETTINGS_OPTIONS, externalPrefs);
-
-        String extraVersion = " " +
-                getString(R.string.app_name) +
-                getString(R.string.version) +
-                BuildConfig.VERSION_NAME;
-        versionPreference.getExtras().putString(EXTRA_SETTINGS_OPTIONS, extraVersion);
     }
+
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.menu_settings, menu);
 
-
         MenuItem searchItem = menu.findItem(R.id.action_search);
-        SearchView searchView = (SearchView) searchItem.getActionView();
-        searchView.setOnSearchClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                for (int i = 0; i < getPreferenceScreen().getPreferenceCount(); i++) {
-                    preferenceList.add(getPreferenceScreen().getPreference(i));
-                }
-            }
-        });
+        searchView = (SearchView) searchItem.getActionView();
+
         searchView.setOnCloseListener(new SearchView.OnCloseListener() {
             @Override
             public boolean onClose() {
-                getPreferenceScreen().removeAll();
-                for (Preference preference : preferenceList) {
-                    getPreferenceScreen().addPreference(preference);
-                }
+                refreshPreferences();
                 return false;
             }
         });
@@ -566,15 +584,15 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
             @Override
             public boolean onQueryTextChange(String s) {
-                findSearchResult(s);
-
+                if (s.length() == 0) refreshPreferences();
+                else findSearchResult(s);
                 return true;
             }
 
             private void findSearchResult(String s) {
                 getPreferenceScreen().removeAll();
                 List<Preference> prefs = new ArrayList<>();
-                for (Preference preferenceCat : preferenceList) {
+                for (Preference preferenceCat : foundPrefList) {
                     if (preferenceCat instanceof PreferenceCategory) {
                         PreferenceCategory preferenceCategory = (PreferenceCategory) preferenceCat;
 
@@ -582,17 +600,12 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                         for (int i = 0; i < preferenceCategory.getPreferenceCount(); i++) {
                             Preference preference = preferenceCategory.getPreference(i);
 
-                            String additionalInfo = " ";
-                            if(preference.getExtras() != null && preference.getExtras().getString(EXTRA_SETTINGS_OPTIONS) != null)
-                                additionalInfo = preference.getExtras().getString(EXTRA_SETTINGS_OPTIONS);
-
                             if (preference.getTitle() != null
                                     && preference.getTitle().toString().toLowerCase().contains(s.toLowerCase())
                                     || preference.getSummary() != null
-                                    && preference.getSummary().toString().toLowerCase().contains(s.toLowerCase())
-                                    || additionalInfo!=null
-                                    && additionalInfo.toLowerCase().contains(s.toLowerCase())) {
-                                prefs.add(preference);
+                                    && preference.getSummary().toString().toLowerCase().contains(s.toLowerCase())) {
+                                if(preference.getDependency() == null)
+                                    prefs.add(preference);
                             }
                         }
                         if(!prefs.isEmpty()) {
@@ -613,13 +626,15 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setHomeAsUpIndicator(R.drawable.ic_back_arrow);
         actionBar.setTitle(R.string.settings);
-
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            getActivity().finish();
+            if(searchView.isIconified())
+                getActivity().finish();
+            else
+                searchView.setIconified(true);
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -808,7 +823,15 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     @Override
     public void onPause() {
         _mbwManager.getEventBus().unregister(this);
+        refreshPreferences();
         super.onPause();
+    }
+
+    private void refreshPreferences()
+    {
+        getPreferenceScreen().removeAll();
+        for (Preference preference : rootPreferenceList)
+            getPreferenceScreen().addPreference(preference);
     }
 
     @SuppressWarnings("deprecation")

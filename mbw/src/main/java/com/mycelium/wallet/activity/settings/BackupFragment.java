@@ -1,7 +1,7 @@
 package com.mycelium.wallet.activity.settings;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
@@ -19,11 +19,39 @@ import java.util.List;
 
 public class BackupFragment extends PreferenceFragmentCompat {
 
+    private static final String ARG_PREFS_ROOT = "preference_root_key";
+    private String mRootKey;
+
+    private static final String ARG_FRAGMENT_OPEN_TYPE = "fragment_open_type";
+    private int mOpenType;
+    public static final int OPEN_NONE = 0;
+    public static final int OPEN_LEGACY_BACKUP = 1;
+    public static final int OPEN_LEGACY_BACKUP_VERIFY = 2;
+
+    private Preference legacyBackup;
+    private Preference legacyBackupVerify;
+
     private MbwManager _mbwManager;
+
+
+    public static BackupFragment newInstance(int code, String pageId){
+        BackupFragment fragment = new BackupFragment();
+        Bundle args = new Bundle();
+        args.putInt(ARG_FRAGMENT_OPEN_TYPE, code);
+        args.putString(ARG_PREFS_ROOT, pageId);
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-        addPreferencesFromResource(R.xml.preferences_backup);
+        if (getArguments() != null) {
+            mOpenType = getArguments().getInt(ARG_FRAGMENT_OPEN_TYPE);
+            mRootKey = getArguments().getString(ARG_PREFS_ROOT);
+        }
+
+        setPreferencesFromResource(R.xml.preferences, mRootKey);
+
         _mbwManager = MbwManager.getInstance(getActivity().getApplication());
 
         setHasOptionsMenu(true);
@@ -34,12 +62,28 @@ public class BackupFragment extends PreferenceFragmentCompat {
         actionBar.setDisplayHomeAsUpEnabled(true);
 
         // Legacy backup function
-        Preference legacyBackup = Preconditions.checkNotNull(findPreference("legacyBackup"));
+        legacyBackup = Preconditions.checkNotNull(findPreference("legacyBackup"));
         legacyBackup.setOnPreferenceClickListener(legacyBackupClickListener);
 
         // Legacy backup function
-        Preference legacyBackupVerify = Preconditions.checkNotNull(findPreference("legacyBackupVerify"));
+        legacyBackupVerify = Preconditions.checkNotNull(findPreference("legacyBackupVerify"));
         legacyBackupVerify.setOnPreferenceClickListener(legacyBackupVerifyClickListener);
+
+        simulateClick(mOpenType);
+    }
+
+    @SuppressLint("RestrictedApi")
+    public void simulateClick(int openType){
+        switch (openType){
+            case OPEN_NONE:
+                break;
+            case OPEN_LEGACY_BACKUP:
+                legacyBackup.performClick();
+                break;
+            case OPEN_LEGACY_BACKUP_VERIFY:
+                legacyBackupVerify.performClick();
+                break;
+        }
     }
 
     @Override
