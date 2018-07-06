@@ -246,32 +246,56 @@ public class AccountsFragment extends Fragment {
       final AlertDialog.Builder deleteDialog = new AlertDialog.Builder(getActivity());
       deleteDialog.setTitle(R.string.delete_account_title);
       final WalletAccount account = _mbwManager.getSelectedAccount();
+      CurrencyBasedBalance balance = Preconditions.checkNotNull(account.getCurrencyBasedBalance());
+      String valueString = Utils.getFormattedValueWithUnit(balance.confirmed, _mbwManager.getBitcoinDenomination());
+      if (account instanceof ColuAccount) {
+         valueString = Utils.getColuFormattedValueWithUnit(account.getCurrencyBasedBalance().confirmed);
+      }
       final WalletAccount linkedAccount = Utils.getLinkedAccount(account, _mbwManager.getColuManager().getAccounts().values());
+
       if (account.getType() == WalletAccount.Type.COLU) {
-         deleteDialog.setMessage(getString(R.string.delete_account_message)
+         String linkedValueString = Utils.getColuFormattedValueWithUnit(linkedAccount.getCurrencyBasedBalance().confirmed);
+         deleteDialog.setMessage(getString(R.string.delete_account_message,
+                 _mbwManager.getMetadataStorage().getLabelByAccount(account.getId())
+                         + " holding " + valueString + " and " + _mbwManager.getMetadataStorage()
+                         .getLabelByAccount(((ColuAccount) account).getLinkedAccount().getId()) +
+                         " holding " + linkedValueString)
                  + "\n" + getString(R.string.both_rmc_will_deleted
                  , _mbwManager.getMetadataStorage().getLabelByAccount(account.getId())
                  , _mbwManager.getMetadataStorage().getLabelByAccount(((ColuAccount) account).getLinkedAccount().getId())));
       } else if (linkedAccount != null) {
-         deleteDialog.setMessage(getString(R.string.delete_account_message)
+         String linkedValueString = Utils.getFormattedValueWithUnit(balance.confirmed, _mbwManager.getBitcoinDenomination());
+         deleteDialog.setMessage(getString(R.string.delete_account_message,
+                 _mbwManager.getMetadataStorage().getLabelByAccount(account.getId())
+                         + " holding " + valueString + " and " + _mbwManager.getMetadataStorage()
+                         .getLabelByAccount(linkedAccount.getId()) +
+                         " holding " + linkedValueString)
                  + "\n" + getString(R.string.both_rmc_will_deleted
                  , _mbwManager.getMetadataStorage().getLabelByAccount(account.getId())
                  , _mbwManager.getMetadataStorage().getLabelByAccount(linkedAccount.getId())));
       } else {
          WalletAccount correspondingBCHAccount = _mbwManager.getWalletManager(false).getAccount(MbwManager.getBitcoinCashAccountId(account));
          if (correspondingBCHAccount != null && correspondingBCHAccount.isVisible()) {
-            deleteDialog.setMessage(getString(R.string.delete_account_message)
+            String linkedValueString = Utils.getFormattedValueWithUnit(balance.confirmed, _mbwManager.getBitcoinDenomination());
+            deleteDialog.setMessage(getString(R.string.delete_account_message,
+                    _mbwManager.getMetadataStorage().getLabelByAccount(account.getId())
+                            + " holding " + valueString + " and " + _mbwManager.getMetadataStorage()
+                            .getLabelByAccount(correspondingBCHAccount.getId()) +
+                            " holding " + linkedValueString)
                     + "\n" + getString(R.string.both_bch_will_deleted
                     , _mbwManager.getMetadataStorage().getLabelByAccount(account.getId())
                     , _mbwManager.getMetadataStorage().getLabelByAccount(correspondingBCHAccount.getId())));
          } else {
-            deleteDialog.setMessage(getString(R.string.delete_account_message));
+
+            deleteDialog.setMessage(getString(R.string.delete_account_message,
+                    _mbwManager.getMetadataStorage().getLabelByAccount(account.getId())
+                            + " holding " + valueString));
          }
       }
 
       // add checkbox only for SingleAddressAccounts and only if a private key is present
       final boolean hasPrivateData = (accountToDelete instanceof ExportableAccount
-            && ((ExportableAccount) accountToDelete).getExportData(AesKeyCipher.defaultKeyCipher()).privateData.isPresent());
+              && ((ExportableAccount) accountToDelete).getExportData(AesKeyCipher.defaultKeyCipher()).privateData.isPresent());
 
       if (accountToDelete instanceof SingleAddressAccount && hasPrivateData) {
          deleteDialog.setView(checkBoxView);
@@ -321,8 +345,8 @@ public class AccountsFragment extends Fragment {
                      );
                   } else {
                      message = getString(
-                           R.string.confirm_delete_pk_with_balance,
-                           receivingAddress.isPresent() ? receivingAddress.get().toMultiLineString() : "",
+                             R.string.confirm_delete_pk_with_balance,
+                             receivingAddress.isPresent() ? receivingAddress.get().toMultiLineString() : "",
                              accountToDelete instanceof ColuAccount ?
                                      Utils.getColuFormattedValueWithUnit(getPotentialBalanceColu(accountToDelete))
                                      : _mbwManager.getBtcValueString(satoshis)
@@ -332,13 +356,13 @@ public class AccountsFragment extends Fragment {
                } else {
                   if (label != null && label.length() != 0) {
                      message = getString(R.string.confirm_delete_pk_without_balance_with_label
-                             ,getResources().getQuantityString(R.plurals.account_label, labelCount, label)
-                           ,receivingAddress.isPresent() ? receivingAddress.get().toMultiLineString() : ""
+                             , getResources().getQuantityString(R.plurals.account_label, labelCount, label)
+                             , receivingAddress.isPresent() ? receivingAddress.get().toMultiLineString() : ""
                      );
                   } else {
                      message = getString(
-                           R.string.confirm_delete_pk_without_balance,
-                           receivingAddress.isPresent() ? receivingAddress.get().toMultiLineString() : ""
+                             R.string.confirm_delete_pk_without_balance,
+                             receivingAddress.isPresent() ? receivingAddress.get().toMultiLineString() : ""
                      );
                   }
                }
@@ -1146,7 +1170,6 @@ public class AccountsFragment extends Fragment {
                finishCurrentActionMode();
             }
          });
-
       }
    }
 
@@ -1157,7 +1180,6 @@ public class AccountsFragment extends Fragment {
       if(account instanceof ColuAccount) {
             valueString =  Utils.getColuFormattedValueWithUnit(account.getCurrencyBasedBalance().confirmed);
       }
-
 
       new AlertDialog.Builder(getActivity())
               .setTitle(R.string.archiving_account_title)
