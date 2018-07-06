@@ -385,11 +385,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         modulesPrefs.removeAll();
         if (!CommunicationManager.getInstance().getPairedModules().isEmpty()) {
             processPairedModules(modulesPrefs);
-        } else {
-            Preference preference = new Preference(getActivity());
-            preference.setTitle(R.string.no_connected_modules);
-            preference.setLayoutResource(R.layout.preference_layout_no_icon);
-            modulesPrefs.addPreference(preference);
         }
         processUnpairedModules(modulesPrefs);
 
@@ -700,11 +695,13 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                     modulesPrefs.addPreference(preference);
                 } else {
                     ButtonPreference installPreference = new ButtonPreference(getActivity());
+                    installPreference.setLayoutResource(R.layout.preference_module_layout);
                     installPreference.setIcon(GooglePlayModuleCollection.getBigLogo(getActivity(), module.getModulePackage()));
                     installPreference.setButtonText(getString(R.string.install));
                     installPreference.setButtonClickListener(getInstallClickListener(module));
                     installPreference.setTitle(Html.fromHtml(module.getName()));
                     installPreference.setSummary(module.getDescription());
+                    installPreference.setUnderIconText(getString(R.string.preference_module_under_icon_text, module.getShortName()));
                     modulesPrefs.addPreference(installPreference);
                 }
             }
@@ -715,6 +712,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private ButtonPreference createUninstallableModulePreference(final Module module) {
         final ButtonPreference preference = new ButtonPreference(getActivity());
         preference.setLayoutResource(R.layout.preference_module_layout);
+        preference.setWidgetLayoutResource(R.layout.preference_button_uninstall);
         preference.setTitle(Html.fromHtml(module.getName()));
         preference.setKey("Module_" + module.getModulePackage());
         preference.setIcon(GooglePlayModuleCollection.getBigLogo(getActivity(), module.getModulePackage()));
@@ -744,7 +742,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                         .putExtra(Intent.EXTRA_RETURN_RESULT, true), REQUEST_CODE_UNINSTALL);
             }
         });
-        preference.setUnderIconText(module.getShortName());
+        preference.setUnderIconText(getString(R.string.preference_module_under_icon_text, module.getShortName()));
         return preference;
     }
 
@@ -766,6 +764,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                         .putExtra(Intent.EXTRA_RETURN_RESULT, true), REQUEST_CODE_UNINSTALL);
             }
         });
+        preference.setUnderIconText(getString(R.string.preference_module_under_icon_text, module.getShortName()));
         preference.setBottomButtonClickListener(getInstallClickListener(module));
         return preference;
     }
