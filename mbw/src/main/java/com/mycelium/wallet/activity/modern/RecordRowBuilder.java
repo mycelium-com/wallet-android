@@ -36,6 +36,7 @@ package com.mycelium.wallet.activity.modern;
 
 import android.app.AlertDialog;
 import android.content.res.Resources;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.text.Html;
@@ -73,7 +74,7 @@ public class RecordRowBuilder {
         Utils.setAlpha(view, !isSelected ? 0.5f : 1f);
 
         // Show focus if applicable
-        view.setBackgroundColor(resources.getColor(hasFocus ? R.color.selectedrecord : R.color.transparent));
+        holder.llAddress.setBackgroundColor(resources.getColor(hasFocus ? R.color.selectedrecord : R.color.transparent));
 
         // Show/hide key icon
         Drawable drawableForAccount = isSelected ? model.drawableForAccountSelected : model.drawableForAccount;
@@ -119,6 +120,9 @@ public class RecordRowBuilder {
             holder.tvProgress.setText(resources.getString(R.string.sync_total_retrieved_transactions,
                     Integer.toString(model.syncTotalRetrievedTransactions)));
             holder.ivWhatIsSync.setOnClickListener(whatIsSyncHandler);
+            holder.progressBar.getIndeterminateDrawable()
+                    .setColorFilter(resources.getColor(R.color.dark_sky_blue), PorterDuff.Mode.SRC_ATOP);
+
         }
 
         // Set balance
