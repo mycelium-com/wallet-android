@@ -1151,9 +1151,19 @@ public class AccountsFragment extends Fragment {
    }
 
    private void archive(final WalletAccount account) {
+      CurrencyBasedBalance balance = Preconditions.checkNotNull(account.getCurrencyBasedBalance());
+      String valueString = Utils.getFormattedValueWithUnit(balance.confirmed, _mbwManager.getBitcoinDenomination());
+
+      if(account instanceof ColuAccount) {
+            valueString =  Utils.getColuFormattedValueWithUnit(account.getCurrencyBasedBalance().confirmed);
+      }
+
+
       new AlertDialog.Builder(getActivity())
               .setTitle(R.string.archiving_account_title)
-              .setMessage(getString(R.string.question_archive_account))
+              .setMessage(getString(R.string.question_archive_account,_mbwManager.getMetadataStorage()
+                      .getLabelByAccount(account.getId()), valueString,
+                      account.getAccountDefaultCurrency()))
               .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 
                  public void onClick(DialogInterface arg0, int arg1) {
