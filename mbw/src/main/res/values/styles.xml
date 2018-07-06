@@ -293,6 +293,10 @@
         <item name="android:indeterminateDrawable">@android:drawable/progress_indeterminate_horizontal</item>
     </style>
 
+    <style name="AccountProgressBar" parent="@style/Widget.AppCompat.ProgressBar.Horizontal">
+        <item name="colorAccent">@color/dark_sky_blue</item>
+    </style>
+
     <style name="MyceliumDroppyPopup">
         <item name="android:background">#343434</item>
     </style>

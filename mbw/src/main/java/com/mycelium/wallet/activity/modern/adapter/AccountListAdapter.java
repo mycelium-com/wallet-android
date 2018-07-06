@@ -118,17 +118,6 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             builder.buildRecordView(accountHolder, account
                     , Objects.equals(mbwManager.getSelectedAccount().getId(), account.accountId)
                     , Objects.equals(focusedAccountId, account.accountId));
-            accountHolder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    setFocusedAccountId(account.accountId);
-                    if (itemSelectListener != null) {
-                        itemSelectListener.onClick(mbwManager.getWalletManager(false)
-                                .getAccount(account.accountId));
-                    }
-
-                }
-            });
             accountHolder.llAddress.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
