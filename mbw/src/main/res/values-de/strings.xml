@@ -25,7 +25,6 @@
   <string name="send">Senden</string>
   <string name="receive">Empfangen</string>
   <string name="private_key_deleted">Privater Schlüssel entfernt, Bitcoin-Adresse bleibt bestehen</string>
-  <string name="account_deleted">Konto gelöscht</string>
   <string name="enter_recipient_title">Empfänger-Adresse eingeben</string>
   <string name="recipient_title">Empfänger-Adresse</string>
   <string name="amount_label">Betrag</string>
@@ -45,8 +44,6 @@
   <string name="synchronizing">Synchronisieren</string>
   <string name="transaction_not_sent">Transaktion konnte nicht durchgeführt werden</string>
   <string name="queue_transaction_message">Beim Senden der Transaktion ist ein Fehler aufgetreten.\nMöchten Sie die Transaktion in die Warteschlange einreihen, damit sie automatisch gesendet werden kann, sobald Sie wieder online sind?</string>
-  <string name="transaction_sent">Transaktion gesendet</string>
-  <string name="export">Exportieren</string>
   <string name="backup_private_key">Backup</string>
   <string name="copy_to_clipboard">In die Zwischenablage kopieren</string>
   <string name="copy_private_key_to_clipboard">Privaten Schlüssel in die Zwischenablage kopieren</string>
@@ -85,15 +82,9 @@
   <string name="pref_set_pin_summary">Einen PIN-Code setzen der das Senden von Bitcoins, Exportieren von privaten
 Schlüsseln und das Ändern des PIN-Codes verbietet
     </string>
-  <string name="pref_local_currency">Lokale Währung</string>
-  <string name="pref_local_currency_with_currency">Lokale Währung (%1$s)</string>
   <string name="pref_local_currency_summary">Wählen Sie Ihre lokale Währung</string>
-  <string name="pref_exchange_source">Marktplatz</string>
   <string name="pref_exchange_source_with_value">Marktplatz (%1$s)</string>
   <string name="pref_exchange_source_summary">Wählen Sie den Marktplatz von dem Sie die Wechselkurse von Bitcoin zu gängigen Währungen bekommen möchten</string>
-  <string name="pref_bitcoin_denomination">Bitcoin-Nennwert</string>
-  <string name="pref_bitcoin_denomination_with_denomination">Bezeichnung (%1$s)</string>
-  <string name="pref_bitcoin_denomination_summary">Zwischen BTC, mBTC, and μBtc wechseln</string>
   <string name="pref_advanced_settings">Erweiterte Einstellungen</string>
   <string name="pref_socks_proxy">SOCKS-Proxy</string>
   <string name="pref_socks_proxy_enabled">SOCKS-Proxy (aktiviert)</string>
@@ -117,10 +108,8 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="payment_request">Zahlungsaufforderung</string>
   <string name="export_account_data_warning">Sie sind dabei sensible Daten des gewählten Kontos zu exportieren.\n\nJeder der Zugriff zu diesen Schlüsseln hat, kann in den Besitz ihrer Bitcoins kommen, oder ihre Privatsphäre untergraben.\n\nWollen Sie fortfahren?</string>
   <string name="backup_all_warning">Sie sollten ein Backup ihrer Masterseed erstellen.\nEin Backup der Masterseed ermöglicht es, Zugriff auf die bitcoin in allen HD Konten zu erhalten, für den Fall, dass das Gerät verloren oder beschädigt wird.\n\nWollen Sie jetzt ein Backup erstellen?</string>
-  <string name="backup_legacy_warning">Sie erstellen das Backup für die Konten mit einer einzelnen Adresse in Ihrer Wallet.\nDieses Backup ist ohne Ihre Master Seed, keines Ihrer HD Konten kann so wiederhergestellt werden!\n\nMöchten Sie fortfahren?</string>
   <string name="export_to_clipboard_warning">Hinweis:Sie kopieren nun den privaten Schlüssel in die Zwischenablage. Damit es er für alle anderen Apps auf Ihrem Gerät zugänglich.\n\nBeachten Sie: Es genügt nicht, Ihren privaten Schlüssel in der Zwischenablage abzulegen, Sie müssen ihn auch anderswo sicher ablegen.\n\nMöchten Sie fortfahren?</string>
   <string name="found_clipboard_private_key_title">Privater Schlüssel in der Zwischenablage gefunden</string>
-  <string name="found_clipboard_private_keys_message">In Ihrer Zwischenablage befindet sich ein privater Schlüssel.\nMöchten Sie ihn löschen?</string>
   <string name="exchange_source_not_available">Wechselkurs für %1$s nicht verfügbar</string>
   <string name="my_own_address_warning">Achtung: Sie senden Bitcoins zu einer Ihrer eigenen Adressen</string>
   <string name="read_only_warning">Hinweis: Ihre Wallet hat keinen privaten Schlüssel für diese Adresse. \nSie können erhaltene Bitcoins nur ausgeben, wenn Sie den privaten Schlüssel an einem anderen Ort haben.</string>
@@ -134,13 +123,10 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="cold_storage_desc">Sie sind dabei, Bitcoins von einem privaten Schlüssel aus einer Offline-Wallet auszugeben. Dies könnte eine Sicherungskopie des private Schlüssels in Papier sein oder ein ATM-Beleg des privaten Schlüssels. Folgende Formate werden unterstützt:\nPrivater Schlüssel, Master Seed, xPriv Key\n\nSobald die Transaktion gesendet wurde, wird jede Spur im internen Speicher gelöscht.</string>
   <string name="keep_account_address">Nur den privaten Schlüssel löschen und dieses Konto weiterhin beobachten</string>
   <string name="manual_entry">Manuell eingeben</string>
-  <string name="active_hd_accounts_name">Meine HD Konten</string>
-  <string name="active_other_accounts_name">Andere Konten</string>
   <string name="archive_name">Archiviert</string>
   <string name="active_accounts_empty">(Leer)</string>
   <string name="activate_action">Aktivieren</string>
   <string name="archive_action">Archivieren</string>
-  <string name="question_archive_account">Archivierte Konten werden nicht überwacht. Sie können weder Guthaben noch Ihre Empfangsadresse nicht sehen und nicht mit diesem Konto arbeiten.\n\nArchivierte Konten können jederzeit wieder aktiviert werden.\n\nMöchten Sie dieses Konto archivieren ?</string>
   <string name="master_seed_configuration_title">Willkommen bei Mycelium</string>
   <string name="master_seed_configuration_description">Möchten Sie ein Backup wiederherstellen oder eine neue Wallet erstellen?</string>
   <string name="master_seed_create_new_button">Neu erstellen</string>
@@ -166,16 +152,11 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="using_address_from_clipboard">Bitcoin-Adresse aus der Zwischenablage wird verwendet</string>
   <string name="my_accounts">Meine Konten</string>
   <string name="foreign_addresses">Adressbuch</string>
-  <string name="delete_account_title">Konto löschen?</string>
-  <string name="delete_account_message">Wollen Sie dieses Konto löschen?</string>
   <string name="confirm_delete_pk_title">Sind Sie sicher?</string>
   <string name="confirm_delete_pk_with_balance">Diese Aktion kann nicht rückgängig gemacht werden!\n\nAktuelle Adresse:\n%1$s\n\nEnthält%2$s\n\nMöchten Sie löschen?</string>
-  <string name="confirm_delete_pk_with_balance_with_label">Dies kann nicht rückgängig gemacht werden! \n\nKonto Bezeichnung:\n%1$s\n\nAktuelle Adresse:\n%2$s\n\nEnthält %3$s\n\nMöchten Sie löschen?</string>
   <string name="confirm_delete_pk_without_balance">Diese Aktion kann nicht rückgängig gemacht werden!\n\nAktuelle Adresse:\n%1$s\n\n.Soll die Adresse gelöscht werden?</string>
-  <string name="confirm_delete_pk_without_balance_with_label">Diese Aktion kann nicht rückgängig gemacht werden!\n\nAccount Bezeichnung:\n%1$s\n\nAktuelle Adresse:\n%2$s\n\nSoll der Account gelöscht werden?</string>
   <string name="verify_private_key_backup">Backup prüfen</string>
   <string name="verify_backup_dialog_title">Backup der privaten Schlüssel überprüfen</string>
-  <string name="verify_backup_desc">Ein korrektes Backup ist eine wichtige Grundlage beim Umgang mit Ihren Bitcoins. \n\nMit der Verifizierung Ihres Backups stellen Sie sicher, dass Sie Ihre Bitcoins wiederherstellen können, sollte Ihr Gerät verloren gehen oder beschädigt werden.</string>
   <string name="verify_backup_scan_desc">Überprüfen Sie Ihr Backup mittels Scannen des privaten Schlüssels oder des Master Seed QR-Codes. \nMehrere Formate sind akzeptiert, einschließlich des verschlüsselten Mycelium Backups.</string>
   <string name="verify_backup_clipboard_desc">Privaten Schlüssel aus der Zwischenablage nehmen um das Backup der privaten Schlüssel zu überprüfen</string>
   <string name="verify_backup_num_keys">Sie haben %1$sSchlüssel die nie überprüft wurden.</string>
@@ -198,7 +179,6 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="encrypted_pdf_backup_document_ready">PDF-Dokument erstellt</string>
   <string name="encrypted_pdf_backup_sharing">PDF-Dokument teilen&#8230;</string>
   <string name="encrypted_pdf_backup_email_title">Mycelium Wallet Backup</string>
-  <string name="encrypted_pdf_backup_email_text">Sie finden Ihr Mycelium Wallet Backup im Anhang.\n\nMit diesen einfachen Schritten sichern Sie nun Ihre Bitcoins:\n1. PDF-Dokument drucken.\n2. Das 15-Zeichen lange Passwort vom Display Ihres Android-Geräts abschreiben und in die vorgesehenen Kästchen auf Ihrem Ausdruck eintragen.\n3. Prüfen Sie, ob Sie die privaten Schlüssel in Ihr Mycelium Wallet importieren können.\n4. Bewahren Sie den Ausdruck an einem sicheren Ort auf.</string>
   <string name="share_pdf">PDF-Dokument teilen</string>
   <string name="share_with">Teilen mit&#8230;</string>
   <string name="import_decrypt_key_title">Privaten Schlüssel entschlüsseln</string>
@@ -295,8 +275,6 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="lt_ad_created">Anzeige erstellt</string>
   <string name="lt_ad_edited">Anzeige bearbeitet</string>
   <string name="lt_pref_category">Local Trader</string>
-  <string name="lt_disable_preference">Local Trader deaktivieren</string>
-  <string name="lt_disable_preference_summary">Local Trader Funktionalität deaktivieren</string>
   <string name="lt_sound_on_trade_preference">Ton bei Handelsaktivitäten abspielen</string>
   <string name="lt_sound_on_trade_preference_summary">Spielt eine Benachrichtigung bei Handelsaktivitäten ab</string>
   <string name="lt_use_email_for_notifications">Email für Benachrichtigungen verwenden</string>
@@ -478,8 +456,6 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="invalid_bitid_uri">Ungültiger BitID URI</string>
   <!-- BitID end -->
   <string name="selected_archived_warning">Sie können nicht mit archivierten Konten arbeiten.</string>
-  <string name="selected_hd_info">Sie arbeiten jetzt mit diesem HD-Konto.</string>
-  <string name="selected_single_info">Sie arbeiten jetzt mit dieser einzelnen Bitcoin-Adresse.</string>
   <string name="transaction_not_broadcasted_info">Nicht in der Lage Transaktion zu übertragen</string>
   <string name="hd_account_creation_started">Neues HD-Konto wird erstellt&#8230;</string>
   <string name="preparing_wallet_on_first_startup_info">Ihre Bitcoin-Wallet wird vorbereitet&#8230;</string>
@@ -528,7 +504,7 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="title_wrong_password">Falsches Passwort, bitte versuchen Sie es erneut</string>
   <string name="dont_allow_archiving_unused_notification">Nicht verwendete HD-Konten können nicht archiviert werden</string>
   <string name="newly_generated_coins_from_coinbase">Neu generierte Bitcoins</string>
-    <string name="button_continue">Weiter</string>
+  <string name="button_continue">Weiter</string>
   <string name="butto_show_release_notes">Details anzeigen</string>
   <string name="word_does_not_exist_in_wordlist">Das von Ihnen eingegebene Wort existiert nicht in der Wortliste</string>
   <string name="pref_legacy_backup_title">Legacy Backup</string>
@@ -543,9 +519,6 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="direct_apk_link_label">Direkter\nDownload</string>
   <string name="hide_unused_account_menu">Konto löschen</string>
   <string name="dont_allow_hiding_used_notification">Sie können ein verwendetes Konto nicht ausblenden, aber Sie können es archivieren</string>
-  <string name="pref_miner_fee_title">Miner-Gebühr</string>
-  <string name="pref_miner_fee_block_summary">Transaktionen werden mit einer Miner-Gebühr gesendet, damit diese innerhalb der nächsten (durchschn.) %1s Blöcke ausgeführt wird.</string>
-  <string name="miner_fee_lowprio_name">Niedrigste Priorität</string>
   <string name="miner_fee_economic_name">Economy</string>
   <string name="miner_fee_normal_name">Normal</string>
   <string name="miner_fee_priority_name">Priority</string>
@@ -584,8 +557,6 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="lt_confirm_delete_trader_message">Wollen Sie Ihre Local Trader-Identität löschen? Alle Handelsinformationen und Bewertungen werden dauerhaft entfernt und können nicht wiederhergestellt werden.</string>
   <string name="rescan_account_menu_item">Konto erneut laden</string>
   <string name="add_advanced_account_warning">Hinweis:\nDiese Schlüssel werden nicht in Ihr Master-Seed-Backup einbezogen.Sorgen Sie dafür, dass Sie ein separates Backup dieser Schlüssel haben.</string>
-  <string name="new_random_key_desc">Einen neuen zufälligen Schlüssel generieren</string>
-  <string name="generate_new_key">Generieren</string>
   <string name="new_bitcoin_address_created">Es wurde ein neuer privater Schlüssel generiert, welcher folgende Bitcoin Adresse erzeugt:</string>
   <string name="shuffle">Mischen</string>
   <string name="toast_warning_low_fee">Bestätigung kann länger dauern</string>
@@ -650,8 +621,6 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="pref_ledger_title">Ledger Hardware Wallet</string>
   <string name="ledger_disable_tee_preference">TEE-Unterstützung deaktivieren</string>
   <string name="ledger_disable_tee_preference_summary">Trusted Execution Environment Unterstützung deaktivieren, falls vorhanden, um eine andere Ledger-Hardware-Wallet zu verwenden</string>
-  <string name="ledger_unplugged_aid_preference">Setze Ledger Unplugged AID</string>
-  <string name="ledger_unplugged_aid_preference_summary">Untersütze eine andere AID für Ledger Unplugged custom builds</string>
   <string name="select_local_currencies">Wählen Sie Ihre Währungen</string>
   <string name="show_public_or_private_data">Anzeigen</string>
   <string name="show_private_data">privat</string>
@@ -661,11 +630,6 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="reset_pin_button">PIN zurücksetzen</string>
   <string name="wrong_pin_message">Sie haben eine falsche Pin eingegeben.\n\n Wenn Sie Ihre Pin vergessen haben, können Sie sie zurücksetzen.</string>
   <string name="pref_no_fiat_selected">Keine Fiat Währung ausgewählt</string>
-  <string name="useTor">Tor-Netzwerk verwenden</string>
-  <string name="useTorDescription">Verwenden Sie das Tor-Netzwerk, um mit den Backend-Servern zu kommunizieren. \n Dies verbessert Ihre Privatsphäre und kann u.U. restriktive Firewalls umgehen. Aber es kann die Ausführung dieser App verlangsamen.</string>
-  <string name="useTorOnlyExternalTor">Tor-Netzwerk verwenden (externes Tor)</string>
-  <string name="useTorOnlyHttps">Tor-Netzwerk verwenden (nur https)</string>
-  <string name="useTorBoth">Tor-Netzwerk verwenden (beides)</string>
   <string name="last_log_entries">Letzte Einträge</string>
   <string name="use_https">https verwenden</string>
   <string name="use_external_tor">Externe Tor Verbindung (Orbot)</string>
@@ -722,7 +686,6 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="payment_request_error_while_getting_ack">Nicht in der Lage die Zahlung an Händler-Server zu senden.\n%s\n\nDie Zahlung wird nicht übertragen.</string>
   <string name="payment_request_warning_no_sig">Der Ursprung dieser Zahlungsaufforderung kann nicht überprüft werden, da es keine Signatur hat.\n\nBitte seien Sie sehr vorsichtig, denn es jemand könnte es abfangen und die Auszahlungs-Addresse ändern.</string>
   <string name="label_cold_storage_external_signing">Signieren mit:</string>
-  <string name="spending_unconfirmed_warning">Achtung:  Sie geben unbestätigte Bitcoins aus.</string>
   <string name="spending_unconfirmed_title">Unbestätigte Bitcoins ausgeben</string>
   <string name="spending_unconfirmed_description">Ihre Transaktion verwendet Bitcoins, die noch nicht in einem Block bestätigt wurden. Wenn aus irgendeinem Grund die vorherige Transaktion, die diese Bitcoin an Sie sendet, fehlschlägt oder unbestätigt bleibt, wird Ihre Transaktion ebenfalls fehlschlagen oder unbestätigt bleiben.</string>
   <string name="label_unverified_recipient">Der Empfänger konnte nicht überprüft werden</string>
@@ -745,7 +708,6 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="description_rebroadcast_transaction">Übertragen Sie diese Transaktion erneut an den Server. Dies kann verwendet werden, wenn sie vermuten, dass das Netzwerk ihre Transaktion nicht angenommen oder fallen gelassen hat, da sie eine lange Zeit nicht bestätigt wurde zum Beispiel. Möchten Sie diese Transaktion erneut übersenden?</string>
   <string name="message_rebroadcast_successfull">Die Transaktion wurde erfolgreich übermittelt.</string>
   <string name="message_rebroadcast_failed">Die Übertragung ist fehlgeschlagen, bitte überprüfen Sie Ihre Internetverbindung und synchronisieren Sie Ihre Wallet.</string>
-  <string name="block_explorer_title">Block explorer</string>
   <string name="block_explorer_summary">Transaktionsdetails werden mittels des %1$s Block-Explorers nachgeschlagen</string>
   <string name="lt_warning_wrong_account_type">Local Trader funktioniert nicht mit dem ausgewählten Konten-Typ. Bitte wählen Sie ein anderes Konto.</string>
   <string name="lt_account_not_allowed">Der ausgewählte Konto-Typ funktioniert nicht mit Local-Trader. Sie müssen ein anderes Konto auswählen um diesen Handel auszuführen.</string>
@@ -775,6 +737,16 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="coinapult_create_account">Coinapult-Konto wird erstellt&#8230;</string>
   <string name="coinapult_backup_info">Ihre Coinapult Zugriffsschlüssel werden von ihrem Masterseed abgeleitet. Falls Sie ein gültiges Backup haben, ist der Zugang zu ihrem Coinapult-Konto ebenfalls enthalten.</string>
   <string name="coinapult_currency_account">%1$s Konto</string>
+  <!--<string name="colu_tos_link">Open Colu Terms and Conditions</string>-->
+  <!-- <string name="colu_tos_link_url">https://www.colu.com/TOS</string>-->
+  <!--<string name="colu_tos">By clicking "OK" you agree to use Colored Coin technology, third party-->
+  <!--blockchain technology developer. All your interactions with Colu are outside of-->
+  <!--Mycelium’s control and are subject to Colu’s T&amp;C and Privacy Policy.-->
+  <!--Please read them carefully before providing any personal information.-->
+  <!--MYCELIUM ACCEPTS NO RESPONSIBILITY AND WILL NOT BE LIABLE FOR ANY LOSS-->
+  <!--OR DAMAGE WHATSOEVER SUFFERED AS A RESULT OF ACCESSING, USE OF, OR-->
+  <!--RELIANCE UPON COLU’S INFORMATION AND SERVICES.</string>-->
+  <!--    <string name="colu_backup_info">Your Colu account access-key gets derived from your masterseed. If you have a valid backup, the access to your Colu account is also included.</string>  -->
   <string name="copy">Kopieren</string>
   <string name="lt_backup_lt_id">Händler Identität sichern</string>
   <string name="lt_confirm_backup_trader_message">Sie sind dabei sensible Daten ihres Local-Trader-Kontos zu exportieren. Wer auf diese Schlüssel Zugriff erhält kann Ihr Local-Trader-Konto übernehmen und in Ihrem Namen handeln. Möchten Sie fortfahren?</string>
@@ -806,8 +778,6 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="warning_reason_rbf">RBF</string>
   <string name="warning_reason_unconfirmed_parent">Unbestätigte Vorgänger-Transaktion</string>
   <string name="warning_reason_doublespend">Konfliktzahlung erkannt</string>
-  <string name="opening_url_in_browser">URL in Browser öffnen...</string>
-  <string name="incoming_payment">Zahlungseingang: %s</string>
   <string name="warning_amount_does_not_match">Warnung: Betrag stimmt nicht überein!</string>
   <string name="mycelium_terms_of_use">Mycelium Nutzungsbedingungen</string>
   <!-- Credit Card -->

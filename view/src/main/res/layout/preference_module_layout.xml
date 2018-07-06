@@ -3,13 +3,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#2c2c2c"
-    android:padding="16dp">
+    android:background="?attr/preference_module_item_color"
+    android:paddingTop="16dp"
+    android:paddingBottom="16dp"
+    tools:background="@color/preference_background">
 
     <ImageView
         android:id="@android:id/icon"
         android:layout_width="94dp"
         android:layout_height="94dp"
+        android:layout_marginLeft="16dp"
         android:src="@drawable/image_bch_module" />
 
     <LinearLayout
@@ -17,6 +20,7 @@
         android:layout_height="wrap_content"
         android:layout_toRightOf="@android:id/icon"
         android:orientation="vertical"
+        android:layout_marginRight="16dp"
         android:layout_marginLeft="16dp">
 
         <TextView
@@ -27,6 +31,7 @@
             android:ellipsize="end"
             android:lines="1"
             android:textColor="@color/preference_title_color"
+            android:letterSpacing="-0.02"
             android:textSize="16sp"
             tools:text="Mycelium Bitcoin Cash Module Bitcoin Cash Module" />
 
@@ -41,25 +46,31 @@
             android:textStyle="normal"
             tools:text="Mycelium Bitcoin Cash Module\nSummary Cash Module Summary" />
 
-        <TextView
-            android:id="@+id/sync_state"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:fontFamily="sans-serif"
-            android:textColor="#77c298"
-            android:textSize="14sp"
-            android:textStyle="normal"
-            tools:text="Fully synced" />
+
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/sync_state"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif"
+        android:textColor="#77c298"
+        android:textSize="14sp"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="8dp"
+        android:textStyle="normal"
+        android:layout_above="@+id/line"
+        android:layout_toRightOf="@android:id/icon"
+        tools:text="Fully synced" />
+
     <View
+        android:id="@+id/line"
         android:layout_width="match_parent"
         android:layout_height="0.5dp"
         android:layout_below="@android:id/icon"
-        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
         android:layout_toRightOf="@android:id/icon"
-        android:background="#252525" />
+        android:background="?attr/preference_module_divider_color" />
 
     <TextView
         android:id="@+id/under_icon_text"

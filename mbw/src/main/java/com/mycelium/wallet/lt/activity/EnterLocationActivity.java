@@ -41,6 +41,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.widget.*;
 import android.widget.AdapterView.OnItemClickListener;
@@ -90,7 +92,6 @@ public class EnterLocationActivity extends Activity {
       if (savedInstanceState != null) {
          _atvLocation.setText(savedInstanceState.getString("location"));
       }
-
    }
 
    protected void onSaveInstanceState(Bundle outState) {

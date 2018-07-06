@@ -868,6 +868,11 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
         return getColuAsset().name;
     }
 
+    @Override
+    public int getSyncTotalRetrievedTransactions() {
+        return 0;
+    }
+
     public SingleAddressAccount getLinkedAccount() {
         return linkedAccount;
     }

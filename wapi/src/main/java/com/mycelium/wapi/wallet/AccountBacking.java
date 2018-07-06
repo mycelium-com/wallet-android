@@ -17,6 +17,7 @@
 package com.mycelium.wapi.wallet;
 
 import com.mrd.bitlib.model.OutPoint;
+import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputEx;
@@ -43,6 +44,8 @@ public interface AccountBacking {
 
    void putUnspentOutput(TransactionOutputEx output);
 
+   void putParentTransactionOuputs(List<TransactionOutputEx> outputsList);
+
    void putParentTransactionOutput(TransactionOutputEx output);
 
    TransactionOutputEx getParentTransactionOutput(OutPoint outPoint);
@@ -50,6 +53,8 @@ public interface AccountBacking {
    boolean hasParentTransactionOutput(OutPoint outPoint);
 
    void putTransaction(TransactionEx transaction);
+
+   void putTransactions(List<TransactionEx> transactions);
 
    TransactionEx getTransaction(Sha256Hash hash);
 

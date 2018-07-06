@@ -112,6 +112,15 @@ public class RecordRowBuilder {
         holder.tvAddress.setText(model.displayAddress);
         holder.tvAddress.setTextColor(textColor);
 
+        if (model.syncTotalRetrievedTransactions == 0) {
+            holder.tvProgressLayout.setVisibility(View.GONE);
+        } else {
+            holder.tvProgressLayout.setVisibility(View.VISIBLE);
+            holder.tvProgress.setText(resources.getString(R.string.sync_total_retrieved_transactions,
+                    Integer.toString(model.syncTotalRetrievedTransactions)));
+            holder.ivWhatIsSync.setOnClickListener(whatIsSyncHandler);
+        }
+
         // Set balance
         if (model.isActive) {
             CurrencyBasedBalance balance = model.balance;
@@ -150,6 +159,20 @@ public class RecordRowBuilder {
                 ? View.VISIBLE : View.GONE);
     }
 
+    private View.OnClickListener whatIsSyncHandler = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            AlertDialog dialog = new AlertDialog.Builder(view.getContext(), R.style.MyceliumModern_Dialog)
+                    .setTitle(resources.getString(R.string.what_is_sync))
+                    .setMessage(resources.getString(R.string.what_is_sync_description))
+                    .setPositiveButton(R.string.button_ok, null)
+                    .create();
+
+            dialog.show();
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(resources.getColor(R.color.mycelium_midblue));
+        }
+    };
+
     public ViewAccountModel convert(WalletAccount walletAccount) {
         ViewAccountModel result = new ViewAccountModel();
         result.accountId = walletAccount.getId();
@@ -157,7 +180,7 @@ public class RecordRowBuilder {
         result.drawableForAccount = Utils.getDrawableForAccount(walletAccount, false, resources);
         result.drawableForAccountSelected = Utils.getDrawableForAccount(walletAccount, true, resources);
         result.accountType = walletAccount.getType();
-
+        result.syncTotalRetrievedTransactions = walletAccount.getSyncTotalRetrievedTransactions();
 
         WalletAccount linked = Utils.getLinkedAccount(walletAccount, mbwManager.getColuManager().getAccounts().values());
         if (linked != null

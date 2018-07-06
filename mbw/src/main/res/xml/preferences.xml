@@ -3,7 +3,7 @@
     android:key="myceliumPreferences">
 
     <PreferenceCategory
-        android:layout="@layout/preference_category_layout"
+        android:layout="@layout/preference_category_layout_first_item"
         android:title="@string/personalization">
         <ListPreference
             android:icon="@drawable/ic_language_24_px"
@@ -20,11 +20,30 @@
     <PreferenceCategory
         android:layout="@layout/preference_category_layout"
         android:title="@string/security_and_privacy">
-        <Preference
+
+        <PreferenceScreen
             android:icon="@drawable/ic_security"
             android:key="pincode"
             android:layout="@layout/preference_key_value_layout"
-            android:title="@string/pin_code" />
+            android:title="@string/pin_code">
+            <PreferenceCategory android:layout="@layout/preference_category_layout">
+                <CheckBoxPreference
+                    android:key="setPin"
+                    android:layout="@layout/preference_layout_no_icon"
+                    android:summary="@string/pref_set_pin_summary"
+                    android:title="@string/pref_set_pin"
+                    android:widgetLayout="@layout/preference_switch" />
+
+                <CheckBoxPreference
+                    android:dependency="setPin"
+                    android:key="requirePinOnStartup"
+                    android:layout="@layout/preference_layout_no_icon"
+                    android:summary="@string/pref_pin_require_on_startup_summary"
+                    android:title="@string/pref_pin_require_on_startup"
+                    android:widgetLayout="@layout/preference_switch" />
+            </PreferenceCategory>
+        </PreferenceScreen>
+
 
         <!--<CheckBoxPreference-->
         <!--android:icon="@drawable/ic_fingerprint"-->
@@ -42,14 +61,33 @@
             android:widgetLayout="@layout/preference_switch" />
     </PreferenceCategory>
 
-    <PreferenceCategory android:layout="@layout/preference_category_layout">
-        <Preference
-            android:icon="@drawable/ic_settings_backup"
+    <PreferenceCategory
+        android:layout="@layout/preference_category_layout">
+        <PreferenceScreen
             android:key="backup"
             android:layout="@layout/preference_layout"
             android:title="@string/backup_lower"
-            android:widgetLayout="@layout/preference_arrow" />
+            android:widgetLayout="@layout/preference_arrow"
+            android:icon="@drawable/ic_settings_backup">
+            <PreferenceCategory
+                android:layout="@layout/preference_category_layout">
+                <Preference
+                    android:key="legacyBackup"
+                    android:layout="@layout/preference_layout"
+                    android:summary="@string/pref_legacy_backup_summary"
+                    android:title="@string/pref_legacy_backup_title" />
+                <Preference
+                    android:key="legacyBackupVerify"
+                    android:layout="@layout/preference_layout"
+                    android:summary="@string/pref_legacy_backup_verify_summary"
+                    android:title="@string/pref_legacy_backup_verify_title"
+                    android:widgetLayout="@layout/preference_arrow" />
+            </PreferenceCategory>
+        </PreferenceScreen>
+
     </PreferenceCategory>
+
+
 
     <PreferenceCategory
         android:key="modulesPrefs"
@@ -186,5 +224,5 @@
     </PreferenceCategory>
 
     <PreferenceCategory android:key="space"
-        android:layout="@layout/preference_category_layout" />
+        android:layout="@layout/preference_category_end_space" />
 </PreferenceScreen>
