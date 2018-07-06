@@ -81,7 +81,11 @@ public class PinCodeFragment extends PreferenceFragmentCompat {
                     update();
                 }
             });
-            if(setPin.isChecked()) {
+
+            // This is an ugly hack to not to develop error handling for PinCode class.
+            // Correct value would be automatically set on success and should not change on error.
+            setPin.setChecked(!setPin.isChecked());
+            if(!setPin.isChecked()) {
                 _mbwManager.showSetPinDialog(getActivity(), afterDialogClosed);
             } else {
                 _mbwManager.showClearPinDialog(getActivity(), afterDialogClosed);
