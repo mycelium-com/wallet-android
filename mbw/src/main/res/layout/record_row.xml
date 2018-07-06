@@ -149,8 +149,7 @@
 
         <ProgressBar
             android:id="@+id/progress_bar"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:theme="@style/AccountProgressBar"
+            style="@style/AccountProgressBar"
             android:layout_width="match_parent"
             android:layout_height="16dp"
             android:layout_marginTop="-7dp"
