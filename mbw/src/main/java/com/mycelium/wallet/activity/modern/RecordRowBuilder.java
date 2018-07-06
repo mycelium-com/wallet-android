@@ -69,9 +69,8 @@ public class RecordRowBuilder {
     }
 
     public void buildRecordView(AccountViewHolder holder, ViewAccountModel model, boolean isSelected, boolean hasFocus) {
-        View view = holder.itemView;
         // Make grey if not part of the balance
-        Utils.setAlpha(view, !isSelected ? 0.5f : 1f);
+        Utils.setAlpha(holder.llAddress, !isSelected ? 0.5f : 1f);
 
         // Show focus if applicable
         holder.llAddress.setBackgroundColor(resources.getColor(hasFocus ? R.color.selectedrecord : R.color.transparent));
@@ -122,7 +121,6 @@ public class RecordRowBuilder {
             holder.ivWhatIsSync.setOnClickListener(whatIsSyncHandler);
             holder.progressBar.getIndeterminateDrawable()
                     .setColorFilter(resources.getColor(R.color.dark_sky_blue), PorterDuff.Mode.SRC_ATOP);
-
         }
 
         // Set balance
