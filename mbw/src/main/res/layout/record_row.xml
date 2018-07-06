@@ -152,7 +152,7 @@
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="match_parent"
             android:layout_height="16dp"
-            android:layout_marginTop="-6dp"
+            android:layout_marginTop="-7dp"
             android:indeterminate="true" />
 
         <LinearLayout
