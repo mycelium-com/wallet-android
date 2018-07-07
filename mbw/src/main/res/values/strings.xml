@@ -147,7 +147,7 @@
     <string name="active_accounts_empty">(Empty)</string>
     <string name="activate_action">Activate</string>
     <string name="archive_action">Archive</string>
-    <string name="question_archive_account">Archive an account if you don\'t intend to use it for a long time.\n\nArchived account won\'t be monitored. That means you can not work with this account while having its label in your accounts list.This feature adds privacy and security, keeping your balance and access to funds secure.\n\nTo activate archived account select it from accounts list "Archived" section, tap on the menu button in the top right corner of the screen and select "Activate".\n\nDo you want to archive account %s holding %s?</string>
+    <string name="question_archive_account">Archive an account if you don\'t intend to use it for a long time.\n\nArchived account won\'t be monitored. That means you can not work with this account while having its label in your accounts list.This feature adds privacy and security, keeping your balance and access to funds secure.\n\nTo activate archived account select it from accounts list "Archived" section, tap on the menu button in the top right corner of the screen and select "Activate".\n\nDo you want to archive account %1$s holding %2$s?</string>
     <string name="master_seed_configuration_title">Welcome to Mycelium</string>
     <string name="master_seed_configuration_description">Do you want to restore a backup, or create a new wallet?</string>
     <string name="master_seed_create_new_button">Create New</string>
@@ -175,8 +175,8 @@
     <string name="my_accounts">My Accounts</string>
     <string name="foreign_addresses">Address Book</string>
     <string name="delete_account_title">Delete Account?</string>
-    <string name="delete_account_message">Do you want to delete account %s holding %s and %s holding %s?</string>
-    <string name="delete_account_message_s">Do you want to delete account %s holding %s?</string>
+    <string name="delete_account_message">Do you want to delete account %1$s holding %2$s and %3$s holding %4$s?</string>
+    <string name="delete_account_message_s">Do you want to delete account %1$s holding %2$s?</string>
     <string name="confirm_delete_pk_title">Are You Sure?</string>
     <string name="confirm_delete_pk_with_balance">This cannot be undone!\n\nCurrent address:\n%1$s\n\nIt contains %2$s\n\nDo you want to delete it?</string>
     <string name="confirm_delete_pk_with_balance_with_label">This cannot be undone!\n\n%1$s\n\nCurrent address:\n%2$s\n\nIt contains %3$s\n\nDo you want to delete it?</string>
