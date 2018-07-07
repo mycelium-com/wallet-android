@@ -79,8 +79,26 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     }
 
     public void setFocusedAccountId(UUID focusedAccountId) {
+        if (this.focusedAccountId == null) {
+            this.focusedAccountId = mbwManager.getSelectedAccount().getId();
+        }
+        int oldFocusedPosition = findPosition(this.focusedAccountId);
         this.focusedAccountId = focusedAccountId;
-        notifyDataSetChanged(); // Somewhy in other cases android would not update alpha value
+        notifyItemChanged(oldFocusedPosition);
+        notifyItemChanged(findPosition(this.focusedAccountId));
+    }
+
+    private int findPosition(UUID account) {
+        int position = -1;
+        for (int i = 0; i < itemList.size(); i++) {
+            AccountItem item = itemList.get(i);
+            if (item.getWalletAccount() != null
+                    && Objects.equals(item.getWalletAccount().accountId, account)) {
+                position = i;
+                break;
+            }
+        }
+        return position;
     }
 
     @Override
