@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="2.11" versioncode="2110100">
+        <change>SegWit: Unconfirmed SegWit transactions are now shown</change>
+        <change>ElectrumX as backend for Bitcoin</change>
+        <change>New Search feature and Design in Settings</change>
+        <change>Improved performance</change>
+        <change>Progress display while syncing big accounts</change>
+        <change>bugs fixed</change>
+    </release>
     <release version="2.10.6" versioncode="2100600">
         <change>BCH transaction history</change>
         <change>bugs fixed</change>

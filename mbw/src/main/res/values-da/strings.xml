@@ -19,7 +19,6 @@
   <string name="send">Send</string>
   <string name="receive">Modtag</string>
   <string name="private_key_deleted">Privat nøgle slettet.</string>
-  <string name="account_deleted">Konto slettet</string>
   <string name="enter_recipient_title">Vælg modtageradresse</string>
   <string name="recipient_title">Modtageradresse</string>
   <string name="amount_label">Beløb:</string>
@@ -37,8 +36,6 @@
   <string name="miner_fee_title">Transaktionsgebyr</string>
   <string name="synchronizing">Synkroniserer</string>
   <string name="transaction_not_sent">Transaktions publicering fejlede</string>
-  <string name="transaction_sent">Transaktion sendt</string>
-  <string name="export">Eksporter</string>
   <string name="backup_private_key">Sikkerhedskopiér</string>
   <string name="copy_to_clipboard">Kopiér til udklipsholder</string>
   <string name="copy_private_key_to_clipboard">Kopier Privat nøgle</string>
@@ -75,15 +72,9 @@
   <string name="pref_clear_pin_summary">Slet den aktuelle PIN-kode</string>
   <string name="pref_set_pin">Indtast PIN-kode</string>
   <string name="pref_set_pin_summary">Indtast en PIN-kode der begrænser adgangen til at sende Bitcoins, eksportere private nøgler og ændre PIN-koden</string>
-  <string name="pref_local_currency">Lokalvaluta</string>
-  <string name="pref_local_currency_with_currency">Lokalvaluta (%1$s)</string>
   <string name="pref_local_currency_summary">Vælg den lokale valuta</string>
-  <string name="pref_exchange_source">Valutakilde</string>
   <string name="pref_exchange_source_with_value">Valutakilde (%1$s)</string>
   <string name="pref_exchange_source_summary">Vælg kilde for opslag af valutakurser mellem Bitcoin og inkonvertible papirpenge</string>
-  <string name="pref_bitcoin_denomination">Bitcoinværdienhed</string>
-  <string name="pref_bitcoin_denomination_with_denomination">Pålydende værdi (%1$s)</string>
-  <string name="pref_bitcoin_denomination_summary">Angiv foretrukne Bitcoinværdienhed. BTC, mBTC eller μBTC</string>
   <string name="pref_advanced_settings">Avancerede indstillinger</string>
   <string name="pref_socks_proxy">Socks Proxy</string>
   <string name="pref_socks_proxy_enabled">Socks Proxy (Aktiveret)</string>
@@ -107,10 +98,8 @@
   <string name="payment_request">Betalingsanmodning</string>
   <string name="export_account_data_warning">Du er ved at eksportere følsomme data fra den valgte konto.\n\nEnhver, der opnår adgang til disse nøgler, kan overtage dine Bitcoins eller tilgå dine private oplysninger.\n\nVil du fortsætte?</string>
   <string name="backup_all_warning">Du bør tage en sikkerhedskopi af dit master seed fra din tegnebog.\nEn sikkerhedskopi af dit master seed giver dig mulighed for at genskabe de midler, der er gemt på dine HD-konti, hvis du skulle tabe din enhed.\n\nVil du lave en kopi nu?</string>
-  <string name="backup_legacy_warning">Du er ved at sikkerhedskopiere de enkelte adressekonti i din tegnebog.\nDenne sikkerhedskopi vil ikke indeholde dit master seed; ingen af dine HD-konti kan blive genskabt fra denne kopi!\n\nVil du fortsætte?</string>
   <string name="export_to_clipboard_warning">Advarsel: Eksportering af den private nøgle til Udklipsholderen vil gøre den tilgængelig for andre apps.\n\nNote: Det er ikke nok at gemme den private nøgle til udklipsholderen, du skal også indsætte den et sikkert sted.\n\nVil du fortsætte?</string>
   <string name="found_clipboard_private_key_title">Privat nøgle fundet i udklipsholderen</string>
-  <string name="found_clipboard_private_keys_message">Udklipsholderen indeholder en privat nøgle.\nVil du slette den?</string>
   <string name="exchange_source_not_available">Valutakurs ikke tilgængelig for %1$s</string>
   <string name="my_own_address_warning">Bemærk: Du sender til en af dine egne adresser.</string>
   <string name="read_only_warning">Advarsel: Din tegnebog indeholder ikke den private nøgle for denne adresse.\nDu kan ikke bruge evt. modtagede mønter, medmindre du har den private nøgle et andet sted.</string>
@@ -124,13 +113,10 @@
   <string name="cold_storage_desc">Du er ved at spendere fra en privat nøgle, der tilhører en papirtegnebog. Dette kan være en privat nøgle fra en papirsikkerhedskopi eller en privat nøgle fra en Bitcoinhæveautomat. Følgende formater understøttes:\n Privat nøgle, master seed, xPriv nøgle.\n\nNår denne transaktion er sendt ville alle spor af den blive slette fra den interne hukommelse.</string>
   <string name="keep_account_address">Slet kun denne private nøgle og behold den som en \"læs kun\"-konto</string>
   <string name="manual_entry">Indtast manuelt</string>
-  <string name="active_hd_accounts_name">Mine HD-konti</string>
-  <string name="active_other_accounts_name">Andre konti</string>
   <string name="archive_name">Arkiverede</string>
   <string name="active_accounts_empty">(Tom)</string>
   <string name="activate_action">Aktivér</string>
   <string name="archive_action">Arkiv</string>
-  <string name="question_archive_account">Arkiverede konti er ikke overvåget. Du kan ikke se balancen eller modtageradresse eller på anden måde bruge kontoen.\n\nArkiverede konti kan blive genaktiveret.\n\nØnsker du at genaktivere denne konto?</string>
   <string name="master_seed_configuration_title">Velkommen til Mycelium</string>
   <string name="master_seed_configuration_description">Vil du genskabe en sikkerhedskopi eller oprette en ny tegnebog?</string>
   <string name="master_seed_create_new_button">Opret ny</string>
@@ -155,12 +141,9 @@
   <string name="using_address_from_clipboard">Brug adresse fra udklipsholderen</string>
   <string name="my_accounts">Mine konti</string>
   <string name="foreign_addresses">Adressebog</string>
-  <string name="delete_account_title">Slet konto?</string>
-  <string name="delete_account_message">Vil du slette denne konto?</string>
   <string name="confirm_delete_pk_title">Er du sikker?</string>
   <string name="verify_private_key_backup">Bekræft sikkerhedskopi</string>
   <string name="verify_backup_dialog_title">Bekræft sikkerhedskopi af privat nøgle</string>
-  <string name="verify_backup_desc">En funktionsdygtig sikkerhedskopi er grundstenen i administrationen af dine Bitcoins.\n\nVed at bekræfte din sikkerhedskopi er du sikker på, at den virker, hvis du en dag skulle tabe din Androidenhed eller den beskadiges.</string>
   <string name="verify_backup_scan_desc">Bekræft din sikkerhedskopi ved at skanne den private nøgle eller master seed QR-koden.\nFlere formater er understøttet, inklusiv Myceliums krypterede papirsikkerhedskopi.</string>
   <string name="verify_backup_clipboard_desc">Kontroller sikkerhedskopien af den private nøgle ved at bruge nøglen fra udklipsholderen.</string>
   <string name="verify_backup_num_keys">Du har %1$s nøgler, der aldrig er blevet bekræftet.</string>
@@ -182,7 +165,6 @@
   <string name="encrypted_pdf_backup_document_ready">PDF-dokument oprettet</string>
   <string name="encrypted_pdf_backup_sharing">Deling af PDF-dokument&#8230;</string>
   <string name="encrypted_pdf_backup_email_title">Mycelium sikkerhedskopi</string>
-  <string name="encrypted_pdf_backup_email_text">Sikkerhedskopien af din Mycelium-tegnebog er vedlagt.\n\nFølg disse enkle trin for at sikre dine penge: \n1. Udskriv PDF-dokument.\n2. Skriv den 15-karakter lange adgangskode ned i den blå boks på udskriften.\n3. Kontrollér, at du kan importere den private nøgle til din Mycelium Tegnebog.\n4. Gem udskriften et sikkert sted.</string>
   <string name="share_pdf">Del PDF</string>
   <string name="share_with">Del med&#8230;</string>
   <string name="import_decrypt_key_title">Dekryptering af privat nøgle</string>
@@ -278,6 +260,16 @@
   <!--/ from libNetCipher -->
   <string name="payment_request_signature">Signatur</string>
   <string name="label_cold_storage_external_signing">Signér med:</string>
+  <!--<string name="colu_tos_link">Open Colu Terms and Conditions</string>-->
+  <!-- <string name="colu_tos_link_url">https://www.colu.com/TOS</string>-->
+  <!--<string name="colu_tos">By clicking "OK" you agree to use Colored Coin technology, third party-->
+  <!--blockchain technology developer. All your interactions with Colu are outside of-->
+  <!--Mycelium’s control and are subject to Colu’s T&amp;C and Privacy Policy.-->
+  <!--Please read them carefully before providing any personal information.-->
+  <!--MYCELIUM ACCEPTS NO RESPONSIBILITY AND WILL NOT BE LIABLE FOR ANY LOSS-->
+  <!--OR DAMAGE WHATSOEVER SUFFERED AS A RESULT OF ACCESSING, USE OF, OR-->
+  <!--RELIANCE UPON COLU’S INFORMATION AND SERVICES.</string>-->
+  <!--    <string name="colu_backup_info">Your Colu account access-key gets derived from your masterseed. If you have a valid backup, the access to your Colu account is also included.</string>  -->
   <!-- Credit Card -->
   <!-- Credit Card End-->
   <!-- GlideraService Start -->

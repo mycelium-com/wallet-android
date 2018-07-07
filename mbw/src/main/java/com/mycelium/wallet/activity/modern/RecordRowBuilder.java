@@ -68,12 +68,11 @@ public class RecordRowBuilder {
     }
 
     public void buildRecordView(AccountViewHolder holder, ViewAccountModel model, boolean isSelected, boolean hasFocus) {
-        View view = holder.itemView;
         // Make grey if not part of the balance
-        Utils.setAlpha(view, !isSelected ? 0.5f : 1f);
+        Utils.setAlpha(holder.llAddress, !isSelected ? 0.5f : 1f);
 
         // Show focus if applicable
-        view.setBackgroundColor(resources.getColor(hasFocus ? R.color.selectedrecord : R.color.transparent));
+        holder.llAddress.setBackgroundColor(resources.getColor(hasFocus ? R.color.selectedrecord : R.color.transparent));
 
         // Show/hide key icon
         Drawable drawableForAccount = isSelected ? model.drawableForAccountSelected : model.drawableForAccount;
@@ -114,11 +113,13 @@ public class RecordRowBuilder {
 
         if (model.syncTotalRetrievedTransactions == 0) {
             holder.tvProgressLayout.setVisibility(View.GONE);
-         } else {
+        } else {
             holder.tvProgressLayout.setVisibility(View.VISIBLE);
-            holder.tvProgress.setText(resources.getString(R.string.sync_total_retrieved_transactions, Integer.toString(model.syncTotalRetrievedTransactions)));
-            holder.tvWhatIsSync.findViewById(R.id.tvWhatIsSync).setOnClickListener(whatIsSyncHandler);
+            holder.tvProgress.setText(resources.getString(R.string.sync_total_retrieved_transactions,
+                    Integer.toString(model.syncTotalRetrievedTransactions)));
+            holder.ivWhatIsSync.setOnClickListener(whatIsSyncHandler);
         }
+
         // Set balance
         if (model.isActive) {
             CurrencyBasedBalance balance = model.balance;
@@ -158,14 +159,17 @@ public class RecordRowBuilder {
     }
 
     private View.OnClickListener whatIsSyncHandler = new View.OnClickListener() {
-       @Override
+        @Override
         public void onClick(View view) {
-           new AlertDialog.Builder(view.getContext())
+            AlertDialog dialog = new AlertDialog.Builder(view.getContext(), R.style.MyceliumModern_Dialog)
+                    .setTitle(resources.getString(R.string.what_is_sync))
                     .setMessage(resources.getString(R.string.what_is_sync_description))
                     .setPositiveButton(R.string.button_ok, null)
-                    .create()
-                    .show();
-           }
+                    .create();
+
+            dialog.show();
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(resources.getColor(R.color.mycelium_midblue));
+        }
     };
 
     public ViewAccountModel convert(WalletAccount walletAccount) {

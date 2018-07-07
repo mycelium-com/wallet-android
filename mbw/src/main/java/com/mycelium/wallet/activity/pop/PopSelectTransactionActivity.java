@@ -54,9 +54,11 @@ import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.main.adapter.TransactionArrayAdapter;
+import com.mycelium.wallet.event.AddressBookChanged;
 import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -157,16 +159,13 @@ public class PopSelectTransactionActivity extends AppCompatActivity implements A
       public int getCount() {
          return 2;
       }
-
-      /*@Override
-      public CharSequence getPageTitle(int position) {
-         return getString(position == 0 ? R.string.pop_matching_transactions : R.string.pop_non_matching_transactions);
-      }*/
    }
 
    public static class TransactionListFragment extends ListFragment {
       private PopRequest popRequest;
       private TransactionHistoryAdapter transactionHistoryAdapter;
+      private Map<Address, String> addressBook;
+      private MbwManager mbwManager;
 
       static TransactionListFragment init(PopRequest popRequest, boolean showMatching) {
          TransactionListFragment list = new TransactionListFragment();
@@ -185,7 +184,7 @@ public class PopSelectTransactionActivity extends AppCompatActivity implements A
          popRequest = (PopRequest) getArguments().getSerializable("pop");
          boolean showMatching = getArguments().getBoolean("match");
 
-         MbwManager mbwManager = MbwManager.getInstance(getActivity());
+         mbwManager = MbwManager.getInstance(getActivity());
          WalletAccount account = mbwManager.getSelectedAccount();
 
          List<TransactionSummary> history = account.getTransactionHistory(0, 1000);
@@ -202,8 +201,26 @@ public class PopSelectTransactionActivity extends AppCompatActivity implements A
             }
          }
 
-         Map<Address, String> addressBook = mbwManager.getMetadataStorage().getAllAddressLabels();
+         addressBook = mbwManager.getMetadataStorage().getAllAddressLabels();
          transactionHistoryAdapter = new TransactionHistoryAdapter(getActivity(), list, addressBook);
+      }
+
+      @Override
+      public void onResume() {
+         super.onResume();
+         mbwManager.getEventBus().register(this);
+      }
+
+      @Override
+      public void onPause() {
+         super.onPause();
+         mbwManager.getEventBus().unregister(this);
+      }
+
+      @Subscribe
+      public void onAddressBookChanged(AddressBookChanged event) {
+         addressBook.clear();
+         addressBook.putAll(mbwManager.getMetadataStorage().getAllAddressLabels());
       }
 
       @Override

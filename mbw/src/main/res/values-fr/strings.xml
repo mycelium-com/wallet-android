@@ -8,12 +8,12 @@
   <string name="import_words_title">Entrez la liste de mots</string>
   <string name="add_account_desc">Mycelium prend en charge les comptes HD et les adresses uniques. Tous les comptes HD sont créés avec la même Master Seed. La première fois que vous en créerez un, votre Master Seed sera configurée.</string>
   <string name="add_single_acc_info">Afin d\'ajouter une seule adresse basée sur une clé privée ou une adresse en mode lecture, veuillez cliquer sur le bouton Avancé ci-dessous.</string>
-  <string name="scan_desc">Numériser une adresse Bitcoin, une clé privée ou un compte HD.</string>
-  <string name="scan_seed">Numérisez la Master Seed depuis une sauvegarde Mycelium</string>
+  <string name="scan_desc">Scanner une adresse Bitcoin, une clé privée ou un compte HD.</string>
+  <string name="scan_seed">Scannez la Master Seed depuis une sauvegarde Mycelium</string>
   <string name="use_acc_first">Vous ne pouvez avoir qu\'un seul compte HD inutilisé.</string>
   <string name="clipboard_desc">Ajouter l’adresse Bitcoin ou la clé privée à partir du presse-papier.</string>
   <string name="wordlist_des">Créez la Master Seed à partir d\'une liste de mots</string>
-  <string name="scan">Numériser</string>
+  <string name="scan">Scanner</string>
   <string name="advanced">Avancé</string>
   <string name="clipboard">Presse-papier</string>
   <string name="enter_wordlist">Entrez la liste de mots</string>
@@ -25,7 +25,6 @@
   <string name="send">Envoyer</string>
   <string name="receive">Recevoir</string>
   <string name="private_key_deleted">Clé privée supprimée.</string>
-  <string name="account_deleted">Compte supprimé</string>
   <string name="enter_recipient_title">Entrez l\'adresse du destinataire</string>
   <string name="recipient_title">Adresse du destinataire</string>
   <string name="amount_label">Montant :</string>
@@ -45,8 +44,6 @@
   <string name="synchronizing">Synchronisation</string>
   <string name="transaction_not_sent">Échec de l\'envoi de la transaction</string>
   <string name="queue_transaction_message">La transaction n\'a pas été envoyée. \nDésirez-vous la garder en attente afin de la transmettre lorsque la connexion sera rétablie ?</string>
-  <string name="transaction_sent">Transaction envoyée</string>
-  <string name="export">Exporter</string>
   <string name="backup_private_key">Sauvegarder</string>
   <string name="copy_to_clipboard">Copier dans le presse-papier</string>
   <string name="copy_private_key_to_clipboard">Copier la clé privée vers le presse-papier</string>
@@ -83,15 +80,9 @@
   <string name="pref_clear_pin_summary">Désactiver le code d\'accès actuel</string>
   <string name="pref_set_pin">Activer le code d\'accès</string>
   <string name="pref_set_pin_summary">Définir un code d\'accès limitant l\'accès aux envois de fond, à l\'expédition de clés privées et la modification du code d\'accès</string>
-  <string name="pref_local_currency">Devise locale</string>
-  <string name="pref_local_currency_with_currency">Devise locale (%1$s)</string>
   <string name="pref_local_currency_summary">Sélectionner la monnaie courante</string>
-  <string name="pref_exchange_source">Bourse</string>
   <string name="pref_exchange_source_with_value">Bourse (%1$s)</string>
   <string name="pref_exchange_source_summary">Sélectionner la bourse utilisée pour le taux de change entre le Bitcoin et votre devise</string>
-  <string name="pref_bitcoin_denomination">Dénomination du Bitcoin</string>
-  <string name="pref_bitcoin_denomination_with_denomination">Dénomination (%1$s)</string>
-  <string name="pref_bitcoin_denomination_summary">Définir la dénomination du Bitcoin : BTC, mBTC ou μBTC</string>
   <string name="pref_advanced_settings">Paramètres avancés</string>
   <string name="pref_socks_proxy">Socks Proxy</string>
   <string name="pref_socks_proxy_enabled">Socks Proxy (activé)</string>
@@ -115,10 +106,8 @@
   <string name="payment_request">Demande de paiement</string>
   <string name="export_account_data_warning">Vous êtes sur le point d\'exporter des données sensibles du compte sélectionné.\n\nQuiconque accède à ces clés peut, soit prendre possession des bitcoins qu\'elles contrôlent, soit obtenir des informations privées.\n\nVoulez-vous continuer ?</string>
   <string name="backup_all_warning">Vous devez sauvegarder la master seed de votre portefeuille.\nUne sauvegarde de votre master seed vous permet de restaurer vos fonds stockés sur vos comptes HD si votre appareil est perdu ou endommagé.\n\nDésirez-vous faire ceci maintenant ?</string>
-  <string name="backup_legacy_warning">Vous allez sauvegarder les comptes à adresse unique de votre portefeuille. \nCette sauvegarde ne contiendra pas votre master seed, aucun de vos comptes HD ne peut être restauré depuis celle-ci !\n\nSouhaitez-vous continuer ?</string>
   <string name="export_to_clipboard_warning">AVERTISSEMENT : Exporter la clé privée vers le presse-papier l\'expose à toutes les autres applications de votre appareil.\n\nNote : Garder votre clé privée dans le presse-papier ne suffit pas, vous devez également la coller à un endroit sûr.\n\nVoulez-vous continuer ?</string>
   <string name="found_clipboard_private_key_title">Clé privée trouvée dans le presse-papier</string>
-  <string name="found_clipboard_private_keys_message">Le presse-papier contient une clé privée.\nVoulez-vous effacer le presse-papier ?</string>
   <string name="exchange_source_not_available">Taux de change non disponible pour %1$s</string>
   <string name="my_own_address_warning">Remarque : Vous envoyez vers l\'une de vos propres adresses.</string>
   <string name="read_only_warning">AVERTISSEMENT : Votre portefeuille n\'a pas la clé privée de cette adresse.\nVous ne pouvez pas dépenser les fonds sans avoir la clé privée.</string>
@@ -132,13 +121,10 @@
   <string name="cold_storage_desc">Vous êtes sur le point de faire une dépense d\'une clé privée hors ligne. Cela pourrait être une sauvegarde papier d\'une clé privée ou d\'un bordereau de clé privée provenant d\'un guichet automatique Bitcoin. Les formats suivants sont supportés :\nClé privée, Master Seed, xPriv Key\n\nUne fois que la transaction a été envoyée, toute trace de celle-ci sera effacée de la mémoire interne.</string>
   <string name="keep_account_address">Supprimer uniquement la clé privée et garder ce compte en mode lecture</string>
   <string name="manual_entry">Saisie manuelle</string>
-  <string name="active_hd_accounts_name">Mes comptes HD</string>
-  <string name="active_other_accounts_name">Autres comptes</string>
   <string name="archive_name">Archivées</string>
   <string name="active_accounts_empty">(Vide)</string>
   <string name="activate_action">Activer</string>
   <string name="archive_action">Archiver</string>
-  <string name="question_archive_account">Les comptes archivés ne sont pas surveillés, vous ne pouvez voir ni le solde ni l\'adresse de réception, et ne pouvez pas travailler avec ce compte.\n\nLes comptes archivés peuvent être activés de nouveau.\n\nSouhaitez-vous archiver ce compte ?</string>
   <string name="master_seed_configuration_title">Bienvenue sur Mycelium</string>
   <string name="master_seed_configuration_description">Voulez-vous restaurer une sauvegarde, ou créer un nouveau portefeuille ?</string>
   <string name="master_seed_create_new_button">Créer</string>
@@ -164,16 +150,11 @@
   <string name="using_address_from_clipboard">Adresse depuis le presse-papier</string>
   <string name="my_accounts">Mes comptes</string>
   <string name="foreign_addresses">Carnet d\'adresses</string>
-  <string name="delete_account_title">Supprimer le compte ?</string>
-  <string name="delete_account_message">Voulez-vous vraiment supprimer ce compte ?</string>
   <string name="confirm_delete_pk_title">Êtes-vous sûr ?</string>
   <string name="confirm_delete_pk_with_balance">Cette action ne peut pas être annulée !\n\nAdresse actuelle :\n%1$s\n\nContient %2$s\n\nDésirez-vous la supprimer ?</string>
-  <string name="confirm_delete_pk_with_balance_with_label">Cette action ne peut pas être annulée !\n\nÉtiquette de compte :\n%1$s\n\nAdresse actuelle :\n%2$s\n\n Contient %3$s\n\nDésirez-vous la supprimer ?</string>
   <string name="confirm_delete_pk_without_balance">Cette action ne peut pas être annulée !\n\nAdresse actuelle :\n%1$s\n\nDésirez-vous la supprimer ?</string>
-  <string name="confirm_delete_pk_without_balance_with_label">Cette action ne peut pas être annulée !\n\nÉtiquette de compte :\n%1$s\n\nAdresse actuelle :\n%2$s\n\nDésirez-vous la supprimer ?</string>
   <string name="verify_private_key_backup">Vérifier la sauvegarde</string>
   <string name="verify_backup_dialog_title">Vérifier la sauvegarde de la clé privée</string>
-  <string name="verify_backup_desc">Il est primordial de bien sauvegarder la clé privée lorsque vous gérez vos fonds.\n\nLa vérification de sauvegarde assure que votre sauvegarde est réussie et que vous ne perdrez pas vos fonds si vous perdez ou endommagez votre appareil Android.</string>
   <string name="verify_backup_scan_desc">Vérifiez votre sauvegarde en scannant le code QR de la clé privée ou de la master seed.\nPlusieurs formats sont acceptés, y compris les sauvegardes papiers chiffrées de Mycelium.</string>
   <string name="verify_backup_clipboard_desc">Vérifiez la sauvegarde de la clé privée en la prenant depuis le presse-papier.</string>
   <string name="verify_backup_num_keys">Vous avez %1$s clés qui n\'ont pas été vérifiées.</string>
@@ -196,7 +177,6 @@
   <string name="encrypted_pdf_backup_document_ready">Document PDF créé</string>
   <string name="encrypted_pdf_backup_sharing">Partage du document PDF&#8230;</string>
   <string name="encrypted_pdf_backup_email_title">Sauvegarde de portefeuille Mycelium</string>
-  <string name="encrypted_pdf_backup_email_text">Vous trouverez ci-joint la sauvegarde de votre portefeuille Mycelium.\n\nVeuillez suivre les étapes suivantes afin de sécuriser les fonds :\n1. Imprimer le document PDF.\n2. Écrire les 15 caractères affichés sur votre appareil Android dans les cases bleues à cet effet.\n3. S\'assurer que vous parvenez à importer les clés privées à votre portefeuille Mycelium.\n4. Ranger l\'impression en lieu sûr.</string>
   <string name="share_pdf">Partager PDF</string>
   <string name="share_with">Partager avec&#8230;</string>
   <string name="import_decrypt_key_title">Déchiffrement de clé privée</string>
@@ -293,8 +273,6 @@
   <string name="lt_ad_created">Annonce créée</string>
   <string name="lt_ad_edited">Annonce modifiée</string>
   <string name="lt_pref_category">Marchand local</string>
-  <string name="lt_disable_preference">Désactiver marchand local</string>
-  <string name="lt_disable_preference_summary">Désactiver la fonctionnalité de marchand local</string>
   <string name="lt_sound_on_trade_preference">Jouer un son lors d\'un échange</string>
   <string name="lt_sound_on_trade_preference_summary">Jouer une tonalité lors des activités d\'échanges</string>
   <string name="lt_use_email_for_notifications">Utiliser l\'e-mail pour les notifications</string>
@@ -476,8 +454,6 @@
   <string name="invalid_bitid_uri">URI BitID non valide</string>
   <!-- BitID end -->
   <string name="selected_archived_warning">Vous ne pouvez pas travailler sur les comptes archivés.</string>
-  <string name="selected_hd_info">Vous travaillez maintenant sur ce compte HD.</string>
-  <string name="selected_single_info">Vous travaillez maintenant sur cette adresse unique.</string>
   <string name="transaction_not_broadcasted_info">Impossible de diffuser</string>
   <string name="hd_account_creation_started">Création d\'un nouveau compte HD&#8230;</string>
   <string name="preparing_wallet_on_first_startup_info">Préparation du portefeuille&#8230;</string>
@@ -527,7 +503,7 @@
   <string name="decryption_password_hint">VOT REM OTD EPA SSE X</string>
   <string name="dont_allow_archiving_unused_notification">Vous ne pouvez pas archiver un compte HD non inutilisé</string>
   <string name="newly_generated_coins_from_coinbase">Pièces nouvellement générées</string>
-    <string name="button_continue">Continuer</string>
+  <string name="button_continue">Continuer</string>
   <string name="butto_show_release_notes">Vue détaillée</string>
   <string name="word_does_not_exist_in_wordlist">Le mot que vous avez entré n\'existe pas dans la liste de mots</string>
   <string name="pref_legacy_backup_title">Sauvegarde non HD</string>
@@ -542,9 +518,6 @@
   <string name="direct_apk_link_label">Téléchargement\ndirect</string>
   <string name="hide_unused_account_menu">Supprimer le compte</string>
   <string name="dont_allow_hiding_used_notification">Vous ne pouvez pas masquer un compte utilisé, mais vous pouvez l\'archiver</string>
-  <string name="pref_miner_fee_title">Frais de transaction</string>
-  <string name="pref_miner_fee_block_summary">Les transactions sont envoyées avec des frais de mineur pour être incluses dans le(s) prochain(s) %1s bloc(s) en moyenne.</string>
-  <string name="miner_fee_lowprio_name">Faible priorité</string>
   <string name="miner_fee_economic_name">Économiques</string>
   <string name="miner_fee_normal_name">Normaux</string>
   <string name="miner_fee_priority_name">Prioritaires</string>
@@ -583,8 +556,6 @@
   <string name="lt_confirm_delete_trader_message">Voulez-vous vraiment supprimer votre compte de marchand local ? Toutes les informations sur les échanges et sur les cotes seront définitivement supprimés et ne peuvent pas être récupérés.</string>
   <string name="rescan_account_menu_item">Actualiser le compte</string>
   <string name="add_advanced_account_warning">AVERTISSEMENT :\n Ces clés ne seront pas incluses dans la sauvegarde de votre Master Seed. Vous devez vérifier que vous disposez d\'une sauvegarde séparée.</string>
-  <string name="new_random_key_desc">Générer une nouvelle clé aléatoire</string>
-  <string name="generate_new_key">Générer</string>
   <string name="new_bitcoin_address_created">Une nouvelle clé privée a été générée avec l\'adresse Bitcoin suivante :</string>
   <string name="shuffle">Mélanger</string>
   <string name="toast_warning_low_fee">pourrait prendre plus de temps pour confirmer</string>
@@ -649,8 +620,6 @@
   <string name="pref_ledger_title">Portefeuille matériel Ledger</string>
   <string name="ledger_disable_tee_preference">Désactiver le support TEE</string>
   <string name="ledger_disable_tee_preference_summary">Désactivez la compatibilité avec le Trusted Execution Environment si vous comptez utiliser un portefeuille matériel Ledger différent</string>
-  <string name="ledger_unplugged_aid_preference">Paramétrer aide au ledger débranché</string>
-  <string name="ledger_unplugged_aid_preference_summary">Soutenir une aide différente au Ledger débranché</string>
   <string name="select_local_currencies">Sélectionnez vos devises</string>
   <string name="show_public_or_private_data">Afficher</string>
   <string name="show_private_data">privée(s)</string>
@@ -660,11 +629,6 @@
   <string name="reset_pin_button">Réinitialiser le code d\'accès</string>
   <string name="wrong_pin_message">Code d\'accès erroné.\n\nSi vous avez oublié votre code d\'accès, vous pouvez le réinitialiser.</string>
   <string name="pref_no_fiat_selected">Aucune devise sélectionnée</string>
-  <string name="useTor">Utiliser le réseau Tor</string>
-  <string name="useTorDescription">Utiliser le réseau Tor pour communiquer avec les serveurs de fonds.\nCela améliore votre vie privée et peut contourner les pare-feux restrictifs. Cependant, il peut ralentir la performance de cette application.</string>
-  <string name="useTorOnlyExternalTor">Utiliser le réseau Tor (tor externe)</string>
-  <string name="useTorOnlyHttps">Utiliser le réseau Tor (https seulement)</string>
-  <string name="useTorBoth">Utiliser le réseau Tor (les deux)</string>
   <string name="last_log_entries">Dernières entrées du journal</string>
   <string name="use_https">Utiliser https</string>
   <string name="use_external_tor">Utiliser le réseau Tor externe (Orbot)</string>
@@ -721,7 +685,6 @@
   <string name="payment_request_error_while_getting_ack">Incapable d\'envoyer le paiement au serveur.\n%s\n\nLe paiement ne sera pas diffusé.</string>
   <string name="payment_request_warning_no_sig">L\'origine de cette demande de paiement ne peut pas être vérifiée, car il n\'a aucune signature.\n\nVeuillez être très prudent, car une personne pourrait intercepter et modifier des adresses de paiement.</string>
   <string name="label_cold_storage_external_signing">Signer avec :</string>
-  <string name="spending_unconfirmed_warning">AVERTISSEMENT : dépense de fonds non confirmés</string>
   <string name="spending_unconfirmed_title">Dépense de fonds non confirmés</string>
   <string name="spending_unconfirmed_description">Votre transaction utilise des fonds qui n\'ont pas encore été inclus dans un bloc bitcoin. Si pour une raison quelconque, la transaction qui envoie ces pièces échoue ou reste non confirmée, votre transaction échouera ou restera non confirmée.</string>
   <string name="label_unverified_recipient">bénéficiaire non vérifié</string>
@@ -747,7 +710,6 @@
   <string name="description_bump_fee">Envoyer une transaction qui augmentera les frais pour cette transaction.\n\nConfirmées que vous voulez passer à %2$s pour obtenir le frais de %1$dsat/B ?</string>
   <string name="message_rebroadcast_successfull">La transaction a été diffusée avec succès.</string>
   <string name="message_rebroadcast_failed">La diffusion a échoué, vérifiez votre connexion internet et synchronisez votre portefeuille.</string>
-  <string name="block_explorer_title">Explorateur de blocs</string>
   <string name="block_explorer_summary">Les détails de la transaction peuvent être consultés en utilisant l\'explorateur de blocs %1$s</string>
   <string name="lt_warning_wrong_account_type">Marchand Local ne fonctionne pas avec le type de compte sélectionné, veuillez sélectionner un autre compte.</string>
   <string name="lt_account_not_allowed">Le type de compte sélectionné ne fonctionne pas avec Marchand Local. Vous devez sélectionner un autre compte pour effectuer cet échange.</string>
@@ -777,6 +739,16 @@
   <string name="coinapult_create_account">Création du compte Coinapult&#8230;</string>
   <string name="coinapult_backup_info">Votre clé d\'accès compte Coinapult est dérivé de votre masterseed. Si vous disposez d\'une sauvegarde valide, l\'accès à votre compte de coinapult est également sauvegardé.</string>
   <string name="coinapult_currency_account">%1$s compte</string>
+  <!--<string name="colu_tos_link">Open Colu Terms and Conditions</string>-->
+  <!-- <string name="colu_tos_link_url">https://www.colu.com/TOS</string>-->
+  <!--<string name="colu_tos">By clicking "OK" you agree to use Colored Coin technology, third party-->
+  <!--blockchain technology developer. All your interactions with Colu are outside of-->
+  <!--Mycelium’s control and are subject to Colu’s T&amp;C and Privacy Policy.-->
+  <!--Please read them carefully before providing any personal information.-->
+  <!--MYCELIUM ACCEPTS NO RESPONSIBILITY AND WILL NOT BE LIABLE FOR ANY LOSS-->
+  <!--OR DAMAGE WHATSOEVER SUFFERED AS A RESULT OF ACCESSING, USE OF, OR-->
+  <!--RELIANCE UPON COLU’S INFORMATION AND SERVICES.</string>-->
+  <!--    <string name="colu_backup_info">Your Colu account access-key gets derived from your masterseed. If you have a valid backup, the access to your Colu account is also included.</string>  -->
   <string name="copy">Copier</string>
   <string name="lt_backup_lt_id">Identité d\'opérateur de sauvegarde</string>
   <string name="lt_confirm_backup_trader_message">Vous êtes sur le point d\'exporter des données sensibles de votre compte de commerçant local. Toute personne qui accède à ces clés peut utiliser votre compte de commerçant local et agir en votre nom. Voulez-vous continuer ?</string>
@@ -808,8 +780,6 @@
   <string name="warning_reason_rbf">RBF</string>
   <string name="warning_reason_unconfirmed_parent">Parent non confirmé</string>
   <string name="warning_reason_doublespend">Double dépense détectée</string>
-  <string name="opening_url_in_browser">Ouverture du lien URL dans le navigateur...</string>
-  <string name="incoming_payment">Versement entrant : %s</string>
   <string name="warning_amount_does_not_match">ATTENTION : le montant ne correspond pas !</string>
   <string name="mycelium_terms_of_use">Conditions d\'utilisation de Mycelium</string>
   <!-- Credit Card -->
@@ -880,4 +850,21 @@
   <string name="label_list_activity_indicator">avait de l\'activité</string>
   <string name="buy_with_cc_spend_only_warning_title">Compte receveur seulement</string>
   <string name="buy_with_cc_spend_only_warning">Le compte sélectionné actuel est un compte receveur seulement.\n\nÊtes vous sure de vouloir utiliser ce compte pour acheter votre bitcoin ?</string>
+  <string name="warning_partner">Informations du partenaire</string>
+  <string name="partner_header_title">Nouveau à la crypto ?</string>
+  <string name="partner_header_text">Vous trouverez ici une sélection d\'entreprises partenaires.</string>
+  <string name="partner_ledger">Ledger</string>
+  <string name="partner_ledger_short">Solutions de sécurité pour les monnaies cryptographiques</string>
+  <string name="partner_ledger_url">https://www.ledgerwallet.com/r/494d?path=/products</string>
+  <string name="partner_trezor">Trezor</string>
+  <string name="partner_trezor_short">Le portefeuille matériel original.</string>
+  <string name="partner_trezor_url">https://shop.trezor.io/?a=mycelium.com</string>
+  <string name="partner_purse">Purse</string>
+  <string name="partner_purse_short">Économisez 15 % sur Amazon.com en payant avec Bitcoin sur Purse.io</string>
+  <string name="partner_purse_url">https://purse.io/?_a=MYCELIUM</string>
+  <string name="tab_partners">Partenariat</string>
+  <string name="partner_more_info"><u>Vos informations privées sont de notre première priorité</u></string>
+  <string name="partner_more_info_text">
+         Mycelium est le portefeuille le plus utilisé et le plus fiable de tous les portefeuilles mobiles. <br/>         Développer, maintenir et soutenir ce produit n\'est pas sans frais. <br/>         Les ententes commerciales sont statiquement intégrées dans l’application et ne dépendent pas de n’importe quel réseau publicitaire.         Leurs présences ne peuvent pas être utilisé pour le suivi des utilisateurs qui ne les utilisent pas.         Aucun gain se fait en affichant ou non ces liens partenaires.         Les retombées se produisent uniquement lorsque les utilisateurs décide de faire un achat depuis nos sites partenaires.    </string>
+  <string name="your_privacy_out_priority">Vos informations privées sont de notre priorité</string>
 </resources>
