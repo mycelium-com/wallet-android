@@ -119,8 +119,6 @@
   <string name="using_address_from_clipboard">Menggunakan alamat dari clipboard</string>
   <string name="my_accounts">Akun Saya</string>
   <string name="foreign_addresses">Buku Alamat</string>
-  <string name="delete_account_title">Hapus Akun?</string>
-  <string name="delete_account_message">Apakah anda ingin menghapus akun ini?</string>
   <string name="confirm_delete_pk_title">Anda yakin?</string>
   <string name="verify_private_key_backup">Memverifikasi Cadangan</string>
   <string name="verify_backup_dialog_title">Memverifikasi cadangan Private Key</string>

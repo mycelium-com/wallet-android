@@ -150,8 +150,6 @@
   <string name="using_address_from_clipboard">Indirizzo copiato dagli appunti in uso</string>
   <string name="my_accounts">Miei Conti</string>
   <string name="foreign_addresses">Rubrica</string>
-  <string name="delete_account_title">Elimina l\'account?</string>
-  <string name="delete_account_message">Desideri eliminare questo account?</string>
   <string name="confirm_delete_pk_title">Confermi?</string>
   <string name="confirm_delete_pk_with_balance">Questa azione non potrà essere annullata!\n\nL\'indirizzo attuale:\n%1$s\n\nIt contiene %2$s\n\nDesideri eliminarla?</string>
   <string name="confirm_delete_pk_without_balance">Questa azione non potrà essere annullata!\n\nIndirizzo attuale:\n%1$s\n\nDesideri eliminarlo?</string>

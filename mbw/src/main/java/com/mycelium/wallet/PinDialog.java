@@ -34,10 +34,10 @@
 
 package com.mycelium.wallet;
 
-import android.app.Dialog;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v7.app.AppCompatDialog;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -47,7 +47,7 @@ import com.mycelium.wallet.activity.util.Pin;
 
 import java.util.ArrayList;
 
-public class PinDialog extends Dialog {
+public class PinDialog extends AppCompatDialog {
    public static final String PLACEHOLDER_TYPED = "\u25CF"; // Unicode Character 'BLACK CIRCLE' (which is a white circle in our dark theme)
    public static final String PLACEHOLDER_NOT_TYPED = "\u25CB"; // Unicode Character 'WHITE CIRCLE' (which is a black circle)
    public static final String PLACEHOLDER_SMALL = "\u2022"; // Unicode Character  'BULLET'

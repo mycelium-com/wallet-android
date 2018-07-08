@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <Button
+    <TextView
         android:id="@+id/preference_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -12,6 +12,7 @@
         android:background="@color/transparent"
         android:focusable="false"
         android:textSize="14sp"
+        android:layout_marginRight="16dp"
         android:fontFamily="sans-serif-medium"
         android:textAllCaps="true"
         android:textStyle="normal"

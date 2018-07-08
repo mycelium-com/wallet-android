@@ -149,8 +149,6 @@
   <string name="using_address_from_clipboard">クリップボードからのアドレス</string>
   <string name="my_accounts">私のアカウント</string>
   <string name="foreign_addresses">アドレス帳</string>
-  <string name="delete_account_title">アカウントを削除しますか？</string>
-  <string name="delete_account_message">このアカウントを削除しますか？</string>
   <string name="confirm_delete_pk_title">一度削除されたものはバックアップされてなければ復元できませんが、本当に宜しいですか？</string>
   <string name="confirm_delete_pk_with_balance">これは取り消しができません！\n\n現在のアドレス：\n%1$s\n\n含まれているのは %2$s\n\n削除しますか？</string>
   <string name="confirm_delete_pk_without_balance">これは取り消しができません！\n\n\現在のアドレス：\n%1$s\n\n削除しますか？</string>

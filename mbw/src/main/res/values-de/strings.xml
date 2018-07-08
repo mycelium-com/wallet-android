@@ -152,8 +152,6 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="using_address_from_clipboard">Bitcoin-Adresse aus der Zwischenablage wird verwendet</string>
   <string name="my_accounts">Meine Konten</string>
   <string name="foreign_addresses">Adressbuch</string>
-  <string name="delete_account_title">Konto löschen?</string>
-  <string name="delete_account_message">Wollen Sie dieses Konto löschen?</string>
   <string name="confirm_delete_pk_title">Sind Sie sicher?</string>
   <string name="confirm_delete_pk_with_balance">Diese Aktion kann nicht rückgängig gemacht werden!\n\nAktuelle Adresse:\n%1$s\n\nEnthält%2$s\n\nMöchten Sie löschen?</string>
   <string name="confirm_delete_pk_without_balance">Diese Aktion kann nicht rückgängig gemacht werden!\n\nAktuelle Adresse:\n%1$s\n\n.Soll die Adresse gelöscht werden?</string>

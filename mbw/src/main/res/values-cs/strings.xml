@@ -150,8 +150,6 @@
   <string name="using_address_from_clipboard">Pomocí adresy ze schránky</string>
   <string name="my_accounts">Mé účty</string>
   <string name="foreign_addresses">Adresář</string>
-  <string name="delete_account_title">Odstranit účet?</string>
-  <string name="delete_account_message">Opravdu odstranit tento účet?</string>
   <string name="confirm_delete_pk_title">Opravdu?</string>
   <string name="confirm_delete_pk_with_balance">Tuto akci nelze vrátit!\n\nSoučasná adresa:\n%1$s\n\nObsahuje:%2$s\n\nChcete ji smazat?</string>
   <string name="confirm_delete_pk_without_balance">Tuto akci nelze vrátit!\n\nSoučasná adresa:\n%1$s\n\nChcete ji smazat?</string>

@@ -150,8 +150,6 @@
   <string name="using_address_from_clipboard">Usando endereço da área de transferência</string>
   <string name="my_accounts">Minhas Contas</string>
   <string name="foreign_addresses">Livro de Endereços</string>
-  <string name="delete_account_title">Apagar Conta?</string>
-  <string name="delete_account_message">Você quer apagar essa conta?</string>
   <string name="confirm_delete_pk_title">Você tem certeza?</string>
   <string name="confirm_delete_pk_with_balance">Essa ação é irreversível!\n\nEndereço atual:\n%1$s\n\nContém %2$s\n\nVocê quer deletá-lo?</string>
   <string name="confirm_delete_pk_without_balance">Essa ação é irreversível!\n\nEndereço atual:\n%1$s\n\nVocê quer deletá-lo?</string>

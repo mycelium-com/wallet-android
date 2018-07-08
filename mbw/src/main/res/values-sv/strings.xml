@@ -149,8 +149,6 @@
   <string name="using_address_from_clipboard">Använder adress från urklipp</string>
   <string name="my_accounts">Mina konton</string>
   <string name="foreign_addresses">Adressbok</string>
-  <string name="delete_account_title">Ta bort konto?</string>
-  <string name="delete_account_message">Vill du ta bort detta konto?</string>
   <string name="confirm_delete_pk_title">Är du säker?</string>
   <string name="confirm_delete_pk_with_balance">Detta kan inte ångras!\n\nNuvarande adress:\n%1$s\n\nDet innehåller %2$s\n\nVill du ta bort det?</string>
   <string name="confirm_delete_pk_without_balance">Detta kan inte ångras!\n\nNuvarande adress:\n%1$s\n\nVill du ta bort det?</string>

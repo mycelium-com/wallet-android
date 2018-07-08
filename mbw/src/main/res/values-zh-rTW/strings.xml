@@ -150,8 +150,6 @@
   <string name="using_address_from_clipboard">使用剪貼板中的地址</string>
   <string name="my_accounts">我的帳戶</string>
   <string name="foreign_addresses">通訊錄</string>
-  <string name="delete_account_title">刪除帳戶嗎？</string>
-  <string name="delete_account_message">你想要刪除該帳戶嗎？</string>
   <string name="confirm_delete_pk_title">您確定嗎？</string>
   <string name="confirm_delete_pk_with_balance">这不能被撤销!\n\n當前地址:\n%1$s\n\n它包含 %2$s\n\n您想要删除它吗?</string>
   <string name="confirm_delete_pk_without_balance">此操作不能被撤销!\n\n當前地址:\n%1$s\n\n您想要删除它吗?</string>

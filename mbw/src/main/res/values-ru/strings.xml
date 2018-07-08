@@ -150,8 +150,6 @@
   <string name="using_address_from_clipboard">Использование  адреса из буфера обмена</string>
   <string name="my_accounts">Мои Счета</string>
   <string name="foreign_addresses">Адресная книга</string>
-  <string name="delete_account_title">Удалить Счёт?</string>
-  <string name="delete_account_message">Вы хотите удалить этот счёт?</string>
   <string name="confirm_delete_pk_title">Вы уверены?</string>
   <string name="confirm_delete_pk_with_balance">Это не может быть отменено!\n\nТекущий адрес:\n%1$s\n\nОн содержит %2$s\n\nВы хотите удалить его?</string>
   <string name="confirm_delete_pk_without_balance">Это не может быть отменено!\n\nТекущий адрес:\n%1$s\n\nВы хотите удалить его?</string>

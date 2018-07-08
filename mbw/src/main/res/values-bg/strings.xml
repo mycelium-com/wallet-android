@@ -150,8 +150,6 @@
   <string name="using_address_from_clipboard">Използва се адрес от клипборда</string>
   <string name="my_accounts">Моите сметки</string>
   <string name="foreign_addresses">Адресна книга</string>
-  <string name="delete_account_title">Изтриване на сметка?</string>
-  <string name="delete_account_message">Желаете ли да изтриете тази сметка?</string>
   <string name="confirm_delete_pk_title">Сигурни ли сте?</string>
   <string name="confirm_delete_pk_with_balance">Това не може да бъде отменено!\n\nТекущ адрес:\n%1$s\n\nТой съдържа %2$s\n\nЖелаете ли да го изтриете?</string>
   <string name="confirm_delete_pk_without_balance">Това не може да бъде отменено!\n\nТекущ адрес:\n%1$s\n\nЖелаете ли да го изтриете?</string>

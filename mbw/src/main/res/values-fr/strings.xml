@@ -150,8 +150,6 @@
   <string name="using_address_from_clipboard">Adresse depuis le presse-papier</string>
   <string name="my_accounts">Mes comptes</string>
   <string name="foreign_addresses">Carnet d\'adresses</string>
-  <string name="delete_account_title">Supprimer le compte ?</string>
-  <string name="delete_account_message">Voulez-vous vraiment supprimer ce compte ?</string>
   <string name="confirm_delete_pk_title">Êtes-vous sûr ?</string>
   <string name="confirm_delete_pk_with_balance">Cette action ne peut pas être annulée !\n\nAdresse actuelle :\n%1$s\n\nContient %2$s\n\nDésirez-vous la supprimer ?</string>
   <string name="confirm_delete_pk_without_balance">Cette action ne peut pas être annulée !\n\nAdresse actuelle :\n%1$s\n\nDésirez-vous la supprimer ?</string>

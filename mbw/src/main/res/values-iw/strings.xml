@@ -137,8 +137,6 @@
   <string name="using_address_from_clipboard">משתמש בכתובת מהעתק-הדבק</string>
   <string name="my_accounts">החשבונות שלי</string>
   <string name="foreign_addresses">פנקס הכתובות</string>
-  <string name="delete_account_title">האם למחוק את החשבון?</string>
-  <string name="delete_account_message">האם ברצונך למחוק את החשבון הזה?</string>
   <string name="confirm_delete_pk_title">בטוח?</string>
   <string name="verify_private_key_backup">וודא גיבוי</string>
   <string name="verify_backup_dialog_title">וודא גיבוי מפתח</string>

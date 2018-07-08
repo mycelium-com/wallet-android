@@ -20,7 +20,7 @@ import butterknife.Optional;
 
 public class ButtonPreference extends Preference implements ModulePreference {
     @BindView(R.id.preference_button)
-    Button button;
+    TextView button;
 
     @Nullable
     @BindView(R.id.under_icon_text)

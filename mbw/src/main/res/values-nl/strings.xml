@@ -149,8 +149,6 @@
   <string name="using_address_from_clipboard">Maak gebruik van adres op klembord</string>
   <string name="my_accounts">Mijn Rekeningen</string>
   <string name="foreign_addresses">Adresboek</string>
-  <string name="delete_account_title">Account verwijderen?</string>
-  <string name="delete_account_message">Wilt u dit account verwijderen?</string>
   <string name="confirm_delete_pk_title">Weet u het zeker?</string>
   <string name="confirm_delete_pk_with_balance">Dit kan niet ongedaan gemaakt worden!\n\nHuidig adres:\n%1$s\n\nHet bevat %2$s\n\nWilt u het verwijderen?</string>
   <string name="confirm_delete_pk_without_balance">Dit kan niet ongedaan gemaakt worden!\n\nHuidige adres:\n%1$s\n\nWilt u het verwijderen?</string>

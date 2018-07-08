@@ -73,6 +73,8 @@
         <item name="actionBarStyle">@style/MyceliumSettings.ActionBar</item>
         <item name="preferenceTheme">@style/MyceliumSettingsPreferenceThemeOverlay
         </item>
+        <item name="preference_module_item_color">@color/preference_item_color</item>
+        <item name="preference_module_divider_color">@color/preference_background</item>
     </style>
 
     <style name="MyceliumSettings.Dialog" parent="MyceliumSettings.Dialog.Small">
@@ -289,6 +291,10 @@
         <item name="android:indeterminateOnly">false</item>
         <item name="android:progressDrawable">@drawable/rmc_bg_active_progress_bar_state</item>
         <item name="android:indeterminateDrawable">@android:drawable/progress_indeterminate_horizontal</item>
+    </style>
+
+    <style name="AccountProgressBar" parent="@style/Widget.AppCompat.ProgressBar.Horizontal">
+        <item name="colorAccent">@color/dark_sky_blue</item>
     </style>
 
     <style name="MyceliumDroppyPopup">
