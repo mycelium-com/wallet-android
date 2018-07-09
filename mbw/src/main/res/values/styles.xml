@@ -347,8 +347,9 @@
     </style>
 
     <style name="Switch" parent="Theme.AppCompat.Light">
-        <item name="colorControlActivated">@android:color/holo_red_light</item>
-        <item name="colorSwitchThumbNormal">@android:color/darker_gray</item>
+        <item name="colorSwitchThumbNormal">@color/lightgrey</item>
+        <item name="android:colorForeground">@color/grey</item>
+        <item name="colorControlActivated">@color/buttonredcolor</item>
     </style>
 
     <color name="btn_text_color">#5aa7e6</color>
