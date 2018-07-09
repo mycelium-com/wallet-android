@@ -86,6 +86,7 @@ class NewsFragment : Fragment() {
 
         val searchItem = menu?.findItem(R.id.action_search)
         val searchView = searchItem?.actionView as SearchView
+        searchView.maxWidth = Integer.MAX_VALUE;
         searchView.setOnSearchClickListener {
             searchActive = true
         }

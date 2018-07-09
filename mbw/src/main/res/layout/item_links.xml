@@ -3,35 +3,43 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:columnCount="2"
-    android:padding="24dp">
+    android:paddingBottom="16dp"
+    android:paddingEnd="24dp"
+    android:paddingStart="24dp"
+    android:paddingTop="16dp">
 
     <TextView
         android:id="@+id/telegram_link"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/margin_medium"
-        android:drawableLeft="@drawable/ic_telegram"
+        android:layout_columnWeight="1"
+        android:layout_gravity="fill"
         android:drawablePadding="8dp"
+        android:drawableStart="@drawable/ic_telegram"
+        android:fontFamily="sans-serif-medium"
         android:gravity="center_vertical"
-        android:text="\@MyceliumWallet" />
+        android:text="\@MyceliumWallet"
+        android:textColor="#bdbdbd"
+        android:textSize="12sp" />
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/margin_medium"
-        android:drawableLeft="@drawable/ic_wechat_2"
+        android:layout_columnWeight="1"
+        android:layout_gravity="fill"
         android:drawablePadding="8dp"
+        android:drawableStart="@drawable/ic_wechat_2"
+        android:fontFamily="sans-serif-medium"
         android:gravity="center_vertical"
-        android:text="\@MyceliumWallet" />
+        android:text="\@MyceliumWallet"
+        android:textColor="#bdbdbd"
+        android:textSize="12sp" />
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/margin_medium"
-        android:drawableLeft="@drawable/ic_twitter"
+        android:layout_columnWeight="1"
+        android:layout_gravity="fill"
+        android:layout_marginTop="8dp"
         android:drawablePadding="8dp"
+        android:drawableStart="@drawable/ic_twitter"
+        android:fontFamily="sans-serif-medium"
         android:gravity="center_vertical"
-        android:text="\@MyceliumWallet" />
-
-
+        android:text="\@MyceliumWallet"
+        android:textColor="#bdbdbd"
+        android:textSize="12sp" />
 </GridLayout>
