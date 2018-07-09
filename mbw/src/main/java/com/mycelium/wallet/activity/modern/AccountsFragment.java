@@ -238,57 +238,47 @@ public class AccountsFragment extends Fragment {
     private void deleteAccount(final WalletAccount accountToDelete) {
         Preconditions.checkNotNull(accountToDelete);
 
-        final View checkBoxView = View.inflate(getActivity(), R.layout.delkey_checkbox, null);
-        final CheckBox keepAddrCheckbox = (CheckBox) checkBoxView.findViewById(R.id.checkbox);
-        keepAddrCheckbox.setText(getString(R.string.keep_account_address));
-        keepAddrCheckbox.setChecked(false);
+       final View checkBoxView = View.inflate(getActivity(), R.layout.delkey_checkbox, null);
+       final CheckBox keepAddrCheckbox = checkBoxView.findViewById(R.id.checkbox);
+       keepAddrCheckbox.setText(getString(R.string.keep_account_address));
+       keepAddrCheckbox.setChecked(false);
 
-        final AlertDialog.Builder deleteDialog = new AlertDialog.Builder(getActivity());
-        deleteDialog.setTitle(R.string.delete_account_title);
-        final WalletAccount account = _mbwManager.getSelectedAccount();
-        CurrencyBasedBalance balance = Preconditions.checkNotNull(account.getCurrencyBasedBalance());
-        String valueString = Utils.getFormattedValueWithUnit(balance.confirmed, _mbwManager.getBitcoinDenomination());
-        String accountName = _mbwManager.getMetadataStorage().getLabelByAccount(account.getId());
-        if (account instanceof ColuAccount) {
-            valueString = Utils.getColuFormattedValueWithUnit(account.getCurrencyBasedBalance().confirmed);
-        }
+       final AlertDialog.Builder deleteDialog = new AlertDialog.Builder(getActivity());
+       deleteDialog.setTitle(R.string.delete_account_title);
+       final WalletAccount account = _mbwManager.getSelectedAccount();
+       CurrencyBasedBalance balance = Preconditions.checkNotNull(account.getCurrencyBasedBalance());
+       String valueString = Utils.getFormattedValueWithUnit(balance.confirmed, _mbwManager.getBitcoinDenomination());
+       String accountName = _mbwManager.getMetadataStorage().getLabelByAccount(account.getId());
 
+       // If account is colu we are asking for linked BTC. Else we are searching if any colu attached.
+       final WalletAccount linkedAccount;
+       if (account.getType() ==  WalletAccount.Type.COLU) {
+          valueString = Utils.getColuFormattedValueWithUnit(account.getCurrencyBasedBalance().confirmed);
+          linkedAccount = ((ColuAccount) account).getLinkedAccount();
+       } else {
+          linkedAccount = Utils.getLinkedAccount(account, _mbwManager.getColuManager().getAccounts().values());
+       }
 
-        final WalletAccount linkedAccount = Utils.getLinkedAccount(account, _mbwManager.getColuManager().getAccounts().values());
-        CurrencyBasedBalance linkedBalance = Preconditions.checkNotNull(account.getCurrencyBasedBalance());
-        String linkedValueString;
-        String linkedAccountName;
-        if (account instanceof ColuAccount) {
-            linkedValueString = Utils.getColuFormattedValueWithUnit(linkedAccount.getCurrencyBasedBalance().confirmed);
-            linkedAccountName =_mbwManager.getMetadataStorage().getLabelByAccount(((ColuAccount) account).getLinkedAccount().getId());
-        } else {
-            linkedValueString = Utils.getFormattedValueWithUnit(linkedBalance.confirmed, _mbwManager.getBitcoinDenomination());
-            linkedAccountName = _mbwManager.getMetadataStorage().getLabelByAccount(linkedAccount.getId());
-        }
-
-        if (linkedAccount != null) {
-            deleteDialog.setMessage(getString(R.string.delete_account_message,
-                    accountName, valueString,
-                    linkedAccountName,
-                    linkedValueString)
-                    + "\n" + getString(R.string.both_rmc_will_deleted,
-                    accountName,
-                    linkedAccountName));
-        } else {
-            WalletAccount correspondingBCHAccount = _mbwManager.getWalletManager(false).getAccount(MbwManager.getBitcoinCashAccountId(account));
-            if (correspondingBCHAccount != null && correspondingBCHAccount.isVisible()) {
-                String correspondingBCHAaccountName = _mbwManager.getMetadataStorage().getLabelByAccount(correspondingBCHAccount.getId());
-                deleteDialog.setMessage(getString(R.string.delete_account_message,
-                        accountName, valueString,
-                        correspondingBCHAaccountName,
-                        linkedValueString)
-                        + "\n" + getString(R.string.both_bch_will_deleted,
-                        accountName,
-                        correspondingBCHAaccountName));
-            } else {
-                deleteDialog.setMessage(getString(R.string.delete_account_message_s, accountName, valueString));
-            }
-        }
+       if (linkedAccount != null) {
+          CurrencyBasedBalance linkedBalance = linkedAccount.getCurrencyBasedBalance();
+          String linkedValueString = Utils.getColuFormattedValueWithUnit(linkedBalance.confirmed);
+          String linkedAccountName =_mbwManager.getMetadataStorage().getLabelByAccount(linkedAccount.getId());
+          deleteDialog.setMessage(getString(R.string.delete_account_message, accountName, valueString,
+                  linkedAccountName, linkedValueString) + "\n" +
+                  getString(R.string.both_rmc_will_deleted, accountName, linkedAccountName));
+       } else {
+          WalletAccount correspondingBCHAccount = _mbwManager.getWalletManager(false).getAccount(MbwManager.getBitcoinCashAccountId(account));
+          if (correspondingBCHAccount != null && correspondingBCHAccount.isVisible()) {
+             String bchAccountName = _mbwManager.getMetadataStorage().getLabelByAccount(correspondingBCHAccount.getId());
+             String bchValueString = Utils.getFormattedValueWithUnit(correspondingBCHAccount.getCurrencyBasedBalance().confirmed,
+                     _mbwManager.getBitcoinDenomination());
+             deleteDialog.setMessage(getString(R.string.delete_account_message, accountName, valueString,
+                     bchAccountName, bchValueString)
+                     + "\n" + getString(R.string.both_bch_will_deleted, accountName, bchAccountName));
+          } else {
+             deleteDialog.setMessage(getString(R.string.delete_account_message_s, accountName, valueString));
+          }
+       }
 
       // add checkbox only for SingleAddressAccounts and only if a private key is present
       final boolean hasPrivateData = (accountToDelete instanceof ExportableAccount
