@@ -58,6 +58,8 @@ import com.mycelium.wapi.model.ExchangeRate;
 import com.mycelium.wapi.wallet.currency.ExchangeRateProvider;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -300,6 +302,14 @@ public class ExchangeRateManager implements ExchangeRateProvider {
                 result.add(r.name);
             }
         }
+
+        Collections.sort(result, new Comparator<String>() {
+            @Override
+            public int compare(String rate1, String rate2) {
+                return rate1.compareToIgnoreCase(rate2);
+            }
+        });
+
         return result;
     }
 
