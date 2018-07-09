@@ -84,6 +84,8 @@ import com.shehabic.droppy.DroppyMenuPopup;
 import com.squareup.otto.Subscribe;
 
 import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import butterknife.BindView;
@@ -121,6 +123,14 @@ public class BalanceFragment extends Fragment {
       DroppyMenuPopup.Builder builder = new DroppyMenuPopup.Builder(getActivity(), exchangeSourceLayout);
       ExchangeRateManager exchangeRateManager = _mbwManager.getExchangeRateManager();
       final List<String> sources = exchangeRateManager.getExchangeSourceNames();
+
+      Collections.sort(sources, new Comparator<String>() {
+         @Override
+         public int compare(String eRate1, String eRate2) {
+            return eRate1.compareToIgnoreCase(eRate2);
+         }
+      });
+
       for (int i = 0; i < sources.size(); i++) {
          String source = sources.get(i);
          ExchangeRate exchangeRate = exchangeRateManager.getExchangeRate(_mbwManager.getFiatCurrency(), source);
