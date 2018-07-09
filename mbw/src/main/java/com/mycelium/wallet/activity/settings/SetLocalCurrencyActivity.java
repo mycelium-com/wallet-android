@@ -35,6 +35,7 @@
 package com.mycelium.wallet.activity.settings;
 
 import android.app.Activity;
+import android.app.ActivityOptions;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -61,7 +62,8 @@ import java.util.Set;
 public class SetLocalCurrencyActivity extends AppCompatActivity {
     public static void callMe(Activity currentActivity) {
         Intent intent = new Intent(currentActivity, SetLocalCurrencyActivity.class);
-        currentActivity.startActivity(intent);
+        ActivityOptions options = ActivityOptions.makeCustomAnimation(currentActivity, R.anim.slide_right_in, R.anim.slide_left_out);
+        currentActivity.startActivity(intent, options.toBundle());
     }
 
     private LocalCurrencyAdapter _adapter;
