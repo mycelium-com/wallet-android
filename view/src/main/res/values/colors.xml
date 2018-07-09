@@ -4,4 +4,7 @@
     <color name="color_accent">#31b7e4</color>
     <color name="white">#fff</color>
     <color name="common_blue">#5aa7e6</color>
+    <color name="grey">#888</color>
+    <color name="preference_background">#252525</color>
+    <color name="preference_item">#2c2c2c</color>
 </resources>

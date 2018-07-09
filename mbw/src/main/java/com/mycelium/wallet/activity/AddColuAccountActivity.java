@@ -55,6 +55,7 @@ import com.mycelium.wallet.colu.ColuManager;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.api.response.Feature;
+import com.mycelium.wapi.wallet.SyncMode;
 import com.squareup.otto.Bus;
 
 import java.util.UUID;
@@ -214,7 +215,7 @@ public class AddColuAccountActivity extends Activity {
          } else {
             try {
                UUID uuid = coluManager.enableAsset(coluAsset, null);
-               coluManager.scanForAccounts();
+               coluManager.scanForAccounts(SyncMode.FULL_SYNC_ALL_ACCOUNTS);
                return uuid;
             } catch (Exception e) {
                Log.d(TAG, "Error while creating Colored Coin account for asset " + coluAsset.name + ": " + e.getMessage());

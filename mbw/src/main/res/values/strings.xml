@@ -50,7 +50,7 @@
     <string name="transaction_not_sent">Failed to broadcast transaction</string>
     <string name="queue_transaction_message">Failed to broadcast transaction.\nWould you like to queue the transaction so it gets sent automatically once you get online?</string>
     <string name="transaction_sent">Transaction sent.</string>
-    <string name="export">Export</string>
+    <string name="export">Export account keys</string>
     <string name="backup_private_key">Backup</string>
     <string name="copy_to_clipboard">Copy to Clipboard</string>
     <string name="copy_address_to_clipboard">Copy address to Clipboard</string>
@@ -174,8 +174,8 @@
     <string name="using_address_from_clipboard">Using address from clipboard</string>
     <string name="my_accounts">My Accounts</string>
     <string name="foreign_addresses">Address Book</string>
-    <string name="delete_account_title">Delete Account?</string>
-    <string name="delete_account_message">Do you want to delete this account?</string>
+    <string name="delete_account_title">Delete Account</string>
+    <string name="delete_account_message">Do you want to delete account %s?</string>
     <string name="confirm_delete_pk_title">Are You Sure?</string>
     <string name="confirm_delete_pk_with_balance">This cannot be undone!\n\nCurrent address:\n%1$s\n\nIt contains %2$s\n\nDo you want to delete it?</string>
     <string name="confirm_delete_pk_with_balance_with_label">This cannot be undone!\n\n%1$s\n\nCurrent address:\n%2$s\n\nIt contains %3$s\n\nDo you want to delete it?</string>
@@ -449,7 +449,7 @@
     <string name="cs_address_description">You have scanned a Bitcoin address. You can view the balance but not spend from it.</string>
     <string name="contains_keys">Contains %1$s private keys.</string>
     <string name="contains_addresses">Contains %1$s addresses.</string>
-    <string name="sync_total_retrieved_transactions">Syncing: %1$s transactions retrieved.</string>
+    <string name="sync_total_retrieved_transactions">Syncing in progress: %1$s transactions retrieved</string>
     <string name="archiving_account_title">Archiving Account</string>
     <string name="new_version_exists">A new Version is available</string>
     <string name="check_update">Check for Update</string>
@@ -1038,7 +1038,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
         In order to protect your assets from accidentally being "burned" while spendingAmount BTC from your "RMC Bitcoin" linked account, digital assets unspent transaction outputs (UTXO) and corresponding technical transactions (so-called "dust") are not taken into account.</string>
     <string name="what_is_it">What is it?</string>
     <string name="error_start_google_calendar">Something wrong with google calendar</string>
-    <string name="both_rmc_will_deleted" formatted="false">Both %s and %s accounts will be  deleted.</string>
+    <string name="both_rmc_will_deleted" formatted="false">Both %s and %s accounts will be deleted.</string>
     <string name="tips_rmc_check_address">If you have sent digital assets to a random bitcoin address they are not destroyed.\nIn order to retrieve them you have two options:\n1) Use Colored Coins API to manually send your assets back to the address managed by Mycelium Wallet.\n2) Submit a ticket to Mycelium Wallet support for retrieving your assets. For this service, additional charges may apply. You will receive detailed information after contacting support.\n\nIn both cases, you must own a private key of the address you have sent digital assets to.</string>
     <string name="selected_colu_info">You are now working on this %s account.</string>
     <string name="block_access_to_account">We intentionally deactivate My Accounts tab while you\'re managing your %1$s account. This is  to prevent you from sending your digital assets anywhere else except for another %1$s account.</string>
@@ -1119,7 +1119,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="no_connected_modules">No connected modules</string>
     <string name="bitcoin_cash_hd"><![CDATA[Bitcoin <font color="#f08c18">Cash</font> HD]]></string>
     <string name="bitcoin_cash_sa"><![CDATA[Bitcoin <font color="#f08c18">Cash</font> SA]]></string>
-    <string name="bitcoin_cash_module"><![CDATA[Bitcoin <font color="#f08c18">Cash</font> Module]]></string>
+    <string name="bitcoin_cash_module"><![CDATA[Mycelium Bitcoin <font color="#f08c18">Cash</font> Module]]></string>
     <string name="bitcoin_cash_module_short">BCH</string>
     <string name="exchange_bch_to_btc">EXCHANGE BCH TO BTC</string>
     <string name="single_address_backup_missing">No backup - no bitcoins! In order not to lose your bitcoins when your smartphone is lost or broken please make a backup of this address NOW and keep it in a safe place!</string>
@@ -1150,7 +1150,6 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="install">Install</string>
     <string name="no_spendable_accounts">No spendable accounts</string>
     <string name="digital_assets">Digital Assets</string>
-    <string name="sync_progress">Sync progress: %s%%</string>
     <string name="how_is_it_calculated">How is it calculated?</string>
     <string name="how_is_it_calculated_text">The \"Spendable Amount\" is the account\'s balance minus the cost to spend it.\n\nThe costs depend on the number of UTXOs and the miner fee level that you chose.\n\nYou can review your UTXO count in the Accounts tab, selecting your account and then using the context menu.\n\nIf you have more than 300 UTXOs, your spendable amount might further be limited by Bitcoin\'s transaction size limit. In this case you might need more than one transaction to spend all your funds.</string>
     <string name="import_xpub_should_xpriv">Only spendable accounts with Digital Assets are supported for account level 0. Please use xpriv instead of xpub</string>
@@ -1201,7 +1200,6 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="offer_auto_updated">The offer will be auto-updated after %d seconds.</string>
     <string name="updating_offer">Updating offer…</string>
     <string name="module_uninstall_progress">Uninstalling…</string>
-    <string name="fully_synced">Fully synced</string>
     <string name="to_get_your_bitcoin_cash_retrieved"><![CDATA[To get your Bitcoin <font color="#f08c18">Cash</font> retrieved this newly installed module needs some time for synchronisation. It might take from 20 min to several hours, depending on the amount of transactions. When synchronisation is done the information dialog will appear.<br/><br/>You can check the synchronisation progress in notification drawer or Settings -> Bitcoin <font color="#f08c18">Cash</font> module section.<br/><br/>Bitcoin <font color="#f08c18">Cash</font> linked account will be created for every BTC account containing Bitcoin <font color="#f08c18">Cash</font> which has not been retrieved yet.<br/><br/>Go to Balance tab of your Bitcoin <font color="#f08c18">Cash</font> account to instantly exchange it to BTC.]]></string>
     <string name="exchanging">exchanging</string>
     <string name="receiving_exchange">receiving</string>
@@ -1240,6 +1238,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="search">Search</string>
     <string name="no_transaction_details">Сheck in Block Explorer using the hash link above.</string>
     <string name="show_bip_description">Show the BIP44 address path for the current address on the home screen</string>
+    <string name="preference_module_under_icon_text">%s Module</string>
     <string name="bullet">&#8226;</string>
     <string name="select_flows">Select flows</string>
     <string name="view_more">View more</string>

@@ -23,5 +23,6 @@ android {
 
 dependencies {
     implementation "com.android.support:recyclerview-v7:$androidSupportVersion"
+    implementation "com.android.support:appcompat-v7:$androidSupportVersion"
 }
 
