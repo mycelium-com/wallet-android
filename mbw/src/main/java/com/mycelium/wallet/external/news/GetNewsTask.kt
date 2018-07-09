@@ -6,12 +6,13 @@ import com.mycelium.wallet.external.news.model.Category
 import com.mycelium.wallet.external.news.model.News
 
 
-class GetNewsTask(val search: String?, val categories: List<Category>) : AsyncTask<Void, Void, List<News>>() {
+class GetNewsTask(val search: String?, val categories: List<Category>
+                  , val limit: Int = -1) : AsyncTask<Void, Void, List<News>>() {
 
     var listener: ((List<News>) -> Unit)? = null
 
     override fun doInBackground(vararg p0: Void?): List<News> {
-        return NewsDatabase.getNews(search, categories)
+        return NewsDatabase.getNews(search, categories, limit)
     }
 
     override fun onPostExecute(result: List<News>) {

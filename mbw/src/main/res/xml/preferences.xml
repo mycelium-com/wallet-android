@@ -6,16 +6,16 @@
         android:layout="@layout/preference_category_layout"
         android:title="@string/personalization">
         <ListPreference
+            android:dialogTitle="@string/pref_change_language"
             android:icon="@drawable/ic_language_24_px"
             android:key="user_language"
-            android:dialogTitle="@string/pref_change_language"
             android:layout="@layout/preference_key_value_layout"
             android:title="@string/pref_language" />
-        <!--<Preference-->
-        <!--android:icon="@drawable/ic_notifications"-->
-        <!--android:key="notifications"-->
-        <!--android:layout="@layout/preference_layout"-->
-        <!--android:title="@string/notifications" />-->
+        <Preference
+            android:icon="@drawable/ic_notifications"
+            android:key="notifications"
+            android:layout="@layout/preference_layout"
+            android:title="@string/notifications" />
     </PreferenceCategory>
     <PreferenceCategory
         android:layout="@layout/preference_category_layout"
@@ -35,8 +35,8 @@
         <CheckBoxPreference
             android:icon="@drawable/ic_tor"
             android:key="useTor"
-            android:persistent="false"
             android:layout="@layout/preference_layout"
+            android:persistent="false"
             android:summary="@string/useTorDescription"
             android:title="@string/useTor"
             android:widgetLayout="@layout/preference_switch" />
@@ -90,9 +90,9 @@
             android:dialogTitle="Block explorer"
             android:icon="@drawable/ic_exchange_coin"
             android:key="block_explorer"
-            android:title="@string/block_explorer_title"
-            android:summary="@string/block_explorer_summary_2"
             android:layout="@layout/preference_layout"
+            android:summary="@string/block_explorer_summary_2"
+            android:title="@string/block_explorer_title"
             android:widgetLayout="@layout/preference_arrow" />
 
         <ListPreference
@@ -185,6 +185,7 @@
             android:widgetLayout="@layout/preference_arrow" />
     </PreferenceCategory>
 
-    <PreferenceCategory android:key="space"
+    <PreferenceCategory
+        android:key="space"
         android:layout="@layout/preference_category_layout" />
 </PreferenceScreen>

@@ -278,7 +278,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                     getFragmentManager()
                             .beginTransaction()
                             .replace(R.id.fragment_container, new NotificationsFragment())
-                            .addToBackStack("pincode")
+                            .addToBackStack("notification")
                             .commitAllowingStateLoss();
                     return true;
                 }

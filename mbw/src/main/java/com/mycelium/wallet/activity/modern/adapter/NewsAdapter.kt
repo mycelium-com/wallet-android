@@ -1,6 +1,9 @@
 package com.mycelium.wallet.activity.modern.adapter
 
+import android.content.Intent
+import android.content.Intent.ACTION_VIEW
 import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.support.v7.widget.RecyclerView
 import android.text.Html
 import android.text.format.DateUtils
@@ -21,6 +24,12 @@ class NewsAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     var shareClickListener: ((news: News) -> Unit)? = null
     var openClickListener: ((news: News) -> Unit)? = null
 
+    var searchMode = false
+        set(value) {
+            field = value
+            notifyDataSetChanged()
+        }
+
     fun setData(data: List<News>) {
         this.data = data
         this.nativeData = data
@@ -38,7 +47,7 @@ class NewsAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (getItemViewType(position) == TYPE_NEWS) {
             val newsViewHolder = holder as NewsViewHolder
-            val news = data[position - 1]
+            val news = data[if (searchMode) position else position - 1]
             newsViewHolder.title.text = news.title
             newsViewHolder.itemView.category.text = if (news.categories.values.isNotEmpty()) news.categories.values.elementAt(0).name else null
             newsViewHolder.description.text = Html.fromHtml(news.content)
@@ -49,15 +58,24 @@ class NewsAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             newsViewHolder.itemView.setOnClickListener {
                 openClickListener?.invoke(news)
             }
+        } else {
+            val linksViewHolder = holder as LinksViewHolder
+            linksViewHolder.telegram.setOnClickListener {
+                try {
+                    it.context.startActivity(Intent(ACTION_VIEW, Uri.parse("tg://resolve?domain=MyceliumWallet")))
+                } catch (e: Exception) {
+                    it.context.startActivity(Intent(ACTION_VIEW, Uri.parse("https://t.me/MyceliumWallet")))
+                }
+            }
         }
     }
 
     override fun getItemCount(): Int {
-        return data.size + 1
+        return if (searchMode) data.size else data.size + 1
     }
 
     override fun getItemViewType(position: Int): Int {
-        return if (position == 0) {
+        return if (position == 0 && !searchMode) {
             TYPE_LINKS
         } else {
             TYPE_NEWS
@@ -67,7 +85,5 @@ class NewsAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     companion object {
         val TYPE_NEWS = 1
         val TYPE_LINKS = 2
-
-        private val images = HashMap<String, Drawable>()
     }
 }

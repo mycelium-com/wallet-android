@@ -10,6 +10,7 @@ import java.util.TimeZone;
 public class SettingsPreference {
     private static final String MYDFS_TOKEN_ENABLE = "mydfs_token_enable";
     private static final String APEX_TOKEN_ENABLE = "apex_token_enable";
+    public static final String NEWS_NOTIFICATION_ENABLE = "news_notification_enable";
     private static SettingsPreference instance = new SettingsPreference();
 
     public static SettingsPreference getInstance() {
@@ -58,5 +59,13 @@ public class SettingsPreference {
         calendar.setTimeZone(TimeZone.getTimeZone("Europe/Moscow"));
         calendar.set(2018, Calendar.MAY, 26, 23, 59);
         return calendar.getTime().before(new Date());
+    }
+
+    public boolean isNewsNotificationEnabled() {
+        return sharedPreferences.getBoolean(NEWS_NOTIFICATION_ENABLE, true);
+    }
+
+    public void setNewsNotificationEnabled(boolean enable) {
+        sharedPreferences.edit().putBoolean(NEWS_NOTIFICATION_ENABLE, enable).apply();
     }
 }

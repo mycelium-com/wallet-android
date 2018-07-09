@@ -13,6 +13,11 @@ import java.util.*
 object NewsDatabase {
     private lateinit var database: SQLiteDatabase
     private lateinit var insertOrReplaceNews: SQLiteStatement
+    private lateinit var getById: SQLiteStatement
+
+    enum class SqlState {
+        INSERTED, UPDATED
+    }
 
     init {
 
@@ -23,19 +28,37 @@ object NewsDatabase {
         val helper = NewsSQLiteHelper(context)
         database = helper.writableDatabase
 
+        getById = database.compileStatement("SELECT id FROM news WHERE id = ?")
         insertOrReplaceNews = database.compileStatement("INSERT OR REPLACE INTO news VALUES (?,?,?,?,?,?,?,?)")
     }
 
-    fun getNews(search: String?, categories: List<Category>): List<News> {
-        var where = ""
+    fun getNews(search: String?, categories: List<Category>, limit: Int = -1): List<News> {
+        val where = StringBuilder()
         if (search != null && search.isNotEmpty()) {
-            where = "title like '%$search%' OR content like '%$search%'"
+            where.append("(title like '%$search%' OR content like '%$search%')")
+        }
+        if (categories.isNotEmpty()) {
+            if (where.isNotEmpty()) {
+                where.append(" AND ")
+            }
+
+            categories.forEach {
+                where.append("category = '${it.name}' OR ")
+            }
+            where.delete(where.length - 3, where.length)
         }
         val builder = SQLiteQueryBuilder()
-        builder.tables = "news"
-        val cursor = builder.query(database
-                , arrayOf("id", "title", "content", "date", "author", "short_URL", "categories")
-                , where, null, null, null, null)
+        builder.tables = NewsSQLiteHelper.NEWS
+
+        val cursor = if (limit != -1) {
+            builder.query(database
+                    , arrayOf("id", "title", "content", "date", "author", "short_URL", "category", "categories")
+                    , where.toString(), null, null, null, null, limit.toString())
+        } else {
+            builder.query(database
+                    , arrayOf("id", "title", "content", "date", "author", "short_URL", "category", "categories")
+                    , where.toString(), null, null, null, null)
+        }
         val result = mutableListOf<News>()
         while (cursor.moveToNext()) {
             val news = News()
@@ -47,16 +70,21 @@ object NewsDatabase {
             news.link = cursor.getString(cursor.getColumnIndex("short_URL"))
             val category = cursor.getString(cursor.getColumnIndex("category"))
             news.categories = mapOf<String, Category>(category to Category(category))
-            news.categories = mapOf<String, Category>()
             result.add(news)
         }
         cursor.close()
         return result
     }
 
-    fun saveNews(news: List<News>) {
+    fun saveNews(news: List<News>): Map<News, SqlState> {
+        val result = mutableMapOf<News, SqlState>()
         database.beginTransaction()
         news.forEach {
+            val cursor = database.query("news", arrayOf("id"), "id = ?"
+                    , arrayOf(it.id.toString()), null, null, null)
+            val isExists = cursor.count > 0
+            cursor.close()
+
             insertOrReplaceNews.clearBindings()
             insertOrReplaceNews.bindLong(1, it.id.toLong())
             insertOrReplaceNews.bindString(2, it.title)
@@ -66,13 +94,18 @@ object NewsDatabase {
             insertOrReplaceNews.bindString(6, it.link)
             insertOrReplaceNews.bindString(7, it.categories.values.elementAt(0).name)
             insertOrReplaceNews.executeInsert()
+
+            result[it] = if (isExists) SqlState.UPDATED else SqlState.INSERTED
         }
         database.setTransactionSuccessful()
         database.endTransaction()
+        return result
     }
 
     fun getCategories(): List<Category> {
-        val cursor = SQLiteQueryBuilder().query(database, arrayOf("category"), null, null
+        val builder = SQLiteQueryBuilder()
+        builder.tables = NewsSQLiteHelper.NEWS
+        val cursor = builder.query(database, arrayOf("category"), null, null
                 , "category", null, null)
         val result = mutableListOf<Category>()
         while (cursor.moveToNext()) {

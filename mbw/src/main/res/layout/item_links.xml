@@ -6,6 +6,7 @@
     android:padding="24dp">
 
     <TextView
+        android:id="@+id/telegram_link"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/margin_medium"

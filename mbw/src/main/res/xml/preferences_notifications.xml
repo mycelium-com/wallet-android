@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-
+    <PreferenceCategory
+        android:layout="@layout/preference_category_layout"
+        android:title="News notifications">
+        <CheckBoxPreference
+            android:key="news_all_notification"
+            android:layout="@layout/preference_layout"
+            android:title="@string/show_all_notification"
+            android:widgetLayout="@layout/preference_switch" />
+    </PreferenceCategory>
 </PreferenceScreen>

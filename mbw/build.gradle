@@ -99,11 +99,6 @@ dependencies {
     implementation('org.bitcoinj:orchid:1.2.1') {
         exclude(module: 'slf4j-api')
     }
-
-    implementation ("com.github.bumptech.glide:glide:4.7.1") {
-        exclude group: "com.android.support"
-    }
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.7.1'
 }
 
 android {

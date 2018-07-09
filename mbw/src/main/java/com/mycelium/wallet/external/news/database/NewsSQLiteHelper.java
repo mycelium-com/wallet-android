@@ -5,8 +5,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 public class NewsSQLiteHelper extends SQLiteOpenHelper {
-    private static final String DATABASE_NAME = "news.db";
-    private static final int DATABASE_VERSION = 1;
+    public static final String NEWS = "news";
+    private static final String DATABASE_NAME = NEWS + ".db";
+    private static final int DATABASE_VERSION = 2;
 
     public NewsSQLiteHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -14,7 +15,7 @@ public class NewsSQLiteHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE IF NOT EXISTS news (id INTEGER PRIMARY KEY" +
+        db.execSQL("CREATE TABLE IF NOT EXISTS " + NEWS + " (id INTEGER PRIMARY KEY" +
                 ", title TEXT" +
                 ", content TEXT" +
                 ", date INTEGER" +
@@ -26,7 +27,8 @@ public class NewsSQLiteHelper extends SQLiteOpenHelper {
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
-
+    public void onUpgrade(SQLiteDatabase db, int i, int i1) {
+        db.execSQL("drop table if exists " + NEWS);
+        onCreate(db);
     }
 }
