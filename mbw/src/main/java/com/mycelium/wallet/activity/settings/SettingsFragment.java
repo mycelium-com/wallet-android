@@ -701,7 +701,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                     installPreference.setButtonClickListener(getInstallClickListener(module));
                     installPreference.setTitle(Html.fromHtml(module.getName()));
                     installPreference.setSummary(module.getDescription());
-                    installPreference.setUnderIconText(getString(R.string.preference_module_under_icon_text, module.getShortName()));
+                    installPreference.setUnderIconText(module.getShortName());
                     modulesPrefs.addPreference(installPreference);
                 }
             }
@@ -742,7 +742,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                         .putExtra(Intent.EXTRA_RETURN_RESULT, true), REQUEST_CODE_UNINSTALL);
             }
         });
-        preference.setUnderIconText(getString(R.string.preference_module_under_icon_text, module.getShortName()));
+        preference.setUnderIconText(module.getShortName());
         return preference;
     }
 
@@ -764,7 +764,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                         .putExtra(Intent.EXTRA_RETURN_RESULT, true), REQUEST_CODE_UNINSTALL);
             }
         });
-        preference.setUnderIconText(getString(R.string.preference_module_under_icon_text, module.getShortName()));
+        preference.setUnderIconText(module.getShortName());
         preference.setBottomButtonClickListener(getInstallClickListener(module));
         return preference;
     }
