@@ -742,7 +742,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                         .putExtra(Intent.EXTRA_RETURN_RESULT, true), REQUEST_CODE_UNINSTALL);
             }
         });
-        preference.setUnderIconText(getString(R.string.preference_module_under_icon_text, module.getShortName()));
+        preference.setUnderIconText(module.getShortName());
         return preference;
     }
 
