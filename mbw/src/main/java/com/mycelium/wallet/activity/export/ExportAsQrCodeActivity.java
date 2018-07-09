@@ -90,8 +90,7 @@ public class ExportAsQrCodeActivity extends Activity {
       // hide the priv/pub switch, if this is a watch-only accountData
       swSelectData = (SwitchCompat) findViewById(R.id.swSelectData);
       TextView privateText = (TextView) findViewById(R.id.prv_key);
-      TextView formatBlock1 = (TextView) findViewById(R.id.block_1);
-      TextView formatBlock2 = (TextView) findViewById(R.id.block_2);
+      TextView publicText = (TextView) findViewById(R.id.pub_key);
       if (accountData.privateData.isPresent()) {
          swSelectData.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -102,8 +101,7 @@ public class ExportAsQrCodeActivity extends Activity {
       } else {
          swSelectData.setVisibility(View.GONE);
          privateText.setVisibility(View.GONE);
-         formatBlock1.setVisibility(View.GONE);
-         formatBlock2.setVisibility(View.GONE);
+         publicText.setVisibility(View.GONE);
       }
 
       findViewById(R.id.llPrivKeyWarning).setOnLongClickListener(new View.OnLongClickListener() {
