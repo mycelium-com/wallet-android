@@ -130,6 +130,7 @@ public class MessageSigningActivity extends Activity {
                     @Override
                     public void run() {
                         messageText = messageToSign.getText().toString();
+                        messageToSign.setHint("");
                         SignedMessage signedMessage = privateKey.signMessage(messageText);
                         base64Signature = signedMessage.getBase64Signature();
                         runOnUiThread(new Runnable() {
