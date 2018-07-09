@@ -108,8 +108,6 @@ import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
-import org.bitcoinj.wallet.Wallet;
-
 import java.util.List;
 import java.util.UUID;
 
