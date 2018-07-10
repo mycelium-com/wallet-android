@@ -758,7 +758,7 @@
     <string name="payment_request_warning_no_sig">The origin of this payment request can not be verified, because it has no signature.\n\nPlease be very cautious, as there might be someone intercepting it and changing payout addresses.</string>
 
     <string name="label_cold_storage_external_signing">Sign with:</string>
-    <string name="spending_unconfirmed_warning">Warning: spendingAmount unconfirmed funds</string>
+    <string name="spending_unconfirmed_warning">Warning: spending unconfirmed funds</string>
     <string name="spending_unconfirmed_title">Spending unconfirmed funds</string>
     <string name="spending_unconfirmed_description">Your transaction uses funds which have not been included in a bitcoin block yet. If for any reason the transaction which sends these coins to you fails or stays unconfirmed, your transaction will fail or stay unconfirmed as well.</string>
     <string name="label_unverified_recipient">unverified Recipient</string>
