@@ -13,7 +13,7 @@ import android.util.Log
 import android.widget.RemoteViews
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
-import com.mycelium.wallet.activity.modern.NewsActivity
+import com.mycelium.wallet.activity.news.NewsActivity
 import com.mycelium.wallet.activity.settings.SettingsPreference
 import com.mycelium.wallet.external.news.NewsConstants.NEWS_UPDATE_ACTION
 import com.mycelium.wallet.external.news.NewsConstants.UPDATE_TIME
@@ -48,7 +48,7 @@ class NewsSyncReceiver : BroadcastReceiver() {
                         val remoteViews = RemoteViews(context.packageName, R.layout.layout_news_notification)
                         remoteViews.setTextViewText(R.id.title, news.title)
                         remoteViews.setTextViewText(R.id.category, news.categories.values.elementAt(0).name)
-                        remoteViews.setTextViewText(R.id.date, DateUtils.getRelativeTimeSpanString(news.date.time))
+                        remoteViews.setTextViewText(R.id.date, DateUtils.getRelativeTimeSpanString(context, news.date.time))
                         val builder = NotificationCompat.Builder(context, NewsConstants.NEWS)
                                 .setContent(remoteViews)
                                 .setSmallIcon(R.drawable.ic_launcher)

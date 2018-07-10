@@ -2,7 +2,6 @@ package com.mycelium.wallet.activity.modern.adapter
 
 import android.content.Intent
 import android.content.Intent.ACTION_VIEW
-import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.support.v7.widget.RecyclerView
 import android.text.Html
@@ -12,6 +11,7 @@ import android.view.ViewGroup
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.adapter.holder.LinksViewHolder
 import com.mycelium.wallet.activity.modern.adapter.holder.NewsViewHolder
+import com.mycelium.wallet.activity.news.NewsUtils
 import com.mycelium.wallet.external.news.model.News
 import kotlinx.android.synthetic.main.item_news.view.*
 import java.util.*
@@ -49,9 +49,11 @@ class NewsAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             val newsViewHolder = holder as NewsViewHolder
             val news = data[if (searchMode) position else position - 1]
             newsViewHolder.title.text = news.title
-            newsViewHolder.itemView.category.text = if (news.categories.values.isNotEmpty()) news.categories.values.elementAt(0).name else null
+            val category = if (news.categories.values.isNotEmpty()) news.categories.values.elementAt(0).name else ""
+            newsViewHolder.itemView.category.text = category
+            newsViewHolder.itemView.category.setBackgroundResource(NewsUtils.getCategoryBackground(category))
             newsViewHolder.description.text = Html.fromHtml(news.content)
-            newsViewHolder.date.text = "${DateUtils.getRelativeTimeSpanString(news.date.time)} ${newsViewHolder.date.resources.getString(R.string.bullet)} ${news.author.name}"
+            newsViewHolder.date.text = "${DateUtils.getRelativeTimeSpanString(newsViewHolder.itemView.context, news.date.time)}" + if (news.author.name != NewsUtils.myceliumAuthor) "${newsViewHolder.date.resources.getString(R.string.bullet)} ${news.author.name}" else ""
             newsViewHolder.share.setOnClickListener {
                 shareClickListener?.invoke(news)
             }

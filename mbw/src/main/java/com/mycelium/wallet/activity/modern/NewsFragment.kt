@@ -8,11 +8,13 @@ import android.support.v4.app.Fragment
 import android.support.v4.content.LocalBroadcastManager
 import android.support.v7.app.AlertDialog
 import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.SearchView
 import android.view.*
 import butterknife.ButterKnife
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.adapter.NewsAdapter
+import com.mycelium.wallet.activity.news.NewsActivity
 import com.mycelium.wallet.external.news.GetNewsTask
 import com.mycelium.wallet.external.news.NewsConstants
 import com.mycelium.wallet.external.news.NewsConstants.CATEGORY_FILTER
@@ -52,6 +54,18 @@ class NewsFragment : Fragment() {
         newsList.layoutManager = LinearLayoutManager(activity!!, LinearLayoutManager.VERTICAL, false)
         adapter = NewsAdapter()
         newsList.adapter = adapter
+        newsList.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            var scrollY = 0;
+            override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                scrollY += dy
+                if (scrollY > recyclerView?.height ?: 0 && scrollTop.visibility == View.GONE) {
+                    scrollTop.visibility = View.VISIBLE
+                } else if (scrollY <= recyclerView?.height ?: 0 && scrollTop.visibility == View.VISIBLE) {
+                    scrollTop.visibility = View.GONE
+                }
+            }
+        })
         adapter?.shareClickListener = { news ->
             val s = Intent(Intent.ACTION_SEND)
             s.type = "text/plain"

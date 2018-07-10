@@ -1,4 +1,4 @@
-package com.mycelium.wallet.activity.modern
+package com.mycelium.wallet.activity.news
 
 import android.content.Context
 import android.content.Intent
@@ -13,7 +13,8 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import com.mycelium.wallet.R
-import com.mycelium.wallet.activity.modern.adapter.MoreNewsAdapter
+import com.mycelium.wallet.activity.modern.convertToCategory
+import com.mycelium.wallet.activity.news.adapter.MoreNewsAdapter
 import com.mycelium.wallet.external.news.GetNewsTask
 import com.mycelium.wallet.external.news.NewsConstants
 import com.mycelium.wallet.external.news.model.News
@@ -42,11 +43,22 @@ class NewsActivity : AppCompatActivity() {
                 + "<body>${news.content}</body></html>"
                 , "text/html", "UTF-8", null)
         tvTitle.text = news.title
-        tvDate.text = DateUtils.getRelativeTimeSpanString(news.date.time)
-        category.text = if (news.categories.values.isNotEmpty()) news.categories.values.elementAt(0).name else null
+        tvDate.text = DateUtils.getRelativeTimeSpanString(this, news.date.time)
+
+        val categoryText = if (news.categories.values.isNotEmpty()) news.categories.values.elementAt(0).name else ""
+        category.text = categoryText
+        category.setBackgroundResource(NewsUtils.getCategoryBackground(categoryText))
 
         scrollTop.setOnClickListener {
             scrollView.smoothScrollTo(0, 0)
+        }
+
+        scrollView.viewTreeObserver.addOnScrollChangedListener {
+            if (scrollView.scrollY > scrollView.height && scrollTop.visibility == View.GONE) {
+                scrollTop.visibility = View.VISIBLE
+            } else if (scrollView.scrollY <= scrollView.height && scrollTop.visibility == View.VISIBLE) {
+                scrollTop.visibility = View.GONE
+            }
         }
 
         moreNewsList.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
@@ -54,24 +66,26 @@ class NewsActivity : AppCompatActivity() {
         adapter = MoreNewsAdapter()
         moreNewsList.adapter = adapter
         val moreNewsTask = GetNewsTask(null, categories, 3)
-        moreNewsTask.listener = {
-            val list = it.toMutableList()
-            list.remove(news)
-            if (list.isEmpty()) {
-                moreNewsList.visibility = View.GONE
-                moreDivider.visibility = View.GONE
-                moreText.visibility = View.GONE
-            } else {
-                adapter?.data = list
-            }
-        }
+        moreNewsTask.listener =
+                {
+                    val list = it.toMutableList()
+                    list.remove(news)
+                    if (list.isEmpty()) {
+                        moreNewsList.visibility = View.GONE
+                        moreDivider.visibility = View.GONE
+                        moreText.visibility = View.GONE
+                    } else {
+                        adapter?.data = list
+                    }
+                }
         moreNewsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
-        adapter?.openClickListener = {
-            finish()
-            val intent = Intent(this@NewsActivity, NewsActivity::class.java)
-            intent.putExtra(NewsConstants.NEWS, it)
-            startActivity(intent)
-        }
+        adapter?.openClickListener =
+                {
+                    finish()
+                    val intent = Intent(this@NewsActivity, NewsActivity::class.java)
+                    intent.putExtra(NewsConstants.NEWS, it)
+                    startActivity(intent)
+                }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

@@ -12,8 +12,6 @@ public class Author implements Serializable {
     public Author() {
     }
 
-    @JsonProperty("avatar_URL")
-    public String avatar;
     @JsonProperty("name")
     public String name;
 }

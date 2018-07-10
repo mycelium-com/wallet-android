@@ -68,7 +68,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="16dp"
                     android:fontFamily="sans-serif"
-                    android:textColor="@color/white"
+                    android:textColor="#696969"
                     android:textSize="10sp"
                     tools:text="6 June" />
 
@@ -134,5 +134,6 @@
         android:layout_marginEnd="16dp"
         android:background="@null"
         android:scaleType="center"
+        android:visibility="gone"
         app:srcCompat="@drawable/ic_back_to_top" />
 </FrameLayout>
