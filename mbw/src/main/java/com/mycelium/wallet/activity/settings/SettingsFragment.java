@@ -76,6 +76,8 @@ import com.squareup.otto.Subscribe;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
@@ -406,6 +408,13 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
         ExchangeRateManager exchangeManager = _mbwManager.getExchangeRateManager();
         List<String> exchangeSourceNamesList = exchangeManager.getExchangeSourceNames();
+        Collections.sort(exchangeSourceNamesList, new Comparator<String>() {
+            @Override
+            public int compare(String rate1, String rate2) {
+                return rate1.compareToIgnoreCase(rate2);
+            }
+        });
+
         CharSequence[] exchangeNames = exchangeSourceNamesList.toArray(new String[exchangeSourceNamesList.size()]);
         _exchangeSource.setEntries(exchangeNames);
         if (exchangeNames.length == 0) {

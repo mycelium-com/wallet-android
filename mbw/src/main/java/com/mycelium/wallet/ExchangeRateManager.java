@@ -58,8 +58,6 @@ import com.mycelium.wapi.model.ExchangeRate;
 import com.mycelium.wapi.wallet.currency.ExchangeRateProvider;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -72,7 +70,6 @@ import java.util.regex.Pattern;
 import retrofit.RetrofitError;
 
 public class ExchangeRateManager implements ExchangeRateProvider {
-    private static final String DEFAULT_EXCHANGE = "Bitstamp";
     private static final int MAX_RATE_AGE_MS = 5 * 1000 * 60; /// 5 minutes
     private static final int MIN_RATE_AGE_MS = 5 * 1000; /// 5 seconds
     private static final String EXCHANGE_DATA = "wapi_exchange_rates";
@@ -274,18 +271,9 @@ public class ExchangeRateManager implements ExchangeRateProvider {
 
         if (_currentExchangeSourceName == null) {
             // This only happens the first time the wallet picks up exchange rates.
-            // We will default to the DEFAULT_EXCHANGE (e.g. Bitstamp) if it exists...
-            // ... otherwise it will remain the first exchange rate provider
+            // We will default to the first exchange
             if (latestRates.size() > 0 && latestRates.get(0).exchangeRates.length > 0) {
                 _currentExchangeSourceName = latestRates.get(0).exchangeRates[0].name;
-
-                // check if exchange rates has DEFAULT_EXCHANGE
-                for (int i = 0; i < latestRates.get(0).exchangeRates.length; i++) {
-                    if (latestRates.get(0).exchangeRates[i].name.equalsIgnoreCase(DEFAULT_EXCHANGE)) {
-                        _currentExchangeSourceName = latestRates.get(0).exchangeRates[i].name;
-                        break;
-                    }
-                }
             }
         }
     }
@@ -312,13 +300,6 @@ public class ExchangeRateManager implements ExchangeRateProvider {
                 result.add(r.name);
             }
         }
-
-        Collections.sort(result, new Comparator<String>() {
-            @Override
-            public int compare(String rate1, String rate2) {
-                return rate1.compareToIgnoreCase(rate2);
-            }
-        });
 
         return result;
     }
