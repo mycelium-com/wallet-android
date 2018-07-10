@@ -87,6 +87,7 @@ import com.mycelium.wallet.colu.ColuManager;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.AccountListChanged;
 import com.mycelium.wallet.event.BalanceChanged;
+import com.mycelium.wallet.event.ExchangeSourceChanged;
 import com.mycelium.wallet.event.ExtraAccountsChanged;
 import com.mycelium.wallet.event.ReceivingAddressChanged;
 import com.mycelium.wallet.event.SyncProgressUpdated;
@@ -1295,5 +1296,10 @@ public class AccountsFragment extends Fragment {
    @Subscribe
    public void syncProgressUpdated(SyncProgressUpdated event) {
       update();
+   }
+
+   @Subscribe
+   public void exchangeSourceChange(ExchangeSourceChanged event) {
+      accountListAdapter.exchangeSourceChanged();
    }
 }
