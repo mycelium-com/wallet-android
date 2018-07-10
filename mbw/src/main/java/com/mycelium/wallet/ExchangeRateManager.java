@@ -388,7 +388,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
             rate = r.price * MSS_RATE;
         }
         if ("BCH".equals(injectCurrency)) {
-            if(rateBchBtc != 0) {
+            if (rateBchBtc != 0) {
                 rate = 1 / rateBchBtc;
             } else {
                 return ExchangeRate.missingRate(_currentExchangeSourceName, System.currentTimeMillis(), "BCH");

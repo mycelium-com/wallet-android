@@ -91,6 +91,7 @@ import com.mycelium.wallet.event.AddressBookChanged;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
+import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.event.TransactionLabelChanged;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.model.TransactionDetails;
@@ -241,6 +242,12 @@ public class TransactionHistoryFragment extends Fragment {
       listView.setSelection(0);
    }
 
+   @Subscribe
+   public void syncStopped(SyncStopped event) {
+      // It's possible that new transactions came. Adapter should allow to try to scroll
+      isLoadingPossible.set(true);
+   }
+
    private void doShowDetails(TransactionSummary selected) {
       if (selected == null) {
          return;
@@ -274,7 +281,9 @@ public class TransactionHistoryFragment extends Fragment {
 
          @Override
          public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-            if (firstVisibleItem + visibleItemCount >= totalItemCount - OFFSET) {
+            // We should preload data to provide glitch free experience.
+            // If no items loaded we should do nothing, as it's LiveData duty.
+            if (firstVisibleItem + visibleItemCount >= totalItemCount - OFFSET && visibleItemCount != 0) {
                boolean toAddEmpty;
                synchronized (toAdd) {
                   toAddEmpty = toAdd.isEmpty();
