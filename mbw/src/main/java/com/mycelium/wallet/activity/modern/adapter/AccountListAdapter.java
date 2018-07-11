@@ -196,22 +196,6 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         return currencySum;
     }
 
-    public int findTotalBalanceItem() {
-        int position = -1;
-        for (int i = 0; i < itemList.size(); i++) {
-            AccountItem item = itemList.get(i);
-            if (item.getType() == TOTAL_BALANCE_TYPE) {
-                position = i;
-                break;
-            }
-        }
-        return position;
-    }
-
-    public void exchangeSourceChanged() {
-        notifyItemChanged(findTotalBalanceItem());
-    }
-
     @Override
     public int getItemCount() {
         return itemList.size();
