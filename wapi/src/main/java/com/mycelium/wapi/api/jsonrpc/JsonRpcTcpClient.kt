@@ -27,8 +27,9 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
     private var curEndpointIndex = (Math.random() * endpoints.size).toInt()
     private val ssf = SSLSocketFactory.getDefault() as SSLSocketFactory
 
+    private var isConnected = AtomicBoolean(false)
     @Volatile
-    private var isConnected = false
+    var isStopped = false
     @Volatile
     private var socket: Socket? = null
     @Volatile
@@ -73,6 +74,14 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
     @Throws(TimeoutException::class)
     @Synchronized
     fun write(requests: List<RpcRequestOut>, timeOut: Long): BatchedRpcResponse {
+        if (!isConnected.get()) {
+            synchronized(isConnected) {
+                (isConnected as java.lang.Object).wait(timeOut)
+                if (!isConnected.get()) {
+                    throw TimeoutException("Timeout")
+                }
+            }
+        }
         var response: BatchedRpcResponse? = null
         val latch = CountDownLatch(1)
 
@@ -100,6 +109,14 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
     @Throws(TimeoutException::class)
     @Synchronized
     fun write(methodName: String, params: RpcParams, timeOut: Long): RpcResponse {
+        if (!isConnected.get()) {
+            synchronized(isConnected) {
+                (isConnected as java.lang.Object).wait(timeOut)
+                if (!isConnected.get()) {
+                    throw TimeoutException("Timeout")
+                }
+            }
+        }
         var response: RpcResponse? = null
         val latch = CountDownLatch(1)
         val request = RpcRequestOut(methodName, params).apply {
@@ -118,7 +135,7 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
 
     private fun notifyListeners() {
         observers.forEach {
-            it.connectionChanged(if (isConnected) WENT_ONLINE else WENT_OFFLINE)
+            it.connectionChanged(if (isConnected.get()) WENT_ONLINE else WENT_OFFLINE)
         }
     }
 
@@ -128,28 +145,33 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
             throw IllegalStateException("RPC client could not be started twice.")
         }
         thread(start = true) {
-            while(true) {
+            while(!isStopped) {
                 val currentEndpoint = endpoints[curEndpointIndex]
                 try {
-                    socket = ssf.createSocket(currentEndpoint.host, currentEndpoint.port)
-                    socket!!.keepAlive = true
-                    incoming = BufferedReader(InputStreamReader(socket!!.getInputStream()))
-                    outgoing = BufferedOutputStream(socket!!.getOutputStream())
-                    callbacks.clear()
-                    notify("server.version", RpcParams.mapParams(
-                            "client_name" to "wapi",
-                            "protocol_version" to "1.2"))
-                    isConnected = true
-                    notifyListeners()
+                    synchronized(this) {
+                        socket = ssf.createSocket(currentEndpoint.host, currentEndpoint.port)
+                        socket!!.keepAlive = true
+                        incoming = BufferedReader(InputStreamReader(socket!!.getInputStream()))
+                        outgoing = BufferedOutputStream(socket!!.getOutputStream())
+                        callbacks.clear()
+                        notify("server.version", RpcParams.mapParams(
+                                "client_name" to "wapi",
+                                "protocol_version" to "1.2"))
+                        isConnected.set(true)
+                        synchronized(isConnected) {
+                            (isConnected as java.lang.Object).notifyAll()
+                        }
+                        notifyListeners()
 
-                    // Schedule periodic ping requests execution
-                    pingTimer.scheduleAtFixedRate (timerTask {
-                        sendPingMessage()
-                    }, 0, INTERVAL_BETWEEN_PING_REQUESTS)
+                        // Schedule periodic ping requests execution
+                        pingTimer.scheduleAtFixedRate(timerTask {
+                            sendPingMessage()
+                        }, 0, INTERVAL_BETWEEN_PING_REQUESTS)
+                    }
 
                     // Inner loop for reading data from socket. If the connection breaks, we should
                     // exit this loop and try creating new socket in order to restore connection
-                    while (isConnected) {
+                    while (isConnected.get()) {
                         val line = incoming!!.readLine()
                                 // There can be a use case when BufferedReader.readline() returns null
                                 ?: continue
@@ -159,16 +181,17 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
                     logger.logError("Socket creation or receiving failed: ${exception.message}")
                 }
                 close()
-                isConnected = false
+                isConnected.set(false)
                 notifyListeners()
                 // Sleep for some time before moving to the next endpoint
                 Thread.sleep(INTERVAL_BETWEEN_SOCKET_RECONNECTS)
                 curEndpointIndex = (curEndpointIndex + 1) % endpoints.size
             }
+            pingTimer.cancel()
         }
     }
 
-    fun close() = socket?.close()
+    private fun close() = socket?.close()
 
     private fun messageReceived(message: String) {
         if (message.contains("error")) {
@@ -199,6 +222,9 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
             val pong = write("server.ping", RpcMapParams(emptyMap<String, String>()), DEFAULT_RESPONSE_TIMEOUT)
             logger.logInfo("Pong! $pong " + Date().toString())
         } catch (ex: Exception) {
+            isConnected.set(false)
+            isStopped = true
+            socket?.close()
             ex.printStackTrace()
         }
     }

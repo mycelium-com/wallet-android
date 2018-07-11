@@ -1,6 +1,5 @@
 package com.mycelium.wapi.api
 
-import com.google.common.primitives.UnsignedInteger
 import com.google.gson.annotations.SerializedName
 import com.megiontechnologies.Bitcoins
 import com.mrd.bitlib.StandardTransactionBuilder
@@ -33,19 +32,14 @@ import kotlin.collections.ArrayList
  */
 class WapiClientElectrumX(
         serverEndpoints: ServerEndpoints,
-        endpoints: Array<TcpEndpoint>,
+        val endpoints: Array<TcpEndpoint>,
         logger: WapiLogger,
         versionCode: String)
     : WapiClient(serverEndpoints, logger, versionCode), ConnectionMonitor.ConnectionObserver {
     @Volatile
-    private var jsonRpcTcpClientsList = listOf(JsonRpcTcpClient(endpoints, logger),
-            JsonRpcTcpClient(endpoints, logger),
-            JsonRpcTcpClient(endpoints, logger),
-            JsonRpcTcpClient(endpoints, logger),
-            JsonRpcTcpClient(endpoints, logger))
-
+    private lateinit var jsonRpcTcpClientsList: MutableList<JsonRpcTcpClient>
     @Volatile
-    private var jsonRpcTcpClient = jsonRpcTcpClientsList[0]
+    private lateinit var jsonRpcTcpClient: JsonRpcTcpClient
     @Volatile
     private var bestChainHeight = -1
 
@@ -54,10 +48,47 @@ class WapiClientElectrumX(
     }
 
     init {
+        initRpcClients()
+    }
+
+    private fun initRpcClients() {
+        jsonRpcTcpClientsList = listOf(JsonRpcTcpClient(endpoints, logger),
+                JsonRpcTcpClient(endpoints, logger),
+                JsonRpcTcpClient(endpoints, logger),
+                JsonRpcTcpClient(endpoints, logger),
+                JsonRpcTcpClient(endpoints, logger))
+                .toMutableList()
+        jsonRpcTcpClient = jsonRpcTcpClientsList[0]
+        startRpcClients()
+    }
+
+    private fun startRpcClients() {
         jsonRpcTcpClientsList.forEach {
             it.register(this)
             it.start()
         }
+    }
+
+    override fun refreshRpcClients() {
+        stopRpcClients()
+        updateRpcClients()
+    }
+
+    private fun updateRpcClients() {
+        for (i in 0 until jsonRpcTcpClientsList.size) {
+            if (jsonRpcTcpClientsList[i].isStopped) {
+                val newClient = JsonRpcTcpClient(endpoints, logger)
+                newClient.register(this)
+                newClient.start()
+                jsonRpcTcpClientsList[i] = newClient
+            }
+        }
+        jsonRpcTcpClient = jsonRpcTcpClientsList[0]
+    }
+
+    private fun stopRpcClients() {
+        jsonRpcTcpClientsList.filter(JsonRpcTcpClient::isStopped)
+                .forEach { it.unregister(this) }
     }
 
     override fun connectionChanged(e: ConnectionMonitor.ConnectionEvent?) {
