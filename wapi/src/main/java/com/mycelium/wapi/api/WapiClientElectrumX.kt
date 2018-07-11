@@ -6,6 +6,7 @@ import com.megiontechnologies.Bitcoins
 import com.mrd.bitlib.StandardTransactionBuilder
 import com.mrd.bitlib.model.OutPoint
 import com.mrd.bitlib.model.Transaction
+import com.mrd.bitlib.model.TransactionInput
 import com.mrd.bitlib.util.ByteReader
 import com.mrd.bitlib.util.HexUtils
 import com.mrd.bitlib.util.Sha256Hash
@@ -196,7 +197,7 @@ class WapiClientElectrumX(
         if (tx.confirmations == 0) {
             // if unconfirmed chain length is one, see if it is two (or more)
             // see if it or parent is RBF
-            val txParents = relatedTransactions.filter { ptx -> tx.vin.any { it.txid == ptx.txid } }
+            val txParents = relatedTransactions.filter { ptx -> tx.vin.any { it.outPoint.txid.toString() == ptx.txid } }
             rbfRisk = isRbf(tx.vin) || txParents.any { ptx -> isRbf(ptx.vin) }
             if (txParents.any { ptx -> ptx.confirmations == 0 }) {
                 unconfirmedChainLength = 1
@@ -208,7 +209,7 @@ class WapiClientElectrumX(
     private fun getUnconfirmedTxsParents(transactionsArray: List<TransactionX>): List<String> {
         return transactionsArray.filter { it.confirmations == 0 }
                 .flatMap { it.vin.asList() }
-                .map { it.txid }
+                .map { it.outPoint.txid.toString() }
     }
 
     private fun getTransactionXs(txids: Collection<String>): List<TransactionX> {
@@ -243,10 +244,7 @@ class WapiClientElectrumX(
                                 // Since our electrumX does not send vin's anymore, parse transaction hex
                                 // by ourselves and extract inputs information
                                 val tx = Transaction.fromBytes(HexUtils.toBytes(this!!.hex))
-                                this.vin = tx.inputs.map {
-                                    val sequence =  if (it.sequence == -1) NON_RBF_SEQUENCE else it.sequence.toLong()
-                                    TransactionInputX(it.outPoint.txid.toString(), sequence)
-                                }.toTypedArray()
+                                this.vin = tx.inputs
                             }
                         }
                     }
@@ -258,7 +256,7 @@ class WapiClientElectrumX(
                 .flatMap { it.await() }
     }
 
-    private fun isRbf(vin: Array<TransactionInputX>) = vin.any { it.sequence < NON_RBF_SEQUENCE }
+    private fun isRbf(vin: Array<TransactionInput>) = vin.any { it.isMarkedForRbf }
 
     override fun getMinerFeeEstimations(): WapiResponse<MinerFeeEstimationResponse> {
         try {
@@ -296,7 +294,6 @@ class WapiClientElectrumX(
         private const val HEADRES_SUBSCRIBE_METHOD = "blockchain.headers.subscribe"
         @Deprecated("Address must be replaced with script")
         private const val GET_HISTORY_METHOD = "blockchain.address.get_history"
-        private val NON_RBF_SEQUENCE = UnsignedInteger.MAX_VALUE.toLong()
         private const val DEFAULT_RESPONSE_TIMEOUT = 10000L
         private const val GET_TRANSACTION_BATCH_LIMIT = 10
     }
@@ -314,12 +311,7 @@ data class TransactionX(
         val hex: String,
         val time: Int,
         val txid: String,
-        var vin: Array<TransactionInputX>
-)
-
-data class TransactionInputX(
-        val txid: String,
-        val sequence: Long
+        var vin: Array<TransactionInput>
 )
 
 data class UnspentOutputs(
