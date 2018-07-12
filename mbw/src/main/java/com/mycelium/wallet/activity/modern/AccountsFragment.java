@@ -63,7 +63,6 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -1320,9 +1319,7 @@ public class AccountsFragment extends Fragment {
 
    private LocalTraderEventSubscriber ltSubscriber = new LocalTraderEventSubscriber(new Handler()) {
       @Override
-      public void onLtError(int errorCode) {
-         Toast.makeText(getContext(), R.string.lt_error_api_occurred, Toast.LENGTH_LONG).show();
-      }
+      public void onLtError(int errorCode) { }
 
       @Override
       public void onLtAccountDeleted(DeleteTrader request) {
