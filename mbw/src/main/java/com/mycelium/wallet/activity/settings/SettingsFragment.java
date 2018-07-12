@@ -538,9 +538,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
                     BackupFragment backupFragment = BackupFragment.newInstance(backupPreferenceScreen.getKey());
-                    Bundle args = new Bundle();
-                    args.putInt(BackupFragment.ARG_FRAGMENT_OPEN_TYPE, finalI);
-                    backupFragment.setArguments(args);
+                    backupFragment.getArguments().putInt(BackupFragment.ARG_FRAGMENT_OPEN_TYPE, finalI);
 
                     getFragmentManager()
                             .beginTransaction()
@@ -562,9 +560,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
                     PinCodeFragment pinFragment = PinCodeFragment.newInstance(pinPreferenceScreen.getKey());
-                    Bundle args = new Bundle();
-                    args.putInt(BackupFragment.ARG_FRAGMENT_OPEN_TYPE, finalI);
-                    pinFragment.setArguments(args);
+                    pinFragment.getArguments().putInt(BackupFragment.ARG_FRAGMENT_OPEN_TYPE, finalI);
 
                     getFragmentManager()
                             .beginTransaction()
