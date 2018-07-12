@@ -70,11 +70,11 @@ class WapiClientElectrumX(
     }
 
     override fun refreshRpcClients() {
-        stopRpcClients()
-        updateRpcClients()
+        unregisterStoppedRpcClients()
+        replaceStoppedClients()
     }
 
-    private fun updateRpcClients() {
+    private fun replaceStoppedClients() {
         for (i in 0 until jsonRpcTcpClientsList.size) {
             if (jsonRpcTcpClientsList[i].isStopped) {
                 val newClient = JsonRpcTcpClient(endpoints, logger)
@@ -86,7 +86,7 @@ class WapiClientElectrumX(
         jsonRpcTcpClient = jsonRpcTcpClientsList[0]
     }
 
-    private fun stopRpcClients() {
+    private fun unregisterStoppedRpcClients() {
         jsonRpcTcpClientsList.filter(JsonRpcTcpClient::isStopped)
                 .forEach { it.unregister(this) }
     }
