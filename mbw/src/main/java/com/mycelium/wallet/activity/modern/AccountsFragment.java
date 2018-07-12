@@ -252,7 +252,7 @@ public class AccountsFragment extends Fragment {
    }
 
     private void deleteAccount(final WalletAccount accountToDelete) {
-        Preconditions.checkNotNull(accountToDelete);
+       Preconditions.checkNotNull(accountToDelete);
        final WalletAccount linkedAccount = getLinkedAccount(accountToDelete);
 
        final View checkBoxView = View.inflate(getActivity(), R.layout.delkey_checkbox, null);
@@ -1215,16 +1215,10 @@ public class AccountsFragment extends Fragment {
 
    private void archive(final WalletAccount account) {
       CurrencyBasedBalance balance = Preconditions.checkNotNull(account.getCurrencyBasedBalance());
-      String valueString = Utils.getFormattedValueWithUnit(balance.confirmed, _mbwManager.getBitcoinDenomination());
-
-      if(account instanceof ColuAccount) {
-            valueString =  Utils.getColuFormattedValueWithUnit(account.getCurrencyBasedBalance().confirmed);
-      }
-
+      final WalletAccount linkedAccount = getLinkedAccount(account);
       new AlertDialog.Builder(getActivity())
               .setTitle(R.string.archiving_account_title)
-              .setMessage(getString(R.string.question_archive_account,_mbwManager.getMetadataStorage()
-                      .getLabelByAccount(account.getId()), valueString))
+              .setMessage(createArchiveDialogText(account,linkedAccount))
               .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 
                  public void onClick(DialogInterface arg0, int arg1) {
@@ -1248,6 +1242,30 @@ public class AccountsFragment extends Fragment {
                  }
               })
               .show();
+   }
+
+   @NonNull
+   private String createArchiveDialogText(WalletAccount account, WalletAccount linkedAccount) {
+      String accountName = _mbwManager.getMetadataStorage().getLabelByAccount(account.getId());
+      return getAccountArchiveText(account, linkedAccount, accountName);
+   }
+
+   @NonNull
+   private String getAccountArchiveText(WalletAccount account, WalletAccount linkedAccount, String accountName) {
+      String dialogText;
+      CurrencyBasedBalance balance = Preconditions.checkNotNull(account.getCurrencyBasedBalance());
+      String valueString = getBalanceString(account, balance);
+
+      if (linkedAccount != null && linkedAccount.isVisible()) {
+         CurrencyBasedBalance linkedBalance = linkedAccount.getCurrencyBasedBalance();
+         String linkedValueString = getBalanceString(linkedAccount, linkedBalance);
+         String linkedAccountName =_mbwManager.getMetadataStorage().getLabelByAccount(linkedAccount.getId());
+         dialogText = getString(R.string.question_archive_account, accountName, valueString,
+                 linkedAccountName, linkedValueString);
+      } else {
+         dialogText = getString(R.string.question_archive_account_s, accountName, valueString);
+      }
+      return dialogText;
    }
 
    private void lock() {
