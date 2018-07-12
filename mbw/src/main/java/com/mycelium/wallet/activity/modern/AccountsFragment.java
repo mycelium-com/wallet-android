@@ -127,7 +127,7 @@ public class AccountsFragment extends Fragment {
 
    private MetadataStorage _storage;
    private MbwManager _mbwManager;
-   private LocalTraderManager _ltManager;
+   private LocalTraderManager localTraderManager;
    private Toaster _toaster;
    private ProgressDialog _progress;
    private RecyclerView rvRecords;
@@ -176,7 +176,8 @@ public class AccountsFragment extends Fragment {
    public void onAttach(Context context) {
       _mbwManager = MbwManager.getInstance(context);
       walletManager = _mbwManager.getWalletManager(false);
-      _ltManager = _mbwManager.getLocalTraderManager();
+      localTraderManager = _mbwManager.getLocalTraderManager();
+      localTraderManager.subscribe(ltSubscriber);
       _storage = _mbwManager.getMetadataStorage();
       eventBus = _mbwManager.getEventBus();
       _toaster = new Toaster(this);
@@ -189,7 +190,6 @@ public class AccountsFragment extends Fragment {
       getView().findViewById(R.id.btUnlock).setOnClickListener(unlockClickedListener);
       update();
       _progress = new ProgressDialog(getActivity());
-      _ltManager.subscribe(ltSubscriber);
       super.onResume();
    }
 
@@ -202,7 +202,7 @@ public class AccountsFragment extends Fragment {
 
    @Override
    public void onDetach() {
-      _ltManager.unsubscribe(ltSubscriber);
+      localTraderManager.unsubscribe(ltSubscriber);
       super.onDetach();
    }
 
