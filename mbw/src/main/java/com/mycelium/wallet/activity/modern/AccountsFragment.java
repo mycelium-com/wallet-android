@@ -42,6 +42,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -93,6 +94,10 @@ import com.mycelium.wallet.event.ReceivingAddressChanged;
 import com.mycelium.wallet.event.SyncProgressUpdated;
 import com.mycelium.wallet.event.SyncStarted;
 import com.mycelium.wallet.event.SyncStopped;
+import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
+import com.mycelium.wallet.lt.LocalTraderManager;
+import com.mycelium.wallet.lt.api.CreateTrader;
+import com.mycelium.wallet.lt.api.DeleteTrader;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.model.Balance;
 import com.mycelium.wapi.wallet.AesKeyCipher;
@@ -121,6 +126,7 @@ public class AccountsFragment extends Fragment {
 
    private MetadataStorage _storage;
    private MbwManager _mbwManager;
+   private LocalTraderManager localTraderManager;
    private Toaster _toaster;
    private ProgressDialog _progress;
    private RecyclerView rvRecords;
@@ -169,6 +175,8 @@ public class AccountsFragment extends Fragment {
    public void onAttach(Context context) {
       _mbwManager = MbwManager.getInstance(context);
       walletManager = _mbwManager.getWalletManager(false);
+      localTraderManager = _mbwManager.getLocalTraderManager();
+      localTraderManager.subscribe(ltSubscriber);
       _storage = _mbwManager.getMetadataStorage();
       eventBus = _mbwManager.getEventBus();
       _toaster = new Toaster(this);
@@ -189,6 +197,12 @@ public class AccountsFragment extends Fragment {
       _progress.dismiss();
       eventBus.unregister(this);
       super.onPause();
+   }
+
+   @Override
+   public void onDetach() {
+      localTraderManager.unsubscribe(ltSubscriber);
+      super.onDetach();
    }
 
    @Override
@@ -1300,6 +1314,21 @@ public class AccountsFragment extends Fragment {
 
    @Subscribe
    public void exchangeSourceChange(ExchangeSourceChanged event) {
-      accountListAdapter.exchangeSourceChanged();
+      accountListAdapter.notifyDataSetChanged();
    }
+
+   private LocalTraderEventSubscriber ltSubscriber = new LocalTraderEventSubscriber(new Handler()) {
+      @Override
+      public void onLtError(int errorCode) { }
+
+      @Override
+      public void onLtAccountDeleted(DeleteTrader request) {
+         accountListAdapter.notifyDataSetChanged();
+      }
+
+      @Override
+      public void onLtTraderCreated(CreateTrader request) {
+         accountListAdapter.notifyDataSetChanged();
+      }
+   };
 }
