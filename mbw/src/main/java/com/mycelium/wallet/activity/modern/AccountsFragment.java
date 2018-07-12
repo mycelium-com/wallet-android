@@ -474,7 +474,7 @@ public class AccountsFragment extends Fragment {
    @NonNull
    private String getArchivedAccountDeleteText(WalletAccount linkedAccount, String accountName) {
       String dialogText;
-      if (linkedAccount != null) {
+      if (linkedAccount != null && linkedAccount.isVisible()) {
          String linkedAccountName =_mbwManager.getMetadataStorage().getLabelByAccount(linkedAccount.getId());
          dialogText = getString(R.string.delete_archived_account_message, accountName, linkedAccountName);
       } else {
@@ -489,7 +489,7 @@ public class AccountsFragment extends Fragment {
       CurrencyBasedBalance balance = Preconditions.checkNotNull(accountToDelete.getCurrencyBasedBalance());
       String valueString = getBalanceString(accountToDelete, balance);
 
-      if (linkedAccount != null) {
+      if (linkedAccount != null && linkedAccount.isVisible()) {
          CurrencyBasedBalance linkedBalance = linkedAccount.getCurrencyBasedBalance();
          String linkedValueString = getBalanceString(linkedAccount, linkedBalance);
          String linkedAccountName =_mbwManager.getMetadataStorage().getLabelByAccount(linkedAccount.getId());
