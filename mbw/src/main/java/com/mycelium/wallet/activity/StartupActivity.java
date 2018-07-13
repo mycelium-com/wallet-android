@@ -44,6 +44,7 @@ import android.nfc.NfcAdapter;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Toast;
@@ -85,6 +86,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.mycelium.wallet.StringHandleConfig.PrivateKeyAction.getPrivateKey;
+import static com.mycelium.wallet.StringHandleConfig.HdNodeAction.isKeyNode;
 
 public class StartupActivity extends Activity {
    private static final int MINIMUM_SPLASH_TIME = 500;
@@ -92,8 +94,10 @@ public class StartupActivity extends Activity {
    private static final int IMPORT_WORDLIST = 0;
 
    private static final String URI_HOST_GLIDERA_REGISTRATION = "glideraRegistration";
+   private static final String TAG = "startupactivitytag";
 
    private boolean _hasClipboardExportedPrivateKeys;
+   private boolean _hasClipboardExportedPublicKeys;
    private MbwManager _mbwManager;
    private AlertDialog _alertDialog;
    private PinDialog _pinDialog;
@@ -142,6 +146,9 @@ public class StartupActivity extends Activity {
          // Check if we have lingering exported private keys, we want to warn
          // the user if that is the case
          _hasClipboardExportedPrivateKeys = hasPrivateKeyOnClipboard(_mbwManager.getNetwork());
+         _hasClipboardExportedPublicKeys = hasPublicKeyOnClipboard(_mbwManager.getNetwork());
+         Log.d(TAG, "run: "+ _hasClipboardExportedPrivateKeys);
+         Log.d(TAG, "run: pub "+ _hasClipboardExportedPublicKeys);
          // Calculate how much time we spent initializing, and do a delayed
          // finish so we display the splash a minimum amount of time
          long timeSpent = System.currentTimeMillis() - startTime;
@@ -165,6 +172,20 @@ public class StartupActivity extends Activity {
             return false;
          }
       }
+
+      private boolean hasPublicKeyOnClipboard(NetworkParameters network) {
+         // do we have a public key on the clipboard?
+         try {
+            if (isKeyNode(network, Utils.getClipboardString(StartupActivity.this))) {
+               return true;
+            }
+            HdKeyNode.parse(Utils.getClipboardString(StartupActivity.this), network);
+            return true;
+         } catch (HdKeyNode.KeyGenerationException ex) {
+            return false;
+         }
+      }
+
    };
 
    private void initMasterSeed() {
@@ -271,20 +292,26 @@ public class StartupActivity extends Activity {
             return;
          }
 
-         if (_hasClipboardExportedPrivateKeys) {
-            warnUserOnClipboardKeys();
-         } else {
+         if(_hasClipboardExportedPublicKeys){
+            warnUserOnClipboardKeys("public");
+         }
+         else if ( _hasClipboardExportedPrivateKeys) {
+            warnUserOnClipboardKeys("private");
+         }
+         else {
             normalStartup();
          }
       }
    };
 
-   private void warnUserOnClipboardKeys() {
+   private void warnUserOnClipboardKeys(String keyType) {
       _alertDialog = new AlertDialog.Builder(this)
               // Set title
-              .setTitle(R.string.found_clipboard_private_key_title)
+              .setTitle(keyType.equals("private") ? R.string.found_clipboard_private_key_title
+                      : R.string.found_clipboard_public_key_title)
               // Set dialog message
-              .setMessage(R.string.found_clipboard_private_keys_message)
+              .setMessage(keyType.equals("private") ? R.string.found_clipboard_private_keys_message
+                      : R.string.found_clipboard_public_keys_message)
               // Yes action
               .setCancelable(false).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                  public void onClick(DialogInterface dialog, int id) {
