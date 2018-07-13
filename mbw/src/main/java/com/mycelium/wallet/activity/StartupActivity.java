@@ -44,7 +44,6 @@ import android.nfc.NfcAdapter;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Toast;
@@ -85,8 +84,8 @@ import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.UUID;
 
-import static com.mycelium.wallet.StringHandleConfig.PrivateKeyAction.getPrivateKey;
 import static com.mycelium.wallet.StringHandleConfig.HdNodeAction.isKeyNode;
+import static com.mycelium.wallet.StringHandleConfig.PrivateKeyAction.getPrivateKey;
 
 public class StartupActivity extends Activity {
    private static final int MINIMUM_SPLASH_TIME = 500;
@@ -94,7 +93,6 @@ public class StartupActivity extends Activity {
    private static final int IMPORT_WORDLIST = 0;
 
    private static final String URI_HOST_GLIDERA_REGISTRATION = "glideraRegistration";
-   private static final String TAG = "startupactivitytag";
 
    private boolean _hasClipboardExportedPrivateKeys;
    private boolean _hasClipboardExportedPublicKeys;
@@ -147,8 +145,7 @@ public class StartupActivity extends Activity {
          // the user if that is the case
          _hasClipboardExportedPrivateKeys = hasPrivateKeyOnClipboard(_mbwManager.getNetwork());
          _hasClipboardExportedPublicKeys = hasPublicKeyOnClipboard(_mbwManager.getNetwork());
-         Log.d(TAG, "run: "+ _hasClipboardExportedPrivateKeys);
-         Log.d(TAG, "run: pub "+ _hasClipboardExportedPublicKeys);
+
          // Calculate how much time we spent initializing, and do a delayed
          // finish so we display the splash a minimum amount of time
          long timeSpent = System.currentTimeMillis() - startTime;
