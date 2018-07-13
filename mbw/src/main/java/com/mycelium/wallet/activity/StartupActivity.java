@@ -290,10 +290,10 @@ public class StartupActivity extends Activity {
          }
 
          if(hasClipboardExportedPublicKeys){
-            warnUserOnClipboardKeys("public");
+            warnUserOnClipboardKeys(false);
          }
          else if ( _hasClipboardExportedPrivateKeys) {
-            warnUserOnClipboardKeys("private");
+            warnUserOnClipboardKeys(true);
          }
          else {
             normalStartup();
@@ -301,13 +301,13 @@ public class StartupActivity extends Activity {
       }
    };
 
-   private void warnUserOnClipboardKeys(String keyType) {
+   private void warnUserOnClipboardKeys(boolean isPrivate) {
       _alertDialog = new AlertDialog.Builder(this)
               // Set title
-              .setTitle(keyType.equals("private") ? R.string.found_clipboard_private_key_title
+              .setTitle(isPrivate ? R.string.found_clipboard_private_key_title
                       : R.string.found_clipboard_public_key_title)
               // Set dialog message
-              .setMessage(keyType.equals("private") ? R.string.found_clipboard_private_keys_message
+              .setMessage(!isPrivate ? R.string.found_clipboard_private_keys_message
                       : R.string.found_clipboard_public_keys_message)
               // Yes action
               .setCancelable(false).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
