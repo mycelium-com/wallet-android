@@ -57,7 +57,6 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.export.VerifyBackupActivity;
-import com.mycelium.wallet.activity.modern.RecordRowBuilder;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.BalanceChanged;
@@ -128,21 +127,20 @@ public class NoticeFragment extends Fragment {
    }
 
    @Override
-   public void onResume() {
+   public void onStart() {
       _mbwManager.getEventBus().register(this);
       _notice = determineNotice();
       _root.findViewById(R.id.btWarning).setOnClickListener(warningClickListener);
       _root.findViewById(R.id.btPinResetNotice).setOnClickListener(noticeClickListener);
       updateUi();
-      super.onResume();
+      super.onStart();
    }
 
    @Override
-   public void onPause() {
+   public void onStop() {
       _mbwManager.getEventBus().unregister(this);
-      super.onPause();
+      super.onStop();
    }
-
 
    private Notice determineNotice() {
       WalletAccount account = _mbwManager.getSelectedAccount();
