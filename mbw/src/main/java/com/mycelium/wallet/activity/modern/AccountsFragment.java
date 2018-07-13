@@ -1218,7 +1218,7 @@ public class AccountsFragment extends Fragment {
       final WalletAccount linkedAccount = getLinkedAccount(account);
       new AlertDialog.Builder(getActivity())
               .setTitle(R.string.archiving_account_title)
-              .setMessage(createArchiveDialogText(account,linkedAccount))
+              .setMessage(Html.fromHtml(createArchiveDialogText(account,linkedAccount)))
               .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 
                  public void onClick(DialogInterface arg0, int arg1) {
