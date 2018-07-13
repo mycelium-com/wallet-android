@@ -95,7 +95,7 @@ public class StartupActivity extends Activity {
    private static final String URI_HOST_GLIDERA_REGISTRATION = "glideraRegistration";
 
    private boolean _hasClipboardExportedPrivateKeys;
-   private boolean _hasClipboardExportedPublicKeys;
+   private boolean hasClipboardExportedPublicKeys;
    private MbwManager _mbwManager;
    private AlertDialog _alertDialog;
    private PinDialog _pinDialog;
@@ -144,7 +144,7 @@ public class StartupActivity extends Activity {
          // Check if we have lingering exported private keys, we want to warn
          // the user if that is the case
          _hasClipboardExportedPrivateKeys = hasPrivateKeyOnClipboard(_mbwManager.getNetwork());
-         _hasClipboardExportedPublicKeys = hasPublicKeyOnClipboard(_mbwManager.getNetwork());
+         hasClipboardExportedPublicKeys = hasPublicKeyOnClipboard(_mbwManager.getNetwork());
 
          // Calculate how much time we spent initializing, and do a delayed
          // finish so we display the splash a minimum amount of time
@@ -289,7 +289,7 @@ public class StartupActivity extends Activity {
             return;
          }
 
-         if(_hasClipboardExportedPublicKeys){
+         if(hasClipboardExportedPublicKeys){
             warnUserOnClipboardKeys("public");
          }
          else if ( _hasClipboardExportedPrivateKeys) {

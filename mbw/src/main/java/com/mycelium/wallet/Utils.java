@@ -535,7 +535,10 @@ public class Utils {
       try {
          @SuppressWarnings("deprecation")
          ClipboardManager clipboard = (ClipboardManager) activity.getSystemService(Context.CLIPBOARD_SERVICE);
-         clipboard.setText("");
+         // some phones have clipboard history, we override it all
+         for (int i = 0; i < 100 ; i++) {
+            clipboard.setText(""+i);
+         }
       } catch (NullPointerException ex) {
          MbwManager.getInstance(activity).reportIgnoredException(new RuntimeException(ex.getMessage()));
          Toast.makeText(activity, activity.getString(R.string.unable_to_clear_clipboard), Toast.LENGTH_LONG).show();
