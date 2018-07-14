@@ -701,12 +701,12 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 } else {
                     ButtonPreference installPreference = new ButtonPreference(getActivity());
                     installPreference.setLayoutResource(R.layout.preference_module_layout);
-                    installPreference.setIcon(GooglePlayModuleCollection.getBigLogo(getActivity(), module.getModulePackage()));
+                    //installPreference.setIcon(GooglePlayModuleCollection.getBigLogo(getActivity(), module.getModulePackage()));
                     installPreference.setButtonText(getString(R.string.install));
                     installPreference.setButtonClickListener(getInstallClickListener(module));
                     installPreference.setTitle(Html.fromHtml(module.getName()));
                     installPreference.setSummary(module.getDescription());
-                    installPreference.setUnderIconText(module.getShortName());
+                    //installPreference.setUnderIconText(module.getShortName());
                     modulesPrefs.addPreference(installPreference);
                 }
             }
@@ -720,7 +720,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         preference.setWidgetLayoutResource(R.layout.preference_button_uninstall);
         preference.setTitle(Html.fromHtml(module.getName()));
         preference.setKey("Module_" + module.getModulePackage());
-        preference.setIcon(GooglePlayModuleCollection.getBigLogo(getActivity(), module.getModulePackage()));
+        //preference.setIcon(GooglePlayModuleCollection.getBigLogo(getActivity(), module.getModulePackage()));
         updateModulePreference(preference, module);
         updateModuleSyncAsync(preference);
         preference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -747,7 +747,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                         .putExtra(Intent.EXTRA_RETURN_RESULT, true), REQUEST_CODE_UNINSTALL);
             }
         });
-        preference.setUnderIconText(module.getShortName());
+        //preference.setUnderIconText(module.getShortName());
         return preference;
     }
 
@@ -756,7 +756,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         preference.setLayoutResource(R.layout.preference_module_layout);
         preference.setTitle(Html.fromHtml(module.getName()));
         preference.setKey("Module_" + module.getModulePackage());
-        preference.setIcon(GooglePlayModuleCollection.getBigLogo(getActivity(), module.getModulePackage()));
+        //preference.setIcon(GooglePlayModuleCollection.getBigLogo(getActivity(), module.getModulePackage()));
         updateModulePreference(preference, module);
         updateModuleSyncAsync(preference);
         preference.setButtonsText(getString(R.string.uninstall), getString(R.string.update));
@@ -769,7 +769,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                         .putExtra(Intent.EXTRA_RETURN_RESULT, true), REQUEST_CODE_UNINSTALL);
             }
         });
-        preference.setUnderIconText(module.getShortName());
+        //preference.setUnderIconText(module.getShortName());
         preference.setBottomButtonClickListener(getInstallClickListener(module));
         return preference;
     }
