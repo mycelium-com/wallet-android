@@ -1133,16 +1133,16 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="backup">BACKUP</string>
     <string name="backup_later">Backup later</string>
     <string name="backup_now">Backup now</string>
-    <string name="bch_module_description">Bitcoin Cash accounts support and exchange to BTC option</string>
+    <string name="bch_module_description">Use BCH module to retrieve your BCH and exchange it to BTC</string>
     <string name="first_modulization_title">Congratulations!</string>
     <string name="first_modulization_message"><![CDATA[You just got a new modular multiblockain version of Mycelium Wallet!<br><br>Due to high demand, we have released Bitcoin Cash (BCH) module first.<br><br>Now you can get your Bitcoin <font color="#f08c18">Cash</font> and instantly and securely exchange it to BTC.<br><br>To do so, you need to install the Bitcoin <font color="#f08c18">Cash</font> module or you can do it later from Settings -> Bitcoin Cash module section.]]></string>
     <string name="install_bch_module">Install Bitcoin Cash module</string>
     <string name="continue_without_bch">Continue without BCH</string>
     <string name="bch_module_change"><![CDATA[Mycelium Bitcoin <font color="#f08c18">Cash</font> module has been %s!]]></string>
-    >
-    <string name="installed">installed</string>>
+    <string name="installed">installed</string>
+
     <string name="updated">updated</string>>
-    <string name="removed">uninstalled</string>>
+    <string name="removed">uninstalled</string>
     <string name="configuration_change_restart_warning">Application restart is required in order to apply configuration changes.</string>
     <string name="first_bch_installed_title"><![CDATA[Mycelium Bitcoin <font color="#f08c18">Cash</font> module has been installed!]]></string>
     <string name="first_bch_installed_message"><![CDATA[Now we need to sync it with the blockchain in order to retrieve your Bitcoin <font color="#f08c18">Cash</font>  balance.<br><br>This procedure takes some time and is performed in the background.<br>The more private keys you have the longer it takes, please be patient. For example, if you have around 1000 private keys, it could take more than 3 hours to reach full sync.<br>We will inform you when it is done.<br><br>You can always check the sync progress here:  Settings -> Bitcoin <font color="#f08c18">Cash</font> module.<br><br>For every BTC account with not retrieved Bitcoin <font color="#f08c18">Cash</font>, corresponding Bitcoin <font color="#f08c18">Cash</font> account will be created.<br><br>Go to Balance tab of your Bitcoin <font color="#f08c18">Cash</font> account to instantly  exchange it to BTC.]]></string>
