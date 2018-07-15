@@ -34,11 +34,13 @@
 
 package com.mycelium.wallet;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.annotation.NonNull;
 import android.support.multidex.MultiDexApplication;
@@ -70,6 +72,8 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
     }
 
+    private MbwManager mbwManager;
+
     public static WalletApplication getInstance() {
         if (INSTANCE == null) {
             throw new IllegalStateException();
@@ -98,10 +102,11 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         pairSpvModules(CommunicationManager.getInstance());
         cleanModulesIfFirstRun(this, getSharedPreferences(BCHHelper.BCH_PREFS, MODE_PRIVATE));
         moduleMessageReceiver = new MbwMessageReceiver(this);
-        MbwManager mbwManager = MbwManager.getInstance(this);
+        mbwManager = MbwManager.getInstance(this);
         applyLanguageChange(getBaseContext(), mbwManager.getLanguage());
         IntentFilter connectivityChangeFilter = new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE");
         initNetworkStateHandler(connectivityChangeFilter);
+        registerActivityLifecycleCallbacks(new ApplicationLifecycleHandler());
     }
 
     private void initNetworkStateHandler(IntentFilter connectivityChangeFilter) {
@@ -196,6 +201,50 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         spvModulesMapping.put(WalletAccount.Type.BCHBIP44, BuildConfig.appIdSpvBch);
         spvModulesMapping.put(WalletAccount.Type.BCHSINGLEADDRESS, BuildConfig.appIdSpvBch);
         return spvModulesMapping;
+    }
+
+    private class ApplicationLifecycleHandler implements ActivityLifecycleCallbacks {
+        private int numStarted = 0;
+        private int numOfCreated = 0;
+        // so we would understand if app was just created, or restored from background
+        private boolean isBackgroung = false;
+
+        @Override
+        public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
+            numOfCreated++;
+        }
+
+        @Override
+        public void onActivityStarted(Activity activity) {
+            if (numStarted == 0 && isBackgroung) {
+                // app returned from background
+                WalletApplication.this.mbwManager.getWapi().refreshRpcClients();
+            }
+            numStarted++;
+        }
+
+        @Override
+        public void onActivityResumed(Activity activity) {}
+
+        @Override
+        public void onActivityPaused(Activity activity) {}
+
+        @Override
+        public void onActivityStopped(Activity activity) {
+            numStarted--;
+            if (numStarted == 0) {
+                // app is going background
+                isBackgroung = true;
+            }
+        }
+
+        @Override
+        public void onActivitySaveInstanceState(Activity activity, Bundle outState) {}
+
+        @Override
+        public void onActivityDestroyed(Activity activity) {
+            numOfCreated--;
+        }
     }
 
     public class ModuleVersionError {
