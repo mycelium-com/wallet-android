@@ -25,7 +25,6 @@
   <string name="send">Pošlji</string>
   <string name="receive">Prejmi</string>
   <string name="private_key_deleted">Zasebni ključ izbrisan</string>
-  <string name="account_deleted">Račun izbrisan</string>
   <string name="enter_recipient_title">Vnesite prejemni naslov</string>
   <string name="recipient_title">Prejemni naslov</string>
   <string name="amount_label">Znesek:</string>
@@ -45,8 +44,6 @@
   <string name="synchronizing">Usklajevanje</string>
   <string name="transaction_not_sent">Pošiljanje nakazila spodletelo</string>
   <string name="queue_transaction_message">Objava transakcije ni uspela.\nŽelite dodati transakcijo v vrsto za objavo, da bo objavljena, ko bo vzpostavljena povezava z omrežjem?</string>
-  <string name="transaction_sent">Nakazilo poslano</string>
-  <string name="export">Izvozi</string>
   <string name="backup_private_key">Rezervna kopija</string>
   <string name="copy_to_clipboard">Kopiraj na odložišče</string>
   <string name="copy_private_key_to_clipboard">Kopiraj zasebni ključ na odložišče</string>
@@ -83,15 +80,9 @@
   <string name="pref_clear_pin_summary">Izbriši trenutno PIN-kodo</string>
   <string name="pref_set_pin">Nastavi PIN-kodo</string>
   <string name="pref_set_pin_summary">Nastavi PIN-kodo, ki ščiti dostop do pošiljanja nakazil, izvažanja zasebnih ključev in spreminjanja PIN-kode.</string>
-  <string name="pref_local_currency">Lokalna valuta</string>
-  <string name="pref_local_currency_with_currency">Lokalna valuta (%1$s)</string>
   <string name="pref_local_currency_summary">Izberi lokalno valuto (npr. EUR)</string>
-  <string name="pref_exchange_source">Vir tečaja</string>
   <string name="pref_exchange_source_with_value">Vir tečaja (%1$s)</string>
   <string name="pref_exchange_source_summary">Izberite vir menjalnega tečaja med BTC in lokalnimi valutami</string>
-  <string name="pref_bitcoin_denomination">Enota za prikaz</string>
-  <string name="pref_bitcoin_denomination_with_denomination">Enota (%1$s)</string>
-  <string name="pref_bitcoin_denomination_summary">Izberite enoto za prikaz zneskov: BTC, mBTC ali μBTC</string>
   <string name="pref_advanced_settings">Napredne nastavitve</string>
   <string name="pref_socks_proxy">Proksi za SOCKS</string>
   <string name="pref_socks_proxy_enabled">Posredovalni strežnik za SOCKS (vključen)</string>
@@ -115,10 +106,8 @@
   <string name="payment_request">Zahtevek za plačilo</string>
   <string name="export_account_data_warning">Izvozili boste občutljive podatke izbranega računa.\n\nVsakdo, ki dobi dostop do teh ključev, si lahko prilasti bitcoine na njih ali pridobi podatke, ki bi lahko ogrozili vašo zasebnost.\n\nŽelite nadaljevati?</string>
   <string name="backup_all_warning">Napraviti morate rezervno kopijo glavnega semena.\nRezervna kopija glavnega semena vam omogoča obnovitev sredstev na vaših HD-računih, če se vaša naprava izgubi, poškoduje ali drugače odtuji.\n\nŽelite to storiti zdaj?</string>
-  <string name="backup_legacy_warning">Napravili boste rezervno kopijo računov s posamičnimi naslovi v vaši denarnici.\nTa rezervna kopija ne bo vsebovala vašega glavnega semena, zato iz nje ne bo mogoče obnoviti vaših HD-računov!\n\nŽelite nadaljevati?</string>
   <string name="export_to_clipboard_warning">Opozorilo: če zasebni ključ kopirate na odložišče, lahko do njega dostopajo vse aplikacije na vašem sistemu.\n\nPozor: Za rezervno kopiranje ni dovolj, da ključ le kopirate na odložišče; potem ga morate še prilepiti na varno mesto.\n\nŽelite nadaljevati?</string>
   <string name="found_clipboard_private_key_title">Zasebni ključ najden na odložišču</string>
-  <string name="found_clipboard_private_keys_message">Na odložišču je že prisoten zasebni ključ. Želite izbrisati ključ z odložišča?</string>
   <string name="exchange_source_not_available">Menjalni tečaj za %1$s ni na voljo</string>
   <string name="my_own_address_warning">Opomba: Nakazilo pošiljate na enega od svojih naslovov.</string>
   <string name="read_only_warning">Opozorilo: V tej denarnici ni zasebnega ključa za ta naslov.\nPrejetih novcev ne morete porabiti, razen če imate kje shranjen ustrezni zasebni ključ. </string>
@@ -132,13 +121,10 @@
   <string name="cold_storage_desc">Poslali boste sredstva iz zasebnega ključa v hladni hrambi. To je lahko npr. papirna kopija zasebnih ključev ali izpisek zasebnega ključa iz bitcoinomata.\nPodprti so naslednji formati:\nZasebni ključ, glavno seme, ključ xPriv\n\nPo tem ko bo nakazilo poslano v omrežje, bo iz pomnilnika izbrisana vsaka sled o njem.</string>
   <string name="keep_account_address">Izbriši le zasebni ključ in ohrani račun samo za branje</string>
   <string name="manual_entry">Ročni vnos</string>
-  <string name="active_hd_accounts_name">Moji HD-računi</string>
-  <string name="active_other_accounts_name">Drugi računi</string>
   <string name="archive_name">Arhivirani</string>
   <string name="active_accounts_empty">(Prazno)</string>
   <string name="activate_action">Aktiviraj</string>
   <string name="archive_action">Arhiviraj</string>
-  <string name="question_archive_account">Na arhiviranih računih se ne spremljajo transakcije, na njih ne morete videti stanja in prejemnega naslov ter z njimi na noben način ne morete delati.\n\nArhivirane račune je vedno mogoče ponovno aktivirati.\n\nŽelite sedaj arhivirati ta račun?</string>
   <string name="master_seed_configuration_title">Dobrodošli v Myceliumu</string>
   <string name="master_seed_configuration_description">Ali želite obnoviti rezervno kopijo ali ustvariti novo denarnico?</string>
   <string name="master_seed_create_new_button">Ustvari novo</string>
@@ -164,16 +150,11 @@
   <string name="using_address_from_clipboard">Uporabljen naslov z odložišča</string>
   <string name="my_accounts">Moji računi</string>
   <string name="foreign_addresses">Imenik</string>
-  <string name="delete_account_title">Izbrišem račun?</string>
-  <string name="delete_account_message">Želite izbrisati ta račun?</string>
   <string name="confirm_delete_pk_title">Ste prepričani?</string>
   <string name="confirm_delete_pk_with_balance">Brisanje je dokončno in ga ne boste mogli razveljaviti!\n\nTrenutni naslov:\n%1$s\n\nVsebuje %2$s\n\nSte prepričani, da ga želite izbrisati?</string>
-  <string name="confirm_delete_pk_with_balance_with_label">Brisanje je dokončno in ga ne boste mogli razveljaviti!\n\nOznaka računa:\n%1$s\n\nTrenutni naslov:\n%2$s\n\nVsebuje %3$s\n\nSte prepričani, da ga želite izbrisati?</string>
   <string name="confirm_delete_pk_without_balance">Brisanje je dokončno in ga ne boste mogli razveljaviti!\n\nTrenutni naslov:\n%1$s\n\nSte prepričani, da ga želite izbrisati?</string>
-  <string name="confirm_delete_pk_without_balance_with_label">Brisanje je dokončno in ga ne boste mogli razveljaviti!\n\nOznaka računa:\n%1$s\n\nTrenutni naslov:\n%2$s\n\nSte prepričani, da ga želite izbrisati?</string>
   <string name="verify_private_key_backup">Preveri rezervno kopijo</string>
   <string name="verify_backup_dialog_title">Preveri rezervno kopijo zasebnih ključev</string>
-  <string name="verify_backup_desc">Pravilna rezervna kopija je temelj varnega ravnanja z novci.\n\nS preverjenjem rezervne kopije lahko preprečite, da bi izgubili novce, če se naprava, na kateri imate denarnico, izgubi ali poškoduje.</string>
   <string name="verify_backup_scan_desc">Preverite rezervno kopijo z odčitanjem QR-kode zasebnega ključa ali glavnega semena.\nPodprtih je več formatov, med drugim Myceliumova šifrirana papirna rezervna kopija.</string>
   <string name="verify_backup_clipboard_desc">Preveri rezervno kopijo zasebnega ključa; zasebni ključ vzemi z odložišča.</string>
   <string name="verify_backup_num_keys">Število ključev, ki nikoli niso bili preverjeni: %1$s.</string>
@@ -196,7 +177,6 @@
   <string name="encrypted_pdf_backup_document_ready">PDF-dokument pripravljen</string>
   <string name="encrypted_pdf_backup_sharing">Pošiljanje dokumenta&#8230;</string>
   <string name="encrypted_pdf_backup_email_title">Rezervna kopija denarnice Mycelium</string>
-  <string name="encrypted_pdf_backup_email_text">V prilogi je rezervna kopija vaše denarnice Mycelium.\n\nZa zaščito svojih sredstev sledite tem enostavnim korakom:\n1. Natisnite priloženi dokument.\n2. Prepišite 15 črk z zaslona svoje denarnice v modra polja na natisnjenem dokumentu.\n3. Preverite, da lahko zasebne ključe uspešno uvozite v denarnico Mycelium.\n4. Varno shranite natisnjeni dokument.</string>
   <string name="share_pdf">Deli PDF</string>
   <string name="share_with">Deli z&#8230;</string>
   <string name="import_decrypt_key_title">Dešifriranje zasebnih ključev</string>
@@ -293,8 +273,6 @@
   <string name="lt_ad_created">Oglas dodan</string>
   <string name="lt_ad_edited">Oglas spremenjen</string>
   <string name="lt_pref_category">Krajevno trgovanje</string>
-  <string name="lt_disable_preference">Onemogoči krajevno trgovanje</string>
-  <string name="lt_disable_preference_summary">Onemogoči krajevno trgovanje</string>
   <string name="lt_sound_on_trade_preference">Zvok ob trgovalnih dogodkih</string>
   <string name="lt_sound_on_trade_preference_summary">Naprava predvaja zvočni signal, kadar se zgodi kak dogodek, povezan s trgovanjem</string>
   <string name="lt_use_email_for_notifications">Obveščaj po e-pošti</string>
@@ -465,8 +443,6 @@
   <string name="invalid_bitid_uri">Neveljaven URI za BitID</string>
   <!-- BitID end -->
   <string name="selected_archived_warning">Na arhiviranih računih ne morete delati.</string>
-  <string name="selected_hd_info">Sedaj delate s tem HD-računom.</string>
-  <string name="selected_single_info">Sedaj delate s tem posamičnim naslovom.</string>
   <string name="hd_account_creation_started">Ustvarjam nov HD-račun&#8230;</string>
   <string name="preparing_wallet_on_first_startup_info">Pripravljam denarnico&#8230;</string>
   <string name="importing_master_seed_from_wordlist">Računam glavno seme&#8230;</string>
@@ -515,7 +491,7 @@
   <string name="decryption_password_hint">VNE SIT EVA ŠEG ESL O</string>
   <string name="dont_allow_archiving_unused_notification">Nerabljenega HD-računa ne morete arhivirati</string>
   <string name="newly_generated_coins_from_coinbase">Novonastali novci</string>
-    <string name="button_continue">Naprej</string>
+  <string name="button_continue">Naprej</string>
   <string name="butto_show_release_notes">Prikaži podrobnosti</string>
   <string name="word_does_not_exist_in_wordlist">Besede, ki ste jo vnesli, ni na seznamu besed</string>
   <string name="pref_legacy_backup_title">Rezervna kopija podedovanih računov</string>
@@ -530,8 +506,6 @@
   <string name="direct_apk_link_label">Neposreden\nprenos</string>
   <string name="hide_unused_account_menu">Izbriši račun</string>
   <string name="dont_allow_hiding_used_notification">Uporabljenega računa ne morete skriti, lahko pa ga arhivirate</string>
-  <string name="pref_miner_fee_title">Prispevek za rudarje (%1$s)</string>
-  <string name="miner_fee_lowprio_name">Nizka prednost</string>
   <string name="miner_fee_economic_name">Varčno</string>
   <string name="miner_fee_normal_name">Običajno</string>
   <string name="miner_fee_priority_name">Prednostno</string>
@@ -568,8 +542,6 @@
   <string name="lt_confirm_delete_trader_message">Želite izbrisati svojo identiteto za trgovanje? Vsi podatki o trgovanju in ocene bodo trajno izbrisani in jih ne bo mogoče pridobiti nazaj.</string>
   <string name="rescan_account_menu_item">Ponovno naloži račun</string>
   <string name="add_advanced_account_warning">Opozorilo:\nTi ključi ne bodo vključeni v rezervni kopiji vašega glavnega semena. Poskrbeti morate, da imate ločeno rezervno kopijo teh ključev.</string>
-  <string name="new_random_key_desc">Ustvari nov slučajen ključ</string>
-  <string name="generate_new_key">Ustvari</string>
   <string name="new_bitcoin_address_created">Ustvarjen je bil nov slučajen zasebni ključ s tem naslovom:</string>
   <string name="shuffle">Premešaj</string>
   <string name="toast_warning_low_fee">Potrditev transakcije lahko traja dlje.</string>
@@ -610,11 +582,6 @@
   <string name="reset_pin_button">Ponastavi PIN</string>
   <string name="wrong_pin_message">Vnesli ste napačno PIN-kodo.\n\nČe ste svojo PIN-kodo pozabili, jo lahko ponastavite.</string>
   <string name="pref_no_fiat_selected">Fiatna valuta ni izbrana</string>
-  <string name="useTor">Uporabi TOR</string>
-  <string name="useTorDescription">Uporabi omrežje TOR za komunikacijo z zalednimi strežniki.\nUporaba omrežja TOR ščiti vašo zasebnost in lahko zaobide nekatere omejujoče požarne zidove, lahko pa tudi upočasni delovanje te aplikacije.</string>
-  <string name="useTorOnlyExternalTor">Uporabi omrežje TOR (zunanji TOR)</string>
-  <string name="useTorOnlyHttps">Uporabi omrežje TOR (samo HTTPS)</string>
-  <string name="useTorBoth">Uporabi omrežje TOR (oboje)</string>
   <string name="last_log_entries">Zadnji vnosi v dnevniku</string>
   <string name="use_https">Uporabi HTTPS</string>
   <string name="use_external_tor">Uporabi zunanji TOR (Orbot)</string>
@@ -668,7 +635,6 @@
   <string name="payment_request_expires">Poteče</string>
   <string name="payment_request_message_to_merchant">Vaše sporočilo trgovcu (neobvezno)</string>
   <string name="label_cold_storage_external_signing">Podpiši z:</string>
-  <string name="spending_unconfirmed_warning">Opozorilo: trošite nepotrjena sredstva</string>
   <string name="spending_unconfirmed_title">Trošenje nepotrjenih sredstev</string>
   <string name="spending_unconfirmed_description">To nakazilo troši sredstva, ki še niso vključena v nobenem bloku bitcoinove verige blokov. Če na sredstva ne bodo nikoli potrjena, tudi to vaše nakazilo ne bo nikoli potrjeno oz. bo neveljavno.</string>
   <string name="label_unverified_recipient">Nepreverjen prejemnik</string>
@@ -685,7 +651,16 @@
   <string name="menu_item_delete_unconfirmed_transaction">Izbriši nepotrjeno nakazilo</string>
   <string name="delete_unconfirmed_transaction_title">Izbriši nepotrjeno nakazilo</string>
   <string name="rebroadcast_transaction_title">Ponovno pošlji nakazilo</string>
-  <string name="block_explorer_title">Raziskovalec blokov (%1$s)</string>
+  <!--<string name="colu_tos_link">Open Colu Terms and Conditions</string>-->
+  <!-- <string name="colu_tos_link_url">https://www.colu.com/TOS</string>-->
+  <!--<string name="colu_tos">By clicking "OK" you agree to use Colored Coin technology, third party-->
+  <!--blockchain technology developer. All your interactions with Colu are outside of-->
+  <!--Mycelium’s control and are subject to Colu’s T&amp;C and Privacy Policy.-->
+  <!--Please read them carefully before providing any personal information.-->
+  <!--MYCELIUM ACCEPTS NO RESPONSIBILITY AND WILL NOT BE LIABLE FOR ANY LOSS-->
+  <!--OR DAMAGE WHATSOEVER SUFFERED AS A RESULT OF ACCESSING, USE OF, OR-->
+  <!--RELIANCE UPON COLU’S INFORMATION AND SERVICES.</string>-->
+  <!--    <string name="colu_backup_info">Your Colu account access-key gets derived from your masterseed. If you have a valid backup, the access to your Colu account is also included.</string>  -->
   <string name="pop_amount_title">Znesek</string>
   <string name="pop_date">Čas</string>
   <string name="pop_transaction_amount">Znesek</string>

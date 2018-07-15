@@ -1,66 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:baselineAligned="false"
-              android:gravity="center_vertical"
-              android:minHeight="?android:attr/listPreferredItemHeight"
-              android:paddingLeft="8dip"
-              android:paddingRight="?android:attr/scrollbarSize" >
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#2c2c2c"
+    android:baselineAligned="false"
+    android:gravity="center_vertical"
+    android:minHeight="?android:attr/listPreferredItemHeight"
+    android:paddingBottom="16dp"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:paddingTop="16dp">
+
+
+    <ImageView
+        android:id="@android:id/icon"
+        android:layout_width="24dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:scaleType="center" />
 
     <LinearLayout
+        android:layout_width="0dip"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="24dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@android:id/title"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:minWidth="0dp"
-            android:orientation="horizontal"
-            android:visibility="gone" >
-
-        <ImageView
-                android:id="@android:id/icon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:minWidth="48dp"
-                android:paddingRight="8dip" />
-    </LinearLayout>
-
-    <RelativeLayout
-            android:layout_width="0dip"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:paddingBottom="6dip"
-            android:paddingRight="1dip"
-            android:paddingTop="6dip" >
+            android:ellipsize="marquee"
+            android:fadingEdge="horizontal"
+            android:fontFamily="sans-serif"
+            android:singleLine="true"
+            android:textColor="@color/preference_title_color"
+            android:textSize="16sp"
+            tools:text="title" />
 
         <TextView
-                android:id="@android:id/title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:ellipsize="marquee"
-                android:fadingEdge="horizontal"
-                android:textColor="@color/preference_title_color"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:singleLine="true" />
-
-        <TextView
-                android:id="@android:id/summary"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignLeft="@android:id/title"
-                android:layout_below="@android:id/title"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="#b8bcbf" />
-    </RelativeLayout>
+            android:id="@android:id/summary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif"
+            android:textColor="#b8bcbf"
+            android:textSize="14sp" />
+    </LinearLayout>
 
     <!-- Preference should place its actual preference widget here. -->
 
-    <LinearLayout
-            android:id="@android:id/widget_frame"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:minWidth="48dp"
-            android:orientation="vertical" />
+    <FrameLayout
+        android:id="@android:id/widget_frame"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:orientation="vertical" />
 
 </LinearLayout>

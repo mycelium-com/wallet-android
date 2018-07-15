@@ -25,7 +25,6 @@
   <string name="send">Kirim</string>
   <string name="receive">Terima</string>
   <string name="private_key_deleted">Private key dihapus.</string>
-  <string name="account_deleted">Akun dihapus</string>
   <string name="enter_recipient_title">Masukkan alamat Penerima</string>
   <string name="recipient_title">Alamat Penerima</string>
   <string name="amount_label">Jumlah:</string>
@@ -41,8 +40,6 @@
   <string name="miner_fee_label">Miner fee:</string>
   <string name="miner_fee_title">Miner Fee</string>
   <string name="synchronizing">Sinkronasi</string>
-  <string name="transaction_sent">Transaksi telah dikirim</string>
-  <string name="export">Ekspor</string>
   <string name="backup_private_key">Backup</string>
   <string name="copy_to_clipboard">Salin ke Clipboard</string>
   <string name="copy_private_key_to_clipboard">Salin Private Key ke Clipboard</string>
@@ -78,11 +75,7 @@
   <string name="pref_clear_pin_summary">Hapus kode PIN saat ini</string>
   <string name="pref_set_pin">Mengatur kode PIN</string>
   <string name="pref_set_pin_summary">Setel kode PIN yang membatasi akses untuk mengirim koin, mengirim private keys, dan mengganti kode PIN</string>
-  <string name="pref_local_currency">Mata uang Lokal</string>
-  <string name="pref_local_currency_with_currency">Mata Uang Lokal (%1$s)</string>
   <string name="pref_local_currency_summary">Pilih mata uang lokal</string>
-  <string name="pref_bitcoin_denomination">Denominasi Bitcoin</string>
-  <string name="pref_bitcoin_denomination_summary">Menetapkan pilihan denominasi Bitcoin. BTC, mBTC, or μBTC</string>
   <string name="pref_pin_require_on_startup_summary">Untuk meningkatkan privasi anda</string>
   <string name="settings">Setelan</string>
   <string name="pin_backup_first">Anda tidak dapat menyetel PIN sebelum anda membuat cadangan master seed anda.</string>
@@ -106,8 +99,6 @@
   <string name="cold_storage">Cold Storage</string>
   <string name="cold_storage_title">Pengeluaran Cold Storage</string>
   <string name="manual_entry">Entri Manual</string>
-  <string name="active_hd_accounts_name">Akun HD saya</string>
-  <string name="active_other_accounts_name">Akun Lain</string>
   <string name="archive_name">Menyimpan arsip</string>
   <string name="active_accounts_empty">(Kosong)</string>
   <string name="activate_action">Aktivasi</string>
@@ -128,8 +119,6 @@
   <string name="using_address_from_clipboard">Menggunakan alamat dari clipboard</string>
   <string name="my_accounts">Akun Saya</string>
   <string name="foreign_addresses">Buku Alamat</string>
-  <string name="delete_account_title">Hapus Akun?</string>
-  <string name="delete_account_message">Apakah anda ingin menghapus akun ini?</string>
   <string name="confirm_delete_pk_title">Anda yakin?</string>
   <string name="verify_private_key_backup">Memverifikasi Cadangan</string>
   <string name="verify_backup_dialog_title">Memverifikasi cadangan Private Key</string>
@@ -204,8 +193,6 @@
   <string name="lt_ad_created">Iklan dibuat</string>
   <string name="lt_ad_edited">Iklan diedit</string>
   <string name="lt_pref_category">Local Trader</string>
-  <string name="lt_disable_preference">Menonaktifkan Local Trader</string>
-  <string name="lt_disable_preference_summary">Menonaktifkan fungsi Local Trader</string>
   <string name="lt_use_email_for_notifications">Gunakan email untuk notifikasi</string>
   <string name="lt_error_api_occurred">Terjadi kesalahan</string>
   <string name="lt_distance_in_kilometers">%1$s Km</string>
@@ -278,7 +265,6 @@
   <string name="sign_bitid">Masuk</string>
   <string name="bitid_sslproblem">Masalah SSL</string>
   <!-- BitID end -->
-  <string name="selected_hd_info">Anda sekarang bekerja pada akun HD ini.</string>
   <string name="hd_account_creation_started">Membuat akun HD baru&#8230;</string>
   <string name="preparing_wallet_on_first_startup_info">Mempersiapkan wallet&#8230;</string>
   <string name="importing_master_seed_from_wordlist">Menghitung Master Seed&#8230;</string>
@@ -354,6 +340,16 @@
   <string name="coinapult_tos_link">Buka Syarat dan Ketentuan Coinapult</string>
   <string name="coinapult_create_account">Membuat akun Coinapult&#8230;</string>
   <string name="coinapult_currency_account">%1$s Akun</string>
+  <!--<string name="colu_tos_link">Open Colu Terms and Conditions</string>-->
+  <!-- <string name="colu_tos_link_url">https://www.colu.com/TOS</string>-->
+  <!--<string name="colu_tos">By clicking "OK" you agree to use Colored Coin technology, third party-->
+  <!--blockchain technology developer. All your interactions with Colu are outside of-->
+  <!--Mycelium’s control and are subject to Colu’s T&amp;C and Privacy Policy.-->
+  <!--Please read them carefully before providing any personal information.-->
+  <!--MYCELIUM ACCEPTS NO RESPONSIBILITY AND WILL NOT BE LIABLE FOR ANY LOSS-->
+  <!--OR DAMAGE WHATSOEVER SUFFERED AS A RESULT OF ACCESSING, USE OF, OR-->
+  <!--RELIANCE UPON COLU’S INFORMATION AND SERVICES.</string>-->
+  <!--    <string name="colu_backup_info">Your Colu account access-key gets derived from your masterseed. If you have a valid backup, the access to your Colu account is also included.</string>  -->
   <string name="copy">Salin</string>
   <string name="masterseed">Masterseed</string>
   <string name="pop_date">Waktu/Tanggal</string>

@@ -358,6 +358,11 @@ public interface WalletAccount {
    boolean isVisible();
 
    /**
+    * Returns the number of retrieved transactions during synchronization
+    */
+   int getSyncTotalRetrievedTransactions();
+
+   /**
     * Class representing a receiver of funds
     */
    class Receiver implements Serializable {

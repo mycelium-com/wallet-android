@@ -3,6 +3,7 @@ package com.mycelium.wallet.activity.modern.adapter.holder;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.mycelium.wallet.R;
@@ -17,6 +18,11 @@ public class AccountViewHolder extends RecyclerView.ViewHolder {
     public TextView tvAccountType;
     public TextView tvBalance;
     public TextView backupMissing;
+    public TextView tvProgress;
+    public View tvProgressLayout;
+    public ImageView ivWhatIsSync;
+    public ProgressBar progressBar;
+
     public View tvTraderKey;
 
     public AccountViewHolder(View itemView) {
@@ -30,5 +36,9 @@ public class AccountViewHolder extends RecyclerView.ViewHolder {
         tvBalance = itemView.findViewById(R.id.tvBalance);
         backupMissing = itemView.findViewById(R.id.tvBackupMissingWarning);
         tvTraderKey = itemView.findViewById(R.id.tvTraderKey);
+        tvProgress = itemView.findViewById(R.id.tvProgress);
+        tvProgressLayout = itemView.findViewById(R.id.tvProgressLayout);
+        ivWhatIsSync = itemView.findViewById(R.id.ivWhatIsSync);
+        progressBar = itemView.findViewById(R.id.progress_bar);
     }
 }

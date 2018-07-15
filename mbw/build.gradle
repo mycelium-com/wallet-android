@@ -60,6 +60,9 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-jackson:2.3.0'
     implementation 'com.squareup.okhttp3:logging-interceptor:3.6.0'
 
+    // ViewModel and LiveData
+    implementation "android.arch.lifecycle:extensions:$lifecycle_version"
+
     //not upgrading. This will be removed from the core app
     implementation 'com.google.android.gms:play-services-base:9.0.2'
     implementation 'com.google.android.gms:play-services-gcm:9.0.2'
@@ -71,6 +74,7 @@ dependencies {
     implementation "com.android.support:animated-vector-drawable:$androidSupportVersion"
     implementation "com.android.support:recyclerview-v7:$androidSupportVersion"
     implementation "com.android.support:gridlayout-v7:$androidSupportVersion"
+    implementation "com.android.support:preference-v7:$androidSupportVersion"
     implementation 'org.ocpsoft.prettytime:prettytime:3.2.5.Final'
     implementation 'de.cketti.library.changelog:ckchangelog:1.2.2'
     implementation 'com.squareup.retrofit:retrofit:1.9.0'
@@ -127,8 +131,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 2100602
-        versionName '2.10.6.2'
+        versionCode 2110104
+        versionName '2.11.1.4'
         multiDexEnabled true
 
         minSdkVersion 19
@@ -195,6 +199,8 @@ android {
                 ColuBlockExplorerApiURLs = '{"https://coloredcoins.gear.mycelium.com/api/", "https://explorer.coloredcoins.org/api/"}'
                 RMCChangeAddress = "18c91fJmVg7btPjxpwrhgwd37GkVghq9me"
 
+                ElectrumServers = '{"tcp-tls://electrumx.mycelium.com:4431"}'
+
                 appIdSpvBch = [release: "com.mycelium.module.spvbch",
                                debug  : "com.mycelium.module.spvbch.debug"]
             }
@@ -214,6 +220,8 @@ android {
                 ColuBlockExplorerApiURLs = '{"http://testnet.explorer.coloredcoins.org/api/"}'
                 RMCChangeAddress = "mx92L6iuCfxQUz4cLNU4jJpfWbavVHgYj9"
 
+                ElectrumServers = '{"tcp-tls://electrumx.mycelium.com:4432"}'
+
                 appIdSpvBch = [release: "com.mycelium.module.spvbch.testnet",
                                debug  : "com.mycelium.module.spvbch.testnet.debug"]
             }
@@ -230,7 +238,7 @@ android {
         variant.buildConfigField "String[]", "ColoredCoinsApiURLs", "${flavor.ext.ColoredCoinsApiURLs}"
         variant.buildConfigField "String[]", "ColuBlockExplorerApiURLs", "${flavor.ext.ColuBlockExplorerApiURLs}"
         variant.buildConfigField "String", "RMCChangeAddress", "\"${flavor.ext.RMCChangeAddress}\""
-
+        variant.buildConfigField "String[]", "ElectrumServers", "${flavor.ext.ElectrumServers}"
         variant.buildConfigField "String", "appIdSpvBch", "\"${flavor.ext.appIdSpvBch[variant.buildType.name]}\""
     }
 

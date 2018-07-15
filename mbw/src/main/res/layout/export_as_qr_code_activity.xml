@@ -23,18 +23,35 @@
                 android:layout_width="fill_parent"
                 android:layout_height="15dp" />
 
-        <TextView
-                android:id="@+id/tvShow"
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/pub_key"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/show_public_or_private_data"/>
+                android:text="@string/public_key"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"/>
 
-        <Switch
+            <android.support.v7.widget.SwitchCompat
                 android:id="@+id/swSelectData"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textOn="@string/show_private_data"
-                android:textOff="@string/show_public_data"/>
+                android:theme="@style/Switch"/>
+
+            <TextView
+                android:id="@+id/prv_key"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/private_key_s"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"/>
+
+        </LinearLayout>
+
         <TextView
                 android:id="@+id/tvWarning"
                 android:layout_width="wrap_content"
@@ -67,7 +84,7 @@
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:text="Warning"
+                        android:text="@string/warning"
                         android:textColor="@color/buttonredcolor"
                         android:textStyle="bold"
                         android:paddingBottom="10dp"

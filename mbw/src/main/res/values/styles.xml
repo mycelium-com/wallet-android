@@ -67,6 +67,70 @@
 
     <style name="MyceliumSettings" parent="MyceliumModern">
         <item name="colorAccent">@color/lightgrey</item>
+        <item name="colorControlActivated">@color/common_blue</item>
+        <item name="android:colorControlActivated" tools:ignore="NewApi">@color/common_blue</item>
+        <item name="android:actionBarStyle">@style/MyceliumSettings.ActionBar</item>
+        <item name="actionBarStyle">@style/MyceliumSettings.ActionBar</item>
+        <item name="preferenceTheme">@style/MyceliumSettingsPreferenceThemeOverlay
+        </item>
+        <item name="preference_module_item_color">@color/preference_item_color</item>
+        <item name="preference_module_divider_color">@color/preference_background</item>
+    </style>
+
+    <style name="MyceliumSettings.Dialog" parent="MyceliumSettings.Dialog.Small">
+        <item name="windowFixedHeightMajor">344dp</item>
+        <item name="windowFixedHeightMinor">80%</item>
+    </style>
+
+    <style name="MyceliumSettings.Dialog.Small" parent="MyceliumModern.Dialog">
+        <item name="colorAccent">@color/common_blue</item>
+        <item name="android:colorAccent" tools:ignore="NewApi">@color/common_blue</item>
+        <item name="buttonBarButtonStyle">@style/MyceliumSettings.ButtonBarButtonStyle</item>
+        <item name="android:windowTitleStyle">@style/MyceliumSettings.DialogTitle</item>
+        <item name="android:windowBackground">@drawable/dialog_background_pref</item>
+
+        <item name="windowFixedWidthMajor">50%</item>
+        <item name="windowFixedWidthMinor">80%</item>
+
+        <item name="android:backgroundDimAmount">0.4</item>
+    </style>
+
+    <style name="MyceliumSettings.DialogTitle">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:layout_marginBottom">8dp</item>
+        <item name="android:layout_marginStart">8dp</item>
+    </style>
+
+    <style name="MyceliumSettings.ButtonBarButtonStyle" parent="Widget.AppCompat.Button.Borderless">
+        <item name="android:textColor">@color/common_blue</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+    <style name="MyceliumSettingsPreferenceThemeOverlay" parent="PreferenceThemeOverlay.v14.Material">
+        <item name="preferenceFragmentCompatStyle">@style/MyceliumSettingsPreferenceFragment</item>
+        <item name="preferenceFragmentStyle">@style/MyceliumSettingsPreferenceFragment</item>
+    </style>
+
+    <style name="MyceliumSettingsPreferenceFragment" parent="PreferenceFragment.Material">
+        <item name="android:divider">@drawable/pref_list_divider</item>
+    </style>
+
+    <style name="MyceliumSettings.ActionBar" parent="Widget.AppCompat.Light.ActionBar">
+        <item name="background">@color/pref_background</item>
+        <item name="android:height">56dp</item>
+        <item name="height">56dp</item>
+        <item name="titleTextStyle">@style/MyceliumSettings.ActionBar.Title</item>
+        <item name="android:titleTextStyle">@style/MyceliumSettings.ActionBar.Title</item>
+    </style>
+
+    <style name="MyceliumSettings.ActionBar.Title">
+        <item name="android:textSize">16sp</item>
+        <item name="android:fontFamily">sans-serif-light</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:letterSpacing" tools:ignore="NewApi">0.02</item>
     </style>
 
     <!-- Application theme. Theme.AppCompat.Base.CompactMenu.Dialog -->
@@ -229,6 +293,10 @@
         <item name="android:indeterminateDrawable">@android:drawable/progress_indeterminate_horizontal</item>
     </style>
 
+    <style name="AccountProgressBar" parent="@style/Widget.AppCompat.ProgressBar.Horizontal">
+        <item name="colorAccent">@color/dark_sky_blue</item>
+    </style>
+
     <style name="MyceliumDroppyPopup">
         <item name="android:background">#343434</item>
     </style>
@@ -276,6 +344,12 @@
         <item name="android:paddingRight">@dimen/button_padding_large</item>
         <item name="android:paddingStart">@dimen/button_padding_large</item>
         <item name="android:paddingEnd">@dimen/button_padding_large</item>
+    </style>
+
+    <style name="Switch" parent="Theme.AppCompat.Light">
+        <item name="colorSwitchThumbNormal">@color/lightgrey</item>
+        <item name="android:colorForeground">@color/grey</item>
+        <item name="colorControlActivated">@color/buttonredcolor</item>
     </style>
 
     <color name="btn_text_color">#5aa7e6</color>

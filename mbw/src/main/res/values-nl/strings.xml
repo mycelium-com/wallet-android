@@ -25,7 +25,6 @@
   <string name="send">Verzenden</string>
   <string name="receive">Ontvangen</string>
   <string name="private_key_deleted">Private key verwijderd.</string>
-  <string name="account_deleted">Account verwijderd</string>
   <string name="enter_recipient_title">Voer adres ontvanger in</string>
   <string name="recipient_title">Adres van ontvanger</string>
   <string name="amount_label">Bedrag:</string>
@@ -44,8 +43,6 @@
   <string name="synchronizing">Bezig met Synchroniseren</string>
   <string name="transaction_not_sent">Verzenden transactie mislukt</string>
   <string name="queue_transaction_message">Verzenden transactie mislukt.\nWilt u de transactie in de wachtrij houden zodat deze automatisch wordt verzonden zodra u weer online bent?</string>
-  <string name="transaction_sent">Transactie verzonden</string>
-  <string name="export">Exporteren</string>
   <string name="backup_private_key">Back-up</string>
   <string name="copy_to_clipboard">Kopiëren naar klembord</string>
   <string name="copy_private_key_to_clipboard">Private key naar het klembord kopiëren</string>
@@ -82,15 +79,9 @@
   <string name="pref_clear_pin_summary">Wis de huidige PIN-code</string>
   <string name="pref_set_pin">Stel PIN-Code in</string>
   <string name="pref_set_pin_summary">Stel een PIN-code in die de toegang beperkt tot verzenden van munten, export van private keys en het wijzigen van de PIN-code</string>
-  <string name="pref_local_currency">Lokale valuta</string>
-  <string name="pref_local_currency_with_currency">Lokale valuta (%1$s)</string>
   <string name="pref_local_currency_summary">Selecteer de lokale valuta</string>
-  <string name="pref_exchange_source">Wisselkoers bron</string>
   <string name="pref_exchange_source_with_value">Wisselkoers bron (%1$s)</string>
   <string name="pref_exchange_source_summary">Selecteer de bron voor het verkrijgen van de Bitcoin wisselkoersen</string>
-  <string name="pref_bitcoin_denomination">Bitcoin eenheid</string>
-  <string name="pref_bitcoin_denomination_with_denomination">Eenheid (%1$s)</string>
-  <string name="pref_bitcoin_denomination_summary">Voorkeur voor Bitcoin eenheid instellen BTC, mBTC of μBTC</string>
   <string name="pref_advanced_settings">Geavanceerde instellingen</string>
   <string name="pref_socks_proxy">SOCKS-Proxy</string>
   <string name="pref_socks_proxy_enabled">SOCKS-Proxy (ingeschakeld)</string>
@@ -114,10 +105,8 @@
   <string name="payment_request">Verzoek om betaling</string>
   <string name="export_account_data_warning">U staat op het punt gevoelige data van het geselecteerde account te exporteren.\n\nIedereen die toegang heeft tot deze sleutels kan toegang krijgen tot de bijbehorende bitcoins of informatie krijgen die uw privacy kan schaden.\n\nWilt u doorgaan?</string>
   <string name="backup_all_warning">U moet een backup maken van de master seed van uw portemonnee.\nEen backup van uw master seed stelt u in staat om toegang te krijgen tot uw geld in het geval uw apparaat kwijt is of beschadigd raakt.\n\nWilt u dit nu doen?</string>
-  <string name="backup_legacy_warning">U maakt een back-up van het Eén Adres Account in uw portemonnee. \nDeze backup bevat niet uw master seed, geen van uw HD accounts kan hiermee worden hersteld!\n\nWilt u doorgaan?</string>
   <string name="export_to_clipboard_warning">Waarschuwing: Door de private key te exporteren naar het klembord stelt u deze bloot aan alle andere apps op uw apparaat .\n\nOpmerking: Het volstaat niet om uw persoonlijke sleutel naar het klembord te kopiëren, u dient deze ook ergens veilig op te slaan / plakken.\n\nWilt u doorgaan?</string>
   <string name="found_clipboard_private_key_title">Private key gevonden op klembord</string>
-  <string name="found_clipboard_private_keys_message">Het klembord bevat een private key.\nWilt u deze verwijderen?</string>
   <string name="exchange_source_not_available">Wisselkoers is momenteel niet beschikbaar voor %1$s</string>
   <string name="my_own_address_warning">Opmerking: U verzendt naar een van uw eigen adressen.</string>
   <string name="read_only_warning">Waarschuwing: Uw portemonnee beschikt niet over de private key voor dit adres \nU kunt ontvangen munten niet uitgeven tenzij u elders beschikt over de private key van dit Bitcoin adres.</string>
@@ -131,13 +120,10 @@
   <string name="cold_storage_desc">U gaat geld uitgeven vanuit een private key in koude opslag. Dit kan een papieren back-up zijn of een private key slip van een Bitcoin ATM. De volgende formaten worden ondersteund:\nPrivate Key, Master Seed, xPriv Key\n\nZodra de transactie is verstuurd zal elk spoor hiervan worden gewist uit het interne geheugen.</string>
   <string name="keep_account_address">Verwijder alleen de private key en behoudt als alleen-lezen account</string>
   <string name="manual_entry">Handmatige invoer</string>
-  <string name="active_hd_accounts_name">Mijn HD-Accounts</string>
-  <string name="active_other_accounts_name">Andere Accounts</string>
   <string name="archive_name">Archief</string>
   <string name="active_accounts_empty">(Leeg)</string>
   <string name="activate_action">Activeren</string>
   <string name="archive_action">Archiveren</string>
-  <string name="question_archive_account">Gearchiveerde accounts worden niet bijgehouden. U kunt het saldo niet zien en u kunt het account niet gebruiken.\n\nGearchiveerde accounts kunnen later weer geactiveerd worden. \n\nWilt u dit account archiveren?</string>
   <string name="master_seed_configuration_title">Welkom bij Mycelium</string>
   <string name="master_seed_configuration_description">Wilt u een back-up terugzetten, of een nieuwe portemonnee aanmaken?</string>
   <string name="master_seed_create_new_button">Nieuwe aanmaken</string>
@@ -163,16 +149,11 @@
   <string name="using_address_from_clipboard">Maak gebruik van adres op klembord</string>
   <string name="my_accounts">Mijn Rekeningen</string>
   <string name="foreign_addresses">Adresboek</string>
-  <string name="delete_account_title">Account verwijderen?</string>
-  <string name="delete_account_message">Wilt u dit account verwijderen?</string>
   <string name="confirm_delete_pk_title">Weet u het zeker?</string>
   <string name="confirm_delete_pk_with_balance">Dit kan niet ongedaan gemaakt worden!\n\nHuidig adres:\n%1$s\n\nHet bevat %2$s\n\nWilt u het verwijderen?</string>
-  <string name="confirm_delete_pk_with_balance_with_label">Dit kan niet ongedaan gemaakt worden!\n\nAccount label:\n%1$s\n\nHuidige adres:\n%2$s\n\nIt contains %3$s\n\nWilt u het verwijderen?</string>
   <string name="confirm_delete_pk_without_balance">Dit kan niet ongedaan gemaakt worden!\n\nHuidige adres:\n%1$s\n\nWilt u het verwijderen?</string>
-  <string name="confirm_delete_pk_without_balance_with_label">Dit kan niet ongedaan gemaakt worden!\n\nAccount label:\n%1$s\n\nHuidige adres:\n%2$s\n\nWIlt u het verwijderen?</string>
   <string name="verify_private_key_backup">Back-up verifiëren</string>
   <string name="verify_backup_dialog_title">Private key back-up verifiëren</string>
-  <string name="verify_backup_desc">Een goede back-up van uw private keys is een belangrijk onderdeel van het beheren van uw Bitcoin tegoeden.\n\nDoor uw back-up te verifiëren kunt u controlen of deze werkt zodat dat u geen geld verliest als u uw Android apparaat verliest of als het beschadigd raakt.</string>
   <string name="verify_backup_scan_desc">Verifieer uw back-up door de QR code van de private key of de masterseed te scannen.\nDiverse formaten worden geaccepteerd, inclusief de Mycelium encrypted paper backup.</string>
   <string name="verify_backup_clipboard_desc">Private key back-ups verifiëren door middel van de private key op klembord.</string>
   <string name="verify_backup_num_keys">U heeft %1$s keys die nog nooit zijn geverifieerd.</string>
@@ -195,7 +176,6 @@
   <string name="encrypted_pdf_backup_document_ready">PDF-document is aangemaakt</string>
   <string name="encrypted_pdf_backup_sharing">PDF-document delen&#8230;</string>
   <string name="encrypted_pdf_backup_email_title">Mycelium wallet back-up</string>
-  <string name="encrypted_pdf_backup_email_text">Uw Mycelium back-up is bijgesloten. \n\nVolg deze eenvoudige stappen om uw Bitcoins veilig te stellen.\n1. Afdrukken van het PDF-document.\n2. Schrijf het wachtwoord van 15-tekens dat weergegeven wordt op uw Android apparaat in de blauwe kaders van de papieren afdruk.\n3. Controleer of u de private keys naar uw Mycelium Wallet kunt importeren.\n4. Bewaar de afdruk op een veilige plaats.</string>
   <string name="share_pdf">PDF delen</string>
   <string name="share_with">Delen met&#8230;</string>
   <string name="import_decrypt_key_title">Private key decodering</string>
@@ -291,8 +271,6 @@
   <string name="lt_ad_created">Advertentie gemaakt</string>
   <string name="lt_ad_edited">Advertentie bewerkt</string>
   <string name="lt_pref_category">Local Trader</string>
-  <string name="lt_disable_preference">Local Trader uitschakelen</string>
-  <string name="lt_disable_preference_summary">Local Trader functionaliteit uitschakelen</string>
   <string name="lt_sound_on_trade_preference">Geluid afspelen op handelsactiviteiten</string>
   <string name="lt_sound_on_trade_preference_summary">Een geluid afspelen wanneer handel activiteit plaatsvindt</string>
   <string name="lt_use_email_for_notifications">E-mailadres gebruiken voor meldingen</string>
@@ -466,8 +444,6 @@
   <string name="invalid_bitid_uri">Ongeldige BitID URI</string>
   <!-- BitID end -->
   <string name="selected_archived_warning">U kan niet werken op gearchiveerde rekeningen.</string>
-  <string name="selected_hd_info">U werkt nu met dit HD-Account.</string>
-  <string name="selected_single_info">U werkt nu met dit enkele adres.</string>
   <string name="hd_account_creation_started">Bezig me creëren van nieuw HD-Account&#8230;</string>
   <string name="preparing_wallet_on_first_startup_info">Portemonnee wordt voorbereid&#8230;</string>
   <string name="importing_master_seed_from_wordlist">Berekening van Master Seed&#8230;</string>
@@ -516,7 +492,7 @@
   <string name="decryption_password_hint">YOU RPA SSW ORD ABC D</string>
   <string name="dont_allow_archiving_unused_notification">U kunt een ongebruikt HD-account niet archiveren</string>
   <string name="newly_generated_coins_from_coinbase">Nieuw gegenereerde coins</string>
-    <string name="button_continue">Doorgaan</string>
+  <string name="button_continue">Doorgaan</string>
   <string name="butto_show_release_notes">Details tonen</string>
   <string name="word_does_not_exist_in_wordlist">Het woord dat u heeft ingevoerd bestaat niet in de woordenlijst</string>
   <string name="pref_legacy_backup_title">Oudere back-up</string>
@@ -531,7 +507,6 @@
   <string name="direct_apk_link_label">Directe\ndownload</string>
   <string name="hide_unused_account_menu">Account verwijderen</string>
   <string name="dont_allow_hiding_used_notification">U kunt een gebruikt account niet verbergen, maar u kunt het archiveren</string>
-  <string name="pref_miner_fee_title">Miner Fee (%1$s)</string>
   <string name="miner_fee_economic_name">Economisch</string>
   <string name="miner_fee_normal_name">Normaal</string>
   <string name="miner_fee_priority_name">Prioriteit</string>
@@ -553,8 +528,6 @@
   <string name="pin_forgotten_reset_wait_button_text">%s wachten</string>
   <string name="sss_one_more_share_needed">U heeft 1 extra aandeel nodig</string>
   <string name="rescan_account_menu_item">Account herladen</string>
-  <string name="new_random_key_desc">Nieuwe random sleutel genereren</string>
-  <string name="generate_new_key">Genereer</string>
   <string name="new_bitcoin_address_created">Een nieuwe private key is gegenereerd met het volgende Bitcoin adres:</string>
   <string name="shuffle">Opnieuw</string>
   <string name="account_balance_sending_amount">(verzending van %s)</string>
@@ -573,10 +546,19 @@
   <string name="show_public_data">openbaar</string>
   <string name="reset_pin_button">Pincode opnieuw instellen</string>
   <string name="pref_no_fiat_selected">Geen fiat valuta geselecteerd</string>
-  <string name="useTor">Tor-netwerk gebruiken</string>
   <!-- from libNetCipher -->
   <!--/ from libNetCipher -->
   <string name="hd_account_selector_no_account_found">Geen actieve accounts gevonden.</string>
+  <!--<string name="colu_tos_link">Open Colu Terms and Conditions</string>-->
+  <!-- <string name="colu_tos_link_url">https://www.colu.com/TOS</string>-->
+  <!--<string name="colu_tos">By clicking "OK" you agree to use Colored Coin technology, third party-->
+  <!--blockchain technology developer. All your interactions with Colu are outside of-->
+  <!--Mycelium’s control and are subject to Colu’s T&amp;C and Privacy Policy.-->
+  <!--Please read them carefully before providing any personal information.-->
+  <!--MYCELIUM ACCEPTS NO RESPONSIBILITY AND WILL NOT BE LIABLE FOR ANY LOSS-->
+  <!--OR DAMAGE WHATSOEVER SUFFERED AS A RESULT OF ACCESSING, USE OF, OR-->
+  <!--RELIANCE UPON COLU’S INFORMATION AND SERVICES.</string>-->
+  <!--    <string name="colu_backup_info">Your Colu account access-key gets derived from your masterseed. If you have a valid backup, the access to your Colu account is also included.</string>  -->
   <!-- Credit Card -->
   <!-- Credit Card End-->
   <!-- GlideraService Start -->

@@ -16,47 +16,46 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class Bip44AccountTest {
-   private static final String MASTER_SEED_WORDS = "degree rain vendor coffee push math onion inside pyramid blush stick treat";
-   private static final String MASTER_SEED_ACCOUNT_0_EXTERNAL_0_ADDRESS = "1F1QAzNLutBEuB4QZLXghqu6PdxEFdb2PV";
-   private static final String MASTER_SEED_ACCOUNT_0_INTERNAL_0_ADDRESS = "1PGrHHNjVXBr8JJhg9zRQVFvmUSu9XsMeV";
-   private Bip44Account account;
+    private static final String MASTER_SEED_WORDS = "degree rain vendor coffee push math onion inside pyramid blush stick treat";
+    private static final String MASTER_SEED_ACCOUNT_0_EXTERNAL_0_ADDRESS = "1F1QAzNLutBEuB4QZLXghqu6PdxEFdb2PV";
+    private static final String MASTER_SEED_ACCOUNT_0_INTERNAL_0_ADDRESS = "1PGrHHNjVXBr8JJhg9zRQVFvmUSu9XsMeV";
+    private Bip44Account account;
 
-   @Before
-   public void setup() throws KeyCipher.InvalidKeyCipher {
-      RandomSource fakeRandomSource = mock(RandomSource.class);
-      Wapi fakeWapi = mock(Wapi.class);
-      WapiLogger fakeLogger = mock(WapiLogger.class);
-      when(fakeWapi.getLogger()).thenReturn(fakeLogger);
+    @Before
+    public void setup() throws KeyCipher.InvalidKeyCipher {
+        RandomSource fakeRandomSource = mock(RandomSource.class);
+        Wapi fakeWapi = mock(Wapi.class);
+        WapiLogger fakeLogger = mock(WapiLogger.class);
+        when(fakeWapi.getLogger()).thenReturn(fakeLogger);
 
-      WalletManagerBacking backing = new InMemoryWalletManagerBacking();
-      SecureKeyValueStore store = new SecureKeyValueStore(backing, fakeRandomSource);
-      KeyCipher cipher = AesKeyCipher.defaultKeyCipher();
+        WalletManagerBacking backing = new InMemoryWalletManagerBacking();
+        SecureKeyValueStore store = new SecureKeyValueStore(backing, fakeRandomSource);
+        KeyCipher cipher = AesKeyCipher.defaultKeyCipher();
 
-      // Determine the next BIP44 account index
-      Bip39.MasterSeed masterSeed = Bip39.generateSeedFromWordList(MASTER_SEED_WORDS.split(" "), "");
+        // Determine the next BIP44 account index
+        Bip39.MasterSeed masterSeed = Bip39.generateSeedFromWordList(MASTER_SEED_WORDS.split(" "), "");
 
-      WalletManager walletManager = new WalletManager(store, backing, NetworkParameters.productionNetwork, fakeWapi,
-              null, null, true);
+        WalletManager walletManager = new WalletManager(store, backing, NetworkParameters.productionNetwork, fakeWapi, null, null, false);
 
-      walletManager.configureBip32MasterSeed(masterSeed, cipher);
+        walletManager.configureBip32MasterSeed(masterSeed, cipher);
 
-      UUID account1Id = walletManager.createAdditionalBip44Account(cipher);
+        UUID account1Id = walletManager.createAdditionalBip44Account(cipher);
 
-      account = (Bip44Account) walletManager.getAccount(account1Id);
-   }
+        account = (Bip44Account) walletManager.getAccount(account1Id);
+    }
 
-   /**
-    * Test that the first two addresses we generate agree with a specific seed agree with Wallet32
-    */
-   @Test
-   public void addressGenerationTest() throws KeyCipher.InvalidKeyCipher {
-      assertEquals(Address.fromString(MASTER_SEED_ACCOUNT_0_EXTERNAL_0_ADDRESS), account.getReceivingAddress().get());
-      assertEquals(Address.fromString(MASTER_SEED_ACCOUNT_0_INTERNAL_0_ADDRESS), account.getChangeAddress());
-   }
+    /**
+     * Test that the first two addresses we generate agree with a specific seed agree with Wallet32
+     */
+    @Test
+    public void addressGenerationTest() throws KeyCipher.InvalidKeyCipher {
+        assertEquals(Address.fromString(MASTER_SEED_ACCOUNT_0_EXTERNAL_0_ADDRESS), account.getReceivingAddress().get());
+        assertEquals(Address.fromString(MASTER_SEED_ACCOUNT_0_INTERNAL_0_ADDRESS), account.getChangeAddress());
+    }
 
-   @Test
-   public void calculateMaxSpendableAmount() throws Exception {
-      // TODO: 25.06.17 add UTXOs, write tests with unconfirmed and dust UTXOs.
-      account.calculateMaxSpendableAmount(1000);
-   }
+    @Test
+    public void calculateMaxSpendableAmount() throws Exception {
+        // TODO: 25.06.17 add UTXOs, write tests with unconfirmed and dust UTXOs.
+        account.calculateMaxSpendableAmount(1000);
+    }
 }

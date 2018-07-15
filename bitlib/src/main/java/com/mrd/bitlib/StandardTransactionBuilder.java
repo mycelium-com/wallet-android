@@ -128,7 +128,7 @@ public class StandardTransactionBuilder {
          }
 
          // Create transaction with valid outputs and empty inputs
-         Transaction transaction = new Transaction(1, inputs, _outputs, getLockTime());
+         Transaction transaction = new Transaction(1, inputs, _outputs, getLockTime(), false);
 
          for (int i = 0; i < _funding.length; i++) {
             UnspentTransactionOutput utxo = _funding[i];
@@ -458,7 +458,7 @@ public class StandardTransactionBuilder {
       }
 
       // Create transaction with valid outputs and empty inputs
-      return new Transaction(1, inputs, unsigned._outputs, unsigned.getLockTime());
+      return new Transaction(1, inputs, unsigned._outputs, unsigned.getLockTime(), false);
    }
 
    private UnspentTransactionOutput extractOldest(Collection<UnspentTransactionOutput> unspent) {

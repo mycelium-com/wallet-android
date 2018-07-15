@@ -271,7 +271,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
 
         if (_currentExchangeSourceName == null) {
             // This only happens the first time the wallet picks up exchange rates.
-            // We will default to the first one in the list
+            // We will default to the first exchange
             if (latestRates.size() > 0 && latestRates.get(0).exchangeRates.length > 0) {
                 _currentExchangeSourceName = latestRates.get(0).exchangeRates[0].name;
             }
@@ -300,6 +300,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
                 result.add(r.name);
             }
         }
+
         return result;
     }
 
@@ -368,7 +369,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
             rate = r.price * MSS_RATE;
         }
         if ("BCH".equals(injectCurrency)) {
-            if(rateBchBtc != 0) {
+            if (rateBchBtc != 0) {
                 rate = 1 / rateBchBtc;
             } else {
                 return ExchangeRate.missingRate(_currentExchangeSourceName, System.currentTimeMillis(), "BCH");

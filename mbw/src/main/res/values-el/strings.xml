@@ -25,7 +25,6 @@
   <string name="send">Αποστολή</string>
   <string name="receive">Λήψη</string>
   <string name="private_key_deleted">Το μυστικό κλειδί διεγράφη.</string>
-  <string name="account_deleted">Ο λογαριασμός διεγράφη</string>
   <string name="enter_recipient_title">Εισαγάγετε Διεύθυνση Παραλήπτη</string>
   <string name="recipient_title">Διεύθυνση Παραλήπτη</string>
   <string name="amount_label">Ποσό:</string>
@@ -44,8 +43,6 @@
   <string name="synchronizing">Συγχρονισμός</string>
   <string name="transaction_not_sent">Αποτυχία μετάδοσης συναλλαγής</string>
   <string name="queue_transaction_message">Αποτυχία μετάδοσης συναλλαγής.\nΘέλετε να αφήσετε τη συναλλαγή στη μνήμη ώστε να μεταδοθεί αυτόματα μόλις συνδεθείτε στο δίκτυο;</string>
-  <string name="transaction_sent">Η συναλλαγή εστάλη</string>
-  <string name="export">Εξαγωγή</string>
   <string name="backup_private_key">Αντίγραφο Ασφαλείας</string>
   <string name="copy_to_clipboard">Αντιγραφή στο Πρόχειρο</string>
   <string name="copy_private_key_to_clipboard">Αντιγραφή Μυστικού Κλειδιού στο Πρόχειρο</string>
@@ -82,15 +79,9 @@
   <string name="pref_clear_pin_summary">Διαγραφή τρέχοντος κωδικού PIN</string>
   <string name="pref_set_pin">Ορισμός κωδικού PIN</string>
   <string name="pref_set_pin_summary">Ορίστε κωδικό PIN που περιορίζει την πρόσβαση για αποστολή bitcoins, εξαγωγή μυστικών κλειδιών και αλλαγή του PIN</string>
-  <string name="pref_local_currency">Τοπικό νόμισμα</string>
-  <string name="pref_local_currency_with_currency">Τοπικό νόμισμα (%1$s)</string>
   <string name="pref_local_currency_summary">Επιλογή του τοπικού κυβερνητικού συναλλάγματος</string>
-  <string name="pref_exchange_source">Πηγή Ισοτιμίας</string>
   <string name="pref_exchange_source_with_value">Πηγή Ισοτιμίας (%1$s)</string>
   <string name="pref_exchange_source_summary">Επιλέξτε την πηγή για τις συναλλαγματικές ισοτιμίες μεταξύ Bitcoin και κυβερνητικών νομισμάτων</string>
-  <string name="pref_bitcoin_denomination">Μονάδα Bitcoin</string>
-  <string name="pref_bitcoin_denomination_with_denomination">Μονάδα (%1$s)</string>
-  <string name="pref_bitcoin_denomination_summary">Ορίστε την προτιμώμενη μονάδα Bitcoin. BTC, mBTC ή μBTC</string>
   <string name="pref_advanced_settings">Προηγμένες Ρυθμίσεις</string>
   <string name="pref_socks_proxy">Διαμεσολαβητής Socks</string>
   <string name="pref_socks_proxy_enabled">Διαμεσολαβητής Socks (Ενεργό)</string>
@@ -114,10 +105,8 @@
   <string name="payment_request">Αίτηση Πληρωμής</string>
   <string name="export_account_data_warning">Πρόκειται να εξαγάγετε ευαίσθητα δεδομένα του επιλεγμένου λογαριασμού.\n\nΌποιος αποκτήσει πρόσβαση σε αυτά τα κλειδιά μπορεί να έχει πρόσβαση είτε στα bitcoins που ελέγχει, ή σε πληροφορίες που ενδέχεται να ανατρέψουν την ιδιωτικότητά σας.\n\nΘέλετε να προχωρήσετε;</string>
   <string name="backup_all_warning">Πρέπει να κάνετε αντίγραφο ασφαλείας του κεντρικού κωδικού (σπόρου) του πορτοφολιού σας.\nΤο αντίγραφο αυτό σας επιτρέπει να αποκαταστήσετε τα κεφάλαια που είναι αποθηκευμένα στους HD λογαριασμούς σας σε περίπτωση απώλειας ή βλάβης της συσκευής σας.\n\nΘέλετε να το κάνετε τώρα;</string>
-  <string name="backup_legacy_warning">Πρόκειται να κάνετε αντίγραφο ασφαλείας των Λογαριασμών Μονής Διεύθυνσης του πορτοφολιού σας.\nΤο αντίγραφο αυτό ΔΕΝ θα περιέχει τον Κεντρικό Κωδικό (σπόρο), οι HD λογαριασμοί σας ΔΕΝ μπορούν να αποκατασταθούν από αυτό!\n\nΘέλετε να συνεχίσετε;</string>
   <string name="export_to_clipboard_warning">Προσοχή: Η εξαγωγή των μυστικών κλειδιών του λογαριασμού σας στο πρόχειρο τα εκθέτει σε άλλες εφαρμογές της συσκευής.\n\nΣημείωση: Δεν αρκεί να αποθηκεύσετε τα μυστικά δεδομένα στο πρόχειρο, θα πρέπει να τα επικολλήσετε κάπου με ασφάλεια.\n\nΘέλετε να συνεχίσετε;</string>
   <string name="found_clipboard_private_key_title">Βρέθηκε Μυστικό Κλειδί στο Πρόχειρο</string>
-  <string name="found_clipboard_private_keys_message">Το πρόχειρο περιέχει ένα μυστικό κλειδί.\nΘέλετε να καθαρίσετε το πρόχειρο;</string>
   <string name="exchange_source_not_available">Ισοτιμία μη διαθέσιμη για %1$s</string>
   <string name="my_own_address_warning">Σημείωση: Πρόκειται να στείλετε σε μία δική σας διεύθυνση.</string>
   <string name="read_only_warning">Προσοχή: Το πορτοφόλι σας δεν περιέχει το μυστικό κλειδί για τη διεύθυνση αυτή.\nΔε θα μπορείτε να ξοδέψετε τα εισερχόμενα χρήματα εκτός κι αν έχετε το μυστικό κλειδί αποθηκευμένο αλλού.</string>
@@ -131,13 +120,10 @@
   <string name="cold_storage_desc">Πρόκειται να χρησιμοποιήσετε κεφάλαια από μυστικό κλειδί σε ψυχρή αποθήκευση. Αυτό μπορεί να είναι ένα χάρτινο πορτοφόλι ή απόκομμα από ATM για Bitcoin. Υποστηρίζονται οι παρακάτω μορφές:\nΜυστικό Κλειδί, Κεντρικός Κωδικός (σπόρος), xPriv Κλειδί\n\nΜόλις η συνδιαλλαγή ολοκληρωθεί, κάθε ίχνος της θα σβηστεί από τη μνήμη.</string>
   <string name="keep_account_address">Διαγραφή μόνο του μυστικού κλειδιού, διατήρηση λογαριασμού ως μόνο για παρακολούθηση</string>
   <string name="manual_entry">Χειροκίνητη Εισαγωγή</string>
-  <string name="active_hd_accounts_name">Λογαριασμοί HD</string>
-  <string name="active_other_accounts_name">Άλλοι Λογαριασμοί</string>
   <string name="archive_name">Αρχειοθετημένοι</string>
   <string name="active_accounts_empty">(Κενό)</string>
   <string name="activate_action">Ενεργοποίηση</string>
   <string name="archive_action">Αρχειοθέτηση</string>
-  <string name="question_archive_account">Οι Αρχειοθετημένοι Λογαριασμοί δεν παρακολουθούνται. Δε θα μπορείτε να δείτε την τρέχουσα αξία και τη διεύθυνση λήψης ή να δουλέψετε με το λογαριασμό\n\nΟι Αρχειοθετημένοι λογαριασμοί μπορούν να επανενεργοποιηθούν.\n\nΘέλετε να αρχειοθετήσετε αυτό το λογαριασμό;</string>
   <string name="master_seed_configuration_title">Καλωσήρθατε στο Mycelium</string>
   <string name="master_seed_configuration_description">Θέλετε να επαναφέρετε αντίγραφο ασφαλείας, ή να δημιουργήσετε καινούριο πορτοφόλι;</string>
   <string name="master_seed_create_new_button">Δημιουργία Νέου</string>
@@ -163,16 +149,11 @@
   <string name="using_address_from_clipboard">Γίνεται χρήση διεύθυνσης από το πρόχειρο</string>
   <string name="my_accounts">Οι Λογαριασμοί μου</string>
   <string name="foreign_addresses">Βιβλίο Διευθύνσεων</string>
-  <string name="delete_account_title">Διαγραφή Λογαριασμού;</string>
-  <string name="delete_account_message">Θέλετε να διαγράψετε αυτό το λογαριασμό;</string>
   <string name="confirm_delete_pk_title">Είστε Σίγουρος /η ;</string>
   <string name="confirm_delete_pk_with_balance">Η ενέργεια αυτή δεν μπορεί να αναιρεθεί!\n\nΤρέχουσα διεύθυνση:\n%1$s\n\nΠεριέχει %2$s\n\nΘέλετε να διαγραφεί;</string>
-  <string name="confirm_delete_pk_with_balance_with_label">Η ενέργεια αυτή δεν μπορεί να αναιρεθεί!\n\nΤίτλος λογαριασμού:\n%1$s\n\nΤρέχουσα διεύθυνση:\n%2$s\n\nΠεριέχει %3$s\n\nΘέλετε να διαγραφεί;</string>
   <string name="confirm_delete_pk_without_balance">Η ενέργεια αυτή δεν μπορεί να αναιρεθεί!\n\nΤρέχουσα διεύθυνση:\n%1$s\n\nΘέλετε να διαγραφεί;</string>
-  <string name="confirm_delete_pk_without_balance_with_label">Η ενέργεια αυτή δεν μπορεί να αναιρεθεί!\n\nΤίτλος λογαριασμού:\n%1$s\n\nΤρέχουσα διεύθυνση:\n%2$s\n\nΘέλετε να διαγραφεί;</string>
   <string name="verify_private_key_backup">Επιβεβαίωση Αντίγραφου Ασφαλείας</string>
   <string name="verify_backup_dialog_title">Επιβεβαίωση Αντίγραφου Ασφαλείας Μυστικού Κλειδιού</string>
-  <string name="verify_backup_desc">Τα σωστά αντίγραφα ασφαλείας αποτελούν θεμέλιο λίθο όταν διαχειρίζεστε τα κεφάλαιά σας σε Bitcoin.\n\nΕπιβεβαιώνοντας τα αντίγραφα ασφαλείας μπορείτε να είστε σίγουροι ότι τα αντίγραφά σας λειτουργούν και ότι δε θα χάσετε τα κεφάλαιά σας εάν η συσκευή σας χαλάσει ή χαθεί.</string>
   <string name="verify_backup_scan_desc">Επιβεβαιώστε το αντίγραφο ασφαλείας σας σαρώνοντας τον κωδικό QR του μυστικού κλειδιού ή του κεντρικού κωδικού (σπόρου).\nΕίναι συμβατές πολλαπλές μορφές, περιλαμβανομένου του κρυπτογραφημένου χάρτινου αντίγραφου Mycelium.</string>
   <string name="verify_backup_clipboard_desc">Επιβεβαιώστε το αντίγραφο ασφαλείας διαβάζοντας το μυστικό κλειδί από το πρόχειρο.</string>
   <string name="verify_backup_num_keys">Έχετε %1$s κλειδιά που δεν έχουν επιβεβαιωθεί ποτέ.</string>
@@ -195,7 +176,6 @@
   <string name="encrypted_pdf_backup_document_ready">Το έγγραφο PDF δημιουργήθηκε</string>
   <string name="encrypted_pdf_backup_sharing">Το έγγραφο PDF αποστέλλεται&#8230;</string>
   <string name="encrypted_pdf_backup_email_title">Αντίγραφο Ασφαλείας Πορτοφολιού Mycelium</string>
-  <string name="encrypted_pdf_backup_email_text">Επισυνάπτεται το αντίγραφο ασφαλείας του πορτοφολιού Mycelium.\n\nΑκολουθήστε τα παρακάτω απλά βήματα για να διασφαλίσετε τα κεφάλαιά σας\n1. Εκτυπώστε το έγγραφο PDF.\n2. Σημειώστε τον κωδικό 15 χαρακτήρων από την οθόνη της συσκευής σας στα μπλε κουτιά της εκτύπωσης.\n3. Επιβεβαιώστε ότι μπορείτε να εισαγάγετε τα μυστικά κλειδιά στην εφαρμογή Mycelium.\n4. Αποθηκεύστε την εκτύπωση σε ασφαλές σημείο.</string>
   <string name="share_pdf">Αποστολή PDF</string>
   <string name="share_with">Αποστολή με&#8230;</string>
   <string name="import_decrypt_key_title">Αποκρυπτογράφηση Μυστικού Κλειδιού</string>
@@ -289,8 +269,6 @@
   <string name="lt_ad_created">H αγγελία δημιουργήθηκε</string>
   <string name="lt_ad_edited">Έγινε επεξεργασία της αγγελίας</string>
   <string name="lt_pref_category">Τοπικές Συναλλαγές</string>
-  <string name="lt_disable_preference">Απενεργοποίηση Τοπικών Συναλλαγών</string>
-  <string name="lt_disable_preference_summary">Απενεργοποίηση λειτουργικότητας Τοπικών Συναλλαγών</string>
   <string name="lt_sound_on_trade_preference">Παραγωγή Ήχου για Δραστηριότητα Συναλλαγής</string>
   <string name="lt_sound_on_trade_preference_summary">Παραγωγή ήχου ειδοποίησης όταν προκύψει δραστηριότητα συναλλαγής</string>
   <string name="lt_use_email_for_notifications">Χρήση email για ειδοποιήσεις</string>
@@ -460,8 +438,6 @@
   <string name="invalid_bitid_uri">Μη έγκυρο URI για BitID</string>
   <!-- BitID end -->
   <string name="selected_archived_warning">Δεν μπορείτε να εργαστείτε με αρχειοθετημένους λογαριασμούς.</string>
-  <string name="selected_hd_info">Τώρα εργάζεστε σε αυτόν τον HD λογαριασμό.</string>
-  <string name="selected_single_info">Τώρα εργάζεστε σε αυτό το λογαριασμό μονής διεύθυνσης.</string>
   <string name="hd_account_creation_started">Δημιουργία ενός νέου HD λογαριασμού&#8230;</string>
   <string name="preparing_wallet_on_first_startup_info">To πορτοφόλι προετοιμάζεται&#8230;</string>
   <string name="importing_master_seed_from_wordlist">Υπολογισμός Κεντρικού Κωδικού (σπόρου)&#8230;</string>
@@ -507,7 +483,7 @@
   <string name="title_wrong_password">Λάθος κωδικός, παρακαλώ δοκιμάστε ξανά</string>
   <string name="dont_allow_archiving_unused_notification">Δεν μπορείτε να αρχειοθετήσετε αχρησιμοποίητο HD λογαριασμό</string>
   <string name="newly_generated_coins_from_coinbase">Νεοδημιουργηθέντα Bitcoins</string>
-    <string name="button_continue">Συνέχεια</string>
+  <string name="button_continue">Συνέχεια</string>
   <string name="butto_show_release_notes">Προβολή Λεπτομερειών</string>
   <string name="word_does_not_exist_in_wordlist">Η λέξη που πληκτρολογήσατε δεν υπάρχει στον κατάλογο λέξεων</string>
   <string name="pref_legacy_backup_title">Αντίγραφο Ασφαλείας Παλαιού Τύπου</string>
@@ -522,9 +498,6 @@
   <string name="direct_apk_link_label">Απευθείας\nκατέβασμα</string>
   <string name="hide_unused_account_menu">Διαγραφή Λογαριασμού</string>
   <string name="dont_allow_hiding_used_notification">Δεν μπορείτε να κρύψετε ένα χρησιμοποιημένο λογαριασμό, μπορείτε όμως να τον αρχειοθετήσετε</string>
-  <string name="pref_miner_fee_title">Τέλος Αποστολής (%1$s)</string>
-  <string name="pref_miner_fee_block_summary">Με αυτό το τέλος, οι συναλλαγές που στέλνονται θα εισάγονται στο blockchain κατά μέσο όρο εντος %1s block(s).</string>
-  <string name="miner_fee_lowprio_name">Χαμηλή προτεραιότητα</string>
   <string name="miner_fee_economic_name">Οικονομικό</string>
   <string name="miner_fee_normal_name">Κανονικό</string>
   <string name="miner_fee_priority_name">Προτεραιότητα</string>
@@ -561,8 +534,6 @@
   <string name="lt_confirm_delete_trader_message">Θέλετε να διαγράψετε την ταυτότητα χρήστη τοπικών συναλλαγών; Όλες οι πληροφορίες συναλλαγών και οι βαθμολογίες θα διαγραφούν μόνιμα χωρίς δυνατότητα ανάκτησης.</string>
   <string name="rescan_account_menu_item">Επαναφόρτωση Λογαριασμού</string>
   <string name="add_advanced_account_warning">ΠΡΟΕΙΔΟΠΟΙΗΣΗ:\n Αυτά τα κλειδιά δεν θα περιέχονται σε αντίγραφο ασφαλείας του Κεντρικού Κλειδιού (σπόρου). Πρέπει να βεβαιωθείτε ότι έχετε ξεχωριστό αντίγραφο ασφαλείας γι\' αυτά.</string>
-  <string name="new_random_key_desc">Δημιουργία νέου τυχαίου κλειδιού</string>
-  <string name="generate_new_key">Δημιουργία</string>
   <string name="new_bitcoin_address_created">Ένα νέο τυχαίο μυστικό κλειδί δημιουργήθηκε, και αντιστοιχεί στην ακόλουθη διεύθυνση Bitcoin:</string>
   <string name="shuffle">Ανακάτεμα</string>
   <string name="toast_warning_low_fee">η επιβεβαίωση μπορεί να καθυστερήσει</string>
@@ -607,11 +578,6 @@
   <string name="reset_pin_button">Διαγραφή PIN</string>
   <string name="wrong_pin_message">Έχετε εισαγάγει λάθος PIN.\n\nΕάν έχετε ξεχάσει το PIN σας μπορείτε να το διαγράψετε.</string>
   <string name="pref_no_fiat_selected">Δεν έχει επιλεγεί κυβερνητικό νόμισμα</string>
-  <string name="useTor">Χρήση δικτύου tor</string>
-  <string name="useTorDescription">Χρήση δικτύου tor για επικοινωνία με τους κεντρικούς διακομιστές.\nΑυτό βελτιώνει την ιδιωτικότητά σας και μπορεί να δρομολογήσει παρακάμπτοντας περιοριστικά τείχη προστασίας. Μπορεί επίσης όμως να επιβραδύνει τις επιδόσεις της εφαρμογής.</string>
-  <string name="useTorOnlyExternalTor">Χρήση δικτύου tor (εξωτερικό tor)</string>
-  <string name="useTorOnlyHttps">Χρήση δικτύου tor (μόνο για https)</string>
-  <string name="useTorBoth">Χρήση δικτύου tor (αμφότερα)</string>
   <string name="last_log_entries">Τελευταίες καταχωρήσεις καταγραφής</string>
   <string name="use_https">Χρήση https</string>
   <string name="use_external_tor">Χρήση εξωτερικού tor (Orbot)</string>
@@ -667,7 +633,6 @@
   <string name="payment_request_message_to_merchant">Το μήνυμά σας στον πωλητή (προαιρετικά)</string>
   <string name="payment_request_warning_no_sig">Η πηγή του αιτήματος πληρωμής δεν μπορεί να επιβεβαιωθεί διότι δεν φέρει υπογραφή.\n\nΠαρακαλώ να είστε πολύ προσεκτικοί, διότι ενδέχεται κάποιος να παρεμβάλλεται, αλλάζοντας τη διεύθυνση πληρωμής που σας εμφανίζεται.</string>
   <string name="label_cold_storage_external_signing">Υπογραφή με:</string>
-  <string name="spending_unconfirmed_warning">Προσοχή: χρήση μη επιβεβαιωμένων κεφαλαίων</string>
   <string name="spending_unconfirmed_title">Χρήση μη επιβεβαιωμένων πόρων</string>
   <string name="spending_unconfirmed_description">Η συναλλαγή σας κάνει χρήση κεφαλαίων που δεν έχουν ενσωματωθεί ακόμη σε μπλοκ του blockchain. Εάν για κάποιον λόγο η συναλλαγή που σας έστειλε αυτά τα χρήματα αποτύχει να επιβεβαιωθεί (δεν ενσωματωθεί σε μπλοκ), η παρούσα συναλλαγή σας θα αποτύχει επίσης.</string>
   <string name="label_unverified_recipient">μη επιβεβαιωμένος Παραλήπτης</string>
@@ -689,7 +654,6 @@
   <string name="rebroadcast_transaction_title">Επαναποστολή συναλλαγής</string>
   <string name="description_rebroadcast_transaction">Υποβολή εκ νέου της συναλλαγής στο διακομιστή για αποστολή. Αυτό μπορεί να χρησιμοποιηθεί εαν υποψιάζετσε ότι το δίκτυο δεν έχει μεταδώσει τη συναλλαγή ή την ξέχασε επειδή δεν ενσωματώθηκε στο blockchian για πολύ καιρό. Θέλετε να στείλετε ξανά τη συναλλαγή αυτή;</string>
   <string name="message_rebroadcast_failed">Η αποστολή απέτυχε, παρακαλώ ελέγξτε τη σύνδεσή σας και συγχρονιστε το πορτοφόλι σας.</string>
-  <string name="block_explorer_title">Εξερευνητής Block (%1$s)</string>
   <string name="block_explorer_summary">Οι λεπτομέρειες της συναλλαγής ερευνώνται με χρήση του %1$s Εξερευνητή Block</string>
   <string name="lt_warning_wrong_account_type">Οι Τοπικές Συναλλαγές δεν λειτουργούν με τον επιλεγμένο τύπο λογαριασμού, παρακαλώ επιλέξτε άλλο λογαριασμό.</string>
   <string name="lt_account_not_allowed">Ο επιλεγμένος τύπος λογαριασμού δε λειτουργεί με τις Τοπικές Συναλλαγές. Πρέπει να επιλέξετε διαφορετικό λογαριασμό για να πραγματοποιήσετε αυτή τη συναλλαγή.</string>
@@ -703,6 +667,16 @@
   <string name="coinapult_tos_link">Εμφάνιση Όρων και Προϋποθέσεων Coinapult</string>
   <string name="coinapult_tos_question">Για να δημιουργήσετε λογαριαμό Coinapult θα πρέπει να συμφωνήσετε με τους Όρους και τις Προϋποθέσεις τους</string>
   <string name="coinapult_mail_question">Θέλετε να δώσετε διεύθυνση email;</string>
+  <!--<string name="colu_tos_link">Open Colu Terms and Conditions</string>-->
+  <!-- <string name="colu_tos_link_url">https://www.colu.com/TOS</string>-->
+  <!--<string name="colu_tos">By clicking "OK" you agree to use Colored Coin technology, third party-->
+  <!--blockchain technology developer. All your interactions with Colu are outside of-->
+  <!--Mycelium’s control and are subject to Colu’s T&amp;C and Privacy Policy.-->
+  <!--Please read them carefully before providing any personal information.-->
+  <!--MYCELIUM ACCEPTS NO RESPONSIBILITY AND WILL NOT BE LIABLE FOR ANY LOSS-->
+  <!--OR DAMAGE WHATSOEVER SUFFERED AS A RESULT OF ACCESSING, USE OF, OR-->
+  <!--RELIANCE UPON COLU’S INFORMATION AND SERVICES.</string>-->
+  <!--    <string name="colu_backup_info">Your Colu account access-key gets derived from your masterseed. If you have a valid backup, the access to your Colu account is also included.</string>  -->
   <string name="copy">Αντιγραφή</string>
   <!-- Credit Card -->
   <!-- Credit Card End-->

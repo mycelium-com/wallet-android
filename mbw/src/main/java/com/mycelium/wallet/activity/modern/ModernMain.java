@@ -38,9 +38,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -52,7 +49,6 @@ import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -95,6 +91,7 @@ import com.mycelium.wapi.api.response.Feature;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SyncMode;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.squareup.otto.Subscribe;
 
@@ -104,8 +101,6 @@ import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 
 import de.cketti.library.changelog.ChangeLog;
 import info.guardianproject.onionkit.ui.OrbotHelper;
@@ -153,6 +148,7 @@ public class ModernMain extends AppCompatActivity {
 
       getWindow().setBackgroundDrawableResource(R.drawable.background_main);
 
+      mViewPager.setOffscreenPageLimit(4);
       mTabsAdapter = new TabsAdapter(this, mViewPager, _mbwManager);
       mAccountsTab = bar.newTab();
       mTabsAdapter.addTab(mAccountsTab.setText(getString(R.string.tab_accounts)), AccountsFragment.class, null);
@@ -435,7 +431,8 @@ public class ModernMain extends AppCompatActivity {
                syncMode = SyncMode.NORMAL_ALL_ACCOUNTS_FORCED;
             }
             _mbwManager.getWalletManager(false).startSynchronization(syncMode);
-            _mbwManager.getColuManager().startSynchronization();
+            _mbwManager.getColuManager().startSynchronization(syncMode);
+
             // also fetch a new exchange rate, if necessary
             _mbwManager.getExchangeRateManager().requestOptionalRefresh();
             showRefresh(); // without this call sometime user not see click feedback
@@ -451,7 +448,8 @@ public class ModernMain extends AppCompatActivity {
          case R.id.miRescanTransactions:
             _mbwManager.getSelectedAccount().dropCachedData();
             _mbwManager.getWalletManager(false).startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
-            _mbwManager.getColuManager().startSynchronization();
+            _mbwManager.getColuManager().startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
+
             break;
 
          case R.id.miVerifyMessage:
@@ -488,23 +486,19 @@ public class ModernMain extends AppCompatActivity {
       startActivity(intent);
       Toast.makeText(this, R.string.going_to_mycelium_com_help, Toast.LENGTH_LONG).show();
    }
-   private WalletManager.State commonSyncState;
+
    public void setRefreshAnimation() {
       if (refreshItem != null) {
          if (_mbwManager.getWalletManager(false).getState() == WalletManager.State.SYNCHRONIZING
                  || _mbwManager.getColuManager().getState() == WalletManager.State.SYNCHRONIZING) {
-            if(commonSyncState != WalletManager.State.SYNCHRONIZING) {
-               showRefresh();
-            }
+            showRefresh();
          } else {
-            commonSyncState = WalletManager.State.READY;
             refreshItem.setActionView(null);
          }
       }
    }
 
    private void showRefresh() {
-      commonSyncState = WalletManager.State.SYNCHRONIZING;
       MenuItem menuItem = refreshItem.setActionView(R.layout.actionbar_indeterminate_progress);
       ImageView ivTorIcon = menuItem.getActionView().findViewById(R.id.ivTorIcon);
 
@@ -578,7 +572,7 @@ public class ModernMain extends AppCompatActivity {
    @Subscribe
    public void onSpvSynced(SpvSyncChanged spvSyncChanged) {
       if (spvSyncChanged.chainDownloadPercentDone == 100) {
-         BCHHelper.bchSynced(this);
+         BCHHelper.bchSynced(ModernMain.this);
       }
    }
 }

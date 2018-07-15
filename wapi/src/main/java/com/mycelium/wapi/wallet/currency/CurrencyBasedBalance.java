@@ -35,6 +35,8 @@
 package com.mycelium.wapi.wallet.currency;
 
 
+import java.util.Objects;
+
 public class CurrencyBasedBalance {
    public final static CurrencyBasedBalance ZERO_BITCOIN_BALANCE = new CurrencyBasedBalance(
          ExactBitcoinValue.ZERO, ExactBitcoinValue.ZERO, ExactBitcoinValue.ZERO);
@@ -66,5 +68,21 @@ public class CurrencyBasedBalance {
             ", receiving=" + receiving +
             (isSynchronizing ? " [syncing]" : "") +
             '}';
+   }
+
+   @Override
+   public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+      CurrencyBasedBalance that = (CurrencyBasedBalance) o;
+      return isSynchronizing == that.isSynchronizing &&
+              Objects.equals(confirmed, that.confirmed) &&
+              Objects.equals(sending, that.sending) &&
+              Objects.equals(receiving, that.receiving);
+   }
+
+   @Override
+   public int hashCode() {
+      return Objects.hash(confirmed, sending, receiving, isSynchronizing);
    }
 }

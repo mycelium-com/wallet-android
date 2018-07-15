@@ -37,6 +37,7 @@ package com.mycelium.wallet.persistence;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteDoneException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
 import com.google.common.base.Optional;
@@ -54,6 +55,7 @@ class GenericMetadataStorage {
    private static final String TABLE_TRANSACTION_LABELS = "transactionlabels";
    // the actual and only table
    private static final String TABLE_KEY_VALUE_STORE = "keyValueStore";
+   private final SQLiteStatement getKeyCategoryQuery;
 
    private class OpenHelper extends SQLiteOpenHelper {
       private static final String DATABASE_NAME = "mds.db";
@@ -86,6 +88,7 @@ class GenericMetadataStorage {
       OpenHelper openHelper = new OpenHelper(context);
       _db = openHelper.getWritableDatabase();
       _insertOrReplaceKeyValueEntry = _db.compileStatement("INSERT OR REPLACE INTO " + TABLE_KEY_VALUE_STORE + " VALUES (?,?,?)");
+      getKeyCategoryQuery = _db.compileStatement("SELECT value FROM " + TABLE_KEY_VALUE_STORE + " WHERE (key = ? and category = ?) LIMIT 1");
    }
 
    void storeKeyCategoryValueEntry(final MetadataKeyCategory keyCategory, final String value){
@@ -120,18 +123,13 @@ class GenericMetadataStorage {
       return getKeyCategoryValueEntry(keyCategory.key, keyCategory.category);
    }
 
-   private Optional<String> getKeyCategoryValueEntry(final String key, final String category){
-      Cursor cursor = null;
+   private synchronized Optional<String> getKeyCategoryValueEntry(final String key, final String category){
       try {
-         cursor = _db.query(false, TABLE_KEY_VALUE_STORE, new String[]{"value"}, " key = ? and category = ?", new String[]{key, category}, null, null, null, "1");
-         if (cursor.moveToNext()) {
-            return Optional.of(cursor.getString(0));
-         }
+         getKeyCategoryQuery.bindString(1, key);
+         getKeyCategoryQuery.bindString(2, category);
+         return Optional.of(getKeyCategoryQuery.simpleQueryForString());
+      } catch (SQLiteDoneException ignore){
          return Optional.absent();
-      } finally {
-         if (cursor != null) {
-            cursor.close();
-         }
       }
    }
 

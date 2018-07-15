@@ -2,22 +2,39 @@ package com.mycelium.wallet.activity.view;
 
 
 import android.content.Context;
-import android.preference.Preference;
+import android.support.v7.preference.Preference;
+import android.support.v7.preference.PreferenceViewHolder;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.activity.settings.ModulePreference;
+
+import javax.annotation.Nullable;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.Optional;
 
-public class ButtonPreference extends Preference {
+public class ButtonPreference extends Preference implements ModulePreference {
     @BindView(R.id.preference_button)
-    Button button;
+    TextView button;
+
+    @Nullable
+    @BindView(R.id.under_icon_text)
+    TextView underIconTextView;
+
+    @Nullable
+    @BindView(R.id.sync_state)
+    TextView syncState;
+
 
     private View.OnClickListener buttonClickListener;
     private String buttonText;
+    private String underIconText;
+    private String syncStateText;
     private boolean buttonEnabled = true;
 
     public ButtonPreference(Context context) {
@@ -26,10 +43,18 @@ public class ButtonPreference extends Preference {
     }
 
     @Override
-    protected void onBindView(final View view) {
-        super.onBindView(view);
-        ButterKnife.bind(this, view);
-        button.setText(buttonText);
+    public void onBindViewHolder(PreferenceViewHolder holder) {
+        super.onBindViewHolder(holder);
+        ButterKnife.bind(this, holder.itemView);
+        if (button != null) {
+            button.setText(buttonText);
+        }
+        if (underIconTextView != null) {
+            underIconTextView.setText(underIconText);
+        }
+        if (syncState != null) {
+            syncState.setText(syncStateText);
+        }
         setButtonEnabled(buttonEnabled);
     }
 
@@ -41,6 +66,7 @@ public class ButtonPreference extends Preference {
         }
     }
 
+    @Optional
     @OnClick(R.id.preference_button)
     void btnClick(View view) {
         if (buttonClickListener != null) {
@@ -56,6 +82,20 @@ public class ButtonPreference extends Preference {
         buttonText = text;
         if (button != null) {
             button.setText(text);
+        }
+    }
+
+    public void setUnderIconText(String underIconText) {
+        this.underIconText = underIconText;
+        if (underIconTextView != null) {
+            underIconTextView.setText(underIconText);
+        }
+    }
+
+    public void setSyncStateText(String syncStateText) {
+        this.syncStateText = syncStateText;
+        if (syncState != null) {
+            syncState.setText(syncStateText);
         }
     }
 

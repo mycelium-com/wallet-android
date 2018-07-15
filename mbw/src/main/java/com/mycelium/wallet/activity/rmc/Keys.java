@@ -11,7 +11,7 @@ public class Keys {
 
     public static Calendar getActiveEndDay() {
         Calendar calendarEnd = Calendar.getInstance();
-        calendarEnd.set(2018, 6, 10);
+        calendarEnd.set(2018, 10, 30);
         return calendarEnd;
     }
 }

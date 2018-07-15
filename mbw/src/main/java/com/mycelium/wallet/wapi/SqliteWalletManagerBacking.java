@@ -39,9 +39,14 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
+import android.text.TextUtils;
 import android.util.Log;
+
 import com.google.common.base.Preconditions;
-import com.mrd.bitlib.model.*;
+import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.OutPoint;
+import com.mrd.bitlib.model.Transaction;
+import com.mrd.bitlib.model.TransactionInput;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.HexUtils;
@@ -56,7 +61,15 @@ import com.mycelium.wapi.wallet.WalletManagerBacking;
 import com.mycelium.wapi.wallet.bip44.Bip44AccountContext;
 import com.mycelium.wapi.wallet.single.SingleAddressAccountContext;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import static com.mycelium.wallet.persistence.SQLiteQueryWithBlobs.uuidToBytes;
 
@@ -434,7 +447,7 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
       db.execSQL("CREATE TABLE IF NOT EXISTS " + getPtxoTableName(tableSuffix)
             + " (outpoint BLOB PRIMARY KEY, height INTEGER, value INTEGER, isCoinbase INTEGER, script BLOB);");
       db.execSQL("CREATE TABLE IF NOT EXISTS " + getTxTableName(tableSuffix)
-            + " (id BLOB PRIMARY KEY, height INTEGER, time INTEGER, binary BLOB);");
+            + " (id BLOB PRIMARY KEY, hash BLOB, height INTEGER, time INTEGER, binary BLOB);");
       db.execSQL("CREATE INDEX IF NOT EXISTS heightIndex ON " + getTxTableName(tableSuffix) + " (height);");
       db.execSQL("CREATE TABLE IF NOT EXISTS " + getOutgoingTxTableName(tableSuffix)
             + " (id BLOB PRIMARY KEY, raw BLOB);");
@@ -496,7 +509,7 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
          _insertOrReplaceUtxo = db.compileStatement("INSERT OR REPLACE INTO " + utxoTableName + " VALUES (?,?,?,?,?)");
          _deleteUtxo = db.compileStatement("DELETE FROM " + utxoTableName + " WHERE outpoint = ?");
          _insertOrReplacePtxo = db.compileStatement("INSERT OR REPLACE INTO " + ptxoTableName + " VALUES (?,?,?,?,?)");
-         _insertOrReplaceTx = db.compileStatement("INSERT OR REPLACE INTO " + txTableName + " VALUES (?,?,?,?)");
+         _insertOrReplaceTx = db.compileStatement("INSERT OR REPLACE INTO " + txTableName + " VALUES (?,?,?,?,?)");
          _deleteTx = db.compileStatement("DELETE FROM " + txTableName + " WHERE id = ?");
          _insertOrReplaceOutTx = db.compileStatement("INSERT OR REPLACE INTO " + outTxTableName + " VALUES (?,?)");
          _deleteOutTx = db.compileStatement("DELETE FROM " + outTxTableName + " WHERE id = ?");
@@ -594,6 +607,31 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
          _deleteUtxo.execute();
       }
 
+      public void putParentTransactionOuputs(List<TransactionOutputEx> outputsList) {
+         if (outputsList.isEmpty()) {
+            return;
+         }
+         _database.beginTransaction();
+         String updateQuery = "INSERT OR REPLACE INTO " + ptxoTableName + " VALUES "
+                 + TextUtils.join(",", Collections.nCopies(outputsList.size(), " (?,?,?,?,?) "));
+         SQLiteStatement updateStatement = _database.compileStatement(updateQuery);
+         try {
+            for (int i = 0; i < outputsList.size(); i++) {
+               int index = i * 5;
+               final TransactionOutputEx outputEx = outputsList.get(i);
+               updateStatement.bindBlob(index + 1, SQLiteQueryWithBlobs.outPointToBytes(outputEx.outPoint));
+               updateStatement.bindLong(index + 2, outputEx.height);
+               updateStatement.bindLong(index + 3, outputEx.value);
+               updateStatement.bindLong(index + 4, outputEx.isCoinBase ? 1 : 0);
+               updateStatement.bindBlob(index + 5, outputEx.script);
+            }
+            updateStatement.executeInsert();
+            _database.setTransactionSuccessful();
+         } finally {
+            _database.endTransaction();
+         }
+      }
+
       @Override
       public void putParentTransactionOutput(TransactionOutputEx output) {
          _insertOrReplacePtxo.bindBlob(1, SQLiteQueryWithBlobs.outPointToBytes(output.outPoint));
@@ -675,11 +713,42 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
       }
 
       @Override
+      public void putTransactions(List<TransactionEx> transactions) {
+         if (transactions.isEmpty()) {
+            return;
+         }
+         _database.beginTransaction();
+         String updateQuery = "INSERT OR REPLACE INTO " + txTableName + " VALUES "
+                 + TextUtils.join(",", Collections.nCopies(transactions.size(), " (?,?,?,?,?) "));
+         SQLiteStatement updateStatement = _database.compileStatement(updateQuery);
+         try {
+            for (int i = 0; i < transactions.size(); i++) {
+               int index = i * 5;
+               final TransactionEx transactionEx = transactions.get(i);
+               updateStatement.bindBlob(index + 1, transactionEx.txid.getBytes());
+               updateStatement.bindBlob(index + 2, transactionEx.hash.getBytes());
+               updateStatement.bindLong(index + 3, transactionEx.height == -1 ? Integer.MAX_VALUE : transactionEx.height);
+               updateStatement.bindLong(index + 4, transactionEx.time);
+               updateStatement.bindBlob(index + 5, transactionEx.binary);
+            }
+            updateStatement.executeInsert();
+
+            for (TransactionEx transaction : transactions) {
+               putReferencedOutputs(transaction.binary);
+            }
+            _database.setTransactionSuccessful();
+         } finally {
+            _database.endTransaction();
+         }
+      }
+
+      @Override
       public void putTransaction(TransactionEx tx) {
          _insertOrReplaceTx.bindBlob(1, tx.txid.getBytes());
-         _insertOrReplaceTx.bindLong(2, tx.height == -1 ? Integer.MAX_VALUE : tx.height);
-         _insertOrReplaceTx.bindLong(3, tx.time);
-         _insertOrReplaceTx.bindBlob(4, tx.binary);
+         _insertOrReplaceTx.bindBlob(2, tx.hash.getBytes());
+         _insertOrReplaceTx.bindLong(3, tx.height == -1 ? Integer.MAX_VALUE : tx.height);
+         _insertOrReplaceTx.bindLong(4, tx.time);
+         _insertOrReplaceTx.bindBlob(5, tx.binary);
          _insertOrReplaceTx.executeInsert();
 
          putReferencedOutputs(tx.binary);
@@ -692,26 +761,27 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
             for (TransactionInput input : transaction.inputs) {
                refersOutpoint.add(input.outPoint);
             }
-            putTxRefersParentTransaction(transaction.getHash(), refersOutpoint);
+            putTxRefersParentTransaction(transaction.getId(), refersOutpoint);
          } catch (Transaction.TransactionParsingException e) {
             Log.w(LOG_TAG, "Unable to decode transaction: " + e.getMessage());
          }
       }
 
       @Override
-      public TransactionEx getTransaction(Sha256Hash hash) {
+      public TransactionEx getTransaction(Sha256Hash txid) {
          Cursor cursor = null;
          try {
             SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(_db);
-            blobQuery.bindBlob(1, hash.getBytes());
-            cursor = blobQuery.query(false, txTableName, new String[]{"height", "time", "binary"}, "id = ?", null,
+            blobQuery.bindBlob(1, txid.getBytes());
+            cursor = blobQuery.query(false, txTableName, new String[]{"hash", "height", "time", "binary"}, "id = ?", null,
                   null, null, null, null);
             if (cursor.moveToNext()) {
-               int height = cursor.getInt(0);
+               int height = cursor.getInt(1);
                if (height == Integer.MAX_VALUE) {
                   height = -1;
                }
-               return new TransactionEx(hash, height, cursor.getInt(1), cursor.getBlob(2));
+               Sha256Hash hash = new Sha256Hash(cursor.getBlob(0));
+               return new TransactionEx(txid, hash, height, cursor.getInt(2), cursor.getBlob(3));
             }
             return null;
          } finally {
@@ -722,19 +792,19 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
       }
 
       @Override
-      public void deleteTransaction(Sha256Hash hash) {
-         _deleteTx.bindBlob(1, hash.getBytes());
+      public void deleteTransaction(Sha256Hash txid) {
+         _deleteTx.bindBlob(1, txid.getBytes());
          _deleteTx.execute();
          // also delete all output references for this tx
-         deleteTxRefersParentTransaction(hash);
+         deleteTxRefersParentTransaction(txid);
       }
 
       @Override
-      public boolean hasTransaction(Sha256Hash hash) {
+      public boolean hasTransaction(Sha256Hash txid) {
          Cursor cursor = null;
          try {
             SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(_db);
-            blobQuery.bindBlob(1, hash.getBytes());
+            blobQuery.bindBlob(1, txid.getBytes());
             cursor = blobQuery.query(false, txTableName, new String[]{"height"}, "id = ?", null, null, null, null,
                   null);
             return cursor.moveToNext();
@@ -751,11 +821,13 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
          List<TransactionEx> list = new LinkedList<>();
          try {
             // 2147483647 == Integer.MAX_VALUE
-            cursor = _db.rawQuery("SELECT id, time, binary FROM " + txTableName + " WHERE height = 2147483647",
+            cursor = _db.rawQuery("SELECT id, hash, time, binary FROM " + txTableName + " WHERE height = 2147483647",
                   new String[]{});
             while (cursor.moveToNext()) {
-               TransactionEx tex = new TransactionEx(new Sha256Hash(cursor.getBlob(0)), -1, cursor.getInt(1),
-                     cursor.getBlob(2));
+               Sha256Hash txid = new Sha256Hash(cursor.getBlob(0));
+               Sha256Hash hash = new Sha256Hash(cursor.getBlob(1));
+               TransactionEx tex = new TransactionEx(txid, hash, -1, cursor.getInt(2),
+                     cursor.getBlob(3));
                list.add(tex);
             }
             return list;
@@ -773,15 +845,17 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
          List<TransactionEx> list = new LinkedList<>();
          try {
             // return all transaction younger than maxConfirmations or have no confirmations at all
-            cursor = _db.rawQuery("SELECT id, height, time, binary FROM " + txTableName + " WHERE height >= ? OR height = -1 ",
+            cursor = _db.rawQuery("SELECT id, hash, height, time, binary FROM " + txTableName + " WHERE height >= ? OR height = -1 ",
                   new String[]{Integer.toString(maxHeight)});
             while (cursor.moveToNext()) {
-               int height = cursor.getInt(1);
+               int height = cursor.getInt(2);
                if (height == Integer.MAX_VALUE) {
                   height = -1;
                }
-               TransactionEx tex = new TransactionEx(new Sha256Hash(cursor.getBlob(0)), height, cursor.getInt(2),
-                     cursor.getBlob(3));
+               Sha256Hash txid = new Sha256Hash(cursor.getBlob(0));
+               Sha256Hash hash = new Sha256Hash(cursor.getBlob(1));
+               TransactionEx tex = new TransactionEx(txid, hash, height, cursor.getInt(3),
+                     cursor.getBlob(4));
                list.add(tex);
             }
             return list;
@@ -845,12 +919,14 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
          Cursor cursor = null;
          List<TransactionEx> list = new LinkedList<>();
          try {
-            cursor = _db.rawQuery("SELECT id, height, time, binary FROM " + txTableName
+            cursor = _db.rawQuery("SELECT id, hash, height, time, binary FROM " + txTableName
                         + " ORDER BY height desc limit ? offset ?",
                   new String[]{Integer.toString(limit), Integer.toString(offset)});
             while (cursor.moveToNext()) {
-               TransactionEx tex = new TransactionEx(new Sha256Hash(cursor.getBlob(0)), cursor.getInt(1),
-                     cursor.getInt(2), cursor.getBlob(3));
+               Sha256Hash txid = new Sha256Hash(cursor.getBlob(0));
+               Sha256Hash hash = new Sha256Hash(cursor.getBlob(1));
+               TransactionEx tex = new TransactionEx(txid, hash, cursor.getInt(2),
+                     cursor.getInt(3), cursor.getBlob(4));
                list.add(tex);
             }
             return list;
@@ -866,13 +942,15 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
          Cursor cursor = null;
          List<TransactionEx> list = new LinkedList<>();
          try {
-            cursor = _db.rawQuery("SELECT id, height, time, binary FROM " + txTableName
+            cursor = _db.rawQuery("SELECT id, hash, height, time, binary FROM " + txTableName
                         + " WHERE time >= ?"
                         + " ORDER BY height desc",
                   new String[]{Long.toString(since / 1000)});
             while (cursor.moveToNext()) {
-               TransactionEx tex = new TransactionEx(new Sha256Hash(cursor.getBlob(0)), cursor.getInt(1),
-                     cursor.getInt(2), cursor.getBlob(3));
+               Sha256Hash txid = new Sha256Hash(cursor.getBlob(0));
+               Sha256Hash hash = new Sha256Hash(cursor.getBlob(1));
+               TransactionEx tex = new TransactionEx(txid, hash, cursor.getInt(2),
+                     cursor.getInt(3), cursor.getBlob(4));
                list.add(tex);
             }
             return list;
@@ -896,7 +974,7 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
 
    private class OpenHelper extends SQLiteOpenHelper {
       private static final String DATABASE_NAME = "walletbacking.db";
-      private static final int DATABASE_VERSION = 3;
+      private static final int DATABASE_VERSION = 4;
 
       OpenHelper(Context context) {
          super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -933,10 +1011,26 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
             db.execSQL("ALTER TABLE bip44 ADD COLUMN accountType INTEGER DEFAULT 0");
             db.execSQL("ALTER TABLE bip44 ADD COLUMN accountSubId INTEGER DEFAULT 0");
          }
+         if (oldVersion < 4) {
+            try (Cursor cursor = db.rawQuery("SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'tx^_%' ESCAPE '^'", new String[]{})) {
+               while (cursor.moveToNext()) {
+                  String tableName = cursor.getString(0);
+                  String newPostfix = "_new";
+                  String oldPostfix = "_old";
+                  db.execSQL("CREATE TABLE IF NOT EXISTS " + tableName + newPostfix
+                          + " (id BLOB PRIMARY KEY, hash BLOB, height INTEGER, time INTEGER, binary BLOB)");
+                  db.execSQL("INSERT INTO " + tableName + newPostfix + " SELECT id, id, height, time, binary FROM " + tableName);
+                  db.execSQL("ALTER TABLE " + tableName + " RENAME TO " + tableName + oldPostfix);
+                  db.execSQL("ALTER TABLE " + tableName + newPostfix + " RENAME TO " + tableName);
+                  db.execSQL("DROP TABLE " + tableName + oldPostfix);
+               }
+            }
+         }
       }
 
       @Override
       public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+         //We don't really support downgrade
       }
    }
 }

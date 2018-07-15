@@ -25,7 +25,6 @@
   <string name="send">Odeslat</string>
   <string name="receive">Přijmout</string>
   <string name="private_key_deleted">Soukromý klíč odstraněn.</string>
-  <string name="account_deleted">Účet smazán</string>
   <string name="enter_recipient_title">Zadejte adresu příjemce</string>
   <string name="recipient_title">Adresa příjemce</string>
   <string name="amount_label">Částka:</string>
@@ -45,8 +44,6 @@
   <string name="synchronizing">Aktualizuji</string>
   <string name="transaction_not_sent">Odesílání transakce selhalo</string>
   <string name="queue_transaction_message">Odesílání transakce selhalo.\nChcete ji přidat do fronty k opětovnému odeslání, jakmile budete opět online?</string>
-  <string name="transaction_sent">Transakce odeslána</string>
-  <string name="export">Exportování</string>
   <string name="backup_private_key">Zálohování</string>
   <string name="copy_to_clipboard">Zkopírovat do schránky</string>
   <string name="copy_private_key_to_clipboard">Zkopírovat soukromý klíč do schránky</string>
@@ -83,15 +80,9 @@
   <string name="pref_clear_pin_summary">Zrušit stávající PIN kód</string>
   <string name="pref_set_pin">Nastavit PIN kód</string>
   <string name="pref_set_pin_summary">Nastavení PIN kódu, který omezuje přístup k odesílání mincí, exportování soukromých klíčů a změnám kódu PIN</string>
-  <string name="pref_local_currency">Místní měna</string>
-  <string name="pref_local_currency_with_currency">Místní měna (%1$s)</string>
   <string name="pref_local_currency_summary">Zvolte místní měnu</string>
-  <string name="pref_exchange_source">Zdroj směnného kurzu</string>
   <string name="pref_exchange_source_with_value">Zdroj směnného kurzu (%1$s)</string>
   <string name="pref_exchange_source_summary">Zvolte zdroj pro získání směnného kurzu mezi Bitcoinem a místní měnou</string>
-  <string name="pref_bitcoin_denomination">Jednotka Bitcoinu</string>
-  <string name="pref_bitcoin_denomination_with_denomination">Jednotka (%1$s)</string>
-  <string name="pref_bitcoin_denomination_summary">Nastavení upřednostňované jednotky Bitcoinu. BTC, mBTC nebo μBTC</string>
   <string name="pref_advanced_settings">Pokročilá nastavení</string>
   <string name="pref_socks_proxy">SOCKS proxy</string>
   <string name="pref_socks_proxy_enabled">SOCKS proxy (povoleno)</string>
@@ -115,10 +106,8 @@
   <string name="payment_request">Žádost o platbu</string>
   <string name="export_account_data_warning">Chystáte se exportovat citlivá data zvoleného účtu.\n\nKaždý, kdo k těmto klíčům získá přístup, se může buď zmocnit Bitcoinů, které spravují, nebo informací, které mohou narušit vaše soukromí.\n\nChcete pokračovat?</string>
   <string name="backup_all_warning">Měli byste zálohovat master seed vaší peněženky.\nZáloha vašeho master seedu vám dovolí obnovit vaše finance uložené na HD účtech v případě ztráty či poškození vašeho zařízení.\n\nChcete to udělat nyní?</string>
-  <string name="backup_legacy_warning">Zálohujete účty s jedinou adresou ve vaší peněžence.\nTato záloha nebude obsahovat váš master seed a nelze z ní obnovit žádný HD účet.\n\nChcete pokračovat?</string>
   <string name="export_to_clipboard_warning">Varování: Exportování soukromých dat účtu do schránky je odhaluje všem aplikacím ve vašem zařízení.\n\nPozn.: Nestačí uložit soukromá data do schránky, také je musíte někam bezpečně vložit.\n\nChcete pokračovat?</string>
   <string name="found_clipboard_private_key_title">Ve schránce byl nalezen soukromý klíč</string>
-  <string name="found_clipboard_private_keys_message">Schránka obsahuje soukromý klíč.\nChcete vymazat schránku?</string>
   <string name="exchange_source_not_available">Směnný kurz není pro %1$s dostupný</string>
   <string name="my_own_address_warning">Pozn.: Posíláte na jednu z vlastních adres.</string>
   <string name="read_only_warning">Varování: Vaše peněženka nemá soukromý klíč pro tuto adresu.\nNemáte-li soukromý klíč jinde, nemůžete utratit obdržené mince.</string>
@@ -132,13 +121,10 @@
   <string name="cold_storage_desc">Chystáte se utrácet ze soukromého klíče v cold storage. Může to být papírová záloha soukromého klíče nebo stvrzenka z BTC bankomatu. Jsou podporovány následující formáty:\nPrivátní klíč, Master seed, xPriv klíč\n\nJakmile je transakce odeslána, smažou se po ní z interní paměti veškeré stopy.</string>
   <string name="keep_account_address">Pouze odstraní soukromý klíč a ponechá účet jen ke čtení</string>
   <string name="manual_entry">Ruční zadání</string>
-  <string name="active_hd_accounts_name">Moje HD účty</string>
-  <string name="active_other_accounts_name">Ostatní účty</string>
   <string name="archive_name">Archivováno</string>
   <string name="active_accounts_empty">(prázdný)</string>
   <string name="activate_action">Aktivovat</string>
   <string name="archive_action">Archivovat</string>
-  <string name="question_archive_account">Archivované účty nejsou monitorovány, nemúžete vidět zůstatek a adresu pro příjem a jakkoli s účtem pracovat.\n\nArchivované účty mohou být znovu aktivovány.\n\nChcete tento účet archivovat?</string>
   <string name="master_seed_configuration_title">Vítejte v Myceliu</string>
   <string name="master_seed_configuration_description">Chcete obnovit zálohu, nebo vytvořit novou peněženku?</string>
   <string name="master_seed_create_new_button">Vytvořit nový</string>
@@ -164,16 +150,11 @@
   <string name="using_address_from_clipboard">Pomocí adresy ze schránky</string>
   <string name="my_accounts">Mé účty</string>
   <string name="foreign_addresses">Adresář</string>
-  <string name="delete_account_title">Odstranit účet?</string>
-  <string name="delete_account_message">Opravdu odstranit tento účet?</string>
   <string name="confirm_delete_pk_title">Opravdu?</string>
   <string name="confirm_delete_pk_with_balance">Tuto akci nelze vrátit!\n\nSoučasná adresa:\n%1$s\n\nObsahuje:%2$s\n\nChcete ji smazat?</string>
-  <string name="confirm_delete_pk_with_balance_with_label">Tuto akci nelze vrátit!\n\nPopis účtu:\n%1$s\n\nSoučasná adresa:\n%2$s\n\nObsahuje:%3$s\n\nChcete ho smazat?</string>
   <string name="confirm_delete_pk_without_balance">Tuto akci nelze vrátit!\n\nSoučasná adresa:\n%1$s\n\nChcete ji smazat?</string>
-  <string name="confirm_delete_pk_without_balance_with_label">Tuto akci nelze vrátit!\n\nPopis účtu:\n%1$s\n\nSoučasná adresa:\n%2$s\n\nChcete ho smazat?</string>
   <string name="verify_private_key_backup">Ověřit zálohu</string>
   <string name="verify_backup_dialog_title">Ověřit zálohu soukromého klíče</string>
-  <string name="verify_backup_desc">Mít pořádnou zálohu je základním kamenem správy vašich bitcoinových fondů.\n\nOvěřením vaší zálohy se ujistíte, že je záloha v pořádku a nepřijdete tak o své peníze, pokud se vaše Android zařízení ztratí nebo zničí.</string>
   <string name="verify_backup_scan_desc">Ověřte zálohu vašeho master seedu nebo soukromého klíče naskenováním QR kódu.\nJe podporováno několik formátů, včetně šifrované papírové zálohy Mycelium.</string>
   <string name="verify_backup_clipboard_desc">Ověřte zálohu soukromého klíče zkopírováním soukromého klíče ze schránky.</string>
   <string name="verify_backup_num_keys">Máte %1$s klíčů, které nebyly nikdy ověřeny.</string>
@@ -196,7 +177,6 @@
   <string name="encrypted_pdf_backup_document_ready">PDF dokument vytvořen</string>
   <string name="encrypted_pdf_backup_sharing">Sdílím PDF dokument&#8230;</string>
   <string name="encrypted_pdf_backup_email_title">Záloha Mycelium Wallet</string>
-  <string name="encrypted_pdf_backup_email_text">Záloha vaší peněženky Mycelium je přiložena.\n\nPro zabezpečení vašich zdrojů udělejte následující:\n1. Vytiskněte PDF dokument.\n2. Opište 15znakové heslo z displeje vašeho zařízení do modrých chlívečků.\n3. Ověřte, že můžete soukromé klíče importovat do vaší peněženky Mycelium.\n4. Uschovejte výtisk na bezpečném místě.</string>
   <string name="share_pdf">Sdílet PDF</string>
   <string name="share_with">Sdílet s&#8230;</string>
   <string name="import_decrypt_key_title">Dešifrování soukromého klíče</string>
@@ -293,8 +273,6 @@
   <string name="lt_ad_created">Reklama vytvořena</string>
   <string name="lt_ad_edited">Reklama upravena</string>
   <string name="lt_pref_category">Místní obchodník</string>
-  <string name="lt_disable_preference">Vypnout Local Trader</string>
-  <string name="lt_disable_preference_summary">Zakázat funkci Local Trader</string>
   <string name="lt_sound_on_trade_preference">Přehrát zvuk při obchodní činnosti</string>
   <string name="lt_sound_on_trade_preference_summary">Přehraje notifikační zvuk, když se objeví obchodní aktivita</string>
   <string name="lt_use_email_for_notifications">Pro oznámení použít email</string>
@@ -474,8 +452,6 @@
   <string name="invalid_bitid_uri">Neplatné BitID URI</string>
   <!-- BitID end -->
   <string name="selected_archived_warning">Nemůžete pracovat s archivovanými účty.</string>
-  <string name="selected_hd_info">Nyní pracujete na tomto HD účtu.</string>
-  <string name="selected_single_info">Nyní pracujete s touto jedinou adresou.</string>
   <string name="transaction_not_broadcasted_info">Nelze odeslat</string>
   <string name="hd_account_creation_started">Vytvářím nový HD účet&#8230;</string>
   <string name="preparing_wallet_on_first_startup_info">Připravuji peněženku&#8230;</string>
@@ -524,7 +500,7 @@
   <string name="title_wrong_password">Špatné heslo, zkuste to znovu</string>
   <string name="dont_allow_archiving_unused_notification">Nemůžete archivovat nepoužitý HD účet</string>
   <string name="newly_generated_coins_from_coinbase">Nově generované mince</string>
-    <string name="button_continue">Pokračovat</string>
+  <string name="button_continue">Pokračovat</string>
   <string name="butto_show_release_notes">Zobrazit podrobnosti</string>
   <string name="word_does_not_exist_in_wordlist">Slovo, které jste napsali, se nenachází ve slovníku</string>
   <string name="pref_legacy_backup_title">Záloha starší verze</string>
@@ -539,9 +515,6 @@
   <string name="direct_apk_link_label">Přímé\nstažení</string>
   <string name="hide_unused_account_menu">Odstranit účet</string>
   <string name="dont_allow_hiding_used_notification">Nemůžete skrýt použitý účet, můžete ho ale archivovat</string>
-  <string name="pref_miner_fee_title">Poplatek sítě (%1$s)</string>
-  <string name="pref_miner_fee_block_summary">Transakce jsou odeslány s poplatkem sítě, aby byly zahrnuty průměrně v dalších %1s blocích.</string>
-  <string name="miner_fee_lowprio_name">Nízká priorita</string>
   <string name="miner_fee_economic_name">Ekonomický</string>
   <string name="miner_fee_normal_name">Běžný</string>
   <string name="miner_fee_priority_name">Prioritní</string>
@@ -580,8 +553,6 @@
   <string name="lt_confirm_delete_trader_message">Chcete vymazat vaši identitu Místního obchodníka? Všechny informace o obchodech a hodnocení budou trvale vymazány a nepůjdou obnovit.</string>
   <string name="rescan_account_menu_item">Znovu načíst účet</string>
   <string name="add_advanced_account_warning">Varování:\nTyto klíče nebudou zahrnuty ve vaší záloze master seedu. Musíte se ujistit, že máte jejich samostatnou zálohu.</string>
-  <string name="new_random_key_desc">Vytvoří nový náhodný klíč</string>
-  <string name="generate_new_key">Vytvořit</string>
   <string name="new_bitcoin_address_created">Byl vytvořen nový náhodný soukromý klíč pro následující bitcoinovou adresu:</string>
   <string name="shuffle">Náhodně</string>
   <string name="toast_warning_low_fee">potvrzení může chvíli trvat</string>
@@ -646,8 +617,6 @@
   <string name="pref_ledger_title">Hardwarová peněženka Ledger</string>
   <string name="ledger_disable_tee_preference">Zakázat podporu TEE</string>
   <string name="ledger_disable_tee_preference_summary">Zakázat podporu Trusted Execution Environment, pokud se používají různé hardwarové peněženky Ledger</string>
-  <string name="ledger_unplugged_aid_preference">Nastavit Ledger Unplugged AID</string>
-  <string name="ledger_unplugged_aid_preference_summary">Podpora různých AID pro vlastní sestavení Ledger Unplugged</string>
   <string name="select_local_currencies">Vyberte své měny</string>
   <string name="show_public_or_private_data">Zobrazit</string>
   <string name="show_private_data">soukromý</string>
@@ -657,11 +626,6 @@
   <string name="reset_pin_button">Resetovat PIN kód</string>
   <string name="wrong_pin_message">Zadali jste nesprávný PIN kód.\n\nPokud jste ho zapomněli, můžete ho obnovit.</string>
   <string name="pref_no_fiat_selected">Žádná měna nebyla vybrána</string>
-  <string name="useTor">Použít síť Tor</string>
-  <string name="useTorDescription">Použít síť Tor pro komunikaci s backendovými servery.\nToto zlepší vaše soukromí a může obejít omezující firewally. Může však zpomalit tuto aplikaci.</string>
-  <string name="useTorOnlyExternalTor">Použít síť Tor (externí Tor)</string>
-  <string name="useTorOnlyHttps">Použíť síť Tor (jen HTTPS)</string>
-  <string name="useTorBoth">Použít síť Tor (obojí)</string>
   <string name="last_log_entries">Poslední položky protokolu</string>
   <string name="use_https">Použít https</string>
   <string name="use_external_tor">Použít externí Tor (Orbot)</string>
@@ -718,7 +682,6 @@
   <string name="payment_request_error_while_getting_ack">Platbu nelze poslat na server obchodníka.\n%s\n\nPlatba nebude odeslána.</string>
   <string name="payment_request_warning_no_sig">Původ této žádosti o platbu nelze ověřit, neboť nemá žádný podpis.\n\nBuďte prosím velmi opatrní, jelikož ji někdo může zachytávat a měnit platební adresy.</string>
   <string name="label_cold_storage_external_signing">Přihlásit se:</string>
-  <string name="spending_unconfirmed_warning">Varování: utrácení nepotvrzených peněz</string>
   <string name="spending_unconfirmed_title">Utrácení nepotvrzených peněz</string>
   <string name="spending_unconfirmed_description">Vaše transakce používá prostředky, odeté dosud nebyly začleněny do bitcoinového bloku. Pokud z nějakého důvodu transakce, která tyto mince poslala, selhala nebo zůstává nepotvrzená, vaše transakce také selže nebo zůstane nepotvrzená.</string>
   <string name="label_unverified_recipient">Neověřený příjemce</string>
@@ -741,7 +704,6 @@
   <string name="description_rebroadcast_transaction">Podat na server tuto transakci znovu, aby se odeslala. Múže to být použito, pokud máte podezření, že síť nerozšířila nebo opustila vaši transakci, např. protože nebyla dlouhou dobu potvrzena. Chcete tuto transakci znovu odeslat?</string>
   <string name="message_rebroadcast_successfull">Transakce byla úspěšně odeslána.</string>
   <string name="message_rebroadcast_failed">Odeslání selhalo, zkontrolujte vaše připojení a synchronizujte svou peněženku.</string>
-  <string name="block_explorer_title">Block Explorer (%1$s)</string>
   <string name="block_explorer_summary">Podrobnosti o transakci jsou vyhledávány pomocí %1$s Block Exploreru</string>
   <string name="lt_warning_wrong_account_type">Místní obchodník nefunguje s vybraným typem účtu, zvolte prosím jiný účet.</string>
   <string name="lt_account_not_allowed">Vybraný typ účtu nefunguje s Místním obchodníkem. Pro provedení tohoto obchodu musíte zvolit jiný účet.</string>
@@ -771,6 +733,16 @@
   <string name="coinapult_create_account">Vytvářím účet Coinapult&#8230;</string>
   <string name="coinapult_backup_info">Přístupový klíč k vašemu účtu Coinapult je odvozený z vašeho master seedu. Pokud máte platnou zálohu, je zahrnutý také přístup k vašemu účtu Coinapult.</string>
   <string name="coinapult_currency_account">Účet %1$s</string>
+  <!--<string name="colu_tos_link">Open Colu Terms and Conditions</string>-->
+  <!-- <string name="colu_tos_link_url">https://www.colu.com/TOS</string>-->
+  <!--<string name="colu_tos">By clicking "OK" you agree to use Colored Coin technology, third party-->
+  <!--blockchain technology developer. All your interactions with Colu are outside of-->
+  <!--Mycelium’s control and are subject to Colu’s T&amp;C and Privacy Policy.-->
+  <!--Please read them carefully before providing any personal information.-->
+  <!--MYCELIUM ACCEPTS NO RESPONSIBILITY AND WILL NOT BE LIABLE FOR ANY LOSS-->
+  <!--OR DAMAGE WHATSOEVER SUFFERED AS A RESULT OF ACCESSING, USE OF, OR-->
+  <!--RELIANCE UPON COLU’S INFORMATION AND SERVICES.</string>-->
+  <!--    <string name="colu_backup_info">Your Colu account access-key gets derived from your masterseed. If you have a valid backup, the access to your Colu account is also included.</string>  -->
   <string name="copy">Kopírovat</string>
   <string name="lt_backup_lt_id">Zálohovat identitu obchodníka</string>
   <string name="lt_confirm_backup_trader_message">Chystáte se exportovat citlivá data vašeho účtu Místní obchodník. Kdokoli získá přístup k těmto klíčům, může převzít váš účet Místního obchodníka a jednat vaším jménem. Chcete pokračovat?</string>
@@ -802,8 +774,6 @@
   <string name="warning_reason_rbf">RBF</string>
   <string name="warning_reason_unconfirmed_parent">Unconfirmed parent</string>
   <string name="warning_reason_doublespend">Zjištěna dvojí útrata</string>
-  <string name="opening_url_in_browser">Otevírání URL v prohlížeči...</string>
-  <string name="incoming_payment">Příchozí platba: %s</string>
   <string name="warning_amount_does_not_match">Upozornění: částka neodpovídá!</string>
   <string name="mycelium_terms_of_use">Podmínky použití Mycelium</string>
   <!-- Credit Card -->

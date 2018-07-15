@@ -5,23 +5,24 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="24dp"
+        android:background="@drawable/pref_category_divider" />
+
     <TextView
         android:id="@android:id/title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/margin_small"
-        android:layout_marginTop="@dimen/margin_large"
-        android:paddingLeft="8dip"
-        android:paddingRight="?android:attr/scrollbarSize"
-        android:textAllCaps="true"
-        android:textColor="#bcbdbf"
-        android:textSize="15sp"
-        android:textStyle="bold"
+        android:background="#2c2c2c"
+        android:fontFamily="sans-serif"
+        android:paddingBottom="10dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingTop="8dp"
+        android:textColor="@color/common_blue"
+        android:textSize="16sp"
         tools:text="text" />
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:background="#494c51" />
 </LinearLayout>
 

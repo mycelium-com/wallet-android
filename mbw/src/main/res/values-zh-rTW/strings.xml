@@ -25,7 +25,6 @@
   <string name="send">匯款</string>
   <string name="receive">接收</string>
   <string name="private_key_deleted">私鑰已清除</string>
-  <string name="account_deleted">刪除帳戶</string>
   <string name="enter_recipient_title">請輸入收款地址</string>
   <string name="recipient_title">收款地址</string>
   <string name="amount_label">金額:</string>
@@ -45,8 +44,6 @@
   <string name="synchronizing">正在同步</string>
   <string name="transaction_not_sent">播報交易失敗</string>
   <string name="queue_transaction_message">播報交易失敗。 \n您想要將交易放到等待隊列中嗎？只要在線立馬自動發送。</string>
-  <string name="transaction_sent">交易發送成功</string>
-  <string name="export">導出</string>
   <string name="backup_private_key">備份</string>
   <string name="copy_to_clipboard">複製到剪貼板</string>
   <string name="copy_private_key_to_clipboard">複製私鑰到剪貼板</string>
@@ -83,15 +80,9 @@
   <string name="pref_clear_pin_summary">清除當前的PIN碼</string>
   <string name="pref_set_pin">設置PIN碼</string>
   <string name="pref_set_pin_summary">设置一個PIN用来限制发送比特币，导出密钥, 以及更改PIN</string>
-  <string name="pref_local_currency">當地貨幣</string>
-  <string name="pref_local_currency_with_currency">當地貨幣 (%1$s)</string>
   <string name="pref_local_currency_summary">請選擇當地的貨幣</string>
-  <string name="pref_exchange_source">交換源</string>
   <string name="pref_exchange_source_with_value">交換源（%1$s）</string>
   <string name="pref_exchange_source_summary">選擇獲得比特幣對法定貨幣匯率的機構</string>
-  <string name="pref_bitcoin_denomination">比特幣面額</string>
-  <string name="pref_bitcoin_denomination_with_denomination">面額 （%1$s)</string>
-  <string name="pref_bitcoin_denomination_summary">設置首選的比特幣面額：BTC，mBTC，或 μBTC</string>
   <string name="pref_advanced_settings">高級設置</string>
   <string name="pref_socks_proxy">Socks 代理</string>
   <string name="pref_socks_proxy_enabled">Socks 代理 （啟用）</string>
@@ -115,10 +106,8 @@
   <string name="payment_request">付款請求</string>
   <string name="export_account_data_warning">您將要導出所選賬戶的敏感數據. \n\n 如果他人獲得了這些秘鑰的訪問權限，他就可以盜取這些秘鑰鎖所控制的比特幣，並且獲得您的隱私信息.\n\n　請問你想要繼續嗎？</string>
   <string name="backup_all_warning">您應該備份您錢包的主種子。 \n　如果您的設備丟失或損壞了，此備份允許您恢復存儲在您的HD帳戶上的資金.\n\n　您想要現進行備份嗎？</string>
-  <string name="backup_legacy_warning">您將備份您錢包中單地址帳戶。 \n 這份備份將不會包含您的主種子，您的HD帳戶不可以從它進行恢復 ！ \n\n 您還要繼續嗎？</string>
   <string name="export_to_clipboard_warning">警告：將私鑰導出到剪貼板內意味將它公開給您手機中安裝的其他應用程序． \n\n注意：在剪貼板中存儲您的私人信息不夠安全，您必須粘貼它到安全的地方\n\n您要繼續嗎？</string>
   <string name="found_clipboard_private_key_title">剪貼板中發現私鑰</string>
-  <string name="found_clipboard_private_keys_message">密匙在剪貼板上\n您想刪除它碼</string>
   <string name="exchange_source_not_available">無法獲得%1$s匯率</string>
   <string name="my_own_address_warning">注意：您正在發送給您自己的一個地址</string>
   <string name="read_only_warning">警告：您的錢包沒有此地址的私鑰． \n除非您在其他的地方有此地址的私鑰，否則您將不能用接受的比特幣進行消費．</string>
@@ -132,13 +121,10 @@
   <string name="cold_storage_desc">您將要用冷存儲中的私鑰進行消費。這可以是紙質私鑰備份或比特幣 ATM 私鑰憑條。支持以下格式 ︰ \n　私鑰，主種子 xPriv 秘鑰\n\n　一旦此次交易發送成功，以前所有的交易記錄都將從內部存儲卡中刪除。</string>
   <string name="keep_account_address">只刪除私鑰並保留它作為一個只讀帳戶</string>
   <string name="manual_entry">手動輸入</string>
-  <string name="active_hd_accounts_name">我的HD帳戶</string>
-  <string name="active_other_accounts_name">其他帳戶</string>
   <string name="archive_name">已存檔</string>
   <string name="active_accounts_empty">(空)</string>
   <string name="activate_action">激活</string>
   <string name="archive_action">存檔</string>
-  <string name="question_archive_account">存檔帳戶沒有被監測、 你不能看到帳戶餘額和接收地址。請不要對這個帳戶進行操作.\n\n存檔帳戶可以被再次激活.\n\n您需要存檔該帳戶嗎？</string>
   <string name="master_seed_configuration_title">歡迎來到Mycelium</string>
   <string name="master_seed_configuration_description">你想還原備份，還是創建一個新錢包？</string>
   <string name="master_seed_create_new_button">創建新的</string>
@@ -164,16 +150,11 @@
   <string name="using_address_from_clipboard">使用剪貼板中的地址</string>
   <string name="my_accounts">我的帳戶</string>
   <string name="foreign_addresses">通訊錄</string>
-  <string name="delete_account_title">刪除帳戶嗎？</string>
-  <string name="delete_account_message">你想要刪除該帳戶嗎？</string>
   <string name="confirm_delete_pk_title">您確定嗎？</string>
   <string name="confirm_delete_pk_with_balance">这不能被撤销!\n\n當前地址:\n%1$s\n\n它包含 %2$s\n\n您想要删除它吗?</string>
-  <string name="confirm_delete_pk_with_balance_with_label">這個不能夠被賒銷 ！ \n\n賬戶標籤:\n%1$s\n\n當前地址:\n%2$s\n\n它包含 %3$s\n\n 您想要删除它吗？</string>
   <string name="confirm_delete_pk_without_balance">此操作不能被撤销!\n\n當前地址:\n%1$s\n\n您想要删除它吗?</string>
-  <string name="confirm_delete_pk_without_balance_with_label">此操作不能夠被賒銷 ！ \n\n賬戶標籤:\n%1$s\n\n當前地址:\n%2$s\n\n 您想要删除它吗？</string>
   <string name="verify_private_key_backup">驗證備份</string>
   <string name="verify_backup_dialog_title">驗證密鑰備份</string>
-  <string name="verify_backup_desc">密鑰備份對於管理您的比特幣是至管重要的。 \n\n驗證您的備份會確保您的備份正確，這樣您不會因為手機的損壞或丟失而失去您的比特幣資金。</string>
   <string name="verify_backup_scan_desc">通過掃描私鑰或主種子的QR代碼來驗證您的備份。 \n接受多種格式，包括Mycelium的紙質備份。</string>
   <string name="verify_backup_clipboard_desc">驗證密鑰備份通過採取在剪貼板上的密鑰</string>
   <string name="verify_backup_num_keys">您有%1$s個未驗證的密鑰</string>
@@ -196,7 +177,6 @@
   <string name="encrypted_pdf_backup_document_ready">創建PDF文件完成</string>
   <string name="encrypted_pdf_backup_sharing">正在共享PDF文件</string>
   <string name="encrypted_pdf_backup_email_title">Mycelium錢包備份</string>
-  <string name="encrypted_pdf_backup_email_text">您的Mycelium錢包備份已經鏈接． \n\n請執行下列步驟來保護您的資金:\n1. 打印PDF文件\n2. 從Android設備顯示屏到打印文件的藍框中依次寫一下15個字符的密碼\n3. 驗證您可是否以導入私鑰到您的Mycelium錢包\n4. 把打印文件存儲在一個安全的地方</string>
   <string name="share_pdf">共享PDF</string>
   <string name="share_with">共享與</string>
   <string name="import_decrypt_key_title">密鑰的解密</string>
@@ -293,8 +273,6 @@
   <string name="lt_ad_created">創建廣告</string>
   <string name="lt_ad_edited">廣告編輯</string>
   <string name="lt_pref_category">本地商人</string>
-  <string name="lt_disable_preference">禁用本地交易者</string>
-  <string name="lt_disable_preference_summary">禁用本地交易功能</string>
   <string name="lt_sound_on_trade_preference">交易活動時播放鈴聲</string>
   <string name="lt_sound_on_trade_preference_summary">交易活動時播放提示音</string>
   <string name="lt_use_email_for_notifications">通過電子郵件通知</string>
@@ -469,8 +447,6 @@
   <string name="invalid_bitid_uri">不正確的 BitID URI</string>
   <!-- BitID end -->
   <string name="selected_archived_warning">您不能對存檔賬戶工作進行操作。</string>
-  <string name="selected_hd_info">你現在正在對此HD帳戶進行操作。</string>
-  <string name="selected_single_info">你現在正在對這個單一地址進行操作。</string>
   <string name="transaction_not_broadcasted_info">無法播報</string>
   <string name="hd_account_creation_started">正在創建新的HD帳戶...</string>
   <string name="preparing_wallet_on_first_startup_info">正在準備錢包...</string>
@@ -535,9 +511,6 @@
   <string name="direct_apk_link_label">直接\n下載</string>
   <string name="hide_unused_account_menu">帳戶刪除</string>
   <string name="dont_allow_hiding_used_notification">您不能隱藏已使用帳戶，但您可以將其存檔</string>
-  <string name="pref_miner_fee_title">礦工費 (%1$s)</string>
-  <string name="pref_miner_fee_block_summary">一般發送帶有礦工費的交易會涉及到下一個%1s秒數據塊“(”們“)”。</string>
-  <string name="miner_fee_lowprio_name">經濟調度</string>
   <string name="miner_fee_economic_name">經濟</string>
   <string name="miner_fee_normal_name">正常</string>
   <string name="miner_fee_priority_name">優先</string>
@@ -574,8 +547,6 @@
   <string name="lt_confirm_delete_trader_message">您想要刪除您本地商家身份嗎？所有的貿易信息和評級將被永久刪除，並且不能夠恢復。</string>
   <string name="rescan_account_menu_item">重新載入帳戶</string>
   <string name="add_advanced_account_warning">警告 ︰ \n 這些秘鑰不會包含在您的主種子備份。您必須確保您有它們的單獨備份。</string>
-  <string name="new_random_key_desc">生成新的隨機密鑰</string>
-  <string name="generate_new_key">生成</string>
   <string name="new_bitcoin_address_created">基於下面的比特幣地址，一個新的隨機私鑰已生成︰</string>
   <string name="shuffle">隨機撥放</string>
   <string name="toast_warning_low_fee">可能需要更長時間才能確認</string>
@@ -636,8 +607,6 @@
   <string name="pref_ledger_title">Ledger 硬件錢包</string>
   <string name="ledger_disable_tee_preference">禁用TEE</string>
   <string name="ledger_disable_tee_preference_summary">如果使用不同的Ledger硬件錢包, 那麼需要禁用可信執行環境設置</string>
-  <string name="ledger_unplugged_aid_preference">設置Ledge　Unplugged　應用標識符</string>
-  <string name="ledger_unplugged_aid_preference_summary">为客户定制的 Ledger Unplugged 支持一个不同的应用标识符</string>
   <string name="select_local_currencies">選擇您的貨幣</string>
   <string name="show_public_or_private_data">顯示</string>
   <string name="show_private_data">隱有</string>
@@ -647,11 +616,6 @@
   <string name="reset_pin_button">重置 Pin</string>
   <string name="wrong_pin_message">您輸入的 pin不正確.\n\n 如果您忘記了您的 pin，您可以將其重置。</string>
   <string name="pref_no_fiat_selected">選擇沒有法定貨幣</string>
-  <string name="useTor">使用 tor 網路</string>
-  <string name="useTorDescription">使用 Tor 網絡與後端服務器進行通信。 \n 這個手段能夠提高您的隱私性，它可能繞過具有很強限制性的防火牆。但它有可能降低這個應用程序的性能。</string>
-  <string name="useTorOnlyExternalTor">使用 tor 網路 (外部 tor)</string>
-  <string name="useTorOnlyHttps">使用 tor 網絡 (只要 https)</string>
-  <string name="useTorBoth">使用 tor 網絡 \"(\"兩個全部\")\"</string>
   <string name="last_log_entries">最後一個日誌條目</string>
   <string name="use_https">使用 https</string>
   <string name="use_external_tor">使用外部 tor \"(\"Orbot\")\"</string>
@@ -708,7 +672,6 @@
   <string name="payment_request_error_while_getting_ack">無法將付款發送至商家的服務器.\n%s\n\n此付款將不會被播報。</string>
   <string name="payment_request_warning_no_sig">無法驗證此次付款請求的請求者，因為它沒有簽名\n\n。請您需要非常謹慎，有可能是有人攔截了它，並且更改接受地址。</string>
   <string name="label_cold_storage_external_signing">簽字：</string>
-  <string name="spending_unconfirmed_warning">警告 ︰ 支出未確認資金</string>
   <string name="spending_unconfirmed_title">支出未驗證資金</string>
   <string name="spending_unconfirmed_description">您在交易中所使用的資金還沒有被包含在比特幣塊鏈中。不管什麼原因如果向您發送這些比特幣交易失敗或者一直保持未確認狀態，您的交易也將失敗或者一直保持未確認狀態。</string>
   <string name="label_unverified_recipient">未驗證的收件人</string>
@@ -731,7 +694,6 @@
   <string name="description_rebroadcast_transaction">重新提交這筆交易到服務器進行播報。如果您懷疑網絡沒有播報您的交易或著數據包已經丟失，因為已經很長時間沒有得到確認。你想要重新播報這筆交易嗎？</string>
   <string name="message_rebroadcast_successfull">交易已成功播報．</string>
   <string name="message_rebroadcast_failed">播報失敗，請檢查您的 internet 連接，並且同步您的錢包。</string>
-  <string name="block_explorer_title">區塊瀏覽器 \"(\"%1$s\")\"</string>
   <string name="block_explorer_summary">使用%1$s區塊瀏覽器尋找交易細節</string>
   <string name="lt_warning_wrong_account_type">本地商家與所選帳戶類型不匹配，請選擇另一個帳戶。</string>
   <string name="lt_account_not_allowed">所選的賬戶類型不能與本地商家進行交易。您需要選擇要另一個帳戶來進行這種貿易。</string>
@@ -761,6 +723,16 @@
   <string name="coinapult_create_account">正在創建 Coinapult 帳戶...</string>
   <string name="coinapult_backup_info">您的 Coinapult 帳戶訪問密鑰是基於你的主種子而生成得。如果您有一份有效的備份，它也擁有對您的 Coinapult 帳戶訪問權限。</string>
   <string name="coinapult_currency_account">%1$s 帳戶</string>
+  <!--<string name="colu_tos_link">Open Colu Terms and Conditions</string>-->
+  <!-- <string name="colu_tos_link_url">https://www.colu.com/TOS</string>-->
+  <!--<string name="colu_tos">By clicking "OK" you agree to use Colored Coin technology, third party-->
+  <!--blockchain technology developer. All your interactions with Colu are outside of-->
+  <!--Mycelium’s control and are subject to Colu’s T&amp;C and Privacy Policy.-->
+  <!--Please read them carefully before providing any personal information.-->
+  <!--MYCELIUM ACCEPTS NO RESPONSIBILITY AND WILL NOT BE LIABLE FOR ANY LOSS-->
+  <!--OR DAMAGE WHATSOEVER SUFFERED AS A RESULT OF ACCESSING, USE OF, OR-->
+  <!--RELIANCE UPON COLU’S INFORMATION AND SERVICES.</string>-->
+  <!--    <string name="colu_backup_info">Your Colu account access-key gets derived from your masterseed. If you have a valid backup, the access to your Colu account is also included.</string>  -->
   <string name="copy">複製</string>
   <string name="lt_backup_lt_id">備份交易者身份</string>
   <string name="lt_confirm_backup_trader_message">您將要導出您的本地商人帳戶的敏感數據。任何獲得這些私鑰的人都可以接管你本地的商人帳戶並以您的名義進行操作。你還想要繼續嗎？</string>
@@ -792,8 +764,6 @@
   <string name="warning_reason_rbf">RBF</string>
   <string name="warning_reason_unconfirmed_parent">未經證實的父母</string>
   <string name="warning_reason_doublespend">檢測到雙重支付</string>
-  <string name="opening_url_in_browser">在瀏覽器中打開 URL...</string>
-  <string name="incoming_payment">收款: %s</string>
   <string name="warning_amount_does_not_match">警告 ︰ 金額不符 ！</string>
   <string name="mycelium_terms_of_use">Mycelium使用條款</string>
   <!-- Credit Card -->
