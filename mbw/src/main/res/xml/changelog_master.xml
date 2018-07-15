@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
-    <release version="2.11" versioncode="2110104">
+    <release version="2.11" versioncode="2110105">
         <change>SegWit: unconfirmed SegWit transactions are now shown. Full SegWit support is coming soon</change>
         <change>New Search feature and Design in Settings</change>
         <change>Improved UI performance</change>
