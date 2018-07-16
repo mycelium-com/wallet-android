@@ -307,7 +307,7 @@ public class StartupActivity extends Activity {
               .setTitle(isPrivate ? R.string.found_clipboard_private_key_title
                       : R.string.found_clipboard_public_key_title)
               // Set dialog message
-              .setMessage(!isPrivate ? R.string.found_clipboard_private_keys_message
+              .setMessage(isPrivate ? R.string.found_clipboard_private_keys_message
                       : R.string.found_clipboard_public_keys_message)
               // Yes action
               .setCancelable(false).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
