@@ -700,7 +700,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                     modulesPrefs.addPreference(preference);
                 } else {
                     ButtonPreference installPreference = new ButtonPreference(getActivity());
-                    installPreference.setLayoutResource(R.layout.preference_module_layout);
                     installPreference.setButtonText(getString(R.string.install));
                     installPreference.setButtonClickListener(getInstallClickListener(module));
                     installPreference.setTitle(Html.fromHtml(module.getName()));
@@ -714,7 +713,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     @NonNull
     private ButtonPreference createUninstallableModulePreference(final Module module) {
         final ButtonPreference preference = new ButtonPreference(getActivity());
-        preference.setLayoutResource(R.layout.preference_module_layout);
         preference.setWidgetLayoutResource(R.layout.preference_button_uninstall);
         preference.setTitle(Html.fromHtml(module.getName()));
         preference.setKey("Module_" + module.getModulePackage());
