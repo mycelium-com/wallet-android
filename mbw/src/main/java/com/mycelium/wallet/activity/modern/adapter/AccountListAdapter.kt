@@ -3,8 +3,8 @@ package com.mycelium.wallet.activity.modern.adapter
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
-import android.content.SharedPreferences
 import android.support.v4.app.Fragment
+import android.support.v7.recyclerview.extensions.ListAdapter
 import android.support.v7.util.DiffUtil
 import android.support.v7.widget.RecyclerView
 import android.text.Html
@@ -26,9 +26,10 @@ import com.mycelium.wapi.wallet.currency.CurrencySum
 import java.util.*
 import kotlin.collections.ArrayList
 
-class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
+    : ListAdapter<AccountListItem, RecyclerView.ViewHolder>(ItemListDiffCallback(fragment.context!!)) {
 
-    private val itemList = ArrayList<AccountListItem>()
+    private var itemList: List<AccountListItem> = ArrayList()
     private val context = fragment.context!!
 
     private var focusedAccountId: UUID? = null
@@ -36,7 +37,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
 
     private var itemClickListener: ItemClickListener? = null
     private val layoutInflater: LayoutInflater
-    private val pagePrefs: SharedPreferences
+    private val pagePrefs = context.getSharedPreferences("account_list", Context.MODE_PRIVATE)
     private val listModel: AccountsListModel = ViewModelProviders.of(fragment).get(AccountsListModel::class.java)
 
     val focusedAccount: WalletAccount
@@ -44,7 +45,6 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
 
     init {
         layoutInflater = LayoutInflater.from(context)
-        pagePrefs = context.getSharedPreferences("account_list", Context.MODE_PRIVATE)
         listModel.accountsData.observe(fragment, Observer { accountsGroupModels ->
             accountsGroupModels!!
             refreshList(accountsGroupModels)
@@ -55,10 +55,8 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
 
     private fun refreshList(accountsGroupModels: List<AccountsGroupModel>) {
         val newItemList = generateListView(accountsGroupModels)
-        val diffResult = DiffUtil.calculateDiff(ItemListDiffCallback(itemList, newItemList))
-        itemList.clear()
-        itemList.addAll(newItemList)
-        diffResult.dispatchUpdatesTo(this)
+        itemList = newItemList
+        submitList(itemList)
     }
 
     private fun generateListView(accountsGroupsList: List<AccountsGroupModel>): List<AccountListItem> {
@@ -224,18 +222,12 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
         fun onItemClick(account: WalletAccount)
     }
 
-    inner class ItemListDiffCallback(private var oldAccountsList: List<AccountListItem>,
-                                     private var newAccountsList: List<AccountListItem>) : DiffUtil.Callback() {
+    class ItemListDiffCallback(val context: Context) : DiffUtil.ItemCallback<AccountListItem>() {
+        private val pagePrefs = context.getSharedPreferences("account_list", Context.MODE_PRIVATE)
 
-        override fun getOldListSize() = oldAccountsList.size
-
-        override fun getNewListSize() = newAccountsList.size
-
-        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            val oldItem = oldAccountsList[oldItemPosition]
-            val newItem = newAccountsList[newItemPosition]
+        override fun areItemsTheSame(oldItem: AccountListItem?, newItem: AccountListItem?): Boolean {
             return when {
-                oldItem.getType() != newItem.getType() -> false
+                oldItem!!.getType() != newItem!!.getType() -> false
                 listOf(GROUP_TITLE_TYPE, GROUP_ARCHIVED_TITLE_TYPE).any { it == oldItem.getType() } -> {
                     (oldItem as AccountsGroupModel).titleId == (newItem as AccountsGroupModel).titleId
                 }
@@ -246,11 +238,9 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
             }
         }
 
-        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            val oldItem = oldAccountsList[oldItemPosition]
-            val newItem = newAccountsList[newItemPosition]
+        override fun areContentsTheSame(oldItem: AccountListItem?, newItem: AccountListItem?): Boolean {
             return when {
-                listOf(GROUP_TITLE_TYPE, GROUP_ARCHIVED_TITLE_TYPE).any { it == oldItem.getType() } -> {
+                listOf(GROUP_TITLE_TYPE, GROUP_ARCHIVED_TITLE_TYPE).any { it == oldItem!!.getType() } -> {
                     val title = (newItem as AccountsGroupModel).getTitle(context)
                     val sameCollapseState = newItem.isCollapsed == pagePrefs.getBoolean(title, true)
                     newItem.isCollapsed = pagePrefs.getBoolean(title, true)

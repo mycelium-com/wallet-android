@@ -38,14 +38,16 @@ public class ViewAccountModel {
         accountType = viewModel.getAccountType();
         final WalletAccount account = MbwManager.getInstance(context).getWalletManager(false).getAccount(accountId);
         if (account instanceof Bip44PubOnlyAccount && account.isActive()) {
-            if (Integer.valueOf(viewModel.getDisplayAddress()) > 1) {
-                displayAddress = context.getString(R.string.contains_addresses, viewModel.getDisplayAddress());
+            int numKeys = ((Bip44Account) account).getPrivateKeyCount();
+            if (numKeys > 1) {
+                displayAddress = context.getString(R.string.contains_addresses, numKeys);
             } else {
                 displayAddress = context.getString(R.string.account_contains_one_address_info);
             }
         } else if (account instanceof Bip44Account && account.isActive()) {
-            if (Integer.valueOf(viewModel.getDisplayAddress()) > 1) {
-                displayAddress = context.getString(R.string.contains_keys, viewModel.getDisplayAddress());
+            int numKeys = ((Bip44Account) account).getPrivateKeyCount();
+            if (numKeys > 1) {
+                displayAddress = context.getString(R.string.contains_keys, numKeys);
             } else {
                 displayAddress = context.getString(R.string.account_contains_one_key_info);
             }
