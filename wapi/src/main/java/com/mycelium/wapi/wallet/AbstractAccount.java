@@ -1363,15 +1363,13 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
          }
 
          // update the local transaction
-         if (localTransactionEx != null && (localTransactionEx.height != t.height || localTransactionEx.time != t.time)) {
-            // The transaction got a new height or timestamp. There could be
-            // several reasons for that. It got a new timestamp from the server,
-            // it confirmed, or might also be a reorg.
-            TransactionEx newTex = new TransactionEx(localTransactionEx.txid, localTransactionEx.hash, t.height, t.time, localTransactionEx.binary);
+         if (localTransactionEx != null && (localTransactionEx.height != t.height)) {
+            // The transaction got a new height. There could be
+            // several reasons for that. It confirmed, or might also be a reorg.
+            TransactionEx newTex = new TransactionEx(localTransactionEx.txid, localTransactionEx.hash, t.height, localTransactionEx.time, localTransactionEx.binary);
             _logger.logInfo(String.format("Replacing: %s With: %s", localTransactionEx.toString(), newTex.toString()));
-            postEvent(Event.TRANSACTION_HISTORY_CHANGED);
-            _backing.deleteTransaction(localTransactionEx.txid);
             _backing.putTransaction(newTex);
+            postEvent(Event.TRANSACTION_HISTORY_CHANGED);
          }
       }
       return true;

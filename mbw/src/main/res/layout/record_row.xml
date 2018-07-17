@@ -2,23 +2,26 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-              android:layout_width="fill_parent"
-              android:layout_height="wrap_content"
-              android:gravity="center_vertical"
-              android:orientation="horizontal"
-    android:paddingTop="@dimen/margin_small"
-    android:paddingBottom="@dimen/margin_small">
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="vertical">
 
-    <!-- Key Icon -->
-
-    <FrameLayout
+    <LinearLayout
+        android:id="@+id/llAddress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingBottom="12dp">
+        <!-- Key Icon -->
+        <FrameLayout
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_gravity="center_vertical"
             android:gravity="center"
             android:layout_marginLeft="5dp">
 
-        <ImageView
+            <ImageView
                 android:id="@+id/ivIcon"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
@@ -26,18 +29,18 @@
                 android:contentDescription="@string/label_single_key_icon"
                 tools:src="@drawable/singlekey_grey" />
 
-        <!--<ImageView-->
-                <!--android:id="@+id/ivIconPrivKey"-->
-                <!--android:layout_width="16dp"-->
-                <!--android:layout_height="16dp"-->
-                <!--android:layout_gravity="right"-->
-                <!--android:visibility="gone"-->
-                <!--android:src="@drawable/singlekey_grey"-->
-                <!--android:contentDescription="@string/label_single_key_icon" />-->
-    </FrameLayout>
+            <!--<ImageView-->
+            <!--android:id="@+id/ivIconPrivKey"-->
+            <!--android:layout_width="16dp"-->
+            <!--android:layout_height="16dp"-->
+            <!--android:layout_gravity="right"-->
+            <!--android:visibility="gone"-->
+            <!--android:src="@drawable/singlekey_grey"-->
+            <!--android:contentDescription="@string/label_single_key_icon" />-->
+        </FrameLayout>
 
-    <LinearLayout
-            android:id="@+id/llAddress"
+        <!-- Main account info -->
+        <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_margin="0dp"
@@ -46,48 +49,48 @@
             android:orientation="vertical"
             android:padding="0dp" >
 
-        <TextView
-            android:id="@+id/tvAccountType"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            tools:text="32234"
-            android:gravity="center"
-            android:textSize="18sp"
-            android:visibility="gone"/>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
             <TextView
-                android:id="@+id/tvLabel"
+                android:id="@+id/tvAccountType"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_margin="0dp"
+                android:layout_gravity="center"
                 tools:text="32234"
                 android:gravity="center"
-                android:padding="0dp"
-                android:textSize="24sp" />
+                android:textSize="18sp"
+                android:visibility="gone"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tvLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_margin="0dp"
+                    tools:text="32234"
+                    android:gravity="center"
+                    android:padding="0dp"
+                    android:textSize="24sp" />
+
+                <TextView
+                    android:id="@+id/tvWhatIsIt"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="0dp"
+                    android:gravity="center"
+                    android:text="@string/what_is_it"
+                    android:layout_marginRight="4dp"
+                    android:layout_marginLeft="4dp"
+                    android:textColor="#4583de"
+                    android:textSize="16sp"
+                    android:visibility="gone"
+                    />
+            </LinearLayout>
 
             <TextView
-                android:id="@+id/tvWhatIsIt"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="0dp"
-                android:gravity="center"
-                android:text="@string/what_is_it"
-                android:layout_marginRight="4dp"
-                android:layout_marginLeft="4dp"
-                android:textColor="#4583de"
-                android:textSize="16sp"
-                android:visibility="gone"
-                />
-        </LinearLayout>
-
-        <TextView
                 android:id="@+id/tvAddress"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
@@ -96,9 +99,9 @@
                 android:padding="0dp"
                 android:textSize="16sp"
                 android:typeface="monospace" >
-        </TextView>
+            </TextView>
 
-        <TextView
+            <TextView
                 android:id="@+id/tvBalance"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
@@ -106,51 +109,10 @@
                 android:gravity="center"
                 android:padding="0dp"
                 android:textSize="16sp" >
-        </TextView>
-
-        <LinearLayout
-            android:id="@+id/tvProgressLayout"
-            android:layout_width="match_parent"
-            android:layout_height="32dp"
-            android:orientation="vertical">
-
-            <ProgressBar
-                android:id="@+id/progressBar"
-                style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="match_parent"
-                android:layout_height="8dp"
-                android:indeterminate="true"/>
-
-            <LinearLayout
-                android:layout_marginTop="2dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center">
-
-                <TextView
-                    android:id="@+id/tvProgress"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:ellipsize="end"
-                    android:singleLine="true"
-                    android:textSize="12sp"
-                    android:textColor="@color/mycelium_midblue"/>
-
-                <ImageView
-                    android:id="@+id/ivWhatIsSync"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_marginLeft="12dp"
-                    android:layout_marginRight="4dp"
-                    app:srcCompat="@drawable/ic_info"
-                    android:tint="@color/mycelium_midblue"/>
-            </LinearLayout>
+            </TextView>
 
 
-        </LinearLayout>
-
-        <TextView
+            <TextView
                 android:id="@+id/tvBackupMissingWarning"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
@@ -160,9 +122,9 @@
                 android:text="@string/backup_missing"
                 android:textColor="@color/red"
                 android:textSize="16sp" >
-        </TextView>
+            </TextView>
 
-        <TextView
+            <TextView
                 android:id="@+id/tvTraderKey"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
@@ -173,7 +135,57 @@
                 android:textColor="@color/green"
                 android:visibility="gone"
                 android:textSize="12sp" >
-        </TextView>
+            </TextView>
+        </LinearLayout>
+
     </LinearLayout>
+
+    <!-- Sync layout -->
+    <LinearLayout
+        android:id="@+id/tvProgressLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            style="@style/AccountProgressBar"
+            android:layout_width="match_parent"
+            android:layout_height="16dp"
+            android:layout_marginTop="-7dp"
+            android:indeterminate="true" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="32dp"
+            android:gravity="end|center_vertical"
+            android:orientation="horizontal"
+            android:paddingEnd="16dp"
+            android:paddingStart="16dp">
+
+            <TextView
+                android:id="@+id/tvProgress"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:singleLine="true"
+                android:textColor="@color/dark_sky_blue"
+                android:textSize="12sp"
+                android:gravity="end"
+                tools:text="Syncing in progress: 355 transactions retrieved" />
+
+            <ImageView
+                android:id="@+id/ivWhatIsSync"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="8dp"
+                android:tint="@color/dark_sky_blue"
+                app:srcCompat="@drawable/ic_info" />
+        </LinearLayout>
+
+
+    </LinearLayout>
+
 
 </LinearLayout>

@@ -84,6 +84,7 @@ import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.UUID;
 
+import static com.mycelium.wallet.StringHandleConfig.HdNodeAction.isKeyNode;
 import static com.mycelium.wallet.StringHandleConfig.PrivateKeyAction.getPrivateKey;
 
 public class StartupActivity extends Activity {
@@ -94,6 +95,7 @@ public class StartupActivity extends Activity {
    private static final String URI_HOST_GLIDERA_REGISTRATION = "glideraRegistration";
 
    private boolean _hasClipboardExportedPrivateKeys;
+   private boolean hasClipboardExportedPublicKeys;
    private MbwManager _mbwManager;
    private AlertDialog _alertDialog;
    private PinDialog _pinDialog;
@@ -142,6 +144,8 @@ public class StartupActivity extends Activity {
          // Check if we have lingering exported private keys, we want to warn
          // the user if that is the case
          _hasClipboardExportedPrivateKeys = hasPrivateKeyOnClipboard(_mbwManager.getNetwork());
+         hasClipboardExportedPublicKeys = hasPublicKeyOnClipboard(_mbwManager.getNetwork());
+
          // Calculate how much time we spent initializing, and do a delayed
          // finish so we display the splash a minimum amount of time
          long timeSpent = System.currentTimeMillis() - startTime;
@@ -165,6 +169,20 @@ public class StartupActivity extends Activity {
             return false;
          }
       }
+
+      private boolean hasPublicKeyOnClipboard(NetworkParameters network) {
+         // do we have a public key on the clipboard?
+         try {
+            if (isKeyNode(network, Utils.getClipboardString(StartupActivity.this))) {
+               return true;
+            }
+            HdKeyNode.parse(Utils.getClipboardString(StartupActivity.this), network);
+            return true;
+         } catch (HdKeyNode.KeyGenerationException ex) {
+            return false;
+         }
+      }
+
    };
 
    private void initMasterSeed() {
@@ -271,20 +289,26 @@ public class StartupActivity extends Activity {
             return;
          }
 
-         if (_hasClipboardExportedPrivateKeys) {
-            warnUserOnClipboardKeys();
-         } else {
+         if(hasClipboardExportedPublicKeys){
+            warnUserOnClipboardKeys(false);
+         }
+         else if ( _hasClipboardExportedPrivateKeys) {
+            warnUserOnClipboardKeys(true);
+         }
+         else {
             normalStartup();
          }
       }
    };
 
-   private void warnUserOnClipboardKeys() {
+   private void warnUserOnClipboardKeys(boolean isPrivate) {
       _alertDialog = new AlertDialog.Builder(this)
               // Set title
-              .setTitle(R.string.found_clipboard_private_key_title)
+              .setTitle(isPrivate ? R.string.found_clipboard_private_key_title
+                      : R.string.found_clipboard_public_key_title)
               // Set dialog message
-              .setMessage(R.string.found_clipboard_private_keys_message)
+              .setMessage(!isPrivate ? R.string.found_clipboard_private_keys_message
+                      : R.string.found_clipboard_public_keys_message)
               // Yes action
               .setCancelable(false).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                  public void onClick(DialogInterface dialog, int id) {

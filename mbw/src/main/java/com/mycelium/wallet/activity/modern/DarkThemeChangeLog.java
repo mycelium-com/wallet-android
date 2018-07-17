@@ -44,4 +44,11 @@ public class DarkThemeChangeLog extends ChangeLog {
    public DarkThemeChangeLog(Context context) {
       super(context, DARK_THEME_CSS);
    }
+
+   @Override
+   public boolean isFirstRun() {
+      final boolean isFirstRun = super.isFirstRun();
+      updateVersionInPreferences();
+      return isFirstRun;
+   }
 }

@@ -372,7 +372,7 @@ public class StringHandleConfig implements Serializable {
          }
       };
 
-      private static boolean isKeyNode(NetworkParameters network, String content) {
+      public static boolean isKeyNode(NetworkParameters network, String content) {
          try {
             HdKeyNode.parse(content, network);
             return true;

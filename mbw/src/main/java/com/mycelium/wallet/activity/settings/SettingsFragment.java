@@ -76,6 +76,8 @@ import com.squareup.otto.Subscribe;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
@@ -406,6 +408,13 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
         ExchangeRateManager exchangeManager = _mbwManager.getExchangeRateManager();
         List<String> exchangeSourceNamesList = exchangeManager.getExchangeSourceNames();
+        Collections.sort(exchangeSourceNamesList, new Comparator<String>() {
+            @Override
+            public int compare(String rate1, String rate2) {
+                return rate1.compareToIgnoreCase(rate2);
+            }
+        });
+
         CharSequence[] exchangeNames = exchangeSourceNamesList.toArray(new String[exchangeSourceNamesList.size()]);
         _exchangeSource.setEntries(exchangeNames);
         if (exchangeNames.length == 0) {
@@ -529,9 +538,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
                     BackupFragment backupFragment = BackupFragment.newInstance(backupPreferenceScreen.getKey());
-                    Bundle args = new Bundle();
-                    args.putInt(BackupFragment.ARG_FRAGMENT_OPEN_TYPE, finalI);
-                    backupFragment.setArguments(args);
+                    backupFragment.getArguments().putInt(BackupFragment.ARG_FRAGMENT_OPEN_TYPE, finalI);
 
                     getFragmentManager()
                             .beginTransaction()
@@ -553,9 +560,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
                     PinCodeFragment pinFragment = PinCodeFragment.newInstance(pinPreferenceScreen.getKey());
-                    Bundle args = new Bundle();
-                    args.putInt(BackupFragment.ARG_FRAGMENT_OPEN_TYPE, finalI);
-                    pinFragment.setArguments(args);
+                    pinFragment.getArguments().putInt(PinCodeFragment.ARG_FRAGMENT_OPEN_TYPE, finalI);
 
                     getFragmentManager()
                             .beginTransaction()
@@ -696,12 +701,10 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 } else {
                     ButtonPreference installPreference = new ButtonPreference(getActivity());
                     installPreference.setLayoutResource(R.layout.preference_module_layout);
-                    installPreference.setIcon(GooglePlayModuleCollection.getBigLogo(getActivity(), module.getModulePackage()));
                     installPreference.setButtonText(getString(R.string.install));
                     installPreference.setButtonClickListener(getInstallClickListener(module));
                     installPreference.setTitle(Html.fromHtml(module.getName()));
                     installPreference.setSummary(module.getDescription());
-                    installPreference.setUnderIconText(getString(R.string.preference_module_under_icon_text, module.getShortName()));
                     modulesPrefs.addPreference(installPreference);
                 }
             }
@@ -715,7 +718,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         preference.setWidgetLayoutResource(R.layout.preference_button_uninstall);
         preference.setTitle(Html.fromHtml(module.getName()));
         preference.setKey("Module_" + module.getModulePackage());
-        preference.setIcon(GooglePlayModuleCollection.getBigLogo(getActivity(), module.getModulePackage()));
         updateModulePreference(preference, module);
         updateModuleSyncAsync(preference);
         preference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -742,7 +744,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                         .putExtra(Intent.EXTRA_RETURN_RESULT, true), REQUEST_CODE_UNINSTALL);
             }
         });
-        preference.setUnderIconText(getString(R.string.preference_module_under_icon_text, module.getShortName()));
         return preference;
     }
 
@@ -751,7 +752,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         preference.setLayoutResource(R.layout.preference_module_layout);
         preference.setTitle(Html.fromHtml(module.getName()));
         preference.setKey("Module_" + module.getModulePackage());
-        preference.setIcon(GooglePlayModuleCollection.getBigLogo(getActivity(), module.getModulePackage()));
         updateModulePreference(preference, module);
         updateModuleSyncAsync(preference);
         preference.setButtonsText(getString(R.string.uninstall), getString(R.string.update));
@@ -764,7 +764,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                         .putExtra(Intent.EXTRA_RETURN_RESULT, true), REQUEST_CODE_UNINSTALL);
             }
         });
-        preference.setUnderIconText(getString(R.string.preference_module_under_icon_text, module.getShortName()));
         preference.setBottomButtonClickListener(getInstallClickListener(module));
         return preference;
     }
