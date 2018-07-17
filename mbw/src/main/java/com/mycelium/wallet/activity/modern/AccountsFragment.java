@@ -168,7 +168,6 @@ public class AccountsFragment extends Fragment {
          llLocked = view.findViewById(R.id.llLocked);
       }
       accountListAdapter.setItemClickListener(recordAddressClickListener);
-      accountListAdapter.setItemSelectListener(recordStarClickListener);
    }
 
    @Override
@@ -570,17 +569,6 @@ public class AccountsFragment extends Fragment {
    }
 
    private ActionMode currentActionMode;
-
-   private AccountListAdapter.ItemSelectListener recordStarClickListener = new AccountListAdapter.ItemSelectListener() {
-
-      @Override
-      public void onClick(WalletAccount account) {
-         if (account.isActive()) {
-            _mbwManager.setSelectedAccount(account.getId());
-         }
-         update();
-      }
-   };
 
    private AccountListAdapter.ItemClickListener recordAddressClickListener = new AccountListAdapter.ItemClickListener() {
       @Override
