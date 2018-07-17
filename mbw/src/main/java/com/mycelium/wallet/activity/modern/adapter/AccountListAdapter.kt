@@ -54,8 +54,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
     }
 
     private fun refreshList(accountsGroupModels: List<AccountsGroupModel>) {
-        val newItemList = generateListView(accountsGroupModels)
-        itemList = newItemList
+        itemList = generateListView(accountsGroupModels)
         submitList(itemList)
     }
 
