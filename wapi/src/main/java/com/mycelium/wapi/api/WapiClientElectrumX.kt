@@ -32,7 +32,7 @@ import kotlin.collections.ArrayList
  */
 class WapiClientElectrumX(
         serverEndpoints: ServerEndpoints,
-        val endpoints: Array<TcpEndpoint>,
+        private val endpoints: Array<TcpEndpoint>,
         logger: WapiLogger,
         versionCode: String)
     : WapiClient(serverEndpoints, logger, versionCode), ConnectionMonitor.ConnectionObserver {
@@ -93,7 +93,7 @@ class WapiClientElectrumX(
 
     override fun connectionChanged(e: ConnectionMonitor.ConnectionEvent?) {
         if (e == ConnectionMonitor.ConnectionEvent.WENT_ONLINE) {
-            jsonRpcTcpClient.writeAsync(HEADRES_SUBSCRIBE_METHOD, RpcParams.listParams(true), receiveHeaderCallback)
+            jsonRpcTcpClient.subscribe(HEADRES_SUBSCRIBE_METHOD, RpcParams.listParams(true), receiveHeaderCallback)
         }
     }
 
