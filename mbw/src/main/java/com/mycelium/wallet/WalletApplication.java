@@ -218,7 +218,8 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         public void onActivityStarted(Activity activity) {
             if (numStarted == 0 && isBackgroung) {
                 // app returned from background
-                WalletApplication.this.mbwManager.getWapi().refreshRpcClients();
+                WalletApplication.this.mbwManager.getWapi().setAppInForegroung(true);
+                isBackgroung = false;
             }
             numStarted++;
         }
@@ -234,6 +235,7 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
             numStarted--;
             if (numStarted == 0) {
                 // app is going background
+                WalletApplication.this.mbwManager.getWapi().setAppInForegroung(false);
                 isBackgroung = true;
             }
         }
