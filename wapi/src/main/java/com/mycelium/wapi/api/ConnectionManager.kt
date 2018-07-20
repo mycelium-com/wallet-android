@@ -71,9 +71,11 @@ class ConnectionManager(private val connectionsCount: Int, private val endpoints
     }
 
     fun subscribe(subscription: Subscription) {
-        val client = getClient()
-        client.subscribe(subscription)
-        jsonRpcTcpClientsList.put(client)
+        launch {
+            val client = getClient()
+            client.subscribe(subscription)
+            jsonRpcTcpClientsList.put(client)
+        }
     }
 
     @Throws(CancellationException::class)
