@@ -13,6 +13,8 @@ class RpcResponse : AbstractResponse() {
 
     @SerializedName(JSON_RPC_IDENTIFIER)
     val version: String? = null
+    @SerializedName(METHOD_KEY)
+    val method: String? = null
 
     val id: Any = NO_ID
     val error: RpcError? = null
