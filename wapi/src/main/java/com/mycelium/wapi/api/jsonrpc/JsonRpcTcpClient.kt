@@ -51,7 +51,7 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
 
     @Throws(IllegalStateException::class)
     fun start() {
-        if (isStarted.compareAndSet(true, true)) {
+        if (isStarted.get()) {
             throw IllegalStateException("RPC client could not be started twice.")
         }
         thread(start = true) {
@@ -107,9 +107,7 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
         }
     }
 
-    fun getSubscriptions(): Map<String, Subscription> {
-        return subscriptions
-    }
+    fun getSubscriptions(): Map<String, Subscription> = subscriptions
 
     /**
      * Must be called to correctly stop all the threads.

@@ -52,20 +52,13 @@ class ConnectionManager(private val connectionsCount: Int, private val endpoints
 
     fun setActive(isActive: Boolean) {
         logger.logInfo("Connection support changed, new state: $isActive")
+        maintenanceTimer?.cancel()
+        maintenanceTimer = null
         currentMode = if (isActive) {
-            maintenanceTimer?.cancel()
-            maintenanceTimer = null
-            if (maintenanceTimer == null) {
-                activateMaintenanceTimer(connectionsCount, endpoints, logger, 0L, MAINTENANCE_INTERVAL)
-            }
+            activateMaintenanceTimer(connectionsCount, endpoints, logger, 0L, MAINTENANCE_INTERVAL)
             ConnectionManagerMode.ACTIVE
         } else {
-            maintenanceTimer?.cancel()
-            maintenanceTimer = null
-            if (maintenanceTimer == null) {
-                activateMaintenanceTimer(connectionsCount, endpoints, logger,
-                        INACTIVE_MAINTENANCE_INTERVAL, INACTIVE_MAINTENANCE_INTERVAL)
-            }
+            activateMaintenanceTimer(connectionsCount, endpoints, logger, INACTIVE_MAINTENANCE_INTERVAL, INACTIVE_MAINTENANCE_INTERVAL)
             ConnectionManagerMode.PASSIVE
         }
     }
