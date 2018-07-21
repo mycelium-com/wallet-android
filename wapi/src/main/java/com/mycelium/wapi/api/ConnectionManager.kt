@@ -201,7 +201,7 @@ class ConnectionManager(private val connectionsCount: Int, private val endpoints
     private fun getClient(): JsonRpcTcpClient {
         var rpcClient = jsonRpcTcpClientsList.take()
         while (!rpcClient.isConnected.get()) {
-            // If client usage was unsuccessfull put into maintained list to not to spend time on it
+            // If client usage was unsuccessful put into maintained list to not to spend time on it
             maintenancedClientsList.put(rpcClient)
             rpcClient = jsonRpcTcpClientsList.take()
         }

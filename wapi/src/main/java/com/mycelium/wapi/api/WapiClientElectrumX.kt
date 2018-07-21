@@ -48,7 +48,7 @@ class WapiClientElectrumX(
     }
     private val connectionManager = ConnectionManager(5, endpoints, logger)
 
-    override fun setAppInForegroung(isInForeground: Boolean) {
+    override fun setAppInForeground(isInForeground: Boolean) {
         connectionManager.setActive(isInForeground)
     }
 

@@ -260,7 +260,7 @@ public abstract class WapiClient implements Wapi, WapiClientLifecycle {
    }
 
    @Override
-   public void setAppInForegroung(boolean isInForeground) {
+   public void setAppInForeground(boolean isInForeground) {
       // not required
    }
 
