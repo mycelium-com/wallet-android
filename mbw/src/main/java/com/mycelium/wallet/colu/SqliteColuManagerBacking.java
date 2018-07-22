@@ -778,7 +778,7 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
                   height = -1;
                }
                Sha256Hash hash = new Sha256Hash(cursor.getBlob(0));
-               return new TransactionEx(txid, hash, height, cursor.getInt(1), cursor.getBlob(2));
+               return new TransactionEx(txid, hash, height, cursor.getInt(2), cursor.getBlob(3));
             }
             return null;
          } finally {

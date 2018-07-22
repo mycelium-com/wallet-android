@@ -11,9 +11,13 @@ buildscript {
     }
 }
 
+repositories {
+    google()
+    jcenter()
+}
 
 dependencies {
-    implementation project(includePrefix +':libs:zxing-core')
+    implementation 'com.google.zxing:core:3.3.3'
 }
 
 android {

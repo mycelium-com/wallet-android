@@ -57,10 +57,11 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
         }.toJson())
     }
 
-    fun writeAsync(methodName: String, params: RpcParams, callback: Consumer<AbstractResponse>) {
+    fun subscribe(methodName: String, params: RpcParams, callback: Consumer<AbstractResponse>) {
         val request = RpcRequestOut(methodName, params).apply {
             id = nextRequestId.getAndIncrement().toString()
             callbacks[id.toString()] = callback
+            callbacks[methodName] = callback
         }.toJson()
         internalWrite(request)
     }
@@ -209,8 +210,14 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
         } else {
             val response = RpcResponse.fromJson(message)
             val id = response.id.toString()
-            callbacks[id]?.also { callback ->
-                callback.invoke(response)
+            if (id != NO_ID.toString()) {
+                callbacks[id]?.also { callback ->
+                    callback.invoke(response)
+                }
+            } else {
+                callbacks[response.method]?.also { callback ->
+                    callback.invoke(response)
+                }
             }
             callbacks.remove(id)
         }
