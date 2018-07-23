@@ -1023,7 +1023,7 @@ public class AccountsFragment extends Fragment {
          return;
       }
       final WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
-      if (_focusedAccount.isActive() && accountIsSafeToRemove(_focusedAccount)) {
+      if (_focusedAccount.isActive() && accountProtected(_focusedAccount)) {
          _toaster.toast(R.string.keep_one_active, false);
          return;
       }
@@ -1138,7 +1138,7 @@ public class AccountsFragment extends Fragment {
          return;
       }
       final WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
-      if (accountIsSafeToRemove(_focusedAccount)) {
+      if (accountProtected(_focusedAccount)) {
          //this is the last active account, we dont allow archiving it
          _toaster.toast(R.string.keep_one_active, false);
          return;
@@ -1179,7 +1179,10 @@ public class AccountsFragment extends Fragment {
       });
    }
 
-   private boolean accountIsSafeToRemove(WalletAccount toRemove) {
+   /**
+    * Account is protected if after removal no accounts would stay active, so it would not be possible to select an account
+    */
+   private boolean accountProtected(WalletAccount toRemove) {
       final WalletAccount linkedAccount = getLinkedAccount(toRemove);
       final int safeSize = linkedAccount == null ? 2 : 3;
       return _mbwManager.getWalletManager(false).getActiveAccounts().size() < safeSize;
@@ -1190,7 +1193,7 @@ public class AccountsFragment extends Fragment {
          return;
       }
       final WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
-      if (accountIsSafeToRemove(_focusedAccount)) {
+      if (accountProtected(_focusedAccount)) {
          //this is the last active account, we dont allow hiding it
          _toaster.toast(R.string.keep_one_active, false);
          return;
