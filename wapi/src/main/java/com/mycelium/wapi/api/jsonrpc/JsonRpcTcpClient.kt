@@ -250,7 +250,7 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
     private fun sendPingMessage() {
         try {
             val pong = write("server.ping", RpcMapParams(emptyMap<String, String>()))
-            val calendar = Calendar.getInstance(Locale.getDefault())
+            val calendar = Calendar.getInstance(Locale.ENGLISH)
             logger.logInfo("Pong! $pong " + calendar.time)
         } catch (ex: Exception) {
             isConnected.set(false)
