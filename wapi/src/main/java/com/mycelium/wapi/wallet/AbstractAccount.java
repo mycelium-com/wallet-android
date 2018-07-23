@@ -279,6 +279,11 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       List<TransactionOutputEx> unspentOutputsToAddOrUpdate = new LinkedList<>();
       for (TransactionOutputEx r : remoteUnspent) {
          TransactionOutputEx l = localMap.get(r.outPoint);
+         if (l == null) {
+            // We might have already spent transaction, but if getUnspent used connection to different server
+            // it would not know that output is already spent.
+            l = _backing.getParentTransactionOutput(r.outPoint);
+         }
          if (l == null || l.height != r.height) {
             // New remote output or new height (Maybe it confirmed or we
             // might even have had a reorg). Either way we just update it
