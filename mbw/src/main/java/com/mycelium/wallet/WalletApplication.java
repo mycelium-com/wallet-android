@@ -207,7 +207,7 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         private int numStarted = 0;
         private int numOfCreated = 0;
         // so we would understand if app was just created, or restored from background
-        private boolean isBackgroung = false;
+        private boolean isBackground = false;
 
         @Override
         public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
@@ -216,9 +216,10 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
 
         @Override
         public void onActivityStarted(Activity activity) {
-            if (numStarted == 0 && isBackgroung) {
+            if (numStarted == 0 && isBackground) {
                 // app returned from background
-                WalletApplication.this.mbwManager.getWapi().refreshRpcClients();
+                WalletApplication.this.mbwManager.getWapi().setAppInForeground(true);
+                isBackground = false;
             }
             numStarted++;
         }
@@ -234,7 +235,8 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
             numStarted--;
             if (numStarted == 0) {
                 // app is going background
-                isBackgroung = true;
+                WalletApplication.this.mbwManager.getWapi().setAppInForeground(false);
+                isBackground = true;
             }
         }
 
