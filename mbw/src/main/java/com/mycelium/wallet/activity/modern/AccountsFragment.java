@@ -1023,7 +1023,9 @@ public class AccountsFragment extends Fragment {
          return;
       }
       final WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
-      if (_focusedAccount.isActive() && _mbwManager.getWalletManager(false).getActiveAccounts().size() < 2) {
+      final WalletAccount linkedAccount = getLinkedAccount(_focusedAccount);
+      final int safeSize = linkedAccount == null ? 2 : 3;
+      if (_focusedAccount.isActive() && _mbwManager.getWalletManager(false).getActiveAccounts().size() < safeSize) {
          _toaster.toast(R.string.keep_one_active, false);
          return;
       }
@@ -1137,12 +1139,14 @@ public class AccountsFragment extends Fragment {
       if (!isAdded()) {
          return;
       }
-      if (_mbwManager.getWalletManager(false).getActiveAccounts().size() < 2) {
+      final WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
+      final WalletAccount linkedAccount = getLinkedAccount(_focusedAccount);
+      final int safeSize = linkedAccount == null ? 2 : 3;
+      if (_mbwManager.getWalletManager(false).getActiveAccounts().size() < safeSize) {
          //this is the last active account, we dont allow archiving it
          _toaster.toast(R.string.keep_one_active, false);
          return;
       }
-      final WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
       if (_focusedAccount.getType() == WalletAccount.Type.COINAPULT) {
          _mbwManager.runPinProtectedFunction(getActivity(), new Runnable() {
 
@@ -1183,12 +1187,14 @@ public class AccountsFragment extends Fragment {
       if (!isAdded()) {
          return;
       }
-      if (_mbwManager.getWalletManager(false).getActiveAccounts().size() < 2) {
+      final WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
+      final WalletAccount linkedAccount = getLinkedAccount(_focusedAccount);
+      final int safeSize = linkedAccount == null ? 2 : 3;
+      if (_mbwManager.getWalletManager(false).getActiveAccounts().size() < safeSize) {
          //this is the last active account, we dont allow hiding it
          _toaster.toast(R.string.keep_one_active, false);
          return;
       }
-      final WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
       if (_focusedAccount instanceof Bip44Account) {
          final Bip44Account account = (Bip44Account) _focusedAccount;
          if (account.hasHadActivity()) {
