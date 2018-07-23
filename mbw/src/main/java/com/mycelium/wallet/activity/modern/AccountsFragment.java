@@ -1023,9 +1023,7 @@ public class AccountsFragment extends Fragment {
          return;
       }
       final WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
-      final WalletAccount linkedAccount = getLinkedAccount(_focusedAccount);
-      final int safeSize = linkedAccount == null ? 2 : 3;
-      if (_focusedAccount.isActive() && _mbwManager.getWalletManager(false).getActiveAccounts().size() < safeSize) {
+      if (_focusedAccount.isActive() && isAccountRemoveSafe(_focusedAccount)) {
          _toaster.toast(R.string.keep_one_active, false);
          return;
       }
@@ -1140,9 +1138,7 @@ public class AccountsFragment extends Fragment {
          return;
       }
       final WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
-      final WalletAccount linkedAccount = getLinkedAccount(_focusedAccount);
-      final int safeSize = linkedAccount == null ? 2 : 3;
-      if (_mbwManager.getWalletManager(false).getActiveAccounts().size() < safeSize) {
+      if (isAccountRemoveSafe(_focusedAccount)) {
          //this is the last active account, we dont allow archiving it
          _toaster.toast(R.string.keep_one_active, false);
          return;
@@ -1183,14 +1179,18 @@ public class AccountsFragment extends Fragment {
       });
    }
 
+   private boolean isAccountRemoveSafe(WalletAccount toRemove) {
+      final WalletAccount linkedAccount = getLinkedAccount(toRemove);
+      final int safeSize = linkedAccount == null ? 2 : 3;
+      return _mbwManager.getWalletManager(false).getActiveAccounts().size() < safeSize;
+   }
+
    private void hideSelected() {
       if (!isAdded()) {
          return;
       }
       final WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
-      final WalletAccount linkedAccount = getLinkedAccount(_focusedAccount);
-      final int safeSize = linkedAccount == null ? 2 : 3;
-      if (_mbwManager.getWalletManager(false).getActiveAccounts().size() < safeSize) {
+      if (isAccountRemoveSafe(_focusedAccount)) {
          //this is the last active account, we dont allow hiding it
          _toaster.toast(R.string.keep_one_active, false);
          return;
