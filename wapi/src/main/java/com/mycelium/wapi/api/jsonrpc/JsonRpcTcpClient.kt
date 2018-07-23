@@ -51,7 +51,7 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
 
     @Throws(IllegalStateException::class)
     fun start() {
-        if (isStarted.get()) {
+        if (isStarted.getAndSet(true)) {
             throw IllegalStateException("RPC client could not be started twice.")
         }
         thread(start = true) {
