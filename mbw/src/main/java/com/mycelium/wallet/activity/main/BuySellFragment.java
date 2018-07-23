@@ -189,18 +189,7 @@ public class BuySellFragment extends Fragment implements ButtonClickListener {
     }
 
     private void startExchange(Intent intent) {
-        //TODO need find more right way to detect is Changelly available
-        final ExchangeRate exchangeRate = _mbwManager.getExchangeRateManager().getExchangeRate("BCH");
-        if (exchangeRate == null || exchangeRate.price == null) {
-            new AlertDialog.Builder(getActivity(), R.style.MyceliumModern_Dialog)
-                    .setMessage(R.string.exchange_service_unavailable)
-                    .setPositiveButton(R.string.button_ok, null)
-                    .create()
-                    .show();
-            _mbwManager.getExchangeRateManager().requestRefresh();
-        } else {
-            startActivity(intent);
-        }
+        startActivity(intent);
     }
 
     @Override

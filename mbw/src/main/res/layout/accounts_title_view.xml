@@ -17,7 +17,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:layoutDirection="ltr"
-        custom:precision="2"
         custom:textSize="15sp" />
 
     <LinearLayout

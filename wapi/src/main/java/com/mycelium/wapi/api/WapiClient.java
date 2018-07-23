@@ -260,7 +260,12 @@ public abstract class WapiClient implements Wapi, WapiClientLifecycle {
    }
 
    @Override
-   public void refreshRpcClients() {
+   public void setAppInForeground(boolean isInForeground) {
+      // not required
+   }
+
+   @Override
+   public void setNetworkConnected(boolean isNetworkConnected) {
       // not required
    }
 
