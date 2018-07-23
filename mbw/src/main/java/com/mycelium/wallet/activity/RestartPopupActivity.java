@@ -1,9 +1,6 @@
 package com.mycelium.wallet.activity;
 
 import android.app.Activity;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -29,7 +26,7 @@ public class RestartPopupActivity extends Activity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         RestartPopupActivity.this.finish();
-                        restart(getApplicationContext());
+                        restart();
                     }
                 });
         AlertDialog alertDialog = Builder.create();
@@ -38,12 +35,12 @@ public class RestartPopupActivity extends Activity {
         alertDialog.show();
     }
 
-    private void restart(Context context) {
-        Intent futureActivity = new Intent(context, StartupActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0,
-                futureActivity, PendingIntent.FLAG_CANCEL_CURRENT);
-        AlarmManager mgr = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 100, pendingIntent);
-        Runtime.getRuntime().exit(0);
+    private void restart() {
+        Intent intent = getBaseContext().getPackageManager()
+                .getLaunchIntentForPackage(getBaseContext().getPackageName());
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        android.os.Process.killProcess(android.os.Process.myPid());
+        System.exit(400);
     }
 }
