@@ -39,6 +39,7 @@ public class ButtonPreference extends Preference implements ModulePreference {
 
     public ButtonPreference(Context context) {
         super(context);
+        setLayoutResource(R.layout.preference_layout_no_icon);
         setWidgetLayoutResource(R.layout.preference_button);
     }
 
