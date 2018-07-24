@@ -5,7 +5,6 @@ import android.content.Context;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceViewHolder;
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 
 import com.mycelium.wallet.R;
@@ -33,7 +32,6 @@ public class ButtonPreference extends Preference implements ModulePreference {
 
     private View.OnClickListener buttonClickListener;
     private String buttonText;
-    private String underIconText;
     private String syncStateText;
     private boolean buttonEnabled = true;
 
@@ -49,9 +47,6 @@ public class ButtonPreference extends Preference implements ModulePreference {
         ButterKnife.bind(this, holder.itemView);
         if (button != null) {
             button.setText(buttonText);
-        }
-        if (underIconTextView != null) {
-            underIconTextView.setText(underIconText);
         }
         if (syncState != null) {
             syncState.setText(syncStateText);
@@ -83,13 +78,6 @@ public class ButtonPreference extends Preference implements ModulePreference {
         buttonText = text;
         if (button != null) {
             button.setText(text);
-        }
-    }
-
-    public void setUnderIconText(String underIconText) {
-        this.underIconText = underIconText;
-        if (underIconTextView != null) {
-            underIconTextView.setText(underIconText);
         }
     }
 

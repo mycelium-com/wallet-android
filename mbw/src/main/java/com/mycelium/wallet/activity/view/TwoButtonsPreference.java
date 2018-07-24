@@ -33,7 +33,6 @@ public class TwoButtonsPreference extends Preference implements ModulePreference
     private String bottomButtonText;
     private boolean topButtonEnabled;
     private boolean bottomButtonEnabled;
-    private String underIconText;
     private String syncStateText;
 
     public TwoButtonsPreference(Context context) {
@@ -89,10 +88,6 @@ public class TwoButtonsPreference extends Preference implements ModulePreference
         if (topButton != null) {
             topButton.setText(topButtonText);
         }
-    }
-
-    public void setUnderIconText(String underIconText) {
-        this.underIconText = underIconText;
     }
 
     public void setSyncStateText(String syncStateText) {
