@@ -747,7 +747,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
     private TwoButtonsPreference createUpdateRequiredPreference(final Module module) {
         final TwoButtonsPreference preference = new TwoButtonsPreference(getActivity());
-        preference.setLayoutResource(R.layout.preference_module_layout);
         preference.setTitle(Html.fromHtml(module.getName()));
         preference.setKey("Module_" + module.getModulePackage());
         updateModulePreference(preference, module);
