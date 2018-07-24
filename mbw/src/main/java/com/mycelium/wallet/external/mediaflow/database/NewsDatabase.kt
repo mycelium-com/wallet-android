@@ -1,38 +1,37 @@
-package com.mycelium.wallet.external.news.database
+package com.mycelium.wallet.external.mediaflow.database
 
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteQueryBuilder
 import android.database.sqlite.SQLiteStatement
-import com.mycelium.wallet.external.news.model.Author
-import com.mycelium.wallet.external.news.model.Category
-import com.mycelium.wallet.external.news.model.News
+import com.mycelium.wallet.external.mediaflow.database.NewsSQLiteHelper.NEWS
+import com.mycelium.wallet.external.mediaflow.model.Author
+import com.mycelium.wallet.external.mediaflow.model.Category
+import com.mycelium.wallet.external.mediaflow.model.News
 import java.util.*
 
 
 object NewsDatabase {
     private lateinit var database: SQLiteDatabase
     private lateinit var insertOrReplaceNews: SQLiteStatement
+    private lateinit var readNews: SQLiteStatement
     private lateinit var getById: SQLiteStatement
 
     enum class SqlState {
         INSERTED, UPDATED
     }
 
-    init {
-
-    }
-
     // call it before start work with database
-    fun initilize(context: Context) {
+    fun initialize(context: Context) {
         val helper = NewsSQLiteHelper(context)
         database = helper.writableDatabase
 
-        getById = database.compileStatement("SELECT id FROM news WHERE id = ?")
-        insertOrReplaceNews = database.compileStatement("INSERT OR REPLACE INTO news VALUES (?,?,?,?,?,?,?,?)")
+        getById = database.compileStatement("SELECT id FROM $NEWS WHERE id = ?")
+        insertOrReplaceNews = database.compileStatement("INSERT OR REPLACE INTO $NEWS VALUES (?,?,?,?,?,?,?,?,?,?,?)")
+        readNews = database.compileStatement("UPDATE $NEWS SET read = ? WHERE id = ?")
     }
 
-    fun getNews(search: String?, categories: List<Category>, limit: Int = -1): List<News> {
+    fun getNews(search: String?, categories: List<Category>, limit: Int = -1, offset:Int = 0): List<News> {
         val where = StringBuilder()
         if (search != null && search.isNotEmpty()) {
             where.append("(title like '%$search%' OR content like '%$search%')")
@@ -52,12 +51,13 @@ object NewsDatabase {
 
         val cursor = if (limit != -1) {
             builder.query(database
-                    , arrayOf("id", "title", "content", "date", "author", "short_URL", "category", "categories")
-                    , where.toString(), null, null, null, null, limit.toString())
+                    , arrayOf("id", "title", "content", "date", "author", "short_URL", "image", "category", "categories", "read", "excerpt")
+                    , where.toString(), null, null, null, "date desc"
+                    , offset.toString() + "," + limit.toString())
         } else {
             builder.query(database
-                    , arrayOf("id", "title", "content", "date", "author", "short_URL", "category", "categories")
-                    , where.toString(), null, null, null, null)
+                    , arrayOf("id", "title", "content", "date", "author", "short_URL", "image", "category", "categories", "read", "excerpt")
+                    , where.toString(), null, null, null, "date desc")
         }
         val result = mutableListOf<News>()
         while (cursor.moveToNext()) {
@@ -67,8 +67,11 @@ object NewsDatabase {
             news.content = cursor.getString(cursor.getColumnIndex("content"))
             news.date = Date(cursor.getLong(cursor.getColumnIndex("date")))
             news.author = Author(cursor.getString(cursor.getColumnIndex("author")))
+            news.image = cursor.getString(cursor.getColumnIndex("image"))
             news.link = cursor.getString(cursor.getColumnIndex("short_URL"))
             val category = cursor.getString(cursor.getColumnIndex("category"))
+            news.isRead = cursor.getInt(cursor.getColumnIndex("read")) != 0
+            news.excerpt = cursor.getString(cursor.getColumnIndex("excerpt"))
             news.categories = mapOf<String, Category>(category to Category(category))
             result.add(news)
         }
@@ -93,6 +96,8 @@ object NewsDatabase {
             insertOrReplaceNews.bindString(5, it.author.name)
             insertOrReplaceNews.bindString(6, it.link)
             insertOrReplaceNews.bindString(7, it.categories.values.elementAt(0).name)
+            insertOrReplaceNews.bindString(9, it.image)
+            insertOrReplaceNews.bindString(11, it.excerpt)
             insertOrReplaceNews.executeInsert()
 
             result[it] = if (isExists) SqlState.UPDATED else SqlState.INSERTED
@@ -100,6 +105,16 @@ object NewsDatabase {
         database.setTransactionSuccessful()
         database.endTransaction()
         return result
+    }
+
+    fun read(news: News) {
+        database.beginTransaction()
+        readNews.clearBindings()
+        readNews.bindLong(1, 1)
+        readNews.bindLong(2, news.id.toLong())
+        readNews.executeInsert()
+        database.setTransactionSuccessful()
+        database.endTransaction()
     }
 
     fun getCategories(): List<Category> {

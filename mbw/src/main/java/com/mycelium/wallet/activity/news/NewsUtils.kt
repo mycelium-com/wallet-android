@@ -1,6 +1,9 @@
 package com.mycelium.wallet.activity.news
 
+import android.content.Context
+import android.text.format.DateUtils
 import com.mycelium.wallet.R
+import com.mycelium.wallet.external.mediaflow.model.News
 
 
 object NewsUtils {
@@ -13,4 +16,12 @@ object NewsUtils {
     }
 
     const val myceliumAuthor = "myceliumholding"
+    const val MEDIA_FLOW_ACTION: String = "media_flow"
+
+    fun getDateAuthorString(context: Context, news: News): String {
+        return "${DateUtils.getRelativeTimeSpanString(context, news.date.time)}" +
+                if (news.author.name != NewsUtils.myceliumAuthor) {
+                    "${context.getString(R.string.bullet)} ${news.author.name}"
+                } else ""
+    }
 }

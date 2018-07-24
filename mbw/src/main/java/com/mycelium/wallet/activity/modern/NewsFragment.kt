@@ -13,13 +13,15 @@ import android.support.v7.widget.SearchView
 import android.view.*
 import butterknife.ButterKnife
 import com.mycelium.wallet.R
+import com.mycelium.wallet.activity.modern.adapter.MediaFlowFilterAdapter
 import com.mycelium.wallet.activity.modern.adapter.NewsAdapter
 import com.mycelium.wallet.activity.news.NewsActivity
-import com.mycelium.wallet.external.news.GetNewsTask
-import com.mycelium.wallet.external.news.NewsConstants
-import com.mycelium.wallet.external.news.NewsConstants.CATEGORY_FILTER
-import com.mycelium.wallet.external.news.database.NewsDatabase
-import com.mycelium.wallet.external.news.model.Category
+import com.mycelium.wallet.external.mediaflow.GetNewsTask
+import com.mycelium.wallet.external.mediaflow.NewsConstants
+import com.mycelium.wallet.external.mediaflow.NewsConstants.CATEGORY_FILTER
+import com.mycelium.wallet.external.mediaflow.database.NewsDatabase
+import com.mycelium.wallet.external.mediaflow.model.Category
+import kotlinx.android.synthetic.main.dialog_meida_flow_filter.view.*
 import kotlinx.android.synthetic.main.fragment_news.*
 
 
@@ -50,10 +52,11 @@ class NewsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         ButterKnife.bind(this, view)
-
-        newsList.layoutManager = LinearLayoutManager(activity!!, LinearLayoutManager.VERTICAL, false)
+        val layoutManager = LinearLayoutManager(activity!!, LinearLayoutManager.VERTICAL, false)
+        newsList.layoutManager = layoutManager
         adapter = NewsAdapter()
         newsList.adapter = adapter
+        newsList.setHasFixedSize(false)
         newsList.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             var scrollY = 0;
             override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
@@ -63,6 +66,9 @@ class NewsFragment : Fragment() {
                     scrollTop.visibility = View.VISIBLE
                 } else if (scrollY <= recyclerView?.height ?: 0 && scrollTop.visibility == View.VISIBLE) {
                     scrollTop.visibility = View.GONE
+                }
+                if (adapter != null && layoutManager.findLastVisibleItemPosition() > adapter!!.itemCount - 5 && !adapter!!.searchMode) {
+                    startUpdate(null, adapter!!.itemCount - 2)
                 }
             }
         })
@@ -123,52 +129,73 @@ class NewsFragment : Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         when (item?.itemId) {
-            R.id.action_filter -> activity?.let {
-                val categories = mutableListOf<String>()
-                NewsDatabase.getCategories().forEach {
-                    categories.add(it.name)
-                }
-                val checked = BooleanArray(categories.size)
-                preference.getStringSet(CATEGORY_FILTER, null)?.let {
-                    it.forEach {
-                        val index = categories.indexOf(it)
-                        if (index != -1) {
-                            checked[index] = true
+            R.id.action_filter ->
+                ShowFilter({ result ->
+                    activity?.let { context ->
+                        val view = LayoutInflater.from(context).inflate(R.layout.dialog_meida_flow_filter, null)
+                        view.title.text = getString(R.string.select_flows)
+                        view.list.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+                        val adapter = MediaFlowFilterAdapter(result)
+                        adapter.checked.addAll(preference.getStringSet(CATEGORY_FILTER, setOf()))
+                        view.list.adapter = adapter
+                        val dialog = AlertDialog.Builder(context, R.style.MyceliumSettings_Dialog_Small)
+                                .setView(view)
+                                .create()
+
+                        dialog.show()
+                        adapter.checkListener = {
+                            view.btOk.isEnabled = adapter.checked.size > 0
+                        }
+                        view.btCancel.setOnClickListener {
+                            dialog.dismiss()
+                        }
+                        view.btOk.setOnClickListener {
+                            dialog.dismiss()
+                            preference.edit().putStringSet(CATEGORY_FILTER, adapter.checked).apply()
+                            startUpdate()
                         }
                     }
-                }
-                AlertDialog.Builder(it, R.style.MyceliumModern_Dialog)
-                        .setTitle(getString(R.string.select_flows))
-                        .setMultiChoiceItems(categories.toTypedArray(), checked, { _, which, isChecked ->
-                            checked[which] = isChecked
-                        })
-                        .setNegativeButton(R.string.button_cancel, null)
-                        .setPositiveButton(R.string.button_ok, { dialogInterface, i ->
-                            val selected = mutableSetOf<String>()
-                            checked.forEachIndexed { index, b ->
-                                if (b) {
-                                    selected.add(categories[index])
-                                }
-                            }
-                            preference.edit().putStringSet(CATEGORY_FILTER, selected).apply()
-                            startUpdate()
-                        })
-                        .create()
-                        .show()
-            }
+                }).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
         }
         return super.onOptionsItemSelected(item)
     }
-
-    private fun startUpdate(search: String? = null) {
+    private var loading = false
+    private fun startUpdate(search: String? = null, offset: Int = 0) {
+        if(loading) {
+            return
+        }
         val categories = preference.getStringSet(CATEGORY_FILTER, null)?.toTypedArray()?.convertToCategory()
                 ?: listOf()
-        val task = GetNewsTask(search, categories)
-        task.listener = {
-            adapter?.searchMode = search != null && search.isNotEmpty()
-            adapter?.setData(it)
+        val task = if (search != null) {
+            GetNewsTask(search, categories)
+        } else {
+            GetNewsTask(search, categories, 30, offset)
         }
+
+        task.listener = {
+            loading = false
+            adapter?.searchMode = search != null && search.isNotEmpty()
+            if(it.isNotEmpty()) {
+                if (offset == 0) {
+                    adapter?.setData(it)
+                } else {
+                    adapter?.addData(it)
+                }
+            }
+        }
+        loading = true
         task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
+    }
+
+    class ShowFilter(val listener: ((List<Category>) -> Unit)) : AsyncTask<Void, Void, List<Category>>() {
+        override fun doInBackground(vararg p0: Void?): List<Category> {
+            return NewsDatabase.getCategories()
+        }
+
+        override fun onPostExecute(result: List<Category>?) {
+            super.onPostExecute(result)
+            result?.let { listener.invoke(it) }
+        }
     }
 }
 

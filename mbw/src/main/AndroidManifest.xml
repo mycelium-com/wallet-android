@@ -60,10 +60,11 @@
         </receiver>
         <receiver android:name=".PackageRemovedReceiver">
             <intent-filter>
-                <action android:name="android.intent.action.PACKAGE_ADDED"/>
-                <action android:name="android.intent.action.PACKAGE_REPLACED"/>
-                <action android:name="android.intent.action.PACKAGE_REMOVED"/>
-                <data android:scheme="package"/>
+                <action android:name="android.intent.action.PACKAGE_ADDED" />
+                <action android:name="android.intent.action.PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.PACKAGE_REMOVED" />
+
+                <data android:scheme="package" />
             </intent-filter>
         </receiver>
         <!-- file provider to enable secure intent sharing for encrypted backups -->
@@ -84,14 +85,14 @@
             android:enabled="true"
             android:exported="false"
             android:process=":Task" />
-        <service android:name=".external.changelly.ChangellyService"/>
+        <service android:name=".external.changelly.ChangellyService" />
         <!-- hack - hardcode to be able to support froyo -->
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
         <receiver
-            android:name=".external.news.NewsSyncReceiver"
+            android:name=".external.mediaflow.NewsSyncReceiver"
             android:enabled="true" />
         <!-- Startup -->
         <activity
@@ -187,7 +188,7 @@
         <activity
             android:name=".activity.settings.SettingsActivity"
             android:label="@string/settings"
-            android:theme="@style/MyceliumSettings"/>
+            android:theme="@style/MyceliumSettings" />
         <activity
             android:name=".activity.settings.SetLocalCurrencyActivity"
             android:theme="@style/MyceliumSettings" />
@@ -220,10 +221,11 @@
             android:configChanges="orientation|keyboardHidden"
             android:screenOrientation="landscape"
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
-            android:windowSoftInputMode="stateAlwaysHidden"/>
+            android:windowSoftInputMode="stateAlwaysHidden" />
         <activity android:name=".simplex.SimplexMainActivity" />
-        <activity android:name=".external.changelly.ChangellyActivity"
-            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".external.changelly.ChangellyActivity"
+            android:screenOrientation="portrait" />
         <activity android:name=".external.changelly.ChangellyOfferActivity" />
         <activity android:name=".lt.activity.LtMainActivity" />
         <activity android:name=".lt.activity.CreateTrader1Activity" />
@@ -246,7 +248,8 @@
         <activity android:name=".lt.activity.sell.CreateOrEditAdActivity" />
         <activity android:name=".lt.activity.SendRequestActivity" />
         <activity android:name=".activity.UpdateNotificationActivity" />
-        <activity android:name=".activity.RestartPopupActivity"
+        <activity
+            android:name=".activity.RestartPopupActivity"
             android:theme="@style/MyceliumModern.Dialog.Transparent" />
         <activity android:name=".activity.PinProtectedActivity" />
         <activity android:name=".activity.MessageSigningActivity" />
@@ -282,12 +285,18 @@
         <activity android:name=".external.glidera.activities.GlideraMainActivity" />
         <activity android:name=".external.glidera.activities.GlideraTransaction" />
         <activity android:name=".activity.send.GetBtcAccountForFeeActivity" />
-        <activity android:name=".activity.MessageVerifyActivity"/>
-        <activity android:name=".external.changelly.bch.ExchangeActivity"
-            android:theme="@style/MyceliumExchange"/>
-        <activity android:name=".activity.news.NewsActivity"
-            android:theme="@style/MyceliumNews"/>
+        <activity android:name=".activity.MessageVerifyActivity" />
+        <activity
+            android:name=".external.changelly.bch.ExchangeActivity"
+            android:theme="@style/MyceliumExchange" />
+        <activity
+            android:name=".activity.news.NewsActivity"
+            android:theme="@style/MyceliumNews" />
 
+        <service
+            android:name=".external.mediaflow.NewsSyncService"
+            android:enabled="true"
+            android:exported="false"></service>
     </application>
 
 </manifest>

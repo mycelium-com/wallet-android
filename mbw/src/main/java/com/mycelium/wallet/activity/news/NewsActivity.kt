@@ -8,17 +8,20 @@ import android.os.AsyncTask
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
-import android.text.format.DateUtils
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.convertToCategory
 import com.mycelium.wallet.activity.news.adapter.MoreNewsAdapter
-import com.mycelium.wallet.external.news.GetNewsTask
-import com.mycelium.wallet.external.news.NewsConstants
-import com.mycelium.wallet.external.news.model.News
+import com.mycelium.wallet.external.mediaflow.GetNewsTask
+import com.mycelium.wallet.external.mediaflow.NewsConstants
+import com.mycelium.wallet.external.mediaflow.database.NewsDatabase
+import com.mycelium.wallet.external.mediaflow.model.News
 import kotlinx.android.synthetic.main.activity_news.*
+
 
 class NewsActivity : AppCompatActivity() {
     lateinit var news: News
@@ -28,22 +31,31 @@ class NewsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_news)
+        collapsing_toolbar.title = ""
+        collapsing_toolbar.setStatusBarScrimColor(Color.parseColor("#1a1a1a"))
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayShowTitleEnabled(false)
         news = intent.getSerializableExtra("news") as News
-        content.setBackgroundColor(Color.TRANSPARENT);
+        NewsDatabase.read(news)
+        content.setBackgroundColor(Color.TRANSPARENT)
         preference = getSharedPreferences(NewsConstants.NEWS_PREF, Context.MODE_PRIVATE)!!
         val categories = preference.getStringSet("category_filter", null)?.toTypedArray()?.convertToCategory()
                 ?: listOf()
-
+        val contentText = news.content.replace("width: ", "")
+        content.settings.javaScriptEnabled = true
         content.loadDataWithBaseURL("https://blog.mycelium.com"
                 , "<html>"
-                + "<head><style type=\"text/css\">body{color: #fff; padding: 0px; margin:0px}" +
-                " img{display: inline; height: auto; max-width: 100%;}</style></head>"
-                + "<body>${news.content}</body></html>"
+                + "<head><style type=\"text/css\">body{color: #fff; padding: 0px; margin:0px}"
+                + " img{display: inline; height: auto; max-width: 100%;}"
+                + " .wp-caption-text, .wp-caption-dd {"
+                + " clear: both; font-size: 75%;  font-weight: 400; font-style: italic;"
+                + " text-align: center; color: #e7ffffff; width: 100%;}"
+                + " a {text-decoration: none; color: #e7e7e7;}"
+                + "</style></head>"
+                + "<body>$contentText</body></html>"
                 , "text/html", "UTF-8", null)
         tvTitle.text = news.title
-        tvDate.text = DateUtils.getRelativeTimeSpanString(this, news.date.time)
+        tvDate.text = NewsUtils.getDateAuthorString(this, news)
 
         val categoryText = if (news.categories.values.isNotEmpty()) news.categories.values.elementAt(0).name else ""
         category.text = categoryText
@@ -60,11 +72,15 @@ class NewsActivity : AppCompatActivity() {
                 scrollTop.visibility = View.GONE
             }
         }
-
+        Glide.with(image)
+                .load(news.image)
+                .apply(RequestOptions().centerCrop().error(R.drawable.news_default_image))
+                .into(image)
         moreNewsList.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         moreNewsList.isNestedScrollingEnabled = false;
         adapter = MoreNewsAdapter()
         moreNewsList.adapter = adapter
+        moreNewsList.setHasFixedSize(false)
         val moreNewsTask = GetNewsTask(null, categories, 3)
         moreNewsTask.listener =
                 {

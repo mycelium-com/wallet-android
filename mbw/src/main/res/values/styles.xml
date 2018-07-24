@@ -109,6 +109,7 @@
         <item name="android:textSize">14sp</item>
         <item name="android:textStyle">normal</item>
     </style>
+
     <style name="MyceliumSettingsPreferenceThemeOverlay" parent="PreferenceThemeOverlay.v14.Material">
         <item name="preferenceFragmentCompatStyle">@style/MyceliumSettingsPreferenceFragment</item>
         <item name="preferenceFragmentStyle">@style/MyceliumSettingsPreferenceFragment</item>
@@ -144,7 +145,7 @@
         <item name="android:backgroundDimAmount">0.9</item>
     </style>
 
-    <style name="MyceliumModern.Dialog.Transparent" >
+    <style name="MyceliumModern.Dialog.Transparent">
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowContentOverlay">@null</item>
@@ -189,6 +190,7 @@
     <style name="MyceliumTabStyle" parent="Widget.AppCompat.Light.ActionBar.TabView">
         <item name="android:background">@drawable/tab_indicator_material</item>
     </style>
+
     <style name="MyceliumTabBarStyle" parent="Widget.AppCompat.Light.ActionBar.TabBar">
         <item name="android:background">@drawable/action_bar_tab_bar_bg</item>
     </style>
@@ -273,10 +275,10 @@
 
     <style name="ActionButtonStyle" parent="Widget.AppCompat.Light.ActionButton">
         <item name="android:minWidth">1dip</item>
-<!--
-        <item name="android:paddingLeft">0dip</item>
-        <item name="android:paddingRight">0dip</item>
--->
+        <!--
+                <item name="android:paddingLeft">0dip</item>
+                <item name="android:paddingRight">0dip</item>
+        -->
     </style>
 
     <style name="ActionModeStyle" parent="Widget.AppCompat.ActionMode">
@@ -290,7 +292,9 @@
     <style name="RmcActiveProgressBar">
         <item name="android:indeterminateOnly">false</item>
         <item name="android:progressDrawable">@drawable/rmc_bg_active_progress_bar_state</item>
-        <item name="android:indeterminateDrawable">@android:drawable/progress_indeterminate_horizontal</item>
+        <item name="android:indeterminateDrawable">
+            @android:drawable/progress_indeterminate_horizontal
+        </item>
     </style>
 
     <style name="MyceliumDroppyPopup">
@@ -307,6 +311,7 @@
         <item name="android:ellipsize">end</item>
 
     </style>
+
     <style name="MyceliumDroppyMenuSeparator">
         <item name="android:background">@color/lightgrey</item>
         <item name="android:layout_height">0.5dp</item>
@@ -329,13 +334,14 @@
         <item name="android:textColor">@color/white</item>
         <item name="android:fontFamily">sans-serif</item>
     </style>
+
     <style name="MyceliumButtonModern" parent="android:style/Widget.Button">
         <item name="android:layout_marginLeft">3dp</item>
         <item name="android:layout_marginRight">3dp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textAllCaps">true</item>
         <item name="android:background">@drawable/background_action_btn</item>
-        <item name="android:textColor">@color/btn_text_color</item>
+        <item name="android:textColor">@color/btn_text_color_selector</item>
         <item name="android:paddingLeft">@dimen/button_padding_large</item>
         <item name="android:paddingRight">@dimen/button_padding_large</item>
         <item name="android:paddingStart">@dimen/button_padding_large</item>
@@ -350,5 +356,8 @@
     <style name="MyceliumNews" parent="MyceliumModern">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <item name="android:windowTranslucentStatus">true</item>
     </style>
+
+    <color name="media_flow_status_color">#881a1a1a</color>
 </resources>

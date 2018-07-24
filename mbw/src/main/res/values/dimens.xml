@@ -26,5 +26,7 @@
     <dimen name="big_input">36sp</dimen>
     <dimen name="medium_input">24sp</dimen>
     <dimen name="pref_divider_margin">56dp</dimen>
+    <dimen name="media_flow_round_corner">8dp</dimen>
+    <dimen name="min_height_for_show">200dp</dimen>
 
 </resources>

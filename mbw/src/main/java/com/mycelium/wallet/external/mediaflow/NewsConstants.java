@@ -1,4 +1,4 @@
-package com.mycelium.wallet.external.news;
+package com.mycelium.wallet.external.mediaflow;
 
 public class NewsConstants {
     public static final String NEWS = "news";

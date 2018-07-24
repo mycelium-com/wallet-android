@@ -91,12 +91,12 @@ import com.mycelium.wapi.api.response.Feature;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SyncMode;
-import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.squareup.otto.Subscribe;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -152,7 +152,7 @@ public class ModernMain extends AppCompatActivity {
       mViewPager.setOffscreenPageLimit(4);
       mTabsAdapter = new TabsAdapter(this, mViewPager, _mbwManager);
       mNewsTab = bar.newTab();
-      mTabsAdapter.addTab(mNewsTab.setText("News"), NewsFragment.class, null);
+      mTabsAdapter.addTab(mNewsTab.setText(getString(R.string.media_flow)), NewsFragment.class, null);
       mAccountsTab = bar.newTab();
       mTabsAdapter.addTab(mAccountsTab.setText(getString(R.string.tab_accounts)), AccountsFragment.class, null);
       mBalanceTab = bar.newTab();
@@ -164,7 +164,11 @@ public class ModernMain extends AppCompatActivity {
       addressBookConfig.putBoolean(AddressBookFragment.SELECT_ONLY, false);
       mTabsAdapter.addTab(bar.newTab().setText(getString(R.string.tab_addresses)), AddressBookFragment.class, addressBookConfig);
       addressBookTabIndex = mTabsAdapter.getCount() - 1; // save address book tab id to show/hide add contact
-      bar.selectTab(mBalanceTab);
+      if (Objects.equals(getIntent().getAction(), "media_flow")) {
+         bar.selectTab(mNewsTab);
+      } else {
+         bar.selectTab(mBalanceTab);
+      }
       _toaster = new Toaster(this);
 
       ChangeLog cl = new DarkThemeChangeLog(this);

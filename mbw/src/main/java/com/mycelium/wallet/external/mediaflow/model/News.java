@@ -1,5 +1,6 @@
-package com.mycelium.wallet.external.news.model;
+package com.mycelium.wallet.external.mediaflow.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.Serializable;
@@ -17,6 +18,9 @@ public class News implements Serializable {
     @JsonProperty("content")
     public String content;
 
+    @JsonProperty("excerpt")
+    public String excerpt;
+
     @JsonProperty("date")
     public Date date;
 
@@ -26,8 +30,14 @@ public class News implements Serializable {
     @JsonProperty("short_URL")
     public String link;
 
+    @JsonProperty("featured_image")
+    public String image;
+
     @JsonProperty("categories")
     public Map<String, Category> categories;
+
+    @JsonIgnore
+    public boolean isRead = false;
 
     @Override
     public boolean equals(Object o) {

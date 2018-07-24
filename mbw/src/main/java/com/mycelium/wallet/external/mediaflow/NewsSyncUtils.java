@@ -1,4 +1,4 @@
-package com.mycelium.wallet.external.news;
+package com.mycelium.wallet.external.mediaflow;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;

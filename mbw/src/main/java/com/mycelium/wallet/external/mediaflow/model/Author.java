@@ -1,4 +1,4 @@
-package com.mycelium.wallet.external.news.model;
+package com.mycelium.wallet.external.mediaflow.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

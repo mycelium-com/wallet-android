@@ -1,4 +1,4 @@
-package com.mycelium.wallet.external.news;
+package com.mycelium.wallet.external.mediaflow;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;

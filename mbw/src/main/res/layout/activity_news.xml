@@ -1,48 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#1a1a1a">
+    android:background="#1a1a1a"
+    android:fitsSystemWindows="true">
 
-    <ScrollView
-        android:id="@+id/scrollView"
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/app_bar_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
-        <LinearLayout xmlns:tools="http://schemas.android.com/tools"
+        <android.support.design.widget.CollapsingToolbarLayout
+            android:id="@+id/collapsing_toolbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-
-            android:orientation="vertical">
+            android:layout_height="260dp"
+            android:fitsSystemWindows="true"
+            app:contentScrim="#1a1a1a"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
             <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
+                android:layout_height="wrap_content"
+                android:fitsSystemWindows="true"
+                app:layout_collapseMode="parallax">
 
                 <ImageView
                     android:id="@+id/image"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="260dp"
+                    android:adjustViewBounds="true"
+                    android:fitsSystemWindows="true"
+                    android:scaleType="centerCrop"
+                    android:tint="#66000000" />
 
                 <TextView
                     android:id="@+id/category"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="bottom"
-                    android:layout_margin="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:layout_marginStart="16dp"
                     android:background="@color/white"
                     android:fontFamily="sans-serif"
                     android:paddingBottom="4dp"
                     android:paddingLeft="8dp"
                     android:paddingRight="8dp"
                     android:paddingTop="4dp"
-                    android:textColor="@color/black"
+                    android:textColor="@color/white"
                     android:textSize="10sp"
                     tools:text="news" />
             </FrameLayout>
 
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                app:layout_collapseMode="pin"
+                app:navigationIcon="@drawable/ic_close"
+                app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+                app:title="" />
+        </android.support.design.widget.CollapsingToolbarLayout>
+    </android.support.design.widget.AppBarLayout>
+
+    <android.support.v4.widget.NestedScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        app:layout_behavior="android.support.design.widget.AppBarLayout$ScrollingViewBehavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            tools:ignore="WebViewLayout">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -77,7 +112,7 @@
             <WebView
                 android:id="@+id/content"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_marginEnd="16dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="24dp"
@@ -102,10 +137,10 @@
                 android:id="@+id/moreText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginStart="16dp"
                 android:fontFamily="sans-serif-medium"
-                android:layout_marginBottom="24dp"
                 android:text="@string/view_more"
                 android:textColor="#bdbdbd"
                 android:textSize="14sp" />
@@ -113,27 +148,33 @@
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/moreNewsList"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="88dp" />
 
         </LinearLayout>
-    </ScrollView>
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar"
+    </android.support.v4.widget.NestedScrollView>
+
+    <View
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:navigationIcon="@drawable/ic_close"
-        app:title="" />
+        android:layout_height="8dp"
+        android:background="@drawable/shadow_mediaflow_appbar"
+        android:layout_gravity="bottom"
+        app:layout_anchor="@+id/collapsing_toolbar"
+        app:layout_anchorGravity="bottom" />
 
-    <ImageButton
+    <ImageView
         android:id="@+id/scrollTop"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end|bottom"
-        android:layout_marginBottom="24dp"
-        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="8dp"
         android:background="@null"
+        android:padding="8dp"
         android:scaleType="center"
         android:visibility="gone"
         app:srcCompat="@drawable/ic_back_to_top" />
-</FrameLayout>
+
+</android.support.design.widget.CoordinatorLayout>
+
