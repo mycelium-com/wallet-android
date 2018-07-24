@@ -114,7 +114,11 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
      */
     fun stop() {
         isConnected.set(false)
-        socket?.close()
+        try {
+            socket?.close()
+        } catch (e: Exception) {
+            // we have nothing to do with this
+        }
         isStopped = true
     }
 
