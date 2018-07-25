@@ -35,16 +35,16 @@
 package com.mycelium.wallet.activity.util;
 
 import android.content.Context;
+import android.support.v7.widget.PopupMenu;
 import android.util.AttributeSet;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.LinearLayout;
 
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
-import com.shehabic.droppy.DroppyClickCallbackInterface;
-import com.shehabic.droppy.DroppyMenuItem;
-import com.shehabic.droppy.DroppyMenuPopup;
 import com.squareup.otto.Subscribe;
 
 import java.util.List;
@@ -72,29 +72,34 @@ public class ToggleableCurrencyButton extends ToggleableCurrencyDisplay {
       // there is only one currency to show - don't show a triangle hinting that the user can toggle
       findViewById(R.id.ivSwitchable).setVisibility(currencies.size() > 1 ? VISIBLE : INVISIBLE);
 
-      DroppyMenuPopup.Builder builder = new DroppyMenuPopup.Builder(getContext(), this);
+      LinearLayout linearLayout = findViewById(R.id.llContainer);
+      final PopupMenu menu = new PopupMenu(getContext(), linearLayout);
+      linearLayout.setOnClickListener(new OnClickListener() {
+         @Override
+         public void onClick(View v) {
+            menu.show();
+         }
+      });
+
       if (currencies.size() > 1) {
          for (int i = 0; i < currencies.size(); i++) {
             String currency = currencies.get(i);
-            builder.addMenuItem(new DroppyMenuItem(currency));
-            if (i < currencies.size() - 1) {
-               builder.addSeparator();
-            }
+            menu.getMenu().add(currency);
          }
-         builder.setOnClick(new DroppyClickCallbackInterface() {
+
+         menu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
-            public void call(View v, int id) {
-               currencySwitcher.setCurrency(currencies.get(id));
+            public boolean onMenuItemClick(MenuItem item) {
+               currencySwitcher.setCurrency(item.getTitle().toString());
                if (eventBus != null) {
                   // update UI via event bus, also inform other parts of the app about the change
                   eventBus.post(new SelectedCurrencyChanged());
                } else {
                   updateUi();
                }
+               return true;
             }
-         }).build();
-      } else {
-         setOnClickListener(null);
+         });
       }
    }
 
