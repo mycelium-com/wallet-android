@@ -49,10 +49,6 @@
         <item name="colorAccent">@color/color_accent</item>
         <item name="android:windowBackground">@drawable/background_window</item>
 
-        <item name="droppyPopupStyle">@style/MyceliumDroppyPopup</item>
-        <item name="droppyMenuItemStyle">@style/MyceliumMenuItem</item>
-        <item name="droppyMenuItemTitleStyle">@style/MyceliumMenuItemTitle</item>
-        <item name="droppyMenuSeparatorStyle">@style/MyceliumDroppyMenuSeparator</item>
     </style>
 
     <style name="MyceliumLauncher" parent="MyceliumModern">

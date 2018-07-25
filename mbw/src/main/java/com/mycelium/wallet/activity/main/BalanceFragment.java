@@ -42,9 +42,11 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import com.google.common.base.Optional;
@@ -78,15 +80,14 @@ import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
-import com.shehabic.droppy.DroppyClickCallbackInterface;
-import com.shehabic.droppy.DroppyMenuItem;
-import com.shehabic.droppy.DroppyMenuPopup;
 import com.squareup.otto.Subscribe;
 
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -120,10 +121,18 @@ public class BalanceFragment extends Fragment {
    }
 
    private void updateExchangeSourceMenu() {
-      DroppyMenuPopup.Builder builder = new DroppyMenuPopup.Builder(getActivity(), exchangeSourceLayout);
+      final PopupMenu exchangeMenu = new PopupMenu(getActivity(), exchangeSourceLayout);
+      exchangeSourceLayout.setOnClickListener(new OnClickListener() {
+         @Override
+         public void onClick(View v) {
+            exchangeMenu.show();
+         }
+      });
+
       ExchangeRateManager exchangeRateManager = _mbwManager.getExchangeRateManager();
       final List<String> sources = exchangeRateManager.getExchangeSourceNames();
-      
+      final Map<String, String> sourcesAndValues = new HashMap<>(); // Needed for popup menu
+
       Collections.sort(sources, new Comparator<String>() {
          @Override
          public int compare(String rate1, String rate2) {
@@ -142,17 +151,18 @@ public class BalanceFragment extends Fragment {
          } else {
             item = source + " (" + price + ")";
          }
-         builder.addMenuItem(new DroppyMenuItem(item));
-         if (i < sources.size() - 1) {
-            builder.addSeparator();
-         }
+
+         sourcesAndValues.put(item, source);
+         exchangeMenu.getMenu().add(item);
       }
-      builder.setOnClick(new DroppyClickCallbackInterface() {
+
+      exchangeMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
          @Override
-         public void call(View v, int id) {
-            _mbwManager.getExchangeRateManager().setCurrentExchangeSourceName(sources.get(id));
+         public boolean onMenuItemClick(MenuItem item) {
+            _mbwManager.getExchangeRateManager().setCurrentExchangeSourceName(sourcesAndValues.get(item.getTitle().toString()));
+            return false;
          }
-      }).build();
+      });
    }
 
    @Override
