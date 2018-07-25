@@ -57,7 +57,7 @@ public class ChangellyService extends IntentService {
         try {
             ChangellyAnswerListString result = changellyAPIService.getCurrencies().execute().body();
             String currs = "";
-            if(result != null) {
+            if(result != null && result.result != null) {
                 currencies = result.result;
                 currs = TextUtils.join(" ", currencies);
             }
