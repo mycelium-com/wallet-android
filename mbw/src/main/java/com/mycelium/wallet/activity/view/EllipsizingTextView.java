@@ -319,8 +319,9 @@ public class EllipsizingTextView extends AppCompatTextView {
         protected CharSequence createEllipsizedText(CharSequence fullText) {
             Layout layout = createWorkingLayout(fullText);
             int lastInIndex = layout.getLineEnd(getFullyVisibleLinesCount() - 3);
-
-            CharSequence workingText = TextUtils.concat(TextUtils.substring(fullText, 0, lastInIndex), ELLIPSIS);
+            String tmpText = TextUtils.substring(fullText, 0, lastInIndex).trim();
+            tmpText = tmpText.substring(0, tmpText.lastIndexOf(" "));
+            CharSequence workingText = TextUtils.concat(tmpText, ELLIPSIS);
             SpannableStringBuilder dest = new SpannableStringBuilder(workingText);
 
             if (fullText instanceof Spanned) {

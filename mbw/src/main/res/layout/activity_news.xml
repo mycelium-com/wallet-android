@@ -113,9 +113,6 @@
                 android:id="@+id/content"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginEnd="16dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="24dp"
                 android:fontFamily="sans-serif"
                 android:lineSpacingExtra="6sp"
                 android:textColor="#ffffff"
@@ -130,7 +127,6 @@
                 android:layout_marginBottom="24dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginStart="16dp"
-                android:layout_marginTop="24dp"
                 android:background="#252525" />
 
             <TextView
