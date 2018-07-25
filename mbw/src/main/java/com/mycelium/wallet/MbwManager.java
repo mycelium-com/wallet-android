@@ -217,7 +217,7 @@ public class MbwManager {
    private TorManager _torManager;
    public final BlockExplorerManager _blockExplorerManager;
 
-   private EvictingQueue<LogEntry> _wapiLogs = EvictingQueue.create(100);
+   private final EvictingQueue<LogEntry> _wapiLogs = EvictingQueue.create(100);
    private Cache<String, Object> _semiPersistingBackgroundObjects = CacheBuilder.newBuilder().maximumSize(10).build();
 
    private WalletConfiguration configuration;
@@ -428,8 +428,10 @@ public class MbwManager {
       });
    }
 
-   private synchronized void retainLog(Level level, String message) {
-      _wapiLogs.add(new LogEntry(message, level, new Date()));
+   private void retainLog(Level level, String message) {
+      synchronized (_wapiLogs) {
+         _wapiLogs.add(new LogEntry(message, level, new Date()));
+      }
    }
 
    public WapiLogger retainingWapiLogger = new WapiLogger() {
