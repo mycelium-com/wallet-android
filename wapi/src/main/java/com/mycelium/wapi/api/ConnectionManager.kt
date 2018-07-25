@@ -74,7 +74,7 @@ class ConnectionManager(private val connectionsCount: Int, private val endpoints
     @Throws(CancellationException::class)
     fun write(methodName: String, params: RpcParams): RpcResponse {
         if (!isNetworkConnected) {
-            throw TimeoutException("No network connection")
+            throw CancellationException("No network connection")
         }
         return runBlocking {
             withTimeout(MAX_WRITE_TIME) {
@@ -96,7 +96,7 @@ class ConnectionManager(private val connectionsCount: Int, private val endpoints
     @Throws(CancellationException::class)
     fun write(requests: List<RpcRequestOut>): BatchedRpcResponse {
         if (!isNetworkConnected) {
-            throw TimeoutException("No network connection")
+            throw CancellationException("No network connection")
         }
         return runBlocking {
             withTimeout(MAX_WRITE_TIME) {
