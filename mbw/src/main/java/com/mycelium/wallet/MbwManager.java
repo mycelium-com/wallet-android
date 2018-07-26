@@ -380,7 +380,6 @@ public class MbwManager {
       }
    }
 
-
    private Optional<ColuManager> createColuManager(final Context context) {
       // Create persisted account backing
       // we never talk directly to this class. Instead, we use SecureKeyValueStore API
@@ -790,7 +789,7 @@ public class MbwManager {
                }
             } else {
                Toast.makeText(activity, R.string.pin_codes_dont_match, Toast.LENGTH_LONG).show();
-               MbwManager.this.vibrate(500);
+               MbwManager.this.vibrate();
                dialog.dismiss();
                if (afterDialogClosed.isPresent()) {
                   afterDialogClosed.get().run();
@@ -862,7 +861,7 @@ public class MbwManager {
                      Thread.sleep(millis);
                   } catch (InterruptedException ignored) {
                      Toast.makeText(activity, "Something weird is happening. avoid getting to pin check", Toast.LENGTH_LONG).show();
-                     vibrate(500);
+                     vibrate();
                      pinDialog.dismiss();
                      return;
                   }
@@ -905,7 +904,7 @@ public class MbwManager {
                   } else {
                      // This pin is not resettable, you are out of luck
                      Toast.makeText(activity, R.string.pin_invalid_pin, Toast.LENGTH_LONG).show();
-                     vibrate(500);
+                     vibrate();
                      pinDialog.dismiss();
                   }
                }
@@ -935,13 +934,9 @@ public class MbwManager {
    }
 
    public void vibrate() {
-      vibrate(500);
-   }
-
-   private void vibrate(int milliseconds) {
       Vibrator v = (Vibrator) _applicationContext.getSystemService(Context.VIBRATOR_SERVICE);
       if (v != null) {
-         v.vibrate(milliseconds);
+         v.vibrate(500);
       }
    }
 
