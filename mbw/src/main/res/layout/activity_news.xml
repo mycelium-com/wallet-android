@@ -101,7 +101,7 @@
                     android:id="@+id/tvDate"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="16dp"
+                    android:layout_marginLeft="46dp"
                     android:fontFamily="sans-serif"
                     android:textColor="#696969"
                     android:textSize="10sp"

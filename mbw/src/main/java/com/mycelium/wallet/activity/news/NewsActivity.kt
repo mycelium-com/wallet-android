@@ -14,7 +14,8 @@ import android.util.TypedValue
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.webkit.*
+import android.webkit.ConsoleMessage
+import android.webkit.WebChromeClient
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.mycelium.wallet.R
@@ -49,6 +50,7 @@ class NewsActivity : AppCompatActivity() {
         content.settings.javaScriptEnabled = true
         content.settings.loadsImagesAutomatically = true;
         content.settings.allowUniversalAccessFromFileURLs = true
+        content.settings.defaultFontSize = 14;
 
         val webTextMarginHorizontal = resources.toWebViewPx(16f)
         val webTextMarginVertical = resources.toWebViewPx(24f)
@@ -72,6 +74,9 @@ class NewsActivity : AppCompatActivity() {
                 + " a {text-decoration: none; color: #e7e7e7; }"
                 + " p { margin-top: ${webTextMarginVertical}px; margin-left: ${webTextMarginHorizontal}px; "
                 + "  margin-bottom: ${webTextMarginVertical}px; margin-right: ${webTextMarginHorizontal}px;}"
+                + " blockquote {margin-left: ${resources.toWebViewPx(16f)}px; font-family:Georgia,'Times New Roman',serif;"
+                + " font-style:italic;border:solid #595959;border-width: 0 0 0 ${resources.toWebViewPx(2f)}px; color: #e7e7e7; }" +
+                " blockquote p{ padding-top:${resources.toWebViewPx(12f)}px; padding-bottom: ${resources.toWebViewPx(12f)}px;}"
                 + "</style></head>"
                 + "<body>$contentText"
                 + "<link rel='stylesheet' href='file:///android_asset/css/slideshow.css' type='text/css' media='all' />"
@@ -134,9 +139,9 @@ class NewsActivity : AppCompatActivity() {
                 }
     }
 
-    private fun Resources.toWebViewPx(dipValue: Float): Int {
+    private fun Resources.toWebViewPx(dipValue: Float): Float {
         val metrics = this.displayMetrics
-        return (TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dipValue, metrics) / metrics.density).toInt()
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dipValue, metrics) / metrics.density
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
