@@ -1332,17 +1332,16 @@ public class MbwManager {
       }
    }
 
-   public ColuManager getColuManager() {
+   public synchronized ColuManager getColuManager() {
       if(_coluManager != null && _coluManager.isPresent()) {
          return _coluManager.get();
       } else {
-         synchronized (this) {
-            _coluManager = createColuManager(_applicationContext);
-            if (_coluManager.isPresent()) {
-               return _coluManager.get();
-            } else {
-               throw new IllegalStateException("Tried to obtain colu manager without having created one.");
-            }
+         long t = System.currentTimeMillis();
+         _coluManager = createColuManager(_applicationContext);
+         if (_coluManager.isPresent()) {
+            return _coluManager.get();
+         } else {
+            throw new IllegalStateException("Tried to obtain colu manager without having created one.");
          }
       }
    }
