@@ -85,7 +85,6 @@ dependencies {
     implementation 'commons-codec:commons-codec:1.10'
     implementation 'com.google.protobuf:protobuf-java:3.1.0'
     implementation 'com.android.support.constraint:constraint-layout:1.1.0-beta5'
-    implementation 'com.shehabic.droppy:Droppy:0.6.0@aar'
 
     implementation 'com.google.zxing:core:3.3.3'
 
@@ -132,8 +131,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 2110109
-        versionName '2.11.1.9'
+        versionCode 2110112
+        versionName '2.11.1.12'
         multiDexEnabled true
 
         minSdkVersion 19
