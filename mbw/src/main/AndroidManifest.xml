@@ -94,7 +94,8 @@
         <activity
             android:name=".activity.StartupActivity"
             android:label="@string/app_short_name"
-            android:theme="@style/MyceliumLauncher">
+            android:theme="@style/MyceliumLauncher"
+            android:configChanges="orientation|keyboardHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -248,7 +249,8 @@
         <activity android:name=".activity.PinProtectedActivity" />
         <activity android:name=".activity.MessageSigningActivity" />
         <activity android:name=".activity.ImportSeedActivity" />
-        <activity android:name=".activity.EnterWordListActivity" />
+        <activity android:name=".activity.EnterWordListActivity"
+            android:configChanges="orientation|keyboardHidden"/>
         <activity android:name=".activity.BackupWordListActivity" />
         <activity android:name=".activity.VerifyWordListActivity" />
         <activity android:name=".activity.AdditionalBackupWarningActivity" />

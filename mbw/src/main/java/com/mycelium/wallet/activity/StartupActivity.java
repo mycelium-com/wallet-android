@@ -39,6 +39,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.nfc.NfcAdapter;
 import android.os.AsyncTask;
@@ -127,6 +128,11 @@ public class StartupActivity extends Activity {
          _alertDialog.dismiss();
       }
       super.onDestroy();
+   }
+
+   @Override
+   public void onConfigurationChanged(Configuration newConfig) {
+      super.onConfigurationChanged(newConfig);
    }
 
    private Runnable delayedInitialization = new Runnable() {
