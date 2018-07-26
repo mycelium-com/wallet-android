@@ -363,6 +363,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                     OrbotHelper obh = new OrbotHelper(getActivity());
                     if (!obh.isOrbotInstalled()) {
                         obh.promptToInstall(getActivity());
+                        useTor.setChecked(false);
                     }
                 }
                 _mbwManager.setTorMode(useTor.isChecked()
