@@ -60,6 +60,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.EvictingQueue;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Queues;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Ints;
 import com.mrd.bitlib.crypto.Bip39;
@@ -134,6 +135,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Queue;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -217,12 +219,14 @@ public class MbwManager {
    private TorManager _torManager;
    public final BlockExplorerManager _blockExplorerManager;
 
-   private final EvictingQueue<LogEntry> _wapiLogs = EvictingQueue.create(100);
+   private final Queue<LogEntry> _wapiLogs;
    private Cache<String, Object> _semiPersistingBackgroundObjects = CacheBuilder.newBuilder().maximumSize(10).build();
 
    private WalletConfiguration configuration;
 
    private MbwManager(Context evilContext) {
+      Queue<LogEntry> unsafeWapiLogs = EvictingQueue.create(100);
+      _wapiLogs  = Queues.synchronizedQueue(unsafeWapiLogs);
       _applicationContext = Preconditions.checkNotNull(evilContext.getApplicationContext());
       _environment = MbwEnvironment.verifyEnvironment();
       String version = VersionManager.determineVersion(_applicationContext);
@@ -428,9 +432,7 @@ public class MbwManager {
    }
 
    private void retainLog(Level level, String message) {
-      synchronized (_wapiLogs) {
-         _wapiLogs.add(new LogEntry(message, level, new Date()));
-      }
+      _wapiLogs.add(new LogEntry(message, level, new Date()));
    }
 
    public WapiLogger retainingWapiLogger = new WapiLogger() {
@@ -1275,7 +1277,7 @@ public class MbwManager {
       return _wapi;
    }
 
-   public EvictingQueue<LogEntry> getWapiLogs() {
+   public Queue<LogEntry> getWapiLogs() {
       return _wapiLogs;
    }
 
@@ -1336,7 +1338,6 @@ public class MbwManager {
       if(_coluManager != null && _coluManager.isPresent()) {
          return _coluManager.get();
       } else {
-         long t = System.currentTimeMillis();
          _coluManager = createColuManager(_applicationContext);
          if (_coluManager.isPresent()) {
             return _coluManager.get();
@@ -1348,10 +1349,6 @@ public class MbwManager {
 
    public Cache<String, Object> getBackgroundObjectsCache() {
       return _semiPersistingBackgroundObjects;
-   }
-
-   private void switchServer() {
-      _environment.getWapiEndpoints().switchToNextEndpoint();
    }
 
    public void stopWatchingAddress(){
