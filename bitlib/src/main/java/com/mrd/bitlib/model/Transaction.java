@@ -49,6 +49,7 @@ public class Transaction implements Serializable {
     public int lockTime;
 
     private Sha256Hash _hash;
+    private Sha256Hash id;
     private Sha256Hash _unmalleableHash;
 
     // cache for some getters that need to do some work and might get called often
@@ -270,12 +271,12 @@ public class Transaction implements Serializable {
     }
 
     public Sha256Hash getId() {
-        if (_hash == null) {
+        if (id == null) {
             ByteWriter writer = new ByteWriter(2000);
             toByteWriter(writer, false);
-            _hash = HashUtils.doubleSha256(writer.toBytes()).reverse();
+            id = HashUtils.doubleSha256(writer.toBytes()).reverse();
         }
-        return _hash;
+        return id;
     }
 
     public Sha256Hash getHash() {
