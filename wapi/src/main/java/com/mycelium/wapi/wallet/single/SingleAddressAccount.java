@@ -235,7 +235,7 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
    }
 
    @Override
-   protected void onNewTransaction(TransactionEx tex, Transaction t) {
+   protected void onNewTransaction(Transaction t) {
       // Nothing to do for this account type
    }
 

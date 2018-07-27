@@ -396,8 +396,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       _backing.putTransactions(texArray);
 
       for (int i = 0; i < txArray.size(); i++) {
-         final TransactionEx transactionEx = texArray.get(i);
-         onNewTransaction(transactionEx, txArray.get(i));
+         onNewTransaction(txArray.get(i));
       }
    }
 
@@ -683,7 +682,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
    @Override
    public abstract boolean isActive();
 
-   protected abstract void onNewTransaction(TransactionEx tex, Transaction t);
+   protected abstract void onNewTransaction(Transaction t);
 
    protected void onTransactionsBroadcasted(List<Sha256Hash> txids) {
    }
@@ -866,7 +865,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       }
 
       // Tell account that we have a new transaction
-      onNewTransaction(TransactionEx.fromUnconfirmedTransaction(parsedTransaction), parsedTransaction);
+      onNewTransaction(parsedTransaction);
 
       // Calculate local balance cache. It has changed because we have done
       // some spending
