@@ -38,7 +38,6 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
@@ -65,12 +64,8 @@ public class EnterWordListActivity extends AppCompatActivity implements WordAuto
    private static final String ONLY_SEED = "onlySeed";
    public static final String MASTERSEED = "masterseed";
    public static final String PASSWORD = "password";
-   private boolean _seedOnly;
 
-   @Override
-   public void onConfigurationChanged(Configuration newConfig) {
-      super.onConfigurationChanged(newConfig);
-   }
+   private boolean _seedOnly;
 
    public static void callMe(Activity activity, int requestCode) {
       Intent intent = new Intent(activity, EnterWordListActivity.class);
