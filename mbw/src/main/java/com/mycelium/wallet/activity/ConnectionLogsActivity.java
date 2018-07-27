@@ -79,8 +79,5 @@ public class ConnectionLogsActivity extends Activity {
             return true;
          }
       });
-
    }
-
-
 }
