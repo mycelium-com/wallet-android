@@ -129,6 +129,7 @@ public class StartupActivity extends Activity {
       super.onDestroy();
    }
 
+
    private Runnable delayedInitialization = new Runnable() {
       @Override
       public void run() {
