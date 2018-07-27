@@ -472,7 +472,7 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
     }
 
     @Override
-    protected void onNewTransaction(TransactionEx tex, Transaction t) {
+    protected void onNewTransaction(Transaction t) {
         // check whether we need to update our last index for activity
         updateLastIndexWithActivity(t);
     }
