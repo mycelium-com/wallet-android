@@ -713,7 +713,7 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
       }
 
       @Override
-      public void putTransactions(List<TransactionEx> transactions) {
+      public void putTransactions(Collection<? extends TransactionEx> transactions) {
          if (transactions.isEmpty()) {
             return;
          }
@@ -722,14 +722,15 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
                  + TextUtils.join(",", Collections.nCopies(transactions.size(), " (?,?,?,?,?) "));
          SQLiteStatement updateStatement = _database.compileStatement(updateQuery);
          try {
-            for (int i = 0; i < transactions.size(); i++) {
+            int i = 0;
+            for (TransactionEx transactionEx: transactions) {
                int index = i * 5;
-               final TransactionEx transactionEx = transactions.get(i);
                updateStatement.bindBlob(index + 1, transactionEx.txid.getBytes());
                updateStatement.bindBlob(index + 2, transactionEx.hash.getBytes());
                updateStatement.bindLong(index + 3, transactionEx.height == -1 ? Integer.MAX_VALUE : transactionEx.height);
                updateStatement.bindLong(index + 4, transactionEx.time);
                updateStatement.bindBlob(index + 5, transactionEx.binary);
+               i++;
             }
             updateStatement.executeInsert();
 

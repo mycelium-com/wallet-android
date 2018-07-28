@@ -377,12 +377,10 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
 
    private void handleNewExternalTransactionsInt(Collection<TransactionExApi> transactions) throws WapiException {
       // Transform and put into two arrays with matching indexes
-      List<TransactionEx> texArray = new ArrayList<>(transactions.size());
       List<Transaction> txArray = new ArrayList<>(transactions.size());
       for (TransactionEx tex : transactions) {
          try {
             txArray.add(Transaction.fromByteReader(new ByteReader(tex.binary)));
-            texArray.add(tex);
          } catch (TransactionParsingException e) {
             // We hit a transaction that we cannot parse. Log but otherwise ignore it
             _logger.logError("Received transaction that we cannot parse: " + tex.txid.toString());
@@ -393,7 +391,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       fetchStoreAndValidateParentOutputs(txArray);
 
       // Store transaction locally
-      _backing.putTransactions(texArray);
+      _backing.putTransactions(transactions);
 
       for (int i = 0; i < txArray.size(); i++) {
          onNewTransaction(txArray.get(i));

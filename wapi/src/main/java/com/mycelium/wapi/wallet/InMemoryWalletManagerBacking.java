@@ -251,7 +251,7 @@ public class InMemoryWalletManagerBacking implements WalletManagerBacking {
       }
 
       @Override
-      public void putTransactions(List<TransactionEx> transactions) {
+      public void putTransactions(Collection<? extends TransactionEx> transactions) {
          for (TransactionEx transaction : transactions) {
             putTransaction(transaction);
          }
