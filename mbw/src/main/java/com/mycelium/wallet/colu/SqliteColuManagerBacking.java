@@ -439,9 +439,9 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
    private static void createAccountBackingTables(UUID id, SQLiteDatabase db) {
       String tableSuffix = uuidToTableSuffix(id);
       db.execSQL("CREATE TABLE IF NOT EXISTS " + getUtxoTableName(tableSuffix)
-            + " (outpoint BLOB PRIMARY KEY, height INTEGER, value INTEGER, isCoinbase INTEGER, script BLOB);");
+            + " (outpoint BLOB PRIMARY KEY, height INTEGER, value INTEGER, isCoinbase INTEGER, script BLOB, isSegwit INTEGER);");
       db.execSQL("CREATE TABLE IF NOT EXISTS " + getPtxoTableName(tableSuffix)
-            + " (outpoint BLOB PRIMARY KEY, height INTEGER, value INTEGER, isCoinbase INTEGER, script BLOB);");
+            + " (outpoint BLOB PRIMARY KEY, height INTEGER, value INTEGER, isCoinbase INTEGER, script BLOB, isSegwit INTEGER);");
       db.execSQL("CREATE TABLE IF NOT EXISTS " + getTxTableName(tableSuffix)
             + " (id BLOB PRIMARY KEY, hash BLOB, height INTEGER, time INTEGER, binary BLOB);");
       db.execSQL("CREATE INDEX IF NOT EXISTS heightIndex ON " + getTxTableName(tableSuffix) + " (height);");
@@ -502,9 +502,9 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
          txTableName = getTxTableName(tableSuffix);
          outTxTableName = getOutgoingTxTableName(tableSuffix);
          txRefersParentTxTableName = getTxRefersPtxoTableName(tableSuffix);
-         _insertOrReplaceUtxo = db.compileStatement("INSERT OR REPLACE INTO " + utxoTableName + " VALUES (?,?,?,?,?)");
+         _insertOrReplaceUtxo = db.compileStatement("INSERT OR REPLACE INTO " + utxoTableName + " VALUES (?,?,?,?,?,?)");
          _deleteUtxo = db.compileStatement("DELETE FROM " + utxoTableName + " WHERE outpoint = ?");
-         _insertOrReplacePtxo = db.compileStatement("INSERT OR REPLACE INTO " + ptxoTableName + " VALUES (?,?,?,?,?)");
+         _insertOrReplacePtxo = db.compileStatement("INSERT OR REPLACE INTO " + ptxoTableName + " VALUES (?,?,?,?,?,?)");
          _insertOrReplaceTx = db.compileStatement("INSERT OR REPLACE INTO " + txTableName + " VALUES (?,?,?,?,?)");
          _deleteTx = db.compileStatement("DELETE FROM " + txTableName + " WHERE id = ?");
          _insertOrReplaceOutTx = db.compileStatement("INSERT OR REPLACE INTO " + outTxTableName + " VALUES (?,?)");
@@ -553,6 +553,7 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
          _insertOrReplaceUtxo.bindLong(3, output.value);
          _insertOrReplaceUtxo.bindLong(4, output.isCoinBase ? 1 : 0);
          _insertOrReplaceUtxo.bindBlob(5, output.script);
+         _insertOrReplaceUtxo.bindLong(6, output.isSegwit() ? 1 : 0);
          _insertOrReplaceUtxo.executeInsert();
       }
 
@@ -563,10 +564,11 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
          try {
             SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(_db);
             cursor = blobQuery.query(false, utxoTableName, new String[]{"outpoint", "height", "value", "isCoinbase",
-                  "script"}, null, null, null, null, null, null);
+                  "script", "isSegwit"}, null, null, null, null, null, null);
             while (cursor.moveToNext()) {
                TransactionOutputEx tex = new TransactionOutputEx(SQLiteQueryWithBlobs.outPointFromBytes(cursor
-                     .getBlob(0)), cursor.getInt(1), cursor.getLong(2), cursor.getBlob(4), cursor.getInt(3) != 0);
+                     .getBlob(0)), cursor.getInt(1), cursor.getLong(2), cursor.getBlob(4),
+                       cursor.getInt(3) != 0, cursor.getInt(5) != 0);
                list.add(tex);
             }
             return list;
@@ -583,11 +585,11 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
          try {
             SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(_db);
             blobQuery.bindBlob(1, SQLiteQueryWithBlobs.outPointToBytes(outPoint));
-            cursor = blobQuery.query(false, utxoTableName, new String[]{"height", "value", "isCoinbase", "script"},
+            cursor = blobQuery.query(false, utxoTableName, new String[]{"height", "value", "isCoinbase", "script", "isSegwit"},
                   "outpoint = ?", null, null, null, null, null);
             if (cursor.moveToNext()) {
                return new TransactionOutputEx(outPoint, cursor.getInt(0), cursor.getLong(1),
-                     cursor.getBlob(3), cursor.getInt(2) != 0);
+                     cursor.getBlob(3), cursor.getInt(2) != 0, cursor.getInt(4) != 0);
             }
             return null;
          } finally {
@@ -610,17 +612,18 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
          }
          _database.beginTransaction();
          String updateQuery = "INSERT OR REPLACE INTO " + ptxoTableName + " VALUES "
-                 + TextUtils.join(",", Collections.nCopies(outputsList.size(), " (?,?,?,?,?) "));
+                 + TextUtils.join(",", Collections.nCopies(outputsList.size(), " (?,?,?,?,?,?) "));
          SQLiteStatement updateStatement = _database.compileStatement(updateQuery);
          try {
             for (int i = 0; i < outputsList.size(); i++) {
-               int index = i * 5;
+               int index = i * 6;
                final TransactionOutputEx outputEx = outputsList.get(i);
                updateStatement.bindBlob(index + 1, SQLiteQueryWithBlobs.outPointToBytes(outputEx.outPoint));
                updateStatement.bindLong(index + 2, outputEx.height);
                updateStatement.bindLong(index + 3, outputEx.value);
                updateStatement.bindLong(index + 4, outputEx.isCoinBase ? 1 : 0);
                updateStatement.bindBlob(index + 5, outputEx.script);
+               updateStatement.bindLong(index + 6, outputEx.isSegwit() ? 1 : 0);
             }
             updateStatement.executeInsert();
             _database.setTransactionSuccessful();
@@ -636,6 +639,7 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
          _insertOrReplacePtxo.bindLong(3, output.value);
          _insertOrReplacePtxo.bindLong(4, output.isCoinBase ? 1 : 0);
          _insertOrReplacePtxo.bindBlob(5, output.script);
+         _insertOrReplacePtxo.bindLong(6, output.isSegwit() ? 1 : 0);
          _insertOrReplacePtxo.executeInsert();
       }
 
@@ -679,11 +683,11 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
          try {
             SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(_db);
             blobQuery.bindBlob(1, SQLiteQueryWithBlobs.outPointToBytes(outPoint));
-            cursor = blobQuery.query(false, ptxoTableName, new String[]{"height", "value", "isCoinbase", "script"},
+            cursor = blobQuery.query(false, ptxoTableName, new String[]{"height", "value", "isCoinbase", "script", "isSegwit"},
                   "outpoint = ?", null, null, null, null, null);
             if (cursor.moveToNext()) {
                return new TransactionOutputEx(outPoint, cursor.getInt(0), cursor.getLong(1),
-                     cursor.getBlob(3), cursor.getInt(2) != 0);
+                     cursor.getBlob(3), cursor.getInt(2) != 0, cursor.getInt(4) != 0);
             }
             return null;
          } finally {
@@ -972,7 +976,7 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
 
    private class OpenHelper extends SQLiteOpenHelper {
       private static final String DATABASE_NAME = "columanagerbacking.db";
-      private static final int DATABASE_VERSION = 4;
+      private static final int DATABASE_VERSION = 5;
 
       OpenHelper(Context context) {
          super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -1021,6 +1025,20 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
                   db.execSQL("ALTER TABLE " + tableName + " RENAME TO " + tableName + oldPostfix);
                   db.execSQL("ALTER TABLE " + tableName + newPostfix + " RENAME TO " + tableName);
                   db.execSQL("DROP TABLE " + tableName + oldPostfix);
+               }
+            }
+         }
+         if (oldVersion < 5) {
+            try (Cursor cursor = db.rawQuery("SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'utxo^_%' ESCAPE '^'", new String[]{})) {
+               while (cursor.moveToNext()) {
+                  String tableName = cursor.getString(0);
+                  db.execSQL("ALTER TABLE " + tableName + " ADD COLUMN isSegwit INTEGER DEFAULT 0");
+               }
+            }
+            try (Cursor cursor = db.rawQuery("SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'ptxo^_%' ESCAPE '^'", new String[]{})) {
+               while (cursor.moveToNext()) {
+                  String tableName = cursor.getString(0);
+                  db.execSQL("ALTER TABLE " + tableName + " ADD COLUMN isSegwit INTEGER DEFAULT 0");
                }
             }
          }

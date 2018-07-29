@@ -95,7 +95,7 @@ import static java.util.Collections.singletonList;
 
 public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
    private static final int COINBASE_MIN_CONFIRMATIONS = 100;
-   private static final int MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY = 199;
+   private static final int MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY = 150;
    private final ColuTransferInstructionsParser coluTransferInstructionsParser;
 
    public interface EventHandler {
@@ -318,16 +318,25 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
             postEvent(Event.SERVER_CONNECTION_ERROR);
             return -1;
          }
-         // Finally update out list of unspent outputs with added or updated
-         // outputs
-         for (TransactionOutputEx output : unspentOutputsToAddOrUpdate) {
-            // check if the output really belongs to one of our addresses
-            // prevent getting out local cache into a undefined state, if the server screws up
-            if (isMine(output)) {
-               _backing.putUnspentOutput(output);
-            }else {
-               _logger.logError("We got an UTXO that does not belong to us: " + output.toString());
+         try {
+            _backing.beginTransaction();
+            // Finally update out list of unspent outputs with added or updated
+            // outputs
+            for (TransactionOutputEx output : unspentOutputsToAddOrUpdate) {
+               // check if the output really belongs to one of our addresses
+               // prevent getting out local cache into a undefined state, if the server screws up
+               if (isMine(output)) {
+                  if (TransactionEx.toTransaction(_backing.getTransaction(output.outPoint.txid)).isSegwit()) {
+                     output.setSegwit(true);
+                  }
+                  _backing.putUnspentOutput(output);
+               } else {
+                  _logger.logError("We got an UTXO that does not belong to us: " + output.toString());
+               }
             }
+            _backing.setTransactionSuccessful();
+         } finally {
+            _backing.endTransaction();
          }
       }
 
@@ -850,7 +859,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
             TransactionOutput output = parsedTransaction.outputs[i];
             if (isMine(output.script)) {
                _backing.putUnspentOutput(new TransactionOutputEx(new OutPoint(parsedTransaction.getId(), i), -1,
-                     output.value, output.script.getScriptBytes(), false));
+                     output.value, output.script.getScriptBytes(), false, parsedTransaction.isSegwit()));
             }
          }
 

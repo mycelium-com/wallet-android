@@ -16,7 +16,6 @@
 
 package com.mycelium.wapi.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mrd.bitlib.model.OutPoint;
 
 import java.io.Serializable;
@@ -24,32 +23,36 @@ import java.io.Serializable;
 public class TransactionOutputEx implements Serializable {
    private static final long serialVersionUID = 1L;
 
-   @JsonProperty
    public final OutPoint outPoint;
-   @JsonProperty
    public final int height; // -1 means unconfirmed
-   @JsonProperty
    public final long value;
-   @JsonProperty
    public final byte[] script;
-   @JsonProperty
    public final boolean isCoinBase;
+   private boolean isSegwit;
 
-   public TransactionOutputEx(@JsonProperty("outPoint") OutPoint outPoint, @JsonProperty("height") int height,
-                              @JsonProperty("value") long value, @JsonProperty("script") byte[] script,
-                              @JsonProperty("isCoinBase") boolean isCoinBase) {
+   public TransactionOutputEx(OutPoint outPoint, int height, long value, byte[] script, boolean isCoinBase, boolean isSegwit) {
       this.outPoint = outPoint;
       this.height = height;
       this.value = value;
       this.script = script;
       this.isCoinBase = isCoinBase;
+      this.isSegwit = isSegwit;
+   }
+
+   public void setSegwit(boolean segwit) {
+      isSegwit = segwit;
+   }
+
+   public boolean isSegwit() {
+      return isSegwit;
    }
 
    @Override
    public String toString() {
       StringBuilder sb = new StringBuilder();
       sb.append("outPoint:").append(outPoint).append(" height:").append(height).append(" value: ").append(value)
-            .append(" isCoinbase: ").append(isCoinBase).append(" scriptLength: ").append(script.length);
+            .append(" isCoinbase: ").append(isCoinBase).append(" isSegwit: ").append(isSegwit)
+              .append(" scriptLength: ").append(script.length);
       return sb.toString();
    }
 
