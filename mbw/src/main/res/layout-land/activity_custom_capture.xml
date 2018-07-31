@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.journeyapps.barcodescanner.DecoratedBarcodeView
+        android:id="@+id/zxing_barcode_scanner"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:zxing_scanner_layout="@layout/custom_barcode_scanner" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="32dp"
+        android:orientation="vertical">
+
+        <ImageButton
+            android:id="@+id/switch_flashlight"
+            android:layout_width="@dimen/camera_button_size"
+            android:layout_height="@dimen/camera_button_size"
+            android:layout_marginBottom="32dp"
+            android:background="@color/transparent"
+            android:onClick="onSwitchFlashlightPressed"
+            app:srcCompat="@drawable/camera_flash_black" />
+
+        <ImageButton
+            android:id="@+id/switch_camera"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@color/transparent"
+            android:onClick="onSwitchCameraPressed"
+            app:srcCompat="@drawable/camera_switch_black" />
+
+    </LinearLayout>
+
+</RelativeLayout>

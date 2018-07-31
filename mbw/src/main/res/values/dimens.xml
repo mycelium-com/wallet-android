@@ -26,5 +26,8 @@
     <dimen name="big_input">36sp</dimen>
     <dimen name="medium_input">24sp</dimen>
     <dimen name="pref_divider_margin">56dp</dimen>
+    <dimen name="half_padding">4dp</dimen>
+    <dimen name="standard_padding">8dp</dimen>
+    <dimen name="camera_button_size">48dp</dimen>
 
 </resources>

@@ -37,6 +37,10 @@
     
     <drawable name="semi_black">#80000000</drawable>
 
+    <!-- 80% -->
+    <color name="black_transparent">#CC000000</color>
+    <color name="white_transparent">#CCFFFFFF</color>
+
     <color name="status_green">#bbdd99</color>
     <color name="status_red">#ffea5e5e</color>
     <color name="status_yellow">#ddb352</color>
