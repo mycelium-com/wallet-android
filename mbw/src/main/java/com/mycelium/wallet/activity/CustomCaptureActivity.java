@@ -39,7 +39,7 @@ public class CustomCaptureActivity extends AppCompatActivity implements Decorate
             switchFlashlightButton.setVisibility(View.GONE);
         }
 
-        if (!hasCameras()) {
+        if (!hasFrontAndBackCamera()) {
             switchCameraButton.setVisibility(View.GONE);
         }
 
@@ -87,10 +87,7 @@ public class CustomCaptureActivity extends AppCompatActivity implements Decorate
                 .hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH);
     }
 
-    /**
-     * @return true if the device has more than 1 camera
-     */
-    private boolean hasCameras() {
+    private boolean hasFrontAndBackCamera() {
         PackageManager pm = getPackageManager();
         boolean frontCam, rearCam;
 
@@ -117,8 +114,9 @@ public class CustomCaptureActivity extends AppCompatActivity implements Decorate
     @Override
     public void onTorchOn() {
         // it is also possible to turn flash from volume keys, preventing that.
-        if(!isFrontCamera)
+        if (!isFrontCamera) {
             switchFlashlightButton.setImageDrawable(getResources().getDrawable(R.drawable.camera_flash_on));
+        }
     }
 
     @Override
@@ -133,20 +131,22 @@ public class CustomCaptureActivity extends AppCompatActivity implements Decorate
             switchFlashlightButton.setVisibility(View.VISIBLE);
             barcodeScannerView.initializeFromIntent(new Intent().putExtra(Intents.Scan.CAMERA_ID, Camera.CameraInfo.CAMERA_FACING_BACK));
             isFrontCamera = false;
-            onPause();
-            onResume();
+            resetCaptureManager();
         } else {
             switchFlashlightButton.setVisibility(View.GONE);
             barcodeScannerView.initializeFromIntent(new Intent().putExtra(Intents.Scan.CAMERA_ID, Camera.CameraInfo.CAMERA_FACING_FRONT));
             isFrontCamera = true;
-            onPause();
-            onResume();
+            resetCaptureManager();
         }
     }
 
+    private void resetCaptureManager() {
+        capture.onPause();
+        capture.onResume();
+    }
+
     public void onUpdateFocusPressed(View view) {
-        onPause();
-        onResume();
+        resetCaptureManager();
     }
 
     public void onCloseCameraPressed(View view) {
