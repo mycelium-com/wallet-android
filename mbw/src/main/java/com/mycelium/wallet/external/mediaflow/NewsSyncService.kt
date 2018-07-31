@@ -15,7 +15,6 @@ import android.widget.RemoteViews
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.StartupActivity
-import com.mycelium.wallet.activity.news.NewsActivity
 import com.mycelium.wallet.activity.news.NewsUtils
 import com.mycelium.wallet.activity.settings.SettingsPreference
 import com.mycelium.wallet.external.mediaflow.database.NewsDatabase
@@ -59,7 +58,6 @@ class NewsSyncService : Service() {
                 val builder = NotificationCompat.Builder(this, NewsConstants.NEWS)
                         .setSmallIcon(R.drawable.ic_launcher)
                         .setAutoCancel(true)
-                var notificationId = mediaFlowNotificationId
                 if (newTopics.size == 1) {
                     val news = newTopics[0]
 
@@ -68,19 +66,17 @@ class NewsSyncService : Service() {
                     remoteViews.setTextViewText(R.id.category, news.categories.values.elementAt(0).name)
                     remoteViews.setTextViewText(R.id.date, DateUtils.getRelativeTimeSpanString(this, news.date.time))
 
-                    val activityIntent = Intent(this, NewsActivity::class.java)
+                    val activityIntent = Intent(this, StartupActivity::class.java)
+                    activityIntent.action = NewsUtils.MEDIA_FLOW_ACTION
                     activityIntent.putExtra(NewsConstants.NEWS, news)
                     val pIntent = PendingIntent.getActivity(this, 0, activityIntent, PendingIntent.FLAG_CANCEL_CURRENT)
 
-                    builder
-                            .setContent(remoteViews)
-
+                    builder.setContent(remoteViews)
                             .setContentIntent(pIntent)
-                    notificationId += news.id
                     builder.setGroup(mediaFlowNotificationGroup)
                     notificationManager?.notify(mediaFlowNotificationId, builder.build())
                 } else if (newTopics.size > 1) {
-                    val title = "${updateStates?.size} new topics"
+                    val title = resources.getQuantityString(R.plurals.media_flow_new_topic, newTopics.size)
                     builder.setContentTitle(title)
                             .setGroupSummary(true)
                     val inboxStyle = NotificationCompat.InboxStyle()
@@ -94,7 +90,7 @@ class NewsSyncService : Service() {
                     activityIntent.action = NewsUtils.MEDIA_FLOW_ACTION
                     val pIntent = PendingIntent.getActivity(this, 0, activityIntent, PendingIntent.FLAG_CANCEL_CURRENT)
                     builder.setContentIntent(pIntent)
-                    builder.setGroup(mediaFlowNotificationGroup)
+                            .setGroup(mediaFlowNotificationGroup)
                     notificationManager?.notify(mediaFlowNotificationId, builder.build())
                 }
 

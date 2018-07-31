@@ -74,6 +74,7 @@ import com.mycelium.wallet.activity.main.BalanceMasterFragment;
 import com.mycelium.wallet.activity.main.RecommendationsFragment;
 import com.mycelium.wallet.activity.main.TransactionHistoryFragment;
 import com.mycelium.wallet.activity.modern.adapter.TabsAdapter;
+import com.mycelium.wallet.activity.news.NewsActivity;
 import com.mycelium.wallet.activity.send.InstantWalletActivity;
 import com.mycelium.wallet.activity.settings.SettingsActivity;
 import com.mycelium.wallet.coinapult.CoinapultAccount;
@@ -85,6 +86,7 @@ import com.mycelium.wallet.event.SyncStarted;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.event.TorStateChanged;
 import com.mycelium.wallet.event.TransactionBroadcasted;
+import com.mycelium.wallet.external.mediaflow.NewsConstants;
 import com.mycelium.wallet.modularisation.BCHHelper;
 import com.mycelium.wallet.modularisation.ModularisationVersionHelper;
 import com.mycelium.wapi.api.response.Feature;
@@ -166,6 +168,11 @@ public class ModernMain extends AppCompatActivity {
       addressBookTabIndex = mTabsAdapter.getCount() - 1; // save address book tab id to show/hide add contact
       if (Objects.equals(getIntent().getAction(), "media_flow")) {
          bar.selectTab(mNewsTab);
+         if (getIntent().hasExtra(NewsConstants.NEWS)) {
+            Intent intent = new Intent(this, NewsActivity.class);
+            intent.putExtras(getIntent().getExtras());
+            startActivity(intent);
+         }
       } else {
          bar.selectTab(mBalanceTab);
       }

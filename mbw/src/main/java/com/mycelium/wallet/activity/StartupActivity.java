@@ -71,6 +71,7 @@ import com.mycelium.wallet.activity.send.SendInitializationActivity;
 import com.mycelium.wallet.bitid.BitIDAuthenticationActivity;
 import com.mycelium.wallet.bitid.BitIDSignRequest;
 import com.mycelium.wallet.external.glidera.activities.GlideraSendToNextStep;
+import com.mycelium.wallet.external.mediaflow.NewsConstants;
 import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
@@ -311,6 +312,7 @@ public class StartupActivity extends Activity {
        Intent intent = new Intent(StartupActivity.this, ModernMain.class);
        if (Objects.equals(getIntent().getAction(), NewsUtils.MEDIA_FLOW_ACTION)) {
            intent.setAction(NewsUtils.MEDIA_FLOW_ACTION);
+           intent.putExtras(getIntent().getExtras());
        }
        startActivity(intent);
        finish();

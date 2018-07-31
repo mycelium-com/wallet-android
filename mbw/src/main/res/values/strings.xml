@@ -1257,4 +1257,8 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
         <item quantity="one">%d new account created</item>
         <item quantity="other">%d new accounts created</item>
     </plurals>
+    <plurals name="media_flow_new_topic">
+        <item quantity="one">one new topic</item>
+        <item quantity="other">%d new topics</item>
+    </plurals>
 </resources>

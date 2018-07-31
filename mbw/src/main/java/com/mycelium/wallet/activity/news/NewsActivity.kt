@@ -40,6 +40,12 @@ class NewsActivity : AppCompatActivity() {
         collapsing_toolbar.setStatusBarScrimColor(Color.parseColor("#1a1a1a"))
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayShowTitleEnabled(false)
+
+        app_bar_layout.addOnOffsetChangedListener { appBarLayout, verticalOffset ->
+            val scrollDelta = Math.abs(verticalOffset * 1f / appBarLayout.totalScrollRange)
+            category.alpha = 1 - scrollDelta
+            toolbar_shadow.visibility = if(scrollDelta == 1f) View.VISIBLE else View.GONE
+        }
         news = intent.getSerializableExtra("news") as News
         NewsDatabase.read(news)
         content.setBackgroundColor(Color.TRANSPARENT)
@@ -66,17 +72,18 @@ class NewsActivity : AppCompatActivity() {
                 , "<html>"
                 + "<head>"
                 + "<script src='file:///android_asset/js/jquery.js'></script>"
-                + "<style type=\"text/css\">body{color: #fff; padding: 0px; margin:0px}"
+                + "<style type=\"text/css\">body{color: #fff; padding: 0px; margin:0px; line-height: 1.43;}"
                 + " img{display: inline; height: auto; max-width: 100%;}"
                 + " .wp-caption-text, .wp-caption-dd {"
                 + " clear: both; font-size: 75%;  font-weight: 400; font-style: italic;"
                 + " text-align: center; color: #e7e7e7; width: 100%; margin: 0; margin-top: ${resources.toWebViewPx(12f)}}"
                 + " a {text-decoration: none; color: #e7e7e7; }"
-                + " p { margin-top: ${webTextMarginVertical}px; margin-left: ${webTextMarginHorizontal}px; "
+                + " p, section { margin-top: ${webTextMarginVertical}px; margin-left: ${webTextMarginHorizontal}px; "
                 + "  margin-bottom: ${webTextMarginVertical}px; margin-right: ${webTextMarginHorizontal}px;}"
                 + " blockquote {margin-left: ${resources.toWebViewPx(16f)}px; font-family:Georgia,'Times New Roman',serif;"
-                + " font-style:italic;border:solid #595959;border-width: 0 0 0 ${resources.toWebViewPx(2f)}px; color: #e7e7e7; }" +
-                " blockquote p{ padding-top:${resources.toWebViewPx(12f)}px; padding-bottom: ${resources.toWebViewPx(12f)}px;}"
+                + " font-style:italic;border:solid #595959;border-width: 0 0 0 ${resources.toWebViewPx(2f)}px; color: #e7e7e7; }"
+                + " blockquote p{ padding-top:${resources.toWebViewPx(12f)}px; padding-bottom: ${resources.toWebViewPx(12f)}px;}"
+                + " li { margin-bottom: ${resources.toWebViewPx(8f)}px;}"
                 + "</style></head>"
                 + "<body>$contentText"
                 + "<link rel='stylesheet' href='file:///android_asset/css/slideshow.css' type='text/css' media='all' />"
@@ -97,7 +104,7 @@ class NewsActivity : AppCompatActivity() {
         category.setBackgroundResource(NewsUtils.getCategoryBackground(categoryText))
 
         scrollTop.setOnClickListener {
-            scrollView.smoothScrollTo(0, 0)
+            scrollView.fullScroll(View.FOCUS_UP)
         }
 
         scrollView.viewTreeObserver.addOnScrollChangedListener {
