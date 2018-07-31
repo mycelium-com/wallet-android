@@ -68,7 +68,7 @@ import android.widget.Toast;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.UnableToBuildTransactionException;
-import com.mrd.bitlib.StandardTransactionBuilder.UnsignedTransaction;
+import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.HexUtils;

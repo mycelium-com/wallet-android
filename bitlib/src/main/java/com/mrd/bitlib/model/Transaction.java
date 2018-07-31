@@ -17,7 +17,7 @@
 package com.mrd.bitlib.model;
 
 import com.google.common.primitives.UnsignedInteger;
-import com.mrd.bitlib.StandardTransactionBuilder;
+import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.model.TransactionInput.TransactionInputParsingException;
 import com.mrd.bitlib.model.TransactionOutput.TransactionOutputParsingException;
 import com.mrd.bitlib.util.ByteReader;
@@ -56,7 +56,7 @@ public class Transaction implements Serializable {
     private transient Boolean _rbfAble = null;
     private transient int _txSize = -1;
 
-    public static Transaction fromUnsignedTransaction(StandardTransactionBuilder.UnsignedTransaction unsignedTransaction) {
+    public static Transaction fromUnsignedTransaction(UnsignedTransaction unsignedTransaction) {
         TransactionInput inputs[] = new TransactionInput[unsignedTransaction.getFundingOutputs().length];
         int idx = 0;
         for (UnspentTransactionOutput u : unsignedTransaction.getFundingOutputs()) {

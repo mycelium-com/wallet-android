@@ -22,7 +22,6 @@ import com.mrd.bitlib.model.Script.ScriptParsingException;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
 import com.mrd.bitlib.util.ByteWriter;
-import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 
 public class TransactionInput implements Serializable {
@@ -136,22 +135,14 @@ public class TransactionInput implements Serializable {
       this.witness = witness;
    }
 
-   public static class TransactionInputParsingException extends Exception {
+   static class TransactionInputParsingException extends Exception {
       private static final long serialVersionUID = 1L;
 
-      public TransactionInputParsingException(byte[] script) {
-         this(script, null);
-      }
-
-      public TransactionInputParsingException(byte[] script, Exception e) {
-         super("Unable to parse transaction input: " + HexUtils.toHex(script), e);
-      }
-
-      public TransactionInputParsingException(String message) {
+      TransactionInputParsingException(String message) {
          this(message, null);
       }
 
-      public TransactionInputParsingException(String message, Exception e) {
+      TransactionInputParsingException(String message, Exception e) {
          super(message, e );
       }
    }

@@ -63,7 +63,7 @@ import com.google.common.base.Strings;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
 import com.mrd.bitlib.StandardTransactionBuilder.UnableToBuildTransactionException;
-import com.mrd.bitlib.StandardTransactionBuilder.UnsignedTransaction;
+import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.TransactionUtils;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;

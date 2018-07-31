@@ -66,6 +66,7 @@ public class ScriptOutputStandard extends ScriptOutput implements Serializable {
     * 
     * @return The address that this output is for.
     */
+   @Override
    public byte[] getAddressBytes() {
       return _addressBytes;
    }

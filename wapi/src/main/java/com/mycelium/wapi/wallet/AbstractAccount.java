@@ -21,7 +21,7 @@ import com.mrd.bitlib.PopBuilder;
 import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
-import com.mrd.bitlib.StandardTransactionBuilder.UnsignedTransaction;
+import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.crypto.BitcoinSigner;
 import com.mrd.bitlib.crypto.IPrivateKeyRing;
 import com.mrd.bitlib.crypto.IPublicKeyRing;
@@ -73,7 +73,6 @@ import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 
 import java.nio.ByteBuffer;
 import java.text.ParseException;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -744,7 +743,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       }
       // Make all signatures, this is the CPU intensive part
       List<byte[]> signatures = StandardTransactionBuilder.generateSignatures(
-            unsigned.getSignatureInfo(),
+            unsigned.getSigningRequests(),
             new PrivateKeyRing(cipher)
       );
 

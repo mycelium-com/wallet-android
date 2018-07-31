@@ -25,14 +25,11 @@ import com.google.common.collect.Ordering;
 import com.mrd.bitlib.crypto.BitcoinSigner;
 import com.mrd.bitlib.crypto.IPrivateKeyRing;
 import com.mrd.bitlib.crypto.IPublicKeyRing;
-import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.*;
 import com.mrd.bitlib.util.ByteWriter;
-import com.mrd.bitlib.util.CoinUtil;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 
-import java.io.Serializable;
 import java.util.*;
 
 import static com.mrd.bitlib.TransactionUtils.MINIMUM_OUTPUT_VALUE;
@@ -81,154 +78,6 @@ public class StandardTransactionBuilder {
       }
    }
 
-   public static class SigningRequest implements Serializable {
-      private static final long serialVersionUID = 1L;
-
-      // The public part of the key we will sign with
-      public PublicKey publicKey;
-
-      // The data to make a signature on. For transactions this is the
-      // transaction hash
-      public Sha256Hash toSign;
-
-      public SigningRequest(PublicKey publicKey, Sha256Hash toSign) {
-         this.publicKey = publicKey;
-         this.toSign = toSign;
-      }
-   }
-
-   public static class UnsignedTransaction implements Serializable {
-      private static final long serialVersionUID = 1L;
-      public static final int NO_SEQUENCE = -1;
-
-      private TransactionOutput[] _outputs;
-      private UnspentTransactionOutput[] _funding;
-      private SigningRequest[] _signingRequests;
-      private NetworkParameters _network;
-
-      public TransactionOutput[] getOutputs() {
-         return _outputs;
-      }
-
-      public UnspentTransactionOutput[] getFundingOutputs() {
-         return _funding;
-      }
-
-      public UnsignedTransaction(List<TransactionOutput> outputs, List<UnspentTransactionOutput> funding,
-                                 IPublicKeyRing keyRing, NetworkParameters network) {
-         _network = network;
-         _outputs = outputs.toArray(new TransactionOutput[outputs.size()]);
-         _funding = funding.toArray(new UnspentTransactionOutput[funding.size()]);
-         _signingRequests = new SigningRequest[_funding.length];
-
-         // Create empty input scripts pointing at the right out points
-         TransactionInput[] inputs = new TransactionInput[_funding.length];
-         for (int i = 0; i < _funding.length; i++) {
-            inputs[i] = new TransactionInput(_funding[i].outPoint, ScriptInput.EMPTY, getDefaultSequenceNumber());
-         }
-
-         // Create transaction with valid outputs and empty inputs
-         Transaction transaction = new Transaction(1, inputs, _outputs, getLockTime(), false);
-
-         for (int i = 0; i < _funding.length; i++) {
-            UnspentTransactionOutput utxo = _funding[i];
-
-            // Make sure that we only work on standard output scripts
-            if (!(utxo.script instanceof ScriptOutputStandard)) {
-               throw new RuntimeException("Unsupported script");
-            }
-            // Find the address of the funding
-            byte[] addressBytes = ((ScriptOutputStandard) utxo.script).getAddressBytes();
-            Address address = Address.fromStandardBytes(addressBytes, _network);
-
-            // Find the key to sign with
-            PublicKey publicKey = keyRing.findPublicKeyByAddress(address);
-            if (publicKey == null) {
-               // This should not happen as we only work on outputs that we have
-               // keys for
-               throw new RuntimeException("Public key not found");
-            }
-
-            // Set the input script to the funding output script
-            inputs[i].script = ScriptInput.fromOutputScript(_funding[i].script);
-
-            // Calculate the transaction hash that has to be signed
-            Sha256Hash hash = hashTransaction(transaction);
-
-            // Set the input to the empty script again
-            inputs[i] = new TransactionInput(_funding[i].outPoint, ScriptInput.EMPTY);
-
-            _signingRequests[i] = new SigningRequest(publicKey, hash);
-         }
-      }
-
-      public SigningRequest[] getSignatureInfo() {
-         return _signingRequests;
-      }
-
-      /**
-       * @return fee in satoshis
-       */
-      public long calculateFee() {
-         long in = 0, out = 0;
-         for (UnspentTransactionOutput funding : _funding) {
-            in += funding.value;
-         }
-         for (TransactionOutput output : _outputs) {
-            out += output.value;
-         }
-         return in - out;
-      }
-
-      public int getLockTime() {
-         return 0;
-      }
-
-      public int getDefaultSequenceNumber() {
-         return NO_SEQUENCE;
-      }
-
-      @Override
-      public String toString() {
-         StringBuilder sb = new StringBuilder();
-         String fee = CoinUtil.valueString(calculateFee(), false);
-         sb.append(String.format("Fee: %s", fee)).append('\n');
-         int max = Math.max(_funding.length, _outputs.length);
-         for (int i = 0; i < max; i++) {
-            UnspentTransactionOutput in = i < _funding.length ? _funding[i] : null;
-            TransactionOutput out = i < _outputs.length ? _outputs[i] : null;
-            String line;
-            if (in != null && out != null) {
-               line = String.format("%36s %13s -> %36s %13s", getAddress(in.script, _network), getValue(in.value),
-                   getAddress(out.script, _network), getValue(out.value));
-            } else if (in != null) {
-               line = String.format("%36s %13s    %36s %13s", getAddress(in.script, _network), getValue(in.value), "",
-                   "");
-            } else if (out != null) {
-               line = String.format("%36s %13s    %36s %13s", "", "", getAddress(out.script, _network),
-                   getValue(out.value));
-            } else {
-               line = "";
-            }
-            sb.append(line).append('\n');
-         }
-         return sb.toString();
-      }
-
-      private String getAddress(ScriptOutput script, NetworkParameters network) {
-         Address address = script.getAddress(network);
-         if (address == null) {
-            return "Unknown";
-         }
-         return address.toString();
-      }
-
-      private String getValue(Long value) {
-         return String.format("(%s)", CoinUtil.valueString(value, false));
-      }
-
-   }
-
    public StandardTransactionBuilder(NetworkParameters network) {
       _network = network;
       _outputs = new LinkedList<>();
@@ -266,13 +115,13 @@ public class StandardTransactionBuilder {
    public static List<byte[]> generateSignatures(SigningRequest[] requests, IPrivateKeyRing keyRing) {
       List<byte[]> signatures = new LinkedList<>();
       for (SigningRequest request : requests) {
-         BitcoinSigner signer = keyRing.findSignerByPublicKey(request.publicKey);
+         BitcoinSigner signer = keyRing.findSignerByPublicKey(request.getPublicKey());
          if (signer == null) {
             // This should not happen as we only work on outputs that we have
             // keys for
             throw new RuntimeException("Private key not found");
          }
-         byte[] signature = signer.makeStandardBitcoinSignature(request.toSign);
+         byte[] signature = signer.makeStandardBitcoinSignature(request.getToSign());
          signatures.add(signature);
       }
       return signatures;
@@ -449,16 +298,17 @@ public class StandardTransactionBuilder {
 
    public static Transaction finalizeTransaction(UnsignedTransaction unsigned, List<byte[]> signatures) {
       // Create finalized transaction inputs
-      TransactionInput[] inputs = new TransactionInput[unsigned._funding.length];
-      for (int i = 0; i < unsigned._funding.length; i++) {
+      final UnspentTransactionOutput[] funding = unsigned.getFundingOutputs();
+      TransactionInput[] inputs = new TransactionInput[funding.length];
+      for (int i = 0; i < funding.length; i++) {
          // Create script from signature and public key
          ScriptInputStandard script = new ScriptInputStandard(signatures.get(i),
-             unsigned._signingRequests[i].publicKey.getPublicKeyBytes());
-         inputs[i] = new TransactionInput(unsigned._funding[i].outPoint, script, unsigned.getDefaultSequenceNumber());
+             unsigned.getSigningRequests()[i].getPublicKey().getPublicKeyBytes());
+         inputs[i] = new TransactionInput(funding[i].outPoint, script, unsigned.getDefaultSequenceNumber());
       }
 
       // Create transaction with valid outputs and empty inputs
-      return new Transaction(1, inputs, unsigned._outputs, unsigned.getLockTime(), false);
+      return new Transaction(1, inputs, unsigned.getOutputs(), unsigned.getLockTime(), false);
    }
 
    private UnspentTransactionOutput extractOldest(Collection<UnspentTransactionOutput> unspent) {
@@ -496,7 +346,7 @@ public class StandardTransactionBuilder {
       return sum;
    }
 
-   private static Sha256Hash hashTransaction(Transaction t) {
+   static Sha256Hash hashTransaction(Transaction t) {
       ByteWriter writer = new ByteWriter(1024);
       t.toByteWriter(writer);
       // We also have to write a hash type.

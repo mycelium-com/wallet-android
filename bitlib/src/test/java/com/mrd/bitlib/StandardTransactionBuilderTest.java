@@ -35,8 +35,6 @@
 package com.mrd.bitlib;
 
 import com.google.common.collect.ImmutableList;
-import com.mrd.bitlib.StandardTransactionBuilder.SigningRequest;
-import com.mrd.bitlib.StandardTransactionBuilder.UnsignedTransaction;
 import com.mrd.bitlib.crypto.BitcoinSigner;
 import com.mrd.bitlib.crypto.IPrivateKeyRing;
 import com.mrd.bitlib.crypto.IPublicKeyRing;

@@ -1,7 +1,7 @@
 package com.mycelium.wapi.wallet.bip44;
 
 import com.google.common.base.Optional;
-import com.mrd.bitlib.StandardTransactionBuilder.UnsignedTransaction;
+import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.Transaction;
 import com.mycelium.wapi.api.Wapi;

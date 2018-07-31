@@ -44,8 +44,8 @@ import com.google.common.base.Optional;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.GeneratedMessage;
 import com.google.protobuf.Message;
-import com.mrd.bitlib.StandardTransactionBuilder.SigningRequest;
-import com.mrd.bitlib.StandardTransactionBuilder.UnsignedTransaction;
+import com.mrd.bitlib.SigningRequest;
+import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.*;
@@ -230,7 +230,7 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
          return null;
       }
 
-      SigningRequest[] signatureInfo = unsigned.getSignatureInfo();
+      SigningRequest[] signatureInfo = unsigned.getSigningRequests();
 
       ByteWriter signedTx = new ByteWriter(1024);
 
@@ -313,7 +313,7 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
             // only for the unsigned txin
             if (!txRequestDetailsType.hasTxHash()) {
                SigningRequest signingRequest = signatureInfo[txRequestDetailsType.getRequestIndex()];
-               Address toSignWith = signingRequest.publicKey.toAddress(getNetwork());
+               Address toSignWith = signingRequest.getPublicKey().toAddress(getNetwork());
 
                if (toSignWith != null) {
                   Optional<Integer[]> addId = forAccount.getAddressId(toSignWith);
