@@ -45,7 +45,6 @@ public class CustomCaptureActivity extends AppCompatActivity implements Decorate
 
         capture = new CaptureManager(this, barcodeScannerView);
         capture.initializeFromIntent(getIntent(), savedInstanceState);
-
         capture.decode();
     }
 
@@ -131,13 +130,13 @@ public class CustomCaptureActivity extends AppCompatActivity implements Decorate
         setTorchOff();
 
         if (isFrontCamera) {
-            switchFlashlightButton.setEnabled(true);
+            switchFlashlightButton.setVisibility(View.VISIBLE);
             barcodeScannerView.initializeFromIntent(new Intent().putExtra(Intents.Scan.CAMERA_ID, Camera.CameraInfo.CAMERA_FACING_BACK));
             isFrontCamera = false;
             onPause();
             onResume();
         } else {
-            switchFlashlightButton.setEnabled(false);
+            switchFlashlightButton.setVisibility(View.GONE);
             barcodeScannerView.initializeFromIntent(new Intent().putExtra(Intents.Scan.CAMERA_ID, Camera.CameraInfo.CAMERA_FACING_FRONT));
             isFrontCamera = true;
             onPause();
@@ -146,7 +145,8 @@ public class CustomCaptureActivity extends AppCompatActivity implements Decorate
     }
 
     public void onUpdateFocusPressed(View view) {
-        onKeyDown(KeyEvent.KEYCODE_FOCUS, null);
+        onPause();
+        onResume();
     }
 
     public void onCloseCameraPressed(View view) {

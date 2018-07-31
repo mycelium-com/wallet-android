@@ -39,7 +39,7 @@
 
     <!-- camera uses them -->
     <color name="black_transparent">#CC000000</color> <!-- 80% -->
-    <color name="camera_border_black">#8C000000</color>
+    <color name="camera_border_black">#66000000</color>
 
     <color name="status_green">#bbdd99</color>
     <color name="status_red">#ffea5e5e</color>
