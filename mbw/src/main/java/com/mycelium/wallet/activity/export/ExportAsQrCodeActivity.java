@@ -39,11 +39,11 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.widget.SwitchCompat;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
 import android.widget.CompoundButton;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.mycelium.wallet.MbwManager;
@@ -56,7 +56,7 @@ public class ExportAsQrCodeActivity extends Activity {
    public static final String ACCOUNT = "account";
    private MbwManager _mbwManager;
    private ExportableAccount.Data accountData;
-   private Switch swSelectData;
+   private SwitchCompat swSelectData;
    private boolean hasWarningAccepted = false;
 
    public static Intent getIntent(Activity activity, ExportableAccount.Data accountData) {
@@ -88,7 +88,9 @@ public class ExportAsQrCodeActivity extends Activity {
 
 
       // hide the priv/pub switch, if this is a watch-only accountData
-      swSelectData = (Switch) findViewById(R.id.swSelectData);
+      swSelectData = (SwitchCompat) findViewById(R.id.swSelectData);
+      TextView privateText = (TextView) findViewById(R.id.prv_key);
+      TextView publicText = (TextView) findViewById(R.id.pub_key);
       if (accountData.privateData.isPresent()) {
          swSelectData.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -98,7 +100,8 @@ public class ExportAsQrCodeActivity extends Activity {
          });
       } else {
          swSelectData.setVisibility(View.GONE);
-         findViewById(R.id.tvShow).setVisibility(View.GONE);
+         privateText.setVisibility(View.GONE);
+         publicText.setVisibility(View.GONE);
       }
 
       findViewById(R.id.llPrivKeyWarning).setOnLongClickListener(new View.OnLongClickListener() {
@@ -109,8 +112,6 @@ public class ExportAsQrCodeActivity extends Activity {
             return true;
          }
       });
-
-
       updateData();
    }
 

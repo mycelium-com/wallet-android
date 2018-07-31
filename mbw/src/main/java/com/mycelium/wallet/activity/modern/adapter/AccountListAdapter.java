@@ -79,8 +79,26 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     }
 
     public void setFocusedAccountId(UUID focusedAccountId) {
+        if (this.focusedAccountId == null) {
+            this.focusedAccountId = mbwManager.getSelectedAccount().getId();
+        }
+        int oldFocusedPosition = findPosition(this.focusedAccountId);
         this.focusedAccountId = focusedAccountId;
-        notifyDataSetChanged(); // Somewhy in other cases android would not update alpha value
+        notifyItemChanged(oldFocusedPosition);
+        notifyItemChanged(findPosition(this.focusedAccountId));
+    }
+
+    private int findPosition(UUID account) {
+        int position = -1;
+        for (int i = 0; i < itemList.size(); i++) {
+            AccountItem item = itemList.get(i);
+            if (item.getWalletAccount() != null
+                    && Objects.equals(item.getWalletAccount().accountId, account)) {
+                position = i;
+                break;
+            }
+        }
+        return position;
     }
 
     @Override
@@ -118,17 +136,6 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             builder.buildRecordView(accountHolder, account
                     , Objects.equals(mbwManager.getSelectedAccount().getId(), account.accountId)
                     , Objects.equals(focusedAccountId, account.accountId));
-            accountHolder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    setFocusedAccountId(account.accountId);
-                    if (itemSelectListener != null) {
-                        itemSelectListener.onClick(mbwManager.getWalletManager(false)
-                                .getAccount(account.accountId));
-                    }
-
-                }
-            });
             accountHolder.llAddress.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {

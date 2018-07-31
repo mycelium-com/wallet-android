@@ -34,7 +34,7 @@
 
 package com.mycelium.wallet.activity.main;
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -189,18 +189,7 @@ public class BuySellFragment extends Fragment implements ButtonClickListener {
     }
 
     private void startExchange(Intent intent) {
-        //TODO need find more right way to detect is Changelly available
-        final ExchangeRate exchangeRate = _mbwManager.getExchangeRateManager().getExchangeRate("BCH");
-        if (exchangeRate == null || exchangeRate.price == null) {
-            new AlertDialog.Builder(getActivity(), R.style.MyceliumModern_Dialog)
-                    .setMessage(R.string.exchange_service_unavailable)
-                    .setPositiveButton(R.string.button_ok, null)
-                    .create()
-                    .show();
-            _mbwManager.getExchangeRateManager().requestRefresh();
-        } else {
-            startActivity(intent);
-        }
+        startActivity(intent);
     }
 
     @Override
@@ -210,22 +199,22 @@ public class BuySellFragment extends Fragment implements ButtonClickListener {
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        _mbwManager = MbwManager.getInstance(activity);
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        _mbwManager = MbwManager.getInstance(context);
     }
 
     @Override
-    public void onResume() {
+    public void onStart() {
         _mbwManager.getEventBus().register(this);
-        super.onResume();
         recreateActions();
+        super.onStart();
     }
 
     @Override
-    public void onPause() {
+    public void onStop() {
         _mbwManager.getEventBus().unregister(this);
-        super.onPause();
+        super.onStop();
     }
 
     @Subscribe

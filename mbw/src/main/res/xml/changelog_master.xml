@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="2.11" versioncode="2110105">
+        <change>SegWit: unconfirmed SegWit transactions are now shown. Full SegWit support is coming soon</change>
+        <change>New Search feature and Design in Settings</change>
+        <change>Improved UI performance</change>
+        <change>Progress display while syncing big accounts</change>
+        <change>Backend improvements</change>
+        <change>Bugs fixed</change>
+    </release>
     <release version="2.10.6" versioncode="2100600">
         <change>BCH transaction history</change>
         <change>bugs fixed</change>

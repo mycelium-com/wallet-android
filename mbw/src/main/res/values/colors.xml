@@ -8,6 +8,8 @@
     <color name="black">#000</color>
     <color name="darkblue">#2f6699</color>
     <color name="brightblue">#449def</color>
+    <color name="dark_sky_blue">#5aa7e6</color>
+    <color name="dark_sky_blue_transp">#665aa7e6</color>
     <color name="darkred">#99662f</color>
     <color name="brightred">#ef9d44</color>
     <color name="brightgreen">#44ef9d</color>

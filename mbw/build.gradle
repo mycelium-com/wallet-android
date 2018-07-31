@@ -49,15 +49,14 @@ dependencies {
     implementation project(includePrefix + ':btchip')
     implementation project(includePrefix + ':LVL')
     implementation project(includePrefix + ':libs:nordpol')
-    implementation project(includePrefix + ':libs:zxing-core')
     implementation project(includePrefix + ':bitlib')
     implementation project(includePrefix + ':view')
     implementation project(includePrefix + ':bitcoincashj:core')
 
     implementation guavaArtifact
-    implementation 'com.squareup.retrofit2:retrofit:2.3.0'
-    implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
-    implementation 'com.squareup.retrofit2:converter-jackson:2.3.0'
+    implementation 'com.squareup.retrofit2:retrofit:2.4.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.4.0'
+    implementation 'com.squareup.retrofit2:converter-jackson:2.4.0'
     implementation 'com.squareup.okhttp3:logging-interceptor:3.6.0'
 
     // ViewModel and LiveData
@@ -88,7 +87,8 @@ dependencies {
     implementation 'commons-codec:commons-codec:1.10'
     implementation 'com.google.protobuf:protobuf-java:3.1.0'
     implementation 'com.android.support.constraint:constraint-layout:1.1.0-beta5'
-    implementation 'com.shehabic.droppy:Droppy:0.6.0@aar'
+
+    implementation 'com.google.zxing:core:3.3.3'
 
     implementation project(includePrefix + ':myceliummodularizationtools')
     implementation project(includePrefix + ':modulespvcontract')
@@ -138,8 +138,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 2100602
-        versionName '2.10.6.2'
+        versionCode 2110112
+        versionName '2.11.1.12'
         multiDexEnabled true
 
         minSdkVersion 19

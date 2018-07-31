@@ -119,7 +119,7 @@ public class MessageSigningActivity extends Activity {
             public void onClick(View v) {
                 signButton.setEnabled(false);
                 messageToSign.setEnabled(false);
-
+                messageToSign.setHint("");
                 final ProgressDialog pd = new ProgressDialog(MessageSigningActivity.this);
                 pd.setTitle(getString(R.string.signing_inprogress));
                 pd.setCancelable(false);

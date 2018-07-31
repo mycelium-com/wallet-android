@@ -36,7 +36,7 @@ import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 
-public abstract class WapiClient implements Wapi {
+public abstract class WapiClient implements Wapi, WapiClientLifecycle {
    private static final int VERY_LONG_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
    private static final int LONG_TIMEOUT_MS = 60 * 1000; // one minute
    private static final int MEDIUM_TIMEOUT_MS = 20 * 1000; // 20s
@@ -257,6 +257,16 @@ public abstract class WapiClient implements Wapi {
    public WapiResponse<MinerFeeEstimationResponse> getMinerFeeEstimations() {
       TypeReference<WapiResponse<MinerFeeEstimationResponse>> typeref = new TypeReference<WapiResponse<MinerFeeEstimationResponse>>() { };
       return sendRequest(Function.GET_MINER_FEE_ESTIMATION, null, typeref);
+   }
+
+   @Override
+   public void setAppInForeground(boolean isInForeground) {
+      // not required
+   }
+
+   @Override
+   public void setNetworkConnected(boolean isNetworkConnected) {
+      // not required
    }
 
    @Override

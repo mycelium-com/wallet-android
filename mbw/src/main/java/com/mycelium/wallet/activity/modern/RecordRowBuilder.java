@@ -68,12 +68,11 @@ public class RecordRowBuilder {
     }
 
     public void buildRecordView(AccountViewHolder holder, ViewAccountModel model, boolean isSelected, boolean hasFocus) {
-        View view = holder.itemView;
         // Make grey if not part of the balance
-        Utils.setAlpha(view, !isSelected ? 0.5f : 1f);
+        Utils.setAlpha(holder.llAddress, !isSelected ? 0.5f : 1f);
 
         // Show focus if applicable
-        view.setBackgroundColor(resources.getColor(hasFocus ? R.color.selectedrecord : R.color.transparent));
+        holder.llAddress.setBackgroundColor(resources.getColor(hasFocus ? R.color.selectedrecord : R.color.transparent));
 
         // Show/hide key icon
         Drawable drawableForAccount = isSelected ? model.drawableForAccountSelected : model.drawableForAccount;
