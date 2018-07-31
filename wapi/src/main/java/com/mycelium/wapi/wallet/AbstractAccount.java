@@ -982,11 +982,11 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
 
    protected abstract Address getChangeAddress();
 
-   protected static Collection<UnspentTransactionOutput> transform(Collection<TransactionOutputEx> source) {
+   private static Collection<UnspentTransactionOutput> transform(Collection<TransactionOutputEx> source) {
       List<UnspentTransactionOutput> outputs = new ArrayList<>();
       for (TransactionOutputEx s : source) {
          ScriptOutput script = ScriptOutput.fromScriptBytes(s.script);
-         outputs.add(new UnspentTransactionOutput(s.outPoint, s.height, s.value, script));
+         outputs.add(new UnspentTransactionOutput(s.outPoint, s.height, s.value, script, s.isSegwit()));
       }
       return outputs;
    }
@@ -1505,7 +1505,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
             Transaction inTx = Transaction.fromByteReader(new ByteReader(inTxEx.binary));
             UnspentTransactionOutput unspentOutput = new UnspentTransactionOutput(input.outPoint, inTxEx.height,
                   inTx.outputs[input.outPoint.index].value,
-                  inTx.outputs[input.outPoint.index].script);
+                  inTx.outputs[input.outPoint.index].script, inTx.isSegwit());
 
             funding.add(unspentOutput);
          }

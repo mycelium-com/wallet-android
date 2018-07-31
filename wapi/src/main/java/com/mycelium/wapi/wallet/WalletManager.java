@@ -1107,6 +1107,14 @@ public class WalletManager {
         filterAndConvert(MAIN_SEED_BTC_HD_ACCOUNT).get(0).activateAccount();
     }
 
+    public int getCurrentBip44Index() {
+        int maxIndex = -1;
+        for (Bip44Account walletAccount : _bip44Accounts) {
+            maxIndex = Math.max(walletAccount.getAccountIndex(), maxIndex);
+        }
+        return maxIndex;
+    }
+
     private int getNextBip44Index() {
         int maxIndex = -1;
         for (Bip44Account walletAccount : _bip44Accounts) {

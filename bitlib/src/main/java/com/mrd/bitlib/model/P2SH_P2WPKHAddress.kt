@@ -1,15 +1,17 @@
 package com.mrd.bitlib.model
 
 import com.mrd.bitlib.bitcoinj.Base58
-import com.mrd.bitlib.model.Script.OP_0
 
-class SegwitAddress : Address {
-    constructor(bytes: ByteArray) : super(bytes)
-    constructor(bytes: ByteArray, stringAddress: String) : super(bytes, stringAddress)
+/**
+ * https://github.com/bitcoin/bips/blob/master/bip-0141.mediawiki
+ */
+@Suppress("ClassName")
+class P2SH_P2WPKHAddress(bytes: ByteArray) : Address(bytes) {
 
     companion object {
-        fun fromString(address: String, network: NetworkParameters): SegwitAddress? {
-            val addr = SegwitAddress.fromString(address) ?: return null
+        @JvmStatic
+        fun fromString(address: String, network: NetworkParameters): P2SH_P2WPKHAddress? {
+            val addr = fromString(address) ?: return null
             return if (!addr.isValidAddress(network)) {
                 null
             } else addr
@@ -20,7 +22,8 @@ class SegwitAddress : Address {
          * @return an Address if address could be decoded with valid checksum and length of 21 bytes
          * null else
          */
-        fun fromString(address: String?): SegwitAddress? {
+        @JvmStatic
+        fun fromString(address: String?): P2SH_P2WPKHAddress? {
             if (address == null) {
                 return null
             }
@@ -30,16 +33,17 @@ class SegwitAddress : Address {
             val bytes = Base58.decodeChecked(address)
             return if (bytes == null || bytes.size != NUM_ADDRESS_BYTES) {
                 null
-            } else SegwitAddress(bytes)
+            } else P2SH_P2WPKHAddress(bytes)
         }
 
         @Throws(IllegalArgumentException::class)
-        fun fromP2SHBytes(address: ByteArray, network: NetworkParameters): SegwitAddress {
+        @JvmStatic
+        fun fromBytes(address: ByteArray, network: NetworkParameters): P2SH_P2WPKHAddress {
             if (address.size != 20) {
                 throw IllegalArgumentException("Address must be 20 bytes")
             }
             val all = byteArrayOf((network.multisigAddressHeader and 0xFF).toByte()).plus(address)
-            return SegwitAddress(all)
+            return P2SH_P2WPKHAddress(all)
         }
     }
 }

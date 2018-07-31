@@ -111,7 +111,7 @@ public class Transaction implements Serializable {
     private static void parseWitness(ByteReader reader, TransactionInput[] inputs) throws InsufficientBytesException {
         for (TransactionInput input : inputs) {
             long stackSize = reader.getCompactInt();
-            TransactionWitness witness = new TransactionWitness((int) stackSize);
+            InputWitness witness = new InputWitness((int) stackSize);
             input.setWitness(witness);
             for (int y = 0; y < stackSize; y++) {
                 long pushSize = reader.getCompactInt();
@@ -150,15 +150,6 @@ public class Transaction implements Serializable {
             }
         }
         return inputs;
-    }
-
-    public boolean hasWitness() {
-        for (TransactionInput input : inputs) {
-            if (input.hasWitness()) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private static byte peekByte(ByteReader reader) throws InsufficientBytesException {

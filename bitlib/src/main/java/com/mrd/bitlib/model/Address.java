@@ -38,8 +38,8 @@ public class Address implements Serializable, Comparable<Address> {
       }
    };
 
-   private byte[] _bytes;
-   private String _address;
+   protected byte[] _bytes;
+   protected String _address;
 
    public static Address fromString(String address, NetworkParameters network) {
       Address addr = Address.fromString(address);

@@ -653,7 +653,8 @@ public class AccountsFragment extends Fragment {
       if (account.isActive() && account instanceof Bip44Account && !(account instanceof Bip44PubOnlyAccount)
               && AccountManager.INSTANCE.getBTCMasterSeedAccounts().size() > 1 && !isBch) {
 
-         if (!((Bip44Account) account).hasHadActivity()) {
+         final Bip44Account bip44Account = (Bip44Account) account;
+         if (!bip44Account.hasHadActivity() && bip44Account.getAccountIndex() == walletManager.getCurrentBip44Index()) {
             //only allow to remove unused HD acounts from the view
             menus.add(R.menu.record_options_menu_hide_unused);
          }

@@ -32,7 +32,7 @@ public class TransactionInput implements Serializable {
 
    public OutPoint outPoint;
    public ScriptInput script;
-   private TransactionWitness witness = TransactionWitness.EMPTY;
+   private InputWitness witness = InputWitness.EMPTY;
    public int sequence;
 
    public static TransactionInput fromByteReader(ByteReader reader) throws TransactionInputParsingException {
@@ -128,11 +128,11 @@ public class TransactionInput implements Serializable {
       return outPoint.equals(otherInput.outPoint);
    }
 
-   public TransactionWitness getWitness() {
+   public InputWitness getWitness() {
       return witness;
    }
 
-   public void setWitness(TransactionWitness witness) {
+   public void setWitness(InputWitness witness) {
       this.witness = witness;
    }
 

@@ -18,33 +18,23 @@ package com.mrd.bitlib.model;
 
 import java.io.Serializable;
 
-import com.mrd.bitlib.model.Script.ScriptParsingException;
-import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.ByteWriter;
-import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
 
 public class UnspentTransactionOutput implements Serializable {
    private static final long serialVersionUID = 1L;
-   
+
    public OutPoint outPoint;
    public int height; // -1 means unconfirmed
    public long value;
    public ScriptOutput script;
+   private final boolean isSegwit;
 
-   public UnspentTransactionOutput(ByteReader reader) throws InsufficientBytesException, ScriptParsingException {
-      outPoint = new OutPoint(reader);
-      height = reader.getIntLE();
-      value = reader.getLongLE();
-      int scriptSize = (int) reader.getCompactInt();
-      byte[] scriptBytes = reader.getBytes(scriptSize);
-      script = ScriptOutput.fromScriptBytes(scriptBytes);
-   }
-
-   public UnspentTransactionOutput(OutPoint outPoint, int height, long value, ScriptOutput script) {
+   public UnspentTransactionOutput(OutPoint outPoint, int height, long value, ScriptOutput script, boolean isSegwit) {
       this.outPoint = outPoint;
       this.height = height;
       this.value = value;
       this.script = script;
+      this.isSegwit = isSegwit;
    }
 
    public byte[] toBytes() {
@@ -60,6 +50,10 @@ public class UnspentTransactionOutput implements Serializable {
       byte[] scriptBytes = script.getScriptBytes();
       writer.putCompactInt(scriptBytes.length);
       writer.putBytes(scriptBytes);
+   }
+
+   public boolean isSegwit() {
+      return isSegwit;
    }
 
    @Override
