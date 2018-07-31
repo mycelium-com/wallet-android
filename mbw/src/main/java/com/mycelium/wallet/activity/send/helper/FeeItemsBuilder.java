@@ -55,19 +55,32 @@ public class FeeItemsBuilder {
             max = (feeLvl.getNext().getFeePerKb(feeEstimation).getLongValue() + current) / 2;
         }
 
-        FeeItemsAlgorithm algorithmLower = new LinearAlgorithm(min, 0, current, 4);
-        FeeItemsAlgorithm algorithmUpper = new LinearAlgorithm(current, 4, max, 9);
+        FeeItemsAlgorithm algorithmLower = new LinearAlgorithm(min, 0, max, 10);
+        FeeItemsAlgorithm algorithmUpper;
         if (feeLvl == MinerFee.LOWPRIO) {
             algorithmLower = new ExponentialLowPrioAlgorithm(min, current);
-            algorithmUpper = new LinearAlgorithm(current, algorithmLower.getMaxPosition()
-                    , max, algorithmLower.getMaxPosition() + 3);
         }
 
         List<FeeItem> feeItems = new ArrayList<>();
         feeItems.add(new FeeItem(0, null, null, FeeViewAdapter.VIEW_TYPE_PADDING));
         addItemsInRange(feeItems, algorithmLower, txSize);
-        addItemsInRange(feeItems, algorithmUpper, txSize);
+        if (feeLvl == MinerFee.LOWPRIO) {
+            algorithmUpper = new LinearAlgorithm(current, algorithmLower.getMaxPosition()+1
+                    , max, algorithmLower.getMaxPosition() + 4);
+            addItemsInRange(feeItems, algorithmUpper, txSize);
+        }
         feeItems.add(new FeeItem(0, null, null, FeeViewAdapter.VIEW_TYPE_PADDING));
+
+        int deltaFee = 5000;
+        int i = 1;
+        while (i < feeItems.size() - 3){
+            if(Math.abs(feeItems.get(i+1).feePerKb -
+                    feeItems.get(i).feePerKb) < deltaFee){
+                feeItems.remove(i+1);
+            } else {
+                i++;
+            }
+        }
 
         return feeItems;
     }
