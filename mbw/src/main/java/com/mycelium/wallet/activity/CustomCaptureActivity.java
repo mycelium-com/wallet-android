@@ -45,6 +45,7 @@ public class CustomCaptureActivity extends AppCompatActivity implements Decorate
 
         capture = new CaptureManager(this, barcodeScannerView);
         capture.initializeFromIntent(getIntent(), savedInstanceState);
+
         capture.decode();
     }
 
@@ -116,33 +117,39 @@ public class CustomCaptureActivity extends AppCompatActivity implements Decorate
 
     @Override
     public void onTorchOn() {
-        switchFlashlightButton.setColorFilter(getResources().getColor(R.color.white_transparent));
+        // it is also possible to turn flash from volume keys, preventing that.
+        if(!isFrontCamera)
+            switchFlashlightButton.setImageDrawable(getResources().getDrawable(R.drawable.camera_flash_on));
     }
 
     @Override
     public void onTorchOff() {
-        switchFlashlightButton.setColorFilter(getResources().getColor(R.color.black_transparent));
+        switchFlashlightButton.setImageDrawable(getResources().getDrawable(R.drawable.camera_flash_off));
     }
 
     public void onSwitchCameraPressed(View view) {
-        if (isFrontCamera) {
-            setTorchOff();
-            switchFlashlightButton.setEnabled(true);
-            switchFlashlightButton.setImageDrawable(getResources().getDrawable(R.drawable.camera_flash_black));
+        setTorchOff();
 
+        if (isFrontCamera) {
+            switchFlashlightButton.setEnabled(true);
             barcodeScannerView.initializeFromIntent(new Intent().putExtra(Intents.Scan.CAMERA_ID, Camera.CameraInfo.CAMERA_FACING_BACK));
             isFrontCamera = false;
             onPause();
             onResume();
         } else {
-            setTorchOff();
             switchFlashlightButton.setEnabled(false);
-            switchFlashlightButton.setImageDrawable(getResources().getDrawable(R.drawable.camera_flash_off));
-
             barcodeScannerView.initializeFromIntent(new Intent().putExtra(Intents.Scan.CAMERA_ID, Camera.CameraInfo.CAMERA_FACING_FRONT));
             isFrontCamera = true;
             onPause();
             onResume();
         }
+    }
+
+    public void onUpdateFocusPressed(View view) {
+        onKeyDown(KeyEvent.KEYCODE_FOCUS, null);
+    }
+
+    public void onCloseCameraPressed(View view) {
+        finish();
     }
 }

@@ -10,22 +10,42 @@
         android:layout_height="match_parent"
         app:zxing_scanner_layout="@layout/custom_barcode_scanner" />
 
+    <ImageButton
+        android:id="@+id/close_camera"
+        android:layout_width="@dimen/camera_button_size"
+        android:layout_height="@dimen/camera_button_size"
+        android:background="@color/transparent"
+        android:layout_gravity="center"
+        android:layout_margin="16dp"
+        android:onClick="onCloseCameraPressed"
+        app:srcCompat="@drawable/camera_close" />
+
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="32dp"
+        android:layout_marginBottom="48dp"
+        android:gravity="center"
         android:orientation="horizontal">
 
         <ImageButton
             android:id="@+id/switch_flashlight"
             android:layout_width="@dimen/camera_button_size"
             android:layout_height="@dimen/camera_button_size"
-            android:layout_marginEnd="32dp"
+            android:layout_marginEnd="48dp"
             android:background="@color/transparent"
+            android:layout_gravity="center"
             android:onClick="onSwitchFlashlightPressed"
-            app:srcCompat="@drawable/camera_flash_black" />
+            app:srcCompat="@drawable/camera_flash_off" />
+
+        <!--<ImageButton-->
+            <!--android:id="@+id/update_focus"-->
+            <!--android:layout_width="@dimen/camera_button_size"-->
+            <!--android:layout_height="@dimen/camera_button_size"-->
+            <!--android:background="@color/transparent"-->
+            <!--android:onClick="onUpdateFocusPressed"-->
+            <!--app:srcCompat="@drawable/camera_focus" />-->
 
         <ImageButton
             android:id="@+id/switch_camera"
@@ -33,7 +53,8 @@
             android:layout_height="@dimen/camera_button_size"
             android:background="@color/transparent"
             android:onClick="onSwitchCameraPressed"
-            app:srcCompat="@drawable/camera_switch_black" />
+            android:layout_gravity="end"
+            app:srcCompat="@drawable/camera_switch" />
 
     </LinearLayout>
 

@@ -28,6 +28,6 @@
     <dimen name="pref_divider_margin">56dp</dimen>
     <dimen name="half_padding">4dp</dimen>
     <dimen name="standard_padding">8dp</dimen>
-    <dimen name="camera_button_size">48dp</dimen>
+    <dimen name="camera_button_size">36dp</dimen>
 
 </resources>

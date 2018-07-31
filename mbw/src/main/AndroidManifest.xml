@@ -183,7 +183,7 @@
         <activity android:name=".activity.ScanActivity" />
         <activity
             android:name=".activity.CustomCaptureActivity"
-            android:screenOrientation="fullSensor"
+            android:screenOrientation="portrait"
             android:stateNotNeeded="true"
             android:theme="@style/Theme.AppCompat.NoActionBar"
             android:windowSoftInputMode="stateAlwaysHidden"/>
