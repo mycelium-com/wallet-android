@@ -19,12 +19,7 @@ package com.mrd.bitlib.crypto
 import com.mrd.bitlib.crypto.ec.Parameters
 import com.mrd.bitlib.crypto.ec.Point
 import com.mrd.bitlib.model.*
-import com.mrd.bitlib.util.BitUtils
-import com.mrd.bitlib.util.ByteReader
-import com.mrd.bitlib.util.HashUtils
-import com.mrd.bitlib.util.HexUtils
 import com.mrd.bitlib.util.*
-import com.mrd.bitlib.util.Sha256Hash
 
 import java.io.Serializable
 import java.util.Arrays
@@ -50,13 +45,9 @@ class PublicKey(val publicKeyBytes: ByteArray) : Serializable {
     fun toP2SH_P2WPKHSegwitAddress(networkParameters: NetworkParameters): P2SH_P2WPKHAddress {
         val hashedPublicKey = pubKeyHashCompressed
         val prefix = byteArrayOf(Script.OP_0.toByte(), hashedPublicKey.size.toByte())
+        val i = 0
         return P2SH_P2WPKHAddress.fromBytes(
                 HashUtils.addressHash(BitUtils.concatenate(prefix, hashedPublicKey)), networkParameters)
-    }
-
-    fun toP2WPKHSegwitAddress(networkParameters: NetworkParameters): P2WPKHAddress {
-        val hashedPublicKey = pubKeyHashCompressed
-        return P2WPKHAddress.fromBytes(hashedPublicKey, 0x00, networkParameters)
     }
 
     override fun hashCode(): Int {
