@@ -162,7 +162,11 @@ public class StandardTransactionBuilder {
       fee = estimateFee(funding.size(), outputsSizeInFeeEstimation, minerFeeToUse);
 
       long found = 0;
+      boolean isSegwit = false;
       for (UnspentTransactionOutput output : funding) {
+         if (output.isSegwit()) {
+            isSegwit = true;
+         }
          found += output.value;
       }
       // We have found all the funds we need
@@ -187,13 +191,19 @@ public class StandardTransactionBuilder {
          outputs.add(position, changeOutput);
       }
 
-      UnsignedTransaction unsignedTransaction = new UnsignedTransaction(outputs, funding, keyRing, network);
+      UnsignedTransaction unsignedTransaction = new UnsignedTransaction(outputs, funding, keyRing, network,
+              0, UnsignedTransaction.NO_SEQUENCE);
 
       // check if we have a reasonable Fee or throw an error otherwise
       int estimateTransactionSize = estimateTransactionSize(unsignedTransaction.getFundingOutputs().length,
           unsignedTransaction.getOutputs().length);
       long calculatedFee = unsignedTransaction.calculateFee();
-      float estimatedFeePerKb = (long) ((float) calculatedFee / ((float) estimateTransactionSize / 1000));
+      float estimatedFeePerKb;
+      if (isSegwit) {
+         estimatedFeePerKb = (long) ((float) calculatedFee / ((float) estimateTransactionSize / 1000)); // TODO change
+      } else {
+         estimatedFeePerKb = (long) ((float) calculatedFee / ((float) estimateTransactionSize / 1000));
+      }
 
       // set a limit of MAX_MINER_FEE_PER_KB as absolute limit - it is very likely a bug in the fee estimator or transaction composer
       if (estimatedFeePerKb > Transaction.MAX_MINER_FEE_PER_KB) {
@@ -311,33 +321,6 @@ public class StandardTransactionBuilder {
       return new Transaction(1, inputs, unsigned.getOutputs(), unsigned.getLockTime(), false);
    }
 
-   private UnspentTransactionOutput extractOldest(Collection<UnspentTransactionOutput> unspent) {
-      // find the "oldest" output
-      int minHeight = Integer.MAX_VALUE;
-      UnspentTransactionOutput oldest = null;
-      for (UnspentTransactionOutput output : unspent) {
-         if (!(output.script instanceof ScriptOutputStandard)) {
-            // only look for standard scripts
-            continue;
-         }
-
-         // Unconfirmed outputs have height = -1 -> change this to Int.MAX-1, so that we
-         // choose them as the last possible option
-         int height = output.height > 0 ? output.height : Integer.MAX_VALUE - 1;
-
-         if (height < minHeight) {
-            minHeight = height;
-            oldest = output;
-         }
-      }
-      if (oldest == null) {
-         // There were no outputs
-         return null;
-      }
-      unspent.remove(oldest);
-      return oldest;
-   }
-
    private long outputSum() {
       long sum = 0;
       for (TransactionOutput output : _outputs) {
@@ -403,7 +386,7 @@ public class StandardTransactionBuilder {
       private long feeSat;
       private long outputSum;
 
-      public FifoCoinSelector(long feeSatPerKb, List<UnspentTransactionOutput> unspent)
+      FifoCoinSelector(long feeSatPerKb, List<UnspentTransactionOutput> unspent)
           throws InsufficientFundsException {
          // Find the funding for this transaction
          allFunding = new LinkedList<>();
@@ -438,6 +421,33 @@ public class StandardTransactionBuilder {
       @Override
       public long getOutputSum() {
          return outputSum;
+      }
+
+      private UnspentTransactionOutput extractOldest(Collection<UnspentTransactionOutput> unspent) {
+         // find the "oldest" output
+         int minHeight = Integer.MAX_VALUE;
+         UnspentTransactionOutput oldest = null;
+         for (UnspentTransactionOutput output : unspent) {
+//         if (!(output.script instanceof ScriptOutputStandard)) {
+//            // only look for standard scripts
+//            continue;
+//         } todo evauluate
+
+            // Unconfirmed outputs have height = -1 -> change this to Int.MAX-1, so that we
+            // choose them as the last possible option
+            int height = output.height > 0 ? output.height : Integer.MAX_VALUE - 1;
+
+            if (height < minHeight) {
+               minHeight = height;
+               oldest = output;
+            }
+         }
+         if (oldest == null) {
+            // There were no outputs
+            return null;
+         }
+         unspent.remove(oldest);
+         return oldest;
       }
    }
 }

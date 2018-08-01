@@ -43,6 +43,7 @@ import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.OutPoint;
 import com.mrd.bitlib.model.ScriptOutputStandard;
+import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.model.TransactionOutput;
 import com.mrd.bitlib.model.UnspentTransactionOutput;
 import com.mrd.bitlib.util.HashUtils;

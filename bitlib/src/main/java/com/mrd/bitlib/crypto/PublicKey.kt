@@ -38,14 +38,12 @@ class PublicKey(val publicKeyBytes: ByteArray) : Serializable {
         get() = Q.isCompressed
 
     fun toAddress(networkParameters: NetworkParameters): Address {
-        val hashedPublicKey = publicKeyHash
-        return Address.fromStandardBytes(hashedPublicKey, networkParameters)
+        return toP2SH_P2WPKHSegwitAddress(networkParameters)
     }
 
     fun toP2SH_P2WPKHSegwitAddress(networkParameters: NetworkParameters): P2SH_P2WPKHAddress {
         val hashedPublicKey = pubKeyHashCompressed
         val prefix = byteArrayOf(Script.OP_0.toByte(), hashedPublicKey.size.toByte())
-        val i = 0
         return P2SH_P2WPKHAddress.fromBytes(
                 HashUtils.addressHash(BitUtils.concatenate(prefix, hashedPublicKey)), networkParameters)
     }

@@ -60,9 +60,9 @@ public class Transaction implements Serializable {
         TransactionInput inputs[] = new TransactionInput[unsignedTransaction.getFundingOutputs().length];
         int idx = 0;
         for (UnspentTransactionOutput u : unsignedTransaction.getFundingOutputs()) {
-            inputs[idx++] = new TransactionInput(u.outPoint, new ScriptInput(u.script.getScriptBytes()));
+            inputs[idx++] = new TransactionInput(u.outPoint, new ScriptInput(u.script.getScriptBytes()), unsignedTransaction.getDefaultSequenceNumber());
         }
-        return new Transaction(1, inputs, unsignedTransaction.getOutputs(), 0, false);
+        return new Transaction(1, inputs, unsignedTransaction.getOutputs(), unsignedTransaction.getLockTime(), false);
     }
 
     public static Transaction fromBytes(byte[] transaction) throws TransactionParsingException {
