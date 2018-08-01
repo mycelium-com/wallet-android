@@ -77,11 +77,6 @@ public class CustomCaptureActivity extends AppCompatActivity implements Decorate
         return barcodeScannerView.onKeyDown(keyCode, event) || super.onKeyDown(keyCode, event);
     }
 
-    /**
-     * Check if the device's camera has a Flashlight.
-     *
-     * @return true if there is Flashlight, otherwise false.
-     */
     private boolean hasFlash() {
         return getApplicationContext().getPackageManager()
                 .hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH);
@@ -131,13 +126,12 @@ public class CustomCaptureActivity extends AppCompatActivity implements Decorate
             switchFlashlightButton.setVisibility(View.VISIBLE);
             barcodeScannerView.initializeFromIntent(new Intent().putExtra(Intents.Scan.CAMERA_ID, Camera.CameraInfo.CAMERA_FACING_BACK));
             isFrontCamera = false;
-            resetCaptureManager();
         } else {
             switchFlashlightButton.setVisibility(View.GONE);
             barcodeScannerView.initializeFromIntent(new Intent().putExtra(Intents.Scan.CAMERA_ID, Camera.CameraInfo.CAMERA_FACING_FRONT));
             isFrontCamera = true;
-            resetCaptureManager();
         }
+        resetCaptureManager();
     }
 
     private void resetCaptureManager() {
