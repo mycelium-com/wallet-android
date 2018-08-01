@@ -81,6 +81,7 @@ public class BuySellFragment extends Fragment implements ButtonClickListener {
     public static final int BTC_ACTION = 3;
     public static final int MYDFS_ACTION = 4;
     public static final int APEX_ACTION = 5;
+    public static final int COMMAS_ACTION = 6;
     private MbwManager _mbwManager;
 
     @BindView(R.id.button_list)
@@ -123,6 +124,7 @@ public class BuySellFragment extends Fragment implements ButtonClickListener {
                 actions.add(new ActionButton(BCH_ACTION, getString(R.string.exchange_bch_to_btc)));
                 break;
             default:
+                actions.add(new ActionButton(COMMAS_ACTION, getString(R.string.partner_commas), R.drawable.commas_logo_small));
                 actions.add(new ActionButton(ALTCOIN_ACTION, getString(R.string.exchange_altcoins_to_btc)));
                 scrollTo = addMyDfs(actions, scrollTo);
                 addApex(actions);
@@ -171,6 +173,9 @@ public class BuySellFragment extends Fragment implements ButtonClickListener {
                 break;
             case APEX_ACTION:
                 Ads.INSTANCE.openApex(getActivity());
+                break;
+            case COMMAS_ACTION:
+                MbwManager.getInstance(getContext()).getTBMHelper().openModule(getActivity());
                 break;
         }
     }

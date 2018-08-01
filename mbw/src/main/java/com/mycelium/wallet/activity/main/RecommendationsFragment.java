@@ -46,6 +46,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.main.adapter.RecommendationAdapter;
 import com.mycelium.wallet.activity.main.model.PartnerInfo;
@@ -62,6 +63,10 @@ import java.util.List;
 
 import static com.mycelium.wallet.R.string.cancel;
 import static com.mycelium.wallet.R.string.ok;
+import static com.mycelium.wallet.R.string.partner_commas;
+import static com.mycelium.wallet.R.string.partner_commas_info;
+import static com.mycelium.wallet.R.string.partner_commas_short;
+import static com.mycelium.wallet.R.string.partner_commas_url;
 import static com.mycelium.wallet.R.string.partner_ledger;
 import static com.mycelium.wallet.R.string.partner_ledger_info;
 import static com.mycelium.wallet.R.string.partner_ledger_short;
@@ -95,6 +100,7 @@ public class RecommendationsFragment extends Fragment {
             fromItem++;
         }
 
+        list.add(getPartnerInfo(partner_commas, partner_commas_short, partner_commas_info, partner_commas_url, R.drawable.commas_logo));
         list.add(getPartnerInfo(partner_ledger, partner_ledger_short, partner_ledger_info, partner_ledger_url, R.drawable.ledger_icon));
         list.add(getPartnerInfo(partner_trezor, partner_trezor_short, partner_trezor_info, partner_trezor_url, R.drawable.trezor2));
         list.add(getPartnerInfo(partner_purse, partner_purse_short, partner_purse_info, partner_purse_url, R.drawable.purse_small));
@@ -107,29 +113,32 @@ public class RecommendationsFragment extends Fragment {
         adapter.setClickListener(new RecommendationAdapter.ClickListener() {
             @Override
             public void onClick(final PartnerInfo bean) {
-                if (bean.getInfo() != null && bean.getInfo().length() > 0) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                    builder.setMessage(bean.getInfo());
-                    builder.setTitle(warning_partner);
-                    builder.setIcon(bean.getSmallIcon());
-                    builder.setPositiveButton(ok, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            if (bean.getUri() != null) {
-                                Intent intent = new Intent(Intent.ACTION_VIEW);
-                                intent.setData(Uri.parse(bean.getUri()));
-                                startActivity(intent);
-                            }
-                        }
-                    });
-                    builder.setNegativeButton(cancel, null);
-                    alertDialog = builder.create();
-                    alertDialog.show();
+                if (bean.getName().equals(getString(R.string.partner_commas))) {
+                    MbwManager.getInstance(getContext()).getTBMHelper().openModule(getActivity());
                 } else {
-                    if (bean.getUri() != null) {
-                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(bean.getUri())));
+                    if (bean.getInfo() != null && bean.getInfo().length() > 0) {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                        builder.setMessage(bean.getInfo());
+                        builder.setTitle(warning_partner);
+                        builder.setIcon(bean.getSmallIcon());
+                        builder.setPositiveButton(ok, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                if (bean.getUri() != null) {
+                                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                                    intent.setData(Uri.parse(bean.getUri()));
+                                    startActivity(intent);
+                                }
+                            }
+                        });
+                        builder.setNegativeButton(cancel, null);
+                        alertDialog = builder.create();
+                        alertDialog.show();
+                    } else {
+                        if (bean.getUri() != null) {
+                            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(bean.getUri())));
+                        }
                     }
                 }
-
             }
 
             @Override

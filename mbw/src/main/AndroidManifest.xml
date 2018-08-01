@@ -5,6 +5,11 @@
     <permission
         android:name="${applicationId}.permission.C2D_MESSAGE"
         android:protectionLevel="signature" />
+    <permission
+        android:name="${applicationId}.permission.M2W_MESSAGE"
+        android:protectionLevel="dangerous"
+        android:label="@string/m2w_messaging_label"
+        android:description="@string/m2w_messaging_description"/>
 
     <uses-permission android:name="${applicationId}.permission.C2D_MESSAGE" />
 
@@ -76,6 +81,10 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/my_paths" />
         </provider>
+
+        <!--Service for bots module-->
+        <service android:name=".modularisation.TBMService"
+            android:exported="false"/>
 
         <!-- Service for Google Cloud Messaging -->
         <service android:name=".lt.notification.GcmIntentService" />
