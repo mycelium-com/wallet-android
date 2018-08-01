@@ -33,6 +33,7 @@ import java.util.List;
  */
 public class FeeItemsBuilder {
     private static final int MIN_NON_ZIRO_FEE_PER_KB = 3000;
+    private static final float MIN_FEE_INCREMENT = 1.025f; // fee(n+1) > fee(n) * MIN_FEE_INCREMENT
 
     private MbwManager _mbwManager;
     private FeeEstimation feeEstimation;
@@ -71,12 +72,10 @@ public class FeeItemsBuilder {
         }
         feeItems.add(new FeeItem(0, null, null, FeeViewAdapter.VIEW_TYPE_PADDING));
 
-        int deltaFee = 5000;
         int i = 1;
-        while (i < feeItems.size() - 3){
-            if(Math.abs(feeItems.get(i+1).feePerKb -
-                    feeItems.get(i).feePerKb) < deltaFee){
-                feeItems.remove(i+1);
+        while (i < feeItems.size() - 2) {
+            if ( (float)feeItems.get(i + 1).feePerKb / feeItems.get(i).feePerKb < MIN_FEE_INCREMENT) {
+                feeItems.remove(i + 1);
             } else {
                 i++;
             }
