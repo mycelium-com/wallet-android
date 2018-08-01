@@ -1249,6 +1249,9 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="warning">Warning</string>
     <string name="no_orbot">No Orbot installed</string>
     <string name="no_google_play_installed">No Google Play installed on the device</string>
+    <string name="button_ok">OK</string>
+    <string name="button_done">Done</string>
+    <string name="button_cancel">Cancel</string>
     <string name="transactions_loading_from_module_error">Error loading transactions from module</string>
     <plurals name="account_label">
         <item quantity="one">Account label:\n%s</item>
