@@ -94,8 +94,7 @@
         <activity
             android:name=".activity.StartupActivity"
             android:label="@string/app_short_name"
-            android:theme="@style/MyceliumLauncher"
-            android:configChanges="orientation|keyboardHidden">
+            android:theme="@style/MyceliumLauncher">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -181,6 +180,11 @@
         <activity android:name=".activity.AddCoinapultAccountActivity" />
         <activity android:name=".activity.AddColuAccountActivity" />
         <activity android:name=".activity.ScanActivity" />
+        <activity
+            android:name=".activity.CustomCaptureActivity"
+            android:stateNotNeeded="true"
+            android:theme="@style/Theme.AppCompat.NoActionBar"
+            android:windowSoftInputMode="stateAlwaysHidden"/>
         <activity android:name=".activity.TransactionDetailsActivity" />
         <activity
             android:name=".activity.settings.SettingsActivity"
@@ -213,12 +217,6 @@
         <activity android:name=".activity.send.SignTransactionActivity" />
         <activity android:name=".activity.send.BroadcastTransactionActivity" />
         <activity android:name=".activity.receive.ReceiveCoinsActivity" />
-        <activity
-            android:name="com.google.zxing.client.android.CaptureActivity"
-            android:configChanges="orientation|keyboardHidden"
-            android:screenOrientation="landscape"
-            android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
-            android:windowSoftInputMode="stateAlwaysHidden"/>
         <activity android:name=".simplex.SimplexMainActivity" />
         <activity android:name=".external.changelly.ChangellyActivity"
             android:screenOrientation="portrait"/>
@@ -249,8 +247,7 @@
         <activity android:name=".activity.PinProtectedActivity" />
         <activity android:name=".activity.MessageSigningActivity" />
         <activity android:name=".activity.ImportSeedActivity" />
-        <activity android:name=".activity.EnterWordListActivity"
-            android:configChanges="orientation|keyboardHidden"/>
+        <activity android:name=".activity.EnterWordListActivity" />
         <activity android:name=".activity.BackupWordListActivity" />
         <activity android:name=".activity.VerifyWordListActivity" />
         <activity android:name=".activity.AdditionalBackupWarningActivity" />

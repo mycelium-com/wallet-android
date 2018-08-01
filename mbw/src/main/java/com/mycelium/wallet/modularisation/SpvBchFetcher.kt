@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.database.Cursor
 import android.net.Uri
+import android.widget.Toast
 import com.google.common.base.Optional
 import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.util.Sha256Hash
@@ -18,6 +19,7 @@ import com.mycelium.spvmodule.providers.TransactionContract.GetMaxFundsTransferr
 import com.mycelium.spvmodule.providers.TransactionContract.GetPrivateKeysCount
 import com.mycelium.spvmodule.providers.TransactionContract.GetSyncProgress
 import com.mycelium.wallet.MbwManager
+import com.mycelium.wallet.R
 import com.mycelium.wallet.WalletApplication
 import com.mycelium.wallet.WalletApplication.getSpvModuleName
 import com.mycelium.wallet.modularisation.BCHHelper.*
@@ -82,14 +84,19 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
             retrieveTransactionSummary(uri, selection, arrayOf(selectionArg))
 
     private fun retrieveTransactionSummary(uri: Uri, selection: String, selectionArgs: Array<String>): List<TransactionSummary> {
-        val transactionSummariesList = ArrayList<TransactionSummary>()
-        context.contentResolver.query(uri, null, selection, selectionArgs, null).use {
-            while (it?.moveToNext() == true) {
-                val txSummary = transactionSummaryFrom(it)
-                transactionSummariesList.add(txSummary)
+        return try {
+            val transactionSummariesList = ArrayList<TransactionSummary>()
+            context.contentResolver.query(uri, null, selection, selectionArgs, null).use {
+                while (it?.moveToNext() == true) {
+                    val txSummary = transactionSummaryFrom(it)
+                    transactionSummariesList.add(txSummary)
+                }
             }
+            transactionSummariesList
+        } catch (e: Exception) {
+            Toast.makeText(context, context.getString(R.string.transactions_loading_from_module_error), Toast.LENGTH_LONG).show()
+            emptyList()
         }
-        return transactionSummariesList
     }
 
     override fun retrieveTransactionsSummaryByHdAccountIndex(id: String, accountIndex: Int): List<TransactionSummary> {

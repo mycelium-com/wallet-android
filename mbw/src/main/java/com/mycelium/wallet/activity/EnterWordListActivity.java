@@ -38,6 +38,8 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
@@ -111,6 +113,7 @@ public class EnterWordListActivity extends AppCompatActivity implements WordAuto
          //only ask if we are not recreating the activity, because of rotation for example
          askForWordNumber();
       }
+      setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
    }
 
    private void askForWordNumber() {

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.journeyapps.barcodescanner.DecoratedBarcodeView
+        android:id="@+id/zxing_barcode_scanner"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:zxing_scanner_layout="@layout/custom_barcode_scanner" />
+
+    <ImageButton
+        android:id="@+id/close_camera"
+        android:layout_width="@dimen/camera_button_size"
+        android:layout_height="@dimen/camera_button_size"
+        android:layout_gravity="center"
+        android:layout_margin="16dp"
+        android:background="@color/transparent"
+        android:onClick="onCloseCameraPressed"
+        app:srcCompat="@drawable/camera_close" />
+
+    <LinearLayout
+        android:id="@+id/main_ll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="48dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/switch_camera"
+            android:layout_width="@dimen/camera_button_size"
+            android:layout_height="@dimen/camera_button_size"
+            android:layout_marginEnd="40dp"
+            android:background="@color/transparent"
+            android:onClick="onSwitchCameraPressed"
+            app:srcCompat="@drawable/camera_switch" />
+
+        <ImageButton
+            android:id="@+id/update_focus"
+            android:layout_width="@dimen/camera_button_size"
+            android:layout_height="@dimen/camera_button_size"
+            android:background="@color/transparent"
+            android:onClick="onUpdateFocusPressed"
+            app:srcCompat="@drawable/camera_focus" />
+
+        <ImageButton
+            android:id="@+id/switch_flashlight"
+            android:layout_width="@dimen/camera_button_size"
+            android:layout_height="@dimen/camera_button_size"
+            android:layout_gravity="center"
+            android:layout_marginStart="36dp"
+            android:background="@color/transparent"
+            android:onClick="onSwitchFlashlightPressed"
+            app:srcCompat="@drawable/camera_flash_off" />
+
+    </LinearLayout>
+
+</RelativeLayout>
