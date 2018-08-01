@@ -36,7 +36,7 @@ public class DisplayPreferenceDialogHandler implements PreferenceManager.OnDispl
 
         if (preference instanceof ListPreference) {
             final ListPreference listPreference = (ListPreference) preference;
-            final int origSize = listPreference.getEntries().length;
+            final int origSize = listPreference.getEntryValues().length;
 
             View view = LayoutInflater.from(context).inflate(R.layout.dialog_pref_list, null);
             TextView title = view.findViewById(R.id.title);
