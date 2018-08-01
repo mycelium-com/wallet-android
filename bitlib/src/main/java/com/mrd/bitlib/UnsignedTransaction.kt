@@ -11,15 +11,24 @@ import com.mrd.bitlib.util.CoinUtil
 
 import java.io.Serializable
 
-open class UnsignedTransaction(outputs: List<TransactionOutput>, funding: List<UnspentTransactionOutput>,
-                               keyRing: IPublicKeyRing, private val network: NetworkParameters) : Serializable {
+open class UnsignedTransaction(
+        outputs: List<TransactionOutput>,
+        funding: List<UnspentTransactionOutput>,
+        keyRing: IPublicKeyRing,
+        private val network: NetworkParameters,
+        val lockTime: Int = 0,
+        val defaultSequenceNumber: Int = NO_SEQUENCE
+) : Serializable {
+
+    constructor(outputs: List<TransactionOutput>,
+                funding: List<UnspentTransactionOutput>,
+                keyRing: IPublicKeyRing,
+                network: NetworkParameters
+    ) : this(outputs, funding, keyRing, network, 0, NO_SEQUENCE)
 
     val outputs = outputs.toTypedArray()
     val fundingOutputs = funding.toTypedArray()
     val signingRequests: Array<SigningRequest?> = arrayOfNulls(fundingOutputs.size)
-
-    open val lockTime = 0
-    open val defaultSequenceNumber = NO_SEQUENCE
 
     init {
         // Create empty input scripts pointing at the right out points
@@ -102,13 +111,17 @@ open class UnsignedTransaction(outputs: List<TransactionOutput>, funding: List<U
         return sb.toString()
     }
 
+    fun getSignatureInfo(): Array<SigningRequest?> {
+        return signingRequests
+    }
+
     private fun getValue(value: Long?): String {
         return String.format("(%s)", CoinUtil.valueString(value!!, false))
     }
 
     companion object {
         private const val serialVersionUID = 1L
-        private const val NO_SEQUENCE = -1
+        const val NO_SEQUENCE = -1
     }
 
 }
