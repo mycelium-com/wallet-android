@@ -115,23 +115,28 @@ class CommunicationManager private constructor(val context: Context, val modular
                 ?: throw SecurityException("Unknown package name $packageName")
         val key = packageMetaData.key ?: Random().nextLong()
         val keyVersionSelectionArgs = arrayOf(key.toString(), modularizationApiVersion.toString())
-        cr.query(Uri.parse("content://$packageName.PairingProvider"), null, null, keyVersionSelectionArgs, null)
-                .use { cursor ->
-                    cursor ?: return false // if the other module is not returning a proper Cursor, pairing fails here
-                    pair(packageName, key, modularizationApiVersion)
-                    cursor.moveToFirst()
-                    var version = ""
-                    try {
-                        version = cursor.getString(cursor.getColumnIndex("version"))
-                    } catch (ignore: Exception) {
+        try {
+            cr.query(Uri.parse("content://$packageName.PairingProvider"), null, null, keyVersionSelectionArgs, null)
+                    .use { cursor ->
+                        cursor
+                                ?: return false // if the other module is not returning a proper Cursor, pairing fails here
+                        pair(packageName, key, modularizationApiVersion)
+                        cursor.moveToFirst()
+                        var version = ""
+                        try {
+                            version = cursor.getString(cursor.getColumnIndex("version"))
+                        } catch (ignore: Exception) {
+                        }
+                        pairedModules.add(Module(packageName
+                                , cursor.getString(cursor.getColumnIndex("name"))
+                                , cursor.getString(cursor.getColumnIndex("shortName"))
+                                , cursor.getString(cursor.getColumnIndex("description"))
+                                , version))
+                        success = true
                     }
-                    pairedModules.add(Module(packageName
-                            , cursor.getString(cursor.getColumnIndex("name"))
-                            , cursor.getString(cursor.getColumnIndex("shortName"))
-                            , cursor.getString(cursor.getColumnIndex("description"))
-                            , version))
-                    success = true
-                }
+        } catch (e: Exception) {
+            success = false
+        }
         Log.d(LOG_TAG, "It took ${System.currentTimeMillis()-startTimeMillis}ms to ${if(success) "" else "not "} pair with $packageName.")
         return success
     }
