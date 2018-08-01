@@ -38,7 +38,8 @@ class PublicKey(val publicKeyBytes: ByteArray) : Serializable {
         get() = Q.isCompressed
 
     fun toAddress(networkParameters: NetworkParameters): Address {
-        return toP2SH_P2WPKHSegwitAddress(networkParameters)
+        val hashedPublicKey = publicKeyHash
+        return Address.fromStandardBytes(hashedPublicKey, networkParameters)
     }
 
     fun toP2SH_P2WPKHSegwitAddress(networkParameters: NetworkParameters): P2SH_P2WPKHAddress {
