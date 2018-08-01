@@ -171,6 +171,7 @@ public class SendMainActivity extends Activity {
     private static final String RMC_URI = "rmcUri";
     private static final String FEE_PER_KB = "fee_per_kb";
     public static final String TRANSACTION_FIAT_VALUE = "transaction_fiat_value";
+    private static final long STALE_WARNING_MS = 2 * 60 * 60 * 1000; // 2 hours
 
 
     private enum TransactionStatus {
@@ -181,6 +182,8 @@ public class SendMainActivity extends Activity {
     TextView tvAmount;
     @BindView(R.id.tvError)
     TextView tvError;
+    @BindView(R.id.tvStaleWarning)
+    TextView tvStaleWarning;
     @BindView(R.id.tvAmountFiat)
     TextView tvAmountFiat;
     @BindView(R.id.tvAmountTitle)
@@ -261,6 +264,7 @@ public class SendMainActivity extends Activity {
     private UUID _receivingAcc;
     private boolean _xpubSyncing = false;
     private boolean _spendingUnconfirmed = false;
+    private boolean showStaleWarning = false;
     private boolean _paymentFetched = false;
     private WalletAccount fundColuAccount;
     private ProgressDialog progress;
@@ -1385,6 +1389,7 @@ public class SendMainActivity extends Activity {
             }
         }
         tvFeeWarning.setVisibility(feeWarning != null ? View.VISIBLE : View.GONE);
+        tvStaleWarning.setVisibility(showStaleWarning ? VISIBLE : GONE);
         tvFeeWarning.setText(feeWarning != null ? Html.fromHtml(feeWarning) : null);
     }
 

@@ -55,7 +55,7 @@ public class FeeItemsBuilder {
             max = (feeLvl.getNext().getFeePerKb(feeEstimation).getLongValue() + current) / 2;
         }
 
-        FeeItemsAlgorithm algorithmLower = new LinearAlgorithm(min, 0, max, 10);
+        FeeItemsAlgorithm algorithmLower = new LinearAlgorithm(min, 1, max, 10);
         FeeItemsAlgorithm algorithmUpper;
         if (feeLvl == MinerFee.LOWPRIO) {
             algorithmLower = new ExponentialLowPrioAlgorithm(min, current);
