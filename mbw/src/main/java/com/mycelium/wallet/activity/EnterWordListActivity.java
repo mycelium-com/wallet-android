@@ -38,11 +38,12 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
@@ -67,7 +68,6 @@ public class EnterWordListActivity extends AppCompatActivity implements WordAuto
    public static final String PASSWORD = "password";
 
    private boolean _seedOnly;
-
 
    public static void callMe(Activity activity, int requestCode) {
       Intent intent = new Intent(activity, EnterWordListActivity.class);
@@ -109,11 +109,11 @@ public class EnterWordListActivity extends AppCompatActivity implements WordAuto
       keyboard.setListener(_wordAutoCompleter);
       currentWordNum = 1;
       _seedOnly = getIntent().getBooleanExtra(ONLY_SEED, false);
-
       if (savedInstanceState == null) {
          //only ask if we are not recreating the activity, because of rotation for example
          askForWordNumber();
       }
+      setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
    }
 
    private void askForWordNumber() {

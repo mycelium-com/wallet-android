@@ -131,7 +131,8 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
     fun renewSubscriptions() {
         logger.logInfo("Subscriptions been renewed")
         synchronized(subscriptions) {
-            subscriptions.forEach { subscribe(it.value) }
+            val toRenew = subscriptions.toMutableMap()
+            toRenew.forEach { subscribe(it.value) }
         }
     }
 
@@ -139,7 +140,7 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
         val request = RpcRequestOut(subscription.methodName, subscription.params).apply {
             id = nextRequestId.getAndIncrement().toString()
             callbacks[id.toString()] = subscription.callback
-            synchronized(subscription) {
+            synchronized(subscriptions) {
                 subscriptions[subscription.methodName] = subscription
             }
         }.toJson()

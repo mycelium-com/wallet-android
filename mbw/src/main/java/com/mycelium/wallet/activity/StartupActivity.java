@@ -39,6 +39,8 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.nfc.NfcAdapter;
 import android.os.AsyncTask;
@@ -107,6 +109,7 @@ public class StartupActivity extends Activity {
       super.onCreate(savedInstanceState);
       _progress = new ProgressDialog(this);
       setContentView(R.layout.startup_activity);
+      setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
       // Do slightly delayed initialization so we get a chance of displaying the
       // splash before doing heavy initialization
       new Handler().postDelayed(delayedInitialization, 200);
@@ -128,6 +131,7 @@ public class StartupActivity extends Activity {
       }
       super.onDestroy();
    }
+
 
    private Runnable delayedInitialization = new Runnable() {
       @Override
