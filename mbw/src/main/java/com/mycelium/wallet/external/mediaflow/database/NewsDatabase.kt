@@ -4,6 +4,7 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteQueryBuilder
 import android.database.sqlite.SQLiteStatement
+import android.util.Log
 import com.mycelium.wallet.external.mediaflow.database.NewsSQLiteHelper.NEWS
 import com.mycelium.wallet.external.mediaflow.model.Author
 import com.mycelium.wallet.external.mediaflow.model.Category
@@ -31,7 +32,7 @@ object NewsDatabase {
         readNews = database.compileStatement("UPDATE $NEWS SET read = ? WHERE id = ?")
     }
 
-    fun getNews(search: String?, categories: List<Category>, limit: Int = -1, offset:Int = 0): List<News> {
+    fun getNews(search: String?, categories: List<Category>, limit: Int = -1, offset: Int = 0): List<News> {
         val where = StringBuilder()
         if (search != null && search.isNotEmpty()) {
             where.append("(title like '%$search%' OR content like '%$search%')")
@@ -81,40 +82,51 @@ object NewsDatabase {
 
     fun saveNews(news: List<News>): Map<News, SqlState> {
         val result = mutableMapOf<News, SqlState>()
-        database.beginTransaction()
-        news.forEach {
-            val cursor = database.query("news", arrayOf("id"), "id = ?"
-                    , arrayOf(it.id.toString()), null, null, null)
-            val isExists = cursor.count > 0
-            cursor.close()
+        try {
+            database.beginTransaction()
+            news.forEach {
+                val cursor = database.query("news", arrayOf("id"), "id = ?"
+                        , arrayOf(it.id.toString()), null, null, null)
+                val isExists = cursor.count > 0
+                cursor.close()
 
-            insertOrReplaceNews.clearBindings()
-            insertOrReplaceNews.bindLong(1, it.id.toLong())
-            insertOrReplaceNews.bindString(2, it.title)
-            insertOrReplaceNews.bindString(3, it.content)
-            insertOrReplaceNews.bindLong(4, it.date.time)
-            insertOrReplaceNews.bindString(5, it.author.name)
-            insertOrReplaceNews.bindString(6, it.link)
-            insertOrReplaceNews.bindString(7, it.categories.values.elementAt(0).name)
-            insertOrReplaceNews.bindString(9, it.image)
-            insertOrReplaceNews.bindString(11, it.excerpt)
-            insertOrReplaceNews.executeInsert()
+                insertOrReplaceNews.clearBindings()
+                insertOrReplaceNews.bindLong(1, it.id.toLong())
+                insertOrReplaceNews.bindString(2, it.title)
+                insertOrReplaceNews.bindString(3, it.content)
+                insertOrReplaceNews.bindLong(4, it.date.time)
+                insertOrReplaceNews.bindString(5, it.author.name)
+                insertOrReplaceNews.bindString(6, it.link)
+                insertOrReplaceNews.bindString(7, it.categories.values.elementAt(0).name)
+                insertOrReplaceNews.bindString(9, it.image)
+                insertOrReplaceNews.bindString(11, it.excerpt)
+                insertOrReplaceNews.executeInsert()
 
-            result[it] = if (isExists) SqlState.UPDATED else SqlState.INSERTED
+                result[it] = if (isExists) SqlState.UPDATED else SqlState.INSERTED
+            }
+            database.setTransactionSuccessful()
+        } catch (e: Exception) {
+            Log.e("NewsDatabase", "saveNews", e)
+        } finally {
+            database.endTransaction()
         }
-        database.setTransactionSuccessful()
-        database.endTransaction()
+
         return result
     }
 
     fun read(news: News) {
-        database.beginTransaction()
-        readNews.clearBindings()
-        readNews.bindLong(1, 1)
-        readNews.bindLong(2, news.id.toLong())
-        readNews.executeInsert()
-        database.setTransactionSuccessful()
-        database.endTransaction()
+        try {
+            database.beginTransaction()
+            readNews.clearBindings()
+            readNews.bindLong(1, 1)
+            readNews.bindLong(2, news.id.toLong())
+            readNews.executeInsert()
+            database.setTransactionSuccessful()
+        }catch (e: Exception) {
+            Log.e("NewsDatabase", "read", e)
+        } finally {
+            database.endTransaction()
+        }
     }
 
     fun getCategories(): List<Category> {
