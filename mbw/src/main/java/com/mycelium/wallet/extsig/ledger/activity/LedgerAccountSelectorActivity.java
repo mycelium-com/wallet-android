@@ -110,7 +110,7 @@ public abstract class LedgerAccountSelectorActivity extends HdAccountSelectorAct
 
    @Subscribe()
    public void onPinRequest(LedgerManager.OnPinRequest event) {
-      LedgerPinDialog pin = new LedgerPinDialog(this, true);
+      LedgerPinDialog pin = new LedgerPinDialog(this, true, MbwManager.getInstance(this).isRandomizePin());
       pin.setTitle(R.string.ledger_enter_pin);
       pin.setOnPinValid(new PinDialog.OnPinEntered() {
          @Override

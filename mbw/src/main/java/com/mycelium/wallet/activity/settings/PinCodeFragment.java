@@ -25,6 +25,7 @@ public class PinCodeFragment extends PreferenceFragmentCompat {
     // preferences
     private CheckBoxPreference setPin;
     private CheckBoxPreference setPinRequiredStartup;
+    private CheckBoxPreference randomizePin;
 
     public static PinCodeFragment newInstance(String pageId) {
         PinCodeFragment fragment = new PinCodeFragment();
@@ -59,6 +60,9 @@ public class PinCodeFragment extends PreferenceFragmentCompat {
 
         setPinRequiredStartup = (CheckBoxPreference) Preconditions.checkNotNull(findPreference("requirePinOnStartup"));
         setPinRequiredStartup.setOnPreferenceChangeListener(setPinOnStartupClickListener);
+
+        randomizePin = (CheckBoxPreference) Preconditions.checkNotNull(findPreference("randomizePin"));
+        randomizePin.setOnPreferenceChangeListener(randomizePinListener);
         update();
 
         simulateClick(mOpenType);
@@ -113,9 +117,25 @@ public class PinCodeFragment extends PreferenceFragmentCompat {
         }
     };
 
+    private final Preference.OnPreferenceChangeListener randomizePinListener = new Preference.OnPreferenceChangeListener() {
+        @Override
+        public boolean onPreferenceChange(final Preference preference, Object o) {
+            boolean checked = !((CheckBoxPreference) preference).isChecked();
+            if(_mbwManager.isPinProtected()) {
+                _mbwManager.setRandomizePin(checked);
+            } else {
+                _mbwManager.setRandomizePin(false);
+            }
+            update();
+            // don't automatically take the new value, lets do it in the pin protected runnable
+            return false;
+        }
+    };
+
     void update() {
         setPin.setChecked(_mbwManager.isPinProtected());
         setPinRequiredStartup.setChecked(_mbwManager.isPinProtected() && _mbwManager.getPinRequiredOnStartup());
+        randomizePin.setChecked(_mbwManager.isPinProtected() && _mbwManager.isRandomizePin());
     }
 
     @SuppressLint("RestrictedApi")

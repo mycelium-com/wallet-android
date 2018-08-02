@@ -46,6 +46,7 @@ import com.google.common.base.Strings;
 import com.mycelium.wallet.activity.util.Pin;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public class PinDialog extends AppCompatDialog {
    public static final String PLACEHOLDER_TYPED = "\u25CF"; // Unicode Character 'BLACK CIRCLE' (which is a white circle in our dark theme)
@@ -64,12 +65,13 @@ public class PinDialog extends AppCompatDialog {
 
    protected OnPinEntered onPinValid = null;
    private boolean hidden;
+   protected boolean randomizePin;
 
    public void setOnPinValid(OnPinEntered _onPinValid) {
       this.onPinValid = _onPinValid;
    }
 
-   public PinDialog(Context context, boolean hidden, boolean cancelable) {
+   public PinDialog(Context context, boolean hidden, boolean cancelable, boolean randomizePin) {
       super(context);
       getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
       this.hidden = hidden;
@@ -80,6 +82,8 @@ public class PinDialog extends AppCompatDialog {
       enteredPin = "";
       clearDigits();
       updatePinDisplay();
+      this.randomizePin = randomizePin;
+
       this.setTitle(R.string.pin_enter_pin);
    }
 
@@ -101,18 +105,36 @@ public class PinDialog extends AppCompatDialog {
       buttons.add( ((Button) findViewById(R.id.pin_button8)));
       buttons.add( ((Button) findViewById(R.id.pin_button9)));
 
+      Random random = new Random(100);
+
+      ArrayList<Integer> numbers = new ArrayList<>();
+      if(randomizePin) {
+         while (numbers.size() != 10) {
+            int num = Math.abs(random.nextInt() % 10);
+            if (!numbers.contains(num)) {
+               numbers.add(num);
+            }
+         }
+      } else {
+         for (int i = 0; i < 10; i++){
+            numbers.add(i);
+         }
+      }
+      for(int i = 0; i < 10; i++){
+         buttons.get(i).setText(numbers.get(i).toString());
+      }
+
       btnClear = (Button) findViewById(R.id.pin_clr);
       btnBack = (Button) findViewById(R.id.pin_back);
-      int cnt=0;
+
       for (Button b : buttons) {
-         final int akCnt = cnt;
+         final int num = Integer.parseInt(b.getText().toString());
          b.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               addDigit(String.valueOf(akCnt));
+               addDigit(String.valueOf(num));
             }
          });
-         cnt++;
       }
 
       btnBack.setOnClickListener(new View.OnClickListener() {

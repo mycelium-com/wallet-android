@@ -172,6 +172,7 @@ public class MbwManager {
 
    private final CurrencySwitcher _currencySwitcher;
    private boolean startUpPinUnlocked = false;
+   private boolean randomizePin;
    private Timer _addressWatchTimer;
 
    public static synchronized MbwManager getInstance(Context context) {
@@ -263,7 +264,7 @@ public class MbwManager {
               preferences.getString(Constants.PIN_SETTING_RESETTABLE, "1").equals("1")
       );
       _pinRequiredOnStartup = preferences.getBoolean(Constants.PIN_SETTING_REQUIRED_ON_STARTUP, false);
-
+      randomizePin = preferences.getBoolean(Constants.RANDOMIZE_PIN,true);
       _minerFee = MinerFee.fromString(preferences.getString(Constants.MINER_FEE_SETTING, MinerFee.NORMAL.toString()));
       _enableContinuousFocus = preferences.getBoolean(Constants.ENABLE_CONTINUOUS_FOCUS_SETTING, false);
       _keyManagementLocked = preferences.getBoolean(Constants.KEY_MANAGEMENT_LOCKED_SETTING, false);
@@ -407,6 +408,14 @@ public class MbwManager {
       //for managing temp accounts created through scanning
       _tempWalletManager = createTempWalletManager(_environment);
       _tempWalletManager.addObserver(_eventTranslator);
+   }
+
+   public boolean isRandomizePin() {
+      return randomizePin;
+   }
+
+   public void setRandomizePin(boolean randomizePin) {
+      this.randomizePin = randomizePin;
    }
 
    private LtApiClient initLt() {
@@ -754,7 +763,7 @@ public class MbwManager {
    }
 
    public void showClearPinDialog(final Activity activity, final Optional<Runnable> afterDialogClosed) {
-      this.runPinProtectedFunction(activity, new ClearPinDialog(activity, true), new Runnable() {
+      this.runPinProtectedFunction(activity, new ClearPinDialog(activity, true, randomizePin), new Runnable() {
          @Override
          public void run() {
             MbwManager.this.savePin(Pin.CLEAR_PIN);
@@ -773,7 +782,7 @@ public class MbwManager {
          return;
       }
 
-      final NewPinDialog _dialog = new NewPinDialog(activity, false);
+      final NewPinDialog _dialog = new NewPinDialog(activity, false, randomizePin);
       _dialog.setOnPinValid(new PinDialog.OnPinEntered() {
          private String newPin = null;
 
@@ -842,7 +851,7 @@ public class MbwManager {
    // returns the PinDialog or null, if no pin was needed
    private PinDialog runPinProtectedFunctionInternal(Activity activity, Runnable fun, boolean cancelable) {
       if (isPinProtected() && !lastPinAgeOkay.get()) {
-         PinDialog d = new PinDialog(activity, true, cancelable);
+         PinDialog d = new PinDialog(activity, true, cancelable, randomizePin);
          runPinProtectedFunction(activity, d, fun);
          return d;
       } else {
