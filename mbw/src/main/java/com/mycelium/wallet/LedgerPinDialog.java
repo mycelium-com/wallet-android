@@ -43,8 +43,8 @@ public class LedgerPinDialog extends PinDialog {
    public static final int MAX_PIN_LENGTH = 32;
    private TextView pinDisp;
 
-   public LedgerPinDialog(Context context, boolean hidden, boolean randomizePin) {
-      super(context, hidden, true, randomizePin );
+   public LedgerPinDialog(Context context, boolean hidden) {
+      super(context, hidden, true );
    }
 
    public void setDialogTitle(int titleRes) {

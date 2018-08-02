@@ -161,7 +161,7 @@ public class LedgerSignTransactionActivity extends SignTransactionActivity {
    }
 
    private boolean showPinPad(int title, final PinDialog.OnPinEntered callback) {
-      LedgerPinDialog pin = new LedgerPinDialog(LedgerSignTransactionActivity.this, true, MbwManager.getInstance(this).isRandomizePin());
+      LedgerPinDialog pin = new LedgerPinDialog(LedgerSignTransactionActivity.this, true);
       pin.setTitle(title);
       pin.setOnPinValid(callback);
       pin.show();

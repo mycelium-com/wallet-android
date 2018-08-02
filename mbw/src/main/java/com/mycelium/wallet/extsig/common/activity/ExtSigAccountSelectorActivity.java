@@ -165,7 +165,7 @@ public abstract class ExtSigAccountSelectorActivity extends HdAccountSelectorAct
 
    @Subscribe
    public void onPinMatrixRequest(ExternalSignatureDeviceManager.OnPinMatrixRequest event){
-      TrezorPinDialog pin = new TrezorPinDialog(ExtSigAccountSelectorActivity.this, true, MbwManager.getInstance(this).isRandomizePin());
+      TrezorPinDialog pin = new TrezorPinDialog(ExtSigAccountSelectorActivity.this, true);
       pin.setOnPinValid(new PinDialog.OnPinEntered() {
          @Override
          public void pinEntered(PinDialog dialog, Pin pin) {

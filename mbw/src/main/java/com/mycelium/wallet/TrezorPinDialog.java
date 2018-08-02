@@ -48,8 +48,8 @@ public class TrezorPinDialog extends PinDialog {
       this.onPinValid = _onPinValid;
    }
 
-   public TrezorPinDialog(Context context, boolean hidden, boolean randomizePin) {
-      super(context, hidden, true, randomizePin);
+   public TrezorPinDialog(Context context, boolean hidden) {
+      super(context, hidden, true);
    }
 
    @Override

@@ -184,7 +184,7 @@ public class LedgerAccountImportActivity extends LedgerAccountSelectorActivity {
 
    @Subscribe()
    public void onPinRequest(LedgerManager.OnPinRequest event) {
-      LedgerPinDialog pin = new LedgerPinDialog(this, true, MbwManager.getInstance(this).isRandomizePin());
+      LedgerPinDialog pin = new LedgerPinDialog(this, true);
       pin.setTitle(R.string.ledger_enter_pin);
       pin.setOnPinValid(new PinDialog.OnPinEntered() {
          @Override

@@ -46,7 +46,7 @@ import com.google.common.base.Strings;
 import com.mycelium.wallet.activity.util.Pin;
 
 import java.util.ArrayList;
-import java.util.Random;
+import java.util.Collections;
 
 public class PinDialog extends AppCompatDialog {
    public static final String PLACEHOLDER_TYPED = "\u25CF"; // Unicode Character 'BLACK CIRCLE' (which is a white circle in our dark theme)
@@ -65,15 +65,16 @@ public class PinDialog extends AppCompatDialog {
 
    protected OnPinEntered onPinValid = null;
    private boolean hidden;
-   protected boolean randomizePin;
+   protected boolean pinPadIsRandomized;
 
    public void setOnPinValid(OnPinEntered _onPinValid) {
       this.onPinValid = _onPinValid;
    }
 
-   public PinDialog(Context context, boolean hidden, boolean cancelable, boolean randomizePin) {
+   public PinDialog(Context context, boolean hidden, boolean cancelable) {
       super(context);
       getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
+      pinPadIsRandomized = MbwManager.getInstance(context).isPinPadRandomized();
       this.hidden = hidden;
       setCancelable(cancelable);
       setCanceledOnTouchOutside(false);
@@ -82,7 +83,6 @@ public class PinDialog extends AppCompatDialog {
       enteredPin = "";
       clearDigits();
       updatePinDisplay();
-      this.randomizePin = randomizePin;
 
       this.setTitle(R.string.pin_enter_pin);
    }
@@ -105,22 +105,14 @@ public class PinDialog extends AppCompatDialog {
       buttons.add( ((Button) findViewById(R.id.pin_button8)));
       buttons.add( ((Button) findViewById(R.id.pin_button9)));
 
-      Random random = new Random(100);
-
       ArrayList<Integer> numbers = new ArrayList<>();
-      if(randomizePin) {
-         while (numbers.size() != 10) {
-            int num = Math.abs(random.nextInt() % 10);
-            if (!numbers.contains(num)) {
-               numbers.add(num);
-            }
-         }
-      } else {
-         for (int i = 0; i < 10; i++){
-            numbers.add(i);
-         }
+      for (int i = 0; i < 10; i++) {
+         numbers.add(i);
       }
-      for(int i = 0; i < 10; i++){
+      if (pinPadIsRandomized) {
+         Collections.shuffle(numbers);
+      }
+      for (int i = 0; i < 10; i++) {
          buttons.get(i).setText(numbers.get(i).toString());
       }
 
