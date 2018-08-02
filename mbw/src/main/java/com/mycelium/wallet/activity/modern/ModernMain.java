@@ -91,7 +91,6 @@ import com.mycelium.wapi.api.response.Feature;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SyncMode;
-import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.squareup.otto.Subscribe;
 
@@ -267,7 +266,7 @@ public class ModernMain extends AppCompatActivity {
    }
 
    @Override
-   protected void onResume() {
+   protected void onStart() {
       _mbwManager.getEventBus().register(this);
 
       long curTime = new Date().getTime();
@@ -304,15 +303,15 @@ public class ModernMain extends AppCompatActivity {
       }, 100, MIN_AUTOSYNC_INTERVAL);
 
       supportInvalidateOptionsMenu();
-      super.onResume();
+      super.onStart();
    }
 
    @Override
-   protected void onPause() {
+   protected void onStop() {
       stopBalanceRefreshTimer();
       _mbwManager.getEventBus().unregister(this);
       _mbwManager.getVersionManager().closeDialog();
-      super.onPause();
+      super.onStop();
    }
 
    @Override

@@ -40,7 +40,6 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test:rules:1.0.1'
 
-    implementation project(includePrefix + ':libs:zxing-android')
     implementation project(includePrefix + ':coinapult')
     implementation project(includePrefix + ':wapi')
     implementation project(includePrefix + ':trezor')
@@ -86,7 +85,7 @@ dependencies {
     implementation 'com.google.protobuf:protobuf-java:3.1.0'
     implementation 'com.android.support.constraint:constraint-layout:1.1.0-beta5'
 
-    implementation 'com.google.zxing:core:3.3.3'
+    implementation 'com.journeyapps:zxing-android-embedded:3.6.0'
 
     implementation project(includePrefix + ':myceliummodularizationtools')
     implementation project(includePrefix + ':modulespvcontract')
@@ -131,8 +130,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 2110112
-        versionName '2.11.1.12'
+        versionCode 2110113
+        versionName '2.11.1.13'
         multiDexEnabled true
 
         minSdkVersion 19
