@@ -42,3 +42,7 @@ compileTestKotlin {
         jvmTarget = "1.6"
     }
 }
+
+kapt {
+    useBuildCache = true
+}

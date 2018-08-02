@@ -22,6 +22,10 @@ buildscript {
     }
 }
 
+kapt {
+    useBuildCache = true
+}
+
 configurations {
     compile.exclude group: 'org.apache.httpcomponents', module: 'httpclient'
     compile.exclude group: 'org.jetbrains', module: 'annotations'

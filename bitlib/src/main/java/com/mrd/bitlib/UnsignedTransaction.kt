@@ -16,6 +16,7 @@ open class UnsignedTransaction(
         funding: List<UnspentTransactionOutput>,
         keyRing: IPublicKeyRing,
         private val network: NetworkParameters,
+        isSegwit: Boolean,
         val lockTime: Int = 0,
         val defaultSequenceNumber: Int = NO_SEQUENCE
 ) : Serializable {
@@ -24,7 +25,7 @@ open class UnsignedTransaction(
                 funding: List<UnspentTransactionOutput>,
                 keyRing: IPublicKeyRing,
                 network: NetworkParameters
-    ) : this(outputs, funding, keyRing, network, 0, NO_SEQUENCE)
+    ) : this(outputs, funding, keyRing, network, false,0, NO_SEQUENCE)
 
     val outputs = outputs.toTypedArray()
     val fundingOutputs = funding.toTypedArray()
@@ -33,11 +34,11 @@ open class UnsignedTransaction(
     init {
         // Create empty input scripts pointing at the right out points
         val inputs = fundingOutputs.map {
-            TransactionInput(it.outPoint, ScriptInput.EMPTY, defaultSequenceNumber)
+            TransactionInput(it.outPoint, ScriptInput.fromScriptBytes(it.script.scriptBytes), defaultSequenceNumber, it.value)
         }.toTypedArray()
 
         // Create transaction with valid outputs and empty inputs
-        val transaction = Transaction(1, inputs, this.outputs, lockTime, false)
+        val transaction = Transaction(1, inputs, this.outputs, lockTime, isSegwit)
 
         for (i in fundingOutputs.indices) {
             val utxo = fundingOutputs[i]
@@ -61,10 +62,9 @@ open class UnsignedTransaction(
             inputs[i].script = ScriptInput.fromOutputScript(fundingOutputs[i].script)
 
             // Calculate the transaction hash that has to be signed
-            val hash = StandardTransactionBuilder.hashTransaction(transaction)
-
+            val hash = StandardTransactionBuilder.hashTransaction(transaction, i)
             // Set the input to the empty script again
-            inputs[i] = TransactionInput(fundingOutputs[i].outPoint, ScriptInput.EMPTY)
+            inputs[i] = TransactionInput(fundingOutputs[i].outPoint, ScriptInput.EMPTY, NO_SEQUENCE, fundingOutputs[i].value)
 
             signingRequests[i] = SigningRequest(publicKey, hash)
         }

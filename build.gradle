@@ -1,4 +1,5 @@
 apply from: 'tools.gradle'
+apply plugin: 'kotlin'
 
 buildscript {
     apply from: 'ext_settings.gradle'
@@ -10,6 +11,10 @@ buildscript {
         classpath androidBuildArtifact
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
+}
+
+kapt {
+    useBuildCache = true
 }
 
 allprojects {

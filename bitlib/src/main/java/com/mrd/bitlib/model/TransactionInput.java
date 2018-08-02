@@ -24,6 +24,11 @@ import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
 import com.mrd.bitlib.util.ByteWriter;
 import com.mrd.bitlib.util.Sha256Hash;
 
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
+import static com.mrd.bitlib.model.Script.OP_DUP;
+import static com.mrd.bitlib.model.Script.OP_HASH160;
+
 public class TransactionInput implements Serializable {
    private static final long serialVersionUID = 1L;
    private static final long SEQUENCE_NO_RBF = 0xFFFFFFFEL; // MAX_INT-1 as unsigned int, anything below is RBF able
@@ -33,6 +38,7 @@ public class TransactionInput implements Serializable {
    public ScriptInput script;
    private InputWitness witness = InputWitness.EMPTY;
    public int sequence;
+   private final long value;
 
    public static TransactionInput fromByteReader(ByteReader reader) throws TransactionInputParsingException {
       try {
@@ -40,7 +46,7 @@ public class TransactionInput implements Serializable {
          int outPointIndex = reader.getIntLE();
          int scriptSize = (int) reader.getCompactInt();
          byte[] script = reader.getBytes(scriptSize);
-         int sequence = (int) reader.getIntLE();
+         int sequence = reader.getIntLE();
          OutPoint outPoint = new OutPoint(outPointHash, outPointIndex);
          ScriptInput inscript;
          if (outPointHash.equals(Sha256Hash.ZERO_HASH)) {
@@ -54,20 +60,21 @@ public class TransactionInput implements Serializable {
                throw new TransactionInputParsingException(e.getMessage(), e);
             }
          }
-         return new TransactionInput(outPoint, inscript, sequence);
+         return new TransactionInput(outPoint, inscript, sequence, 0);
       } catch (InsufficientBytesException e) {
          throw new TransactionInputParsingException("Unable to parse transaction input: " + e.getMessage());
       }
    }
 
-   public TransactionInput(OutPoint outPoint, ScriptInput script, int sequence) {
+   public TransactionInput(OutPoint outPoint, ScriptInput script, int sequence, long value) {
       this.outPoint = outPoint;
       this.script = script;
       this.sequence = sequence;
+      this.value = value;
    }
 
    public TransactionInput(OutPoint outPoint, ScriptInput script) {
-      this(outPoint, script, NO_SEQUENCE);
+      this(outPoint, script, NO_SEQUENCE, 0);
    }
 
    public boolean hasWitness() {
@@ -131,11 +138,28 @@ public class TransactionInput implements Serializable {
       return witness;
    }
 
+   public byte[] getScriptCode() {
+      ByteWriter byteWriter = new ByteWriter(1024);
+      if (script instanceof ScriptInputStandard) {
+         byteWriter.putBytes(new byte[]{(byte) OP_DUP, (byte) OP_HASH160});
+         getWitness().toByteWriter(byteWriter);
+         throw new NotImplementedException();
+      } else if (script instanceof  ScriptInputP2SHMultisig) {
+         throw new NotImplementedException();
+      } else {
+         throw new NotImplementedException();
+      }
+   }
+
    public void setWitness(InputWitness witness) {
       this.witness = witness;
    }
 
-   static class TransactionInputParsingException extends Exception {
+    public long getValue() {
+        return value;
+    }
+
+    static class TransactionInputParsingException extends Exception {
       private static final long serialVersionUID = 1L;
 
       TransactionInputParsingException(String message) {

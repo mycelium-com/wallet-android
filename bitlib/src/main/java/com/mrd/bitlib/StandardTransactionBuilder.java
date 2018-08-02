@@ -26,8 +26,6 @@ import com.mrd.bitlib.crypto.BitcoinSigner;
 import com.mrd.bitlib.crypto.IPrivateKeyRing;
 import com.mrd.bitlib.crypto.IPublicKeyRing;
 import com.mrd.bitlib.model.*;
-import com.mrd.bitlib.util.ByteWriter;
-import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 
 import java.util.*;
@@ -191,8 +189,7 @@ public class StandardTransactionBuilder {
          outputs.add(position, changeOutput);
       }
 
-      UnsignedTransaction unsignedTransaction = new UnsignedTransaction(outputs, funding, keyRing, network,
-              0, UnsignedTransaction.NO_SEQUENCE);
+      UnsignedTransaction unsignedTransaction = new UnsignedTransaction(outputs, funding, keyRing, network);
 
       // check if we have a reasonable Fee or throw an error otherwise
       int estimateTransactionSize = estimateTransactionSize(unsignedTransaction.getFundingOutputs().length,
@@ -314,7 +311,7 @@ public class StandardTransactionBuilder {
          // Create script from signature and public key
          ScriptInputStandard script = new ScriptInputStandard(signatures.get(i),
              unsigned.getSigningRequests()[i].getPublicKey().getPublicKeyBytes());
-         inputs[i] = new TransactionInput(funding[i].outPoint, script, unsigned.getDefaultSequenceNumber());
+         inputs[i] = new TransactionInput(funding[i].outPoint, script, unsigned.getDefaultSequenceNumber(), funding[i].value);
       }
 
       // Create transaction with valid outputs and empty inputs
@@ -329,16 +326,11 @@ public class StandardTransactionBuilder {
       return sum;
    }
 
-   static Sha256Hash hashTransaction(Transaction t) {
-      ByteWriter writer = new ByteWriter(1024);
-      t.toByteWriter(writer);
-      // We also have to write a hash type.
-      int hashType = 1;
-      writer.putIntLE(hashType);
-      // Note that this is NOT reversed to ensure it will be signed
-      // correctly. If it were to be printed out
-      // however then we would expect that it is IS reversed.
-      return HashUtils.doubleSha256(writer.toBytes());
+   /**
+    * @param index - TODO segwit
+    */
+   static Sha256Hash hashTransaction(Transaction t, int index) {
+      return t.getTxDigestHash(index);
    }
 
    /**

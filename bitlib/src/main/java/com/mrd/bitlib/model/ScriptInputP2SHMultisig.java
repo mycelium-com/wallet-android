@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
 public class ScriptInputP2SHMultisig extends ScriptInput {
    private static final long serialVersionUID = 1L;
 
@@ -54,11 +56,11 @@ public class ScriptInputP2SHMultisig extends ScriptInput {
    }
 
    public List<byte[]> getPubKeys() {
-      return new ArrayList<byte[]>(_pubKeys);
+      return new ArrayList<>(_pubKeys);
    }
 
    public List<byte[]> getSignatures() {
-      return new ArrayList<byte[]>(_signatures);
+      return new ArrayList<>(_signatures);
    }
 
    public byte[] getScriptHash() {
@@ -67,6 +69,26 @@ public class ScriptInputP2SHMultisig extends ScriptInput {
 
    public byte[] getEmbeddedScript() {
       return BitUtils.copyByteArray(_embeddedScript);
+   }
+
+   public byte[] witnessScript() {
+      if (!isWitnessScript(BitUtils.copyOfRange(_scriptBytes, 1, _scriptBytes.length))) {
+
+      }
+      throw new NotImplementedException();
+   }
+
+   private boolean isWitnessScript(byte[] script) {
+      if (script.length < 4 || script.length > 42) {
+         return false;
+      }
+      if (script[0] != OP_0 && (script[0] < OP_1 || script[0] > OP_16)) {
+         return false;
+      }
+      if (script[1] < 0x02 || script[1] > 0x28) {
+         return false;
+      }
+      return true;
    }
 
    protected static boolean isScriptInputP2SHMultisig(byte[][] chunks) throws ScriptParsingException {
