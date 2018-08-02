@@ -44,7 +44,7 @@ class NewsActivity : AppCompatActivity() {
         app_bar_layout.addOnOffsetChangedListener { appBarLayout, verticalOffset ->
             val scrollDelta = Math.abs(verticalOffset * 1f / appBarLayout.totalScrollRange)
             category.alpha = 1 - scrollDelta
-            toolbar_shadow.visibility = if(scrollDelta == 1f) View.VISIBLE else View.GONE
+            toolbar_shadow.visibility = if (scrollDelta == 1f) View.VISIBLE else View.GONE
         }
         news = intent.getSerializableExtra("news") as News
         NewsDatabase.read(news)
@@ -52,7 +52,10 @@ class NewsActivity : AppCompatActivity() {
         preference = getSharedPreferences(NewsConstants.NEWS_PREF, Context.MODE_PRIVATE)!!
         val categories = preference.getStringSet("category_filter", null)?.toTypedArray()?.convertToCategory()
                 ?: listOf()
-        val contentText = news.content.replace("width: ", "")
+        val contentText = news.content
+                .replace("width=\".*?\"", "width=\"100%\"")
+                .replace("width: .*?px", "width: 100%")
+                .replace("height=\".*?\"", "")
         content.settings.javaScriptEnabled = true
         content.settings.loadsImagesAutomatically = true;
         content.settings.allowUniversalAccessFromFileURLs = true
@@ -60,41 +63,35 @@ class NewsActivity : AppCompatActivity() {
 
         val webTextMarginHorizontal = resources.toWebViewPx(16f)
         val webTextMarginVertical = resources.toWebViewPx(24f)
-        content.webChromeClient = object : WebChromeClient() {
-            override fun onConsoleMessage(consoleMessage: ConsoleMessage?): Boolean {
-                Log.e("MyApplication", consoleMessage?.message() + " -- From line "
-                        + consoleMessage?.lineNumber() + " of "
-                        + consoleMessage?.sourceId());
-                return super.onConsoleMessage(consoleMessage)
-            }
-        }
+
         content.loadDataWithBaseURL("https://blog.mycelium.com"
                 , "<html>"
                 + "<head>"
                 + "<script src='file:///android_asset/js/jquery.js'></script>"
+                + "<link rel=\"stylesheet\" type=\"text/css\" href=\"file:///android_asset/css/smart-slider-3.css\" media=\"all\">"
+                + "<link rel=\"stylesheet\" type=\"text/css\" href=\"file:///android_asset/css/smart-slider-3-addition.css\" media=\"all\">"
                 + "<style type=\"text/css\">body{color: #fff; padding: 0px; margin:0px; line-height: 1.43;}"
-                + " img{display: inline; height: auto; max-width: 100%;}"
+                + " img{height: auto; width: 100%; max-width: 100%;}"
+                + " .wp-caption { margin: 0; padding: 0; height: auto; width: 100%; max-width: 100%;}"
                 + " .wp-caption-text, .wp-caption-dd {"
                 + " clear: both; font-size: 75%;  font-weight: 400; font-style: italic;"
                 + " text-align: center; color: #e7e7e7; width: 100%; margin: 0; margin-top: ${resources.toWebViewPx(12f)}}"
                 + " a {text-decoration: none; color: #e7e7e7; }"
                 + " p, section { margin-top: ${webTextMarginVertical}px; margin-left: ${webTextMarginHorizontal}px; "
-                + "  margin-bottom: ${webTextMarginVertical}px; margin-right: ${webTextMarginHorizontal}px;}"
+                + " margin-bottom: ${webTextMarginVertical}px; margin-right: ${webTextMarginHorizontal}px;}"
                 + " blockquote {margin-left: ${resources.toWebViewPx(16f)}px; font-family:Georgia,'Times New Roman',serif;"
                 + " font-style:italic;border:solid #595959;border-width: 0 0 0 ${resources.toWebViewPx(2f)}px; color: #e7e7e7; }"
                 + " blockquote p{ padding-top:${resources.toWebViewPx(12f)}px; padding-bottom: ${resources.toWebViewPx(12f)}px;}"
                 + " li { margin-bottom: ${resources.toWebViewPx(8f)}px;}"
-                + "</style></head>"
-                + "<body>$contentText"
-                + "<link rel='stylesheet' href='file:///android_asset/css/slideshow.css' type='text/css' media='all' />"
-                + "<script type='text/javascript'>"
-                + " var jetpackSlideshowSettings = {\"spinner\":\"https:\\/\\/s2.wp.com\\/wp-content\\/mu-plugins\\/shortcodes\\/img\\/slideshow-loader.gif\",\"speed\":\"4000\",\"blog_id\":\"147147619\",\"blog_subdomain\":\"blogmyceliumcom\",\"user_id\":\"0\"};"
-                + "</script>"
-                + "<script type='text/javascript'>"
-                + "var jetpackCarouselStrings = {\"widths\":[370,700,1000,1200,1400,2000],\"is_logged_in\":\"\",\"lang\":\"en\",\"ajaxurl\":\"https:\\/\\/blog.mycelium.com\\/wp-admin\\/admin-ajax.php\",\"nonce\":\"755b1c32e6\",\"display_exif\":\"1\",\"display_geo\":\"1\",\"single_image_gallery\":\"1\",\"single_image_gallery_media_file\":\"\",\"background_color\":\"black\",\"comment\":\"Comment\",\"post_comment\":\"Post Comment\",\"write_comment\":\"Write a Comment...\",\"loading_comments\":\"Loading Comments...\",\"download_original\":\"View full size <span class=\\\"photo-size\\\">{0}<span class=\\\"photo-size-times\\\">\\u00d7<\\/span>{1}<\\/span>\",\"no_comment_text\":\"Please be sure to submit some text with your comment.\",\"no_comment_email\":\"Please provide an email address to comment.\",\"no_comment_author\":\"Please provide your name to comment.\",\"comment_post_error\":\"Sorry, but there was an error posting your comment. Please try again later.\",\"comment_approved\":\"Your comment was approved.\",\"comment_unapproved\":\"Your comment is in moderation.\",\"camera\":\"Camera\",\"aperture\":\"Aperture\",\"shutter_speed\":\"Shutter Speed\",\"focal_length\":\"Focal Length\",\"copyright\":\"Copyright\",\"comment_registration\":\"0\",\"require_name_email\":\"1\",\"login_url\":\"https:\\/\\/blogmyceliumcom.wordpress.com\\/wp-login.php?redirect_to=https%3A%2F%2Fblog.mycelium.com%2F2018%2F07%2F19%2Fhow-do-i-create-another-account%2F\",\"blog_id\":\"147147619\",\"meta_data\":[\"camera\",\"aperture\",\"shutter_speed\",\"focal_length\",\"copyright\"],\"local_comments_commenting_as\":\"<fieldset><label for=\\\"email\\\">Email (Required)<\\/label> <input type=\\\"text\\\" name=\\\"email\\\" class=\\\"jp-carousel-comment-form-field jp-carousel-comment-form-text-field\\\" id=\\\"jp-carousel-comment-form-email-field\\\" \\/><\\/fieldset><fieldset><label for=\\\"author\\\">Name (Required)<\\/label> <input type=\\\"text\\\" name=\\\"author\\\" class=\\\"jp-carousel-comment-form-field jp-carousel-comment-form-text-field\\\" id=\\\"jp-carousel-comment-form-author-field\\\" \\/><\\/fieldset><fieldset><label for=\\\"url\\\">Website<\\/label> <input type=\\\"text\\\" name=\\\"url\\\" class=\\\"jp-carousel-comment-form-field jp-carousel-comment-form-text-field\\\" id=\\\"jp-carousel-comment-form-url-field\\\" \\/><\\/fieldset>\",\"reblog\":\"Reblog\",\"reblogged\":\"Reblogged\",\"reblog_add_thoughts\":\"Add your thoughts here... (optional)\",\"reblogging\":\"Reblogging...\",\"post_reblog\":\"Post Reblog\",\"stats_query_args\":\"blog=147147619&v=wpcom&tz=3&user_id=0&subd=blogmyceliumcom\",\"is_public\":\"0\",\"reblog_enabled\":\"\"};"
-                + "</script>"
-                + "<script src='file:///android_asset/js/slideshow.js'></script>"
-                + "</body></html>"
+                + "</style>"
+                + "<script type=\"text/javascript\">(function(){var N=this;N.N2_=N.N2_||{r:[],d:[]},N.N2R=N.N2R||function(){N.N2_.r.push(arguments)},N.N2D=N.N2D||function(){N.N2_.d.push(arguments)}}).call(window);if(!window.n2jQuery){window.n2jQuery={ready:function(cb){console.error('n2jQuery will be deprecated!');N2R(['\$'],cb)}}}window.nextend={localization:{},ready:function(cb){console.error('nextend.ready will be deprecated!');N2R('documentReady',function(\$){cb.call(window,\$)})}};</script>"
+                + "<script type=\"text/javascript\" src=\"file:///android_asset/js/smart-slider-3-n2.js\"></script>"
+                + "<script type=\"text/javascript\" src=\"file:///android_asset/js/smart-slider-3-nextend.js\"></script>"
+                + "<script type=\"text/javascript\" src=\"file:///android_asset/js/smart-slider-3-fronend.js\"></script>"
+                + "<script type=\"text/javascript\" src=\"file:///android_asset/js/smart-slider-3-simple-type.js\"></script>"
+                + "<script type=\"text/javascript\" src=\"file:///android_asset/js/smart-slider-3-initialize.js\"></script>"
+                + "</head>"
+                + "<body>$contentText</body></html>"
                 , "text/html", "UTF-8", null)
         tvTitle.text = news.title
         tvDate.text = NewsUtils.getDateAuthorString(this, news)

@@ -360,5 +360,4 @@
         <item name="android:windowTranslucentStatus">true</item>
     </style>
 
-    <color name="media_flow_status_color">#881a1a1a</color>
 </resources>

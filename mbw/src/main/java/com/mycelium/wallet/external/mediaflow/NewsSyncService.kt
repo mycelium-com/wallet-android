@@ -76,7 +76,7 @@ class NewsSyncService : Service() {
                     builder.setGroup(mediaFlowNotificationGroup)
                     notificationManager?.notify(mediaFlowNotificationId, builder.build())
                 } else if (newTopics.size > 1) {
-                    val title = resources.getQuantityString(R.plurals.media_flow_new_topic, newTopics.size)
+                    val title = resources.getQuantityString(R.plurals.media_flow_new_topic, newTopics.size, newTopics.size)
                     builder.setContentTitle(title)
                             .setGroupSummary(true)
                     val inboxStyle = NotificationCompat.InboxStyle()

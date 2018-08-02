@@ -336,7 +336,9 @@ public class StartupActivity extends Activity {
        Intent intent = new Intent(StartupActivity.this, ModernMain.class);
        if (Objects.equals(getIntent().getAction(), NewsUtils.MEDIA_FLOW_ACTION)) {
            intent.setAction(NewsUtils.MEDIA_FLOW_ACTION);
-           intent.putExtras(getIntent().getExtras());
+           if(getIntent().getExtras() != null) {
+              intent.putExtras(getIntent().getExtras());
+           }
        }
        startActivity(intent);
        finish();

@@ -55,6 +55,7 @@
     <color name="pref_background">#2c2c2c</color>
     <color name="preference_item_color">#2c2c2c</color>
     <color name="btn_text_color">#5aa7e6</color>
+    <color name="media_flow_status_color">#881a1a1a</color>
 
     <fraction name="background_alpha">50%</fraction>
 </resources>
