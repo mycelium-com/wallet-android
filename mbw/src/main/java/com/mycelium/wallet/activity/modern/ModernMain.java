@@ -281,7 +281,7 @@ public class ModernMain extends AppCompatActivity {
    }
 
    @Override
-   protected void onResume() {
+   protected void onStart() {
       _mbwManager.getEventBus().register(this);
 
       long curTime = new Date().getTime();
@@ -318,15 +318,15 @@ public class ModernMain extends AppCompatActivity {
       }, 100, MIN_AUTOSYNC_INTERVAL);
 
       supportInvalidateOptionsMenu();
-      super.onResume();
+      super.onStart();
    }
 
    @Override
-   protected void onPause() {
+   protected void onStop() {
       stopBalanceRefreshTimer();
       _mbwManager.getEventBus().unregister(this);
       _mbwManager.getVersionManager().closeDialog();
-      super.onPause();
+      super.onStop();
    }
 
    @Override

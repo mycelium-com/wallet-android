@@ -527,6 +527,23 @@ public class AccountsFragment extends Fragment {
       return linkedAccount;
    }
 
+   private int getLinkedAccountsCount(WalletAccount account) {
+      int count = 0;
+      if (account.getType() == WalletAccount.Type.COLU) {
+         count++;
+      } else {
+         if (Utils.getLinkedAccount(account, _mbwManager.getColuManager().getAccounts().values()) != null) {
+            count++;
+         }
+      }
+
+      if (_mbwManager.getWalletManager(false).getAccount(MbwManager.getBitcoinCashAccountId(account)) != null) {
+         count++;
+      }
+
+      return count;
+   }
+
    private void finishCurrentActionMode() {
       if (currentActionMode != null) {
          currentActionMode.finish();
@@ -1183,8 +1200,7 @@ public class AccountsFragment extends Fragment {
     * Account is protected if after removal no accounts would stay active, so it would not be possible to select an account
     */
    private boolean accountProtected(WalletAccount toRemove) {
-      final WalletAccount linkedAccount = getLinkedAccount(toRemove);
-      final int safeSize = linkedAccount == null ? 2 : 3;
+      final int safeSize = getLinkedAccountsCount(toRemove) + 2;
       return _mbwManager.getWalletManager(false).getActiveAccounts().size() < safeSize;
    }
 

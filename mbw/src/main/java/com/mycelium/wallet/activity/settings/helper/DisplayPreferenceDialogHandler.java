@@ -10,6 +10,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.R;
@@ -35,6 +36,7 @@ public class DisplayPreferenceDialogHandler implements PreferenceManager.OnDispl
 
         if (preference instanceof ListPreference) {
             final ListPreference listPreference = (ListPreference) preference;
+            final int origSize = listPreference.getEntryValues().length;
 
             View view = LayoutInflater.from(context).inflate(R.layout.dialog_pref_list, null);
             TextView title = view.findViewById(R.id.title);
@@ -56,11 +58,19 @@ public class DisplayPreferenceDialogHandler implements PreferenceManager.OnDispl
             view.findViewById(R.id.buttonok).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    alertDialog.dismiss();
-                    String value = listPreference.getEntryValues()[arrayAdapter.getSelected()].toString();
-                    if (listPreference.callChangeListener(value)) {
-                        listPreference.setValue(value);
+                    // it seems that the size of a list (such as exchanges) might change before clicking OK
+                    // so we compare it to new value just before proceeding
+                    final int newSize = listPreference.getEntryValues().length;
+                    if (newSize == origSize) {
+                        String value = listPreference.getEntryValues()[arrayAdapter.getSelected()].toString();
+                        if (listPreference.callChangeListener(value)) {
+                            listPreference.setValue(value);
+                        }
                     }
+                    else {
+                        Toast.makeText(context, context.getString(R.string.try_again), Toast.LENGTH_SHORT).show();
+                    }
+                    alertDialog.dismiss();
                 }
             });
             alertDialog = new AlertDialog.Builder(context, theme)
