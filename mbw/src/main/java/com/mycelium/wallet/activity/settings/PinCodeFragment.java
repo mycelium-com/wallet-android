@@ -120,13 +120,19 @@ public class PinCodeFragment extends PreferenceFragmentCompat {
     private final Preference.OnPreferenceChangeListener randomizePinListener = new Preference.OnPreferenceChangeListener() {
         @Override
         public boolean onPreferenceChange(final Preference preference, Object o) {
-            boolean checked = !((CheckBoxPreference) preference).isChecked();
-            if(_mbwManager.isPinProtected()) {
-                _mbwManager.setPinPadRandomized(checked);
-            } else {
-                _mbwManager.setPinPadRandomized(false);
-            }
-            update();
+            _mbwManager.runPinProtectedFunction(getActivity(), new Runnable() {
+                @Override
+                public void run() {
+                    boolean checked = !((CheckBoxPreference) preference).isChecked();
+                    if(_mbwManager.isPinProtected()) {
+                        _mbwManager.setPinPadRandomized(checked);
+                    } else {
+                        _mbwManager.setPinPadRandomized(false);
+                    }
+                    update();
+                }
+            });
+
             // don't automatically take the new value, lets do it in the pin protected runnable
             return false;
         }
@@ -146,6 +152,9 @@ public class PinCodeFragment extends PreferenceFragmentCompat {
                 break;
             case 1:
                 setPinRequiredStartup.performClick();
+                break;
+            case 2:
+                randomizePin.performClick();
                 break;
         }
     }

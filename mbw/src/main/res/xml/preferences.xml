@@ -44,7 +44,7 @@
 
                 <CheckBoxPreference
                     android:dependency="setPin"
-                    android:key="randomizePin"
+                    android:key="pinPadIsRandomized"
                     android:layout="@layout/preference_layout_no_icon"
                     android:summary="@string/randomize_pin_text"
                     android:title="@string/randomize_pin"

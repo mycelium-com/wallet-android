@@ -264,7 +264,7 @@ public class MbwManager {
               preferences.getString(Constants.PIN_SETTING_RESETTABLE, "1").equals("1")
       );
       _pinRequiredOnStartup = preferences.getBoolean(Constants.PIN_SETTING_REQUIRED_ON_STARTUP, false);
-      randomizePinPad = preferences.getBoolean(Constants.RANDOMIZE_PIN,true);
+      randomizePinPad = preferences.getBoolean(Constants.RANDOMIZE_PIN, false);
       _minerFee = MinerFee.fromString(preferences.getString(Constants.MINER_FEE_SETTING, MinerFee.NORMAL.toString()));
       _enableContinuousFocus = preferences.getBoolean(Constants.ENABLE_CONTINUOUS_FOCUS_SETTING, false);
       _keyManagementLocked = preferences.getBoolean(Constants.KEY_MANAGEMENT_LOCKED_SETTING, false);
