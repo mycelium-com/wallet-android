@@ -34,7 +34,7 @@ open class UnsignedTransaction(
     init {
         // Create empty input scripts pointing at the right out points
         val inputs = fundingOutputs.map {
-            TransactionInput(it.outPoint, ScriptInput.fromScriptBytes(it.script.scriptBytes), defaultSequenceNumber, it.value)
+            TransactionInput(it.outPoint, ScriptInput.fromOutputScript(it.script), defaultSequenceNumber, it.value)
         }.toTypedArray()
 
         // Create transaction with valid outputs and empty inputs
@@ -57,9 +57,6 @@ open class UnsignedTransaction(
                     ?: // This should not happen as we only work on outputs that we have
                     // keys for
                     throw RuntimeException("Public key not found")
-
-            // Set the input script to the funding output script
-            inputs[i].script = ScriptInput.fromOutputScript(fundingOutputs[i].script)
 
             // Calculate the transaction hash that has to be signed
             val hash = StandardTransactionBuilder.hashTransaction(transaction, i)

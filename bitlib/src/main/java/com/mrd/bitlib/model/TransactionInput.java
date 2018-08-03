@@ -19,6 +19,7 @@ package com.mrd.bitlib.model;
 import java.io.Serializable;
 
 import com.mrd.bitlib.model.Script.ScriptParsingException;
+import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
 import com.mrd.bitlib.util.ByteWriter;
@@ -140,15 +141,18 @@ public class TransactionInput implements Serializable {
 
    public byte[] getScriptCode() {
       ByteWriter byteWriter = new ByteWriter(1024);
-      if (script instanceof ScriptInputStandard) {
-         byteWriter.putBytes(new byte[]{(byte) OP_DUP, (byte) OP_HASH160});
-         getWitness().toByteWriter(byteWriter);
+      ScriptOutput script = ScriptOutput.fromScriptBytes(this.script._scriptBytes);
+      if (script instanceof ScriptOutputP2SH) {
+         ((ScriptOutputP2SH) script).isNested();
          throw new NotImplementedException();
-      } else if (script instanceof  ScriptInputP2SHMultisig) {
+      } else if (script instanceof ScriptOutputP2WSH) {
+         throw new NotImplementedException();
+      } else if (script instanceof ScriptOutputP2WPKH){
          throw new NotImplementedException();
       } else {
-         throw new NotImplementedException();
+         throw new IllegalArgumentException("No scriptcode for " + script.getClass().getCanonicalName());
       }
+      //return byteWriter.toBytes();
    }
 
    public void setWitness(InputWitness witness) {

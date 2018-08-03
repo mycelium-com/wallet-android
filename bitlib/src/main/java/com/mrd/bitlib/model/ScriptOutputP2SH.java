@@ -16,6 +16,8 @@
 
 package com.mrd.bitlib.model;
 
+import com.mrd.bitlib.util.BitUtils;
+
 import java.io.Serializable;
 
 public class ScriptOutputP2SH extends ScriptOutput implements Serializable {
@@ -47,6 +49,30 @@ public class ScriptOutputP2SH extends ScriptOutput implements Serializable {
    public ScriptOutputP2SH(byte[] addressBytes) {
       super(scriptEncodeChunks(new byte[][] { { (byte) OP_HASH160 }, addressBytes, { (byte) OP_EQUAL } }));
       _p2shAddressBytes = addressBytes;
+   }
+
+   public boolean isNested() {
+      try {
+         depush(this._scriptBytes);
+         return true;
+      } catch (Exception e) {
+         return false;
+      }
+   }
+
+  public byte[] depush(byte[] script) throws Exception {
+      if (script.length == 0) {
+         throw new Exception("Empty script");
+      }
+      byte pushByte = script[0];
+      script = BitUtils.copyOfRange(script, 1, script.length);
+      if (pushByte < 1 || pushByte > 76) {
+         throw new Exception("Script does not start with PUSH opcode");
+      }
+      if (script.length != pushByte) {
+         throw new Exception("Script length is wrong");
+      }
+      return script;
    }
 
    /**

@@ -2,6 +2,7 @@ package com.mrd.bitlib
 
 import com.mrd.bitlib.crypto.*
 import com.mrd.bitlib.model.*
+import com.mrd.bitlib.util.BitUtils
 import com.mrd.bitlib.util.HexUtils
 import com.mrd.bitlib.util.HexUtils.toHex
 import org.junit.Assert
@@ -30,11 +31,11 @@ class SegWitTransactionTest {
         val tx = Transaction.fromBytes(HexUtils.toBytes(P2SH_P2WPKH_Unconfirmed))
         Assert.assertEquals(P2SH_P2WPKH_Unconfirmed, toHex(tx.toBytes()))
 
-        val input1 = UnspentTransactionOutput(tx.inputs[0].outPoint, 10,1000000000, ScriptOutput.fromScriptBytes(HexUtils.toBytes("001479091972186c449eb1ded22b78e40d009bdf0089")), true)
-        //val input1 = UnspentTransactionOutput(tx.inputs[0].outPoint, 10,1000000000, ScriptOutput.fromScriptBytes(tx.inputs[0].script.scriptBytes), false)
+        val input1 = UnspentTransactionOutput(tx.inputs[0].outPoint, 10,1000000000, ScriptOutput.fromScriptBytes(HexUtils.toBytes("a9144733f37cf4db86fbc2efed2500b4f4e49f31202387")), true)
+        val toBytes = HexUtils.toBytes("001479091972186c449eb1ded22b78e40d009bdf0089")
+        //redeem script is OP_0 -> pubkeyhash
         val unsignedTransaction = UnsignedTransaction(tx.outputs.asList(), arrayListOf(input1), publicKeyRing, NetworkParameters.productionNetwork, true, tx.lockTime, tx.inputs[0].sequence)
         val unsignedBytes = Transaction.fromUnsignedTransaction(unsignedTransaction).toBytes()
-        //Assert.assertEquals(P2SH_P2WPKH_Unconfirmed, toHex(unsignedBytes)) //TO THIS POINT EVERYTHING PRETTY good
 
         //print(unsignedTransaction.signingRequests[0]!!.toSign.bytes.map { it.toString() })
         //Assert.assertEquals(P2SH_P2WPKH_HashPreimage, HexUtils.toHex(unsignedTransaction.signingRequests[0]!!.toSign.bytes))
