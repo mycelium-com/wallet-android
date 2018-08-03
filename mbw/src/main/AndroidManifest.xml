@@ -82,10 +82,6 @@
                 android:resource="@xml/my_paths" />
         </provider>
 
-        <!--Service for bots module-->
-        <service android:name=".modularisation.TBMService"
-            android:exported="false"/>
-
         <!-- Service for Google Cloud Messaging -->
         <service android:name=".lt.notification.GcmIntentService" />
         <service
