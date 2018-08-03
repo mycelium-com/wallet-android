@@ -11,6 +11,7 @@ import com.mycelium.wapi.api.lib.FeeEstimation;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -74,7 +75,12 @@ public class FeeItemsBuilder {
 
         int i = 1;
         while (i < feeItems.size() - 2) {
-            if ( (float)feeItems.get(i + 1).feePerKb / feeItems.get(i).feePerKb < MIN_FEE_INCREMENT) {
+            FeeItem thisFeeItem = feeItems.get(i);
+            FeeItem nextFeeItem = feeItems.get(i + 1);
+            String thisFiatFee = thisFeeItem.currencyValue.getValue().setScale(2, BigDecimal.ROUND_HALF_DOWN).toString();
+            String nextFiatFee = nextFeeItem.currencyValue.getValue().setScale(2, BigDecimal.ROUND_HALF_DOWN).toString();
+            if ( (float)nextFeeItem.feePerKb / thisFeeItem.feePerKb < MIN_FEE_INCREMENT ||
+                    thisFiatFee.equals(nextFiatFee)) {
                 feeItems.remove(i + 1);
             } else {
                 i++;
