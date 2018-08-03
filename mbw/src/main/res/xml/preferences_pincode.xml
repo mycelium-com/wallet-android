@@ -15,5 +15,13 @@
             android:title="@string/pref_pin_require_on_startup"
             android:dependency="setPin"
             android:widgetLayout="@layout/preference_switch" />
+
+        <CheckBoxPreference
+            android:key="randomizePin"
+            android:layout="@layout/preference_layout_no_icon"
+            android:summary="@string/randomize_pin_text"
+            android:title="@string/randomize_pin"
+            android:dependency="setPin"
+            android:widgetLayout="@layout/preference_switch" />
     </PreferenceCategory>
 </PreferenceScreen>

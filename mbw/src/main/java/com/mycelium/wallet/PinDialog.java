@@ -46,6 +46,7 @@ import com.google.common.base.Strings;
 import com.mycelium.wallet.activity.util.Pin;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class PinDialog extends AppCompatDialog {
    public static final String PLACEHOLDER_TYPED = "\u25CF"; // Unicode Character 'BLACK CIRCLE' (which is a white circle in our dark theme)
@@ -64,6 +65,7 @@ public class PinDialog extends AppCompatDialog {
 
    protected OnPinEntered onPinValid = null;
    private boolean hidden;
+   protected boolean pinPadIsRandomized;
 
    public void setOnPinValid(OnPinEntered _onPinValid) {
       this.onPinValid = _onPinValid;
@@ -72,6 +74,7 @@ public class PinDialog extends AppCompatDialog {
    public PinDialog(Context context, boolean hidden, boolean cancelable) {
       super(context);
       getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
+      pinPadIsRandomized = MbwManager.getInstance(context).isPinPadRandomized();
       this.hidden = hidden;
       setCancelable(cancelable);
       setCanceledOnTouchOutside(false);
@@ -80,6 +83,7 @@ public class PinDialog extends AppCompatDialog {
       enteredPin = "";
       clearDigits();
       updatePinDisplay();
+
       this.setTitle(R.string.pin_enter_pin);
    }
 
@@ -101,18 +105,28 @@ public class PinDialog extends AppCompatDialog {
       buttons.add( ((Button) findViewById(R.id.pin_button8)));
       buttons.add( ((Button) findViewById(R.id.pin_button9)));
 
+      ArrayList<Integer> numbers = new ArrayList<>();
+      for (int i = 0; i < 10; i++) {
+         numbers.add(i);
+      }
+      if (pinPadIsRandomized) {
+         Collections.shuffle(numbers);
+      }
+      for (int i = 0; i < 10; i++) {
+         buttons.get(i).setText(numbers.get(i).toString());
+      }
+
       btnClear = (Button) findViewById(R.id.pin_clr);
       btnBack = (Button) findViewById(R.id.pin_back);
-      int cnt=0;
+
       for (Button b : buttons) {
-         final int akCnt = cnt;
+         final int num = Integer.parseInt(b.getText().toString());
          b.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               addDigit(String.valueOf(akCnt));
+               addDigit(String.valueOf(num));
             }
          });
-         cnt++;
       }
 
       btnBack.setOnClickListener(new View.OnClickListener() {
