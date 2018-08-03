@@ -274,7 +274,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
             _latestRates.put(response.currency, response);
 
             for(ExchangeRate rate : response.exchangeRates) {
-                storage.storeExchangeRate(BTC, rate.currency, rate.name, rate.price.toString());
+                storage.storeExchangeRate(BTC, rate.currency, rate.name, String.valueOf(rate.price));
             }
         }
         _latestRatesTime = System.currentTimeMillis();
