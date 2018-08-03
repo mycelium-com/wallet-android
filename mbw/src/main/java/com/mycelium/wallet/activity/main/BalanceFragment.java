@@ -329,10 +329,12 @@ public class BalanceFragment extends Fragment {
           if (!_mbwManager.hasFiatCurrency()) {
              // No fiat currency selected by user
              tvBtcRate.setVisibility(View.INVISIBLE);
+             _tcdFiatDisplay.setVisibility(View.GONE);
              exchangeSourceLayout.setVisibility(View.GONE);
           } else if (_exchangeRatePrice == null) {
              // We have no price, exchange not available
              tvBtcRate.setVisibility(View.VISIBLE);
+             _tcdFiatDisplay.setVisibility(View.GONE);
              tvBtcRate.setText(getResources().getString(R.string.exchange_source_not_available, _mbwManager.getExchangeRateManager().getCurrentExchangeSourceName() ));
              exchangeSource.setText(_mbwManager.getExchangeRateManager().getCurrentExchangeSourceName());
              exchangeSourceLayout.setVisibility(View.VISIBLE);
