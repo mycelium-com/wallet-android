@@ -7,16 +7,16 @@ import com.mycelium.wallet.BuildConfig
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R.string.partner_commas_url
 
-private const val TBM_PACKAGE = "com.castor.threecommas.tradingbotsmodule"
+private const val TSM_PACKAGE = BuildConfig.appIdTsm
 private const val PERMISSION = "${BuildConfig.APPLICATION_ID}.permission.M2W_MESSAGE"
 
-class TBMHelper(private val context: Context) {
+class TSMHelper(private val context: Context) {
 
     companion object {
         private const val RECEIVE_TX_ID = "receive_tx_id"
         private const val TRANSACTION_ID = "transaction_id"
         private const val REQUEST_SIGNATURE = "com.mycelium.wallet.signData"
-        private const val OPEN_COMMAS = "com.mycelium.action.OPEN_COMMAS_MODULE"
+        private const val OPEN_COMMAS = "com.mycelium.action.OPEN_MODULE"
     }
 
     init {
@@ -26,14 +26,16 @@ class TBMHelper(private val context: Context) {
     fun sendTxIdToModule(id: String) {
         val transferIntent = Intent(RECEIVE_TX_ID).also {
             it.putExtra(TRANSACTION_ID, id)
-            it.`package` = TBM_PACKAGE
+            it.`package` = TSM_PACKAGE
         }
         context.sendBroadcast(transferIntent, PERMISSION)
     }
 
     fun openModule(activity: Activity?) {
         try {
-            activity?.startActivityForResult(Intent(OPEN_COMMAS), 1)
+            val intent = Intent(OPEN_COMMAS)
+            intent.`package` = TSM_PACKAGE
+            activity?.startActivityForResult(intent, 1)
         } catch (e: ActivityNotFoundException) {
             val installIntent = Intent(Intent.ACTION_VIEW)
             installIntent.data = Uri.parse(context.getString(partner_commas_url))
@@ -61,7 +63,7 @@ class TBMRequestReceiver : BroadcastReceiver() {
         val transferIntent = Intent(RECEIVE_SIGNATURE).also {
             it.putExtra(SIGNATURE, signature)
             it.putExtra(MYCELIUM_ID, myceliumId)
-            it.`package` = TBM_PACKAGE
+            it.`package` = TSM_PACKAGE
         }
         context.sendBroadcast(transferIntent, PERMISSION)
     }

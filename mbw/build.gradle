@@ -203,6 +203,9 @@ android {
 
                 appIdSpvBch = [release: "com.mycelium.module.spvbch",
                                debug  : "com.mycelium.module.spvbch.debug"]
+
+                appIdTsm = [release: "com.castor.threecommas.tradingbotsmodule",
+                            debug  : "com.castor.threecommas.tradingbotsmodule.debug"]
             }
             logger.info("Signing config is ", signingConfig)
         }
@@ -224,6 +227,9 @@ android {
 
                 appIdSpvBch = [release: "com.mycelium.module.spvbch.testnet",
                                debug  : "com.mycelium.module.spvbch.testnet.debug"]
+
+                appIdTsm = [release: "com.castor.threecommas.tradingbotsmodule.testnet",
+                            debug  : "com.castor.threecommas.tradingbotsmodule.testnet.debug"]
             }
             logger.info("Signing config is ", signingConfig)
         }
@@ -240,6 +246,7 @@ android {
         variant.buildConfigField "String", "RMCChangeAddress", "\"${flavor.ext.RMCChangeAddress}\""
         variant.buildConfigField "String[]", "ElectrumServers", "${flavor.ext.ElectrumServers}"
         variant.buildConfigField "String", "appIdSpvBch", "\"${flavor.ext.appIdSpvBch[variant.buildType.name]}\""
+        variant.buildConfigField "String", "appIdTsm", "\"${flavor.ext.appIdTsm[variant.buildType.name]}\""
     }
 
     testOptions {

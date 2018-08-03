@@ -124,7 +124,7 @@ public class BroadcastTransactionActivity extends Activity {
       AsyncTask<Void, Integer, WalletAccount.BroadcastResult> task = new AsyncTask<Void, Integer, WalletAccount.BroadcastResult>() {
          @Override
          protected WalletAccount.BroadcastResult doInBackground(Void... args) {
-            _mbwManager.getTBMHelper().sendTxIdToModule(_transaction.getId().toString());
+            _mbwManager.getTSMHelper().sendTxIdToModule(_transaction.getId().toString());
             if (!Utils.isConnected(BroadcastTransactionActivity.this)) {
                return WalletAccount.BroadcastResult.NO_SERVER_CONNECTION;
             }

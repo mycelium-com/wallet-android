@@ -200,6 +200,8 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         Map<WalletAccount.Type, String> spvModulesMapping = new HashMap<>();
         spvModulesMapping.put(WalletAccount.Type.BCHBIP44, BuildConfig.appIdSpvBch);
         spvModulesMapping.put(WalletAccount.Type.BCHSINGLEADDRESS, BuildConfig.appIdSpvBch);
+        spvModulesMapping.put(WalletAccount.Type.BTCBIP44, BuildConfig.appIdTsm);
+        spvModulesMapping.put(WalletAccount.Type.BTCSINGLEADDRESS, BuildConfig.appIdTsm);
         return spvModulesMapping;
     }
 

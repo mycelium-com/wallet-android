@@ -175,7 +175,7 @@ public class BuySellFragment extends Fragment implements ButtonClickListener {
                 Ads.INSTANCE.openApex(getActivity());
                 break;
             case EXTRA_BTC_ACTION:
-                MbwManager.getInstance(getContext()).getTBMHelper().openModule(getActivity());
+                MbwManager.getInstance(getContext()).getTSMHelper().openModule(getActivity());
                 break;
         }
     }
