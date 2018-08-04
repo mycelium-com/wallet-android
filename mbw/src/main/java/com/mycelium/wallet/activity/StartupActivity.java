@@ -40,7 +40,6 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
 import android.net.Uri;
 import android.nfc.NfcAdapter;
 import android.os.AsyncTask;
@@ -142,6 +141,12 @@ public class StartupActivity extends Activity {
          //in case this is a fresh startup, import backup or create new seed
          if (!_mbwManager.getWalletManager(false).hasBip32MasterSeed()) {
             initMasterSeed();
+            return;
+         }
+
+         // in case the masterSeed was created but account does not exist yet (rotation problem)
+         if (_mbwManager.getWalletManager(false).getActiveAccounts().size() == 0) {
+            startMasterSeedTask();
             return;
          }
 
