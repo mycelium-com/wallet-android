@@ -9,6 +9,7 @@ import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.request.RequestOptions
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.news.NewsUtils
+import com.mycelium.wallet.activity.news.getFitImage
 import com.mycelium.wallet.activity.util.NewsMoreRoundedCorners
 import com.mycelium.wallet.external.mediaflow.model.News
 import kotlinx.android.synthetic.main.item_more_news.view.*
@@ -35,7 +36,7 @@ class MoreNewsAdapter : RecyclerView.Adapter<MoreNewsAdapter.ViewHolder>() {
         val requestOptions = RequestOptions()
                 .transforms(CenterCrop(), NewsMoreRoundedCorners(holder.itemView.image.resources.getDimensionPixelSize(R.dimen.media_flow_round_corner)))
         Glide.with(holder.itemView.image)
-                .load(news.image)
+                .load(news.getFitImage(holder.itemView.resources.getDimensionPixelSize(R.dimen.mediaflow_more_image_size)))
                 .error(Glide.with(holder.itemView.image)
                         .load(R.drawable.news_default_image)
                         .apply(requestOptions))

@@ -17,6 +17,7 @@ import com.mycelium.wallet.activity.modern.adapter.holder.LinksViewHolder
 import com.mycelium.wallet.activity.modern.adapter.holder.NewsViewHolder
 import com.mycelium.wallet.activity.modern.adapter.holder.SpaceViewHolder
 import com.mycelium.wallet.activity.news.NewsUtils
+import com.mycelium.wallet.activity.news.getFitImage
 import com.mycelium.wallet.external.mediaflow.model.News
 import kotlinx.android.synthetic.main.item_news.view.*
 
@@ -82,15 +83,13 @@ class NewsAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             newsViewHolder.itemView.read_check.visibility = if (news.isRead) View.VISIBLE else View.GONE
             val requestOptions = RequestOptions()
                     .transforms(CenterCrop(), RoundedCorners(newsViewHolder.itemView.image.resources.getDimensionPixelSize(R.dimen.media_flow_round_corner)))
-            newsViewHolder.itemView.post {
-                Glide.with(newsViewHolder.itemView.image)
-                        .load(news.image)
-                        .error(Glide.with(newsViewHolder.itemView.image)
-                                .load(R.drawable.news_default_image)
-                                .apply(requestOptions))
-                        .apply(requestOptions)
-                        .into(newsViewHolder.itemView.image)
-            }
+            Glide.with(newsViewHolder.itemView.image)
+                    .load(news.getFitImage(newsViewHolder.itemView.image.resources.displayMetrics.widthPixels))
+                    .error(Glide.with(newsViewHolder.itemView.image)
+                            .load(R.drawable.news_default_image)
+                            .apply(requestOptions))
+                    .apply(requestOptions)
+                    .into(newsViewHolder.itemView.image)
             newsViewHolder.share.setOnClickListener {
                 shareClickListener?.invoke(news)
             }
@@ -133,3 +132,4 @@ class NewsAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         const val TYPE_LINKS = 2
     }
 }
+

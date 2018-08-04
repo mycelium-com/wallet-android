@@ -112,7 +112,7 @@ class NewsActivity : AppCompatActivity() {
             }
         }
         Glide.with(image)
-                .load(news.image)
+                .load(news.getFitImage(resources.displayMetrics.widthPixels))
                 .apply(RequestOptions().centerCrop().error(R.drawable.news_default_image))
                 .into(image)
         moreNewsList.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)

@@ -1,6 +1,7 @@
 package com.mycelium.wallet.activity.news
 
 import android.content.Context
+import android.content.res.Resources
 import android.text.format.DateUtils
 import com.mycelium.wallet.R
 import com.mycelium.wallet.external.mediaflow.model.News
@@ -24,4 +25,19 @@ object NewsUtils {
                     "${context.getString(R.string.bullet)} ${news.author.name}"
                 } else ""
     }
+}
+
+fun News.getFitImage(width:Int): String {
+    var result = this.image
+    val regexp = Regex(pattern = "fit=([0-9]*?)%2C([0-9]*?)&")
+    val matchResult = regexp.find(this.image)
+    if (matchResult != null) {
+        val serverWidth = matchResult.groupValues[1].toInt()
+        val serverHeight = matchResult.groupValues[2].toInt()
+        if (serverWidth > width) {
+            val height = width * serverHeight / serverWidth
+            result = this.image.replace(regexp, "fit=$width%2C$height&")
+        }
+    }
+    return result
 }
