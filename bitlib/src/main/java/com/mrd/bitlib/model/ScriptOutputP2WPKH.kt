@@ -30,11 +30,6 @@ class ScriptOutputP2WPKH : ScriptOutput, Serializable {
         throw NotImplementedError()
     }
 
-    constructor(addressBytes: ByteArray) : super(Script.scriptEncodeChunks(arrayOf<ByteArray>(byteArrayOf(Script.OP_HASH160.toByte()), addressBytes, byteArrayOf(Script.OP_EQUAL.toByte())))) {
-       // p2pkhAddressBytes = addressBytes
-        throw NotImplementedError()
-    }
-
     /**
      * Get the raw p2sh address that this output is for.
      *
@@ -58,10 +53,7 @@ class ScriptOutputP2WPKH : ScriptOutput, Serializable {
             if (!Script.isOP(chunks[0], Script.OP_FALSE)) {
                 return false
             }
-            if (!Script.isOP(chunks[1], Script.OP_PUSH20)) {
-                return false
-            }
-            return Script.scriptEncodeChunks(chunks).size == 34
+            return chunks[1].size == 20
         }
     }
 }

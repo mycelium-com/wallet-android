@@ -28,7 +28,7 @@ import kotlin.experimental.and
 
 class PublicKey(val publicKeyBytes: ByteArray) : Serializable {
     val publicKeyHash: ByteArray by lazy { HashUtils.addressHash(publicKeyBytes) }
-    private val pubKeyHashCompressed: ByteArray by lazy { HashUtils.addressHash(compressPublicKey(publicKeyBytes)) }
+    val pubKeyHashCompressed: ByteArray by lazy { HashUtils.addressHash(compressPublicKey(publicKeyBytes)) }
     val Q: Point by lazy { Parameters.curve.decodePoint(publicKeyBytes) }
 
     /**
@@ -39,7 +39,7 @@ class PublicKey(val publicKeyBytes: ByteArray) : Serializable {
 
     fun toAddress(networkParameters: NetworkParameters): Address {
         val hashedPublicKey = publicKeyHash
-        return Address.fromStandardBytes(hashedPublicKey, networkParameters)
+        return toP2SH_P2WPKHSegwitAddress(networkParameters)
     }
 
     fun toP2SH_P2WPKHSegwitAddress(networkParameters: NetworkParameters): P2SH_P2WPKHAddress {

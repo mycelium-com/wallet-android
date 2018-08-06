@@ -338,58 +338,6 @@ public class Transaction implements Serializable {
         return _unmalleableHash;
     }
 
-    public Sha256Hash getTxDigestHash(int i) {
-        ByteWriter writer = new ByteWriter(1024);
-        if (isSegwit) {
-            writer.putIntLE(version);
-
-            writer.putBytes(getPrevOutsHash().getBytes());
-            writer.putBytes(getSequenceHash().getBytes());
-
-            writer.putBytes(inputs[i].getScriptCode());
-            writer.putLongLE(inputs[i].getValue());
-            writer.putBytes(getOutputsHash().getBytes());
-            writer.putIntLE(lockTime);
-            int hashType = 1;
-            writer.putIntLE(hashType);
-        } else {
-            toByteWriter(writer);
-            // We also have to write a hash type.
-            int hashType = 1;
-            writer.putIntLE(hashType);
-            // Note that this is NOT reversed to ensure it will be signed
-            // correctly. If it were to be printed out
-            // however then we would expect that it is IS reversed.
-        }
-        return HashUtils.doubleSha256(writer.toBytes());
-    }
-
-    private Sha256Hash getPrevOutsHash() {
-        ByteWriter writer = new ByteWriter(1024);
-        for (TransactionInput input : inputs) {
-            input.outPoint.hashPrevOutToByteWriter(writer);
-        }
-
-        return HashUtils.doubleSha256(writer.toBytes());
-    }
-
-    private Sha256Hash getOutputsHash() {
-        ByteWriter writer = new ByteWriter(1024);
-        for (TransactionOutput output : outputs) {
-            writer.putLongLE(output.value);
-            writer.putBytes(output.script.getScriptBytes());
-        }
-        return HashUtils.doubleSha256(writer.toBytes());
-    }
-
-    private Sha256Hash getSequenceHash() {
-        ByteWriter writer = new ByteWriter(1024);
-        for (TransactionInput input : inputs) {
-            writer.putIntLE(input.sequence);
-        }
-        return HashUtils.doubleSha256(writer.toBytes());
-    }
-
     @Override
     public String toString() {
         return String.valueOf(getId()) + " in: " + inputs.length + " out: " + outputs.length;

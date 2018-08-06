@@ -94,6 +94,7 @@ public class TransactionInput implements Serializable {
       writer.putSha256Hash(outPoint.txid, true);
       writer.putIntLE(outPoint.index);
       byte[] script = getScript().getScriptBytes();
+      writer.putCompactInt(script.length + 1); // TODO some strange hack, do not merge without investigation
       writer.putCompactInt(script.length);
       writer.putBytes(script);
       writer.putIntLE(sequence);
@@ -137,22 +138,6 @@ public class TransactionInput implements Serializable {
 
    public InputWitness getWitness() {
       return witness;
-   }
-
-   public byte[] getScriptCode() {
-      ByteWriter byteWriter = new ByteWriter(1024);
-      ScriptOutput script = ScriptOutput.fromScriptBytes(this.script._scriptBytes);
-      if (script instanceof ScriptOutputP2SH) {
-         ((ScriptOutputP2SH) script).isNested();
-         throw new NotImplementedException();
-      } else if (script instanceof ScriptOutputP2WSH) {
-         throw new NotImplementedException();
-      } else if (script instanceof ScriptOutputP2WPKH){
-         throw new NotImplementedException();
-      } else {
-         throw new IllegalArgumentException("No scriptcode for " + script.getClass().getCanonicalName());
-      }
-      //return byteWriter.toBytes();
    }
 
    public void setWitness(InputWitness witness) {

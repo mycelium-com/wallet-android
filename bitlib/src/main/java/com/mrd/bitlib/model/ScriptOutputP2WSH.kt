@@ -30,10 +30,6 @@ class ScriptOutputP2WSH : ScriptOutput, Serializable {
         throw NotImplementedError()
     }
 
-    constructor(addressBytes: ByteArray) : super(Script.scriptEncodeChunks(arrayOf<ByteArray>(byteArrayOf(Script.OP_HASH160.toByte()), addressBytes, byteArrayOf(Script.OP_EQUAL.toByte())))) {
-        //p2wshAddressBytes = addressBytes
-        throw NotImplementedError()
-    }
 
     /**
      * Get the raw p2sh address that this output is for.

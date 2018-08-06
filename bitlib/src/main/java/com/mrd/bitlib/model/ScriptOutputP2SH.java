@@ -51,29 +51,29 @@ public class ScriptOutputP2SH extends ScriptOutput implements Serializable {
       _p2shAddressBytes = addressBytes;
    }
 
-   public boolean isNested() {
-      try {
-         depush(this._scriptBytes);
-         return true;
-      } catch (Exception e) {
-         return false;
-      }
-   }
-
-  public byte[] depush(byte[] script) throws Exception {
-      if (script.length == 0) {
-         throw new Exception("Empty script");
-      }
-      byte pushByte = script[0];
-      script = BitUtils.copyOfRange(script, 1, script.length);
-      if (pushByte < 1 || pushByte > 76) {
-         throw new Exception("Script does not start with PUSH opcode");
-      }
-      if (script.length != pushByte) {
-         throw new Exception("Script length is wrong");
-      }
-      return script;
-   }
+//   public boolean isNested() {
+//      try {
+//         depush(this._scriptBytes);
+//         return true;
+//      } catch (Exception e) {
+//         return false;
+//      }
+//   }
+// TODO remove? SEGWIT
+//  public static byte[] depush(byte[] script) throws Exception {
+//      if (script.length == 0) {
+//         throw new Exception("Empty script");
+//      }
+//      byte pushByte = script[0];
+//      script = BitUtils.copyOfRange(script, 1, script.length);
+//      if (pushByte < 1 || pushByte > 76) {
+//         throw new Exception("Script does not start with PUSH opcode");
+//      }
+//      if (script.length != pushByte) {
+//         throw new Exception("Script length is wrong");
+//      }
+//      return script;
+//   }
 
    /**
     * Get the raw p2sh address that this output is for.

@@ -26,6 +26,7 @@ import com.mrd.bitlib.crypto.BitcoinSigner;
 import com.mrd.bitlib.crypto.IPrivateKeyRing;
 import com.mrd.bitlib.crypto.IPublicKeyRing;
 import com.mrd.bitlib.model.*;
+import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 
 import java.util.*;
@@ -189,7 +190,7 @@ public class StandardTransactionBuilder {
          outputs.add(position, changeOutput);
       }
 
-      UnsignedTransaction unsignedTransaction = new UnsignedTransaction(outputs, funding, keyRing, network);
+      UnsignedTransaction unsignedTransaction = new UnsignedTransaction(outputs, funding, keyRing, network, isSegwit, 0, UnsignedTransaction.NO_SEQUENCE);
 
       // check if we have a reasonable Fee or throw an error otherwise
       int estimateTransactionSize = estimateTransactionSize(unsignedTransaction.getFundingOutputs().length,
@@ -197,7 +198,7 @@ public class StandardTransactionBuilder {
       long calculatedFee = unsignedTransaction.calculateFee();
       float estimatedFeePerKb;
       if (isSegwit) {
-         estimatedFeePerKb = (long) ((float) calculatedFee / ((float) estimateTransactionSize / 1000)); // TODO change
+         estimatedFeePerKb = (long) ((float) calculatedFee / ((float) estimateTransactionSize / 1000)); // TODO change segwit
       } else {
          estimatedFeePerKb = (long) ((float) calculatedFee / ((float) estimateTransactionSize / 1000));
       }
@@ -304,18 +305,28 @@ public class StandardTransactionBuilder {
    }
 
    public static Transaction finalizeTransaction(UnsignedTransaction unsigned, List<byte[]> signatures) {
+      boolean isSegwit = false;
       // Create finalized transaction inputs
       final UnspentTransactionOutput[] funding = unsigned.getFundingOutputs();
       TransactionInput[] inputs = new TransactionInput[funding.length];
       for (int i = 0; i < funding.length; i++) {
-         // Create script from signature and public key
-         ScriptInputStandard script = new ScriptInputStandard(signatures.get(i),
-             unsigned.getSigningRequests()[i].getPublicKey().getPublicKeyBytes());
-         inputs[i] = new TransactionInput(funding[i].outPoint, script, unsigned.getDefaultSequenceNumber(), funding[i].value);
+         if (funding[i].isSegwit()) {
+            isSegwit = true;
+            inputs[i] = unsigned.getInputs()[i];
+            InputWitness witness = new InputWitness(2);
+            witness.setStack(0, signatures.get(i));      // TODO check if it should be so
+            witness.setStack(1, unsigned.getSigningRequests()[i].getPublicKey().getPublicKeyBytes());
+            inputs[i].setWitness(witness);
+         } else {
+            // Create script from signature and public key
+            ScriptInputStandard script = new ScriptInputStandard(signatures.get(i),
+                    unsigned.getSigningRequests()[i].getPublicKey().getPublicKeyBytes());
+            inputs[i] = new TransactionInput(funding[i].outPoint, script, unsigned.getDefaultSequenceNumber(), funding[i].value);
+         }
       }
 
       // Create transaction with valid outputs and empty inputs
-      return new Transaction(1, inputs, unsigned.getOutputs(), unsigned.getLockTime(), false);
+      return new Transaction(1, inputs, unsigned.getOutputs(), unsigned.getLockTime(), isSegwit);
    }
 
    private long outputSum() {
@@ -324,13 +335,6 @@ public class StandardTransactionBuilder {
          sum += output.value;
       }
       return sum;
-   }
-
-   /**
-    * @param index - TODO segwit
-    */
-   static Sha256Hash hashTransaction(Transaction t, int index) {
-      return t.getTxDigestHash(index);
    }
 
    /**

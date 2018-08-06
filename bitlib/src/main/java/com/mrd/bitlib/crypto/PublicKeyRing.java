@@ -32,9 +32,9 @@ public class PublicKeyRing implements IPublicKeyRing {
     private Map<Address, PublicKey> _publicKeys;
 
     public PublicKeyRing() {
-        _addresses = new ArrayList<Address>();
-        _addressSet = new HashSet<Address>();
-        _publicKeys = new HashMap<Address, PublicKey>();
+        _addresses = new ArrayList<>();
+        _addressSet = new HashSet<>();
+        _publicKeys = new HashMap<>();
     }
 
     /**
