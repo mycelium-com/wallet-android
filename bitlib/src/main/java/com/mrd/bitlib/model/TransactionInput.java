@@ -94,7 +94,6 @@ public class TransactionInput implements Serializable {
       writer.putSha256Hash(outPoint.txid, true);
       writer.putIntLE(outPoint.index);
       byte[] script = getScript().getScriptBytes();
-      writer.putCompactInt(script.length + 1); // TODO some strange hack, do not merge without investigation
       writer.putCompactInt(script.length);
       writer.putBytes(script);
       writer.putIntLE(sequence);

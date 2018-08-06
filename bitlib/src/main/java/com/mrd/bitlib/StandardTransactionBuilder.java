@@ -145,6 +145,8 @@ public class StandardTransactionBuilder {
                                                         Address changeAddress, IPublicKeyRing keyRing,
                                                         NetworkParameters network, long minerFeeToUse)
        throws InsufficientFundsException, UnableToBuildTransactionException {
+      boolean isSegwit = true; // TODO somehow decide
+
       // Make a copy so we can mutate the list
       List<UnspentTransactionOutput> unspent = new LinkedList<>(inventory);
       CoinSelector coinSelector = new FifoCoinSelector(minerFeeToUse, unspent);
@@ -161,11 +163,7 @@ public class StandardTransactionBuilder {
       fee = estimateFee(funding.size(), outputsSizeInFeeEstimation, minerFeeToUse);
 
       long found = 0;
-      boolean isSegwit = false;
       for (UnspentTransactionOutput output : funding) {
-         if (output.isSegwit()) {
-            isSegwit = true;
-         }
          found += output.value;
       }
       // We have found all the funds we need
@@ -305,13 +303,11 @@ public class StandardTransactionBuilder {
    }
 
    public static Transaction finalizeTransaction(UnsignedTransaction unsigned, List<byte[]> signatures) {
-      boolean isSegwit = false;
       // Create finalized transaction inputs
       final UnspentTransactionOutput[] funding = unsigned.getFundingOutputs();
       TransactionInput[] inputs = new TransactionInput[funding.length];
       for (int i = 0; i < funding.length; i++) {
-         if (funding[i].isSegwit()) {
-            isSegwit = true;
+         if (unsigned.isSegwit()) {
             inputs[i] = unsigned.getInputs()[i];
             InputWitness witness = new InputWitness(2);
             witness.setStack(0, signatures.get(i));      // TODO check if it should be so
@@ -326,7 +322,7 @@ public class StandardTransactionBuilder {
       }
 
       // Create transaction with valid outputs and empty inputs
-      return new Transaction(1, inputs, unsigned.getOutputs(), unsigned.getLockTime(), isSegwit);
+      return new Transaction(1, inputs, unsigned.getOutputs(), unsigned.getLockTime(), unsigned.isSegwit());
    }
 
    private long outputSum() {

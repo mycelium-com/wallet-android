@@ -7,12 +7,12 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException
 
 import java.io.Serializable
 
-open class UnsignedTransaction(
+open class UnsignedTransaction constructor(
         outputs: List<TransactionOutput>,
         funding: List<UnspentTransactionOutput>,
         keyRing: IPublicKeyRing,
         private val network: NetworkParameters,
-        isSegwit: Boolean,
+        val isSegwit: Boolean,
         val lockTime: Int = 0,
         val defaultSequenceNumber: Int = NO_SEQUENCE
 ) : Serializable {
@@ -57,8 +57,12 @@ open class UnsignedTransaction(
 
             if (utxo.script is ScriptOutputP2SH) {
                 val inpScriptBytes = BitUtils.concatenate(byteArrayOf(Script.OP_0.toByte(), publicKey.pubKeyHashCompressed.size.toByte()), publicKey.pubKeyHashCompressed)
-                val inputScript = ScriptInput.fromScriptBytes(inpScriptBytes)
+                val inputScript = ScriptInput.fromScriptBytes(BitUtils.concatenate(byteArrayOf((inpScriptBytes.size and 0xFF).toByte()), inpScriptBytes))
                 transaction.inputs[i].script = inputScript
+            } else if (utxo.script is ScriptOutputP2WPKH) {
+                throw NotImplementedError()
+            } else if (utxo.script is ScriptOutputP2WSH) {
+                throw NotImplementedError()
             }
             // Calculate the transaction hash that has to be signed
             val hash = getTxDigestHash(transaction, i)
@@ -73,7 +77,6 @@ open class UnsignedTransaction(
         val writer = ByteWriter(1024)
         if (transaction.isSegwit) {
             writer.putIntLE(transaction.version)
-
             writer.putBytes(transaction.getPrevOutsHash().bytes)
             writer.putBytes(transaction.getSequenceHash().bytes)
             transaction.inputs[i].outPoint.hashPrevOutToByteWriter(writer)
@@ -127,14 +130,13 @@ open class UnsignedTransaction(
     private fun TransactionInput.getScriptCode(): ByteArray {
         val byteWriter = ByteWriter(1024)
         if (script is ScriptOutputP2SH) {
-
             throw NotImplementedException()
         } else if (script is ScriptInputP2WSH) {
             throw NotImplementedException()
         } else if (script is ScriptInputP2WPKH) {
             byteWriter.put(Script.OP_DUP.toByte())
             byteWriter.put(Script.OP_HASH160.toByte())
-            val witnessProgram = ScriptInput.getWitnessProgram(script.scriptBytes)
+            val witnessProgram = ScriptInput.getWitnessProgram(ScriptInput.depush(script.scriptBytes))
             byteWriter.put((0xFF and witnessProgram.size).toByte())
             byteWriter.putBytes(witnessProgram)
             byteWriter.put(Script.OP_EQUALVERIFY.toByte())

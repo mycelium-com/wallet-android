@@ -41,8 +41,6 @@ class SegWitTransactionTest {
                 unsignedTransaction.signingRequests,
                 privateKeyRing
         )
-
-
         val finalTx = StandardTransactionBuilder.finalizeTransaction(unsignedTransaction, signatures)
         Assert.assertEquals(P2SH_P2WPKH_SerializedSigned, toHex(finalTx.toBytes()))
     }

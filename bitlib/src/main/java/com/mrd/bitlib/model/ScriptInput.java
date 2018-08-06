@@ -31,8 +31,8 @@ public class ScriptInput extends Script {
          return new ScriptInputPubKey(chunks, scriptBytes);
       } else if (ScriptInputP2SHMultisig.isScriptInputP2SHMultisig(chunks)) {
          return new ScriptInputP2SHMultisig(chunks, scriptBytes);
-      } else if (isWitnessProgram(scriptBytes)) {
-         byte[] witnessProgram = getWitnessProgram(scriptBytes);
+      } else if (isWitnessProgram(depush(scriptBytes))) {
+         byte[] witnessProgram = getWitnessProgram(depush(scriptBytes));
          if (witnessProgram.length == 20) {
             return new ScriptInputP2WPKH(scriptBytes);
          } else if (witnessProgram.length == 32) {
@@ -65,6 +65,21 @@ public class ScriptInput extends Script {
       }
       return BitUtils.copyOfRange(scriptBytes, 2, scriptBytes.length);
    }
+
+    public static byte[] depush(byte[] script) throws ScriptParsingException {
+        if (script.length == 0) {
+            throw new ScriptParsingException("Empty script");
+        }
+        byte pushByte = script[0];
+        script = BitUtils.copyOfRange(script, 1, script.length);
+        if (pushByte < 1 || pushByte > 76) {
+            throw new ScriptParsingException("Script does not start with PUSH opcode");
+        }
+        if (script.length != pushByte) {
+            throw new ScriptParsingException("Script length is wrong");
+        }
+        return script;
+    }
 
    /**
     * Construct an input script from an output script.
