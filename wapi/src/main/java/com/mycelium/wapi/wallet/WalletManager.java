@@ -1010,7 +1010,7 @@ public class WalletManager {
      * @throws InvalidKeyCipher if the cipher is invalid
      */
     public void configureBip32MasterSeed(Bip39.MasterSeed masterSeed, KeyCipher cipher) throws InvalidKeyCipher {
-        if (hasBip32MasterSeed() && getActiveAccounts().size() > 0) {
+        if (hasBip32MasterSeed()) {
             throw new RuntimeException("HD key store already loaded");
         }
         _secureKeyValueStore.encryptAndStoreValue(MASTER_SEED_ID, masterSeed.toBytes(false), cipher);
