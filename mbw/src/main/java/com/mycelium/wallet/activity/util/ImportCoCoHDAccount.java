@@ -111,17 +111,16 @@ public class ImportCoCoHDAccount extends AsyncTask<Void, Integer, UUID> {
                 emptyHD = 0;
                 continue;
             }
+            if (coluManager.isColoredAddress(address)) {
+                empty = 0;
+                emptyHD = 0;
+            } else {
+                empty++;
+            }
             try {
-                if (coluManager.isColoredAddress(address)) {
-                    empty = 0;
-                    emptyHD = 0;
-                } else {
-                    empty++;
-                }
                 addCoCoAccount(coluManager, currentNode, address);
             } catch (IOException e) {
                 e.printStackTrace();
-                empty++;
             }
             publishProgress(++scanned);
             if (empty == coloredLookAhead && empty == addressIndex + 1) {
