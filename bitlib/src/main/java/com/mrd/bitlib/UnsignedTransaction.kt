@@ -64,7 +64,6 @@ open class UnsignedTransaction constructor(
             // Calculate the transaction hash that has to be signed
             val hash = transaction.getTxDigestHash(i)
             // Set the input to the empty script again
-            // TODO SegWit evaluate possibly required for non-segwit transactions, but is it???
             if (!isSegwit) {
                 inputs[i] = TransactionInput(fundingOutputs[i].outPoint, ScriptInput.EMPTY, NO_SEQUENCE, fundingOutputs[i].value)
             }
