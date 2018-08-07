@@ -83,7 +83,7 @@ class WapiClientElectrumX(
                             it.value, requestAddressesList[0].network).script
                     unspent.add(TransactionOutputEx(OutPoint(Sha256Hash.fromString(it.txHash), it.txPos), if (it.height > 0) it.height else -1 ,
                             it.value, script.scriptBytes,
-                            script.isCoinBase, false))
+                            script.isCoinBase))
                 }
             }
 

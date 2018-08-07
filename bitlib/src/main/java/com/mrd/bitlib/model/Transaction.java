@@ -313,13 +313,6 @@ public class Transaction implements Serializable {
     }
 
     /**
-     * @return true if transaction is SegWit else false
-     */
-    public boolean isSegwit() {
-        return isSegwit;
-    }
-
-    /**
      * Calculate the unmalleable hash of this transaction. If the signature bytes
      * for an input cannot be determined the result is null
      */

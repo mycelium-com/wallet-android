@@ -109,7 +109,7 @@ public class TransactionEx implements Serializable, Comparable<TransactionEx> {
       }
       TransactionOutput output = t.outputs[index];
       return new TransactionOutputEx(new OutPoint(tex.txid, index), tex.height, output.value,
-            output.script.getScriptBytes(), t.isCoinbase(), t.isSegwit());
+            output.script.getScriptBytes(), t.isCoinbase());
    }
 
    public int calculateConfirmations(int blockHeight) {
