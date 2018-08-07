@@ -20,6 +20,7 @@ import java.io.IOException;
 
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.MrdExport;
+import com.mrd.bitlib.model.AddressType;
 
 public class BackupUtil {
    private final String encryptedPrivateKey;
@@ -61,7 +62,8 @@ public class BackupUtil {
          String privateKey = MrdExport.V1.decryptPrivateKey(parameters, encryptedPrivateKey, header.network);
          InMemoryPrivateKey key = new InMemoryPrivateKey(privateKey, header.network);
          return "Private key (Wallet Import Format): " + key.getBase58EncodedPrivateKey(header.network) +
-               "\n                   Bitcoin Address: " + key.getPublicKey().toAddress(header.network);
+               "\n                   Bitcoin Address: " + key.getPublicKey().toAddress(header.network, AddressType.P2PKH) +
+               "\n                   Bitcoin Address: " + key.getPublicKey().toAddress(header.network, AddressType.P2SH_P2WPKH);
       } catch (InterruptedException e) {
          throw new RuntimeException(e);
       } catch (MrdExport.V1.WrongNetworkException e) {

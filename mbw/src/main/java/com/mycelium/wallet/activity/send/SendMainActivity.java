@@ -68,6 +68,7 @@ import com.mrd.bitlib.TransactionUtils;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.OutputList;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.model.UnspentTransactionOutput;
@@ -1455,7 +1456,7 @@ public class SendMainActivity extends Activity {
                 StringHandlerActivity.ResultType type = (StringHandlerActivity.ResultType) intent.getSerializableExtra(StringHandlerActivity.RESULT_TYPE_KEY);
                 if (type == StringHandlerActivity.ResultType.PRIVATE_KEY) {
                     InMemoryPrivateKey key = StringHandlerActivity.getPrivateKey(intent);
-                    _receivingAddress = key.getPublicKey().toAddress(_mbwManager.getNetwork());
+                    _receivingAddress = key.getPublicKey().toAddress(_mbwManager.getNetwork(), AddressType.P2SH_P2WPKH);    //TODO SegWit fix
                 } else if (type == StringHandlerActivity.ResultType.ADDRESS) {
                     _receivingAddress = StringHandlerActivity.getAddress(intent);
                 } else if (type == StringHandlerActivity.ResultType.URI_WITH_ADDRESS) {

@@ -28,6 +28,7 @@ import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.crypto.RandomSource;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.WapiLogger;
@@ -366,7 +367,7 @@ public class WalletManager {
      */
     public UUID createSingleAddressAccount(InMemoryPrivateKey privateKey, KeyCipher cipher) throws InvalidKeyCipher {
         PublicKey publicKey = privateKey.getPublicKey();
-        Address address = publicKey.toAddress(_network);
+        Address address = publicKey.toAddress(_network, AddressType.P2SH_P2WPKH);
         PublicPrivateKeyStore store = new PublicPrivateKeyStore(_secureKeyValueStore);
         store.setPrivateKey(address, privateKey, cipher);
         return createSingleAddressAccount(address);

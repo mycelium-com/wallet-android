@@ -43,6 +43,7 @@ import android.widget.TextView;
 import com.google.common.base.Optional;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.AddressType;
 import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.StringHandlerActivity;
@@ -180,21 +181,21 @@ public class VerifyBackupActivity extends Activity {
    private void verify(InMemoryPrivateKey pk) {
 
       // Figure out the account ID
-      Address address = pk.getPublicKey().toAddress(_mbwManager.getNetwork());
+      Address address = pk.getPublicKey().toAddress(_mbwManager.getNetwork(), AddressType.P2SH_P2WPKH); // TODO fix SegWit
       UUID account = SingleAddressAccount.calculateId(address);
 
       // Check whether regular wallet contains that account
       boolean success = _mbwManager.getWalletManager(false).hasAccount(account)
               || _mbwManager.getColuManager().hasAccount(account);
       for (ColuAccount.ColuAsset coluAsset : ColuAccount.ColuAsset.getAssetMap().values()) {
-         UUID coluUUID = ColuAccount.getGuidForAsset(coluAsset, pk.getPublicKey().toAddress(_mbwManager.getNetwork()).getAllAddressBytes());
+         UUID coluUUID = ColuAccount.getGuidForAsset(coluAsset, pk.getPublicKey().toAddress(_mbwManager.getNetwork(), AddressType.P2SH_P2WPKH).getAllAddressBytes()); // TODO fix SegWit
          success |= _mbwManager.getColuManager().hasAccount(coluUUID);
       }
 
       if (success) {
          _mbwManager.getMetadataStorage().setOtherAccountBackupState(account, MetadataStorage.BackupState.VERIFIED);
          for (ColuAccount.ColuAsset coluAsset : ColuAccount.ColuAsset.getAssetMap().values()) {
-            UUID coluUUID = ColuAccount.getGuidForAsset(coluAsset, pk.getPublicKey().toAddress(_mbwManager.getNetwork()).getAllAddressBytes());
+            UUID coluUUID = ColuAccount.getGuidForAsset(coluAsset, pk.getPublicKey().toAddress(_mbwManager.getNetwork(), AddressType.P2SH_P2WPKH).getAllAddressBytes()); // TODO fix SegWit
             _mbwManager.getMetadataStorage().setOtherAccountBackupState(coluUUID, MetadataStorage.BackupState.VERIFIED);
          }
          updateUi();

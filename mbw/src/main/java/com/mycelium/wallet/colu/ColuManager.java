@@ -12,6 +12,7 @@ import com.google.common.collect.Maps;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.Transaction;
 import com.mycelium.wallet.MbwEnvironment;
@@ -360,7 +361,7 @@ public class ColuManager implements AccountProvider {
      */
     private CreatedAccountInfo createSingleAddressAccount(InMemoryPrivateKey privateKey, KeyCipher cipher) throws InvalidKeyCipher {
         PublicKey publicKey = privateKey.getPublicKey();
-        Address address = publicKey.toAddress(_network);
+        Address address = publicKey.toAddress(_network, AddressType.P2SH_P2WPKH); // TODO Segwit fix
         PublicPrivateKeyStore store = new PublicPrivateKeyStore(_secureKeyValueStore);
         store.setPrivateKey(address, privateKey, cipher);
         return createSingleAddressAccount(address);
@@ -621,12 +622,12 @@ public class ColuManager implements AccountProvider {
     // enables account associated with asset
     public UUID enableAsset(ColuAccount.ColuAsset coluAsset, InMemoryPrivateKey key) {
         //Make check to ensure the address is not in use
-        if (key != null && isAddressInUse(key.getPublicKey().toAddress(getNetwork()))) {
+        if (key != null && isAddressInUse(key.getPublicKey().toAddress(getNetwork(), AddressType.P2SH_P2WPKH))) { // TODO Fix segwit
             return null;
         }
 
         if (key != null) {
-            UUID uuid = ColuAccount.getGuidForAsset(coluAsset, key.getPublicKey().toAddress(getNetwork()).getAllAddressBytes());
+            UUID uuid = ColuAccount.getGuidForAsset(coluAsset, key.getPublicKey().toAddress(getNetwork(), AddressType.P2SH_P2WPKH).getAllAddressBytes()); // TODO Fix segwit
 
             if (coluAccounts.containsKey(uuid)) {
                 return uuid;

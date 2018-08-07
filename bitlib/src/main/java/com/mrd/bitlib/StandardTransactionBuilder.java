@@ -145,7 +145,7 @@ public class StandardTransactionBuilder {
                                                         Address changeAddress, IPublicKeyRing keyRing,
                                                         NetworkParameters network, long minerFeeToUse)
        throws InsufficientFundsException, UnableToBuildTransactionException {
-      boolean isSegwit = true; // TODO somehow decide
+      boolean isSegwit = changeAddress.isMultisig(network); // TODO create more smart way to decide SegWit
 
       // Make a copy so we can mutate the list
       List<UnspentTransactionOutput> unspent = new LinkedList<>(inventory);

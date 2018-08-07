@@ -51,6 +51,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import kotlin.NotImplementedError;
+
 public class Bip44Account extends AbstractAccount implements ExportableAccount {
     protected static final int EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH = 20;
     protected static final int INTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH = 20;
@@ -529,6 +531,17 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
             _context.setLastInternalIndexWithActivity(Math.max(_context.getLastInternalIndexWithActivity(),
                     internalIndex));
         }
+    }
+
+    @Override
+    protected InMemoryPrivateKey getPrivateKey(PublicKey publicKey, KeyCipher cipher) throws InvalidKeyCipher {
+        for (Address address: publicKey.getAllSupportedAddresses(_network)) {
+            InMemoryPrivateKey key = getPrivateKeyForAddress(address, cipher);
+            if (key != null) {
+                return key;
+            }
+        }
+        return null;
     }
 
     @Override

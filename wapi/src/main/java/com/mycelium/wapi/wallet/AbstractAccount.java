@@ -1036,6 +1036,9 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       }
    }
 
+   protected abstract InMemoryPrivateKey getPrivateKey(PublicKey publicKey, KeyCipher cipher)
+         throws InvalidKeyCipher;
+
    protected abstract InMemoryPrivateKey getPrivateKeyForAddress(Address address, KeyCipher cipher)
          throws InvalidKeyCipher;
 
@@ -1415,17 +1418,16 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
 
       @Override
       public BitcoinSigner findSignerByPublicKey(PublicKey publicKey) {
-         Address address = publicKey.toAddress(_network);
          InMemoryPrivateKey privateKey;
          try {
-            privateKey = getPrivateKeyForAddress(address, _cipher);
+            privateKey = getPrivateKey(publicKey, _cipher);
          } catch (InvalidKeyCipher e) {
-            throw new RuntimeException("Unable to decrypt private key for address " + address.toString());
+            throw new RuntimeException("Unable to decrypt private key for public key " + publicKey.toString());
          }
          if (privateKey != null) {
             return privateKey;
          }
-         throw new RuntimeException("Unable to find private key for address " + address.toString());
+         throw new RuntimeException("Unable to find private key for public key " + publicKey.toString());
       }
    }
 

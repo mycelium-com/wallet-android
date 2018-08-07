@@ -36,6 +36,7 @@ package com.mycelium.wallet.lt.api;
 
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.lt.ApiUtils;
 import com.mycelium.lt.api.LtApi;
@@ -68,7 +69,7 @@ public class TryLogin extends Request {
       try {
 
          // Call function
-         Address address = _privateKey.getPublicKey().toAddress(_network);
+         Address address = _privateKey.getPublicKey().toAddress(_network, AddressType.P2PKH); // TODO segwit evaluate
          LoginParameters params = new LoginParameters(address, signedMessage);
          final String nickname = api.traderLogin(sessionId, params).getResult();
 

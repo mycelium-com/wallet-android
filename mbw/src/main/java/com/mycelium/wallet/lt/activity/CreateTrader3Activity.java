@@ -48,6 +48,7 @@ import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
+import com.mrd.bitlib.model.AddressType;
 import com.mycelium.lt.InputValidator;
 import com.mycelium.lt.api.LtApi;
 import com.mycelium.wallet.MbwManager;
@@ -184,7 +185,7 @@ public class CreateTrader3Activity extends Activity {
          // Create Trader Success
          // Hide progress bar
          findViewById(R.id.pbWait).setVisibility(View.GONE);
-         _ltManager.setLocalTraderData(_accountId, _privateKey, _privateKey.getPublicKey().toAddress(_mbwManager.getNetwork()), getNickName());
+         _ltManager.setLocalTraderData(_accountId, _privateKey, _privateKey.getPublicKey().toAddress(_mbwManager.getNetwork(), AddressType.P2PKH), getNickName()); // TODO fix
          setResult(RESULT_OK);
          finish();
       }

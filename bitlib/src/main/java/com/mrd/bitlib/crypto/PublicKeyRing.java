@@ -41,10 +41,12 @@ public class PublicKeyRing implements IPublicKeyRing {
      * Add a public key to the key ring.
      */
     public void addPublicKey(PublicKey key, NetworkParameters network) {
-        Address address = key.toAddress(network);
-        _addresses.add(address);
-        _addressSet.add(address);
-        _publicKeys.put(address, key);
+        List<Address> addresses = key.getAllSupportedAddresses(network);
+        _addresses.addAll(addresses);
+        _addressSet.addAll(addresses);
+        for (Address address : addresses) {
+            _publicKeys.put(address, key);
+        }
     }
 
     /**

@@ -9,7 +9,8 @@ public class BackupUtilTest {
 
    private static final String ENCRYPTED_KEY = "xEncGXICZE1_eVYfGWDioNu_8hA6RZzep4XqwPGRtcKb01MDg3s1XFntJYI9Dw";
    private static final String EXPECTED_RESPONSE = "Private key (Wallet Import Format): cRS3zDecX6c8UF9mtmh5vkB8CQ4nCNn1bjPQayXpt3fSLwSPi1LF\n" +
-         "                   Bitcoin Address: n4J5FqC89EnV8hikctDs6njmG2cwxS8cM5";
+         "                   Bitcoin Address: n4J5FqC89EnV8hikctDs6njmG2cwxS8cM5\n" +
+           "                   Bitcoin Address: 2NBzQZLt2MQkJpYGp66b2GQfR5BAQAHtXoU";
    private static final String CORRECT_PASSWORD = "QDTDXOYFBXBKKMKR";
 
    @Test

@@ -52,6 +52,9 @@ class ScriptOutputP2WSH : ScriptOutput, Serializable {
 
         // TODO test segwit
         fun isScriptOutputP2WSH(chunks: Array<ByteArray>): Boolean {
+            if( chunks.isEmpty()) {
+                return false
+            }
             if (!Script.isOP(chunks[0], Script.OP_FALSE)) {
                 return false
             }

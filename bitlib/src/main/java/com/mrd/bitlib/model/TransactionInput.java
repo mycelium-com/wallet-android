@@ -19,16 +19,13 @@ package com.mrd.bitlib.model;
 import java.io.Serializable;
 
 import com.mrd.bitlib.model.Script.ScriptParsingException;
-import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
 import com.mrd.bitlib.util.ByteWriter;
 import com.mrd.bitlib.util.Sha256Hash;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import kotlin.NotImplementedError;
 
-import static com.mrd.bitlib.model.Script.OP_DUP;
-import static com.mrd.bitlib.model.Script.OP_HASH160;
 
 public class TransactionInput implements Serializable {
    private static final long serialVersionUID = 1L;
@@ -81,7 +78,7 @@ public class TransactionInput implements Serializable {
    public byte[] getScriptCode()  {
       ByteWriter byteWriter = new ByteWriter(1024);
       if (script instanceof ScriptInputP2WSH) {
-         throw new NotImplementedException();
+         throw new NotImplementedError();
       } else if (script instanceof ScriptInputP2WPKH) {
          byteWriter.put((byte) Script.OP_DUP);
          byteWriter.put((byte) Script.OP_HASH160);

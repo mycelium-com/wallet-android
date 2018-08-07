@@ -53,6 +53,7 @@ import com.google.common.base.Optional;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -413,7 +414,7 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
 
          try {
             //Check whether this address is already used in any account
-            address = key.getPublicKey().toAddress(_mbwManager.getNetwork());
+            address = key.getPublicKey().toAddress(_mbwManager.getNetwork(), AddressType.P2SH_P2WPKH); // TODO segwit fix
             Optional<UUID> accountId = _mbwManager.getAccountId(address, null);
             if (accountId.isPresent()) {
                return null;

@@ -41,6 +41,7 @@ import com.mrd.bitlib.crypto.IPublicKeyRing;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.OutPoint;
 import com.mrd.bitlib.model.ScriptOutputStandard;
 import com.mrd.bitlib.model.TransactionOutput;
@@ -82,7 +83,7 @@ public class StandardTransactionBuilderTest {
             PRIVATE_KEYS[i] = getPrivKey("1" + i);
             PUBLIC_KEYS[i] = PRIVATE_KEYS[i].getPublicKey();
             // their addresses and 2 UTXOs each,
-            ADDRS[i] = PUBLIC_KEYS[i].toAddress(testNetwork);
+            ADDRS[i] = PUBLIC_KEYS[i].toAddress(testNetwork, AddressType.P2PKH);
             // with values 1/3, 3/5, 7/9 and 15/17.
             UTXOS[i][0] = getUtxo(ADDRS[i], (long) Math.pow(2, 1 + i) - 1 + MINIMUM_OUTPUT_VALUE);
             UTXOS[i][1] = getUtxo(ADDRS[i], (long) Math.pow(2, 1 + i) + 1 + MINIMUM_OUTPUT_VALUE);

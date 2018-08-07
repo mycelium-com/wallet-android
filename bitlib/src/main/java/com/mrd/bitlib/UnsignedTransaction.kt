@@ -20,12 +20,15 @@ open class UnsignedTransaction constructor(
     val fundingOutputs = funding.toTypedArray()
     val signingRequests: Array<SigningRequest?> = arrayOfNulls(fundingOutputs.size)
     val inputs = fundingOutputs.map {
-        TransactionInput(it.outPoint, ScriptInput.fromOutputScript(it.script), defaultSequenceNumber, it.value)
+        TransactionInput(it.outPoint, ScriptInput.EMPTY, defaultSequenceNumber, it.value)
     }.toTypedArray()
 
     init {
         // Create transaction with valid outputs and empty inputs
         val transaction = Transaction(1, inputs, this.outputs, lockTime, isSegwit)
+        if (isSegwit) {
+            inputs.forEachIndexed { i, it -> it.script = ScriptInput.fromOutputScript(funding[i].script) }
+        }
 
         for (i in fundingOutputs.indices) {
             val utxo = fundingOutputs[i]
@@ -44,21 +47,27 @@ open class UnsignedTransaction constructor(
                     // keys for
                     throw RuntimeException("Public key not found")
 
-            when {
-                utxo.script is ScriptOutputP2SH -> {
+            when (utxo.script) {
+                is ScriptOutputP2SH -> {
                     val inpScriptBytes = BitUtils.concatenate(byteArrayOf(Script.OP_0.toByte(), publicKey.pubKeyHashCompressed.size.toByte()), publicKey.pubKeyHashCompressed)
                     val inputScript = ScriptInput.fromScriptBytes(BitUtils.concatenate(byteArrayOf((inpScriptBytes.size and 0xFF).toByte()), inpScriptBytes))
                     transaction.inputs[i].script = inputScript
                 }
-                utxo.script is ScriptOutputP2WPKH -> throw NotImplementedError()
-                utxo.script is ScriptOutputP2WSH -> throw NotImplementedError()
+                is ScriptOutputP2WPKH -> throw NotImplementedError()
+                is ScriptOutputP2WSH -> throw NotImplementedError()
+            }
+
+            if (!isSegwit) {
+                inputs[i].script = ScriptInput.fromOutputScript(funding[i].script)
             }
 
             // Calculate the transaction hash that has to be signed
             val hash = transaction.getTxDigestHash(i)
             // Set the input to the empty script again
             // TODO SegWit evaluate possibly required for non-segwit transactions, but is it???
-            //inputs[i] = TransactionInput(fundingOutputs[i].outPoint, ScriptInput.EMPTY, NO_SEQUENCE, fundingOutputs[i].value)
+            if (!isSegwit) {
+                inputs[i] = TransactionInput(fundingOutputs[i].outPoint, ScriptInput.EMPTY, NO_SEQUENCE, fundingOutputs[i].value)
+            }
 
             signingRequests[i] = SigningRequest(publicKey, hash)
         }

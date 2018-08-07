@@ -28,6 +28,7 @@ import com.mrd.bitlib.lambdaworks.crypto.SCryptProgress;
 
 import com.mrd.bitlib.crypto.ec.Parameters;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.HashUtils;
@@ -50,7 +51,7 @@ public class Bip38 {
    public static String encryptNoEcMultiply(String passphrase, String base58EncodedPrivateKey,
                                             SCryptProgress progressTracker) throws InterruptedException {
       InMemoryPrivateKey key = new InMemoryPrivateKey(base58EncodedPrivateKey, NetworkParameters.productionNetwork);
-      Address address = key.getPublicKey().toAddress(NetworkParameters.productionNetwork);
+      Address address = key.getPublicKey().toAddress(NetworkParameters.productionNetwork, AddressType.P2PKH);
       byte[] salt = Bip38.calculateScryptSalt(address);
       byte[] stretchedKeyMaterial = bip38Stretch1(passphrase, salt, progressTracker, SCRYPT_LENGTH);
       return encryptNoEcMultiply(stretchedKeyMaterial, key, salt);
@@ -330,7 +331,7 @@ public class Bip38 {
       InMemoryPrivateKey finalKey = new InMemoryPrivateKey(keyBytes, bip38Key.compressed);
 
       // Validate result
-      Address address = finalKey.getPublicKey().toAddress(network);
+      Address address = finalKey.getPublicKey().toAddress(network, AddressType.P2PKH);
       byte[] newSalt = calculateScryptSalt(address);
       if (!BitUtils.areEqual(bip38Key.salt, newSalt)) {
          // The passphrase is either invalid or we are on the wrong network
@@ -377,7 +378,7 @@ public class Bip38 {
       InMemoryPrivateKey key = new InMemoryPrivateKey(complete, bip38Key.compressed);
 
       // Validate result
-      Address address = key.getPublicKey().toAddress(network);
+      Address address = key.getPublicKey().toAddress(network, AddressType.P2PKH);
       byte[] newSalt = calculateScryptSalt(address);
       if (!BitUtils.areEqual(bip38Key.salt, newSalt)) {
          // The passphrase is either invalid or we are on the wrong network

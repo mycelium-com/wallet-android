@@ -43,6 +43,7 @@ import com.mrd.bitlib.crypto.BipSss;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.wallet.activity.BipSsImportActivity;
@@ -243,13 +244,13 @@ public class StringHandleConfig implements Serializable {
 
             MbwManager mbwManager = MbwManager.getInstance(handlerActivity);
             // Calculate the account ID that this key would have
-            UUID account = SingleAddressAccount.calculateId(key.get().getPublicKey().toAddress(mbwManager.getNetwork()));
-            UUID bchAccount = SingleAddressBCHAccount.Companion.calculateId(key.get().getPublicKey().toAddress(mbwManager.getNetwork()));
+            UUID account = SingleAddressAccount.calculateId(key.get().getPublicKey().toAddress(mbwManager.getNetwork(), AddressType.P2SH_P2WSH)); // TODO segwit fix
+            UUID bchAccount = SingleAddressBCHAccount.Companion.calculateId(key.get().getPublicKey().toAddress(mbwManager.getNetwork(), AddressType.P2SH_P2WPKH)); // TODO segwit fix
             // Check whether regular wallet contains the account
             boolean success = mbwManager.getWalletManager(false).hasAccount(account)
                     || mbwManager.getColuManager().hasAccount(account);
             for (ColuAccount.ColuAsset coluAsset : ColuAccount.ColuAsset.getAssetMap().values()) {
-               UUID coluUUID = ColuAccount.getGuidForAsset(coluAsset, key.get().getPublicKey().toAddress(mbwManager.getNetwork()).getAllAddressBytes());
+               UUID coluUUID = ColuAccount.getGuidForAsset(coluAsset, key.get().getPublicKey().toAddress(mbwManager.getNetwork(), AddressType.P2SH_P2WPKH).getAllAddressBytes()); // TODO segwit fix
                success |= mbwManager.getColuManager().hasAccount(coluUUID);
             }
 
@@ -258,7 +259,7 @@ public class StringHandleConfig implements Serializable {
                mbwManager.getMetadataStorage().setOtherAccountBackupState(account, MetadataStorage.BackupState.VERIFIED);
                mbwManager.getMetadataStorage().setOtherAccountBackupState(bchAccount, MetadataStorage.BackupState.VERIFIED);
                for (ColuAccount.ColuAsset coluAsset : ColuAccount.ColuAsset.getAssetMap().values()) {
-                  UUID coluUUID = ColuAccount.getGuidForAsset(coluAsset, key.get().getPublicKey().toAddress(mbwManager.getNetwork()).getAllAddressBytes());
+                  UUID coluUUID = ColuAccount.getGuidForAsset(coluAsset, key.get().getPublicKey().toAddress(mbwManager.getNetwork(), AddressType.P2SH_P2WPKH).getAllAddressBytes()); // TODO SegWit fix
                   mbwManager.getMetadataStorage().setOtherAccountBackupState(coluUUID, MetadataStorage.BackupState.VERIFIED);
                }
                handlerActivity.finishOk();

@@ -50,6 +50,9 @@ class ScriptOutputP2WPKH : ScriptOutput, Serializable {
 
         //TODO test SegWit
         fun isScriptOutputP2WPKH(chunks: Array<ByteArray>): Boolean {
+            if (chunks.isEmpty()) {
+                return false
+            }
             if (!Script.isOP(chunks[0], Script.OP_FALSE)) {
                 return false
             }

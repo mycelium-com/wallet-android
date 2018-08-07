@@ -21,6 +21,7 @@ import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.HdDerivedAddress;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.hdpath.Bip44Address;
@@ -179,7 +180,7 @@ public class Bip44AccountKeyManager {
 
       // We don't have it, need to calculate it from the public key
       PublicKey publicKey = getPublicKey(isChangeChain, index);
-      HdDerivedAddress address = new HdDerivedAddress(publicKey.toAddress(_network), path);
+      HdDerivedAddress address = new HdDerivedAddress(publicKey.toAddress(_network, AddressType.P2PKH), path);
 
       // Store it for next time
       _secureKeyValueStore.storePlaintextValue(id, addressToBytes(address));

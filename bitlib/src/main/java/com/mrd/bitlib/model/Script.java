@@ -42,7 +42,6 @@ public abstract class Script implements Serializable {
 
    public static final int OP_FALSE = 0;
    public static final int OP_0 = OP_FALSE;
-   public static final int OP_PUSH20 = 20;
    public static final int OP_PUSH32 = 32;
    public static final int OP_PUSHDATA1 = 76;
    public static final int OP_PUSHDATA2 = 77;

@@ -37,17 +37,39 @@ class PublicKey(val publicKeyBytes: ByteArray) : Serializable {
     val isCompressed: Boolean
         get() = Q.isCompressed
 
-    fun toAddress(networkParameters: NetworkParameters): Address {
-        // TODO fix SegWit, do not merge
-        val hashedPublicKey = publicKeyHash
-        return toP2SH_P2WPKHSegwitAddress(networkParameters)
+    fun toAddress(networkParameters: NetworkParameters, addressType: AddressType): Address? {
+        return when (addressType) {
+            AddressType.P2PKH -> {
+                toP2PKHAddress(networkParameters)
+            }
+            AddressType.P2SH_P2WPKH -> {
+                toNestedP2WPKH(networkParameters)
+            }
+            else -> {
+                throw IllegalArgumentException("Not supported address type")
+            }
+        }
     }
 
-    fun toP2SH_P2WPKHSegwitAddress(networkParameters: NetworkParameters): Address {
+    fun getAllSupportedAddresses(networkParameters: NetworkParameters): List<Address?> =
+            SUPPORTED_ADDRESS_TYPES.map { toAddress(networkParameters, it) }
+
+    /**
+     * @return [AddressType.P2SH_P2WPKH] address
+     */
+    private fun toNestedP2WPKH(networkParameters: NetworkParameters): Address? {
         val hashedPublicKey = pubKeyHashCompressed
         val prefix = byteArrayOf(Script.OP_0.toByte(), hashedPublicKey.size.toByte())
         return Address.fromP2SHBytes(HashUtils.addressHash(
                 BitUtils.concatenate(prefix, hashedPublicKey)), networkParameters)
+    }
+
+    /**
+     * @return [AddressType.P2PKH] address
+     */
+    private fun toP2PKHAddress(networkParameters: NetworkParameters): Address? {
+        val hashedPublicKey = publicKeyHash
+        return Address.fromStandardBytes(hashedPublicKey, networkParameters)
     }
 
     override fun hashCode(): Int {
@@ -98,6 +120,10 @@ class PublicKey(val publicKeyBytes: ByteArray) : Serializable {
     companion object {
         private const val serialVersionUID = 1L
         private const val HASH_TYPE = 1
+        private val SUPPORTED_ADDRESS_TYPES = listOf(
+                AddressType.P2PKH,
+                AddressType.P2SH_P2WPKH
+        )
     }
 
 }

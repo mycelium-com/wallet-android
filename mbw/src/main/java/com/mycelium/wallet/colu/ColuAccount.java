@@ -42,6 +42,7 @@ import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.OutputList;
 import com.mrd.bitlib.model.ScriptOutput;
@@ -157,10 +158,10 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
         this.satoshiAmount = 0;
 
         this.accountKey = accountKey;
-        this.address = this.accountKey.getPublicKey().toAddress(manager.getNetwork());
+        this.address = this.accountKey.getPublicKey().toAddress(manager.getNetwork(), AddressType.P2SH_P2WPKH); // TODO segwit fix
         type = Type.COLU;
 
-        uuid = getGuidForAsset(coluAsset, accountKey.getPublicKey().toAddress(getNetwork()).getAllAddressBytes());
+        uuid = getGuidForAsset(coluAsset, accountKey.getPublicKey().toAddress(getNetwork(), AddressType.P2SH_P2WPKH).getAllAddressBytes()); // TODO segwit fix
 
         archived = metadataStorage.getArchived(uuid);
     }

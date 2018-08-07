@@ -32,6 +32,7 @@ import org.bitcoinj.core.Utils;
 
 import java.io.Serializable;
 import java.math.BigInteger;
+import java.util.List;
 
 public class SignedMessage implements Serializable {
    private static final long serialVersionUID = 1188125594280603453L;
@@ -66,10 +67,14 @@ public class SignedMessage implements Serializable {
    }
 
    public static void validateAddressMatches(Address address, PublicKey key) throws WrongSignatureException {
-      Address recoveredAddress = key.toAddress(address.getNetwork());
-      if (!address.equals(recoveredAddress)) {
-         throw new WrongSignatureException(String.format("given Address did not match \nexpected %s\n but got %s",
-               address, recoveredAddress));
+      List<Address> possibleAddresses = key.getAllSupportedAddresses(address.getNetwork());
+      if (!possibleAddresses.contains(address)) {
+         StringBuilder possibleAddressesString = new StringBuilder();
+         for (Address suggestedAddress : possibleAddresses) {
+            possibleAddressesString.append(suggestedAddress.toString());
+         }
+         throw new WrongSignatureException(String.format("given Address did not match \nexpected %s\n but possible %s",
+                 address, possibleAddressesString));
       }
    }
 

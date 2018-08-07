@@ -260,6 +260,14 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
    }
 
    @Override
+   protected InMemoryPrivateKey getPrivateKey(PublicKey publicKey, KeyCipher cipher) throws InvalidKeyCipher {
+      if (getPublicKey().equals(publicKey)) {
+         return getPrivateKey(cipher);
+      }
+      return null;
+   }
+
+   @Override
    protected InMemoryPrivateKey getPrivateKeyForAddress(Address address, KeyCipher cipher) throws InvalidKeyCipher {
       if (getAddress().equals(address)) {
          return getPrivateKey(cipher);

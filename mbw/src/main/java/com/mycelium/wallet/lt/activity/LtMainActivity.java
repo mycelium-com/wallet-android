@@ -57,6 +57,7 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
+import com.mrd.bitlib.model.AddressType;
 import com.mycelium.lt.api.LtApi;
 import com.mycelium.lt.api.model.TraderInfo;
 import com.mycelium.wallet.*;
@@ -280,7 +281,7 @@ public class LtMainActivity extends AppCompatActivity {
          public Data getExportData(KeyCipher cipher) {
             return new Data(
                   Optional.of(privateKey.getBase58EncodedPrivateKey(_mbwManager.getNetwork())),
-                  Optional.of(privateKey.getPublicKey().toAddress(_mbwManager.getNetwork()).toString())
+                  Optional.of(privateKey.getPublicKey().toAddress(_mbwManager.getNetwork(), AddressType.P2PKH).toString()) // TODO fix
             );
          }
       };
