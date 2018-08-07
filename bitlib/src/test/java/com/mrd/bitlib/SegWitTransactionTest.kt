@@ -29,7 +29,7 @@ class SegWitTransactionTest {
         val tx = Transaction.fromBytes(HexUtils.toBytes(P2SH_P2WPKH_Unconfirmed))
 //        Assert.assertEquals(P2SH_P2WPKH_Unconfirmed, toHex(tx.toBytes()))
 
-        val input1 = UnspentTransactionOutput(tx.inputs[0].outPoint, 10,1000000000, ScriptOutput.fromScriptBytes(HexUtils.toBytes("a9144733f37cf4db86fbc2efed2500b4f4e49f31202387")), true)
+        val input1 = UnspentTransactionOutput(tx.inputs[0].outPoint, 10,1000000000, ScriptOutput.fromScriptBytes(HexUtils.toBytes("a9144733f37cf4db86fbc2efed2500b4f4e49f31202387")))
         val toBytes = HexUtils.toBytes("001479091972186c449eb1ded22b78e40d009bdf0089")
         //redeem script is OP_0 -> pubkeyhash
         val unsignedTransaction =  UnsignedTransaction(tx.outputs.asList(), arrayListOf(input1), publicKeyRing, NetworkParameters.productionNetwork, true, tx.lockTime, tx.inputs[0].sequence)

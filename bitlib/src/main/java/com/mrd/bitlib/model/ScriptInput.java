@@ -46,6 +46,9 @@ public class ScriptInput extends Script {
       }
    }
 
+   /**
+    * Check if supplied bytes are witness program
+    */
    private static boolean isWitnessProgram(byte[] scriptBytes) {
       if (scriptBytes.length < 4 || scriptBytes.length > 42) {
          return false;
@@ -66,17 +69,21 @@ public class ScriptInput extends Script {
       return BitUtils.copyOfRange(scriptBytes, 2, scriptBytes.length);
    }
 
-    public static byte[] depush(byte[] script) throws ScriptParsingException {
+   /**
+    * Tries to remove push code from script.
+    * @return script without first byte if it's push, else empty script.
+    */
+    public static byte[] depush(byte[] script) {
         if (script.length == 0) {
-            throw new ScriptParsingException("Empty script");
+            return new byte[]{};
         }
         byte pushByte = script[0];
         script = BitUtils.copyOfRange(script, 1, script.length);
         if (pushByte < 1 || pushByte > 76) {
-            throw new ScriptParsingException("Script does not start with PUSH opcode");
+           return new byte[]{};
         }
         if (script.length != pushByte) {
-            throw new ScriptParsingException("Script length is wrong");
+           return new byte[]{};
         }
         return script;
     }

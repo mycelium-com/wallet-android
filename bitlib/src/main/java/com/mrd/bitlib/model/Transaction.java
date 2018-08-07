@@ -280,6 +280,60 @@ public class Transaction implements Serializable {
         return _hash;
     }
 
+    public Sha256Hash getTxDigestHash(int i) {
+        ByteWriter writer = new ByteWriter(1024);
+        if (isSegwit) {
+            writer.putIntLE(version);
+            writer.putBytes(getPrevOutsHash().getBytes());
+            writer.putBytes(getSequenceHash().getBytes());
+            inputs[i].outPoint.hashPrevOutToByteWriter(writer);
+            byte[] scriptCode = inputs[i].getScriptCode();
+            writer.put((byte) (scriptCode.length & 0xFF));
+            writer.putBytes(scriptCode);
+            writer.putLongLE(inputs[i].getValue());
+            writer.putIntLE(inputs[i].sequence);
+            writer.putBytes(getOutputsHash().getBytes());
+            writer.putIntLE(lockTime);
+            int hashType = 1;
+            writer.putIntLE(hashType);
+        } else {
+            toByteWriter(writer);
+            // We also have to write a hash type.
+            int hashType = 1;
+            writer.putIntLE(hashType);
+            // Note that this is NOT reversed to ensure it will be signed
+            // correctly. If it were to be printed out
+            // however then we would expect that it is IS reversed.
+        }
+        return HashUtils.doubleSha256(writer.toBytes());
+    }
+
+    private Sha256Hash getPrevOutsHash() {
+        ByteWriter writer = new ByteWriter(1024);
+        for (TransactionInput input : inputs) {
+            input.outPoint.hashPrevOutToByteWriter(writer);
+        }
+        return HashUtils.doubleSha256(writer.toBytes());
+    }
+
+    private Sha256Hash getOutputsHash() {
+        ByteWriter writer = new ByteWriter(1024);
+        for (TransactionOutput output : outputs) {
+            writer.putLongLE(output.value);
+            writer.put((byte) (output.script.getScriptBytes().length & 0xFF));
+            writer.putBytes(output.script.getScriptBytes());
+        }
+        return HashUtils.doubleSha256(writer.toBytes());
+    }
+
+    private Sha256Hash getSequenceHash()  {
+        ByteWriter writer = new ByteWriter(1024);
+        for (TransactionInput input : inputs) {
+            writer.putIntLE(input.sequence);
+        }
+        return HashUtils.doubleSha256(writer.toBytes());
+    }
+
     /**
      * Returns the minimum nSequence number of all inputs
      * Can be used to detect transactions marked for Full-RBF and thus are very low trust while having 0 conf

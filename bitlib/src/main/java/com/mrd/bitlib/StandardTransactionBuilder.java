@@ -310,7 +310,7 @@ public class StandardTransactionBuilder {
          if (unsigned.isSegwit()) {
             inputs[i] = unsigned.getInputs()[i];
             InputWitness witness = new InputWitness(2);
-            witness.setStack(0, signatures.get(i));      // TODO check if it should be so
+            witness.setStack(0, signatures.get(i));
             witness.setStack(1, unsigned.getSigningRequests()[i].getPublicKey().getPublicKeyBytes());
             inputs[i].setWitness(witness);
          } else {
@@ -423,7 +423,7 @@ public class StandardTransactionBuilder {
 //         if (!(output.script instanceof ScriptOutputStandard)) {
 //            // only look for standard scripts
 //            continue;
-//         } todo evauluate
+//         } todo evauluate SegWit
 
             // Unconfirmed outputs have height = -1 -> change this to Int.MAX-1, so that we
             // choose them as the last possible option

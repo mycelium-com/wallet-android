@@ -213,7 +213,7 @@ public class StandardTransactionBuilderTest {
     }
 
     private static UnspentTransactionOutput getUtxo(Address address, long value) {
-        return new UnspentTransactionOutput(new OutPoint(Sha256Hash.ZERO_HASH, 0), 0, value, new ScriptOutputStandard(address.getTypeSpecificBytes()), false);
+        return new UnspentTransactionOutput(new OutPoint(Sha256Hash.ZERO_HASH, 0), 0, value, new ScriptOutputStandard(address.getTypeSpecificBytes()));
     }
 
     /**

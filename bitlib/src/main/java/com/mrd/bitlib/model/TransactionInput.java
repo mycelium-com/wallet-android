@@ -78,6 +78,25 @@ public class TransactionInput implements Serializable {
       this(outPoint, script, NO_SEQUENCE, 0);
    }
 
+   public byte[] getScriptCode()  {
+      ByteWriter byteWriter = new ByteWriter(1024);
+      if (script instanceof ScriptInputP2WSH) {
+         throw new NotImplementedException();
+      } else if (script instanceof ScriptInputP2WPKH) {
+         byteWriter.put((byte) Script.OP_DUP);
+         byteWriter.put((byte) Script.OP_HASH160);
+         byte[] witnessProgram;
+         witnessProgram = ScriptInput.getWitnessProgram(ScriptInput.depush(script.getScriptBytes()));
+         byteWriter.put((byte) (0xFF & witnessProgram.length));
+         byteWriter.putBytes(witnessProgram);
+         byteWriter.put((byte) Script.OP_EQUALVERIFY);
+         byteWriter.put((byte) Script.OP_CHECKSIG);
+      } else {
+         throw new IllegalArgumentException("No scriptcode for " + script.getClass().getCanonicalName());
+      }
+      return byteWriter.toBytes();
+   }
+
    public boolean hasWitness() {
       return witness != null && witness.getStackSize() != 0;
    }
