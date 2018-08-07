@@ -43,11 +43,11 @@ class PublicKey(val publicKeyBytes: ByteArray) : Serializable {
         return toP2SH_P2WPKHSegwitAddress(networkParameters)
     }
 
-    fun toP2SH_P2WPKHSegwitAddress(networkParameters: NetworkParameters): P2SH_P2WPKHAddress {
+    fun toP2SH_P2WPKHSegwitAddress(networkParameters: NetworkParameters): Address {
         val hashedPublicKey = pubKeyHashCompressed
         val prefix = byteArrayOf(Script.OP_0.toByte(), hashedPublicKey.size.toByte())
-        return P2SH_P2WPKHAddress.fromBytes(
-                HashUtils.addressHash(BitUtils.concatenate(prefix, hashedPublicKey)), networkParameters)
+        return Address.fromP2SHBytes(HashUtils.addressHash(
+                BitUtils.concatenate(prefix, hashedPublicKey)), networkParameters)
     }
 
     override fun hashCode(): Int {
