@@ -146,22 +146,32 @@ android {
                     project.hasProperty('prodKeyAlias') &&
                     project.hasProperty('prodKeyStorePassword') &&
                     project.hasProperty('prodKeyAliasPassword')) {
-                storeFile file('../../' + prodKeyStore)
+                storeFile file('../' + prodKeyStore)
                 keyAlias prodKeyAlias
                 storePassword prodKeyStorePassword
                 keyPassword prodKeyAliasPassword
-            }
+            } else {
+				        storeFile commonDebugKeystore
+				        storePassword 'android'
+				        keyAlias 'androiddebugkey'
+				        keyPassword 'android'
+						}
         }
         btctestnet {
             if (project.hasProperty('testKeyStore') &&
                     project.hasProperty('testKeyAlias') &&
                     project.hasProperty('testKeyStorePassword') &&
                     project.hasProperty('testKeyAliasPassword')) {
-                storeFile file('../../' + testKeyStore)
+                storeFile file('../' + testKeyStore)
                 keyAlias testKeyAlias
                 storePassword testKeyStorePassword
                 keyPassword testKeyAliasPassword
-            }
+            } else {
+				        storeFile commonDebugKeystore
+				        storePassword 'android'
+				        keyAlias 'androiddebugkey'
+				        keyPassword 'android'
+						}
         }
         commonDebug {
             storeFile commonDebugKeystore
@@ -245,3 +255,4 @@ android {
         unitTests.returnDefaultValues = true
     }
 }
+
