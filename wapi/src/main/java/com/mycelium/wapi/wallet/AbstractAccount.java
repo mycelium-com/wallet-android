@@ -317,16 +317,22 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
             postEvent(Event.SERVER_CONNECTION_ERROR);
             return -1;
          }
-         // Finally update out list of unspent outputs with added or updated
-         // outputs
-         for (TransactionOutputEx output : unspentOutputsToAddOrUpdate) {
-            // check if the output really belongs to one of our addresses
-            // prevent getting out local cache into a undefined state, if the server screws up
-            if (isMine(output)) {
-               _backing.putUnspentOutput(output);
-            }else {
-               _logger.logError("We got an UTXO that does not belong to us: " + output.toString());
+         try {
+            _backing.beginTransaction();
+            // Finally update out list of unspent outputs with added or updated
+            // outputs
+            for (TransactionOutputEx output : unspentOutputsToAddOrUpdate) {
+               // check if the output really belongs to one of our addresses
+               // prevent getting out local cache into a undefined state, if the server screws up
+               if (isMine(output)) {
+                  _backing.putUnspentOutput(output);
+               } else {
+                  _logger.logError("We got an UTXO that does not belong to us: " + output.toString());
+               }
             }
+            _backing.setTransactionSuccessful();
+         } finally {
+            _backing.endTransaction();
          }
       }
 
@@ -976,7 +982,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       List<UnspentTransactionOutput> outputs = new ArrayList<>();
       for (TransactionOutputEx s : source) {
          ScriptOutput script = ScriptOutput.fromScriptBytes(s.script);
-         outputs.add(new UnspentTransactionOutput(s.outPoint, s.height, s.value, script, s.isSegwit()));
+         outputs.add(new UnspentTransactionOutput(s.outPoint, s.height, s.value, script));
       }
       return outputs;
    }
@@ -1495,7 +1501,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
             Transaction inTx = Transaction.fromByteReader(new ByteReader(inTxEx.binary));
             UnspentTransactionOutput unspentOutput = new UnspentTransactionOutput(input.outPoint, inTxEx.height,
                   inTx.outputs[input.outPoint.index].value,
-                  inTx.outputs[input.outPoint.index].script, inTx.isSegwit());
+                  inTx.outputs[input.outPoint.index].script);
 
             funding.add(unspentOutput);
          }

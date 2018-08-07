@@ -27,14 +27,12 @@ public class UnspentTransactionOutput implements Serializable {
    public int height; // -1 means unconfirmed
    public long value;
    public ScriptOutput script;
-   private final boolean isSegwit;
 
-   public UnspentTransactionOutput(OutPoint outPoint, int height, long value, ScriptOutput script, boolean isSegwit) {
+   public UnspentTransactionOutput(OutPoint outPoint, int height, long value, ScriptOutput script) {
       this.outPoint = outPoint;
       this.height = height;
       this.value = value;
       this.script = script;
-      this.isSegwit = isSegwit;
    }
 
    public byte[] toBytes() {
@@ -50,10 +48,6 @@ public class UnspentTransactionOutput implements Serializable {
       byte[] scriptBytes = script.getScriptBytes();
       writer.putCompactInt(scriptBytes.length);
       writer.putBytes(scriptBytes);
-   }
-
-   public boolean isSegwit() {
-      return isSegwit;
    }
 
    @Override
