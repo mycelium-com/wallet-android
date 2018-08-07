@@ -290,7 +290,7 @@ public abstract class Script implements Serializable {
       return _scriptBytes;
    }
 
-   public static byte[] scriptEncodeChunks(byte[][] chunks) {
+   static byte[] scriptEncodeChunks(byte[][] chunks) {
       byte[] buf = new byte[calculateByteSize(chunks)];
       int index = 0;
       for (byte[] chunk : chunks) {

@@ -26,8 +26,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
 public class ScriptInputP2SHMultisig extends ScriptInput {
    private static final long serialVersionUID = 1L;
 

@@ -38,6 +38,7 @@ class PublicKey(val publicKeyBytes: ByteArray) : Serializable {
         get() = Q.isCompressed
 
     fun toAddress(networkParameters: NetworkParameters): Address {
+        // TODO fix SegWit, do not merge
         val hashedPublicKey = publicKeyHash
         return toP2SH_P2WPKHSegwitAddress(networkParameters)
     }
@@ -74,8 +75,8 @@ class PublicKey(val publicKeyBytes: ByteArray) : Serializable {
         // Decode parameters r and s
         val reader = ByteReader(signature)
         val params = Signatures.decodeSignatureParameters(reader) ?: return false
-// Make sure that we have a hash type at the end
-        if (reader.available() != 1) {
+        // Make sure that we have a hash type at the end
+        if (reader.available() != HASH_TYPE) {
             return false
         }
         return if (forceLowS) {
@@ -96,6 +97,7 @@ class PublicKey(val publicKeyBytes: ByteArray) : Serializable {
 
     companion object {
         private const val serialVersionUID = 1L
+        private const val HASH_TYPE = 1
     }
 
 }

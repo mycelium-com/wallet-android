@@ -369,7 +369,7 @@ public class Transaction implements Serializable {
 
 
     /**
-     * @return true if transaction is SegWit else false
+     * @return true if transaction is SegWit, else false
      */
     public boolean isSegwit() {
         return isSegwit;

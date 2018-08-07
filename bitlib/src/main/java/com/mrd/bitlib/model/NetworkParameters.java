@@ -80,11 +80,6 @@ public class NetworkParameters implements Serializable {
    private int _multisigAddressHeader;
 
    /**
-    * The first byte of a base58 encoded bitcoin P2WPKH address.
-    */
-   private int P2WPKHAddressHeader;
-
-   /**
     * The genesis block
     */
    private byte[] _genesisBlock;
@@ -104,7 +99,6 @@ public class NetworkParameters implements Serializable {
          case PRODNET:
             _standardAddressHeader = 0x00;
             _multisigAddressHeader = 0x05;
-            P2WPKHAddressHeader = 0x06;
             _genesisBlock = PRODNET_GENESIS_BLOCK;
             _port = 8333;
             _packetMagic = 0xf9beb4d9;
@@ -114,7 +108,6 @@ public class NetworkParameters implements Serializable {
          case TESTNET:
             _standardAddressHeader = 0x6F;
             _multisigAddressHeader = 0xC4;
-            P2WPKHAddressHeader = 0x03;
             _genesisBlock = TESTNET_GENESIS_BLOCK;
             _port = 18333;
             _packetMagic = 0x0b110907;
@@ -162,9 +155,6 @@ public class NetworkParameters implements Serializable {
     * @return The first byte of a base58 encoded bitcoin P2WPKH address as an
     *         integer.
     */
-   public int getP2WPKHAddressHeader() {
-      return P2WPKHAddressHeader;
-   }
 
    public byte[] getGenesisBlock() {
       return _genesisBlock;

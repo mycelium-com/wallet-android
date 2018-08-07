@@ -34,7 +34,7 @@ abstract class PrivateKey : BitcoinSigner, Serializable {
         // Add signature
         writer.putBytes(signature)
         // Add hash type
-        writer.put(1.toByte()) // move to constant to document
+        writer.put(HASH_TYPE.toByte())
         return writer.toBytes()
     }
 
@@ -84,5 +84,6 @@ abstract class PrivateKey : BitcoinSigner, Serializable {
 
     companion object {
         private const val serialVersionUID = 1L
+        private const val HASH_TYPE = 1
     }
 }

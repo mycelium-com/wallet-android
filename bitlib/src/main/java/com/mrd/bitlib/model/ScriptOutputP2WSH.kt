@@ -19,7 +19,7 @@ package com.mrd.bitlib.model
 import java.io.Serializable
 
 /**
- * TODO implemet with segwit, don't merge with current state
+ * TODO implemet with segwit or remove if redundant, don't merge with current state
  */
 class ScriptOutputP2WSH : ScriptOutput, Serializable {
     //private val p2wshAddressBytes: ByteArray
@@ -50,7 +50,7 @@ class ScriptOutputP2WSH : ScriptOutput, Serializable {
     companion object {
         private const val serialVersionUID = 1L
 
-        // TODO test
+        // TODO test segwit
         fun isScriptOutputP2WSH(chunks: Array<ByteArray>): Boolean {
             if (!Script.isOP(chunks[0], Script.OP_FALSE)) {
                 return false

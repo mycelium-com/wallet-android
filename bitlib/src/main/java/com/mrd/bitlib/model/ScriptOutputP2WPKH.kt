@@ -48,7 +48,7 @@ class ScriptOutputP2WPKH : ScriptOutput, Serializable {
     companion object {
         private const val serialVersionUID = 1L
 
-        //TODO test
+        //TODO test SegWit
         fun isScriptOutputP2WPKH(chunks: Array<ByteArray>): Boolean {
             if (!Script.isOP(chunks[0], Script.OP_FALSE)) {
                 return false

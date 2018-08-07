@@ -24,9 +24,6 @@ open class UnsignedTransaction constructor(
     }.toTypedArray()
 
     init {
-        // Create empty input scripts pointing at the right out points
-
-
         // Create transaction with valid outputs and empty inputs
         val transaction = Transaction(1, inputs, this.outputs, lockTime, isSegwit)
 
@@ -66,7 +63,6 @@ open class UnsignedTransaction constructor(
             signingRequests[i] = SigningRequest(publicKey, hash)
         }
     }
-
 
     /**
      * @return fee in satoshis

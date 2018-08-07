@@ -7,14 +7,8 @@ import java.util.ArrayList
 
 class InputWitness(pushCount: Int) : Serializable {
 
-    private val stack: MutableList<ByteArray>
-
-    val stackSize: Int
-        get() = stack.size
-
-    init {
-        stack = ArrayList(Math.min(pushCount, MAX_INITIAL_ARRAY_LENGTH))
-    }
+    private val stack = ArrayList<ByteArray>(Math.min(pushCount, MAX_INITIAL_ARRAY_LENGTH))
+    val stackSize = stack.size
 
     fun setStack(i: Int, value: ByteArray) {
         while (i >= stack.size) {
