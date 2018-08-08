@@ -146,7 +146,7 @@ public class StartupActivity extends Activity {
 
          // in case the masterSeed was created but account does not exist yet (rotation problem)
          if (_mbwManager.getWalletManager(false).getActiveAccounts().size() == 0) {
-            new ConfigureAccountAsyncTask(new WeakReference<>(StartupActivity.this)).execute();
+            new ConfigureAccountAsyncTask(StartupActivity.this).execute();
             return;
          }
 
@@ -270,8 +270,8 @@ public class StartupActivity extends Activity {
    private static class ConfigureAccountAsyncTask extends AsyncTask<Void, Integer, UUID> {
       private WeakReference<StartupActivity> startupActivity;
 
-      ConfigureAccountAsyncTask(WeakReference<StartupActivity> startupActivity) {
-         this.startupActivity = startupActivity;
+      ConfigureAccountAsyncTask(StartupActivity startupActivity) {
+         this.startupActivity = new WeakReference<>(startupActivity);
       }
 
       @Override
