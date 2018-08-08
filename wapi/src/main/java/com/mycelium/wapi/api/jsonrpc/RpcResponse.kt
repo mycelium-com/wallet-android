@@ -15,8 +15,10 @@ class RpcResponse : AbstractResponse() {
     val version: String? = null
 
     val id: Any = NO_ID
+    val method: String? = null
     val error: RpcError? = null
     val result: JsonElement? = null
+    val params: JsonElement? = null
 
     val isVoid: Boolean
         get() = hasResult && result == null
@@ -25,12 +27,21 @@ class RpcResponse : AbstractResponse() {
         get() = error != null
 
     val hasResult: Boolean
-        get() = !hasError
+        get() = !hasError && (result != null)
+
+    val hasParams: Boolean
+        get() = !hasError && (params != null)
 
 
     fun <T> getResult(clazz: Class<T>): T? {
         return if (hasResult) {
             Gson().fromJson(result, clazz)
+        } else null
+    }
+
+    fun <T> getParams(clazz: Class<T>): T? {
+        return if (hasParams) {
+            Gson().fromJson(params, clazz)
         } else null
     }
 

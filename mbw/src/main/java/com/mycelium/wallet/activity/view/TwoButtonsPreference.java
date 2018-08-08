@@ -24,10 +24,6 @@ public class TwoButtonsPreference extends Preference implements ModulePreference
     Button bottomButton;
 
     @Nullable
-    @BindView(R.id.under_icon_text)
-    TextView underIconTextView;
-
-    @Nullable
     @BindView(R.id.sync_state)
     TextView syncState;
 
@@ -37,11 +33,11 @@ public class TwoButtonsPreference extends Preference implements ModulePreference
     private String bottomButtonText;
     private boolean topButtonEnabled;
     private boolean bottomButtonEnabled;
-    private String underIconText;
     private String syncStateText;
 
     public TwoButtonsPreference(Context context) {
         super(context);
+        setLayoutResource(R.layout.preference_layout_no_icon);
         setWidgetLayoutResource(R.layout.two_button_preference);
     }
 
@@ -55,9 +51,7 @@ public class TwoButtonsPreference extends Preference implements ModulePreference
         bottomButton.setEnabled(bottomButtonEnabled);
         topButton.setOnClickListener(topButtonClickListener);
         bottomButton.setOnClickListener(bottomButtonClickListener);
-        if (underIconTextView != null) {
-            underIconTextView.setText(underIconText);
-        }
+
         if (syncState != null) {
             syncState.setText(syncStateText);
         }
@@ -93,13 +87,6 @@ public class TwoButtonsPreference extends Preference implements ModulePreference
 
         if (topButton != null) {
             topButton.setText(topButtonText);
-        }
-    }
-
-    public void setUnderIconText(String underIconText) {
-        this.underIconText = underIconText;
-        if (underIconTextView != null) {
-            underIconTextView.setText(underIconText);
         }
     }
 

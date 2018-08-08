@@ -40,7 +40,6 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test:rules:1.0.1'
 
-    implementation project(includePrefix + ':libs:zxing-android')
     implementation project(includePrefix + ':coinapult')
     implementation project(includePrefix +':walletmodel')
     implementation project(includePrefix + ':wapi')
@@ -51,16 +50,18 @@ dependencies {
     implementation project(includePrefix + ':btchip')
     implementation project(includePrefix + ':LVL')
     implementation project(includePrefix + ':libs:nordpol')
-    implementation project(includePrefix + ':libs:zxing-core')
     implementation project(includePrefix + ':bitlib')
     implementation project(includePrefix + ':view')
     implementation project(includePrefix + ':bitcoincashj:core')
 
     implementation guavaArtifact
-    implementation 'com.squareup.retrofit2:retrofit:2.3.0'
-    implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
-    implementation 'com.squareup.retrofit2:converter-jackson:2.3.0'
+    implementation 'com.squareup.retrofit2:retrofit:2.4.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.4.0'
+    implementation 'com.squareup.retrofit2:converter-jackson:2.4.0'
     implementation 'com.squareup.okhttp3:logging-interceptor:3.6.0'
+
+    // ViewModel and LiveData
+    implementation "android.arch.lifecycle:extensions:$lifecycle_version"
 
     //not upgrading. This will be removed from the core app
     implementation 'com.google.android.gms:play-services-base:9.0.2'
@@ -85,7 +86,8 @@ dependencies {
     implementation 'commons-codec:commons-codec:1.10'
     implementation 'com.google.protobuf:protobuf-java:3.1.0'
     implementation 'com.android.support.constraint:constraint-layout:1.1.0-beta5'
-    implementation 'com.shehabic.droppy:Droppy:0.6.0@aar'
+
+    implementation 'com.journeyapps:zxing-android-embedded:3.6.0'
 
     implementation project(includePrefix + ':myceliummodularizationtools')
     implementation project(includePrefix + ':modulespvcontract')
@@ -130,8 +132,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 2100602
-        versionName '2.10.6.2'
+        versionCode 2110113
+        versionName '2.11.1.13'
         multiDexEnabled true
 
         minSdkVersion 19
@@ -198,7 +200,7 @@ android {
                 ColuBlockExplorerApiURLs = '{"https://coloredcoins.gear.mycelium.com/api/", "https://explorer.coloredcoins.org/api/"}'
                 RMCChangeAddress = "18c91fJmVg7btPjxpwrhgwd37GkVghq9me"
 
-                ElectrumServers = '{"tcp-tls://electrumx-1.mycelium.com:50001"}'
+                ElectrumServers = '{"tcp-tls://electrumx.mycelium.com:4431"}'
 
                 appIdSpvBch = [release: "com.mycelium.module.spvbch",
                                debug  : "com.mycelium.module.spvbch.debug"]
@@ -219,7 +221,7 @@ android {
                 ColuBlockExplorerApiURLs = '{"http://testnet.explorer.coloredcoins.org/api/"}'
                 RMCChangeAddress = "mx92L6iuCfxQUz4cLNU4jJpfWbavVHgYj9"
 
-                ElectrumServers = '{"tcp-tls://electrumx-1.mycelium.com:50012"}'
+                ElectrumServers = '{"tcp-tls://electrumx.mycelium.com:4432"}'
 
                 appIdSpvBch = [release: "com.mycelium.module.spvbch.testnet",
                                debug  : "com.mycelium.module.spvbch.testnet.debug"]

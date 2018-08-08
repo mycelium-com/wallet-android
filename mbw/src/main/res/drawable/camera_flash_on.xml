@@ -1,0 +1,9 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="@dimen/camera_button_size"
+    android:height="@dimen/camera_button_size"
+    android:viewportHeight="24.0"
+    android:viewportWidth="24.0">
+    <path
+        android:fillColor="@color/white"
+        android:pathData="M7,2v11h3v9l7,-12h-4l4,-8z" />
+</vector>

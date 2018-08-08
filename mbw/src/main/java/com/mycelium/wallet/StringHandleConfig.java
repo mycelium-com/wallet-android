@@ -244,7 +244,7 @@ public class StringHandleConfig implements Serializable {
             MbwManager mbwManager = MbwManager.getInstance(handlerActivity);
             // Calculate the account ID that this key would have
             UUID account = SingleAddressAccount.calculateId(key.get().getPublicKey().toAddress(mbwManager.getNetwork()));
-            UUID bchAccount = SingleAddressBCHAccount.calculateId(key.get().getPublicKey().toAddress(mbwManager.getNetwork()));
+            UUID bchAccount = SingleAddressBCHAccount.Companion.calculateId(key.get().getPublicKey().toAddress(mbwManager.getNetwork()));
             // Check whether regular wallet contains the account
             boolean success = mbwManager.getWalletManager(false).hasAccount(account)
                     || mbwManager.getColuManager().hasAccount(account);
@@ -372,7 +372,7 @@ public class StringHandleConfig implements Serializable {
          }
       };
 
-      private static boolean isKeyNode(NetworkParameters network, String content) {
+      public static boolean isKeyNode(NetworkParameters network, String content) {
          try {
             HdKeyNode.parse(content, network);
             return true;

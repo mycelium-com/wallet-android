@@ -49,10 +49,6 @@
         <item name="colorAccent">@color/color_accent</item>
         <item name="android:windowBackground">@drawable/background_window</item>
 
-        <item name="droppyPopupStyle">@style/MyceliumDroppyPopup</item>
-        <item name="droppyMenuItemStyle">@style/MyceliumMenuItem</item>
-        <item name="droppyMenuItemTitleStyle">@style/MyceliumMenuItemTitle</item>
-        <item name="droppyMenuSeparatorStyle">@style/MyceliumDroppyMenuSeparator</item>
     </style>
 
     <style name="MyceliumLauncher" parent="MyceliumModern">
@@ -73,6 +69,8 @@
         <item name="actionBarStyle">@style/MyceliumSettings.ActionBar</item>
         <item name="preferenceTheme">@style/MyceliumSettingsPreferenceThemeOverlay
         </item>
+        <item name="preference_module_item_color">@color/preference_item_color</item>
+        <item name="preference_module_divider_color">@color/preference_background</item>
     </style>
 
     <style name="MyceliumSettings.Dialog" parent="MyceliumSettings.Dialog.Small">
@@ -291,6 +289,10 @@
         <item name="android:indeterminateDrawable">@android:drawable/progress_indeterminate_horizontal</item>
     </style>
 
+    <style name="AccountProgressBar" parent="@style/Widget.AppCompat.ProgressBar.Horizontal">
+        <item name="colorAccent">@color/dark_sky_blue</item>
+    </style>
+
     <style name="MyceliumDroppyPopup">
         <item name="android:background">#343434</item>
     </style>
@@ -338,6 +340,12 @@
         <item name="android:paddingRight">@dimen/button_padding_large</item>
         <item name="android:paddingStart">@dimen/button_padding_large</item>
         <item name="android:paddingEnd">@dimen/button_padding_large</item>
+    </style>
+
+    <style name="Switch" parent="Theme.AppCompat.Light">
+        <item name="colorSwitchThumbNormal">@color/lightgrey</item>
+        <item name="android:colorForeground">@color/grey</item>
+        <item name="colorControlActivated">@color/buttonredcolor</item>
     </style>
 
     <color name="btn_text_color">#5aa7e6</color>

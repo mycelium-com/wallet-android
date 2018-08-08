@@ -147,6 +147,7 @@ public class ModernMain extends AppCompatActivity {
 
       getWindow().setBackgroundDrawableResource(R.drawable.background_main);
 
+      mViewPager.setOffscreenPageLimit(4);
       mTabsAdapter = new TabsAdapter(this, mViewPager, _mbwManager);
       mAccountsTab = bar.newTab();
       mTabsAdapter.addTab(mAccountsTab.setText(getString(R.string.tab_accounts)), AccountsFragment.class, null);
@@ -265,7 +266,7 @@ public class ModernMain extends AppCompatActivity {
    }
 
    @Override
-   protected void onResume() {
+   protected void onStart() {
       _mbwManager.getEventBus().register(this);
 
       long curTime = new Date().getTime();
@@ -302,15 +303,15 @@ public class ModernMain extends AppCompatActivity {
       }, 100, MIN_AUTOSYNC_INTERVAL);
 
       supportInvalidateOptionsMenu();
-      super.onResume();
+      super.onStart();
    }
 
    @Override
-   protected void onPause() {
+   protected void onStop() {
       stopBalanceRefreshTimer();
       _mbwManager.getEventBus().unregister(this);
       _mbwManager.getVersionManager().closeDialog();
-      super.onPause();
+      super.onStop();
    }
 
    @Override
@@ -429,7 +430,8 @@ public class ModernMain extends AppCompatActivity {
                syncMode = SyncMode.NORMAL_ALL_ACCOUNTS_FORCED;
             }
             _mbwManager.getWalletManager(false).startSynchronization(syncMode);
-            _mbwManager.getColuManager().startSynchronization();
+            _mbwManager.getColuManager().startSynchronization(syncMode);
+
             // also fetch a new exchange rate, if necessary
             _mbwManager.getExchangeRateManager().requestOptionalRefresh();
             showRefresh(); // without this call sometime user not see click feedback
@@ -445,7 +447,8 @@ public class ModernMain extends AppCompatActivity {
          case R.id.miRescanTransactions:
             _mbwManager.getSelectedAccount().dropCachedData();
             _mbwManager.getWalletManager(false).startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
-            _mbwManager.getColuManager().startSynchronization();
+            _mbwManager.getColuManager().startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
+
             break;
 
          case R.id.miVerifyMessage:
@@ -568,7 +571,7 @@ public class ModernMain extends AppCompatActivity {
    @Subscribe
    public void onSpvSynced(SpvSyncChanged spvSyncChanged) {
       if (spvSyncChanged.chainDownloadPercentDone == 100) {
-         BCHHelper.bchSynced(this);
+         BCHHelper.bchSynced(ModernMain.this);
       }
    }
 }

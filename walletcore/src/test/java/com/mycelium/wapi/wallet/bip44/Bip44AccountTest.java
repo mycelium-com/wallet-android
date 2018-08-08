@@ -35,7 +35,7 @@ public class Bip44AccountTest {
         // Determine the next BIP44 account index
         Bip39.MasterSeed masterSeed = Bip39.generateSeedFromWordList(MASTER_SEED_WORDS.split(" "), "");
 
-        WalletManager walletManager = new WalletManager(store, backing, NetworkParameters.productionNetwork, fakeWapi, null, null, fakeWapi, null);
+        WalletManager walletManager = new WalletManager(store, backing, NetworkParameters.productionNetwork, fakeWapi, null, null, false);
 
         walletManager.configureBip32MasterSeed(masterSeed, cipher);
 

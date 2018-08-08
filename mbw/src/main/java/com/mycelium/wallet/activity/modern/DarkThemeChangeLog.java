@@ -39,9 +39,20 @@ import de.cketti.library.changelog.ChangeLog;
 
 public class DarkThemeChangeLog extends ChangeLog {
    public static final String DARK_THEME_CSS =
-         "body { color: #ffffff; background-color: #282828; }\n h1 { padding-bottom: 2px; margin-bottom:0px; line-height:100%; } \n ul{ margin-top:1px; }" + "\n a{ color: #5fcbf2; }" + "\n" + DEFAULT_CSS;
+         "body { color: #ffffff; background-color: #424242; }" +
+                 "\n h1 { padding-bottom: 2px; margin-top:16px; margin-bottom:0px; line-height:100%; } " +
+                 "\n ul{ margin-top:1px; }" +
+                 "\n a{ color: #5fcbf2; }" +
+                 "\n" + DEFAULT_CSS;
 
    public DarkThemeChangeLog(Context context) {
       super(context, DARK_THEME_CSS);
+   }
+
+   @Override
+   public boolean isFirstRun() {
+      final boolean isFirstRun = super.isFirstRun();
+      updateVersionInPreferences();
+      return isFirstRun;
    }
 }

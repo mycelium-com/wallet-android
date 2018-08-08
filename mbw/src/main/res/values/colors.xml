@@ -8,6 +8,8 @@
     <color name="black">#000</color>
     <color name="darkblue">#2f6699</color>
     <color name="brightblue">#449def</color>
+    <color name="dark_sky_blue">#5aa7e6</color>
+    <color name="dark_sky_blue_transp">#665aa7e6</color>
     <color name="darkred">#99662f</color>
     <color name="brightred">#ef9d44</color>
     <color name="brightgreen">#44ef9d</color>
@@ -19,7 +21,6 @@
     <color name="greenblue">#0FF</color>
     <color name="darkgrey">#444</color>
     <color name="darkdarkgrey">#222</color>
-    <color name="grey">#888</color>
     <color name="lightgrey">#bbb</color>
     <color name="lightgrey_transparent">#77555555</color>
     <color name="white">#fff</color>
@@ -35,6 +36,10 @@
     <color name="buttonredcolor">#ffff1c1c</color>
     
     <drawable name="semi_black">#80000000</drawable>
+
+    <!-- camera uses them -->
+    <color name="black_transparent">#CC000000</color> <!-- 80% -->
+    <color name="camera_border_black">#66000000</color>
 
     <color name="status_green">#bbdd99</color>
     <color name="status_red">#ffea5e5e</color>
@@ -52,6 +57,7 @@
     <color name="new_btn_text_color">#5d5d5d</color>
     <color name="transparentaction">#22888888</color>
     <color name="pref_background">#2c2c2c</color>
+    <color name="preference_item_color">#2c2c2c</color>
 
     <fraction name="background_alpha">50%</fraction>
 </resources>

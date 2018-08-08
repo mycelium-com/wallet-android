@@ -1,11 +1,10 @@
 package com.mycelium.wapi.api.jsonrpc
 
 import com.mycelium.WapiLogger
-import com.mycelium.wapi.api.ConnectionMonitor
-import com.mycelium.wapi.api.ConnectionMonitor.ConnectionEvent.*
 import java.io.BufferedOutputStream
 import java.io.BufferedReader
 import java.io.InputStreamReader
+import java.net.InetSocketAddress
 import java.net.Socket
 import java.util.*
 import java.util.concurrent.CountDownLatch
@@ -15,19 +14,23 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import javax.net.ssl.SSLSocketFactory
 import kotlin.concurrent.thread
+import kotlin.concurrent.timerTask
+import kotlin.system.measureTimeMillis
 
 typealias Consumer<T> = (T) -> Unit
 
 class TcpEndpoint(val host: String, val port: Int)
 
 open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
-                            val logger: WapiLogger) : ConnectionMonitor {
-    private val observers = ArrayList<ConnectionMonitor.ConnectionObserver>()
+                            val logger: WapiLogger) {
     private var curEndpointIndex = (Math.random() * endpoints.size).toInt()
     private val ssf = SSLSocketFactory.getDefault() as SSLSocketFactory
 
+    var isConnected = AtomicBoolean(false)
     @Volatile
-    private var isConnected = false
+    var lastSuccessTime = System.currentTimeMillis()
+    @Volatile
+    private var isStopped = false
     @Volatile
     private var socket: Socket? = null
     @Volatile
@@ -36,15 +39,87 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
     private var outgoing : BufferedOutputStream? = null
     private val nextRequestId = AtomicInteger(0)
     private val isStarted = AtomicBoolean(false)
+    // Timer responsible for periodically executing ping requests
+    private var pingTimer: Timer? = null
+    @Volatile
+    private var currentResponceTimeout = SMALL_RESPONSE_TIMEOUT
+    @Volatile
+    private var connectionAttempt = 0
 
     private val callbacks = mutableMapOf<String, Consumer<AbstractResponse>>()
+    private val subscriptions = mutableMapOf<String, Subscription>()
 
-    override fun register(o: ConnectionMonitor.ConnectionObserver?) {
-        observers.add(o!!)
+    @Throws(IllegalStateException::class)
+    fun start() {
+        if (isStarted.getAndSet(true)) {
+            throw IllegalStateException("RPC client could not be started twice.")
+        }
+        thread(start = true) {
+            while(!isStopped) {
+                val currentEndpoint = endpoints[curEndpointIndex]
+                try {
+                    synchronized(this) {
+                        socket = ssf.createSocket()
+                        socket?.soTimeout = currentResponceTimeout.toInt()
+                        socket?.connect(InetSocketAddress(currentEndpoint.host, currentEndpoint.port))
+                        socket!!.keepAlive = true
+                        incoming = BufferedReader(InputStreamReader(socket!!.getInputStream()))
+                        outgoing = BufferedOutputStream(socket!!.getOutputStream())
+                        callbacks.clear()
+                        notify("server.version", RpcParams.mapParams(
+                                "client_name" to "wapi",
+                                "protocol_version" to "1.2"))
+                        isConnected.set(true)
+                        connectionAttempt = 0
+
+                        // Schedule periodic ping requests execution
+                        pingTimer = Timer()
+                        pingTimer?.scheduleAtFixedRate(timerTask {
+                            sendPingMessage()
+                        }, 0, INTERVAL_BETWEEN_PING_REQUESTS)
+                        if (subscriptions.isNotEmpty()) {
+                            renewSubscriptions()
+                        }
+                    }
+
+                    // Inner loop for reading data from socket. If the connection breaks, we should
+                    // exit this loop and try creating new socket in order to restore connection
+                    while (isConnected.get()) {
+                        val line = incoming!!.readLine()
+                        // There can be a use case when BufferedReader.readline() returns null
+                                ?: continue
+                        messageReceived(line)
+                    }
+                } catch (exception: Exception) {
+                    logger.logError("Socket creation or receiving failed: ${exception.message}")
+                }
+                close()
+                isConnected.set(false)
+                // Sleep for some time before moving to the next endpoint
+                Thread.sleep(INTERVAL_BETWEEN_SOCKET_RECONNECTS)
+                if (curEndpointIndex + 1 == endpoints.size && connectionAttempt < 3) {
+                    connectionAttempt++
+                }
+                curEndpointIndex = (curEndpointIndex + 1) % endpoints.size
+                currentResponceTimeout = calculateNewTimeout(connectionAttempt)
+                pingTimer?.cancel()
+            }
+        }
     }
 
-    override fun unregister(o: ConnectionMonitor.ConnectionObserver?) {
-        observers.remove(o!!)
+    fun getSubscriptions(): Map<String, Subscription> = subscriptions
+
+    /**
+     * Must be called to correctly stop all the threads.
+     */
+    fun stop() {
+        isConnected.set(false)
+        try {
+            socket?.close()
+        } catch (e: Exception) {
+            // we have nothing to do with this
+        }
+        isStopped = true
     }
 
     fun notify(methodName: String, params: RpcParams) {
@@ -53,10 +128,21 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
         }.toJson())
     }
 
-    fun writeAsync(methodName: String, params: RpcParams, callback: Consumer<AbstractResponse>) {
-        val request = RpcRequestOut(methodName, params).apply {
+    fun renewSubscriptions() {
+        logger.logInfo("Subscriptions been renewed")
+        synchronized(subscriptions) {
+            val toRenew = subscriptions.toMutableMap()
+            toRenew.forEach { subscribe(it.value) }
+        }
+    }
+
+    fun subscribe(subscription: Subscription) {
+        val request = RpcRequestOut(subscription.methodName, subscription.params).apply {
             id = nextRequestId.getAndIncrement().toString()
-            callbacks[id.toString()] = callback
+            callbacks[id.toString()] = subscription.callback
+            synchronized(subscriptions) {
+                subscriptions[subscription.methodName] = subscription
+            }
         }.toJson()
         internalWrite(request)
     }
@@ -65,11 +151,10 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
      * Computes a "short" compound ID based on an array of IDs.
      */
     private fun compoundId(ids: Array<String>): String = ids.sortedArray().joinToString("")
-    //return HashUtils.sha256(string.toByteArray()).toHex()
 
     @Throws(TimeoutException::class)
     @Synchronized
-    fun write(requests: List<RpcRequestOut>, timeOut: Long): BatchedRpcResponse {
+    fun write(requests: List<RpcRequestOut>): BatchedRpcResponse {
         var response: BatchedRpcResponse? = null
         val latch = CountDownLatch(1)
 
@@ -87,16 +172,20 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
         val batchedRequest = '[' + requests.joinToString { it.toJson() } + ']'
         internalWrite(batchedRequest)
 
-        if (!latch.await(timeOut, TimeUnit.MILLISECONDS)) {
-            throw TimeoutException("Timeout")
+        val executedIn = measureTimeMillis {
+            if (!latch.await(SMALL_RESPONSE_TIMEOUT, TimeUnit.MILLISECONDS)) {
+                isConnected.set(false)
+                throw TimeoutException("Timeout")
+            }
         }
+        currentResponceTimeout = calculateNewTimeout(executedIn)
 
         return response!!
     }
 
     @Throws(TimeoutException::class)
     @Synchronized
-    fun write(methodName: String, params: RpcParams, timeOut: Long): RpcResponse {
+    fun write(methodName: String, params: RpcParams): RpcResponse {
         var response: RpcResponse? = null
         val latch = CountDownLatch(1)
         val request = RpcRequestOut(methodName, params).apply {
@@ -107,65 +196,40 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
             }
         }.toJson()
         internalWrite(request)
-        if (!latch.await(timeOut, TimeUnit.MILLISECONDS)) {
-            throw TimeoutException("Timeout")
+
+        val executedIn = measureTimeMillis {
+            if (!latch.await(SMALL_RESPONSE_TIMEOUT, TimeUnit.MILLISECONDS)) {
+                isConnected.set(false)
+                throw TimeoutException("Timeout")
+            }
         }
+        currentResponceTimeout = calculateNewTimeout(executedIn)
         return response!!
     }
 
-    private fun notifyListeners() {
-        observers.forEach {
-            it.connectionChanged(if (isConnected) WENT_ONLINE else WENT_OFFLINE)
+    private fun calculateNewTimeout(executedIn: Long): Long {
+        return when {
+            executedIn <= SMALL_RESPONSE_TIMEOUT -> SMALL_RESPONSE_TIMEOUT
+            executedIn <= MEDIUM_RESPONSE_TIMEOUT -> MEDIUM_RESPONSE_TIMEOUT
+            else -> MAX_RESPONSE_TIMEOUT
         }
     }
 
-    @Throws(IllegalStateException::class)
-    fun start() {
-        if (isStarted.compareAndSet(true, true)) {
-            throw IllegalStateException("RPC client could not be started twice.")
-        }
-        thread(start = true) {
-            while(true) {
-                val currentEndpoint = endpoints[curEndpointIndex]
-                try {
-                    socket = ssf.createSocket(currentEndpoint.host, currentEndpoint.port)
-                    socket!!.keepAlive = true
-                    incoming = BufferedReader(InputStreamReader(socket!!.getInputStream()))
-                    outgoing = BufferedOutputStream(socket!!.getOutputStream())
-                    callbacks.clear()
-                    notify("server.version", RpcParams.mapParams(
-                            "client_name" to "wapi",
-                            "protocol_version" to "1.2"))
-                    isConnected = true
-                    notifyListeners()
-
-                    // Inner loop for reading data from socket. If the connection breaks, we should
-                    // exit this loop and try creating new socket in order to restore connection
-                    while (isConnected) {
-                        val line = incoming!!.readLine()
-                                // There can be a use case when BufferedReader.readline() returns null
-                                ?: continue
-                        messageReceived(line)
-                    }
-                } catch (exception: Exception) {
-                    logger.logError("Socket creation or receiving failed: ${exception.message}")
-                }
-                close()
-                isConnected = false
-                notifyListeners()
-                // Sleep for some time before moving to the next endpoint
-                Thread.sleep(INTERVAL_BETWEEN_SOCKET_RECONNECTS)
-                curEndpointIndex = (curEndpointIndex + 1) % endpoints.size
-            }
+    private fun calculateNewTimeout(attempt: Int): Long {
+        return when (attempt) {
+            0 -> SMALL_RESPONSE_TIMEOUT
+            1 -> MEDIUM_RESPONSE_TIMEOUT
+            else -> MAX_RESPONSE_TIMEOUT
         }
     }
 
-    fun close() = socket?.close()
+    private fun close() = socket?.close()
 
     private fun messageReceived(message: String) {
         if (message.contains("error")) {
             logger.logError(message)
         }
+        lastSuccessTime = System.currentTimeMillis()
         val isBatched = message[0] == '['
         if (isBatched) {
             val response = BatchedRpcResponse.fromJson(message)
@@ -178,10 +242,28 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
         } else {
             val response = RpcResponse.fromJson(message)
             val id = response.id.toString()
-            callbacks[id]?.also { callback ->
-                callback.invoke(response)
+            if (id != NO_ID.toString()) {
+                callbacks[id]?.also { callback ->
+                    callback.invoke(response)
+                }
+            } else {
+                subscriptions[response.method]?.apply {
+                    callback.invoke(response)
+                }
             }
             callbacks.remove(id)
+        }
+    }
+
+    // Send ping message. It is expected to be executed in the dedicated timer thread
+    private fun sendPingMessage() {
+        try {
+            val pong = write("server.ping", RpcMapParams(emptyMap<String, String>()))
+            logger.logInfo("Pong! $pong")
+        } catch (ex: Exception) {
+            isConnected.set(false)
+            socket?.close()
+            ex.printStackTrace()
         }
     }
 
@@ -197,6 +279,10 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
         }
     }
     companion object {
-        private const val INTERVAL_BETWEEN_SOCKET_RECONNECTS = 5000L
+        private val INTERVAL_BETWEEN_SOCKET_RECONNECTS = TimeUnit.SECONDS.toMillis(5)
+        private val INTERVAL_BETWEEN_PING_REQUESTS = TimeUnit.SECONDS.toMillis(10)
+        private val SMALL_RESPONSE_TIMEOUT = TimeUnit.SECONDS.toMillis(10)
+        private val MEDIUM_RESPONSE_TIMEOUT = TimeUnit.MINUTES.toMillis(1)
+        private val MAX_RESPONSE_TIMEOUT = TimeUnit.MINUTES.toMillis(5)
     }
 }

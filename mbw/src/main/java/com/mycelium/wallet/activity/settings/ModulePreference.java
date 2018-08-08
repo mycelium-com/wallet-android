@@ -7,7 +7,5 @@ public interface ModulePreference {
 
     void setSyncStateText(String syncStatus);
 
-    void setUnderIconText(String underIconText);
-
     Context getContext();
 }

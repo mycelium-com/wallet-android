@@ -95,7 +95,7 @@ import static java.util.Collections.singletonList;
 
 public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
    private static final int COINBASE_MIN_CONFIRMATIONS = 100;
-   private static final int MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY = 50;
+   private static final int MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY = 199;
    private final ColuTransferInstructionsParser coluTransferInstructionsParser;
 
    public interface EventHandler {
@@ -110,6 +110,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
 
    private EventHandler _eventHandler;
    private final AccountBacking _backing;
+   protected int syncTotalRetrievedTransactions = 0;
 
    protected AbstractAccount(AccountBacking backing, NetworkParameters network, Wapi wapi) {
       _network = network;
@@ -278,6 +279,11 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       List<TransactionOutputEx> unspentOutputsToAddOrUpdate = new LinkedList<>();
       for (TransactionOutputEx r : remoteUnspent) {
          TransactionOutputEx l = localMap.get(r.outPoint);
+         if (l == null) {
+            // We might have already spent transaction, but if getUnspent used connection to different server
+            // it would not know that output is already spent.
+            l = _backing.getParentTransactionOutput(r.outPoint);
+         }
          if (l == null || l.height != r.height) {
             // New remote output or new height (Maybe it confirmed or we
             // might even have had a reorg). Either way we just update it
@@ -336,34 +342,9 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       return newUtxos;
    }
 
-   @SuppressWarnings("NewApi")
-   protected WapiResponse<GetTransactionsResponse> getTransactionsBatched(Collection<Sha256Hash> txids) throws WapiException {
-      if (txids.size() > MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY) {
-         final ArrayDeque<Sha256Hash> queue = new ArrayDeque<>(txids);
-         Sha256Hash elem;
-         ArrayList<Sha256Hash> toFetch = new ArrayList<>(MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY);
-         final LinkedList<TransactionExApi> results = new LinkedList<>();
-         while ((elem = queue.poll()) != null) {
-            toFetch.add(elem);
-            if (toFetch.size() == MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY) {
-               handleGetTransactionsResponseWapiResponse(toFetch, results);
-               toFetch.clear();
-            }
-         }
-         if (toFetch.size() > 0) {
-            handleGetTransactionsResponseWapiResponse(toFetch, results);
-         }
-         return new WapiResponse<>(new GetTransactionsResponse(results));
-      } else {
-         final GetTransactionsRequest fullRequest = new GetTransactionsRequest(Wapi.VERSION, txids);
-         return _wapi.getTransactions(fullRequest);
-      }
-   }
-
-   private void handleGetTransactionsResponseWapiResponse(ArrayList<Sha256Hash> toFetch, LinkedList<TransactionExApi> results) throws WapiException {
-      final GetTransactionsRequest partialRequest = new GetTransactionsRequest(Wapi.VERSION, toFetch);
-      final WapiResponse<GetTransactionsResponse> partialResponse = _wapi.getTransactions(partialRequest);
-      results.addAll(partialResponse.getResult().transactions);
+   protected WapiResponse<GetTransactionsResponse> getTransactionsBatched(Collection<Sha256Hash> txids)  {
+      final GetTransactionsRequest fullRequest = new GetTransactionsRequest(Wapi.VERSION, txids);
+      return _wapi.getTransactions(fullRequest);
    }
 
    protected abstract boolean doDiscoveryForAddresses(List<Address> lookAhead) throws WapiException;
@@ -379,6 +360,8 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
    protected void handleNewExternalTransactions(Collection<TransactionExApi> transactions) throws WapiException {
       if (transactions.size() <= MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY) {
          handleNewExternalTransactionsInt(transactions);
+         syncTotalRetrievedTransactions += transactions.size();
+         updateSyncProgress();
       } else {
          // We have quite a list of transactions to handle, do it in batches
          ArrayList<TransactionExApi> all = new ArrayList<>(transactions);
@@ -386,14 +369,16 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
             int endIndex = Math.min(all.size(), i + MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY);
             Collection<TransactionExApi> sub = all.subList(i, endIndex);
             handleNewExternalTransactionsInt(sub);
+            syncTotalRetrievedTransactions += (endIndex - i);
+            updateSyncProgress();
          }
       }
    }
 
    private void handleNewExternalTransactionsInt(Collection<TransactionExApi> transactions) throws WapiException {
       // Transform and put into two arrays with matching indexes
-      ArrayList<TransactionEx> texArray = new ArrayList<>(transactions.size());
-      ArrayList<Transaction> txArray = new ArrayList<>(transactions.size());
+      List<TransactionEx> texArray = new ArrayList<>(transactions.size());
+      List<Transaction> txArray = new ArrayList<>(transactions.size());
       for (TransactionEx tex : transactions) {
          try {
             txArray.add(Transaction.fromByteReader(new ByteReader(tex.binary)));
@@ -408,14 +393,15 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       fetchStoreAndValidateParentOutputs(txArray);
 
       // Store transaction locally
+      _backing.putTransactions(texArray);
+
       for (int i = 0; i < txArray.size(); i++) {
          final TransactionEx transactionEx = texArray.get(i);
-         _backing.putTransaction(transactionEx);
          onNewTransaction(transactionEx, txArray.get(i));
       }
    }
 
-   private void fetchStoreAndValidateParentOutputs(ArrayList<Transaction> transactions) throws WapiException {
+   private void fetchStoreAndValidateParentOutputs(List<Transaction> transactions) throws WapiException {
       Map<Sha256Hash, TransactionEx> parentTransactions = new HashMap<>();
       Map<OutPoint, TransactionOutputEx> parentOutputs = new HashMap<>();
 
@@ -498,8 +484,16 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       }
 
       // Persist
-      for (TransactionOutputEx output : toPersist) {
-         _backing.putParentTransactionOutput(output);
+      if (toPersist.size() <= MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY) {
+         _backing.putParentTransactionOuputs(toPersist);
+      } else {
+         // We have quite a list of transactions to handle, do it in batches
+         ArrayList<TransactionOutputEx> all = new ArrayList<>(toPersist);
+         for (int i = 0; i < all.size(); i += MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY) {
+            int endIndex = Math.min(all.size(), i + MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY);
+            List<TransactionOutputEx> sub = all.subList(i, endIndex);
+            _backing.putParentTransactionOuputs(sub);
+         }
       }
    }
 
@@ -1374,15 +1368,13 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
          }
 
          // update the local transaction
-         if (localTransactionEx != null && (localTransactionEx.height != t.height || localTransactionEx.time != t.time)) {
-            // The transaction got a new height or timestamp. There could be
-            // several reasons for that. It got a new timestamp from the server,
-            // it confirmed, or might also be a reorg.
-            TransactionEx newTex = new TransactionEx(localTransactionEx.txid, localTransactionEx.hash, t.height, t.time, localTransactionEx.binary);
+         if (localTransactionEx != null && (localTransactionEx.height != t.height)) {
+            // The transaction got a new height. There could be
+            // several reasons for that. It confirmed, or might also be a reorg.
+            TransactionEx newTex = new TransactionEx(localTransactionEx.txid, localTransactionEx.hash, t.height, localTransactionEx.time, localTransactionEx.binary);
             _logger.logInfo(String.format("Replacing: %s With: %s", localTransactionEx.toString(), newTex.toString()));
-            postEvent(Event.TRANSACTION_HISTORY_CHANGED);
-            _backing.deleteTransaction(localTransactionEx.txid);
             _backing.putTransaction(newTex);
+            postEvent(Event.TRANSACTION_HISTORY_CHANGED);
          }
       }
       return true;
@@ -1552,6 +1544,14 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
 
    public AccountBacking getAccountBacking() {
       return this._backing;
+   }
+
+   public int getSyncTotalRetrievedTransactions() {
+      return syncTotalRetrievedTransactions;
+   }
+
+   public void updateSyncProgress() {
+      postEvent(Event.SYNC_PROGRESS_UPDATED);
    }
 }
 

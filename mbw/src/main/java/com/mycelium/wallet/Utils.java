@@ -176,10 +176,12 @@ public class Utils {
        */
    }
 
-   public static Resources getResourcesByLocale(Resources res, String localeName) {
-      Configuration conf = new Configuration(res.getConfiguration());
-      conf.locale = new Locale(localeName);
-      return new Resources(res.getAssets(), res.getDisplayMetrics(), conf);
+   public static Resources getResourcesByLocale(Context context, String localeName) {
+      Configuration conf = context.getResources().getConfiguration();
+      conf = new Configuration(conf);
+      conf.setLocale(new Locale(localeName));
+      Context localizedContext = context.createConfigurationContext(conf);
+      return localizedContext.getResources();
    }
 
    public static Bitmap getMinimalQRCodeBitmap(String url) {
@@ -533,7 +535,10 @@ public class Utils {
       try {
          @SuppressWarnings("deprecation")
          ClipboardManager clipboard = (ClipboardManager) activity.getSystemService(Context.CLIPBOARD_SERVICE);
-         clipboard.setText("");
+         // some phones have clipboard history, we override it all
+         for (int i = 0; i < 100 ; i++) {
+            clipboard.setText(""+i);
+         }
       } catch (NullPointerException ex) {
          MbwManager.getInstance(activity).reportIgnoredException(new RuntimeException(ex.getMessage()));
          Toast.makeText(activity, activity.getString(R.string.unable_to_clear_clipboard), Toast.LENGTH_LONG).show();
@@ -876,7 +881,7 @@ public class Utils {
    }
 
    public static Drawable getDrawableForAccount(WalletAccount walletAccount, boolean isSelectedAccount, Resources resources) {
-      if(walletAccount instanceof ColuAccount) {
+      if (walletAccount instanceof ColuAccount) {
          ColuAccount account = (ColuAccount) walletAccount;
          switch (account.getColuAsset().assetType) {
             case MT:

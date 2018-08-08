@@ -60,6 +60,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.EvictingQueue;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Queues;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Ints;
 import com.mrd.bitlib.crypto.Bip39;
@@ -134,6 +135,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Queue;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -176,10 +178,10 @@ public class MbwManager {
       if (_instance == null) {
          if(BuildConfig.DEBUG) {
             StrictMode.ThreadPolicy threadPolicy = StrictMode.allowThreadDiskReads();
-            _instance = new MbwManager(context);
+            _instance = new MbwManager(context.getApplicationContext());
             StrictMode.setThreadPolicy(threadPolicy);
          } else {
-            _instance = new MbwManager(context);
+            _instance = new MbwManager(context.getApplicationContext());
          }
       }
       return _instance;
@@ -217,12 +219,14 @@ public class MbwManager {
    private TorManager _torManager;
    public final BlockExplorerManager _blockExplorerManager;
 
-   private EvictingQueue<LogEntry> _wapiLogs = EvictingQueue.create(100);
+   private final Queue<LogEntry> _wapiLogs;
    private Cache<String, Object> _semiPersistingBackgroundObjects = CacheBuilder.newBuilder().maximumSize(10).build();
 
    private WalletConfiguration configuration;
 
    private MbwManager(Context evilContext) {
+      Queue<LogEntry> unsafeWapiLogs = EvictingQueue.create(100);
+      _wapiLogs  = Queues.synchronizedQueue(unsafeWapiLogs);
       _applicationContext = Preconditions.checkNotNull(evilContext.getApplicationContext());
       _environment = MbwEnvironment.verifyEnvironment();
       String version = VersionManager.determineVersion(_applicationContext);
@@ -380,7 +384,6 @@ public class MbwManager {
       }
    }
 
-
    private Optional<ColuManager> createColuManager(final Context context) {
       // Create persisted account backing
       // we never talk directly to this class. Instead, we use SecureKeyValueStore API
@@ -428,7 +431,7 @@ public class MbwManager {
       });
    }
 
-   private synchronized void retainLog(Level level, String message) {
+   private void retainLog(Level level, String message) {
       _wapiLogs.add(new LogEntry(message, level, new Date()));
    }
 
@@ -788,7 +791,7 @@ public class MbwManager {
                }
             } else {
                Toast.makeText(activity, R.string.pin_codes_dont_match, Toast.LENGTH_LONG).show();
-               MbwManager.this.vibrate(500);
+               MbwManager.this.vibrate();
                dialog.dismiss();
                if (afterDialogClosed.isPresent()) {
                   afterDialogClosed.get().run();
@@ -860,7 +863,7 @@ public class MbwManager {
                      Thread.sleep(millis);
                   } catch (InterruptedException ignored) {
                      Toast.makeText(activity, "Something weird is happening. avoid getting to pin check", Toast.LENGTH_LONG).show();
-                     vibrate(500);
+                     vibrate();
                      pinDialog.dismiss();
                      return;
                   }
@@ -903,7 +906,7 @@ public class MbwManager {
                   } else {
                      // This pin is not resettable, you are out of luck
                      Toast.makeText(activity, R.string.pin_invalid_pin, Toast.LENGTH_LONG).show();
-                     vibrate(500);
+                     vibrate();
                      pinDialog.dismiss();
                   }
                }
@@ -933,13 +936,9 @@ public class MbwManager {
    }
 
    public void vibrate() {
-      vibrate(500);
-   }
-
-   private void vibrate(int milliseconds) {
       Vibrator v = (Vibrator) _applicationContext.getSystemService(Context.VIBRATOR_SERVICE);
       if (v != null) {
-         v.vibrate(milliseconds);
+         v.vibrate(500);
       }
    }
 
@@ -1278,7 +1277,7 @@ public class MbwManager {
       return _wapi;
    }
 
-   public EvictingQueue<LogEntry> getWapiLogs() {
+   public Queue<LogEntry> getWapiLogs() {
       return _wapiLogs;
    }
 
@@ -1335,27 +1334,21 @@ public class MbwManager {
       }
    }
 
-   public ColuManager getColuManager() {
+   public synchronized ColuManager getColuManager() {
       if(_coluManager != null && _coluManager.isPresent()) {
          return _coluManager.get();
       } else {
-         synchronized (this) {
-            _coluManager = createColuManager(_applicationContext);
-            if (_coluManager.isPresent()) {
-               return _coluManager.get();
-            } else {
-               throw new IllegalStateException("Tried to obtain colu manager without having created one.");
-            }
+         _coluManager = createColuManager(_applicationContext);
+         if (_coluManager.isPresent()) {
+            return _coluManager.get();
+         } else {
+            throw new IllegalStateException("Tried to obtain colu manager without having created one.");
          }
       }
    }
 
    public Cache<String, Object> getBackgroundObjectsCache() {
       return _semiPersistingBackgroundObjects;
-   }
-
-   private void switchServer() {
-      _environment.getWapiEndpoints().switchToNextEndpoint();
    }
 
    public void stopWatchingAddress(){

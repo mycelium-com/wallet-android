@@ -15,10 +15,8 @@
 
 package com.commonsware.cwac.endless;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -55,7 +53,7 @@ abstract public class EndlessAdapter extends AdapterWrapper {
   abstract protected void appendCachedData();
 
   private View pendingView=null;
-  private AtomicBoolean keepOnAppending=new AtomicBoolean(true);
+  protected AtomicBoolean keepOnAppending=new AtomicBoolean(true);
   private Context context;
   private int pendingResource=-1;
   private boolean isSerialized=false;
@@ -284,18 +282,15 @@ abstract public class EndlessAdapter extends AdapterWrapper {
     return(new AppendTask(this));
   }
 
-  @TargetApi(11)
   private <T> void executeAsyncTask(AsyncTask<T, ?, ?> task,
                                     T... params) {
-    if (!isSerialized
-        && (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)) {
+    if (!isSerialized) {
       task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
-    }
-    else {
+    } else {
       task.execute(params);
     }
   }
-  
+
   private void setKeepOnAppending(boolean newValue) {
     boolean same=(newValue==keepOnAppending.get());
     
