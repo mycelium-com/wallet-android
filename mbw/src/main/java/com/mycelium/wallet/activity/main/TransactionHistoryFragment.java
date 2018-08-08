@@ -416,7 +416,7 @@ public class TransactionHistoryFragment extends Fragment {
                        checkNotNull(menu.findItem(R.id.miRebroadcastTransaction))
                            .setVisible((record.confirmations == 0) && !record.canCoinapult());
                        checkNotNull(menu.findItem(R.id.miBumpFee))
-                           .setVisible((record.confirmations == 0) && !record.canCoinapult());
+                           .setVisible((record.confirmations == 0) && !record.canCoinapult() && (_mbwManager.getSelectedAccount().canSpend()));
                        checkNotNull(menu.findItem(R.id.miDeleteUnconfirmedTransaction))
                            .setVisible(record.confirmations == 0);
                        checkNotNull(menu.findItem(R.id.miShare)).setVisible(!record.canCoinapult());
