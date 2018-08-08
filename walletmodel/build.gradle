@@ -8,8 +8,6 @@ repositories {
 
 dependencies {
     implementation project(includePrefix + ':bitlib')
-    implementation project(includePrefix + ':mbwlib')
-    implementation project(includePrefix + ':walletmodel')
 
     testImplementation "junit:junit:$junitVersion"
     testImplementation "org.mockito:mockito-core:2.0.44-beta"

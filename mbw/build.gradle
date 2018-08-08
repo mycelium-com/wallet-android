@@ -42,7 +42,9 @@ dependencies {
 
     implementation project(includePrefix + ':libs:zxing-android')
     implementation project(includePrefix + ':coinapult')
+    implementation project(includePrefix +':walletmodel')
     implementation project(includePrefix + ':wapi')
+    implementation project(includePrefix + ':walletcore')
     implementation project(includePrefix + ':trezor')
     implementation project(includePrefix + ':lt-api')
     implementation project(includePrefix + ':mbwlib')
