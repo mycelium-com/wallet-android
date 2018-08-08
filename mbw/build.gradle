@@ -41,7 +41,9 @@ dependencies {
     androidTestImplementation 'com.android.support.test:rules:1.0.1'
 
     implementation project(includePrefix + ':coinapult')
+    implementation project(includePrefix +':walletmodel')
     implementation project(includePrefix + ':wapi')
+    implementation project(includePrefix + ':walletcore')
     implementation project(includePrefix + ':trezor')
     implementation project(includePrefix + ':lt-api')
     implementation project(includePrefix + ':mbwlib')

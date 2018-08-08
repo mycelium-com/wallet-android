@@ -1,1 +1,1 @@
-Web API for the [Mycelium Bitcoin Wallet](../mbw) (server code).
+Module *wapi* contains Electrum and Mycelium WAPI client implementations.
