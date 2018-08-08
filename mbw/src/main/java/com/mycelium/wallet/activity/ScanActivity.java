@@ -45,9 +45,11 @@ import android.util.DisplayMetrics;
 import android.view.Surface;
 
 import com.google.common.base.Preconditions;
-import com.google.zxing.client.android.CaptureActivity;
 import com.google.zxing.client.android.Intents;
-import com.mycelium.wallet.*;
+import com.mycelium.wallet.MbwManager;
+import com.mycelium.wallet.R;
+import com.mycelium.wallet.StringHandleConfig;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.modern.Toaster;
 
 /**
@@ -117,9 +119,9 @@ public class ScanActivity extends Activity {
    }
 
    private void startScanner() {
-      Intent intent = new Intent(this, CaptureActivity.class)
+      Intent intent = new Intent(this, CustomCaptureActivity.class)
               .putExtra(Intents.Scan.MODE, Intents.Scan.QR_CODE_MODE)
-              .putExtra(Intents.Scan.ENABLE_CONTINUOUS_FOCUS, MbwManager.getInstance(this).getContinuousFocus());
+              .putExtra(Intents.Scan.BEEP_ENABLED, false);
       startActivityForResult(intent, SCANNER_RESULT_CODE);
    }
 

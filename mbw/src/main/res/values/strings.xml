@@ -149,8 +149,8 @@
     <string name="active_accounts_empty">(Empty)</string>
     <string name="activate_action">Activate</string>
     <string name="archive_action">Archive</string>
-    <string name="question_archive_account"><![CDATA[Archive an account if you don\'t intend to use it for a long time.\n\nArchived account won\'t be monitored. That means you can not work with this account while having its label in your accounts list.This feature adds privacy and security, keeping your balance and access to funds secure.\n\nTo activate archived account select it from accounts list "Archived" section, tap on the menu button in the top right corner of the screen and select "Activate".\n\nDo you want to archive account <b>\"%1$s\"</b> holding <b>%2$s</b> and account <b>\"%3$s\"</b> holding <b>%4$s</b>?]]></string>
-    <string name="question_archive_account_s"><![CDATA[Archive an account if you don\'t intend to use it for a long time.\n\nArchived account won\'t be monitored. That means you can not work with this account while having its label in your accounts list.This feature adds privacy and security, keeping your balance and access to funds secure.\n\nTo activate archived account select it from accounts list "Archived" section, tap on the menu button in the top right corner of the screen and select "Activate".\n\nDo you want to archive account <b>\"%1$s\"</b> holding <b>%2$s</b>?]]></string>
+    <string name="question_archive_account"><![CDATA[Archive an account if you don\'t intend to use it for a long time.<br><br>Archived account won\'t be monitored. That means you can not work with this account while having its label in your accounts list.<br><br>This feature adds privacy and security, keeping your balance and access to funds secure.<br><br>To activate archived account select it from accounts list "Archived" section, tap on the menu button in the top right corner of the screen and select "Activate".<br><br>Do you want to archive account <b>\"%1$s\"</b> holding <b>%2$s</b> and account <b>\"%3$s\"</b> holding <b>%4$s</b>?]]></string>
+    <string name="question_archive_account_s"><![CDATA[Archive an account if you don\'t intend to use it for a long time.<br><br>Archived account won\'t be monitored. That means you can not work with this account while having its label in your accounts list.<br><br>This feature adds privacy and security, keeping your balance and access to funds secure.<br><br>To activate archived account select it from accounts list "Archived" section, tap on the menu button in the top right corner of the screen and select "Activate".<br><br>Do you want to archive account <b>\"%1$s\"</b> holding <b>%2$s</b>?]]></string>
     <string name="master_seed_configuration_title">Welcome to Mycelium</string>
     <string name="master_seed_configuration_description">Do you want to restore a backup, or create a new wallet?</string>
     <string name="master_seed_create_new_button">Create New</string>
@@ -1195,7 +1195,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="singlekey_verify_notice">You have made (or attempted to make) a backup of your Single Address account. To make sure you did it correctly, please verify your backup. If you have made a mistake making your backup you can lose your funds forever.</string>
     <string name="backup_not_verified">Backup not verified</string>
     <string name="i_understand_the_risks">I understand the risks</string>
-    <string name="this_is_read_only_account">This is watch-only account. In order to spend its funds, you need to import the corresponding private key.\nYou can do it by selecting Accounts tab > Add New Account > Advanced and using either Scan or Clipboard option for key's importing.</string>
+    <string name="this_is_read_only_account">This is watch-only account. In order to spend funds from it, you need to import the corresponding private key.\nYou can do it by selecting Accounts tab > Add New Account > Advanced and using either Scan or Clipboard option for key's importing.</string>
     <string name="balance_error">Insufficient funds</string>
     <string name="or">or</string>
     <string name="waiting_offer">Waiting offer…</string>
@@ -1247,6 +1247,12 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="public_key">Public key</string>
     <string name="private_key_s">Private key</string>
     <string name="warning">Warning</string>
+    <string name="no_orbot">No Orbot installed</string>
+    <string name="no_google_play_installed">No Google Play installed on the device</string>
+    <string name="button_ok">OK</string>
+    <string name="button_done">Done</string>
+    <string name="button_cancel">Cancel</string>
+    <string name="transactions_loading_from_module_error">Error loading transactions from module</string>
     <plurals name="account_label">
         <item quantity="one">Account label:\n%s</item>
         <item quantity="other">Accounts labels:\n%s</item>

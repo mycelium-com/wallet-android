@@ -114,7 +114,11 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
      */
     fun stop() {
         isConnected.set(false)
-        socket?.close()
+        try {
+            socket?.close()
+        } catch (e: Exception) {
+            // we have nothing to do with this
+        }
         isStopped = true
     }
 
@@ -126,14 +130,19 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
 
     fun renewSubscriptions() {
         logger.logInfo("Subscriptions been renewed")
-        subscriptions.forEach { subscribe(it.value) }
+        synchronized(subscriptions) {
+            val toRenew = subscriptions.toMutableMap()
+            toRenew.forEach { subscribe(it.value) }
+        }
     }
 
     fun subscribe(subscription: Subscription) {
         val request = RpcRequestOut(subscription.methodName, subscription.params).apply {
             id = nextRequestId.getAndIncrement().toString()
             callbacks[id.toString()] = subscription.callback
-            subscriptions[subscription.methodName] = subscription
+            synchronized(subscriptions) {
+                subscriptions[subscription.methodName] = subscription
+            }
         }.toJson()
         internalWrite(request)
     }
@@ -250,8 +259,7 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
     private fun sendPingMessage() {
         try {
             val pong = write("server.ping", RpcMapParams(emptyMap<String, String>()))
-            val calendar = Calendar.getInstance(Locale.ENGLISH)
-            logger.logInfo("Pong! $pong " + calendar.time)
+            logger.logInfo("Pong! $pong")
         } catch (ex: Exception) {
             isConnected.set(false)
             socket?.close()

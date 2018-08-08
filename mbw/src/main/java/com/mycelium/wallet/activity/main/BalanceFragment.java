@@ -35,16 +35,18 @@
 package com.mycelium.wallet.activity.main;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import com.google.common.base.Optional;
@@ -78,15 +80,14 @@ import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
-import com.shehabic.droppy.DroppyClickCallbackInterface;
-import com.shehabic.droppy.DroppyMenuItem;
-import com.shehabic.droppy.DroppyMenuPopup;
 import com.squareup.otto.Subscribe;
 
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -120,10 +121,18 @@ public class BalanceFragment extends Fragment {
    }
 
    private void updateExchangeSourceMenu() {
-      DroppyMenuPopup.Builder builder = new DroppyMenuPopup.Builder(getActivity(), exchangeSourceLayout);
+      final PopupMenu exchangeMenu = new PopupMenu(getActivity(), exchangeSourceLayout);
+      exchangeSourceLayout.setOnClickListener(new OnClickListener() {
+         @Override
+         public void onClick(View v) {
+            exchangeMenu.show();
+         }
+      });
+
       ExchangeRateManager exchangeRateManager = _mbwManager.getExchangeRateManager();
       final List<String> sources = exchangeRateManager.getExchangeSourceNames();
-      
+      final Map<String, String> sourcesAndValues = new HashMap<>(); // Needed for popup menu
+
       Collections.sort(sources, new Comparator<String>() {
          @Override
          public int compare(String rate1, String rate2) {
@@ -142,17 +151,18 @@ public class BalanceFragment extends Fragment {
          } else {
             item = source + " (" + price + ")";
          }
-         builder.addMenuItem(new DroppyMenuItem(item));
-         if (i < sources.size() - 1) {
-            builder.addSeparator();
-         }
+
+         sourcesAndValues.put(item, source);
+         exchangeMenu.getMenu().add(item);
       }
-      builder.setOnClick(new DroppyClickCallbackInterface() {
+
+      exchangeMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
          @Override
-         public void call(View v, int id) {
-            _mbwManager.getExchangeRateManager().setCurrentExchangeSourceName(sources.get(id));
+         public boolean onMenuItemClick(MenuItem item) {
+            _mbwManager.getExchangeRateManager().setCurrentExchangeSourceName(sourcesAndValues.get(item.getTitle().toString()));
+            return false;
          }
-      }).build();
+      });
    }
 
    @Override
@@ -162,14 +172,14 @@ public class BalanceFragment extends Fragment {
    }
 
    @Override
-   public void onAttach(Activity activity) {
-      _mbwManager = MbwManager.getInstance(getActivity());
-      _toaster = new Toaster(activity);
-      super.onAttach(activity);
+   public void onAttach(Context context) {
+      _mbwManager = MbwManager.getInstance(context);
+      _toaster = new Toaster(this);
+      super.onAttach(context);
    }
 
    @Override
-   public void onResume() {
+   public void onStart() {
       _mbwManager.getEventBus().register(this);
       _exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
       if (_exchangeRatePrice == null) {
@@ -180,7 +190,13 @@ public class BalanceFragment extends Fragment {
       _tcdFiatDisplay.setEventBus(_mbwManager.getEventBus());
 
       updateUi();
-      super.onResume();
+      super.onStart();
+   }
+
+   @Override
+   public void onStop() {
+      _mbwManager.getEventBus().unregister(this);
+      super.onStop();
    }
 
    @OnClick(R.id.btSend)
@@ -236,12 +252,6 @@ public class BalanceFragment extends Fragment {
          config.bitcoinUriWithAddressAction = StringHandleConfig.BitcoinUriWithAddressAction.SEND_COLU_ASSET;
       }
       ScanActivity.callMe(getActivity(), ModernMain.GENERIC_SCAN_REQUEST, config);
-   }
-
-   @Override
-   public void onPause() {
-      _mbwManager.getEventBus().unregister(this);
-      super.onPause();
    }
 
    private boolean isBCH() {

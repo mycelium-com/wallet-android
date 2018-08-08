@@ -162,7 +162,7 @@ public class BTChipTransportAndroid implements BTChipTransportFactory {
                callback.onConnected(false);
                return true;
             }
-         } catch (InterruptedException ignored) {
+         } catch (Exception ignored) {
          }
       }
    }
@@ -182,7 +182,7 @@ public class BTChipTransportAndroid implements BTChipTransportFactory {
       return null;
    }
 
-   public static BTChipTransport open(UsbManager manager, UsbDevice device) {
+   public static BTChipTransport open(UsbManager manager, UsbDevice device) throws ConnectionFailException {
       // Must only be called once permission is granted (see http://developer.android.com/reference/android/hardware/usb/UsbManager.html)
       // Important if enumerating, rather than being awaken by the intent notification
       UsbInterface dongleInterface = device.getInterface(0);
@@ -198,6 +198,9 @@ public class BTChipTransportAndroid implements BTChipTransportFactory {
          }
       }
       UsbDeviceConnection connection = manager.openDevice(device);
+      if (connection == null) {
+         throw new ConnectionFailException("Connection was not established");
+      }
       connection.claimInterface(dongleInterface, true);
       ledger = ((device.getProductId() == PID_HID_LEDGER)
             || (device.getProductId() == PID_HID_LEDGER_PROTON)

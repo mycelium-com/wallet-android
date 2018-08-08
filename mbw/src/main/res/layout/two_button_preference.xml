@@ -3,8 +3,10 @@
     android:id="@+id/two_button_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:gravity="right"
-    android:orientation="horizontal">
+    android:gravity="end"
+    android:orientation="vertical"
+    android:layout_marginEnd="8dp"
+    android:layout_marginStart="8dp">
 
 
     <Button xmlns:android="http://schemas.android.com/apk/res/android"
@@ -17,6 +19,7 @@
         android:textStyle="normal"
         android:fontFamily="sans-serif-medium"
         android:text="@string/ok"
+        android:layout_marginBottom="16dp"
         android:textSize="14sp"
         android:textColor="@color/common_blue"/>
 
@@ -27,8 +30,6 @@
         android:background="@color/transparent"
         android:textAllCaps="true"
         android:focusable="false"
-        android:layout_marginStart="32dp"
-        android:layout_marginEnd="16dp"
         android:textStyle="normal"
         android:fontFamily="sans-serif-medium"
         android:text="@string/ok"

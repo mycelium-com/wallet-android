@@ -7,6 +7,7 @@ import java.util.*
 import java.util.concurrent.*
 import java.util.concurrent.CancellationException
 import java.util.concurrent.TimeoutException
+import kotlin.collections.ArrayList
 import kotlin.concurrent.timerTask
 
 class ConnectionManager(private val connectionsCount: Int, private val endpoints: Array<TcpEndpoint>,
@@ -74,7 +75,7 @@ class ConnectionManager(private val connectionsCount: Int, private val endpoints
     @Throws(CancellationException::class)
     fun write(methodName: String, params: RpcParams): RpcResponse {
         if (!isNetworkConnected) {
-            throw TimeoutException("No network connection")
+            throw CancellationException("No network connection")
         }
         return runBlocking {
             withTimeout(MAX_WRITE_TIME) {
@@ -93,10 +94,53 @@ class ConnectionManager(private val connectionsCount: Int, private val endpoints
         }
     }
 
+    /**
+     * This method broadcasts request to all available connections
+     */
+    @Throws(CancellationException::class)
+    fun broadcast(methodName: String, params: RpcParams): List<RpcResponse> {
+        if (!isNetworkConnected) {
+            throw CancellationException("No network connection")
+        }
+        return runBlocking {
+            withTimeout(MAX_WRITE_TIME) {
+                val responseList = ArrayList<RpcResponse>()
+                while (responseList.isEmpty()) {
+                    runBroadcast(responseList, methodName, params)
+                }
+                responseList
+            }
+        }
+    }
+
+    private fun runBroadcast(responseList: ArrayList<RpcResponse>, methodName: String, params: RpcParams) {
+        val clientsList = ArrayList<JsonRpcTcpClient>()
+        while (jsonRpcTcpClientsList.isNotEmpty()) {
+            clientsList.add(getClient())
+        }
+        val failedList = ArrayList<JsonRpcTcpClient>()
+        responseList.addAll(clientsList.pmap {
+            try {
+                it.write(methodName, params)
+            } catch (e: TimeoutException) {
+                synchronized(failedList) {
+                    failedList.add(it)
+                }
+                null
+            }
+        }.filterNotNull())
+        jsonRpcTcpClientsList.addAll(clientsList.minus(failedList))
+        maintenancedClientsList.addAll(failedList)
+    }
+
+    private fun <A, B>Iterable<A>.pmap(f: suspend (A) -> B): List<B> = runBlocking {
+        map { async { f(it) } }.map { it.await() }
+    }
+
     @Throws(CancellationException::class)
     fun write(requests: List<RpcRequestOut>): BatchedRpcResponse {
         if (!isNetworkConnected) {
-            throw TimeoutException("No network connection")
+            throw CancellationException("No network connection")
         }
         return runBlocking {
             withTimeout(MAX_WRITE_TIME) {

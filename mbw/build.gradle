@@ -44,7 +44,6 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test:rules:1.0.1'
 
-    implementation project(includePrefix + ':libs:zxing-android')
     implementation project(includePrefix + ':coinapult')
     implementation project(includePrefix + ':wapi')
     implementation project(includePrefix + ':trezor')
@@ -53,15 +52,14 @@ dependencies {
     implementation project(includePrefix + ':btchip')
     implementation project(includePrefix + ':LVL')
     implementation project(includePrefix + ':libs:nordpol')
-    implementation project(includePrefix + ':libs:zxing-core')
     implementation project(includePrefix + ':bitlib')
     implementation project(includePrefix + ':view')
     implementation project(includePrefix + ':bitcoincashj:core')
 
     implementation guavaArtifact
-    implementation 'com.squareup.retrofit2:retrofit:2.3.0'
-    implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
-    implementation 'com.squareup.retrofit2:converter-jackson:2.3.0'
+    implementation 'com.squareup.retrofit2:retrofit:2.4.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.4.0'
+    implementation 'com.squareup.retrofit2:converter-jackson:2.4.0'
     implementation 'com.squareup.okhttp3:logging-interceptor:3.6.0'
 
     // ViewModel and LiveData
@@ -90,7 +88,8 @@ dependencies {
     implementation 'commons-codec:commons-codec:1.10'
     implementation 'com.google.protobuf:protobuf-java:3.1.0'
     implementation 'com.android.support.constraint:constraint-layout:1.1.0-beta5'
-    implementation 'com.shehabic.droppy:Droppy:0.6.0@aar'
+
+    implementation 'com.journeyapps:zxing-android-embedded:3.6.0'
 
     implementation project(includePrefix + ':myceliummodularizationtools')
     implementation project(includePrefix + ':modulespvcontract')
