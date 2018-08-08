@@ -42,6 +42,7 @@ import com.mrd.bitlib.model.UnspentTransactionOutput;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.HashUtils;
+import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.WapiLogger;
 import com.mycelium.wapi.ColuTransferInstructionsParser;
@@ -606,12 +607,17 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       Map<Sha256Hash, byte[]> transactions = _backing.getOutgoingTransactions();
 
       for (byte[] rawTransaction : transactions.values()) {
-         TransactionEx tex = TransactionEx.fromUnconfirmedTransaction(rawTransaction);
-
-         BroadcastResult result = broadcastTransaction(TransactionEx.toTransaction(tex));
+         Transaction transaction;
+         try {
+            transaction = Transaction.fromBytes(rawTransaction);
+         } catch (TransactionParsingException e) {
+            _logger.logError("Unable to parse transaction from bytes: " + HexUtils.toHex(rawTransaction), e);
+            return  false;
+         }
+         BroadcastResult result = broadcastTransaction(transaction);
          if (result == BroadcastResult.SUCCESS) {
-            broadcastedIds.add(tex.txid);
-            _backing.removeOutgoingTransaction(tex.txid);
+            broadcastedIds.add(transaction.getId());
+            _backing.removeOutgoingTransaction(transaction.getId());
          } /* else {
             // DW: commented this section out, because we changed how we treat outgoing tx
             // keep it, even if it got rejected and let the user delete it themself
