@@ -53,6 +53,7 @@ import java.util.TimerTask;
 public class AdditionalBackupWarningActivity extends AppCompatActivity {
    private Button btnImFine;
    private volatile int countdown;
+   private Timer countdownTimer;
 
 
    public static void callMe(Activity activity) {
@@ -102,6 +103,16 @@ public class AdditionalBackupWarningActivity extends AppCompatActivity {
       }
    }
 
+   @Override
+   public void onBackPressed() {
+      if(countdownTimer!=null){
+         countdownTimer.cancel();
+         countdownTimer.purge();
+         countdownTimer = null;
+      }
+      super.onBackPressed();
+   }
+
    private View.OnClickListener backListener = new View.OnClickListener() {
       @Override
       public void onClick(View v) {
@@ -119,8 +130,7 @@ public class AdditionalBackupWarningActivity extends AppCompatActivity {
    };
 
    private void startCountdown(){
-      
-      final Timer countdownTimer = new Timer();
+      countdownTimer = new Timer();
       final String buttonOkayDefaultText = this.getApplicationContext().getString(R.string.wordlist_start_with_additional_wordlist_backup);
 
       countdownTimer.scheduleAtFixedRate(new TimerTask() {
