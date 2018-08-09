@@ -18,9 +18,9 @@ import com.mycelium.wallet.activity.modern.adapter.holder.AccountViewHolder;
 import com.mycelium.wallet.activity.modern.adapter.holder.ArchivedGroupTitleViewHolder;
 import com.mycelium.wallet.activity.modern.adapter.holder.GroupTitleViewHolder;
 import com.mycelium.wallet.activity.modern.adapter.holder.TotalViewHolder;
+import com.mycelium.wallet.activity.modern.model.ViewAccountModel;
 import com.mycelium.wallet.activity.modern.model.accounts.AccountItem;
 import com.mycelium.wallet.activity.modern.model.accounts.AccountsListModel;
-import com.mycelium.wallet.activity.modern.model.ViewAccountModel;
 import com.mycelium.wallet.event.AccountGroupCollapsed;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.currency.CurrencySum;
@@ -58,8 +58,10 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         listModel.getAccountsData().observe(fragment, new Observer<List<? extends AccountItem>>() {
             @Override
             public void onChanged(List<? extends AccountItem> accountItems) {
-                itemList.clear();
-                itemList.addAll(accountItems);
+                synchronized (accountItems.iterator()) {
+                    itemList.clear();
+                    itemList.addAll(accountItems);
+                }
                 notifyDataSetChanged();
             }
         });

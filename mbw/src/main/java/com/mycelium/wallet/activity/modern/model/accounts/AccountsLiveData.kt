@@ -12,13 +12,18 @@ import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.modern.RecordRowBuilder
 import com.mycelium.wallet.activity.modern.adapter.AccountListAdapter
 import com.mycelium.wallet.colu.ColuAccount
-import com.mycelium.wallet.event.*
+import com.mycelium.wallet.event.AccountGroupCollapsed
+import com.mycelium.wallet.event.AccountListChanged
 import com.mycelium.wallet.persistence.MetadataStorage
 import com.mycelium.wapi.wallet.WalletAccount
 import com.squareup.otto.Subscribe
 import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+
+
+
+
 
 /**
  * This class is intended to monitor current accounts and must post changes as soon as accounts list was updated.
@@ -29,7 +34,9 @@ class AccountsLiveData(private val context: Application, private val mbwManager:
                        private val pagePrefs: SharedPreferences) : LiveData<List<AccountItem>>() {
     private val builder = RecordRowBuilder(mbwManager, context.resources)
     // List of all currently available accounts
-    private var accountsList = Collections.emptyList<AccountItem>()
+//    private var accountsList = Collections.emptyList<AccountItem>()
+    private var accountsList = Collections.synchronizedList(ArrayList<AccountItem>())
+
     private val executionService: ExecutorService
 
     init {
