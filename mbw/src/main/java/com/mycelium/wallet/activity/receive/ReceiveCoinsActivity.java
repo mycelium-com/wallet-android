@@ -45,7 +45,6 @@ import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.NfcEvent;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.view.View;
@@ -75,7 +74,7 @@ import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.SyncFailed;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wapi.model.TransactionSummary;
-import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
@@ -156,7 +155,7 @@ public class ReceiveCoinsActivity extends Activity {
         ButterKnife.bind(this);
 
         _mbwManager = MbwManager.getInstance(getApplication());
-        WalletAccount selectedAccount = _mbwManager.getSelectedAccount();
+        WalletBtcAccount selectedAccount = _mbwManager.getSelectedAccount();
         Context context = getApplicationContext();
         switch (AccountDisplayType.getAccountType(selectedAccount)) {
         case BCH_ACCOUNT:
@@ -330,7 +329,7 @@ public class ReceiveCoinsActivity extends Activity {
 
     private void updateAmount() {
         if (!CurrencyValue.isNullOrZero(_amount)) {
-            WalletAccount account = _mbwManager.getSelectedAccount();
+            WalletBtcAccount account = _mbwManager.getSelectedAccount();
             CurrencyValue primaryAmount = _amount;
             CurrencyValue alternativeAmount;
             if (primaryAmount.getCurrency().equals(account.getAccountDefaultCurrency())) {
@@ -457,7 +456,7 @@ public class ReceiveCoinsActivity extends Activity {
     public void syncStopped(SyncStopped event) {
         TextView tvRecv = (TextView) findViewById(R.id.tvReceived);
         TextView tvRecvWarning = (TextView) findViewById(R.id.tvReceivedWarningAmount);
-        final WalletAccount selectedAccount = _mbwManager.getSelectedAccount();
+        final WalletBtcAccount selectedAccount = _mbwManager.getSelectedAccount();
         final List<TransactionSummary> transactionsSince = selectedAccount.getTransactionsSince(_receivingSince);
         final ArrayList<TransactionSummary> interesting = new ArrayList<TransactionSummary>();
         CurrencyValue sum = ExactBitcoinValue.ZERO;

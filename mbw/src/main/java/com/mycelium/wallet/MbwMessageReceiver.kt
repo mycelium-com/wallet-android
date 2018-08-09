@@ -20,14 +20,14 @@ import com.mycelium.wallet.event.SpvSendFundsResult
 import com.mycelium.wallet.event.SpvSyncChanged
 import com.mycelium.wapi.wallet.AesKeyCipher
 import com.mycelium.wapi.wallet.ExportableAccount
-import com.mycelium.wapi.wallet.WalletAccount
-import com.mycelium.wapi.wallet.WalletAccount.Type.BCHBIP44
-import com.mycelium.wapi.wallet.WalletAccount.Type.BCHSINGLEADDRESS
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount.Type.BCHBIP44
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount.Type.BCHSINGLEADDRESS
 import com.mycelium.wapi.wallet.WalletManager
-import com.mycelium.wapi.wallet.bip44.Bip44Account
-import com.mycelium.wapi.wallet.bip44.Bip44BCHAccount
+import com.mycelium.wapi.wallet.btc.bip44.Bip44BtcAccount
+import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.currency.CurrencyValue
-import com.mycelium.wapi.wallet.single.SingleAddressAccount
+import com.mycelium.wapi.wallet.btc.single.SingleAddressBtcAccount
 import com.squareup.otto.Bus
 import com.subgraph.orchid.encoders.Hex
 import org.bitcoinj.core.*
@@ -62,7 +62,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
         when (intent.action) {
             "com.mycelium.wallet.notifySatoshisReceived" -> {
                 val accountsIndex = intent.getIntArrayExtra(IntentContract.ACCOUNTS_INDEX)
-                val walletAccounts = mutableListOf<WalletAccount>()
+                val walletAccounts = mutableListOf<WalletBtcAccount>()
                 for(accountIndex in accountsIndex) {
                     walletManager.activeAccounts.filterTo(walletAccounts) {
                         it is Bip44BCHAccount && it.accountIndex == accountIndex
@@ -163,7 +163,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
 
                 when(accountType) {
                     IntentContract.UNRELATED_ACCOUNT_TYPE_HD -> {
-                        val account: WalletAccount =_mbwManager.getWalletManager(false).getAccount(UUID.fromString(accountGuid))
+                        val account: WalletBtcAccount =_mbwManager.getWalletManager(false).getAccount(UUID.fromString(accountGuid))
                             //This is a way to not to pass information that this is a cold storage to BCH module and back
                             ?: _mbwManager.getWalletManager(true).getAccount(UUID.fromString(accountGuid))
 
@@ -183,9 +183,9 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                     }
                     IntentContract.UNRELATED_ACCOUNT_TYPE_SA -> {
                         Log.d(TAG, "com.mycelium.wallet.requestSingleAddressPrivateKeyToMBW, guid = $accountGuid")
-                        val account =_mbwManager.getWalletManager(false).getAccount(UUID.fromString(accountGuid)) as? SingleAddressAccount
+                        val account =_mbwManager.getWalletManager(false).getAccount(UUID.fromString(accountGuid)) as? SingleAddressBtcAccount
                                 //This is a way to not to pass information that this is a cold storage to BCH module and back
-                                ?: _mbwManager.getWalletManager(true).getAccount(UUID.fromString(accountGuid)) as SingleAddressAccount
+                                ?: _mbwManager.getWalletManager(true).getAccount(UUID.fromString(accountGuid)) as SingleAddressBtcAccount
 
                         val service = if (account.publicKey == null) {
                             IntentContract.SendUnrelatedWatchedAddressToSPV.createIntent(accountGuid,
@@ -260,7 +260,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
 
                 val keyList = ArrayList<ECKey>()
 
-                if (account is SingleAddressAccount) {
+                if (account is SingleAddressBtcAccount) {
                     val privateKeyBase58 = account.getPrivateKey(AesKeyCipher.defaultKeyCipher()).getBase58EncodedPrivateKey(mbwManager.network)
 
                     keyList.add(DumpedPrivateKey.fromBase58(networkParameters, privateKeyBase58).key)
@@ -281,7 +281,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 val signedTransaction = signAndSerialize(networkParameters, keyList, txUTXOsHexList, transaction)
                 val service = IntentContract.SendSignedTransactionUnrelatedToSPV.createIntent(operationId, accountGuid,
                         signedTransaction)
-                WalletApplication.sendToSpv(service, if (account is Bip44Account) BCHBIP44 else BCHSINGLEADDRESS)
+                WalletApplication.sendToSpv(service, if (account is Bip44BtcAccount) BCHBIP44 else BCHSINGLEADDRESS)
             }
             null -> Log.w(TAG, "onMessage failed. No action defined.")
             else -> Log.e(TAG, "onMessage failed. Unknown action ${intent.action}")
@@ -311,7 +311,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
         return proposedTransaction.partialTx.bitcoinSerialize()
     }
 
-    private fun createNextAccount(account: Bip44Account, walletManager: WalletManager,
+    private fun createNextAccount(account: Bip44BtcAccount, walletManager: WalletManager,
                                   archived: Boolean) {
         if(account.hasHadActivity()
                 && !walletManager.doesBip44AccountExists(account.accountIndex + 1)) {

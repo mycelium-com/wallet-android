@@ -43,7 +43,7 @@ import android.content.Intent;
 
 import com.mycelium.wallet.activity.RestartPopupActivity;
 import com.mycelium.wallet.activity.StartupActivity;
-import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 import java.util.List;
 
@@ -52,7 +52,7 @@ public class PackageRemovedReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         if (intent.getData() != null) {
             String packageName = intent.getData().getEncodedSchemeSpecificPart();
-            String spvModuleName = WalletApplication.getSpvModuleName(WalletAccount.Type.BCHBIP44);
+            String spvModuleName = WalletApplication.getSpvModuleName(WalletBtcAccount.Type.BCHBIP44);
             if (packageName.equals(spvModuleName)) {
                 switch (intent.getAction()) {
                     case Intent.ACTION_PACKAGE_ADDED:

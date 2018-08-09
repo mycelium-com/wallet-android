@@ -50,7 +50,7 @@ import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.colu.ColuAccount;
-import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 import java.util.UUID;
 
@@ -74,7 +74,7 @@ public class ManualAddressEntry extends Activity {
       findViewById(R.id.btOk).setOnClickListener(okClickListener);
       ((EditText) findViewById(R.id.etAddress)).setInputType(InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE);
 
-      WalletAccount account = _mbwManager.getWalletManager(isColdStorage).getAccount(accountUUID);
+      WalletBtcAccount account = _mbwManager.getWalletManager(isColdStorage).getAccount(accountUUID);
       if(account instanceof ColuAccount) {
          ColuAccount coluAccount = (ColuAccount) account;
          ((TextView) findViewById(R.id.title)).setText(getString(R.string.enter_address, coluAccount.getColuAsset().name));

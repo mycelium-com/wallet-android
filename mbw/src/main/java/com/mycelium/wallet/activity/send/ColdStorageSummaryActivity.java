@@ -50,15 +50,15 @@ import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wapi.model.Balance;
-import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.model.BalanceSatoshis;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 import java.util.UUID;
 
 public class ColdStorageSummaryActivity extends Activity {
    private static final int SEND_MAIN_REQUEST_CODE = 1;
    private MbwManager _mbwManager;
-   private WalletAccount _account;
+   private WalletBtcAccount _account;
 
    public static void callMe(Activity currentActivity, UUID account) {
       Intent intent = new Intent(currentActivity, ColdStorageSummaryActivity.class)
@@ -94,7 +94,7 @@ public class ColdStorageSummaryActivity extends Activity {
    }
 
    private void updateUi(){
-      Balance balance = _account.getBalance();
+      BalanceSatoshis balance = _account.getBalance();
 
       // Description
       if (_account.canSpend()) {
@@ -107,7 +107,7 @@ public class ColdStorageSummaryActivity extends Activity {
       Optional<Address> receivingAddress = _account.getReceivingAddress();
       ((TextView) findViewById(R.id.tvAddress)).setText(receivingAddress.isPresent() ? receivingAddress.get().toMultiLineString() : "");
 
-      // Balance
+      // BalanceSatoshis
       ((TextView) findViewById(R.id.tvBalance)).setText(_mbwManager.getBtcValueString(balance.getSpendableBalance()));
 
       Double price = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();

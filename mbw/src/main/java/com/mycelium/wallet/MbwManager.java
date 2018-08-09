@@ -89,7 +89,7 @@ import com.mycelium.wallet.api.AndroidAsyncApi;
 import com.mycelium.wallet.bitid.ExternalService;
 import com.mycelium.wallet.coinapult.CoinapultManager;
 import com.mycelium.wallet.colu.ColuManager;
-import com.mycelium.wallet.colu.SqliteColuManagerBacking;
+import com.mycelium.wallet.colu.SqliteColuManagerBtcBacking;
 import com.mycelium.wallet.event.EventTranslator;
 import com.mycelium.wallet.event.ExtraAccountsChanged;
 import com.mycelium.wallet.event.ReceivingAddressChanged;
@@ -105,25 +105,18 @@ import com.mycelium.wallet.modularisation.GooglePlayModuleCollection;
 import com.mycelium.wallet.modularisation.SpvBchFetcher;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.persistence.TradeSessionDb;
-import com.mycelium.wallet.wapi.SqliteWalletManagerBackingWrapper;
+import com.mycelium.wallet.wapi.SqliteWalletManagerBtcBackingWrapper;
 import com.mycelium.wapi.api.WapiClient;
 import com.mycelium.wapi.api.WapiClientElectrumX;
 import com.mycelium.wapi.api.jsonrpc.TcpEndpoint;
-import com.mycelium.wapi.wallet.AccountProvider;
-import com.mycelium.wapi.wallet.AesKeyCipher;
-import com.mycelium.wapi.wallet.IdentityAccountKeyManager;
-import com.mycelium.wapi.wallet.InMemoryWalletManagerBacking;
-import com.mycelium.wapi.wallet.KeyCipher;
-import com.mycelium.wapi.wallet.SecureKeyValueStore;
-import com.mycelium.wapi.wallet.SpvBalanceFetcher;
-import com.mycelium.wapi.wallet.SyncMode;
-import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.WalletManagerBacking;
-import com.mycelium.wapi.wallet.bip44.Bip44Account;
-import com.mycelium.wapi.wallet.bip44.Bip44AccountContext;
-import com.mycelium.wapi.wallet.bip44.ExternalSignatureProviderProxy;
-import com.mycelium.wapi.wallet.single.SingleAddressAccount;
+import com.mycelium.wapi.wallet.*;
+import com.mycelium.wapi.wallet.btc.InMemoryWalletManagerBtcBacking;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+import com.mycelium.wapi.wallet.btc.WalletManagerBtcBacking;
+import com.mycelium.wapi.wallet.btc.bip44.Bip44BtcAccount;
+import com.mycelium.wapi.wallet.btc.bip44.Bip44AccountContext;
+import com.mycelium.wapi.wallet.btc.bip44.ExternalSignatureProviderProxy;
+import com.mycelium.wapi.wallet.btc.single.SingleAddressBtcAccount;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -387,7 +380,7 @@ public class MbwManager {
    private Optional<ColuManager> createColuManager(final Context context) {
       // Create persisted account backing
       // we never talk directly to this class. Instead, we use SecureKeyValueStore API
-      SqliteColuManagerBacking coluBacking = new SqliteColuManagerBacking(context);
+      SqliteColuManagerBtcBacking coluBacking = new SqliteColuManagerBtcBacking(context);
 
       // Create persisted secure storage instance
       SecureKeyValueStore coluSecureKeyValueStore = new SecureKeyValueStore(coluBacking,
@@ -584,7 +577,7 @@ public class MbwManager {
     */
    private WalletManager createWalletManager(final Context context, MbwEnvironment environment) {
       // Create persisted account backing
-      WalletManagerBacking backing = new SqliteWalletManagerBackingWrapper(context);
+      WalletManagerBtcBacking backing = new SqliteWalletManagerBtcBackingWrapper(context);
 
       // Create persisted secure storage instance
       SecureKeyValueStore secureKeyValueStore = new SecureKeyValueStore(backing,
@@ -615,12 +608,12 @@ public class MbwManager {
    public void importLabelsToBch(WalletManager walletManager) {
       if (getSpvBchFetcher() == null)
          return;
-      List<WalletAccount> accounts = new ArrayList<>();
+      List<WalletBtcAccount> accounts = new ArrayList<>();
       accounts.addAll(walletManager.getActiveAccounts());
       accounts.addAll(walletManager.getArchivedAccounts());
-      for (WalletAccount walletAccount : accounts) {
-         if (walletAccount.getType() == WalletAccount.Type.BTCSINGLEADDRESS
-                 || walletAccount.getType() == WalletAccount.Type.BTCBIP44) {
+      for (WalletBtcAccount walletAccount : accounts) {
+         if (walletAccount.getType() == WalletBtcAccount.Type.BTCSINGLEADDRESS
+                 || walletAccount.getType() == WalletBtcAccount.Type.BTCBIP44) {
             UUID bchId = getBitcoinCashAccountId(walletAccount);
             String bchLabel = getMetadataStorage().getLabelByAccount(bchId);
             if (bchLabel == null || bchLabel.isEmpty()) {
@@ -630,7 +623,7 @@ public class MbwManager {
       }
    }
 
-   public static UUID getBitcoinCashAccountId(WalletAccount walletAccount) {
+   public static UUID getBitcoinCashAccountId(WalletBtcAccount walletAccount) {
       return UUID.nameUUIDFromBytes(("BCH" + walletAccount.getId().toString()).getBytes());
    }
 
@@ -642,7 +635,7 @@ public class MbwManager {
     */
    private WalletManager createTempWalletManager(MbwEnvironment environment) {
       // Create in-memory account backing
-      WalletManagerBacking backing = new InMemoryWalletManagerBacking();
+      WalletManagerBtcBacking backing = new InMemoryWalletManagerBtcBacking();
 
       // Create secure storage instance
       SecureKeyValueStore secureKeyValueStore = new SecureKeyValueStore(backing, new AndroidRandomSource());
@@ -1139,7 +1132,7 @@ public class MbwManager {
       return _walletManager.getBlockheight();
    }
 
-   public WalletAccount getSelectedAccount() {
+   public WalletBtcAccount getSelectedAccount() {
       UUID uuid = getLastSelectedAccountId();
 
       // If nothing is selected, or selected is archived, pick the first one
@@ -1150,7 +1143,7 @@ public class MbwManager {
             // We had a bug that allowed it, and the app will crash always after restart.
             _walletManager.activateFirstAccount();
          }
-         uuid = _walletManager.getActiveAccounts(WalletAccount.Type.BTCBIP44).get(0).getId();
+         uuid = _walletManager.getActiveAccounts(WalletBtcAccount.Type.BTCBIP44).get(0).getId();
          setSelectedAccount(uuid);
       }
 
@@ -1161,7 +1154,7 @@ public class MbwManager {
    public Optional<UUID> getAccountId(Address address, Class accountClass) {
       Optional<UUID> result = Optional.absent();
       for (UUID uuid : _walletManager.getAccountIds()) {
-         WalletAccount account = _walletManager.getAccount(uuid);
+         WalletBtcAccount account = _walletManager.getAccount(uuid);
          if ((accountClass == null || accountClass.isAssignableFrom(account.getClass()))
                  && account.isMine(address)) {
             result = Optional.of(uuid);
@@ -1187,7 +1180,7 @@ public class MbwManager {
    }
 
    public void setSelectedAccount(UUID uuid) {
-      final WalletAccount account;
+      final WalletBtcAccount account;
       account = _walletManager.getAccount(uuid);
       Preconditions.checkState(account.isActive());
       getEditor().putString(SELECTED_ACCOUNT, uuid.toString()).commit();
@@ -1198,19 +1191,19 @@ public class MbwManager {
       _walletManager.setActiveAccount(account.getId());
    }
 
-   public InMemoryPrivateKey obtainPrivateKeyForAccount(WalletAccount account, String website, KeyCipher cipher) {
-      if (account instanceof SingleAddressAccount) {
+   public InMemoryPrivateKey obtainPrivateKeyForAccount(WalletBtcAccount account, String website, KeyCipher cipher) {
+      if (account instanceof SingleAddressBtcAccount) {
          // For single address accounts we use the private key directly
          try {
-            return ((SingleAddressAccount) account).getPrivateKey(cipher);
+            return ((SingleAddressBtcAccount) account).getPrivateKey(cipher);
          } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
             throw new RuntimeException();
          }
-      } else if (account instanceof Bip44Account && ((Bip44Account) account).getAccountType() == Bip44AccountContext.ACCOUNT_TYPE_FROM_MASTERSEED) {
+      } else if (account instanceof Bip44BtcAccount && ((Bip44BtcAccount) account).getAccountType() == Bip44AccountContext.ACCOUNT_TYPE_FROM_MASTERSEED) {
          // For BIP44 accounts we derive a private key from the BIP32 hierarchy
          try {
             Bip39.MasterSeed masterSeed = _walletManager.getMasterSeed(cipher);
-            int accountIndex = ((Bip44Account) account).getAccountIndex();
+            int accountIndex = ((Bip44BtcAccount) account).getAccountIndex();
             return createBip32WebsitePrivateKey(masterSeed.getBip32Seed(), accountIndex, website);
          } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
             throw new RuntimeException(invalidKeyCipher);

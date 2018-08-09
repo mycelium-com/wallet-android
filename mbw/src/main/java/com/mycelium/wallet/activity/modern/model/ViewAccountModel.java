@@ -8,9 +8,9 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.modern.model.accounts.AccountViewModel;
-import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.bip44.Bip44Account;
-import com.mycelium.wapi.wallet.bip44.Bip44PubOnlyAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+import com.mycelium.wapi.wallet.btc.bip44.Bip44BtcAccount;
+import com.mycelium.wapi.wallet.btc.bip44.Bip44PubOnlyBtcAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 
 import java.util.Objects;
@@ -18,7 +18,7 @@ import java.util.UUID;
 
 public class ViewAccountModel {
     public UUID accountId;
-    public WalletAccount.Type accountType;
+    public WalletBtcAccount.Type accountType;
     public String displayAddress;
     public CurrencyBasedBalance balance;
     public boolean isActive;
@@ -36,16 +36,16 @@ public class ViewAccountModel {
     public ViewAccountModel(AccountViewModel viewModel, Context context) {
         accountId = viewModel.getAccountId();
         accountType = viewModel.getAccountType();
-        final WalletAccount account = MbwManager.getInstance(context).getWalletManager(false).getAccount(accountId);
-        if (account instanceof Bip44PubOnlyAccount && account.isActive()) {
-            int numKeys = ((Bip44Account) account).getPrivateKeyCount();
+        final WalletBtcAccount account = MbwManager.getInstance(context).getWalletManager(false).getAccount(accountId);
+        if (account instanceof Bip44PubOnlyBtcAccount && account.isActive()) {
+            int numKeys = ((Bip44BtcAccount) account).getPrivateKeyCount();
             if (numKeys > 1) {
                 displayAddress = context.getString(R.string.contains_addresses, numKeys);
             } else {
                 displayAddress = context.getString(R.string.account_contains_one_address_info);
             }
-        } else if (account instanceof Bip44Account && account.isActive()) {
-            int numKeys = ((Bip44Account) account).getPrivateKeyCount();
+        } else if (account instanceof Bip44BtcAccount && account.isActive()) {
+            int numKeys = ((Bip44BtcAccount) account).getPrivateKeyCount();
             if (numKeys > 1) {
                 displayAddress = context.getString(R.string.contains_keys, numKeys);
             } else {

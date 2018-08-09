@@ -46,15 +46,13 @@ import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.SignedMessage;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
-import com.mrd.bitlib.util.HashUtils;
-import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
-import com.mycelium.wapi.wallet.single.SingleAddressAccount;
+import com.mycelium.wapi.wallet.btc.single.SingleAddressBtcAccount;
 
 /*
 todo HD: root seeds will for now not support signing directly. only support single addresses.
@@ -79,7 +77,7 @@ public class MessageSigningActivity extends Activity {
            /**/"%s\n" +
            /**/"-----END BITCOIN SIGNATURE-----";
 
-    public static void callMe(Context currentActivity, SingleAddressAccount account) {
+    public static void callMe(Context currentActivity, SingleAddressBtcAccount account) {
        InMemoryPrivateKey privateKey;
        try {
           privateKey = account.getPrivateKey(AesKeyCipher.defaultKeyCipher());

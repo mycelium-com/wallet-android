@@ -51,7 +51,7 @@ import com.mycelium.modularizationtools.CommunicationManager;
 import com.mycelium.modularizationtools.ModuleMessageReceiver;
 import com.mycelium.wallet.activity.settings.SettingsPreference;
 import com.mycelium.wallet.modularisation.BCHHelper;
-import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 import java.security.Security;
 import java.util.ArrayList;
@@ -65,7 +65,7 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
     private ModuleMessageReceiver moduleMessageReceiver;
     private static WalletApplication INSTANCE;
 
-    private static Map<WalletAccount.Type, String> spvModulesMapping = initTrustedSpvModulesMapping();
+    private static Map<WalletBtcAccount.Type, String> spvModulesMapping = initTrustedSpvModulesMapping();
     private NetworkChangedReceiver networkChangedReceiver;
 
     static {
@@ -184,7 +184,7 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         unregisterReceiver(networkChangedReceiver);
     }
 
-    public static String getSpvModuleName(WalletAccount.Type accountType) {
+    public static String getSpvModuleName(WalletBtcAccount.Type accountType) {
         if (spvModulesMapping.containsKey(accountType)) {
             return spvModulesMapping.get(accountType);
         } else {
@@ -192,14 +192,14 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         }
     }
 
-    public static void sendToSpv(Intent intent, WalletAccount.Type accountType) {
+    public static void sendToSpv(Intent intent, WalletBtcAccount.Type accountType) {
         CommunicationManager.getInstance().send(getSpvModuleName(accountType), intent);
     }
 
-    private static Map<WalletAccount.Type, String> initTrustedSpvModulesMapping() {
-        Map<WalletAccount.Type, String> spvModulesMapping = new HashMap<>();
-        spvModulesMapping.put(WalletAccount.Type.BCHBIP44, BuildConfig.appIdSpvBch);
-        spvModulesMapping.put(WalletAccount.Type.BCHSINGLEADDRESS, BuildConfig.appIdSpvBch);
+    private static Map<WalletBtcAccount.Type, String> initTrustedSpvModulesMapping() {
+        Map<WalletBtcAccount.Type, String> spvModulesMapping = new HashMap<>();
+        spvModulesMapping.put(WalletBtcAccount.Type.BCHBIP44, BuildConfig.appIdSpvBch);
+        spvModulesMapping.put(WalletBtcAccount.Type.BCHSINGLEADDRESS, BuildConfig.appIdSpvBch);
         return spvModulesMapping;
     }
 

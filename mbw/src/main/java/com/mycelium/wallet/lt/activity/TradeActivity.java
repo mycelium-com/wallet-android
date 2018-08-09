@@ -73,7 +73,7 @@ import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.TradeSessionChangeMonitor;
 import com.mycelium.wallet.lt.activity.buy.SetTradeAddress;
 import com.mycelium.wallet.lt.api.*;
-import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 
 import java.net.MalformedURLException;
@@ -266,7 +266,7 @@ public class TradeActivity extends Activity {
                            // if the current selected account is also not spendable, try to select the first
                            // spendable one - there should always at least one HD account be available
                            if (!_mbwManager.getSelectedAccount().canSpend()) {
-                              final List<WalletAccount> spendingAccounts = walletManager.getSpendingAccounts();
+                              final List<WalletBtcAccount> spendingAccounts = walletManager.getSpendingAccounts();
                               if (spendingAccounts.size() > 0) {
                                  _mbwManager.setSelectedAccount(spendingAccounts.get(0).getId());
                               }
@@ -337,7 +337,7 @@ public class TradeActivity extends Activity {
 
    private void createSignedTransaction(TradeSession ts, MbwManager mbwManager) {
       Preconditions.checkNotNull(ts.buyerAddress);
-      WalletAccount acc = mbwManager.getSelectedAccount();
+      WalletBtcAccount acc = mbwManager.getSelectedAccount();
 
       // Create unsigned transaction
       StandardTransactionBuilder.UnsignedTransaction unsigned = TradeActivityUtil.createUnsignedTransaction(ts.satoshisFromSeller, ts.satoshisForBuyer,

@@ -37,9 +37,7 @@ package com.mycelium.wallet;
 
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.model.TransactionSummary;
-import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.bip44.Bip44BCHAccount;
-import com.mycelium.wapi.wallet.single.SingleAddressBCHAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 import java.io.*;
 import java.math.BigDecimal;
@@ -52,7 +50,7 @@ import java.util.TimeZone;
 public class DataExport {
    private static final String CSV_HEADER = "Account, Transaction ID, Destination Address, Timestamp, Value, Currency, Transaction Label\n";
 
-   public static File getTxHistoryCsv(WalletAccount account, List<TransactionSummary> history,
+   public static File getTxHistoryCsv(WalletBtcAccount account, List<TransactionSummary> history,
                                       MetadataStorage storage, File file) throws IOException {
       FileOutputStream fos = new FileOutputStream(file);
       OutputStreamWriter osw = new OutputStreamWriter(fos);

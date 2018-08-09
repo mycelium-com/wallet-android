@@ -51,9 +51,9 @@ import com.mycelium.wallet.pdf.ExportDistiller.ExportProgressTracker;
 import com.mycelium.wallet.pdf.ExportPdfParameters;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.KeyCipher;
-import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.single.SingleAddressAccount;
+import com.mycelium.wapi.wallet.btc.single.SingleAddressBtcAccount;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -72,9 +72,9 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
       public String address;
       public String base58PrivateKey;
       public String label;
-      private final WalletAccount.Type accountType;
+      private final WalletBtcAccount.Type accountType;
 
-      public EntryToExport(String address, String base58PrivateKey, String label, WalletAccount.Type accountType) {
+      public EntryToExport(String address, String base58PrivateKey, String label, WalletBtcAccount.Type accountType) {
          this.address = address;
          this.base58PrivateKey = base58PrivateKey;
          this.label = label;
@@ -100,20 +100,20 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
       // Populate the active and archived entries to export
       _active = new LinkedList<>();
       _archived = new LinkedList<>();
-      List<WalletAccount> accounts = new ArrayList<>();
+      List<WalletBtcAccount> accounts = new ArrayList<>();
       for (UUID id : walletManager.getAccountIds()) {
          accounts.add(walletManager.getAccount(id));
       }
       accounts = Utils.sortAccounts(accounts, storage);
       EntryToExport entry;
-      for (WalletAccount account : accounts) {
+      for (WalletBtcAccount account : accounts) {
          //TODO: add check whether coluaccount is in hd or singleaddress mode
          entry = null;
-         if (account instanceof SingleAddressAccount) {
+         if (account instanceof SingleAddressBtcAccount) {
             if (!account.isVisible()) {
                continue;
             }
-            SingleAddressAccount a = (SingleAddressAccount) account;
+            SingleAddressBtcAccount a = (SingleAddressBtcAccount) account;
             Address address = a.getAddress();
             String label = storage.getLabelByAccount(a.getId());
 
@@ -203,7 +203,7 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
    }
 
    private static ExportEntry createExportEntry(EntryToExport toExport, EncryptionParameters parameters,
-                                                NetworkParameters network, WalletAccount.Type accountType) {
+                                                NetworkParameters network, WalletBtcAccount.Type accountType) {
       String encrypted = null;
       if (toExport.base58PrivateKey != null) {
          encrypted = MrdExport.V1.encryptPrivateKey(parameters, toExport.base58PrivateKey, network);

@@ -42,7 +42,7 @@ import com.mycelium.net.ServerEndpointType;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wapi.model.TransactionDetails;
-import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 public class TransactionDetailsLabel extends GenericBlockExplorerLabel {
    private TransactionDetails transaction;
@@ -85,9 +85,9 @@ public class TransactionDetailsLabel extends GenericBlockExplorerLabel {
       if (coluMode) {
          setHandler(MbwManager.getInstance(getContext()).getColuManager().getBlockExplorer());
       } else if (MbwManager.getInstance(getContext()).getSelectedAccount().getType() ==
-              WalletAccount.Type.BCHSINGLEADDRESS
+              WalletBtcAccount.Type.BCHSINGLEADDRESS
               || MbwManager.getInstance(getContext()).getSelectedAccount().getType() ==
-              WalletAccount.Type.BCHBIP44) {
+              WalletBtcAccount.Type.BCHBIP44) {
          if (MbwManager.getInstance(getContext()).getNetwork().getNetworkType() == NetworkParameters.NetworkType.PRODNET) {
             setHandler(new BlockExplorer("BTL", "blockTrail",
                     "https://www.blocktrail.com/BCC/address/",

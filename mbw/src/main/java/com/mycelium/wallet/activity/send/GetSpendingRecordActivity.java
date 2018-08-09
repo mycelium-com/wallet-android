@@ -56,7 +56,7 @@ import com.mycelium.wallet.activity.modern.RecordRowBuilder;
 import com.mycelium.wallet.activity.modern.adapter.holder.AccountViewHolder;
 import com.mycelium.wallet.activity.modern.model.ViewAccountModel;
 import com.mycelium.wallet.persistence.MetadataStorage;
-import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -125,7 +125,7 @@ public class GetSpendingRecordActivity extends Activity {
 
    }
 
-   private void callSendInitActivity(WalletAccount account) {
+   private void callSendInitActivity(WalletBtcAccount account) {
       if (_rawPr != null){
          SendInitializationActivity.callMe(GetSpendingRecordActivity.this, account.getId(), _rawPr, false);
       } else {
@@ -144,7 +144,7 @@ public class GetSpendingRecordActivity extends Activity {
       @Override
       public void onItemClick(AdapterView<?> list, View v, int position, long id) {
          ViewAccountModel model = accountsAdapter.getItem(position);
-         WalletAccount account = _mbwManager.getWalletManager(false).getAccount(model.accountId);
+         WalletBtcAccount account = _mbwManager.getWalletManager(false).getAccount(model.accountId);
          callSendInitActivity(account);
          GetSpendingRecordActivity.this.finish();
       }
@@ -160,13 +160,13 @@ public class GetSpendingRecordActivity extends Activity {
       View warningNoSpendingAccounts = findViewById(R.id.tvNoSpendingAccounts);
       MetadataStorage storage = _mbwManager.getMetadataStorage();
       //get accounts with key and positive balance
-      List<WalletAccount> spendingAccounts = _mbwManager.getWalletManager(false).getSpendingAccountsWithBalance();
+      List<WalletBtcAccount> spendingAccounts = _mbwManager.getWalletManager(false).getSpendingAccountsWithBalance();
       if (spendingAccounts.isEmpty()) {
          //if we dont have any account with a balance, just show all accounts with priv key
          spendingAccounts = _mbwManager.getWalletManager(false).getSpendingAccounts();
       }
-      ArrayList<WalletAccount> result = new ArrayList<>();
-      for (WalletAccount spendingAccount : spendingAccounts) {
+      ArrayList<WalletBtcAccount> result = new ArrayList<>();
+      for (WalletBtcAccount spendingAccount : spendingAccounts) {
          if(spendingAccount.getCurrencyBasedBalance().confirmed.isBtc()) {
             result.add(spendingAccount);
          }

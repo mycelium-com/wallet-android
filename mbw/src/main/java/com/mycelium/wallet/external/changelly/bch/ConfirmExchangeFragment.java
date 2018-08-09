@@ -39,12 +39,12 @@ import com.mycelium.wallet.external.changelly.Constants;
 import com.mycelium.wallet.external.changelly.ExchangeLoggingService;
 import com.mycelium.wallet.external.changelly.model.Order;
 import com.mycelium.wallet.pdf.BCHExchangeReceiptBuilder;
-import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.bip44.Bip44BCHAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
-import com.mycelium.wapi.wallet.single.SingleAddressBCHAccount;
+import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.squareup.otto.Subscribe;
 
 import java.io.File;
@@ -76,7 +76,7 @@ import static com.mycelium.wallet.external.changelly.Constants.ABOUT;
 import static com.mycelium.wallet.external.changelly.Constants.decimalFormat;
 import static com.mycelium.wallet.external.changelly.bch.ExchangeFragment.BCH_EXCHANGE;
 import static com.mycelium.wallet.external.changelly.bch.ExchangeFragment.BCH_EXCHANGE_TRANSACTIONS;
-import static com.mycelium.wapi.wallet.bip44.Bip44AccountContext.ACCOUNT_TYPE_FROM_MASTERSEED;
+import static com.mycelium.wapi.wallet.btc.bip44.Bip44AccountContext.ACCOUNT_TYPE_FROM_MASTERSEED;
 
 public class ConfirmExchangeFragment extends Fragment {
     public static final String TAG = "BCHExchange";
@@ -115,8 +115,8 @@ public class ConfirmExchangeFragment extends Fragment {
 
 
     MbwManager mbwManager;
-    WalletAccount fromAccount;
-    WalletAccount toAccount;
+    WalletBtcAccount fromAccount;
+    WalletBtcAccount toAccount;
     Double amount;
     Double sentAmount;
 
@@ -181,13 +181,13 @@ public class ConfirmExchangeFragment extends Fragment {
                         } else {
                             service = IntentContract.SendFundsUnrelated.createIntent(lastOperationId, bip44BCHAccount.getId().toString(), payAddress, fromValue, TransactionFee.NORMAL, 1.0f, IntentContract.UNRELATED_ACCOUNT_TYPE_HD);
                         }
-                        WalletApplication.sendToSpv(service, WalletAccount.Type.BCHBIP44);
+                        WalletApplication.sendToSpv(service, WalletBtcAccount.Type.BCHBIP44);
                         break;
                     }
                     case BCHSINGLEADDRESS: {
                         SingleAddressBCHAccount singleAddressAccount = (SingleAddressBCHAccount) fromAccount;
                         service = IntentContract.SendFundsUnrelated.createIntent(lastOperationId, singleAddressAccount.getId().toString(), payAddress, fromValue, TransactionFee.NORMAL, 1.0f, IntentContract.UNRELATED_ACCOUNT_TYPE_SA);
-                        WalletApplication.sendToSpv(service, WalletAccount.Type.BCHSINGLEADDRESS);
+                        WalletApplication.sendToSpv(service, WalletBtcAccount.Type.BCHSINGLEADDRESS);
                         break;
                     }
                 }

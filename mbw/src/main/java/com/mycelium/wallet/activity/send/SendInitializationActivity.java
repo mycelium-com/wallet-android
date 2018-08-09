@@ -45,14 +45,14 @@ import com.google.common.base.Preconditions;
 import com.mycelium.wallet.*;
 import com.mycelium.wallet.event.SyncFailed;
 import com.mycelium.wallet.event.SyncStopped;
-import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.squareup.otto.Subscribe;
 
 import java.util.UUID;
 
 public class SendInitializationActivity extends Activity {
    private MbwManager _mbwManager;
-   private WalletAccount _account;
+   private WalletBtcAccount _account;
    private BitcoinUri _uri;
    private boolean _isColdStorage;
    private Handler _synchronizingHandler;

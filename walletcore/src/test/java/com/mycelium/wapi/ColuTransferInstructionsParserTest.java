@@ -3,6 +3,7 @@ package com.mycelium.wapi;
 import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.WapiLogger;
 
+import com.mycelium.wapi.wallet.ColuTransferInstructionsParser;
 import org.junit.Test;
 
 import java.text.ParseException;

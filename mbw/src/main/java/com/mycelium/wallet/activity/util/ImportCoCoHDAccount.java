@@ -13,7 +13,7 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.colu.ColuManager;
 import com.mycelium.wapi.wallet.SyncMode;
-import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -30,7 +30,7 @@ public class ImportCoCoHDAccount extends AsyncTask<Void, Integer, UUID> {
     private BigDecimal rmcFound = BigDecimal.ZERO;
     private BigDecimal massFound = BigDecimal.ZERO;
     private int scanned = 0;
-    private List<WalletAccount> accountsCreated = new ArrayList<>();
+    private List<WalletBtcAccount> accountsCreated = new ArrayList<>();
     private FinishListener finishListener;
     private int existingAccountsFound;
 
@@ -73,7 +73,7 @@ public class ImportCoCoHDAccount extends AsyncTask<Void, Integer, UUID> {
 
         //Make sure that accounts are up to date
         coluManager.scanForAccounts(SyncMode.FULL_SYNC_ALL_ACCOUNTS);
-        for (WalletAccount account : accountsCreated) {
+        for (WalletBtcAccount account : accountsCreated) {
             BigDecimal spendableBalance = account.getCurrencyBasedBalance().confirmed.getValue();
             switch (((ColuAccount) account).getColuAsset().assetType) {
                 case MASS:

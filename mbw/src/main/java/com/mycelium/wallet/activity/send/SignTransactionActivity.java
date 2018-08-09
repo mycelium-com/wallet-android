@@ -40,7 +40,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Window;
 import com.google.common.base.Preconditions;
-import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.StandardTransactionBuilder.UnsignedTransaction;
 import com.mrd.bitlib.model.Transaction;
 import com.mycelium.wallet.MbwManager;
@@ -50,15 +49,15 @@ import com.mycelium.wallet.extsig.ledger.activity.LedgerSignTransactionActivity;
 import com.mycelium.wallet.extsig.trezor.activity.TrezorSignTransactionActivity;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
-import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.bip44.Bip44AccountContext;
-import com.mycelium.wapi.wallet.bip44.Bip44AccountExternalSignature;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+import com.mycelium.wapi.wallet.btc.bip44.Bip44AccountContext;
+import com.mycelium.wapi.wallet.btc.bip44.Bip44BtcAccountExternalSignature;
 
 import java.util.UUID;
 
 public class SignTransactionActivity extends Activity {
    protected MbwManager _mbwManager;
-   protected WalletAccount _account;
+   protected WalletBtcAccount _account;
    protected boolean _isColdStorage;
    protected UnsignedTransaction _unsigned;
    private Transaction _transaction;
@@ -70,11 +69,11 @@ public class SignTransactionActivity extends Activity {
    }
 
    public static Intent getIntent(Activity currentActivity, UUID account, boolean isColdStorage, UnsignedTransaction unsigned) {
-      WalletAccount walletAccount = MbwManager.getInstance(currentActivity).getWalletManager(isColdStorage).getAccount(account);
+      WalletBtcAccount walletAccount = MbwManager.getInstance(currentActivity).getWalletManager(isColdStorage).getAccount(account);
 
       Class targetClass;
-      if (walletAccount instanceof Bip44AccountExternalSignature) {
-         final int bip44AccountType = ((Bip44AccountExternalSignature) walletAccount).getBIP44AccountType();
+      if (walletAccount instanceof Bip44BtcAccountExternalSignature) {
+         final int bip44AccountType = ((Bip44BtcAccountExternalSignature) walletAccount).getBIP44AccountType();
          switch (bip44AccountType) {
             case (Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER):
                targetClass = LedgerSignTransactionActivity.class;

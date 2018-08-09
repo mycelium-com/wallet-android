@@ -49,14 +49,14 @@ import com.mrd.bitlib.model.hdpath.HdKeyPath;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wapi.model.BalanceSatoshis;
 import com.mycelium.wapi.wallet.AccountScanManager;
 import com.mycelium.wallet.activity.util.MasterseedPasswordSetter;
 import com.mycelium.wallet.activity.util.AbstractAccountScanManager;
-import com.mycelium.wapi.model.Balance;
 import com.mycelium.wapi.wallet.SyncMode;
-import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.bip44.Bip44Account;
+import com.mycelium.wapi.wallet.btc.bip44.Bip44BtcAccount;
 import com.squareup.otto.Subscribe;
 
 import java.io.Serializable;
@@ -111,7 +111,7 @@ public abstract class HdAccountSelectorActivity extends Activity implements Mast
                   walletManager,
                   account.keyPath.getLastIndex());
 
-            Bip44Account tempAccount = (Bip44Account) walletManager.getAccount(id);
+            Bip44BtcAccount tempAccount = (Bip44BtcAccount) walletManager.getAccount(id);
             tempAccount.doSynchronization(SyncMode.NORMAL_WITHOUT_TX_LOOKUP);
 
             if (tempAccount.hasHadActivity()) {
@@ -241,8 +241,8 @@ public abstract class HdAccountSelectorActivity extends Activity implements Mast
 
          HdAccountWrapper account = getItem(position);
          ((TextView)row.findViewById(R.id.tvLabel)).setText(account.name);
-         WalletAccount walletAccount = MbwManager.getInstance(getContext()).getWalletManager(true).getAccount(account.id);
-         Balance balance = walletAccount.getBalance();
+         WalletBtcAccount walletAccount = MbwManager.getInstance(getContext()).getWalletManager(true).getAccount(account.id);
+         BalanceSatoshis balance = walletAccount.getBalance();
          String balanceString = MbwManager.getInstance(getContext()).getBtcValueString(balance.confirmed + balance.pendingChange);
 
          if (balance.getSendingBalance() > 0){

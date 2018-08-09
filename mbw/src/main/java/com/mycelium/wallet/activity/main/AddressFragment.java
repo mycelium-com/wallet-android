@@ -58,8 +58,7 @@ import com.mycelium.wallet.activity.util.QrImageView;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.BalanceChanged;
 import com.mycelium.wallet.event.ReceivingAddressChanged;
-import com.mycelium.wallet.modularisation.BCHHelper;
-import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -112,7 +111,7 @@ public class AddressFragment extends Fragment {
       if (!isAdded()) {
          return;
       }
-      WalletAccount account = _mbwManager.getSelectedAccount();
+      WalletBtcAccount account = _mbwManager.getSelectedAccount();
       if (account.isArchived()) {
          return;
       }
@@ -146,8 +145,8 @@ public class AddressFragment extends Fragment {
       ImageView ivAccountType = (ImageView) _root.findViewById(R.id.ivAccountType);
 
       String name = _mbwManager.getMetadataStorage().getLabelByAccount(account.getId());
-      if(account.getType() == WalletAccount.Type.BCHSINGLEADDRESS
-              || account.getType() == WalletAccount.Type.BCHBIP44) {
+      if(account.getType() == WalletBtcAccount.Type.BCHSINGLEADDRESS
+              || account.getType() == WalletBtcAccount.Type.BCHBIP44) {
          name = getString(R.string.bitcoin_cash) + " - " + name;
       }
       if (name.length() == 0) {
@@ -184,7 +183,7 @@ public class AddressFragment extends Fragment {
 
    @OnClick(R.id.ivQR)
    void qrClick() {
-      WalletAccount account = _mbwManager.getSelectedAccount();
+      WalletBtcAccount account = _mbwManager.getSelectedAccount();
       Optional<Address> receivingAddress = account.getReceivingAddress();
       if (receivingAddress.isPresent()) {
          ReceiveCoinsActivity.callMe(getActivity(), receivingAddress.get(), account.canSpend());

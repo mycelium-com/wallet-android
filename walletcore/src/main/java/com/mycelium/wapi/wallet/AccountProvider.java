@@ -34,13 +34,15 @@
 
 package com.mycelium.wapi.wallet;
 
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+
 import java.util.*;
 
 public interface AccountProvider {
 
-   Map<UUID, WalletAccount> getAccounts();
+   Map<UUID, WalletBtcAccount> getAccounts();
 
-   WalletAccount getAccount(UUID id);
+   WalletBtcAccount getAccount(UUID id);
 
    boolean hasAccount(UUID uuid);
 

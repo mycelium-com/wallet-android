@@ -95,11 +95,10 @@ import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.ExportableAccount;
-import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.bip44.Bip44Account;
-import com.mycelium.wapi.wallet.bip44.Bip44AccountContext;
-import com.mycelium.wapi.wallet.bip44.Bip44AccountExternalSignature;
-import com.mycelium.wapi.wallet.bip44.Bip44PubOnlyAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+import com.mycelium.wapi.wallet.btc.bip44.*;
+import com.mycelium.wapi.wallet.btc.bip44.Bip44BtcAccountExternalSignature;
+import com.mycelium.wapi.wallet.btc.bip44.Bip44BtcAccount;
 import com.mycelium.wapi.wallet.currency.BitcoinValue;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
@@ -749,7 +748,7 @@ public class Utils {
    }
 
    public static void exportSelectedAccount(final Activity parent) {
-      final WalletAccount account = MbwManager.getInstance(parent).getSelectedAccount();
+      final WalletBtcAccount account = MbwManager.getInstance(parent).getSelectedAccount();
       if (!(account instanceof ExportableAccount)) {
          return;
       }
@@ -779,8 +778,8 @@ public class Utils {
       activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
    }
 
-   public static boolean checkIsLinked(WalletAccount account, final Collection<WalletAccount> accounts) {
-      for (WalletAccount walletAccount : accounts) {
+   public static boolean checkIsLinked(WalletBtcAccount account, final Collection<WalletBtcAccount> accounts) {
+      for (WalletBtcAccount walletAccount : accounts) {
          if (walletAccount instanceof ColuAccount
                  && ((ColuAccount) walletAccount).getLinkedAccount() != null
                  && ((ColuAccount) walletAccount).getLinkedAccount().equals(account)) {
@@ -790,8 +789,8 @@ public class Utils {
       return false;
    }
 
-   public static WalletAccount getLinkedAccount(WalletAccount account, final Collection<WalletAccount> accounts) {
-      for (WalletAccount walletAccount : accounts) {
+   public static WalletBtcAccount getLinkedAccount(WalletBtcAccount account, final Collection<WalletBtcAccount> accounts) {
+      for (WalletBtcAccount walletAccount : accounts) {
          if (walletAccount instanceof ColuAccount
                  && ((ColuAccount) walletAccount).getLinkedAccount() != null
                  && ((ColuAccount) walletAccount).getLinkedAccount().equals(account)) {
@@ -801,10 +800,10 @@ public class Utils {
       return null;
    }
 
-   public static List<WalletAccount> sortAccounts(final List<WalletAccount> accounts, final MetadataStorage storage) {
-      Ordering<WalletAccount> type = Ordering.natural().onResultOf(new Function<WalletAccount, Integer>() {
+   public static List<WalletBtcAccount> sortAccounts(final List<WalletBtcAccount> accounts, final MetadataStorage storage) {
+      Ordering<WalletBtcAccount> type = Ordering.natural().onResultOf(new Function<WalletBtcAccount, Integer>() {
          @Override
-         public Integer apply(@Nullable WalletAccount input) {
+         public Integer apply(@Nullable WalletBtcAccount input) {
             switch (input.getType()) {
                case BTCBIP44:
                case BCHBIP44:
@@ -821,39 +820,39 @@ public class Utils {
             }
          }
       });
-      Ordering<WalletAccount> index = Ordering.natural().onResultOf(new Function<WalletAccount, Integer>() {
+      Ordering<WalletBtcAccount> index = Ordering.natural().onResultOf(new Function<WalletBtcAccount, Integer>() {
          @Nullable
          @Override
-         public Integer apply(@Nullable WalletAccount input) {
-            if (input instanceof Bip44Account) {
-               Bip44Account bip44Account = (Bip44Account) input;
+         public Integer apply(@Nullable WalletBtcAccount input) {
+            if (input instanceof Bip44BtcAccount) {
+               Bip44BtcAccount bip44Account = (Bip44BtcAccount) input;
                return bip44Account.getAccountIndex();
             }
             return Integer.MAX_VALUE;
          }
       });
 
-      Comparator<WalletAccount> linked = new Comparator<WalletAccount>() {
+      Comparator<WalletBtcAccount> linked = new Comparator<WalletBtcAccount>() {
          @Override
-         public int compare(WalletAccount w1, WalletAccount w2) {
-            if (w1.getType() == WalletAccount.Type.COLU) {
+         public int compare(WalletBtcAccount w1, WalletBtcAccount w2) {
+            if (w1.getType() == WalletBtcAccount.Type.COLU) {
                return ((ColuAccount) w1).getLinkedAccount().getId().equals(w2.getId()) ? -1 : 0;
-            } else if (w2.getType() == WalletAccount.Type.COLU) {
+            } else if (w2.getType() == WalletBtcAccount.Type.COLU) {
                return ((ColuAccount) w2).getLinkedAccount().getId().equals(w1.getId()) ? 1 : 0;
-            } else if (w1.getType() == WalletAccount.Type.BCHBIP44
-                    && w2.getType() == WalletAccount.Type.BTCBIP44
+            } else if (w1.getType() == WalletBtcAccount.Type.BCHBIP44
+                    && w2.getType() == WalletBtcAccount.Type.BTCBIP44
                     && MbwManager.getBitcoinCashAccountId(w2).equals(w1.getId())) {
                return 1;
-            } else if (w1.getType() == WalletAccount.Type.BTCBIP44
-                    && w2.getType() == WalletAccount.Type.BCHBIP44
+            } else if (w1.getType() == WalletBtcAccount.Type.BTCBIP44
+                    && w2.getType() == WalletBtcAccount.Type.BCHBIP44
                     && MbwManager.getBitcoinCashAccountId(w1).equals(w2.getId())) {
                return -1;
-            } else if (w1.getType() == WalletAccount.Type.BCHSINGLEADDRESS
-                    && w2.getType() == WalletAccount.Type.BTCSINGLEADDRESS
+            } else if (w1.getType() == WalletBtcAccount.Type.BCHSINGLEADDRESS
+                    && w2.getType() == WalletBtcAccount.Type.BTCSINGLEADDRESS
                     && MbwManager.getBitcoinCashAccountId(w2).equals(w1.getId())) {
                return 1;
-            } else if (w1.getType() == WalletAccount.Type.BTCSINGLEADDRESS
-                    && w2.getType() == WalletAccount.Type.BCHSINGLEADDRESS
+            } else if (w1.getType() == WalletBtcAccount.Type.BTCSINGLEADDRESS
+                    && w2.getType() == WalletBtcAccount.Type.BCHSINGLEADDRESS
                     && MbwManager.getBitcoinCashAccountId(w1).equals(w2.getId())) {
                return -1;
             } else {
@@ -862,10 +861,10 @@ public class Utils {
          }
       };
 
-      Ordering<WalletAccount> name = Ordering.natural().onResultOf(new Function<WalletAccount, String>() {
+      Ordering<WalletBtcAccount> name = Ordering.natural().onResultOf(new Function<WalletBtcAccount, String>() {
          @Nullable
          @Override
-         public String apply(@Nullable WalletAccount input) {
+         public String apply(@Nullable WalletBtcAccount input) {
             return storage.getLabelByAccount(input.getId());
          }
       });
@@ -880,7 +879,7 @@ public class Utils {
       return Ordering.natural().onResultOf(ENTRY_NAME).sortedCopy(entries);
    }
 
-   public static Drawable getDrawableForAccount(WalletAccount walletAccount, boolean isSelectedAccount, Resources resources) {
+   public static Drawable getDrawableForAccount(WalletBtcAccount walletAccount, boolean isSelectedAccount, Resources resources) {
       if (walletAccount instanceof ColuAccount) {
          ColuAccount account = (ColuAccount) walletAccount;
          switch (account.getColuAsset().assetType) {
@@ -902,8 +901,8 @@ public class Utils {
       }
 
       //trezor account
-      if (walletAccount instanceof Bip44AccountExternalSignature) {
-         int accountType = ((Bip44AccountExternalSignature) walletAccount).getAccountType();
+      if (walletAccount instanceof Bip44BtcAccountExternalSignature) {
+         int accountType = ((Bip44BtcAccountExternalSignature) walletAccount).getAccountType();
          if (accountType == Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER) {
             return resources.getDrawable(R.drawable.ledger_icon);
 		 } else if (accountType == Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY) {
@@ -914,7 +913,7 @@ public class Utils {
 
       }
       //regular HD account
-      if (walletAccount instanceof Bip44Account) {
+      if (walletAccount instanceof Bip44BtcAccount) {
          return resources.getDrawable(R.drawable.multikeys_grey);
       }
       if (walletAccount instanceof CoinapultAccount) {
@@ -929,10 +928,10 @@ public class Utils {
       return resources.getDrawable(R.drawable.singlekey_grey);
    }
 
-   public static String getNameForNewAccount(WalletAccount account, Context context) {
-      if (account instanceof Bip44AccountExternalSignature) {
+   public static String getNameForNewAccount(WalletBtcAccount account, Context context) {
+      if (account instanceof Bip44BtcAccountExternalSignature) {
          String baseName;
-         int accountType = ((Bip44AccountExternalSignature) account).getAccountType();
+         int accountType = ((Bip44BtcAccountExternalSignature) account).getAccountType();
          if (accountType == Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER) {
             baseName = MbwManager.getInstance(context).getLedgerManager().getLabelOrDefault();
 		 } else if (accountType == Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY) {
@@ -940,21 +939,21 @@ public class Utils {
          } else {
             baseName = MbwManager.getInstance(context).getTrezorManager().getLabelOrDefault();
          }
-         return baseName + " #" + (((Bip44AccountExternalSignature) account).getAccountIndex() + 1);
-      } else if (account instanceof Bip44PubOnlyAccount) {
+         return baseName + " #" + (((Bip44BtcAccountExternalSignature) account).getAccountIndex() + 1);
+      } else if (account instanceof Bip44PubOnlyBtcAccount) {
          return context.getString(R.string.account_prefix_imported);
-      } else if (account instanceof Bip44Account) {
-         return context.getString(R.string.account) + " " + (((Bip44Account) account).getAccountIndex() + 1);
+      } else if (account instanceof Bip44BtcAccount) {
+         return context.getString(R.string.account) + " " + (((Bip44BtcAccount) account).getAccountIndex() + 1);
       } else {
          return DateFormat.getMediumDateFormat(context).format(new Date());
       }
    }
 
-   public static boolean isAllowedForLocalTrader(WalletAccount account) {
+   public static boolean isAllowedForLocalTrader(WalletBtcAccount account) {
       if (account instanceof CoinapultAccount
-              || account.getType() == WalletAccount.Type.BCHBIP44
-              || account.getType() == WalletAccount.Type.BCHSINGLEADDRESS
-              || account.getType() == WalletAccount.Type.COLU) {
+              || account.getType() == WalletBtcAccount.Type.BCHBIP44
+              || account.getType() == WalletBtcAccount.Type.BCHSINGLEADDRESS
+              || account.getType() == WalletBtcAccount.Type.COLU) {
          return false; //we do not support coinapult accs in lt (yet)
       }
       if (!account.getReceivingAddress().isPresent()) {

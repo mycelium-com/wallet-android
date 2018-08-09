@@ -48,9 +48,9 @@ import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.StringHandlerActivity;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.persistence.MetadataStorage;
-import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.single.SingleAddressAccount;
-import com.mycelium.wapi.wallet.single.SingleAddressBCHAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+import com.mycelium.wapi.wallet.btc.single.SingleAddressBtcAccount;
+import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 
 import java.util.UUID;
 
@@ -139,11 +139,11 @@ public class VerifyBackupActivity extends Activity {
    private int countKeysToVerify() {
       int num = 0;
       for (UUID accountid : _mbwManager.getWalletManager(false).getAccountIds()) {
-         WalletAccount account = _mbwManager.getWalletManager(false).getAccount(accountid);
+         WalletBtcAccount account = _mbwManager.getWalletManager(false).getAccount(accountid);
          MetadataStorage.BackupState backupState = _mbwManager.getMetadataStorage().getOtherAccountBackupState(accountid);
 
          if (backupState!= MetadataStorage.BackupState.IGNORED) {
-            boolean needsBackup = account instanceof SingleAddressAccount
+            boolean needsBackup = account instanceof SingleAddressBtcAccount
                 && !(account instanceof SingleAddressBCHAccount)
                 && account.canSpend()
                 && backupState != MetadataStorage.BackupState.VERIFIED;
@@ -153,7 +153,7 @@ public class VerifyBackupActivity extends Activity {
          }
       }
       for (UUID accountid : _mbwManager.getColuManager().getAccounts().keySet()) {
-         WalletAccount account = _mbwManager.getColuManager().getAccount(accountid);
+         WalletBtcAccount account = _mbwManager.getColuManager().getAccount(accountid);
          MetadataStorage.BackupState backupState = _mbwManager.getMetadataStorage().getOtherAccountBackupState(accountid);
 
          if (backupState!= MetadataStorage.BackupState.IGNORED) {
@@ -181,7 +181,7 @@ public class VerifyBackupActivity extends Activity {
 
       // Figure out the account ID
       Address address = pk.getPublicKey().toAddress(_mbwManager.getNetwork());
-      UUID account = SingleAddressAccount.calculateId(address);
+      UUID account = SingleAddressBtcAccount.calculateId(address);
 
       // Check whether regular wallet contains that account
       boolean success = _mbwManager.getWalletManager(false).hasAccount(account)

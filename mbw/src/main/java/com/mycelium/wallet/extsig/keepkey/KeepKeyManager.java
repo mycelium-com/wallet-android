@@ -37,7 +37,7 @@ package com.mycelium.wallet.extsig.keepkey;
 import android.content.Context;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager;
-import com.mycelium.wapi.wallet.bip44.Bip44AccountContext;
+import com.mycelium.wapi.wallet.btc.bip44.Bip44AccountContext;
 import com.satoshilabs.trezor.ExternalSignatureDevice;
 import com.satoshilabs.trezor.KeepKey;
 import com.squareup.otto.Bus;

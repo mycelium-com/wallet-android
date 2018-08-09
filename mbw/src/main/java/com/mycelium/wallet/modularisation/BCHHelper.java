@@ -19,9 +19,8 @@ import com.mycelium.wallet.AccountManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.activity.modern.ModernMain;
 import com.mycelium.wapi.wallet.SpvBalanceFetcher;
-import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 import java.lang.ref.WeakReference;
 import java.math.BigDecimal;
@@ -124,12 +123,12 @@ public class BCHHelper {
                     return null;
                 }
                 sharedPreferences = context.getSharedPreferences(BCH_PREFS, MODE_PRIVATE);
-                List<WalletAccount> accounts = new ArrayList<>();
+                List<WalletBtcAccount> accounts = new ArrayList<>();
                 accounts.addAll(AccountManager.INSTANCE.getBCHSingleAddressAccounts().values());
                 accounts.addAll(AccountManager.INSTANCE.getBCHBip44Accounts().values());
                 sum = BigDecimal.ZERO;
                 accountsFound = 0;
-                for (WalletAccount account : accounts) {
+                for (WalletBtcAccount account : accounts) {
                     if (!sharedPreferences.getBoolean(ALREADY_FOUND_ACCOUNT + account.getId().toString(), false)) {
                         sum = sum.add(account.getCurrencyBasedBalance().confirmed.getValue());
                         accountsFound++;

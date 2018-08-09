@@ -57,7 +57,7 @@ import com.mycelium.wallet.activity.main.adapter.TransactionArrayAdapter;
 import com.mycelium.wallet.event.AddressBookChanged;
 import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.model.TransactionSummary;
-import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
@@ -86,7 +86,7 @@ public class PopSelectTransactionActivity extends AppCompatActivity implements A
 
 
       MbwManager mbwManager = MbwManager.getInstance(getApplicationContext());
-      WalletAccount account = mbwManager.getSelectedAccount();
+      WalletBtcAccount account = mbwManager.getSelectedAccount();
       if (account.isArchived()) {
          return;
       }
@@ -185,7 +185,7 @@ public class PopSelectTransactionActivity extends AppCompatActivity implements A
          boolean showMatching = getArguments().getBoolean("match");
 
          mbwManager = MbwManager.getInstance(getActivity());
-         WalletAccount account = mbwManager.getSelectedAccount();
+         WalletBtcAccount account = mbwManager.getSelectedAccount();
 
          List<TransactionSummary> history = account.getTransactionHistory(0, 1000);
 

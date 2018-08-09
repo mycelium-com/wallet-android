@@ -53,20 +53,20 @@ import com.mycelium.wallet.event.SyncFailed;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.modularisation.GooglePlayModuleCollection;
 import com.mycelium.wapi.model.TransactionEx;
-import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.squareup.otto.Subscribe;
 
 import java.util.UUID;
 
 public class BroadcastTransactionActivity extends Activity {
    protected MbwManager _mbwManager;
-   protected WalletAccount _account;
+   protected WalletBtcAccount _account;
    protected boolean _isColdStorage;
    private String _transactionLabel;
    private Transaction _transaction;
    private String _fiatValue;
-   private AsyncTask<Void, Integer, WalletAccount.BroadcastResult> _broadcastingTask;
-   private WalletAccount.BroadcastResult _broadcastResult;
+   private AsyncTask<Void, Integer, WalletBtcAccount.BroadcastResult> _broadcastingTask;
+   private WalletBtcAccount.BroadcastResult _broadcastResult;
 
    public static void callMe(Activity currentActivity, UUID account, boolean isColdStorage
            , Transaction signed, String transactionLabel, String fiatValue, int requestCode) {
@@ -80,7 +80,7 @@ public class BroadcastTransactionActivity extends Activity {
       currentActivity.startActivityForResult(intent, requestCode);
    }
 
-   public static boolean callMe(Activity currentActivity, WalletAccount account, Sha256Hash txid) {
+   public static boolean callMe(Activity currentActivity, WalletBtcAccount account, Sha256Hash txid) {
       TransactionEx tx = account.getTransaction(txid);
       if (tx == null) {
          return false;
@@ -119,25 +119,25 @@ public class BroadcastTransactionActivity extends Activity {
       overridePendingTransition(0, 0);
    }
 
-   private AsyncTask<Void, Integer, WalletAccount.BroadcastResult> startBroadcastingTask() {
+   private AsyncTask<Void, Integer, WalletBtcAccount.BroadcastResult> startBroadcastingTask() {
       // Broadcast the transaction in the background
-      AsyncTask<Void, Integer, WalletAccount.BroadcastResult> task = new AsyncTask<Void, Integer, WalletAccount.BroadcastResult>() {
+      AsyncTask<Void, Integer, WalletBtcAccount.BroadcastResult> task = new AsyncTask<Void, Integer, WalletBtcAccount.BroadcastResult>() {
          @Override
-         protected WalletAccount.BroadcastResult doInBackground(Void... args) {
+         protected WalletBtcAccount.BroadcastResult doInBackground(Void... args) {
             if (!Utils.isConnected(BroadcastTransactionActivity.this)) {
-               return WalletAccount.BroadcastResult.NO_SERVER_CONNECTION;
+               return WalletBtcAccount.BroadcastResult.NO_SERVER_CONNECTION;
             }
             if (CommunicationManager.getInstance().getPairedModules()
                     .contains(GooglePlayModuleCollection.getModules(getApplicationContext()).get("btc"))) {
                   Intent intent = IntentContract.BroadcastTransaction.createIntent(_transaction.toBytes());
                   WalletApplication.sendToSpv(intent, _mbwManager.getSelectedAccount().getType());
-                  return WalletAccount.BroadcastResult.SUCCESS;
+                  return WalletBtcAccount.BroadcastResult.SUCCESS;
              }
              return _account.broadcastTransaction(_transaction);
          }
 
          @Override
-         protected void onPostExecute(WalletAccount.BroadcastResult result) {
+         protected void onPostExecute(WalletBtcAccount.BroadcastResult result) {
             _broadcastResult = result;
             showResult();
          }
@@ -148,7 +148,7 @@ public class BroadcastTransactionActivity extends Activity {
    }
 
    private void showResult() {
-      if (_broadcastResult == WalletAccount.BroadcastResult.REJECTED) {
+      if (_broadcastResult == WalletBtcAccount.BroadcastResult.REJECTED) {
          // Transaction rejected, display message and exit
          Utils.showSimpleMessageDialog(this, R.string.transaction_rejected_message, new Runnable() {
             @Override
@@ -156,7 +156,7 @@ public class BroadcastTransactionActivity extends Activity {
                BroadcastTransactionActivity.this.finish();
             }
          });
-      } else if (_broadcastResult == WalletAccount.BroadcastResult.NO_SERVER_CONNECTION) {
+      } else if (_broadcastResult == WalletBtcAccount.BroadcastResult.NO_SERVER_CONNECTION) {
          if (_isColdStorage) {
             // When doing cold storage spending we do not offer to queue the transaction
             Utils.showSimpleMessageDialog(this, R.string.transaction_not_sent, new Runnable() {
@@ -190,7 +190,7 @@ public class BroadcastTransactionActivity extends Activity {
                     .show();
 
          }
-      } else if (_broadcastResult == WalletAccount.BroadcastResult.SUCCESS) {
+      } else if (_broadcastResult == WalletBtcAccount.BroadcastResult.SUCCESS) {
          // Toast success and finish
          Toast.makeText(this, getResources().getString(R.string.transaction_sent),
                Toast.LENGTH_LONG).show();

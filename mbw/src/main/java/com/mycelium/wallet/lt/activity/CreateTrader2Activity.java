@@ -54,8 +54,9 @@ import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.api.TryLogin;
 import com.mycelium.wapi.wallet.*;
-import com.mycelium.wapi.wallet.bip44.Bip44Account;
-import com.mycelium.wapi.wallet.single.SingleAddressAccount;
+import com.mycelium.wapi.wallet.btc.bip44.Bip44BtcAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+import com.mycelium.wapi.wallet.btc.single.SingleAddressBtcAccount;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -110,11 +111,11 @@ public class CreateTrader2Activity extends Activity {
       List<String> choices = new LinkedList<String>();
       WalletManager walletManager = _mbwManager.getWalletManager(false);
       for (UUID accountId : walletManager.getAccountIds()) {
-         WalletAccount account = walletManager.getAccount(accountId);
+         WalletBtcAccount account = walletManager.getAccount(accountId);
          if (!account.canSpend()) {
             continue;
          }
-         if (account instanceof Bip44Account && !account.isDerivedFromInternalMasterseed()) {
+         if (account instanceof Bip44BtcAccount && !account.isDerivedFromInternalMasterseed()) {
             continue;
          }
          if (!Utils.isAllowedForLocalTrader(account)) {
@@ -143,9 +144,9 @@ public class CreateTrader2Activity extends Activity {
       _btUse.setEnabled(_spAddress.getSelectedItemPosition() != Spinner.INVALID_POSITION);
    }
 
-   private String createDefaultName(WalletAccount account) {
-      if (account instanceof SingleAddressAccount) {
-         Address address = ((SingleAddressAccount) account).getAddress();
+   private String createDefaultName(WalletBtcAccount account) {
+      if (account instanceof SingleAddressBtcAccount) {
+         Address address = ((SingleAddressBtcAccount) account).getAddress();
          String addressString = address.toString();
          StringBuilder sb = new StringBuilder();
          sb.append(addressString.substring(0, 6));
@@ -172,7 +173,7 @@ public class CreateTrader2Activity extends Activity {
          // We have exactly one private key, use it automatically
          findViewById(R.id.pbWait).setVisibility(View.VISIBLE);
          findViewById(R.id.llRoot).setVisibility(View.GONE);
-         WalletAccount account = _mbwManager.getWalletManager(false).getAccount(_accounts.get(0));
+         WalletBtcAccount account = _mbwManager.getWalletManager(false).getAccount(_accounts.get(0));
          InMemoryPrivateKey privateKey = _mbwManager.obtainPrivateKeyForAccount(account, LocalTraderManager.LT_DERIVATION_SEED, AesKeyCipher.defaultKeyCipher());
          _ltManager.makeRequest(new TryLogin(privateKey, _mbwManager.getNetwork()));
       } else {
@@ -195,7 +196,7 @@ public class CreateTrader2Activity extends Activity {
          return null;
       }
       UUID accountId = _accounts.get(index);
-      WalletAccount account = _mbwManager.getWalletManager(false).getAccount(accountId);
+      WalletBtcAccount account = _mbwManager.getWalletManager(false).getAccount(accountId);
       return _mbwManager.obtainPrivateKeyForAccount(account, LocalTraderManager.LT_DERIVATION_SEED, AesKeyCipher.defaultKeyCipher());
    }
 

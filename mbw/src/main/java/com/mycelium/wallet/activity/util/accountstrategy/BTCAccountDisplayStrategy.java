@@ -5,16 +5,16 @@ import android.content.Context;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 
 public class BTCAccountDisplayStrategy implements AccountDisplayStrategy {
     private static final String ACCOUNT_LABEL = "bitcoin";
-    protected final WalletAccount account;
+    protected final WalletBtcAccount account;
     protected final Context context;
     protected final MbwManager mbwManager;
 
-    public BTCAccountDisplayStrategy(WalletAccount account, Context context, MbwManager mbwManager) {
+    public BTCAccountDisplayStrategy(WalletBtcAccount account, Context context, MbwManager mbwManager) {
         this.account = account;
         this.context = context;
         this.mbwManager = mbwManager;

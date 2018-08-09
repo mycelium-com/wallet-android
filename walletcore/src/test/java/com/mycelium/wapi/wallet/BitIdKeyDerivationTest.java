@@ -3,6 +3,7 @@ package com.mycelium.wapi.wallet;
 import com.mrd.bitlib.crypto.*;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
+import com.mycelium.wapi.wallet.btc.InMemoryWalletManagerBtcBacking;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -37,7 +38,7 @@ public class BitIdKeyDerivationTest {
    public void bitIdDefaultAccount() throws KeyCipher.InvalidKeyCipher {
       Bip39.MasterSeed seed = Bip39.generateSeedFromWordList(WORD_LIST, "");
       HdKeyNode rootNode = HdKeyNode.fromSeed(seed.getBip32Seed());
-      SecureKeyValueStore store = new SecureKeyValueStore(new InMemoryWalletManagerBacking(), new MyRandomSource());
+      SecureKeyValueStore store = new SecureKeyValueStore(new InMemoryWalletManagerBtcBacking(), new MyRandomSource());
       KeyCipher cipher = AesKeyCipher.defaultKeyCipher();
 
       IdentityAccountKeyManager identityManager = IdentityAccountKeyManager.createNew(rootNode, store, cipher);
@@ -53,7 +54,7 @@ public class BitIdKeyDerivationTest {
    public void bitIdOtherAccount() throws KeyCipher.InvalidKeyCipher {
       Bip39.MasterSeed seed = Bip39.generateSeedFromWordList(WORD_LIST, PWD);
       HdKeyNode rootNode = HdKeyNode.fromSeed(seed.getBip32Seed());
-      SecureKeyValueStore store = new SecureKeyValueStore(new InMemoryWalletManagerBacking(), new MyRandomSource());
+      SecureKeyValueStore store = new SecureKeyValueStore(new InMemoryWalletManagerBtcBacking(), new MyRandomSource());
       KeyCipher cipher = AesKeyCipher.defaultKeyCipher();
 
       IdentityAccountKeyManager identityManager = IdentityAccountKeyManager.createNew(rootNode, store, cipher);
@@ -78,7 +79,7 @@ public class BitIdKeyDerivationTest {
    public void bitIdBipTestVector() throws KeyCipher.InvalidKeyCipher {
       Bip39.MasterSeed seed = Bip39.generateSeedFromWordList(WORD_LIST_BITID, "");
       HdKeyNode rootNode = HdKeyNode.fromSeed(seed.getBip32Seed());
-      SecureKeyValueStore store = new SecureKeyValueStore(new InMemoryWalletManagerBacking(), new MyRandomSource());
+      SecureKeyValueStore store = new SecureKeyValueStore(new InMemoryWalletManagerBtcBacking(), new MyRandomSource());
       KeyCipher cipher = AesKeyCipher.defaultKeyCipher();
 
       IdentityAccountKeyManager identityManager = IdentityAccountKeyManager.createNew(rootNode, store, cipher);

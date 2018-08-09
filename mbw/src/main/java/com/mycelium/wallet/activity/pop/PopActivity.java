@@ -62,7 +62,7 @@ import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.model.TransactionDetails;
 import com.mycelium.wapi.model.TransactionSummary;
-import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.OkHttpClient;
@@ -236,7 +236,7 @@ public class PopActivity extends Activity {
          if (txidToProve == null) {
             Toast.makeText(this, R.string.pop_no_transaction_selected, Toast.LENGTH_LONG).show();
          }
-         WalletAccount account = _mbwManager.getSelectedAccount();
+         WalletBtcAccount account = _mbwManager.getSelectedAccount();
 
          final UnsignedTransaction unsignedPop = account.createUnsignedPop(txidToProve, popRequest.getN());
 

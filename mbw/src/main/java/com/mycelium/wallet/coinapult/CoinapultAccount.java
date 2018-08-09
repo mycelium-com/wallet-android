@@ -64,12 +64,18 @@ import com.mycelium.wallet.event.SyncFailed;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.model.*;
 import com.mycelium.wapi.wallet.KeyCipher;
+import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.SyncMode;
-import com.mycelium.wapi.wallet.SynchronizeAbleWalletAccount;
-import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.btc.BtcTransaction;
+import com.mycelium.wapi.wallet.btc.SynchronizeAbleWalletBtcAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+import com.mycelium.wapi.wallet.coins.Balance;
+import com.mycelium.wapi.wallet.coins.CoinType;
+import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
+import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
 import com.squareup.otto.Bus;
 
 import javax.annotation.Nullable;
@@ -82,8 +88,8 @@ import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
 import java.util.*;
 
-public class CoinapultAccount extends SynchronizeAbleWalletAccount {
-   private static final Balance EMPTY_BALANCE = new Balance(0, 0, 0, 0, 0, 0, true, true);
+public class CoinapultAccount extends SynchronizeAbleWalletBtcAccount {
+   private static final BalanceSatoshis EMPTY_BALANCE = new BalanceSatoshis(0, 0, 0, 0, 0, 0, true, true);
    private static final BigDecimal SATOSHIS_PER_BTC = BigDecimal.valueOf(100000000);
 
    public static final Predicate<Transaction.Json> TX_NOT_CONVERSION = Predicates.not(new Predicate<com.coinapult.api.httpclient.Transaction.Json>() {
@@ -230,7 +236,7 @@ public class CoinapultAccount extends SynchronizeAbleWalletAccount {
    }
 
 
-   public PreparedCoinapult prepareCoinapultTx(WalletAccount.Receiver receiver) throws StandardTransactionBuilder.InsufficientFundsException {
+   public PreparedCoinapult prepareCoinapultTx(WalletBtcAccount.Receiver receiver) throws StandardTransactionBuilder.InsufficientFundsException {
       if (balanceFiat == null || getSatoshis(balanceFiat.confirmed) < receiver.amount) {
          throw new StandardTransactionBuilder.InsufficientFundsException(receiver.amount, 0);
       } else {
@@ -379,6 +385,40 @@ public class CoinapultAccount extends SynchronizeAbleWalletAccount {
    public void setAllowZeroConfSpending(boolean allowZeroConfSpending) {
    }
 
+    @Override
+    public void completeAndSignTx(SendRequest<BtcTransaction> request) throws WalletAccountException {
+
+    }
+
+    @Override
+    public void completeTransaction(SendRequest<BtcTransaction> request) throws WalletAccountException {
+
+    }
+
+    @Override
+    public void signTransaction(SendRequest<BtcTransaction> request) throws WalletAccountException {
+
+    }
+
+    @Override
+    public void broadcastTx(BtcTransaction tx) throws TransactionBroadcastException {
+    }
+
+    @Override
+    public CoinType getCoinType() {
+        return null;
+    }
+
+    @Override
+    public Balance getAccountBalance() {
+        return null;
+    }
+
+   @Override
+   public BtcTransaction getTransaction(String transactionId) {
+      return null;
+   }
+
    @Override
    public int getBlockChainHeight() {
       return 0;
@@ -398,12 +438,12 @@ public class CoinapultAccount extends SynchronizeAbleWalletAccount {
    }
 
    @Override
-   public Balance getBalance() {
+   public BalanceSatoshis getBalance() {
       if (balanceFiat == null) {
          return EMPTY_BALANCE;
       }
       ExactCurrencyValue confirmed = balanceFiat.confirmed;
-      return new Balance(getSatoshis(confirmed), getSatoshis(balanceFiat.receiving), getSatoshis(balanceFiat.sending), 0, 0, 0, false, true);
+      return new BalanceSatoshis(getSatoshis(confirmed), getSatoshis(balanceFiat.receiving), getSatoshis(balanceFiat.sending), 0, 0, 0, false, true);
    }
 
    @Override
@@ -731,7 +771,7 @@ public class CoinapultAccount extends SynchronizeAbleWalletAccount {
          this.amount = value;
       }
 
-      public PreparedCoinapult(WalletAccount.Receiver receiver) {
+      public PreparedCoinapult(WalletBtcAccount.Receiver receiver) {
          address = receiver.address;
          satoshis = receiver.amount;
       }

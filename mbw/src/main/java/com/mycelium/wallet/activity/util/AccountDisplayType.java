@@ -1,6 +1,6 @@
 package com.mycelium.wallet.activity.util;
 
-import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 public enum AccountDisplayType {
     BTC_ACCOUNT("BTC"),
@@ -16,7 +16,7 @@ public enum AccountDisplayType {
         this.accountLabel = accountLabel;
     }
 
-    public static AccountDisplayType getAccountType(WalletAccount account) {
+    public static AccountDisplayType getAccountType(WalletBtcAccount account) {
         switch(account.getType()) {
             case BTCBIP44:
             case BTCSINGLEADDRESS:

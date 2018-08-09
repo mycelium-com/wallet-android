@@ -45,7 +45,7 @@ import android.util.Log;
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Preconditions;
 import com.mycelium.wallet.R;
-import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -70,9 +70,9 @@ public class ExportDistiller {
         public String encryptedKey;
         public String encryptedMasterSeed;
         public String label;
-        public WalletAccount.Type accountType;
+        public WalletBtcAccount.Type accountType;
 
-        public ExportEntry(String address, String encryptedKey, String encryptedMasterSeed, String label, WalletAccount.Type accountType) {
+        public ExportEntry(String address, String encryptedKey, String encryptedMasterSeed, String label, WalletBtcAccount.Type accountType) {
             this.address = address;
             this.encryptedKey = encryptedKey;
             this.encryptedMasterSeed = encryptedMasterSeed;

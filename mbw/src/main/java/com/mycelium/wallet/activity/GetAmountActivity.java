@@ -63,7 +63,7 @@ import com.mycelium.wallet.activity.util.AccountDisplayType;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
-import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
@@ -99,7 +99,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
 
    private boolean isSendMode;
 
-   private WalletAccount _account;
+   private WalletBtcAccount _account;
    private NumberEntry _numberEntry;
    private CurrencyValue _amount;
    private MbwManager _mbwManager;
@@ -517,7 +517,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          return AmountValidation.Ok; //entering a fiat value + exchange is not availible
       }
       try {
-         WalletAccount.Receiver receiver = new WalletAccount.Receiver(Address.getNullAddress(_mbwManager.getNetwork()), satoshis);
+         WalletBtcAccount.Receiver receiver = new WalletBtcAccount.Receiver(Address.getNullAddress(_mbwManager.getNetwork()), satoshis);
          _account.checkAmount(receiver, _kbMinerFee, _amount);
       } catch (OutputTooSmallException e1) {
          return AmountValidation.ValueTooSmall;

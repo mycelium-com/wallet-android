@@ -50,9 +50,9 @@ import com.mycelium.wallet.activity.modern.adapter.holder.AccountViewHolder;
 import com.mycelium.wallet.activity.modern.model.ViewAccountModel;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.persistence.MetadataStorage;
-import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.bip44.Bip44Account;
-import com.mycelium.wapi.wallet.bip44.Bip44PubOnlyAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+import com.mycelium.wapi.wallet.btc.bip44.Bip44BtcAccount;
+import com.mycelium.wapi.wallet.btc.bip44.Bip44PubOnlyBtcAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 
 import java.util.ArrayList;
@@ -125,7 +125,7 @@ public class RecordRowBuilder {
             CurrencyBasedBalance balance = model.balance;
             holder.tvBalance.setVisibility(View.VISIBLE);
             String balanceString = Utils.getFormattedValueWithUnit(balance.confirmed, mbwManager.getBitcoinDenomination());
-            if (model.accountType == WalletAccount.Type.COLU) {
+            if (model.accountType == WalletBtcAccount.Type.COLU) {
                 balanceString = Utils.getColuFormattedValueWithUnit(balance.confirmed);
             }
             holder.tvBalance.setText(balanceString);
@@ -144,8 +144,8 @@ public class RecordRowBuilder {
             // We don't show anything if the account is archived
             holder.tvBalance.setVisibility(View.GONE);
             holder.backupMissing.setVisibility(View.GONE);
-            if (model.accountType == WalletAccount.Type.BCHBIP44
-                    || model.accountType == WalletAccount.Type.BCHSINGLEADDRESS) {
+            if (model.accountType == WalletBtcAccount.Type.BCHBIP44
+                    || model.accountType == WalletBtcAccount.Type.BCHSINGLEADDRESS) {
                 holder.tvAccountType.setText(Html.fromHtml(holder.tvAccountType.getResources().getString(R.string.bitcoin_cash)));
                 holder.tvAccountType.setVisibility(View.VISIBLE);
             } else {
@@ -172,7 +172,7 @@ public class RecordRowBuilder {
         }
     };
 
-    public ViewAccountModel convert(WalletAccount walletAccount) {
+    public ViewAccountModel convert(WalletBtcAccount walletAccount) {
         ViewAccountModel result = new ViewAccountModel();
         result.accountId = walletAccount.getId();
 
@@ -181,23 +181,23 @@ public class RecordRowBuilder {
         result.accountType = walletAccount.getType();
         result.syncTotalRetrievedTransactions = walletAccount.getSyncTotalRetrievedTransactions();
 
-        WalletAccount linked = Utils.getLinkedAccount(walletAccount, mbwManager.getColuManager().getAccounts().values());
+        WalletBtcAccount linked = Utils.getLinkedAccount(walletAccount, mbwManager.getColuManager().getAccounts().values());
         if (linked != null
-                && linked.getType() == WalletAccount.Type.COLU
+                && linked.getType() == WalletBtcAccount.Type.COLU
                 && ((ColuAccount) linked).getColuAsset().assetType == ColuAccount.ColuAssetType.RMC) {
             result.isRMCLinkedAccount = true;
         }
         result.label = mbwManager.getMetadataStorage().getLabelByAccount(walletAccount.getId());
         if (walletAccount.isActive()) {
-            if (walletAccount instanceof Bip44PubOnlyAccount) {
-                int numKeys = ((Bip44Account) walletAccount).getPrivateKeyCount();
+            if (walletAccount instanceof Bip44PubOnlyBtcAccount) {
+                int numKeys = ((Bip44BtcAccount) walletAccount).getPrivateKeyCount();
                 if (numKeys > 1) {
                     result.displayAddress = resources.getString(R.string.contains_addresses, Integer.toString(numKeys));
                 } else {
                     result.displayAddress = resources.getString(R.string.account_contains_one_address_info);
                 }
-            } else if (walletAccount instanceof Bip44Account) {
-                int numKeys = ((Bip44Account) walletAccount).getPrivateKeyCount();
+            } else if (walletAccount instanceof Bip44BtcAccount) {
+                int numKeys = ((Bip44BtcAccount) walletAccount).getPrivateKeyCount();
                 if (numKeys > 1) {
                     result.displayAddress = resources.getString(R.string.contains_keys, Integer.toString(numKeys));
                 } else {
@@ -229,15 +229,15 @@ public class RecordRowBuilder {
     }
 
     @NonNull
-    public List<ViewAccountModel> convertList(List<WalletAccount> accounts) {
+    public List<ViewAccountModel> convertList(List<WalletBtcAccount> accounts) {
         List<ViewAccountModel> viewAccountList = new ArrayList<>();
-        for (WalletAccount account : accounts) {
+        for (WalletBtcAccount account : accounts) {
             viewAccountList.add(convert(account));
         }
         return viewAccountList;
     }
 
-    private static boolean showBackupMissingWarning(WalletAccount account, MbwManager mbwManager) {
+    private static boolean showBackupMissingWarning(WalletBtcAccount account, MbwManager mbwManager) {
         if (account.isArchived()) {
             return false;
         }

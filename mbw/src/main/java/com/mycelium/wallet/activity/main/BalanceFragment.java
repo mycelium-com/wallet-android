@@ -75,7 +75,7 @@ import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.modularisation.BCHHelper;
 import com.mycelium.wapi.model.ExchangeRate;
-import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
@@ -146,7 +146,7 @@ public class BalanceFragment extends Fragment {
          String price = exchangeRate == null || exchangeRate.price == null ? "not available"
                  : new BigDecimal(exchangeRate.price).setScale(2, BigDecimal.ROUND_DOWN).toPlainString() + " " + _mbwManager.getFiatCurrency();
          String item;
-         if (_mbwManager.getSelectedAccount().getType() == WalletAccount.Type.COLU) {
+         if (_mbwManager.getSelectedAccount().getType() == WalletBtcAccount.Type.COLU) {
             item = COINMARKETCAP + "/" + source;
          } else {
             item = source + " (" + price + ")";
@@ -205,9 +205,9 @@ public class BalanceFragment extends Fragment {
          BCHHelper.bchTechnologyPreviewDialog(getActivity());
          return;
       }
-      WalletAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
+      WalletBtcAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
       if (account.canSpend()) {
-         if (account.getType() == WalletAccount.Type.COLU && ((ColuAccount) account).getSatoshiAmount() == 0) {
+         if (account.getType() == WalletBtcAccount.Type.COLU && ((ColuAccount) account).getSatoshiAmount() == 0) {
             new AlertDialog.Builder(getActivity())
                     .setMessage(getString(R.string.rmc_send_warning, ((ColuAccount) account).getColuAsset().label))
                     .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
@@ -246,8 +246,8 @@ public class BalanceFragment extends Fragment {
       }
       //perform a generic scan, act based upon what we find in the QR code
       StringHandleConfig config = StringHandleConfig.genericScanRequest();
-      WalletAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
-      if (account.getType() == WalletAccount.Type.COLU) {
+      WalletBtcAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
+      if (account.getType() == WalletBtcAccount.Type.COLU) {
          config.bitcoinUriAction = StringHandleConfig.BitcoinUriAction.SEND_COLU_ASSET;
          config.bitcoinUriWithAddressAction = StringHandleConfig.BitcoinUriWithAddressAction.SEND_COLU_ASSET;
       }
@@ -255,8 +255,8 @@ public class BalanceFragment extends Fragment {
    }
 
    private boolean isBCH() {
-      return _mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHBIP44
-              || _mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHSINGLEADDRESS;
+      return _mbwManager.getSelectedAccount().getType() == WalletBtcAccount.Type.BCHBIP44
+              || _mbwManager.getSelectedAccount().getType() == WalletBtcAccount.Type.BCHSINGLEADDRESS;
    }
 
    @SuppressLint("SetTextI18n")
@@ -267,7 +267,7 @@ public class BalanceFragment extends Fragment {
       if (_mbwManager.getSelectedAccount().isArchived()) {
          return;
       }
-      WalletAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
+      WalletBtcAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
       CurrencyBasedBalance balance;
       try {
          balance = Preconditions.checkNotNull(account.getCurrencyBasedBalance());
@@ -348,9 +348,9 @@ public class BalanceFragment extends Fragment {
    }
 
    private void updateUiKnownBalance(CurrencyBasedBalance balance) {
-      // Set Balance
+      // Set BalanceSatoshis
       String valueString = Utils.getFormattedValueWithUnit(balance.confirmed, _mbwManager.getBitcoinDenomination());
-      WalletAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
+      WalletBtcAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
       if(account instanceof ColuAccount) {
           valueString =  Utils.getColuFormattedValueWithUnit(account.getCurrencyBasedBalance().confirmed);
 //         Utils.getFormattedValueWithUnit(balance.confirmed, _mbwManager.getBitcoinDenomination(), 5);
@@ -449,7 +449,7 @@ public class BalanceFragment extends Fragment {
    }
 
    /**
-    * The selected Account changed, update UI to reflect other Balance
+    * The selected Account changed, update UI to reflect other BalanceSatoshis
     */
    @Subscribe
    public void selectedAccountChanged(SelectedAccountChanged event) {

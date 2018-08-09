@@ -58,21 +58,23 @@ import com.mycelium.wallet.colu.json.Vin;
 import com.mycelium.wallet.colu.json.Vout;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.api.lib.TransactionExApi;
-import com.mycelium.wapi.model.Balance;
+import com.mycelium.wapi.model.BalanceSatoshis;
 import com.mycelium.wapi.model.TransactionDetails;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputSummary;
 import com.mycelium.wapi.model.TransactionSummary;
-import com.mycelium.wapi.wallet.AccountBacking;
-import com.mycelium.wapi.wallet.ExportableAccount;
-import com.mycelium.wapi.wallet.KeyCipher;
-import com.mycelium.wapi.wallet.SyncMode;
-import com.mycelium.wapi.wallet.SynchronizeAbleWalletAccount;
+import com.mycelium.wapi.wallet.*;
+import com.mycelium.wapi.wallet.btc.BtcTransaction;
+import com.mycelium.wapi.wallet.btc.SynchronizeAbleWalletBtcAccount;
+import com.mycelium.wapi.wallet.coins.Balance;
+import com.mycelium.wapi.wallet.coins.CoinType;
+import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
-import com.mycelium.wapi.wallet.single.SingleAddressAccount;
+import com.mycelium.wapi.wallet.btc.single.SingleAddressBtcAccount;
 
+import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
 import org.spongycastle.util.encoders.Hex;
 
 import java.io.IOException;
@@ -87,16 +89,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public class ColuAccount extends SynchronizeAbleWalletAccount implements ExportableAccount {
+public class ColuAccount extends SynchronizeAbleWalletBtcAccount implements ExportableAccount {
     public static final String TAG = "ColuAccount";
 
-    private static final Balance EMPTY_BALANCE = new Balance(0, 0, 0, 0, 0, 0, true, true);
+    private static final BalanceSatoshis EMPTY_BALANCE = new BalanceSatoshis(0, 0, 0, 0, 0, 0, true, true);
     private static final BigDecimal SATOSHIS_PER_BTC = BigDecimal.valueOf(100000000);
     private static final int MILLISENCONDS_IN_SECOND = 1000;
 
     private final ColuManager manager;
     private final UUID uuid;
-    private final AccountBacking accountBacking;
+    private final BtcAccountBacking accountBacking;
     private final MetadataStorage metadataStorage;
     private List<TransactionSummary> allTransactionSummaries;
     private long satoshiAmount;
@@ -128,11 +130,11 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
         this.accountKey = accountKey;
     }
 
-    private SingleAddressAccount linkedAccount;
+    private SingleAddressBtcAccount linkedAccount;
 
     private String label;
 
-    public ColuAccount(ColuManager manager, AccountBacking accountBacking, MetadataStorage metadataStorage, Address address,
+    public ColuAccount(ColuManager manager, BtcAccountBacking accountBacking, MetadataStorage metadataStorage, Address address,
                        ColuAsset coluAsset) {
         this.manager = manager;
         this.accountBacking = accountBacking;
@@ -147,7 +149,7 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
         archived = metadataStorage.getArchived(uuid);
     }
 
-    public ColuAccount(ColuManager manager, AccountBacking accountBacking, MetadataStorage metadataStorage, InMemoryPrivateKey accountKey,
+    public ColuAccount(ColuManager manager, BtcAccountBacking accountBacking, MetadataStorage metadataStorage, InMemoryPrivateKey accountKey,
                        ColuAsset coluAsset) {
         this.manager = manager;
         this.accountBacking = accountBacking;
@@ -277,6 +279,40 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
     }
 
     @Override
+    public void completeAndSignTx(SendRequest<BtcTransaction> request) throws WalletAccountException {
+
+    }
+
+    @Override
+    public void completeTransaction(SendRequest<BtcTransaction> request) throws WalletAccountException {
+
+    }
+
+    @Override
+    public void signTransaction(SendRequest<BtcTransaction> request) throws WalletAccountException {
+
+    }
+
+    @Override
+    public void broadcastTx(BtcTransaction tx) throws TransactionBroadcastException {
+    }
+
+    @Override
+    public CoinType getCoinType() {
+        return null;
+    }
+
+    @Override
+    public Balance getAccountBalance() {
+        return null;
+    }
+
+    @Override
+    public BtcTransaction getTransaction(String transactionId) {
+        return null;
+    }
+
+    @Override
     public int getBlockChainHeight() {
         return height;
     }
@@ -296,12 +332,12 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
     }
 
     @Override
-    public Balance getBalance() {
+    public BalanceSatoshis getBalance() {
         //if (balanceColu == null) {
         if (balanceFiat == null) {
             return EMPTY_BALANCE;
         } else {
-            return new Balance(getSatoshis(balanceFiat.confirmed),
+            return new BalanceSatoshis(getSatoshis(balanceFiat.confirmed),
                                getSatoshis(balanceFiat.receiving),
                                getSatoshis(balanceFiat.sending),
                                0, 0, 0, false, true);
@@ -873,11 +909,11 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
         return 0;
     }
 
-    public SingleAddressAccount getLinkedAccount() {
+    public SingleAddressBtcAccount getLinkedAccount() {
         return linkedAccount;
     }
 
-    void setLinkedAccount(SingleAddressAccount linkedAccount) {
+    void setLinkedAccount(SingleAddressBtcAccount linkedAccount) {
         this.linkedAccount = linkedAccount;
     }
 

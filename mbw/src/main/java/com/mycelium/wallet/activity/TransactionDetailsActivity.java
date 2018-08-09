@@ -57,7 +57,7 @@ import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.colu.json.ColuTxDetailsItem;
 import com.mycelium.wapi.model.TransactionDetails;
 import com.mycelium.wapi.model.TransactionSummary;
-import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 import java.math.BigDecimal;
 import java.text.DateFormat;
@@ -169,8 +169,8 @@ public class TransactionDetailsActivity extends Activity {
       if(txFeeTotal > 0) {
          ((TextView) findViewById(R.id.tvFeeLabel)).setVisibility(View.VISIBLE);
          ((TextView) findViewById(R.id.tvInputsLabel)).setVisibility(View.VISIBLE);
-         if (_mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHSINGLEADDRESS
-             || _mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHBIP44) {
+         if (_mbwManager.getSelectedAccount().getType() == WalletBtcAccount.Type.BCHSINGLEADDRESS
+             || _mbwManager.getSelectedAccount().getType() == WalletBtcAccount.Type.BCHBIP44) {
             fee = _mbwManager.getBchValueString(txFeeTotal);
          } else {
             fee = _mbwManager.getBtcValueString(txFeeTotal);
@@ -244,8 +244,8 @@ public class TransactionDetailsActivity extends Activity {
       TextView tv = new TextView(this);
       tv.setLayoutParams(FPWC);
       tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
-      if(_mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHSINGLEADDRESS
-          || _mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHBIP44) {
+      if(_mbwManager.getSelectedAccount().getType() == WalletBtcAccount.Type.BCHSINGLEADDRESS
+          || _mbwManager.getSelectedAccount().getType() == WalletBtcAccount.Type.BCHBIP44) {
          tv.setText(_mbwManager.getBchValueString(value));
       } else {
          tv.setText(_mbwManager.getBtcValueString(value));

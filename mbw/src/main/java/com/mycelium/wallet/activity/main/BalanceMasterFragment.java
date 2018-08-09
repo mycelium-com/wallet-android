@@ -52,7 +52,7 @@ import com.mycelium.wallet.activity.rmc.RMCAddressFragment;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.event.TorStateChanged;
-import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.squareup.otto.Subscribe;
 
 public class BalanceMasterFragment extends Fragment {
@@ -63,7 +63,7 @@ public class BalanceMasterFragment extends Fragment {
         setHasOptionsMenu(true);
         View view = Preconditions.checkNotNull(inflater.inflate(R.layout.balance_master_fragment, container, false));
         FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-        WalletAccount account = MbwManager.getInstance(this.getActivity()).getSelectedAccount();
+        WalletBtcAccount account = MbwManager.getInstance(this.getActivity()).getSelectedAccount();
         defineAddressAccountView(fragmentTransaction, account);
         fragmentTransaction.replace(R.id.phFragmentBalance, new BalanceFragment());
         fragmentTransaction.replace(R.id.phFragmentNotice, new NoticeFragment());
@@ -72,7 +72,7 @@ public class BalanceMasterFragment extends Fragment {
         return view;
     }
 
-    private void defineAddressAccountView(FragmentTransaction fragmentTransaction, WalletAccount account) {
+    private void defineAddressAccountView(FragmentTransaction fragmentTransaction, WalletBtcAccount account) {
         fragmentTransaction.replace(R.id.phFragmentAddress,
                 account instanceof ColuAccount && ((ColuAccount) account).getColuAsset().assetType == ColuAccount.ColuAssetType.RMC ?
                         new RMCAddressFragment() : new AddressFragment());
@@ -120,7 +120,7 @@ public class BalanceMasterFragment extends Fragment {
     }
 
     private void updateAddressView() {
-        WalletAccount account = MbwManager.getInstance(this.getActivity()).getSelectedAccount();
+        WalletBtcAccount account = MbwManager.getInstance(this.getActivity()).getSelectedAccount();
         FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
         defineAddressAccountView(fragmentTransaction, account);
         fragmentTransaction.commitAllowingStateLoss();

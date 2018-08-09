@@ -11,8 +11,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ScrollView;
@@ -25,8 +23,7 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.send.event.SelectListener;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
 import com.mycelium.wallet.activity.view.ValueKeyboard;
-import com.mycelium.wallet.external.changelly.bch.ExchangeActivity;
-import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -171,7 +168,7 @@ public class ChangellyActivity extends AppCompatActivity {
                 }
             }
         });
-        List<WalletAccount> toAccounts = new ArrayList<>();
+        List<WalletBtcAccount> toAccounts = new ArrayList<>();
         toAccounts.addAll(AccountManager.INSTANCE.getBTCBip44Accounts().values());
         toAccounts.addAll(AccountManager.INSTANCE.getBTCSingleAddressAccounts().values());
         toAccounts.addAll(AccountManager.INSTANCE.getCoinapultAccounts().values());
@@ -312,7 +309,7 @@ public class ChangellyActivity extends AppCompatActivity {
             return;
         }
         CurrencyAdapter.Item item = currencyAdapter.getItem(currencySelector.getSelectedItem());
-        WalletAccount walletAccount = accountAdapter.getItem(accountSelector.getSelectedItem()).account;
+        WalletBtcAccount walletAccount = accountAdapter.getItem(accountSelector.getSelectedItem()).account;
         startActivityForResult(new Intent(ChangellyActivity.this, ChangellyOfferActivity.class)
                 .putExtra(ChangellyService.FROM, item.currency)
                 .putExtra(ChangellyService.TO, ChangellyService.BTC)

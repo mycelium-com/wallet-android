@@ -21,7 +21,7 @@ import com.mycelium.wallet.activity.modern.adapter.holder.TotalViewHolder
 import com.mycelium.wallet.activity.modern.model.ViewAccountModel
 import com.mycelium.wallet.activity.modern.model.accounts.*
 import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem.Type.*
-import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount
 import com.mycelium.wapi.wallet.currency.CurrencySum
 import java.util.*
 import kotlin.collections.ArrayList
@@ -40,7 +40,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
     private val pagePrefs = context.getSharedPreferences("account_list", Context.MODE_PRIVATE)
     private val listModel: AccountsListModel = ViewModelProviders.of(fragment).get(AccountsListModel::class.java)
 
-    val focusedAccount: WalletAccount
+    val focusedAccount: WalletBtcAccount
         get() = mbwManager.getWalletManager(false).getAccount(focusedAccountId)
 
     init {
@@ -218,7 +218,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
     override fun getItemViewType(position: Int) = itemList[position].getType().typeId
 
     interface ItemClickListener {
-        fun onItemClick(account: WalletAccount)
+        fun onItemClick(account: WalletBtcAccount)
     }
 
     class ItemListDiffCallback(val context: Context) : DiffUtil.ItemCallback<AccountListItem>() {

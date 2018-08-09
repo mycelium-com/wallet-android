@@ -74,7 +74,7 @@ import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil.AddressLabelChangedHandler;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.AddressBookChanged;
-import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
@@ -162,8 +162,8 @@ public class AddressBookFragment extends Fragment {
 
    private void updateUiMine() {
       List<Entry> entries = new ArrayList<>();
-      List<WalletAccount> activeAccounts = AccountManager.INSTANCE.getActiveAccounts().values().asList();
-      for (WalletAccount account : Utils.sortAccounts(activeAccounts, _mbwManager.getMetadataStorage())) {
+      List<WalletBtcAccount> activeAccounts = AccountManager.INSTANCE.getActiveAccounts().values().asList();
+      for (WalletBtcAccount account : Utils.sortAccounts(activeAccounts, _mbwManager.getMetadataStorage())) {
          // TODO rework on full bch release
          if (AccountDisplayType.getAccountType(account).equals(AccountDisplayType.BCH_ACCOUNT)) {
             continue;
@@ -172,7 +172,7 @@ public class AddressBookFragment extends Fragment {
          Drawable drawableForAccount = Utils.getDrawableForAccount(account, true, getResources());
          Optional<Address> receivingAddress = account.getReceivingAddress();
          //TODO a lot of pr
-         WalletAccount selectedAccount = _mbwManager.getSelectedAccount();
+         WalletBtcAccount selectedAccount = _mbwManager.getSelectedAccount();
          if (receivingAddress.isPresent()) {
             if ((spendableOnly && account.canSpend()
                     && (!excudeSelected || !account.getReceivingAddress().equals(_mbwManager.getSelectedAccount().getReceivingAddress()))

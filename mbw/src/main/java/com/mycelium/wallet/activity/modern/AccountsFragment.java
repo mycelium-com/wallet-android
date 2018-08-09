@@ -99,18 +99,14 @@ import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.api.CreateTrader;
 import com.mycelium.wallet.lt.api.DeleteTrader;
 import com.mycelium.wallet.persistence.MetadataStorage;
-import com.mycelium.wapi.model.Balance;
-import com.mycelium.wapi.wallet.AesKeyCipher;
-import com.mycelium.wapi.wallet.ExportableAccount;
-import com.mycelium.wapi.wallet.KeyCipher;
-import com.mycelium.wapi.wallet.SyncMode;
-import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.bip44.Bip44Account;
-import com.mycelium.wapi.wallet.bip44.Bip44PubOnlyAccount;
+import com.mycelium.wapi.model.BalanceSatoshis;
+import com.mycelium.wapi.wallet.*;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+import com.mycelium.wapi.wallet.btc.bip44.Bip44BtcAccount;
+import com.mycelium.wapi.wallet.btc.bip44.Bip44PubOnlyBtcAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
-import com.mycelium.wapi.wallet.single.SingleAddressAccount;
+import com.mycelium.wapi.wallet.btc.single.SingleAddressBtcAccount;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -227,13 +223,13 @@ public class AccountsFragment extends Fragment {
          if (accountid != null) {
             //check whether the account is active - we might have scanned the priv key for an archived watchonly
             WalletManager walletManager = _mbwManager.getWalletManager(false);
-            WalletAccount account = walletManager.getAccount(accountid);
+            WalletBtcAccount account = walletManager.getAccount(accountid);
             if (account.isActive()) {
                _mbwManager.setSelectedAccount(accountid);
             }
             accountListAdapter.setFocusedAccountId(account.getId());
             updateIncludingMenus();
-            if (account.getType() != WalletAccount.Type.COLU && !intent.getBooleanExtra(AddAccountActivity.IS_UPGRADE, false)) {
+            if (account.getType() != WalletBtcAccount.Type.COLU && !intent.getBooleanExtra(AddAccountActivity.IS_UPGRADE, false)) {
                setNameForNewAccount(account);
             }
             eventBus.post(new ExtraAccountsChanged());
@@ -250,9 +246,9 @@ public class AccountsFragment extends Fragment {
       }
    }
 
-    private void deleteAccount(final WalletAccount accountToDelete) {
+    private void deleteAccount(final WalletBtcAccount accountToDelete) {
        Preconditions.checkNotNull(accountToDelete);
-       final WalletAccount linkedAccount = getLinkedAccount(accountToDelete);
+       final WalletBtcAccount linkedAccount = getLinkedAccount(accountToDelete);
 
        final View checkBoxView = View.inflate(getActivity(), R.layout.delkey_checkbox, null);
        final CheckBox keepAddrCheckbox = checkBoxView.findViewById(R.id.checkbox);
@@ -267,7 +263,7 @@ public class AccountsFragment extends Fragment {
       final boolean hasPrivateData = (accountToDelete instanceof ExportableAccount
               && ((ExportableAccount) accountToDelete).getExportData(AesKeyCipher.defaultKeyCipher()).privateData.isPresent());
 
-      if (accountToDelete instanceof SingleAddressAccount && hasPrivateData) {
+      if (accountToDelete instanceof SingleAddressBtcAccount && hasPrivateData) {
          deleteDialog.setView(checkBoxView);
       }
 
@@ -341,15 +337,15 @@ public class AccountsFragment extends Fragment {
                confirmDeleteDialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                   public void onClick(DialogInterface arg0, int arg1) {
                      Log.d(TAG, "In deleteFragment onClick");
-                     if (keepAddrCheckbox.isChecked() && accountToDelete instanceof SingleAddressAccount) {
+                     if (keepAddrCheckbox.isChecked() && accountToDelete instanceof SingleAddressBtcAccount) {
                         try {
                            //Check if this SingleAddress account is related with ColuAccount
-                           WalletAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, _mbwManager.getColuManager().getAccounts().values());
+                           WalletBtcAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, _mbwManager.getColuManager().getAccounts().values());
                            if (linkedColuAccount != null && linkedColuAccount instanceof ColuAccount) {
                               ColuManager coluManager = _mbwManager.getColuManager();
                               coluManager.forgetPrivateKey((ColuAccount) linkedColuAccount);
                            } else {
-                              ((SingleAddressAccount) accountToDelete).forgetPrivateKey(AesKeyCipher.defaultKeyCipher());
+                              ((SingleAddressBtcAccount) accountToDelete).forgetPrivateKey(AesKeyCipher.defaultKeyCipher());
                            }
                            _toaster.toast(R.string.private_key_deleted, false);
                         } catch (KeyCipher.InvalidKeyCipher e) {
@@ -374,7 +370,7 @@ public class AccountsFragment extends Fragment {
                            }
                         } else {
                            //Check if this SingleAddress account is related with ColuAccount
-                           WalletAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, _mbwManager.getColuManager().getAccounts().values());
+                           WalletBtcAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, _mbwManager.getColuManager().getAccounts().values());
                            if (linkedColuAccount != null && linkedColuAccount instanceof ColuAccount) {
                               ColuManager coluManager = _mbwManager.getColuManager();
                               coluManager.deleteAccount((ColuAccount) linkedColuAccount);
@@ -408,7 +404,7 @@ public class AccountsFragment extends Fragment {
                   coluManager.deleteAccount((ColuAccount) accountToDelete);
                } else {
                   //Check if this SingleAddress account is related with ColuAccount
-                  WalletAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, _mbwManager.getColuManager().getAccounts().values());
+                  WalletBtcAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, _mbwManager.getColuManager().getAccounts().values());
                   if (linkedColuAccount != null && linkedColuAccount instanceof ColuAccount) {
                      ColuManager coluManager = _mbwManager.getColuManager();
                      coluManager.deleteAccount((ColuAccount) linkedColuAccount);
@@ -429,7 +425,7 @@ public class AccountsFragment extends Fragment {
             }
          }
 
-         private CurrencyValue getPotentialBalanceColu(WalletAccount account) {
+         private CurrencyValue getPotentialBalanceColu(WalletBtcAccount account) {
             if (account.isArchived()) {
                return null;
             } else {
@@ -438,11 +434,11 @@ public class AccountsFragment extends Fragment {
             }
          }
 
-         private Long getPotentialBalance(WalletAccount account) {
+         private Long getPotentialBalance(WalletBtcAccount account) {
             if (account.isArchived()) {
                return null;
             } else {
-               Balance balance = account.getBalance();
+               BalanceSatoshis balance = account.getBalance();
                return balance.confirmed + balance.pendingChange + balance.pendingReceiving;
             }
          }
@@ -458,7 +454,7 @@ public class AccountsFragment extends Fragment {
    }
 
    @NonNull
-   private String createDeleteDialogText(WalletAccount accountToDelete, WalletAccount linkedAccount) {
+   private String createDeleteDialogText(WalletBtcAccount accountToDelete, WalletBtcAccount linkedAccount) {
       String accountName = _mbwManager.getMetadataStorage().getLabelByAccount(accountToDelete.getId());
       String dialogText;
 
@@ -471,7 +467,7 @@ public class AccountsFragment extends Fragment {
    }
 
    @NonNull
-   private String getArchivedAccountDeleteText(WalletAccount linkedAccount, String accountName) {
+   private String getArchivedAccountDeleteText(WalletBtcAccount linkedAccount, String accountName) {
       String dialogText;
       if (linkedAccount != null && linkedAccount.isVisible()) {
          String linkedAccountName =_mbwManager.getMetadataStorage().getLabelByAccount(linkedAccount.getId());
@@ -483,7 +479,7 @@ public class AccountsFragment extends Fragment {
    }
 
    @NonNull
-   private String getActiveAccountDeleteText(WalletAccount accountToDelete, WalletAccount linkedAccount, String accountName) {
+   private String getActiveAccountDeleteText(WalletBtcAccount accountToDelete, WalletBtcAccount linkedAccount, String accountName) {
       String dialogText;
       CurrencyBasedBalance balance = Preconditions.checkNotNull(accountToDelete.getCurrencyBasedBalance());
       String valueString = getBalanceString(accountToDelete, balance);
@@ -501,9 +497,9 @@ public class AccountsFragment extends Fragment {
       return dialogText;
    }
 
-   private String getBalanceString(WalletAccount account, CurrencyBasedBalance balance) {
+   private String getBalanceString(WalletBtcAccount account, CurrencyBasedBalance balance) {
       String valueString = Utils.getFormattedValueWithUnit(balance.confirmed, _mbwManager.getBitcoinDenomination());
-      if (account.getType() == WalletAccount.Type.COLU) {
+      if (account.getType() == WalletBtcAccount.Type.COLU) {
          valueString = Utils.getColuFormattedValueWithUnit(balance.confirmed);
       }
       return valueString;
@@ -512,9 +508,9 @@ public class AccountsFragment extends Fragment {
    /**
     * If account is colu we are asking for linked BTC. Else we are searching if any colu attached.
     */
-   private WalletAccount getLinkedAccount(WalletAccount account) {
-      WalletAccount linkedAccount;
-      if (account.getType() ==  WalletAccount.Type.COLU) {
+   private WalletBtcAccount getLinkedAccount(WalletBtcAccount account) {
+      WalletBtcAccount linkedAccount;
+      if (account.getType() ==  WalletBtcAccount.Type.COLU) {
          linkedAccount = ((ColuAccount) account).getLinkedAccount();
       } else {
          linkedAccount = Utils.getLinkedAccount(account, _mbwManager.getColuManager().getAccounts().values());
@@ -526,9 +522,9 @@ public class AccountsFragment extends Fragment {
       return linkedAccount;
    }
 
-   private int getLinkedAccountsCount(WalletAccount account) {
+   private int getLinkedAccountsCount(WalletBtcAccount account) {
       int count = 0;
-      if (account.getType() == WalletAccount.Type.COLU) {
+      if (account.getType() == WalletBtcAccount.Type.COLU) {
          count++;
       } else {
          if (Utils.getLinkedAccount(account, _mbwManager.getColuManager().getAccounts().values()) != null) {
@@ -549,7 +545,7 @@ public class AccountsFragment extends Fragment {
       }
    }
 
-   private void setNameForNewAccount(WalletAccount account) {
+   private void setNameForNewAccount(WalletBtcAccount account) {
       if (account == null || !isAdded()) {
          return;
       }
@@ -589,7 +585,7 @@ public class AccountsFragment extends Fragment {
 
    private AccountListAdapter.ItemClickListener recordAddressClickListener = new AccountListAdapter.ItemClickListener() {
       @Override
-      public void onItemClick(WalletAccount account) {
+      public void onItemClick(WalletBtcAccount account) {
          // Check whether a new account was selected
          if (!_mbwManager.getSelectedAccount().equals(account) && account.isActive()) {
             _mbwManager.setSelectedAccount(account.getId());
@@ -600,9 +596,9 @@ public class AccountsFragment extends Fragment {
    };
 
    private void updateIncludingMenus() {
-      WalletAccount account = accountListAdapter.getFocusedAccount();
-      boolean isBch = account.getType() == WalletAccount.Type.BCHSINGLEADDRESS
-              || account.getType() == WalletAccount.Type.BCHBIP44;
+      WalletBtcAccount account = accountListAdapter.getFocusedAccount();
+      boolean isBch = account.getType() == WalletBtcAccount.Type.BCHSINGLEADDRESS
+              || account.getType() == WalletBtcAccount.Type.BCHBIP44;
 
       final List<Integer> menus = Lists.newArrayList();
       if(!(account instanceof ColuAccount)
@@ -610,11 +606,11 @@ public class AccountsFragment extends Fragment {
          menus.add(R.menu.record_options_menu);
       }
 
-      if ((account instanceof SingleAddressAccount) || (account.isDerivedFromInternalMasterseed())) {
+      if ((account instanceof SingleAddressBtcAccount) || (account.isDerivedFromInternalMasterseed())) {
          menus.add(R.menu.record_options_menu_backup);
       }
 
-      if (account instanceof SingleAddressAccount) {
+      if (account instanceof SingleAddressBtcAccount) {
          menus.add(R.menu.record_options_menu_backup_verify);
       }
 
@@ -628,7 +624,7 @@ public class AccountsFragment extends Fragment {
          menus.add(R.menu.record_options_menu_delete);
       }
 
-      if (account.isActive() && account.canSpend() && !(account instanceof Bip44PubOnlyAccount)
+      if (account.isActive() && account.canSpend() && !(account instanceof Bip44PubOnlyBtcAccount)
               && !isBch) {
          menus.add(R.menu.record_options_menu_sign);
       }
@@ -645,8 +641,8 @@ public class AccountsFragment extends Fragment {
          menus.add(R.menu.record_options_menu_set_coinapult_mail);
       }
 
-      if (account.getType() != WalletAccount.Type.BCHBIP44
-              && account.getType() != WalletAccount.Type.BCHSINGLEADDRESS
+      if (account.getType() != WalletBtcAccount.Type.BCHBIP44
+              && account.getType() != WalletBtcAccount.Type.BCHSINGLEADDRESS
               && account.isArchived()) {
          menus.add(R.menu.record_options_menu_archive);
       }
@@ -655,10 +651,10 @@ public class AccountsFragment extends Fragment {
          menus.add(R.menu.record_options_menu_export);
       }
 
-      if (account.isActive() && account instanceof Bip44Account && !(account instanceof Bip44PubOnlyAccount)
+      if (account.isActive() && account instanceof Bip44BtcAccount && !(account instanceof Bip44PubOnlyBtcAccount)
               && AccountManager.INSTANCE.getBTCMasterSeedAccounts().size() > 1 && !isBch) {
 
-         if (!((Bip44Account) account).hasHadActivity()) {
+         if (!((Bip44BtcAccount) account).hasHadActivity()) {
             //only allow to remove unused HD acounts from the view
             menus.add(R.menu.record_options_menu_hide_unused);
          }
@@ -895,8 +891,8 @@ public class AccountsFragment extends Fragment {
       if (!AccountsFragment.this.isAdded()) {
          return;
       }
-      WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
-      if (_focusedAccount instanceof SingleAddressAccount || _focusedAccount instanceof ColuAccount) {
+      WalletBtcAccount _focusedAccount = accountListAdapter.getFocusedAccount();
+      if (_focusedAccount instanceof SingleAddressBtcAccount || _focusedAccount instanceof ColuAccount) {
          //start legacy backup verification
          VerifyBackupActivity.callMe(getActivity());
       }
@@ -906,7 +902,7 @@ public class AccountsFragment extends Fragment {
       if (!AccountsFragment.this.isAdded()) {
          return;
       }
-      WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
+      WalletBtcAccount _focusedAccount = accountListAdapter.getFocusedAccount();
       if(_focusedAccount instanceof ColuAccount) {
          //ColuAccount class can be single or HD
          //TODO: test if account is single address or HD and do wordlist backup instead
@@ -916,7 +912,7 @@ public class AccountsFragment extends Fragment {
          if (_focusedAccount.isDerivedFromInternalMasterseed()) {
             //start wordlist backup if a HD account or derived account was selected
             Utils.pinProtectedWordlistBackup(getActivity());
-         } else if (_focusedAccount instanceof SingleAddressAccount) {
+         } else if (_focusedAccount instanceof SingleAddressBtcAccount) {
             //start legacy backup if a single key or watch only was selected
             Utils.pinProtectedBackup(getActivity());
          }
@@ -925,7 +921,7 @@ public class AccountsFragment extends Fragment {
 
    private void showOutputs() {
       Intent intent = new Intent(getActivity(), UnspentOutputsActivity.class);
-      WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
+      WalletBtcAccount _focusedAccount = accountListAdapter.getFocusedAccount();
       intent.putExtra("account", _focusedAccount.getId());
       startActivity(intent);
    }
@@ -941,12 +937,12 @@ public class AccountsFragment extends Fragment {
             if (!AccountsFragment.this.isAdded()) {
                return;
             }
-            WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
+            WalletBtcAccount _focusedAccount = accountListAdapter.getFocusedAccount();
             if (_focusedAccount instanceof CoinapultAccount) {
                CoinapultManager coinapultManager = _mbwManager.getCoinapultManager();
                MessageSigningActivity.callMe(getActivity(), coinapultManager.getAccountKey());
-            } else if (_focusedAccount instanceof SingleAddressAccount) {
-               MessageSigningActivity.callMe(getActivity(), (SingleAddressAccount) _focusedAccount);
+            } else if (_focusedAccount instanceof SingleAddressBtcAccount) {
+               MessageSigningActivity.callMe(getActivity(), (SingleAddressBtcAccount) _focusedAccount);
             } else if(_focusedAccount instanceof ColuAccount){
                MessageSigningActivity.callMe(getActivity(), ((ColuAccount) _focusedAccount).getPrivateKey());
             } else {
@@ -962,12 +958,12 @@ public class AccountsFragment extends Fragment {
     * Show a message to the user explaining what it means to select a different
     * address.
     */
-   private void toastSelectedAccountChanged(WalletAccount account) {
+   private void toastSelectedAccountChanged(WalletBtcAccount account) {
       if (account.isArchived()) {
          _toaster.toast(getString(R.string.selected_archived_warning), true);
-      } else if (account instanceof Bip44Account) {
+      } else if (account instanceof Bip44BtcAccount) {
          _toaster.toast(getString(R.string.selected_hd_info), true);
-      } else if (account instanceof SingleAddressAccount) {
+      } else if (account instanceof SingleAddressBtcAccount) {
          _toaster.toast(getString(R.string.selected_single_info), true);
       } else if(account instanceof ColuAccount) {
           _toaster.toast(getString(R.string.selected_colu_info
@@ -1002,7 +998,7 @@ public class AccountsFragment extends Fragment {
       return super.onOptionsItemSelected(item);
    }
 
-   private void setLabelOnAccount(final WalletAccount account, final String defaultName, boolean askForPin) {
+   private void setLabelOnAccount(final WalletBtcAccount account, final String defaultName, boolean askForPin) {
       if (!AccountsFragment.this.isAdded()) {
          return;
       }
@@ -1027,7 +1023,7 @@ public class AccountsFragment extends Fragment {
       if (!AccountsFragment.this.isAdded()) {
          return;
       }
-      final WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
+      final WalletBtcAccount _focusedAccount = accountListAdapter.getFocusedAccount();
       if (_focusedAccount.isActive() && accountProtected(_focusedAccount)) {
          _toaster.toast(R.string.keep_one_active, false);
          return;
@@ -1121,13 +1117,13 @@ public class AccountsFragment extends Fragment {
       });
    }
 
-   private void activate(WalletAccount account) {
+   private void activate(WalletBtcAccount account) {
       account.activateAccount();
-      WalletAccount linkedAccount = Utils.getLinkedAccount(account, _mbwManager.getColuManager().getAccounts().values());
+      WalletBtcAccount linkedAccount = Utils.getLinkedAccount(account, _mbwManager.getColuManager().getAccounts().values());
       if (linkedAccount != null) {
          linkedAccount.activateAccount();
       }
-      WalletAccount correspondingBCHAccount = _mbwManager.getWalletManager(false).getAccount(MbwManager.getBitcoinCashAccountId(account));
+      WalletBtcAccount correspondingBCHAccount = _mbwManager.getWalletManager(false).getAccount(MbwManager.getBitcoinCashAccountId(account));
       if (correspondingBCHAccount != null) {
          correspondingBCHAccount.activateAccount();
       }
@@ -1142,13 +1138,13 @@ public class AccountsFragment extends Fragment {
       if (!isAdded()) {
          return;
       }
-      final WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
+      final WalletBtcAccount _focusedAccount = accountListAdapter.getFocusedAccount();
       if (accountProtected(_focusedAccount)) {
          //this is the last active account, we dont allow archiving it
          _toaster.toast(R.string.keep_one_active, false);
          return;
       }
-      if (_focusedAccount.getType() == WalletAccount.Type.COINAPULT) {
+      if (_focusedAccount.getType() == WalletBtcAccount.Type.COINAPULT) {
          _mbwManager.runPinProtectedFunction(getActivity(), new Runnable() {
 
             @Override
@@ -1162,8 +1158,8 @@ public class AccountsFragment extends Fragment {
 
          });
          return;
-      } else if (_focusedAccount.getType() == WalletAccount.Type.BTCBIP44) {
-         Bip44Account account = (Bip44Account) _focusedAccount;
+      } else if (_focusedAccount.getType() == WalletBtcAccount.Type.BTCBIP44) {
+         Bip44BtcAccount account = (Bip44BtcAccount) _focusedAccount;
          if (!account.hasHadActivity()) {
             //this account is unused, we dont allow archiving it
             _toaster.toast(R.string.dont_allow_archiving_unused_notification, false);
@@ -1187,7 +1183,7 @@ public class AccountsFragment extends Fragment {
    /**
     * Account is protected if after removal no accounts would stay active, so it would not be possible to select an account
     */
-   private boolean accountProtected(WalletAccount toRemove) {
+   private boolean accountProtected(WalletBtcAccount toRemove) {
       final int safeSize = getLinkedAccountsCount(toRemove) + 2;
       return _mbwManager.getWalletManager(false).getActiveAccounts().size() < safeSize;
    }
@@ -1196,14 +1192,14 @@ public class AccountsFragment extends Fragment {
       if (!isAdded()) {
          return;
       }
-      final WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
+      final WalletBtcAccount _focusedAccount = accountListAdapter.getFocusedAccount();
       if (accountProtected(_focusedAccount)) {
          //this is the last active account, we dont allow hiding it
          _toaster.toast(R.string.keep_one_active, false);
          return;
       }
-      if (_focusedAccount instanceof Bip44Account) {
-         final Bip44Account account = (Bip44Account) _focusedAccount;
+      if (_focusedAccount instanceof Bip44BtcAccount) {
+         final Bip44BtcAccount account = (Bip44BtcAccount) _focusedAccount;
          if (account.hasHadActivity()) {
             //this account is used, we don't allow hiding it
             _toaster.toast(R.string.dont_allow_hiding_used_notification, false);
@@ -1226,9 +1222,9 @@ public class AccountsFragment extends Fragment {
       }
    }
 
-   private void archive(final WalletAccount account) {
+   private void archive(final WalletBtcAccount account) {
       CurrencyBasedBalance balance = Preconditions.checkNotNull(account.getCurrencyBasedBalance());
-      final WalletAccount linkedAccount = getLinkedAccount(account);
+      final WalletBtcAccount linkedAccount = getLinkedAccount(account);
       new AlertDialog.Builder(getActivity())
               .setTitle(R.string.archiving_account_title)
               .setMessage(Html.fromHtml(createArchiveDialogText(account,linkedAccount)))
@@ -1236,11 +1232,11 @@ public class AccountsFragment extends Fragment {
 
                  public void onClick(DialogInterface arg0, int arg1) {
                     account.archiveAccount();
-                    WalletAccount linkedAccount = Utils.getLinkedAccount(account, _mbwManager.getColuManager().getAccounts().values());
+                    WalletBtcAccount linkedAccount = Utils.getLinkedAccount(account, _mbwManager.getColuManager().getAccounts().values());
                     if (linkedAccount != null) {
                        linkedAccount.archiveAccount();
                     }
-                    WalletAccount correspondingBCHAccount = _mbwManager.getWalletManager(false).getAccount(MbwManager.getBitcoinCashAccountId(account));
+                    WalletBtcAccount correspondingBCHAccount = _mbwManager.getWalletManager(false).getAccount(MbwManager.getBitcoinCashAccountId(account));
                     if (correspondingBCHAccount != null) {
                        correspondingBCHAccount.archiveAccount();
                     }
@@ -1258,13 +1254,13 @@ public class AccountsFragment extends Fragment {
    }
 
    @NonNull
-   private String createArchiveDialogText(WalletAccount account, WalletAccount linkedAccount) {
+   private String createArchiveDialogText(WalletBtcAccount account, WalletBtcAccount linkedAccount) {
       String accountName = _mbwManager.getMetadataStorage().getLabelByAccount(account.getId());
       return getAccountArchiveText(account, linkedAccount, accountName);
    }
 
    @NonNull
-   private String getAccountArchiveText(WalletAccount account, WalletAccount linkedAccount, String accountName) {
+   private String getAccountArchiveText(WalletBtcAccount account, WalletBtcAccount linkedAccount, String accountName) {
       String dialogText;
       CurrencyBasedBalance balance = Preconditions.checkNotNull(account.getCurrencyBasedBalance());
       String valueString = getBalanceString(account, balance);

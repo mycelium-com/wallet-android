@@ -109,13 +109,10 @@ import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.paymentrequest.PaymentRequestHandler;
 import com.mycelium.wapi.api.lib.FeeEstimation;
 import com.mycelium.wapi.api.response.Feature;
-import com.mycelium.wapi.wallet.AbstractAccount;
-import com.mycelium.wapi.wallet.AesKeyCipher;
-import com.mycelium.wapi.wallet.KeyCipher;
-import com.mycelium.wapi.wallet.SyncMode;
-import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.bip44.Bip44AccountExternalSignature;
+import com.mycelium.wapi.wallet.*;
+import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+import com.mycelium.wapi.wallet.btc.bip44.Bip44BtcAccountExternalSignature;
 import com.mycelium.wapi.wallet.currency.BitcoinValue;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
@@ -241,7 +238,7 @@ public class SendMainActivity extends Activity {
     private PaymentRequestHandler _paymentRequestHandler;
     private String _paymentRequestHandlerUuid;
 
-    protected WalletAccount _account;
+    protected WalletBtcAccount _account;
     private CurrencyValue _amountToSend;
     private BitcoinValue _lastBitcoinAmountToSend = null;
     private Address _receivingAddress;
@@ -262,7 +259,7 @@ public class SendMainActivity extends Activity {
     private boolean _xpubSyncing = false;
     private boolean _spendingUnconfirmed = false;
     private boolean _paymentFetched = false;
-    private WalletAccount fundColuAccount;
+    private WalletBtcAccount fundColuAccount;
     private ProgressDialog progress;
     private FeeEstimation feeEstimation;
     private SharedPreferences transactionFiatValuePref;
@@ -548,11 +545,11 @@ public class SendMainActivity extends Activity {
         return _transactionStatus;
     }
 
-    private WalletAccount getFundAccount() {
-        WalletAccount fundColuAccount = null;
-        List<WalletAccount> walletAccountList = _mbwManager.getWalletManager(false).getActiveAccounts();
+    private WalletBtcAccount getFundAccount() {
+        WalletBtcAccount fundColuAccount = null;
+        List<WalletBtcAccount> walletAccountList = _mbwManager.getWalletManager(false).getActiveAccounts();
         walletAccountList = Utils.sortAccounts(walletAccountList, _mbwManager.getMetadataStorage());
-        for (WalletAccount walletAccount : walletAccountList) {
+        for (WalletBtcAccount walletAccount : walletAccountList) {
             if (canFundColuFrom(walletAccount)) {
                 fundColuAccount = walletAccount;
                 break;
@@ -561,7 +558,7 @@ public class SendMainActivity extends Activity {
         return fundColuAccount;
     }
 
-    private boolean canFundColuFrom(WalletAccount walletAccount) {
+    private boolean canFundColuFrom(WalletBtcAccount walletAccount) {
         return walletAccount != null && walletAccount.canSpend()
                 && walletAccount.getCurrencyBasedBalance().confirmed.isBtc()
                 && walletAccount.getBalance().getSpendableBalance() >=
@@ -569,7 +566,7 @@ public class SendMainActivity extends Activity {
     }
 
     private long getAmountForColuTxOutputs() {
-        int coluDustOutputSize = this._mbwManager.getNetwork().isTestnet() ? AbstractAccount.COLU_MAX_DUST_OUTPUT_SIZE_TESTNET : AbstractAccount.COLU_MAX_DUST_OUTPUT_SIZE_MAINNET;
+        int coluDustOutputSize = this._mbwManager.getNetwork().isTestnet() ? AbstractBtcAccount.COLU_MAX_DUST_OUTPUT_SIZE_TESTNET : AbstractBtcAccount.COLU_MAX_DUST_OUTPUT_SIZE_MAINNET;
         return 2 * coluDustOutputSize + ColuManager.METADATA_OUTPUT_SIZE;
     }
 
@@ -655,7 +652,7 @@ public class SendMainActivity extends Activity {
     void onClickScan() {
         StringHandleConfig config = StringHandleConfig.returnKeyOrAddressOrUriOrKeynode();
 
-        WalletAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
+        WalletBtcAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
         if(account instanceof ColuAccount) {
             config.bitcoinUriAction = StringHandleConfig.BitcoinUriAction.SEND_COLU_ASSET;
             config.bitcoinUriWithAddressAction = StringHandleConfig.BitcoinUriWithAddressAction.SEND_COLU_ASSET;
@@ -709,7 +706,7 @@ public class SendMainActivity extends Activity {
          sendCoinapultTransaction();
       } else if (isColu()) {
           sendColuTransaction();
-      } else if (_isColdStorage || _account instanceof Bip44AccountExternalSignature) {
+      } else if (_isColdStorage || _account instanceof Bip44BtcAccountExternalSignature) {
          // We do not ask for pin when the key is from cold storage or from a external device (trezor,...)
          signTransaction();
       } else {
@@ -881,7 +878,7 @@ public class SendMainActivity extends Activity {
             _transactionLabel = paymentRequestInformation.getPaymentDetails().memo;
             return TransactionStatus.OK;
          } else if(hasAddressData) {
-             WalletAccount.Receiver receiver = new WalletAccount.Receiver(_receivingAddress, toSend.getLongValue());
+             WalletBtcAccount.Receiver receiver = new WalletBtcAccount.Receiver(_receivingAddress, toSend.getLongValue());
              _unsigned = _account.createUnsignedTransaction(Collections.singletonList(receiver), feePerKbValue);
              checkSpendingUnconfirmed();
             return TransactionStatus.OK;
@@ -967,20 +964,20 @@ public class SendMainActivity extends Activity {
                             }
 
                             //Create funding transaction and broadcast it to network
-                            List<WalletAccount.Receiver> receivers = new ArrayList<WalletAccount.Receiver>();
+                            List<WalletBtcAccount.Receiver> receivers = new ArrayList<WalletBtcAccount.Receiver>();
                             long txFee = _mbwManager.getColuManager().getColuTransactionFee(feePerKb);
                             long fundingAmountToSend = txFee + getAmountForColuTxOutputs();
 
                             if (txFee < TransactionUtils.MINIMUM_OUTPUT_VALUE)
                                 fundingAmountToSend = TransactionUtils.MINIMUM_OUTPUT_VALUE;
 
-                            WalletAccount.Receiver coluReceiver = new WalletAccount.Receiver(_account.getReceivingAddress().get(), fundingAmountToSend);
+                            WalletBtcAccount.Receiver coluReceiver = new WalletBtcAccount.Receiver(_account.getReceivingAddress().get(), fundingAmountToSend);
                             receivers.add(coluReceiver);
                             try {
                                 UnsignedTransaction fundingTransaction = fundColuAccount.createUnsignedTransaction(receivers, feePerKb);
                                 Transaction signedFundingTransaction = fundColuAccount.signTransaction(fundingTransaction, AesKeyCipher.defaultKeyCipher());
-                                WalletAccount.BroadcastResult broadcastResult = fundColuAccount.broadcastTransaction(signedFundingTransaction);
-                                if (broadcastResult != WalletAccount.BroadcastResult.SUCCESS) {
+                                WalletBtcAccount.BroadcastResult broadcastResult = fundColuAccount.broadcastTransaction(signedFundingTransaction);
+                                if (broadcastResult != WalletBtcAccount.BroadcastResult.SUCCESS) {
                                     return createEmptyColuBroadcastJson();
                                 }
 
@@ -1082,7 +1079,7 @@ public class SendMainActivity extends Activity {
                   // trying to send less than coinapults minimum withdrawal, or no fx rate available
                   return TransactionStatus.OutputTooSmall;
                }
-               WalletAccount.Receiver receiver = new WalletAccount.Receiver(_receivingAddress, getBitcoinValueToSend().getLongValue());
+               WalletBtcAccount.Receiver receiver = new WalletBtcAccount.Receiver(_receivingAddress, getBitcoinValueToSend().getLongValue());
                _preparedCoinapult = coinapultAccount.prepareCoinapultTx(receiver);
                return TransactionStatus.OK;
             }

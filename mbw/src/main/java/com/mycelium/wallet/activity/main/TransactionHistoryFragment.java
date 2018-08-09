@@ -96,8 +96,8 @@ import com.mycelium.wallet.event.TransactionLabelChanged;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.model.TransactionDetails;
 import com.mycelium.wapi.model.TransactionSummary;
-import com.mycelium.wapi.wallet.AbstractAccount;
-import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.squareup.otto.Subscribe;
@@ -305,12 +305,12 @@ public class TransactionHistoryFragment extends Fragment {
 
    static class Preloader extends AsyncTask<Void, Void, Void> {
       private final List<TransactionSummary> toAdd;
-      private final WalletAccount account;
+      private final WalletBtcAccount account;
       private final int offset;
       private final int limit;
       private final AtomicBoolean success;
 
-      Preloader(List<TransactionSummary> toAdd, WalletAccount account, int offset, int limit, AtomicBoolean success) {
+      Preloader(List<TransactionSummary> toAdd, WalletBtcAccount account, int offset, int limit, AtomicBoolean success) {
          this.toAdd = toAdd;
          this.account = account;
          this.offset = offset;
@@ -404,8 +404,8 @@ public class TransactionHistoryFragment extends Fragment {
                      checkNotNull(menu.findItem(R.id.miShowDetails)).setVisible(record.hasDetails());
                      checkNotNull(menu.findItem(R.id.miShowCoinapultDebug)).setVisible(record.canCoinapult());
                      checkNotNull(menu.findItem(R.id.miAddToAddressBook)).setVisible(record.hasAddressBook());
-                     if((_mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHBIP44
-                         || _mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHSINGLEADDRESS)) {
+                     if((_mbwManager.getSelectedAccount().getType() == WalletBtcAccount.Type.BCHBIP44
+                         || _mbwManager.getSelectedAccount().getType() == WalletBtcAccount.Type.BCHSINGLEADDRESS)) {
                        checkNotNull(menu.findItem(R.id.miCancelTransaction)).setVisible(false);
                        checkNotNull(menu.findItem(R.id.miRebroadcastTransaction)).setVisible(false);
                        checkNotNull(menu.findItem(R.id.miBumpFee)).setVisible(false);
@@ -573,9 +573,9 @@ public class TransactionHistoryFragment extends Fragment {
                                       @Override
                                       public void onClick(DialogInterface dialog, int which) {
                                          String transaction;
-                                         if(_mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHBIP44
+                                         if(_mbwManager.getSelectedAccount().getType() == WalletBtcAccount.Type.BCHBIP44
                                              || _mbwManager.getSelectedAccount().getType()
-                                             == WalletAccount.Type.BCHSINGLEADDRESS) {
+                                             == WalletBtcAccount.Type.BCHSINGLEADDRESS) {
                                             //TODO Module should provide full bytes of transaction.
                                             transaction = HexUtils.toHex(_mbwManager.getSelectedAccount()
                                                 .getTransactionSummary(record.txid).txid.getBytes());
@@ -617,7 +617,7 @@ public class TransactionHistoryFragment extends Fragment {
     * TODO: consider parallel attempts to PFP
     */
    private UnsignedTransaction tryCreateBumpTransaction(Sha256Hash txid, long feePerKB) {
-      WalletAccount walletAccount = _mbwManager.getSelectedAccount();
+      WalletBtcAccount walletAccount = _mbwManager.getSelectedAccount();
       TransactionDetails transaction = walletAccount.getTransactionDetails(txid);
       long txFee = 0;
       for(TransactionDetails.Item i : transaction.inputs) {
@@ -630,8 +630,8 @@ public class TransactionHistoryFragment extends Fragment {
          makeText(getActivity(), "bumping not necessary", LENGTH_LONG).show();
          return null;
       }
-      if (walletAccount instanceof AbstractAccount) {
-         AbstractAccount account = (AbstractAccount) walletAccount;
+      if (walletAccount instanceof AbstractBtcAccount) {
+         AbstractBtcAccount account = (AbstractBtcAccount) walletAccount;
          try {
             return account.createUnsignedCPFPTransaction(txid, feePerKB, txFee);
          } catch (InsufficientFundsException e) {
@@ -665,7 +665,7 @@ public class TransactionHistoryFragment extends Fragment {
 
 
    private void shareTransactionHistory() {
-      WalletAccount account = _mbwManager.getSelectedAccount();
+      WalletBtcAccount account = _mbwManager.getSelectedAccount();
       MetadataStorage metaData = _mbwManager.getMetadataStorage();
       try {
          String fileName = "MyceliumExport_" + System.currentTimeMillis() + ".csv";
