@@ -73,28 +73,26 @@ public class FeeItemsBuilder {
         }
         feeItems.add(new FeeItem(0, null, null, FeeViewAdapter.VIEW_TYPE_PADDING));
 
-        int i = 1;
-        while (i < feeItems.size() - 2) {
-            FeeItem thisFeeItem = feeItems.get(i);
-            FeeItem nextFeeItem = feeItems.get(i + 1);
-            String thisFiatFee = thisFeeItem.currencyValue.getValue().setScale(2, BigDecimal.ROUND_HALF_DOWN).toString();
-            String nextFiatFee = nextFeeItem.currencyValue.getValue().setScale(2, BigDecimal.ROUND_HALF_DOWN).toString();
-            if ( (float)nextFeeItem.feePerKb / thisFeeItem.feePerKb < MIN_FEE_INCREMENT ||
-                    thisFiatFee.equals(nextFiatFee)) {
-                feeItems.remove(i + 1);
-            } else {
-                i++;
-            }
-        }
-
         return feeItems;
     }
 
     private void addItemsInRange(List<FeeItem> feeItems, FeeItemsAlgorithm algorithm, int txSize) {
         for (int i = algorithm.getMinPosition(); i < algorithm.getMaxPosition(); i++) {
-            FeeItem feeItem = createFeeItem(txSize, algorithm.computeValue(i));
-            if (feeItems.size() == 0 || feeItems.get(feeItems.size() - 1).feePerKb < feeItem.feePerKb) { // avoid duplication
-                feeItems.add(feeItem);
+            FeeItem currFeeItem = createFeeItem(txSize, algorithm.computeValue(i));
+            FeeItem prevFeeItem = feeItems.get(feeItems.size() - 1);
+            boolean canAdd = prevFeeItem.feePerKb < currFeeItem.feePerKb;
+
+            if(currFeeItem.currencyValue != null && prevFeeItem.currencyValue != null
+                    && currFeeItem.currencyValue.getValue() != null && prevFeeItem.currencyValue.getValue() != null) {
+                String thisFiatFee = currFeeItem.currencyValue.getValue().setScale(2, BigDecimal.ROUND_HALF_DOWN).toString();
+                String prevFiatFee = prevFeeItem.currencyValue.getValue().setScale(2, BigDecimal.ROUND_HALF_DOWN).toString();
+
+                // if we reached this, then we can override canAdd
+                canAdd = (float) currFeeItem.feePerKb / prevFeeItem.feePerKb >= MIN_FEE_INCREMENT && !thisFiatFee.equals(prevFiatFee);
+            }
+
+            if (canAdd) {
+                feeItems.add(currFeeItem);
             }
         }
     }
