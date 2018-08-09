@@ -30,7 +30,6 @@ class AccountsLiveData(private val context: Application, private val mbwManager:
                        private val pagePrefs: SharedPreferences) : LiveData<List<AccountItem>>() {
     private val builder = RecordRowBuilder(mbwManager, context.resources)
     // List of all currently available accounts
-//    private var accountsList = Collections.emptyList<AccountItem>()
     private var accountsList = Collections.synchronizedList(ArrayList<AccountItem>())
 
     private val executionService: ExecutorService
@@ -156,13 +155,16 @@ class AccountsLiveData(private val context: Application, private val mbwManager:
      * This method is mainly intended to be able to quickly collapse groups.
      */
     private fun updateList() {
-        var isCollapsed = false
-        value = accountsList!!.filter {
-            if (it.title == null) {
-                isCollapsed
-            } else {
-                isCollapsed = pagePrefs.getBoolean(it.title, true)
-                true
+        synchronized(accountsList)
+        {
+            var isCollapsed = false
+            value = accountsList!!.filter {
+                if (it.title == null) {
+                    isCollapsed
+                } else {
+                    isCollapsed = pagePrefs.getBoolean(it.title, true)
+                    true
+                }
             }
         }
     }

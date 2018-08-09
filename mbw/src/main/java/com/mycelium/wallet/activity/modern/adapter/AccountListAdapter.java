@@ -58,10 +58,8 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         listModel.getAccountsData().observe(fragment, new Observer<List<? extends AccountItem>>() {
             @Override
             public void onChanged(List<? extends AccountItem> accountItems) {
-                synchronized (accountItems.iterator()) {
-                    itemList.clear();
-                    itemList.addAll(accountItems);
-                }
+                itemList.clear();
+                itemList.addAll(accountItems);
                 notifyDataSetChanged();
             }
         });
