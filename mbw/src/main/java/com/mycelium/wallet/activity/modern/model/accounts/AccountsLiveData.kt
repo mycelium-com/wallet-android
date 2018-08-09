@@ -21,10 +21,6 @@ import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
-
-
-
-
 /**
  * This class is intended to monitor current accounts and must post changes as soon as accounts list was updated.
  * @param pagePrefs is used to determine which groups are collapsed
