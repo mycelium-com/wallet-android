@@ -22,16 +22,13 @@ buildscript {
     }
 }
 
-kapt {
-    useBuildCache = true
-}
-
 configurations {
     compile.exclude group: 'org.apache.httpcomponents', module: 'httpclient'
     compile.exclude group: 'org.jetbrains', module: 'annotations'
 }
 
 kapt {
+    useBuildCache = true
     javacOptions {
         option("-Xmaxerrs", 500)
     }
