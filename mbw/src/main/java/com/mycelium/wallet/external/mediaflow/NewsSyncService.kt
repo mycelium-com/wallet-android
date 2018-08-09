@@ -37,8 +37,7 @@ class NewsSyncService : Service() {
         val preference = getSharedPreferences(NewsConstants.NEWS_PREF, Context.MODE_PRIVATE)!!
         val lastUpdateTime = preference.getString(NewsConstants.UPDATE_TIME, null);
         NewsUpdate(MbwManager.getInstance(this).eventBus, lastUpdateTime, {
-            val updateStates = it
-            val formattedDate = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.UK).format(Date())
+            val formattedDate = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.UK).format(Date())
             preference.edit()
                     .putString(NewsConstants.UPDATE_TIME, formattedDate)
                     .apply()
