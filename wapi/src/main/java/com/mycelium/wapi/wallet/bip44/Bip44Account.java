@@ -535,7 +535,7 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
 
     @Override
     protected InMemoryPrivateKey getPrivateKey(PublicKey publicKey, KeyCipher cipher) throws InvalidKeyCipher {
-        for (Address address: publicKey.getAllSupportedAddresses(_network)) {
+        for (Address address: publicKey.getAllSupportedAddresses(_network).values()) {
             InMemoryPrivateKey key = getPrivateKeyForAddress(address, cipher);
             if (key != null) {
                 return key;

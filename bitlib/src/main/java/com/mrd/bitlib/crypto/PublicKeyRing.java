@@ -16,6 +16,7 @@
 package com.mrd.bitlib.crypto;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -41,7 +42,7 @@ public class PublicKeyRing implements IPublicKeyRing {
      * Add a public key to the key ring.
      */
     public void addPublicKey(PublicKey key, NetworkParameters network) {
-        List<Address> addresses = key.getAllSupportedAddresses(network);
+        Collection<Address> addresses = key.getAllSupportedAddresses(network).values();
         _addresses.addAll(addresses);
         _addressSet.addAll(addresses);
         for (Address address : addresses) {

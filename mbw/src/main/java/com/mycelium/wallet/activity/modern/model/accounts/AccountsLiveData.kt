@@ -112,7 +112,7 @@ class AccountsLiveData(private val context: Application, private val mbwManager:
         @SafeVarargs
         override fun onProgressUpdate(vararg values: List<AccountItem>) {
             super.onProgressUpdate(*values)
-            accountsList = values[0]
+            accountsList = values[0].toList()
             updateList()
         }
 

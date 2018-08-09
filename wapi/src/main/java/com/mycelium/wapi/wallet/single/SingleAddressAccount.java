@@ -20,6 +20,7 @@ import com.google.common.base.Optional;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.Sha256Hash;
@@ -57,8 +58,8 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
       _backing = backing;
       type = WalletAccount.Type.BTCSINGLEADDRESS;
       _context = context;
-      _addressList = new ArrayList<>(1);
-      _addressList.add(_context.getAddress());
+      _addressList = new ArrayList<>(3);
+      _addressList.addAll(context.getAddresses().values());
       _keyStore = keyStore;
       _cachedBalance = _context.isArchived() ? new Balance(0, 0, 0, 0, 0, 0, false, _allowZeroConfSpending) : calculateLocalBalance();
    }
@@ -106,7 +107,7 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
 
    private void clearInternalStateInt(boolean isArchived) {
       _backing.clear();
-      _context = new SingleAddressAccountContext(_context.getId(), _context.getAddress(), isArchived, 0);
+      _context = new SingleAddressAccountContext(_context.getId(), _context.getAddresses(), isArchived, 0);
       _context.persist(_backing);
       _cachedBalance = null;
       if (isActive()) {
@@ -125,12 +126,10 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
             return false;
          }
 
-         //if (!mode.ignoreTransactionHistory) {
          // Monitor young transactions
          if (!monitorYoungTransactions()) {
             return false;
          }
-         //}
 
          //lets see if there are any transactions we need to discover
          if (!mode.ignoreTransactionHistory) {
@@ -202,7 +201,7 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
 
    @Override
    public boolean isMine(Address address) {
-      return getAddress().equals(address);
+      return _addressList.contains(address);
    }
 
    @Override
@@ -256,7 +255,7 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
 
    @Override
    protected Address getChangeAddress() {
-      return _context.getAddress();
+      return getAddress();
    }
 
    @Override
@@ -269,7 +268,7 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
 
    @Override
    protected InMemoryPrivateKey getPrivateKeyForAddress(Address address, KeyCipher cipher) throws InvalidKeyCipher {
-      if (getAddress().equals(address)) {
+      if (_addressList.contains(address)) {
          return getPrivateKey(cipher);
       } else {
          return null;
@@ -278,7 +277,7 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
 
    @Override
    protected PublicKey getPublicKeyForAddress(Address address) {
-      if (getAddress().equals(address)) {
+      if (_addressList.contains(address)) {
          return getPublicKey();
       } else {
          return null;
@@ -318,15 +317,22 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
    }
 
    public void setPrivateKey(InMemoryPrivateKey privateKey, KeyCipher cipher) throws InvalidKeyCipher {
-      _keyStore.setPrivateKey(getAddress(), privateKey, cipher);
+      _keyStore.setPrivateKey(getAddress(), privateKey, cipher);//TODO segwit don't merge. Account should become 3 address immeadiately
    }
 
    public PublicKey getPublicKey() {
       return _keyStore.getPublicKey(getAddress());
    }
 
+   /**
+    * @return default address
+    */
    public Address getAddress() {
-      return _context.getAddress();
+      return getAddress(AddressType.P2SH_P2WPKH);
+   }
+
+   public Address getAddress(AddressType type) {
+      return _context.getAddresses().get(type);
    }
 
    @Override

@@ -8,6 +8,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.PublicKey;
@@ -378,7 +379,7 @@ public class ColuManager implements AccountProvider {
         createdAccountInfo.id = SingleAddressAccount.calculateId(address);
         _backing.beginTransaction();
         try {
-            SingleAddressAccountContext singleAccountContext = new SingleAddressAccountContext(createdAccountInfo.id, address, false, 0);
+            SingleAddressAccountContext singleAccountContext = new SingleAddressAccountContext(createdAccountInfo.id, ImmutableMap.of(address.getType(), address), false, 0);
             _backing.createSingleAddressAccountContext(singleAccountContext);
             SingleAddressAccountBacking accountBacking = checkNotNull(_backing.getSingleAddressAccountBacking(singleAccountContext.getId()));
             singleAccountContext.persist(accountBacking);

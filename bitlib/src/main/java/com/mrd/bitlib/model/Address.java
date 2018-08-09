@@ -168,6 +168,14 @@ public class Address implements Serializable, Comparable<Address> {
       return _address;
    }
 
+   public AddressType getType() {
+       if (isMultisig(getNetwork())) {
+           return AddressType.P2SH_P2WPKH;
+       } else {
+           return AddressType.P2PKH;
+       }
+   }
+
    public String getShortAddress() {
       return this.getShortAddress(6);
    }

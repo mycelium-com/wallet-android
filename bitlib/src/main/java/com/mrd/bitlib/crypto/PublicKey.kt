@@ -51,8 +51,8 @@ class PublicKey(val publicKeyBytes: ByteArray) : Serializable {
         }
     }
 
-    fun getAllSupportedAddresses(networkParameters: NetworkParameters): List<Address?> =
-            SUPPORTED_ADDRESS_TYPES.map { toAddress(networkParameters, it) }
+    fun getAllSupportedAddresses(networkParameters: NetworkParameters) =
+            SUPPORTED_ADDRESS_TYPES.map { it to toAddress(networkParameters, it) }.toMap()
 
     /**
      * @return [AddressType.P2SH_P2WPKH] address

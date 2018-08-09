@@ -42,13 +42,14 @@ import org.junit.Test;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 
+import java.util.Collection;
 import java.util.List;
 
 public class SpinnerImportTest {
    @Test
    public void spinnerImprt() {
       SpinnerPrivateUri spinnerImport = SpinnerPrivateUri.fromSpinnerUri("bsb:6hm5yUxrSXRYpPkeu5HrfcQ8BXbf6e7d91AQtwa6ViUz?net=0");
-      List<Address> addressList = spinnerImport.key.getPublicKey().getAllSupportedAddresses(NetworkParameters.productionNetwork);
+      Collection<Address> addressList = spinnerImport.key.getPublicKey().getAllSupportedAddresses(NetworkParameters.productionNetwork).values();
       assertEquals(2, addressList.size());
       assertTrue(addressList.contains(Address.fromString("1Ea3kC4swu6v6rnaEe1BDDkek85286YAiL")));
       assertTrue(addressList.contains(Address.fromString("379csUoGP78NJEABtVB7FSUf26WDA5YZGF")));

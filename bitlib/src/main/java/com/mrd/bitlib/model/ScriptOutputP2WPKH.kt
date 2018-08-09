@@ -22,25 +22,20 @@ import java.io.Serializable
  * TODO implemet with segwit, don't merge with current state
  */
 class ScriptOutputP2WPKH : ScriptOutput, Serializable {
-    //private val p2pkhAddressBytes: ByteArray
+    private val addressBytes: ByteArray
 
 
     constructor(chunks: Array<ByteArray>, scriptBytes: ByteArray) : super(scriptBytes) {
-        //      p2pkhAddressBytes = chunks[1];
-        throw NotImplementedError()
+        addressBytes = chunks[1]
     }
 
-    /**
-     * Get the raw p2sh address that this output is for.
-     *
-     * @return The raw p2sh address that this output is for.
-     */
     override fun getAddressBytes(): ByteArray {
-        throw NotImplementedError()
+        return addressBytes
     }
 
     override fun getAddress(network: NetworkParameters): Address {
-        throw NotImplementedError()
+            return object : Address (addressBytes) {
+            }
         //      byte[] addressBytes = getAddressBytes();
         //      return Address.fromP2SHBytes(addressBytes, network);
     }
@@ -48,7 +43,6 @@ class ScriptOutputP2WPKH : ScriptOutput, Serializable {
     companion object {
         private const val serialVersionUID = 1L
 
-        //TODO test SegWit
         fun isScriptOutputP2WPKH(chunks: Array<ByteArray>): Boolean {
             if (chunks.isEmpty()) {
                 return false

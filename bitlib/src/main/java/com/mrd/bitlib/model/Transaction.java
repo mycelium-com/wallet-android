@@ -282,7 +282,7 @@ public class Transaction implements Serializable {
 
     public Sha256Hash getTxDigestHash(int i) {
         ByteWriter writer = new ByteWriter(1024);
-        if (isSegwit) {
+        if (isSegwit && (inputs[i].script instanceof ScriptInputP2WSH || inputs[i].script instanceof  ScriptInputP2WPKH)) {
             writer.putIntLE(version);
             writer.putBytes(getPrevOutsHash().getBytes());
             writer.putBytes(getSequenceHash().getBytes());
@@ -297,7 +297,7 @@ public class Transaction implements Serializable {
             int hashType = 1;
             writer.putIntLE(hashType);
         } else {
-            toByteWriter(writer);
+            toByteWriter(writer, false);
             // We also have to write a hash type.
             int hashType = 1;
             writer.putIntLE(hashType);

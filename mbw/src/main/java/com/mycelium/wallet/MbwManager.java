@@ -529,7 +529,7 @@ public class MbwManager {
                throw new RuntimeException(invalidKeyCipher);
             }
          } else {
-            account = _walletManager.createSingleAddressAccount(record.address);
+            account = _walletManager.createSingleAddressAccount(record.key.getPublicKey());
          }
 
          //check whether this was the selected record

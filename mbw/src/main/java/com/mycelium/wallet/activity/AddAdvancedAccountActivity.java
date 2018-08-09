@@ -583,7 +583,7 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
                }
                break;
                case SA:
-                  acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(address);
+                  acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(address);               //TODO segwit readonly
                   break;
                case Colu:
                   ColuManager coluManager = _mbwManager.getColuManager();
@@ -622,7 +622,7 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
                        public void onClick(DialogInterface dialogInterface, int i) {
                           UUID account;
                           if (selectedItem == 0) {
-                             account = _mbwManager.getWalletManager(false).createSingleAddressAccount(address);
+                             account = _mbwManager.getWalletManager(false).createSingleAddressAccount(address); //TODO segwit readonly
                           } else {
                              ColuAccount.ColuAsset coluAsset = ColuAccount.ColuAsset.getByType(ColuAccount.ColuAssetType.parse(list.get(selectedItem)));
                              account = _mbwManager.getColuManager().enableReadOnlyAsset(coluAsset, address);

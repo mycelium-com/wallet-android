@@ -26,11 +26,13 @@ open class UnsignedTransaction constructor(
     init {
         // Create transaction with valid outputs and empty inputs
         val transaction = Transaction(1, inputs, this.outputs, lockTime, isSegwit)
-        if (isSegwit) {
-            inputs.forEachIndexed { i, it -> it.script = ScriptInput.fromOutputScript(funding[i].script) }
-        }
 
         for (i in fundingOutputs.indices) {
+            if (isSegwit && (fundingOutputs[i].script is ScriptOutputP2WPKH || fundingOutputs[i].script is ScriptOutputP2WSH|| fundingOutputs[i].script is ScriptOutputP2SH)) { // TODO SEGWIT FIX
+                inputs.forEachIndexed { i, it -> it.script = ScriptInput.fromOutputScript(funding[i].script) }
+            }else {
+                inputs.forEachIndexed { i, it -> it.script = ScriptInput.EMPTY }
+            }
             val utxo = fundingOutputs[i]
 
             // Make sure that we only work on supported scripts
@@ -57,14 +59,14 @@ open class UnsignedTransaction constructor(
                 is ScriptOutputP2WSH -> throw NotImplementedError()
             }
 
-            if (!isSegwit) {
+            if (!isSegwit || !(fundingOutputs[i].script is ScriptOutputP2WPKH || fundingOutputs[i].script is ScriptOutputP2WSH|| fundingOutputs[i].script is ScriptOutputP2SH)) { // TODO SEGWIT FIX
                 inputs[i].script = ScriptInput.fromOutputScript(funding[i].script)
             }
 
             // Calculate the transaction hash that has to be signed
             val hash = transaction.getTxDigestHash(i)
             // Set the input to the empty script again
-            if (!isSegwit) {
+            if (!isSegwit || !(fundingOutputs[i].script is ScriptOutputP2WPKH || fundingOutputs[i].script is ScriptOutputP2WSH|| fundingOutputs[i].script is ScriptOutputP2SH)) {// TODO SEGWIT FIX
                 inputs[i] = TransactionInput(fundingOutputs[i].outPoint, ScriptInput.EMPTY, NO_SEQUENCE, fundingOutputs[i].value)
             }
 
