@@ -415,6 +415,7 @@ public class MbwManager {
    }
 
    public void setPinPadRandomized(boolean randomizePinPad) {
+      getEditor().putBoolean(Constants.RANDOMIZE_PIN, randomizePinPad).apply();
       this.randomizePinPad = randomizePinPad;
    }
 
