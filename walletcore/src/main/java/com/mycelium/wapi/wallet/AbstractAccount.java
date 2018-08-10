@@ -1136,8 +1136,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
          }
          List<TransactionOutput> outputs = singletonList(createOutput(changeAddress, value, _network));
           final TransactionEx fundedTransaction = getTransaction(txid);
-          boolean isSegwit = TransactionEx.toTransaction(fundedTransaction).isSegwit();
-          return new UnsignedTransaction(outputs, utxosToSpend, new PublicKeyRing(), _network, isSegwit, 0, UnsignedTransaction.NO_SEQUENCE);
+          return new UnsignedTransaction(outputs, utxosToSpend, new PublicKeyRing(), _network, 0, UnsignedTransaction.NO_SEQUENCE);
       } while(!utxos.isEmpty());
       throw new InsufficientFundsException(0, parentChildFeeSat);
    }

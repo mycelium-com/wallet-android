@@ -32,7 +32,7 @@ class SegWitTransactionTest {
         val input1 = UnspentTransactionOutput(tx.inputs[0].outPoint, 10,1000000000,
                 ScriptOutput.fromScriptBytes(HexUtils.toBytes("a9144733f37cf4db86fbc2efed2500b4f4e49f31202387")))
         val unsignedTransaction = UnsignedTransaction(tx.outputs.asList(), arrayListOf(input1), publicKeyRing,
-                NetworkParameters.productionNetwork, true, tx.lockTime, tx.inputs[0].sequence)
+                NetworkParameters.productionNetwork, tx.lockTime, tx.inputs[0].sequence)
 
         val signatures = StandardTransactionBuilder.generateSignatures(
                 unsignedTransaction.signingRequests,

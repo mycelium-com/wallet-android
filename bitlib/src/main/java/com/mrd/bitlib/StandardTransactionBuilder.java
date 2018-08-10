@@ -188,7 +188,7 @@ public class StandardTransactionBuilder {
          outputs.add(position, changeOutput);
       }
 
-      UnsignedTransaction unsignedTransaction = new UnsignedTransaction(outputs, funding, keyRing, network, isSegwit, 0, UnsignedTransaction.NO_SEQUENCE);
+      UnsignedTransaction unsignedTransaction = new UnsignedTransaction(outputs, funding, keyRing, network, 0, UnsignedTransaction.NO_SEQUENCE);
 
       // check if we have a reasonable Fee or throw an error otherwise
       int estimateTransactionSize = estimateTransactionSize(unsignedTransaction.getFundingOutputs().length,
@@ -307,7 +307,7 @@ public class StandardTransactionBuilder {
       final UnspentTransactionOutput[] funding = unsigned.getFundingOutputs();
       TransactionInput[] inputs = new TransactionInput[funding.length];
       for (int i = 0; i < funding.length; i++) {
-         if (unsigned.isSegwit() && (unsigned.getInputs()[i].script instanceof ScriptInputP2WPKH || unsigned.getInputs()[i].script instanceof ScriptInputP2WSH)) { // TODO SEGWIT FIX
+         if (unsigned.getInputs()[i].script instanceof ScriptInputP2WPKH || unsigned.getInputs()[i].script instanceof ScriptInputP2WSH) { // TODO SEGWIT FIX
             inputs[i] = unsigned.getInputs()[i];
             InputWitness witness = new InputWitness(2);
             witness.setStack(0, signatures.get(i));
@@ -322,7 +322,7 @@ public class StandardTransactionBuilder {
       }
 
       // Create transaction with valid outputs and empty inputs
-      return new Transaction(1, inputs, unsigned.getOutputs(), unsigned.getLockTime(), unsigned.isSegwit());
+      return new Transaction(1, inputs, unsigned.getOutputs(), unsigned.getLockTime());
    }
 
    private long outputSum() {

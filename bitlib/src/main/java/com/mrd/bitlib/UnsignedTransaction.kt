@@ -12,7 +12,6 @@ open class UnsignedTransaction constructor(
         funding: List<UnspentTransactionOutput>,
         keyRing: IPublicKeyRing,
         private val network: NetworkParameters,
-        val isSegwit: Boolean,
         val lockTime: Int = 0,
         val defaultSequenceNumber: Int = NO_SEQUENCE
 ) : Serializable {
@@ -25,13 +24,11 @@ open class UnsignedTransaction constructor(
 
     init {
         // Create transaction with valid outputs and empty inputs
-        val transaction = Transaction(1, inputs, this.outputs, lockTime, isSegwit)
+        val transaction = Transaction(1, inputs, this.outputs, lockTime)
 
         for (i in fundingOutputs.indices) {
-            if (isSegwit && (fundingOutputs[i].script is ScriptOutputP2WPKH || fundingOutputs[i].script is ScriptOutputP2WSH|| fundingOutputs[i].script is ScriptOutputP2SH)) { // TODO SEGWIT FIX
-                inputs.forEachIndexed { i, it -> it.script = ScriptInput.fromOutputScript(funding[i].script) }
-            }else {
-                inputs.forEachIndexed { i, it -> it.script = ScriptInput.EMPTY }
+            if (fundingOutputs[i].script is ScriptOutputP2WPKH || fundingOutputs[i].script is ScriptOutputP2WSH || fundingOutputs[i].script is ScriptOutputP2SH) { // TODO SEGWIT FIX
+                inputs[i].script = ScriptInput.fromOutputScript(funding[i].script)
             }
             val utxo = fundingOutputs[i]
 
@@ -54,19 +51,20 @@ open class UnsignedTransaction constructor(
                     val inpScriptBytes = BitUtils.concatenate(byteArrayOf(Script.OP_0.toByte(), publicKey.pubKeyHashCompressed.size.toByte()), publicKey.pubKeyHashCompressed)
                     val inputScript = ScriptInput.fromScriptBytes(BitUtils.concatenate(byteArrayOf((inpScriptBytes.size and 0xFF).toByte()), inpScriptBytes))
                     transaction.inputs[i].script = inputScript
+                    inputs[i].script = inputScript
                 }
                 is ScriptOutputP2WPKH -> throw NotImplementedError()
                 is ScriptOutputP2WSH -> throw NotImplementedError()
             }
 
-            if (!isSegwit || !(fundingOutputs[i].script is ScriptOutputP2WPKH || fundingOutputs[i].script is ScriptOutputP2WSH|| fundingOutputs[i].script is ScriptOutputP2SH)) { // TODO SEGWIT FIX
+            if (!(fundingOutputs[i].script is ScriptOutputP2WPKH || fundingOutputs[i].script is ScriptOutputP2WSH || fundingOutputs[i].script is ScriptOutputP2SH)) { // TODO SEGWIT FIX
                 inputs[i].script = ScriptInput.fromOutputScript(funding[i].script)
             }
 
             // Calculate the transaction hash that has to be signed
             val hash = transaction.getTxDigestHash(i)
             // Set the input to the empty script again
-            if (!isSegwit || !(fundingOutputs[i].script is ScriptOutputP2WPKH || fundingOutputs[i].script is ScriptOutputP2WSH|| fundingOutputs[i].script is ScriptOutputP2SH)) {// TODO SEGWIT FIX
+            if (!(fundingOutputs[i].script is ScriptOutputP2WPKH || fundingOutputs[i].script is ScriptOutputP2WSH || fundingOutputs[i].script is ScriptOutputP2SH)) {// TODO SEGWIT FIX
                 inputs[i] = TransactionInput(fundingOutputs[i].outPoint, ScriptInput.EMPTY, NO_SEQUENCE, fundingOutputs[i].value)
             }
 

@@ -41,7 +41,6 @@ public class Transaction implements Serializable {
     private static final long ONE_uBTC_IN_SATOSHIS = 100;
     private static final long ONE_mBTC_IN_SATOSHIS = 1000 * ONE_uBTC_IN_SATOSHIS;
     public static final long MAX_MINER_FEE_PER_KB = 200L * ONE_mBTC_IN_SATOSHIS; // 20000sat/B
-    private final boolean isSegwit;
 
     public int version;
     public final TransactionInput[] inputs;
@@ -63,7 +62,7 @@ public class Transaction implements Serializable {
             inputs[idx++] = new TransactionInput(u.outPoint, new ScriptInput(u.script.getScriptBytes()),
                     unsignedTransaction.getDefaultSequenceNumber(), u.value);
         }
-        return new Transaction(1, inputs, unsignedTransaction.getOutputs(), unsignedTransaction.getLockTime(), false);
+        return new Transaction(1, inputs, unsignedTransaction.getOutputs(), unsignedTransaction.getLockTime());
     }
 
     public static Transaction fromBytes(byte[] transaction) throws TransactionParsingException {
@@ -103,7 +102,7 @@ public class Transaction implements Serializable {
             }
 
             int lockTime = reader.getIntLE();
-            return new Transaction(version, inputs, outputs, lockTime, size, knownTransactionHash, useSegwit);
+            return new Transaction(version, inputs, outputs, lockTime, size, knownTransactionHash);
         } catch (InsufficientBytesException e) {
             throw new TransactionParsingException(e.getMessage());
         }
@@ -199,6 +198,7 @@ public class Transaction implements Serializable {
      */
     public void toByteWriter(ByteWriter writer, boolean asSegwit) {
         writer.putIntLE(version);
+        boolean isSegwit = isSegwit();
         boolean isSegWitMode = asSegwit && (isSegwit);
         if (isSegWitMode) {
             writer.putCompactInt(0); //marker
@@ -232,17 +232,16 @@ public class Transaction implements Serializable {
         }
     }
 
-    public Transaction(int version, TransactionInput[] inputs, TransactionOutput[] outputs, int lockTime, boolean isSegwit) {
-        this(version, inputs, outputs, lockTime, -1, isSegwit);
+    public Transaction(int version, TransactionInput[] inputs, TransactionOutput[] outputs, int lockTime) {
+        this(version, inputs, outputs, lockTime, -1);
     }
 
-    private Transaction(int version, TransactionInput[] inputs, TransactionOutput[] outputs, int lockTime, int txSize, boolean isSegwit) {
+    private Transaction(int version, TransactionInput[] inputs, TransactionOutput[] outputs, int lockTime, int txSize) {
         this.version = version;
         this.inputs = inputs;
         this.outputs = outputs;
         this.lockTime = lockTime;
         this._txSize = txSize;
-        this.isSegwit = isSegwit;
     }
 
     public Transaction(Transaction copyFrom) {
@@ -252,13 +251,12 @@ public class Transaction implements Serializable {
         this.lockTime = copyFrom.lockTime;
         this._txSize = copyFrom._txSize;
         this._hash = copyFrom._hash;
-        this.isSegwit = copyFrom.isSegwit;
     }
 
     // we already know the hash of this transaction, dont recompute it
     protected Transaction(int version, TransactionInput[] inputs, TransactionOutput[] outputs, int lockTime,
-                          int txSize, Sha256Hash knownTransactionHash, boolean isSegwit) {
-        this(version, inputs, outputs, lockTime, txSize, isSegwit);
+                          int txSize, Sha256Hash knownTransactionHash) {
+        this(version, inputs, outputs, lockTime, txSize);
         this._hash = knownTransactionHash;
     }
 
@@ -282,7 +280,7 @@ public class Transaction implements Serializable {
 
     public Sha256Hash getTxDigestHash(int i) {
         ByteWriter writer = new ByteWriter(1024);
-        if (isSegwit && (inputs[i].script instanceof ScriptInputP2WSH || inputs[i].script instanceof  ScriptInputP2WPKH)) {
+        if (inputs[i].script instanceof ScriptInputP2WSH || inputs[i].script instanceof  ScriptInputP2WPKH) {
             writer.putIntLE(version);
             writer.putBytes(getPrevOutsHash().getBytes());
             writer.putBytes(getSequenceHash().getBytes());
@@ -372,6 +370,12 @@ public class Transaction implements Serializable {
      * @return true if transaction is SegWit, else false
      */
     public boolean isSegwit() {
+        boolean isSegwit = false;
+        for (TransactionInput input: inputs) {
+            if (input.hasWitness()) {
+                isSegwit = true;
+            }
+        }
         return isSegwit;
     }
 

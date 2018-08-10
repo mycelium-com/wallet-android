@@ -8,7 +8,7 @@ import com.mrd.bitlib.model.UnspentTransactionOutput
 class PopBuilder(network: NetworkParameters) : StandardTransactionBuilder(network) {
 
     class UnsignedPop constructor(outputs: List<TransactionOutput>, funding: List<UnspentTransactionOutput>, keyRing: IPublicKeyRing, network: NetworkParameters) :
-            UnsignedTransaction(outputs, funding, keyRing, network, false, MAX_LOCK_TIME, POP_SEQUENCE_NUMBER) {
+            UnsignedTransaction(outputs, funding, keyRing, network, MAX_LOCK_TIME, POP_SEQUENCE_NUMBER) {
 
         companion object {
             const val MAX_LOCK_TIME = 499999999
