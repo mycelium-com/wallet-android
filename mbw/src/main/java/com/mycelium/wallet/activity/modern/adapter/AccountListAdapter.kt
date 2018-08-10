@@ -60,9 +60,12 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
 
     private fun generateListView(accountsGroupsList: List<AccountsGroupModel>): List<AccountListItem> {
         val itemList = ArrayList<AccountListItem>()
+        var totalAdded = false
+
         for (accountsGroup in accountsGroupsList) {
             if (accountsGroup.getType() == GROUP_ARCHIVED_TITLE_TYPE) {
                 itemList.add(TotalViewModel(getSpendableBalance(itemList)))
+                totalAdded = true
             }
             itemList.add(accountsGroup)
             val title = accountsGroup.getTitle(context)
@@ -71,6 +74,10 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
                 itemList.addAll(accountsGroup.accountsList)
             }
         }
+        if (!itemList.isEmpty() && !totalAdded) {
+            itemList.add(TotalViewModel(getSpendableBalance(itemList)))
+        }
+
         return itemList
     }
 
