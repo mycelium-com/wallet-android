@@ -16,7 +16,6 @@
 
 package com.mycelium.wapi.wallet;
 
-import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wapi.wallet.bip44.Bip44AccountContext;
 import com.mycelium.wapi.wallet.single.SingleAddressAccountContext;
 

@@ -18,7 +18,6 @@ package com.mycelium.wapi.wallet;
 
 
 import com.google.common.base.Preconditions;
-import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.OutPoint;
 import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
