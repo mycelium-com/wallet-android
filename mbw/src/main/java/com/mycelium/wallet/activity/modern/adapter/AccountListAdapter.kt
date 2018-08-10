@@ -73,12 +73,11 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
             if (isGroupVisible) {
                 itemList.addAll(accountsGroup.accountsList)
             }
-
-            // if we reached the last element but total is not added
-            if (accountsGroupsList.indexOf(accountsGroup) == accountsGroupsList.size - 1 && !totalAdded) {
-                itemList.add(TotalViewModel(getSpendableBalance(itemList)))
-            }
         }
+        if (!itemList.isEmpty() && !totalAdded) {
+            itemList.add(TotalViewModel(getSpendableBalance(itemList)))
+        }
+
         return itemList
     }
 
