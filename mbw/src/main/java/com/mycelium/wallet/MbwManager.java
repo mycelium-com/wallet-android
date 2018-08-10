@@ -293,7 +293,7 @@ public class MbwManager {
       _currencySwitcher = new CurrencySwitcher(
               _exchangeRateManager,
               fiatCurrencies,
-              getPreferences().getString(Constants.FIAT_CURRENCY_SETTING, Constants.DEFAULT_CURRENCY),
+              preferences.getString(Constants.FIAT_CURRENCY_SETTING, Constants.DEFAULT_CURRENCY),
               Denomination.fromString(preferences.getString(Constants.BITCOIN_DENOMINATION_SETTING, Denomination.BTC.toString()))
       );
 
@@ -330,7 +330,7 @@ public class MbwManager {
       _versionManager.initBackgroundVersionChecker();
       _blockExplorerManager = new BlockExplorerManager(this,
               _environment.getBlockExplorerList(),
-              getPreferences().getString(Constants.BLOCK_EXPLORER,
+              preferences.getString(Constants.BLOCK_EXPLORER,
                       _environment.getBlockExplorerList().get(0).getIdentifier()));
    }
 
@@ -880,7 +880,7 @@ public class MbwManager {
                }
                if (pin.equals(getPin())) {
                   failedPinCount = 0;
-                  getPreferences().edit().putInt(Constants.FAILED_PIN_COUNT, failedPinCount).apply();
+                  getEditor().putInt(Constants.FAILED_PIN_COUNT, failedPinCount).apply();
                   pinDialog.dismiss();
 
                   // as soon as you enter the correct pin once, abort the reset-pin-procedure
@@ -892,7 +892,7 @@ public class MbwManager {
 
                   fun.run();
                } else {
-                  getPreferences().edit().putInt(Constants.FAILED_PIN_COUNT, ++failedPinCount).apply();
+                  getEditor().putInt(Constants.FAILED_PIN_COUNT, ++failedPinCount).apply();
                   if (_pin.isResettable()) {
                      // Show hint, that this pin is resettable
                      new AlertDialog.Builder(activity)
