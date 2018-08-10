@@ -107,7 +107,6 @@ public class AdditionalBackupWarningActivity extends AppCompatActivity {
    public void onBackPressed() {
       if(countdownTimer!=null){
          countdownTimer.cancel();
-         countdownTimer.purge();
          countdownTimer = null;
       }
       super.onBackPressed();

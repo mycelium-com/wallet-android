@@ -92,9 +92,6 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
                     }
                 } catch (exception: Exception) {
                     logger.logError("Socket creation or receiving failed: ${exception.message}")
-                } finally {
-                    incoming?.close()
-                    outgoing?.close()
                 }
                 close()
                 isConnected.set(false)
