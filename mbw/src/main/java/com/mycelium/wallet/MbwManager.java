@@ -698,9 +698,7 @@ public class MbwManager {
       // but tell the currency-switcher only to switch over the user selected currencies
       _currencySwitcher.setCurrencyList(currencies);
 
-      SharedPreferences.Editor editor = getEditor();
-      editor.putStringSet(Constants.SELECTED_CURRENCIES, new HashSet<>(currencies));
-      editor.commit();
+      getEditor().putStringSet(Constants.SELECTED_CURRENCIES, new HashSet<>(currencies)).apply();
    }
 
    public String getNextCurrency(boolean includeBitcoin) {
@@ -829,8 +827,10 @@ public class MbwManager {
          }
       }
       _pin = pin;
-      getEditor().putString(Constants.PIN_SETTING, _pin.getPin()).commit();
-      getEditor().putString(Constants.PIN_SETTING_RESETTABLE, pin.isResettable() ? "1" : "0").commit();
+      getEditor()
+              .putString(Constants.PIN_SETTING, _pin.getPin())
+              .putString(Constants.PIN_SETTING_RESETTABLE, pin.isResettable() ? "1" : "0")
+              .apply();
    }
 
    private void setPinBlockheight() {
@@ -957,12 +957,12 @@ public class MbwManager {
 
    public void setMinerFee(MinerFee minerFee) {
       _minerFee = minerFee;
-      getEditor().putString(Constants.MINER_FEE_SETTING, _minerFee.toString()).commit();
+      getEditor().putString(Constants.MINER_FEE_SETTING, _minerFee.toString()).apply();
    }
 
    public void setBlockExplorer(BlockExplorer blockExplorer) {
       _blockExplorerManager.setBlockExplorer(blockExplorer);
-      getEditor().putString(Constants.BLOCK_EXPLORER, blockExplorer.getIdentifier()).commit();
+      getEditor().putString(Constants.BLOCK_EXPLORER, blockExplorer.getIdentifier()).apply();
    }
 
 
@@ -972,7 +972,7 @@ public class MbwManager {
 
    public void setBitcoinDenomination(CoinUtil.Denomination denomination) {
       _currencySwitcher.setBitcoinDenomination(denomination);
-      getEditor().putString(Constants.BITCOIN_DENOMINATION_SETTING, denomination.toString()).commit();
+      getEditor().putString(Constants.BITCOIN_DENOMINATION_SETTING, denomination.toString()).apply();
    }
 
    public String getBtcValueString(long satoshis) {
@@ -989,7 +989,7 @@ public class MbwManager {
 
    public void setKeyManagementLocked(boolean locked) {
       _keyManagementLocked = locked;
-      getEditor().putBoolean(Constants.KEY_MANAGEMENT_LOCKED_SETTING, _keyManagementLocked).commit();
+      getEditor().putBoolean(Constants.KEY_MANAGEMENT_LOCKED_SETTING, _keyManagementLocked).apply();
    }
 
    public boolean getContinuousFocus() {
@@ -998,12 +998,12 @@ public class MbwManager {
 
    public void setContinuousFocus(boolean enableContinuousFocus) {
       _enableContinuousFocus = enableContinuousFocus;
-      getEditor().putBoolean(Constants.ENABLE_CONTINUOUS_FOCUS_SETTING, _enableContinuousFocus).commit();
+      getEditor().putBoolean(Constants.ENABLE_CONTINUOUS_FOCUS_SETTING, _enableContinuousFocus).apply();
    }
 
 
    public void setProxy(String proxy) {
-      getEditor().putString(Constants.PROXY_SETTING, proxy).commit();
+      getEditor().putString(Constants.PROXY_SETTING, proxy).apply();
       ImmutableList<String> vals = ImmutableList.copyOf(Splitter.on(":").split(proxy));
       if (vals.size() != 2) {
          noProxy();
@@ -1077,16 +1077,12 @@ public class MbwManager {
 
    public void setLanguage(String _language) {
       this._language = _language;
-      SharedPreferences.Editor editor = getEditor();
-      editor.putString(Constants.LANGUAGE_SETTING, _language);
-      editor.apply();
+      getEditor().putString(Constants.LANGUAGE_SETTING, _language).apply();
    }
 
    public void setTorMode(ServerEndpointType.Types torMode) {
       this._torMode = torMode;
-      SharedPreferences.Editor editor = getEditor();
-      editor.putString(Constants.TOR_MODE, torMode.toString());
-      editor.apply();
+      getEditor().putString(Constants.TOR_MODE, torMode.toString()).apply();
 
       ServerEndpointType serverEndpointType = ServerEndpointType.fromType(torMode);
       if (serverEndpointType.mightUseTor()) {
@@ -1199,7 +1195,7 @@ public class MbwManager {
       final WalletAccount account;
       account = _walletManager.getAccount(uuid);
       Preconditions.checkState(account.isActive());
-      getEditor().putString(SELECTED_ACCOUNT, uuid.toString()).commit();
+      getEditor().putString(SELECTED_ACCOUNT, uuid.toString()).apply();
       getEventBus().post(new SelectedAccountChanged(uuid));
       Optional<Address> receivingAddress = account.getReceivingAddress();
       getEventBus().post(new ReceivingAddressChanged(receivingAddress));
@@ -1300,9 +1296,7 @@ public class MbwManager {
 
    @Subscribe
    public void onSelectedCurrencyChanged(SelectedCurrencyChanged event) {
-      SharedPreferences.Editor editor = getEditor();
-      editor.putString(Constants.FIAT_CURRENCY_SETTING, _currencySwitcher.getCurrentFiatCurrency());
-      editor.commit();
+      getEditor().putString(Constants.FIAT_CURRENCY_SETTING, _currencySwitcher.getCurrentFiatCurrency()).apply();
    }
 
    public boolean getPinRequiredOnStartup() {
@@ -1318,10 +1312,7 @@ public class MbwManager {
    }
 
    public void setPinRequiredOnStartup(boolean _pinRequiredOnStartup) {
-      SharedPreferences.Editor editor = getEditor();
-      editor.putBoolean(Constants.PIN_SETTING_REQUIRED_ON_STARTUP, _pinRequiredOnStartup);
-      editor.commit();
-
+      getEditor().putBoolean(Constants.PIN_SETTING_REQUIRED_ON_STARTUP, _pinRequiredOnStartup).apply();
       this._pinRequiredOnStartup = _pinRequiredOnStartup;
    }
 
