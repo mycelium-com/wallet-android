@@ -35,7 +35,6 @@ import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.api.lib.TransactionExApi;
 import com.mycelium.wapi.api.request.QueryTransactionInventoryRequest;
 import com.mycelium.wapi.api.response.QueryTransactionInventoryResponse;
-import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputEx;
 import com.mycelium.wapi.wallet.AbstractAccount;
 import com.mycelium.wapi.wallet.Bip44AccountBacking;
@@ -50,8 +49,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
-import kotlin.NotImplementedError;
 
 public class Bip44Account extends AbstractAccount implements ExportableAccount {
     protected static final int EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH = 20;

@@ -105,7 +105,7 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
       _insertOrReplaceBip44Account = _database.compileStatement("INSERT OR REPLACE INTO bip44 VALUES (?,?,?,?,?,?,?,?,?,?)");
       _insertOrReplaceSingleAddressAccount = _database.compileStatement("INSERT OR REPLACE INTO single VALUES (?,?,?,?)");
       _updateBip44Account = _database.compileStatement("UPDATE bip44 SET archived=?,blockheight=?,lastExternalIndexWithActivity=?,lastInternalIndexWithActivity=?,firstMonitoredInternalIndex=?,lastDiscovery=?,accountType=?,accountSubId=? WHERE id=?");
-      _updateSingleAddressAccount = _database.compileStatement("UPDATE single SET archived=?,blockheight=? WHERE id=?");
+      _updateSingleAddressAccount = _database.compileStatement("UPDATE single SET archived=?,blockheight=?,addresses=? WHERE id=?");
       _deleteSingleAddressAccount = _database.compileStatement("DELETE FROM single WHERE id = ?");
       _deleteBip44Account = _database.compileStatement("DELETE FROM bip44 WHERE id = ?");
       _insertOrReplaceKeyValue = _database.compileStatement("INSERT OR REPLACE INTO kv VALUES (?,?,?,?)");
@@ -331,7 +331,14 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
       // "UPDATE single SET archived=?,blockheight=? WHERE id=?"
       _updateSingleAddressAccount.bindLong(1, context.isArchived() ? 1 : 0);
       _updateSingleAddressAccount.bindLong(2, context.getBlockHeight());
-      _updateSingleAddressAccount.bindBlob(3, uuidToBytes(context.getId()));
+      final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+      try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteStream)) {
+         objectOutputStream.writeObject(context.getAddresses());
+         _updateSingleAddressAccount.bindBlob(3, byteStream.toByteArray());
+      } catch (IOException ignore) {
+         // should never happen
+      }
+      _updateSingleAddressAccount.bindBlob(4, uuidToBytes(context.getId()));
       _updateSingleAddressAccount.execute();
    }
 

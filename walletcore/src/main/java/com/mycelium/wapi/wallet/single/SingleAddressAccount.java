@@ -30,19 +30,11 @@ import com.mycelium.wapi.api.request.QueryTransactionInventoryRequest;
 import com.mycelium.wapi.api.response.GetTransactionsResponse;
 import com.mycelium.wapi.api.response.QueryTransactionInventoryResponse;
 import com.mycelium.wapi.model.Balance;
-import com.mycelium.wapi.wallet.AbstractAccount;
-import com.mycelium.wapi.wallet.ExportableAccount;
-import com.mycelium.wapi.wallet.KeyCipher;
+import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
-import com.mycelium.wapi.wallet.SingleAddressAccountBacking;
-import com.mycelium.wapi.wallet.SyncMode;
-import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager.Event;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class SingleAddressAccount extends AbstractAccount implements ExportableAccount {
    private SingleAddressAccountContext _context;
@@ -58,9 +50,30 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
       type = WalletAccount.Type.BTCSINGLEADDRESS;
       _context = context;
       _addressList = new ArrayList<>(3);
-      _addressList.addAll(context.getAddresses().values());
       _keyStore = keyStore;
+      persistAddresses();
+      _addressList.addAll(context.getAddresses().values());
       _cachedBalance = _context.isArchived() ? new Balance(0, 0, 0, 0, 0, 0, false, _allowZeroConfSpending) : calculateLocalBalance();
+   }
+
+   private void persistAddresses() {
+      try {
+         InMemoryPrivateKey privateKey = getPrivateKey(AesKeyCipher.defaultKeyCipher());
+         if (privateKey != null) {
+            Map<AddressType, Address> allPossibleAddresses = privateKey.getPublicKey().getAllSupportedAddresses(_network);
+            if (allPossibleAddresses.size() != _context.getAddresses().size()) {
+               for (Address address : allPossibleAddresses.values()) {
+                  if (!address.equals(_context.getAddresses().get(address.getType()))) {
+                     _keyStore.setPrivateKey(address, privateKey, AesKeyCipher.defaultKeyCipher());
+                  }
+               }
+               _context.setAddresses(allPossibleAddresses);
+               _context.persist(_backing);
+            }
+         }
+      } catch (InvalidKeyCipher invalidKeyCipher) {
+         _logger.logError(invalidKeyCipher.getMessage());
+      }
    }
 
    public static UUID calculateId(Address address) {
@@ -316,7 +329,8 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
    }
 
    public void setPrivateKey(InMemoryPrivateKey privateKey, KeyCipher cipher) throws InvalidKeyCipher {
-      _keyStore.setPrivateKey(getAddress(), privateKey, cipher);//TODO segwit don't merge. Account should become 3 address immeadiately
+      persistAddresses();
+      _keyStore.setPrivateKey(getAddress(), privateKey, cipher);
    }
 
    public PublicKey getPublicKey() {
@@ -327,7 +341,11 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
     * @return default address
     */
    public Address getAddress() {
-      return getAddress(AddressType.P2SH_P2WPKH);
+      if (getAddress(AddressType.P2SH_P2WPKH) != null) {
+         return getAddress(AddressType.P2SH_P2WPKH);
+      } else {
+         return _context.getAddresses().values().iterator().next();
+      }
    }
 
    public Address getAddress(AddressType type) {

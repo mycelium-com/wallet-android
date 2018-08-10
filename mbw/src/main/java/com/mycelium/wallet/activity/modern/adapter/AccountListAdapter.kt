@@ -40,7 +40,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
     private val pagePrefs = context.getSharedPreferences("account_list", Context.MODE_PRIVATE)
     private val listModel: AccountsListModel = ViewModelProviders.of(fragment).get(AccountsListModel::class.java)
 
-    val focusedAccount: WalletAccount
+    val focusedAccount: WalletAccount?
         get() = mbwManager.getWalletManager(false).getAccount(focusedAccountId)
 
     init {

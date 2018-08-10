@@ -158,10 +158,10 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
         this.satoshiAmount = 0;
 
         this.accountKey = accountKey;
-        this.address = this.accountKey.getPublicKey().toAddress(manager.getNetwork(), AddressType.P2SH_P2WPKH); // TODO segwit fix
+        this.address = this.accountKey.getPublicKey().toAddress(manager.getNetwork(), AddressType.P2PKH);
         type = Type.COLU;
 
-        uuid = getGuidForAsset(coluAsset, accountKey.getPublicKey().toAddress(getNetwork(), AddressType.P2SH_P2WPKH).getAllAddressBytes()); // TODO segwit fix
+        uuid = getGuidForAsset(coluAsset, accountKey.getPublicKey().toAddress(getNetwork(), AddressType.P2PKH).getAllAddressBytes());
 
         archived = metadataStorage.getArchived(uuid);
     }

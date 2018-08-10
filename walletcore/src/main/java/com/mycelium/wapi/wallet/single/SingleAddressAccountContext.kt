@@ -24,7 +24,7 @@ import java.util.*
 /**
  * The abstract context of an account
  */
-class SingleAddressAccountContext(val id: UUID, val addresses: Map<AddressType, Address>,
+class SingleAddressAccountContext(val id: UUID, var addresses: Map<AddressType, Address>,
                                   private var isArchived: Boolean, private var blockHeight: Int) {
     private var isDirty = false
 
