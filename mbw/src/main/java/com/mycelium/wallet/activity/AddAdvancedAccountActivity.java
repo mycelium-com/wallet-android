@@ -423,7 +423,7 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
             //check if address is colu
             // do not do this in main thread
             ColuManager coluManager = _mbwManager.getColuManager();
-            List<ColuAccount.ColuAsset> asset = new ArrayList<>(coluManager.getColuAddressAssets(address));
+            List<ColuAccount.ColuAsset> asset = new ArrayList<>(coluManager.getColuAddressAssets(key.getPublicKey().toAddress(_mbwManager.getNetwork(), AddressType.P2PKH)));
 
             if (asset.size() > 0) {
                acc = _mbwManager.getColuManager().enableAsset(asset.get(0), key);

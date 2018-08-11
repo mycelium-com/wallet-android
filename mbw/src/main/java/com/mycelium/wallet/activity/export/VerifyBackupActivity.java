@@ -188,14 +188,14 @@ public class VerifyBackupActivity extends Activity {
       boolean success = _mbwManager.getWalletManager(false).hasAccount(account)
               || _mbwManager.getColuManager().hasAccount(account);
       for (ColuAccount.ColuAsset coluAsset : ColuAccount.ColuAsset.getAssetMap().values()) {
-         UUID coluUUID = ColuAccount.getGuidForAsset(coluAsset, pk.getPublicKey().toAddress(_mbwManager.getNetwork(), AddressType.P2SH_P2WPKH).getAllAddressBytes()); // TODO fix SegWit
+         UUID coluUUID = ColuAccount.getGuidForAsset(coluAsset, pk.getPublicKey().toAddress(_mbwManager.getNetwork(), AddressType.P2PKH).getAllAddressBytes());
          success |= _mbwManager.getColuManager().hasAccount(coluUUID);
       }
 
       if (success) {
          _mbwManager.getMetadataStorage().setOtherAccountBackupState(account, MetadataStorage.BackupState.VERIFIED);
          for (ColuAccount.ColuAsset coluAsset : ColuAccount.ColuAsset.getAssetMap().values()) {
-            UUID coluUUID = ColuAccount.getGuidForAsset(coluAsset, pk.getPublicKey().toAddress(_mbwManager.getNetwork(), AddressType.P2SH_P2WPKH).getAllAddressBytes()); // TODO fix SegWit
+            UUID coluUUID = ColuAccount.getGuidForAsset(coluAsset, pk.getPublicKey().toAddress(_mbwManager.getNetwork(), AddressType.P2PKH).getAllAddressBytes());
             _mbwManager.getMetadataStorage().setOtherAccountBackupState(coluUUID, MetadataStorage.BackupState.VERIFIED);
          }
          updateUi();

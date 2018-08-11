@@ -362,7 +362,7 @@ public class ColuManager implements AccountProvider {
      */
     private CreatedAccountInfo createSingleAddressAccount(InMemoryPrivateKey privateKey, KeyCipher cipher) throws InvalidKeyCipher {
         PublicKey publicKey = privateKey.getPublicKey();
-        Address address = publicKey.toAddress(_network, AddressType.P2SH_P2WPKH); // TODO Segwit fix
+        Address address = publicKey.toAddress(_network, AddressType.P2PKH);
         PublicPrivateKeyStore store = new PublicPrivateKeyStore(_secureKeyValueStore);
         store.setPrivateKey(address, privateKey, cipher);
         return createSingleAddressAccount(address);
@@ -512,7 +512,7 @@ public class ColuManager implements AccountProvider {
 
             if (accountKey == null) {
                 account = new ColuAccount(
-                        ColuManager.this, createdAccountInfo.accountBacking, metadataStorage, singleAddressAccount.getAddress(),
+                        ColuManager.this, createdAccountInfo.accountBacking, metadataStorage, singleAddressAccount.getAddress(AddressType.P2PKH),
                         coluAsset);
             } else {
                 account = new ColuAccount(
@@ -573,7 +573,7 @@ public class ColuManager implements AccountProvider {
             addAccount(account);
 
             for(ColuAccount coluAccount : coluAccounts.values()) {
-                if (coluAccount.getAddress().equals(account.getAddress())) {
+                if (coluAccount.getAddress().equals(account.getAddress(AddressType.P2PKH))) {
                     coluAccount.setLinkedAccount(account);
                     String accountLabel = metadataStorage.getLabelByAccount(coluAccount.getId());
                     metadataStorage.storeAccountLabel(account.getId(), accountLabel + " Bitcoin");
@@ -623,12 +623,12 @@ public class ColuManager implements AccountProvider {
     // enables account associated with asset
     public UUID enableAsset(ColuAccount.ColuAsset coluAsset, InMemoryPrivateKey key) {
         //Make check to ensure the address is not in use
-        if (key != null && isAddressInUse(key.getPublicKey().toAddress(getNetwork(), AddressType.P2SH_P2WPKH))) { // TODO Fix segwit
+        if (key != null && isAddressInUse(key.getPublicKey().toAddress(getNetwork(), AddressType.P2PKH))) {
             return null;
         }
 
         if (key != null) {
-            UUID uuid = ColuAccount.getGuidForAsset(coluAsset, key.getPublicKey().toAddress(getNetwork(), AddressType.P2SH_P2WPKH).getAllAddressBytes()); // TODO Fix segwit
+            UUID uuid = ColuAccount.getGuidForAsset(coluAsset, key.getPublicKey().toAddress(getNetwork(), AddressType.P2PKH).getAllAddressBytes());
 
             if (coluAccounts.containsKey(uuid)) {
                 return uuid;

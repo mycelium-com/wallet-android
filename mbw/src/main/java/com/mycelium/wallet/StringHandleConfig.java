@@ -250,7 +250,7 @@ public class StringHandleConfig implements Serializable {
             boolean success = mbwManager.getWalletManager(false).hasAccount(account)
                     || mbwManager.getColuManager().hasAccount(account);
             for (ColuAccount.ColuAsset coluAsset : ColuAccount.ColuAsset.getAssetMap().values()) {
-               UUID coluUUID = ColuAccount.getGuidForAsset(coluAsset, key.get().getPublicKey().toAddress(mbwManager.getNetwork(), AddressType.P2SH_P2WPKH).getAllAddressBytes()); // TODO segwit fix
+               UUID coluUUID = ColuAccount.getGuidForAsset(coluAsset, key.get().getPublicKey().toAddress(mbwManager.getNetwork(), AddressType.P2PKH).getAllAddressBytes());
                success |= mbwManager.getColuManager().hasAccount(coluUUID);
             }
 
@@ -259,7 +259,7 @@ public class StringHandleConfig implements Serializable {
                mbwManager.getMetadataStorage().setOtherAccountBackupState(account, MetadataStorage.BackupState.VERIFIED);
                mbwManager.getMetadataStorage().setOtherAccountBackupState(bchAccount, MetadataStorage.BackupState.VERIFIED);
                for (ColuAccount.ColuAsset coluAsset : ColuAccount.ColuAsset.getAssetMap().values()) {
-                  UUID coluUUID = ColuAccount.getGuidForAsset(coluAsset, key.get().getPublicKey().toAddress(mbwManager.getNetwork(), AddressType.P2SH_P2WPKH).getAllAddressBytes()); // TODO SegWit fix
+                  UUID coluUUID = ColuAccount.getGuidForAsset(coluAsset, key.get().getPublicKey().toAddress(mbwManager.getNetwork(), AddressType.P2PKH).getAllAddressBytes());
                   mbwManager.getMetadataStorage().setOtherAccountBackupState(coluUUID, MetadataStorage.BackupState.VERIFIED);
                }
                handlerActivity.finishOk();
