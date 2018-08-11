@@ -28,8 +28,6 @@ import kotlin.collections.ArrayList
 
 class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
     : ListAdapter<AccountListItem, RecyclerView.ViewHolder>(ItemListDiffCallback(fragment.context!!)) {
-
-    private var itemList: List<AccountListItem> = ArrayList()
     private val context = fragment.context!!
 
     private var focusedAccountId: UUID? = null
@@ -54,8 +52,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
     }
 
     private fun refreshList(accountsGroupModels: List<AccountsGroupModel>) {
-        itemList = generateListView(accountsGroupModels)
-        submitList(itemList)
+        submitList(generateListView(accountsGroupModels))
     }
 
     private fun generateListView(accountsGroupsList: List<AccountsGroupModel>): List<AccountListItem> {
@@ -103,9 +100,9 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
 
     private fun findPosition(account: UUID?): Int {
         var position = -1
-        for (i in itemList.indices) {
-            if (itemList[i].getType() == ACCOUNT_TYPE) {
-                val item = itemList[i] as AccountViewModel
+        for (i in 0 until itemCount) {
+            if (getItem(i).getType() == ACCOUNT_TYPE) {
+                val item = getItem(i) as AccountViewModel
                 if (item.accountId == account) {
                     position = i
                     break
@@ -152,7 +149,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val item = itemList[position]
+        val item = getItem(position)
         val viewType = getItemViewType(position)
         when (AccountListItem.Type.fromId(viewType)) {
             ACCOUNT_TYPE -> {
@@ -174,7 +171,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
                 val groupHolder = holder as GroupTitleViewHolder
                 val group = item as AccountsGroupModel
                 buildGroupBase(group, groupHolder)
-                val sum = getSpendableBalance(group.accountsList)
+                val sum = getSpendableBalance(listOf(group))
                 groupHolder.tvBalance.setValue(sum)
                 groupHolder.tvBalance.visibility = View.VISIBLE
             }
@@ -210,19 +207,18 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
     private fun getSpendableBalance(walletAccountList: List<AccountListItem>): CurrencySum {
         val currencySum = CurrencySum()
         for (item in walletAccountList) {
-            if (item.getType() == ACCOUNT_TYPE) {
-                val account = item as AccountViewModel
-                if (account.isActive) {
-                    currencySum.add(account.balance!!.confirmed)
+            if (item.getType() == GROUP_TITLE_TYPE) {
+                for (account in (item as AccountsGroupModel).accountsList) {
+                    if (account.isActive) {
+                        currencySum.add(account.balance!!.confirmed)
+                    }
                 }
             }
         }
         return currencySum
     }
 
-    override fun getItemCount() = itemList.size
-
-    override fun getItemViewType(position: Int) = itemList[position].getType().typeId
+    override fun getItemViewType(position: Int) = getItem(position).getType().typeId
 
     interface ItemClickListener {
         fun onItemClick(account: WalletAccount)
