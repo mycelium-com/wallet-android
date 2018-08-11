@@ -100,7 +100,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
 
     private fun findPosition(account: UUID?): Int {
         var position = -1
-        for (i in 0 .. itemCount) {
+        for (i in 0 until itemCount) {
             if (getItem(i).getType() == ACCOUNT_TYPE) {
                 val item = getItem(i) as AccountViewModel
                 if (item.accountId == account) {
