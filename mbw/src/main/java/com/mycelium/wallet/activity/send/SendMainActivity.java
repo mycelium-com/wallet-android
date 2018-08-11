@@ -46,6 +46,7 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -347,7 +348,8 @@ public class SendMainActivity extends Activity {
         byte[] _rawPr = getIntent().getByteArrayExtra(RAW_PAYMENT_REQUEST);
 
         _isColdStorage = getIntent().getBooleanExtra(IS_COLD_STORAGE, false);
-        _account = _mbwManager.getWalletManager(_isColdStorage).getAccount(accountId);
+        String crashHint = TextUtils.join(", ", getIntent().getExtras().keySet()) + " (account id was " + accountId + ")";
+        _account = Preconditions.checkNotNull(_mbwManager.getWalletManager(_isColdStorage).getAccount(accountId), crashHint);
         feeLvl = _mbwManager.getMinerFee();
         feeEstimation = _mbwManager.getWalletManager(false).getLastFeeEstimations();
         feePerKbValue = _mbwManager.getMinerFee().getFeePerKb(feeEstimation).getLongValue();
