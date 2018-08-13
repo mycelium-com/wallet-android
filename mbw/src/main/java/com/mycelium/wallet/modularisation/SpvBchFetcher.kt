@@ -94,7 +94,6 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
             }
             transactionSummariesList
         } catch (e: Exception) {
-            Toast.makeText(context, context.getString(R.string.transactions_loading_from_module_error), Toast.LENGTH_LONG).show()
             emptyList()
         }
     }
