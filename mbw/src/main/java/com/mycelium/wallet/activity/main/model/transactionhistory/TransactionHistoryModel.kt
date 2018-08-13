@@ -10,8 +10,7 @@ import com.mycelium.wallet.MbwManager
  */
 class TransactionHistoryModel(application: Application) : AndroidViewModel(application) {
     val mbwManager = MbwManager.getInstance(application)!!
-    val context = application.applicationContext!!
-    val transactionHistory = TransactionHistoryLiveData(mbwManager, context)
+    val transactionHistory = TransactionHistoryLiveData(mbwManager)
     val addressBook = mbwManager.metadataStorage.allAddressLabels!!
 
     fun cacheAddressBook() {
