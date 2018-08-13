@@ -1378,6 +1378,10 @@ public class MbwManager {
       return _hasCoinapultAccounts;
    }
 
+   public boolean hasColoredAccounts() {
+      return getMetadataStorage().isPairedService(MetadataStorage.PAIRED_SERVICE_COLU);
+   }
+
    private void pinOkForOneS() {
       if(pinOkTimeoutHandle != null) {
          pinOkTimeoutHandle.cancel(true);
