@@ -343,7 +343,12 @@ public class ExchangeRateManager implements ExchangeRateProvider {
             //we return a rate with null price to indicate there is something wrong with the exchange rate source
             return ExchangeRate.missingRate(source, System.currentTimeMillis(), currency);
         }
-        for (ExchangeRate r : _latestRates.get(currency).exchangeRates) {
+
+        ExchangeRate[] exchangeRates = _latestRates.get(currency).exchangeRates;
+        if (exchangeRates == null) {
+            return ExchangeRate.missingRate(source, System.currentTimeMillis(), currency);
+        }
+        for (ExchangeRate r : exchangeRates) {
             if (r.name.equals(source)) {
                 //if the price is 0, obviously something went wrong
                 if (r.price.equals(0d)) {
