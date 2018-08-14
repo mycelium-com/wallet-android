@@ -330,7 +330,14 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
       // "UPDATE single SET archived=?,blockheight=? WHERE id=?"
       _updateSingleAddressAccount.bindLong(1, context.isArchived() ? 1 : 0);
       _updateSingleAddressAccount.bindLong(2, context.getBlockHeight());
-      _updateSingleAddressAccount.bindBlob(3, uuidToBytes(context.getId()));
+      final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+      try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteStream)) {
+         objectOutputStream.writeObject(context.getAddresses());
+         _updateSingleAddressAccount.bindBlob(3, byteStream.toByteArray());
+      } catch (IOException ignore) {
+         // should never happen
+      }
+      _updateSingleAddressAccount.bindBlob(4, uuidToBytes(context.getId()));
       _updateSingleAddressAccount.execute();
    }
 
