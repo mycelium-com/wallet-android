@@ -44,7 +44,11 @@ class WalletConfiguration(private val prefs: SharedPreferences, val network : Ne
 
     // Makes a request to S3 storage to retrieve nodes.json and parses it to extract electrum servers list
     fun updateConfig() {
-        var latch = CountDownLatch(1)
+        var count = 0
+        if(prefs.getStringSet(PREFS_ELECTRUM_SERVERS,null) == null){
+            count = 1
+        }
+        var latch = CountDownLatch(count)
 
         thread(start = true) {
             try {
