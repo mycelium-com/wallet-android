@@ -96,7 +96,7 @@ public class ColuManager implements AccountProvider {
     private NetworkParameters _network;
     private final SecureKeyValueStore _secureKeyValueStore;
     private WalletManager.State state;
-    private static boolean isNetworkConnected;
+    private volatile boolean isNetworkConnected;
     private Map<ColuAccount.ColuAssetType, AssetMetadata> assetsMetadata = new HashMap<>();
 
     public static final int TIME_INTERVAL_BETWEEN_BALANCE_FUNDING_CHECKS = 50;
@@ -342,7 +342,7 @@ public class ColuManager implements AccountProvider {
         });
     }
 
-    public static void setNetworkConnected(boolean networkConnected) {
+    public void setNetworkConnected(boolean networkConnected) {
         isNetworkConnected = networkConnected;
     }
 

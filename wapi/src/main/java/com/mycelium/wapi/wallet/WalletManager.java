@@ -110,7 +110,7 @@ public class WalletManager {
     private volatile UUID _activeAccountId;
     private FeeEstimation _lastFeeEstimations;
     private SpvBalanceFetcher _spvBalanceFetcher;
-    private static boolean isNetworkConnected;
+    private volatile boolean isNetworkConnected;
     /**
      * Create a new wallet manager instance
      *
@@ -823,7 +823,7 @@ public class WalletManager {
         }
     }
 
-    public static void setNetworkConnected(boolean networkConnected) {
+    public void setNetworkConnected(boolean networkConnected) {
         isNetworkConnected = networkConnected;
     }
 
