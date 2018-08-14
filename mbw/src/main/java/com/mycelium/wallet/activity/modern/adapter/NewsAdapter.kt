@@ -18,6 +18,7 @@ import com.mycelium.wallet.activity.modern.adapter.holder.NewsViewHolder
 import com.mycelium.wallet.activity.modern.adapter.holder.SpaceViewHolder
 import com.mycelium.wallet.activity.news.NewsUtils
 import com.mycelium.wallet.activity.news.getFitImage
+import com.mycelium.wallet.external.mediaflow.NewsConstants
 import com.mycelium.wallet.external.mediaflow.model.News
 import kotlinx.android.synthetic.main.item_news.view.*
 
@@ -100,9 +101,9 @@ class NewsAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             val linksViewHolder = holder as LinksViewHolder
             linksViewHolder.telegram.setOnClickListener {
                 try {
-                    it.context.startActivity(Intent(ACTION_VIEW, Uri.parse("tg://resolve?domain=MyceliumWallet")))
+                    it.context.startActivity(Intent(ACTION_VIEW, Uri.parse(NewsConstants.TELEGRAM_GROUP)))
                 } catch (e: Exception) {
-                    it.context.startActivity(Intent(ACTION_VIEW, Uri.parse("https://t.me/MyceliumWallet")))
+                    it.context.startActivity(Intent(ACTION_VIEW, Uri.parse(NewsConstants.TELEGRAM_WEB_GROUP)))
                 }
             }
         }

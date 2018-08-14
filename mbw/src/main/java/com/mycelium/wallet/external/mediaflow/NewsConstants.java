@@ -7,4 +7,6 @@ public class NewsConstants {
     public static final String UPDATE_TIME = "update_time";
 
     public static final String NEWS_UPDATE_ACTION = "news_update_action";
+    public static final String TELEGRAM_WEB_GROUP = "https://t.me/MyceliumWalletBugReports";
+    public static final String TELEGRAM_GROUP = "tg://resolve?domain=MyceliumWalletBugReports";
 }

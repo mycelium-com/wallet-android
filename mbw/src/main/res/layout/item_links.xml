@@ -16,30 +16,8 @@
         android:drawableStart="@drawable/ic_telegram"
         android:fontFamily="sans-serif-medium"
         android:gravity="center_vertical"
-        android:text="\@MyceliumWallet"
+        android:text="@string/myceliumwalletbugreports"
         android:textColor="#bdbdbd"
         android:textSize="12sp" />
 
-    <TextView
-        android:layout_columnWeight="1"
-        android:layout_gravity="fill"
-        android:drawablePadding="8dp"
-        android:drawableStart="@drawable/ic_wechat_2"
-        android:fontFamily="sans-serif-medium"
-        android:gravity="center_vertical"
-        android:text="\@MyceliumWallet"
-        android:textColor="#bdbdbd"
-        android:textSize="12sp" />
-
-    <TextView
-        android:layout_columnWeight="1"
-        android:layout_gravity="fill"
-        android:layout_marginTop="8dp"
-        android:drawablePadding="8dp"
-        android:drawableStart="@drawable/ic_twitter"
-        android:fontFamily="sans-serif-medium"
-        android:gravity="center_vertical"
-        android:text="\@MyceliumWallet"
-        android:textColor="#bdbdbd"
-        android:textSize="12sp" />
 </GridLayout>
