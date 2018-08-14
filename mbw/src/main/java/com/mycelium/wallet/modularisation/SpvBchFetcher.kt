@@ -99,7 +99,7 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
             }
             transactionSummariesList
         } catch (e: Exception) {
-            RetrieveTransactionSummaryFailed(Handler(context.mainLooper))
+            eventBus.post(RetrieveTransactionSummaryFailed(Handler(context.mainLooper)))
             emptyList()
         }
     }
@@ -431,8 +431,8 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
     @Subscribe
     fun onRetrieveTransactionSummaryFailed(event: RetrieveTransactionSummaryFailed) {
         event.handler.post {
-            eventBus.post(Toast.makeText(context,
-                    context.getString(R.string.transactions_loading_from_module_error), Toast.LENGTH_LONG).show())
+            Toast.makeText(context,
+                    context.getString(R.string.transactions_loading_from_module_error), Toast.LENGTH_LONG).show()
         }
     }
 
