@@ -32,71 +32,24 @@
  * fitness for a particular purpose and non-infringement.
  */
 
-package com.mycelium.wallet.activity.modern;
+package com.mycelium.wapi.wallet;
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.res.Resources;
-import android.support.v4.app.Fragment;
-import android.widget.Toast;
+import com.mycelium.wapi.api.WapiException;
+import com.mycelium.wapi.api.lib.ErrorMetaData;
+import com.mycelium.wapi.api.request.ErrorCollectorRequest;
+import org.junit.Ignore;
+import org.junit.Test;
 
-import com.mycelium.wallet.R;
-import com.mycelium.wallet.Utils;
+import java.io.IOException;
 
-/**
- * Helper class that makes it easy to let a new toast replace another if they
- * come in rapid succession
- */
-public class Toaster {
+public class ErrorCollectionRequestTest extends Node3Test {
 
-   private final Context context;
-   private Activity _activity;
-   private Fragment _fragment;
-   private Toast _toast;
+   @Test
+   @Ignore
+   public void testSendRealMail2() throws WapiException, IOException {
 
-   public Toaster(Activity activity) {
-      _activity = activity;
-      context = activity;
+      api.collectError(new ErrorCollectorRequest(new RuntimeException("fresh test from junit to node1"), "-1", ErrorMetaData.DUMMY));
+
    }
 
-   public Toaster(Fragment fragment) {
-      _fragment = fragment;
-      context = fragment.getContext();
-   }
-
-   public void toast(int resourceId, boolean shortDuration) {
-      // Resolve the message from the resource id
-      String message;
-      try {
-         message = context.getResources().getString(resourceId);
-      } catch (Resources.NotFoundException e) {
-         return;
-         //todo insert uncaught error handler
-      }
-      toast(message, shortDuration);
-   }
-
-   public void toast(String message, boolean shortDuration) {
-      if (_toast == null) {
-         if (_fragment != null) {
-            if (!_fragment.isAdded()) {
-               return;
-            }
-            _toast = Toast.makeText(_fragment.getActivity(), "", Toast.LENGTH_SHORT);
-         } else {
-            _toast = Toast.makeText(_activity, "", Toast.LENGTH_SHORT);
-         }
-      }
-      _toast.setDuration(shortDuration ? Toast.LENGTH_SHORT : Toast.LENGTH_LONG);
-      _toast.setText(message);
-      _toast.show();
-   }
-
-   public void toastConnectionError() {
-   if (Utils.isConnected(context)) {
-      toast(R.string.no_server_connection, false);
-   } else {
-      toast( R.string.no_network_connection, true);
-   }
-   }
 }

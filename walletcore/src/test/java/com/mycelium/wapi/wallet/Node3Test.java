@@ -32,71 +32,35 @@
  * fitness for a particular purpose and non-infringement.
  */
 
-package com.mycelium.wallet.activity.modern;
+package com.mycelium.wapi.wallet;
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.res.Resources;
-import android.support.v4.app.Fragment;
-import android.widget.Toast;
+import com.mycelium.net.HttpsEndpoint;
+import com.mycelium.net.ServerEndpoints;
+import com.mycelium.wapi.api.WapiClient;
+import com.mycelium.WapiLogger;
 
-import com.mycelium.wallet.R;
-import com.mycelium.wallet.Utils;
+public abstract class Node3Test {
 
-/**
- * Helper class that makes it easy to let a new toast replace another if they
- * come in rapid succession
- */
-public class Toaster {
+   protected final HttpsEndpoint endpoint = new HttpsEndpoint(
+         "https://node3.mycelium.com/wapitestnet", "E5:70:76:B2:67:3A:89:44:7A:48:14:81:DF:BD:A0:58:C8:82:72:4F");
 
-   private final Context context;
-   private Activity _activity;
-   private Fragment _fragment;
-   private Toast _toast;
-
-   public Toaster(Activity activity) {
-      _activity = activity;
-      context = activity;
-   }
-
-   public Toaster(Fragment fragment) {
-      _fragment = fragment;
-      context = fragment.getContext();
-   }
-
-   public void toast(int resourceId, boolean shortDuration) {
-      // Resolve the message from the resource id
-      String message;
-      try {
-         message = context.getResources().getString(resourceId);
-      } catch (Resources.NotFoundException e) {
-         return;
-         //todo insert uncaught error handler
+   protected final WapiLogger log = new WapiLogger() {
+      @Override
+      public void logError(String message, Exception e) {
+         //
       }
-      toast(message, shortDuration);
-   }
 
-   public void toast(String message, boolean shortDuration) {
-      if (_toast == null) {
-         if (_fragment != null) {
-            if (!_fragment.isAdded()) {
-               return;
-            }
-            _toast = Toast.makeText(_fragment.getActivity(), "", Toast.LENGTH_SHORT);
-         } else {
-            _toast = Toast.makeText(_activity, "", Toast.LENGTH_SHORT);
-         }
+      @Override
+      public void logError(String message) {
+         //
       }
-      _toast.setDuration(shortDuration ? Toast.LENGTH_SHORT : Toast.LENGTH_LONG);
-      _toast.setText(message);
-      _toast.show();
-   }
 
-   public void toastConnectionError() {
-   if (Utils.isConnected(context)) {
-      toast(R.string.no_server_connection, false);
-   } else {
-      toast( R.string.no_network_connection, true);
-   }
-   }
+      @Override
+      public void logInfo(String message) {
+         //
+      }
+   };
+
+   protected final WapiClient api = new WapiClient(new ServerEndpoints(new HttpsEndpoint[]{endpoint}), log, "test");
+
 }
