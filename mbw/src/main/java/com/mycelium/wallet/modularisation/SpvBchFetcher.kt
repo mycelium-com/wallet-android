@@ -23,7 +23,6 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.WalletApplication
 import com.mycelium.wallet.WalletApplication.getSpvModuleName
-import com.mycelium.wallet.event.RetrieveTransactionSummaryFailed
 import com.mycelium.wallet.modularisation.BCHHelper.*
 import com.mycelium.wapi.model.IssuedKeysInfo
 import com.mycelium.wapi.model.TransactionDetails
@@ -35,8 +34,6 @@ import com.mycelium.wapi.wallet.bip44.Bip44Account
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue
-import com.squareup.otto.Bus
-import com.squareup.otto.Subscribe
 import java.math.BigDecimal
 import java.util.*
 import kotlin.collections.ArrayList
@@ -49,7 +46,6 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
     private var syncProgress = 0f
     @Volatile
     private var lastSyncProgressTime = 0L
-    private val eventBus: Bus = MbwManager.getInstance(context).eventBus
 
     override fun retrieveByHdAccountIndex(id: String, accountIndex: Int): CurrencyBasedBalance {
         val uri = AccountBalance.CONTENT_URI(getSpvModuleName(WalletAccount.Type.BCHBIP44)).buildUpon().appendEncodedPath(id).build()
@@ -99,7 +95,10 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
             }
             transactionSummariesList
         } catch (e: Exception) {
-            eventBus.post(RetrieveTransactionSummaryFailed(Handler(context.mainLooper)))
+            Handler(context.mainLooper).post {
+                Toast.makeText(context,
+                        context.getString(R.string.transactions_loading_from_module_error), Toast.LENGTH_LONG).show()
+            }
             emptyList()
         }
     }
@@ -427,13 +426,4 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
             }
         }
     }
-
-    @Subscribe
-    fun onRetrieveTransactionSummaryFailed(event: RetrieveTransactionSummaryFailed) {
-        event.handler.post {
-            Toast.makeText(context,
-                    context.getString(R.string.transactions_loading_from_module_error), Toast.LENGTH_LONG).show()
-        }
-    }
-
 }
