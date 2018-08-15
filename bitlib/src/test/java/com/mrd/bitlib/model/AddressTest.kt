@@ -32,65 +32,63 @@
  * fitness for a particular purpose and non-infringement.
  */
 
-package com.mrd.bitlib.model;
+package com.mrd.bitlib.model
 
-import java.security.SecureRandom;
+import java.security.SecureRandom
 
-import com.mrd.bitlib.util.HexUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import com.mrd.bitlib.util.HexUtils
+import org.junit.Assert
+import org.junit.Test
 
-import com.mrd.bitlib.crypto.InMemoryPrivateKey;
-import com.mrd.bitlib.crypto.PublicKey;
-import com.mrd.bitlib.crypto.RandomSource;
+import com.mrd.bitlib.crypto.InMemoryPrivateKey
+import com.mrd.bitlib.crypto.PublicKey
+import com.mrd.bitlib.crypto.RandomSource
 
-public class AddressTest {
-   private static final RandomSource RANDOM_SOURCE = new RandomSource() {
-      @Override
-      public void nextBytes(byte[] bytes) {
-         new SecureRandom().nextBytes(bytes);
-      }
-   };
+class AddressTest {
 
-   @Test
-   public void toStringTest() {
-      InMemoryPrivateKey priv = new InMemoryPrivateKey(RANDOM_SOURCE);
-      PublicKey pub = priv.getPublicKey();
-      Address addr = pub.toAddress(NetworkParameters.productionNetwork);
-      System.out.println(addr.toString());
-   }
+    @Test
+    fun toStringTest() {
+        val priv = InMemoryPrivateKey(RANDOM_SOURCE)
+        val pub = priv.publicKey
+        val addressList = pub.getAllSupportedAddresses(NetworkParameters.productionNetwork)
+        println(addressList.map { it?.toString() }.toString())
+    }
 
-   @Test
-   public void standardAddressTestFromBytes() {
-      final Address address = Address.fromStandardBytes(
-            HexUtils.toBytes("B169F2B0B866DB05900B93A5D76345F18D3AFB24"), NetworkParameters.productionNetwork);
-      Assert.assertEquals("1HB5XMLmzFVj8ALj6mfBsbifRoD4miY36v", address.toString());
-   }
+    @Test
+    fun standardAddressTestFromBytes() {
+        val address = Address.fromStandardBytes(
+                HexUtils.toBytes("B169F2B0B866DB05900B93A5D76345F18D3AFB24"), NetworkParameters.productionNetwork)
+        Assert.assertEquals("1HB5XMLmzFVj8ALj6mfBsbifRoD4miY36v", address!!.toString())
+    }
 
-   @Test
-   public void standardAddressTest() {
-      Address tAddr = Address.fromString("muvtKjWtqcxrsDYfvFCgGnkmB4EqEcU8Bk");
-      Assert.assertNotNull(tAddr);
-      Assert.assertFalse(tAddr.isMultisig(tAddr.getNetwork()));
-      Assert.assertTrue(tAddr.getNetwork().isTestnet());
+    @Test
+    fun standardAddressTest() {
+        val tAddr = Address.fromString("muvtKjWtqcxrsDYfvFCgGnkmB4EqEcU8Bk")
+        Assert.assertNotNull(tAddr)
+        Assert.assertFalse(tAddr.isMultisig(tAddr.network))
+        Assert.assertTrue(tAddr.network.isTestnet)
 
-      Address pAddr = Address.fromString("1NiKrdcsiat3NVRu5XCmGkzZhZDTGXabU5");
-      Assert.assertNotNull(pAddr);
-      Assert.assertFalse(pAddr.isMultisig(pAddr.getNetwork()));
-      Assert.assertTrue(pAddr.getNetwork().isProdnet());
-   }
+        val pAddr = Address.fromString("1NiKrdcsiat3NVRu5XCmGkzZhZDTGXabU5")
+        Assert.assertNotNull(pAddr)
+        Assert.assertFalse(pAddr.isMultisig(pAddr.network))
+        Assert.assertTrue(pAddr.network.isProdnet)
+    }
 
-   @Test
-   public void multisigAddressTest() {
-      Address tAddr = Address.fromString("2N9ZkpDh83uygvhTSy5syYADZvDuVZi8mRH");
-      Assert.assertNotNull(tAddr);
-      Assert.assertTrue(tAddr.isMultisig(tAddr.getNetwork()));
-      Assert.assertTrue(tAddr.getNetwork().isTestnet());
+    @Test
+    fun multisigAddressTest() {
+        val tAddr = Address.fromString("2N9ZkpDh83uygvhTSy5syYADZvDuVZi8mRH")
+        Assert.assertNotNull(tAddr)
+        Assert.assertTrue(tAddr.isMultisig(tAddr.network))
+        Assert.assertTrue(tAddr.network.isTestnet)
 
-      Address pAddr = Address.fromString("31qh3GkM3RLPfMy86XjisS7bVkz7Pz8wee");
-      Assert.assertNotNull(pAddr);
-      Assert.assertTrue(pAddr.isMultisig(pAddr.getNetwork()));
-      Assert.assertTrue(pAddr.getNetwork().isProdnet());
-   }
+        val pAddr = Address.fromString("31qh3GkM3RLPfMy86XjisS7bVkz7Pz8wee")
+        Assert.assertNotNull(pAddr)
+        Assert.assertTrue(pAddr.isMultisig(pAddr.network))
+        Assert.assertTrue(pAddr.network.isProdnet)
+    }
+
+    companion object {
+        private val RANDOM_SOURCE = RandomSource { bytes -> SecureRandom().nextBytes(bytes) }
+    }
 
 }

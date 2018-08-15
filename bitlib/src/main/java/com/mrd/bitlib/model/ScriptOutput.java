@@ -39,6 +39,10 @@ public abstract class ScriptOutput extends Script {
          return new ScriptOutputMsg(chunks, scriptBytes);
       } else if (ScriptOutputOpReturn.isScriptOutputOpReturn(chunks)) {
          return new ScriptOutputOpReturn(chunks, scriptBytes);
+      } else if (ScriptOutputP2WSH.Companion.isScriptOutputP2WSH(chunks)) {
+         return new ScriptOutputP2WSH(chunks, scriptBytes);
+      } else if (ScriptOutputP2WPKH.Companion.isScriptOutputP2WPKH(chunks)) {
+         return new ScriptOutputP2WPKH(chunks, scriptBytes);
       } else {
          return new ScriptOutputStrange(chunks, scriptBytes);
       }
@@ -49,4 +53,5 @@ public abstract class ScriptOutput extends Script {
    }
 
    public abstract Address getAddress(NetworkParameters network);
+   public abstract byte[] getAddressBytes();
 }

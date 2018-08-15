@@ -42,11 +42,13 @@ public abstract class Script implements Serializable {
 
    public static final int OP_FALSE = 0;
    public static final int OP_0 = OP_FALSE;
+   public static final int OP_PUSH32 = 32;
    public static final int OP_PUSHDATA1 = 76;
    public static final int OP_PUSHDATA2 = 77;
    public static final int OP_PUSHDATA4 = 78;
    public static final int OP_1NEGATE = 79;
    public static final int OP_TRUE = 81;
+   public static final int OP_1 = OP_TRUE;
    public static final int OP_2 = 82;
    public static final int OP_3 = 83;
    public static final int OP_4 = 84;
@@ -287,7 +289,7 @@ public abstract class Script implements Serializable {
       return _scriptBytes;
    }
 
-   protected static byte[] scriptEncodeChunks(byte[][] chunks) {
+   static byte[] scriptEncodeChunks(byte[][] chunks) {
       byte[] buf = new byte[calculateByteSize(chunks)];
       int index = 0;
       for (byte[] chunk : chunks) {

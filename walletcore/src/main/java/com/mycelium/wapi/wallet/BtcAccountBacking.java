@@ -54,7 +54,7 @@ public interface BtcAccountBacking {
 
    void putTransaction(TransactionEx transaction);
 
-   void putTransactions(List<TransactionEx> transactions);
+   void putTransactions(Collection<? extends TransactionEx> transactions);
 
    TransactionEx getTransaction(Sha256Hash hash);
 

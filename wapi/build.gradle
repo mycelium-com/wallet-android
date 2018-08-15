@@ -33,6 +33,10 @@ buildscript {
     }
 }
 
+kapt {
+    useBuildCache = true
+}
+
 kotlin {
     experimental {
         coroutines "enable"

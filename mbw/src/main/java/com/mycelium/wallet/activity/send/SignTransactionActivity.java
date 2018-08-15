@@ -40,7 +40,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Window;
 import com.google.common.base.Preconditions;
-import com.mrd.bitlib.StandardTransactionBuilder.UnsignedTransaction;
+import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.model.Transaction;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;

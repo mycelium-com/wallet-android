@@ -63,22 +63,19 @@ Deterministic builds
 
 To validate the Mycelium image you obtain from Google Play Store, you can rebuild the Mycelium wallet yourself using Docker and compare both images following these steps:
 
-* Create your own Docker image
+* Create your own Docker image from our simple Dockerfile
 
-        $ docker build . --tag mycelium-wallet .
+        $ docker build . --tag mycelium-wallet
 
   Check that this step succeeds by listing the available docker images:
 
-        $ docker images
+        $ docker images | grep mycelium-wallet
 
 * Build Mycelium using Docker
 
-        $ docker run --rm -v $(pwd):/project -w /project mycelium-wallet ./gradlew mbw::clean mbw::assembleProdnetRelease
+        $ docker run --rm --volume $(pwd):/project --workdir /project mycelium-wallet ./gradlew clean test :mbw:assProdRel :modulespvbch:assProdRel -x :bitcoincashj:core:test
 
-  After this step succeeds, the mycelium unsigned apk is in `mbw/builds/outputs/apk`.
-  You may need to create a `gradle.properties` file and set
-
-        org.gradle.jvmargs = -Xmx5120m
+  After this step succeeds, the mbw apk is in `mbw/builds/outputs/apk`.
 
 * Retrieve Google Play Mycelium APK from your phone
   Gets package path:
@@ -90,17 +87,13 @@ To validate the Mycelium image you obtain from Google Play Store, you can rebuil
 
         $ adb pull /data/app/com.mycelium.wallet-1/base.apk mycelium-signed.apk
 
-* Compare signed apk with unsigned locally built apk using Signal apkdiff
+* Compare signed apk with unsigned locally built apk using Signal's apkdiff
 
-        $ wget https://raw.githubusercontent.com/WhisperSystems/Signal-Android/master/apkdiff/apkdiff.py
         python apkdiff.py mycelium-signed.apk mbw/build/outputs/apk/.....your-prodnet.apk
 
 * You might have to `sudo chown -R $USER:$USER .` as the docker user might create files that you have no access to under your normal user.
 
-This work is based on WhisperSystems Signal reproducible builds:
-
-* https://whispersystems.org/blog/reproducible-android/
-* https://github.com/WhisperSystems/Signal-Android/wiki/Reproducible-Builds
+This work is based on WhisperSystems Signal reproducible builds [1](https://whispersystems.org/blog/reproducible-android/) [2](https://github.com/WhisperSystems/Signal-Android/wiki/Reproducible-Builds)
 
 
 Features

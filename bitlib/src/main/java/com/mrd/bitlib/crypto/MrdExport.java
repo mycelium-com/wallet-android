@@ -22,6 +22,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.io.BaseEncoding;
 import com.mrd.bitlib.lambdaworks.crypto.SCrypt;
 import com.mrd.bitlib.lambdaworks.crypto.SCryptProgress;
+import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.ByteWriter;
@@ -809,7 +810,7 @@ public class MrdExport {
        */
       private static byte[] calculatePrivateKeyChecksum(InMemoryPrivateKey key, NetworkParameters network) {
          try {
-            String address = key.getPublicKey().toAddress(network).toString();
+            String address = key.getPublicKey().toAddress(network, AddressType.P2PKH).toString();
             byte[] hash = HashUtils.sha256(address.getBytes("US-ASCII")).getBytes();
             byte[] checksum = new byte[V1_CHECKSUM_LENGTH];
             System.arraycopy(hash, 0, checksum, 0, V1_CHECKSUM_LENGTH);

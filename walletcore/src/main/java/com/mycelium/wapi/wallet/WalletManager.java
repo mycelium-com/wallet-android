@@ -18,6 +18,7 @@ package com.mycelium.wapi.wallet;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -29,6 +30,7 @@ import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.crypto.RandomSource;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
+import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.WapiLogger;
 import com.mycelium.wapi.api.Wapi;
@@ -188,20 +190,24 @@ public class WalletManager {
     }
 
     /**
-     * Create a new read-only account using a single address
+     * Create a new read-only account using as "single address"
      *
-     * @param address the address to use
      * @return the ID of the new account
      */
     public UUID createSingleAddressAccount(Address address) {
         UUID id = SingleAddressBtcAccount.calculateId(address);
+
+        // Create a UUID from the byte indexes 8-15 and 16-23 of the account public key
+        //byte[] publicKeyBytes = publicKey.getPublicKeyBytes();
+       // UUID id = new UUID(BitUtils.uint64ToLong(publicKeyBytes, 8), BitUtils.uint64ToLong(
+        //        publicKeyBytes, 16));
         synchronized (_walletAccounts) {
             if (_walletAccounts.containsKey(id)) {
                 return id;
             }
             _backing.beginTransaction();
             try {
-                SingleAddressAccountContext context = new SingleAddressAccountContext(id, address, false, 0);
+                SingleAddressAccountContext context = new SingleAddressAccountContext(id, ImmutableMap.of(address.getType(), address), false, 0);
                 _backing.createSingleAddressAccountContext(context);
                 SingleAddressBtcAccountBacking accountBacking = checkNotNull(_backing.getSingleAddressAccountBacking(context.getId()));
                 PublicPrivateKeyStore store = new PublicPrivateKeyStore(_secureKeyValueStore);
@@ -211,7 +217,49 @@ public class WalletManager {
                 addAccount(account);
 
                 if (_spvBalanceFetcher != null) {
-                    SingleAddressBCHAccount singleAddressBCHAccount = new SingleAddressBCHAccount(context, store, _network, accountBacking, _wapi, _spvBalanceFetcher);
+                    SingleAddressBCHAccount singleAddressBCHAccount = new SingleAddressBCHAccount(context,
+                            store, _network, accountBacking, _wapi, _spvBalanceFetcher);
+                    addAccount(singleAddressBCHAccount);
+                    _btcToBchAccounts.put(account.getId(), singleAddressBCHAccount.getId());
+                    _spvBalanceFetcher.requestTransactionsFromUnrelatedAccountAsync(singleAddressBCHAccount.getId().toString(), /* IntentContract.UNRELATED_ACCOUNT_TYPE_SA */2);
+                }
+            } finally {
+                _backing.endTransaction();
+            }
+        }
+        return id;
+    }
+
+    /**
+     * Create a new read-only account using as "single address"
+     *
+     * @return the ID of the new account
+     */
+    public UUID createSingleAddressAccount(PublicKey publicKey) {
+        //UUID id = SingleAddressAccount.calculateId(address);
+
+        // Create a UUID from the byte indexes 8-15 and 16-23 of the account public key
+        byte[] publicKeyBytes = publicKey.getPublicKeyBytes();
+        UUID id = new UUID(BitUtils.uint64ToLong(publicKeyBytes, 8), BitUtils.uint64ToLong(
+                publicKeyBytes, 16));
+        synchronized (_walletAccounts) {
+            if (_walletAccounts.containsKey(id)) {
+                return id;
+            }
+            _backing.beginTransaction();
+            try {
+                SingleAddressAccountContext context = new SingleAddressAccountContext(id, publicKey.getAllSupportedAddresses(_network), false, 0);
+                _backing.createSingleAddressAccountContext(context);
+                SingleAddressBtcAccountBacking accountBacking = checkNotNull(_backing.getSingleAddressAccountBacking(context.getId()));
+                PublicPrivateKeyStore store = new PublicPrivateKeyStore(_secureKeyValueStore);
+                SingleAddressBtcAccount account = new SingleAddressBtcAccount(context, store, _network, accountBacking, _wapi);
+                context.persist(accountBacking);
+                _backing.setTransactionSuccessful();
+                addAccount(account);
+
+                if (_spvBalanceFetcher != null) {
+                    SingleAddressBCHAccount singleAddressBCHAccount = new SingleAddressBCHAccount(context,
+                            store, _network, accountBacking, _wapi, _spvBalanceFetcher);
                     addAccount(singleAddressBCHAccount);
                     _btcToBchAccounts.put(account.getId(), singleAddressBCHAccount.getId());
                     _spvBalanceFetcher.requestTransactionsFromUnrelatedAccountAsync(singleAddressBCHAccount.getId().toString(), /* IntentContract.UNRELATED_ACCOUNT_TYPE_SA */2);
@@ -361,10 +409,11 @@ public class WalletManager {
      */
     public UUID createSingleAddressAccount(InMemoryPrivateKey privateKey, KeyCipher cipher) throws InvalidKeyCipher {
         PublicKey publicKey = privateKey.getPublicKey();
-        Address address = publicKey.toAddress(_network);
         PublicPrivateKeyStore store = new PublicPrivateKeyStore(_secureKeyValueStore);
-        store.setPrivateKey(address, privateKey, cipher);
-        return createSingleAddressAccount(address);
+        for (Address address : publicKey.getAllSupportedAddresses(_network).values()) {
+            store.setPrivateKey(address, privateKey, cipher);
+        }
+        return createSingleAddressAccount(publicKey);
     }
 
     /**
@@ -1100,6 +1149,14 @@ public class WalletManager {
             return;
         }
         filterAndConvert(MAIN_SEED_BTC_HD_ACCOUNT).get(0).activateAccount();
+    }
+
+    public int getCurrentBip44Index() {
+        int maxIndex = -1;
+        for (Bip44BtcAccount walletAccount : _bip44Accounts) {
+            maxIndex = Math.max(walletAccount.getAccountIndex(), maxIndex);
+        }
+        return maxIndex;
     }
 
     private int getNextBip44Index() {
