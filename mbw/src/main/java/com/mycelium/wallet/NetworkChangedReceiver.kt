@@ -11,7 +11,9 @@ class NetworkChangedReceiver : BroadcastReceiver() {
             val mbwManager = MbwManager.getInstance(context)
             val connected = Utils.isConnected(context)
             mbwManager.getWalletManager(false).setNetworkConnected(connected)
-            mbwManager.coluManager.setNetworkConnected(connected)
+            if (mbwManager.hasColoredAccounts()) {
+                mbwManager.coluManager.setNetworkConnected(connected)
+            }
             mbwManager.wapi.setNetworkConnected(connected)
         }
     }
