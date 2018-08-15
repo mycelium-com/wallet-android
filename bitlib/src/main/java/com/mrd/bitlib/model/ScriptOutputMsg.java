@@ -73,8 +73,13 @@ public class ScriptOutputMsg extends ScriptOutput implements Serializable {
    }
 
    @Override
+   public byte[] getAddressBytes() {
+      return HashUtils.addressHash(getPublicKeyBytes());
+   }
+
+   @Override
    public Address getAddress(NetworkParameters network) {
-      byte[] addressBytes = HashUtils.addressHash(getPublicKeyBytes());
+      byte[] addressBytes = getAddressBytes();
       return Address.fromStandardBytes(addressBytes, network);
    }
 }

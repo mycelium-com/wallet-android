@@ -52,8 +52,9 @@ import com.btchip.utils.SignatureUtils;
 import com.google.common.base.Optional;
 import com.ledger.tbase.comm.LedgerTransportTEEProxy;
 import com.ledger.tbase.comm.LedgerTransportTEEProxyFactory;
+import com.mrd.bitlib.SigningRequest;
 import com.mrd.bitlib.StandardTransactionBuilder;
-import com.mrd.bitlib.StandardTransactionBuilder.UnsignedTransaction;
+import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.*;
@@ -217,7 +218,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
       Vector<byte[]> signatures;
       String outputAddress = null, amount, fees, commonPath, changePath = "";
       long totalSending = 0;
-      StandardTransactionBuilder.SigningRequest[] signatureInfo;
+      SigningRequest[] signatureInfo;
       String txpin = "";
       BTChipDongle.BTChipOutput outputData = null;
       ByteWriter rawOutputsWriter = new ByteWriter(1024);
@@ -265,7 +266,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
          }
       }
 
-      signatureInfo = unsigned.getSignatureInfo();
+      signatureInfo = unsigned.getSigningRequests();
       unsignedtx = Transaction.fromUnsignedTransaction(unsigned);
       inputs = new BTChipDongle.BTChipInput[unsignedtx.inputs.length];
       signatures = new Vector<byte[]>(unsignedtx.inputs.length);
@@ -386,8 +387,8 @@ public class LedgerManager extends AbstractAccountScanManager implements
          }
 
          // Sign
-         StandardTransactionBuilder.SigningRequest signingRequest = signatureInfo[i];
-         Address toSignWith = signingRequest.publicKey.toAddress(getNetwork());
+         SigningRequest signingRequest = signatureInfo[i];
+         Address toSignWith = signingRequest.getPublicKey().toAddress(getNetwork(), AddressType.P2PKH);
          Optional<Integer[]> addressId = forAccount.getAddressId(toSignWith);
          String keyPath = commonPath + addressId.get()[0] + "/" + addressId.get()[1];
          byte[] signature = dongle.untrustedHashSign(keyPath, txpin);

@@ -35,7 +35,6 @@ import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.api.lib.TransactionExApi;
 import com.mycelium.wapi.api.request.QueryTransactionInventoryRequest;
 import com.mycelium.wapi.api.response.QueryTransactionInventoryResponse;
-import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputEx;
 import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.btc.Bip44BtcAccountBacking;
@@ -478,7 +477,7 @@ public class Bip44BtcAccount extends AbstractBtcAccount implements ExportableAcc
     }
 
     @Override
-    protected void onNewTransaction(TransactionEx tex, Transaction t) {
+    protected void onNewTransaction(Transaction t) {
         // check whether we need to update our last index for activity
         updateLastIndexWithActivity(t);
     }
@@ -535,6 +534,17 @@ public class Bip44BtcAccount extends AbstractBtcAccount implements ExportableAcc
             _context.setLastInternalIndexWithActivity(Math.max(_context.getLastInternalIndexWithActivity(),
                     internalIndex));
         }
+    }
+
+    @Override
+    protected InMemoryPrivateKey getPrivateKey(PublicKey publicKey, KeyCipher cipher) throws InvalidKeyCipher {
+        for (Address address: publicKey.getAllSupportedAddresses(_network).values()) {
+            InMemoryPrivateKey key = getPrivateKeyForAddress(address, cipher);
+            if (key != null) {
+                return key;
+            }
+        }
+        return null;
     }
 
     @Override

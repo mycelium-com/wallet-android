@@ -28,6 +28,7 @@ configurations {
 }
 
 kapt {
+    useBuildCache = true
     javacOptions {
         option("-Xmaxerrs", 500)
     }
@@ -132,8 +133,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 2110113
-        versionName '2.11.1.13'
+        versionCode 2110114
+        versionName '2.11.1.14'
         multiDexEnabled true
 
         minSdkVersion 19
@@ -148,22 +149,32 @@ android {
                     project.hasProperty('prodKeyAlias') &&
                     project.hasProperty('prodKeyStorePassword') &&
                     project.hasProperty('prodKeyAliasPassword')) {
-                storeFile file('../../' + prodKeyStore)
+                storeFile file('../' + prodKeyStore)
                 keyAlias prodKeyAlias
                 storePassword prodKeyStorePassword
                 keyPassword prodKeyAliasPassword
-            }
+            } else {
+				        storeFile commonDebugKeystore
+				        storePassword 'android'
+				        keyAlias 'androiddebugkey'
+				        keyPassword 'android'
+						}
         }
         btctestnet {
             if (project.hasProperty('testKeyStore') &&
                     project.hasProperty('testKeyAlias') &&
                     project.hasProperty('testKeyStorePassword') &&
                     project.hasProperty('testKeyAliasPassword')) {
-                storeFile file('../../' + testKeyStore)
+                storeFile file('../' + testKeyStore)
                 keyAlias testKeyAlias
                 storePassword testKeyStorePassword
                 keyPassword testKeyAliasPassword
-            }
+            } else {
+				        storeFile commonDebugKeystore
+				        storePassword 'android'
+				        keyAlias 'androiddebugkey'
+				        keyPassword 'android'
+						}
         }
         commonDebug {
             storeFile commonDebugKeystore
@@ -247,3 +258,4 @@ android {
         unitTests.returnDefaultValues = true
     }
 }
+

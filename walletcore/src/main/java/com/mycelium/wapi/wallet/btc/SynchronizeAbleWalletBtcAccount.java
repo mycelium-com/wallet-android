@@ -24,7 +24,7 @@ public abstract class SynchronizeAbleWalletBtcAccount implements WalletBtcAccoun
          SyncMode.Mode.NORMAL_SYNC, 30 * 1000,
          SyncMode.Mode.FULL_SYNC, 120 * 1000
    );
-   protected final HashMap<SyncMode.Mode, Date> _lastSync = new HashMap<SyncMode.Mode, Date>(SyncMode.Mode.values().length);
+   private final HashMap<SyncMode.Mode, Date> _lastSync = new HashMap<>(SyncMode.Mode.values().length);
 
    protected Type type = Type.UNKNOWN;
 
@@ -39,7 +39,7 @@ public abstract class SynchronizeAbleWalletBtcAccount implements WalletBtcAccoun
     * @param syncMode the requested sync mode
     * @return true if sync is needed
     */
-   public boolean needsSynchronization(SyncMode syncMode){
+   private boolean needsSynchronization(SyncMode syncMode){
       if (syncMode.ignoreSyncInterval) {
          return true;
       }
@@ -62,7 +62,7 @@ public abstract class SynchronizeAbleWalletBtcAccount implements WalletBtcAccoun
     * @param syncMode the Mode to get the interval for
     * @return the interval in milliseconds
     */
-   protected Integer getSyncInterval(SyncMode syncMode) {
+   private Integer getSyncInterval(SyncMode syncMode) {
       return MIN_SYNC_INTERVAL.get(syncMode.mode);
    }
 
@@ -158,7 +158,7 @@ public abstract class SynchronizeAbleWalletBtcAccount implements WalletBtcAccoun
    public abstract TransactionDetails getTransactionDetails(Sha256Hash txid);
 
    @Override
-   public boolean onlySyncWhenActive() {
+  public boolean onlySyncWhenActive() {
       return false;
    }
 }

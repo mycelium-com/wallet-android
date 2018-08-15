@@ -47,6 +47,7 @@ import android.widget.Toast;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.AddressType;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
@@ -239,7 +240,7 @@ public class CreateTrader2Activity extends Activity {
          // We are already registered with this key
          InMemoryPrivateKey privateKey = Preconditions.checkNotNull(getSelectedPrivateKey());
          UUID accountId = Preconditions.checkNotNull(getSelectedAccount());
-         _ltManager.setLocalTraderData(accountId, privateKey, privateKey.getPublicKey().toAddress(_mbwManager.getNetwork()), nickname);
+         _ltManager.setLocalTraderData(accountId, privateKey, privateKey.getPublicKey().toAddress(_mbwManager.getNetwork(), AddressType.P2PKH), nickname); // TODO Fix SegWit
          setResult(RESULT_OK);
          finish();
       }

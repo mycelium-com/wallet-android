@@ -19,6 +19,7 @@ import com.google.common.base.Preconditions;
 import com.megiontechnologies.Bitcoins;
 import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.TransactionUtils;
+import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.Transaction;
 import com.mycelium.wallet.MbwManager;
@@ -173,8 +174,8 @@ public class GlideraSell2faDialog extends DialogFragment {
                receivers.add(new WalletBtcAccount.Receiver(Address.fromString(sellAddress), Bitcoins.nearestValue(_sellPriceResponse
                        .getQty())));
 
-               WalletBtcAccount selectedAccount = mbwManager.getSelectedAccount();
-               final StandardTransactionBuilder.UnsignedTransaction unsignedTransaction;
+               WalletAccount selectedAccount = mbwManager.getSelectedAccount();
+               final UnsignedTransaction unsignedTransaction;
 
                try {
                   unsignedTransaction = selectedAccount.createUnsignedTransaction(receivers, TransactionUtils.DEFAULT_KB_FEE);

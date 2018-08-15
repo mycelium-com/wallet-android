@@ -21,7 +21,7 @@ import com.mrd.bitlib.PopBuilder;
 import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
-import com.mrd.bitlib.StandardTransactionBuilder.UnsignedTransaction;
+import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.crypto.BitcoinSigner;
 import com.mrd.bitlib.crypto.IPrivateKeyRing;
 import com.mrd.bitlib.crypto.IPublicKeyRing;
@@ -42,6 +42,7 @@ import com.mrd.bitlib.model.UnspentTransactionOutput;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.HashUtils;
+import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.WapiLogger;
 import com.mycelium.wapi.model.*;
@@ -315,16 +316,22 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
             postEvent(Event.SERVER_CONNECTION_ERROR);
             return -1;
          }
-         // Finally update out list of unspent outputs with added or updated
-         // outputs
-         for (TransactionOutputEx output : unspentOutputsToAddOrUpdate) {
-            // check if the output really belongs to one of our addresses
-            // prevent getting out local cache into a undefined state, if the server screws up
-            if (isMine(output)) {
-               _backing.putUnspentOutput(output);
-            }else {
-               _logger.logError("We got an UTXO that does not belong to us: " + output.toString());
+         try {
+            _backing.beginTransaction();
+            // Finally update out list of unspent outputs with added or updated
+            // outputs
+            for (TransactionOutputEx output : unspentOutputsToAddOrUpdate) {
+               // check if the output really belongs to one of our addresses
+               // prevent getting out local cache into a undefined state, if the server screws up
+               if (isMine(output)) {
+                  _backing.putUnspentOutput(output);
+               } else {
+                  _logger.logError("We got an UTXO that does not belong to us: " + output.toString());
+               }
             }
+            _backing.setTransactionSuccessful();
+         } finally {
+            _backing.endTransaction();
          }
       }
 
@@ -374,12 +381,10 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
 
    private void handleNewExternalTransactionsInt(Collection<TransactionExApi> transactions) throws WapiException {
       // Transform and put into two arrays with matching indexes
-      List<TransactionEx> texArray = new ArrayList<>(transactions.size());
       List<Transaction> txArray = new ArrayList<>(transactions.size());
       for (TransactionEx tex : transactions) {
          try {
             txArray.add(Transaction.fromByteReader(new ByteReader(tex.binary)));
-            texArray.add(tex);
          } catch (TransactionParsingException e) {
             // We hit a transaction that we cannot parse. Log but otherwise ignore it
             _logger.logError("Received transaction that we cannot parse: " + tex.txid.toString());
@@ -390,11 +395,10 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       fetchStoreAndValidateParentOutputs(txArray);
 
       // Store transaction locally
-      _backing.putTransactions(texArray);
+      _backing.putTransactions(transactions);
 
       for (int i = 0; i < txArray.size(); i++) {
-         final TransactionEx transactionEx = texArray.get(i);
-         onNewTransaction(transactionEx, txArray.get(i));
+         onNewTransaction(txArray.get(i));
       }
    }
 
@@ -601,12 +605,17 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       Map<Sha256Hash, byte[]> transactions = _backing.getOutgoingTransactions();
 
       for (byte[] rawTransaction : transactions.values()) {
-         TransactionEx tex = TransactionEx.fromUnconfirmedTransaction(rawTransaction);
-
-         BroadcastResult result = broadcastTransaction(TransactionEx.toTransaction(tex));
+         Transaction transaction;
+         try {
+            transaction = Transaction.fromBytes(rawTransaction);
+         } catch (TransactionParsingException e) {
+            _logger.logError("Unable to parse transaction from bytes: " + HexUtils.toHex(rawTransaction), e);
+            return  false;
+         }
+         BroadcastResult result = broadcastTransaction(transaction);
          if (result == BroadcastResult.SUCCESS) {
-            broadcastedIds.add(tex.txid);
-            _backing.removeOutgoingTransaction(tex.txid);
+            broadcastedIds.add(transaction.getId());
+            _backing.removeOutgoingTransaction(transaction.getId());
          } /* else {
             // DW: commented this section out, because we changed how we treat outgoing tx
             // keep it, even if it got rejected and let the user delete it themself
@@ -680,7 +689,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    @Override
    public abstract boolean isActive();
 
-   protected abstract void onNewTransaction(TransactionEx tex, Transaction t);
+   protected abstract void onNewTransaction(Transaction t);
 
    protected void onTransactionsBroadcasted(List<Sha256Hash> txids) {
    }
@@ -740,7 +749,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       }
       // Make all signatures, this is the CPU intensive part
       List<byte[]> signatures = StandardTransactionBuilder.generateSignatures(
-            unsigned.getSignatureInfo(),
+            unsigned.getSigningRequests(),
             new PrivateKeyRing(cipher)
       );
 
@@ -868,7 +877,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       }
 
       // Tell account that we have a new transaction
-      onNewTransaction(TransactionEx.fromUnconfirmedTransaction(parsedTransaction), parsedTransaction);
+      onNewTransaction(parsedTransaction);
 
       // Calculate local balance cache. It has changed because we have done
       // some spending
@@ -978,7 +987,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
 
    protected abstract Address getChangeAddress();
 
-   protected static Collection<UnspentTransactionOutput> transform(Collection<TransactionOutputEx> source) {
+   private static Collection<UnspentTransactionOutput> transform(Collection<TransactionOutputEx> source) {
       List<UnspentTransactionOutput> outputs = new ArrayList<>();
       for (TransactionOutputEx s : source) {
          ScriptOutput script = ScriptOutput.fromScriptBytes(s.script);
@@ -1035,6 +1044,9 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
          return ZERO;
       }
    }
+
+   protected abstract InMemoryPrivateKey getPrivateKey(PublicKey publicKey, KeyCipher cipher)
+         throws InvalidKeyCipher;
 
    protected abstract InMemoryPrivateKey getPrivateKeyForAddress(Address address, KeyCipher cipher)
          throws InvalidKeyCipher;
@@ -1126,7 +1138,8 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
             continue;
          }
          List<TransactionOutput> outputs = singletonList(createOutput(changeAddress, value, _network));
-         return new UnsignedTransaction(outputs, utxosToSpend, new PublicKeyRing(), _network);
+          final TransactionEx fundedTransaction = getTransaction(txid);
+          return new UnsignedTransaction(outputs, utxosToSpend, new PublicKeyRing(), _network, 0, UnsignedTransaction.NO_SEQUENCE);
       } while(!utxos.isEmpty());
       throw new InsufficientFundsException(0, parentChildFeeSat);
    }
@@ -1413,17 +1426,16 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
 
       @Override
       public BitcoinSigner findSignerByPublicKey(PublicKey publicKey) {
-         Address address = publicKey.toAddress(_network);
          InMemoryPrivateKey privateKey;
          try {
-            privateKey = getPrivateKeyForAddress(address, _cipher);
+            privateKey = getPrivateKey(publicKey, _cipher);
          } catch (InvalidKeyCipher e) {
-            throw new RuntimeException("Unable to decrypt private key for address " + address.toString());
+            throw new RuntimeException("Unable to decrypt private key for public key " + publicKey.toString());
          }
          if (privateKey != null) {
             return privateKey;
          }
-         throw new RuntimeException("Unable to find private key for address " + address.toString());
+         throw new RuntimeException("Unable to find private key for public key " + publicKey.toString());
       }
    }
 

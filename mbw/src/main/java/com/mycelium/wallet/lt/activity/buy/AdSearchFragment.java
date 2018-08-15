@@ -358,8 +358,7 @@ public class AdSearchFragment extends Fragment {
 
       @Override
       public void onClick(View v) {
-         GetPublicTraderInfo request = new GetPublicTraderInfo(_selected.traderInfo.publicKey.toAddress(_mbwManager
-               .getNetwork()));
+         GetPublicTraderInfo request = new GetPublicTraderInfo(_selected.traderInfo.address);
          SendRequestActivity.callMe(getActivity(), request, getString(R.string.lt_getting_trader_info_title));
       }
    };

@@ -20,6 +20,7 @@ import com.google.common.base.Optional;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.Sha256Hash;
@@ -28,23 +29,16 @@ import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.api.request.QueryTransactionInventoryRequest;
 import com.mycelium.wapi.api.response.GetTransactionsResponse;
 import com.mycelium.wapi.api.response.QueryTransactionInventoryResponse;
-import com.mycelium.wapi.model.BalanceSatoshis;
-import com.mycelium.wapi.model.TransactionEx;
+import com.mycelium.wapi.model.Balance;
 import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
-import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
-import com.mycelium.wapi.wallet.btc.BtcTransaction;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.WalletManager.Event;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.CoinType;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class SingleAddressBtcAccount extends AbstractBtcAccount implements ExportableAccount {
    private SingleAddressAccountContext _context;
@@ -59,10 +53,31 @@ public class SingleAddressBtcAccount extends AbstractBtcAccount implements Expor
       _backing = backing;
       type = WalletBtcAccount.Type.BTCSINGLEADDRESS;
       _context = context;
-      _addressList = new ArrayList<>(1);
-      _addressList.add(_context.getAddress());
+      _addressList = new ArrayList<>(3);
       _keyStore = keyStore;
-      _cachedBalance = _context.isArchived() ? new BalanceSatoshis(0, 0, 0, 0, 0, 0, false, _allowZeroConfSpending) : calculateLocalBalance();
+      persistAddresses();
+      _addressList.addAll(context.getAddresses().values());
+      _cachedBalance = _context.isArchived() ? new Balance(0, 0, 0, 0, 0, 0, false, _allowZeroConfSpending) : calculateLocalBalance();
+   }
+
+   private void persistAddresses() {
+      try {
+         InMemoryPrivateKey privateKey = getPrivateKey(AesKeyCipher.defaultKeyCipher());
+         if (privateKey != null) {
+            Map<AddressType, Address> allPossibleAddresses = privateKey.getPublicKey().getAllSupportedAddresses(_network);
+            if (allPossibleAddresses.size() != _context.getAddresses().size()) {
+               for (Address address : allPossibleAddresses.values()) {
+                  if (!address.equals(_context.getAddresses().get(address.getType()))) {
+                     _keyStore.setPrivateKey(address, privateKey, AesKeyCipher.defaultKeyCipher());
+                  }
+               }
+               _context.setAddresses(allPossibleAddresses);
+               _context.persist(_backing);
+            }
+         }
+      } catch (InvalidKeyCipher invalidKeyCipher) {
+         _logger.logError(invalidKeyCipher.getMessage());
+      }
    }
 
    public static UUID calculateId(Address address) {
@@ -108,7 +123,7 @@ public class SingleAddressBtcAccount extends AbstractBtcAccount implements Expor
 
    private void clearInternalStateInt(boolean isArchived) {
       _backing.clear();
-      _context = new SingleAddressAccountContext(_context.getId(), _context.getAddress(), isArchived, 0);
+      _context = new SingleAddressAccountContext(_context.getId(), _context.getAddresses(), isArchived, 0);
       _context.persist(_backing);
       _cachedBalance = null;
       if (isActive()) {
@@ -127,12 +142,10 @@ public class SingleAddressBtcAccount extends AbstractBtcAccount implements Expor
             return false;
          }
 
-         //if (!mode.ignoreTransactionHistory) {
          // Monitor young transactions
          if (!monitorYoungTransactions()) {
             return false;
          }
-         //}
 
          //lets see if there are any transactions we need to discover
          if (!mode.ignoreTransactionHistory) {
@@ -204,7 +217,7 @@ public class SingleAddressBtcAccount extends AbstractBtcAccount implements Expor
 
    @Override
    public boolean isMine(Address address) {
-      return getAddress().equals(address);
+      return _addressList.contains(address);
    }
 
     @Override
@@ -266,7 +279,7 @@ public class SingleAddressBtcAccount extends AbstractBtcAccount implements Expor
    }
 
    @Override
-   protected void onNewTransaction(TransactionEx tex, Transaction t) {
+   protected void onNewTransaction(Transaction t) {
       // Nothing to do for this account type
    }
 
@@ -287,12 +300,20 @@ public class SingleAddressBtcAccount extends AbstractBtcAccount implements Expor
 
    @Override
    protected Address getChangeAddress() {
-      return _context.getAddress();
+      return getAddress();
+   }
+
+   @Override
+   protected InMemoryPrivateKey getPrivateKey(PublicKey publicKey, KeyCipher cipher) throws InvalidKeyCipher {
+      if (getPublicKey().equals(publicKey)) {
+         return getPrivateKey(cipher);
+      }
+      return null;
    }
 
    @Override
    protected InMemoryPrivateKey getPrivateKeyForAddress(Address address, KeyCipher cipher) throws InvalidKeyCipher {
-      if (getAddress().equals(address)) {
+      if (_addressList.contains(address)) {
          return getPrivateKey(cipher);
       } else {
          return null;
@@ -301,7 +322,7 @@ public class SingleAddressBtcAccount extends AbstractBtcAccount implements Expor
 
    @Override
    protected PublicKey getPublicKeyForAddress(Address address) {
-      if (getAddress().equals(address)) {
+      if (_addressList.contains(address)) {
          return getPublicKey();
       } else {
          return null;
@@ -341,6 +362,7 @@ public class SingleAddressBtcAccount extends AbstractBtcAccount implements Expor
    }
 
    public void setPrivateKey(InMemoryPrivateKey privateKey, KeyCipher cipher) throws InvalidKeyCipher {
+      persistAddresses();
       _keyStore.setPrivateKey(getAddress(), privateKey, cipher);
    }
 
@@ -348,8 +370,19 @@ public class SingleAddressBtcAccount extends AbstractBtcAccount implements Expor
       return _keyStore.getPublicKey(getAddress());
    }
 
+   /**
+    * @return default address
+    */
    public Address getAddress() {
-      return _context.getAddress();
+      if (getAddress(AddressType.P2SH_P2WPKH) != null) {
+         return getAddress(AddressType.P2SH_P2WPKH);
+      } else {
+         return _context.getAddresses().values().iterator().next();
+      }
+   }
+
+   public Address getAddress(AddressType type) {
+      return _context.getAddresses().get(type);
    }
 
    @Override

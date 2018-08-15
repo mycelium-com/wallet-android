@@ -8,10 +8,12 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.Transaction;
 import com.mycelium.wallet.MbwEnvironment;
@@ -353,7 +355,7 @@ public class ColuManager implements AccountProvider {
      */
     private CreatedAccountInfo createSingleAddressAccount(InMemoryPrivateKey privateKey, KeyCipher cipher) throws InvalidKeyCipher {
         PublicKey publicKey = privateKey.getPublicKey();
-        Address address = publicKey.toAddress(_network);
+        Address address = publicKey.toAddress(_network, AddressType.P2PKH);
         PublicPrivateKeyStore store = new PublicPrivateKeyStore(_secureKeyValueStore);
         store.setPrivateKey(address, privateKey, cipher);
         return createSingleAddressAccount(address);
@@ -370,7 +372,7 @@ public class ColuManager implements AccountProvider {
         createdAccountInfo.id = SingleAddressBtcAccount.calculateId(address);
         _backing.beginTransaction();
         try {
-            SingleAddressAccountContext singleAccountContext = new SingleAddressAccountContext(createdAccountInfo.id, address, false, 0);
+            SingleAddressAccountContext singleAccountContext = new SingleAddressAccountContext(createdAccountInfo.id, ImmutableMap.of(address.getType(), address), false, 0);
             _backing.createSingleAddressAccountContext(singleAccountContext);
             SingleAddressBtcAccountBacking accountBacking = checkNotNull(_backing.getSingleAddressAccountBacking(singleAccountContext.getId()));
             singleAccountContext.persist(accountBacking);
@@ -503,7 +505,7 @@ public class ColuManager implements AccountProvider {
 
             if (accountKey == null) {
                 account = new ColuAccount(
-                        ColuManager.this, createdAccountInfo.accountBacking, metadataStorage, singleAddressAccount.getAddress(),
+                        ColuManager.this, createdAccountInfo.accountBacking, metadataStorage, singleAddressAccount.getAddress(AddressType.P2PKH),
                         coluAsset);
             } else {
                 account = new ColuAccount(
@@ -564,7 +566,7 @@ public class ColuManager implements AccountProvider {
             addAccount(account);
 
             for(ColuAccount coluAccount : coluAccounts.values()) {
-                if (coluAccount.getAddress().equals(account.getAddress())) {
+                if (coluAccount.getAddress().equals(account.getAddress(AddressType.P2PKH))) {
                     coluAccount.setLinkedAccount(account);
                     String accountLabel = metadataStorage.getLabelByAccount(coluAccount.getId());
                     metadataStorage.storeAccountLabel(account.getId(), accountLabel + " Bitcoin");
@@ -614,12 +616,12 @@ public class ColuManager implements AccountProvider {
     // enables account associated with asset
     public UUID enableAsset(ColuAccount.ColuAsset coluAsset, InMemoryPrivateKey key) {
         //Make check to ensure the address is not in use
-        if (key != null && isAddressInUse(key.getPublicKey().toAddress(getNetwork()))) {
+        if (key != null && isAddressInUse(key.getPublicKey().toAddress(getNetwork(), AddressType.P2PKH))) {
             return null;
         }
 
         if (key != null) {
-            UUID uuid = ColuAccount.getGuidForAsset(coluAsset, key.getPublicKey().toAddress(getNetwork()).getAllAddressBytes());
+            UUID uuid = ColuAccount.getGuidForAsset(coluAsset, key.getPublicKey().toAddress(getNetwork(), AddressType.P2PKH).getAllAddressBytes());
 
             if (coluAccounts.containsKey(uuid)) {
                 return uuid;

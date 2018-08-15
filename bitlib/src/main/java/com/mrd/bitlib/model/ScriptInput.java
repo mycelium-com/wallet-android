@@ -16,6 +16,8 @@
 
 package com.mrd.bitlib.model;
 
+import com.mrd.bitlib.util.BitUtils;
+
 public class ScriptInput extends Script {
    private static final long serialVersionUID = 1L;
 
@@ -29,10 +31,62 @@ public class ScriptInput extends Script {
          return new ScriptInputPubKey(chunks, scriptBytes);
       } else if (ScriptInputP2SHMultisig.isScriptInputP2SHMultisig(chunks)) {
          return new ScriptInputP2SHMultisig(chunks, scriptBytes);
+      } else if (isWitnessProgram(depush(scriptBytes))) {
+         byte[] witnessProgram = getWitnessProgram(depush(scriptBytes));
+         if (witnessProgram.length == 20) {
+            return new ScriptInputP2WPKH(scriptBytes);
+         } else if (witnessProgram.length == 32) {
+            return new ScriptInputP2WSH(scriptBytes);
+         } else {
+            // Should never happen
+            return new ScriptInput(scriptBytes);
+         }
       } else {
          return new ScriptInput(scriptBytes);
       }
    }
+
+   /**
+    * Check if supplied bytes are witness program
+    */
+   private static boolean isWitnessProgram(byte[] scriptBytes) {
+      if (scriptBytes.length < 4 || scriptBytes.length > 42) {
+         return false;
+      }
+      if (scriptBytes[0] != Script.OP_0 && (scriptBytes[0] < Script.OP_1 || scriptBytes[0] > Script.OP_16)) {
+         return false;
+      }
+      if (scriptBytes[1] < 0x02 || scriptBytes[1] > 0x28) {
+         return false;
+      }
+      return true;
+   }
+
+   public static byte[] getWitnessProgram(byte[] scriptBytes) {
+      if (!isWitnessProgram(scriptBytes)) {
+         throw new IllegalArgumentException("Script is not a witness programm");
+      }
+      return BitUtils.copyOfRange(scriptBytes, 2, scriptBytes.length);
+   }
+
+   /**
+    * Tries to remove push code from script.
+    * @return script without first byte if it's push, else empty script.
+    */
+    public static byte[] depush(byte[] script) {
+        if (script.length == 0) {
+            return new byte[]{};
+        }
+        byte pushByte = script[0];
+        script = BitUtils.copyOfRange(script, 1, script.length);
+        if (pushByte < 1 || pushByte > 76) {
+           return new byte[]{};
+        }
+        if (script.length != pushByte) {
+           return new byte[]{};
+        }
+        return script;
+    }
 
    /**
     * Construct an input script from an output script.

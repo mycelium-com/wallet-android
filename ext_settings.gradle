@@ -3,8 +3,8 @@ ext {
     guavaArtifact = 'com.google.guava:guava:23.0-android'
     androidBuildArtifact = 'com.android.tools.build:gradle:3.1.2'
     slf4jVersion = '1.7.2'
-    androidCompileSdkVersion = 27
-    androidSdkBuildVersion = '27.0.3'
+    androidCompileSdkVersion = 28
+    androidSdkBuildVersion = '28.0.2'
     androidSupportVersion = '27.1.1'
     junitVersion = '4.12'
     kotlin_version = '1.2.41'

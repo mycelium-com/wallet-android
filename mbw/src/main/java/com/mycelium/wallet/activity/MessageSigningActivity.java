@@ -45,6 +45,7 @@ import android.widget.TextView;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.SignedMessage;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -158,7 +159,7 @@ public class MessageSigningActivity extends Activity {
 
                 Intent sharingIntent = new Intent(Intent.ACTION_SEND);
                 sharingIntent.setType("text/plain");
-                Address address = privateKey.getPublicKey().toAddress(network);
+                Address address = privateKey.getPublicKey().toAddress(network, AddressType.P2SH_P2WPKH); // TODO segwit fix
                 String body = String.format(TEMPLATE, messageText, address, base64Signature);
 
                 sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, body);

@@ -38,36 +38,8 @@ public class Address implements Serializable, Comparable<Address> {
       }
    };
 
-   private byte[] _bytes;
-   private String _address;
-
-   public static Collection<Address> fromStrings(Collection<String> addresses, NetworkParameters network) {
-      List<Address> list = new LinkedList<Address>();
-      for (String address : addresses) {
-         Address a = Address.fromString(address, network);
-         if (a == null) {
-            return null;
-         }
-         list.add(a);
-      }
-      return list;
-   }
-
-   public static Address[] fromStrings(String[] addressStrings) {
-      Address[] addresses = new Address[addressStrings.length];
-      for (int i = 0; i < addressStrings.length; i++) {
-         addresses[i] = Address.fromString(addressStrings[i]);
-      }
-      return addresses;
-   }
-
-   public static String[] toStrings(Address[] addresses) {
-      String[] addressStrings = new String[addresses.length];
-      for (int i = 0; i < addressStrings.length; i++) {
-         addressStrings[i] = addresses[i].toString();
-      }
-      return addressStrings;
-   }
+   protected byte[] _bytes;
+   protected String _address;
 
    public static Address fromString(String address, NetworkParameters network) {
       Address addr = Address.fromString(address);
@@ -194,6 +166,14 @@ public class Address implements Serializable, Comparable<Address> {
          _address = Base58.encode(addressBytes);
       }
       return _address;
+   }
+
+   public AddressType getType() {
+       if (isMultisig(getNetwork())) {
+           return AddressType.P2SH_P2WPKH;
+       } else {
+           return AddressType.P2PKH;
+       }
    }
 
    public String getShortAddress() {

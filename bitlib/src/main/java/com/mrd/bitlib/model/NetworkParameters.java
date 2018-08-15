@@ -148,6 +148,14 @@ public class NetworkParameters implements Serializable {
       return _multisigAddressHeader;
    }
 
+   /**
+    * Get the first byte of a base58 encoded bitcoin P2WPKH address as an
+    * integer.
+    *
+    * @return The first byte of a base58 encoded bitcoin P2WPKH address as an
+    *         integer.
+    */
+
    public byte[] getGenesisBlock() {
       return _genesisBlock;
    }

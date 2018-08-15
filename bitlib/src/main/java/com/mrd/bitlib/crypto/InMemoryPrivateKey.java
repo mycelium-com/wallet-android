@@ -346,8 +346,8 @@ public class InMemoryPrivateKey extends PrivateKey implements KeyExporter, Seria
    private Signature generateSignatureInternal(Sha256Hash messageHash, DsaSignatureNonceGen kGen) {
       BigInteger n = Parameters.n;
       BigInteger e = calculateE(n, messageHash.getBytes()); //leaving strong typing here
-      BigInteger r = null;
-      BigInteger s = null;
+      BigInteger r;
+      BigInteger s;
 
       // 5.3.2
       do // generate s

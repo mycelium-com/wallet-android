@@ -54,7 +54,7 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.TextView.OnEditorActionListener;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.mrd.bitlib.StandardTransactionBuilder;
+import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.HexUtils;
@@ -340,7 +340,7 @@ public class TradeActivity extends Activity {
       WalletBtcAccount acc = mbwManager.getSelectedAccount();
 
       // Create unsigned transaction
-      StandardTransactionBuilder.UnsignedTransaction unsigned = TradeActivityUtil.createUnsignedTransaction(ts.satoshisFromSeller, ts.satoshisForBuyer,
+      UnsignedTransaction unsigned = TradeActivityUtil.createUnsignedTransaction(ts.satoshisFromSeller, ts.satoshisForBuyer,
             ts.buyerAddress, ts.feeAddress, acc, _ltManager.getMinerFeeEstimation().getLongValue());
 
       SignTransactionActivity.callMe(this, mbwManager.getSelectedAccount().getId(), false, unsigned, SIGN_TX_REQUEST_CODE);

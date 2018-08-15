@@ -53,6 +53,7 @@ import com.google.common.base.Optional;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -413,7 +414,7 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
 
          try {
             //Check whether this address is already used in any account
-            address = key.getPublicKey().toAddress(_mbwManager.getNetwork());
+            address = key.getPublicKey().toAddress(_mbwManager.getNetwork(), AddressType.P2SH_P2WPKH); // TODO segwit fix
             Optional<UUID> accountId = _mbwManager.getAccountId(address, null);
             if (accountId.isPresent()) {
                return null;
@@ -422,7 +423,7 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
             //check if address is colu
             // do not do this in main thread
             ColuManager coluManager = _mbwManager.getColuManager();
-            List<ColuAccount.ColuAsset> asset = new ArrayList<>(coluManager.getColuAddressAssets(address));
+            List<ColuAccount.ColuAsset> asset = new ArrayList<>(coluManager.getColuAddressAssets(key.getPublicKey().toAddress(_mbwManager.getNetwork(), AddressType.P2PKH)));
 
             if (asset.size() > 0) {
                acc = _mbwManager.getColuManager().enableAsset(asset.get(0), key);
@@ -582,7 +583,7 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
                }
                break;
                case SA:
-                  acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(address);
+                  acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(address);               //TODO segwit readonly
                   break;
                case Colu:
                   ColuManager coluManager = _mbwManager.getColuManager();
@@ -621,7 +622,7 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
                        public void onClick(DialogInterface dialogInterface, int i) {
                           UUID account;
                           if (selectedItem == 0) {
-                             account = _mbwManager.getWalletManager(false).createSingleAddressAccount(address);
+                             account = _mbwManager.getWalletManager(false).createSingleAddressAccount(address); //TODO segwit readonly
                           } else {
                              ColuAccount.ColuAsset coluAsset = ColuAccount.ColuAsset.getByType(ColuAccount.ColuAssetType.parse(list.get(selectedItem)));
                              account = _mbwManager.getColuManager().enableReadOnlyAsset(coluAsset, address);

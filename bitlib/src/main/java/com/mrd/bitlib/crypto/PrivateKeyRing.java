@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.mrd.bitlib.crypto;
 
 import java.util.HashMap;
@@ -23,47 +22,45 @@ import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 
 public class PrivateKeyRing extends PublicKeyRing implements IPrivateKeyRing {
+    private Map<PublicKey, PrivateKey> _privateKeys;
 
-   private Map<PublicKey, PrivateKey> _privateKeys;
+    public PrivateKeyRing() {
+        _privateKeys = new HashMap<PublicKey, PrivateKey>();
+    }
 
-   public PrivateKeyRing() {
-      _privateKeys = new HashMap<PublicKey, PrivateKey>();
-   }
+    /**
+     * Add a private key to the key ring.
+     */
+    public void addPrivateKey(PrivateKey key, NetworkParameters network) {
+        _privateKeys.put(key.getPublicKey(), key);
+        addPublicKey(key.getPublicKey(), network);
+    }
 
-   /**
-    * Add a private key to the key ring.
-    */
-   public void addPrivateKey(PrivateKey key, NetworkParameters network) {
-      _privateKeys.put(key.getPublicKey(), key);
-      addPublicKey(key.getPublicKey(), network);
-   }
+    /**
+     * Add a private and public key pair along with the corresponding address to
+     * the key ring.
+     */
+    public void addPrivateKey(PrivateKey privateKey, PublicKey publicKey, Address address) {
+        _privateKeys.put(publicKey, privateKey);
+        addPublicKey(publicKey, address);
+    }
 
-   /**
-    * Add a private and public key pair along with the corresponding address to
-    * the key ring.
-    */
-   public void addPrivateKey(PrivateKey privateKey, PublicKey publicKey, Address address) {
-      _privateKeys.put(publicKey, privateKey);
-      addPublicKey(publicKey, address);
-   }
+    /**
+     * Find a Bitcoin signer by public key
+     */
+    @Override
+    public BitcoinSigner findSignerByPublicKey(PublicKey publicKey) {
+        return _privateKeys.get(publicKey);
+    }
 
-   /**
-    * Find a Bitcoin signer by public key
-    */
-   @Override
-   public BitcoinSigner findSignerByPublicKey(PublicKey publicKey) {
-      return _privateKeys.get(publicKey);
-   }
-
-   /**
-    * Find a KeyExporter by public key
-    */
-   public KeyExporter findKeyExporterByPublicKey(PublicKey publicKey) {
-      PrivateKey key = _privateKeys.get(publicKey);
-      if (key instanceof KeyExporter) {
-         return (KeyExporter) key;
-      }
-      return null;
-   }
-
+    /**
+     * Find a KeyExporter by public key
+     */
+    public KeyExporter findKeyExporterByPublicKey(PublicKey publicKey) {
+        PrivateKey key = _privateKeys.get(publicKey);
+        if (key instanceof KeyExporter) {
+            return (KeyExporter) key;
+        }
+        return null;
+    }
 }
