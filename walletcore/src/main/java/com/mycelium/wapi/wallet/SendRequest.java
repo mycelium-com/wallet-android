@@ -1,6 +1,6 @@
 package com.mycelium.wapi.wallet;
 
-public class SendRequest<T extends AbstractTransaction> {
+public class SendRequest<T extends GenericTransaction> {
 
     public T tx;
 

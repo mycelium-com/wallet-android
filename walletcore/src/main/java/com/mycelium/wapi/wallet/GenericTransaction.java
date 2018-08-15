@@ -6,18 +6,18 @@ import com.mycelium.wapi.wallet.coins.Value;
 
 import java.util.List;
 
-public interface AbstractTransaction {
+public interface GenericTransaction {
     class AbstractOutput {
-        final AbstractAddress abstractAddress;
+        final GenericAddress genericAddress;
         final Value value;
 
-        public AbstractOutput(AbstractAddress abstractAddress, Value value) {
-            this.abstractAddress = abstractAddress;
+        public AbstractOutput(GenericAddress genericAddress, Value value) {
+            this.genericAddress = genericAddress;
             this.value = value;
         }
 
-        public AbstractAddress getAddress() {
-            return abstractAddress;
+        public GenericAddress getAddress() {
+            return genericAddress;
         }
 
         public Value getValue() {
@@ -42,6 +42,6 @@ public interface AbstractTransaction {
 
     Value getFee();
 
-    List<AbstractAddress> getReceivedFrom();
+    List<GenericAddress> getReceivedFrom();
     List<AbstractOutput> getSentTo();
 }

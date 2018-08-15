@@ -1,10 +1,10 @@
 package com.mycelium.wapi.wallet.btc;
 
 import com.mrd.bitlib.model.Address;
-import com.mycelium.wapi.wallet.AbstractAddress;
+import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.coins.CoinType;
 
-public class BtcAddress extends Address implements AbstractAddress {
+public class BtcAddress extends Address implements GenericAddress {
 
     public BtcAddress(byte[] bytes) {
         super(bytes);

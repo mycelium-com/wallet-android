@@ -2,10 +2,9 @@ package com.mycelium.wapi.wallet;
 
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.CoinType;
-import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
 
-public interface WalletAccount<T extends AbstractTransaction, A extends AbstractAddress> {
+public interface WalletAccount<T extends GenericTransaction, A extends GenericAddress> {
     class WalletAccountException extends Exception {
         public WalletAccountException(Throwable cause) {
             super(cause);

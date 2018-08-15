@@ -2,15 +2,15 @@ package com.mycelium.wapi.wallet.btc;
 
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.Sha256Hash;
-import com.mycelium.wapi.wallet.AbstractAddress;
-import com.mycelium.wapi.wallet.AbstractTransaction;
+import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.coins.CoinType;
 import com.mycelium.wapi.wallet.coins.Value;
 
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class BtcTransaction implements AbstractTransaction {
+public class BtcTransaction implements GenericTransaction {
     final CoinType type;
     final Sha256Hash hash;
     final Transaction tx;
@@ -77,7 +77,7 @@ public class BtcTransaction implements AbstractTransaction {
     }
 
     @Override
-    public List<AbstractAddress> getReceivedFrom() {
+    public List<GenericAddress> getReceivedFrom() {
         return null;
     }
 
