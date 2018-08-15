@@ -182,7 +182,7 @@ public class VerifyBackupActivity extends Activity {
 
       // Figure out the account ID
       Address address = pk.getPublicKey().toAddress(_mbwManager.getNetwork(), AddressType.P2SH_P2WPKH); // TODO fix SegWit
-      UUID account = SingleAddressBchAccount.calculateId(address);
+      UUID account = SingleAddressBCHAccount.calculateId(address);
 
       // Check whether regular wallet contains that account
       boolean success = _mbwManager.getWalletManager(false).hasAccount(account)

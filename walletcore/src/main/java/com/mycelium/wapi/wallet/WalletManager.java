@@ -250,9 +250,9 @@ public class WalletManager {
             try {
                 SingleAddressAccountContext context = new SingleAddressAccountContext(id, publicKey.getAllSupportedAddresses(_network), false, 0);
                 _backing.createSingleAddressAccountContext(context);
-                SingleAddressAccountBacking accountBacking = checkNotNull(_backing.getSingleAddressAccountBacking(context.getId()));
+                SingleAddressBtcAccountBacking accountBacking = checkNotNull(_backing.getSingleAddressAccountBacking(context.getId()));
                 PublicPrivateKeyStore store = new PublicPrivateKeyStore(_secureKeyValueStore);
-                SingleAddressAccount account = new SingleAddressAccount(context, store, _network, accountBacking, _wapi);
+                SingleAddressBtcAccount account = new SingleAddressBtcAccount(context, store, _network, accountBacking, _wapi);
                 context.persist(accountBacking);
                 _backing.setTransactionSuccessful();
                 addAccount(account);
@@ -1153,7 +1153,7 @@ public class WalletManager {
 
     public int getCurrentBip44Index() {
         int maxIndex = -1;
-        for (Bip44Account walletAccount : _bip44Accounts) {
+        for (Bip44BtcAccount walletAccount : _bip44Accounts) {
             maxIndex = Math.max(walletAccount.getAccountIndex(), maxIndex);
         }
         return maxIndex;

@@ -15,7 +15,7 @@ public class BtcAddress extends Address implements AbstractAddress {
     }
 
     @Override
-    public CoinType getType() {
+    public CoinType getCoinType() {
         return null;
     }
 

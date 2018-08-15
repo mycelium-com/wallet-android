@@ -174,7 +174,7 @@ public class GlideraSell2faDialog extends DialogFragment {
                receivers.add(new WalletBtcAccount.Receiver(Address.fromString(sellAddress), Bitcoins.nearestValue(_sellPriceResponse
                        .getQty())));
 
-               WalletAccount selectedAccount = mbwManager.getSelectedAccount();
+               WalletBtcAccount selectedAccount = mbwManager.getSelectedAccount();
                final UnsignedTransaction unsignedTransaction;
 
                try {

@@ -2,6 +2,7 @@ package com.mycelium.wapi.wallet.btc;
 
 import com.google.common.collect.ImmutableMap;
 import com.mrd.bitlib.StandardTransactionBuilder;
+import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.OutputList;
 import com.mrd.bitlib.model.Transaction;
@@ -114,7 +115,7 @@ public abstract class SynchronizeAbleWalletBtcAccount implements WalletBtcAccoun
    public abstract BroadcastResult broadcastTransaction(Transaction transaction);
 
    @Override
-   public abstract Transaction signTransaction(StandardTransactionBuilder.UnsignedTransaction unsigned, KeyCipher cipher)
+   public abstract Transaction signTransaction(UnsignedTransaction unsigned, KeyCipher cipher)
          throws KeyCipher.InvalidKeyCipher;
 
    @Override
@@ -136,11 +137,11 @@ public abstract class SynchronizeAbleWalletBtcAccount implements WalletBtcAccoun
    public abstract ExactCurrencyValue calculateMaxSpendableAmount(long minerFeeToUse);
 
    @Override
-   public abstract StandardTransactionBuilder.UnsignedTransaction createUnsignedTransaction(List<Receiver> receivers, long minerFeeToUse)
+   public abstract UnsignedTransaction createUnsignedTransaction(List<Receiver> receivers, long minerFeeToUse)
          throws StandardTransactionBuilder.OutputTooSmallException, StandardTransactionBuilder.InsufficientFundsException, StandardTransactionBuilder.UnableToBuildTransactionException;
 
    @Override
-   public abstract StandardTransactionBuilder.UnsignedTransaction createUnsignedTransaction(OutputList outputs, long minerFeeToUse) throws StandardTransactionBuilder.OutputTooSmallException, StandardTransactionBuilder.InsufficientFundsException, StandardTransactionBuilder.UnableToBuildTransactionException;
+   public abstract UnsignedTransaction createUnsignedTransaction(OutputList outputs, long minerFeeToUse) throws StandardTransactionBuilder.OutputTooSmallException, StandardTransactionBuilder.InsufficientFundsException, StandardTransactionBuilder.UnableToBuildTransactionException;
 
    @Override
    public abstract BalanceSatoshis getBalance();

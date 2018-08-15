@@ -29,10 +29,13 @@ import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.api.request.QueryTransactionInventoryRequest;
 import com.mycelium.wapi.api.response.GetTransactionsResponse;
 import com.mycelium.wapi.api.response.QueryTransactionInventoryResponse;
-import com.mycelium.wapi.model.Balance;
+import com.mycelium.wapi.model.BalanceSatoshis;
 import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
 import com.mycelium.wapi.wallet.WalletManager.Event;
+import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
+import com.mycelium.wapi.wallet.btc.BtcTransaction;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.CoinType;
 import com.mycelium.wapi.wallet.coins.Value;
@@ -57,7 +60,7 @@ public class SingleAddressBtcAccount extends AbstractBtcAccount implements Expor
       _keyStore = keyStore;
       persistAddresses();
       _addressList.addAll(context.getAddresses().values());
-      _cachedBalance = _context.isArchived() ? new Balance(0, 0, 0, 0, 0, 0, false, _allowZeroConfSpending) : calculateLocalBalance();
+      _cachedBalance = _context.isArchived() ? new BalanceSatoshis(0, 0, 0, 0, 0, 0, false, _allowZeroConfSpending) : calculateLocalBalance();
    }
 
    private void persistAddresses() {
@@ -220,26 +223,7 @@ public class SingleAddressBtcAccount extends AbstractBtcAccount implements Expor
       return _addressList.contains(address);
    }
 
-    @Override
-    public void completeAndSignTx(SendRequest<BtcTransaction> request) throws WalletAccountException {
-
-    }
-
-    @Override
-    public void completeTransaction(SendRequest<BtcTransaction> request) throws WalletAccountException {
-
-    }
-
-    @Override
-    public void signTransaction(SendRequest<BtcTransaction> request) throws WalletAccountException {
-
-    }
-
-    @Override
-    public void broadcastTx(BtcTransaction tx) throws TransactionBroadcastException {
-    }
-
-    @Override
+   @Override
     public CoinType getCoinType() {
         return null;
     }
@@ -405,4 +389,21 @@ public class SingleAddressBtcAccount extends AbstractBtcAccount implements Expor
       // not needed for SingleAddressBtcAccount
       return true;
    }
+
+   @Override
+   public void completeAndSignTx(SendRequest<BtcTransaction> request) throws WalletAccountException {
+   }
+
+   @Override
+   public void completeTransaction(SendRequest<BtcTransaction> request) throws WalletAccountException {
+   }
+
+   @Override
+   public void signTransaction(SendRequest<BtcTransaction> request) throws WalletAccountException {
+   }
+
+   @Override
+   public void broadcastTx(BtcTransaction tx) throws TransactionBroadcastException {
+   }
+
 }
