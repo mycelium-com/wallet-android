@@ -1,7 +1,7 @@
 package com.mycelium.wapi.wallet.coins;
 
 import com.google.common.base.Charsets;
-import com.mycelium.wapi.wallet.AbstractAddress;
+import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.MonetaryFormat;
 import com.mycelium.wapi.wallet.coins.families.Families;
 import com.mycelium.wapi.wallet.exceptions.AddressMalformedException;
@@ -116,7 +116,7 @@ public abstract class CoinType implements ValueType {
         return checkNotNull(addressPrefix, "A coin failed to set the address prefix");
     }
 
-    public abstract AbstractAddress newAddress(String addressStr) throws AddressMalformedException;
+    public abstract GenericAddress newAddress(String addressStr) throws AddressMalformedException;
 
     @Override
     public Value oneCoin() {

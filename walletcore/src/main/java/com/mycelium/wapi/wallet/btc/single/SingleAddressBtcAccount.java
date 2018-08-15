@@ -321,9 +321,9 @@ public class SingleAddressBtcAccount extends AbstractBtcAccount implements Expor
          sb.append(" Archived");
       } else {
          if (_cachedBalance == null) {
-            sb.append(" BalanceSatoshis: not known");
+            sb.append(" Balance: not known");
          } else {
-            sb.append(" BalanceSatoshis: ").append(_cachedBalance);
+            sb.append(" Balance: ").append(_cachedBalance);
          }
          Optional<Address> receivingAddress = getReceivingAddress();
          sb.append(" Receiving Address: ").append(receivingAddress.isPresent() ? receivingAddress.get().toString() : "");
