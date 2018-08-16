@@ -424,7 +424,7 @@ public class ModernMain extends AppCompatActivity {
             // default only sync the current account
             SyncMode syncMode = SyncMode.NORMAL_FORCED;
             // every 5th manual refresh make a full scan
-            if (counter == 5) {
+            if (counter == 4) {
                syncMode = SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED;
                counter = 0;
             } else if (mViewPager.getCurrentItem() == TAB_ID_ACCOUNTS) {
