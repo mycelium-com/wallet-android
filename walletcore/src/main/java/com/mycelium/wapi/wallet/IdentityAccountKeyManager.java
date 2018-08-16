@@ -42,10 +42,10 @@ import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
-import com.mycelium.wapi.wallet.bip44.Bip44AccountKeyManager;
+import com.mycelium.wapi.wallet.bip44.HDAccountKeyManager;
 import java.nio.charset.Charset;
 
-public class IdentityAccountKeyManager extends Bip44AccountKeyManager {
+public class IdentityAccountKeyManager extends HDAccountKeyManager {
 
    private static final HdKeyPath BITID_KEY_PATH = HdKeyPath.valueOf("m/13'");
 

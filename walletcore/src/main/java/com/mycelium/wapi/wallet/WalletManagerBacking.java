@@ -16,7 +16,7 @@
 
 package com.mycelium.wapi.wallet;
 
-import com.mycelium.wapi.wallet.bip44.Bip44AccountContext;
+import com.mycelium.wapi.wallet.bip44.HDAccountContext;
 import com.mycelium.wapi.wallet.single.SingleAddressAccountContext;
 
 import java.util.List;
@@ -29,11 +29,11 @@ public interface WalletManagerBacking extends SecureKeyValueStoreBacking {
 
    void endTransaction();
 
-   void createBip44AccountContext(Bip44AccountContext context);
+   void createBip44AccountContext(HDAccountContext context);
 
-   void upgradeBip44AccountContext(Bip44AccountContext context);
+   void upgradeBip44AccountContext(HDAccountContext context);
 
-   List<Bip44AccountContext> loadBip44AccountContexts();
+   List<HDAccountContext> loadBip44AccountContexts();
 
    Bip44AccountBacking getBip44AccountBacking(UUID accountId);
 

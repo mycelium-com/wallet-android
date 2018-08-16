@@ -121,7 +121,7 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.WalletManagerBacking;
 import com.mycelium.wapi.wallet.bip44.Bip44Account;
-import com.mycelium.wapi.wallet.bip44.Bip44AccountContext;
+import com.mycelium.wapi.wallet.bip44.HDAccountContext;
 import com.mycelium.wapi.wallet.bip44.ExternalSignatureProviderProxy;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.squareup.otto.Bus;
@@ -1206,7 +1206,7 @@ public class MbwManager {
          } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
             throw new RuntimeException();
          }
-      } else if (account instanceof Bip44Account && ((Bip44Account) account).getAccountType() == Bip44AccountContext.ACCOUNT_TYPE_FROM_MASTERSEED) {
+      } else if (account instanceof Bip44Account && ((Bip44Account) account).getAccountType() == HDAccountContext.ACCOUNT_TYPE_FROM_MASTERSEED) {
          // For BIP44 accounts we derive a private key from the BIP32 hierarchy
          try {
             Bip39.MasterSeed masterSeed = _walletManager.getMasterSeed(cipher);

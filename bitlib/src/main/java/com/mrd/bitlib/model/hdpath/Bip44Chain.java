@@ -4,7 +4,7 @@ import com.google.common.base.Optional;
 import com.google.common.primitives.UnsignedInteger;
 
 
-public class Bip44Chain extends Bip44Account {
+public class Bip44Chain extends HdKeyPath {
    public Bip44Chain(Bip44Account parent, UnsignedInteger index, boolean hardened) {
       super(parent, index, hardened);
    }

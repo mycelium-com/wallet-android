@@ -4,7 +4,7 @@ import com.mycelium.spvmodule.TransactionFee
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.bip44.Bip44Account
-import com.mycelium.wapi.wallet.bip44.Bip44AccountContext.ACCOUNT_TYPE_FROM_MASTERSEED
+import com.mycelium.wapi.wallet.bip44.HDAccountContext.Companion.ACCOUNT_TYPE_FROM_MASTERSEED
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue
 import java.math.BigDecimal
 

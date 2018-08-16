@@ -25,6 +25,7 @@ import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.HdDerivedAddress;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.hdpath.Bip44Address;
+import com.mrd.bitlib.model.hdpath.Bip44Purpose;
 import com.mrd.bitlib.model.hdpath.HdKeyPath;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.ByteReader;
@@ -32,6 +33,7 @@ import com.mrd.bitlib.util.ByteWriter;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SecureKeyValueStore;
 import com.mycelium.wapi.wallet.SecureSubKeyValueStore;
+import kotlin.NotImplementedError;
 
 import java.util.UUID;
 
@@ -48,9 +50,8 @@ import java.util.UUID;
  * Addresses are calculated from the appropriate public key on demand once, and then stored in plain text for fast
  * retrieval next time they are requested.
  */
-public class Bip44AccountKeyManager {
+public class HDAccountKeyManager {
 
-   protected static final int BIP44_PURPOSE = 0x8000002c;
    protected static final int BIP44_PRODNET_COIN_TYPE = 0x80000000;
    protected static final int BIP44_TESTNET_COIN_TYPE = 0x80000001;
    protected int _accountIndex;
@@ -61,56 +62,71 @@ public class Bip44AccountKeyManager {
    protected HdKeyNode _publicExternalChainRoot;
    protected HdKeyNode _publicChangeChainRoot;
    protected NetworkParameters _network;
+   private BipDerivationType derivationType;
 
-   public static Bip44AccountKeyManager createNew(HdKeyNode bip32Root, NetworkParameters network, int accountIndex, SecureKeyValueStore secureKeyValueStore, KeyCipher cipher) throws KeyCipher.InvalidKeyCipher {
-      HdKeyNode bip44Root = bip32Root.createChildNode(BIP44_PURPOSE);
+   public static HDAccountKeyManager createNew(HdKeyNode bip32Root, NetworkParameters network, int accountIndex,
+                                               SecureKeyValueStore secureKeyValueStore, KeyCipher cipher,
+                                               BipDerivationType derivationType) throws KeyCipher.InvalidKeyCipher {
+      HdKeyNode bip44Root = bip32Root.createChildNode(derivationType.getHardenedPurpose());
       HdKeyNode coinTypeRoot = bip44Root.createChildNode(network.isProdnet() ? BIP44_PRODNET_COIN_TYPE : BIP44_TESTNET_COIN_TYPE);
 
       // Create the account root.
       HdKeyNode accountRoot = coinTypeRoot.createChildNode(accountIndex | 0x80000000);
 
-      return createFromAccountRoot(accountRoot, network, accountIndex, secureKeyValueStore, cipher);
+      return createFromAccountRoot(accountRoot, network, accountIndex, secureKeyValueStore, cipher, derivationType);
    }
 
-   public static Bip44AccountKeyManager createFromAccountRoot(HdKeyNode accountRoot, NetworkParameters network, int accountIndex, SecureKeyValueStore secureKeyValueStore, KeyCipher cipher) throws KeyCipher.InvalidKeyCipher {
+   public static HDAccountKeyManager createFromAccountRoot(HdKeyNode accountRoot, NetworkParameters network,
+                                                           int accountIndex, SecureKeyValueStore secureKeyValueStore,
+                                                           KeyCipher cipher, BipDerivationType derivationType) throws KeyCipher.InvalidKeyCipher {
 
       // Store the account root (xPub and xPriv) key
-      secureKeyValueStore.encryptAndStoreValue(getAccountNodeId(network, accountIndex), accountRoot.toCustomByteFormat(), cipher);
-      secureKeyValueStore.storePlaintextValue(getAccountNodeId(network, accountIndex), accountRoot.getPublicNode().toCustomByteFormat());
+      secureKeyValueStore.encryptAndStoreValue(getAccountNodeId(network, accountIndex, derivationType),
+              accountRoot.toCustomByteFormat(), cipher);
+      secureKeyValueStore.storePlaintextValue(getAccountNodeId(network, accountIndex, derivationType),
+              accountRoot.getPublicNode().toCustomByteFormat());
 
       // Create the external chain root. Store the private node encrypted and the public node in plain text
       HdKeyNode externalChainRoot = accountRoot.createChildNode(0);
-      secureKeyValueStore.encryptAndStoreValue(getChainNodeId(network, accountIndex, false), externalChainRoot.toCustomByteFormat(), cipher);
-      secureKeyValueStore.storePlaintextValue(getChainNodeId(network, accountIndex, false), externalChainRoot.getPublicNode().toCustomByteFormat());
+      secureKeyValueStore.encryptAndStoreValue(getChainNodeId(network, accountIndex, false, derivationType),
+              externalChainRoot.toCustomByteFormat(), cipher);
+      secureKeyValueStore.storePlaintextValue(getChainNodeId(network, accountIndex, false, derivationType),
+              externalChainRoot.getPublicNode().toCustomByteFormat());
 
       // Create the change chain root. Store the private node encrypted and the public node in plain text
       HdKeyNode changeChainRoot = accountRoot.createChildNode(1);
-      secureKeyValueStore.encryptAndStoreValue(getChainNodeId(network, accountIndex, true), changeChainRoot.toCustomByteFormat(), cipher);
-      secureKeyValueStore.storePlaintextValue(getChainNodeId(network, accountIndex, true), changeChainRoot.getPublicNode().toCustomByteFormat());
-      return new Bip44AccountKeyManager(accountIndex, network, secureKeyValueStore);
+      secureKeyValueStore.encryptAndStoreValue(getChainNodeId(network, accountIndex, true, derivationType),
+              changeChainRoot.toCustomByteFormat(), cipher);
+      secureKeyValueStore.storePlaintextValue(getChainNodeId(network, accountIndex, true, derivationType),
+              changeChainRoot.getPublicNode().toCustomByteFormat());
+      return new HDAccountKeyManager(accountIndex, network, secureKeyValueStore, derivationType);
    }
 
-   protected Bip44AccountKeyManager(SecureKeyValueStore secureKeyValueStore) {
+   protected HDAccountKeyManager(SecureKeyValueStore secureKeyValueStore) {
       _secureKeyValueStore = secureKeyValueStore;
    }
 
-   public Bip44AccountKeyManager(int accountIndex, NetworkParameters network, SecureKeyValueStore secureKeyValueStore) {
+   public HDAccountKeyManager(int accountIndex, NetworkParameters network, SecureKeyValueStore secureKeyValueStore, BipDerivationType derivationType) {
       _accountIndex = accountIndex;
       _secureKeyValueStore = secureKeyValueStore;
       _network = network;
+      this.derivationType = derivationType;
 
       // Make sure we have the private nodes in our encrypted store
-      Preconditions.checkState(secureKeyValueStore.hasCiphertextValue(getAccountNodeId(network, accountIndex)));
-      Preconditions.checkState(secureKeyValueStore.hasCiphertextValue(getChainNodeId(network, accountIndex, false)));
-      Preconditions.checkState(secureKeyValueStore.hasCiphertextValue(getChainNodeId(network, accountIndex, true)));
+      Preconditions.checkState(secureKeyValueStore.hasCiphertextValue(getAccountNodeId(network, accountIndex, derivationType)));
+      Preconditions.checkState(secureKeyValueStore.hasCiphertextValue(getChainNodeId(network, accountIndex, false, derivationType)));
+      Preconditions.checkState(secureKeyValueStore.hasCiphertextValue(getChainNodeId(network, accountIndex, true, derivationType)));
 
       // Load the external and internal public nodes
       try {
-         _publicAccountRoot = HdKeyNode.fromCustomByteformat(secureKeyValueStore.getPlaintextValue(getAccountNodeId(network, accountIndex)));
+         _publicAccountRoot = HdKeyNode.fromCustomByteformat(
+                 secureKeyValueStore.getPlaintextValue(getAccountNodeId(network, accountIndex, derivationType)));
          Preconditions.checkState(!_publicAccountRoot.isPrivateHdKeyNode());
-         _publicExternalChainRoot = HdKeyNode.fromCustomByteformat(secureKeyValueStore.getPlaintextValue(getChainNodeId(network, accountIndex, false)));
+         _publicExternalChainRoot = HdKeyNode.fromCustomByteformat(
+                 secureKeyValueStore.getPlaintextValue(getChainNodeId(network, accountIndex, false, derivationType)));
          Preconditions.checkState(!_publicExternalChainRoot.isPrivateHdKeyNode());
-         _publicChangeChainRoot = HdKeyNode.fromCustomByteformat(secureKeyValueStore.getPlaintextValue(getChainNodeId(network, accountIndex, true)));
+         _publicChangeChainRoot = HdKeyNode.fromCustomByteformat(
+                 secureKeyValueStore.getPlaintextValue(getChainNodeId(network, accountIndex, true, derivationType)));
          Preconditions.checkState(!_publicChangeChainRoot.isPrivateHdKeyNode());
       } catch (ByteReader.InsufficientBytesException e) {
          throw new RuntimeException(e);
@@ -127,7 +143,7 @@ public class Bip44AccountKeyManager {
 
    public InMemoryPrivateKey getPrivateKey(boolean isChangeChain, int index, KeyCipher cipher) throws KeyCipher.InvalidKeyCipher {
       // Load the encrypted chain node from the secure storage
-      byte[] chainNodeId = getChainNodeId(_network, _accountIndex, isChangeChain);
+      byte[] chainNodeId = getChainNodeId(_network, _accountIndex, isChangeChain, derivationType);
       byte[] chainNodeBytes = _secureKeyValueStore.getDecryptedValue(chainNodeId, cipher);
       HdKeyNode chainNode;
       try {
@@ -141,7 +157,7 @@ public class Bip44AccountKeyManager {
 
    public PublicKey getPublicKey(boolean isChangeChain, int index) {
       // See if we have it in the store
-      byte[] id = getLeafNodeId(_network, _accountIndex, isChangeChain, index, true);
+      byte[] id = getLeafNodeId(_network, _accountIndex, isChangeChain, index, true, derivationType);
       byte[] publicLeafNodeBytes = _secureKeyValueStore.getPlaintextValue(id);
       if (publicLeafNodeBytes != null) {
          // We have it already, no need to calculate it
@@ -164,10 +180,24 @@ public class Bip44AccountKeyManager {
 
    public HdDerivedAddress getAddress(boolean isChangeChain, int index) {
       // See if we have it in the store
-      byte[] id = getLeafNodeId(_network, _accountIndex, isChangeChain, index, false);
+      byte[] id = getLeafNodeId(_network, _accountIndex, isChangeChain, index, false, derivationType);
       byte[] addressNodeBytes = _secureKeyValueStore.getPlaintextValue(id);
-      final Bip44Address path = HdKeyPath
-            .BIP44
+      Bip44Purpose purpose;
+      switch (derivationType) {
+         case BIP44:
+            purpose = HdKeyPath
+                    .BIP44;
+            break;
+         case BIP49:
+            purpose = HdKeyPath
+                    .BIP49;
+            break;
+         default:
+            throw new NotImplementedError();
+      }
+
+
+      final Bip44Address path = purpose
             .getCoinTypeBitcoin(_network.isTestnet())
             .getAccount(_accountIndex)
             .getChain(!isChangeChain)
@@ -180,36 +210,42 @@ public class Bip44AccountKeyManager {
 
       // We don't have it, need to calculate it from the public key
       PublicKey publicKey = getPublicKey(isChangeChain, index);
-      HdDerivedAddress address = new HdDerivedAddress(publicKey.toAddress(_network, AddressType.P2PKH), path);
+      HdDerivedAddress address = new HdDerivedAddress(publicKey.toAddress(_network, derivationType.getAddressType()), path);
 
       // Store it for next time
       _secureKeyValueStore.storePlaintextValue(id, addressToBytes(address));
       return address;
    }
 
-   protected static byte[] getAccountNodeId(NetworkParameters network, int accountIndex) {
+   public BipDerivationType getDerivationType() {
+      return derivationType;
+   }
+
+   protected static byte[] getAccountNodeId(NetworkParameters network, int accountIndex, BipDerivationType derivationType) {
       // Create a compact unique account ID
       byte[] id = new byte[1 + 1 + 4];
-      id[0] = 44; // BIP44
+      id[0] = derivationType.getPurpose();
       id[1] = (byte) (network.isProdnet() ? 0 : 1); // network
       BitUtils.uint32ToByteArrayLE(accountIndex, id, 2); // account index
       return id;
    }
 
-   protected static byte[] getChainNodeId(NetworkParameters network, int accountIndex, boolean isChangeChain) {
+   protected static byte[] getChainNodeId(NetworkParameters network, int accountIndex, boolean isChangeChain,
+                                          BipDerivationType derivationType) {
       // Create a compact unique chain node ID
       byte[] id = new byte[1 + 1 + 4 + 1];
-      id[0] = 44; // BIP44
+      id[0] = derivationType.getPurpose();
       id[1] = (byte) (network.isProdnet() ? 0 : 1); // network
       BitUtils.uint32ToByteArrayLE(accountIndex, id, 2); // account index
       id[6] = (byte) (isChangeChain ? 1 : 0); // external chain or change chain
       return id;
    }
 
-   private static byte[] getLeafNodeId(NetworkParameters network, int accountIndex, boolean isChangeChain, int index, boolean isHdNode) {
+   private static byte[] getLeafNodeId(NetworkParameters network, int accountIndex, boolean isChangeChain, int index,
+                                       boolean isHdNode, BipDerivationType derivationType) {
       // Create a compact unique address or HD node ID
       byte[] id = new byte[1 + 1 + 4 + 1 + 4 + 1];
-      id[0] = 44; // BIP44
+      id[0] = derivationType.getPurpose();
       id[1] = (byte) (network.isProdnet() ? 0 : 1); // network
       BitUtils.uint32ToByteArrayLE(accountIndex, id, 2); // account index
       id[6] = (byte) (isChangeChain ? 1 : 0); // external chain or change chain
@@ -249,7 +285,8 @@ public class Bip44AccountKeyManager {
 
    public HdKeyNode getPrivateAccountRoot(KeyCipher cipher) throws KeyCipher.InvalidKeyCipher {
       try {
-         return HdKeyNode.fromCustomByteformat(_secureKeyValueStore.getDecryptedValue(getAccountNodeId(_network, _accountIndex), cipher));
+         return HdKeyNode.fromCustomByteformat(_secureKeyValueStore.getDecryptedValue(getAccountNodeId(_network,
+                 _accountIndex, BipDerivationType.BIP44), cipher)); //TODO FIX SEGWIT EXPORT SCREEN
       } catch (ByteReader.InsufficientBytesException e) {
          throw new RuntimeException(e);
       }

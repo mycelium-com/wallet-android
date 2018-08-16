@@ -15,6 +15,8 @@ public class HdKeyPath implements Serializable {
    public static final String HARDENED_MARKER = "'";
    public static final HdKeyPath ROOT = new HdKeyPath();
    public static final Bip44Purpose BIP44 = ROOT.getBip44Purpose();
+   public static final Bip49Purpose BIP49 = ROOT.getBip49Purpose();
+   public static final Bip84Purpose BIP84 = ROOT.getBip84Purpose();
    public static final HdKeyPath BIP32_ROOT = ROOT.getHardenedChild(0);
    public static final Bip44CoinType BIP44_TESTNET = BIP44.getCoinTypeBitcoinTestnet();
    public static final Bip44CoinType BIP44_PRODNET = BIP44.getCoinTypeBitcoin();
@@ -28,6 +30,10 @@ public class HdKeyPath implements Serializable {
       Iterator<String> iterator = Splitter.on("/").split(path).iterator();
       Preconditions.checkState("m".equals(iterator.next()));
       return ROOT.getChild(iterator);
+   }
+
+   public HdKeyPath getParent() {
+      return parent;
    }
 
    public HdKeyPath getChild(String path){
@@ -98,13 +104,23 @@ public class HdKeyPath implements Serializable {
    protected HdKeyPath knownChildFactory(UnsignedInteger index, boolean hardened){
       if (index.equals(UnsignedInteger.valueOf(44)) && hardened){
          return new Bip44Purpose(this, index, true);
-      }else{
+      } else if (index.equals(UnsignedInteger.valueOf(49)) && hardened){
+         return new Bip49Purpose(this, index, true);
+      } else {
          return new HdKeyPath(this, index, hardened);
       }
    }
 
    public Bip44Purpose getBip44Purpose() {
       return new Bip44Purpose(this, UnsignedInteger.valueOf(44), true);
+   }
+
+   public Bip49Purpose getBip49Purpose() {
+      return new Bip49Purpose(this, UnsignedInteger.valueOf(49), true);
+   }
+
+   public Bip84Purpose getBip84Purpose() {
+      return new Bip84Purpose(this, UnsignedInteger.valueOf(84), true);
    }
 
    private int getValue() {

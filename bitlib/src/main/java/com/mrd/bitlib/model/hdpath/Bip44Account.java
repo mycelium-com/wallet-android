@@ -2,7 +2,7 @@ package com.mrd.bitlib.model.hdpath;
 
 import com.google.common.primitives.UnsignedInteger;
 
-public class Bip44Account extends Bip44CoinType {
+public class Bip44Account extends HdKeyPath {
    public Bip44Account(Bip44CoinType parent, UnsignedInteger index, boolean hardened) {
       super(parent, index, hardened);
    }
