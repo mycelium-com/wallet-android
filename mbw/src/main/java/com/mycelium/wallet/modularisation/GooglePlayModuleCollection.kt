@@ -3,6 +3,7 @@ package com.mycelium.wallet.modularisation
 import android.content.Context
 import android.graphics.drawable.Drawable
 import com.mycelium.modularizationtools.model.Module
+import com.mycelium.wallet.BuildConfig
 import com.mycelium.wallet.R
 import com.mycelium.wallet.WalletApplication
 import com.mycelium.wapi.wallet.WalletAccount
@@ -15,7 +16,7 @@ object GooglePlayModuleCollection {
                     , context.getString(R.string.bitcoin_cash_module)
                     , context.getString(R.string.bitcoin_cash_module_short)
                     , context.getString(R.string.bch_module_description)),
-                    "btc" to Module(WalletApplication.getSpvModuleName(WalletAccount.Type.BTCBIP44),
+                    "btc" to Module(BuildConfig.appIdTsm,
                             context.getString(R.string.trading_strategies_module),
                             context.getString(R.string.trading_strategies_module_short),
                             context.getString(R.string.trading_strategies_module_desc)))

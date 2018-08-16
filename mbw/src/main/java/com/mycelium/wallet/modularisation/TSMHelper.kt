@@ -13,22 +13,12 @@ private const val PERMISSION = "${BuildConfig.APPLICATION_ID}.permission.M2W_MES
 class TSMHelper(private val context: Context) {
 
     companion object {
-        private const val RECEIVE_TX_ID = "receive_tx_id"
-        private const val TRANSACTION_ID = "transaction_id"
         private const val REQUEST_SIGNATURE = "com.mycelium.wallet.signData"
         private const val OPEN_COMMAS = "com.mycelium.action.OPEN_MODULE"
     }
 
     init {
         context.registerReceiver(TBMRequestReceiver(), IntentFilter(REQUEST_SIGNATURE), PERMISSION, null)
-    }
-
-    fun sendTxIdToModule(id: String) {
-        val transferIntent = Intent(RECEIVE_TX_ID).also {
-            it.putExtra(TRANSACTION_ID, id)
-            it.`package` = TSM_PACKAGE
-        }
-        context.sendBroadcast(transferIntent, PERMISSION)
     }
 
     fun openModule(activity: Activity?) {
