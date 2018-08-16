@@ -5,15 +5,10 @@ import com.google.gson.annotations.SerializedName
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wapi.api.jsonrpc.TcpEndpoint
 import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
-import java.io.IOError
 import java.io.IOException
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 
 interface  MyceliumNodesApi {
@@ -36,7 +31,7 @@ class ElectrumXResponse(val primary : Array<ElectrumServerResponse>, backup: Arr
 // ElectrumServerResponse is intended for parsing nodes.json file
 class ElectrumServerResponse(val url: String)
 
-class WalletConfiguration(private val prefs: SharedPreferences, val network : NetworkParameters) {
+class WalletConfiguration(private val prefs: SharedPreferences, val network : NetworkParameters, val mbwManager : MbwManager) {
 
     init {
         updateConfig()
@@ -64,7 +59,10 @@ class WalletConfiguration(private val prefs: SharedPreferences, val network : Ne
                     prefs.edit().putStringSet(PREFS_ELECTRUM_SERVERS, nodes).apply()
                 }
 
-            } catch (ex :IOException) { }
+            } catch (ex :IOException) {
+            } finally {
+                mbwManager.wapi.serverListChanged(getElectrumEndpoints())
+            }
         }
     }
 

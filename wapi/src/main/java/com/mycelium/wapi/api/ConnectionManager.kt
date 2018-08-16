@@ -10,7 +10,7 @@ import java.util.concurrent.TimeoutException
 import kotlin.collections.ArrayList
 import kotlin.concurrent.timerTask
 
-class ConnectionManager(private val connectionsCount: Int, private val endpoints: Array<TcpEndpoint>,
+class ConnectionManager(private val connectionsCount: Int, private var endpoints: Array<TcpEndpoint>,
                         val logger: WapiLogger) {
     @Volatile
     private var maintenanceTimer: Timer? = null
@@ -243,6 +243,12 @@ class ConnectionManager(private val connectionsCount: Int, private val endpoints
             rpcClient = jsonRpcTcpClientsList.take()
         }
         return rpcClient
+    }
+
+    public fun changeEndpoints(newEndpoints: Array<TcpEndpoint>){
+        endpoints = newEndpoints
+        createConnections(connectionsCount, endpoints, logger)
+        activateMaintenanceTimer(connectionsCount, endpoints, logger, MAINTENANCE_INTERVAL, MAINTENANCE_INTERVAL)
     }
 
     @Volatile

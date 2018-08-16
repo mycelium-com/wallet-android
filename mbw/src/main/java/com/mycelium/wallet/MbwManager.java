@@ -237,7 +237,7 @@ public class MbwManager {
       // setProxy(preferences.getString(Constants.PROXY_SETTING, ""));
       // Initialize proxy early, to enable error reporting during startup..
 
-      configuration = new WalletConfiguration(preferences, getNetwork());
+      configuration = new WalletConfiguration(preferences, getNetwork(), this);
 
       _eventBus = new Bus();
       _eventBus.register(this);

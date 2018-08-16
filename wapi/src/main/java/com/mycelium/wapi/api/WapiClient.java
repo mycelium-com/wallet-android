@@ -26,12 +26,14 @@ import com.google.common.base.Stopwatch;
 import com.mycelium.WapiLogger;
 import com.mycelium.net.*;
 import com.mycelium.wapi.api.WapiConst.Function;
+import com.mycelium.wapi.api.jsonrpc.TcpEndpoint;
 import com.mycelium.wapi.api.request.*;
 import com.mycelium.wapi.api.response.*;
 import com.squareup.okhttp.*;
 
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
@@ -181,6 +183,8 @@ public abstract class WapiClient implements Wapi, WapiClientLifecycle {
 
       }
    }
+
+   public abstract void serverListChanged(List<TcpEndpoint> endpoints);
 
    private String getPostBody(Object request) {
       if (request == null) {
