@@ -556,8 +556,15 @@ public class TransactionHistoryFragment extends Fragment {
                                       .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                                          @Override
                                          public void onClick(DialogInterface dialog, int which) {
-                                            Intent intent = SignTransactionActivity.getIntent(getActivity(), _mbwManager.getSelectedAccount().getId(), false, unsigned);
-                                            startActivityForResult(intent, SIGN_TRANSACTION_REQUEST_CODE);
+                                            // 'unsigned' Object might become null when the dialog is displayed and not used for a long time
+                                            if(unsigned != null) {
+                                               Intent intent = SignTransactionActivity.getIntent(getActivity(), _mbwManager.getSelectedAccount().getId(), false, unsigned);
+                                               startActivityForResult(intent, SIGN_TRANSACTION_REQUEST_CODE);
+                                            }
+                                            else
+                                            {
+                                                new Toaster(getActivity()).toast("Bumping fee failed", false);
+                                            }
                                             dialog.dismiss();
                                          }
                                       })
