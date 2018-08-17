@@ -95,7 +95,7 @@ public class TransactionInput implements Serializable {
    }
 
    public boolean hasWitness() {
-      return witness != null && witness.getStackSize() != 0;
+      return witness != null && witness.getPushCount() != 0;
    }
 
    public ScriptInput getScript() {

@@ -39,15 +39,9 @@ class PublicKey(val publicKeyBytes: ByteArray) : Serializable {
 
     fun toAddress(networkParameters: NetworkParameters, addressType: AddressType): Address? {
         return when (addressType) {
-            AddressType.P2PKH -> {
-                toP2PKHAddress(networkParameters)
-            }
-            AddressType.P2SH_P2WPKH -> {
-                toNestedP2WPKH(networkParameters)
-            }
-            else -> {
-                throw IllegalArgumentException("Not supported address type")
-            }
+            AddressType.P2PKH -> toP2PKHAddress(networkParameters)
+            AddressType.P2SH_P2WPKH -> toNestedP2WPKH(networkParameters)
+            else -> throw IllegalArgumentException("Not supported address type")
         }
     }
 
@@ -67,10 +61,8 @@ class PublicKey(val publicKeyBytes: ByteArray) : Serializable {
     /**
      * @return [AddressType.P2PKH] address
      */
-    private fun toP2PKHAddress(networkParameters: NetworkParameters): Address? {
-        val hashedPublicKey = publicKeyHash
-        return Address.fromStandardBytes(hashedPublicKey, networkParameters)
-    }
+    private fun toP2PKHAddress(networkParameters: NetworkParameters): Address? =
+            Address.fromStandardBytes(publicKeyHash, networkParameters)
 
     override fun hashCode(): Int {
         val bytes = publicKeyHash
@@ -81,12 +73,11 @@ class PublicKey(val publicKeyBytes: ByteArray) : Serializable {
         return hash
     }
 
-    override fun equals(obj: Any?): Boolean {
-        if (obj !is PublicKey) {
+    override fun equals(other: Any?): Boolean {
+        if (other !is PublicKey) {
             return false
         }
-        val other = obj as PublicKey?
-        return Arrays.equals(publicKeyHash, other!!.publicKeyHash)
+        return Arrays.equals(publicKeyHash, other.publicKeyHash)
     }
 
     override fun toString(): String {
