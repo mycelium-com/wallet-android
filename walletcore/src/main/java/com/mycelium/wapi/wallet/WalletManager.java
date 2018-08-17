@@ -42,18 +42,7 @@ import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.single.SingleAddressAccountContext;
 import com.mycelium.wapi.wallet.single.SingleAddressBCHAccount;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import javax.annotation.Nonnull;
 
@@ -278,22 +267,20 @@ public class WalletManager {
         // with other derived or imported keys.
         SecureSubKeyValueStore secureStorage = getSecureStorage().createNewSubKeyStore();
 
-        for (BipDerivationType derivationType : BipDerivationType.values()) {
-            if (hdKeyNode.isPrivateHdKeyNode()) {
-
-                try {
-                    keyManagerMap.put(derivationType, HDAccountKeyManager.createFromAccountRoot(hdKeyNode, _network,
-                            accountIndex, secureStorage, AesKeyCipher.defaultKeyCipher(), BipDerivationType.BIP44));
-                } catch (InvalidKeyCipher invalidKeyCipher) {
-                    throw new RuntimeException(invalidKeyCipher);
-                }
-            } else {
-                keyManagerMap.put(derivationType, HDPubOnlyAccountKeyManager.createFromPublicAccountRoot(hdKeyNode,
-                        _network, accountIndex, secureStorage, derivationType));
+        BipDerivationType derivationType = hdKeyNode.getDerivationType();
+        if (hdKeyNode.isPrivateHdKeyNode()) {
+            try {
+                keyManagerMap.put(derivationType, HDAccountKeyManager.createFromAccountRoot(hdKeyNode, _network,
+                        accountIndex, secureStorage, AesKeyCipher.defaultKeyCipher(), derivationType));
+            } catch (InvalidKeyCipher invalidKeyCipher) {
+                throw new RuntimeException(invalidKeyCipher);
             }
+        } else {
+            keyManagerMap.put(derivationType, HDPubOnlyAccountKeyManager.createFromPublicAccountRoot(hdKeyNode,
+                    _network, accountIndex, secureStorage, derivationType));
         }
 
-        final UUID id = keyManagerMap.get(BipDerivationType.BIP44).getAccountId();
+        final UUID id = keyManagerMap.get(derivationType).getAccountId();
 
         synchronized (_walletAccounts) {
             // check if it already exists
@@ -311,10 +298,10 @@ public class WalletManager {
                 HDAccountContext context;
                 if (hdKeyNode.isPrivateHdKeyNode()) {
                     context = new HDAccountContext(id, accountIndex, false,
-                            ACCOUNT_TYPE_UNRELATED_X_PRIV, secureStorage.getSubId());
+                            ACCOUNT_TYPE_UNRELATED_X_PRIV, secureStorage.getSubId(), Collections.singletonList(derivationType));
                 } else {
                     context = new HDAccountContext(id, accountIndex, false,
-                            ACCOUNT_TYPE_UNRELATED_X_PUB, secureStorage.getSubId());
+                            ACCOUNT_TYPE_UNRELATED_X_PUB, secureStorage.getSubId(), Collections.singletonList(derivationType));
                 }
                 if (isUpgrade) {
                     _backing.upgradeBip44AccountContext(context);
@@ -362,11 +349,12 @@ public class WalletManager {
 
     public UUID createExternalSignatureAccount(HdKeyNode hdKeyNode, ExternalSignatureProvider externalSignatureProvider, int accountIndex) {
         SecureSubKeyValueStore newSubKeyStore = getSecureStorage().createNewSubKeyStore();
-        Map <BipDerivationType, HDAccountKeyManager> keyManagerMap = new HashMap<>();
-        for (BipDerivationType derivationType : BipDerivationType.values()) {
-            keyManagerMap.put(derivationType, HDPubOnlyAccountKeyManager.createFromPublicAccountRoot(hdKeyNode,
-                    _network, accountIndex, newSubKeyStore, derivationType));
-        }
+        BipDerivationType derivationType = hdKeyNode.getDerivationType();
+
+        Map <BipDerivationType, HDPubOnlyAccountKeyManager> keyManagerMap = ImmutableMap.of(derivationType,
+                HDPubOnlyAccountKeyManager.createFromPublicAccountRoot(hdKeyNode,_network, accountIndex,
+                        newSubKeyStore, derivationType));
+
         final UUID id = keyManagerMap.get(BipDerivationType.BIP44).getAccountId();
 
         synchronized (_walletAccounts) {
@@ -380,7 +368,7 @@ public class WalletManager {
 
                 // Generate the context for the account
                 HDAccountContext context = new HDAccountContext(id, accountIndex, false,
-                        externalSignatureProvider.getBIP44AccountType(), newSubKeyStore.getSubId());
+                        externalSignatureProvider.getBIP44AccountType(), newSubKeyStore.getSubId(), Collections.singletonList(derivationType));
                 _backing.createBip44AccountContext(context);
 
                 // Get the backing for the new account

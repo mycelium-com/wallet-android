@@ -132,17 +132,12 @@ open class Bip44Account(
         context.persistIfNecessary(backing)
     }
 
-    override fun isValidEncryptionKey(cipher: KeyCipher): Boolean {
-        return keyManagerMap.values.any { it.isValidEncryptionKey(cipher) }
-    }
+    override fun isValidEncryptionKey(cipher: KeyCipher) = keyManagerMap.values.any { it.isValidEncryptionKey(cipher) }
 
-    override fun isDerivedFromInternalMasterseed(): Boolean {
-        return accountType == HDAccountContext.ACCOUNT_TYPE_FROM_MASTERSEED
-    }
+    override fun isDerivedFromInternalMasterseed() = accountType == HDAccountContext.ACCOUNT_TYPE_FROM_MASTERSEED
 
     private fun clearInternalStateInt(isArchived: Boolean) {
         backing.clear()
-        externalAddresses.clear()
         externalAddresses = initAddressesMap()
         internalAddresses = initAddressesMap()
         receivingAddressMap.clear()
@@ -155,7 +150,7 @@ open class Bip44Account(
     }
 
     protected fun initContext(isArchived: Boolean) {
-        context = HDAccountContext(context.id, context.accountIndex, isArchived, context.accountType, context.accountSubId)
+        context = HDAccountContext(context.id, context.accountIndex, isArchived, context.accountType, context.accountSubId, derivePaths)
         context.persist(backing)
     }
 

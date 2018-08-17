@@ -32,7 +32,7 @@ class HDAccountContext @JvmOverloads constructor(
         private var isArchived: Boolean,
         private var blockHeight: Int = 0,
         private var lastDiscovery: Long = 0,
-        val indexesMap: Map<BipDerivationType, AccountIndexesContext> = createNewIndexesContexts(),
+        val indexesMap: Map<BipDerivationType, AccountIndexesContext> = createNewIndexesContexts(BipDerivationType.values().asIterable()),
         val accountType: Int = ACCOUNT_TYPE_FROM_MASTERSEED,
         val accountSubId: Int = 0
 ) {
@@ -43,8 +43,8 @@ class HDAccountContext @JvmOverloads constructor(
             context.accountType,
             context.accountSubId)
 
-    constructor(id: UUID, accountIndex: Int, isArchived: Boolean, accountType: Int, accountSubId: Int) :
-            this(id, accountIndex, isArchived, 0, 0, createNewIndexesContexts(), accountType, accountSubId)
+    constructor(id: UUID, accountIndex: Int, isArchived: Boolean, accountType: Int, accountSubId: Int, derivationTypes: Iterable<BipDerivationType>) :
+            this(id, accountIndex, isArchived, 0, 0, createNewIndexesContexts(derivationTypes), accountType, accountSubId)
 
     init {
 
@@ -55,7 +55,7 @@ class HDAccountContext @JvmOverloads constructor(
      * Is this account archived?
      */
     @Override
-    fun isArchived() =  isArchived
+    fun isArchived() = isArchived
 
     /**
      * Mark this account as archived
@@ -156,12 +156,7 @@ class HDAccountContext @JvmOverloads constructor(
         const val ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER = 4
         const val ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY = 5
 
-        private fun createNewIndexesContexts(): Map<BipDerivationType, AccountIndexesContext> {
-            val mapBuilder = ImmutableMap.builder<BipDerivationType, AccountIndexesContext>()
-            for (type in BipDerivationType.values()) {
-                mapBuilder.put(type, AccountIndexesContext(-1, -1, 0))
-            }
-            return mapBuilder.build()
-        }
+        private fun createNewIndexesContexts(derivationTypes: Iterable<BipDerivationType>) =
+                derivationTypes.map { it to AccountIndexesContext(-1, -1, 0) }.toMap()
     }
 }
