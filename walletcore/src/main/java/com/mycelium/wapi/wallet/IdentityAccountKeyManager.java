@@ -42,6 +42,7 @@ import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
+import com.mycelium.wapi.wallet.bip44.BipDerivationType;
 import com.mycelium.wapi.wallet.bip44.HDAccountKeyManager;
 import java.nio.charset.Charset;
 
@@ -58,7 +59,7 @@ public class IdentityAccountKeyManager extends HDAccountKeyManager {
    }
 
    public IdentityAccountKeyManager(SecureKeyValueStore secureKeyValueStore) {
-      super(secureKeyValueStore);
+      super(secureKeyValueStore, BipDerivationType.BIP44);
 
       // Make sure we have the private node in our encrypted store
       Preconditions.checkState(secureKeyValueStore.hasCiphertextValue(getAccountNodeId()));

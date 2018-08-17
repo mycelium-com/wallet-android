@@ -102,8 +102,9 @@ public class HDAccountKeyManager {
       return new HDAccountKeyManager(accountIndex, network, secureKeyValueStore, derivationType);
    }
 
-   protected HDAccountKeyManager(SecureKeyValueStore secureKeyValueStore) {
+   protected HDAccountKeyManager(SecureKeyValueStore secureKeyValueStore, BipDerivationType derivationType) {
       _secureKeyValueStore = secureKeyValueStore;
+      this.derivationType = derivationType;
    }
 
    public HDAccountKeyManager(int accountIndex, NetworkParameters network, SecureKeyValueStore secureKeyValueStore, BipDerivationType derivationType) {

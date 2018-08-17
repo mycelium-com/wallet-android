@@ -45,10 +45,9 @@ open class Bip44Account(
         wapi: Wapi
 ) :
         AbstractAccount(backing, network, wapi), ExportableAccount {
-    private var externalAddresses: MutableMap<BipDerivationType, BiMap<Address, Int>> = BipDerivationType.values()
-            .map { it to HashBiMap.create<Address, Int>() }.toMap().toMutableMap()
-    private var internalAddresses: MutableMap<BipDerivationType, BiMap<Address, Int>> = BipDerivationType.values()
-            .map { it to HashBiMap.create<Address, Int>() }.toMap().toMutableMap()
+    private var externalAddresses: MutableMap<BipDerivationType, BiMap<Address, Int>> = initAddressesMap()
+    private var internalAddresses: MutableMap<BipDerivationType, BiMap<Address, Int>> = initAddressesMap()
+
     private var receivingAddressMap: MutableMap<AddressType, Address> = mutableMapOf()
     @Volatile
     private var isSynchronizing = false
@@ -139,8 +138,9 @@ open class Bip44Account(
 
     private fun clearInternalStateInt(isArchived: Boolean) {
         backing.clear()
-        externalAddresses.clear()       //TODO SEGWIT REINIT
-        internalAddresses.clear()
+        externalAddresses.clear()
+        externalAddresses = initAddressesMap()
+        internalAddresses = initAddressesMap()
         receivingAddressMap.clear()
         _cachedBalance = null
         initContext(isArchived)
@@ -450,12 +450,16 @@ open class Bip44Account(
         return if (isArchived) {
             Optional.absent()
         } else {
-            Optional.of(getReceivingAddress(AddressType.P2SH_P2WPKH))
+            var receivingAddress = getReceivingAddress(AddressType.P2SH_P2WPKH)
+            if (receivingAddress == null) {
+                receivingAddress = receivingAddressMap.values.first()
+            }
+            Optional.of(receivingAddress)
         }
     }
 
-    fun getReceivingAddress(addressType: AddressType): Address {
-        return receivingAddressMap[addressType]!!
+    fun getReceivingAddress(addressType: AddressType): Address? {
+        return receivingAddressMap[addressType]
     }
 
     override fun isMine(address: Address): Boolean {
@@ -688,6 +692,9 @@ open class Bip44Account(
             }
         }
     }
+
+    private fun initAddressesMap(): MutableMap<BipDerivationType, BiMap<Address, Int>> = values()
+            .map { it to HashBiMap.create<Address, Int>() }.toMap().toMutableMap()
 
     companion object {
         const val EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH = 20

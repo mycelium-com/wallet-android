@@ -30,7 +30,7 @@ public class HDPubOnlyAccountKeyManager extends HDAccountKeyManager {
 
    public HDPubOnlyAccountKeyManager(int accountIndex, NetworkParameters network,
                                      SecureKeyValueStore secureKeyValueStore, BipDerivationType derivationType) {
-      super(secureKeyValueStore);
+      super(secureKeyValueStore, derivationType);
       _accountIndex = accountIndex;
       _network = network;
 

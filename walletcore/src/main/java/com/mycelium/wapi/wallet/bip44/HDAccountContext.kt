@@ -25,9 +25,16 @@ import java.util.UUID
 /**
  * The abstract context of an account
  */
-class HDAccountContext @JvmOverloads constructor(val id: UUID, val accountIndex: Int, private var isArchived: Boolean, private var blockHeight: Int = 0, private var lastDiscovery: Long = 0,
-                                                 val indexesMap: Map<BipDerivationType, AccountIndexesContext> = createNewIndexesContexts(), val accountType: Int = ACCOUNT_TYPE_FROM_MASTERSEED,
-                                                 val accountSubId: Int = 0) {
+class HDAccountContext @JvmOverloads constructor(
+        val id: UUID,
+        val accountIndex: Int,
+        private var isArchived: Boolean,
+        private var blockHeight: Int = 0,
+        private var lastDiscovery: Long = 0,
+        val indexesMap: Map<BipDerivationType, AccountIndexesContext> = createNewIndexesContexts(),
+        val accountType: Int = ACCOUNT_TYPE_FROM_MASTERSEED,
+        val accountSubId: Int = 0
+) {
     private var isDirty: Boolean = false
 
     constructor(context: HDAccountContext) : this(context.id, context.accountIndex,
@@ -35,7 +42,8 @@ class HDAccountContext @JvmOverloads constructor(val id: UUID, val accountIndex:
             context.accountType,
             context.accountSubId)
 
-    constructor(id: UUID, accountIndex: Int, isArchived: Boolean, accountType: Int, accountSubId: Int) : this(id, accountIndex, isArchived, 0, 0, createNewIndexesContexts(), accountType, accountSubId) {}
+    constructor(id: UUID, accountIndex: Int, isArchived: Boolean, accountType: Int, accountSubId: Int) :
+            this(id, accountIndex, isArchived, 0, 0, createNewIndexesContexts(), accountType, accountSubId)
 
     init {
 
@@ -46,9 +54,7 @@ class HDAccountContext @JvmOverloads constructor(val id: UUID, val accountIndex:
      * Is this account archived?
      */
     @Override
-    fun isArchived(): Boolean {
-        return isArchived
-    }
+    fun isArchived() =  isArchived
 
     /**
      * Mark this account as archived
