@@ -561,6 +561,10 @@ public class TransactionHistoryFragment extends Fragment {
                                                Intent intent = SignTransactionActivity.getIntent(getActivity(), _mbwManager.getSelectedAccount().getId(), false, unsigned);
                                                startActivityForResult(intent, SIGN_TRANSACTION_REQUEST_CODE);
                                             }
+                                            else
+                                            {
+                                                new Toaster(getActivity()).toast("Bumping fee failed", false);
+                                            }
                                             dialog.dismiss();
                                          }
                                       })
