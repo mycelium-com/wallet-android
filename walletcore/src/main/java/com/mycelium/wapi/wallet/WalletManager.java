@@ -857,7 +857,7 @@ public class WalletManager {
     }
 
     private void loadKeyManagers(HDAccountContext context, Map<BipDerivationType, HDAccountKeyManager> keyManagerMap) {
-        for (BipDerivationType derivationType : BipDerivationType.values()) {
+        for (BipDerivationType derivationType : context.getIndexesMap().keySet()) {
             switch (context.getAccountType()) {
                 case ACCOUNT_TYPE_FROM_MASTERSEED:
                     // Normal account - derived from masterseed

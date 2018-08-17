@@ -33,7 +33,6 @@ import com.mycelium.wapi.api.request.QueryTransactionInventoryRequest
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher
 import com.mycelium.wapi.wallet.WalletManager.Event
-import com.mrd.bitlib.crypto.BipDerivationType.*
 import com.mrd.bitlib.crypto.BipDerivationType.Companion.getDerivationTypeByAddress
 
 import java.util.ArrayList
@@ -46,6 +45,10 @@ open class Bip44Account(
         wapi: Wapi
 ) :
         AbstractAccount(backing, network, wapi), ExportableAccount {
+
+    // Used to determine which bips this account support
+    private val derivePaths = context.indexesMap.keys
+
     private var externalAddresses: MutableMap<BipDerivationType, BiMap<Address, Int>> = initAddressesMap()
     private var internalAddresses: MutableMap<BipDerivationType, BiMap<Address, Int>> = initAddressesMap()
 
@@ -64,7 +67,7 @@ open class Bip44Account(
         get() {
             val addresses = ArrayList<Address>()
 
-            values().forEach { derivationType ->
+            derivePaths.forEach { derivationType ->
                 val externalIndex = context.getLastExternalIndexWithActivity(derivationType) + 1
                 val external = externalAddresses[derivationType]!!.inverse()
                 for (i in 0..externalIndex) {
@@ -81,7 +84,7 @@ open class Bip44Account(
         }
 
 
-    open fun getPrivateKeyCount() = values().sumBy {
+    open fun getPrivateKeyCount() = derivePaths.sumBy {
         context.getLastExternalIndexWithActivity(it) +
                 2 + context.getLastInternalIndexWithActivity(it) + 1
     }
@@ -167,7 +170,7 @@ open class Bip44Account(
      */
     fun hasHadActivity(): Boolean {
         // public method that needs no synchronization
-        return values().any { context.getLastExternalIndexWithActivity(it) != -1 }
+        return derivePaths.any { context.getLastExternalIndexWithActivity(it) != -1 }
     }
 
     override fun isSynchronizing() = isSynchronizing
@@ -176,7 +179,7 @@ open class Bip44Account(
      * Ensure that all addresses in the look ahead window have been created
      */
     private fun ensureAddressIndexes() {
-        values().forEach { derivationType ->
+        derivePaths.forEach { derivationType ->
             ensureAddressIndexes(true, true, derivationType)
             ensureAddressIndexes(false, true, derivationType)
             // The current receiving address is the next external address just above
@@ -221,7 +224,7 @@ open class Bip44Account(
 
     private fun getAddressesToSync(mode: SyncMode): List<Address> {
         var addresses = mutableListOf<Address>()
-        values().forEach { derivationType ->
+        derivePaths.forEach { derivationType ->
             val currentInternalAddressId = context.getLastInternalIndexWithActivity(derivationType) + 1
             val currentExternalAddressId = context.getLastExternalIndexWithActivity(derivationType) + 1
             if (mode.mode == SyncMode.Mode.FULL_SYNC) {
@@ -330,7 +333,7 @@ open class Bip44Account(
         // Make look ahead address list
         val lookAhead = ArrayList<Address>(EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH + INTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH)
 
-        values().forEach { derivationType ->
+        derivePaths.forEach { derivationType ->
             val extInverse = externalAddresses[derivationType]!!.inverse()
             val intInverse = internalAddresses[derivationType]!!.inverse()
 
@@ -359,7 +362,7 @@ open class Bip44Account(
             return false
         }
         var indexChanged = false
-        values().forEach { derivationType ->
+        derivePaths.forEach { derivationType ->
             val lastExternalIndexBefore = context.getLastExternalIndexWithActivity(derivationType)
             val lastInternalIndexBefore = context.getLastInternalIndexWithActivity(derivationType)
 
@@ -411,7 +414,7 @@ open class Bip44Account(
         // Find the lowest internal index at which we have an unspent output
         val unspent = backing.allUnspentOutputs
         val minInternalIndexesMap = mutableMapOf<BipDerivationType, Int>()
-        values().associateByTo(minInternalIndexesMap, { it }, { Int.MAX_VALUE })
+        derivePaths.associateByTo(minInternalIndexesMap, { it }, { Int.MAX_VALUE })
         for (output in unspent) {
             val outputScript = ScriptOutput.fromScriptBytes(output.script)
                     ?: // never happens, we have parsed it before
@@ -430,7 +433,7 @@ open class Bip44Account(
         // related address is lower than the one we had above, use its index as
         // the first monitored one.
 
-        values().forEach { derivationType ->
+        derivePaths.forEach { derivationType ->
             if (minInternalIndexesMap[derivationType] == Integer.MAX_VALUE) {
                 // there are no unspent outputs in our change chain
                 context.setFirstMonitoredInternalIndex(derivationType,
@@ -442,8 +445,16 @@ open class Bip44Account(
     }
 
     // Get the next internal address just above the last address with activity
-    public override fun getChangeAddress() =
-            internalAddresses[BIP44]!!.inverse()[context.getLastInternalIndexWithActivity(BIP49) + 1]!!
+    public override fun getChangeAddress(): Address {
+        val derivationType = if (derivePaths.contains(BipDerivationType.BIP49)) {
+            // DEFAULT ADDRESS TYPE
+            BipDerivationType.BIP49
+        } else {
+            derivePaths.first()
+        }
+        return internalAddresses[derivationType]!!
+                .inverse()[context.getLastInternalIndexWithActivity(derivationType) + 1]!!
+    }
 
     override fun getReceivingAddress(): Optional<Address> {
         // if this account is archived, we cant ensure that we have the most recent ReceivingAddress (or any at all)
@@ -465,8 +476,8 @@ open class Bip44Account(
 
     override fun isMine(address: Address): Boolean {
         val derivationType = getDerivationTypeByAddress(address)
-        return internalAddresses[derivationType]!!.containsKey(address) ||
-                externalAddresses[derivationType]!!.containsKey(address)
+        return internalAddresses[derivationType]?.containsKey(address) ?: false ||
+                externalAddresses[derivationType]?.containsKey(address) ?: false
     }
 
     // check whether we need to update our last index for activity
@@ -554,7 +565,6 @@ open class Bip44Account(
             // still not found? give up...
             null
         } else {
-            val derivationType = getDerivationTypeByAddress(address)
             keyManagerMap[derivationType]!!.getPrivateKey(indexLookUp.isChange, indexLookUp.index!!, cipher)
         }
     }
@@ -573,7 +583,6 @@ open class Bip44Account(
             // still not found? give up...
             null
         } else {
-            val derivationType = getDerivationTypeByAddress(address)
             Preconditions.checkNotNull(keyManagerMap[derivationType]!!.getPublicKey(indexLookUp.isChange, indexLookUp
                     .index!!))
         }
@@ -601,7 +610,7 @@ open class Bip44Account(
 
     protected fun toStringMonitoredAddresses(sb: StringBuilder) {
         sb.append(" Monitored Addresses:")
-        values().forEach { derivationType ->
+        derivePaths.forEach { derivationType ->
             sb.append(" BIP: ${derivationType.name} external= ${context.getLastExternalIndexWithActivity
             (derivationType) + 2}")
                     .append(" internal=${context.getLastInternalIndexWithActivity(derivationType) + 1 -
@@ -655,7 +664,7 @@ open class Bip44Account(
     override fun getExportData(cipher: KeyCipher): ExportableAccount.Data {
         var privKey = Optional.absent<String>()
 
-        val derivationType = BIP44 // TODO FIX SEGWIT
+        val derivationType = BipDerivationType.BIP44 // TODO FIX SEGWIT
         if (canSpend()) {
             try {
                 privKey = Optional.of(keyManagerMap[derivationType]!!
@@ -698,7 +707,7 @@ open class Bip44Account(
         }
     }
 
-    private fun initAddressesMap(): MutableMap<BipDerivationType, BiMap<Address, Int>> = values()
+    private fun initAddressesMap(): MutableMap<BipDerivationType, BiMap<Address, Int>> = derivePaths
             .map { it to HashBiMap.create<Address, Int>() }.toMap().toMutableMap()
 
     companion object {

@@ -1134,13 +1134,6 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
                   AccountIndexesContext oldIndexes = new AccountIndexesContext(
                           lastExternalIndexWithActivity, lastInternalIndexWithActivity, firstMonitoredInternalIndex);
                   indexesContextMap.put(BipDerivationType.BIP44, oldIndexes);
-                  AccountIndexesContext newIndexes = new AccountIndexesContext(
-                          -1, -1, 0);
-                  for (BipDerivationType derivationType : BipDerivationType.values()) {
-                     if (derivationType != BipDerivationType.BIP44) {
-                        indexesContextMap.put(derivationType, newIndexes);
-                     }
-                  }
                   bip44List.add(new HDAccountContext(id, accountIndex, isArchived, blockHeight, lastDiscovery,
                           indexesContextMap, accountType, accountSubId));
                }
