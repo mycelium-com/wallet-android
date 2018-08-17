@@ -90,7 +90,7 @@ public class LocalTraderManager {
    private long _lastTraderNotification;
    private GpsLocationEx _currentLocation;
    private String _nickname;
-   private boolean _isLocalTraderDisabled;
+   private boolean _isLocalTraderEnabled;
    private boolean _playSoundOnTradeNotification;
    private boolean _useMiles;
    private TraderChangeMonitor _traderChangeMonitor;
@@ -144,7 +144,7 @@ public class LocalTraderManager {
             preferences.getString(Constants.LOCAL_TRADER_LOCATION_NAME_SETTING, Constants.LOCAL_TRADER_DEFAULT_LOCATION.name),
             preferences.getString(Constants.LOCAL_TRADER_LOCATION_COUNTRY_CODE_SETTING, Constants.LOCAL_TRADER_DEFAULT_LOCATION.name));
 
-      _isLocalTraderDisabled = preferences.getBoolean(Constants.LOCAL_TRADER_DISABLED_SETTING, false);
+      _isLocalTraderEnabled = preferences.getBoolean(Constants.LOCAL_TRADER_DISABLED_SETTING, true);
       _playSoundOnTradeNotification = preferences.getBoolean(Constants.LOCAL_TRADER_PLAY_SOUND_ON_TRADE_NOTIFICATION_SETTING, true);
       _useMiles = preferences.getBoolean(Constants.LOCAL_TRADER_USE_MILES_SETTING, false);
       _lastTraderSynchronization = preferences.getLong(Constants.LOCAL_TRADER_LAST_TRADER_SYNCHRONIZATION_SETTING, 0);
@@ -648,15 +648,15 @@ public class LocalTraderManager {
       return _currentLocation;
    }
 
-   public void setLocalTraderDisabled(boolean disabled) {
+   public void setLocalTraderEnabled(boolean enabled) {
       SharedPreferences.Editor editor = getEditor();
-      _isLocalTraderDisabled = disabled;
-      editor.putBoolean(Constants.LOCAL_TRADER_DISABLED_SETTING, disabled);
+      _isLocalTraderEnabled = enabled;
+      editor.putBoolean(Constants.LOCAL_TRADER_DISABLED_SETTING, enabled);
       editor.commit();
    }
 
-   public boolean isLocalTraderDisabled() {
-      return _isLocalTraderDisabled;
+   public boolean isLocalTraderEnabled() {
+      return _isLocalTraderEnabled;
    }
 
    public void setPlaySoundOnTradeNotification(boolean enabled) {

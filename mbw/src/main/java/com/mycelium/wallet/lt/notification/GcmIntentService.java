@@ -102,7 +102,7 @@ public class GcmIntentService extends IntentService {
 
    private void handleTradeActivityNotification(Bundle extras) {
       LocalTraderManager ltManager = MbwManager.getInstance(this).getLocalTraderManager();
-      if (ltManager.isLocalTraderDisabled() || !ltManager.hasLocalTraderAccount()) {
+      if (!ltManager.isLocalTraderEnabled() || !ltManager.hasLocalTraderAccount()) {
          Log.w(TAG, "Local trader not enabled while getting trader activity notification");
          return;
       }
@@ -138,7 +138,7 @@ public class GcmIntentService extends IntentService {
 
    private void handleAdActivityNotification(Bundle extras) {
       LocalTraderManager ltManager = MbwManager.getInstance(this).getLocalTraderManager();
-      if (ltManager.isLocalTraderDisabled() || !ltManager.hasLocalTraderAccount()) {
+      if (!ltManager.isLocalTraderEnabled() || !ltManager.hasLocalTraderAccount()) {
          Log.w(TAG, "Local trader not enabled while getting trader activity notification");
          return;
       }
