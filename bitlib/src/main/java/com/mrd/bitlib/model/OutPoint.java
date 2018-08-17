@@ -74,10 +74,12 @@ public class OutPoint implements Serializable {
       return writer;
    }
 
-   public ByteWriter hashPrevOutToByteWriter(ByteWriter writer) {
+   /**
+    * Required for BIP143 tx digest.
+    */
+   void hashPrev(ByteWriter writer) {
       writer.putBytes(BitUtils.reverseBytes(txid.getBytes()));
       writer.putIntLE(index);
-      return writer;
    }
 
    public static OutPoint fromString(String string) {
