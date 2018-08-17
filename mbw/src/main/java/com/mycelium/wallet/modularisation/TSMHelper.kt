@@ -25,7 +25,8 @@ class TSMHelper(private val context: Context) {
         try {
             val intent = Intent(OPEN_COMMAS)
             intent.`package` = TSM_PACKAGE
-            activity?.startActivityForResult(intent, 1)
+            intent.putExtra("callingPackage", context.packageName)
+            activity?.startActivity(intent)
         } catch (e: ActivityNotFoundException) {
             val installIntent = Intent(Intent.ACTION_VIEW)
             installIntent.data = Uri.parse(context.getString(partner_commas_url))
