@@ -205,9 +205,9 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
             } catch (ClassNotFoundException ignore) {
                // should never happen
             }
-            long lastDiscovery = cursor.getLong(7);
-            int accountType = cursor.getInt(8);
-            int accountSubId = (int) cursor.getLong(9);
+            long lastDiscovery = cursor.getLong(5);
+            int accountType = cursor.getInt(6);
+            int accountSubId = (int) cursor.getLong(7);
 
             list.add(new HDAccountContext(id, accountIndex, isArchived, blockHeight, lastDiscovery, indexesContextMap,
                     accountType, accountSubId));
@@ -1111,7 +1111,7 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
             //Migrate BIP44 accounts
             List<HDAccountContext> bip44List = new ArrayList<>();
             try {
-               SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(_database);
+               SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(db);
                cursor = blobQuery.query(
                        false, "bip44",
                        new String[]{"id", "accountIndex", "archived", "blockheight",
@@ -1153,7 +1153,7 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
             db.execSQL("CREATE TABLE bip44_new (id TEXT PRIMARY KEY, accountIndex INTEGER, archived INTEGER, " +
                     "blockheight INTEGER, indexContexts BLOB, lastDiscovery INTEGER, accountType INTEGER, accountSubId " +
                     "INTEGER);");
-            SQLiteStatement bip44Update = _database.compileStatement("INSERT OR REPLACE INTO bip44_new" +
+            SQLiteStatement bip44Update = db.compileStatement("INSERT OR REPLACE INTO bip44_new" +
                     " VALUES (?,?,?,?,?,?,?,?)");
             for (HDAccountContext context : bip44List) {
                bip44Update.bindBlob(1, uuidToBytes(context.getId()));
