@@ -1,6 +1,7 @@
 package com.mycelium.wapi.wallet.bip44
 
 import com.google.common.base.Optional
+import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.model.NetworkParameters

@@ -23,11 +23,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.mrd.bitlib.crypto.Bip39;
-import com.mrd.bitlib.crypto.HdKeyNode;
-import com.mrd.bitlib.crypto.InMemoryPrivateKey;
-import com.mrd.bitlib.crypto.PublicKey;
-import com.mrd.bitlib.crypto.RandomSource;
+import com.mrd.bitlib.crypto.*;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.BitUtils;
@@ -40,6 +36,7 @@ import com.mycelium.wapi.api.lib.FeeEstimation;
 import com.mycelium.wapi.api.response.MinerFeeEstimationResponse;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
 import com.mycelium.wapi.wallet.bip44.*;
+import com.mycelium.wapi.wallet.bip44.HDAccountContext.AccountIndexesContext;
 import com.mycelium.wapi.wallet.single.PublicPrivateKeyStore;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.single.SingleAddressAccountContext;
@@ -759,7 +756,23 @@ public class WalletManager {
         for (HDAccountContext context : contexts) {
             Map<BipDerivationType, HDAccountKeyManager> keyManagerMap = new HashMap<>();
             Bip44Account account;
-
+            if (context.getAccountType() == ACCOUNT_TYPE_FROM_MASTERSEED
+                    && context.getIndexesMap().size() < BipDerivationType.values().length) {
+                try {
+                    AesKeyCipher cipher = AesKeyCipher.defaultKeyCipher();
+                    Bip39.MasterSeed masterSeed = getMasterSeed(cipher);
+                    HdKeyNode root = HdKeyNode.fromSeed(masterSeed.getBip32Seed());
+                    for (BipDerivationType derivationType : BipDerivationType.values()) {
+                        if (context.getIndexesMap().get(derivationType) == null) {
+                            keyManagerMap.put(derivationType, HDAccountKeyManager.createNew(root, _network,
+                                    context.getAccountIndex(), _secureKeyValueStore, cipher, derivationType));
+                            context.getIndexesMap().put(derivationType, new AccountIndexesContext(-1, -1, 0));
+                        }
+                    }
+                } catch (InvalidKeyCipher invalidKeyCipher) {
+                    _logger.logError(invalidKeyCipher.getMessage());
+                }
+            }
             Bip44AccountBacking accountBacking = getBip44AccountBacking(context.getId());
 
             loadKeyManagers(context, keyManagerMap);

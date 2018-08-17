@@ -32,6 +32,7 @@ import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
 import com.mrd.bitlib.util.ByteWriter;
+import kotlin.NotImplementedError;
 
 /**
  * Implementation of BIP 32 HD wallet key derivation.
@@ -377,12 +378,23 @@ public class HdKeyNode implements Serializable {
    /**
     * Serialize this node
     */
-   public String serialize(NetworkParameters network) throws KeyGenerationException {
+   public String serialize(NetworkParameters network, BipDerivationType type) throws KeyGenerationException {
       ByteWriter writer = new ByteWriter(4 + 1 + 4 + 4 + 32 + 32);
+      int magicIndex;
+      switch (type) {
+         case BIP44:
+            magicIndex = 0;
+            break;
+         case BIP49:
+            magicIndex = 1;
+            break;
+         default:
+            throw new NotImplementedError();
+      }
       if (network.isProdnet()) {
-         writer.putBytes(isPrivateHdKeyNode() ? PRODNET_PRIVATE[0] : PRODNET_PUBLIC[0]);    //TODO SEGWIT FIX
+         writer.putBytes(isPrivateHdKeyNode() ? PRODNET_PRIVATE[magicIndex] : PRODNET_PUBLIC[magicIndex]);
       } else {
-         writer.putBytes(isPrivateHdKeyNode() ? TESTNET_PRIVATE[0] : TESTNET_PUBLIC[0]);    //TODO SEGWIT FIX
+         writer.putBytes(isPrivateHdKeyNode() ? TESTNET_PRIVATE[magicIndex] : TESTNET_PUBLIC[magicIndex]);
       }
       writer.put((byte) (_depth & 0xFF));
       writer.putIntBE(_parentFingerprint);

@@ -1,6 +1,7 @@
 package com.mycelium.wapi.wallet.bip44;
 
 import com.google.common.base.Preconditions;
+import com.mrd.bitlib.crypto.BipDerivationType;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.ByteReader;

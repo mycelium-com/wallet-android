@@ -17,11 +17,11 @@
 package com.mycelium.wapi.wallet.bip44;
 
 import com.google.common.base.Preconditions;
+import com.mrd.bitlib.crypto.BipDerivationType;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.HdDerivedAddress;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.hdpath.Bip44Address;

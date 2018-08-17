@@ -17,6 +17,7 @@
 package com.mycelium.wapi.wallet.bip44
 
 import com.google.common.collect.ImmutableMap
+import com.mrd.bitlib.crypto.BipDerivationType
 import com.mycelium.wapi.wallet.Bip44AccountBacking
 
 import java.io.Serializable

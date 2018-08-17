@@ -22,6 +22,7 @@ import com.google.common.collect.BiMap
 import com.google.common.collect.HashBiMap
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.Lists
+import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.crypto.PublicKey
 import com.mrd.bitlib.model.*
@@ -32,8 +33,8 @@ import com.mycelium.wapi.api.request.QueryTransactionInventoryRequest
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher
 import com.mycelium.wapi.wallet.WalletManager.Event
-import com.mycelium.wapi.wallet.bip44.BipDerivationType.*
-import com.mycelium.wapi.wallet.bip44.BipDerivationType.Companion.getDerivationTypeByAddress
+import com.mrd.bitlib.crypto.BipDerivationType.*
+import com.mrd.bitlib.crypto.BipDerivationType.Companion.getDerivationTypeByAddress
 
 import java.util.ArrayList
 
@@ -657,13 +658,17 @@ open class Bip44Account(
         val derivationType = BIP44 // TODO FIX SEGWIT
         if (canSpend()) {
             try {
-                privKey = Optional.of(keyManagerMap[derivationType]!!.getPrivateAccountRoot(cipher).serialize(_network))
+                privKey = Optional.of(keyManagerMap[derivationType]!!
+                        .getPrivateAccountRoot(cipher)
+                        .serialize(_network, derivationType))
             } catch (ignore: InvalidKeyCipher) {
             }
 
         }
 
-        val pubKey = Optional.of(keyManagerMap[derivationType]!!.publicAccountRoot.serialize(network))
+        val pubKey = Optional.of(keyManagerMap[derivationType]!!
+                .publicAccountRoot
+                .serialize(network, derivationType))
         return ExportableAccount.Data(privKey, pubKey)
     }
 

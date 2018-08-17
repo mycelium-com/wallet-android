@@ -42,7 +42,7 @@ import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
-import com.mycelium.wapi.wallet.bip44.BipDerivationType;
+import com.mrd.bitlib.crypto.BipDerivationType;
 import com.mycelium.wapi.wallet.bip44.HDAccountKeyManager;
 import java.nio.charset.Charset;
 

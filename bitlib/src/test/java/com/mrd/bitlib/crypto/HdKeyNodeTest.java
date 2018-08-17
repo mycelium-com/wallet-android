@@ -65,8 +65,8 @@ public class HdKeyNodeTest {
     public void reproduceVectorsTest() {
         for (TestVector tv : TEST_VECTORS) {
             HdKeyNode childNode = HdKeyNode.fromSeed(tv.seed).createChildNode(tv.derivation);
-            assertEquals(tv.xpriv, childNode.serialize(productionNetwork));
-            assertEquals(tv.xpub, childNode.getPublicNode().serialize(productionNetwork));
+            assertEquals(tv.xpriv, childNode.serialize(productionNetwork, BipDerivationType.BIP44));
+            assertEquals(tv.xpub, childNode.getPublicNode().serialize(productionNetwork, BipDerivationType.BIP44));
         }
     }
 
@@ -103,7 +103,7 @@ public class HdKeyNodeTest {
         TestVector tv = TEST_VECTORS[3];
         assertEquals("m/0'/1/2'", tv.derivation.toString());
         HdKeyNode node = HdKeyNode.fromSeed(tv.seed).createHardenedChildNode(0).createChildNode(1).createHardenedChildNode(2);
-        assertEquals(tv.xpriv, node.serialize(productionNetwork));
+        assertEquals(tv.xpriv, node.serialize(productionNetwork, BipDerivationType.BIP44));
     }
 
     private static class TestVector {

@@ -1,4 +1,4 @@
-package com.mycelium.wapi.wallet.bip44
+package com.mrd.bitlib.crypto
 
 import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.model.AddressType

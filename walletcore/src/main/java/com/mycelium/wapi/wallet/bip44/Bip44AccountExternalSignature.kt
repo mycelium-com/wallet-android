@@ -2,6 +2,7 @@ package com.mycelium.wapi.wallet.bip44
 
 import com.google.common.base.Optional
 import com.mrd.bitlib.UnsignedTransaction
+import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.model.Transaction
 import com.mycelium.wapi.api.Wapi
@@ -38,7 +39,9 @@ class Bip44AccountExternalSignature(
 
     override fun getExportData(cipher: KeyCipher): ExportableAccount.Data {
         // we dont have a private key we can export, always set it as absent
-        val pubKey = Optional.of(keyManagerMap[BipDerivationType.BIP44]!!.getPublicAccountRoot().serialize(network)) // TODO FIX SEGWIT
+        val pubKey = Optional.of(keyManagerMap[BipDerivationType.BIP44]!!
+                .getPublicAccountRoot()
+                .serialize(network, BipDerivationType.BIP44)) // TODO FIX SEGWIT
         return ExportableAccount.Data(Optional.absent<String>(), pubKey)
     }
 }
