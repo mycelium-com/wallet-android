@@ -60,7 +60,9 @@ import com.mycelium.wapi.model.TransactionOutputEx;
 import com.mycelium.wapi.wallet.Bip44AccountBacking;
 import com.mycelium.wapi.wallet.SingleAddressAccountBacking;
 import com.mycelium.wapi.wallet.WalletManagerBacking;
-import com.mycelium.wapi.wallet.bip44.Bip44AccountContext;
+import com.mycelium.wapi.wallet.bip44.BipDerivationType;
+import com.mycelium.wapi.wallet.bip44.HDAccountContext;
+import com.mycelium.wapi.wallet.bip44.HDAccountContext.AccountIndexesContext;
 import com.mycelium.wapi.wallet.single.SingleAddressAccountContext;
 
 import java.io.ByteArrayInputStream;
@@ -102,9 +104,9 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
       OpenHelper _openHelper = new OpenHelper(context);
       _database = _openHelper.getWritableDatabase();
 
-      _insertOrReplaceBip44Account = _database.compileStatement("INSERT OR REPLACE INTO bip44 VALUES (?,?,?,?,?,?,?,?,?,?)");
+      _insertOrReplaceBip44Account = _database.compileStatement("INSERT OR REPLACE INTO bip44 VALUES (?,?,?,?,?,?,?,?)");
       _insertOrReplaceSingleAddressAccount = _database.compileStatement("INSERT OR REPLACE INTO single VALUES (?,?,?,?)");
-      _updateBip44Account = _database.compileStatement("UPDATE bip44 SET archived=?,blockheight=?,lastExternalIndexWithActivity=?,lastInternalIndexWithActivity=?,firstMonitoredInternalIndex=?,lastDiscovery=?,accountType=?,accountSubId=? WHERE id=?");
+      _updateBip44Account = _database.compileStatement("UPDATE bip44 SET archived=?,blockheight=?, indexContexts=?, lastDiscovery=?,accountType=?,accountSubId=? WHERE id=?");
       _updateSingleAddressAccount = _database.compileStatement("UPDATE single SET archived=?,blockheight=?,addresses=? WHERE id=?");
       _deleteSingleAddressAccount = _database.compileStatement("DELETE FROM single WHERE id = ?");
       _deleteBip44Account = _database.compileStatement("DELETE FROM bip44 WHERE id = ?");
@@ -177,16 +179,15 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
    }
 
    @Override
-   public List<Bip44AccountContext> loadBip44AccountContexts() {
-      List<Bip44AccountContext> list = new ArrayList<>();
+   public List<HDAccountContext> loadBip44AccountContexts() {
+      List<HDAccountContext> list = new ArrayList<>();
       Cursor cursor = null;
       try {
          SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(_database);
          cursor = blobQuery.query(
                false, "bip44",
                new String[]{"id", "accountIndex", "archived", "blockheight",
-                     "lastExternalIndexWithActivity", "lastInternalIndexWithActivity",
-                     "firstMonitoredInternalIndex", "lastDiscovery", "accountType", "accountSubId"},
+                     "indexContexts", "lastDiscovery", "accountType", "accountSubId"},
                null, null, null, null, "accountIndex", null);
 
          while (cursor.moveToNext()) {
@@ -194,15 +195,22 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
             int accountIndex = cursor.getInt(1);
             boolean isArchived = cursor.getInt(2) == 1;
             int blockHeight = cursor.getInt(3);
-            int lastExternalIndexWithActivity = cursor.getInt(4);
-            int lastInternalIndexWithActivity = cursor.getInt(5);
-            int firstMonitoredInternalIndex = cursor.getInt(6);
-            long lastDiscovery = cursor.getLong(7);
-            int accountType = cursor.getInt(8);
-            int accountSubId = (int) cursor.getLong(9);
+            byte[] contextIndexesMapBytes = cursor.getBlob(4);
+            final ByteArrayInputStream byteStream = new ByteArrayInputStream(contextIndexesMapBytes);
+            Map<BipDerivationType, AccountIndexesContext> indexesContextMap = null;
+            try (ObjectInputStream objectInputStream = new ObjectInputStream(byteStream)) {
+               indexesContextMap = (Map<BipDerivationType, AccountIndexesContext> ) objectInputStream.readObject();
+            } catch (IOException ignore) {
+               // should never happen
+            } catch (ClassNotFoundException ignore) {
+               // should never happen
+            }
+            long lastDiscovery = cursor.getLong(5);
+            int accountType = cursor.getInt(6);
+            int accountSubId = (int) cursor.getLong(7);
 
-            list.add(new Bip44AccountContext(id, accountIndex, isArchived, blockHeight, lastExternalIndexWithActivity,
-                  lastInternalIndexWithActivity, firstMonitoredInternalIndex, lastDiscovery, accountType, accountSubId));
+            list.add(new HDAccountContext(id, accountIndex, isArchived, blockHeight, lastDiscovery, indexesContextMap,
+                    accountType, accountSubId));
          }
          return list;
       } finally {
@@ -213,7 +221,7 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
    }
 
    @Override
-   public void createBip44AccountContext(Bip44AccountContext context) {
+   public void createBip44AccountContext(HDAccountContext context) {
       _database.beginTransaction();
       try {
 
@@ -230,12 +238,16 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
          _insertOrReplaceBip44Account.bindLong(2, context.getAccountIndex());
          _insertOrReplaceBip44Account.bindLong(3, context.isArchived() ? 1 : 0);
          _insertOrReplaceBip44Account.bindLong(4, context.getBlockHeight());
-         _insertOrReplaceBip44Account.bindLong(5, context.getLastExternalIndexWithActivity());
-         _insertOrReplaceBip44Account.bindLong(6, context.getLastInternalIndexWithActivity());
-         _insertOrReplaceBip44Account.bindLong(7, context.getFirstMonitoredInternalIndex());
-         _insertOrReplaceBip44Account.bindLong(8, context.getLastDiscovery());
-         _insertOrReplaceBip44Account.bindLong(9, context.getAccountType());
-         _insertOrReplaceBip44Account.bindLong(10, context.getAccountSubId());
+         final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+         try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteStream)) {
+            objectOutputStream.writeObject(context.getIndexesMap());
+            _insertOrReplaceBip44Account.bindBlob(5, byteStream.toByteArray());
+         } catch (IOException ignore) {
+            // should never happen
+         }
+         _insertOrReplaceBip44Account.bindLong(6, context.getLastDiscovery());
+         _insertOrReplaceBip44Account.bindLong(7, context.getAccountType());
+         _insertOrReplaceBip44Account.bindLong(8, context.getAccountSubId());
          _insertOrReplaceBip44Account.executeInsert();
 
          _database.setTransactionSuccessful();
@@ -245,22 +257,26 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
    }
 
    @Override
-   public void upgradeBip44AccountContext(Bip44AccountContext context) {
+   public void upgradeBip44AccountContext(HDAccountContext context) {
       updateBip44AccountContext(context);
    }
 
-   private void updateBip44AccountContext(Bip44AccountContext context) {
+   private void updateBip44AccountContext(HDAccountContext context) {
       //UPDATE bip44 SET archived=?,blockheight=?,lastExternalIndexWithActivity=?,lastInternalIndexWithActivity=?,firstMonitoredInternalIndex=?,lastDiscovery=?,accountType=?,accountSubId=? WHERE id=?
 
       _updateBip44Account.bindLong(1, context.isArchived() ? 1 : 0);
       _updateBip44Account.bindLong(2, context.getBlockHeight());
-      _updateBip44Account.bindLong(3, context.getLastExternalIndexWithActivity());
-      _updateBip44Account.bindLong(4, context.getLastInternalIndexWithActivity());
-      _updateBip44Account.bindLong(5, context.getFirstMonitoredInternalIndex());
-      _updateBip44Account.bindLong(6, context.getLastDiscovery());
-      _updateBip44Account.bindLong(7, context.getAccountType());
-      _updateBip44Account.bindLong(8, context.getAccountSubId());
-      _updateBip44Account.bindBlob(9, uuidToBytes(context.getId()));
+      final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+      try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteStream)) {
+         objectOutputStream.writeObject(context.getIndexesMap());
+         _updateBip44Account.bindBlob(3, byteStream.toByteArray());
+      } catch (IOException ignore) {
+         // should never happen
+      }
+      _updateBip44Account.bindLong(4, context.getLastDiscovery());
+      _updateBip44Account.bindLong(5, context.getAccountType());
+      _updateBip44Account.bindLong(6, context.getAccountSubId());
+      _updateBip44Account.bindBlob(7, uuidToBytes(context.getId()));
       _updateBip44Account.execute();
    }
 
@@ -989,7 +1005,7 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
       }
 
       @Override
-      public void updateAccountContext(Bip44AccountContext context) {
+      public void updateAccountContext(HDAccountContext context) {
          updateBip44AccountContext(context);
       }
 
@@ -1016,7 +1032,9 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
       @Override
       public void onCreate(SQLiteDatabase db) {
          db.execSQL("CREATE TABLE single (id TEXT PRIMARY KEY, addresses BLOB, archived INTEGER, blockheight INTEGER);");
-         db.execSQL("CREATE TABLE bip44 (id TEXT PRIMARY KEY, accountIndex INTEGER, archived INTEGER, blockheight INTEGER, lastExternalIndexWithActivity INTEGER, lastInternalIndexWithActivity INTEGER, firstMonitoredInternalIndex INTEGER, lastDiscovery, accountType INTEGER, accountSubId INTEGER);");
+         db.execSQL("CREATE TABLE bip44 (id TEXT PRIMARY KEY, accountIndex INTEGER, archived INTEGER, blockheight " +
+                 "INTEGER, indexContexts BLOB, lastDiscovery INTEGER, accountType INTEGER, accountSubId " +
+                 "INTEGER);");
          db.execSQL("CREATE TABLE kv (k BLOB NOT NULL, v BLOB, checksum BLOB, subId INTEGER NOT NULL, PRIMARY KEY (k, subId) );");
       }
 
@@ -1054,6 +1072,7 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
             }
          }
          if (oldVersion < 5) {
+            // Migrate SA
             List<SingleAddressAccountContext> list = new ArrayList<>();
             Cursor cursor = null;
             try {
@@ -1092,6 +1111,74 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
             db.execSQL("ALTER TABLE single RENAME TO single_old");
             db.execSQL("ALTER TABLE single_new RENAME TO single");
             db.execSQL("DROP TABLE single_old");
+
+            //Migrate BIP44 accounts
+            List<HDAccountContext> bip44List = new ArrayList<>();
+            try {
+               SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(db);
+               cursor = blobQuery.query(
+                       false, "bip44",
+                       new String[]{"id", "accountIndex", "archived", "blockheight",
+                               "lastExternalIndexWithActivity", "lastInternalIndexWithActivity",
+                               "firstMonitoredInternalIndex", "lastDiscovery", "accountType", "accountSubId"},
+                       null, null, null, null, "accountIndex", null);
+
+               while (cursor.moveToNext()) {
+                  UUID id = SQLiteQueryWithBlobs.uuidFromBytes(cursor.getBlob(0));
+                  int accountIndex = cursor.getInt(1);
+                  boolean isArchived = cursor.getInt(2) == 1;
+                  int blockHeight = cursor.getInt(3);
+                  int lastExternalIndexWithActivity = cursor.getInt(4);
+                  int lastInternalIndexWithActivity = cursor.getInt(5);
+                  int firstMonitoredInternalIndex = cursor.getInt(6);
+                  long lastDiscovery = cursor.getLong(7);
+                  int accountType = cursor.getInt(8);
+                  int accountSubId = (int) cursor.getLong(9);
+                  Map<BipDerivationType, AccountIndexesContext> indexesContextMap = new HashMap<>();
+                  AccountIndexesContext oldIndexes = new AccountIndexesContext(
+                          lastExternalIndexWithActivity, lastInternalIndexWithActivity, firstMonitoredInternalIndex);
+                  indexesContextMap.put(BipDerivationType.BIP44, oldIndexes);
+                  AccountIndexesContext newIndexes = new AccountIndexesContext(
+                          -1, -1, 0);
+                  for (BipDerivationType derivationType : BipDerivationType.values()) {
+                     if (derivationType != BipDerivationType.BIP44) {
+                        indexesContextMap.put(derivationType, newIndexes);
+                     }
+                  }
+                  bip44List.add(new HDAccountContext(id, accountIndex, isArchived, blockHeight, lastDiscovery,
+                          indexesContextMap, accountType, accountSubId));
+               }
+            } finally {
+               if (cursor != null) {
+                  cursor.close();
+               }
+            }
+            //db.execSQL("CREATE TABLE bip44 (id TEXT PRIMARY KEY, accountIndex INTEGER, archived INTEGER, blockheight INTEGER, lastExternalIndexWithActivity INTEGER, lastInternalIndexWithActivity INTEGER, firstMonitoredInternalIndex INTEGER, lastDiscovery, accountType INTEGER, accountSubId INTEGER);");
+            db.execSQL("CREATE TABLE bip44_new (id TEXT PRIMARY KEY, accountIndex INTEGER, archived INTEGER, " +
+                    "blockheight INTEGER, indexContexts BLOB, lastDiscovery INTEGER, accountType INTEGER, accountSubId " +
+                    "INTEGER);");
+            SQLiteStatement bip44Update = db.compileStatement("INSERT OR REPLACE INTO bip44_new" +
+                    " VALUES (?,?,?,?,?,?,?,?)");
+            for (HDAccountContext context : bip44List) {
+               bip44Update.bindBlob(1, uuidToBytes(context.getId()));
+               bip44Update.bindLong(2, context.getAccountIndex());
+               bip44Update.bindLong(3, context.isArchived() ? 1 : 0);
+               bip44Update.bindLong(4, context.getBlockHeight());
+               final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+               try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteStream)) {
+                  objectOutputStream.writeObject(context.getIndexesMap());
+                  bip44Update.bindBlob(5, byteStream.toByteArray());
+               } catch (IOException ignore) {
+                  // should never happen
+               }
+               bip44Update.bindLong(6, context.getLastDiscovery());
+               bip44Update.bindLong(7, context.getAccountType());
+               bip44Update.bindLong(8, context.getAccountSubId());
+               bip44Update.executeInsert();
+            }
+            db.execSQL("ALTER TABLE bip44 RENAME TO bip44_old");
+            db.execSQL("ALTER TABLE bip44_new RENAME TO bip44");
+            db.execSQL("DROP TABLE bip44_old");
          }
       }
 

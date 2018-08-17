@@ -1,6 +1,8 @@
 package com.mrd.bitlib.model
 
-enum class AddressType {
+import java.io.Serializable
+
+enum class AddressType : Serializable {
     P2PK, // Not supported
     P2PKH, // Legacy
     P2SH, // Not supported, use P2SH_P2WPKH

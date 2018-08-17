@@ -4,7 +4,7 @@ import com.google.common.base.Optional;
 import com.google.common.primitives.UnsignedInteger;
 import com.mrd.bitlib.model.NetworkParameters;
 
-public class Bip44CoinType extends Bip44Purpose  {
+public class Bip44CoinType extends HdKeyPath  {
    public Bip44CoinType(Bip44Purpose parent, UnsignedInteger index, boolean hardened) {
       super(parent, index, hardened);
    }

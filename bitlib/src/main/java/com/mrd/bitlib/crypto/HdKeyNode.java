@@ -361,10 +361,18 @@ public class HdKeyNode implements Serializable {
       return _publicKey;
    }
 
-   private static final byte[] PRODNET_PUBLIC = new byte[] { (byte) 0x04, (byte) 0x88, (byte) 0xB2, (byte) 0x1E };
-   private static final byte[] TESTNET_PUBLIC = new byte[] { (byte) 0x04, (byte) 0x35, (byte) 0x87, (byte) 0xCF };
-   private static final byte[] PRODNET_PRIVATE = new byte[] { (byte) 0x04, (byte) 0x88, (byte) 0xAD, (byte) 0xE4 };
-   private static final byte[] TESTNET_PRIVATE = new byte[] { (byte) 0x04, (byte) 0x35, (byte) 0x83, (byte) 0x94 };
+   private static final byte[][] PRODNET_PUBLIC = new byte[][]{{(byte) 0x04, (byte) 0x88, (byte) 0xB2, (byte) 0x1E},  // xpub
+           {(byte) 0x04, (byte) 0x9d, (byte) 0x7c, (byte) 0xb2},                                                      // ypub
+           {(byte) 0x04, (byte) 0xb2, (byte) 0x47, (byte) 0x46}};                                                     // zpub
+   private static final byte[][] TESTNET_PUBLIC = new byte[][]{{(byte) 0x04, (byte) 0x35, (byte) 0x87, (byte) 0xCF},  // tpub
+           {(byte) 0x04, (byte) 0x4a, (byte) 0x52, (byte) 0x62},                                                      // upub
+           {(byte) 0x04, (byte) 0x5f, (byte) 0x1c, (byte) 0xf6}};                                                     // vpub
+   private static final byte[][] PRODNET_PRIVATE = new byte[][]{{(byte) 0x04, (byte) 0x88, (byte) 0xAD, (byte) 0xE4}, // xprv
+           {(byte) 0x04, (byte) 0x9d, (byte) 0x78, (byte) 0x78},                                                      // yprv
+           {(byte) 0x04, (byte) 0xb2, (byte) 0x43, (byte) 0x0c}};                                                     // zprv
+   private static final byte[][] TESTNET_PRIVATE = new byte[][]{{(byte) 0x04, (byte) 0x35, (byte) 0x83, (byte) 0x94}, // tprv
+           {(byte) 0x04, (byte) 0x4a, (byte) 0x4e, (byte) 0x28},                                                      // uprv
+           {(byte) 0x04, (byte) 0x5f, (byte) 0x18, (byte) 0xbc}};                                                     // vprv
 
    /**
     * Serialize this node
@@ -372,9 +380,9 @@ public class HdKeyNode implements Serializable {
    public String serialize(NetworkParameters network) throws KeyGenerationException {
       ByteWriter writer = new ByteWriter(4 + 1 + 4 + 4 + 32 + 32);
       if (network.isProdnet()) {
-         writer.putBytes(isPrivateHdKeyNode() ? PRODNET_PRIVATE : PRODNET_PUBLIC);
+         writer.putBytes(isPrivateHdKeyNode() ? PRODNET_PRIVATE[0] : PRODNET_PUBLIC[0]);    //TODO SEGWIT FIX
       } else {
-         writer.putBytes(isPrivateHdKeyNode() ? TESTNET_PRIVATE : TESTNET_PUBLIC);
+         writer.putBytes(isPrivateHdKeyNode() ? TESTNET_PRIVATE[0] : TESTNET_PUBLIC[0]);    //TODO SEGWIT FIX
       }
       writer.put((byte) (_depth & 0xFF));
       writer.putIntBE(_parentFingerprint);
@@ -413,22 +421,22 @@ public class HdKeyNode implements Serializable {
          ByteReader reader = new ByteReader(bytes);
          boolean isPrivate;
          byte[] magic = reader.getBytes(4);
-         if (BitUtils.areEqual(magic, PRODNET_PRIVATE)) {
+         if (BitUtils.areEqual(magic, PRODNET_PRIVATE[0]) || BitUtils.areEqual(magic, PRODNET_PRIVATE[1]) || BitUtils.areEqual(magic, PRODNET_PRIVATE[2]) ) { //TODO SEGWIT FIX
             if (!network.isProdnet()) {
                throw new KeyGenerationException("Invalid network");
             }
             isPrivate = true;
-         } else if (BitUtils.areEqual(magic, PRODNET_PUBLIC)) {
+         } else if (BitUtils.areEqual(magic, PRODNET_PUBLIC[0]) || BitUtils.areEqual(magic, PRODNET_PUBLIC[1]) || BitUtils.areEqual(magic, PRODNET_PUBLIC[2])) {//TODO SEGWIT FIX
             if (!network.isProdnet()) {
                throw new KeyGenerationException("Invalid network");
             }
             isPrivate = false;
-         } else if (BitUtils.areEqual(magic, TESTNET_PRIVATE)) {
+         } else if (BitUtils.areEqual(magic, TESTNET_PRIVATE[0]) || BitUtils.areEqual(magic, TESTNET_PRIVATE[1]) || BitUtils.areEqual(magic, TESTNET_PRIVATE[2])) {//TODO SEGWIT FIX
             if (network.isProdnet()) {
                throw new KeyGenerationException("Invalid network");
             }
             isPrivate = true;
-         } else if (BitUtils.areEqual(magic, TESTNET_PUBLIC)) {
+         } else if (BitUtils.areEqual(magic, TESTNET_PUBLIC[0]) || BitUtils.areEqual(magic, TESTNET_PUBLIC[1]) || BitUtils.areEqual(magic, TESTNET_PUBLIC[2])) {//TODO SEGWIT FIX
             if (network.isProdnet()) {
                throw new KeyGenerationException("Invalid network");
             }
