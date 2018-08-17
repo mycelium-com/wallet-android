@@ -46,7 +46,7 @@ class WapiClientElectrumX(
             rpcResponse.getParams(Array<BlockHeader>::class.java)!![0].height
         }
     }
-    private var connectionManager = ConnectionManager(5, endpoints, logger)
+    private val connectionManager = ConnectionManager(5, endpoints, logger)
 
     override fun setAppInForeground(isInForeground: Boolean) {
         connectionManager.setActive(isInForeground)
@@ -56,8 +56,8 @@ class WapiClientElectrumX(
         connectionManager.setNetworkConnected(isNetworkConnected)
     }
 
-    override fun serverListChanged(endpoints: List<TcpEndpoint>) {
-        connectionManager.changeEndpoints(endpoints.toTypedArray())
+    override fun serverListChanged(endpoints: List<TcpEndpoint>, default: List<TcpEndpoint>) {
+        connectionManager.changeEndpoints(endpoints.toTypedArray(), default)
     }
 
     init {

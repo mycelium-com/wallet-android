@@ -61,11 +61,22 @@ class WalletConfiguration(private val prefs: SharedPreferences, val network : Ne
 
             } catch (ex :IOException) {
             } finally {
-                mbwManager.wapi.serverListChanged(getElectrumEndpoints())
+                mbwManager.wapi.serverListChanged(getElectrumEndpoints(), getDefaultElectrumEndpoints())
             }
         }
     }
 
+    // Returns the list of default TcpEndpoint objects
+    fun getDefaultElectrumEndpoints(): List<TcpEndpoint>
+    {
+        val result = ArrayList<TcpEndpoint>()
+        val defaultElectrumServers = mutableSetOf(*BuildConfig.ElectrumServers)
+        defaultElectrumServers.forEach {
+            val strs = it.replace(TCP_TLS_PREFIX, "").split(":")
+            result.add(TcpEndpoint(strs[0], strs[1].toInt()))
+        }
+        return result
+    }
     // Returns the set of electrum servers
     val electrumServers: Set<String>
         get() = prefs.getStringSet(PREFS_ELECTRUM_SERVERS, mutableSetOf(*BuildConfig.ElectrumServers))

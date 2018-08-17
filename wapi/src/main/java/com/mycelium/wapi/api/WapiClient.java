@@ -184,7 +184,7 @@ public abstract class WapiClient implements Wapi, WapiClientLifecycle {
       }
    }
 
-   public abstract void serverListChanged(List<TcpEndpoint> endpoints);
+   public abstract void serverListChanged(List<TcpEndpoint> endpoints, List<TcpEndpoint> def);
 
    private String getPostBody(Object request) {
       if (request == null) {

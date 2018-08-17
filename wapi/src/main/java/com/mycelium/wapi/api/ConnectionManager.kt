@@ -36,7 +36,7 @@ class ConnectionManager(private val connectionsCount: Int, private var endpoints
 
     init {
         createConnections(connectionsCount, endpoints, logger)
-        activateMaintenanceTimer(connectionsCount, endpoints, logger, MAINTENANCE_INTERVAL, MAINTENANCE_INTERVAL)
+        activateMaintenanceTimer(connectionsCount, logger, MAINTENANCE_INTERVAL, MAINTENANCE_INTERVAL)
     }
 
     /**
@@ -56,10 +56,10 @@ class ConnectionManager(private val connectionsCount: Int, private var endpoints
         maintenanceTimer?.cancel()
         maintenanceTimer = null
         currentMode = if (isActive) {
-            activateMaintenanceTimer(connectionsCount, endpoints, logger, 0L, MAINTENANCE_INTERVAL)
+            activateMaintenanceTimer(connectionsCount, logger, 0L, MAINTENANCE_INTERVAL)
             ConnectionManagerMode.ACTIVE
         } else {
-            activateMaintenanceTimer(connectionsCount, endpoints, logger, INACTIVE_MAINTENANCE_INTERVAL, INACTIVE_MAINTENANCE_INTERVAL)
+            activateMaintenanceTimer(connectionsCount, logger, INACTIVE_MAINTENANCE_INTERVAL, INACTIVE_MAINTENANCE_INTERVAL)
             ConnectionManagerMode.PASSIVE
         }
     }
@@ -167,11 +167,11 @@ class ConnectionManager(private val connectionsCount: Int, private var endpoints
         }
     }
 
-    private fun activateMaintenanceTimer(connectionsCount: Int, endpoints: Array<TcpEndpoint>,
-                                         logger: WapiLogger, initialInterval: Long, executionInterval: Long) {
+    private fun activateMaintenanceTimer(connectionsCount: Int, logger: WapiLogger,
+                                         initialInterval: Long, executionInterval: Long) {
         maintenanceTimer = Timer()
         maintenanceTimer?.scheduleAtFixedRate(timerTask {
-            doMaintenance(connectionsCount, endpoints, logger)
+            doMaintenance(connectionsCount, this@ConnectionManager.endpoints, logger)
         }, initialInterval, executionInterval)
     }
 
@@ -245,10 +245,15 @@ class ConnectionManager(private val connectionsCount: Int, private var endpoints
         return rpcClient
     }
 
-    public fun changeEndpoints(newEndpoints: Array<TcpEndpoint>){
-        endpoints = newEndpoints
-        createConnections(connectionsCount, endpoints, logger)
-        activateMaintenanceTimer(connectionsCount, endpoints, logger, MAINTENANCE_INTERVAL, MAINTENANCE_INTERVAL)
+    public fun changeEndpoints(newEndpoints: Array<TcpEndpoint>, default: List<TcpEndpoint>){
+        if(!newEndpoints.contentEquals(default.toTypedArray())) {
+            endpoints = newEndpoints
+            if (maintenancedClientsList.isNotEmpty()) {
+                removeDeadClients()
+                createConnections(connectionsCount, endpoints, logger)
+                maintainSubscriptions()
+            }
+        }
     }
 
     @Volatile
