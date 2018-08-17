@@ -91,7 +91,8 @@ public interface Constants {
    String LOCAL_TRADER_LATITUDE_SETTING = "latitude";
    String LOCAL_TRADER_LONGITUDE_SETTING = "longitude";
    GpsLocationEx LOCAL_TRADER_DEFAULT_LOCATION = new GpsLocationEx(48.2162845, 16.2484715, "Penzing, Vienna", "AT");
-   String LOCAL_TRADER_DISABLED_SETTING = "isLocalTraderDisabled";
+   String LT_DISABLED = "isLocalTraderDisabled";
+   String LT_ENABLED = "isLocalTraderEnabled";
    String LOCAL_TRADER_PLAY_SOUND_ON_TRADE_NOTIFICATION_SETTING = "playSoundOnTradeNotification";
    String LOCAL_TRADER_USE_MILES_SETTING = "useMiles";
    String LOCAL_TRADER_GCM_SETTINGS_NAME = "localTrader.gcm.settings";

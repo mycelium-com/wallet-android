@@ -144,7 +144,7 @@ public class LocalTraderManager {
             preferences.getString(Constants.LOCAL_TRADER_LOCATION_NAME_SETTING, Constants.LOCAL_TRADER_DEFAULT_LOCATION.name),
             preferences.getString(Constants.LOCAL_TRADER_LOCATION_COUNTRY_CODE_SETTING, Constants.LOCAL_TRADER_DEFAULT_LOCATION.name));
 
-      localTraderEnabled = preferences.getBoolean(Constants.LOCAL_TRADER_DISABLED_SETTING, true);
+      localTraderEnabled = preferences.getBoolean(Constants.LT_ENABLED, !preferences.getBoolean(Constants.LT_DISABLED, false));
       playSoundOnTradeNotification = preferences.getBoolean(Constants.LOCAL_TRADER_PLAY_SOUND_ON_TRADE_NOTIFICATION_SETTING, true);
       usemiles = preferences.getBoolean(Constants.LOCAL_TRADER_USE_MILES_SETTING, false);
       lastTraderSynchronization = preferences.getLong(Constants.LOCAL_TRADER_LAST_TRADER_SYNCHRONIZATION_SETTING, 0);
@@ -651,7 +651,7 @@ public class LocalTraderManager {
    public void setLocalTraderEnabled(boolean enabled) {
       SharedPreferences.Editor editor = getEditor();
       localTraderEnabled = enabled;
-      editor.putBoolean(Constants.LOCAL_TRADER_DISABLED_SETTING, enabled);
+      editor.putBoolean(Constants.LT_ENABLED, enabled);
       editor.commit();
    }
 

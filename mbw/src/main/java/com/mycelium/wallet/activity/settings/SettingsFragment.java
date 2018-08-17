@@ -931,8 +931,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
     private void applyLocalTraderEnablement() {
         boolean ltEnabled = _ltManager.isLocalTraderEnabled();
-        _ltNotificationSound.setEnabled(!ltEnabled);
-        _ltMilesKilometers.setEnabled(!ltEnabled);
+        _ltNotificationSound.setEnabled(ltEnabled);
+        _ltMilesKilometers.setEnabled(ltEnabled);
     }
 
     private String getUseTorTitle() {
