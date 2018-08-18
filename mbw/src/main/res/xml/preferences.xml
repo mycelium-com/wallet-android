@@ -159,8 +159,8 @@
             android:icon="@drawable/ic_trading"
             android:key="ltDisable"
             android:layout="@layout/preference_layout"
-            android:summary="@string/lt_disable_preference_summary"
-            android:title="@string/lt_disable_preference"
+            android:summary="@string/lt_preference_summary"
+            android:title="@string/lt_preference_title"
             android:widgetLayout="@layout/preference_switch" />
         <CheckBoxPreference
             android:key="ltNotificationSound"

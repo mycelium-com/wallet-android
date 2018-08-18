@@ -246,9 +246,3 @@ android {
         unitTests.returnDefaultValues = true
     }
 }
-
-kotlin {
-    experimental {
-        coroutines "enable"
-    }
-}
