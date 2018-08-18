@@ -246,7 +246,7 @@ class ConnectionManager(private val connectionsCount: Int, private var endpoints
     }
 
     public fun changeEndpoints(newEndpoints: Array<TcpEndpoint>, default: List<TcpEndpoint>){
-        if(!newEndpoints.contentEquals(default.toTypedArray())) {
+        if(newEndpoints.toSet() != endpoints.toSet()) {
             endpoints = newEndpoints
             if (maintenancedClientsList.isNotEmpty()) {
                 removeDeadClients()
