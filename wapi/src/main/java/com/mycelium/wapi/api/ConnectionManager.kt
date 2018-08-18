@@ -171,7 +171,7 @@ class ConnectionManager(private val connectionsCount: Int, private var endpoints
                                          initialInterval: Long, executionInterval: Long) {
         maintenanceTimer = Timer()
         maintenanceTimer?.scheduleAtFixedRate(timerTask {
-            doMaintenance(connectionsCount, this@ConnectionManager.endpoints, logger)
+            doMaintenance(connectionsCount, endpoints, logger)
         }, initialInterval, executionInterval)
     }
 

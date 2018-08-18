@@ -32,7 +32,6 @@ class ElectrumXResponse(val primary : Array<ElectrumServerResponse>, backup: Arr
 // ElectrumServerResponse is intended for parsing nodes.json file
 class ElectrumServerResponse(val url: String)
 
-
 class WalletConfiguration(private val prefs: SharedPreferences,
                           val network : NetworkParameters) {
     init {
@@ -60,18 +59,16 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                     prefs.edit().putStringSet(PREFS_ELECTRUM_SERVERS, nodes).apply()
                     serverListChangedListener?.serverListChanged(getElectrumEndpoints())
                 }
-
             } catch (_: IOException) {}
         }
     }
 
     // Returns the set of electrum servers
     val electrumServers: Set<String>
-        get() = prefs.getStringSet(PREFS_ELECTRUM_SERVERS, mutableSetOf(*BuildConfig.ElectrumServers))
+        get() = prefs.getStringSet(PREFS_ELECTRUM_SERVERS, mutableSetOf(*BuildConfig.ElectrumServers))!!
 
     // Returns the list of TcpEndpoint objects
-    fun getElectrumEndpoints(): List<TcpEndpoint>
-    {
+    fun getElectrumEndpoints(): List<TcpEndpoint> {
         val result = ArrayList<TcpEndpoint>()
         electrumServers.forEach {
             val strs = it.replace(TCP_TLS_PREFIX, "").split(":")
@@ -87,7 +84,6 @@ class WalletConfiguration(private val prefs: SharedPreferences,
     }
 
     companion object {
-        const val MAX_WAITING_TIMEOUT = 10000L
         const val PREFS_ELECTRUM_SERVERS = "electrum_servers"
 
         const val TCP_TLS_PREFIX = "tcp-tls://"

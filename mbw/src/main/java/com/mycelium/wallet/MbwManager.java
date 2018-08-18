@@ -479,8 +479,8 @@ public class MbwManager {
          version = "na";
       }
 
-        List<TcpEndpoint> tcpEndpoints = configuration.getElectrumEndpoints();
-        return new WapiClientElectrumX(_environment.getWapiEndpoints(), tcpEndpoints.toArray(new TcpEndpoint[tcpEndpoints.size()]), retainingWapiLogger, version);
+      List<TcpEndpoint> tcpEndpoints = configuration.getElectrumEndpoints();
+      return new WapiClientElectrumX(_environment.getWapiEndpoints(), tcpEndpoints.toArray(new TcpEndpoint[tcpEndpoints.size()]), retainingWapiLogger, version);
    }
 
    private void initTor() {
