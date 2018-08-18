@@ -8,8 +8,8 @@ import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
+import kotlinx.coroutines.experimental.launch
 import java.io.IOException
-import kotlin.concurrent.thread
 
 interface  MyceliumNodesApi {
     @GET("/nodes.json")
@@ -39,7 +39,7 @@ class WalletConfiguration(private val prefs: SharedPreferences, val network : Ne
 
     // Makes a request to S3 storage to retrieve nodes.json and parses it to extract electrum servers list
     fun updateConfig() {
-        thread(start = true) {
+        launch {
             try {
                 val resp = Retrofit.Builder()
                         .baseUrl(AMAZON_S3_STORAGE_ADDRESS)
