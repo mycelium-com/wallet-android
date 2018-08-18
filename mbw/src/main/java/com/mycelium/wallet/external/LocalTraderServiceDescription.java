@@ -42,11 +42,11 @@ public class LocalTraderServiceDescription extends BuySellServiceDescriptor {
 
    @Override
    public boolean isEnabled(MbwManager mbwManager) {
-      return !mbwManager.getLocalTraderManager().isLocalTraderDisabled();
+      return mbwManager.getLocalTraderManager().isLocalTraderEnabled();
    }
 
    @Override
    public void setEnabled(MbwManager mbwManager, boolean enabledState) {
-      mbwManager.getLocalTraderManager().setLocalTraderDisabled(!enabledState);
+      mbwManager.getLocalTraderManager().setLocalTraderEnabled(enabledState);
    }
 }
