@@ -192,7 +192,7 @@ public class MbwManager {
    private final ExternalSignatureDeviceManager _trezorManager;
    private final KeepKeyManager _keepkeyManager;
    private final LedgerManager _ledgerManager;
-   private final WapiClient _wapi;
+   private final WapiClientElectrumX _wapi;
 
    private final LtApiClient _ltApi;
    private Handler _torHandler;
@@ -250,6 +250,7 @@ public class MbwManager {
       }
 
       _wapi = initWapi();
+      configuration.setServerListChangedListener(_wapi);
       _httpErrorCollector = HttpErrorCollector.registerInVM(_applicationContext, _wapi);
 
       _randomSource = new AndroidRandomSource();
@@ -465,7 +466,7 @@ public class MbwManager {
       }
    };
 
-   private WapiClient initWapi() {
+   private WapiClientElectrumX initWapi() {
       String version;
       try {
          PackageInfo packageInfo = _applicationContext.getPackageManager().getPackageInfo(_applicationContext.getPackageName(), 0);
@@ -478,8 +479,8 @@ public class MbwManager {
          version = "na";
       }
 
-        List<TcpEndpoint> tcpEndpoints = configuration.getElectrumEndpoints();
-        return new WapiClientElectrumX(_environment.getWapiEndpoints(), tcpEndpoints.toArray(new TcpEndpoint[tcpEndpoints.size()]), retainingWapiLogger, version);
+      List<TcpEndpoint> tcpEndpoints = configuration.getElectrumEndpoints();
+      return new WapiClientElectrumX(_environment.getWapiEndpoints(), tcpEndpoints.toArray(new TcpEndpoint[tcpEndpoints.size()]), retainingWapiLogger, version);
    }
 
    private void initTor() {
@@ -1279,7 +1280,7 @@ public class MbwManager {
       return _ledgerManager;
    }
 
-   public WapiClient getWapi() {
+   public WapiClientElectrumX getWapi() {
       return _wapi;
    }
 
