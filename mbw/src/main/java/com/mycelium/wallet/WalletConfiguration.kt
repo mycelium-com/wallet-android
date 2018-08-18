@@ -8,8 +8,9 @@ import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
+import com.mycelium.wapi.api.ServerListChangedListener
+import kotlinx.coroutines.experimental.launch
 import java.io.IOException
-import kotlin.concurrent.thread
 
 interface  MyceliumNodesApi {
     @GET("/nodes.json")
@@ -31,15 +32,15 @@ class ElectrumXResponse(val primary : Array<ElectrumServerResponse>, backup: Arr
 // ElectrumServerResponse is intended for parsing nodes.json file
 class ElectrumServerResponse(val url: String)
 
-class WalletConfiguration(private val prefs: SharedPreferences, val network : NetworkParameters, val mbwManager : MbwManager) {
-
+class WalletConfiguration(private val prefs: SharedPreferences,
+                          val network : NetworkParameters) {
     init {
         updateConfig()
     }
 
     // Makes a request to S3 storage to retrieve nodes.json and parses it to extract electrum servers list
     fun updateConfig() {
-        thread(start = true) {
+        launch {
             try {
                 val resp = Retrofit.Builder()
                         .baseUrl(AMAZON_S3_STORAGE_ADDRESS)
@@ -48,7 +49,6 @@ class WalletConfiguration(private val prefs: SharedPreferences, val network : Ne
                         .create(MyceliumNodesApi::class.java)
                         .getNodes()
                         .execute()
-
                 if (resp.isSuccessful) {
                     val myceliumNodesResponse = resp.body()
 
@@ -57,33 +57,18 @@ class WalletConfiguration(private val prefs: SharedPreferences, val network : Ne
                     else
                         myceliumNodesResponse?.btcMainnet?.electrumx?.primary?.map { it.url }?.toSet()
                     prefs.edit().putStringSet(PREFS_ELECTRUM_SERVERS, nodes).apply()
+                    serverListChangedListener?.serverListChanged(getElectrumEndpoints())
                 }
-
-            } catch (ex :IOException) {
-            } finally {
-                mbwManager.wapi.serverListChanged(getElectrumEndpoints(), getDefaultElectrumEndpoints())
-            }
+            } catch (_: IOException) {}
         }
     }
 
-    // Returns the list of default TcpEndpoint objects
-    fun getDefaultElectrumEndpoints(): List<TcpEndpoint>
-    {
-        val result = ArrayList<TcpEndpoint>()
-        val defaultElectrumServers = mutableSetOf(*BuildConfig.ElectrumServers)
-        defaultElectrumServers.forEach {
-            val strs = it.replace(TCP_TLS_PREFIX, "").split(":")
-            result.add(TcpEndpoint(strs[0], strs[1].toInt()))
-        }
-        return result
-    }
     // Returns the set of electrum servers
     val electrumServers: Set<String>
-        get() = prefs.getStringSet(PREFS_ELECTRUM_SERVERS, mutableSetOf(*BuildConfig.ElectrumServers))
+        get() = prefs.getStringSet(PREFS_ELECTRUM_SERVERS, mutableSetOf(*BuildConfig.ElectrumServers))!!
 
     // Returns the list of TcpEndpoint objects
-    fun getElectrumEndpoints(): List<TcpEndpoint>
-    {
+    fun getElectrumEndpoints(): List<TcpEndpoint> {
         val result = ArrayList<TcpEndpoint>()
         electrumServers.forEach {
             val strs = it.replace(TCP_TLS_PREFIX, "").split(":")
@@ -92,8 +77,13 @@ class WalletConfiguration(private val prefs: SharedPreferences, val network : Ne
         return result
     }
 
+    private var serverListChangedListener: ServerListChangedListener? = null
+
+    fun setServerListChangedListener(serverListChangedListener : ServerListChangedListener) {
+        this.serverListChangedListener = serverListChangedListener
+    }
+
     companion object {
-        const val MAX_WAITING_TIMEOUT = 10000L
         const val PREFS_ELECTRUM_SERVERS = "electrum_servers"
 
         const val TCP_TLS_PREFIX = "tcp-tls://"

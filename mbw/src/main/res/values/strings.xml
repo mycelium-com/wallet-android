@@ -316,8 +316,8 @@
     <string name="lt_ad_created">Ad created</string>
     <string name="lt_ad_edited">Ad edited</string>
     <string name="lt_pref_category">Local Trader</string>
-    <string name="lt_disable_preference">Local Trader</string>
-    <string name="lt_disable_preference_summary">Disable local trader functionality</string>
+    <string name="lt_preference_title">Local Trader</string>
+    <string name="lt_preference_summary">Buy/Sell bitcoin peer-to-peer</string>
     <string name="lt_sound_on_trade_preference">Play Sound on Trade Activity</string>
     <string name="lt_sound_on_trade_preference_summary">Play a notification sound when trade activity occurs</string>
     <string name="lt_use_email_for_notifications">Use email for notifications</string>
