@@ -245,7 +245,7 @@ class ConnectionManager(private val connectionsCount: Int, private var endpoints
         return rpcClient
     }
 
-    public fun changeEndpoints(newEndpoints: Array<TcpEndpoint>, default: List<TcpEndpoint>){
+    fun changeEndpoints(newEndpoints: Array<TcpEndpoint>) {
         if(newEndpoints.toSet() != endpoints.toSet()) {
             endpoints = newEndpoints
             if (maintenancedClientsList.isNotEmpty()) {

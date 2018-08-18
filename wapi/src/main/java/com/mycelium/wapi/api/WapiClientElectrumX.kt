@@ -35,7 +35,7 @@ class WapiClientElectrumX(
         endpoints: Array<TcpEndpoint>,
         logger: WapiLogger,
         versionCode: String)
-    : WapiClient(serverEndpoints, logger, versionCode) {
+    : WapiClient(serverEndpoints, logger, versionCode), ServerListChangedListener {
     @Volatile
     private var bestChainHeight = -1
     private val receiveHeaderCallback = { response: AbstractResponse ->
@@ -56,8 +56,8 @@ class WapiClientElectrumX(
         connectionManager.setNetworkConnected(isNetworkConnected)
     }
 
-    override fun serverListChanged(endpoints: List<TcpEndpoint>, default: List<TcpEndpoint>) {
-        connectionManager.changeEndpoints(endpoints.toTypedArray(), default)
+    override fun serverListChanged(newEndpoints: Collection<TcpEndpoint>) {
+        connectionManager.changeEndpoints(newEndpoints.toTypedArray())
     }
 
     init {
@@ -342,4 +342,8 @@ data class TransactionHistoryInfo(
             else -> 0
         }
     }
+}
+
+interface ServerListChangedListener {
+    fun serverListChanged(newEndpoints: Collection<TcpEndpoint>)
 }
