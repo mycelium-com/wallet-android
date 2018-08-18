@@ -34,6 +34,8 @@ import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
 import com.mrd.bitlib.util.ByteWriter;
 import kotlin.NotImplementedError;
 
+import static com.mrd.bitlib.util.HexUtils.toBytes;
+
 /**
  * Implementation of BIP 32 HD wallet key derivation.
  * <p>
@@ -375,18 +377,26 @@ public class HdKeyNode implements Serializable {
       return _publicKey;
    }
 
-   private static final byte[][] PRODNET_PUBLIC = new byte[][]{{(byte) 0x04, (byte) 0x88, (byte) 0xB2, (byte) 0x1E},  // xpub
-           {(byte) 0x04, (byte) 0x9d, (byte) 0x7c, (byte) 0xb2},                                                      // ypub
-           {(byte) 0x04, (byte) 0xb2, (byte) 0x47, (byte) 0x46}};                                                     // zpub
-   private static final byte[][] TESTNET_PUBLIC = new byte[][]{{(byte) 0x04, (byte) 0x35, (byte) 0x87, (byte) 0xCF},  // tpub
-           {(byte) 0x04, (byte) 0x4a, (byte) 0x52, (byte) 0x62},                                                      // upub
-           {(byte) 0x04, (byte) 0x5f, (byte) 0x1c, (byte) 0xf6}};                                                     // vpub
-   private static final byte[][] PRODNET_PRIVATE = new byte[][]{{(byte) 0x04, (byte) 0x88, (byte) 0xAD, (byte) 0xE4}, // xprv
-           {(byte) 0x04, (byte) 0x9d, (byte) 0x78, (byte) 0x78},                                                      // yprv
-           {(byte) 0x04, (byte) 0xb2, (byte) 0x43, (byte) 0x0c}};                                                     // zprv
-   private static final byte[][] TESTNET_PRIVATE = new byte[][]{{(byte) 0x04, (byte) 0x35, (byte) 0x83, (byte) 0x94}, // tprv
-           {(byte) 0x04, (byte) 0x4a, (byte) 0x4e, (byte) 0x28},                                                      // uprv
-           {(byte) 0x04, (byte) 0x5f, (byte) 0x18, (byte) 0xbc}};                                                     // vprv
+   private static final byte[][] PRODNET_PUBLIC = new byte[][] {
+           toBytes("04 88 B2 1E"), // xpub
+           toBytes("04 9d 7c b2"), // ypub
+           toBytes("04 b2 47 46")  // zpub
+   };
+   private static final byte[][] TESTNET_PUBLIC = new byte[][] {
+           toBytes("04 35 87 CF"), // tpub
+           toBytes("04 4a 52 62"), // upub
+           toBytes("04 5f 1c f6")  // vpub
+   };
+   private static final byte[][] PRODNET_PRIVATE = new byte[][] {
+           toBytes("04 88 AD E4"), // xprv
+           toBytes("04 9d 78 78"), // yprv
+           toBytes("04 b2 43 0c")  // zprv
+   };
+   private static final byte[][] TESTNET_PRIVATE = new byte[][] {
+           toBytes("04 35 83 94"), // tprv
+           toBytes("04 4a 4e 28"), // uprv
+           toBytes("04 5f 18 bc")  // vprv
+   };
 
    /**
     * Serialize this node
