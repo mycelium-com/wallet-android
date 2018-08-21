@@ -34,6 +34,7 @@
 
 package com.mycelium.wallet.colu;
 
+import com.google.gson.Gson;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -63,6 +64,7 @@ import com.mrd.bitlib.crypto.BipDerivationType;
 import com.mycelium.wapi.wallet.bip44.HDAccountContext;
 import com.mycelium.wapi.wallet.bip44.HDAccountContext.AccountIndexesContext;
 import com.mycelium.wapi.wallet.single.SingleAddressAccountContext;
+import com.mycelium.wapi.api.lib.FeeEstimation;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -86,6 +88,7 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
    private static final String LOG_TAG = "SqliteColuManagerBackin";
    private static final String TABLE_KV = "kv";
    private static final int DEFAULT_SUB_ID = 0;
+   private static final byte[] LAST_FEE_ESTIMATE = new byte[]{42, 55};
    private SQLiteDatabase _database;
    private Map<UUID, SqliteColuAccountBacking> _backings;
    private final SQLiteStatement _insertOrReplaceBip44Account;
@@ -118,6 +121,25 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
       for (UUID id : getAccountIds(_database)) {
          _backings.put(id, new SqliteColuAccountBacking(id, _database));
       }
+   }
+
+   @Override
+   public void saveLastFeeEstimation(FeeEstimation feeEstimation) {
+      Gson gson = new Gson();
+      byte[] value = gson.toJson(feeEstimation).getBytes();
+      setValue(LAST_FEE_ESTIMATE, value);
+   }
+
+   @Override
+   public FeeEstimation loadLastFeeEstimation() {
+      Gson gson = new Gson();
+      byte[] value = getValue(LAST_FEE_ESTIMATE);
+      FeeEstimation feeEstimation = FeeEstimation.DEFAULT;
+      try {
+         String valueString = new String(value);
+         feeEstimation = gson.fromJson(valueString, FeeEstimation.class);
+      } catch (Exception ignore) { }
+       return feeEstimation;
    }
 
    private List<UUID> getAccountIds(SQLiteDatabase db) {

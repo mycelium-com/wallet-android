@@ -150,7 +150,16 @@
             </FrameLayout>
         </LinearLayout>
         <!-- Warning Message -->
-
+        <TextView
+            android:id="@+id/tvStaleWarning"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="4dp"
+            android:gravity="center"
+            android:text="@string/stale_fee_warning"
+            android:textColor="@color/red"
+            android:textSize="18sp"/>
         <TextView
                 android:id="@+id/tvWarning"
                 android:layout_width="wrap_content"

@@ -172,6 +172,7 @@ public class MbwManager {
 
    private final CurrencySwitcher _currencySwitcher;
    private boolean startUpPinUnlocked = false;
+   private boolean randomizePinPad;
    private Timer _addressWatchTimer;
 
    public static synchronized MbwManager getInstance(Context context) {
@@ -191,7 +192,7 @@ public class MbwManager {
    private final ExternalSignatureDeviceManager _trezorManager;
    private final KeepKeyManager _keepkeyManager;
    private final LedgerManager _ledgerManager;
-   private final WapiClient _wapi;
+   private final WapiClientElectrumX _wapi;
 
    private final LtApiClient _ltApi;
    private Handler _torHandler;
@@ -249,6 +250,7 @@ public class MbwManager {
       }
 
       _wapi = initWapi();
+      configuration.setServerListChangedListener(_wapi);
       _httpErrorCollector = HttpErrorCollector.registerInVM(_applicationContext, _wapi);
 
       _randomSource = new AndroidRandomSource();
@@ -263,7 +265,7 @@ public class MbwManager {
               preferences.getString(Constants.PIN_SETTING_RESETTABLE, "1").equals("1")
       );
       _pinRequiredOnStartup = preferences.getBoolean(Constants.PIN_SETTING_REQUIRED_ON_STARTUP, false);
-
+      randomizePinPad = preferences.getBoolean(Constants.RANDOMIZE_PIN, false);
       _minerFee = MinerFee.fromString(preferences.getString(Constants.MINER_FEE_SETTING, MinerFee.NORMAL.toString()));
       _enableContinuousFocus = preferences.getBoolean(Constants.ENABLE_CONTINUOUS_FOCUS_SETTING, false);
       _keyManagementLocked = preferences.getBoolean(Constants.KEY_MANAGEMENT_LOCKED_SETTING, false);
@@ -292,7 +294,7 @@ public class MbwManager {
       _currencySwitcher = new CurrencySwitcher(
               _exchangeRateManager,
               fiatCurrencies,
-              getPreferences().getString(Constants.FIAT_CURRENCY_SETTING, Constants.DEFAULT_CURRENCY),
+              preferences.getString(Constants.FIAT_CURRENCY_SETTING, Constants.DEFAULT_CURRENCY),
               Denomination.fromString(preferences.getString(Constants.BITCOIN_DENOMINATION_SETTING, Denomination.BTC.toString()))
       );
 
@@ -329,7 +331,7 @@ public class MbwManager {
       _versionManager.initBackgroundVersionChecker();
       _blockExplorerManager = new BlockExplorerManager(this,
               _environment.getBlockExplorerList(),
-              getPreferences().getString(Constants.BLOCK_EXPLORER,
+              preferences.getString(Constants.BLOCK_EXPLORER,
                       _environment.getBlockExplorerList().get(0).getIdentifier()));
    }
 
@@ -409,6 +411,15 @@ public class MbwManager {
       _tempWalletManager.addObserver(_eventTranslator);
    }
 
+   public boolean isPinPadRandomized() {
+      return randomizePinPad;
+   }
+
+   public void setPinPadRandomized(boolean randomizePinPad) {
+      getEditor().putBoolean(Constants.RANDOMIZE_PIN, randomizePinPad).apply();
+      this.randomizePinPad = randomizePinPad;
+   }
+
    private LtApiClient initLt() {
       return new LtApiClient(_environment.getLtEndpoints(), new LtApiClient.Logger() {
          @Override
@@ -455,7 +466,7 @@ public class MbwManager {
       }
    };
 
-   private WapiClient initWapi() {
+   private WapiClientElectrumX initWapi() {
       String version;
       try {
          PackageInfo packageInfo = _applicationContext.getPackageManager().getPackageInfo(_applicationContext.getPackageName(), 0);
@@ -468,8 +479,8 @@ public class MbwManager {
          version = "na";
       }
 
-        List<TcpEndpoint> tcpEndpoints = configuration.getElectrumEndpoints();
-        return new WapiClientElectrumX(_environment.getWapiEndpoints(), tcpEndpoints.toArray(new TcpEndpoint[tcpEndpoints.size()]), retainingWapiLogger, version);
+      List<TcpEndpoint> tcpEndpoints = configuration.getElectrumEndpoints();
+      return new WapiClientElectrumX(_environment.getWapiEndpoints(), tcpEndpoints.toArray(new TcpEndpoint[tcpEndpoints.size()]), retainingWapiLogger, version);
    }
 
    private void initTor() {
@@ -689,9 +700,7 @@ public class MbwManager {
       // but tell the currency-switcher only to switch over the user selected currencies
       _currencySwitcher.setCurrencyList(currencies);
 
-      SharedPreferences.Editor editor = getEditor();
-      editor.putStringSet(Constants.SELECTED_CURRENCIES, new HashSet<>(currencies));
-      editor.commit();
+      getEditor().putStringSet(Constants.SELECTED_CURRENCIES, new HashSet<>(currencies)).apply();
    }
 
    public String getNextCurrency(boolean includeBitcoin) {
@@ -820,8 +829,10 @@ public class MbwManager {
          }
       }
       _pin = pin;
-      getEditor().putString(Constants.PIN_SETTING, _pin.getPin()).commit();
-      getEditor().putString(Constants.PIN_SETTING_RESETTABLE, pin.isResettable() ? "1" : "0").commit();
+      getEditor()
+              .putString(Constants.PIN_SETTING, _pin.getPin())
+              .putString(Constants.PIN_SETTING_RESETTABLE, pin.isResettable() ? "1" : "0")
+              .apply();
    }
 
    private void setPinBlockheight() {
@@ -870,7 +881,7 @@ public class MbwManager {
                }
                if (pin.equals(getPin())) {
                   failedPinCount = 0;
-                  getPreferences().edit().putInt(Constants.FAILED_PIN_COUNT, failedPinCount).apply();
+                  getEditor().putInt(Constants.FAILED_PIN_COUNT, failedPinCount).apply();
                   pinDialog.dismiss();
 
                   // as soon as you enter the correct pin once, abort the reset-pin-procedure
@@ -882,7 +893,7 @@ public class MbwManager {
 
                   fun.run();
                } else {
-                  getPreferences().edit().putInt(Constants.FAILED_PIN_COUNT, ++failedPinCount).apply();
+                  getEditor().putInt(Constants.FAILED_PIN_COUNT, ++failedPinCount).apply();
                   if (_pin.isResettable()) {
                      // Show hint, that this pin is resettable
                      new AlertDialog.Builder(activity)
@@ -948,12 +959,12 @@ public class MbwManager {
 
    public void setMinerFee(MinerFee minerFee) {
       _minerFee = minerFee;
-      getEditor().putString(Constants.MINER_FEE_SETTING, _minerFee.toString()).commit();
+      getEditor().putString(Constants.MINER_FEE_SETTING, _minerFee.toString()).apply();
    }
 
    public void setBlockExplorer(BlockExplorer blockExplorer) {
       _blockExplorerManager.setBlockExplorer(blockExplorer);
-      getEditor().putString(Constants.BLOCK_EXPLORER, blockExplorer.getIdentifier()).commit();
+      getEditor().putString(Constants.BLOCK_EXPLORER, blockExplorer.getIdentifier()).apply();
    }
 
 
@@ -963,7 +974,7 @@ public class MbwManager {
 
    public void setBitcoinDenomination(CoinUtil.Denomination denomination) {
       _currencySwitcher.setBitcoinDenomination(denomination);
-      getEditor().putString(Constants.BITCOIN_DENOMINATION_SETTING, denomination.toString()).commit();
+      getEditor().putString(Constants.BITCOIN_DENOMINATION_SETTING, denomination.toString()).apply();
    }
 
    public String getBtcValueString(long satoshis) {
@@ -980,7 +991,7 @@ public class MbwManager {
 
    public void setKeyManagementLocked(boolean locked) {
       _keyManagementLocked = locked;
-      getEditor().putBoolean(Constants.KEY_MANAGEMENT_LOCKED_SETTING, _keyManagementLocked).commit();
+      getEditor().putBoolean(Constants.KEY_MANAGEMENT_LOCKED_SETTING, _keyManagementLocked).apply();
    }
 
    public boolean getContinuousFocus() {
@@ -989,12 +1000,12 @@ public class MbwManager {
 
    public void setContinuousFocus(boolean enableContinuousFocus) {
       _enableContinuousFocus = enableContinuousFocus;
-      getEditor().putBoolean(Constants.ENABLE_CONTINUOUS_FOCUS_SETTING, _enableContinuousFocus).commit();
+      getEditor().putBoolean(Constants.ENABLE_CONTINUOUS_FOCUS_SETTING, _enableContinuousFocus).apply();
    }
 
 
    public void setProxy(String proxy) {
-      getEditor().putString(Constants.PROXY_SETTING, proxy).commit();
+      getEditor().putString(Constants.PROXY_SETTING, proxy).apply();
       ImmutableList<String> vals = ImmutableList.copyOf(Splitter.on(":").split(proxy));
       if (vals.size() != 2) {
          noProxy();
@@ -1068,16 +1079,12 @@ public class MbwManager {
 
    public void setLanguage(String _language) {
       this._language = _language;
-      SharedPreferences.Editor editor = getEditor();
-      editor.putString(Constants.LANGUAGE_SETTING, _language);
-      editor.apply();
+      getEditor().putString(Constants.LANGUAGE_SETTING, _language).apply();
    }
 
    public void setTorMode(ServerEndpointType.Types torMode) {
       this._torMode = torMode;
-      SharedPreferences.Editor editor = getEditor();
-      editor.putString(Constants.TOR_MODE, torMode.toString());
-      editor.apply();
+      getEditor().putString(Constants.TOR_MODE, torMode.toString()).apply();
 
       ServerEndpointType serverEndpointType = ServerEndpointType.fromType(torMode);
       if (serverEndpointType.mightUseTor()) {
@@ -1190,7 +1197,7 @@ public class MbwManager {
       final WalletAccount account;
       account = _walletManager.getAccount(uuid);
       Preconditions.checkState(account.isActive());
-      getEditor().putString(SELECTED_ACCOUNT, uuid.toString()).commit();
+      getEditor().putString(SELECTED_ACCOUNT, uuid.toString()).apply();
       getEventBus().post(new SelectedAccountChanged(uuid));
       Optional<Address> receivingAddress = account.getReceivingAddress();
       getEventBus().post(new ReceivingAddressChanged(receivingAddress));
@@ -1273,7 +1280,7 @@ public class MbwManager {
       return _ledgerManager;
    }
 
-   public WapiClient getWapi() {
+   public WapiClientElectrumX getWapi() {
       return _wapi;
    }
 
@@ -1291,9 +1298,7 @@ public class MbwManager {
 
    @Subscribe
    public void onSelectedCurrencyChanged(SelectedCurrencyChanged event) {
-      SharedPreferences.Editor editor = getEditor();
-      editor.putString(Constants.FIAT_CURRENCY_SETTING, _currencySwitcher.getCurrentFiatCurrency());
-      editor.commit();
+      getEditor().putString(Constants.FIAT_CURRENCY_SETTING, _currencySwitcher.getCurrentFiatCurrency()).apply();
    }
 
    public boolean getPinRequiredOnStartup() {
@@ -1309,10 +1314,7 @@ public class MbwManager {
    }
 
    public void setPinRequiredOnStartup(boolean _pinRequiredOnStartup) {
-      SharedPreferences.Editor editor = getEditor();
-      editor.putBoolean(Constants.PIN_SETTING_REQUIRED_ON_STARTUP, _pinRequiredOnStartup);
-      editor.commit();
-
+      getEditor().putBoolean(Constants.PIN_SETTING_REQUIRED_ON_STARTUP, _pinRequiredOnStartup).apply();
       this._pinRequiredOnStartup = _pinRequiredOnStartup;
    }
 
@@ -1375,6 +1377,10 @@ public class MbwManager {
          _hasCoinapultAccounts = getMetadataStorage().isPairedService(MetadataStorage.PAIRED_SERVICE_COINAPULT);
       }
       return _hasCoinapultAccounts;
+   }
+
+   public boolean hasColoredAccounts() {
+      return getMetadataStorage().isPairedService(MetadataStorage.PAIRED_SERVICE_COLU);
    }
 
    private void pinOkForOneS() {

@@ -87,7 +87,7 @@ public class WalletManager {
     private final ExternalSignatureProviderProxy _signatureProviders;
     private IdentityAccountKeyManager _identityAccountKeyManager;
     private volatile UUID _activeAccountId;
-    private FeeEstimation _lastFeeEstimations = FeeEstimation.DEFAULT;
+    private FeeEstimation _lastFeeEstimations;
     private SpvBalanceFetcher _spvBalanceFetcher;
     private volatile boolean isNetworkConnected;
     /**
@@ -114,6 +114,7 @@ public class WalletManager {
         _spvBalanceFetcher = spvBalanceFetcher;
         _btcToBchAccounts = new HashMap<>();
         this.isNetworkConnected = isNetworkConnected;
+        _lastFeeEstimations = _backing.loadLastFeeEstimation();
         loadAccounts();
     }
 
@@ -963,6 +964,7 @@ public class WalletManager {
             if (minerFeeEstimations != null && minerFeeEstimations.getErrorCode() == Wapi.ERROR_CODE_SUCCESS) {
                 try {
                     _lastFeeEstimations = minerFeeEstimations.getResult().feeEstimation;
+                    _backing.saveLastFeeEstimation(_lastFeeEstimations);
                     return true;
                 } catch (WapiException e) {
                     return false;
@@ -1384,11 +1386,10 @@ public class WalletManager {
     }
 
     public FeeEstimation getLastFeeEstimations() {
-        if (_lastFeeEstimations != null && (new Date().getTime() - _lastFeeEstimations.getValidFor().getTime()) < MAX_AGE_FEE_ESTIMATION) {
-            return _lastFeeEstimations;
-        } else {
-            return FeeEstimation.DEFAULT;
+        if ((new Date().getTime() - _lastFeeEstimations.getValidFor().getTime()) >= MAX_AGE_FEE_ESTIMATION) {
+            _logger.logError("Using stale fee estimation!"); // this is still better
         }
+        return _lastFeeEstimations;
     }
 
     /**
