@@ -1156,7 +1156,7 @@ public class AccountsFragment extends Fragment {
       }
       final WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
       if (accountProtected(_focusedAccount)) {
-         //this is the last active account, we dont allow archiving it
+         //this is the last active hd account, we dont allow archiving it
          _toaster.toast(R.string.keep_one_active, false);
          return;
       }
@@ -1197,11 +1197,14 @@ public class AccountsFragment extends Fragment {
    }
 
    /**
-    * Account is protected if after removal no accounts would stay active, so it would not be possible to select an account
+    * Account is protected if after removal no HD accounts would stay active, so it would not be possible to select an account
     */
    private boolean accountProtected(WalletAccount toRemove) {
-      final int safeSize = getLinkedAccountsCount(toRemove) + 2;
-      return _mbwManager.getWalletManager(false).getActiveAccounts().size() < safeSize;
+      if(_mbwManager.getWalletManager(false).getActiveBip44AccountsNumber() == 1 &&
+              toRemove.getType() == WalletAccount.Type.BTCBIP44){
+         return true;
+      }
+      return false;
    }
 
    private void hideSelected() {
