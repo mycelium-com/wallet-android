@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -19,7 +20,6 @@ import java.util.UUID;
  * Resolves crashes that some users experience
  */
 final class AccountCreatorHelper {
-
     public interface AccountCreatable {
         MbwManager getMbwManager();
         void finishActivity(UUID accountId);
@@ -54,7 +54,7 @@ final class AccountCreatorHelper {
             }
             //set default label for the created HD account
             WalletAccount account = activity.getMbwManager().getWalletManager(false).getAccount(accountId);
-            String defaultName = ((Context) activity).getString(R.string.account) + " " + (((Bip44Account) account).getAccountIndex() + 1);
+            String defaultName = Utils.getNameForNewAccount(account, (Context) activity);
             activity.getMbwManager().getMetadataStorage().storeAccountLabel(accountId, defaultName);
             //finish initialization
             activity.finishActivity(accountId);

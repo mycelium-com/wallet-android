@@ -255,7 +255,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
          activity._progress.dismiss();
          //set default label for the created HD account
          WalletAccount account = activity._mbwManager.getWalletManager(false).getAccount(accountid);
-         String defaultName = activity.getString(R.string.account) + " " + (((Bip44Account) account).getAccountIndex() + 1);
+         String defaultName = Utils.getNameForNewAccount(account, activity);
          activity._mbwManager.getMetadataStorage().storeAccountLabel(accountid, defaultName);
          //finish initialization
          activity.delayedFinish.run();
@@ -504,7 +504,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
             UUID accountid = (UUID) data.getSerializableExtra(AddAccountActivity.RESULT_KEY);
             //set default label for the created HD account
             WalletAccount account = _mbwManager.getWalletManager(false).getAccount(accountid);
-            String defaultName = getString(R.string.account) + " " + (((Bip44Account) account).getAccountIndex() + 1);
+            String defaultName = Utils.getNameForNewAccount(account, this);
             _mbwManager.getMetadataStorage().storeAccountLabel(accountid, defaultName);
             //finish initialization
             delayedFinish.run();

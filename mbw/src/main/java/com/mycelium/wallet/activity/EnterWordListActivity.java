@@ -262,7 +262,6 @@ public class EnterWordListActivity extends AppCompatActivity implements WordAuto
       }
    }
 
-
    @Override
    public void onWordSelected(String word) {
       addWordToList(word);
@@ -272,7 +271,6 @@ public class EnterWordListActivity extends AppCompatActivity implements WordAuto
    public void onCurrentWordChanged(String currentWord) {
       ((TextView)findViewById(R.id.tvWord)).setText(currentWord);
    }
-
 
    private class MasterSeedFromWordsAsyncTask extends AsyncTask<Void, Integer, UUID> {
       private Bus bus;
