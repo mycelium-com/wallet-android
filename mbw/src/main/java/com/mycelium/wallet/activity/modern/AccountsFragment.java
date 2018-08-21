@@ -107,6 +107,7 @@ import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bip44.Bip44Account;
+import com.mycelium.wapi.wallet.bip44.Bip44AccountContext;
 import com.mycelium.wapi.wallet.bip44.Bip44PubOnlyAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
@@ -1200,9 +1201,19 @@ public class AccountsFragment extends Fragment {
     * Account is protected if after removal no HD accounts would stay active, so it would not be possible to select an account
     */
    private boolean accountProtected(WalletAccount toRemove) {
-      if(_mbwManager.getWalletManager(false).getActiveAccounts(WalletAccount.Type.BTCBIP44).
-              size()== 1 && toRemove.getType() == WalletAccount.Type.BTCBIP44){
-         return true;
+      if(toRemove.getType() == WalletAccount.Type.BTCBIP44){
+         int type = ((Bip44Account) toRemove).getTypeFromContext();
+         int count = 0;
+         for(WalletAccount account: _mbwManager.getWalletManager(false).
+                 getActiveAccounts(WalletAccount.Type.BTCBIP44)){
+            if(((Bip44Account) account).getAccountType() == Bip44AccountContext.ACCOUNT_TYPE_FROM_MASTERSEED){
+               count++;
+            }
+         }
+         // if we try to remove last account with ACCOUNT_TYPE_FROM_MASTERSEED
+         if(count == 1 && type == Bip44AccountContext.ACCOUNT_TYPE_FROM_MASTERSEED){
+            return true;
+         }
       }
       return false;
    }

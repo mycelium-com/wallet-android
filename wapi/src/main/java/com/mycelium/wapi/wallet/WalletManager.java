@@ -580,6 +580,7 @@ public class WalletManager {
         }
         return false;
     }
+
     /**
      * Make the wallet manager synchronize all its active accounts.
      * <p>
