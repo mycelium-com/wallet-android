@@ -201,8 +201,8 @@ class ConnectionManager(private val connectionsCount: Int, private var endpoints
                         val key = subscriptions.keys.first()
                         rpcClient.subscribe(subscriptions[key]!!)
                         subscriptions.remove(key)
+                        jsonRpcTcpClientsList.put(rpcClient)
                     }
-                    jsonRpcTcpClientsList.put(rpcClient)
                 }
             }
         }
