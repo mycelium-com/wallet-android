@@ -121,9 +121,9 @@ public class EnterWordListActivity extends AppCompatActivity implements WordAuto
       }
 
       // we don't want to proceed to enter the wordlist, we already have the master seed.
-       if (_mbwManager.getWalletManager(false).hasBip32MasterSeed()) {
-          new AccountCreatorHelper.CreateAccountAsyncTask(EnterWordListActivity.this).execute();
-       }
+      if (!_seedOnly && _mbwManager.getWalletManager(false).hasBip32MasterSeed()) {
+         new AccountCreatorHelper.CreateAccountAsyncTask(EnterWordListActivity.this).execute();
+      }
    }
 
    private void askForWordNumber() {
