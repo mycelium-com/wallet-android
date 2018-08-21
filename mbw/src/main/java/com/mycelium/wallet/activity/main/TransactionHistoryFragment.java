@@ -105,6 +105,7 @@ import com.squareup.otto.Subscribe;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -168,6 +169,12 @@ public class TransactionHistoryFragment extends Fragment {
             public void onChanged(@Nullable List<? extends TransactionSummary> transactionSummaries) {
                history.clear();
                history.addAll(transactionSummaries);
+               adapter.sort(new Comparator<TransactionSummary>() {
+                  @Override
+                  public int compare(TransactionSummary ts1, TransactionSummary ts2) {
+                     return Long.compare(ts2.time, ts1.time);
+                  }
+               });
                adapter.notifyDataSetChanged();
                showHistory(!history.isEmpty());
                refreshList();
@@ -416,7 +423,7 @@ public class TransactionHistoryFragment extends Fragment {
                        checkNotNull(menu.findItem(R.id.miRebroadcastTransaction))
                            .setVisible((record.confirmations == 0) && !record.canCoinapult());
                        checkNotNull(menu.findItem(R.id.miBumpFee))
-                           .setVisible((record.confirmations == 0) && !record.canCoinapult());
+                           .setVisible((record.confirmations == 0) && !record.canCoinapult() && (_mbwManager.getSelectedAccount().canSpend()));
                        checkNotNull(menu.findItem(R.id.miDeleteUnconfirmedTransaction))
                            .setVisible(record.confirmations == 0);
                        checkNotNull(menu.findItem(R.id.miShare)).setVisible(!record.canCoinapult());
@@ -556,8 +563,15 @@ public class TransactionHistoryFragment extends Fragment {
                                       .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                                          @Override
                                          public void onClick(DialogInterface dialog, int which) {
-                                            Intent intent = SignTransactionActivity.getIntent(getActivity(), _mbwManager.getSelectedAccount().getId(), false, unsigned);
-                                            startActivityForResult(intent, SIGN_TRANSACTION_REQUEST_CODE);
+                                            // 'unsigned' Object might become null when the dialog is displayed and not used for a long time
+                                            if(unsigned != null) {
+                                               Intent intent = SignTransactionActivity.getIntent(getActivity(), _mbwManager.getSelectedAccount().getId(), false, unsigned);
+                                               startActivityForResult(intent, SIGN_TRANSACTION_REQUEST_CODE);
+                                            }
+                                            else
+                                            {
+                                                new Toaster(getActivity()).toast("Bumping fee failed", false);
+                                            }
                                             dialog.dismiss();
                                          }
                                       })

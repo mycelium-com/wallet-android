@@ -13,7 +13,7 @@ android {
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
-        buildConfigField "int", "ModuleApiVersion", "9"
+        buildConfigField "int", "ModuleApiVersion", "10"
     }
 
     buildTypes {

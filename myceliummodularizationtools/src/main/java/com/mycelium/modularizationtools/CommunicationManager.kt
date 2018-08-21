@@ -8,6 +8,7 @@ import android.net.Uri
 import android.util.Base64
 import android.util.Log
 import com.google.gson.GsonBuilder
+import com.google.gson.JsonSyntaxException
 import com.mycelium.modularizationtools.model.Module
 import java.io.File
 import java.io.InputStreamReader
@@ -63,9 +64,16 @@ class CommunicationManager private constructor(val context: Context, val modular
             context.openFileInput(sessionFilename).use { fileInputStream ->
                 InputStreamReader(fileInputStream).use {readerUser ->
                     val gson = GsonBuilder().create()
-                    val trustedPackagesArray = gson.fromJson(readerUser, emptyArray<PackageMetaData>().javaClass) ?: emptyArray<PackageMetaData>()
-                    for (pmd in trustedPackagesArray) {
-                        trustedPackages[pmd.name]?.key = pmd.key
+                    try {
+                        val trustedPackagesArray = gson.fromJson(readerUser, emptyArray<PackageMetaData>().javaClass)
+                                ?: emptyArray<PackageMetaData>()
+                        for (pmd in trustedPackagesArray) {
+                            trustedPackages[pmd.name]?.key = pmd.key
+                        }
+                    } catch (e: JsonSyntaxException){
+                        if(file.delete()){
+                            saveSessions()
+                        }
                     }
                 }
             }

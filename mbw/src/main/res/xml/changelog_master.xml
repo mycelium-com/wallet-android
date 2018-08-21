@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
-    <release version="2.11" versioncode="2110105">
+    <release version="2.11.1.17" versioncode="2110117">
+        <change>Speed improvements</change>
+        <change>Bugs fixed</change>
+    </release>
+    <release version="2.11.1.5" versioncode="2110105">
         <change>SegWit: unconfirmed SegWit transactions are now shown. Full SegWit support is coming soon</change>
         <change>New Search feature and Design in Settings</change>
         <change>Improved UI performance</change>
@@ -10,7 +14,7 @@
     </release>
     <release version="2.10.6" versioncode="2100600">
         <change>BCH transaction history</change>
-        <change>bugs fixed</change>
+        <change>Bugs fixed</change>
     </release>
     <release version="2.10.5" versioncode="2100500">
         <change>Mycelium modular architecture. Starting now Mycelium Wallet becomes highly expandable thanks to the new modular architecture which allows building modules as separate apps. It can be used to add new cryptocurrencies as well as any third-party services while maintaining the high security of your funds.</change>
