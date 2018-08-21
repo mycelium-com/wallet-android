@@ -59,18 +59,15 @@ import com.mycelium.wallet.event.SeedFromWordsCreated;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
-import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.bip44.Bip44Account;
 import com.squareup.otto.Bus;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-public class EnterWordListActivity extends AppCompatActivity implements WordAutoCompleterFragment.WordAutoCompleterListener {
+public class EnterWordListActivity extends AppCompatActivity implements WordAutoCompleterFragment.WordAutoCompleterListener,
+        AccountCreatorHelper.AccountCreatable {
    private static final String ONLY_SEED = "onlySeed";
    public static final String MASTERSEED = "masterseed";
    public static final String PASSWORD = "password";
@@ -125,7 +122,7 @@ public class EnterWordListActivity extends AppCompatActivity implements WordAuto
 
       // we don't want to proceed to enter the wordlist, we already have the master seed.
        if (_mbwManager.getWalletManager(false).hasBip32MasterSeed()) {
-           new CreateAccountAsyncTask(EnterWordListActivity.this).execute();
+          new AccountCreatorHelper.CreateAccountAsyncTask(EnterWordListActivity.this).execute();
        }
    }
 
@@ -306,46 +303,16 @@ public class EnterWordListActivity extends AppCompatActivity implements WordAuto
       }
    }
 
-    /**
-     * This is used to create an account if it failed to be created in MasterSeedFromWordsAsyncTask.
-     * Resolves crashes that some users experience
-     */
-    private class CreateAccountAsyncTask extends AsyncTask<Void, Integer, UUID> {
-       private WeakReference<EnterWordListActivity> enterListActivity;
+   @Override
+   public MbwManager getMbwManager() {
+      return _mbwManager;
+   }
 
-       CreateAccountAsyncTask(EnterWordListActivity enterListActivity) {
-          this.enterListActivity = new WeakReference<>(enterListActivity);
-       }
-
-       @Override
-       protected UUID doInBackground(Void... params) {
-          EnterWordListActivity activity = this.enterListActivity.get();
-          if (activity == null) {
-             return null;
-          }
-          try {
-             WalletManager walletManager = _mbwManager.getWalletManager(false);
-             return walletManager.createAdditionalBip44Account(AesKeyCipher.defaultKeyCipher());
-          } catch (KeyCipher.InvalidKeyCipher e) {
-             throw new RuntimeException(e);
-          }
-       }
-
-       @Override
-       protected void onPostExecute(UUID accountid) {
-          EnterWordListActivity activity = this.enterListActivity.get();
-          if (accountid == null || activity == null) {
-             return;
-          }
-          //set default label for the created HD account
-          WalletAccount account = activity._mbwManager.getWalletManager(false).getAccount(accountid);
-          String defaultName = activity.getString(R.string.account) + " " + (((Bip44Account) account).getAccountIndex() + 1);
-          activity._mbwManager.getMetadataStorage().storeAccountLabel(accountid, defaultName);
-          //finish initialization
-          _progress.dismiss();
-          finishOk(accountid);
-       }
-    }
+   @Override
+   public void finishActivity(UUID accountid) {
+      _progress.dismiss();
+      finishOk(accountid);
+   }
 
    @com.squareup.otto.Subscribe
    public void seedCreated(SeedFromWordsCreated event) {
