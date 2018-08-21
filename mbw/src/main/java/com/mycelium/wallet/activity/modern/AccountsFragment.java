@@ -1200,8 +1200,8 @@ public class AccountsFragment extends Fragment {
     * Account is protected if after removal no HD accounts would stay active, so it would not be possible to select an account
     */
    private boolean accountProtected(WalletAccount toRemove) {
-      if(_mbwManager.getWalletManager(false).getActiveBip44AccountsNumber() == 1 &&
-              toRemove.getType() == WalletAccount.Type.BTCBIP44){
+      if(_mbwManager.getWalletManager(false).getActiveAccounts(WalletAccount.Type.BTCBIP44).
+              size()== 1 && toRemove.getType() == WalletAccount.Type.BTCBIP44){
          return true;
       }
       return false;

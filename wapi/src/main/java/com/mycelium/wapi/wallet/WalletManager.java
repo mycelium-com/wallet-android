@@ -580,17 +580,6 @@ public class WalletManager {
         }
         return false;
     }
-
-    public int getActiveBip44AccountsNumber(){
-        int count = 0;
-        for(WalletAccount account : _bip44Accounts){
-            if(account.isActive()){
-                count++;
-            }
-        }
-        return count;
-    }
-
     /**
      * Make the wallet manager synchronize all its active accounts.
      * <p>
