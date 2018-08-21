@@ -528,23 +528,6 @@ public class AccountsFragment extends Fragment {
       return linkedAccount;
    }
 
-   private int getLinkedAccountsCount(WalletAccount account) {
-      int count = 0;
-      if (account.getType() == WalletAccount.Type.COLU) {
-         count++;
-      } else {
-         if (Utils.getLinkedAccount(account, _mbwManager.getColuManager().getAccounts().values()) != null) {
-            count++;
-         }
-      }
-
-      if (_mbwManager.getWalletManager(false).getAccount(MbwManager.getBitcoinCashAccountId(account)) != null) {
-         count++;
-      }
-
-      return count;
-   }
-
    private void finishCurrentActionMode() {
       if (currentActionMode != null) {
          currentActionMode.finish();
