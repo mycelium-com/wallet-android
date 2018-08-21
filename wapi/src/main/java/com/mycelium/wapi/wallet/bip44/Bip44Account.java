@@ -443,7 +443,8 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
             return Optional.of(_currentReceivingAddress);
         }
     }
-    public int getTypeFromContext(){
+
+    public int getTypeFromContext() {
         return _context.getAccountType();
     }
 
