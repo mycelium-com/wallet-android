@@ -122,7 +122,7 @@ public class EnterWordListActivity extends AppCompatActivity implements WordAuto
 
       // we don't want to proceed to enter the wordlist, we already have the master seed.
       if (!_seedOnly && _mbwManager.getWalletManager(false).hasBip32MasterSeed()) {
-         new AccountCreatorHelper.CreateAccountAsyncTask(EnterWordListActivity.this).execute();
+         new AccountCreatorHelper.CreateAccountAsyncTask(EnterWordListActivity.this, EnterWordListActivity.this).execute();
       }
    }
 
@@ -299,11 +299,6 @@ public class EnterWordListActivity extends AppCompatActivity implements WordAuto
       protected void onPostExecute(UUID account) {
          bus.post(new SeedFromWordsCreated(account));
       }
-   }
-
-   @Override
-   public MbwManager getMbwManager() {
-      return _mbwManager;
    }
 
    @Override

@@ -76,7 +76,6 @@ import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.bip44.Bip44Account;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -131,7 +130,6 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
       super.onDestroy();
    }
 
-
    private Runnable delayedInitialization = new Runnable() {
       @Override
       public void run() {
@@ -146,7 +144,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
 
          // in case the masterSeed was created but account does not exist yet (rotation problem)
          if (_mbwManager.getWalletManager(false).getActiveAccounts().size() == 0) {
-            new AccountCreatorHelper.CreateAccountAsyncTask(StartupActivity.this).execute();
+            new AccountCreatorHelper.CreateAccountAsyncTask(StartupActivity.this, StartupActivity.this).execute();
             return;
          }
 
@@ -260,11 +258,6 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
          //finish initialization
          activity.delayedFinish.run();
       }
-   }
-
-   @Override
-   public MbwManager getMbwManager() {
-      return _mbwManager;
    }
 
    @Override
