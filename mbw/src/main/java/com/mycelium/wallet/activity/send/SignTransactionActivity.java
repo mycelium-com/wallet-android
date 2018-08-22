@@ -51,7 +51,7 @@ import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.bip44.Bip44AccountContext;
-import com.mycelium.wapi.wallet.btc.bip44.Bip44BtcAccountExternalSignature;
+import com.mycelium.wapi.wallet.btc.bip44.Bip44AccountExternalSignature;
 
 import java.util.UUID;
 
@@ -72,8 +72,8 @@ public class SignTransactionActivity extends Activity {
       WalletBtcAccount walletAccount = MbwManager.getInstance(currentActivity).getWalletManager(isColdStorage).getAccount(account);
 
       Class targetClass;
-      if (walletAccount instanceof Bip44BtcAccountExternalSignature) {
-         final int bip44AccountType = ((Bip44BtcAccountExternalSignature) walletAccount).getBIP44AccountType();
+      if (walletAccount instanceof Bip44AccountExternalSignature) {
+         final int bip44AccountType = ((Bip44AccountExternalSignature) walletAccount).getBIP44AccountType();
          switch (bip44AccountType) {
             case (Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER):
                targetClass = LedgerSignTransactionActivity.class;

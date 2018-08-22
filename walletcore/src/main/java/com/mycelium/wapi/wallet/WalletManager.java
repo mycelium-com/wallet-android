@@ -43,7 +43,7 @@ import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHPubOnlyAccount;
 import com.mycelium.wapi.wallet.btc.*;
 import com.mycelium.wapi.wallet.btc.bip44.*;
-import com.mycelium.wapi.wallet.btc.bip44.Bip44BtcAccount;
+import com.mycelium.wapi.wallet.btc.bip44.Bip44Account;
 import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressBtcAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext;
@@ -94,7 +94,7 @@ public class WalletManager {
     private WalletManagerBtcBacking _backing;
     private final Map<UUID, WalletBtcAccount> _walletAccounts;
     private final Map<UUID, UUID> _btcToBchAccounts;
-    private final List<Bip44BtcAccount> _bip44Accounts;
+    private final List<Bip44Account> _bip44Accounts;
     private final Collection<Observer> _observers;
     private State _state;
     private Thread _synchronizationThread;
@@ -327,11 +327,11 @@ public class WalletManager {
                 Bip44BtcAccountBacking accountBacking = getBip44AccountBacking(context.getId());
 
                 // Create actual account
-                Bip44BtcAccount account;
+                Bip44Account account;
                 if (hdKeyNode.isPrivateHdKeyNode()) {
-                    account = new Bip44BtcAccount(context, keyManager, _network, accountBacking, _wapi);
+                    account = new Bip44Account(context, keyManager, _network, accountBacking, _wapi);
                 } else {
-                    account = new Bip44PubOnlyBtcAccount(context, keyManager, _network, accountBacking, _wapi);
+                    account = new Bip44PubOnlyAccount(context, keyManager, _network, accountBacking, _wapi);
                 }
 
                 // Finally persist context and add account
@@ -385,7 +385,7 @@ public class WalletManager {
                 Bip44BtcAccountBacking accountBacking = getBip44AccountBacking(context.getId());
 
                 // Create actual account
-                Bip44BtcAccount account = new Bip44BtcAccountExternalSignature(context, keyManager, _network, accountBacking, _wapi, externalSignatureProvider);
+                Bip44Account account = new Bip44AccountExternalSignature(context, keyManager, _network, accountBacking, _wapi, externalSignatureProvider);
 
                 // Finally persist context and add account
                 context.persist(accountBacking);
@@ -438,8 +438,8 @@ public class WalletManager {
                 if (_spvBalanceFetcher != null) {
                     _spvBalanceFetcher.requestUnrelatedAccountRemoval(id.toString());
                 }
-            } else if (account instanceof Bip44BtcAccount) {
-                Bip44BtcAccount hdAccount = (Bip44BtcAccount) account;
+            } else if (account instanceof Bip44Account) {
+                Bip44Account hdAccount = (Bip44Account) account;
                 if (hdAccount.isDerivedFromInternalMasterseed()) {
                     throw new RuntimeException("cant delete masterseed based accounts");
                 }
@@ -448,7 +448,7 @@ public class WalletManager {
                 _backing.deleteBip44AccountContext(id);
                 _walletAccounts.remove(id);
                 if (_spvBalanceFetcher != null) {
-                    _spvBalanceFetcher.requestHdWalletAccountRemoval(((Bip44BtcAccount) account).getAccountIndex());
+                    _spvBalanceFetcher.requestHdWalletAccountRemoval(((Bip44Account) account).getAccountIndex());
                 }
             }
 
@@ -583,9 +583,9 @@ public class WalletManager {
      * @param index the index of the account to get
      * @return a wallet account
      */
-    public Bip44BtcAccount getBip44Account(int index) {
-        Bip44BtcAccount result = null;
-        for (Bip44BtcAccount bip44Account:
+    public Bip44Account getBip44Account(int index) {
+        Bip44Account result = null;
+        for (Bip44Account bip44Account:
                 _bip44Accounts) {
             if(bip44Account.getAccountIndex() == index) {
                 result = bip44Account;
@@ -603,7 +603,7 @@ public class WalletManager {
      * @return a wallet account
      */
     public Bip44BCHAccount getBip44BCHAccount(int index) {
-        Bip44BtcAccount bip44Account = getBip44Account(index);
+        Bip44Account bip44Account = getBip44Account(index);
         UUID bchBip44AccountID = _btcToBchAccounts.get(bip44Account.getId());
         return (Bip44BCHAccount)_walletAccounts.get(bchBip44AccountID);
     }
@@ -615,7 +615,7 @@ public class WalletManager {
      * @return a wallet account
      */
     public boolean doesBip44AccountExists(int index) {
-        for (Bip44BtcAccount bip44Account:
+        for (Bip44Account bip44Account:
                 _bip44Accounts) {
             if(bip44Account.getAccountIndex() == index) {
                 return true;
@@ -677,7 +677,7 @@ public class WalletManager {
         int Bip44Accounts = 0;
         int simpleAccounts = 0;
         for (UUID id : getAccountIds()) {
-            if (_walletAccounts.get(id) instanceof Bip44BtcAccount) {
+            if (_walletAccounts.get(id) instanceof Bip44Account) {
                 Bip44Accounts++;
             } else if (_walletAccounts.get(id) instanceof SingleAddressBtcAccount) {
                 simpleAccounts++;
@@ -752,7 +752,7 @@ public class WalletManager {
         List<Bip44AccountContext> contexts = _backing.loadBip44AccountContexts();
         for (Bip44AccountContext context : contexts) {
             Bip44AccountKeyManager keyManager;
-            Bip44BtcAccount account;
+            Bip44Account account;
 
             Bip44BtcAccountBacking accountBacking = getBip44AccountBacking(context.getId());
 
@@ -760,24 +760,24 @@ public class WalletManager {
             case ACCOUNT_TYPE_FROM_MASTERSEED:
                 // Normal account - derived from masterseed
                 keyManager = new Bip44AccountKeyManager(context.getAccountIndex(), _network, _secureKeyValueStore);
-                account = new Bip44BtcAccount(context, keyManager, _network, accountBacking, _wapi);
+                account = new Bip44Account(context, keyManager, _network, accountBacking, _wapi);
                 break;
             case ACCOUNT_TYPE_UNRELATED_X_PUB:
                 // Imported xPub-based account
                 SecureKeyValueStore subKeyStore = _secureKeyValueStore.getSubKeyStore(context.getAccountSubId());
                 keyManager = new Bip44PubOnlyAccountKeyManager(context.getAccountIndex(), _network, subKeyStore);
-                account = new Bip44PubOnlyBtcAccount(context, keyManager, _network, accountBacking, _wapi);
+                account = new Bip44PubOnlyAccount(context, keyManager, _network, accountBacking, _wapi);
                 break;
             case ACCOUNT_TYPE_UNRELATED_X_PRIV:
                 // Imported xPriv-based account
                 SecureKeyValueStore subKeyStoreXpriv = _secureKeyValueStore.getSubKeyStore(context.getAccountSubId());
                 keyManager = new Bip44AccountKeyManager(context.getAccountIndex(), _network, subKeyStoreXpriv);
-                account = new Bip44BtcAccount(context, keyManager, _network, accountBacking, _wapi);
+                account = new Bip44Account(context, keyManager, _network, accountBacking, _wapi);
                 break;
             case ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR:
                 SecureKeyValueStore subKeyStoreTrezor = _secureKeyValueStore.getSubKeyStore(context.getAccountSubId());
                 keyManager = new Bip44PubOnlyAccountKeyManager(context.getAccountIndex(), _network, subKeyStoreTrezor);
-                account = new Bip44BtcAccountExternalSignature(
+                account = new Bip44AccountExternalSignature(
                     context,
                     keyManager,
                     _network,
@@ -789,7 +789,7 @@ public class WalletManager {
             case ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER:
                 SecureKeyValueStore subKeyStoreLedger = _secureKeyValueStore.getSubKeyStore(context.getAccountSubId());
                 keyManager = new Bip44PubOnlyAccountKeyManager(context.getAccountIndex(), _network, subKeyStoreLedger);
-                account = new Bip44BtcAccountExternalSignature(
+                account = new Bip44AccountExternalSignature(
                     context,
                     keyManager,
                     _network,
@@ -801,7 +801,7 @@ public class WalletManager {
             case ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY:
                 SecureKeyValueStore subKeyStoreKeepKey = _secureKeyValueStore.getSubKeyStore(context.getAccountSubId());
                 keyManager = new Bip44PubOnlyAccountKeyManager(context.getAccountIndex(), _network, subKeyStoreKeepKey);
-                account = new Bip44BtcAccountExternalSignature(
+                account = new Bip44AccountExternalSignature(
                     context,
                     keyManager,
                     _network,
@@ -957,8 +957,8 @@ public class WalletManager {
                 }
 
                 for (WalletBtcAccount account : getAllAccounts()) {
-                    if (account instanceof Bip44BtcAccount) {
-                        //_transactionFetcher.getTransactions(((Bip44BtcAccount) account).getAccountIndex());
+                    if (account instanceof Bip44Account) {
+                        //_transactionFetcher.getTransactions(((Bip44Account) account).getAccountIndex());
                     } else {
                         // TODO: 28.09.17 sync single address accounts using spv, too.
                         if (!account.isArchived()) {
@@ -1078,7 +1078,7 @@ public class WalletManager {
         @Override
         public boolean apply(WalletBtcAccount input) {
             // TODO: if relevant also check if this account is derived from the main-masterseed
-            return input instanceof Bip44BtcAccount &&
+            return input instanceof Bip44Account &&
                    input.isDerivedFromInternalMasterseed();
         }
     };
@@ -1109,11 +1109,11 @@ public class WalletManager {
             return true;
         }
         // We can add an additional account if the last account had activity
-        Bip44BtcAccount last = _bip44Accounts.get(_bip44Accounts.size() - 1);
+        Bip44Account last = _bip44Accounts.get(_bip44Accounts.size() - 1);
         return last.hasHadActivity();
     }
 
-    public void removeUnusedBip44Account(Bip44BtcAccount account) {
+    public void removeUnusedBip44Account(Bip44Account account) {
         //we do not remove used accounts
         if (account.hasHadActivity()) {
             return;
@@ -1135,7 +1135,7 @@ public class WalletManager {
     public int getBlockheight() {
         int height = 0;
         //TODO: should we iterate over all accounts and find max blockheight ?
-        Bip44BtcAccount account = _bip44Accounts.get(0);
+        Bip44Account account = _bip44Accounts.get(0);
         if(account != null) {
             height = account.getBlockChainHeight();
         }
@@ -1153,7 +1153,7 @@ public class WalletManager {
 
     public int getCurrentBip44Index() {
         int maxIndex = -1;
-        for (Bip44BtcAccount walletAccount : _bip44Accounts) {
+        for (Bip44Account walletAccount : _bip44Accounts) {
             maxIndex = Math.max(walletAccount.getAccountIndex(), maxIndex);
         }
         return maxIndex;
@@ -1161,7 +1161,7 @@ public class WalletManager {
 
     private int getNextBip44Index() {
         int maxIndex = -1;
-        for (Bip44BtcAccount walletAccount : _bip44Accounts) {
+        for (Bip44Account walletAccount : _bip44Accounts) {
             maxIndex = Math.max(walletAccount.getAccountIndex(), maxIndex);
         }
         return maxIndex + 1;
@@ -1174,20 +1174,20 @@ public class WalletManager {
     // TODO: why is a double-cast needed?? Skipping the List<?> cast fails, although suggested by AS
     @SuppressWarnings({"unchecked", "RedundantCast"})
     public List<Integer> getGapsBug() {
-        final List<? extends Bip44BtcAccount> mainAccounts =
-            (List<? extends Bip44BtcAccount>)(List<?>) filterAndConvert(MAIN_SEED_HD_ACCOUNT);
+        final List<? extends Bip44Account> mainAccounts =
+            (List<? extends Bip44Account>)(List<?>) filterAndConvert(MAIN_SEED_HD_ACCOUNT);
 
         // sort it according to their index
-        Collections.sort(mainAccounts, new Comparator<Bip44BtcAccount>() {
+        Collections.sort(mainAccounts, new Comparator<Bip44Account>() {
             @Override
-            public int compare(Bip44BtcAccount o1, Bip44BtcAccount o2) {
+            public int compare(Bip44Account o1, Bip44Account o2) {
                 int x = o1.getAccountIndex(), y =  o2.getAccountIndex();
                 return x < y?-1:(x == y?0:1);
             }
         });
         List<Integer> gaps = new LinkedList<>();
         int lastIndex = 0;
-        for (Bip44BtcAccount acc : mainAccounts) {
+        for (Bip44Account acc : mainAccounts) {
             while (acc.getAccountIndex() > lastIndex++) {
                 gaps.add(lastIndex - 1);
             }
@@ -1243,7 +1243,7 @@ public class WalletManager {
                 Bip44BtcAccountBacking accountBacking = getBip44AccountBacking(context.getId());
 
                 // Create actual account
-                Bip44BtcAccount account = new Bip44BtcAccount(context, keyManager, _network, accountBacking, _wapi);
+                Bip44Account account = new Bip44Account(context, keyManager, _network, accountBacking, _wapi);
 
                 // Finally persist context and add account
                 context.persist(accountBacking);
@@ -1289,7 +1289,7 @@ public class WalletManager {
                 Bip44BtcAccountBacking accountBacking = getBip44AccountBacking(context.getId());
 
                 // Create actual account
-                Bip44BtcAccount account = new Bip44BtcAccount(context, keyManager, _network, accountBacking, _wapi);
+                Bip44Account account = new Bip44Account(context, keyManager, _network, accountBacking, _wapi);
 
                 // Finally persist context and add account
                 context.persist(accountBacking);

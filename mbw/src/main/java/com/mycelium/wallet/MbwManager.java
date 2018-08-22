@@ -113,7 +113,7 @@ import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.btc.InMemoryWalletManagerBtcBacking;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.WalletManagerBtcBacking;
-import com.mycelium.wapi.wallet.btc.bip44.Bip44BtcAccount;
+import com.mycelium.wapi.wallet.btc.bip44.Bip44Account;
 import com.mycelium.wapi.wallet.btc.bip44.Bip44AccountContext;
 import com.mycelium.wapi.wallet.btc.bip44.ExternalSignatureProviderProxy;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressBtcAccount;
@@ -1199,11 +1199,11 @@ public class MbwManager {
          } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
             throw new RuntimeException();
          }
-      } else if (account instanceof Bip44BtcAccount && ((Bip44BtcAccount) account).getAccountType() == Bip44AccountContext.ACCOUNT_TYPE_FROM_MASTERSEED) {
+      } else if (account instanceof Bip44Account && ((Bip44Account) account).getAccountType() == Bip44AccountContext.ACCOUNT_TYPE_FROM_MASTERSEED) {
          // For BIP44 accounts we derive a private key from the BIP32 hierarchy
          try {
             Bip39.MasterSeed masterSeed = _walletManager.getMasterSeed(cipher);
-            int accountIndex = ((Bip44BtcAccount) account).getAccountIndex();
+            int accountIndex = ((Bip44Account) account).getAccountIndex();
             return createBip32WebsitePrivateKey(masterSeed.getBip32Seed(), accountIndex, website);
          } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
             throw new RuntimeException(invalidKeyCipher);

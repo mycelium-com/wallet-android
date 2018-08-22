@@ -5,7 +5,7 @@ import com.mycelium.wallet.Utils
 import com.mycelium.wallet.colu.ColuAccount
 import com.mycelium.wallet.persistence.MetadataStorage
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount
-import com.mycelium.wapi.wallet.btc.bip44.Bip44BtcAccount
+import com.mycelium.wapi.wallet.btc.bip44.Bip44Account
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance
 
 /**
@@ -37,7 +37,7 @@ class AccountViewModel(account: WalletBtcAccount, mbwManager: MbwManager) : Acco
         }
     }
 
-    constructor(account: Bip44BtcAccount, mbwManager: MbwManager) : this(account as WalletBtcAccount, mbwManager) {
+    constructor(account: Bip44Account, mbwManager: MbwManager) : this(account as WalletBtcAccount, mbwManager) {
         displayAddress = Integer.toString(account.privateKeyCount)
     }
 

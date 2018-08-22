@@ -102,8 +102,8 @@ import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.model.BalanceSatoshis;
 import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
-import com.mycelium.wapi.wallet.btc.bip44.Bip44BtcAccount;
-import com.mycelium.wapi.wallet.btc.bip44.Bip44PubOnlyBtcAccount;
+import com.mycelium.wapi.wallet.btc.bip44.Bip44Account;
+import com.mycelium.wapi.wallet.btc.bip44.Bip44PubOnlyAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressBtcAccount;
@@ -624,7 +624,7 @@ public class AccountsFragment extends Fragment {
          menus.add(R.menu.record_options_menu_delete);
       }
 
-      if (account.isActive() && account.canSpend() && !(account instanceof Bip44PubOnlyBtcAccount)
+      if (account.isActive() && account.canSpend() && !(account instanceof Bip44PubOnlyAccount)
               && !isBch) {
          menus.add(R.menu.record_options_menu_sign);
       }
@@ -651,10 +651,10 @@ public class AccountsFragment extends Fragment {
          menus.add(R.menu.record_options_menu_export);
       }
 
-      if (account.isActive() && account instanceof Bip44BtcAccount && !(account instanceof Bip44PubOnlyBtcAccount)
+      if (account.isActive() && account instanceof Bip44Account && !(account instanceof Bip44PubOnlyAccount)
               && AccountManager.INSTANCE.getBTCMasterSeedAccounts().size() > 1 && !isBch) {
 
-         final Bip44BtcAccount bip44Account = (Bip44BtcAccount) account;
+         final Bip44Account bip44Account = (Bip44Account) account;
          if (!bip44Account.hasHadActivity() && bip44Account.getAccountIndex() == walletManager.getCurrentBip44Index()) {
             //only allow to remove unused HD acounts from the view
             menus.add(R.menu.record_options_menu_hide_unused);
@@ -962,7 +962,7 @@ public class AccountsFragment extends Fragment {
    private void toastSelectedAccountChanged(WalletBtcAccount account) {
       if (account.isArchived()) {
          _toaster.toast(getString(R.string.selected_archived_warning), true);
-      } else if (account instanceof Bip44BtcAccount) {
+      } else if (account instanceof Bip44Account) {
          _toaster.toast(getString(R.string.selected_hd_info), true);
       } else if (account instanceof SingleAddressBtcAccount) {
          _toaster.toast(getString(R.string.selected_single_info), true);
@@ -1160,7 +1160,7 @@ public class AccountsFragment extends Fragment {
          });
          return;
       } else if (_focusedAccount.getType() == WalletBtcAccount.Type.BTCBIP44) {
-         Bip44BtcAccount account = (Bip44BtcAccount) _focusedAccount;
+         Bip44Account account = (Bip44Account) _focusedAccount;
          if (!account.hasHadActivity()) {
             //this account is unused, we dont allow archiving it
             _toaster.toast(R.string.dont_allow_archiving_unused_notification, false);
@@ -1199,8 +1199,8 @@ public class AccountsFragment extends Fragment {
          _toaster.toast(R.string.keep_one_active, false);
          return;
       }
-      if (_focusedAccount instanceof Bip44BtcAccount) {
-         final Bip44BtcAccount account = (Bip44BtcAccount) _focusedAccount;
+      if (_focusedAccount instanceof Bip44Account) {
+         final Bip44Account account = (Bip44Account) _focusedAccount;
          if (account.hasHadActivity()) {
             //this account is used, we don't allow hiding it
             _toaster.toast(R.string.dont_allow_hiding_used_notification, false);

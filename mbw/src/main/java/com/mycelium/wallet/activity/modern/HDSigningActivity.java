@@ -48,7 +48,7 @@ import com.mycelium.wallet.activity.MessageSigningActivity;
 import com.mycelium.wallet.activity.util.AddressLabel;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
-import com.mycelium.wapi.wallet.btc.bip44.Bip44BtcAccount;
+import com.mycelium.wapi.wallet.btc.bip44.Bip44Account;
 
 import java.util.List;
 import java.util.UUID;
@@ -78,7 +78,7 @@ public class HDSigningActivity extends Activity {
    private void updateUi() {
 
       LinearLayout addressView = (LinearLayout) findViewById(R.id.listPrivateKeyAddresses);
-      Bip44BtcAccount account = (Bip44BtcAccount) _mbwManager.getWalletManager(false).getAccount(_accountid);
+      Bip44Account account = (Bip44Account) _mbwManager.getWalletManager(false).getAccount(_accountid);
 
       //sort addresses by alphabet for easier selection
       List<Address> addresses = Utils.sortAddresses(account.getAllAddresses());
@@ -113,7 +113,7 @@ public class HDSigningActivity extends Activity {
          if (addressLabel.getAddress() == null) {
             return;
          }
-         Bip44BtcAccount account = (Bip44BtcAccount) _mbwManager.getWalletManager(false).getAccount(_accountid);
+         Bip44Account account = (Bip44Account) _mbwManager.getWalletManager(false).getAccount(_accountid);
          InMemoryPrivateKey key;
          try {
             key = account.getPrivateKeyForAddress(addressLabel.getAddress(), AesKeyCipher.defaultKeyCipher());

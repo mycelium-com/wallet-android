@@ -55,7 +55,7 @@ import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.api.TryLogin;
 import com.mycelium.wapi.wallet.*;
-import com.mycelium.wapi.wallet.btc.bip44.Bip44BtcAccount;
+import com.mycelium.wapi.wallet.btc.bip44.Bip44Account;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressBtcAccount;
 
@@ -116,7 +116,7 @@ public class CreateTrader2Activity extends Activity {
          if (!account.canSpend()) {
             continue;
          }
-         if (account instanceof Bip44BtcAccount && !account.isDerivedFromInternalMasterseed()) {
+         if (account instanceof Bip44Account && !account.isDerivedFromInternalMasterseed()) {
             continue;
          }
          if (!Utils.isAllowedForLocalTrader(account)) {

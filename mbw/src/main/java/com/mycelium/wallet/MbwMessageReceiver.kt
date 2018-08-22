@@ -24,7 +24,7 @@ import com.mycelium.wapi.wallet.btc.WalletBtcAccount
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount.Type.BCHBIP44
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount.Type.BCHSINGLEADDRESS
 import com.mycelium.wapi.wallet.WalletManager
-import com.mycelium.wapi.wallet.btc.bip44.Bip44BtcAccount
+import com.mycelium.wapi.wallet.btc.bip44.Bip44Account
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.currency.CurrencyValue
 import com.mycelium.wapi.wallet.btc.single.SingleAddressBtcAccount
@@ -281,7 +281,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 val signedTransaction = signAndSerialize(networkParameters, keyList, txUTXOsHexList, transaction)
                 val service = IntentContract.SendSignedTransactionUnrelatedToSPV.createIntent(operationId, accountGuid,
                         signedTransaction)
-                WalletApplication.sendToSpv(service, if (account is Bip44BtcAccount) BCHBIP44 else BCHSINGLEADDRESS)
+                WalletApplication.sendToSpv(service, if (account is Bip44Account) BCHBIP44 else BCHSINGLEADDRESS)
             }
             null -> Log.w(TAG, "onMessage failed. No action defined.")
             else -> Log.e(TAG, "onMessage failed. Unknown action ${intent.action}")
@@ -311,7 +311,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
         return proposedTransaction.partialTx.bitcoinSerialize()
     }
 
-    private fun createNextAccount(account: Bip44BtcAccount, walletManager: WalletManager,
+    private fun createNextAccount(account: Bip44Account, walletManager: WalletManager,
                                   archived: Boolean) {
         if(account.hasHadActivity()
                 && !walletManager.doesBip44AccountExists(account.accountIndex + 1)) {

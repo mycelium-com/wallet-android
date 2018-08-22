@@ -56,7 +56,7 @@ import com.mycelium.wallet.activity.util.AbstractAccountScanManager;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.btc.bip44.Bip44BtcAccount;
+import com.mycelium.wapi.wallet.btc.bip44.Bip44Account;
 import com.squareup.otto.Subscribe;
 
 import java.io.Serializable;
@@ -111,7 +111,7 @@ public abstract class HdAccountSelectorActivity extends Activity implements Mast
                   walletManager,
                   account.keyPath.getLastIndex());
 
-            Bip44BtcAccount tempAccount = (Bip44BtcAccount) walletManager.getAccount(id);
+            Bip44Account tempAccount = (Bip44Account) walletManager.getAccount(id);
             tempAccount.doSynchronization(SyncMode.NORMAL_WITHOUT_TX_LOOKUP);
 
             if (tempAccount.hasHadActivity()) {

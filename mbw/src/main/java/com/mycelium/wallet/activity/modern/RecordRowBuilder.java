@@ -51,8 +51,8 @@ import com.mycelium.wallet.activity.modern.model.ViewAccountModel;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
-import com.mycelium.wapi.wallet.btc.bip44.Bip44BtcAccount;
-import com.mycelium.wapi.wallet.btc.bip44.Bip44PubOnlyBtcAccount;
+import com.mycelium.wapi.wallet.btc.bip44.Bip44Account;
+import com.mycelium.wapi.wallet.btc.bip44.Bip44PubOnlyAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 
 import java.util.ArrayList;
@@ -189,15 +189,15 @@ public class RecordRowBuilder {
         }
         result.label = mbwManager.getMetadataStorage().getLabelByAccount(walletAccount.getId());
         if (walletAccount.isActive()) {
-            if (walletAccount instanceof Bip44PubOnlyBtcAccount) {
-                int numKeys = ((Bip44BtcAccount) walletAccount).getPrivateKeyCount();
+            if (walletAccount instanceof Bip44PubOnlyAccount) {
+                int numKeys = ((Bip44Account) walletAccount).getPrivateKeyCount();
                 if (numKeys > 1) {
                     result.displayAddress = resources.getString(R.string.contains_addresses, Integer.toString(numKeys));
                 } else {
                     result.displayAddress = resources.getString(R.string.account_contains_one_address_info);
                 }
-            } else if (walletAccount instanceof Bip44BtcAccount) {
-                int numKeys = ((Bip44BtcAccount) walletAccount).getPrivateKeyCount();
+            } else if (walletAccount instanceof Bip44Account) {
+                int numKeys = ((Bip44Account) walletAccount).getPrivateKeyCount();
                 if (numKeys > 1) {
                     result.displayAddress = resources.getString(R.string.contains_keys, Integer.toString(numKeys));
                 } else {

@@ -69,7 +69,7 @@ import com.mycelium.wallet.activity.util.AbstractAccountScanManager;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.bip44.Bip44AccountContext;
-import com.mycelium.wapi.wallet.btc.bip44.Bip44BtcAccountExternalSignature;
+import com.mycelium.wapi.wallet.btc.bip44.Bip44AccountExternalSignature;
 import com.mycelium.wapi.wallet.btc.bip44.ExternalSignatureProvider;
 import com.squareup.otto.Bus;
 import nordpol.android.OnDiscoveredTagListener;
@@ -191,7 +191,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
 
    @Override
    public Transaction getSignedTransaction(UnsignedTransaction unsigned,
-                                           Bip44BtcAccountExternalSignature forAccount) {
+                                           Bip44AccountExternalSignature forAccount) {
       try {
          return signInternal(unsigned, forAccount);
       } catch (Exception e) {
@@ -211,7 +211,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
    }
 
    private Transaction signInternal(UnsignedTransaction unsigned,
-                                    Bip44BtcAccountExternalSignature forAccount) throws BTChipException, TransactionOutputParsingException {
+                                    Bip44AccountExternalSignature forAccount) throws BTChipException, TransactionOutputParsingException {
 
       Transaction unsignedtx;
       BTChipDongle.BTChipInput inputs[];

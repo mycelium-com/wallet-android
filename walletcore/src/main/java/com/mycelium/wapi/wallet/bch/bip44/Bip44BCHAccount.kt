@@ -22,11 +22,11 @@ import java.util.UUID
 
 import com.mycelium.wapi.wallet.btc.bip44.Bip44AccountContext.ACCOUNT_TYPE_FROM_MASTERSEED
 import com.mycelium.wapi.wallet.btc.bip44.Bip44AccountKeyManager
-import com.mycelium.wapi.wallet.btc.bip44.Bip44BtcAccount
+import com.mycelium.wapi.wallet.btc.bip44.Bip44Account
 
 open class Bip44BCHAccount(context: Bip44AccountContext, keyManager: Bip44AccountKeyManager,
                            network: NetworkParameters, backing: Bip44BtcAccountBacking, wapi: Wapi,
-                           private val spvBalanceFetcher: SpvBalanceFetcher) : Bip44BtcAccount(context, keyManager, network, backing, wapi) {
+                           private val spvBalanceFetcher: SpvBalanceFetcher) : Bip44Account(context, keyManager, network, backing, wapi) {
     private var blockChainHeight = 0
     private var visible = false
 
