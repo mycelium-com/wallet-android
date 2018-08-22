@@ -67,7 +67,7 @@ import java.util.List;
 import java.util.UUID;
 
 public class EnterWordListActivity extends AppCompatActivity implements WordAutoCompleterFragment.WordAutoCompleterListener,
-        AccountCreatorHelper.AccountCreatable {
+        AccountCreatorHelper.AccountCreationObserver {
    private static final String ONLY_SEED = "onlySeed";
    public static final String MASTERSEED = "masterseed";
    public static final String PASSWORD = "password";
@@ -302,7 +302,7 @@ public class EnterWordListActivity extends AppCompatActivity implements WordAuto
    }
 
    @Override
-   public void finishActivity(UUID accountid) {
+   public void onAccountCreated(UUID accountid) {
       _progress.dismiss();
       finishOk(accountid);
    }

@@ -13,17 +13,17 @@ import java.util.UUID;
  * Resolves crashes that some users experience
  */
 final class AccountCreatorHelper {
-    public interface AccountCreatable {
-        void finishActivity(UUID accountId);
+    public interface AccountCreationObserver {
+        void onAccountCreated(UUID accountId);
     }
 
     public static class CreateAccountAsyncTask extends AsyncTask<Void, Integer, UUID> {
         private WeakReference<Context> contextWeakReference;
-        private WeakReference<AccountCreatable> accountCreatableWeakReference;
+        private WeakReference<AccountCreationObserver> observerWeakReference;
 
-        CreateAccountAsyncTask(Context context, AccountCreatable accountCreatable) {
+        CreateAccountAsyncTask(Context context, AccountCreationObserver observer) {
             contextWeakReference = new WeakReference<>(context);
-            accountCreatableWeakReference = new WeakReference<>(accountCreatable);
+            observerWeakReference = new WeakReference<>(observer);
         }
 
         @Override
@@ -37,9 +37,9 @@ final class AccountCreatorHelper {
 
         @Override
         protected void onPostExecute(UUID uuid) {
-            AccountCreatable accountCreatable = accountCreatableWeakReference.get();
-            if (accountCreatable != null) {
-                accountCreatable.finishActivity(uuid);
+            AccountCreationObserver observer = observerWeakReference.get();
+            if (observer != null) {
+                observer.onAccountCreated(uuid);
             }
         }
     }

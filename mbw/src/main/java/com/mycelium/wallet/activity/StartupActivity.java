@@ -87,7 +87,7 @@ import java.util.UUID;
 import static com.mycelium.wallet.StringHandleConfig.HdNodeAction.isKeyNode;
 import static com.mycelium.wallet.StringHandleConfig.PrivateKeyAction.getPrivateKey;
 
-public class StartupActivity extends Activity implements AccountCreatorHelper.AccountCreatable {
+public class StartupActivity extends Activity implements AccountCreatorHelper.AccountCreationObserver {
    private static final int MINIMUM_SPLASH_TIME = 500;
    private static final int REQUEST_FROM_URI = 2;
    private static final int IMPORT_WORDLIST = 0;
@@ -261,7 +261,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
    }
 
    @Override
-   public void finishActivity(UUID accountId) {
+   public void onAccountCreated(UUID accountId) {
       delayedFinish.run();
    }
 
