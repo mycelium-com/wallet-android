@@ -89,7 +89,7 @@ import com.mycelium.wallet.api.AndroidAsyncApi;
 import com.mycelium.wallet.bitid.ExternalService;
 import com.mycelium.wallet.coinapult.CoinapultManager;
 import com.mycelium.wallet.colu.ColuManager;
-import com.mycelium.wallet.colu.SqliteColuManagerBtcBacking;
+import com.mycelium.wallet.colu.SqliteColuManagerBacking;
 import com.mycelium.wallet.event.EventTranslator;
 import com.mycelium.wallet.event.ExtraAccountsChanged;
 import com.mycelium.wallet.event.ReceivingAddressChanged;
@@ -105,18 +105,18 @@ import com.mycelium.wallet.modularisation.GooglePlayModuleCollection;
 import com.mycelium.wallet.modularisation.SpvBchFetcher;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.persistence.TradeSessionDb;
-import com.mycelium.wallet.wapi.SqliteWalletManagerBtcBackingWrapper;
+import com.mycelium.wallet.wapi.SqliteWalletManagerBackingWrapper;
 import com.mycelium.wapi.api.WapiClient;
 import com.mycelium.wapi.api.WapiClientElectrumX;
 import com.mycelium.wapi.api.jsonrpc.TcpEndpoint;
 import com.mycelium.wapi.wallet.*;
-import com.mycelium.wapi.wallet.btc.InMemoryWalletManagerBtcBacking;
+import com.mycelium.wapi.wallet.btc.InMemoryWalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
-import com.mycelium.wapi.wallet.btc.WalletManagerBtcBacking;
+import com.mycelium.wapi.wallet.btc.WalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.bip44.Bip44Account;
 import com.mycelium.wapi.wallet.btc.bip44.Bip44AccountContext;
 import com.mycelium.wapi.wallet.btc.bip44.ExternalSignatureProviderProxy;
-import com.mycelium.wapi.wallet.btc.single.SingleAddressBtcAccount;
+import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -380,7 +380,7 @@ public class MbwManager {
    private Optional<ColuManager> createColuManager(final Context context) {
       // Create persisted account backing
       // we never talk directly to this class. Instead, we use SecureKeyValueStore API
-      SqliteColuManagerBtcBacking coluBacking = new SqliteColuManagerBtcBacking(context);
+      SqliteColuManagerBacking coluBacking = new SqliteColuManagerBacking(context);
 
       // Create persisted secure storage instance
       SecureKeyValueStore coluSecureKeyValueStore = new SecureKeyValueStore(coluBacking,
@@ -577,7 +577,7 @@ public class MbwManager {
     */
    private WalletManager createWalletManager(final Context context, MbwEnvironment environment) {
       // Create persisted account backing
-      WalletManagerBtcBacking backing = new SqliteWalletManagerBtcBackingWrapper(context);
+      WalletManagerBacking backing = new SqliteWalletManagerBackingWrapper(context);
 
       // Create persisted secure storage instance
       SecureKeyValueStore secureKeyValueStore = new SecureKeyValueStore(backing,
@@ -635,7 +635,7 @@ public class MbwManager {
     */
    private WalletManager createTempWalletManager(MbwEnvironment environment) {
       // Create in-memory account backing
-      WalletManagerBtcBacking backing = new InMemoryWalletManagerBtcBacking();
+      WalletManagerBacking backing = new InMemoryWalletManagerBacking();
 
       // Create secure storage instance
       SecureKeyValueStore secureKeyValueStore = new SecureKeyValueStore(backing, new AndroidRandomSource());
@@ -1192,10 +1192,10 @@ public class MbwManager {
    }
 
    public InMemoryPrivateKey obtainPrivateKeyForAccount(WalletBtcAccount account, String website, KeyCipher cipher) {
-      if (account instanceof SingleAddressBtcAccount) {
+      if (account instanceof SingleAddressAccount) {
          // For single address accounts we use the private key directly
          try {
-            return ((SingleAddressBtcAccount) account).getPrivateKey(cipher);
+            return ((SingleAddressAccount) account).getPrivateKey(cipher);
          } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
             throw new RuntimeException();
          }

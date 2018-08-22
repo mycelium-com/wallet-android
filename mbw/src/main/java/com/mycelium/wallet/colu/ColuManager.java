@@ -45,10 +45,10 @@ import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore;
-import com.mycelium.wapi.wallet.btc.single.SingleAddressBtcAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext;
 import com.squareup.otto.Bus;
 
@@ -86,7 +86,7 @@ public class ColuManager implements AccountProvider {
     private final ColuClient coluClient;
     private final Map<UUID, WalletBtcAccount> _walletAccounts;
     private final MetadataStorage metadataStorage;
-    private SqliteColuManagerBtcBacking _backing;
+    private SqliteColuManagerBacking _backing;
     private final HashMap<UUID, ColuAccount> coluAccounts;
     private NetworkParameters _network;
     private final SecureKeyValueStore _secureKeyValueStore;
@@ -101,7 +101,7 @@ public class ColuManager implements AccountProvider {
     private final org.bitcoinj.core.NetworkParameters netParams;
     private EventTranslator eventTranslator;
 
-    public ColuManager(SecureKeyValueStore secureKeyValueStore, SqliteColuManagerBtcBacking backing,
+    public ColuManager(SecureKeyValueStore secureKeyValueStore, SqliteColuManagerBacking backing,
                        MbwManager manager, MbwEnvironment env,
                        final Bus eventBus, Handler handler,
                        MetadataStorage metadataStorage, boolean isNetworkConnected) {
@@ -196,9 +196,9 @@ public class ColuManager implements AccountProvider {
                     && ((ColuAccount) account).getColuAsset().assetType == type
                     && ((ColuAccount) account).getAddress().equals(address)) {
                 return true;
-            } else if (account instanceof SingleAddressBtcAccount
+            } else if (account instanceof SingleAddressAccount
                     && type == null
-                    && ((SingleAddressBtcAccount) account).getAddress().equals(address)) {
+                    && ((SingleAddressAccount) account).getAddress().equals(address)) {
                 return true;
             }
         }
@@ -343,7 +343,7 @@ public class ColuManager implements AccountProvider {
 
     class CreatedAccountInfo {
         public UUID id;
-        BtcAccountBacking accountBacking;
+        AccountBacking accountBacking;
     }
     /**
      * Create a new account using a single private key and address
@@ -369,12 +369,12 @@ public class ColuManager implements AccountProvider {
      */
     private CreatedAccountInfo createSingleAddressAccount(Address address) {
         CreatedAccountInfo createdAccountInfo = new CreatedAccountInfo();
-        createdAccountInfo.id = SingleAddressBtcAccount.calculateId(address);
+        createdAccountInfo.id = SingleAddressAccount.calculateId(address);
         _backing.beginTransaction();
         try {
             SingleAddressAccountContext singleAccountContext = new SingleAddressAccountContext(createdAccountInfo.id, ImmutableMap.of(address.getType(), address), false, 0);
             _backing.createSingleAddressAccountContext(singleAccountContext);
-            SingleAddressBtcAccountBacking accountBacking = checkNotNull(_backing.getSingleAddressAccountBacking(singleAccountContext.getId()));
+            SingleAddressAccountBacking accountBacking = checkNotNull(_backing.getSingleAddressAccountBacking(singleAccountContext.getId()));
             singleAccountContext.persist(accountBacking);
             createdAccountInfo.accountBacking = accountBacking;
             _backing.setTransactionSuccessful();
@@ -411,7 +411,7 @@ public class ColuManager implements AccountProvider {
 
     public void forgetPrivateKey(ColuAccount account) {
         try {
-            SingleAddressBtcAccount acc = account.getLinkedAccount();
+            SingleAddressAccount acc = account.getLinkedAccount();
             if (acc != null)
                 acc.forgetPrivateKey(AesKeyCipher.defaultKeyCipher());
             account.forgetPrivateKey();
@@ -425,7 +425,7 @@ public class ColuManager implements AccountProvider {
         // disable account
         // remove key from storage
         UUID uuid = account.getLinkedAccount().getId();
-        SingleAddressBtcAccount acc = (SingleAddressBtcAccount) _walletAccounts.get(uuid);
+        SingleAddressAccount acc = (SingleAddressAccount) _walletAccounts.get(uuid);
         try {
             acc.forgetPrivateKey(AesKeyCipher.defaultKeyCipher());
             _walletAccounts.remove(uuid);
@@ -491,13 +491,13 @@ public class ColuManager implements AccountProvider {
     private void loadColuAccount(ColuAccount.ColuAsset coluAsset, UUID uuid) {
         try {
             CreatedAccountInfo createdAccountInfo = new CreatedAccountInfo();
-            SingleAddressBtcAccount singleAddressAccount;
+            SingleAddressAccount singleAddressAccount;
 
             if (!_walletAccounts.containsKey(uuid)) {
                 return;
             }
             createdAccountInfo.id = uuid;
-            singleAddressAccount = (SingleAddressBtcAccount) _walletAccounts.get(createdAccountInfo.id);
+            singleAddressAccount = (SingleAddressAccount) _walletAccounts.get(createdAccountInfo.id);
             InMemoryPrivateKey accountKey = singleAddressAccount.getPrivateKey(AesKeyCipher.defaultKeyCipher());
             createdAccountInfo.accountBacking = singleAddressAccount.getAccountBacking();
 
@@ -561,8 +561,8 @@ public class ColuManager implements AccountProvider {
         List<SingleAddressAccountContext> contexts = _backing.loadSingleAddressAccountContexts();
         for (SingleAddressAccountContext context : contexts) {
             PublicPrivateKeyStore store = new PublicPrivateKeyStore(_secureKeyValueStore);
-            SingleAddressBtcAccountBacking accountBacking = checkNotNull(_backing.getSingleAddressAccountBacking(context.getId()));
-            SingleAddressBtcAccount account = new SingleAddressBtcAccount(context, store, _network, accountBacking, getWapi());
+            SingleAddressAccountBacking accountBacking = checkNotNull(_backing.getSingleAddressAccountBacking(context.getId()));
+            SingleAddressAccount account = new SingleAddressAccount(context, store, _network, accountBacking, getWapi());
             addAccount(account);
 
             for(ColuAccount coluAccount : coluAccounts.values()) {
@@ -651,7 +651,7 @@ public class ColuManager implements AccountProvider {
         allAccounts.putAll(coluAccounts);
 
         for (ColuAccount coluAccount : coluAccounts.values()) {
-            SingleAddressBtcAccount linkedAccount = coluAccount.getLinkedAccount();
+            SingleAddressAccount linkedAccount = coluAccount.getLinkedAccount();
             if (linkedAccount != null) {
                 allAccounts.put(linkedAccount.getId(), linkedAccount);
             }

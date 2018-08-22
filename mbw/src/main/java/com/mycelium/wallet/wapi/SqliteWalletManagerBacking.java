@@ -57,9 +57,9 @@ import com.mycelium.wallet.persistence.SQLiteQueryWithBlobs;
 import com.mycelium.wapi.api.exception.DbCorruptedException;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputEx;
-import com.mycelium.wapi.wallet.btc.Bip44BtcAccountBacking;
-import com.mycelium.wapi.wallet.SingleAddressBtcAccountBacking;
-import com.mycelium.wapi.wallet.btc.WalletManagerBtcBacking;
+import com.mycelium.wapi.wallet.btc.Bip44AccountBacking;
+import com.mycelium.wapi.wallet.SingleAddressAccountBacking;
+import com.mycelium.wapi.wallet.btc.WalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.bip44.Bip44AccountContext;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext;
 
@@ -80,12 +80,12 @@ import java.util.UUID;
 
 import static com.mycelium.wallet.persistence.SQLiteQueryWithBlobs.uuidToBytes;
 
-public class SqliteWalletManagerBtcBacking implements WalletManagerBtcBacking {
-   private static final String LOG_TAG = "SqliteBtcAccountBacking";
+public class SqliteWalletManagerBacking implements WalletManagerBacking {
+   private static final String LOG_TAG = "SqliteAccountBacking";
    private static final String TABLE_KV = "kv";
    private static final int DEFAULT_SUB_ID = 0;
    private SQLiteDatabase _database;
-   private Map<UUID, SqliteBtcAccountBacking> _backings;
+   private Map<UUID, SqliteAccountBacking> _backings;
    private final SQLiteStatement _insertOrReplaceBip44Account;
    private final SQLiteStatement _updateBip44Account;
    private final SQLiteStatement _insertOrReplaceSingleAddressAccount;
@@ -98,7 +98,7 @@ public class SqliteWalletManagerBtcBacking implements WalletManagerBtcBacking {
    private final SQLiteStatement _getMaxSubId;
 
 
-   SqliteWalletManagerBtcBacking(Context context) {
+   SqliteWalletManagerBacking(Context context) {
       OpenHelper _openHelper = new OpenHelper(context);
       _database = _openHelper.getWritableDatabase();
 
@@ -114,7 +114,7 @@ public class SqliteWalletManagerBtcBacking implements WalletManagerBtcBacking {
       _deleteSubId = _database.compileStatement("DELETE FROM kv WHERE subId = ?");
       _backings = new HashMap<>();
       for (UUID id : getAccountIds(_database)) {
-         _backings.put(id, new SqliteBtcAccountBacking(id, _database));
+         _backings.put(id, new SqliteAccountBacking(id, _database));
       }
    }
 
@@ -218,10 +218,10 @@ public class SqliteWalletManagerBtcBacking implements WalletManagerBtcBacking {
       try {
 
          // Create backing tables
-         SqliteBtcAccountBacking backing = _backings.get(context.getId());
+         SqliteAccountBacking backing = _backings.get(context.getId());
          if (backing == null) {
             createAccountBackingTables(context.getId(), _database);
-            backing = new SqliteBtcAccountBacking(context.getId(), _database);
+            backing = new SqliteAccountBacking(context.getId(), _database);
             _backings.put(context.getId(), backing);
          }
 
@@ -302,10 +302,10 @@ public class SqliteWalletManagerBtcBacking implements WalletManagerBtcBacking {
       try {
 
          // Create backing tables
-         SqliteBtcAccountBacking backing = _backings.get(context.getId());
+         SqliteAccountBacking backing = _backings.get(context.getId());
          if (backing == null) {
             createAccountBackingTables(context.getId(), _database);
-            backing = new SqliteBtcAccountBacking(context.getId(), _database);
+            backing = new SqliteAccountBacking(context.getId(), _database);
             _backings.put(context.getId(), backing);
          }
 
@@ -347,7 +347,7 @@ public class SqliteWalletManagerBtcBacking implements WalletManagerBtcBacking {
       // "DELETE FROM single WHERE id = ?"
       beginTransaction();
       try {
-         SqliteBtcAccountBacking backing = _backings.get(accountId);
+         SqliteAccountBacking backing = _backings.get(accountId);
          if (backing == null) {
             return;
          }
@@ -366,7 +366,7 @@ public class SqliteWalletManagerBtcBacking implements WalletManagerBtcBacking {
       // "DELETE FROM bip44 WHERE id = ?"
       beginTransaction();
       try {
-         SqliteBtcAccountBacking backing = _backings.get(accountId);
+         SqliteAccountBacking backing = _backings.get(accountId);
          if (backing == null) {
             return;
          }
@@ -381,15 +381,15 @@ public class SqliteWalletManagerBtcBacking implements WalletManagerBtcBacking {
    }
 
    @Override
-   public Bip44BtcAccountBacking getBip44AccountBacking(UUID accountId) {
-      SqliteBtcAccountBacking backing = _backings.get(accountId);
+   public Bip44AccountBacking getBip44AccountBacking(UUID accountId) {
+      SqliteAccountBacking backing = _backings.get(accountId);
       Preconditions.checkNotNull(backing);
       return backing;
    }
 
    @Override
-   public SingleAddressBtcAccountBacking getSingleAddressAccountBacking(UUID accountId) {
-      SqliteBtcAccountBacking backing = _backings.get(accountId);
+   public SingleAddressAccountBacking getSingleAddressAccountBacking(UUID accountId) {
+      SqliteAccountBacking backing = _backings.get(accountId);
       Preconditions.checkNotNull(backing);
       return backing;
    }
@@ -505,7 +505,7 @@ public class SqliteWalletManagerBtcBacking implements WalletManagerBtcBacking {
       return "outtx_" + tableSuffix;
    }
 
-   private class SqliteBtcAccountBacking implements Bip44BtcAccountBacking, SingleAddressBtcAccountBacking {
+   private class SqliteAccountBacking implements Bip44AccountBacking, SingleAddressAccountBacking {
       private UUID _id;
       private final String utxoTableName;
       private final String ptxoTableName;
@@ -523,7 +523,7 @@ public class SqliteWalletManagerBtcBacking implements WalletManagerBtcBacking {
       private final SQLiteStatement _deleteTxRefersParentTx;
       private final SQLiteDatabase _db;
 
-      private SqliteBtcAccountBacking(UUID id, SQLiteDatabase db) {
+      private SqliteAccountBacking(UUID id, SQLiteDatabase db) {
          _id = id;
          _db = db;
          String tableSuffix = uuidToTableSuffix(id);
@@ -554,17 +554,17 @@ public class SqliteWalletManagerBtcBacking implements WalletManagerBtcBacking {
 
       @Override
       public void beginTransaction() {
-         SqliteWalletManagerBtcBacking.this.beginTransaction();
+         SqliteWalletManagerBacking.this.beginTransaction();
       }
 
       @Override
       public void setTransactionSuccessful() {
-         SqliteWalletManagerBtcBacking.this.setTransactionSuccessful();
+         SqliteWalletManagerBacking.this.setTransactionSuccessful();
       }
 
       @Override
       public void endTransaction() {
-         SqliteWalletManagerBtcBacking.this.endTransaction();
+         SqliteWalletManagerBacking.this.endTransaction();
       }
 
       @Override

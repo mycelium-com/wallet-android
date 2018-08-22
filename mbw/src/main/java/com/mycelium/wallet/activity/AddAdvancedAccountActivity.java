@@ -72,7 +72,7 @@ import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
-import com.mycelium.wapi.wallet.btc.single.SingleAddressBtcAccount;
+import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -471,7 +471,7 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
                     .show();
          } else if (accountId.isPresent()) {
             final WalletBtcAccount existingAccount = _mbwManager.getWalletManager(false).getAccount((UUID) accountId.get());
-            if(!existingAccount.canSpend() && (existingAccount instanceof SingleAddressBtcAccount || existingAccount instanceof ColuAccount)) {
+            if(!existingAccount.canSpend() && (existingAccount instanceof SingleAddressAccount || existingAccount instanceof ColuAccount)) {
                // scanned the private key of a watch only single address account
                String existingAccountName = _mbwManager.getMetadataStorage().getLabelByAccount(existingAccount.getId());
                new AlertDialog.Builder(AddAdvancedAccountActivity.this)
@@ -487,8 +487,8 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
                           @Override
                           public void onClick(DialogInterface dialogInterface, int i) {
                              try {
-                                if(existingAccount instanceof SingleAddressBtcAccount) {
-                                   ((SingleAddressBtcAccount) existingAccount).setPrivateKey(key, AesKeyCipher.defaultKeyCipher());
+                                if(existingAccount instanceof SingleAddressAccount) {
+                                   ((SingleAddressAccount) existingAccount).setPrivateKey(key, AesKeyCipher.defaultKeyCipher());
                                 } else {
                                    ColuAccount coluAccount = (ColuAccount) existingAccount;
                                    coluAccount.setPrivateKey(new InMemoryPrivateKey(key.getPrivateKeyBytes()));

@@ -37,7 +37,7 @@ import com.mycelium.wapi.api.request.QueryTransactionInventoryRequest;
 import com.mycelium.wapi.api.response.QueryTransactionInventoryResponse;
 import com.mycelium.wapi.model.TransactionOutputEx;
 import com.mycelium.wapi.wallet.SendRequest;
-import com.mycelium.wapi.wallet.btc.Bip44BtcAccountBacking;
+import com.mycelium.wapi.wallet.btc.Bip44AccountBacking;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
 import com.mycelium.wapi.wallet.ExportableAccount;
 import com.mycelium.wapi.wallet.KeyCipher;
@@ -47,7 +47,6 @@ import com.mycelium.wapi.wallet.WalletManager.Event;
 import com.mycelium.wapi.wallet.btc.BtcTransaction;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.CoinType;
-import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
 
 import java.util.ArrayList;
@@ -56,14 +55,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public class Bip44BtcAccount extends AbstractBtcAccount implements ExportableAccount {
+public class Bip44Account extends AbstractBtcAccount implements ExportableAccount {
     protected static final int EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH = 20;
     protected static final int INTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH = 20;
     private static final int EXTERNAL_MINIMAL_ADDRESS_LOOK_AHEAD_LENGTH = 4;
     private static final int INTERNAL_MINIMAL_ADDRESS_LOOK_AHEAD_LENGTH = 1;
     private static final long FORCED_DISCOVERY_INTERVAL_MS = 1000 * 60 * 60 * 24;
 
-    protected final Bip44BtcAccountBacking _backing;
+    protected final Bip44AccountBacking _backing;
     protected Bip44AccountContext _context;
     protected final Bip44AccountKeyManager _keyManager;
     protected BiMap<Address, Integer> _externalAddresses;
@@ -71,8 +70,8 @@ public class Bip44BtcAccount extends AbstractBtcAccount implements ExportableAcc
     private Address _currentReceivingAddress;
     protected volatile boolean _isSynchronizing;
 
-    public Bip44BtcAccount(Bip44AccountContext context, Bip44AccountKeyManager keyManager,
-                           NetworkParameters network, Bip44BtcAccountBacking backing, Wapi wapi) {
+    public Bip44Account(Bip44AccountContext context, Bip44AccountKeyManager keyManager,
+                        NetworkParameters network, Bip44AccountBacking backing, Wapi wapi) {
         super(backing, network, wapi);
         _backing = backing;
         _keyManager = keyManager;

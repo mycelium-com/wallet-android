@@ -61,7 +61,7 @@ import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.btc.single.SingleAddressBtcAccount;
+import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 
 import java.io.Serializable;
@@ -244,7 +244,7 @@ public class StringHandleConfig implements Serializable {
 
             MbwManager mbwManager = MbwManager.getInstance(handlerActivity);
             // Calculate the account ID that this key would have
-            UUID account = SingleAddressBtcAccount.calculateId(key.get().getPublicKey().toAddress(mbwManager.getNetwork(), AddressType.P2SH_P2WSH)); // TODO segwit fix
+            UUID account = SingleAddressAccount.calculateId(key.get().getPublicKey().toAddress(mbwManager.getNetwork(), AddressType.P2SH_P2WSH)); // TODO segwit fix
             UUID bchAccount = SingleAddressBCHAccount.Companion.calculateId(key.get().getPublicKey().toAddress(mbwManager.getNetwork(), AddressType.P2SH_P2WPKH)); // TODO segwit fix
             // Check whether regular wallet contains the account
             boolean success = mbwManager.getWalletManager(false).hasAccount(account)

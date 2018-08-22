@@ -23,7 +23,7 @@ import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputEx;
-import com.mycelium.wapi.wallet.SingleAddressBtcAccountBacking;
+import com.mycelium.wapi.wallet.SingleAddressAccountBacking;
 import com.mycelium.wapi.wallet.btc.bip44.Bip44AccountContext;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext;
 
@@ -32,9 +32,9 @@ import java.util.*;
 /**
  * Backing for a wallet manager which is only kept temporarily in memory
  */
-public class InMemoryWalletManagerBtcBacking implements WalletManagerBtcBacking {
+public class InMemoryWalletManagerBacking implements WalletManagerBacking {
    private final Map<String, byte[]> _values = new HashMap<>();
-   private final Map<UUID, InMemoryBtcAccountBacking> _backings = new HashMap<>();
+   private final Map<UUID, InMemoryAccountBacking> _backings = new HashMap<>();
    private final Map<UUID, Bip44AccountContext> _bip44Contexts = new HashMap<>();
    private final Map<UUID, SingleAddressAccountContext> _singleAddressAccountContexts = new HashMap<>();
    private int maxSubId = 0;
@@ -67,7 +67,7 @@ public class InMemoryWalletManagerBtcBacking implements WalletManagerBtcBacking 
    @Override
    public void createBip44AccountContext(Bip44AccountContext context) {
       _bip44Contexts.put(context.getId(), new Bip44AccountContext(context));
-      _backings.put(context.getId(), new InMemoryBtcAccountBacking());
+      _backings.put(context.getId(), new InMemoryAccountBacking());
    }
 
    @Override
@@ -88,7 +88,7 @@ public class InMemoryWalletManagerBtcBacking implements WalletManagerBtcBacking 
    @Override
    public void createSingleAddressAccountContext(SingleAddressAccountContext context) {
       _singleAddressAccountContexts.put(context.getId(), new SingleAddressAccountContext(context));
-      _backings.put(context.getId(), new InMemoryBtcAccountBacking());
+      _backings.put(context.getId(), new InMemoryAccountBacking());
    }
 
    @Override
@@ -104,15 +104,15 @@ public class InMemoryWalletManagerBtcBacking implements WalletManagerBtcBacking 
    }
 
    @Override
-   public Bip44BtcAccountBacking getBip44AccountBacking(UUID accountId) {
-      InMemoryBtcAccountBacking backing = _backings.get(accountId);
+   public Bip44AccountBacking getBip44AccountBacking(UUID accountId) {
+      InMemoryAccountBacking backing = _backings.get(accountId);
       Preconditions.checkNotNull(backing);
       return backing;
    }
 
    @Override
-   public SingleAddressBtcAccountBacking getSingleAddressAccountBacking(UUID accountId) {
-      InMemoryBtcAccountBacking backing = _backings.get(accountId);
+   public SingleAddressAccountBacking getSingleAddressAccountBacking(UUID accountId) {
+      InMemoryAccountBacking backing = _backings.get(accountId);
       Preconditions.checkNotNull(backing);
       return backing;
    }
@@ -166,7 +166,7 @@ public class InMemoryWalletManagerBtcBacking implements WalletManagerBtcBacking 
       return "sub" + subId + "." + HexUtils.toHex(id);
    }
 
-   private class InMemoryBtcAccountBacking implements Bip44BtcAccountBacking, SingleAddressBtcAccountBacking {
+   private class InMemoryAccountBacking implements Bip44AccountBacking, SingleAddressAccountBacking {
       private final Map<OutPoint, TransactionOutputEx> _unspentOuputs = new HashMap<>();
       private final Map<Sha256Hash, TransactionEx> _transactions = new HashMap<>();
       private final Map<OutPoint, TransactionOutputEx> _parentOutputs = new HashMap<>();
@@ -187,17 +187,17 @@ public class InMemoryWalletManagerBtcBacking implements WalletManagerBtcBacking 
 
       @Override
       public void beginTransaction() {
-         InMemoryWalletManagerBtcBacking.this.beginTransaction();
+         InMemoryWalletManagerBacking.this.beginTransaction();
       }
 
       @Override
       public void setTransactionSuccessful() {
-         InMemoryWalletManagerBtcBacking.this.setTransactionSuccessful();
+         InMemoryWalletManagerBacking.this.setTransactionSuccessful();
       }
 
       @Override
       public void endTransaction() {
-         InMemoryWalletManagerBtcBacking.this.endTransaction();
+         InMemoryWalletManagerBacking.this.endTransaction();
       }
 
       @Override

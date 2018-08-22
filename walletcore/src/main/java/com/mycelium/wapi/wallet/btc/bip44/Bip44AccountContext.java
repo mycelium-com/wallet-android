@@ -16,7 +16,7 @@
 
 package com.mycelium.wapi.wallet.btc.bip44;
 
-import com.mycelium.wapi.wallet.btc.Bip44BtcAccountBacking;
+import com.mycelium.wapi.wallet.btc.Bip44AccountBacking;
 
 import java.util.UUID;
 
@@ -165,7 +165,7 @@ public class Bip44AccountContext {
    /**
     * Persist this context if it is marked as dirty
     */
-   public void persistIfNecessary(Bip44BtcAccountBacking backing) {
+   public void persistIfNecessary(Bip44AccountBacking backing) {
       if (isDirty) {
          persist(backing);
       }
@@ -174,7 +174,7 @@ public class Bip44AccountContext {
    /**
     * Persist this context
     */
-   public void persist(Bip44BtcAccountBacking backing) {
+   public void persist(Bip44AccountBacking backing) {
       backing.updateAccountContext(this);
       isDirty = false;
    }

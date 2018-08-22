@@ -13,7 +13,7 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.export.VerifyBackupActivity;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
-import com.mycelium.wapi.wallet.btc.single.SingleAddressBtcAccount;
+import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 
 import java.util.List;
 
@@ -117,7 +117,7 @@ public class BackupFragment extends PreferenceFragmentCompat {
         }
 
         for (WalletBtcAccount account : accounts) {
-            if (account instanceof SingleAddressBtcAccount) {
+            if (account instanceof SingleAddressAccount) {
                 return; //we have a single address account with priv key, so its fine to show the setting
             }
         }

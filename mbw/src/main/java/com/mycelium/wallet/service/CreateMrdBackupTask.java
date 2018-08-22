@@ -53,7 +53,7 @@ import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.btc.single.SingleAddressBtcAccount;
+import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -109,11 +109,11 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
       for (WalletBtcAccount account : accounts) {
          //TODO: add check whether coluaccount is in hd or singleaddress mode
          entry = null;
-         if (account instanceof SingleAddressBtcAccount) {
+         if (account instanceof SingleAddressAccount) {
             if (!account.isVisible()) {
                continue;
             }
-            SingleAddressBtcAccount a = (SingleAddressBtcAccount) account;
+            SingleAddressAccount a = (SingleAddressAccount) account;
             Address address = a.getAddress();
             String label = storage.getLabelByAccount(a.getId());
 

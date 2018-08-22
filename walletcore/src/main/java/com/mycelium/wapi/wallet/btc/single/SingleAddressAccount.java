@@ -38,20 +38,19 @@ import com.mycelium.wapi.wallet.btc.BtcTransaction;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.CoinType;
-import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
 
 import java.util.*;
 
-public class SingleAddressBtcAccount extends AbstractBtcAccount implements ExportableAccount {
+public class SingleAddressAccount extends AbstractBtcAccount implements ExportableAccount {
    private SingleAddressAccountContext _context;
    private List<Address> _addressList;
    private volatile boolean _isSynchronizing;
    private PublicPrivateKeyStore _keyStore;
-   private SingleAddressBtcAccountBacking _backing;
+   private SingleAddressAccountBacking _backing;
 
-   public SingleAddressBtcAccount(SingleAddressAccountContext context, PublicPrivateKeyStore keyStore,
-                                  NetworkParameters network, SingleAddressBtcAccountBacking backing, Wapi wapi) {
+   public SingleAddressAccount(SingleAddressAccountContext context, PublicPrivateKeyStore keyStore,
+                               NetworkParameters network, SingleAddressAccountBacking backing, Wapi wapi) {
       super(backing, network, wapi);
       _backing = backing;
       type = WalletBtcAccount.Type.BTCSINGLEADDRESS;
@@ -386,7 +385,7 @@ public class SingleAddressBtcAccount extends AbstractBtcAccount implements Expor
 
    @Override
    protected boolean doDiscoveryForAddresses(List<Address> lookAhead) throws WapiException {
-      // not needed for SingleAddressBtcAccount
+      // not needed for SingleAddressAccount
       return true;
    }
 

@@ -27,7 +27,7 @@ import com.mycelium.wapi.wallet.WalletManager
 import com.mycelium.wapi.wallet.btc.bip44.Bip44Account
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.currency.CurrencyValue
-import com.mycelium.wapi.wallet.btc.single.SingleAddressBtcAccount
+import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
 import com.squareup.otto.Bus
 import com.subgraph.orchid.encoders.Hex
 import org.bitcoinj.core.*
@@ -183,9 +183,9 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                     }
                     IntentContract.UNRELATED_ACCOUNT_TYPE_SA -> {
                         Log.d(TAG, "com.mycelium.wallet.requestSingleAddressPrivateKeyToMBW, guid = $accountGuid")
-                        val account =_mbwManager.getWalletManager(false).getAccount(UUID.fromString(accountGuid)) as? SingleAddressBtcAccount
+                        val account =_mbwManager.getWalletManager(false).getAccount(UUID.fromString(accountGuid)) as? SingleAddressAccount
                                 //This is a way to not to pass information that this is a cold storage to BCH module and back
-                                ?: _mbwManager.getWalletManager(true).getAccount(UUID.fromString(accountGuid)) as SingleAddressBtcAccount
+                                ?: _mbwManager.getWalletManager(true).getAccount(UUID.fromString(accountGuid)) as SingleAddressAccount
 
                         val service = if (account.publicKey == null) {
                             IntentContract.SendUnrelatedWatchedAddressToSPV.createIntent(accountGuid,
@@ -260,7 +260,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
 
                 val keyList = ArrayList<ECKey>()
 
-                if (account is SingleAddressBtcAccount) {
+                if (account is SingleAddressAccount) {
                     val privateKeyBase58 = account.getPrivateKey(AesKeyCipher.defaultKeyCipher()).getBase58EncodedPrivateKey(mbwManager.network)
 
                     keyList.add(DumpedPrivateKey.fromBase58(networkParameters, privateKeyBase58).key)

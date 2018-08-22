@@ -50,7 +50,7 @@ import com.mycelium.wallet.activity.StringHandlerActivity;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
-import com.mycelium.wapi.wallet.btc.single.SingleAddressBtcAccount;
+import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 
 import java.util.UUID;
@@ -144,7 +144,7 @@ public class VerifyBackupActivity extends Activity {
          MetadataStorage.BackupState backupState = _mbwManager.getMetadataStorage().getOtherAccountBackupState(accountid);
 
          if (backupState!= MetadataStorage.BackupState.IGNORED) {
-            boolean needsBackup = account instanceof SingleAddressBtcAccount
+            boolean needsBackup = account instanceof SingleAddressAccount
                 && !(account instanceof SingleAddressBCHAccount)
                 && account.canSpend()
                 && backupState != MetadataStorage.BackupState.VERIFIED;

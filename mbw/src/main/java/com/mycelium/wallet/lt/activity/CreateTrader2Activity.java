@@ -57,7 +57,7 @@ import com.mycelium.wallet.lt.api.TryLogin;
 import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.btc.bip44.Bip44Account;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
-import com.mycelium.wapi.wallet.btc.single.SingleAddressBtcAccount;
+import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -146,8 +146,8 @@ public class CreateTrader2Activity extends Activity {
    }
 
    private String createDefaultName(WalletBtcAccount account) {
-      if (account instanceof SingleAddressBtcAccount) {
-         Address address = ((SingleAddressBtcAccount) account).getAddress();
+      if (account instanceof SingleAddressAccount) {
+         Address address = ((SingleAddressAccount) account).getAddress();
          String addressString = address.toString();
          StringBuilder sb = new StringBuilder();
          sb.append(addressString.substring(0, 6));

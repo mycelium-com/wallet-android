@@ -7,8 +7,9 @@ import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.WapiLogger;
 import com.mycelium.wapi.wallet.*;
-import com.mycelium.wapi.wallet.btc.InMemoryWalletManagerBtcBacking;
-import com.mycelium.wapi.wallet.btc.WalletManagerBtcBacking;
+import com.mycelium.wapi.wallet.btc.InMemoryWalletManagerBacking;
+import com.mycelium.wapi.wallet.btc.WalletManagerBacking;
+
 import org.junit.Before;
 import org.junit.Test;
 import java.util.UUID;
@@ -30,7 +31,7 @@ public class Bip44AccountTest {
         WapiLogger fakeLogger = mock(WapiLogger.class);
         when(fakeWapi.getLogger()).thenReturn(fakeLogger);
 
-        WalletManagerBtcBacking backing = new InMemoryWalletManagerBtcBacking();
+        WalletManagerBacking backing = new InMemoryWalletManagerBacking();
         SecureKeyValueStore store = new SecureKeyValueStore(backing, fakeRandomSource);
         KeyCipher cipher = AesKeyCipher.defaultKeyCipher();
 

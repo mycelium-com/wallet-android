@@ -8,7 +8,7 @@ import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.model.TransactionDetails
 import com.mycelium.wapi.model.TransactionSummary
-import com.mycelium.wapi.wallet.btc.Bip44BtcAccountBacking
+import com.mycelium.wapi.wallet.btc.Bip44AccountBacking
 import com.mycelium.wapi.wallet.KeyCipher
 import com.mycelium.wapi.wallet.SpvBalanceFetcher
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount
@@ -25,7 +25,7 @@ import com.mycelium.wapi.wallet.btc.bip44.Bip44AccountKeyManager
 import com.mycelium.wapi.wallet.btc.bip44.Bip44Account
 
 open class Bip44BCHAccount(context: Bip44AccountContext, keyManager: Bip44AccountKeyManager,
-                           network: NetworkParameters, backing: Bip44BtcAccountBacking, wapi: Wapi,
+                           network: NetworkParameters, backing: Bip44AccountBacking, wapi: Wapi,
                            private val spvBalanceFetcher: SpvBalanceFetcher) : Bip44Account(context, keyManager, network, backing, wapi) {
     private var blockChainHeight = 0
     private var visible = false

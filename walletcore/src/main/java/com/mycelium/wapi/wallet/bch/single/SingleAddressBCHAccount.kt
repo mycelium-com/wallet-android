@@ -6,12 +6,12 @@ import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.model.TransactionDetails
 import com.mycelium.wapi.model.TransactionSummary
-import com.mycelium.wapi.wallet.SingleAddressBtcAccountBacking
+import com.mycelium.wapi.wallet.SingleAddressAccountBacking
 import com.mycelium.wapi.wallet.SpvBalanceFetcher
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount
 import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext
-import com.mycelium.wapi.wallet.btc.single.SingleAddressBtcAccount
+import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance
 import com.mycelium.wapi.wallet.currency.CurrencyValue
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue
@@ -21,8 +21,8 @@ import java.util.UUID
 
 class SingleAddressBCHAccount(context: SingleAddressAccountContext,
                               keyStore: PublicPrivateKeyStore, network: NetworkParameters,
-                              backing: SingleAddressBtcAccountBacking, wapi: Wapi,
-                              private val spvBalanceFetcher: SpvBalanceFetcher) : SingleAddressBtcAccount(context, keyStore, network, backing, wapi) {
+                              backing: SingleAddressAccountBacking, wapi: Wapi,
+                              private val spvBalanceFetcher: SpvBalanceFetcher) : SingleAddressAccount(context, keyStore, network, backing, wapi) {
     private var visible: Boolean = false
 
     init {
@@ -85,7 +85,7 @@ class SingleAddressBCHAccount(context: SingleAddressAccountContext,
         private const val forkBlock = 478559
 
         fun calculateId(address: Address): UUID {
-            return UUID.nameUUIDFromBytes(("BCH" + SingleAddressBtcAccount.calculateId(address).toString()).toByteArray())
+            return UUID.nameUUIDFromBytes(("BCH" + SingleAddressAccount.calculateId(address).toString()).toByteArray())
         }
     }
 }

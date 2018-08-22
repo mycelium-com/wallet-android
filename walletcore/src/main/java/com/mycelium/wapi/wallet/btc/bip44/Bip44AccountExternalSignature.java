@@ -5,16 +5,16 @@ import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.Transaction;
 import com.mycelium.wapi.api.Wapi;
-import com.mycelium.wapi.wallet.btc.Bip44BtcAccountBacking;
+import com.mycelium.wapi.wallet.btc.Bip44AccountBacking;
 import com.mycelium.wapi.wallet.KeyCipher;
 
-public class Bip44BtcAccountExternalSignature extends Bip44PubOnlyBtcAccount {
+public class Bip44AccountExternalSignature extends Bip44PubOnlyAccount {
    private final ExternalSignatureProvider _sigProvider;
 
-   public Bip44BtcAccountExternalSignature(Bip44AccountContext context,
-                                           Bip44AccountKeyManager keyManager,
-                                           NetworkParameters network, Bip44BtcAccountBacking backing,
-                                           Wapi wapi, ExternalSignatureProvider signatureProvider) {
+   public Bip44AccountExternalSignature(Bip44AccountContext context,
+                                        Bip44AccountKeyManager keyManager,
+                                        NetworkParameters network, Bip44AccountBacking backing,
+                                        Wapi wapi, ExternalSignatureProvider signatureProvider) {
       super(context, keyManager, network, backing, wapi);
       _sigProvider = signatureProvider;
    }

@@ -68,13 +68,12 @@ import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.btc.BtcTransaction;
 import com.mycelium.wapi.wallet.btc.SynchronizeAbleWalletBtcAccount;
+import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.CoinType;
-import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
-import com.mycelium.wapi.wallet.btc.single.SingleAddressBtcAccount;
 
 import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
 import org.spongycastle.util.encoders.Hex;
@@ -100,7 +99,7 @@ public class ColuAccount extends SynchronizeAbleWalletBtcAccount implements Expo
 
     private final ColuManager manager;
     private final UUID uuid;
-    private final BtcAccountBacking accountBacking;
+    private final AccountBacking accountBacking;
     private final MetadataStorage metadataStorage;
     private List<TransactionSummary> allTransactionSummaries;
     private long satoshiAmount;
@@ -132,11 +131,11 @@ public class ColuAccount extends SynchronizeAbleWalletBtcAccount implements Expo
         this.accountKey = accountKey;
     }
 
-    private SingleAddressBtcAccount linkedAccount;
+    private SingleAddressAccount linkedAccount;
 
     private String label;
 
-    public ColuAccount(ColuManager manager, BtcAccountBacking accountBacking, MetadataStorage metadataStorage, Address address,
+    public ColuAccount(ColuManager manager, AccountBacking accountBacking, MetadataStorage metadataStorage, Address address,
                        ColuAsset coluAsset) {
         this.manager = manager;
         this.accountBacking = accountBacking;
@@ -151,7 +150,7 @@ public class ColuAccount extends SynchronizeAbleWalletBtcAccount implements Expo
         archived = metadataStorage.getArchived(uuid);
     }
 
-    public ColuAccount(ColuManager manager, BtcAccountBacking accountBacking, MetadataStorage metadataStorage, InMemoryPrivateKey accountKey,
+    public ColuAccount(ColuManager manager, AccountBacking accountBacking, MetadataStorage metadataStorage, InMemoryPrivateKey accountKey,
                        ColuAsset coluAsset) {
         this.manager = manager;
         this.accountBacking = accountBacking;
@@ -911,11 +910,11 @@ public class ColuAccount extends SynchronizeAbleWalletBtcAccount implements Expo
         return 0;
     }
 
-    public SingleAddressBtcAccount getLinkedAccount() {
+    public SingleAddressAccount getLinkedAccount() {
         return linkedAccount;
     }
 
-    void setLinkedAccount(SingleAddressBtcAccount linkedAccount) {
+    void setLinkedAccount(SingleAddressAccount linkedAccount) {
         this.linkedAccount = linkedAccount;
     }
 

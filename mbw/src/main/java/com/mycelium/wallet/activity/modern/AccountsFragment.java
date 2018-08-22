@@ -104,9 +104,9 @@ import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.bip44.Bip44Account;
 import com.mycelium.wapi.wallet.btc.bip44.Bip44PubOnlyAccount;
+import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
-import com.mycelium.wapi.wallet.btc.single.SingleAddressBtcAccount;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -263,7 +263,7 @@ public class AccountsFragment extends Fragment {
       final boolean hasPrivateData = (accountToDelete instanceof ExportableAccount
               && ((ExportableAccount) accountToDelete).getExportData(AesKeyCipher.defaultKeyCipher()).privateData.isPresent());
 
-      if (accountToDelete instanceof SingleAddressBtcAccount && hasPrivateData) {
+      if (accountToDelete instanceof SingleAddressAccount && hasPrivateData) {
          deleteDialog.setView(checkBoxView);
       }
 
@@ -337,7 +337,7 @@ public class AccountsFragment extends Fragment {
                confirmDeleteDialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                   public void onClick(DialogInterface arg0, int arg1) {
                      Log.d(TAG, "In deleteFragment onClick");
-                     if (keepAddrCheckbox.isChecked() && accountToDelete instanceof SingleAddressBtcAccount) {
+                     if (keepAddrCheckbox.isChecked() && accountToDelete instanceof SingleAddressAccount) {
                         try {
                            //Check if this SingleAddress account is related with ColuAccount
                            WalletBtcAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, _mbwManager.getColuManager().getAccounts().values());
@@ -345,7 +345,7 @@ public class AccountsFragment extends Fragment {
                               ColuManager coluManager = _mbwManager.getColuManager();
                               coluManager.forgetPrivateKey((ColuAccount) linkedColuAccount);
                            } else {
-                              ((SingleAddressBtcAccount) accountToDelete).forgetPrivateKey(AesKeyCipher.defaultKeyCipher());
+                              ((SingleAddressAccount) accountToDelete).forgetPrivateKey(AesKeyCipher.defaultKeyCipher());
                            }
                            _toaster.toast(R.string.private_key_deleted, false);
                         } catch (KeyCipher.InvalidKeyCipher e) {
@@ -606,11 +606,11 @@ public class AccountsFragment extends Fragment {
          menus.add(R.menu.record_options_menu);
       }
 
-      if ((account instanceof SingleAddressBtcAccount) || (account.isDerivedFromInternalMasterseed())) {
+      if ((account instanceof SingleAddressAccount) || (account.isDerivedFromInternalMasterseed())) {
          menus.add(R.menu.record_options_menu_backup);
       }
 
-      if (account instanceof SingleAddressBtcAccount) {
+      if (account instanceof SingleAddressAccount) {
          menus.add(R.menu.record_options_menu_backup_verify);
       }
 
@@ -893,7 +893,7 @@ public class AccountsFragment extends Fragment {
          return;
       }
       WalletBtcAccount _focusedAccount = accountListAdapter.getFocusedAccount();
-      if (_focusedAccount instanceof SingleAddressBtcAccount || _focusedAccount instanceof ColuAccount) {
+      if (_focusedAccount instanceof SingleAddressAccount || _focusedAccount instanceof ColuAccount) {
          //start legacy backup verification
          VerifyBackupActivity.callMe(getActivity());
       }
@@ -913,7 +913,7 @@ public class AccountsFragment extends Fragment {
          if (_focusedAccount.isDerivedFromInternalMasterseed()) {
             //start wordlist backup if a HD account or derived account was selected
             Utils.pinProtectedWordlistBackup(getActivity());
-         } else if (_focusedAccount instanceof SingleAddressBtcAccount) {
+         } else if (_focusedAccount instanceof SingleAddressAccount) {
             //start legacy backup if a single key or watch only was selected
             Utils.pinProtectedBackup(getActivity());
          }
@@ -942,8 +942,8 @@ public class AccountsFragment extends Fragment {
             if (_focusedAccount instanceof CoinapultAccount) {
                CoinapultManager coinapultManager = _mbwManager.getCoinapultManager();
                MessageSigningActivity.callMe(getActivity(), coinapultManager.getAccountKey());
-            } else if (_focusedAccount instanceof SingleAddressBtcAccount) {
-               MessageSigningActivity.callMe(getActivity(), (SingleAddressBtcAccount) _focusedAccount);
+            } else if (_focusedAccount instanceof SingleAddressAccount) {
+               MessageSigningActivity.callMe(getActivity(), (SingleAddressAccount) _focusedAccount);
             } else if(_focusedAccount instanceof ColuAccount){
                MessageSigningActivity.callMe(getActivity(), ((ColuAccount) _focusedAccount).getPrivateKey());
             } else {
@@ -964,7 +964,7 @@ public class AccountsFragment extends Fragment {
          _toaster.toast(getString(R.string.selected_archived_warning), true);
       } else if (account instanceof Bip44Account) {
          _toaster.toast(getString(R.string.selected_hd_info), true);
-      } else if (account instanceof SingleAddressBtcAccount) {
+      } else if (account instanceof SingleAddressAccount) {
          _toaster.toast(getString(R.string.selected_single_info), true);
       } else if(account instanceof ColuAccount) {
           _toaster.toast(getString(R.string.selected_colu_info

@@ -60,7 +60,7 @@ import com.mycelium.wapi.api.response.CheckTransactionsResponse;
 import com.mycelium.wapi.api.response.GetTransactionsResponse;
 import com.mycelium.wapi.api.response.QueryUnspentOutputsResponse;
 import com.mycelium.wapi.model.BalanceSatoshis;
-import com.mycelium.wapi.wallet.BtcAccountBacking;
+import com.mycelium.wapi.wallet.AccountBacking;
 import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
@@ -107,10 +107,10 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    protected BalanceSatoshis _cachedBalance;
 
    private EventHandler _eventHandler;
-   private final BtcAccountBacking _backing;
+   private final AccountBacking _backing;
    protected int syncTotalRetrievedTransactions = 0;
 
-   protected AbstractBtcAccount(BtcAccountBacking backing, NetworkParameters network, Wapi wapi) {
+   protected AbstractBtcAccount(AccountBacking backing, NetworkParameters network, Wapi wapi) {
       _network = network;
       _logger = wapi.getLogger();
       _wapi = wapi;
@@ -1556,7 +1556,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       return CurrencyValue.BTC;
    }
 
-   public BtcAccountBacking getAccountBacking() {
+   public AccountBacking getAccountBacking() {
       return this._backing;
    }
 
