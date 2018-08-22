@@ -16,6 +16,8 @@
 
 package com.mrd.bitlib.model;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.google.common.primitives.UnsignedInteger;
 import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.model.TransactionInput.TransactionInputParsingException;
@@ -25,8 +27,10 @@ import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
 import com.mrd.bitlib.util.ByteWriter;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 /**
  * Transaction represents a raw Bitcoin transaction. In other words, it contains only the information found in the
@@ -284,7 +288,7 @@ public class Transaction implements Serializable {
             writer.putIntLE(version);
             writer.putBytes(getPrevOutsHash().getBytes());
             writer.putBytes(getSequenceHash().getBytes());
-            inputs[i].outPoint.hashPrevOutToByteWriter(writer);
+            inputs[i].outPoint.hashPrev(writer);
             byte[] scriptCode = inputs[i].getScriptCode();
             writer.put((byte) (scriptCode.length & 0xFF));
             writer.putBytes(scriptCode);
@@ -309,7 +313,7 @@ public class Transaction implements Serializable {
     private Sha256Hash getPrevOutsHash() {
         ByteWriter writer = new ByteWriter(1024);
         for (TransactionInput input : inputs) {
-            input.outPoint.hashPrevOutToByteWriter(writer);
+            input.outPoint.hashPrev(writer);
         }
         return HashUtils.doubleSha256(writer.toBytes());
     }
@@ -370,13 +374,12 @@ public class Transaction implements Serializable {
      * @return true if transaction is SegWit, else false
      */
     public boolean isSegwit() {
-        boolean isSegwit = false;
-        for (TransactionInput input: inputs) {
-            if (input.hasWitness()) {
-                isSegwit = true;
+        return Iterables.any(Arrays.asList(inputs), new Predicate<TransactionInput>() {
+            @Override
+            public boolean apply(@Nullable TransactionInput transactionInput) {
+                return transactionInput != null && transactionInput.hasWitness();
             }
-        }
-        return isSegwit;
+        });
     }
 
     /**

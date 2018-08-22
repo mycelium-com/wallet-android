@@ -16,6 +16,7 @@
 
 package com.mrd.bitlib.crypto;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.lambdaworks.crypto.Base64;
 import com.mrd.bitlib.crypto.ec.Curve;
@@ -33,7 +34,6 @@ import org.bitcoinj.core.Utils;
 import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.Collection;
-import java.util.List;
 
 public class SignedMessage implements Serializable {
    private static final long serialVersionUID = 1188125594280603453L;
@@ -70,10 +70,7 @@ public class SignedMessage implements Serializable {
    public static void validateAddressMatches(Address address, PublicKey key) throws WrongSignatureException {
       Collection<Address> possibleAddresses = key.getAllSupportedAddresses(address.getNetwork()).values();
       if (!possibleAddresses.contains(address)) {
-         StringBuilder possibleAddressesString = new StringBuilder();
-         for (Address suggestedAddress : possibleAddresses) {
-            possibleAddressesString.append(suggestedAddress.toString());
-         }
+         String possibleAddressesString = Joiner.on(", ").join(possibleAddresses);
          throw new WrongSignatureException(String.format("given Address did not match \nexpected %s\n but possible %s",
                  address, possibleAddressesString));
       }

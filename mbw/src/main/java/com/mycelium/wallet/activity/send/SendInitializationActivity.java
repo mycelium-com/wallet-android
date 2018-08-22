@@ -38,6 +38,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.Window;
 
@@ -60,11 +61,9 @@ public class SendInitializationActivity extends Activity {
    private byte[] _rawPr;
 
    public static void callMe(Activity currentActivity, UUID account, boolean isColdStorage) {
-      Intent intent = new Intent(currentActivity, SendInitializationActivity.class)
-              .putExtra("account", account)
-              //we dont know anything specific yet
-              .putExtra("uri", new BitcoinUri(null, null, null))
-              .putExtra("isColdStorage", isColdStorage)
+      //we dont know anything specific yet
+      BitcoinUri uri = new BitcoinUri(null, null, null);
+      Intent intent = prepareSendingIntent(currentActivity, account, uri, isColdStorage)
               .addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
       currentActivity.startActivity(intent);
    }
@@ -76,7 +75,6 @@ public class SendInitializationActivity extends Activity {
    public static void callMeWithResult(Activity currentActivity, UUID account, BitcoinUri uri, boolean isColdStorage, int request) {
       Intent intent = prepareSendingIntent(currentActivity, account, uri, isColdStorage);
       currentActivity.startActivityForResult(intent, request);
-
    }
 
    public static void callMe(Activity currentActivity, UUID account, BitcoinUri uri, boolean isColdStorage) {
@@ -121,7 +119,8 @@ public class SendInitializationActivity extends Activity {
       _uri = (BitcoinUri) getIntent().getSerializableExtra("uri");
       _rawPr =  getIntent().getByteArrayExtra("rawPr");
       _isColdStorage = getIntent().getBooleanExtra("isColdStorage", false);
-      _account = _mbwManager.getWalletManager(_isColdStorage).getAccount(accountId);
+      String crashHint = TextUtils.join(", ", getIntent().getExtras().keySet()) + " (account id was " + accountId + ")";
+      _account = Preconditions.checkNotNull(_mbwManager.getWalletManager(_isColdStorage).getAccount(accountId), crashHint);
    }
 
    @Override

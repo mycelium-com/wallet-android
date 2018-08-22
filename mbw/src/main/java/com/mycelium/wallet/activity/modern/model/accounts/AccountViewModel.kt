@@ -37,8 +37,8 @@ class AccountViewModel(account: WalletBtcAccount, mbwManager: MbwManager) : Acco
         }
     }
 
-    constructor(account: Bip44Account, mbwManager: MbwManager) : this(account as WalletBtcAccount, mbwManager) {
-        displayAddress = Integer.toString(account.privateKeyCount)
+    constructor(account: Bip44Account, mbwManager: MbwManager) : this(account as WalletAccount, mbwManager) {
+        displayAddress = Integer.toString(account.getPrivateKeyCount())
     }
 
     override fun getType() = AccountListItem.Type.ACCOUNT_TYPE

@@ -49,9 +49,9 @@ import com.mycelium.wallet.extsig.ledger.activity.LedgerSignTransactionActivity;
 import com.mycelium.wallet.extsig.trezor.activity.TrezorSignTransactionActivity;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
-import com.mycelium.wapi.wallet.btc.bip44.Bip44AccountContext;
-import com.mycelium.wapi.wallet.btc.bip44.Bip44AccountExternalSignature;
+import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.bip44.HDAccountContext;
+import com.mycelium.wapi.wallet.bip44.Bip44AccountExternalSignature;
 
 import java.util.UUID;
 
@@ -75,13 +75,13 @@ public class SignTransactionActivity extends Activity {
       if (walletAccount instanceof Bip44AccountExternalSignature) {
          final int bip44AccountType = ((Bip44AccountExternalSignature) walletAccount).getBIP44AccountType();
          switch (bip44AccountType) {
-            case (Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER):
+            case (HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER):
                targetClass = LedgerSignTransactionActivity.class;
                break;
-            case (Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY):
+            case (HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY):
                targetClass = KeepKeySignTransactionActivity.class;
                break;
-            case (Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR):
+            case (HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR):
                targetClass = TrezorSignTransactionActivity.class;
                break;
             default:

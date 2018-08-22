@@ -68,9 +68,9 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.util.AbstractAccountScanManager;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.btc.bip44.Bip44AccountContext;
-import com.mycelium.wapi.wallet.btc.bip44.Bip44AccountExternalSignature;
-import com.mycelium.wapi.wallet.btc.bip44.ExternalSignatureProvider;
+import com.mycelium.wapi.wallet.bip44.HDAccountContext;
+import com.mycelium.wapi.wallet.bip44.Bip44AccountExternalSignature;
+import com.mycelium.wapi.wallet.bip44.ExternalSignatureProvider;
 import com.squareup.otto.Bus;
 import nordpol.android.OnDiscoveredTagListener;
 
@@ -619,7 +619,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
 
    @Override
    public int getBIP44AccountType() {
-      return Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER;
+      return HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER;
    }
 
    public String getLabelOrDefault() {

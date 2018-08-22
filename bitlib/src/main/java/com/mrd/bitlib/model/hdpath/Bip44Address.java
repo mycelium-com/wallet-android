@@ -3,7 +3,7 @@ package com.mrd.bitlib.model.hdpath;
 import com.google.common.primitives.UnsignedInteger;
 
 
-public class Bip44Address extends Bip44Chain {
+public class Bip44Address extends HdKeyPath {
    public Bip44Address(Bip44Chain parent, UnsignedInteger index, boolean hardened) {
       super(parent, index, hardened);
    }

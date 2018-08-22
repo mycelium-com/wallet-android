@@ -39,7 +39,6 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
@@ -47,7 +46,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.*;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.TextView;
+
 import com.mrd.bitlib.crypto.Bip39;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -96,6 +100,7 @@ public class EnterWordListActivity extends AppCompatActivity implements WordAuto
       this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
       super.onCreate(savedInstanceState);
       setContentView(R.layout.enter_word_list_activity);
+      setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
       _mbwManager = MbwManager.getInstance(this);
       _progress = new ProgressDialog(this);
       enteredWords = new ArrayList<String>();
@@ -113,7 +118,6 @@ public class EnterWordListActivity extends AppCompatActivity implements WordAuto
          //only ask if we are not recreating the activity, because of rotation for example
          askForWordNumber();
       }
-      setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
    }
 
    private void askForWordNumber() {

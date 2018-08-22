@@ -327,8 +327,7 @@ public class MetadataStorage extends GenericMetadataStorage {
    }
 
    public Optional<String> getColuBalance(UUID coluAccountUuid) {
-      Optional<String> key = getKeyCategoryValueEntry(COLU.of("balance" + coluAccountUuid.toString()));
-      return key;
+      return getKeyCategoryValueEntry(COLU.of("balance" + coluAccountUuid.toString()));
    }
 
    public void storeColuKey(String assetId, String base58PrivateKey) {
@@ -336,8 +335,7 @@ public class MetadataStorage extends GenericMetadataStorage {
    }
 
    public Optional<String> getColuKey(String assetId) {
-      Optional<String> key = getKeyCategoryValueEntry(COLU.of("key" + assetId));
-      return key;
+      return getKeyCategoryValueEntry(COLU.of("key" + assetId));
    }
 
    public void deleteColuKey(String assetId) {
@@ -355,8 +353,7 @@ public class MetadataStorage extends GenericMetadataStorage {
    }
 
    public Optional<String> getExchangeRate(String currency, String baseCurrency, String market) {
-      Optional<String> key = getKeyCategoryValueEntry(EXCHANGE_RATES_CATEGORY.of(market + "_" + currency + "_" + baseCurrency));
-      return key;
+      return getKeyCategoryValueEntry(EXCHANGE_RATES_CATEGORY.of(market + "_" + currency + "_" + baseCurrency));
    }
 
    public void addColuAssetUUIDs(String assetId, UUID uuid) {

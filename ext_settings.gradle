@@ -7,7 +7,7 @@ ext {
     androidSdkBuildVersion = '28.0.2'
     androidSupportVersion = '27.1.1'
     junitVersion = '4.12'
-    kotlin_version = '1.2.41'
+    kotlin_version = '1.2.61'
     lifecycle_version = "1.1.1"
 
     projectRootDir = project.rootDir.getPath()

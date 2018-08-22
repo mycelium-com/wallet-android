@@ -5,10 +5,8 @@ import com.mrd.bitlib.util.ByteWriter
 import java.io.Serializable
 import java.util.ArrayList
 
-class InputWitness(pushCount: Int) : Serializable {
-
+class InputWitness(val pushCount: Int) : Serializable {
     private val stack = ArrayList<ByteArray>(Math.min(pushCount, MAX_INITIAL_ARRAY_LENGTH))
-    val stackSize = pushCount
 
     fun setStack(i: Int, value: ByteArray) {
         while (i >= stack.size) {

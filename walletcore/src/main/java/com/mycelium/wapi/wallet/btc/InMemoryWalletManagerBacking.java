@@ -21,11 +21,11 @@ import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.OutPoint;
 import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
+import com.mycelium.wapi.api.lib.FeeEstimation;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputEx;
-import com.mycelium.wapi.wallet.SingleAddressAccountBacking;
-import com.mycelium.wapi.wallet.btc.bip44.Bip44AccountContext;
-import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext;
+import com.mycelium.wapi.wallet.bip44.HDAccountContext;
+import com.mycelium.wapi.wallet.single.SingleAddressAccountContext;
 
 import java.util.*;
 
@@ -35,8 +35,9 @@ import java.util.*;
 public class InMemoryWalletManagerBacking implements WalletManagerBacking {
    private final Map<String, byte[]> _values = new HashMap<>();
    private final Map<UUID, InMemoryAccountBacking> _backings = new HashMap<>();
-   private final Map<UUID, Bip44AccountContext> _bip44Contexts = new HashMap<>();
+   private final Map<UUID, HDAccountContext> _bip44Contexts = new HashMap<>();
    private final Map<UUID, SingleAddressAccountContext> _singleAddressAccountContexts = new HashMap<>();
+   private FeeEstimation _feeEstimation = FeeEstimation.DEFAULT;
    private int maxSubId = 0;
 
    @Override
@@ -55,23 +56,23 @@ public class InMemoryWalletManagerBacking implements WalletManagerBacking {
    }
 
    @Override
-   public List<Bip44AccountContext> loadBip44AccountContexts() {
+   public List<HDAccountContext> loadBip44AccountContexts() {
       // Return a list containing copies
-      List<Bip44AccountContext> list = new ArrayList<>();
-      for (Bip44AccountContext c : _bip44Contexts.values()) {
-         list.add(new Bip44AccountContext(c));
+      List<HDAccountContext> list = new ArrayList<>();
+      for (HDAccountContext c : _bip44Contexts.values()) {
+         list.add(new HDAccountContext(c));
       }
       return list;
    }
 
    @Override
-   public void createBip44AccountContext(Bip44AccountContext context) {
-      _bip44Contexts.put(context.getId(), new Bip44AccountContext(context));
+   public void createBip44AccountContext(HDAccountContext context) {
+      _bip44Contexts.put(context.getId(), new HDAccountContext(context));
       _backings.put(context.getId(), new InMemoryAccountBacking());
    }
 
    @Override
-   public void upgradeBip44AccountContext(Bip44AccountContext context) {
+   public void upgradeBip44AccountContext(HDAccountContext context) {
       _backings.get(context.getId()).updateAccountContext(context);
    }
 
@@ -96,6 +97,17 @@ public class InMemoryWalletManagerBacking implements WalletManagerBacking {
       _backings.remove(accountId);
       _singleAddressAccountContexts.remove(accountId);
    }
+
+   @Override
+   public void saveLastFeeEstimation(FeeEstimation feeEstimation) {
+            _feeEstimation = feeEstimation;
+   }
+
+   @Override
+   public FeeEstimation loadLastFeeEstimation() {
+      return _feeEstimation;
+   }
+
 
    @Override
    public void deleteBip44AccountContext(UUID accountId) {
@@ -174,9 +186,9 @@ public class InMemoryWalletManagerBacking implements WalletManagerBacking {
       private final HashMap<Sha256Hash, OutPoint> _txRefersParentTxOpus = new HashMap<>();
 
       @Override
-      public void updateAccountContext(Bip44AccountContext context) {
+      public void updateAccountContext(HDAccountContext context) {
          // Since this is in-memory we don't try to optimize and just update all values
-         _bip44Contexts.put(context.getId(), new Bip44AccountContext(context));
+         _bip44Contexts.put(context.getId(), new HDAccountContext(context));
       }
 
       @Override

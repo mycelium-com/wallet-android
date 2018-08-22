@@ -95,10 +95,11 @@ import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.ExportableAccount;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
-import com.mycelium.wapi.wallet.btc.bip44.*;
-import com.mycelium.wapi.wallet.btc.bip44.Bip44AccountExternalSignature;
-import com.mycelium.wapi.wallet.btc.bip44.Bip44Account;
+import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.bip44.Bip44Account;
+import com.mycelium.wapi.wallet.bip44.HDAccountContext;
+import com.mycelium.wapi.wallet.bip44.Bip44AccountExternalSignature;
+import com.mycelium.wapi.wallet.bip44.Bip44PubOnlyAccount;
 import com.mycelium.wapi.wallet.currency.BitcoinValue;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
@@ -903,9 +904,9 @@ public class Utils {
       //trezor account
       if (walletAccount instanceof Bip44AccountExternalSignature) {
          int accountType = ((Bip44AccountExternalSignature) walletAccount).getAccountType();
-         if (accountType == Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER) {
+         if (accountType == HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER) {
             return resources.getDrawable(R.drawable.ledger_icon);
-		 } else if (accountType == Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY) {
+		 } else if (accountType == HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY) {
             return resources.getDrawable(R.drawable.keepkey_icon);
          } else {
             return resources.getDrawable(R.drawable.trezor_icon_only);
@@ -932,9 +933,9 @@ public class Utils {
       if (account instanceof Bip44AccountExternalSignature) {
          String baseName;
          int accountType = ((Bip44AccountExternalSignature) account).getAccountType();
-         if (accountType == Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER) {
+         if (accountType == HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER) {
             baseName = MbwManager.getInstance(context).getLedgerManager().getLabelOrDefault();
-		 } else if (accountType == Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY) {
+		 } else if (accountType == HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY) {
             baseName = MbwManager.getInstance(context).getKeepKeyManager().getLabelOrDefault();
          } else {
             baseName = MbwManager.getInstance(context).getTrezorManager().getLabelOrDefault();

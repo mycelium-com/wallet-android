@@ -1,6 +1,7 @@
 package com.mycelium.wapi.wallet.bch.bip44
 
 import com.google.common.base.Optional
+import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.model.NetworkParameters
@@ -11,8 +12,8 @@ import com.mycelium.wapi.model.TransactionSummary
 import com.mycelium.wapi.wallet.btc.Bip44AccountBacking
 import com.mycelium.wapi.wallet.KeyCipher
 import com.mycelium.wapi.wallet.SpvBalanceFetcher
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount
-import com.mycelium.wapi.wallet.btc.bip44.Bip44AccountContext
+import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.bip44.HDAccountContext.Companion.ACCOUNT_TYPE_FROM_MASTERSEED
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance
 import com.mycelium.wapi.wallet.currency.CurrencyValue
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue
@@ -20,13 +21,14 @@ import com.mycelium.wapi.wallet.currency.ExactCurrencyValue
 
 import java.util.UUID
 
-import com.mycelium.wapi.wallet.btc.bip44.Bip44AccountContext.ACCOUNT_TYPE_FROM_MASTERSEED
-import com.mycelium.wapi.wallet.btc.bip44.Bip44AccountKeyManager
-import com.mycelium.wapi.wallet.btc.bip44.Bip44Account
-
-open class Bip44BCHAccount(context: Bip44AccountContext, keyManager: Bip44AccountKeyManager,
-                           network: NetworkParameters, backing: Bip44AccountBacking, wapi: Wapi,
-                           private val spvBalanceFetcher: SpvBalanceFetcher) : Bip44Account(context, keyManager, network, backing, wapi) {
+open class Bip44BCHAccount(
+        context: HDAccountContext,
+        keyManagerMap: Map<BipDerivationType, HDAccountKeyManager>,
+        network: NetworkParameters,
+        backing: Bip44AccountBacking,
+        wapi: Wapi,
+        private val spvBalanceFetcher: SpvBalanceFetcher
+) : Bip44Account(context, keyManagerMap, network, backing, wapi) {
     private var blockChainHeight = 0
     private var visible = false
 
@@ -137,19 +139,21 @@ open class Bip44BCHAccount(context: Bip44AccountContext, keyManager: Bip44Accoun
     @Throws(KeyCipher.InvalidKeyCipher::class)
     override fun getPrivateKeyForAddress(address: Address, cipher: KeyCipher): InMemoryPrivateKey? {
         val info = spvBalanceFetcher.getPrivateKeysCount(accountIndex)
-        val internalAddresses = getAddressRange(true, 0, info.internalKeys + INTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH)
-        val externalAddresses = getAddressRange(false, 0, info.externalKeys + EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH)
+        val internalAddresses = getAddressRange(true, 0,
+                info.internalKeys + Bip44Account.INTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH, BipDerivationType.BIP44)
+        val externalAddresses = getAddressRange(false, 0,
+                info.externalKeys + Bip44Account.EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH, BipDerivationType.BIP44)
 
         val iix = internalAddresses.indexOf(address)
 
         if (iix != -1) {
-            return _keyManager.getPrivateKey(true, iix, cipher)
+            return keyManagerMap[BipDerivationType.BIP44]!!.getPrivateKey(true, iix, cipher)
         }
 
         val eix = externalAddresses.indexOf(address)
 
         return if (eix != -1) {
-            _keyManager.getPrivateKey(false, eix, cipher)
+            keyManagerMap[BipDerivationType.BIP44]!!.getPrivateKey(false, eix, cipher)
         } else null
 
     }

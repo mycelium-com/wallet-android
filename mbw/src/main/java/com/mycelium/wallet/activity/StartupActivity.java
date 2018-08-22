@@ -144,6 +144,12 @@ public class StartupActivity extends Activity {
             return;
          }
 
+         // in case the masterSeed was created but account does not exist yet (rotation problem)
+         if (_mbwManager.getWalletManager(false).getActiveAccounts().size() == 0) {
+            new ConfigureAccountAsyncTask(StartupActivity.this).execute();
+            return;
+         }
+
          // Check if we have lingering exported private keys, we want to warn
          // the user if that is the case
          _hasClipboardExportedPrivateKeys = hasPrivateKeyOnClipboard(_mbwManager.getNetwork());
@@ -249,6 +255,46 @@ public class StartupActivity extends Activity {
          activity._progress.dismiss();
          //set default label for the created HD account
          WalletBtcAccount account = activity._mbwManager.getWalletManager(false).getAccount(accountid);
+         String defaultName = activity.getString(R.string.account) + " " + (((Bip44Account) account).getAccountIndex() + 1);
+         activity._mbwManager.getMetadataStorage().storeAccountLabel(accountid, defaultName);
+         //finish initialization
+         activity.delayedFinish.run();
+      }
+   }
+
+
+   /**
+    * This is used to create an account if it failed to be created in ConfigureSeedAsyncTask.
+    * Resolves crashes that some users experience
+    */
+   private static class ConfigureAccountAsyncTask extends AsyncTask<Void, Integer, UUID> {
+      private WeakReference<StartupActivity> startupActivity;
+
+      ConfigureAccountAsyncTask(StartupActivity startupActivity) {
+         this.startupActivity = new WeakReference<>(startupActivity);
+      }
+
+      @Override
+      protected UUID doInBackground(Void... params) {
+         StartupActivity activity = this.startupActivity.get();
+         if(activity == null) {
+            return null;
+         }try {
+            WalletManager walletManager = activity._mbwManager.getWalletManager(false);
+            return walletManager.createAdditionalBip44Account(AesKeyCipher.defaultKeyCipher());
+         } catch (KeyCipher.InvalidKeyCipher e) {
+            throw new RuntimeException(e);
+         }
+      }
+
+      @Override
+      protected void onPostExecute(UUID accountid) {
+         StartupActivity activity = this.startupActivity.get();
+         if(accountid == null || activity == null) {
+            return;
+         }
+         //set default label for the created HD account
+         WalletAccount account = activity._mbwManager.getWalletManager(false).getAccount(accountid);
          String defaultName = activity.getString(R.string.account) + " " + (((Bip44Account) account).getAccountIndex() + 1);
          activity._mbwManager.getMetadataStorage().storeAccountLabel(accountid, defaultName);
          //finish initialization

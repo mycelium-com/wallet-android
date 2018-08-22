@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.database.Cursor
 import android.net.Uri
+import android.os.Handler
 import android.widget.Toast
 import com.google.common.base.Optional
 import com.mrd.bitlib.model.Address
@@ -94,7 +95,10 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
             }
             transactionSummariesList
         } catch (e: Exception) {
-            Toast.makeText(context, context.getString(R.string.transactions_loading_from_module_error), Toast.LENGTH_LONG).show()
+            Handler(context.mainLooper).post {
+                Toast.makeText(context,
+                        context.getString(R.string.transactions_loading_from_module_error), Toast.LENGTH_LONG).show()
+            }
             emptyList()
         }
     }
@@ -422,5 +426,4 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
             }
         }
     }
-
 }
