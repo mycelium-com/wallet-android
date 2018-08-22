@@ -22,6 +22,7 @@ import com.mrd.bitlib.model.OutPoint;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
+import com.mycelium.wapi.api.lib.FeeEstimation;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputEx;
 import com.mycelium.wapi.wallet.bip44.Bip44AccountContext;
@@ -37,6 +38,7 @@ public class InMemoryWalletManagerBacking implements WalletManagerBacking {
    private final Map<UUID, InMemoryAccountBacking> _backings = new HashMap<>();
    private final Map<UUID, Bip44AccountContext> _bip44Contexts = new HashMap<>();
    private final Map<UUID, SingleAddressAccountContext> _singleAddressAccountContexts = new HashMap<>();
+   private FeeEstimation _feeEstimation = FeeEstimation.DEFAULT;
    private int maxSubId = 0;
 
    @Override
@@ -96,6 +98,17 @@ public class InMemoryWalletManagerBacking implements WalletManagerBacking {
       _backings.remove(accountId);
       _singleAddressAccountContexts.remove(accountId);
    }
+
+   @Override
+   public void saveLastFeeEstimation(FeeEstimation feeEstimation) {
+            _feeEstimation = feeEstimation;
+   }
+
+   @Override
+   public FeeEstimation loadLastFeeEstimation() {
+      return _feeEstimation;
+   }
+
 
    @Override
    public void deleteBip44AccountContext(UUID accountId) {

@@ -16,6 +16,7 @@
 
 package com.mycelium.wapi.wallet;
 
+import com.mycelium.wapi.api.lib.FeeEstimation;
 import com.mycelium.wapi.wallet.bip44.Bip44AccountContext;
 import com.mycelium.wapi.wallet.single.SingleAddressAccountContext;
 
@@ -46,4 +47,8 @@ public interface WalletManagerBacking extends SecureKeyValueStoreBacking {
    SingleAddressAccountBacking getSingleAddressAccountBacking(UUID accountId);
 
    void deleteSingleAddressAccountContext(UUID accountId);
+
+   void saveLastFeeEstimation(FeeEstimation feeEstimation);
+
+   FeeEstimation loadLastFeeEstimation();
 }

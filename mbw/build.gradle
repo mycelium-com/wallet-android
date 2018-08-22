@@ -94,6 +94,7 @@ dependencies {
 
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.23.4'
     implementation 'com.github.tony19:logback-android-core:1.1.1-6'
     implementation 'com.google.http-client:google-http-client-jackson2:1.19.0'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.8.4'
@@ -132,8 +133,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 2110113
-        versionName '2.11.1.13'
+        versionCode 2110117
+        versionName '2.11.1.17'
         multiDexEnabled true
 
         minSdkVersion 19
