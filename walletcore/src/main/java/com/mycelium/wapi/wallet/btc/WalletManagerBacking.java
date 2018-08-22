@@ -16,11 +16,11 @@
 
 package com.mycelium.wapi.wallet.btc;
 
-package com.mycelium.wapi.wallet;
-
 import com.mycelium.wapi.api.lib.FeeEstimation;
-import com.mycelium.wapi.wallet.bip44.HDAccountContext;
-import com.mycelium.wapi.wallet.single.SingleAddressAccountContext;
+import com.mycelium.wapi.wallet.SecureKeyValueStoreBacking;
+import com.mycelium.wapi.wallet.SingleAddressAccountBacking;
+import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
+import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext;
 
 import java.util.List;
 import java.util.UUID;

@@ -68,9 +68,9 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.util.AbstractAccountScanManager;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.bip44.HDAccountContext;
-import com.mycelium.wapi.wallet.bip44.Bip44AccountExternalSignature;
-import com.mycelium.wapi.wallet.bip44.ExternalSignatureProvider;
+import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
+import com.mycelium.wapi.wallet.btc.bip44.Bip44AccountExternalSignature;
+import com.mycelium.wapi.wallet.btc.bip44.ExternalSignatureProvider;
 import com.squareup.otto.Bus;
 import nordpol.android.OnDiscoveredTagListener;
 

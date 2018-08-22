@@ -12,8 +12,11 @@ import com.mycelium.wapi.model.TransactionSummary
 import com.mycelium.wapi.wallet.btc.Bip44AccountBacking
 import com.mycelium.wapi.wallet.KeyCipher
 import com.mycelium.wapi.wallet.SpvBalanceFetcher
-import com.mycelium.wapi.wallet.WalletAccount
-import com.mycelium.wapi.wallet.bip44.HDAccountContext.Companion.ACCOUNT_TYPE_FROM_MASTERSEED
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount
+import com.mycelium.wapi.wallet.btc.bip44.Bip44Account
+import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext
+import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.Companion.ACCOUNT_TYPE_FROM_MASTERSEED
+import com.mycelium.wapi.wallet.btc.bip44.HDAccountKeyManager
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance
 import com.mycelium.wapi.wallet.currency.CurrencyValue
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue

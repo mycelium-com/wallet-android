@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.mycelium.wapi.wallet.bip44;
+package com.mycelium.wapi.wallet.btc.bip44;
 
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.crypto.BipDerivationType;

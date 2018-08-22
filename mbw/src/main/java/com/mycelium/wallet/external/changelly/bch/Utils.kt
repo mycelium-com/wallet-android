@@ -2,9 +2,9 @@ package com.mycelium.wallet.external.changelly.bch
 
 import com.mycelium.spvmodule.TransactionFee
 import com.mycelium.wallet.MbwManager
-import com.mycelium.wapi.wallet.WalletAccount
-import com.mycelium.wapi.wallet.bip44.Bip44Account
-import com.mycelium.wapi.wallet.bip44.HDAccountContext.Companion.ACCOUNT_TYPE_FROM_MASTERSEED
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount
+import com.mycelium.wapi.wallet.btc.bip44.Bip44Account
+import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.Companion.ACCOUNT_TYPE_FROM_MASTERSEED
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue
 import java.math.BigDecimal
 

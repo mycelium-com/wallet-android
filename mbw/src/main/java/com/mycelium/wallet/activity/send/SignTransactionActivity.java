@@ -49,9 +49,9 @@ import com.mycelium.wallet.extsig.ledger.activity.LedgerSignTransactionActivity;
 import com.mycelium.wallet.extsig.trezor.activity.TrezorSignTransactionActivity;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
-import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.bip44.HDAccountContext;
-import com.mycelium.wapi.wallet.bip44.Bip44AccountExternalSignature;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
+import com.mycelium.wapi.wallet.btc.bip44.Bip44AccountExternalSignature;
 
 import java.util.UUID;
 

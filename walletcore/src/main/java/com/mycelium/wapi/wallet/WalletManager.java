@@ -35,12 +35,20 @@ import com.mycelium.wapi.api.WapiResponse;
 import com.mycelium.wapi.api.lib.FeeEstimation;
 import com.mycelium.wapi.api.response.MinerFeeEstimationResponse;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
-import com.mycelium.wapi.wallet.bip44.*;
-import com.mycelium.wapi.wallet.bip44.HDAccountContext.AccountIndexesContext;
-import com.mycelium.wapi.wallet.single.PublicPrivateKeyStore;
-import com.mycelium.wapi.wallet.single.SingleAddressAccount;
-import com.mycelium.wapi.wallet.single.SingleAddressAccountContext;
-import com.mycelium.wapi.wallet.single.SingleAddressBCHAccount;
+import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
+import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHPubOnlyAccount;
+import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
+import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
+import com.mycelium.wapi.wallet.btc.Bip44AccountBacking;
+import com.mycelium.wapi.wallet.btc.InMemoryWalletManagerBacking;
+import com.mycelium.wapi.wallet.btc.SynchronizeAbleWalletBtcAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+import com.mycelium.wapi.wallet.btc.WalletManagerBacking;
+import com.mycelium.wapi.wallet.btc.bip44.*;
+import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.AccountIndexesContext;
+import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore;
+import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
+import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext;
 
 import java.util.*;
 
@@ -50,12 +58,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Predicates.and;
 import static com.google.common.base.Predicates.not;
 import static com.google.common.base.Predicates.or;
-import static com.mycelium.wapi.wallet.bip44.HDAccountContext.ACCOUNT_TYPE_FROM_MASTERSEED;
-import static com.mycelium.wapi.wallet.bip44.HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PRIV;
-import static com.mycelium.wapi.wallet.bip44.HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB;
-import static com.mycelium.wapi.wallet.bip44.HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY;
-import static com.mycelium.wapi.wallet.bip44.HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER;
-import static com.mycelium.wapi.wallet.bip44.HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR;
+import static com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.ACCOUNT_TYPE_FROM_MASTERSEED;
+import static com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PRIV;
+import static com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB;
+import static com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY;
+import static com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER;
+import static com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR;
 
 /**
  * Allows you to manage a wallet that contains multiple HD accounts and

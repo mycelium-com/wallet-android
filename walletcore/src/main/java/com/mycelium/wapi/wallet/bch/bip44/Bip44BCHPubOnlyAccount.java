@@ -5,8 +5,8 @@ import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.wallet.btc.Bip44AccountBacking;
 import com.mycelium.wapi.wallet.SpvBalanceFetcher;
-import com.mycelium.wapi.wallet.btc.bip44.Bip44AccountContext;
-import com.mycelium.wapi.wallet.btc.bip44.Bip44AccountKeyManager;
+import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
+import com.mycelium.wapi.wallet.btc.bip44.HDAccountKeyManager;
 
 import java.util.Map;
 

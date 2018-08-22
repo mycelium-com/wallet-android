@@ -294,7 +294,7 @@ public class StartupActivity extends Activity {
             return;
          }
          //set default label for the created HD account
-         WalletAccount account = activity._mbwManager.getWalletManager(false).getAccount(accountid);
+         WalletBtcAccount account = activity._mbwManager.getWalletManager(false).getAccount(accountid);
          String defaultName = activity.getString(R.string.account) + " " + (((Bip44Account) account).getAccountIndex() + 1);
          activity._mbwManager.getMetadataStorage().storeAccountLabel(accountid, defaultName);
          //finish initialization

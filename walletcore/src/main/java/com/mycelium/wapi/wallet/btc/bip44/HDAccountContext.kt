@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.mycelium.wapi.wallet.bip44
+package com.mycelium.wapi.wallet.btc.bip44
 
 import com.google.common.collect.ImmutableMap
 import com.mrd.bitlib.crypto.BipDerivationType
-import com.mycelium.wapi.wallet.Bip44AccountBacking
+import com.mycelium.wapi.wallet.btc.Bip44AccountBacking
 
 import java.io.Serializable
 import java.util.UUID

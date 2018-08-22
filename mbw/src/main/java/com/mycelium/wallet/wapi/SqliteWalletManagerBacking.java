@@ -61,11 +61,11 @@ import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputEx;
 import com.mycelium.wapi.wallet.btc.Bip44AccountBacking;
 import com.mycelium.wapi.wallet.SingleAddressAccountBacking;
-import com.mycelium.wapi.wallet.WalletManagerBacking;
+import com.mycelium.wapi.wallet.btc.WalletManagerBacking;
 import com.mrd.bitlib.crypto.BipDerivationType;
-import com.mycelium.wapi.wallet.bip44.HDAccountContext;
-import com.mycelium.wapi.wallet.bip44.HDAccountContext.AccountIndexesContext;
-import com.mycelium.wapi.wallet.single.SingleAddressAccountContext;
+import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
+import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.AccountIndexesContext;
+import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

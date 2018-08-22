@@ -24,8 +24,9 @@ import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.api.lib.FeeEstimation;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputEx;
-import com.mycelium.wapi.wallet.bip44.HDAccountContext;
-import com.mycelium.wapi.wallet.single.SingleAddressAccountContext;
+import com.mycelium.wapi.wallet.SingleAddressAccountBacking;
+import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
+import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext;
 
 import java.util.*;
 
