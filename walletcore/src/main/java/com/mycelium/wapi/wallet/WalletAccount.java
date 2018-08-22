@@ -4,6 +4,8 @@ import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.CoinType;
 import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
 
+import java.util.List;
+
 public interface WalletAccount<T extends GenericTransaction, A extends GenericAddress> {
     class WalletAccountException extends Exception {
         public WalletAccountException(Throwable cause) {
@@ -28,6 +30,8 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
     Balance getAccountBalance();
 
     T getTransaction(String transactionId);
+
+    List<T> getTransactions(int offset, int count);
 
     /**
      * Synchronize this account

@@ -420,6 +420,11 @@ public class CoinapultAccount extends SynchronizeAbleWalletBtcAccount {
    }
 
    @Override
+   public List<BtcTransaction> getTransactions(int offset, int count) {
+      return new ArrayList<BtcTransaction>();
+   }
+
+   @Override
    public int getBlockChainHeight() {
       return 0;
    }

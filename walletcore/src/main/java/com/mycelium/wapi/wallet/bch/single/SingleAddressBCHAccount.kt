@@ -8,6 +8,7 @@ import com.mycelium.wapi.model.TransactionDetails
 import com.mycelium.wapi.model.TransactionSummary
 import com.mycelium.wapi.wallet.SingleAddressAccountBacking
 import com.mycelium.wapi.wallet.SpvBalanceFetcher
+import com.mycelium.wapi.wallet.btc.BtcTransaction
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount
 import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext
@@ -87,5 +88,9 @@ class SingleAddressBCHAccount(context: SingleAddressAccountContext,
         fun calculateId(address: Address): UUID {
             return UUID.nameUUIDFromBytes(("BCH" + SingleAddressAccount.calculateId(address).toString()).toByteArray())
         }
+    }
+
+    override fun getTransactions(offset: Int, count: Int): MutableList<BtcTransaction> {
+        return ArrayList<BtcTransaction>()
     }
 }

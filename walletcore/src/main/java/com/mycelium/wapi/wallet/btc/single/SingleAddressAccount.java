@@ -232,7 +232,7 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
         return null;
     }
 
-    @Override
+   @Override
    public int getBlockChainHeight() {
       checkNotArchived();
       return _context.getBlockHeight();
@@ -405,4 +405,8 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
    public void broadcastTx(BtcTransaction tx) throws TransactionBroadcastException {
    }
 
+   @Override
+   public List<BtcTransaction> getTransactions(int offset, int count) {
+      return new ArrayList<BtcTransaction>();
+   }
 }
