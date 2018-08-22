@@ -304,13 +304,13 @@ public class TransactionHistoryFragment extends Fragment {
    }
 
    static class Preloader extends AsyncTask<Void, Void, Void> {
-      private final List<TransactionSummary> toAdd;
-      private final WalletBtcAccount account;
+      private final List<BtcTransaction> toAdd;
+      private final WalletAccount account;
       private final int offset;
       private final int limit;
       private final AtomicBoolean success;
 
-      Preloader(List<TransactionSummary> toAdd, WalletBtcAccount account, int offset, int limit, AtomicBoolean success) {
+      Preloader(List<BtcTransaction> toAdd, WalletAccount account, int offset, int limit, AtomicBoolean success) {
          this.toAdd = toAdd;
          this.account = account;
          this.offset = offset;
@@ -320,7 +320,7 @@ public class TransactionHistoryFragment extends Fragment {
 
       @Override
       protected Void doInBackground(Void... voids) {
-         List<TransactionSummary> preloadedData = account.getTransactionHistory(offset, limit);
+         List<BtcTransaction> preloadedData = account.getTransactions(offset, limit);
          synchronized (toAdd) {
             toAdd.addAll(preloadedData);
             success.set(toAdd.size() == limit);
@@ -363,7 +363,7 @@ public class TransactionHistoryFragment extends Fragment {
    }
 
    private class TransactionHistoryAdapter extends TransactionArrayAdapter {
-      TransactionHistoryAdapter(Context context, List<TransactionSummary> transactions) {
+      TransactionHistoryAdapter(Context context, List<BtcTransaction> transactions) {
          super(context, transactions, TransactionHistoryFragment.this, model.getAddressBook(), false);
       }
 
@@ -672,12 +672,12 @@ public class TransactionHistoryFragment extends Fragment {
 
 
    private void shareTransactionHistory() {
-      WalletBtcAccount account = _mbwManager.getSelectedAccount();
+      WalletAccount account = _mbwManager.getSelectedAccount();
       MetadataStorage metaData = _mbwManager.getMetadataStorage();
       try {
          String fileName = "MyceliumExport_" + System.currentTimeMillis() + ".csv";
 
-         List<TransactionSummary> history = account.getTransactionHistory(0, Integer.MAX_VALUE);
+         List<GenericTransaction> history = account.getTransactions(0, Integer.MAX_VALUE);
 
          File historyData = DataExport.getTxHistoryCsv(account, history, metaData,
              getActivity().getFileStreamPath(fileName));

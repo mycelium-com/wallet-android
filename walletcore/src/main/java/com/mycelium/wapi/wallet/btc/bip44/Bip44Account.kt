@@ -745,7 +745,85 @@ open class Bip44Account(
        return BitcoinMain.get()
     }
 
+    protected fun checkNotArchived() {
+        val usingArchivedAccount = "Using archived account"
+        if (isArchived()) {
+            _logger.logError(usingArchivedAccount)
+            throw RuntimeException(usingArchivedAccount)
+        }
+    }
+
+    private fun transform(tex: TransactionEx, blockChainHeight: Int): BtcTransaction {
+        val tx: Transaction
+        try {
+            tx = Transaction.fromByteReader(ByteReader(tex.binary))
+        } catch (e: TransactionParsingException) {
+            // Should not happen as we have parsed the transaction earlier
+            _logger.logError("Unable to parse ")
+            return null
+        }
+
+        val isColuTransaction = isColuTransaction(tx)
+
+        if (isColuTransaction) {
+            return null
+        }
+
+        // Outputs
+        var satoshis: Long = 0
+        val toAddresses = ArrayList<Address>()
+        var destAddress: Address? = null
+        for (output in tx.outputs) {
+            val address = output.script.getAddress(_network)
+            if (isMine(output.script)) {
+                satoshis += output.value
+            } else {
+                destAddress = address
+            }
+            if (address != null && address != Address.getNullAddress(_network)) {
+                toAddresses.add(address)
+            }
+        }
+
+        // Inputs
+        if (!tx.isCoinbase()) {
+            for (input in tx.inputs) {
+                // find parent output
+                val funding = _backing.getParentTransactionOutput(input.outPoint)
+                if (funding == null) {
+                    _logger.logError("Unable to find parent output for: " + input.outPoint)
+                    continue
+                }
+                if (isMine(funding)) {
+                    satoshis -= funding!!.value
+                }
+            }
+        }
+        return BtcTransaction(HdKeyPath.BIP44.getCoinTypeBitcoin,
+                tx.getId(),
+                tx,
+                ExactBitcoinValue.from(Math.abs(satoshis)).get(),
+                ExactBitcoinValue.from(Math.abs(satoshis)).getValue().negate(),
+                //fee?
+                null)
+
+    }
+
     override fun getTransactions(offset: Int, limit: Int): MutableList<BtcTransaction> {
-        return ArrayList<BtcTransaction>()
+        // Note that this method is not synchronized, and we might fetch the transaction history while synchronizing
+        // accounts. That should be ok as we write to the DB in a sane order.
+
+        List<BtcTransaction> history = new ArrayList<>();
+        checkNotArchived();
+        int blockChainHeight = getBlockChainHeight();
+        List<TransactionEx> list = backing.getTransactionHistory(offset, limit);
+        for (TransactionEx tex : list) {
+            BtcTransaction res = transform(tex, blockChainHeight);
+
+            if (item != null) {
+                history.add(item);
+            }
+        }
+        return history;
     }
 }

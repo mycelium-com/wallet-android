@@ -50,13 +50,13 @@ import java.util.TimeZone;
 public class DataExport {
    private static final String CSV_HEADER = "Account, Transaction ID, Destination Address, Timestamp, Value, Currency, Transaction Label\n";
 
-   public static File getTxHistoryCsv(WalletBtcAccount account, List<TransactionSummary> history,
+   public static File getTxHistoryCsv(WalletAccount account, List<GenericTransaction> history,
                                       MetadataStorage storage, File file) throws IOException {
       FileOutputStream fos = new FileOutputStream(file);
       OutputStreamWriter osw = new OutputStreamWriter(fos);
       osw.write(CSV_HEADER);
       String accountLabel = storage.getLabelByAccount(account.getId());
-      for (TransactionSummary summary : history) {
+      for (GenericTransaction summary : history) {
          String txLabel = storage.getLabelByTransaction(summary.txid);
          osw.write(getTxLine(accountLabel, txLabel, summary));
       }
@@ -64,16 +64,16 @@ public class DataExport {
       return file;
    }
 
-   private static String getTxLine(String accountLabel, String txLabel, TransactionSummary summary) {
+   private static String getTxLine(String accountLabel, String txLabel, GenericTransaction summary) {
       TimeZone tz = TimeZone.getDefault();
       DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
       df.setTimeZone(tz);
-      String date = df.format(new Date(summary.time * 1000)); //summary holds time in seconds, date expects milli-seconds
-      BigDecimal value = (summary.isIncoming ? summary.value.getValue() : summary.value.getValue().negate()); //show outgoing as negative amount
+      String date = df.format(new Date(1000)); //what I can put here?
+      BigDecimal value = (summary.isIncoming ? summary.value.get() : summary.value.getValue().negate()); //show outgoing as negative amount
       String destination = summary.destinationAddress.isPresent() ? summary.destinationAddress.get().toString() : "";
       return
             escape(accountLabel) + "," +
-                  summary.txid + "," +
+                  summary.getHash + "," +
                   destination + "," +
                   date + "," +
                   value + "," +

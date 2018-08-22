@@ -35,7 +35,7 @@ import static com.mycelium.wallet.activity.send.SendMainActivity.TRANSACTION_FIA
 import static com.mycelium.wallet.external.changelly.bch.ExchangeFragment.BCH_EXCHANGE;
 import static com.mycelium.wallet.external.changelly.bch.ExchangeFragment.BCH_EXCHANGE_TRANSACTIONS;
 
-public class TransactionArrayAdapter extends ArrayAdapter<TransactionSummary> {
+public class TransactionArrayAdapter extends ArrayAdapter<GenericTransaction> {
    private final MetadataStorage _storage;
    protected Context _context;
    private final boolean _alwaysShowAddress;
@@ -46,12 +46,12 @@ public class TransactionArrayAdapter extends ArrayAdapter<TransactionSummary> {
    private SharedPreferences transactionFiatValuePref;
    private Set<String> exchangeTransactions;
 
-   public TransactionArrayAdapter(Context context, List<TransactionSummary> transactions, Map<Address, String> addressBook) {
+   public TransactionArrayAdapter(Context context, List<GenericTransaction> transactions, Map<Address, String> addressBook) {
       this(context, transactions, null, addressBook, true);
    }
 
    public TransactionArrayAdapter(Context context,
-                                  List<TransactionSummary> transactions,
+                                  List<GenericTransaction> transactions,
                                   Fragment containerFragment,
                                   Map<Address, String> addressBook,
                                   boolean alwaysShowAddress) {
@@ -87,15 +87,15 @@ public class TransactionArrayAdapter extends ArrayAdapter<TransactionSummary> {
          return rowView;
       }
 
-      final TransactionSummary record = getItem(position);
+      final GenericTransaction record = getItem(position);
 
       // Determine Color
       int color;
       if (record.isIncoming) {
          color = _context.getResources().getColor(R.color.green);
-      } else {
-         color = _context.getResources().getColor(R.color.red);
-      }
+     // } else {
+      //   color = _context.getResources().getColor(R.color.red);
+      //}
 
       // Set Date
       Date date = new Date(record.time * 1000L);
