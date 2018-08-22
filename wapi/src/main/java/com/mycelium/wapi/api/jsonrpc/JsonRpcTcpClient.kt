@@ -19,7 +19,7 @@ import kotlin.system.measureTimeMillis
 
 typealias Consumer<T> = (T) -> Unit
 
-class TcpEndpoint(val host: String, val port: Int)
+data class TcpEndpoint(val host: String, val port: Int)
 
 open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
                             val logger: WapiLogger) {
@@ -278,6 +278,7 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
             }
         }
     }
+
     companion object {
         private val INTERVAL_BETWEEN_SOCKET_RECONNECTS = TimeUnit.SECONDS.toMillis(5)
         private val INTERVAL_BETWEEN_PING_REQUESTS = TimeUnit.SECONDS.toMillis(10)

@@ -46,6 +46,7 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -171,6 +172,7 @@ public class SendMainActivity extends Activity {
     private static final String RMC_URI = "rmcUri";
     private static final String FEE_PER_KB = "fee_per_kb";
     public static final String TRANSACTION_FIAT_VALUE = "transaction_fiat_value";
+    private static final long STALE_WARNING_MS = 2 * 60 * 60 * 1000; // 2 hours
 
 
     private enum TransactionStatus {
@@ -181,6 +183,8 @@ public class SendMainActivity extends Activity {
     TextView tvAmount;
     @BindView(R.id.tvError)
     TextView tvError;
+    @BindView(R.id.tvStaleWarning)
+    TextView tvStaleWarning;
     @BindView(R.id.tvAmountFiat)
     TextView tvAmountFiat;
     @BindView(R.id.tvAmountTitle)
@@ -261,6 +265,7 @@ public class SendMainActivity extends Activity {
     private UUID _receivingAcc;
     private boolean _xpubSyncing = false;
     private boolean _spendingUnconfirmed = false;
+    private boolean showStaleWarning = false;
     private boolean _paymentFetched = false;
     private WalletAccount fundColuAccount;
     private ProgressDialog progress;
@@ -343,7 +348,8 @@ public class SendMainActivity extends Activity {
         byte[] _rawPr = getIntent().getByteArrayExtra(RAW_PAYMENT_REQUEST);
 
         _isColdStorage = getIntent().getBooleanExtra(IS_COLD_STORAGE, false);
-        _account = _mbwManager.getWalletManager(_isColdStorage).getAccount(accountId);
+        String crashHint = TextUtils.join(", ", getIntent().getExtras().keySet()) + " (account id was " + accountId + ")";
+        _account = Preconditions.checkNotNull(_mbwManager.getWalletManager(_isColdStorage).getAccount(accountId), crashHint);
         feeLvl = _mbwManager.getMinerFee();
         feeEstimation = _mbwManager.getWalletManager(false).getLastFeeEstimations();
         feePerKbValue = _mbwManager.getMinerFee().getFeePerKb(feeEstimation).getLongValue();
@@ -1385,6 +1391,7 @@ public class SendMainActivity extends Activity {
             }
         }
         tvFeeWarning.setVisibility(feeWarning != null ? View.VISIBLE : View.GONE);
+        tvStaleWarning.setVisibility(showStaleWarning ? VISIBLE : GONE);
         tvFeeWarning.setText(feeWarning != null ? Html.fromHtml(feeWarning) : null);
     }
 

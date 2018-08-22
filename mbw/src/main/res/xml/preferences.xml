@@ -41,6 +41,14 @@
                     android:summary="@string/pref_pin_require_on_startup_summary"
                     android:title="@string/pref_pin_require_on_startup"
                     android:widgetLayout="@layout/preference_switch" />
+
+                <CheckBoxPreference
+                    android:dependency="setPin"
+                    android:key="pinPadIsRandomized"
+                    android:layout="@layout/preference_layout_no_icon"
+                    android:summary="@string/randomize_pin_text"
+                    android:title="@string/randomize_pin"
+                    android:widgetLayout="@layout/preference_switch" />
             </PreferenceCategory>
         </PreferenceScreen>
 
@@ -151,8 +159,8 @@
             android:icon="@drawable/ic_trading"
             android:key="ltDisable"
             android:layout="@layout/preference_layout"
-            android:summary="@string/lt_disable_preference_summary"
-            android:title="@string/lt_disable_preference"
+            android:summary="@string/lt_preference_summary"
+            android:title="@string/lt_preference_title"
             android:widgetLayout="@layout/preference_switch" />
         <CheckBoxPreference
             android:key="ltNotificationSound"
