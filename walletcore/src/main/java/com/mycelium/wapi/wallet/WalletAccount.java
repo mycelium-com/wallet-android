@@ -31,7 +31,7 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
 
     T getTransaction(String transactionId);
 
-    List<T> getTransactions(int offset, int count);
+    List<T> getTransactions(int offset, int limit);
 
     /**
      * Synchronize this account

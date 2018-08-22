@@ -406,7 +406,7 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
    }
 
    @Override
-   public List<BtcTransaction> getTransactions(int offset, int count) {
+   public List<BtcTransaction> getTransactions(int offset, int limit) {
       return new ArrayList<BtcTransaction>();
    }
 }

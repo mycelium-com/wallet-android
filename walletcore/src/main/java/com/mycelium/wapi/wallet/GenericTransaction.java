@@ -7,11 +7,11 @@ import com.mycelium.wapi.wallet.coins.Value;
 import java.util.List;
 
 public interface GenericTransaction {
-    class AbstractOutput {
+    class GenericOutput {
         final GenericAddress genericAddress;
         final Value value;
 
-        public AbstractOutput(GenericAddress genericAddress, Value value) {
+        public GenericOutput(GenericAddress genericAddress, Value value) {
             this.genericAddress = genericAddress;
             this.value = value;
         }
@@ -43,5 +43,5 @@ public interface GenericTransaction {
     Value getFee();
 
     List<GenericAddress> getReceivedFrom();
-    List<AbstractOutput> getSentTo();
+    List<GenericOutput> getSentTo();
 }

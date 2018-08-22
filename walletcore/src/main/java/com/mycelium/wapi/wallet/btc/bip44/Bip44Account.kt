@@ -745,7 +745,7 @@ open class Bip44Account(
        return BitcoinMain.get()
     }
 
-    override fun getTransactions(offset: Int, count: Int): MutableList<BtcTransaction> {
+    override fun getTransactions(offset: Int, limit: Int): MutableList<BtcTransaction> {
         return ArrayList<BtcTransaction>()
     }
 }

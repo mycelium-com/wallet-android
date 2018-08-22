@@ -82,7 +82,7 @@ public class BtcTransaction implements GenericTransaction {
     }
 
     @Override
-    public List<AbstractOutput> getSentTo() {
+    public List<GenericOutput> getSentTo() {
         return null;
     }
 

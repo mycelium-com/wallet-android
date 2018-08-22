@@ -314,7 +314,7 @@ public class ColuAccount extends SynchronizeAbleWalletBtcAccount implements Expo
     }
 
     @Override
-    public List<BtcTransaction> getTransactions(int offset, int count) {
+    public List<BtcTransaction> getTransactions(int offset, int limit) {
         return new ArrayList<BtcTransaction>();
     }
 
