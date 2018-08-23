@@ -15,7 +15,7 @@ include 'bitcoincashj:core'
 if (System.getenv()['MYCELIUM_BUILD_SYSTEM'] == 'server') {
     getLogger().warn('MYCELIUM_BUILD_SYSTEM==server - disabling Android projects ')
 } else {
-    include 'myceliummodularizationtools'
+    include 'wallet-android-modularization-tools'
     include 'modulespvcontract'
     include 'modulespvbch'
     include 'mbw'
