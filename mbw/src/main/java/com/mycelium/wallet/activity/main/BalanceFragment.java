@@ -95,6 +95,7 @@ import butterknife.OnClick;
 
 public class BalanceFragment extends Fragment {
    public static final String COINMARKETCAP = "Coinmarketcap";
+   public static final String DEFAULT_EXCHANGE = "Bitstamp";
    private MbwManager _mbwManager;
    private View _root;
    private Double _exchangeRatePrice;
@@ -151,9 +152,9 @@ public class BalanceFragment extends Fragment {
          } else {
             item = source + " (" + price + ")";
          }
-
          sourcesAndValues.put(item, source);
          exchangeMenu.getMenu().add(item);
+         _mbwManager.getExchangeRateManager().setCurrentExchangeSourceName(DEFAULT_EXCHANGE);
       }
 
       exchangeMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
