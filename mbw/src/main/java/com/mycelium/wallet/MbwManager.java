@@ -1256,6 +1256,20 @@ public class MbwManager {
       return new InMemoryPrivateKey(sitePrivateKeyBytes, true);
    }
 
+   public UUID createAdditionalBip44Account(Context context) {
+      UUID accountId;
+      try {
+         accountId = _walletManager.createAdditionalBip44Account(AesKeyCipher.defaultKeyCipher());
+         //set default label for the created HD account
+         WalletAccount account = _walletManager.getAccount(accountId);
+         String defaultName = Utils.getNameForNewAccount(account, context);
+         _storage.storeAccountLabel(accountId, defaultName);
+      } catch (KeyCipher.InvalidKeyCipher e) {
+         throw new RuntimeException(e);
+      }
+      return accountId;
+   }
+
    public boolean isWalletPaired(ExternalService service) {
       return getMetadataStorage().isPairedService(service.getHost(getNetwork()));
    }
