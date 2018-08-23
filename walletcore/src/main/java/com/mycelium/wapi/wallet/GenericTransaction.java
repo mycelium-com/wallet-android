@@ -44,4 +44,8 @@ public interface GenericTransaction {
 
     List<GenericAddress> getReceivedFrom();
     List<GenericOutput> getSentTo();
+
+    Value getSent();
+    Value getReceived();
+    boolean isIncoming();
 }
