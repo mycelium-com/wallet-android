@@ -12,7 +12,8 @@ import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.modern.RecordRowBuilder
 import com.mycelium.wallet.activity.modern.adapter.AccountListAdapter
 import com.mycelium.wallet.colu.ColuAccount
-import com.mycelium.wallet.event.*
+import com.mycelium.wallet.event.AccountGroupCollapsed
+import com.mycelium.wallet.event.AccountListChanged
 import com.mycelium.wallet.persistence.MetadataStorage
 import com.mycelium.wapi.wallet.WalletAccount
 import com.squareup.otto.Subscribe
@@ -30,6 +31,7 @@ class AccountsLiveData(private val context: Application, private val mbwManager:
     private val builder = RecordRowBuilder(mbwManager, context.resources)
     // List of all currently available accounts
     private var accountsList = Collections.emptyList<AccountItem>()
+
     private val executionService: ExecutorService
 
     init {
@@ -112,7 +114,8 @@ class AccountsLiveData(private val context: Application, private val mbwManager:
         @SafeVarargs
         override fun onProgressUpdate(vararg values: List<AccountItem>) {
             super.onProgressUpdate(*values)
-            accountsList = values[0]
+            // copy items
+            accountsList = values[0].toList()
             updateList()
         }
 

@@ -39,6 +39,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.nfc.NfcAdapter;
 import android.os.AsyncTask;
@@ -75,7 +76,6 @@ import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.bip44.Bip44Account;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -87,7 +87,7 @@ import java.util.UUID;
 import static com.mycelium.wallet.StringHandleConfig.HdNodeAction.isKeyNode;
 import static com.mycelium.wallet.StringHandleConfig.PrivateKeyAction.getPrivateKey;
 
-public class StartupActivity extends Activity {
+public class StartupActivity extends Activity implements AccountCreatorHelper.AccountCreationObserver {
    private static final int MINIMUM_SPLASH_TIME = 500;
    private static final int REQUEST_FROM_URI = 2;
    private static final int IMPORT_WORDLIST = 0;
@@ -107,6 +107,7 @@ public class StartupActivity extends Activity {
       super.onCreate(savedInstanceState);
       _progress = new ProgressDialog(this);
       setContentView(R.layout.startup_activity);
+      setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
       // Do slightly delayed initialization so we get a chance of displaying the
       // splash before doing heavy initialization
       new Handler().postDelayed(delayedInitialization, 200);
@@ -138,6 +139,12 @@ public class StartupActivity extends Activity {
          //in case this is a fresh startup, import backup or create new seed
          if (!_mbwManager.getWalletManager(false).hasBip32MasterSeed()) {
             initMasterSeed();
+            return;
+         }
+
+         // in case the masterSeed was created but account does not exist yet (rotation problem)
+         if (_mbwManager.getWalletManager(false).getActiveAccounts().size() == 0) {
+            new AccountCreatorHelper.CreateAccountAsyncTask(StartupActivity.this, StartupActivity.this).execute();
             return;
          }
 
@@ -246,11 +253,16 @@ public class StartupActivity extends Activity {
          activity._progress.dismiss();
          //set default label for the created HD account
          WalletAccount account = activity._mbwManager.getWalletManager(false).getAccount(accountid);
-         String defaultName = activity.getString(R.string.account) + " " + (((Bip44Account) account).getAccountIndex() + 1);
+         String defaultName = Utils.getNameForNewAccount(account, activity);
          activity._mbwManager.getMetadataStorage().storeAccountLabel(accountid, defaultName);
          //finish initialization
          activity.delayedFinish.run();
       }
+   }
+
+   @Override
+   public void onAccountCreated(UUID accountId) {
+      delayedFinish.run();
    }
 
    private Runnable delayedFinish = new Runnable() {
@@ -485,7 +497,7 @@ public class StartupActivity extends Activity {
             UUID accountid = (UUID) data.getSerializableExtra(AddAccountActivity.RESULT_KEY);
             //set default label for the created HD account
             WalletAccount account = _mbwManager.getWalletManager(false).getAccount(accountid);
-            String defaultName = getString(R.string.account) + " " + (((Bip44Account) account).getAccountIndex() + 1);
+            String defaultName = Utils.getNameForNewAccount(account, this);
             _mbwManager.getMetadataStorage().storeAccountLabel(accountid, defaultName);
             //finish initialization
             delayedFinish.run();

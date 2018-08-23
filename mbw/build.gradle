@@ -40,7 +40,6 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test:rules:1.0.1'
 
-    implementation project(includePrefix + ':libs:zxing-android')
     implementation project(includePrefix + ':coinapult')
     implementation project(includePrefix + ':wapi')
     implementation project(includePrefix + ':trezor')
@@ -85,14 +84,14 @@ dependencies {
     implementation 'commons-codec:commons-codec:1.10'
     implementation 'com.google.protobuf:protobuf-java:3.1.0'
     implementation 'com.android.support.constraint:constraint-layout:1.1.0-beta5'
-
-    implementation 'com.google.zxing:core:3.3.3'
+    implementation 'com.journeyapps:zxing-android-embedded:3.6.0'
 
     implementation project(includePrefix + ':myceliummodularizationtools')
     implementation project(includePrefix + ':modulespvcontract')
 
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.23.4'
     implementation 'com.github.tony19:logback-android-core:1.1.1-6'
     implementation 'com.google.http-client:google-http-client-jackson2:1.19.0'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.8.4'
@@ -131,8 +130,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 2110112
-        versionName '2.11.1.12'
+        versionCode 2110117
+        versionName '2.11.1.17'
         multiDexEnabled true
 
         minSdkVersion 19
@@ -203,7 +202,6 @@ android {
 
                 appIdSpvBch = [release: "com.mycelium.module.spvbch",
                                debug  : "com.mycelium.module.spvbch.debug"]
-
                 appIdTsm = [release: "com.castor.threecommas.tradingbotsmodule",
                             debug  : "com.castor.threecommas.tradingbotsmodule.debug"]
             }
@@ -227,7 +225,6 @@ android {
 
                 appIdSpvBch = [release: "com.mycelium.module.spvbch.testnet",
                                debug  : "com.mycelium.module.spvbch.testnet.debug"]
-
                 appIdTsm = [release: "com.castor.threecommas.tradingbotsmodule.testnet",
                             debug  : "com.castor.threecommas.tradingbotsmodule.testnet.debug"]
             }

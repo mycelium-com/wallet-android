@@ -138,7 +138,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private final Preference.OnPreferenceClickListener ltDisableLocalTraderClickListener = new Preference.OnPreferenceClickListener() {
         public boolean onPreferenceClick(Preference preference) {
             CheckBoxPreference p = (CheckBoxPreference) preference;
-            _ltManager.setLocalTraderDisabled(p.isChecked());
+            _ltManager.setLocalTraderEnabled(p.isChecked());
             applyLocalTraderEnablement();
             return true;
         }
@@ -363,6 +363,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                     OrbotHelper obh = new OrbotHelper(getActivity());
                     if (!obh.isOrbotInstalled()) {
                         obh.promptToInstall(getActivity());
+                        useTor.setChecked(false);
                     }
                 }
                 _mbwManager.setTorMode(useTor.isChecked()
@@ -473,7 +474,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         });
 
         // Local Trader
-        localTraderDisable.setChecked(_ltManager.isLocalTraderDisabled());
+        localTraderDisable.setChecked(_ltManager.isLocalTraderEnabled());
         localTraderDisable.setOnPreferenceClickListener(ltDisableLocalTraderClickListener);
 
 
@@ -935,9 +936,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     }
 
     private void applyLocalTraderEnablement() {
-        boolean ltDisabled = _ltManager.isLocalTraderDisabled();
-        _ltNotificationSound.setEnabled(!ltDisabled);
-        _ltMilesKilometers.setEnabled(!ltDisabled);
+        boolean ltEnabled = _ltManager.isLocalTraderEnabled();
+        _ltNotificationSound.setEnabled(ltEnabled);
+        _ltMilesKilometers.setEnabled(ltEnabled);
     }
 
     private String getUseTorTitle() {

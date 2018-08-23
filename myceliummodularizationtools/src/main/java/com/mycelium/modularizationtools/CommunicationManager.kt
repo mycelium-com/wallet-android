@@ -8,6 +8,7 @@ import android.net.Uri
 import android.util.Base64
 import android.util.Log
 import com.google.gson.GsonBuilder
+import com.google.gson.JsonSyntaxException
 import com.mycelium.modularizationtools.model.Module
 import java.io.File
 import java.io.InputStreamReader
@@ -63,9 +64,16 @@ class CommunicationManager private constructor(val context: Context, val modular
             context.openFileInput(sessionFilename).use { fileInputStream ->
                 InputStreamReader(fileInputStream).use {readerUser ->
                     val gson = GsonBuilder().create()
-                    val trustedPackagesArray = gson.fromJson(readerUser, emptyArray<PackageMetaData>().javaClass) ?: emptyArray<PackageMetaData>()
-                    for (pmd in trustedPackagesArray) {
-                        trustedPackages[pmd.name]?.key = pmd.key
+                    try {
+                        val trustedPackagesArray = gson.fromJson(readerUser, emptyArray<PackageMetaData>().javaClass)
+                                ?: emptyArray<PackageMetaData>()
+                        for (pmd in trustedPackagesArray) {
+                            trustedPackages[pmd.name]?.key = pmd.key
+                        }
+                    } catch (e: JsonSyntaxException){
+                        if(file.delete()){
+                            saveSessions()
+                        }
                     }
                 }
             }
@@ -115,23 +123,28 @@ class CommunicationManager private constructor(val context: Context, val modular
                 ?: throw SecurityException("Unknown package name $packageName")
         val key = packageMetaData.key ?: Random().nextLong()
         val keyVersionSelectionArgs = arrayOf(key.toString(), modularizationApiVersion.toString())
-        cr.query(Uri.parse("content://$packageName.PairingProvider"), null, null, keyVersionSelectionArgs, null)
-                .use { cursor ->
-                    cursor ?: return false // if the other module is not returning a proper Cursor, pairing fails here
-                    pair(packageName, key, modularizationApiVersion)
-                    cursor.moveToFirst()
-                    var version = ""
-                    try {
-                        version = cursor.getString(cursor.getColumnIndex("version"))
-                    } catch (ignore: Exception) {
+        try {
+            cr.query(Uri.parse("content://$packageName.PairingProvider"), null, null, keyVersionSelectionArgs, null)
+                    .use { cursor ->
+                        cursor
+                                ?: return false // if the other module is not returning a proper Cursor, pairing fails here
+                        pair(packageName, key, modularizationApiVersion)
+                        cursor.moveToFirst()
+                        var version = ""
+                        try {
+                            version = cursor.getString(cursor.getColumnIndex("version"))
+                        } catch (ignore: Exception) {
+                        }
+                        pairedModules.add(Module(packageName
+                                , cursor.getString(cursor.getColumnIndex("name"))
+                                , cursor.getString(cursor.getColumnIndex("shortName"))
+                                , cursor.getString(cursor.getColumnIndex("description"))
+                                , version))
+                        success = true
                     }
-                    pairedModules.add(Module(packageName
-                            , cursor.getString(cursor.getColumnIndex("name"))
-                            , cursor.getString(cursor.getColumnIndex("shortName"))
-                            , cursor.getString(cursor.getColumnIndex("description"))
-                            , version))
-                    success = true
-                }
+        } catch (e: Exception) {
+            success = false
+        }
         Log.d(LOG_TAG, "It took ${System.currentTimeMillis()-startTimeMillis}ms to ${if(success) "" else "not "} pair with $packageName.")
         return success
     }

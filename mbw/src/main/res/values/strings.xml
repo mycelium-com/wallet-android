@@ -85,6 +85,8 @@
     <string name="no">No</string>
     <string name="yes">Yes</string>
     <string name="pref_category_pin">PIN Settings</string>
+    <string name="randomize_pin">Randomize PIN pad</string>
+    <string name="randomize_pin_text">Considerably improves security by randomizing PIN pad layout</string>
     <string name="pref_clear_pin">Clear PIN Code</string>
     <string name="pref_clear_pin_summary">Clear the current PIN code</string>
     <string name="pref_set_pin">Set PIN Code</string>
@@ -149,8 +151,8 @@
     <string name="active_accounts_empty">(Empty)</string>
     <string name="activate_action">Activate</string>
     <string name="archive_action">Archive</string>
-    <string name="question_archive_account"><![CDATA[Archive an account if you don\'t intend to use it for a long time.\n\nArchived account won\'t be monitored. That means you can not work with this account while having its label in your accounts list.This feature adds privacy and security, keeping your balance and access to funds secure.\n\nTo activate archived account select it from accounts list "Archived" section, tap on the menu button in the top right corner of the screen and select "Activate".\n\nDo you want to archive account <b>\"%1$s\"</b> holding <b>%2$s</b> and account <b>\"%3$s\"</b> holding <b>%4$s</b>?]]></string>
-    <string name="question_archive_account_s"><![CDATA[Archive an account if you don\'t intend to use it for a long time.\n\nArchived account won\'t be monitored. That means you can not work with this account while having its label in your accounts list.This feature adds privacy and security, keeping your balance and access to funds secure.\n\nTo activate archived account select it from accounts list "Archived" section, tap on the menu button in the top right corner of the screen and select "Activate".\n\nDo you want to archive account <b>\"%1$s\"</b> holding <b>%2$s</b>?]]></string>
+    <string name="question_archive_account"><![CDATA[Archive an account if you don\'t intend to use it for a long time.<br><br>Archived account won\'t be monitored. That means you can not work with this account while having its label in your accounts list.<br><br>This feature adds privacy and security, keeping your balance and access to funds secure.<br><br>To activate archived account select it from accounts list "Archived" section, tap on the menu button in the top right corner of the screen and select "Activate".<br><br>Do you want to archive account <b>\"%1$s\"</b> holding <b>%2$s</b> and account <b>\"%3$s\"</b> holding <b>%4$s</b>?]]></string>
+    <string name="question_archive_account_s"><![CDATA[Archive an account if you don\'t intend to use it for a long time.<br><br>Archived account won\'t be monitored. That means you can not work with this account while having its label in your accounts list.<br><br>This feature adds privacy and security, keeping your balance and access to funds secure.<br><br>To activate archived account select it from accounts list "Archived" section, tap on the menu button in the top right corner of the screen and select "Activate".<br><br>Do you want to archive account <b>\"%1$s\"</b> holding <b>%2$s</b>?]]></string>
     <string name="master_seed_configuration_title">Welcome to Mycelium</string>
     <string name="master_seed_configuration_description">Do you want to restore a backup, or create a new wallet?</string>
     <string name="master_seed_create_new_button">Create New</string>
@@ -314,8 +316,8 @@
     <string name="lt_ad_created">Ad created</string>
     <string name="lt_ad_edited">Ad edited</string>
     <string name="lt_pref_category">Local Trader</string>
-    <string name="lt_disable_preference">Local Trader</string>
-    <string name="lt_disable_preference_summary">Disable local trader functionality</string>
+    <string name="lt_preference_title">Local Trader</string>
+    <string name="lt_preference_summary">Buy/Sell bitcoin peer-to-peer</string>
     <string name="lt_sound_on_trade_preference">Play Sound on Trade Activity</string>
     <string name="lt_sound_on_trade_preference_summary">Play a notification sound when trade activity occurs</string>
     <string name="lt_use_email_for_notifications">Use email for notifications</string>
@@ -511,6 +513,7 @@
     <string name="showing_word_number">Word %1$s:</string>
     <string name="start_word_list_verification">Start Verification</string>
     <string name="delete_last_entered_word">Delete Last Word</string>
+    <string name="stale_fee_warning">The fee rates are older than 2h! Proceed with caution!</string>
     <string name="account">Account</string>
     <string name="verify_backup_seed_des">Verify master seed backup by scanning the QR code.</string>
     <string name="show_outputs_menu_item">Show Unspent Outputs</string>
@@ -1257,6 +1260,12 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="public_key">Public key</string>
     <string name="private_key_s">Private key</string>
     <string name="warning">Warning</string>
+    <string name="no_orbot">No Orbot installed</string>
+    <string name="no_google_play_installed">No Google Play installed on the device</string>
+    <string name="button_ok">OK</string>
+    <string name="button_done">Done</string>
+    <string name="button_cancel">Cancel</string>
+    <string name="transactions_loading_from_module_error">Error loading transactions from module</string>
     <plurals name="account_label">
         <item quantity="one">Account label:\n%s</item>
         <item quantity="other">Accounts labels:\n%s</item>

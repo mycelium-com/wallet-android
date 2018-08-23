@@ -11,10 +11,15 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.net.Uri;
+import android.widget.Toast;
 
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
+
+import java.util.List;
 
 public class OrbotHelper {
 
@@ -65,7 +70,15 @@ public class OrbotHelper {
             public void onClick(DialogInterface dialogInterface, int i) {
                 Uri uri = Uri.parse(uriString);
                 Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-                activity.startActivity(intent);
+                PackageManager packageManager = activity.getPackageManager();
+                List<ResolveInfo> activities = packageManager.queryIntentActivities(intent,
+                        PackageManager.MATCH_DEFAULT_ONLY);
+                boolean isIntentSafe = !activities.isEmpty();
+                if (isIntentSafe) {
+                    activity.startActivity(intent);
+                } else {
+                    Toast.makeText(activity, R.string.no_google_play_installed, Toast.LENGTH_LONG).show();
+                }
             }
         });
         downloadDialog.setNegativeButton(stringButtonNo, new DialogInterface.OnClickListener() {
@@ -86,7 +99,15 @@ public class OrbotHelper {
             public void onClick(DialogInterface dialogInterface, int i) {
                 Intent intent = new Intent(URI_ORBOT);
                 intent.setAction(ACTION_START_TOR);
-                activity.startActivityForResult(intent, 1);
+                PackageManager packageManager = activity.getPackageManager();
+                List<ResolveInfo> activities = packageManager.queryIntentActivities(intent,
+                        PackageManager.MATCH_DEFAULT_ONLY);
+                boolean isIntentSafe = !activities.isEmpty();
+                if (isIntentSafe) {
+                    activity.startActivityForResult(intent, 1);
+                } else {
+                    Toast.makeText(activity, R.string.no_orbot, Toast.LENGTH_LONG).show();
+                }
             }
         });
         downloadDialog.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {

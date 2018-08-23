@@ -35,7 +35,7 @@ class WapiClientElectrumX(
         endpoints: Array<TcpEndpoint>,
         logger: WapiLogger,
         versionCode: String)
-    : WapiClient(serverEndpoints, logger, versionCode) {
+    : WapiClient(serverEndpoints, logger, versionCode), ServerListChangedListener {
     @Volatile
     private var bestChainHeight = -1
     private val receiveHeaderCallback = { response: AbstractResponse ->
@@ -54,6 +54,10 @@ class WapiClientElectrumX(
 
     override fun setNetworkConnected(isNetworkConnected: Boolean) {
         connectionManager.setNetworkConnected(isNetworkConnected)
+    }
+
+    override fun serverListChanged(newEndpoints: Collection<TcpEndpoint>) {
+        connectionManager.changeEndpoints(newEndpoints.toTypedArray())
     }
 
     init {
@@ -135,12 +139,12 @@ class WapiClientElectrumX(
     override fun broadcastTransaction(request: BroadcastTransactionRequest): WapiResponse<BroadcastTransactionResponse> {
         try {
             val txHex = HexUtils.toHex(request.rawTransaction)
-            val response = connectionManager.write(BROADCAST_METHOD, RpcParams.listParams(txHex))
-            if (response.hasError) {
-                logger.logError(response.error?.toString())
+            val responseList = connectionManager.broadcast(BROADCAST_METHOD, RpcParams.listParams(txHex))
+            if (responseList.all { it.hasError }) {
+                responseList.filter { it.hasError }.forEach{ response -> logger.logError(response.error?.toString()) }
                 return WapiResponse(BroadcastTransactionResponse(false, null))
             }
-            val txId = response.getResult(String::class.java)!!
+            val txId = responseList.filter { !it.hasError }[0].getResult(String::class.java)!!
             return WapiResponse(BroadcastTransactionResponse(true, Sha256Hash.fromString(txId)))
         } catch (ex: CancellationException) {
             return WapiResponse<BroadcastTransactionResponse>(Wapi.ERROR_CODE_NO_SERVER_CONNECTION, null)
@@ -161,11 +165,12 @@ class WapiClientElectrumX(
                         rbfRisk)
             }
             return WapiResponse(CheckTransactionsResponse(transactionsArray))
-        } catch (ex: TimeoutException) {
+        } catch (ex: CancellationException) {
             return WapiResponse<CheckTransactionsResponse>(Wapi.ERROR_CODE_NO_SERVER_CONNECTION, null)
         }
     }
 
+    @Throws(CancellationException::class)
     private fun <T> getTransactionsWithParentLookupConverted(
             txids: Collection<String>,
             conversion: (tx: TransactionX, unconfirmedChainLength: Int, rbfRisk: Boolean) -> T): List<T> {
@@ -206,6 +211,7 @@ class WapiClientElectrumX(
                 .map { it.outPoint.txid.toString() }
     }
 
+    @Throws(CancellationException::class)
     private fun getTransactionXs(txids: Collection<String>): List<TransactionX> {
         if (txids.isEmpty()) {
             return emptyList()
@@ -222,7 +228,8 @@ class WapiClientElectrumX(
     /**
      * This method is inteded to request transactions from different connections using endpoints list.
      */
-    private fun requestTransactionsAsync(requestsList: List<List<RpcRequestOut>>): List<TransactionX> {
+    @Throws(CancellationException::class)
+    private fun requestTransactionsAsync(requestsList: List<List<RpcRequestOut>>): List<TransactionX>  {
         return requestsList.pFlatMap {
             connectionManager.write(it)
                     .responses
@@ -335,4 +342,8 @@ data class TransactionHistoryInfo(
             else -> 0
         }
     }
+}
+
+interface ServerListChangedListener {
+    fun serverListChanged(newEndpoints: Collection<TcpEndpoint>)
 }
