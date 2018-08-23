@@ -86,6 +86,21 @@ public class BtcTransaction implements GenericTransaction {
         return null;
     }
 
+    @Override
+    public Value getSent() {
+        return null;
+    }
+
+    @Override
+    public Value getReceived() {
+        return null;
+    }
+
+    @Override
+    public boolean isIncoming() {
+        return false;
+    }
+
 
     @Override
     public Sha256Hash getHash() {
