@@ -39,7 +39,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
-public interface WalletBtcAccount extends WalletAccount<BtcTransaction, BtcAddress> {
+public interface WalletBtcAccount extends WalletAccount {
    void checkAmount(Receiver receiver, long kbMinerFee, CurrencyValue enteredAmount) throws InsufficientFundsException, OutputTooSmallException, StandardTransactionBuilder.UnableToBuildTransactionException;
 
    enum BroadcastResult { SUCCESS, REJECTED, NO_SERVER_CONNECTION}

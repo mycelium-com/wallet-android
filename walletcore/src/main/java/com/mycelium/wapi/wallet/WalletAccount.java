@@ -5,6 +5,7 @@ import com.mycelium.wapi.wallet.coins.CoinType;
 import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface WalletAccount<T extends GenericTransaction, A extends GenericAddress> {
     class WalletAccountException extends Exception {
@@ -119,4 +120,8 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
      * Returns true, if this account is based on the internal masterseed.
      */
     boolean isDerivedFromInternalMasterseed();
+    /**
+     * Returns account id
+     */
+    UUID getId();
 }

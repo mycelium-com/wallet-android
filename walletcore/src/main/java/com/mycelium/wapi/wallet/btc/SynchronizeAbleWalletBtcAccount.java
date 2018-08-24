@@ -17,6 +17,7 @@ import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 public abstract class SynchronizeAbleWalletBtcAccount implements WalletBtcAccount {
    private static final ImmutableMap<SyncMode.Mode, Integer> MIN_SYNC_INTERVAL = ImmutableMap.of(
@@ -28,6 +29,11 @@ public abstract class SynchronizeAbleWalletBtcAccount implements WalletBtcAccoun
    private final HashMap<SyncMode.Mode, Date> _lastSync = new HashMap<>(SyncMode.Mode.values().length);
 
    protected Type type = Type.UNKNOWN;
+
+   @Override
+   public UUID getId(){
+      return new UUID(0,0);
+   }
 
    @Override
    public Type getType() {

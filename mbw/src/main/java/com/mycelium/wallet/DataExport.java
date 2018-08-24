@@ -37,6 +37,8 @@ package com.mycelium.wallet;
 
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.model.TransactionSummary;
+import com.mycelium.wapi.wallet.GenericTransaction;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 import java.io.*;
@@ -57,27 +59,26 @@ public class DataExport {
       osw.write(CSV_HEADER);
       String accountLabel = storage.getLabelByAccount(account.getId());
       for (GenericTransaction summary : history) {
-         String txLabel = storage.getLabelByTransaction(summary.txid);
+         String txLabel = storage.getLabelByTransaction(summary.getHash());
          osw.write(getTxLine(accountLabel, txLabel, summary));
       }
       osw.close();
       return file;
    }
 
-   private static String getTxLine(String accountLabel, String txLabel, GenericTransaction summary) {
+   private static String getTxLine(String accountLabel, String txLabel, GenericTransaction transaction) {
       TimeZone tz = TimeZone.getDefault();
       DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
       df.setTimeZone(tz);
-      String date = df.format(new Date(1000)); //what I can put here?
-      BigDecimal value = (summary.isIncoming ? summary.value.get() : summary.value.getValue().negate()); //show outgoing as negative amount
-      String destination = summary.destinationAddress.isPresent() ? summary.destinationAddress.get().toString() : "";
+      String date = df.format(new Date(transaction.getTimestamp()));
+      long value = (transaction.isIncoming() ? transaction.getReceived().getValue() : transaction.getSent().getValue());
+      //String destination = summary.destinationAddress.isPresent() ? summary.destinationAddress.get().toString() : "";
       return
             escape(accountLabel) + "," +
-                  summary.getHash + "," +
-                  destination + "," +
+                  transaction.getHash() + "," +
                   date + "," +
                   value + "," +
-                  summary.value.getCurrency() + "," +
+                  transaction.getType().getName() + "," +
                   escape(txLabel) + "\n";
    }
 

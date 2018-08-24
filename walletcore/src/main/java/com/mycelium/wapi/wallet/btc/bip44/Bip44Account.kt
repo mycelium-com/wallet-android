@@ -34,6 +34,7 @@ import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher
 import com.mycelium.wapi.wallet.WalletManager.Event
 import com.mrd.bitlib.crypto.BipDerivationType.Companion.getDerivationTypeByAddress
+import com.mrd.bitlib.model.hdpath.HdKeyPath
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import com.mycelium.wapi.wallet.btc.Bip44AccountBacking
 import com.mycelium.wapi.wallet.btc.BtcTransaction
@@ -42,6 +43,9 @@ import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.BitcoinMain
 import com.mycelium.wapi.wallet.coins.CoinType
 import com.mycelium.wapi.wallet.coins.Value
+import com.mycelium.wapi.wallet.currency.ExactBitcoinValue
+import com.mycelium.wapi.model.TransactionEx
+import com.mrd.bitlib.util.ByteReader
 
 import java.util.ArrayList
 
@@ -353,7 +357,7 @@ open class Bip44Account(
     }
 
     @Throws(WapiException::class)
-    override fun doDiscoveryForAddresses(lookAhead: List<Address>): Boolean {
+    override public fun doDiscoveryForAddresses(lookAhead: List<Address>): Boolean {
         // Do look ahead query
         val result = _wapi.queryTransactionInventory(
                 QueryTransactionInventoryRequest(Wapi.VERSION, lookAhead, Wapi.MAX_TRANSACTION_INVENTORY_LIMIT)).result
@@ -725,19 +729,19 @@ open class Bip44Account(
         return Balance(Value.parse(BitcoinMain.get(),"0"),Value.parse(BitcoinMain.get(),"0"), Value.parse(BitcoinMain.get(),"0"))
     }
 
-    override fun completeAndSignTx(request: SendRequest<BtcTransaction>?) {
+    override fun completeAndSignTx(request: SendRequest<out GenericTransaction>?) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun completeTransaction(request: SendRequest<BtcTransaction>?) {
+    override fun completeTransaction(request: SendRequest<out GenericTransaction>?) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun signTransaction(request: SendRequest<BtcTransaction>?) {
+    override fun signTransaction(request: SendRequest<out GenericTransaction>?) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun broadcastTx(tx: BtcTransaction?) {
+    override fun broadcastTx(tx: GenericTransaction?) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
@@ -745,7 +749,7 @@ open class Bip44Account(
        return BitcoinMain.get()
     }
 
-    protected fun checkNotArchived() {
+    override protected fun checkNotArchived() {
         val usingArchivedAccount = "Using archived account"
         if (isArchived()) {
             _logger.logError(usingArchivedAccount)
@@ -753,77 +757,23 @@ open class Bip44Account(
         }
     }
 
-    private fun transform(tex: TransactionEx, blockChainHeight: Int): BtcTransaction {
-        val tx: Transaction
-        try {
-            tx = Transaction.fromByteReader(ByteReader(tex.binary))
-        } catch (e: TransactionParsingException) {
-            // Should not happen as we have parsed the transaction earlier
-            _logger.logError("Unable to parse ")
-            return null
-        }
-
-        val isColuTransaction = isColuTransaction(tx)
-
-        if (isColuTransaction) {
-            return null
-        }
-
-        // Outputs
-        var satoshis: Long = 0
-        val toAddresses = ArrayList<Address>()
-        var destAddress: Address? = null
-        for (output in tx.outputs) {
-            val address = output.script.getAddress(_network)
-            if (isMine(output.script)) {
-                satoshis += output.value
-            } else {
-                destAddress = address
-            }
-            if (address != null && address != Address.getNullAddress(_network)) {
-                toAddresses.add(address)
-            }
-        }
-
-        // Inputs
-        if (!tx.isCoinbase()) {
-            for (input in tx.inputs) {
-                // find parent output
-                val funding = _backing.getParentTransactionOutput(input.outPoint)
-                if (funding == null) {
-                    _logger.logError("Unable to find parent output for: " + input.outPoint)
-                    continue
-                }
-                if (isMine(funding)) {
-                    satoshis -= funding!!.value
-                }
-            }
-        }
-        return BtcTransaction(HdKeyPath.BIP44.getCoinTypeBitcoin,
-                tx.getId(),
-                tx,
-                ExactBitcoinValue.from(Math.abs(satoshis)).get(),
-                ExactBitcoinValue.from(Math.abs(satoshis)).getValue().negate(),
-                //fee?
-                null)
-
-    }
-
-    override fun getTransactions(offset: Int, limit: Int): MutableList<BtcTransaction> {
+    override fun getTransactions(offset: Int, limit: Int): MutableList<out GenericTransaction> {
         // Note that this method is not synchronized, and we might fetch the transaction history while synchronizing
         // accounts. That should be ok as we write to the DB in a sane order.
 
-        List<BtcTransaction> history = new ArrayList<>();
-        checkNotArchived();
-        int blockChainHeight = getBlockChainHeight();
-        List<TransactionEx> list = backing.getTransactionHistory(offset, limit);
-        for (TransactionEx tex : list) {
-            BtcTransaction res = transform(tex, blockChainHeight);
+        checkNotArchived()
+        val list: List<TransactionEx> = backing.getTransactionHistory(offset, limit)
+        var history: MutableList<BtcTransaction> = mutableListOf()
+        for (tex: TransactionEx in list) {
+            val tx: Transaction
+            tx = Transaction.fromByteReader(ByteReader(tex.binary))
+            val item: BtcTransaction
+            item = BtcTransaction(getCoinType(),tx)
 
             if (item != null) {
-                history.add(item);
+                history.add(item)
             }
         }
-        return history;
+        return history
     }
 }
