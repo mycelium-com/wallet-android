@@ -73,7 +73,6 @@ import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 
 import java.nio.ByteBuffer;
 import java.text.ParseException;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -651,7 +650,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
                // malleability, delete it locally.
                _logger.logError("Failed to broadcast transaction due to a double spend or malleability issue");
                postEvent(Event.BROADCASTED_TRANSACTION_DENIED);
-               return BroadcastResult.REJECTED;
+               return BroadcastResult.REJECTED_DOUBLE_SPENDING;
             }
          } else if (response.getErrorCode() == Wapi.ERROR_CODE_NO_SERVER_CONNECTION) {
             postEvent(Event.SERVER_CONNECTION_ERROR);

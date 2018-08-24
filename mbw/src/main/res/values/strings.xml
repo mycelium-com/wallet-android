@@ -171,6 +171,7 @@
     <string name="signing_transaction">Signing Transaction</string>
     <string name="broadcasting_transaction">Broadcasting Transaction</string>
     <string name="transaction_rejected_message">The transaction was rejected by the network. This indicates that your wallet is out of sync</string>
+    <string name="transaction_rejected_double_spending_message">Failed to broadcast transaction due to a double spend or malleability issue.</string>
     <string name="enter_bitcoin_address">Enter Bitcoin Address</string>
     <string name="bitcoin_address_invalid">Invalid Bitcoin Address</string>
     <string name="bitcoin_address_valid">Bitcoin Address Valid</string>
