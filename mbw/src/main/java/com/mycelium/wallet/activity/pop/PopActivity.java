@@ -62,7 +62,9 @@ import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.model.TransactionDetails;
 import com.mycelium.wapi.model.TransactionSummary;
+import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+import com.mycelium.wapi.wallet.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.OkHttpClient;
@@ -93,7 +95,7 @@ public class PopActivity extends Activity {
       if (savedInstanceState != null) {
          popRequest = (PopRequest) savedInstanceState.getSerializable("popRequest");
          txidToProve = (Sha256Hash) savedInstanceState.getSerializable("txidToProve");
-         updateUi(_mbwManager.getSelectedAccount().getTransactionSummary(txidToProve));
+         updateUi(null);
          return;
       }
 
@@ -103,19 +105,19 @@ public class PopActivity extends Activity {
       }
 
       Sha256Hash userSelectedTransaction = (Sha256Hash) getIntent().getSerializableExtra("selectedTransactionToProve");
-      TransactionSummary txToProve;
+      GenericTransaction txToProve;
       if (userSelectedTransaction != null) {
          txidToProve = userSelectedTransaction;
-         txToProve = _mbwManager.getSelectedAccount().getTransactionSummary(txidToProve);
+         txToProve = null;
       } else {
          // Get history ordered by block height descending
-         List<TransactionSummary> transactionHistory = _mbwManager.getSelectedAccount().getTransactionHistory(0, 10000);
-         TransactionSummary matchingTransaction = findFirstMatchingTransaction(popRequest, transactionHistory);
+         List<GenericTransaction> transactionHistory = _mbwManager.getSelectedAccount().getTransactions(0, 10000);
+         GenericTransaction matchingTransaction = findFirstMatchingTransaction(popRequest, transactionHistory);
          if (matchingTransaction == null) {
             launchSelectTransactionActivity();
             return;
          }
-         txidToProve = matchingTransaction.txid;
+         txidToProve = matchingTransaction.getHash();
          txToProve = matchingTransaction;
       }
 
@@ -129,11 +131,11 @@ public class PopActivity extends Activity {
       finish();
    }
 
-   private TransactionSummary findFirstMatchingTransaction(PopRequest popRequest, List<TransactionSummary> transactions) {
+   private GenericTransaction findFirstMatchingTransaction(PopRequest popRequest, List<GenericTransaction> transactions) {
       MetadataStorage metadataStorage = _mbwManager.getMetadataStorage();
-      for (TransactionSummary transactionSummary : transactions) {
-         if (PopUtils.matches(popRequest, metadataStorage, transactionSummary)) {
-            return transactionSummary;
+      for (GenericTransaction transaction: transactions) {
+         if (PopUtils.matches(popRequest, metadataStorage, transaction)) {
+            return transaction;
          }
       }
       return null;
@@ -156,16 +158,16 @@ public class PopActivity extends Activity {
       return sum;
    }
 
-   private void updateUi(TransactionSummary transactionSummary) {
+   private void updateUi(GenericTransaction transaction) {
       MetadataStorage metadataStorage = _mbwManager.getMetadataStorage();
 
       // Set Date
-      Date date = new Date(transactionSummary.time * 1000L);
+      Date date = new Date(transaction.getTimestamp());
       DateFormat dateFormat = new AdaptiveDateFormat(getApplicationContext());
       setText(R.id.pop_transaction_date, dateFormat.format(date));
 
       // Set amount
-      long amountSatoshis = getPaymentAmountSatoshis(transactionSummary);
+      long amountSatoshis = getPaymentAmountSatoshis(transaction);
       String value = _mbwManager.getBtcValueString(amountSatoshis);
       String fiatValue = _mbwManager.getCurrencySwitcher().getFormattedFiatValue(
             ExactBitcoinValue.from(amountSatoshis),
@@ -178,7 +180,7 @@ public class PopActivity extends Activity {
       setText(R.id.pop_transaction_amount, value + fiatAppendment);
 
       // Set label
-      String label = metadataStorage.getLabelByTransaction(transactionSummary.txid);
+      String label = metadataStorage.getLabelByTransaction(transaction.getHash());
       setText(R.id.pop_transaction_label, label);
 
       URL url = getUrl(popRequest.getP());
@@ -213,12 +215,12 @@ public class PopActivity extends Activity {
       return url;
    }
 
-   private long getPaymentAmountSatoshis(TransactionSummary transactionSummary) {
-      if (!(transactionSummary.value.isBtc())) {
+   private long getPaymentAmountSatoshis(GenericTransaction transaction) {
+      if (!(transaction.getType() == BitcoinMain.get())) {
          return 0;
       }
-      long amountSatoshis = ((ExactBitcoinValue) transactionSummary.value).getLongValue();
-      TransactionDetails transactionDetails = _mbwManager.getSelectedAccount().getTransactionDetails(transactionSummary.txid);
+      long amountSatoshis = (transaction.isIncoming()?transaction.getReceived():transaction.getSent()).getValue();
+      TransactionDetails transactionDetails = _mbwManager.getSelectedAccount().getTransactionDetails(transaction.getHash());
       amountSatoshis -= getFee(transactionDetails);
       return amountSatoshis;
    }
