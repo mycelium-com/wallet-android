@@ -1010,9 +1010,6 @@ You can either add miner\'s fee from any account with bitcoins every time you ma
     <string name="trading_strategies_module_desc">Make extra BTC with top trading strategies</string>
     <string name="tsm_module_change"><![CDATA[Mycelium <font color="#663aee82">Trading Strategies</font> module has been %s!]]></string>
 
-    <string name="m2w_messaging_description">communicate with Mycelium Wallet</string>
-    <string name="m2w_messaging_label">Module-Wallet Messaging</string>
-
     <string name="partner_ledger">Ledger</string>
     <string name="partner_ledger_short">Security solutions for cryptocurrencies</string>
     <string name="partner_ledger_url">https://www.ledgerwallet.com/r/494d?path=/products</string>

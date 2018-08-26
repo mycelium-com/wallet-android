@@ -5,11 +5,6 @@
     <permission
         android:name="${applicationId}.permission.C2D_MESSAGE"
         android:protectionLevel="signature" />
-    <permission
-        android:name="${applicationId}.permission.M2W_MESSAGE"
-        android:protectionLevel="dangerous"
-        android:label="@string/m2w_messaging_label"
-        android:description="@string/m2w_messaging_description"/>
 
     <uses-permission android:name="${applicationId}.permission.C2D_MESSAGE" />
 

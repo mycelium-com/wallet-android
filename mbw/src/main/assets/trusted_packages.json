@@ -15,6 +15,22 @@
     {
       "name": "com.mycelium.module.spvbch.testnet.debug",
       "signature": "gz35r0bqdqhXMguVc8UR2+QRbboJFKgr/FzEKO5OoW8="
+    },
+    {
+      "name": "com.castor.threecommas.tradingbotsmodule",
+      "signature": "ac9IWNw15F1Uv1S+EDhNPD7ASe44h9JJYK+S+B3jqh4="
+    },
+    {
+      "name": "com.castor.threecommas.tradingbotsmodule.debug",
+      "signature": "JCkJWbAgt5ZfIoYsoZRGDeVDR3qqJ3xGODirYUVY1TA="
+    },
+    {
+      "name": "com.castor.threecommas.tradingbotsmodule.testnet",
+      "signature": "ac9IWNw15F1Uv1S+EDhNPD7ASe44h9JJYK+S+B3jqh4="
+    },
+    {
+      "name": "com.castor.threecommas.tradingbotsmodule.testnet.debug",
+      "signature": "JCkJWbAgt5ZfIoYsoZRGDeVDR3qqJ3xGODirYUVY1TA="
     }
   ]
 }
