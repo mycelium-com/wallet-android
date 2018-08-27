@@ -607,13 +607,17 @@ public class WalletManager {
         startSynchronizationThread(synchronizer);
     }
 
-    public void startSynchronization(UUID receivingAcc) {
-        if (!isNetworkConnected) {
-            return;
-        }
+    /**
+     * This method only used to synchronize the unrelated bip44 account (created from xpub from scan)..
+     * .. to retrieve the address to send funds. If there is no network,
+     * user will be notified and only the first address will be reused (SendMainActivity.java)
+     * @return whether the network is present or not.
+     */
+    public boolean startSynchronization(UUID receivingAcc) {
         // Launch synchronizer thread
         SynchronizeAbleWalletAccount activeAccount = (SynchronizeAbleWalletAccount) getAccount(receivingAcc);
         startSynchronizationThread(new Synchronizer(SyncMode.NORMAL, activeAccount));
+        return isNetworkConnected;
     }
 
     private synchronized void startSynchronizationThread(Synchronizer synchronizer) {
