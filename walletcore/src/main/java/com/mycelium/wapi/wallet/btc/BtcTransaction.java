@@ -33,7 +33,7 @@ public class BtcTransaction implements GenericTransaction {
     }
 
     public BtcTransaction(CoinType type, Transaction transaction) {
-        this(type, transaction.getHash(), transaction, null, null, null);
+        this(type, transaction.getHash(), transaction, Value.valueOf(BitcoinMain.get(),10), Value.valueOf(BitcoinMain.get(),10), Value.valueOf(BitcoinMain.get(),1));
     }
 
     @Override
