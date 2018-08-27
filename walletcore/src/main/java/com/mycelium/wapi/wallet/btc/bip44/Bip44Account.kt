@@ -42,9 +42,12 @@ import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue
 import com.mycelium.wapi.model.TransactionEx
 import com.mrd.bitlib.util.ByteReader
+import com.mycelium.wapi.api.request.CheckTransactionsRequest
+import com.mycelium.wapi.api.response.CheckTransactionsResponse
 import com.mycelium.wapi.wallet.btc.*
 
 import java.util.ArrayList
+import java.util.HashMap
 
 open class Bip44Account(
         protected var context: HDAccountContext,
@@ -54,12 +57,12 @@ open class Bip44Account(
         wapi: Wapi
 ) :
         AbstractBtcAccount(backing, network, wapi), ExportableAccount {
+
     // Used to determine which bips this account support
     private val derivePaths = context.indexesMap.keys
-
+    //private val riskAssessmentForUnconfirmedTx: ConfirmationRiskProfileLocal = ConfirmationRiskProfileLocal(0,false,false);
     private var externalAddresses: MutableMap<BipDerivationType, BiMap<Address, Int>> = initAddressesMap()
     private var internalAddresses: MutableMap<BipDerivationType, BiMap<Address, Int>> = initAddressesMap()
-
     private var receivingAddressMap: MutableMap<AddressType, Address> = mutableMapOf()
     @Volatile
     private var isSynchronizing = false
@@ -812,7 +815,7 @@ open class Bip44Account(
             val isQueuedOutgoing = backing.isOutgoingTransaction(tx.id)
 
             item = BtcTransaction(getCoinType(), tx, satoshisSent, satoshisReceived, tex.time,
-                    destAddress, confirmations, isQueuedOutgoing, toAddresses, null)
+                    destAddress, confirmations, isQueuedOutgoing, toAddresses, riskAssessmentForUnconfirmedTx.get(tx.getId()),null)
 
             if (item != null) {
                 history.add(item)

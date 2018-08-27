@@ -1,7 +1,9 @@
 package com.mycelium.wapi.wallet.btc;
 
+import com.google.common.base.Optional;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.Sha256Hash;
+import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.coins.BitcoinMain;
@@ -21,22 +23,18 @@ public class BtcTransaction implements GenericTransaction {
     final Value valueReceived;
     final Value value;
     private int timestamp;
-
-    public GenericAddress getDestinationAddress() {
-        return destinationAddress;
-    }
-
     final GenericAddress destinationAddress;
     final ArrayList<GenericAddress> toAddresses;
     private int confirmations;
-    final boolean isQueuedOutgoing;
+    private final boolean isQueuedOutgoing;
+    public final Optional<ConfirmationRiskProfileLocal> confirmationRiskProfile;
     @Nullable
     final Value fee;
 
     public BtcTransaction(CoinType type, Transaction transaction,
                           long valueSent, long valueReceived, int timestamp,
                           GenericAddress destinationAddress, int confirmations, boolean isQueuedOutgoing,
-                          ArrayList<GenericAddress> toAddresses,
+                          ArrayList<GenericAddress> toAddresses, ConfirmationRiskProfileLocal risk,
                           @Nullable Value fee) {
         this.type = type;
         this.tx = transaction;
@@ -49,7 +47,18 @@ public class BtcTransaction implements GenericTransaction {
         this.confirmations = confirmations;
         this.isQueuedOutgoing = isQueuedOutgoing;
         this.toAddresses = toAddresses;
+        this.confirmationRiskProfile = Optional.fromNullable(risk);
         this.fee = fee;
+    }
+
+    @Override
+    public GenericAddress getDestinationAddress() {
+        return destinationAddress;
+    }
+
+    @Override
+    public boolean isQueuedOutgoing() {
+        return isQueuedOutgoing;
     }
 
     @Override
@@ -134,6 +143,10 @@ public class BtcTransaction implements GenericTransaction {
         return getHash().getBytes();
     }
 
+    @Override
+    public Optional<ConfirmationRiskProfileLocal> getConfirmationRiskProfile() {
+        return confirmationRiskProfile;
+    }
 
     @Override
     public boolean equals(Object o) {

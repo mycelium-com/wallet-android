@@ -126,28 +126,28 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransaction> {
       TextView tvDestAddress = (TextView) rowView.findViewById(R.id.tvDestAddress);
 
 
-//      if (record.destinationAddress.isPresent()) {
-//         if (_addressBook.containsKey(record.destinationAddress.get())) {
-//            tvDestAddress.setText(record.destinationAddress.get().getShortAddress());
-//            tvAddressLabel.setText(String.format(_context.getString(R.string.transaction_to_address_prefix), _addressBook.get(record.destinationAddress.get())));
-//            tvDestAddress.setVisibility(View.VISIBLE);
-//            tvAddressLabel.setVisibility(View.VISIBLE);
-//         } else if (_alwaysShowAddress) {
-//            tvDestAddress.setText(record.destinationAddress.get().getShortAddress());
-//            tvDestAddress.setVisibility(View.VISIBLE);
-//         } else {
-//            tvDestAddress.setVisibility(View.GONE);
-//            tvAddressLabel.setVisibility(View.GONE);
-//         }
-//      } else {
+      if (record.getDestinationAddress() != null) {
+         if (_addressBook.containsKey(record.getDestinationAddress())) {
+            tvDestAddress.setText(record.getDestinationAddress().toString());
+            tvAddressLabel.setText(String.format(_context.getString(R.string.transaction_to_address_prefix), _addressBook.get(record.getDestinationAddress())));
+            tvDestAddress.setVisibility(View.VISIBLE);
+            tvAddressLabel.setVisibility(View.VISIBLE);
+         } else if (_alwaysShowAddress) {
+            tvDestAddress.setText(record.getDestinationAddress().toString());
+            tvDestAddress.setVisibility(View.VISIBLE);
+         } else {
+            tvDestAddress.setVisibility(View.GONE);
+            tvAddressLabel.setVisibility(View.GONE);
+         }
+      } else {
          tvDestAddress.setVisibility(View.GONE);
          tvAddressLabel.setVisibility(View.GONE);
-      //}
+      }
 
       // Show confirmations indicator
       int confirmations = record.getAppearedAtChainHeight();
       TransactionConfirmationsDisplay tcdConfirmations = (TransactionConfirmationsDisplay) rowView.findViewById(R.id.tcdConfirmations);
-      if (false) {//record.isQueuedOutgoing
+      if (record.isQueuedOutgoing()) {//record.isQueuedOutgoing
          // Outgoing, not broadcasted
          tcdConfirmations.setNeedsBroadcast();
       } else {
@@ -179,30 +179,30 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransaction> {
 
       // Show risky unconfirmed warning if necessary
       //Maybe we needn't these block, but warnings seems necessary, I think we should add it
-//      TextView tvWarnings = (TextView) rowView.findViewById(R.id.tvUnconfirmedWarning);
-//      if (confirmations <= 0) {
-//         ArrayList<String> warnings = new ArrayList<String>();
-//         if (record.confirmationRiskProfile.isPresent()) {
-//            if (record.confirmationRiskProfile.isPresent() && record.confirmationRiskProfile.get().hasRbfRisk) {
-//               warnings.add(_context.getResources().getString(R.string.warning_reason_rbf));
-//            }
-//            if (record.confirmationRiskProfile.get().unconfirmedChainLength > 0) {
-//               warnings.add(_context.getResources().getString(R.string.warning_reason_unconfirmed_parent));
-//            }
-//            if (record.confirmationRiskProfile.get().isDoubleSpend) {
-//               warnings.add(_context.getResources().getString(R.string.warning_reason_doublespend));
-//            }
-//         }
-//
-//         if (warnings.size() > 0) {
-//            tvWarnings.setText(_context.getResources().getString(R.string.warning_risky_unconfirmed, Joiner.on(", ").join(warnings)));
-//            tvWarnings.setVisibility(View.VISIBLE);
-//         } else {
-//            tvWarnings.setVisibility(View.GONE);
-//         }
-//      } else {
-//         tvWarnings.setVisibility(View.GONE);
-//      }
+      TextView tvWarnings = (TextView) rowView.findViewById(R.id.tvUnconfirmedWarning);
+      if (confirmations <= 0) {
+         ArrayList<String> warnings = new ArrayList<String>();
+         if (record.getConfirmationRiskProfile().isPresent()) {
+            if (record.getConfirmationRiskProfile().get().hasRbfRisk) {
+               warnings.add(_context.getResources().getString(R.string.warning_reason_rbf));
+            }
+            if (record.getConfirmationRiskProfile().get().unconfirmedChainLength > 0) {
+               warnings.add(_context.getResources().getString(R.string.warning_reason_unconfirmed_parent));
+            }
+            if (record.getConfirmationRiskProfile().get().isDoubleSpend) {
+               warnings.add(_context.getResources().getString(R.string.warning_reason_doublespend));
+            }
+         }
+
+         if (warnings.size() > 0) {
+            tvWarnings.setText(_context.getResources().getString(R.string.warning_risky_unconfirmed, Joiner.on(", ").join(warnings)));
+            tvWarnings.setVisibility(View.VISIBLE);
+         } else {
+            tvWarnings.setVisibility(View.GONE);
+         }
+      } else {
+         tvWarnings.setVisibility(View.GONE);
+      }
 
       rowView.setTag(record);
       return rowView;

@@ -1,9 +1,11 @@
 package com.mycelium.wapi.wallet;
 
+import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.CoinType;
 import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
