@@ -34,6 +34,7 @@ import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher
 import com.mycelium.wapi.wallet.WalletManager.Event
 import com.mrd.bitlib.crypto.BipDerivationType.Companion.getDerivationTypeByAddress
+import com.mrd.bitlib.model.hdpath.HdKeyPath
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import com.mycelium.wapi.wallet.btc.Bip44AccountBacking
 import com.mycelium.wapi.wallet.btc.BtcTransaction
@@ -42,6 +43,9 @@ import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.BitcoinMain
 import com.mycelium.wapi.wallet.coins.CoinType
 import com.mycelium.wapi.wallet.coins.Value
+import com.mycelium.wapi.wallet.currency.ExactBitcoinValue
+import com.mycelium.wapi.model.TransactionEx
+import com.mrd.bitlib.util.ByteReader
 
 import java.util.ArrayList
 
@@ -353,7 +357,7 @@ open class Bip44Account(
     }
 
     @Throws(WapiException::class)
-    override fun doDiscoveryForAddresses(lookAhead: List<Address>): Boolean {
+    override public fun doDiscoveryForAddresses(lookAhead: List<Address>): Boolean {
         // Do look ahead query
         val result = _wapi.queryTransactionInventory(
                 QueryTransactionInventoryRequest(Wapi.VERSION, lookAhead, Wapi.MAX_TRANSACTION_INVENTORY_LIMIT)).result
@@ -725,19 +729,19 @@ open class Bip44Account(
         return Balance(Value.parse(BitcoinMain.get(),"0"),Value.parse(BitcoinMain.get(),"0"), Value.parse(BitcoinMain.get(),"0"))
     }
 
-    override fun completeAndSignTx(request: SendRequest<BtcTransaction>?) {
+    override fun completeAndSignTx(request: SendRequest<out GenericTransaction>?) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun completeTransaction(request: SendRequest<BtcTransaction>?) {
+    override fun completeTransaction(request: SendRequest<out GenericTransaction>?) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun signTransaction(request: SendRequest<BtcTransaction>?) {
+    override fun signTransaction(request: SendRequest<out GenericTransaction>?) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun broadcastTx(tx: BtcTransaction?) {
+    override fun broadcastTx(tx: GenericTransaction?) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
@@ -745,7 +749,31 @@ open class Bip44Account(
        return BitcoinMain.get()
     }
 
-    override fun getTransactions(offset: Int, limit: Int): MutableList<BtcTransaction> {
-        return ArrayList<BtcTransaction>()
+    override protected fun checkNotArchived() {
+        val usingArchivedAccount = "Using archived account"
+        if (isArchived()) {
+            _logger.logError(usingArchivedAccount)
+            throw RuntimeException(usingArchivedAccount)
+        }
+    }
+
+    override fun getTransactions(offset: Int, limit: Int): MutableList<out GenericTransaction> {
+        // Note that this method is not synchronized, and we might fetch the transaction history while synchronizing
+        // accounts. That should be ok as we write to the DB in a sane order.
+
+        checkNotArchived()
+        val list: List<TransactionEx> = backing.getTransactionHistory(offset, limit)
+        var history: MutableList<BtcTransaction> = mutableListOf()
+        for (tex: TransactionEx in list) {
+            val tx: Transaction
+            tx = Transaction.fromByteReader(ByteReader(tex.binary))
+            val item: BtcTransaction
+            item = BtcTransaction(getCoinType(),tx)
+
+            if (item != null) {
+                history.add(item)
+            }
+        }
+        return history
     }
 }

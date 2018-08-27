@@ -37,6 +37,8 @@ package com.mycelium.wallet;
 
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.model.TransactionSummary;
+import com.mycelium.wapi.wallet.GenericTransaction;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 import java.io.*;
@@ -50,34 +52,33 @@ import java.util.TimeZone;
 public class DataExport {
    private static final String CSV_HEADER = "Account, Transaction ID, Destination Address, Timestamp, Value, Currency, Transaction Label\n";
 
-   public static File getTxHistoryCsv(WalletBtcAccount account, List<TransactionSummary> history,
+   public static File getTxHistoryCsv(WalletAccount account, List<GenericTransaction> history,
                                       MetadataStorage storage, File file) throws IOException {
       FileOutputStream fos = new FileOutputStream(file);
       OutputStreamWriter osw = new OutputStreamWriter(fos);
       osw.write(CSV_HEADER);
       String accountLabel = storage.getLabelByAccount(account.getId());
-      for (TransactionSummary summary : history) {
-         String txLabel = storage.getLabelByTransaction(summary.txid);
+      for (GenericTransaction summary : history) {
+         String txLabel = storage.getLabelByTransaction(summary.getHash());
          osw.write(getTxLine(accountLabel, txLabel, summary));
       }
       osw.close();
       return file;
    }
 
-   private static String getTxLine(String accountLabel, String txLabel, TransactionSummary summary) {
+   private static String getTxLine(String accountLabel, String txLabel, GenericTransaction transaction) {
       TimeZone tz = TimeZone.getDefault();
       DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
       df.setTimeZone(tz);
-      String date = df.format(new Date(summary.time * 1000)); //summary holds time in seconds, date expects milli-seconds
-      BigDecimal value = (summary.isIncoming ? summary.value.getValue() : summary.value.getValue().negate()); //show outgoing as negative amount
-      String destination = summary.destinationAddress.isPresent() ? summary.destinationAddress.get().toString() : "";
+      String date = df.format(new Date(transaction.getTimestamp()));
+      long value = (transaction.isIncoming() ? transaction.getReceived().getValue() : transaction.getSent().getValue());
+      //String destination = summary.destinationAddress.isPresent() ? summary.destinationAddress.get().toString() : "";
       return
             escape(accountLabel) + "," +
-                  summary.txid + "," +
-                  destination + "," +
+                  transaction.getHash() + "," +
                   date + "," +
                   value + "," +
-                  summary.value.getCurrency() + "," +
+                  transaction.getType().getName() + "," +
                   escape(txLabel) + "\n";
    }
 

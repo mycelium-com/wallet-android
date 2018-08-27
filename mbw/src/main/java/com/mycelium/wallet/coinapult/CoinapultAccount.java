@@ -63,9 +63,11 @@ import com.mycelium.wallet.event.BalanceChanged;
 import com.mycelium.wallet.event.SyncFailed;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.model.*;
+import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.SyncMode;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.BtcTransaction;
 import com.mycelium.wapi.wallet.btc.SynchronizeAbleWalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
@@ -385,26 +387,27 @@ public class CoinapultAccount extends SynchronizeAbleWalletBtcAccount {
    public void setAllowZeroConfSpending(boolean allowZeroConfSpending) {
    }
 
-    @Override
-    public void completeAndSignTx(SendRequest<BtcTransaction> request) throws WalletAccountException {
+   @Override
+   public void completeAndSignTx(SendRequest request) throws WalletAccountException {
 
-    }
+   }
 
-    @Override
-    public void completeTransaction(SendRequest<BtcTransaction> request) throws WalletAccountException {
+   @Override
+   public void completeTransaction(SendRequest request) throws WalletAccountException {
 
-    }
+   }
 
-    @Override
-    public void signTransaction(SendRequest<BtcTransaction> request) throws WalletAccountException {
+   @Override
+   public void signTransaction(SendRequest request) throws WalletAccountException {
 
-    }
+   }
 
-    @Override
-    public void broadcastTx(BtcTransaction tx) throws TransactionBroadcastException {
-    }
+   @Override
+   public void broadcastTx(GenericTransaction tx) throws TransactionBroadcastException {
 
-    @Override
+   }
+
+   @Override
     public CoinType getCoinType() {
         return null;
     }

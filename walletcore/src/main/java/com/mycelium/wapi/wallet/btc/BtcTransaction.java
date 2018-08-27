@@ -4,6 +4,7 @@ import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.GenericTransaction;
+import com.mycelium.wapi.wallet.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.coins.CoinType;
 import com.mycelium.wapi.wallet.coins.Value;
 
@@ -32,7 +33,7 @@ public class BtcTransaction implements GenericTransaction {
     }
 
     public BtcTransaction(CoinType type, Transaction transaction) {
-        this(type, transaction.getHash(), transaction, null, null, null);
+        this(type, transaction.getHash(), transaction, Value.valueOf(BitcoinMain.get(),10), Value.valueOf(BitcoinMain.get(),10), Value.valueOf(BitcoinMain.get(),1));
     }
 
     @Override
@@ -88,12 +89,12 @@ public class BtcTransaction implements GenericTransaction {
 
     @Override
     public Value getSent() {
-        return null;
+        return Value.valueOf(BitcoinMain.get(),5);
     }
 
     @Override
     public Value getReceived() {
-        return null;
+        return Value.valueOf(BitcoinMain.get(),10);
     }
 
     @Override

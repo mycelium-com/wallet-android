@@ -201,8 +201,6 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       return isMine(address);
    }
 
-   @Override
-   public abstract UUID getId();
 
    protected static UUID addressToUUID(Address address) {
       return new UUID(BitUtils.uint64ToLong(address.getAllAddressBytes(), 1), BitUtils.uint64ToLong(

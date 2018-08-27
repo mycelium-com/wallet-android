@@ -280,22 +280,22 @@ public class ColuAccount extends SynchronizeAbleWalletBtcAccount implements Expo
     }
 
     @Override
-    public void completeAndSignTx(SendRequest<BtcTransaction> request) throws WalletAccountException {
+    public void completeAndSignTx(SendRequest request) throws WalletAccountException {
 
     }
 
     @Override
-    public void completeTransaction(SendRequest<BtcTransaction> request) throws WalletAccountException {
+    public void completeTransaction(SendRequest request) throws WalletAccountException {
 
     }
 
     @Override
-    public void signTransaction(SendRequest<BtcTransaction> request) throws WalletAccountException {
+    public void signTransaction(SendRequest request) throws WalletAccountException {
 
     }
 
     @Override
-    public void broadcastTx(BtcTransaction tx) throws TransactionBroadcastException {
+    public void broadcastTx(GenericTransaction tx) throws TransactionBroadcastException {
     }
 
     @Override

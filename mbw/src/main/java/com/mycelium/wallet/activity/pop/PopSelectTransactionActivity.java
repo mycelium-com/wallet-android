@@ -57,6 +57,7 @@ import com.mycelium.wallet.activity.main.adapter.TransactionArrayAdapter;
 import com.mycelium.wallet.event.AddressBookChanged;
 import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.model.TransactionSummary;
+import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.squareup.otto.Subscribe;
 
@@ -187,17 +188,17 @@ public class PopSelectTransactionActivity extends AppCompatActivity implements A
          mbwManager = MbwManager.getInstance(getActivity());
          WalletBtcAccount account = mbwManager.getSelectedAccount();
 
-         List<TransactionSummary> history = account.getTransactionHistory(0, 1000);
+         List<GenericTransaction> history = account.getTransactions(0, 1000);
 
-         List<TransactionSummary> list = new ArrayList<>();
+         List<GenericTransaction> list = new ArrayList<>();
 
-         for (TransactionSummary transactionSummary : history) {
-            if (transactionSummary.isIncoming) {
+         for (GenericTransaction transaction : history) {
+            if (transaction.isIncoming()) {
                // We are only interested in payments
                continue;
             }
-            if (PopUtils.matches(popRequest, mbwManager.getMetadataStorage(), transactionSummary) == showMatching) {
-               list.add(transactionSummary);
+            if (PopUtils.matches(popRequest, mbwManager.getMetadataStorage(), transaction) == showMatching) {
+               list.add(transaction);
             }
          }
 
@@ -238,7 +239,7 @@ public class PopSelectTransactionActivity extends AppCompatActivity implements A
    }
 
    public static class TransactionHistoryAdapter extends TransactionArrayAdapter {
-      TransactionHistoryAdapter(Context context, List<TransactionSummary> objects, Map<Address, String> addressBook) {
+      TransactionHistoryAdapter(Context context, List<GenericTransaction> objects, Map<Address, String> addressBook) {
          super(context, objects, addressBook);
       }
 
@@ -248,7 +249,7 @@ public class PopSelectTransactionActivity extends AppCompatActivity implements A
          view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               ((PopSelectTransactionActivity) getContext()).onTxClick(getItem(position).txid);
+               ((PopSelectTransactionActivity) getContext()).onTxClick(getItem(position).getHash());
             }
          });
          return view;
