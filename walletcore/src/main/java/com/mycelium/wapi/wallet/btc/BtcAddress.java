@@ -25,6 +25,6 @@ public class BtcAddress extends Address implements GenericAddress {
     }
 
     public static BtcAddress from(String address) {
-        return (BtcAddress)Address.fromString(address);
+        return new BtcAddress(Address.fromString(address).getAllAddressBytes());
     }
 }

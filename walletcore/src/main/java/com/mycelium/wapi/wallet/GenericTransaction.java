@@ -38,7 +38,9 @@ public interface GenericTransaction {
     void setAppearedAtChainHeight(int appearedAtChainHeight);
 
     long getTimestamp();
-    void setTimestamp(long timestamp);
+    void setTimestamp(int timestamp);
+
+    GenericAddress getDestinationAddress();
 
     Value getFee();
 

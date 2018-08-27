@@ -9,6 +9,8 @@ import com.mycelium.wapi.wallet.coins.CoinType;
 import com.mycelium.wapi.wallet.coins.Value;
 
 import javax.annotation.Nullable;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class BtcTransaction implements GenericTransaction {
@@ -18,22 +20,36 @@ public class BtcTransaction implements GenericTransaction {
     final Value valueSent;
     final Value valueReceived;
     final Value value;
+    private int timestamp;
+
+    public GenericAddress getDestinationAddress() {
+        return destinationAddress;
+    }
+
+    final GenericAddress destinationAddress;
+    final ArrayList<GenericAddress> toAddresses;
+    private int confirmations;
+    final boolean isQueuedOutgoing;
     @Nullable
     final Value fee;
 
-    public BtcTransaction(CoinType type, Sha256Hash transactionId, Transaction transaction,
-                          Value valueSent, Value valueReceived, @Nullable Value fee) {
+    public BtcTransaction(CoinType type, Transaction transaction,
+                          long valueSent, long valueReceived, int timestamp,
+                          GenericAddress destinationAddress, int confirmations, boolean isQueuedOutgoing,
+                          ArrayList<GenericAddress> toAddresses,
+                          @Nullable Value fee) {
         this.type = type;
         this.tx = transaction;
-        this.hash = transactionId;
-        this.valueSent = valueSent;
-        this.valueReceived = valueReceived;
-        this.value = valueReceived.subtract(valueSent);
+        this.hash = tx.getId();
+        this.valueSent = Value.valueOf(type, valueSent);
+        this.valueReceived = Value.valueOf(type, valueReceived);
+        this.destinationAddress = destinationAddress;
+        this.value = this.valueReceived.subtract(this.valueSent);
+        this.timestamp = timestamp;
+        this.confirmations = confirmations;
+        this.isQueuedOutgoing = isQueuedOutgoing;
+        this.toAddresses = toAddresses;
         this.fee = fee;
-    }
-
-    public BtcTransaction(CoinType type, Transaction transaction) {
-        this(type, transaction.getHash(), transaction, Value.valueOf(BitcoinMain.get(),10), Value.valueOf(BitcoinMain.get(),10), Value.valueOf(BitcoinMain.get(),1));
     }
 
     @Override
@@ -43,11 +59,12 @@ public class BtcTransaction implements GenericTransaction {
 
     @Override
     public int getAppearedAtChainHeight() {
-        return 0;
+        return confirmations;
     }
 
     @Override
     public void setAppearedAtChainHeight(int appearedAtChainHeight) {
+        this.confirmations = appearedAtChainHeight;
     }
 
     @Override
@@ -57,17 +74,16 @@ public class BtcTransaction implements GenericTransaction {
 
     @Override
     public void setDepthInBlocks(int depthInBlocks) {
-
     }
 
     @Override
     public long getTimestamp() {
-        return 0;
+        return timestamp;
     }
 
     @Override
-    public void setTimestamp(long timestamp) {
-
+    public void setTimestamp(int timestamp) {
+        this.timestamp = timestamp;
     }
 
 
@@ -79,8 +95,9 @@ public class BtcTransaction implements GenericTransaction {
 
     @Override
     public List<GenericAddress> getReceivedFrom() {
-        return null;
+        return toAddresses;
     }
+
 
     @Override
     public List<GenericOutput> getSentTo() {
@@ -89,19 +106,18 @@ public class BtcTransaction implements GenericTransaction {
 
     @Override
     public Value getSent() {
-        return Value.valueOf(BitcoinMain.get(),5);
+        return valueSent;
     }
 
     @Override
     public Value getReceived() {
-        return Value.valueOf(BitcoinMain.get(),10);
+        return valueReceived;
     }
 
     @Override
     public boolean isIncoming() {
-        return false;
+        return value.value >= 0;
     }
-
 
     @Override
     public Sha256Hash getHash() {

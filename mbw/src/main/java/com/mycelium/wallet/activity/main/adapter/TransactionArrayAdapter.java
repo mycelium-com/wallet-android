@@ -99,7 +99,7 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransaction> {
       }
 
       // Set Date
-      Date date = new Date(record.getTimestamp());
+      Date date = new Date(record.getTimestamp() * 1000L);
       TextView tvDate = (TextView) rowView.findViewById(R.id.tvDate);
       tvDate.setText(_dateFormat.format(date));
 
@@ -107,7 +107,7 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransaction> {
       TextView tvAmount = (TextView) rowView.findViewById(R.id.tvAmount);
       //Maybe it's wrong
 
-      tvAmount.setText( (record.isIncoming()?record.getReceived().getValue() : record.getSent().getValue()) + " " + _mbwManager.getBitcoinDenomination().toString());
+      tvAmount.setText((record.isIncoming()?record.getReceived().getValue() : record.getSent().getValue()) + " " + _mbwManager.getBitcoinDenomination().toString());
       tvAmount.setTextColor(color);
 
       // Set alternative value
@@ -145,7 +145,7 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransaction> {
       //}
 
       // Show confirmations indicator
-      int confirmations = 0;
+      int confirmations = record.getAppearedAtChainHeight();
       TransactionConfirmationsDisplay tcdConfirmations = (TransactionConfirmationsDisplay) rowView.findViewById(R.id.tcdConfirmations);
       if (false) {//record.isQueuedOutgoing
          // Outgoing, not broadcasted
