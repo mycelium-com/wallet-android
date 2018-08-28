@@ -16,9 +16,7 @@ buildscript {
 
     dependencies {
         classpath androidBuildArtifact
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version") {
-            exclude(group: 'org.jetbrains', module: 'annotations')
-        }
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
 

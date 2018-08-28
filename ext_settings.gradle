@@ -7,11 +7,11 @@ ext {
     androidSdkBuildVersion = '27.0.3'
     androidSupportVersion = '27.1.1'
     junitVersion = '4.12'
-    kotlin_version = '1.2.41'
+    kotlin_version = '1.2.61'
     lifecycle_version = "1.1.1"
 
     projectRootDir = project.rootDir.getPath()
-    commonDebugKeystore = rootProject.file('debug.keystore')
+    commonDebugKeystore = project.file('debug.keystore')
 
     // this is needed for the /public folder. It needs different paths depending if it gets compiled
     // on its own or is included as a submodule in the whole repository

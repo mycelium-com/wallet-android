@@ -1,6 +1,17 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
+buildscript {
+    repositories {
+        google()
+        jcenter()
+    }
+
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
 android {
     compileSdkVersion androidCompileSdkVersion
     buildToolsVersion androidSdkBuildVersion
@@ -32,10 +43,10 @@ dependencies {
     implementation "com.android.support:appcompat-v7:$androidSupportVersion"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
-    implementation 'com.google.code.gson:gson:2.3'
+    implementation 'com.google.code.gson:gson:2.8.4'
 
     testImplementation "junit:junit:$junitVersion"
-    testImplementation 'com.android.support.test.espresso:espresso-core:2.2.2'
+    testImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 }
 
 repositories {
