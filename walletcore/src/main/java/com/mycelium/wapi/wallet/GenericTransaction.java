@@ -41,7 +41,6 @@ public interface GenericTransaction {
     long getTimestamp();
     void setTimestamp(int timestamp);
 
-    GenericAddress getDestinationAddress();
     boolean isQueuedOutgoing();
     Optional<ConfirmationRiskProfileLocal> getConfirmationRiskProfile();
 

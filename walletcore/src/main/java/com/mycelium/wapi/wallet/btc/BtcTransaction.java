@@ -23,7 +23,6 @@ public class BtcTransaction implements GenericTransaction {
     final Value valueReceived;
     final Value value;
     private int timestamp;
-    final GenericAddress destinationAddress;
     final ArrayList<GenericAddress> toAddresses;
     private int confirmations;
     private final boolean isQueuedOutgoing;
@@ -32,16 +31,14 @@ public class BtcTransaction implements GenericTransaction {
     final Value fee;
 
     public BtcTransaction(CoinType type, Transaction transaction,
-                          long valueSent, long valueReceived, int timestamp,
-                          GenericAddress destinationAddress, int confirmations, boolean isQueuedOutgoing,
-                          ArrayList<GenericAddress> toAddresses, ConfirmationRiskProfileLocal risk,
-                          @Nullable Value fee) {
+                          long valueSent, long valueReceived, int timestamp, int confirmations,
+                          boolean isQueuedOutgoing, ArrayList<GenericAddress> toAddresses,
+                          ConfirmationRiskProfileLocal risk, @Nullable Value fee) {
         this.type = type;
         this.tx = transaction;
         this.hash = tx.getId();
         this.valueSent = Value.valueOf(type, valueSent);
         this.valueReceived = Value.valueOf(type, valueReceived);
-        this.destinationAddress = destinationAddress;
         this.value = this.valueReceived.subtract(this.valueSent);
         this.timestamp = timestamp;
         this.confirmations = confirmations;
@@ -49,11 +46,6 @@ public class BtcTransaction implements GenericTransaction {
         this.toAddresses = toAddresses;
         this.confirmationRiskProfile = Optional.fromNullable(risk);
         this.fee = fee;
-    }
-
-    @Override
-    public GenericAddress getDestinationAddress() {
-        return destinationAddress;
     }
 
     @Override

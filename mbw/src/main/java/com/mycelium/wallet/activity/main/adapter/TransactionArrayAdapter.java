@@ -121,29 +121,6 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransaction> {
          tvFiatTimed.setText(value);
       }
 
-      // Show destination address and address label, if this address is in our address book
-      TextView tvAddressLabel = (TextView) rowView.findViewById(R.id.tvAddressLabel);
-      TextView tvDestAddress = (TextView) rowView.findViewById(R.id.tvDestAddress);
-
-
-      if (record.getDestinationAddress() != null) {
-         if (_addressBook.containsKey(record.getDestinationAddress())) {
-            tvDestAddress.setText(record.getDestinationAddress().toString());
-            tvAddressLabel.setText(String.format(_context.getString(R.string.transaction_to_address_prefix), _addressBook.get(record.getDestinationAddress())));
-            tvDestAddress.setVisibility(View.VISIBLE);
-            tvAddressLabel.setVisibility(View.VISIBLE);
-         } else if (_alwaysShowAddress) {
-            tvDestAddress.setText(record.getDestinationAddress().toString());
-            tvDestAddress.setVisibility(View.VISIBLE);
-         } else {
-            tvDestAddress.setVisibility(View.GONE);
-            tvAddressLabel.setVisibility(View.GONE);
-         }
-      } else {
-         tvDestAddress.setVisibility(View.GONE);
-         tvAddressLabel.setVisibility(View.GONE);
-      }
-
       // Show confirmations indicator
       int confirmations = record.getAppearedAtChainHeight();
       TransactionConfirmationsDisplay tcdConfirmations = (TransactionConfirmationsDisplay) rowView.findViewById(R.id.tcdConfirmations);

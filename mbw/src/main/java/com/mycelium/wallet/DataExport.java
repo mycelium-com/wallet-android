@@ -72,11 +72,9 @@ public class DataExport {
       df.setTimeZone(tz);
       String date = df.format(new Date(transaction.getTimestamp() * 1000L));
       double value = (transaction.isIncoming() ? transaction.getReceived().getValue() : transaction.getSent().getValue());
-      String destination = transaction.getDestinationAddress() == null ? transaction.getDestinationAddress().toString() : "";
       return
             escape(accountLabel) + "," +
                   transaction.getHash() + "," +
-                  destination + "," +
                   date + "," +
                   value + "," +
                   transaction.getType().getName() + "," +

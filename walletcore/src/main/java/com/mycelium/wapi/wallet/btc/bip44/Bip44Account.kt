@@ -773,13 +773,10 @@ open class Bip44Account(
             var satoshisSent: Long = 0
             val toAddresses = ArrayList<GenericAddress>()
             val outputs = ArrayList<GenericTransaction.GenericOutput>() //need to create list of outputs
-            var destAddress: GenericAddress? = null
             for (output in tx.outputs) {
                 val address = output.script.getAddress(network)
                 if (isMine(output.script)) {
                     satoshisReceived += output.value
-                } else {
-                    destAddress = BtcAddress.from(address.toString())
                 }
                 if (address != null && address != Address.getNullAddress(network)) {
                     toAddresses.add(BtcAddress.from(address.toString()))
@@ -808,14 +805,10 @@ open class Bip44Account(
                 confirmations = Math.max(0, blockChainHeight - tex.height + 1)
             }
 
-            if (satoshisReceived - satoshisSent >= 0) {
-                destAddress = null
-            }
-
             val isQueuedOutgoing = backing.isOutgoingTransaction(tx.id)
 
             item = BtcTransaction(getCoinType(), tx, satoshisSent, satoshisReceived, tex.time,
-                    destAddress, confirmations, isQueuedOutgoing, toAddresses, riskAssessmentForUnconfirmedTx.get(tx.getId()),null)
+                    confirmations, isQueuedOutgoing, toAddresses, riskAssessmentForUnconfirmedTx.get(tx.getId()),null)
 
             if (item != null) {
                 history.add(item)
