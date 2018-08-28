@@ -70,9 +70,8 @@ public class DataExport {
       TimeZone tz = TimeZone.getDefault();
       DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
       df.setTimeZone(tz);
-      String date = df.format(new Date(transaction.getTimestamp()));
-      long value = (transaction.isIncoming() ? transaction.getReceived().getValue() : transaction.getSent().getValue());
-      //String destination = summary.destinationAddress.isPresent() ? summary.destinationAddress.get().toString() : "";
+      String date = df.format(new Date(transaction.getTimestamp() * 1000L));
+      double value = (transaction.isIncoming() ? transaction.getReceived().getValue() : transaction.getSent().getValue());
       return
             escape(accountLabel) + "," +
                   transaction.getHash() + "," +

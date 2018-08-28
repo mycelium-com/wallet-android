@@ -1,5 +1,6 @@
 package com.mycelium.wapi.wallet;
 
+import com.google.common.base.Optional;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.wallet.coins.CoinType;
 import com.mycelium.wapi.wallet.coins.Value;
@@ -38,7 +39,10 @@ public interface GenericTransaction {
     void setAppearedAtChainHeight(int appearedAtChainHeight);
 
     long getTimestamp();
-    void setTimestamp(long timestamp);
+    void setTimestamp(int timestamp);
+
+    boolean isQueuedOutgoing();
+    Optional<ConfirmationRiskProfileLocal> getConfirmationRiskProfile();
 
     Value getFee();
 
