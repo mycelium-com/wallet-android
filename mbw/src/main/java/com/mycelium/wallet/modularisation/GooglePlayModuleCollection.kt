@@ -16,7 +16,7 @@ object GooglePlayModuleCollection {
                     , context.getString(R.string.bitcoin_cash_module)
                     , context.getString(R.string.bitcoin_cash_module_short)
                     , context.getString(R.string.bch_module_description)),
-                    "btc" to Module(BuildConfig.appIdTsm,
+                    "tsm" to Module(BuildConfig.appIdTsm,
                             context.getString(R.string.trading_strategies_module),
                             context.getString(R.string.trading_strategies_module_short),
                             context.getString(R.string.trading_strategies_module_desc)))
