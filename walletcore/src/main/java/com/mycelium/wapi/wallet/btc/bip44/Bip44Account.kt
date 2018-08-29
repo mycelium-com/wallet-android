@@ -35,10 +35,6 @@ import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher
 import com.mycelium.wapi.wallet.WalletManager.Event
 import com.mrd.bitlib.crypto.BipDerivationType.Companion.getDerivationTypeByAddress
 import com.mrd.bitlib.model.hdpath.HdKeyPath
-import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
-import com.mycelium.wapi.wallet.btc.Bip44AccountBacking
-import com.mycelium.wapi.wallet.btc.BtcTransaction
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.BitcoinMain
 import com.mycelium.wapi.wallet.coins.CoinType
@@ -46,8 +42,12 @@ import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue
 import com.mycelium.wapi.model.TransactionEx
 import com.mrd.bitlib.util.ByteReader
+import com.mycelium.wapi.api.request.CheckTransactionsRequest
+import com.mycelium.wapi.api.response.CheckTransactionsResponse
+import com.mycelium.wapi.wallet.btc.*
 
 import java.util.ArrayList
+import java.util.HashMap
 
 open class Bip44Account(
         protected var context: HDAccountContext,
@@ -57,12 +57,12 @@ open class Bip44Account(
         wapi: Wapi
 ) :
         AbstractBtcAccount(backing, network, wapi), ExportableAccount {
+
     // Used to determine which bips this account support
     private val derivePaths = context.indexesMap.keys
-
+    //private val riskAssessmentForUnconfirmedTx: ConfirmationRiskProfileLocal = ConfirmationRiskProfileLocal(0,false,false);
     private var externalAddresses: MutableMap<BipDerivationType, BiMap<Address, Int>> = initAddressesMap()
     private var internalAddresses: MutableMap<BipDerivationType, BiMap<Address, Int>> = initAddressesMap()
-
     private var receivingAddressMap: MutableMap<AddressType, Address> = mutableMapOf()
     @Volatile
     private var isSynchronizing = false
@@ -726,7 +726,7 @@ open class Bip44Account(
 
 
     override fun getAccountBalance(): Balance {
-        return Balance(Value.parse(BitcoinMain.get(),"0"),Value.parse(BitcoinMain.get(),"0"), Value.parse(BitcoinMain.get(),"0"))
+        return Balance(Value.parse(BitcoinMain.get(),"0"),Value.parse(BitcoinMain.get(),"0"), Value.parse(BitcoinMain.get(),"0"), Value.parse(BitcoinMain.get(),"0"))
     }
 
     override fun completeAndSignTx(request: SendRequest<out GenericTransaction>?) {
@@ -768,7 +768,47 @@ open class Bip44Account(
             val tx: Transaction
             tx = Transaction.fromByteReader(ByteReader(tex.binary))
             val item: BtcTransaction
-            item = BtcTransaction(getCoinType(),tx)
+
+            var satoshisReceived: Long = 0
+            var satoshisSent: Long = 0
+            val toAddresses = ArrayList<GenericAddress>()
+            val outputs = ArrayList<GenericTransaction.GenericOutput>() //need to create list of outputs
+            for (output in tx.outputs) {
+                val address = output.script.getAddress(network)
+                if (isMine(output.script)) {
+                    satoshisReceived += output.value
+                }
+                if (address != null && address != Address.getNullAddress(network)) {
+                    toAddresses.add(BtcAddress.from(address.toString()))
+                }
+            }
+
+            // Inputs
+            if (!tx.isCoinbase) {
+                for (input in tx.inputs) {
+                    // find parent output
+                    val funding = backing.getParentTransactionOutput(input.outPoint)
+                    if (funding == null) {
+                        _logger.logError("Unable to find parent output for: " + input.outPoint)
+                        continue
+                    }
+                    if (isMine(funding)) {
+                        satoshisSent += funding.value
+                    }
+                }
+            }
+
+            val confirmations: Int
+            if (tex.height == -1) {
+                confirmations = 0
+            } else {
+                confirmations = Math.max(0, blockChainHeight - tex.height + 1)
+            }
+
+            val isQueuedOutgoing = backing.isOutgoingTransaction(tx.id)
+
+            item = BtcTransaction(getCoinType(), tx, satoshisSent, satoshisReceived, tex.time,
+                    confirmations, isQueuedOutgoing, toAddresses, riskAssessmentForUnconfirmedTx.get(tx.getId()),null)
 
             if (item != null) {
                 history.add(item)

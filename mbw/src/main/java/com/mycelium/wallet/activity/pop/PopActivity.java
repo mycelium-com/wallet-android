@@ -162,7 +162,7 @@ public class PopActivity extends Activity {
       MetadataStorage metadataStorage = _mbwManager.getMetadataStorage();
 
       // Set Date
-      Date date = new Date(transaction.getTimestamp());
+      Date date = new Date(transaction.getTimestamp() * 1000L);
       DateFormat dateFormat = new AdaptiveDateFormat(getApplicationContext());
       setText(R.id.pop_transaction_date, dateFormat.format(date));
 

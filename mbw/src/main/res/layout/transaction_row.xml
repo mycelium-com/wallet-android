@@ -101,34 +101,6 @@
                 android:orientation="horizontal">
 
             <TextView
-                    android:id="@+id/tvAddressLabel"
-                    tools:text="address"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:textSize="13sp"
-                    android:ellipsize="end"
-                    android:maxLines="1"
-                    android:typeface="monospace">
-            </TextView>
-
-            <TextView
-                    android:id="@+id/tvDestAddress"
-                    tools:text="1xyz...abc"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="right"
-                    android:textSize="13sp">
-            </TextView>
-        </LinearLayout>
-
-        <!-- row 4 (optional) -->
-        <LinearLayout
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-            <TextView
                     android:id="@+id/tvUnconfirmedWarning"
                     tools:text="Warning: wait at least for on confirmation"
                     android:layout_width="0dp"
