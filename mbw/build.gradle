@@ -89,7 +89,7 @@ dependencies {
 
     implementation 'com.journeyapps:zxing-android-embedded:3.6.0'
 
-    implementation project(includePrefix + ':myceliummodularizationtools')
+    implementation project(includePrefix + ':wallet-android-modularization-tools:modularization-lib')
     implementation project(includePrefix + ':modulespvcontract')
 
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
