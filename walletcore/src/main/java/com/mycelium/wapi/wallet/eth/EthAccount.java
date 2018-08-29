@@ -107,4 +107,9 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
     public UUID getId() {
         return null;
     }
+
+    @Override
+    public boolean isSynchronizing() {
+        return false;
+    }
 }

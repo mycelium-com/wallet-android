@@ -1,6 +1,8 @@
 package com.mycelium.wapi.wallet.fiat;
 
+import com.google.common.base.Optional;
 import com.mrd.bitlib.util.Sha256Hash;
+import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.coins.CoinType;
@@ -56,6 +58,20 @@ public class FiatTransaction implements GenericTransaction {
     }
 
     @Override
+    public void setTimestamp(int timestamp) {
+
+    }
+
+    @Override
+    public boolean isQueuedOutgoing() {
+        return false;
+    }
+
+    @Override
+    public Optional<ConfirmationRiskProfileLocal> getConfirmationRiskProfile() {
+        return null;
+    }
+
     public void setTimestamp(long timestamp) {
 
     }
