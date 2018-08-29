@@ -10,7 +10,7 @@ import java.util.concurrent.TimeoutException
 import kotlin.collections.ArrayList
 import kotlin.concurrent.timerTask
 
-class ConnectionManager(private val connectionsCount: Int, private var endpoints: Array<TcpEndpoint>,
+class ConnectionManager(private val connectionsCount: Int, internal var endpoints: Array<TcpEndpoint>,
                         val logger: WapiLogger) {
     @Volatile
     private var maintenanceTimer: Timer? = null
