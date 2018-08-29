@@ -57,7 +57,11 @@ import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.colu.json.ColuTxDetailsItem;
 import com.mycelium.wapi.model.TransactionDetails;
 import com.mycelium.wapi.model.TransactionSummary;
+import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+
+import org.bitcoinj.core.TransactionOutput;
 
 import java.math.BigDecimal;
 import java.text.DateFormat;
@@ -69,8 +73,7 @@ public class TransactionDetailsActivity extends Activity {
    @SuppressWarnings("deprecation")
    private static final LayoutParams FPWC = new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, 1);
    private static final LayoutParams WCWC = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 1);
-   private TransactionDetails _tx;
-   private TransactionSummary _txs;
+   private GenericTransaction _txs;
    private int _white_color;
    private MbwManager _mbwManager;
    private boolean coluMode = false;
@@ -89,8 +92,9 @@ public class TransactionDetailsActivity extends Activity {
       _mbwManager = MbwManager.getInstance(this.getApplication());
 
       Sha256Hash txid = (Sha256Hash) getIntent().getSerializableExtra("transaction");
-      _tx = _mbwManager.getSelectedAccount().getTransactionDetails(txid);
-      _txs = _mbwManager.getSelectedAccount().getTransactionSummary(txid);
+
+      //I need changes in mbwManager there
+      _txs = _mbwManager.getSelectedAccount().getGenericTransaction(txid);
 
       if(_mbwManager.getSelectedAccount() instanceof ColuAccount) {
          coluMode = true;
@@ -104,13 +108,13 @@ public class TransactionDetailsActivity extends Activity {
       // Set Hash
       TransactionDetailsLabel tvHash = findViewById(R.id.tvHash);
       tvHash.setColuMode(coluMode);
-      tvHash.setTransaction(_tx);
+      tvHash.setTransaction(_txs);
 
       // Set Confirmed
-      int confirmations = _tx.calculateConfirmations(_mbwManager.getSelectedAccount().getBlockChainHeight());
+      int confirmations = _txs.getAppearedAtChainHeight();
 
       String confirmed;
-      if (_tx.height > 0) {
+      if (confirmations > 0) {
          confirmed = getResources().getString(R.string.confirmed_in_block, _tx.height);
       } else {
          confirmed = getResources().getString(R.string.no);
@@ -120,7 +124,7 @@ public class TransactionDetailsActivity extends Activity {
       TransactionConfirmationsDisplay confirmationsDisplay = findViewById(R.id.tcdConfirmations);
       TextView confirmationsCount = findViewById(R.id.tvConfirmations);
 
-      if (_txs!=null && _txs.isQueuedOutgoing){
+      if (_txs!=null && _txs.isQueuedOutgoing()){
          confirmationsDisplay.setNeedsBroadcast();
          confirmationsCount.setText("");
          confirmed = getResources().getString(R.string.transaction_not_broadcasted_info);
@@ -132,7 +136,7 @@ public class TransactionDetailsActivity extends Activity {
       ((TextView) findViewById(R.id.tvConfirmed)).setText(confirmed);
 
       // Set Date & Time
-      Date date = new Date(_tx.time * 1000L);
+      Date date = new Date(_txs.getTimestamp() * 1000L);
       Locale locale = getResources().getConfiguration().locale;
       DateFormat dayFormat = DateFormat.getDateInstance(DateFormat.LONG, locale);
       String dateString = dayFormat.format(date);
@@ -143,10 +147,10 @@ public class TransactionDetailsActivity extends Activity {
 
       // Set Inputs
       LinearLayout inputs = findViewById(R.id.llInputs);
-      if (_tx.inputs != null) {
+      if (_txs.getReceivedFrom() != null) {
          int sum = 0;
-         for (TransactionDetails.Item input : _tx.inputs) {
-            sum += input.value;
+         for (GenericAddress input : _txs.getReceivedFrom()) {
+            sum += input.;
          }
          if (sum != 0) {
             for (TransactionDetails.Item item : _tx.inputs) {
@@ -157,8 +161,8 @@ public class TransactionDetailsActivity extends Activity {
 
       // Set Outputs
       LinearLayout outputs = findViewById(R.id.llOutputs);
-      if(_tx.outputs != null) {
-         for (TransactionDetails.Item item : _tx.outputs) {
+      if(_txs.getSentTo() != null) {
+         for (GenericTransaction.GenericOutput item : _txs.getSentTo()) {
             outputs.addView(getItemView(item));
          }
       }

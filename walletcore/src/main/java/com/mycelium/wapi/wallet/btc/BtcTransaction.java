@@ -151,4 +151,9 @@ public class BtcTransaction implements GenericTransaction {
     public Transaction getRawTransaction() {
         return tx;
     }
+
+    @Override
+    public String toString(){
+        return hash.toString();
+    }
 }

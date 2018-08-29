@@ -42,10 +42,12 @@ import com.mycelium.net.ServerEndpointType;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wapi.model.TransactionDetails;
+import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+import com.mycelium.wapi.wallet.coins.BitcoinMain;
 
 public class TransactionDetailsLabel extends GenericBlockExplorerLabel {
-   private TransactionDetails transaction;
+   private GenericTransaction transaction;
    private boolean coluMode;
 
    public TransactionDetailsLabel(Context context) {
@@ -66,12 +68,12 @@ public class TransactionDetailsLabel extends GenericBlockExplorerLabel {
 
    @Override
    protected String getLinkText() {
-      return transaction.hash.toString();
+      return transaction.getHash().toString();
    }
 
    @Override
    protected String getFormattedLinkText() {
-      return Utils.stringChopper(transaction.hash.toString(), 4, " ");
+      return Utils.stringChopper(transaction.getHash().toString(), 4, " ");
    }
 
    @Override
@@ -79,15 +81,12 @@ public class TransactionDetailsLabel extends GenericBlockExplorerLabel {
       return blockExplorer.getUrl(transaction,MbwManager.getInstance(getContext()).getTorMode() == ServerEndpointType.Types.ONLY_TOR);
    }
 
-   public void setTransaction(final TransactionDetails tx) {
+   public void setTransaction(final GenericTransaction tx) {
       this.transaction = tx;
       update_ui();
       if (coluMode) {
          setHandler(MbwManager.getInstance(getContext()).getColuManager().getBlockExplorer());
-      } else if (MbwManager.getInstance(getContext()).getSelectedAccount().getType() ==
-              WalletBtcAccount.Type.BCHSINGLEADDRESS
-              || MbwManager.getInstance(getContext()).getSelectedAccount().getType() ==
-              WalletBtcAccount.Type.BCHBIP44) {
+      } else if (transaction.getType() == BitcoinMain.get()) {
          if (MbwManager.getInstance(getContext()).getNetwork().getNetworkType() == NetworkParameters.NetworkType.PRODNET) {
             setHandler(new BlockExplorer("BTL", "blockTrail",
                     "https://www.blocktrail.com/BCC/address/",
@@ -102,10 +101,6 @@ public class TransactionDetailsLabel extends GenericBlockExplorerLabel {
       } else {
          setHandler(MbwManager.getInstance(getContext())._blockExplorerManager.getBlockExplorer());
       }
-   }
-
-   public TransactionDetails getAddress() {
-      return transaction;
    }
 
 }
