@@ -1396,8 +1396,6 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    // local cache for received risk assessments for unconfirmed transactions - does not get persisted in the db
    protected HashMap<Sha256Hash, ConfirmationRiskProfileLocal> riskAssessmentForUnconfirmedTx = new HashMap<>();
 
-   protected abstract boolean isSynchronizing();
-
    public class PublicKeyRing implements IPublicKeyRing {
       @Override
       public PublicKey findPublicKeyByAddress(Address address) {

@@ -383,6 +383,11 @@ public class CoinapultAccount extends SynchronizeAbleWalletBtcAccount {
    }
 
    @Override
+   public boolean isSynchronizing() {
+      return false;
+   }
+
+   @Override
    public void setAllowZeroConfSpending(boolean allowZeroConfSpending) {
    }
 

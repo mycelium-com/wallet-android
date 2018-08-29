@@ -105,4 +105,9 @@ public class FiatAccount implements WalletAccount<FiatTransaction, FiatAddress> 
     public UUID getId() {
         return null;
     }
+
+    @Override
+    public boolean isSynchronizing() {
+        return false;
+    }
 }

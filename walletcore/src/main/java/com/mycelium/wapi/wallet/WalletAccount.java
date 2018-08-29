@@ -126,4 +126,9 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
      * Returns account id
      */
     UUID getId();
+
+    /**
+     * Returns true, if this account is currently in process of synchronization.
+     */
+    boolean isSynchronizing();
 }

@@ -276,6 +276,11 @@ public class ColuAccount extends SynchronizeAbleWalletBtcAccount implements Expo
     }
 
     @Override
+    public boolean isSynchronizing() {
+        return false;
+    }
+
+    @Override
     public void setAllowZeroConfSpending(boolean allowZeroConfSpending) {
     }
 
