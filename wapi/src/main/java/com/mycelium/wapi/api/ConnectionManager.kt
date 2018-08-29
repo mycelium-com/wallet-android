@@ -1,5 +1,6 @@
 package com.mycelium.wapi.api
 
+import com.google.common.collect.Sets
 import com.mycelium.WapiLogger
 import com.mycelium.wapi.api.jsonrpc.*
 import kotlinx.coroutines.experimental.*
@@ -246,7 +247,9 @@ class ConnectionManager(private val connectionsCount: Int, internal var endpoint
     }
 
     fun changeEndpoints(newEndpoints: Array<TcpEndpoint>) {
-        if(newEndpoints.toSet() != endpoints.toSet()) {
+        val newSet = newEndpoints.toSet()
+        val oldSet = endpoints.toSet()
+        if(Sets.difference(oldSet, newSet).size != 0) {
             endpoints = newEndpoints
             if (maintenancedClientsList.isNotEmpty()) {
                 removeDeadClients()
