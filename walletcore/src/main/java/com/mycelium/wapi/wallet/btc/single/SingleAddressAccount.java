@@ -332,7 +332,7 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
    }
 
    @Override
-   protected boolean isSynchronizing() {
+   public boolean isSynchronizing() {
       return _isSynchronizing;
    }
 
