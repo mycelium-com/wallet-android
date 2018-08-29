@@ -37,6 +37,8 @@ package com.mycelium.wallet;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.ClipboardManager;
+import android.content.ClipData;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -54,7 +56,6 @@ import android.support.annotation.StringRes;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.content.ClipboardManager;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.util.SparseArray;
@@ -472,37 +473,10 @@ public class Utils {
       }
    }
 
-   public static String getFiatValueAsString(long satoshis, Double oneBtcInFiat, int precision) {
-      Double converted = getFiatValue(satoshis, oneBtcInFiat);
-      if (converted == null) {
-         return null;
-      }
-
-      if (formatCache.get(precision) == null) {
-         DecimalFormat fiatFormat = (DecimalFormat) FIAT_FORMAT.clone();
-         fiatFormat.setMaximumFractionDigits(precision);
-         formatCache.put(precision, fiatFormat);
-      }
-      return formatCache.get(precision).format(converted);
-   }
-
-   private static final BigDecimal ONE_HUNDRED = BigDecimal.valueOf(100L);
-   private static final BigDecimal BTC_IN_SATOSHIS = BigDecimal.valueOf(Constants.ONE_BTC_IN_SATOSHIS);
-
-   public static Long getSatoshis(BigDecimal fiatValue, Double oneBtcInFiat) {
-      if (fiatValue == null || oneBtcInFiat == null) {
-         return null;
-      }
-      BigDecimal fiatCents = fiatValue.multiply(ONE_HUNDRED);
-      BigDecimal oneBtcInFiatCents = BigDecimal.valueOf(oneBtcInFiat).multiply(ONE_HUNDRED);
-      return fiatCents.multiply(BTC_IN_SATOSHIS).divide(oneBtcInFiatCents, 0, RoundingMode.HALF_UP).longValue();
-   }
-
    public static void setClipboardString(String string, Context context) {
       try {
-         @SuppressWarnings("deprecation")
          ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-         clipboard.setText(string);
+         clipboard.setPrimaryClip(ClipData.newPlainText("Mycelium", string));
       } catch (NullPointerException ex) {
          MbwManager.getInstance(context).reportIgnoredException(new RuntimeException(ex.getMessage()));
          Toast.makeText(context, context.getString(R.string.unable_to_set_clipboard), Toast.LENGTH_LONG).show();
@@ -511,9 +485,11 @@ public class Utils {
 
    public static String getClipboardString(Context context) {
       try {
-         @SuppressWarnings("deprecation")
          ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-         CharSequence content = clipboard.getText();
+         if(clipboard.getPrimaryClip() == null || clipboard.getPrimaryClip().getItemCount() < 1) {
+            return "";
+         }
+         CharSequence content = clipboard.getPrimaryClip().getItemAt(0).getText();
          if (content == null) {
             return "";
          }
@@ -533,11 +509,10 @@ public class Utils {
 
    public static void clearClipboardString(Activity activity) {
       try {
-         @SuppressWarnings("deprecation")
          ClipboardManager clipboard = (ClipboardManager) activity.getSystemService(Context.CLIPBOARD_SERVICE);
          // some phones have clipboard history, we override it all
          for (int i = 0; i < 100 ; i++) {
-            clipboard.setText(""+i);
+            clipboard.setPrimaryClip(ClipData.newPlainText("Mycelium " + i, "wiped " + i));
          }
       } catch (NullPointerException ex) {
          MbwManager.getInstance(activity).reportIgnoredException(new RuntimeException(ex.getMessage()));
