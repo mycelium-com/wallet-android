@@ -137,6 +137,14 @@ public class BalanceFragment extends Fragment {
       Collections.sort(sources, new Comparator<String>() {
          @Override
          public int compare(String rate1, String rate2) {
+            if(rate1.toLowerCase().equals(DEFAULT_EXCHANGE.toLowerCase()) ^
+                    rate2.toLowerCase().equals(DEFAULT_EXCHANGE.toLowerCase())){
+               if(rate1.equals(DEFAULT_EXCHANGE)){
+                  return -1;
+               } else {
+                  return 1;
+               }
+            }
             return rate1.compareToIgnoreCase(rate2);
          }
       });
@@ -154,7 +162,6 @@ public class BalanceFragment extends Fragment {
          }
          sourcesAndValues.put(item, source);
          exchangeMenu.getMenu().add(item);
-         _mbwManager.getExchangeRateManager().setCurrentExchangeSourceName(DEFAULT_EXCHANGE);
       }
 
       exchangeMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
