@@ -48,7 +48,8 @@ import com.mycelium.wallet.CurrencySwitcher;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
-import com.mycelium.wapi.wallet.currency.CurrencySum;
+import com.mycelium.wallet.exchange.ValueSum;
+import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
@@ -61,7 +62,9 @@ public class ToggleableCurrencyDisplay extends LinearLayout {
    protected TextView tvCurrency;
    protected TextView tvValue;
 
-   protected CurrencyValue currentValue;
+//   protected CurrencyValue currentValue;
+   protected Value currentValue;
+
    protected boolean fiatOnly = false;
    protected boolean hideOnNoExchangeRate = false;
    private int precision = -1;
@@ -143,14 +146,15 @@ public class ToggleableCurrencyDisplay extends LinearLayout {
          }
 
          setVisibility(VISIBLE);
-         String formattedValue;
-         if (precision >= 0) {
-            formattedValue = currencySwitcher.getFormattedValue(currentValue, false, precision);
-         } else {
-            formattedValue = currencySwitcher.getFormattedValue(currentValue, false);
-         }
+//         String formattedValue;
+//         if (precision >= 0) {
+//            formattedValue = currencySwitcher.getFormattedValue(currentValue, false, precision);
+//         } else {
+//            formattedValue = currencySwitcher.getFormattedValue(currentValue, false);
+//         }
 
-         tvValue.setText(formattedValue);
+//         tvValue.setText(formattedValue);
+         tvValue.setText(currentValue != null ? currentValue.toFriendlyString() : null);
          String currentCurrency = currencySwitcher.getCurrentCurrencyIncludingDenomination();
          tvCurrency.setText(currentCurrency);
       }
@@ -162,23 +166,22 @@ public class ToggleableCurrencyDisplay extends LinearLayout {
          setVisibility(GONE);
       } else {
          setVisibility(VISIBLE);
-         String formattedFiatValue;
 
          // convert to the target fiat currency, if needed
-         CurrencyValue valueToShow = getValueToShow();
+         Value value = getValueToShow();
 
-         if (precision >= 0) {
-            formattedFiatValue = currencySwitcher.getFormattedFiatValue(valueToShow, false, precision);
-         } else {
-            formattedFiatValue = currencySwitcher.getFormattedFiatValue(valueToShow, false);
-         }
+//         if (precision >= 0) {
+//            formattedFiatValue = currencySwitcher.getFormattedFiatValue(valueToShow, false, precision);
+//         } else {
+//            formattedFiatValue = currencySwitcher.getFormattedFiatValue(valueToShow, false);
+//         }
 
          tvCurrency.setText(currencySwitcher.getCurrentFiatCurrency());
-         tvValue.setText(formattedFiatValue);
+         tvValue.setText(value != null ? value.toFriendlyString() : null);
       }
    }
 
-   protected CurrencyValue getValueToShow() {
+   protected Value getValueToShow() {
       return currencySwitcher.getAsFiatValue(currentValue);
    }
 
@@ -215,13 +218,18 @@ public class ToggleableCurrencyDisplay extends LinearLayout {
       updateUi();
    }
 
-   public void setValue(CurrencyValue value) {
+//   public void setValue(CurrencyValue value) {
+//      this.currentValue = value;
+//      updateUi();
+//   }
+
+   public void setValue(Value value) {
       this.currentValue = value;
       updateUi();
    }
 
-   public void setValue(CurrencySum sum) {
-      this.currentValue = currencySwitcher.getValueFromSum(sum);
+   public void setValue(ValueSum sum) {
+      this.currentValue = currencySwitcher.getValue(sum);
       updateUi();
    }
 

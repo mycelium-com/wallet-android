@@ -50,8 +50,8 @@ import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wapi.model.BalanceSatoshis;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+import com.mycelium.wapi.wallet.coins.Balance;
 
 import java.util.UUID;
 
@@ -94,7 +94,7 @@ public class ColdStorageSummaryActivity extends Activity {
    }
 
    private void updateUi(){
-      BalanceSatoshis balance = _account.getBalance();
+      Balance balance = _account.getAccountBalance();
 
       // Description
       if (_account.canSpend()) {
@@ -108,7 +108,7 @@ public class ColdStorageSummaryActivity extends Activity {
       ((TextView) findViewById(R.id.tvAddress)).setText(receivingAddress.isPresent() ? receivingAddress.get().toMultiLineString() : "");
 
       // BalanceSatoshis
-      ((TextView) findViewById(R.id.tvBalance)).setText(_mbwManager.getBtcValueString(balance.getSpendableBalance()));
+      ((TextView) findViewById(R.id.tvBalance)).setText(_mbwManager.getBtcValueString(Utils.getSpendable(balance).value));
 
       Double price = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
 
@@ -117,14 +117,14 @@ public class ColdStorageSummaryActivity extends Activity {
       if (!_mbwManager.hasFiatCurrency() || price == null) {
          tvFiat.setVisibility(View.INVISIBLE);
       } else {
-         String converted = Utils.getFiatValueAsString(balance.getSpendableBalance(), price);
          String currency = _mbwManager.getFiatCurrency();
+         String converted = _mbwManager.getExchangeRateManager().get(Utils.getSpendable(balance), currency).toFriendlyString();
          tvFiat.setText(getResources().getString(R.string.approximate_fiat_value, currency, converted));
       }
 
       // Show/Hide Receiving
-      if (balance.getReceivingBalance() > 0) {
-         String receivingString = _mbwManager.getBtcValueString(balance.getReceivingBalance());
+      if (balance.pendingReceiving.value > 0) {
+         String receivingString = _mbwManager.getBtcValueString(balance.pendingReceiving.value);
          String receivingText = getResources().getString(R.string.receiving, receivingString);
          TextView tvReceiving = findViewById(R.id.tvReceiving);
          tvReceiving.setText(receivingText);
@@ -134,8 +134,8 @@ public class ColdStorageSummaryActivity extends Activity {
       }
 
       // Show/Hide Sending
-      if (balance.getSendingBalance() > 0) {
-         String sendingString = _mbwManager.getBtcValueString(balance.getSendingBalance());
+      if (balance.pendingSending.value > 0) {
+         String sendingString = _mbwManager.getBtcValueString(balance.pendingSending.value);
          String sendingText = getResources().getString(R.string.sending, sendingString);
          TextView tvSending = findViewById(R.id.tvSending);
          tvSending.setText(sendingText);
@@ -147,7 +147,7 @@ public class ColdStorageSummaryActivity extends Activity {
       // Send Button
       Button btSend = findViewById(R.id.btSend);
       if (_account.canSpend()) {
-         if (balance.getSpendableBalance() > 0) {
+         if (Utils.getSpendable(balance).value > 0) {
             btSend.setEnabled(true);
             btSend.setOnClickListener(new OnClickListener() {
                @Override

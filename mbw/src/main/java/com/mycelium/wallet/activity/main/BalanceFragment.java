@@ -53,7 +53,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.Constants;
-import com.mycelium.wallet.ExchangeRateManager;
+import com.mycelium.wallet.exchange.ExchangeRateManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.StringHandleConfig;
@@ -76,7 +76,8 @@ import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.modularisation.BCHHelper;
 import com.mycelium.wapi.model.ExchangeRate;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
-import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
+import com.mycelium.wapi.wallet.coins.Balance;
+import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
@@ -268,15 +269,7 @@ public class BalanceFragment extends Fragment {
          return;
       }
       WalletBtcAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
-      CurrencyBasedBalance balance;
-      try {
-         balance = Preconditions.checkNotNull(account.getCurrencyBasedBalance());
-      } catch (IllegalArgumentException ex){
-         _mbwManager.reportIgnoredException(ex);
-         balance = CurrencyBasedBalance.ZERO_BITCOIN_BALANCE;
-      }
-
-      updateUiKnownBalance(balance);
+      updateUiKnownBalance(Preconditions.checkNotNull(account.getAccountBalance()));
 
       TextView tvBtcRate = _root.findViewById(R.id.tvBtcRate);
       // show / hide components depending on account type
@@ -349,30 +342,21 @@ public class BalanceFragment extends Fragment {
       }
    }
 
-   private void updateUiKnownBalance(CurrencyBasedBalance balance) {
+   private void updateUiKnownBalance(Balance balance) {
       // Set BalanceSatoshis
-      String valueString = Utils.getFormattedValueWithUnit(balance.confirmed, _mbwManager.getBitcoinDenomination());
-      WalletBtcAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
-      if(account instanceof ColuAccount) {
-          valueString =  Utils.getColuFormattedValueWithUnit(account.getCurrencyBasedBalance().confirmed);
-//         Utils.getFormattedValueWithUnit(balance.confirmed, _mbwManager.getBitcoinDenomination(), 5);
-      }
+//      WalletBtcAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
+
+      CharSequence valueString = Utils.getFormattedValueWithUnit(balance.confirmed, _mbwManager.getBitcoinDenomination()); // TODO need call with denomination
       ((TextView) _root.findViewById(R.id.tvBalance)).setText(valueString);
-
-      _root.findViewById(R.id.pbProgress).setVisibility(balance.isSynchronizing ? View.VISIBLE : View.GONE);
-
+// TODO remove or change isSynchronizing call and uncomment
+//      _root.findViewById(R.id.pbProgress).setVisibility(balance.isSynchronizing ? View.VISIBLE : View.GONE);
       // Show alternative values
       _tcdFiatDisplay.setFiatOnly(true);
       _tcdFiatDisplay.setValue(balance.confirmed);
 
       // Show/Hide Receiving
-      if (balance.receiving.getValue().compareTo(BigDecimal.ZERO) > 0) {
-         String receivingString;
-         if (account instanceof ColuAccount) {
-            receivingString = Utils.getColuFormattedValueWithUnit(balance.receiving);
-         } else {
-            receivingString = Utils.getFormattedValueWithUnit(balance.receiving, _mbwManager.getBitcoinDenomination());
-         }
+      if (balance.pendingReceiving.isPositive()) {
+         String receivingString = Utils.getFormattedValueWithUnit(balance.pendingReceiving, _mbwManager.getBitcoinDenomination());
          String receivingText = getResources().getString(R.string.receiving, receivingString);
          TextView tvReceiving = _root.findViewById(R.id.tvReceiving);
          tvReceiving.setText(receivingText);
@@ -381,16 +365,11 @@ public class BalanceFragment extends Fragment {
          _root.findViewById(R.id.tvReceiving).setVisibility(View.GONE);
       }
       // show fiat value (if balance is in btc)
-      setFiatValue(R.id.tvReceivingFiat, balance.receiving, true);
+      setFiatValue(R.id.tvReceivingFiat, balance.pendingReceiving, true);
 
       // Show/Hide Sending
-      if (balance.sending.getValue().compareTo(BigDecimal.ZERO) > 0) {
-         String sendingString;
-         if (account instanceof ColuAccount) {
-            sendingString = Utils.getColuFormattedValueWithUnit(balance.sending);
-         } else {
-            sendingString = Utils.getFormattedValueWithUnit(balance.sending, _mbwManager.getBitcoinDenomination());
-         }
+      if (balance.pendingSending.isPositive()) {
+         String sendingString = Utils.getFormattedValueWithUnit(balance.pendingSending, _mbwManager.getBitcoinDenomination());
          String sendingText = getResources().getString(R.string.sending, sendingString);
          TextView tvSending = _root.findViewById(R.id.tvSending);
          tvSending.setText(sendingText);
@@ -399,24 +378,27 @@ public class BalanceFragment extends Fragment {
          _root.findViewById(R.id.tvSending).setVisibility(View.GONE);
       }
       // show fiat value (if balance is in btc)
-      setFiatValue(R.id.tvSendingFiat, balance.sending, true);
+      setFiatValue(R.id.tvSendingFiat, balance.pendingSending, true);
    }
 
-   private void setFiatValue(int textViewResourceId, CurrencyValue value, boolean hideOnZeroBalance) {
+   private void setFiatValue(int textViewResourceId, Value value, boolean hideOnZeroBalance) {
       TextView tv = _root.findViewById(textViewResourceId);
       if (!_mbwManager.hasFiatCurrency()
             || _exchangeRatePrice == null
             || (hideOnZeroBalance && value.isZero())
-            || value.isFiat()
+//            || value.isFiat()
             ) {
          tv.setVisibility(View.GONE);
       } else {
          try {
-            long satoshis = value.getAsBitcoin(_mbwManager.getExchangeRateManager()).getLongValue();
-            tv.setVisibility(View.VISIBLE);
-            String converted = Utils.getFiatValueAsString(satoshis, _exchangeRatePrice);
+//            long satoshis = value.getAsBitcoin(_mbwManager.getExchangeRateManager()).getLongValue();
+//            tv.setVisibility(View.VISIBLE);
+//            String converted = Utils.getFiatValueAsString(satoshis, _exchangeRatePrice);
             String currency = _mbwManager.getFiatCurrency();
-            tv.setText(getResources().getString(R.string.approximate_fiat_value, currency, converted));
+            Value converted =  _mbwManager.getExchangeRateManager().get(value, currency);
+//            tv.setText(getResources().getString(R.string.approximate_fiat_value, currency, converted));
+//            Utils.getFormattedValueWithUnit(balance.confirmed, _mbwManager.getBitcoinDenomination());
+            tv.setText(converted.toString());
          } catch (IllegalArgumentException ex) {
             // something failed while calculating the bitcoin amount
             tv.setVisibility(View.GONE);

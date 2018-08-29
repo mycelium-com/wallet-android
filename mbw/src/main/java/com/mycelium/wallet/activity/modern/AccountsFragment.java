@@ -99,12 +99,16 @@ import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.api.CreateTrader;
 import com.mycelium.wallet.lt.api.DeleteTrader;
 import com.mycelium.wallet.persistence.MetadataStorage;
-import com.mycelium.wapi.model.BalanceSatoshis;
-import com.mycelium.wapi.wallet.*;
+import com.mycelium.wapi.wallet.AesKeyCipher;
+import com.mycelium.wapi.wallet.ExportableAccount;
+import com.mycelium.wapi.wallet.KeyCipher;
+import com.mycelium.wapi.wallet.SyncMode;
+import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.bip44.Bip44Account;
 import com.mycelium.wapi.wallet.btc.bip44.Bip44PubOnlyAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
+import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.squareup.otto.Bus;
@@ -438,8 +442,8 @@ public class AccountsFragment extends Fragment {
             if (account.isArchived()) {
                return null;
             } else {
-               BalanceSatoshis balance = account.getBalance();
-               return balance.confirmed + balance.pendingChange + balance.pendingReceiving;
+               Balance balance = account.getAccountBalance();
+               return balance.confirmed.add(balance.pendingReceiving).value;
             }
          }
 
@@ -1224,7 +1228,6 @@ public class AccountsFragment extends Fragment {
    }
 
    private void archive(final WalletBtcAccount account) {
-      CurrencyBasedBalance balance = Preconditions.checkNotNull(account.getCurrencyBasedBalance());
       final WalletBtcAccount linkedAccount = getLinkedAccount(account);
       new AlertDialog.Builder(getActivity())
               .setTitle(R.string.archiving_account_title)

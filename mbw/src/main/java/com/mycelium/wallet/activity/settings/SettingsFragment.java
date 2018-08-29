@@ -52,7 +52,7 @@ import com.mycelium.modularizationtools.CommunicationManager;
 import com.mycelium.modularizationtools.model.Module;
 import com.mycelium.net.ServerEndpointType;
 import com.mycelium.wallet.Constants;
-import com.mycelium.wallet.ExchangeRateManager;
+import com.mycelium.wallet.exchange.ExchangeRateManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.MinerFee;
 import com.mycelium.wallet.R;

@@ -21,7 +21,9 @@ import com.mycelium.wallet.activity.modern.adapter.holder.TotalViewHolder
 import com.mycelium.wallet.activity.modern.model.ViewAccountModel
 import com.mycelium.wallet.activity.modern.model.accounts.*
 import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem.Type.*
+import com.mycelium.wallet.exchange.ValueSum
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount
+import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.currency.CurrencySum
 import java.util.*
 import kotlin.collections.ArrayList
@@ -204,18 +206,18 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
         groupHolder.expandIcon.rotation = (if (pagePrefs.getBoolean(title, true)) 180 else 0).toFloat()
     }
 
-    private fun getSpendableBalance(walletAccountList: List<AccountListItem>): CurrencySum {
-        val currencySum = CurrencySum()
+    private fun getSpendableBalance(walletAccountList: List<AccountListItem>): ValueSum {
+        val sum = ValueSum()
         for (item in walletAccountList) {
             if (item.getType() == GROUP_TITLE_TYPE) {
                 for (account in (item as AccountsGroupModel).accountsList) {
                     if (account.isActive) {
-                        currencySum.add(account.balance!!.confirmed)
+                        sum.add(account.balance!!.confirmed)
                     }
                 }
             }
         }
-        return currencySum
+        return sum
     }
 
     override fun getItemViewType(position: Int) = getItem(position).getType().typeId

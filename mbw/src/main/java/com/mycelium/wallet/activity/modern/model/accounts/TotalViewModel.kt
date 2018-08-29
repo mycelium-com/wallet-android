@@ -1,11 +1,11 @@
 package com.mycelium.wallet.activity.modern.model.accounts
 
-import com.mycelium.wapi.wallet.currency.CurrencySum
+import com.mycelium.wallet.exchange.ValueSum
 
 /**
  * Model for the total item on the accounts tab.
  */
-class TotalViewModel(val balance: CurrencySum) : AccountListItem {
+class TotalViewModel(val balance: ValueSum) : AccountListItem {
     override fun getType() = AccountListItem.Type.TOTAL_BALANCE_TYPE
 
     override fun equals(other: Any?): Boolean {
