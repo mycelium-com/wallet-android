@@ -39,7 +39,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.InfiniteLinearLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -64,7 +63,6 @@ import com.mycelium.wallet.external.BuySellSelectActivity;
 import com.mycelium.wallet.external.BuySellServiceDescriptor;
 import com.mycelium.wallet.external.changelly.ChangellyActivity;
 import com.mycelium.wallet.external.changelly.bch.ExchangeActivity;
-import com.mycelium.wapi.model.ExchangeRate;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
@@ -81,7 +79,7 @@ public class BuySellFragment extends Fragment implements ButtonClickListener {
     public static final int BTC_ACTION = 3;
     public static final int MYDFS_ACTION = 4;
     public static final int APEX_ACTION = 5;
-    public static final int EXTRA_BTC_ACTION = 6;
+    public static final int TSM_ACTION = 6;
     private MbwManager _mbwManager;
 
     @BindView(R.id.button_list)
@@ -124,7 +122,7 @@ public class BuySellFragment extends Fragment implements ButtonClickListener {
                 actions.add(new ActionButton(BCH_ACTION, getString(R.string.exchange_bch_to_btc)));
                 break;
             default:
-                actions.add(new ActionButton(EXTRA_BTC_ACTION, getString(R.string.get_extra_btc)));
+                actions.add(new ActionButton(TSM_ACTION, getString(R.string.get_extra_btc)));
                 actions.add(new ActionButton(ALTCOIN_ACTION, getString(R.string.exchange_altcoins_to_btc)));
                 scrollTo = addMyDfs(actions, scrollTo);
                 addApex(actions);
@@ -174,7 +172,7 @@ public class BuySellFragment extends Fragment implements ButtonClickListener {
             case APEX_ACTION:
                 Ads.INSTANCE.openApex(getActivity());
                 break;
-            case EXTRA_BTC_ACTION:
+            case TSM_ACTION:
                 MbwManager.getInstance(getContext()).getTSMHelper().openModule(getActivity());
                 break;
         }
