@@ -57,7 +57,7 @@ public class BlockExplorer {
        this.baseTransactionUrlTor = baseTransactionUrlTor;
     }
 
-    public String getUrl(GenericAddress address, boolean isTor){
+    public String getUrl(Address address, boolean isTor){
        if(isTor){
           return baseAddressUrlTor + address.toString();
        }

@@ -46,7 +46,7 @@ import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 public class AddressLabel extends GenericBlockExplorerLabel {
-   private GenericAddress address;
+   private Address address;
    private boolean coluMode;
 
    public AddressLabel(Context context) {
@@ -80,7 +80,7 @@ public class AddressLabel extends GenericBlockExplorerLabel {
       this.coluMode = coluMode;
    }
 
-   public void setAddress(final GenericAddress address) {
+   public void setAddress(final Address address) {
       this.address = address;
       update_ui();
       if (coluMode) {
@@ -104,7 +104,7 @@ public class AddressLabel extends GenericBlockExplorerLabel {
          setHandler(MbwManager.getInstance(getContext())._blockExplorerManager.getBlockExplorer());
       }
    }
-   public GenericAddress getAddress() {
+   public Address getAddress() {
       return address;
    }
 

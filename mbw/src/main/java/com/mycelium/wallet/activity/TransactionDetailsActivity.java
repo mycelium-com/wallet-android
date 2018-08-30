@@ -45,6 +45,7 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.CoinUtil;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wallet.MbwManager;
@@ -94,9 +95,9 @@ public class TransactionDetailsActivity extends Activity {
       Sha256Hash txid = (Sha256Hash) getIntent().getSerializableExtra("transaction");
 
       //I need changes in mbwManager there
-      _txs = _mbwManager.getSelectedAccount().getGenericTransaction(txid);
+      _txs = _mbwManager.getSelectedAccountGeneric().getTransaction(txid.toString());
 
-      if(_mbwManager.getSelectedAccount() instanceof ColuAccount) {
+      if(_mbwManager.getSelectedAccountGeneric() instanceof ColuAccount) {
          coluMode = true;
       } else {
          coluMode = false;
@@ -185,17 +186,6 @@ public class TransactionDetailsActivity extends Activity {
       }
    }
 
-
-   private long sum(TransactionDetails.Item[] items) {
-      long sum = 0;
-      if(items != null) {
-         for (TransactionDetails.Item item : items) {
-            sum += item.value;
-         }
-      }
-      return sum;
-   }
-
    private View getItemView(GenericTransaction.GenericOutput item) {
       // Create vertical linear layout
       LinearLayout ll = new LinearLayout(this);
@@ -205,7 +195,7 @@ public class TransactionDetailsActivity extends Activity {
       ll.addView(getValue(item.getValue().getValue(), item.getAddress().toString()));
       AddressLabel adrLabel = new AddressLabel(this);
       adrLabel.setColuMode(coluMode);
-      adrLabel.setAddress(item.getAddress());
+      adrLabel.setAddress(Address.fromString(item.getAddress().toString()));
       ll.addView(adrLabel);
 
       ll.setPadding(10, 10, 10, 10);
