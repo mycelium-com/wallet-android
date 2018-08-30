@@ -444,6 +444,10 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
         }
     }
 
+    public int getTypeFromContext() {
+        return _context.getAccountType();
+    }
+
     //used for message signing picker
     public List<Address> getAllAddresses() {
         List<Address> addresses = new ArrayList<Address>();
