@@ -42,10 +42,11 @@ import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.net.ServerEndpointType;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 public class AddressLabel extends GenericBlockExplorerLabel {
-   private Address address;
+   private GenericAddress address;
    private boolean coluMode;
 
    public AddressLabel(Context context) {
@@ -79,7 +80,7 @@ public class AddressLabel extends GenericBlockExplorerLabel {
       this.coluMode = coluMode;
    }
 
-   public void setAddress(final Address address) {
+   public void setAddress(final GenericAddress address) {
       this.address = address;
       update_ui();
       if (coluMode) {
@@ -103,7 +104,7 @@ public class AddressLabel extends GenericBlockExplorerLabel {
          setHandler(MbwManager.getInstance(getContext())._blockExplorerManager.getBlockExplorer());
       }
    }
-   public Address getAddress() {
+   public GenericAddress getAddress() {
       return address;
    }
 

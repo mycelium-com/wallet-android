@@ -115,7 +115,7 @@ public class TransactionDetailsActivity extends Activity {
 
       String confirmed;
       if (confirmations > 0) {
-         confirmed = getResources().getString(R.string.confirmed_in_block, _tx.height);
+         confirmed = getResources().getString(R.string.confirmed_in_block, _txs.getDepthInBlocks());
       } else {
          confirmed = getResources().getString(R.string.no);
       }
@@ -147,13 +147,13 @@ public class TransactionDetailsActivity extends Activity {
 
       // Set Inputs
       LinearLayout inputs = findViewById(R.id.llInputs);
-      if (_txs.getReceivedFrom() != null) {
+      if (_txs.getInputs() != null) {
          int sum = 0;
-         for (GenericAddress input : _txs.getReceivedFrom()) {
-            sum += input.;
+         for (GenericTransaction.GenericOutput input : _txs.getInputs()) {
+            sum += input.getValue().value;
          }
          if (sum != 0) {
-            for (TransactionDetails.Item item : _tx.inputs) {
+            for (GenericTransaction.GenericOutput item : _txs.getInputs()) {
                inputs.addView(getItemView(item));
             }
          }
@@ -168,19 +168,14 @@ public class TransactionDetailsActivity extends Activity {
       }
 
       // Set Fee
-      final long txFeeTotal = getFee(_tx);
+      final long txFeeTotal = _txs.getFee().getValue();
       String fee;
       if(txFeeTotal > 0) {
          ((TextView) findViewById(R.id.tvFeeLabel)).setVisibility(View.VISIBLE);
          ((TextView) findViewById(R.id.tvInputsLabel)).setVisibility(View.VISIBLE);
-         if (_mbwManager.getSelectedAccount().getType() == WalletBtcAccount.Type.BCHSINGLEADDRESS
-             || _mbwManager.getSelectedAccount().getType() == WalletBtcAccount.Type.BCHBIP44) {
-            fee = _mbwManager.getBchValueString(txFeeTotal);
-         } else {
-            fee = _mbwManager.getBtcValueString(txFeeTotal);
-         }
-         if (_tx.rawSize > 0) {
-            final long txFeePerSat = txFeeTotal / _tx.rawSize;
+        fee = txFeeTotal + _txs.getType().getName();
+         if (_txs.getRawSize() > 0) {
+            final long txFeePerSat = txFeeTotal / _txs.getRawSize();
             fee += String.format("\n%d sat/byte", txFeePerSat);
          }
          ((TextView) findViewById(R.id.tvFee)).setText(fee);
@@ -190,11 +185,6 @@ public class TransactionDetailsActivity extends Activity {
       }
    }
 
-   private long getFee(TransactionDetails tx) {
-      long inputs = sum(tx.inputs);
-      long outputs = sum(tx.outputs);
-      return inputs - outputs;
-   }
 
    private long sum(TransactionDetails.Item[] items) {
       long sum = 0;
@@ -206,30 +196,18 @@ public class TransactionDetailsActivity extends Activity {
       return sum;
    }
 
-   private View getItemView(TransactionDetails.Item item) {
+   private View getItemView(GenericTransaction.GenericOutput item) {
       // Create vertical linear layout
       LinearLayout ll = new LinearLayout(this);
       ll.setOrientation(LinearLayout.VERTICAL);
       ll.setLayoutParams(WCWC);
-      if(item instanceof ColuTxDetailsItem) {
-         ll.addView(getColuValue(((ColuTxDetailsItem) item).getAmount(),
-                 ((ColuAccount)_mbwManager.getSelectedAccount()).getColuAsset().name));
-      }
-      if (item.isCoinbase) {
-         // Coinbase input
-         ll.addView(getValue(item.value, null));
-         ll.addView(getCoinbaseText());
-      } else {
-         String address = item.address.toString();
+      // Add BTC value
+      ll.addView(getValue(item.getValue().getValue(), item.getAddress().toString()));
+      AddressLabel adrLabel = new AddressLabel(this);
+      adrLabel.setColuMode(coluMode);
+      adrLabel.setAddress(item.getAddress());
+      ll.addView(adrLabel);
 
-         // Add BTC value
-         ll.addView(getValue(item.value, address));
-
-         AddressLabel adrLabel = new AddressLabel(this);
-         adrLabel.setColuMode(coluMode);
-         adrLabel.setAddress(item.address);
-         ll.addView(adrLabel);
-      }
       ll.setPadding(10, 10, 10, 10);
       return ll;
    }

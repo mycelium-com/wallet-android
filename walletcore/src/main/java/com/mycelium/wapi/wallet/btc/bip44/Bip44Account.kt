@@ -815,7 +815,8 @@ open class Bip44Account(
             val isQueuedOutgoing = backing.isOutgoingTransaction(tx.id)
 
             item = BtcTransaction(getCoinType(), tx, satoshisSent, satoshisReceived, tex.time,
-                    confirmations, isQueuedOutgoing, inputs, toAddresses, riskAssessmentForUnconfirmedTx.get(tx.getId()),null)
+                    confirmations, isQueuedOutgoing, inputs, toAddresses, riskAssessmentForUnconfirmedTx.get(tx.getId()),
+                    tex.binary.size, null)
 
             if (item != null) {
                 history.add(item)

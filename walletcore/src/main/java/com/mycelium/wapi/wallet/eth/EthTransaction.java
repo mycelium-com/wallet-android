@@ -109,4 +109,9 @@ public class EthTransaction implements GenericTransaction {
     public boolean isIncoming() {
         return false;
     }
+
+    @Override
+    public int getRawSize() {
+        return 0;
+    }
 }
