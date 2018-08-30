@@ -41,7 +41,9 @@ dependencies {
     androidTestImplementation 'com.android.support.test:rules:1.0.1'
 
     implementation project(includePrefix + ':coinapult')
+    implementation project(includePrefix + ':walletmodel')
     implementation project(includePrefix + ':wapi')
+    implementation project(includePrefix + ':walletcore')
     implementation project(includePrefix + ':trezor')
     implementation project(includePrefix + ':lt-api')
     implementation project(includePrefix + ':mbwlib')
@@ -84,9 +86,10 @@ dependencies {
     implementation 'commons-codec:commons-codec:1.10'
     implementation 'com.google.protobuf:protobuf-java:3.1.0'
     implementation 'com.android.support.constraint:constraint-layout:1.1.0-beta5'
+
     implementation 'com.journeyapps:zxing-android-embedded:3.6.0'
 
-    implementation project(includePrefix + ':myceliummodularizationtools')
+    implementation project(includePrefix + ':wallet-android-modularization-tools:modularization-lib')
     implementation project(includePrefix + ':modulespvcontract')
 
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
@@ -146,10 +149,15 @@ android {
                     project.hasProperty('prodKeyAlias') &&
                     project.hasProperty('prodKeyStorePassword') &&
                     project.hasProperty('prodKeyAliasPassword')) {
-                storeFile file('../../' + prodKeyStore)
+                storeFile file('../' + prodKeyStore)
                 keyAlias prodKeyAlias
                 storePassword prodKeyStorePassword
                 keyPassword prodKeyAliasPassword
+            } else {
+				        storeFile commonDebugKeystore
+				        storePassword 'android'
+				        keyAlias 'androiddebugkey'
+				        keyPassword 'android'
             }
         }
         btctestnet {
@@ -157,10 +165,15 @@ android {
                     project.hasProperty('testKeyAlias') &&
                     project.hasProperty('testKeyStorePassword') &&
                     project.hasProperty('testKeyAliasPassword')) {
-                storeFile file('../../' + testKeyStore)
+                storeFile file('../' + testKeyStore)
                 keyAlias testKeyAlias
                 storePassword testKeyStorePassword
                 keyPassword testKeyAliasPassword
+            } else {
+				        storeFile commonDebugKeystore
+				        storePassword 'android'
+				        keyAlias 'androiddebugkey'
+				        keyPassword 'android'
             }
         }
         commonDebug {
