@@ -196,8 +196,8 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         CommunicationManager.getInstance().send(getSpvModuleName(accountType), intent);
     }
 
-    public static void sendToSpv(Intent intent, String modulePackage) {
-        CommunicationManager.getInstance().send(modulePackage, intent);
+    public static void sendToTsm(Intent intent) {
+        CommunicationManager.getInstance().send(BuildConfig.appIdTsm, intent);
     }
 
     private static Map<WalletAccount.Type, String> initTrustedSpvModulesMapping() {
