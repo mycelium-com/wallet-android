@@ -47,6 +47,7 @@ public interface GenericTransaction {
     Value getFee();
 
     List<GenericAddress> getReceivedFrom();
+    List<GenericOutput> getInputs();
     List<GenericOutput> getSentTo();
 
     Value getSent();

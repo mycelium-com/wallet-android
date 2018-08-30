@@ -6,7 +6,6 @@ import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.GenericTransaction;
-import com.mycelium.wapi.wallet.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.coins.CoinType;
 import com.mycelium.wapi.wallet.coins.Value;
 
@@ -23,6 +22,7 @@ public class BtcTransaction implements GenericTransaction {
     final Value valueReceived;
     final Value value;
     private int timestamp;
+    final ArrayList<GenericOutput> inputs;
     final ArrayList<GenericAddress> toAddresses;
     private int confirmations;
     private final boolean isQueuedOutgoing;
@@ -32,7 +32,8 @@ public class BtcTransaction implements GenericTransaction {
 
     public BtcTransaction(CoinType type, Transaction transaction,
                           long valueSent, long valueReceived, int timestamp, int confirmations,
-                          boolean isQueuedOutgoing, ArrayList<GenericAddress> toAddresses,
+                          boolean isQueuedOutgoing, ArrayList<GenericOutput> inputs,
+                          ArrayList<GenericAddress> toAddresses,
                           ConfirmationRiskProfileLocal risk, @Nullable Value fee) {
         this.type = type;
         this.tx = transaction;
@@ -43,6 +44,7 @@ public class BtcTransaction implements GenericTransaction {
         this.timestamp = timestamp;
         this.confirmations = confirmations;
         this.isQueuedOutgoing = isQueuedOutgoing;
+        this.inputs = inputs;
         this.toAddresses = toAddresses;
         this.confirmationRiskProfile = Optional.fromNullable(risk);
         this.fee = fee;
@@ -99,6 +101,11 @@ public class BtcTransaction implements GenericTransaction {
         return toAddresses;
     }
 
+
+    @Override
+    public List<GenericOutput> getInputs() {
+        return null;
+    }
 
     @Override
     public List<GenericOutput> getSentTo() {

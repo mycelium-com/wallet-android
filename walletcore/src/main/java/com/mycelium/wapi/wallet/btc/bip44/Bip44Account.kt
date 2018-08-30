@@ -37,6 +37,7 @@ import com.mrd.bitlib.crypto.BipDerivationType.Companion.getDerivationTypeByAddr
 import com.mrd.bitlib.model.hdpath.HdKeyPath
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.BitcoinMain
+import com.mycelium.wapi.wallet.coins.BitcoinTest
 import com.mycelium.wapi.wallet.coins.CoinType
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue
@@ -783,6 +784,8 @@ open class Bip44Account(
                 }
             }
 
+            val inputs = ArrayList<GenericTransaction.GenericOutput>() //need to create list of outputs
+
             // Inputs
             if (!tx.isCoinbase) {
                 for (input in tx.inputs) {
@@ -795,6 +798,10 @@ open class Bip44Account(
                     if (isMine(funding)) {
                         satoshisSent += funding.value
                     }
+
+                    val address = ScriptOutput.fromScriptBytes(funding.script).getAddress(network)
+                    val coinType = if (network.isTestnet) BitcoinTest.get() else BitcoinMain.get()
+                    inputs.add(GenericTransaction.GenericOutput(BtcAddress(address.allAddressBytes), Value.valueOf(coinType, funding.value)))
                 }
             }
 
@@ -808,7 +815,7 @@ open class Bip44Account(
             val isQueuedOutgoing = backing.isOutgoingTransaction(tx.id)
 
             item = BtcTransaction(getCoinType(), tx, satoshisSent, satoshisReceived, tex.time,
-                    confirmations, isQueuedOutgoing, toAddresses, riskAssessmentForUnconfirmedTx.get(tx.getId()),null)
+                    confirmations, isQueuedOutgoing, inputs, toAddresses, riskAssessmentForUnconfirmedTx.get(tx.getId()),null)
 
             if (item != null) {
                 history.add(item)

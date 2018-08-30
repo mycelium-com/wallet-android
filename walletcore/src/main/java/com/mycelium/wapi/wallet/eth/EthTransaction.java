@@ -86,6 +86,11 @@ public class EthTransaction implements GenericTransaction {
     }
 
     @Override
+    public List<GenericOutput> getInputs() {
+        return null;
+    }
+
+    @Override
     public List<GenericOutput> getSentTo() {
         return null;
     }
