@@ -115,7 +115,7 @@ public abstract class SynchronizeAbleWalletBtcAccount implements WalletBtcAccoun
    public abstract boolean broadcastOutgoingTransactions();
 
    @Override
-   public abstract TransactionEx getTransaction(Sha256Hash txid);
+   public abstract TransactionEx getTransactionEx(Sha256Hash txid);
 
    @Override
    public abstract BroadcastResult broadcastTransaction(Transaction transaction);
@@ -160,9 +160,6 @@ public abstract class SynchronizeAbleWalletBtcAccount implements WalletBtcAccoun
 
    @Override
    public abstract TransactionSummary getTransactionSummary(Sha256Hash txid);
-
-   @Override
-   public abstract TransactionDetails getTransactionDetails(Sha256Hash txid);
 
    @Override
   public boolean onlySyncWhenActive() {

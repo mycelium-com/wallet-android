@@ -81,7 +81,7 @@ public class BroadcastTransactionActivity extends Activity {
    }
 
    public static boolean callMe(Activity currentActivity, WalletBtcAccount account, Sha256Hash txid) {
-      TransactionEx tx = account.getTransaction(txid);
+      TransactionEx tx = account.getTransactionEx(txid);
       if (tx == null) {
          return false;
       }

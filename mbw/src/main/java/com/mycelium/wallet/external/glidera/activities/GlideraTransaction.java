@@ -15,7 +15,7 @@ import com.mycelium.wallet.external.glidera.GlideraUtils;
 import com.mycelium.wallet.external.glidera.api.GlideraService;
 import com.mycelium.wallet.external.glidera.api.response.OrderState;
 import com.mycelium.wallet.external.glidera.api.response.TransactionResponse;
-import com.mycelium.wapi.model.TransactionDetails;
+import com.mycelium.wapi.wallet.GenericTransaction;
 
 import java.text.DateFormat;
 import java.util.UUID;
@@ -91,9 +91,9 @@ public class GlideraTransaction extends Activity {
          */
       if (transactionResponse.getTransactionHash() != null && !transactionResponse.getTransactionHash().toString().isEmpty()) {
          TransactionDetailsLabel tvTransactionHash = ((TransactionDetailsLabel) findViewById(R.id.tvTransactionHash));
-         TransactionDetails txDetails;
+         GenericTransaction txDetails;
          try {
-            txDetails = mbwManager.getSelectedAccount().getTransactionDetails(transactionResponse.getTransactionHash());
+            txDetails = mbwManager.getSelectedAccountGeneric().getTransaction(transactionResponse.getTransactionHash());
 
          } catch (RuntimeException runtimeException) {
                 /*

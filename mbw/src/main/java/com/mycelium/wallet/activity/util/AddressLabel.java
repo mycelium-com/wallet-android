@@ -42,6 +42,7 @@ import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.net.ServerEndpointType;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 public class AddressLabel extends GenericBlockExplorerLabel {

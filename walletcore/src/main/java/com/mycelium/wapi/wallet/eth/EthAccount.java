@@ -1,5 +1,6 @@
 package com.mycelium.wapi.wallet.eth;
 ;
+import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;;
@@ -44,7 +45,7 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
     }
 
     @Override
-    public EthTransaction getTransaction(String transactionId) {
+    public EthTransaction getTransaction(Sha256Hash transactionId) {
         return null;
     }
 

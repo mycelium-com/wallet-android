@@ -594,7 +594,7 @@ public class TransactionHistoryFragment extends Fragment {
                                          } else {
                                             transaction = HexUtils.toHex(_mbwManager
                                                 .getSelectedAccount()
-                                                .getTransaction(record.getHash()).binary);
+                                                .getTransactionEx(record.getHash()).binary);
                                          }
 
                                          Intent shareIntent = new Intent(Intent.ACTION_SEND);
@@ -629,28 +629,25 @@ public class TransactionHistoryFragment extends Fragment {
     * TODO: consider parallel attempts to PFP
     */
    private UnsignedTransaction tryCreateBumpTransaction(Sha256Hash txid, long feePerKB) {
-      WalletBtcAccount walletAccount = _mbwManager.getSelectedAccount();
-      TransactionDetails transaction = walletAccount.getTransactionDetails(txid);
+      GenericTransaction transaction = _mbwManager.getSelectedAccountGeneric().getTransaction(txid);
       long txFee = 0;
-      for(TransactionDetails.Item i : transaction.inputs) {
-         txFee += i.value;
+      for(GenericTransaction.GenericOutput i : transaction.getInputs()) {
+         txFee += i.getValue().getValue();
       }
-      for(TransactionDetails.Item i : transaction.outputs) {
-         txFee -= i.value;
+      for(GenericTransaction.GenericOutput i : transaction.getSentTo()) {
+         txFee -= i.getValue().getValue();
       }
-      if(txFee * 1000 / transaction.rawSize >= feePerKB) {
+      if(txFee * 1000 / transaction.getRawSize() >= feePerKB) {
          makeText(getActivity(), "bumping not necessary", LENGTH_LONG).show();
          return null;
       }
-      if (walletAccount instanceof AbstractBtcAccount) {
-         AbstractBtcAccount account = (AbstractBtcAccount) walletAccount;
-         try {
-            return account.createUnsignedCPFPTransaction(txid, feePerKB, txFee);
-         } catch (InsufficientFundsException e) {
-            makeText(getActivity(), getResources().getString(R.string.insufficient_funds), LENGTH_LONG).show();
-         } catch (UnableToBuildTransactionException e) {
-            makeText(getActivity(), getResources().getString(R.string.unable_to_build_tx), LENGTH_LONG).show();
-         }
+
+      try {
+         return ((AbstractBtcAccount)_mbwManager.getSelectedAccountGeneric()).createUnsignedCPFPTransaction(txid, feePerKB, txFee);
+      } catch (InsufficientFundsException e) {
+         makeText(getActivity(), getResources().getString(R.string.insufficient_funds), LENGTH_LONG).show();
+      } catch (UnableToBuildTransactionException e) {
+         makeText(getActivity(), getResources().getString(R.string.unable_to_build_tx), LENGTH_LONG).show();
       }
       return null;
    }

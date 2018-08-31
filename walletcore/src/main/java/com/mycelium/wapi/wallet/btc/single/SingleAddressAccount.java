@@ -22,7 +22,11 @@ import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
+import com.mrd.bitlib.model.ScriptOutput;
 import com.mrd.bitlib.model.Transaction;
+import com.mrd.bitlib.model.TransactionInput;
+import com.mrd.bitlib.model.TransactionOutput;
+import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiException;
@@ -30,14 +34,20 @@ import com.mycelium.wapi.api.request.QueryTransactionInventoryRequest;
 import com.mycelium.wapi.api.response.GetTransactionsResponse;
 import com.mycelium.wapi.api.response.QueryTransactionInventoryResponse;
 import com.mycelium.wapi.model.BalanceSatoshis;
+import com.mycelium.wapi.model.TransactionEx;
+import com.mycelium.wapi.model.TransactionOutputEx;
 import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
 import com.mycelium.wapi.wallet.WalletManager.Event;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
+import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.BtcTransaction;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
+import com.mycelium.wapi.wallet.coins.BitcoinMain;
+import com.mycelium.wapi.wallet.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.CoinType;
+import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
 
 import java.util.*;
@@ -94,6 +104,7 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
       clearInternalStateInt(true);
       _context.persistIfNecessary(_backing);
    }
+
 
    @Override
    public synchronized void activateAccount() {
@@ -223,12 +234,7 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
    }
 
    @Override
-    public CoinType getCoinType() {
-        return null;
-    }
-
-    @Override
-    public Balance getAccountBalance() {
+   public Balance getAccountBalance() {
         return null;
     }
 
@@ -405,8 +411,4 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
    public void broadcastTx(GenericTransaction tx) throws TransactionBroadcastException {
    }
 
-   @Override
-   public List<BtcTransaction> getTransactions(int offset, int limit) {
-      return new ArrayList<BtcTransaction>();
-   }
 }

@@ -110,4 +110,9 @@ public class FiatTransaction implements GenericTransaction {
     public boolean isIncoming() {
         return false;
     }
+
+    @Override
+    public int getRawSize() {
+        return 0;
+    }
 }

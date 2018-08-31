@@ -53,4 +53,6 @@ public interface GenericTransaction {
     Value getSent();
     Value getReceived();
     boolean isIncoming();
+
+    int getRawSize();
 }
