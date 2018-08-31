@@ -117,14 +117,6 @@ public interface WalletBtcAccount extends WalletAccount {
    TransactionSummary getTransactionSummary(Sha256Hash txid);
 
    /**
-    * Get the details of a transaction that originated from this account
-    *
-    * @param txid the ID of the transaction
-    * @return the details of a transaction
-    */
-   TransactionDetails getTransactionDetails(Sha256Hash txid);
-
-   /**
     * Create a new unsigned transaction sending funds to one or more addresses.
     * <p/>
     * The unsigned transaction must be signed and queued before it will affect
@@ -192,7 +184,7 @@ public interface WalletBtcAccount extends WalletAccount {
     * @param txid transaction hash
     * @return the corresponding transaction or null
     */
-   TransactionEx getTransaction(Sha256Hash txid);
+   TransactionEx getTransactionEx(Sha256Hash txid);
 
    /**
     * Queue a transaction for broadcasting.

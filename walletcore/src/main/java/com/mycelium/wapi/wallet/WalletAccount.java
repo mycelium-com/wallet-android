@@ -32,7 +32,7 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
 
     Balance getAccountBalance();
 
-    T getTransaction(String transactionId);
+    T getTransaction(Sha256Hash transactionId);
 
     List<T> getTransactions(int offset, int limit);
 

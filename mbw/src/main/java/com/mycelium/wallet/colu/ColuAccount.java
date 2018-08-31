@@ -314,7 +314,7 @@ public class ColuAccount extends SynchronizeAbleWalletBtcAccount implements Expo
     }
 
     @Override
-    public BtcTransaction getTransaction(String transactionId) {
+    public BtcTransaction getTransaction(Sha256Hash transactionId) {
         return null;
     }
 
@@ -551,79 +551,6 @@ public class ColuAccount extends SynchronizeAbleWalletBtcAccount implements Expo
         return null;
     }
 
-    @Override
-    public TransactionDetails getTransactionDetails(Sha256Hash txid) {
-        TransactionDetails details = null;
-        TransactionSummary summary = getTransactionSummary(txid);
-        if (summary != null) {
-            // parsing additional data
-            TransactionExApi extendedInfo = null;
-            if (historyTxInfosList != null) {
-                for (TransactionExApi tex : historyTxInfosList) {
-                    if (tex.txid.compareTo(txid) == 0) {
-                        extendedInfo = tex;
-                        break;
-                    }
-                }
-            }
-
-            Transaction tx = TransactionEx.toTransaction(extendedInfo);
-            if (tx == null) {
-                throw new RuntimeException();
-            }
-
-            Tx.Json coluTxInfo = Preconditions.checkNotNull(GetColuTransactionInfoById(txid));
-
-            List<TransactionDetails.Item> inputs = new ArrayList<>();
-
-            if (tx.isCoinbase()) {
-                // We have a coinbase transaction. Create one input with the sum of the outputs as its value,
-                // and make the address the null address
-                long value = 0;
-                for (TransactionOutput out : tx.outputs) {
-                    value += out.value;
-                }
-                inputs.add(new TransactionDetails.Item(Address.getNullAddress(getNetwork()), value, true));
-            } else {
-                for (Vin.Json vin : coluTxInfo.vin) {
-                    if (vin.assets.size() > 0) {
-                        for (Asset.Json anAsset : vin.assets) {
-                            if (anAsset.assetId.contentEquals(coluAsset.id) && vin.previousOutput.addresses.size() > 0) {
-                                inputs.add(new ColuTxDetailsItem(Address.fromString(vin.previousOutput.addresses.get(0)), vin.value, false, anAsset.amount, anAsset.divisibility));
-                            }
-                        }
-                    } else {
-                        if (vin.previousOutput.addresses.size() > 0)
-                            inputs.add(new TransactionDetails.Item(Address.fromString(vin.previousOutput.addresses.get(0)), vin.value, false));
-                    }
-                }
-            }
-
-            List<TransactionDetails.Item> outputs = new ArrayList<>();
-
-            for (Vout.Json vout : coluTxInfo.vout) {
-                if (vout.assets.size() > 0) {
-                    for (Asset.Json anAsset : vout.assets) {
-                        if (anAsset.assetId.contentEquals(coluAsset.id) && vout.scriptPubKey.addresses.size() > 0) {
-                            outputs.add(new ColuTxDetailsItem(Address.fromString(vout.scriptPubKey.addresses.get(0)), vout.value, false, anAsset.amount, anAsset.divisibility));
-                        }
-                    }
-                } else {
-                    if (vout.value > 0 && vout.scriptPubKey.addresses.size() > 0)
-                        outputs.add(new TransactionDetails.Item(Address.fromString(vout.scriptPubKey.addresses.get(0)), vout.value, false));
-                }
-            }
-
-            details = new TransactionDetails(
-                txid, extendedInfo.height, extendedInfo.time,
-                inputs.toArray(new TransactionDetails.Item[inputs.size()]),
-                outputs.toArray(new TransactionDetails.Item[outputs.size()]),
-                extendedInfo.binary.length);
-        }
-
-        return details;
-    }
-
 // archive and activation are identical to Coinapult. Nothing to modify.
 
     @Override
@@ -737,7 +664,7 @@ public class ColuAccount extends SynchronizeAbleWalletBtcAccount implements Expo
     }
 
     @Override
-    public TransactionEx getTransaction(Sha256Hash txid) {
+    public TransactionEx getTransactionEx(Sha256Hash txid) {
         return accountBacking.getTransaction(txid);
     }
 

@@ -51,10 +51,6 @@ open class Bip44BCHAccount(
         }
     }
 
-    override fun getTransactionDetails(txid: Sha256Hash): TransactionDetails {
-        return spvBalanceFetcher.retrieveTransactionDetails(txid)
-    }
-
     override fun getTransactionSummary(txid: Sha256Hash): TransactionSummary? {
         val transactions = spvBalanceFetcher.retrieveTransactionsSummaryByHdAccountIndex(id.toString(),
                 accountIndex)

@@ -635,7 +635,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    }
 
    @Override
-   public TransactionEx getTransaction(Sha256Hash txid) {
+   public TransactionEx getTransactionEx(Sha256Hash txid) {
       return _backing.getTransaction(txid);
    }
 
@@ -728,10 +728,6 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       return history;
    }
 
-   @Override
-   public BtcTransaction getTransaction(String transactionId) {
-      return null;
-   }
 
    @Override
    public abstract int getBlockChainHeight();
@@ -1095,7 +1091,10 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    public UnsignedTransaction createUnsignedCPFPTransaction(Sha256Hash txid, long minerFeeToUse, long satoshisPaid) throws InsufficientFundsException, StandardTransactionBuilder.UnableToBuildTransactionException {
       checkNotArchived();
       Set<UnspentTransactionOutput> utxos = new HashSet<>(transform(getSpendableOutputs(minerFeeToUse)));
-      TransactionDetails parent = getTransactionDetails(txid);
+      TransactionEx tex = _backing.getTransaction(txid);
+      if (tex == null) {
+         throw new RuntimeException();
+      }
       long totalSpendableSatoshis = 0;
       // do we have an output to spend from?
       List<UnspentTransactionOutput> utxosToSpend = new ArrayList<>();
@@ -1118,7 +1117,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       long parentChildFeeSat;
       do {
          long childSize = estimateTransactionSize(utxosToSpend.size(), 1);
-         long parentChildSize = parent.rawSize + childSize;
+         long parentChildSize = tex.binary.length + childSize;
          parentChildFeeSat = parentChildSize * minerFeeToUse / 1000 - satoshisPaid;
          if(parentChildFeeSat < childSize * minerFeeToUse / 1000) {
             // if child doesn't get itself to target priority, it's not needed to boost a parent to it.
@@ -1136,7 +1135,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
             continue;
          }
          List<TransactionOutput> outputs = singletonList(createOutput(changeAddress, value, _network));
-          final TransactionEx fundedTransaction = getTransaction(txid);
+          final TransactionEx fundedTransaction = getTransactionEx(txid);
           return new UnsignedTransaction(outputs, utxosToSpend, new PublicKeyRing(), _network, 0, UnsignedTransaction.NO_SEQUENCE);
       } while(!utxos.isEmpty());
       throw new InsufficientFundsException(0, parentChildFeeSat);
@@ -1439,61 +1438,6 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    public TransactionSummary getTransactionSummary(Sha256Hash txid) {
       TransactionEx tx = _backing.getTransaction(txid);
       return transform(tx, tx.height);
-   }
-
-   @Override
-   public TransactionDetails getTransactionDetails(Sha256Hash txid) {
-      // Note that this method is not synchronized, and we might fetch the transaction history while synchronizing
-      // accounts. That should be ok as we write to the DB in a sane order.
-
-      TransactionEx tex = _backing.getTransaction(txid);
-      Transaction tx = TransactionEx.toTransaction(tex);
-      if (tx == null) {
-         throw new RuntimeException();
-      }
-
-      List<TransactionDetails.Item> inputs = new ArrayList<>(tx.inputs.length);
-      if (tx.isCoinbase()) {
-         // We have a coinbase transaction. Create one input with the sum of the outputs as its value,
-         // and make the address the null address
-         long value = 0;
-         for (TransactionOutput out : tx.outputs) {
-            value += out.value;
-         }
-         inputs.add(new TransactionDetails.Item(Address.getNullAddress(_network), value, true));
-      } else {
-         // Populate the inputs
-         for (TransactionInput input : tx.inputs) {
-            // Get the parent transaction
-            TransactionOutputEx parentOutput = _backing.getParentTransactionOutput(input.outPoint);
-            if (parentOutput == null) {
-               // We never heard about the parent, skip
-               continue;
-            }
-            // Determine the parent address
-            Address parentAddress;
-            ScriptOutput parentScript = ScriptOutput.fromScriptBytes(parentOutput.script);
-            if (parentScript == null) {
-               // Null address means we couldn't figure out the address, strange script
-               parentAddress = Address.getNullAddress(_network);
-            } else {
-               parentAddress = parentScript.getAddress(_network);
-            }
-            inputs.add(new TransactionDetails.Item(parentAddress, parentOutput.value, false));
-         }
-      }
-      // Populate the outputs
-      TransactionDetails.Item[] outputs = new TransactionDetails.Item[tx.outputs.length];
-      for (int i = 0; i < tx.outputs.length; i++) {
-         Address address = tx.outputs[i].script.getAddress(_network);
-         outputs[i] = new TransactionDetails.Item(address, tx.outputs[i].value, false);
-      }
-
-      return new TransactionDetails(
-            txid, tex.height, tex.time,
-            inputs.toArray(new TransactionDetails.Item[inputs.size()]), outputs,
-            tex.binary.length
-      );
    }
 
    public UnsignedTransaction createUnsignedPop(Sha256Hash txid, byte[] nonce) {
