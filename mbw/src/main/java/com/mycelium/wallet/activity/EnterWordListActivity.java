@@ -66,7 +66,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-public class EnterWordListActivity extends AppCompatActivity implements WordAutoCompleterFragment.WordAutoCompleterListener {
+public class EnterWordListActivity extends AppCompatActivity implements WordAutoCompleterFragment.WordAutoCompleterListener,
+        AccountCreatorHelper.AccountCreationObserver {
    private static final String ONLY_SEED = "onlySeed";
    public static final String MASTERSEED = "masterseed";
    public static final String PASSWORD = "password";
@@ -117,6 +118,11 @@ public class EnterWordListActivity extends AppCompatActivity implements WordAuto
       if (savedInstanceState == null) {
          //only ask if we are not recreating the activity, because of rotation for example
          askForWordNumber();
+      }
+
+      // we don't want to proceed to enter the wordlist, we already have the master seed.
+      if (!_seedOnly && _mbwManager.getWalletManager(false).hasBip32MasterSeed()) {
+         new AccountCreatorHelper.CreateAccountAsyncTask(EnterWordListActivity.this, EnterWordListActivity.this).execute();
       }
    }
 
@@ -256,7 +262,6 @@ public class EnterWordListActivity extends AppCompatActivity implements WordAuto
       }
    }
 
-
    @Override
    public void onWordSelected(String word) {
       addWordToList(word);
@@ -266,7 +271,6 @@ public class EnterWordListActivity extends AppCompatActivity implements WordAuto
    public void onCurrentWordChanged(String currentWord) {
       ((TextView)findViewById(R.id.tvWord)).setText(currentWord);
    }
-
 
    private class MasterSeedFromWordsAsyncTask extends AsyncTask<Void, Integer, UUID> {
       private Bus bus;
@@ -295,6 +299,12 @@ public class EnterWordListActivity extends AppCompatActivity implements WordAuto
       protected void onPostExecute(UUID account) {
          bus.post(new SeedFromWordsCreated(account));
       }
+   }
+
+   @Override
+   public void onAccountCreated(UUID accountid) {
+      _progress.dismiss();
+      finishOk(accountid);
    }
 
    @com.squareup.otto.Subscribe

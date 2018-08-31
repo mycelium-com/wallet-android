@@ -107,6 +107,7 @@ import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bip44.Bip44Account;
+import com.mycelium.wapi.wallet.bip44.Bip44AccountContext;
 import com.mycelium.wapi.wallet.bip44.Bip44PubOnlyAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
@@ -524,23 +525,6 @@ public class AccountsFragment extends Fragment {
          linkedAccount = _mbwManager.getWalletManager(false).getAccount(MbwManager.getBitcoinCashAccountId(account));
       }
       return linkedAccount;
-   }
-
-   private int getLinkedAccountsCount(WalletAccount account) {
-      int count = 0;
-      if (account.getType() == WalletAccount.Type.COLU) {
-         count++;
-      } else {
-         if (Utils.getLinkedAccount(account, _mbwManager.getColuManager().getAccounts().values()) != null) {
-            count++;
-         }
-      }
-
-      if (_mbwManager.getWalletManager(false).getAccount(MbwManager.getBitcoinCashAccountId(account)) != null) {
-         count++;
-      }
-
-      return count;
    }
 
    private void finishCurrentActionMode() {
@@ -977,13 +961,6 @@ public class AccountsFragment extends Fragment {
 
    @Override
    public boolean onOptionsItemSelected(MenuItem item) {
-      // If we are synchronizing, show "Synchronizing, please wait..." to avoid blocking behavior
-      if (_mbwManager.getWalletManager(false).getState() == WalletManager.State.SYNCHRONIZING
-              || _mbwManager.getColuManager().getState() == WalletManager.State.SYNCHRONIZING) {
-         _toaster.toast(R.string.synchronizing_please_wait, false);
-         return true;
-      }
-
       if (!isAdded()) {
          return true;
       }
@@ -1144,7 +1121,7 @@ public class AccountsFragment extends Fragment {
       }
       final WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
       if (accountProtected(_focusedAccount)) {
-         //this is the last active account, we dont allow archiving it
+         //this is the last active hd account, we dont allow archiving it
          _toaster.toast(R.string.keep_one_active, false);
          return;
       }
@@ -1185,11 +1162,26 @@ public class AccountsFragment extends Fragment {
    }
 
    /**
-    * Account is protected if after removal no accounts would stay active, so it would not be possible to select an account
+    * Account is protected if after removal no BTC masterseed accounts would stay active, so it would not be possible to select an account
     */
    private boolean accountProtected(WalletAccount toRemove) {
-      final int safeSize = getLinkedAccountsCount(toRemove) + 2;
-      return _mbwManager.getWalletManager(false).getActiveAccounts().size() < safeSize;
+      if (toRemove.getType() != WalletAccount.Type.BTCBIP44
+              || ((Bip44Account) toRemove).getTypeFromContext() != Bip44AccountContext.ACCOUNT_TYPE_FROM_MASTERSEED) {
+         // unprotected account type
+         return false;
+      }
+      int count = 0;
+      for (WalletAccount account : _mbwManager.getWalletManager(false).
+              getActiveAccounts(WalletAccount.Type.BTCBIP44)) {
+         if (((Bip44Account) account).getAccountType() == Bip44AccountContext.ACCOUNT_TYPE_FROM_MASTERSEED) {
+            count++;
+         }
+         if (count > 1) {
+            // after deleting one, more remain
+            return false;
+         }
+      }
+      return true;
    }
 
    private void hideSelected() {

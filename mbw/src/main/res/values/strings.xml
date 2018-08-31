@@ -1003,6 +1003,13 @@ You can either add miner\'s fee from any account with bitcoins every time you ma
     <string name="partner_header_title">New to crypto?</string>
     <string name="partner_header_text">Please find here a selection of partner businesses.</string>
 
+    <string name="partner_commas_url">https://play.google.com/store/apps/details?id=com.castor.threecommas.tradingbotsmodule</string>
+    <string name="get_extra_btc">Make extra BTC</string>
+    <string name="trading_strategies_module"><![CDATA[<font color="#663aee82">Trading Strategies</font> Module]]></string>
+    <string name="trading_strategies_module_short">TSM</string>
+    <string name="trading_strategies_module_desc">Make extra BTC with top trading strategies</string>
+    <string name="tsm_module_change"><![CDATA[Mycelium <font color="#663aee82">Trading Strategies</font> module has been %s!]]></string>
+
     <string name="partner_ledger">Ledger</string>
     <string name="partner_ledger_short">Security solutions for cryptocurrencies</string>
     <string name="partner_ledger_url">https://www.ledgerwallet.com/r/494d?path=/products</string>
