@@ -59,12 +59,12 @@ class NewsFragment : Fragment() {
         newsList.setHasFixedSize(false)
         newsList.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             var scrollY = 0;
-            override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
                 scrollY += dy
-                if (scrollY > recyclerView?.height ?: 0 && scrollTop.visibility == View.GONE) {
+                if (scrollY > recyclerView.height && scrollTop.visibility == View.GONE) {
                     scrollTop.visibility = View.VISIBLE
-                } else if (scrollY <= recyclerView?.height ?: 0 && scrollTop.visibility == View.VISIBLE) {
+                } else if (scrollY <= recyclerView.height && scrollTop.visibility == View.VISIBLE) {
                     scrollTop.visibility = View.GONE
                 }
                 if (adapter != null && layoutManager.findLastVisibleItemPosition() > adapter!!.itemCount - 5 && !adapter!!.searchMode) {

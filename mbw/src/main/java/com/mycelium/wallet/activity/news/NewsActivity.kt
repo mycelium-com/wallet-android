@@ -7,6 +7,7 @@ import android.content.res.Resources
 import android.graphics.Color
 import android.os.AsyncTask
 import android.os.Bundle
+import android.support.design.widget.AppBarLayout
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.util.Log
@@ -41,11 +42,13 @@ class NewsActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayShowTitleEnabled(false)
 
-        app_bar_layout.addOnOffsetChangedListener { appBarLayout, verticalOffset ->
-            val scrollDelta = Math.abs(verticalOffset * 1f / appBarLayout.totalScrollRange)
-            category.alpha = 1 - scrollDelta
-            toolbar_shadow.visibility = if (scrollDelta == 1f) View.VISIBLE else View.GONE
-        }
+        app_bar_layout.addOnOffsetChangedListener(object : AppBarLayout.OnOffsetChangedListener  {
+            override fun onOffsetChanged(appBarLayout: AppBarLayout, verticalOffset: Int) {
+                val scrollDelta = Math.abs(verticalOffset * 1f / appBarLayout.totalScrollRange)
+                category.alpha = 1 - scrollDelta
+                toolbar_shadow.visibility = if (scrollDelta == 1f) View.VISIBLE else View.GONE
+            }
+        });
         news = intent.getSerializableExtra("news") as News
         NewsDatabase.read(news)
         content.setBackgroundColor(Color.TRANSPARENT)

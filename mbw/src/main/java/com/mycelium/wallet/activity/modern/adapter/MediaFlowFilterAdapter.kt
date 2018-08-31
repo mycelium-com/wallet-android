@@ -64,6 +64,6 @@ class MediaFlowFilterAdapter(private val filters: List<Category>) : RecyclerView
         notifyDataSetChanged()
     }
 
-    class Holder(itemView: View?) : RecyclerView.ViewHolder(itemView)
+    class Holder(itemView: View) : RecyclerView.ViewHolder(itemView)
 
 }
