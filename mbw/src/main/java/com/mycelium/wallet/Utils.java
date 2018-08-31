@@ -1144,13 +1144,25 @@ public class Utils {
       return hasPermission;
    }
 
+   public static String getFormattedValueWithUnit(Value value) {
+      return getFormattedValueWithUnit(value, CoinUtil.Denomination.BTC);
+   }
+
     public static String getFormattedValueWithUnit(Value value, CoinUtil.Denomination denomination) {
         return String.format("%s %s%s", CoinUtil.valueString(value.value, denomination, false)
                 , denomination.getUnicodeName().substring(0, 1)
                 , value.type.getSymbol());
     }
 
-    public static Value getSpendable(Balance balance) {
-      return balance.confirmed.add(balance.pendingReceiving);
-    }
+   public static Value getSpendable(Balance balance) {
+      return balance.confirmed.add(balance.pendingReceiving).add(balance.pendingChange);
+   }
+
+   public static boolean isBtc(Value value) {
+      return value.type.getSymbol().equals("BTC");
+   }
+
+   public static BigDecimal getBigDecimal(Value value) {
+      return BigDecimal.valueOf(value.value).movePointLeft(value.type.getUnitExponent());
+   }
 }

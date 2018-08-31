@@ -130,7 +130,7 @@ public class BCHHelper {
                 accountsFound = 0;
                 for (WalletBtcAccount account : accounts) {
                     if (!sharedPreferences.getBoolean(ALREADY_FOUND_ACCOUNT + account.getId().toString(), false)) {
-                        sum = sum.add(account.getCurrencyBasedBalance().confirmed.getValue());
+                        sum = sum.add(Utils.getBigDecimal(account.getAccountBalance().confirmed));
                         accountsFound++;
                         sharedPreferences.edit()
                                 .putBoolean(ALREADY_FOUND_ACCOUNT + account.getId().toString(), true)

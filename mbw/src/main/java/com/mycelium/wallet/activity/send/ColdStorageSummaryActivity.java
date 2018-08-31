@@ -147,7 +147,7 @@ public class ColdStorageSummaryActivity extends Activity {
       // Send Button
       Button btSend = findViewById(R.id.btSend);
       if (_account.canSpend()) {
-         if (Utils.getSpendable(balance).value > 0) {
+         if (Utils.getSpendable(balance).isPositive()) {
             btSend.setEnabled(true);
             btSend.setOnClickListener(new OnClickListener() {
                @Override

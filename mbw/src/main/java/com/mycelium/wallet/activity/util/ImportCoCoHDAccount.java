@@ -15,6 +15,7 @@ import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.colu.ColuManager;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+import com.mycelium.wapi.wallet.coins.Value;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -27,9 +28,9 @@ public class ImportCoCoHDAccount extends AsyncTask<Void, Integer, UUID> {
     private final Context context;
     private ProgressDialog dialog;
     private MbwManager mbwManager;
-    private BigDecimal mtFound = BigDecimal.ZERO;
-    private BigDecimal rmcFound = BigDecimal.ZERO;
-    private BigDecimal massFound = BigDecimal.ZERO;
+    private Value mtFound /*= BigDecimal.ZERO*/;
+    private Value rmcFound /*= BigDecimal.ZERO*/;
+    private Value massFound /*= BigDecimal.ZERO*/;
     private int scanned = 0;
     private List<WalletBtcAccount> accountsCreated = new ArrayList<>();
     private FinishListener finishListener;
@@ -75,7 +76,7 @@ public class ImportCoCoHDAccount extends AsyncTask<Void, Integer, UUID> {
         //Make sure that accounts are up to date
         coluManager.scanForAccounts(SyncMode.FULL_SYNC_ALL_ACCOUNTS);
         for (WalletBtcAccount account : accountsCreated) {
-            BigDecimal spendableBalance = account.getCurrencyBasedBalance().confirmed.getValue();
+            Value spendableBalance = account.getAccountBalance().confirmed;
             switch (((ColuAccount) account).getColuAsset().assetType) {
                 case MASS:
                     massFound = massFound.add(spendableBalance);
@@ -156,7 +157,7 @@ public class ImportCoCoHDAccount extends AsyncTask<Void, Integer, UUID> {
     public interface FinishListener {
         void finishCoCoNotFound(HdKeyNode hdKeyNode);
 
-        void finishCoCoFound(final UUID firstAddedAccount, int accountsCreated, int existingAccountsFound, BigDecimal mtFound,
-                             BigDecimal massFound, BigDecimal rmcFound);
+        void finishCoCoFound(final UUID firstAddedAccount, int accountsCreated, int existingAccountsFound, Value mtFound,
+                             Value massFound, Value rmcFound);
     }
 }

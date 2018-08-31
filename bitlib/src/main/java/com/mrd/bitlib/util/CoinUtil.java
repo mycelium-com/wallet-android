@@ -52,7 +52,7 @@ public class CoinUtil {
    }
 
    public enum Denomination {
-      BTC(8, "BTC", "BTC", BTC_IN_SATOSHIS),
+      BTC(8, "BTC", "BTC",  BTC_IN_SATOSHIS),
       mBTC(5, "mBTC", "mBTC", mBTC_IN_SATOSHIS),
       uBTC(2, "uBTC", "\u00B5BTC", uBTC_IN_SATOSHIS),
       BCH(8, "BCH", "BCH", BCH_IN_SATOSHIS),

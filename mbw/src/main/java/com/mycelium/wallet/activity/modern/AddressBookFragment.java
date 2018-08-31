@@ -176,8 +176,8 @@ public class AddressBookFragment extends Fragment {
          if (receivingAddress.isPresent()) {
             if ((spendableOnly && account.canSpend()
                     && (!excudeSelected || !account.getReceivingAddress().equals(_mbwManager.getSelectedAccount().getReceivingAddress()))
-                    && !account.getCurrencyBasedBalance().confirmed.isZero()
-                    && account.getCurrencyBasedBalance().confirmed.isBtc()) || !spendableOnly) {
+                    && !account.getAccountBalance().confirmed.isZero()
+                    && Utils.isBtc(account.getAccountBalance().confirmed)) || !spendableOnly) {
                if (selectedAccount instanceof ColuAccount && account instanceof ColuAccount
                        && ((ColuAccount) account).getColuAsset().assetType == ((ColuAccount) selectedAccount).getColuAsset().assetType) {
                   entries.add(new AddressBookManager.IconEntry(receivingAddress.get(), name, drawableForAccount, account.getId()));
