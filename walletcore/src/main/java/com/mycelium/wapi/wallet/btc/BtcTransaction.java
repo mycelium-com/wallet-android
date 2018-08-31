@@ -136,7 +136,9 @@ public class BtcTransaction implements GenericTransaction {
 
     @Override
     public Sha256Hash getHash() {
-        return tx.getHash();
+        // TODO: Find out should we return tx.getHash() or tx.getId().
+        // This is related with latest SEGWIT changes
+        return tx.getId();
     }
 
     @Override

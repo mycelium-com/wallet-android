@@ -1483,12 +1483,11 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       List<TransactionEx> list = _backing.getTransactionHistory(offset, limit);
       List<BtcTransaction> history = new ArrayList<>();
       for (TransactionEx tex: list) {
-         Transaction tx = null;
-         try {
-            tx = Transaction.fromByteReader(new ByteReader(tex.binary));
-         } catch (Transaction.TransactionParsingException e) {
-            return null;
+         Transaction tx = TransactionEx.toTransaction(tex);
+         if (tx == null) {
+            continue;
          }
+
          BtcTransaction item;
 
          long satoshisReceived = 0;
@@ -1550,12 +1549,11 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    public GenericTransaction getTransaction(Sha256Hash transactionId){
       checkNotArchived();
       TransactionEx tex = _backing.getTransaction(transactionId);
-      Transaction tx;
-      try {
-         tx = Transaction.fromByteReader(new ByteReader(tex.binary));
-      } catch (Transaction.TransactionParsingException e) {
+      Transaction tx = TransactionEx.toTransaction(tex);
+      if (tx == null) {
          return null;
       }
+
       long satoshisReceived = 0;
       long satoshisSent = 0;
       ArrayList<GenericAddress> toAddresses = new ArrayList<>(); //need to create list of outputs
