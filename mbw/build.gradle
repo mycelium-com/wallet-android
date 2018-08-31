@@ -16,9 +16,7 @@ buildscript {
 
     dependencies {
         classpath androidBuildArtifact
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version") {
-            exclude(group: 'org.jetbrains', module: 'annotations')
-        }
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
 
@@ -131,8 +129,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 2110118
-        versionName '2.11.1.18'
+        versionCode 2110120
+        versionName '2.11.1.20'
         multiDexEnabled true
 
         minSdkVersion 19
