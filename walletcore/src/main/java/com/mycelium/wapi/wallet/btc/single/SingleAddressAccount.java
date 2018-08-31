@@ -105,61 +105,6 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
       _context.persistIfNecessary(_backing);
    }
 
-   @Override
-   public GenericTransaction getTransaction(Sha256Hash transactionId){
-      checkNotArchived();
-      TransactionEx tex = _backing.getTransaction(transactionId);
-      Transaction tx = null;
-      try {
-         tx = Transaction.fromByteReader(new ByteReader(tex.binary));
-      } catch (Transaction.TransactionParsingException e) {
-         return null;
-      }
-      BtcTransaction item;
-      long satoshisReceived = 0;
-      long satoshisSent = 0;
-      ArrayList<GenericAddress> toAddresses = new ArrayList<>();
-      ArrayList<GenericTransaction.GenericOutput> outputs = new ArrayList<>(); //need to create list of outputs
-      for (TransactionOutput output : tx.outputs) {
-         Address address = output.script.getAddress(_network);
-         if (isMine(output.script)) {
-            satoshisReceived += output.value;
-         }
-         if (address != null && address != Address.getNullAddress(_network)) {
-            toAddresses.add(BtcAddress.from(address.toString()));
-         }
-      }
-      ArrayList<GenericTransaction.GenericOutput> inputs = new ArrayList<>(); //need to create list of outputs
-
-      // Inputs
-      if (!tx.isCoinbase()) {
-         for (TransactionInput input : tx.inputs) {
-            // find parent output
-            TransactionOutputEx funding = _backing.getParentTransactionOutput(input.outPoint);
-            if (funding == null) {
-               _logger.logError("Unable to find parent output for: " + input.outPoint);
-               continue;
-            }
-            if (isMine(funding)) {
-               satoshisSent += funding.value;
-            }
-            Address address = ScriptOutput.fromScriptBytes(funding.script).getAddress(_network);
-            CoinType coinType =  (_network.isTestnet())? BitcoinTest.get() : BitcoinMain.get();
-            inputs.add(new GenericTransaction.GenericOutput(new BtcAddress(address.getAllAddressBytes()), Value.valueOf(coinType, funding.value)));
-         }
-      }
-
-      int confirmations;
-      if (tex.height == -1) {
-         confirmations = 0;
-      } else {
-         confirmations = Math.max(0, getBlockChainHeight() - tex.height + 1);
-      }
-      boolean isQueuedOutgoing = _backing.isOutgoingTransaction(tx.getId());
-      return new BtcTransaction(getCoinType(), tx, satoshisSent, satoshisReceived, tex.time,
-              confirmations, isQueuedOutgoing, inputs, toAddresses, riskAssessmentForUnconfirmedTx.get(tx.getId()),
-              tex.binary.length, Value.valueOf(BitcoinMain.get(), Math.abs(satoshisReceived - satoshisSent)));
-   }
 
    @Override
    public synchronized void activateAccount() {
@@ -289,12 +234,7 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
    }
 
    @Override
-    public CoinType getCoinType() {
-        return null;
-    }
-
-    @Override
-    public Balance getAccountBalance() {
+   public Balance getAccountBalance() {
         return null;
     }
 
@@ -471,8 +411,4 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
    public void broadcastTx(GenericTransaction tx) throws TransactionBroadcastException {
    }
 
-   @Override
-   public List<BtcTransaction> getTransactions(int offset, int limit) {
-      return new ArrayList<BtcTransaction>();
-   }
 }
