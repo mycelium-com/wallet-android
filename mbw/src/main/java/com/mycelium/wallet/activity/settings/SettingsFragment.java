@@ -84,7 +84,6 @@ import java.util.Locale;
 import info.guardianproject.onionkit.ui.OrbotHelper;
 
 import static android.app.Activity.RESULT_CANCELED;
-import static com.mycelium.wallet.activity.main.BalanceFragment.DEFAULT_EXCHANGE;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
     public static final CharMatcher AMOUNT = CharMatcher.javaDigit().or(CharMatcher.anyOf(".,"));
@@ -413,14 +412,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         Collections.sort(exchangeSourceNamesList, new Comparator<String>() {
             @Override
             public int compare(String rate1, String rate2) {
-                if(rate1.toLowerCase().equals(DEFAULT_EXCHANGE.toLowerCase()) ^
-                        rate2.toLowerCase().equals(DEFAULT_EXCHANGE.toLowerCase())){
-                    if(rate1.equals(DEFAULT_EXCHANGE)){
-                        return -1;
-                    } else {
-                        return 1;
-                    }
-                }
                 return rate1.compareToIgnoreCase(rate2);
             }
         });
