@@ -57,7 +57,12 @@ open class UnsignedTransaction constructor(
                 is ScriptOutputP2WSH -> throw NotImplementedError()
             }
 
+            val scriptsList: MutableList<ScriptInput> = mutableListOf()
             if (!isSegWitOutput(i)) {
+                inputs.forEach {
+                    scriptsList.add(it.script)
+                    it.script = ScriptInput.EMPTY
+                }
                 inputs[i].script = ScriptInput.fromOutputScript(funding[i].script)
             }
 
@@ -65,6 +70,9 @@ open class UnsignedTransaction constructor(
             val hash = transaction.getTxDigestHash(i)
             // Set the input to the empty script again
             if (!isSegWitOutput(i)) {
+                inputs.forEachIndexed { index, it ->
+                    it.script = scriptsList[index]
+                }
                 inputs[i] = TransactionInput(fundingOutputs[i].outPoint, ScriptInput.EMPTY, NO_SEQUENCE, fundingOutputs[i].value)
             }
 

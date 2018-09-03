@@ -45,7 +45,6 @@ class HDAccountContext @JvmOverloads constructor(
             this(id, accountIndex, isArchived, 0, 0, createNewIndexesContexts(derivationTypes), accountType, accountSubId)
 
     init {
-
         isDirty = false
     }
 
