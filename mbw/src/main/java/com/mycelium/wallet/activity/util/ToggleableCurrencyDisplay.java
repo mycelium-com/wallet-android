@@ -177,7 +177,7 @@ public class ToggleableCurrencyDisplay extends LinearLayout {
 //         }
 
          tvCurrency.setText(currencySwitcher.getCurrentFiatCurrency());
-         tvValue.setText(value != null ? value.toFriendlyString() : null);
+         tvValue.setText(value != null ? value.toPlainString() : null);
       }
    }
 

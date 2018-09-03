@@ -1149,9 +1149,8 @@ public class Utils {
    }
 
     public static String getFormattedValueWithUnit(Value value, CoinUtil.Denomination denomination) {
-        return String.format("%s %s%s", CoinUtil.valueString(value.value, denomination, false)
-                , denomination.getUnicodeName().substring(0, 1)
-                , value.type.getSymbol());
+        return String.format("%s %s", CoinUtil.valueString(value.value, denomination, false)
+                , denomination.getUnicodeString(value.type.getSymbol()));
     }
 
    public static Value getSpendable(Balance balance) {

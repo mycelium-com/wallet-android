@@ -72,6 +72,18 @@ public class CoinUtil {
          _oneUnitInSatoshis = oneUnitInSatoshis;
       }
 
+      // TODO need some other code
+      public String getUnicodeString(String symbol) {
+         if (this == BTC || this == BCH) {
+            return symbol;
+         } else if (this == mBTC || this == mBCH || this == uBTC || this == uBCH) {
+            return this.getUnicodeName().substring(0, 1) + symbol;
+         } else {
+            return getUnicodeName();
+         }
+
+      }
+
       public int getDecimalPlaces() {
          return _decimalPlaces;
       }

@@ -112,6 +112,7 @@ import com.mycelium.wapi.api.jsonrpc.TcpEndpoint;
 import com.mycelium.wapi.wallet.AccountProvider;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.IdentityAccountKeyManager;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.InMemoryWalletManagerBacking;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SecureKeyValueStore;

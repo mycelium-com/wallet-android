@@ -28,6 +28,7 @@ public class ImportCoCoHDAccount extends AsyncTask<Void, Integer, UUID> {
     private final Context context;
     private ProgressDialog dialog;
     private MbwManager mbwManager;
+    //TODO need ZERO Value initialization
     private Value mtFound /*= BigDecimal.ZERO*/;
     private Value rmcFound /*= BigDecimal.ZERO*/;
     private Value massFound /*= BigDecimal.ZERO*/;
