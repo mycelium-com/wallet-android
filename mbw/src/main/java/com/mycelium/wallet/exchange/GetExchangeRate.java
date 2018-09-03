@@ -25,7 +25,10 @@ public class GetExchangeRate {
 
       // multiply the source value by this rate, to get the target value
       public BigDecimal getRate() {
-         return getTargetPrice().divide(getSourcePrice(), 10, RoundingMode.HALF_UP);
+          if (getTargetPrice() == null || getSourcePrice() == null) {
+              return null;
+          }
+          return getTargetPrice().divide(getSourcePrice(), 10, RoundingMode.HALF_UP);
       }
 
       public BigDecimal getSourcePrice() {
