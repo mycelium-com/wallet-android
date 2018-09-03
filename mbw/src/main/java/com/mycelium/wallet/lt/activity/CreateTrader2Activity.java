@@ -239,7 +239,7 @@ public class CreateTrader2Activity extends Activity {
          // We are already registered with this key
          InMemoryPrivateKey privateKey = Preconditions.checkNotNull(getSelectedPrivateKey());
          UUID accountId = Preconditions.checkNotNull(getSelectedAccount());
-         _ltManager.setLocalTraderData(accountId, privateKey, privateKey.getPublicKey().toAddress(_mbwManager.getNetwork(), AddressType.P2PKH), nickname); // TODO Fix SegWit
+         _ltManager.setLocalTraderData(accountId, privateKey, privateKey.getPublicKey().toAddress(_mbwManager.getNetwork(), AddressType.P2PKH), nickname); // TODO SegWit evaluate
          setResult(RESULT_OK);
          finish();
       }

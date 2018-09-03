@@ -299,7 +299,7 @@ public class GlideraService {
          final Observable<Address> addressObservable = Observable.create(new Observable.OnSubscribe<Address>() {
             @Override
             public void call(Subscriber<? super Address> subscriber) {
-               subscriber.onNext(getBitidKey().getPublicKey().toAddress(networkParameters, AddressType.P2PKH)); //TODO segwit change
+               subscriber.onNext(getBitidKey().getPublicKey().toAddress(networkParameters, AddressType.P2PKH)); //TODO segwit evaluate
                subscriber.onCompleted();
             }
          }).subscribeOn(Schedulers.computation());

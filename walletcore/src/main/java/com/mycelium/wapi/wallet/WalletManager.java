@@ -1262,8 +1262,11 @@ public class WalletManager {
 
         final LinkedList<Address> addresses = new LinkedList<>();
         for (Integer gapIndex : gaps) {
-            final HDAccountKeyManager keyManager = HDAccountKeyManager.createNew(root, _network, gapIndex, tempSecureKeyValueStore, cipher, BipDerivationType.BIP44);   //TODO segwit fix
-            addresses.add(keyManager.getAddress(false, 0)); // get first external address for the account in the gap
+            for (BipDerivationType derivationType : BipDerivationType.values()) {
+                final HDAccountKeyManager keyManager = HDAccountKeyManager.createNew(root, _network, gapIndex,
+                        tempSecureKeyValueStore, cipher, derivationType);
+                addresses.add(keyManager.getAddress(false, 0)); // get first external address for the account in the gap
+            }
         }
 
         return addresses;
@@ -1280,18 +1283,22 @@ public class WalletManager {
             _backing.beginTransaction();
             try {
                 // Create the base keys for the account
-                HDAccountKeyManager keyManager = HDAccountKeyManager.createNew(root, _network, accountIndex, _secureKeyValueStore, cipher, BipDerivationType.BIP44);    //TODO segwit fix
+                Map<BipDerivationType, HDAccountKeyManager> keyManagerMap = new HashMap<>();
+                for (BipDerivationType derivationType : BipDerivationType.values()) {
+                    keyManagerMap.put(derivationType, HDAccountKeyManager.createNew(root, _network, accountIndex,
+                            _secureKeyValueStore, cipher, derivationType));
+                }
 
                 // Generate the context for the account
-                HDAccountContext context = new HDAccountContext(keyManager.getAccountId(), accountIndex, false);
+                HDAccountContext context = new HDAccountContext(
+                        keyManagerMap.get(BipDerivationType.BIP44).getAccountId(), accountIndex, false);
                 _backing.createBip44AccountContext(context);
 
                 // Get the backing for the new account
                 Bip44AccountBacking accountBacking = getBip44AccountBacking(context.getId());
 
                 // Create actual account
-                Bip44Account account = new Bip44Account(context, ImmutableMap.of(BipDerivationType.BIP44, keyManager),
-                        _network, accountBacking, _wapi);
+                Bip44Account account = new Bip44Account(context, keyManagerMap, _network, accountBacking, _wapi);
 
                 // Finally persist context and add account
                 context.persist(accountBacking);

@@ -41,7 +41,7 @@ class Bip44AccountExternalSignature(
         // we dont have a private key we can export, always set it as absent
         val pubKey = Optional.of(keyManagerMap[BipDerivationType.BIP44]!!
                 .getPublicAccountRoot()
-                .serialize(network, BipDerivationType.BIP44)) // TODO FIX SEGWIT
+                .serialize(network, BipDerivationType.BIP44)) // TODO FIX SEGWIT, requires export screen
         return ExportableAccount.Data(Optional.absent<String>(), pubKey)
     }
 }

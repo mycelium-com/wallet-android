@@ -311,18 +311,6 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
         return proposedTransaction.partialTx.bitcoinSerialize()
     }
 
-    private fun createNextAccount(account: Bip44Account, walletManager: WalletManager,
-                                  archived: Boolean) {
-        if(account.hasHadActivity()
-                && !walletManager.doesBip44AccountExists(account.accountIndex + 1)) {
-            val newAccountUUID = walletManager.createArchivedGapFiller(AesKeyCipher.defaultKeyCipher(),
-                    account.accountIndex + 1, archived)
-            MbwManager.getInstance(context).metadataStorage
-                    .storeAccountLabel(newAccountUUID, "Account " + (account.accountIndex + 2 /** account index is zero based */))
-            walletManager.startSynchronization()
-        }
-    }
-
     private fun notifySatoshisReceived() {
         val mds = MbwManager.getInstance(context).metadataStorage
         @SuppressWarnings("deprecation") // the non-deprecated alternative requires min API level 26

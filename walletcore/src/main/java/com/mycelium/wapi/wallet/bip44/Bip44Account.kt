@@ -37,14 +37,17 @@ import com.mrd.bitlib.crypto.BipDerivationType.Companion.getDerivationTypeByAddr
 
 import java.util.ArrayList
 
+/**
+ * HD account class. Not really a bip44, as inside it contains also bip49 and bip84 accounts. Name saved for backward-compatibility.
+ * // TODO segwit change name??
+ */
 open class Bip44Account(
         protected var context: HDAccountContext,
         protected val keyManagerMap: Map<BipDerivationType, HDAccountKeyManager>,
         network: NetworkParameters,
         protected val backing: Bip44AccountBacking,
         wapi: Wapi
-) :
-        AbstractAccount(backing, network, wapi), ExportableAccount {
+) : AbstractAccount(backing, network, wapi), ExportableAccount {
 
     // Used to determine which bips this account support
     private val derivePaths = context.indexesMap.keys
@@ -659,7 +662,7 @@ open class Bip44Account(
     override fun getExportData(cipher: KeyCipher): ExportableAccount.Data {
         var privKey = Optional.absent<String>()
 
-        val derivationType = BipDerivationType.BIP44 // TODO FIX SEGWIT
+        val derivationType = BipDerivationType.BIP44 // TODO FIX SEGWIT, requires export screen
         if (canSpend()) {
             try {
                 privKey = Optional.of(keyManagerMap[derivationType]!!
