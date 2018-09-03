@@ -55,7 +55,7 @@ import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.api.TryLogin;
 import com.mycelium.wapi.wallet.*;
-import com.mycelium.wapi.wallet.bip44.Bip44Account;
+import com.mycelium.wapi.wallet.bip44.HDAccount;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 
 import java.util.LinkedList;
@@ -115,7 +115,7 @@ public class CreateTrader2Activity extends Activity {
          if (!account.canSpend()) {
             continue;
          }
-         if (account instanceof Bip44Account && !account.isDerivedFromInternalMasterseed()) {
+         if (account instanceof HDAccount && !account.isDerivedFromInternalMasterseed()) {
             continue;
          }
          if (!Utils.isAllowedForLocalTrader(account)) {

@@ -76,7 +76,7 @@ import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.bip44.Bip44Account;
+import com.mycelium.wapi.wallet.bip44.HDAccount;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -255,7 +255,7 @@ public class StartupActivity extends Activity {
          activity._progress.dismiss();
          //set default label for the created HD account
          WalletAccount account = activity._mbwManager.getWalletManager(false).getAccount(accountid);
-         String defaultName = activity.getString(R.string.account) + " " + (((Bip44Account) account).getAccountIndex() + 1);
+         String defaultName = activity.getString(R.string.account) + " " + (((HDAccount) account).getAccountIndex() + 1);
          activity._mbwManager.getMetadataStorage().storeAccountLabel(accountid, defaultName);
          //finish initialization
          activity.delayedFinish.run();
@@ -295,7 +295,7 @@ public class StartupActivity extends Activity {
          }
          //set default label for the created HD account
          WalletAccount account = activity._mbwManager.getWalletManager(false).getAccount(accountid);
-         String defaultName = activity.getString(R.string.account) + " " + (((Bip44Account) account).getAccountIndex() + 1);
+         String defaultName = activity.getString(R.string.account) + " " + (((HDAccount) account).getAccountIndex() + 1);
          activity._mbwManager.getMetadataStorage().storeAccountLabel(accountid, defaultName);
          //finish initialization
          activity.delayedFinish.run();
@@ -534,7 +534,7 @@ public class StartupActivity extends Activity {
             UUID accountid = (UUID) data.getSerializableExtra(AddAccountActivity.RESULT_KEY);
             //set default label for the created HD account
             WalletAccount account = _mbwManager.getWalletManager(false).getAccount(accountid);
-            String defaultName = getString(R.string.account) + " " + (((Bip44Account) account).getAccountIndex() + 1);
+            String defaultName = getString(R.string.account) + " " + (((HDAccount) account).getAccountIndex() + 1);
             _mbwManager.getMetadataStorage().storeAccountLabel(accountid, defaultName);
             //finish initialization
             delayedFinish.run();

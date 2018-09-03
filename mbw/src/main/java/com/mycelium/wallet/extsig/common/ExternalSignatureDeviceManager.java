@@ -62,7 +62,7 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.util.AbstractAccountScanManager;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.bip44.Bip44AccountExternalSignature;
+import com.mycelium.wapi.wallet.bip44.HDAccountExternalSignature;
 import com.mycelium.wapi.wallet.bip44.ExternalSignatureProvider;
 import com.satoshilabs.trezor.ExternalSignatureDevice;
 import com.satoshilabs.trezor.ExtSigDeviceConnectionException;
@@ -208,7 +208,7 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
 
    // based on https://github.com/trezor/python-trezor/blob/a2a5b6a4601c6912166ef7f85f04fa1101c2afd4/trezorlib/client.py
    @Override
-   public Transaction getSignedTransaction(UnsignedTransaction unsigned, Bip44AccountExternalSignature forAccount) {
+   public Transaction getSignedTransaction(UnsignedTransaction unsigned, HDAccountExternalSignature forAccount) {
       if (!initialize()) {
          return null;
       }

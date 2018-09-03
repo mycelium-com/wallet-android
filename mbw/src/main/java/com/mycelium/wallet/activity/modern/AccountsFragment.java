@@ -106,8 +106,8 @@ import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.bip44.Bip44Account;
-import com.mycelium.wapi.wallet.bip44.Bip44PubOnlyAccount;
+import com.mycelium.wapi.wallet.bip44.HDAccount;
+import com.mycelium.wapi.wallet.bip44.HDPubOnlyAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
@@ -628,7 +628,7 @@ public class AccountsFragment extends Fragment {
          menus.add(R.menu.record_options_menu_delete);
       }
 
-      if (account.isActive() && account.canSpend() && !(account instanceof Bip44PubOnlyAccount)
+      if (account.isActive() && account.canSpend() && !(account instanceof HDPubOnlyAccount)
               && !isBch) {
          menus.add(R.menu.record_options_menu_sign);
       }
@@ -655,11 +655,11 @@ public class AccountsFragment extends Fragment {
          menus.add(R.menu.record_options_menu_export);
       }
 
-      if (account.isActive() && account instanceof Bip44Account && !(account instanceof Bip44PubOnlyAccount)
+      if (account.isActive() && account instanceof HDAccount && !(account instanceof HDPubOnlyAccount)
               && AccountManager.INSTANCE.getBTCMasterSeedAccounts().size() > 1 && !isBch) {
 
-         final Bip44Account bip44Account = (Bip44Account) account;
-         if (!bip44Account.hasHadActivity() && bip44Account.getAccountIndex() == walletManager.getCurrentBip44Index()) {
+         final HDAccount HDAccount = (HDAccount) account;
+         if (!HDAccount.hasHadActivity() && HDAccount.getAccountIndex() == walletManager.getCurrentBip44Index()) {
             //only allow to remove unused HD acounts from the view
             menus.add(R.menu.record_options_menu_hide_unused);
          }
@@ -966,7 +966,7 @@ public class AccountsFragment extends Fragment {
    private void toastSelectedAccountChanged(WalletAccount account) {
       if (account.isArchived()) {
          _toaster.toast(getString(R.string.selected_archived_warning), true);
-      } else if (account instanceof Bip44Account) {
+      } else if (account instanceof HDAccount) {
          _toaster.toast(getString(R.string.selected_hd_info), true);
       } else if (account instanceof SingleAddressAccount) {
          _toaster.toast(getString(R.string.selected_single_info), true);
@@ -1164,7 +1164,7 @@ public class AccountsFragment extends Fragment {
          });
          return;
       } else if (_focusedAccount.getType() == WalletAccount.Type.BTCBIP44) {
-         Bip44Account account = (Bip44Account) _focusedAccount;
+         HDAccount account = (HDAccount) _focusedAccount;
          if (!account.hasHadActivity()) {
             //this account is unused, we dont allow archiving it
             _toaster.toast(R.string.dont_allow_archiving_unused_notification, false);
@@ -1203,8 +1203,8 @@ public class AccountsFragment extends Fragment {
          _toaster.toast(R.string.keep_one_active, false);
          return;
       }
-      if (_focusedAccount instanceof Bip44Account) {
-         final Bip44Account account = (Bip44Account) _focusedAccount;
+      if (_focusedAccount instanceof HDAccount) {
+         final HDAccount account = (HDAccount) _focusedAccount;
          if (account.hasHadActivity()) {
             //this account is used, we don't allow hiding it
             _toaster.toast(R.string.dont_allow_hiding_used_notification, false);

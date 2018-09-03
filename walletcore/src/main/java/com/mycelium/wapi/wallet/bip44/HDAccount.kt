@@ -37,11 +37,7 @@ import com.mrd.bitlib.crypto.BipDerivationType.Companion.getDerivationTypeByAddr
 
 import java.util.ArrayList
 
-/**
- * HD account class. Not really a bip44, as inside it contains also bip49 and bip84 accounts. Name saved for backward-compatibility.
- * // TODO segwit change name??
- */
-open class Bip44Account(
+open class HDAccount(
         protected var context: HDAccountContext,
         protected val keyManagerMap: Map<BipDerivationType, HDAccountKeyManager>,
         network: NetworkParameters,
