@@ -399,7 +399,7 @@ public class BalanceFragment extends Fragment {
 //            tv.setText(getResources().getString(R.string.approximate_fiat_value, currency, converted));
 //            Utils.getFormattedValueWithUnit(balance.confirmed, _mbwManager.getBitcoinDenomination());
             tv.setText(converted.toString());
-         } catch (IllegalArgumentException ex) {
+         } catch (Exception ex) {
             // something failed while calculating the bitcoin amount
             tv.setVisibility(View.GONE);
          }
