@@ -588,8 +588,7 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
          Cursor cursor = null;
          List<TransactionOutputEx> list = new LinkedList<>();
          try {
-            SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(_db);
-            cursor = blobQuery.query(false, utxoTableName, new String[]{"outpoint", "height", "value", "isCoinbase",
+            cursor = _db.query(false, utxoTableName, new String[]{"outpoint", "height", "value", "isCoinbase",
                   "script"}, null, null, null, null, null, null);
             while (cursor.moveToNext()) {
                TransactionOutputEx tex = new TransactionOutputEx(SQLiteQueryWithBlobs.outPointFromBytes(cursor
