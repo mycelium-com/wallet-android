@@ -13,7 +13,7 @@ import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.WapiLogger;
 import com.mycelium.wallet.BitIdKeyDerivation;
-import com.mycelium.wallet.ExchangeRateManager;
+import com.mycelium.wallet.exchange.ExchangeRateManager;
 import com.mycelium.wallet.MbwEnvironment;
 import com.mycelium.wallet.event.ExtraAccountsChanged;
 import com.mycelium.wallet.persistence.MetadataStorage;

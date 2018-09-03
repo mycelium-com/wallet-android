@@ -37,7 +37,7 @@ package com.mycelium.wallet.event;
 import android.os.Handler;
 import com.google.common.base.Optional;
 import com.mrd.bitlib.model.Address;
-import com.mycelium.wallet.ExchangeRateManager;
+import com.mycelium.wallet.exchange.ExchangeRateManager;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.squareup.otto.Bus;
 

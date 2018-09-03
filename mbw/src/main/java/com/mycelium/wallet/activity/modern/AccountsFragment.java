@@ -99,12 +99,17 @@ import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.api.CreateTrader;
 import com.mycelium.wallet.lt.api.DeleteTrader;
 import com.mycelium.wallet.persistence.MetadataStorage;
-import com.mycelium.wapi.model.BalanceSatoshis;
-import com.mycelium.wapi.wallet.*;
+import com.mycelium.wapi.wallet.AesKeyCipher;
+import com.mycelium.wapi.wallet.ExportableAccount;
+import com.mycelium.wapi.wallet.KeyCipher;
+import com.mycelium.wapi.wallet.SyncMode;
+import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.bip44.Bip44Account;
 import com.mycelium.wapi.wallet.btc.bip44.Bip44PubOnlyAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
+import com.mycelium.wapi.wallet.coins.Balance;
+import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.squareup.otto.Bus;
@@ -306,7 +311,7 @@ public class AccountsFragment extends Fragment {
                      message = getString(R.string.confirm_delete_pk_with_balance_with_label,
                              getResources().getQuantityString(R.plurals.account_label, labelCount, label),
                              address, accountToDelete instanceof ColuAccount ?
-                                     Utils.getColuFormattedValueWithUnit(getPotentialBalanceColu(accountToDelete))
+                                     Utils.getFormattedValueWithUnit(getPotentialBalanceColu(accountToDelete))
                                      : _mbwManager.getBtcValueString(satoshis)
                      );
                   } else {
@@ -314,7 +319,7 @@ public class AccountsFragment extends Fragment {
                              R.string.confirm_delete_pk_with_balance,
                              receivingAddress.isPresent() ? receivingAddress.get().toMultiLineString() : "",
                              accountToDelete instanceof ColuAccount ?
-                                     Utils.getColuFormattedValueWithUnit(getPotentialBalanceColu(accountToDelete))
+                                     Utils.getFormattedValueWithUnit(getPotentialBalanceColu(accountToDelete))
                                      : _mbwManager.getBtcValueString(satoshis)
 
                      );
@@ -425,12 +430,11 @@ public class AccountsFragment extends Fragment {
             }
          }
 
-         private CurrencyValue getPotentialBalanceColu(WalletBtcAccount account) {
+         private Value getPotentialBalanceColu(WalletBtcAccount account) {
             if (account.isArchived()) {
                return null;
             } else {
-               CurrencyBasedBalance balance = account.getCurrencyBasedBalance();
-               return balance.confirmed;
+               return account.getAccountBalance().confirmed;
             }
          }
 
@@ -438,8 +442,8 @@ public class AccountsFragment extends Fragment {
             if (account.isArchived()) {
                return null;
             } else {
-               BalanceSatoshis balance = account.getBalance();
-               return balance.confirmed + balance.pendingChange + balance.pendingReceiving;
+               Balance balance = account.getAccountBalance();
+               return balance.confirmed.add(balance.pendingReceiving).value;
             }
          }
 
@@ -481,11 +485,11 @@ public class AccountsFragment extends Fragment {
    @NonNull
    private String getActiveAccountDeleteText(WalletBtcAccount accountToDelete, WalletBtcAccount linkedAccount, String accountName) {
       String dialogText;
-      CurrencyBasedBalance balance = Preconditions.checkNotNull(accountToDelete.getCurrencyBasedBalance());
+      Balance balance = Preconditions.checkNotNull(accountToDelete.getAccountBalance());
       String valueString = getBalanceString(accountToDelete, balance);
 
       if (linkedAccount != null && linkedAccount.isVisible()) {
-         CurrencyBasedBalance linkedBalance = linkedAccount.getCurrencyBasedBalance();
+         Balance linkedBalance = linkedAccount.getAccountBalance();
          String linkedValueString = getBalanceString(linkedAccount, linkedBalance);
          String linkedAccountName =_mbwManager.getMetadataStorage().getLabelByAccount(linkedAccount.getId());
          dialogText = getString(R.string.delete_account_message, accountName, valueString,
@@ -497,10 +501,10 @@ public class AccountsFragment extends Fragment {
       return dialogText;
    }
 
-   private String getBalanceString(WalletBtcAccount account, CurrencyBasedBalance balance) {
+   private String getBalanceString(WalletBtcAccount account, Balance balance) {
       String valueString = Utils.getFormattedValueWithUnit(balance.confirmed, _mbwManager.getBitcoinDenomination());
       if (account.getType() == WalletBtcAccount.Type.COLU) {
-         valueString = Utils.getColuFormattedValueWithUnit(balance.confirmed);
+         valueString = Utils.getFormattedValueWithUnit(balance.confirmed);
       }
       return valueString;
    }
@@ -1224,7 +1228,6 @@ public class AccountsFragment extends Fragment {
    }
 
    private void archive(final WalletBtcAccount account) {
-      CurrencyBasedBalance balance = Preconditions.checkNotNull(account.getCurrencyBasedBalance());
       final WalletBtcAccount linkedAccount = getLinkedAccount(account);
       new AlertDialog.Builder(getActivity())
               .setTitle(R.string.archiving_account_title)
@@ -1263,11 +1266,11 @@ public class AccountsFragment extends Fragment {
    @NonNull
    private String getAccountArchiveText(WalletBtcAccount account, WalletBtcAccount linkedAccount, String accountName) {
       String dialogText;
-      CurrencyBasedBalance balance = Preconditions.checkNotNull(account.getCurrencyBasedBalance());
+      Balance balance = Preconditions.checkNotNull(account.getAccountBalance());
       String valueString = getBalanceString(account, balance);
 
       if (linkedAccount != null && linkedAccount.isVisible()) {
-         CurrencyBasedBalance linkedBalance = linkedAccount.getCurrencyBasedBalance();
+         Balance linkedBalance = linkedAccount.getAccountBalance();
          String linkedValueString = getBalanceString(linkedAccount, linkedBalance);
          String linkedAccountName =_mbwManager.getMetadataStorage().getLabelByAccount(linkedAccount.getId());
          dialogText = getString(R.string.question_archive_account, accountName, valueString,

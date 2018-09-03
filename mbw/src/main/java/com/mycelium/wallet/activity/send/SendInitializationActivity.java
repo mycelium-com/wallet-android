@@ -194,7 +194,7 @@ public class SendInitializationActivity extends Activity {
       if (isFinishing()) {
          return;
       }
-      if (_account.getBalance().isSynchronizing) {
+      if (_account.isSynchronizing()) {
          // wait till its finished syncing
          return;
       }

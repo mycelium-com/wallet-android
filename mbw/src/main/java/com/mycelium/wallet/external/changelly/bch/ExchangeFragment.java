@@ -231,7 +231,7 @@ public class ExchangeFragment extends Fragment {
     private List<WalletBtcAccount> filterAccount(Collection<WalletBtcAccount> accounts) {
         List<WalletBtcAccount> result = new ArrayList<>();
         for (WalletBtcAccount walletAccount : accounts) {
-            if (walletAccount.canSpend() && !walletAccount.getCurrencyBasedBalance().confirmed.isZero()) {
+            if (walletAccount.canSpend() && !walletAccount.getAccountBalance().confirmed.isZero()) {
                 result.add(walletAccount);
             }
         }
@@ -486,7 +486,7 @@ public class ExchangeFragment extends Fragment {
             buttonContinue.setEnabled(false);
             toast("Please wait while loading minimum amount information.");
             return false;
-        } else if (fromAccount.getCurrencyBasedBalance().confirmed.getValue().compareTo(BigDecimal.valueOf(dblAmount)) < 0) {
+        } else if (Utils.getBigDecimal(fromAccount.getAccountBalance().confirmed).compareTo(BigDecimal.valueOf(dblAmount)) < 0) {
             buttonContinue.setEnabled(false);
             TextView tvError = valueKeyboard.getVisibility() == View.VISIBLE
                     && valueKeyboard.getInputTextView() == toValue

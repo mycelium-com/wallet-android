@@ -57,6 +57,7 @@ import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.bip44.Bip44Account;
+import com.mycelium.wapi.wallet.coins.Balance;
 import com.squareup.otto.Subscribe;
 
 import java.io.Serializable;
@@ -242,11 +243,11 @@ public abstract class HdAccountSelectorActivity extends Activity implements Mast
          HdAccountWrapper account = getItem(position);
          ((TextView)row.findViewById(R.id.tvLabel)).setText(account.name);
          WalletBtcAccount walletAccount = MbwManager.getInstance(getContext()).getWalletManager(true).getAccount(account.id);
-         BalanceSatoshis balance = walletAccount.getBalance();
-         String balanceString = MbwManager.getInstance(getContext()).getBtcValueString(balance.confirmed + balance.pendingChange);
+         Balance balance = walletAccount.getAccountBalance();
+         String balanceString = MbwManager.getInstance(getContext()).getBtcValueString(balance.confirmed.add(balance.pendingChange).value);
 
-         if (balance.getSendingBalance() > 0){
-            balanceString += " " + String.format(getString(R.string.account_balance_sending_amount), MbwManager.getInstance(getContext()).getBtcValueString(balance.getSendingBalance()));
+         if (Utils.getSpendable(balance).isPositive()){
+            balanceString += " " + String.format(getString(R.string.account_balance_sending_amount), MbwManager.getInstance(getContext()).getBtcValueString(Utils.getSpendable(balance).value));
          }
          Drawable drawableForAccount = Utils.getDrawableForAccount(walletAccount, true, getResources());
 

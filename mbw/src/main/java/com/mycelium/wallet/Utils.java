@@ -97,9 +97,11 @@ import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.ExportableAccount;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.bip44.Bip44Account;
-import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
 import com.mycelium.wapi.wallet.btc.bip44.Bip44AccountExternalSignature;
 import com.mycelium.wapi.wallet.btc.bip44.Bip44PubOnlyAccount;
+import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
+import com.mycelium.wapi.wallet.coins.Balance;
+import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.currency.BitcoinValue;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
@@ -169,7 +171,7 @@ public class Utils {
        * Configuration(standardResources.getConfiguration()); config.locale =
        * Locale.US; Resources defaultResources = new Resources(assets, metrics,
        * config);
-       * 
+       *
        * String lang = Locale.getDefault().getLanguage(); String settingsEn =
        * null; if (!lang.equals("en")) { settingsEn =
        * defaultResources.getString(resId); } return settingsEn;
@@ -1140,5 +1142,26 @@ public class Utils {
          ActivityCompat.requestPermissions(activity, new String[]{permission}, requestCode);
       }
       return hasPermission;
+   }
+
+   public static String getFormattedValueWithUnit(Value value) {
+      return getFormattedValueWithUnit(value, CoinUtil.Denomination.BTC);
+   }
+
+    public static String getFormattedValueWithUnit(Value value, CoinUtil.Denomination denomination) {
+        return String.format("%s %s", CoinUtil.valueString(value.value, denomination, false)
+                , denomination.getUnicodeString(value.type.getSymbol()));
+    }
+
+   public static Value getSpendable(Balance balance) {
+      return balance.confirmed.add(balance.pendingReceiving).add(balance.pendingChange);
+   }
+
+   public static boolean isBtc(Value value) {
+      return value.type.getSymbol().equals("BTC");
+   }
+
+   public static BigDecimal getBigDecimal(Value value) {
+      return BigDecimal.valueOf(value.value).movePointLeft(value.type.getUnitExponent());
    }
 }

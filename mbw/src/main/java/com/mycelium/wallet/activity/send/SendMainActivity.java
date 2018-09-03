@@ -567,8 +567,8 @@ public class SendMainActivity extends Activity {
 
     private boolean canFundColuFrom(WalletBtcAccount walletAccount) {
         return walletAccount != null && walletAccount.canSpend()
-                && walletAccount.getCurrencyBasedBalance().confirmed.isBtc()
-                && walletAccount.getBalance().getSpendableBalance() >=
+                && Utils.isBtc(walletAccount.getAccountBalance().confirmed)
+                && Utils.getSpendable(walletAccount.getAccountBalance()).value >=
                 _mbwManager.getColuManager().getColuTransactionFee(feePerKbValue) + getAmountForColuTxOutputs();
     }
 

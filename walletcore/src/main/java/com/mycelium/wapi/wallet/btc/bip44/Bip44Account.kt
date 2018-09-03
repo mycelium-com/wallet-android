@@ -727,7 +727,7 @@ open class Bip44Account(
 
 
     override fun getAccountBalance(): Balance {
-        return Balance(Value.parse(BitcoinMain.get(),"0"),Value.parse(BitcoinMain.get(),"0"), Value.parse(BitcoinMain.get(),"0"), Value.parse(BitcoinMain.get(),"0"))
+        return Balance(Value.parse(BitcoinMain.get(),"2.1"),Value.parse(BitcoinMain.get(),"0.1"), Value.parse(BitcoinMain.get(),"0.2"), Value.parse(BitcoinMain.get(),"0"))
     }
 
     override fun completeAndSignTx(request: SendRequest<BtcTransaction>) {

@@ -52,7 +52,7 @@ public class CoinUtil {
    }
 
    public enum Denomination {
-      BTC(8, "BTC", "BTC", BTC_IN_SATOSHIS),
+      BTC(8, "BTC", "BTC",  BTC_IN_SATOSHIS),
       mBTC(5, "mBTC", "mBTC", mBTC_IN_SATOSHIS),
       uBTC(2, "uBTC", "\u00B5BTC", uBTC_IN_SATOSHIS),
       BCH(8, "BCH", "BCH", BCH_IN_SATOSHIS),
@@ -70,6 +70,18 @@ public class CoinUtil {
          _asciiString = asciiString;
          _unicodeString = unicodeString;
          _oneUnitInSatoshis = oneUnitInSatoshis;
+      }
+
+      // TODO need some other code
+      public String getUnicodeString(String symbol) {
+         if (this == BTC || this == BCH) {
+            return symbol;
+         } else if (this == mBTC || this == mBCH || this == uBTC || this == uBCH) {
+            return this.getUnicodeName().substring(0, 1) + symbol;
+         } else {
+            return getUnicodeName();
+         }
+
       }
 
       public int getDecimalPlaces() {

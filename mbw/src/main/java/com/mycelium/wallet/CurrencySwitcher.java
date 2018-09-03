@@ -37,11 +37,13 @@ package com.mycelium.wallet;
 import com.google.api.client.util.Lists;
 import com.google.common.base.Strings;
 import com.mrd.bitlib.util.CoinUtil;
+import com.mycelium.wallet.exchange.ExchangeRateManager;
+import com.mycelium.wallet.exchange.ValueSum;
 import com.mycelium.wapi.model.ExchangeRate;
+import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.currency.CurrencySum;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -326,7 +328,30 @@ public class CurrencySwitcher {
       }
    }
 
-   public CurrencyValue getAsFiatValue(CurrencyValue value){
+//    public String getFormattedValue(Value currencyValue, boolean includeCurrencyCode, int precision) {
+//        if (currencyValue == null){
+//            return "";
+//        }
+//        CurrencyValue targetCurrency = getAsValue(currencyValue);
+//        if (includeCurrencyCode) {
+//            return Utils.getFormattedValueWithUnit(targetCurrency, getBitcoinDenomination(), precision);
+//        } else {
+//            return Utils.getFormattedValue(targetCurrency, getBitcoinDenomination(), precision);
+//        }
+//    }
+
+
+    public Value getAsFiatValue(Value value) {
+        if (value == null) {
+            return null;
+        }
+        if (Strings.isNullOrEmpty(currentFiatCurrency)) {
+            return null;
+        }
+        return exchangeRateManager.get(value, getCurrentFiatCurrency());
+    }
+
+    public CurrencyValue getAsFiatValue(CurrencyValue value){
       if (value == null){
          return null;
       }
@@ -356,5 +381,14 @@ public class CurrencySwitcher {
 
    public CurrencyValue getValueFromSum(CurrencySum sum) {
       return sum.getSumAsCurrency(currentCurrency, exchangeRateManager);
+   }
+
+   public Value getValue(ValueSum sum) {
+
+//       for (Value value : sum.getValues()) {
+//
+//       }
+//       return
+        return null;
    }
 }
