@@ -51,9 +51,8 @@ import java.util.List;
 import java.util.UUID;
 
 public class UnspentOutputsActivity extends Activity {
-
    private static final LinearLayout.LayoutParams WCWC = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1);
-   private static final LinearLayout.LayoutParams FPWC = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1);
+   private static final LinearLayout.LayoutParams FPWC = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1);
 
    private MbwManager _mbwManager;
    private UUID _accountid;
@@ -70,8 +69,7 @@ public class UnspentOutputsActivity extends Activity {
    }
 
    private void updateUi() {
-
-      LinearLayout outputView = (LinearLayout) findViewById(R.id.listUnspentOutputs);
+      LinearLayout outputView = findViewById(R.id.listUnspentOutputs);
       WalletAccount account = _mbwManager.getWalletManager(false).getAccount(_accountid);
       List<TransactionOutputSummary> outputs = account.getUnspentTransactionOutputSummary();
 
@@ -85,7 +83,7 @@ public class UnspentOutputsActivity extends Activity {
          outputView.addView(getItemView(item));
       }
       if (!(outputs.size()<=5)) {
-         TextView noOutputs = (TextView) findViewById(R.id.tvOutputsTitle);
+         TextView noOutputs = findViewById(R.id.tvOutputsTitle);
          noOutputs.append(" (" + String.valueOf(outputs.size()) + ")");
       }
    }
@@ -96,7 +94,6 @@ public class UnspentOutputsActivity extends Activity {
       ll.setOrientation(LinearLayout.VERTICAL);
       ll.setLayoutParams(WCWC);
       ll.setPadding(10, 10, 10, 10);
-
 
       // Add BTC value
       ll.addView(getValue(item.value));
@@ -116,5 +113,4 @@ public class UnspentOutputsActivity extends Activity {
       tv.setTextColor(getResources().getColor(R.color.white));
       return tv;
    }
-
 }
