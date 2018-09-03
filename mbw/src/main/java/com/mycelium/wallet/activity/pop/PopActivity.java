@@ -220,8 +220,8 @@ public class PopActivity extends Activity {
          return 0;
       }
       long amountSatoshis = (transaction.isIncoming()?transaction.getReceived():transaction.getSent()).getValue();
-      TransactionDetails transactionDetails = _mbwManager.getSelectedAccount().getTransactionDetails(transaction.getHash());
-      amountSatoshis -= getFee(transactionDetails);
+      GenericTransaction genericTransaction = _mbwManager.getSelectedAccountGeneric().getTransaction(transaction.getHash());
+      amountSatoshis -= genericTransaction.getFee().getValue();
       return amountSatoshis;
    }
 

@@ -293,7 +293,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
       // Fetch trusted inputs
       for (int i = 0; i < unsignedtx.inputs.length; i++) {
          TransactionInput currentInput = unsignedtx.inputs[i];
-         Transaction currentTransaction = TransactionEx.toTransaction(forAccount.getTransaction(currentInput.outPoint.txid));
+         Transaction currentTransaction = TransactionEx.toTransaction(forAccount.getTransactionEx(currentInput.outPoint.txid));
          ByteArrayInputStream bis = new ByteArrayInputStream(currentTransaction.toBytes());
          inputs[i] = dongle.getTrustedInput(new BitcoinTransaction(bis), currentInput.outPoint.index);
       }

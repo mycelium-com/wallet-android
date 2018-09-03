@@ -25,6 +25,7 @@ public class BtcTransaction implements GenericTransaction {
     final ArrayList<GenericOutput> inputs;
     final ArrayList<GenericAddress> toAddresses;
     private int confirmations;
+    final int rawSize;
     private final boolean isQueuedOutgoing;
     public final Optional<ConfirmationRiskProfileLocal> confirmationRiskProfile;
     @Nullable
@@ -34,7 +35,7 @@ public class BtcTransaction implements GenericTransaction {
                           long valueSent, long valueReceived, int timestamp, int confirmations,
                           boolean isQueuedOutgoing, ArrayList<GenericOutput> inputs,
                           ArrayList<GenericAddress> toAddresses,
-                          ConfirmationRiskProfileLocal risk, @Nullable Value fee) {
+                          ConfirmationRiskProfileLocal risk, int rawSize, @Nullable Value fee) {
         this.type = type;
         this.tx = transaction;
         this.hash = tx.getId();
@@ -47,6 +48,7 @@ public class BtcTransaction implements GenericTransaction {
         this.inputs = inputs;
         this.toAddresses = toAddresses;
         this.confirmationRiskProfile = Optional.fromNullable(risk);
+        this.rawSize = rawSize;
         this.fee = fee;
     }
 
@@ -128,8 +130,15 @@ public class BtcTransaction implements GenericTransaction {
     }
 
     @Override
+    public int getRawSize() {
+        return rawSize;
+    }
+
+    @Override
     public Sha256Hash getHash() {
-        return tx.getHash();
+        // TODO: Find out should we return tx.getHash() or tx.getId().
+        // This is related with latest SEGWIT changes
+        return tx.getId();
     }
 
     @Override
@@ -157,5 +166,10 @@ public class BtcTransaction implements GenericTransaction {
 
     public Transaction getRawTransaction() {
         return tx;
+    }
+
+    @Override
+    public String toString(){
+        return hash.toString();
     }
 }

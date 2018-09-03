@@ -1146,6 +1146,10 @@ public class MbwManager {
       return _walletManager.getBlockheight();
    }
 
+   public WalletAccount getSelectedAccountGeneric() {
+      return getSelectedAccount();
+   }
+
    public WalletBtcAccount getSelectedAccount() {
       UUID uuid = getLastSelectedAccountId();
 

@@ -62,9 +62,16 @@ import com.mycelium.wapi.api.response.QueryUnspentOutputsResponse;
 import com.mycelium.wapi.model.BalanceSatoshis;
 import com.mycelium.wapi.wallet.AccountBacking;
 import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal;
+import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
+import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.WalletManager.Event;
+import com.mycelium.wapi.wallet.coins.BitcoinMain;
+import com.mycelium.wapi.wallet.coins.BitcoinTest;
+import com.mycelium.wapi.wallet.coins.CoinType;
+import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
@@ -635,7 +642,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    }
 
    @Override
-   public TransactionEx getTransaction(Sha256Hash txid) {
+   public TransactionEx getTransactionEx(Sha256Hash txid) {
       return _backing.getTransaction(txid);
    }
 
@@ -728,10 +735,6 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       return history;
    }
 
-   @Override
-   public BtcTransaction getTransaction(String transactionId) {
-      return null;
-   }
 
    @Override
    public abstract int getBlockChainHeight();
@@ -1095,7 +1098,10 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    public UnsignedTransaction createUnsignedCPFPTransaction(Sha256Hash txid, long minerFeeToUse, long satoshisPaid) throws InsufficientFundsException, StandardTransactionBuilder.UnableToBuildTransactionException {
       checkNotArchived();
       Set<UnspentTransactionOutput> utxos = new HashSet<>(transform(getSpendableOutputs(minerFeeToUse)));
-      TransactionDetails parent = getTransactionDetails(txid);
+      TransactionEx tex = _backing.getTransaction(txid);
+      if (tex == null) {
+         throw new RuntimeException();
+      }
       long totalSpendableSatoshis = 0;
       // do we have an output to spend from?
       List<UnspentTransactionOutput> utxosToSpend = new ArrayList<>();
@@ -1118,7 +1124,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       long parentChildFeeSat;
       do {
          long childSize = estimateTransactionSize(utxosToSpend.size(), 1);
-         long parentChildSize = parent.rawSize + childSize;
+         long parentChildSize = tex.binary.length + childSize;
          parentChildFeeSat = parentChildSize * minerFeeToUse / 1000 - satoshisPaid;
          if(parentChildFeeSat < childSize * minerFeeToUse / 1000) {
             // if child doesn't get itself to target priority, it's not needed to boost a parent to it.
@@ -1136,7 +1142,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
             continue;
          }
          List<TransactionOutput> outputs = singletonList(createOutput(changeAddress, value, _network));
-          final TransactionEx fundedTransaction = getTransaction(txid);
+          final TransactionEx fundedTransaction = getTransactionEx(txid);
           return new UnsignedTransaction(outputs, utxosToSpend, new PublicKeyRing(), _network, 0, UnsignedTransaction.NO_SEQUENCE);
       } while(!utxos.isEmpty());
       throw new InsufficientFundsException(0, parentChildFeeSat);
@@ -1441,61 +1447,6 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       return transform(tx, tx.height);
    }
 
-   @Override
-   public TransactionDetails getTransactionDetails(Sha256Hash txid) {
-      // Note that this method is not synchronized, and we might fetch the transaction history while synchronizing
-      // accounts. That should be ok as we write to the DB in a sane order.
-
-      TransactionEx tex = _backing.getTransaction(txid);
-      Transaction tx = TransactionEx.toTransaction(tex);
-      if (tx == null) {
-         throw new RuntimeException();
-      }
-
-      List<TransactionDetails.Item> inputs = new ArrayList<>(tx.inputs.length);
-      if (tx.isCoinbase()) {
-         // We have a coinbase transaction. Create one input with the sum of the outputs as its value,
-         // and make the address the null address
-         long value = 0;
-         for (TransactionOutput out : tx.outputs) {
-            value += out.value;
-         }
-         inputs.add(new TransactionDetails.Item(Address.getNullAddress(_network), value, true));
-      } else {
-         // Populate the inputs
-         for (TransactionInput input : tx.inputs) {
-            // Get the parent transaction
-            TransactionOutputEx parentOutput = _backing.getParentTransactionOutput(input.outPoint);
-            if (parentOutput == null) {
-               // We never heard about the parent, skip
-               continue;
-            }
-            // Determine the parent address
-            Address parentAddress;
-            ScriptOutput parentScript = ScriptOutput.fromScriptBytes(parentOutput.script);
-            if (parentScript == null) {
-               // Null address means we couldn't figure out the address, strange script
-               parentAddress = Address.getNullAddress(_network);
-            } else {
-               parentAddress = parentScript.getAddress(_network);
-            }
-            inputs.add(new TransactionDetails.Item(parentAddress, parentOutput.value, false));
-         }
-      }
-      // Populate the outputs
-      TransactionDetails.Item[] outputs = new TransactionDetails.Item[tx.outputs.length];
-      for (int i = 0; i < tx.outputs.length; i++) {
-         Address address = tx.outputs[i].script.getAddress(_network);
-         outputs[i] = new TransactionDetails.Item(address, tx.outputs[i].value, false);
-      }
-
-      return new TransactionDetails(
-            txid, tex.height, tex.time,
-            inputs.toArray(new TransactionDetails.Item[inputs.size()]), outputs,
-            tex.binary.length
-      );
-   }
-
    public UnsignedTransaction createUnsignedPop(Sha256Hash txid, byte[] nonce) {
       checkNotArchived();
 
@@ -1525,6 +1476,138 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       }
    }
 
+   public List<GenericTransaction> getTransactions(int offset, int limit) {
+      // Note that this method is not synchronized, and we might fetch the transaction history while synchronizing
+      // accounts. That should be ok as we write to the DB in a sane order.
+
+      checkNotArchived();
+      List<TransactionEx> list = _backing.getTransactionHistory(offset, limit);
+      List<GenericTransaction> history = new ArrayList<>();
+      for (TransactionEx tex: list) {
+         Transaction tx = TransactionEx.toTransaction(tex);
+         if (tx == null) {
+            continue;
+         }
+
+         BtcTransaction item;
+
+         long satoshisReceived = 0;
+         long satoshisSent = 0;
+         ArrayList<GenericAddress> toAddresses = new ArrayList<>();
+         ArrayList<GenericTransaction.GenericOutput> outputs = new ArrayList<>(); //need to create list of outputs
+         for (TransactionOutput output : tx.outputs) {
+            Address address = output.script.getAddress(_network);
+            if (isMine(output.script)) {
+               satoshisReceived += output.value;
+            }
+            if (address != null && address != Address.getNullAddress(_network)) {
+               try {
+                  toAddresses.add(BtcAddress.from(address.toString()));
+               } catch(Exception ex) {
+                  ex.printStackTrace();
+               }
+            }
+         }
+
+         ArrayList<GenericTransaction.GenericOutput> inputs = new ArrayList<>(); //need to create list of outputs
+
+         // Inputs
+         if (!tx.isCoinbase()) {
+            for (TransactionInput input : tx.inputs) {
+               // find parent output
+               TransactionOutputEx funding = _backing.getParentTransactionOutput(input.outPoint);
+               if (funding == null) {
+                  _logger.logError("Unable to find parent output for: " + input.outPoint);
+                  continue;
+               }
+               if (isMine(funding)) {
+                  satoshisSent += funding.value;
+               }
+
+               Address address = ScriptOutput.fromScriptBytes(funding.script).getAddress(_network);
+               CoinType coinType = (_network.isTestnet()) ? BitcoinTest.get() : BitcoinMain.get();
+               inputs.add(new GenericTransaction.GenericOutput(new BtcAddress(address.getAllAddressBytes()), Value.valueOf(coinType, funding.value)));
+            }
+         }
+
+         int confirmations;
+         if (tex.height == -1) {
+            confirmations = 0;
+         } else {
+            confirmations = Math.max(0, getBlockChainHeight() - tex.height + 1);
+         }
+
+         boolean isQueuedOutgoing = _backing.isOutgoingTransaction(tx.getId());
+
+         item = new BtcTransaction(getCoinType(), tx, satoshisSent, satoshisReceived, tex.time,
+                 confirmations, isQueuedOutgoing, inputs, toAddresses, riskAssessmentForUnconfirmedTx.get(tx.getId()),
+                 tex.binary.length,  Value.valueOf(BitcoinMain.get(), Math.abs(satoshisReceived - satoshisSent)));
+
+         if (item != null) {
+            history.add(item);
+         }
+      }
+      return history;
+   }
+
+   @Override
+   public SendRequest getSendToRequest(GenericAddress destination, Value amount) {
+      return BtcSendRequest.to((BtcAddress) destination, amount);
+   }
+
+   @Override
+   public BtcTransaction getTransaction(Sha256Hash transactionId){
+      checkNotArchived();
+      TransactionEx tex = _backing.getTransaction(transactionId);
+      Transaction tx = TransactionEx.toTransaction(tex);
+      if (tx == null) {
+         return null;
+      }
+
+      long satoshisReceived = 0;
+      long satoshisSent = 0;
+      ArrayList<GenericAddress> toAddresses = new ArrayList<>(); //need to create list of outputs
+      for (TransactionOutput output : tx.outputs) {
+         Address address = output.script.getAddress(_network);
+         if (isMine(output.script)) {
+            satoshisReceived += output.value;
+         }
+         if (address != null && address != Address.getNullAddress(_network)) {
+            toAddresses.add(BtcAddress.from(address.toString()));
+         }
+      }
+      ArrayList<GenericTransaction.GenericOutput> inputs = new ArrayList<>(); //need to create list of outputs
+
+      // Inputs
+      if (!tx.isCoinbase()) {
+         for (TransactionInput input : tx.inputs) {
+            // find parent output
+            TransactionOutputEx funding = _backing.getParentTransactionOutput(input.outPoint);
+            if (funding == null) {
+               _logger.logError("Unable to find parent output for: " + input.outPoint);
+               continue;
+            }
+            if (isMine(funding)) {
+               satoshisSent += funding.value;
+            }
+            Address address = ScriptOutput.fromScriptBytes(funding.script).getAddress(_network);
+            CoinType coinType =  (_network.isTestnet())? BitcoinTest.get() : BitcoinMain.get();
+            inputs.add(new GenericTransaction.GenericOutput(new BtcAddress(address.getAllAddressBytes()), Value.valueOf(coinType, funding.value)));
+         }
+      }
+
+      int confirmations;
+      if (tex.height == -1) {
+         confirmations = 0;
+      } else {
+         confirmations = Math.max(0, getBlockChainHeight() - tex.height + 1);
+      }
+      boolean isQueuedOutgoing = _backing.isOutgoingTransaction(tx.getId());
+      return new BtcTransaction(getCoinType(), tx, satoshisSent, satoshisReceived, tex.time,
+              confirmations, isQueuedOutgoing, inputs, toAddresses, riskAssessmentForUnconfirmedTx.get(tx.getId()),
+              tex.binary.length, Value.valueOf(BitcoinMain.get(), Math.abs(satoshisReceived - satoshisSent)));
+   }
+
    private TransactionOutput createPopOutput(Sha256Hash txidToProve, byte[] nonce) {
       ByteBuffer byteBuffer = ByteBuffer.allocate(41);
       byteBuffer.put((byte) Script.OP_RETURN);
@@ -1541,6 +1624,11 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       ScriptOutput scriptOutput = ScriptOutputStrange.fromScriptBytes(byteBuffer.array());
       return new TransactionOutput(0L, scriptOutput);
    }
+
+    @Override
+    public CoinType getCoinType() {
+        return _network.isProdnet() ? BitcoinMain.get() : BitcoinTest.get();
+    }
 
    @Override
    public boolean onlySyncWhenActive() {

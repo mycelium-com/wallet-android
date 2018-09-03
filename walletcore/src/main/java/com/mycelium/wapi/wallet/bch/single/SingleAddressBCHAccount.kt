@@ -59,10 +59,6 @@ class SingleAddressBCHAccount(context: SingleAddressAccountContext,
         return spvBalanceFetcher.retrieveTransactionsSummaryByUnrelatedAccountId(id.toString(), receivingSince!!)
     }
 
-    override fun getTransactionDetails(txid: Sha256Hash): TransactionDetails {
-        return spvBalanceFetcher.retrieveTransactionDetails(txid)
-    }
-
     override fun getTransactionSummary(txid: Sha256Hash): TransactionSummary? {
         val transactions = spvBalanceFetcher.retrieveTransactionsSummaryByUnrelatedAccountId(id.toString())
         return transactions.firstOrNull { it.txid == txid }

@@ -64,6 +64,7 @@ import com.mycelium.wallet.event.SyncFailed;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.model.*;
 import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal;
+import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SendRequest;
@@ -408,8 +409,7 @@ public class CoinapultAccount extends SynchronizeAbleWalletBtcAccount {
    }
 
    @Override
-   public void broadcastTx(GenericTransaction tx) throws TransactionBroadcastException {
-
+   public void broadcastTx(BtcTransaction tx) throws TransactionBroadcastException {
    }
 
    @Override
@@ -423,13 +423,13 @@ public class CoinapultAccount extends SynchronizeAbleWalletBtcAccount {
     }
 
    @Override
-   public BtcTransaction getTransaction(String transactionId) {
+   public BtcTransaction getTransaction(Sha256Hash transactionId) {
       return null;
    }
 
    @Override
-   public List<BtcTransaction> getTransactions(int offset, int limit) {
-      return new ArrayList<BtcTransaction>();
+   public List<GenericTransaction> getTransactions(int offset, int limit) {
+      return new ArrayList<GenericTransaction>();
    }
 
    @Override
@@ -508,11 +508,6 @@ public class CoinapultAccount extends SynchronizeAbleWalletBtcAccount {
 
    @Override
    public TransactionSummary getTransactionSummary(Sha256Hash txid) {
-      return null;
-   }
-
-   @Override
-   public TransactionDetails getTransactionDetails(Sha256Hash txid) {
       return null;
    }
 
@@ -706,7 +701,7 @@ public class CoinapultAccount extends SynchronizeAbleWalletBtcAccount {
    }
 
    @Override
-   public TransactionEx getTransaction(Sha256Hash txid) {
+   public TransactionEx getTransactionEx(Sha256Hash txid) {
       return null;
    }
 
@@ -858,5 +853,10 @@ public class CoinapultAccount extends SynchronizeAbleWalletBtcAccount {
    @Override
    public int getSyncTotalRetrievedTransactions() {
       return 0;
+   }
+
+   @Override
+   public SendRequest getSendToRequest(GenericAddress destination, Value amount) {
+      return null;
    }
 }
