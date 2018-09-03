@@ -66,6 +66,7 @@ import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
+import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.WalletManager.Event;
 import com.mycelium.wapi.wallet.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.coins.BitcoinTest;
@@ -1547,6 +1548,11 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
          }
       }
       return history;
+   }
+
+   @Override
+   public SendRequest getSendToRequest(GenericAddress destination, Value amount) {
+      return BtcSendRequest.to((BtcAddress) destination, amount);
    }
 
    @Override

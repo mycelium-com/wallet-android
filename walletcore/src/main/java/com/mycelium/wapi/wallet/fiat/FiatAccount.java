@@ -1,12 +1,16 @@
 package com.mycelium.wapi.wallet.fiat;
 
 import com.mrd.bitlib.util.Sha256Hash;
+import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.btc.BtcAddress;
+import com.mycelium.wapi.wallet.btc.BtcSendRequest;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.CoinType;
+import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
 
 import java.util.List;
@@ -111,5 +115,10 @@ public class FiatAccount implements WalletAccount<FiatTransaction, FiatAddress> 
     @Override
     public boolean isSynchronizing() {
         return false;
+    }
+
+    @Override
+    public SendRequest getSendToRequest(GenericAddress destination, Value amount) {
+        return null;
     }
 }

@@ -3,6 +3,7 @@ package com.mycelium.wapi.wallet;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.CoinType;
+import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
 
 import java.util.HashMap;
@@ -35,6 +36,8 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
     T getTransaction(Sha256Hash transactionId);
 
     List<GenericTransaction> getTransactions(int offset, int limit);
+
+    SendRequest getSendToRequest(GenericAddress destination, Value amount);
 
     /**
      * Synchronize this account
