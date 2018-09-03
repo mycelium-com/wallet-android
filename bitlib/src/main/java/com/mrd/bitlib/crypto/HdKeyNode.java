@@ -34,8 +34,6 @@ import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
 import com.mrd.bitlib.util.ByteWriter;
 import kotlin.NotImplementedError;
 
-import static com.mrd.bitlib.util.HexUtils.toBytes;
-
 /**
  * Implementation of BIP 32 HD wallet key derivation.
  * <p>
@@ -377,47 +375,19 @@ public class HdKeyNode implements Serializable {
       return _publicKey;
    }
 
-   private static final byte[][] PRODNET_PUBLIC = new byte[][] {
-           toBytes("04 88 B2 1E"), // xpub
-           toBytes("04 9d 7c b2"), // ypub
-           toBytes("04 b2 47 46")  // zpub
-   };
-   private static final byte[][] TESTNET_PUBLIC = new byte[][] {
-           toBytes("04 35 87 CF"), // tpub
-           toBytes("04 4a 52 62"), // upub
-           toBytes("04 5f 1c f6")  // vpub
-   };
-   private static final byte[][] PRODNET_PRIVATE = new byte[][] {
-           toBytes("04 88 AD E4"), // xprv
-           toBytes("04 9d 78 78"), // yprv
-           toBytes("04 b2 43 0c")  // zprv
-   };
-   private static final byte[][] TESTNET_PRIVATE = new byte[][] {
-           toBytes("04 35 83 94"), // tprv
-           toBytes("04 4a 4e 28"), // uprv
-           toBytes("04 5f 18 bc")  // vprv
-   };
-
    /**
     * Serialize this node
     */
    public String serialize(NetworkParameters network, BipDerivationType type) throws KeyGenerationException {
       ByteWriter writer = new ByteWriter(4 + 1 + 4 + 4 + 32 + 32);
-      int magicIndex;
-      switch (type) {
-         case BIP44:
-            magicIndex = 0;
-            break;
-         case BIP49:
-            magicIndex = 1;
-            break;
-         default:
-            throw new NotImplementedError();
-      }
       if (network.isProdnet()) {
-         writer.putBytes(isPrivateHdKeyNode() ? PRODNET_PRIVATE[magicIndex] : PRODNET_PUBLIC[magicIndex]);
+         writer.putBytes(isPrivateHdKeyNode() ?
+                 HDKeyMagic.PRODNET_PRIVATE.getTypeToMagicMap().get(type):
+                 HDKeyMagic.PRODNET_PUBLIC.getTypeToMagicMap().get(type));
       } else {
-         writer.putBytes(isPrivateHdKeyNode() ? TESTNET_PRIVATE[magicIndex] : TESTNET_PUBLIC[magicIndex]);
+         writer.putBytes(isPrivateHdKeyNode() ?
+                 HDKeyMagic.TESTNET_PRIVATE.getTypeToMagicMap().get(type):
+                 HDKeyMagic.TESTNET_PUBLIC.getTypeToMagicMap().get(type));
       }
       writer.put((byte) (_depth & 0xFF));
       writer.putIntBE(_parentFingerprint);
@@ -458,49 +428,16 @@ public class HdKeyNode implements Serializable {
          byte[] magic = reader.getBytes(4);
          boolean magicMatched = false;
          BipDerivationType derivationType = null;
-         // TODO segwit fix this is mockup, code needs fixes to be more adequate
-         for (int i = 0; i < PRODNET_PRIVATE.length; i++) {
-            if (BitUtils.areEqual(magic, PRODNET_PRIVATE[i])) {
-               if (!network.isProdnet()) {
-                  throw new KeyGenerationException("Invalid network");
+         for (HDKeyMagic keyMagic : HDKeyMagic.values()) {
+            for (byte[] magicBytes : keyMagic.getTypeToMagicMap().values()) {
+               if (BitUtils.areEqual(magic, magicBytes)) {
+                  if (network.isProdnet() != keyMagic.isProdnet()) {
+                     throw new KeyGenerationException("Invalid network");
+                  }
+                  isPrivate = keyMagic.isPrivate();
+                  magicMatched = true;
+                  derivationType = keyMagic.getTypeToMagicMap().inverse().get(magicBytes);
                }
-               isPrivate = true;
-               magicMatched = true;
-            } else if (BitUtils.areEqual(magic, PRODNET_PUBLIC[i])) {
-               if (!network.isProdnet()) {
-                  throw new KeyGenerationException("Invalid network");
-               }
-               isPrivate = false;
-               magicMatched = true;
-            } else if (BitUtils.areEqual(magic, TESTNET_PRIVATE[i])) {
-               if (network.isProdnet()) {
-                  throw new KeyGenerationException("Invalid network");
-               }
-               isPrivate = true;
-               magicMatched = true;
-            } else if (BitUtils.areEqual(magic, TESTNET_PUBLIC[i])) {
-               if (network.isProdnet()) {
-                  throw new KeyGenerationException("Invalid network");
-               }
-               isPrivate = false;
-               magicMatched = true;
-            }
-            if (magicMatched) {
-               switch (i) {
-                  case 0:
-                     derivationType = BipDerivationType.BIP44;
-                     break;
-                  case 1:
-                     derivationType = BipDerivationType.BIP49;
-                     break;
-                  case 2:
-                     //derivationType = BipDerivationType.BIP84;
-                     throw new NotImplementedError();
-                     //break;
-                  default:
-                     throw new NotImplementedError(); // If it happened another case must exist.
-               }
-               break;
             }
          }
          if (!magicMatched) {
