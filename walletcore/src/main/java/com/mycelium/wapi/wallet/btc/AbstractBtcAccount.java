@@ -1475,13 +1475,13 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       }
    }
 
-   public List<? extends GenericTransaction> getTransactions(int offset, int limit) {
+   public List<GenericTransaction> getTransactions(int offset, int limit) {
       // Note that this method is not synchronized, and we might fetch the transaction history while synchronizing
       // accounts. That should be ok as we write to the DB in a sane order.
 
       checkNotArchived();
       List<TransactionEx> list = _backing.getTransactionHistory(offset, limit);
-      List<BtcTransaction> history = new ArrayList<>();
+      List<GenericTransaction> history = new ArrayList<>();
       for (TransactionEx tex: list) {
          Transaction tx = TransactionEx.toTransaction(tex);
          if (tx == null) {
@@ -1500,7 +1500,11 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
                satoshisReceived += output.value;
             }
             if (address != null && address != Address.getNullAddress(_network)) {
-               toAddresses.add(BtcAddress.from(address.toString()));
+               try {
+                  toAddresses.add(BtcAddress.from(address.toString()));
+               } catch(Exception ex) {
+                  ex.printStackTrace();
+               }
             }
          }
 
@@ -1546,7 +1550,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    }
 
    @Override
-   public GenericTransaction getTransaction(Sha256Hash transactionId){
+   public BtcTransaction getTransaction(Sha256Hash transactionId){
       checkNotArchived();
       TransactionEx tex = _backing.getTransaction(transactionId);
       Transaction tx = TransactionEx.toTransaction(tex);

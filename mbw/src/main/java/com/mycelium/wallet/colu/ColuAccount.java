@@ -300,7 +300,7 @@ public class ColuAccount extends SynchronizeAbleWalletBtcAccount implements Expo
     }
 
     @Override
-    public void broadcastTx(GenericTransaction tx) throws TransactionBroadcastException {
+    public void broadcastTx(BtcTransaction tx) throws TransactionBroadcastException {
     }
 
     @Override
@@ -319,8 +319,8 @@ public class ColuAccount extends SynchronizeAbleWalletBtcAccount implements Expo
     }
 
     @Override
-    public List<BtcTransaction> getTransactions(int offset, int limit) {
-        return new ArrayList<BtcTransaction>();
+    public List<GenericTransaction> getTransactions(int offset, int limit) {
+        return new ArrayList<GenericTransaction>();
     }
 
     @Override

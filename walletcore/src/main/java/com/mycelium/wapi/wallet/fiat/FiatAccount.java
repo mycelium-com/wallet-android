@@ -1,6 +1,7 @@
 package com.mycelium.wapi.wallet.fiat;
 
 import com.mrd.bitlib.util.Sha256Hash;
+import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -48,7 +49,7 @@ public class FiatAccount implements WalletAccount<FiatTransaction, FiatAddress> 
     }
 
     @Override
-    public List<FiatTransaction> getTransactions(int offset, int limit) {
+    public List<GenericTransaction> getTransactions(int offset, int limit) {
         return null;
     }
 

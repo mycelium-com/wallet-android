@@ -34,7 +34,7 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
 
     T getTransaction(Sha256Hash transactionId);
 
-    List<T> getTransactions(int offset, int limit);
+    List<GenericTransaction> getTransactions(int offset, int limit);
 
     /**
      * Synchronize this account

@@ -409,8 +409,7 @@ public class CoinapultAccount extends SynchronizeAbleWalletBtcAccount {
    }
 
    @Override
-   public void broadcastTx(GenericTransaction tx) throws TransactionBroadcastException {
-
+   public void broadcastTx(BtcTransaction tx) throws TransactionBroadcastException {
    }
 
    @Override
@@ -429,8 +428,8 @@ public class CoinapultAccount extends SynchronizeAbleWalletBtcAccount {
    }
 
    @Override
-   public List<BtcTransaction> getTransactions(int offset, int limit) {
-      return new ArrayList<BtcTransaction>();
+   public List<GenericTransaction> getTransactions(int offset, int limit) {
+      return new ArrayList<GenericTransaction>();
    }
 
    @Override
