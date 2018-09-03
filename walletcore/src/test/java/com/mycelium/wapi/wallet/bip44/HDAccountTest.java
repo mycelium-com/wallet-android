@@ -15,11 +15,11 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class Bip44AccountTest {
+public class HDAccountTest {
     private static final String MASTER_SEED_WORDS = "degree rain vendor coffee push math onion inside pyramid blush stick treat";
     private static final String MASTER_SEED_ACCOUNT_0_EXTERNAL_0_ADDRESS = "1F1QAzNLutBEuB4QZLXghqu6PdxEFdb2PV";
     private static final String MASTER_SEED_ACCOUNT_0_INTERNAL_0_ADDRESS = "1PGrHHNjVXBr8JJhg9zRQVFvmUSu9XsMeV";
-    private Bip44Account account;
+    private HDAccount account;
 
     @Before
     public void setup() throws KeyCipher.InvalidKeyCipher {
@@ -41,7 +41,7 @@ public class Bip44AccountTest {
 
         UUID account1Id = walletManager.createAdditionalBip44Account(cipher);
 
-        account = (Bip44Account) walletManager.getAccount(account1Id);
+        account = (HDAccount) walletManager.getAccount(account1Id);
     }
 
     /**

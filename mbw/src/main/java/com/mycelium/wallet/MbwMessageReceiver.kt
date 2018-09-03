@@ -23,8 +23,7 @@ import com.mycelium.wapi.wallet.ExportableAccount
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.WalletAccount.Type.BCHBIP44
 import com.mycelium.wapi.wallet.WalletAccount.Type.BCHSINGLEADDRESS
-import com.mycelium.wapi.wallet.WalletManager
-import com.mycelium.wapi.wallet.bip44.Bip44Account
+import com.mycelium.wapi.wallet.bip44.HDAccount
 import com.mycelium.wapi.wallet.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.currency.CurrencyValue
 import com.mycelium.wapi.wallet.single.SingleAddressAccount
@@ -281,7 +280,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 val signedTransaction = signAndSerialize(networkParameters, keyList, txUTXOsHexList, transaction)
                 val service = IntentContract.SendSignedTransactionUnrelatedToSPV.createIntent(operationId, accountGuid,
                         signedTransaction)
-                WalletApplication.sendToSpv(service, if (account is Bip44Account) BCHBIP44 else BCHSINGLEADDRESS)
+                WalletApplication.sendToSpv(service, if (account is HDAccount) BCHBIP44 else BCHSINGLEADDRESS)
             }
             null -> Log.w(TAG, "onMessage failed. No action defined.")
             else -> Log.e(TAG, "onMessage failed. Unknown action ${intent.action}")

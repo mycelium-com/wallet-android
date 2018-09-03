@@ -50,7 +50,7 @@ import com.mycelium.wallet.activity.util.MasterseedPasswordSetter;
 import com.mycelium.wallet.activity.util.Pin;
 import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager;
 import com.mycelium.wapi.wallet.AccountScanManager;
-import com.mycelium.wapi.wallet.bip44.Bip44Account;
+import com.mycelium.wapi.wallet.bip44.HDAccount;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
@@ -120,7 +120,7 @@ public abstract class ExtSigSignTransactionActivity
          for (TransactionOutput o : _unsigned.getOutputs()){
             Address toAddress;
             toAddress = o.script.getAddress(_mbwManager.getNetwork());
-            Optional<Integer[]> addressId = ((Bip44Account) _account).getAddressId(toAddress);
+            Optional<Integer[]> addressId = ((HDAccount) _account).getAddressId(toAddress);
 
             if (! (addressId.isPresent() && addressId.get()[0]==1) ){
                // this output goes to a foreign address (addressId[0]==1 means its internal change)
