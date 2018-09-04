@@ -68,6 +68,7 @@ import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
 import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.WalletManager.Event;
+import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.CoinType;
@@ -1629,6 +1630,15 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
     public CoinType getCoinType() {
         return _network.isProdnet() ? BitcoinMain.get() : BitcoinTest.get();
     }
+
+   @Override
+   public Balance getAccountBalance() {
+      CoinType coinType = getCoinType();
+      return new Balance(Value.valueOf(coinType, _cachedBalance.confirmed),
+              Value.valueOf(coinType, _cachedBalance.pendingReceiving),
+              Value.valueOf(coinType, _cachedBalance.pendingSending),
+              Value.valueOf(coinType, _cachedBalance.pendingChange));
+   }
 
    @Override
    public boolean onlySyncWhenActive() {

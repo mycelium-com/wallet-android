@@ -725,11 +725,6 @@ open class Bip44Account(
         private const val FORCED_DISCOVERY_INTERVAL_MS = (1000 * 60 * 60 * 24).toLong()
     }
 
-
-    override fun getAccountBalance(): Balance {
-        return Balance(Value.parse(BitcoinMain.get(),"2.1"),Value.parse(BitcoinMain.get(),"0.1"), Value.parse(BitcoinMain.get(),"0.2"), Value.parse(BitcoinMain.get(),"0"))
-    }
-
     override fun completeAndSignTx(request: SendRequest<BtcTransaction>) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }

@@ -234,11 +234,6 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
    }
 
    @Override
-   public Balance getAccountBalance() {
-      return new Balance(Value.parse(BitcoinMain.get(),"2.1"),Value.parse(BitcoinMain.get(),"0.1"), Value.parse(BitcoinMain.get(),"0.2"), Value.parse(BitcoinMain.get(),"0"));
-    }
-
-   @Override
    public int getBlockChainHeight() {
       checkNotArchived();
       return _context.getBlockHeight();
