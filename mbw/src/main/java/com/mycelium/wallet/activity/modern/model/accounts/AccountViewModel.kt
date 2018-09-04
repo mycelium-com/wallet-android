@@ -6,6 +6,7 @@ import com.mycelium.wallet.colu.ColuAccount
 import com.mycelium.wallet.persistence.MetadataStorage
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount
 import com.mycelium.wapi.wallet.btc.bip44.Bip44Account
+import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance
 
 /**
@@ -15,7 +16,7 @@ class AccountViewModel(account: WalletBtcAccount, mbwManager: MbwManager) : Acco
     val accountId = account.id!!
     val accountType = account.type!!
     val isActive = account.isActive
-    val balance: CurrencyBasedBalance? = if (isActive) account.currencyBasedBalance else null
+    val balance: Balance? = if (isActive) account.accountBalance else null
     val syncTotalRetrievedTransactions = account.syncTotalRetrievedTransactions
     val isRMCLinkedAccount = isRmcAccountLinked(account, mbwManager)
     var showBackupMissingWarning = showBackupMissingWarning(account, mbwManager)

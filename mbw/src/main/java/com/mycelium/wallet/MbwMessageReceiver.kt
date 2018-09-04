@@ -28,6 +28,7 @@ import com.mycelium.wapi.wallet.btc.bip44.Bip44Account
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.currency.CurrencyValue
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
+import com.mycelium.wapi.wallet.coins.Value
 import com.squareup.otto.Bus
 import com.subgraph.orchid.encoders.Hex
 import org.bitcoinj.core.*
@@ -333,12 +334,12 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
         var contentText = ""
         for (account in AccountManager.getBCHBip44Accounts().values +
                 AccountManager.getBCHSingleAddressAccounts().values) {
-            if (account.currencyBasedBalance.receiving.value.compareTo(BigDecimal.ZERO) > 0) {
-                contentText += buildLine(R.string.receiving, account.currencyBasedBalance.receiving
+            if (account.accountBalance.pendingReceiving.isPositive) {
+                contentText += buildLine(R.string.receiving, account.accountBalance.pendingReceiving
                         , mds.getLabelByAccount(account.id))
             }
-            if(account.currencyBasedBalance.sending.value.compareTo(BigDecimal.ZERO) > 0) {
-                contentText += buildLine(R.string.sending, account.currencyBasedBalance.sending
+            if(account.accountBalance.pendingSending.isPositive) {
+                contentText += buildLine(R.string.sending, account.accountBalance.pendingSending
                         , mds.getLabelByAccount(account.id))
             }
         }
@@ -361,8 +362,8 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
         }
     }
 
-    private fun buildLine(action: Int, value: CurrencyValue, label:String) =
-            context.getString(action, "${value.value.toPlainString()} ${value.currency} ($label)\n")
+    private fun buildLine(action: Int, value: Value, label:String) =
+            context.getString(action, "${value.toPlainString()} ${value.type.symbol} ($label)\n")
 
     companion object {
         private val TAG = MbwMessageReceiver::class.java.canonicalName

@@ -31,6 +31,7 @@ import com.mycelium.wapi.model.*;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
@@ -39,7 +40,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
-public interface WalletBtcAccount extends WalletAccount {
+public interface WalletBtcAccount extends WalletAccount<BtcTransaction, BtcAddress> {
    void checkAmount(Receiver receiver, long kbMinerFee, CurrencyValue enteredAmount) throws InsufficientFundsException, OutputTooSmallException, StandardTransactionBuilder.UnableToBuildTransactionException;
 
    enum BroadcastResult { SUCCESS, REJECTED, NO_SERVER_CONNECTION}

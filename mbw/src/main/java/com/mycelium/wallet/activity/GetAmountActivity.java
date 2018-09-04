@@ -64,6 +64,7 @@ import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
@@ -536,9 +537,9 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       if (value == null) {
          return AmountValidation.Ok; //entering a fiat value + exchange is not availible
       }
-      if(_account.getCurrencyBasedBalance().confirmed.getValue().compareTo(value.getValue()) == -1) {
+      if(Utils.getBigDecimal(_account.getAccountBalance().confirmed).compareTo(value.getValue()) < 0) {
          return AmountValidation.ValueTooSmall;
-      } else if(_account.getCurrencyBasedBalance().confirmed.getValue().compareTo(BigDecimal.ZERO) < 1) {
+      } else if(!_account.getAccountBalance().confirmed.isPositive()) {
          return AmountValidation.NotEnoughFunds;
       }
       return AmountValidation.Ok;
@@ -570,7 +571,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          tvAmount.setTextColor(getResources().getColor(R.color.red));
          if (result == AmountValidation.NotEnoughFunds) {
             // We do not have enough funds
-            if (satoshis == null || _account.getBalance().getSpendableBalance() < satoshis.getLongValue()) {
+            if (satoshis == null || Utils.getSpendable(_account.getAccountBalance()).value < satoshis.getLongValue()) {
                // We do not have enough funds for sending the requested amount
                String msg = getResources().getString(R.string.insufficient_funds);
                Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();

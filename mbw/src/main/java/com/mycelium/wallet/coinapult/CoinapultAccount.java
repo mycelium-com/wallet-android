@@ -57,18 +57,18 @@ import com.mrd.bitlib.util.ByteWriter;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.WapiLogger;
-import com.mycelium.wallet.ExchangeRateManager;
+import com.mycelium.wallet.exchange.ExchangeRateManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.event.BalanceChanged;
 import com.mycelium.wallet.event.SyncFailed;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.model.*;
 import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal;
+import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.SyncMode;
-import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.BtcTransaction;
 import com.mycelium.wapi.wallet.btc.SynchronizeAbleWalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
@@ -409,8 +409,7 @@ public class CoinapultAccount extends SynchronizeAbleWalletBtcAccount {
    }
 
    @Override
-   public void broadcastTx(GenericTransaction tx) throws TransactionBroadcastException {
-
+   public void broadcastTx(BtcTransaction tx) throws TransactionBroadcastException {
    }
 
    @Override
@@ -429,8 +428,8 @@ public class CoinapultAccount extends SynchronizeAbleWalletBtcAccount {
    }
 
    @Override
-   public List<BtcTransaction> getTransactions(int offset, int limit) {
-      return new ArrayList<BtcTransaction>();
+   public List<GenericTransaction> getTransactions(int offset, int limit) {
+      return new ArrayList<GenericTransaction>();
    }
 
    @Override
@@ -854,5 +853,10 @@ public class CoinapultAccount extends SynchronizeAbleWalletBtcAccount {
    @Override
    public int getSyncTotalRetrievedTransactions() {
       return 0;
+   }
+
+   @Override
+   public SendRequest getSendToRequest(GenericAddress destination, Value amount) {
+      return null;
    }
 }

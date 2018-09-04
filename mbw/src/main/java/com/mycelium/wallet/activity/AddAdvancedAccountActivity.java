@@ -73,6 +73,7 @@ import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
+import com.mycelium.wapi.wallet.coins.Value;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -640,16 +641,16 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
 
    @Override
    public void finishCoCoFound(final UUID firstAddedAccount, int accountsCreated, int existingAccountsFound,
-                               BigDecimal mtFound, BigDecimal massFound, BigDecimal rmcFound) {
+                               Value mtFound, Value massFound, Value rmcFound) {
       List<String> amountStrings = new ArrayList<>();
-      if (rmcFound.compareTo(BigDecimal.ZERO) > 0) {
-         amountStrings.add(Utils.getColuFormattedValueWithUnit(new ColuCurrencyValue(rmcFound, "RMC")));
+      if (rmcFound.isPositive()) {
+         amountStrings.add(Utils.getFormattedValueWithUnit(rmcFound));
       }
-      if (mtFound.compareTo(BigDecimal.ZERO) > 0) {
-         amountStrings.add(Utils.getColuFormattedValueWithUnit(new ColuCurrencyValue(mtFound, "MT")));
+      if (mtFound.isPositive()) {
+         amountStrings.add(Utils.getFormattedValueWithUnit(mtFound));
       }
-      if (massFound.compareTo(BigDecimal.ZERO) > 0) {
-         amountStrings.add(Utils.getColuFormattedValueWithUnit(new ColuCurrencyValue(massFound, "MSS")));
+      if (massFound.isPositive()) {
+         amountStrings.add(Utils.getFormattedValueWithUnit(massFound));
       }
       String fundsFound = TextUtils.join(", ", amountStrings);
       String message = null;

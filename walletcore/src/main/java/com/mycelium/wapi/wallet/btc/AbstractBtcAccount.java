@@ -66,7 +66,9 @@ import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
+import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.WalletManager.Event;
+import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.CoinType;
@@ -1475,13 +1477,13 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       }
    }
 
-   public List<? extends GenericTransaction> getTransactions(int offset, int limit) {
+   public List<GenericTransaction> getTransactions(int offset, int limit) {
       // Note that this method is not synchronized, and we might fetch the transaction history while synchronizing
       // accounts. That should be ok as we write to the DB in a sane order.
 
       checkNotArchived();
       List<TransactionEx> list = _backing.getTransactionHistory(offset, limit);
-      List<BtcTransaction> history = new ArrayList<>();
+      List<GenericTransaction> history = new ArrayList<>();
       for (TransactionEx tex: list) {
          Transaction tx = TransactionEx.toTransaction(tex);
          if (tx == null) {
@@ -1544,7 +1546,12 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    }
 
    @Override
-   public GenericTransaction getTransaction(Sha256Hash transactionId){
+   public SendRequest getSendToRequest(GenericAddress destination, Value amount) {
+      return BtcSendRequest.to((BtcAddress) destination, amount);
+   }
+
+   @Override
+   public BtcTransaction getTransaction(Sha256Hash transactionId){
       checkNotArchived();
       TransactionEx tex = _backing.getTransaction(transactionId);
       Transaction tx = TransactionEx.toTransaction(tex);
@@ -1616,6 +1623,15 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
     public CoinType getCoinType() {
         return _network.isProdnet() ? BitcoinMain.get() : BitcoinTest.get();
     }
+
+   @Override
+   public Balance getAccountBalance() {
+      CoinType coinType = getCoinType();
+      return new Balance(Value.valueOf(coinType, _cachedBalance.confirmed),
+              Value.valueOf(coinType, _cachedBalance.pendingReceiving),
+              Value.valueOf(coinType, _cachedBalance.pendingSending),
+              Value.valueOf(coinType, _cachedBalance.pendingChange));
+   }
 
    @Override
    public boolean onlySyncWhenActive() {

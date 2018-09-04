@@ -234,11 +234,6 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
    }
 
    @Override
-   public Balance getAccountBalance() {
-        return null;
-    }
-
-   @Override
    public int getBlockChainHeight() {
       checkNotArchived();
       return _context.getBlockHeight();
@@ -396,19 +391,19 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
    }
 
    @Override
-   public void completeAndSignTx(SendRequest request) throws WalletAccountException {
+   public void completeAndSignTx(SendRequest<BtcTransaction> request) throws WalletAccountException {
    }
 
    @Override
-   public void completeTransaction(SendRequest request) throws WalletAccountException {
+   public void completeTransaction(SendRequest<BtcTransaction> request) throws WalletAccountException {
    }
 
    @Override
-   public void signTransaction(SendRequest request) throws WalletAccountException {
+   public void signTransaction(SendRequest<BtcTransaction> request) throws WalletAccountException {
    }
 
    @Override
-   public void broadcastTx(GenericTransaction tx) throws TransactionBroadcastException {
+   public void broadcastTx(BtcTransaction tx) throws TransactionBroadcastException {
    }
 
 }

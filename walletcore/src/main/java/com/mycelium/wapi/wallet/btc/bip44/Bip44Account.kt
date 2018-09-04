@@ -725,24 +725,18 @@ open class Bip44Account(
         private const val FORCED_DISCOVERY_INTERVAL_MS = (1000 * 60 * 60 * 24).toLong()
     }
 
-
-    override fun getAccountBalance(): Balance {
-        return Balance(Value.parse(BitcoinMain.get(),"0"),Value.parse(BitcoinMain.get(),"0"), Value.parse(BitcoinMain.get(),"0"), Value.parse(BitcoinMain.get(),"0"))
-    }
-
-    override fun completeAndSignTx(request: SendRequest<out GenericTransaction>?) {
+    override fun completeAndSignTx(request: SendRequest<BtcTransaction>) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun completeTransaction(request: SendRequest<out GenericTransaction>?) {
+    override fun completeTransaction(request: SendRequest<BtcTransaction>) {
+    }
+
+    override fun signTransaction(request: SendRequest<BtcTransaction>) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun signTransaction(request: SendRequest<out GenericTransaction>?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun broadcastTx(tx: GenericTransaction?) {
+    override fun broadcastTx(tx: BtcTransaction) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 }

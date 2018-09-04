@@ -53,6 +53,7 @@ import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.bip44.Bip44Account;
 import com.mycelium.wapi.wallet.btc.bip44.Bip44PubOnlyAccount;
+import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 
 import java.util.ArrayList;
@@ -122,12 +123,9 @@ public class RecordRowBuilder {
 
         // Set balance
         if (model.isActive) {
-            CurrencyBasedBalance balance = model.balance;
+            Balance balance = model.balance;
             holder.tvBalance.setVisibility(View.VISIBLE);
             String balanceString = Utils.getFormattedValueWithUnit(balance.confirmed, mbwManager.getBitcoinDenomination());
-            if (model.accountType == WalletBtcAccount.Type.COLU) {
-                balanceString = Utils.getColuFormattedValueWithUnit(balance.confirmed);
-            }
             holder.tvBalance.setText(balanceString);
             holder.tvBalance.setTextColor(textColor);
 
@@ -222,7 +220,7 @@ public class RecordRowBuilder {
         }
         result.isActive = walletAccount.isActive();
         if (result.isActive) {
-            result.balance = walletAccount.getCurrencyBasedBalance();
+            result.balance = walletAccount.getAccountBalance();
             result.showBackupMissingWarning = showBackupMissingWarning(walletAccount, mbwManager);
         }
         return result;

@@ -11,6 +11,7 @@ import com.mycelium.wallet.activity.modern.model.accounts.AccountViewModel;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.bip44.Bip44Account;
 import com.mycelium.wapi.wallet.btc.bip44.Bip44PubOnlyAccount;
+import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 
 import java.util.Objects;
@@ -20,7 +21,7 @@ public class ViewAccountModel {
     public UUID accountId;
     public WalletBtcAccount.Type accountType;
     public String displayAddress;
-    public CurrencyBasedBalance balance;
+    public Balance balance;
     public boolean isActive;
     public String label;
     public Drawable drawableForAccount;
