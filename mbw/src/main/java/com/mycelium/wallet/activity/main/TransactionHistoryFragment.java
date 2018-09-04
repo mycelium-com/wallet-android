@@ -94,8 +94,6 @@ import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.event.TransactionLabelChanged;
 import com.mycelium.wallet.persistence.MetadataStorage;
-import com.mycelium.wapi.model.TransactionDetails;
-import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
@@ -167,9 +165,9 @@ public class TransactionHistoryFragment extends Fragment {
          updateWrapper(adapter);
          model.getTransactionHistory().observe(this, new Observer<List<? extends GenericTransaction>>() {
             @Override
-            public void onChanged(@Nullable List<? extends GenericTransaction> transactionSummaries) {
+            public void onChanged(@Nullable List<? extends GenericTransaction> transaction) {
                history.clear();
-               history.addAll(transactionSummaries);
+               history.addAll(transaction);
                adapter.notifyDataSetChanged();
                showHistory(!history.isEmpty());
                refreshList();
@@ -408,7 +406,7 @@ public class TransactionHistoryFragment extends Fragment {
                   private void updateActionBar(ActionMode actionMode, Menu menu) {
                      checkNotNull(menu.findItem(R.id.miShowDetails)).setVisible(true); //hasDetails
                      checkNotNull(menu.findItem(R.id.miShowCoinapultDebug)).setVisible(false); //canCoinapult
-                     checkNotNull(menu.findItem(R.id.miAddToAddressBook)).setVisible(!record.getReceivedFrom().isEmpty()); //hasAddressBook
+                     checkNotNull(menu.findItem(R.id.miAddToAddressBook)).setVisible(!record.getInputs().isEmpty()); //hasAddressBook
                      if((_mbwManager.getSelectedAccount().getType() == WalletBtcAccount.Type.BCHBIP44
                          || _mbwManager.getSelectedAccount().getType() == WalletBtcAccount.Type.BCHSINGLEADDRESS)) {
                        checkNotNull(menu.findItem(R.id.miCancelTransaction)).setVisible(false);
@@ -634,7 +632,7 @@ public class TransactionHistoryFragment extends Fragment {
       for(GenericTransaction.GenericOutput i : transaction.getInputs()) {
          txFee += i.getValue().getValue();
       }
-      for(GenericTransaction.GenericOutput i : transaction.getSentTo()) {
+      for(GenericTransaction.GenericOutput i : transaction.getOutputs()) {
          txFee -= i.getValue().getValue();
       }
       if(txFee * 1000 / transaction.getRawSize() >= feePerKB) {
