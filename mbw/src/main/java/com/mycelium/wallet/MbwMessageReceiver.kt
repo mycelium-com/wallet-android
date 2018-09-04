@@ -24,7 +24,7 @@ import com.mycelium.wapi.wallet.btc.WalletBtcAccount
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount.Type.BCHBIP44
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount.Type.BCHSINGLEADDRESS
 import com.mycelium.wapi.wallet.WalletManager
-import com.mycelium.wapi.wallet.btc.bip44.Bip44Account
+import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.currency.CurrencyValue
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
@@ -50,12 +50,30 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
     override fun onMessage(callingPackageName: String, intent: Intent) {
         when (callingPackageName) {
             getSpvModuleName(BCHBIP44) -> onMessageFromSpvModuleBch(intent, getModule(callingPackageName))
+            BuildConfig.appIdTsm -> onMessageFromTsmModule(intent)
             else -> Log.e(TAG, "Ignoring unexpected package $callingPackageName calling with intent $intent.")
         }
     }
 
     private fun getModule(packageName: String): Module? =
             CommunicationManager.getInstance().pairedModules.find { it.modulePackage == packageName }
+
+    private fun onMessageFromTsmModule(intent: Intent) {
+        when (intent.action) {
+            "com.mycelium.wallet.getMyceliumId" -> {
+                val mbwManager = MbwManager.getInstance(context)
+                val service = IntentContract.MyceliumIdTransfer.createIntent(mbwManager.myceliumId)
+                WalletApplication.sendToTsm(service)
+            }
+            "com.mycelium.wallet.signData" -> {
+                val mbwManager = MbwManager.getInstance(context)
+                val message = intent.getStringExtra(IntentContract.MESSAGE)
+                val signature = mbwManager.signMessage(message)
+                val service = IntentContract.TransferSignedData.createIntent(message, signature)
+                WalletApplication.sendToTsm(service)
+            }
+        }
+    }
 
     @Suppress("UNCHECKED_CAST")
     private fun onMessageFromSpvModuleBch(intent: Intent, module: Module?) {
@@ -282,7 +300,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 val signedTransaction = signAndSerialize(networkParameters, keyList, txUTXOsHexList, transaction)
                 val service = IntentContract.SendSignedTransactionUnrelatedToSPV.createIntent(operationId, accountGuid,
                         signedTransaction)
-                WalletApplication.sendToSpv(service, if (account is Bip44Account) BCHBIP44 else BCHSINGLEADDRESS)
+                WalletApplication.sendToSpv(service, if (account is HDAccount) BCHBIP44 else BCHSINGLEADDRESS)
             }
             null -> Log.w(TAG, "onMessage failed. No action defined.")
             else -> Log.e(TAG, "onMessage failed. Unknown action ${intent.action}")
@@ -310,18 +328,6 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
         val signer = LocalTransactionSigner()
         check(signer.signInputs(proposedTransaction, group))
         return proposedTransaction.partialTx.bitcoinSerialize()
-    }
-
-    private fun createNextAccount(account: Bip44Account, walletManager: WalletManager,
-                                  archived: Boolean) {
-        if(account.hasHadActivity()
-                && !walletManager.doesBip44AccountExists(account.accountIndex + 1)) {
-            val newAccountUUID = walletManager.createArchivedGapFiller(AesKeyCipher.defaultKeyCipher(),
-                    account.accountIndex + 1, archived)
-            MbwManager.getInstance(context).metadataStorage
-                    .storeAccountLabel(newAccountUUID, "Account " + (account.accountIndex + 2 /** account index is zero based */))
-            walletManager.startSynchronization()
-        }
     }
 
     private fun notifySatoshisReceived() {

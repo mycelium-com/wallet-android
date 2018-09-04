@@ -196,6 +196,10 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         CommunicationManager.getInstance().send(getSpvModuleName(accountType), intent);
     }
 
+    public static void sendToTsm(Intent intent) {
+        CommunicationManager.getInstance().send(BuildConfig.appIdTsm, intent);
+    }
+
     private static Map<WalletBtcAccount.Type, String> initTrustedSpvModulesMapping() {
         Map<WalletBtcAccount.Type, String> spvModulesMapping = new HashMap<>();
         spvModulesMapping.put(WalletBtcAccount.Type.BCHBIP44, BuildConfig.appIdSpvBch);

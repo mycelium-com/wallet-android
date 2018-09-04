@@ -27,7 +27,7 @@ open class UnsignedTransaction constructor(
         val transaction = Transaction(1, inputs, this.outputs, lockTime)
 
         for (i in fundingOutputs.indices) {
-            if (fundingOutputs[i].script is ScriptOutputP2WPKH || fundingOutputs[i].script is ScriptOutputP2WSH || fundingOutputs[i].script is ScriptOutputP2SH) { // TODO SEGWIT FIX
+            if (isSegWitOutput(i)) {
                 inputs[i].script = ScriptInput.fromOutputScript(funding[i].script)
             }
             val utxo = fundingOutputs[i]
@@ -54,23 +54,33 @@ open class UnsignedTransaction constructor(
                     inputs[i].script = inputScript
                 }
                 is ScriptOutputP2WPKH -> throw NotImplementedError()
-                is ScriptOutputP2WSH -> throw NotImplementedError()
             }
 
-            if (!(fundingOutputs[i].script is ScriptOutputP2WPKH || fundingOutputs[i].script is ScriptOutputP2WSH || fundingOutputs[i].script is ScriptOutputP2SH)) { // TODO SEGWIT FIX
+            val scriptsList: MutableList<ScriptInput> = mutableListOf()
+            if (!isSegWitOutput(i)) {
+                inputs.forEach {
+                    scriptsList.add(it.script)
+                    it.script = ScriptInput.EMPTY
+                }
                 inputs[i].script = ScriptInput.fromOutputScript(funding[i].script)
             }
 
             // Calculate the transaction hash that has to be signed
             val hash = transaction.getTxDigestHash(i)
             // Set the input to the empty script again
-            if (!(fundingOutputs[i].script is ScriptOutputP2WPKH || fundingOutputs[i].script is ScriptOutputP2WSH || fundingOutputs[i].script is ScriptOutputP2SH)) {// TODO SEGWIT FIX
+            if (!isSegWitOutput(i)) {
+                inputs.forEachIndexed { index, it ->
+                    it.script = scriptsList[index]
+                }
                 inputs[i] = TransactionInput(fundingOutputs[i].outPoint, ScriptInput.EMPTY, NO_SEQUENCE, fundingOutputs[i].value)
             }
 
             signingRequests[i] = SigningRequest(publicKey, hash)
         }
     }
+
+    private fun isSegWitOutput(i: Int) =
+            fundingOutputs[i].script is ScriptOutputP2WPKH || fundingOutputs[i].script is ScriptOutputP2SH
 
     /**
      * @return fee in satoshis

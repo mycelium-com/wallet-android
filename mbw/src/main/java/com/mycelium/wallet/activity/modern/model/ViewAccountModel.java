@@ -9,8 +9,8 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.modern.model.accounts.AccountViewModel;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
-import com.mycelium.wapi.wallet.btc.bip44.Bip44Account;
-import com.mycelium.wapi.wallet.btc.bip44.Bip44PubOnlyAccount;
+import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
+import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 
@@ -38,15 +38,15 @@ public class ViewAccountModel {
         accountId = viewModel.getAccountId();
         accountType = viewModel.getAccountType();
         final WalletBtcAccount account = MbwManager.getInstance(context).getWalletManager(false).getAccount(accountId);
-        if (account instanceof Bip44PubOnlyAccount && account.isActive()) {
-            int numKeys = ((Bip44Account) account).getPrivateKeyCount();
+        if (account instanceof HDPubOnlyAccount && account.isActive()) {
+            int numKeys = ((HDAccount) account).getPrivateKeyCount();
             if (numKeys > 1) {
                 displayAddress = context.getString(R.string.contains_addresses, numKeys);
             } else {
                 displayAddress = context.getString(R.string.account_contains_one_address_info);
             }
-        } else if (account instanceof Bip44Account && account.isActive()) {
-            int numKeys = ((Bip44Account) account).getPrivateKeyCount();
+        } else if (account instanceof HDAccount && account.isActive()) {
+            int numKeys = ((HDAccount) account).getPrivateKeyCount();
             if (numKeys > 1) {
                 displayAddress = context.getString(R.string.contains_keys, numKeys);
             } else {

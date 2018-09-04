@@ -114,7 +114,7 @@ import com.mycelium.wapi.api.response.Feature;
 import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
-import com.mycelium.wapi.wallet.btc.bip44.Bip44AccountExternalSignature;
+import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
 import com.mycelium.wapi.wallet.currency.BitcoinValue;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
@@ -713,7 +713,7 @@ public class SendMainActivity extends Activity {
          sendCoinapultTransaction();
       } else if (isColu()) {
           sendColuTransaction();
-      } else if (_isColdStorage || _account instanceof Bip44AccountExternalSignature) {
+      } else if (_isColdStorage || _account instanceof HDAccountExternalSignature) {
          // We do not ask for pin when the key is from cold storage or from a external device (trezor,...)
          signTransaction();
       } else {

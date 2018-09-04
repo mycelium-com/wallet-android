@@ -9,6 +9,6 @@ class SingleAddressAccountContextTest {
     val expectedMap = mapOf(AddressType.P2PKH to Address.fromString(""))
     @Test
     fun getAddresses() {
-        TODO("Serialization and basic format should be tested as it's stored in database in plain fornat")
+        TODO("Serialization and basic format should be tested as it's stored in database in plain fornat") // TODO SegWit fix, do not merge
     }
 }

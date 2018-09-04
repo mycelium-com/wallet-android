@@ -1,6 +1,0 @@
-<resources>
-    <string name="app_name">Mycelium Modularization Tools</string>
-    <string name="module_name">module_name</string>
-    <string name="module_short_name">module_short_name</string>
-    <string name="module_description">module_description</string>
-</resources>

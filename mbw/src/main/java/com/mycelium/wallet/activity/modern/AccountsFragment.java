@@ -69,6 +69,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.AddressType;
 import com.mycelium.wallet.AccountManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -105,8 +106,8 @@ import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
-import com.mycelium.wapi.wallet.btc.bip44.Bip44Account;
-import com.mycelium.wapi.wallet.btc.bip44.Bip44PubOnlyAccount;
+import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
+import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.Value;
@@ -526,23 +527,6 @@ public class AccountsFragment extends Fragment {
       return linkedAccount;
    }
 
-   private int getLinkedAccountsCount(WalletBtcAccount account) {
-      int count = 0;
-      if (account.getType() == WalletBtcAccount.Type.COLU) {
-         count++;
-      } else {
-         if (Utils.getLinkedAccount(account, _mbwManager.getColuManager().getAccounts().values()) != null) {
-            count++;
-         }
-      }
-
-      if (_mbwManager.getWalletManager(false).getAccount(MbwManager.getBitcoinCashAccountId(account)) != null) {
-         count++;
-      }
-
-      return count;
-   }
-
    private void finishCurrentActionMode() {
       if (currentActionMode != null) {
          currentActionMode.finish();
@@ -628,7 +612,7 @@ public class AccountsFragment extends Fragment {
          menus.add(R.menu.record_options_menu_delete);
       }
 
-      if (account.isActive() && account.canSpend() && !(account instanceof Bip44PubOnlyAccount)
+      if (account.isActive() && account.canSpend() && !(account instanceof HDPubOnlyAccount)
               && !isBch) {
          menus.add(R.menu.record_options_menu_sign);
       }
@@ -655,11 +639,11 @@ public class AccountsFragment extends Fragment {
          menus.add(R.menu.record_options_menu_export);
       }
 
-      if (account.isActive() && account instanceof Bip44Account && !(account instanceof Bip44PubOnlyAccount)
+      if (account.isActive() && account instanceof HDAccount && !(account instanceof HDPubOnlyAccount)
               && AccountManager.INSTANCE.getBTCMasterSeedAccounts().size() > 1 && !isBch) {
 
-         final Bip44Account bip44Account = (Bip44Account) account;
-         if (!bip44Account.hasHadActivity() && bip44Account.getAccountIndex() == walletManager.getCurrentBip44Index()) {
+         final HDAccount HDAccount = (HDAccount) account;
+         if (!HDAccount.hasHadActivity() && HDAccount.getAccountIndex() == walletManager.getCurrentBip44Index()) {
             //only allow to remove unused HD acounts from the view
             menus.add(R.menu.record_options_menu_hide_unused);
          }
@@ -945,11 +929,13 @@ public class AccountsFragment extends Fragment {
             WalletBtcAccount _focusedAccount = accountListAdapter.getFocusedAccount();
             if (_focusedAccount instanceof CoinapultAccount) {
                CoinapultManager coinapultManager = _mbwManager.getCoinapultManager();
-               MessageSigningActivity.callMe(getActivity(), coinapultManager.getAccountKey());
+               MessageSigningActivity.callMe(getActivity(), coinapultManager.getAccountKey(), AddressType.P2SH_P2WPKH);
             } else if (_focusedAccount instanceof SingleAddressAccount) {
-               MessageSigningActivity.callMe(getActivity(), (SingleAddressAccount) _focusedAccount);
+               MessageSigningActivity.callMe(getActivity(), (SingleAddressAccount) _focusedAccount,
+                       ((SingleAddressAccount) _focusedAccount).getAddress().getType());
             } else if(_focusedAccount instanceof ColuAccount){
-               MessageSigningActivity.callMe(getActivity(), ((ColuAccount) _focusedAccount).getPrivateKey());
+               MessageSigningActivity.callMe(getActivity(), ((ColuAccount) _focusedAccount).getPrivateKey(),
+                       AddressType.P2PKH);
             } else {
                Intent intent = new Intent(getActivity(), HDSigningActivity.class);
                intent.putExtra("account", _focusedAccount.getId());
@@ -966,7 +952,7 @@ public class AccountsFragment extends Fragment {
    private void toastSelectedAccountChanged(WalletBtcAccount account) {
       if (account.isArchived()) {
          _toaster.toast(getString(R.string.selected_archived_warning), true);
-      } else if (account instanceof Bip44Account) {
+      } else if (account instanceof HDAccount) {
          _toaster.toast(getString(R.string.selected_hd_info), true);
       } else if (account instanceof SingleAddressAccount) {
          _toaster.toast(getString(R.string.selected_single_info), true);
@@ -978,13 +964,6 @@ public class AccountsFragment extends Fragment {
 
    @Override
    public boolean onOptionsItemSelected(MenuItem item) {
-      // If we are synchronizing, show "Synchronizing, please wait..." to avoid blocking behavior
-      if (_mbwManager.getWalletManager(false).getState() == WalletManager.State.SYNCHRONIZING
-              || _mbwManager.getColuManager().getState() == WalletManager.State.SYNCHRONIZING) {
-         _toaster.toast(R.string.synchronizing_please_wait, false);
-         return true;
-      }
-
       if (!isAdded()) {
          return true;
       }
@@ -1145,7 +1124,7 @@ public class AccountsFragment extends Fragment {
       }
       final WalletBtcAccount _focusedAccount = accountListAdapter.getFocusedAccount();
       if (accountProtected(_focusedAccount)) {
-         //this is the last active account, we dont allow archiving it
+         //this is the last active hd account, we dont allow archiving it
          _toaster.toast(R.string.keep_one_active, false);
          return;
       }
@@ -1164,7 +1143,7 @@ public class AccountsFragment extends Fragment {
          });
          return;
       } else if (_focusedAccount.getType() == WalletBtcAccount.Type.BTCBIP44) {
-         Bip44Account account = (Bip44Account) _focusedAccount;
+         HDAccount account = (HDAccount) _focusedAccount;
          if (!account.hasHadActivity()) {
             //this account is unused, we dont allow archiving it
             _toaster.toast(R.string.dont_allow_archiving_unused_notification, false);
@@ -1186,11 +1165,26 @@ public class AccountsFragment extends Fragment {
    }
 
    /**
-    * Account is protected if after removal no accounts would stay active, so it would not be possible to select an account
+    * Account is protected if after removal no BTC masterseed accounts would stay active, so it would not be possible to select an account
     */
    private boolean accountProtected(WalletBtcAccount toRemove) {
-      final int safeSize = getLinkedAccountsCount(toRemove) + 2;
-      return _mbwManager.getWalletManager(false).getActiveAccounts().size() < safeSize;
+      if (toRemove.getType() != WalletBtcAccount.Type.BTCBIP44
+              || ((HDAccount) toRemove).getAccountType() != HDAccountContext.ACCOUNT_TYPE_FROM_MASTERSEED) {
+         // unprotected account type
+         return false;
+      }
+      int count = 0;
+      for (WalletBtcAccount account : _mbwManager.getWalletManager(false).
+              getActiveAccounts(WalletBtcAccount.Type.BTCBIP44)) {
+         if (((HDAccount) account).getAccountType() == HDAccountContext.ACCOUNT_TYPE_FROM_MASTERSEED) {
+            count++;
+         }
+         if (count > 1) {
+            // after deleting one, more remain
+            return false;
+         }
+      }
+      return true;
    }
 
    private void hideSelected() {
@@ -1203,8 +1197,8 @@ public class AccountsFragment extends Fragment {
          _toaster.toast(R.string.keep_one_active, false);
          return;
       }
-      if (_focusedAccount instanceof Bip44Account) {
-         final Bip44Account account = (Bip44Account) _focusedAccount;
+      if (_focusedAccount instanceof HDAccount) {
+         final HDAccount account = (HDAccount) _focusedAccount;
          if (account.hasHadActivity()) {
             //this account is used, we don't allow hiding it
             _toaster.toast(R.string.dont_allow_hiding_used_notification, false);

@@ -95,6 +95,7 @@ import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.event.TransactionLabelChanged;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.GenericTransaction;
+import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
@@ -105,6 +106,8 @@ import com.squareup.otto.Subscribe;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -168,6 +171,12 @@ public class TransactionHistoryFragment extends Fragment {
             public void onChanged(@Nullable List<? extends GenericTransaction> transaction) {
                history.clear();
                history.addAll(transaction);
+               adapter.sort(new Comparator<GenericTransaction>() {
+                  @Override
+                  public int compare(GenericTransaction ts1, GenericTransaction ts2) {
+                     return Long.compare(ts2.getTimestamp(), ts1.getTimestamp());
+                  }
+               });
                adapter.notifyDataSetChanged();
                showHistory(!history.isEmpty());
                refreshList();
