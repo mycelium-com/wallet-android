@@ -145,7 +145,6 @@ public class StandardTransactionBuilder {
                                                         Address changeAddress, IPublicKeyRing keyRing,
                                                         NetworkParameters network, long minerFeeToUse)
        throws InsufficientFundsException, UnableToBuildTransactionException {
-      boolean isSegwit = changeAddress.isMultisig(network); // TODO create more smart way to decide SegWit
 
       // Make a copy so we can mutate the list
       List<UnspentTransactionOutput> unspent = new LinkedList<>(inventory);
@@ -194,12 +193,7 @@ public class StandardTransactionBuilder {
       int estimateTransactionSize = estimateTransactionSize(unsignedTransaction.getFundingOutputs().length,
           unsignedTransaction.getOutputs().length);
       long calculatedFee = unsignedTransaction.calculateFee();
-      float estimatedFeePerKb;
-      if (isSegwit) {
-         estimatedFeePerKb = (long) ((float) calculatedFee / ((float) estimateTransactionSize / 1000)); // TODO change segwit
-      } else {
-         estimatedFeePerKb = (long) ((float) calculatedFee / ((float) estimateTransactionSize / 1000));
-      }
+      float estimatedFeePerKb = (long) ((float) calculatedFee / ((float) estimateTransactionSize / 1000)); // TODO change segwit
 
       // set a limit of MAX_MINER_FEE_PER_KB as absolute limit - it is very likely a bug in the fee estimator or transaction composer
       if (estimatedFeePerKb > Transaction.MAX_MINER_FEE_PER_KB) {
