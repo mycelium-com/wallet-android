@@ -522,7 +522,7 @@ public class HdKeyNode implements Serializable {
 
 
    public BipDerivationType getDerivationType() {
-      return derivationType;
+      return derivationType != null ? derivationType : BipDerivationType.BIP44;
    }
 
    // generate internal uuid from public key of the HdKeyNode
