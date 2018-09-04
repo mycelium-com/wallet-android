@@ -22,8 +22,8 @@ public class BtcTransaction implements GenericTransaction {
     final Value valueReceived;
     final Value value;
     private int timestamp;
-    final ArrayList<GenericOutput> inputs;
-    final ArrayList<GenericAddress> toAddresses;
+    final ArrayList<GenericInput> inputs;
+    final ArrayList<GenericOutput> outputs;
     private int confirmations;
     final int rawSize;
     private final boolean isQueuedOutgoing;
@@ -33,9 +33,9 @@ public class BtcTransaction implements GenericTransaction {
 
     public BtcTransaction(CoinType type, Transaction transaction,
                           long valueSent, long valueReceived, int timestamp, int confirmations,
-                          boolean isQueuedOutgoing, ArrayList<GenericOutput> inputs,
-                          ArrayList<GenericAddress> toAddresses,
-                          ConfirmationRiskProfileLocal risk, int rawSize, @Nullable Value fee) {
+                          boolean isQueuedOutgoing, ArrayList<GenericInput> inputs,
+                          ArrayList<GenericOutput> outputs, ConfirmationRiskProfileLocal risk,
+                          int rawSize, @Nullable Value fee) {
         this.type = type;
         this.tx = transaction;
         this.hash = tx.getId();
@@ -46,7 +46,7 @@ public class BtcTransaction implements GenericTransaction {
         this.confirmations = confirmations;
         this.isQueuedOutgoing = isQueuedOutgoing;
         this.inputs = inputs;
-        this.toAddresses = toAddresses;
+        this.outputs = outputs;
         this.confirmationRiskProfile = Optional.fromNullable(risk);
         this.rawSize = rawSize;
         this.fee = fee;
@@ -99,19 +99,13 @@ public class BtcTransaction implements GenericTransaction {
     }
 
     @Override
-    public List<GenericAddress> getReceivedFrom() {
-        return toAddresses;
-    }
-
-
-    @Override
-    public List<GenericOutput> getInputs() {
-        return null;
+    public List<GenericInput> getInputs() {
+        return inputs;
     }
 
     @Override
-    public List<GenericOutput> getSentTo() {
-        return null;
+    public List<GenericOutput> getOutputs() {
+        return outputs;
     }
 
     @Override

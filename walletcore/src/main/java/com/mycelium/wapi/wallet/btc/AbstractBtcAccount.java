@@ -1492,7 +1492,6 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
 
          long satoshisReceived = 0;
          long satoshisSent = 0;
-         ArrayList<GenericAddress> toAddresses = new ArrayList<>();
          ArrayList<GenericTransaction.GenericOutput> outputs = new ArrayList<>(); //need to create list of outputs
          for (TransactionOutput output : tx.outputs) {
             Address address = output.script.getAddress(_network);
@@ -1500,11 +1499,11 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
                satoshisReceived += output.value;
             }
             if (address != null && address != Address.getNullAddress(_network)) {
-               toAddresses.add(BtcAddress.from(address.toString()));
+               outputs.add(new GenericTransaction.GenericOutput(new BtcAddress(address.getAllAddressBytes()), Value.valueOf(getCoinType(), output.value)));
             }
          }
 
-         ArrayList<GenericTransaction.GenericOutput> inputs = new ArrayList<>(); //need to create list of outputs
+         ArrayList<GenericTransaction.GenericInput> inputs = new ArrayList<>(); //need to create list of outputs
 
          // Inputs
          if (!tx.isCoinbase()) {
@@ -1520,8 +1519,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
                }
 
                Address address = ScriptOutput.fromScriptBytes(funding.script).getAddress(_network);
-               CoinType coinType = (_network.isTestnet()) ? BitcoinTest.get() : BitcoinMain.get();
-               inputs.add(new GenericTransaction.GenericOutput(new BtcAddress(address.getAllAddressBytes()), Value.valueOf(coinType, funding.value)));
+               inputs.add(new GenericTransaction.GenericInput(new BtcAddress(address.getAllAddressBytes()), Value.valueOf(getCoinType(), funding.value)));
             }
          }
 
@@ -1535,7 +1533,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
          boolean isQueuedOutgoing = _backing.isOutgoingTransaction(tx.getId());
 
          item = new BtcTransaction(getCoinType(), tx, satoshisSent, satoshisReceived, tex.time,
-                 confirmations, isQueuedOutgoing, inputs, toAddresses, riskAssessmentForUnconfirmedTx.get(tx.getId()),
+                 confirmations, isQueuedOutgoing, inputs, outputs, riskAssessmentForUnconfirmedTx.get(tx.getId()),
                  tex.binary.length,  Value.valueOf(BitcoinMain.get(), Math.abs(satoshisReceived - satoshisSent)));
 
          if (item != null) {
@@ -1556,17 +1554,17 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
 
       long satoshisReceived = 0;
       long satoshisSent = 0;
-      ArrayList<GenericAddress> toAddresses = new ArrayList<>(); //need to create list of outputs
+      ArrayList<GenericTransaction.GenericOutput> outputs = new ArrayList<>();
       for (TransactionOutput output : tx.outputs) {
          Address address = output.script.getAddress(_network);
          if (isMine(output.script)) {
             satoshisReceived += output.value;
          }
          if (address != null && address != Address.getNullAddress(_network)) {
-            toAddresses.add(BtcAddress.from(address.toString()));
+            outputs.add(new GenericTransaction.GenericOutput(new BtcAddress(address.getAllAddressBytes()), Value.valueOf(getCoinType(), output.value)));
          }
       }
-      ArrayList<GenericTransaction.GenericOutput> inputs = new ArrayList<>(); //need to create list of outputs
+      ArrayList<GenericTransaction.GenericInput> inputs = new ArrayList<>(); //need to create list of outputs
 
       // Inputs
       if (!tx.isCoinbase()) {
@@ -1581,8 +1579,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
                satoshisSent += funding.value;
             }
             Address address = ScriptOutput.fromScriptBytes(funding.script).getAddress(_network);
-            CoinType coinType =  (_network.isTestnet())? BitcoinTest.get() : BitcoinMain.get();
-            inputs.add(new GenericTransaction.GenericOutput(new BtcAddress(address.getAllAddressBytes()), Value.valueOf(coinType, funding.value)));
+            inputs.add(new GenericTransaction.GenericInput(new BtcAddress(address.getAllAddressBytes()), Value.valueOf(getCoinType(), funding.value)));
          }
       }
 
@@ -1594,7 +1591,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       }
       boolean isQueuedOutgoing = _backing.isOutgoingTransaction(tx.getId());
       return new BtcTransaction(getCoinType(), tx, satoshisSent, satoshisReceived, tex.time,
-              confirmations, isQueuedOutgoing, inputs, toAddresses, riskAssessmentForUnconfirmedTx.get(tx.getId()),
+              confirmations, isQueuedOutgoing, inputs, outputs, riskAssessmentForUnconfirmedTx.get(tx.getId()),
               tex.binary.length, Value.valueOf(BitcoinMain.get(), Math.abs(satoshisReceived - satoshisSent)));
    }
 

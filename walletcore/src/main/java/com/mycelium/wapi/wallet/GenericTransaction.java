@@ -26,6 +26,12 @@ public interface GenericTransaction {
         }
     }
 
+    class GenericInput extends GenericOutput{
+        public GenericInput(GenericAddress genericAddress, Value value) {
+            super(genericAddress, value);
+        }
+    }
+
     CoinType getType();
 
     Sha256Hash getHash();
@@ -46,9 +52,8 @@ public interface GenericTransaction {
 
     Value getFee();
 
-    List<GenericAddress> getReceivedFrom();
-    List<GenericOutput> getInputs();
-    List<GenericOutput> getSentTo();
+    List<GenericInput> getInputs();
+    List<GenericOutput> getOutputs();
 
     Value getSent();
     Value getReceived();

@@ -107,7 +107,7 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransaction> {
       TextView tvAmount = (TextView) rowView.findViewById(R.id.tvAmount);
       //Maybe it's wrong
 
-      tvAmount.setText((record.isIncoming()?record.getReceived().getValue() : record.getSent().getValue()) + " " + _mbwManager.getBitcoinDenomination().toString());
+      tvAmount.setText(MbwManager.getInstance(_context).getBtcValueString(record.isIncoming()?record.getReceived().getValue() : record.getSent().getValue()));
       tvAmount.setTextColor(color);
 
       // Set alternative value

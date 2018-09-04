@@ -82,17 +82,12 @@ public class FiatTransaction implements GenericTransaction {
     }
 
     @Override
-    public List<GenericAddress> getReceivedFrom() {
+    public List<GenericInput> getInputs() {
         return null;
     }
 
     @Override
-    public List<GenericOutput> getInputs() {
-        return null;
-    }
-
-    @Override
-    public List<GenericOutput> getSentTo() {
+    public List<GenericOutput> getOutputs() {
         return null;
     }
 

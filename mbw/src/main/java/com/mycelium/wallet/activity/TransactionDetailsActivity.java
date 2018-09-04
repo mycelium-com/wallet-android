@@ -55,14 +55,7 @@ import com.mycelium.wallet.activity.util.AddressLabel;
 import com.mycelium.wallet.activity.util.TransactionConfirmationsDisplay;
 import com.mycelium.wallet.activity.util.TransactionDetailsLabel;
 import com.mycelium.wallet.colu.ColuAccount;
-import com.mycelium.wallet.colu.json.ColuTxDetailsItem;
-import com.mycelium.wapi.model.TransactionDetails;
-import com.mycelium.wapi.model.TransactionSummary;
-import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.GenericTransaction;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
-
-import org.bitcoinj.core.TransactionOutput;
 
 import java.math.BigDecimal;
 import java.text.DateFormat;
@@ -161,8 +154,8 @@ public class TransactionDetailsActivity extends Activity {
 
       // Set Outputs
       LinearLayout outputs = findViewById(R.id.llOutputs);
-      if(_txs.getSentTo() != null) {
-         for (GenericTransaction.GenericOutput item : _txs.getSentTo()) {
+      if(_txs.getOutputs() != null) {
+         for (GenericTransaction.GenericOutput item : _txs.getOutputs()) {
             outputs.addView(getItemView(item));
          }
       }
@@ -173,7 +166,7 @@ public class TransactionDetailsActivity extends Activity {
       if(txFeeTotal > 0) {
          ((TextView) findViewById(R.id.tvFeeLabel)).setVisibility(View.VISIBLE);
          ((TextView) findViewById(R.id.tvInputsLabel)).setVisibility(View.VISIBLE);
-        fee = txFeeTotal + _txs.getType().getName();
+        fee = _mbwManager.getBtcValueString(txFeeTotal);
          if (_txs.getRawSize() > 0) {
             final long txFeePerSat = txFeeTotal / _txs.getRawSize();
             fee += String.format("\n%d sat/byte", txFeePerSat);
@@ -191,7 +184,8 @@ public class TransactionDetailsActivity extends Activity {
       ll.setOrientation(LinearLayout.VERTICAL);
       ll.setLayoutParams(WCWC);
       // Add BTC value
-      ll.addView(getValue(item.getValue().getValue(), item.getAddress().toString()));
+      String address = item.getAddress().toString();
+      ll.addView(getValue(item.getValue().getValue(), address));
       AddressLabel adrLabel = new AddressLabel(this);
       adrLabel.setColuMode(coluMode);
       adrLabel.setAddress(Address.fromString(item.getAddress().toString()));
@@ -215,12 +209,7 @@ public class TransactionDetailsActivity extends Activity {
       TextView tv = new TextView(this);
       tv.setLayoutParams(FPWC);
       tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
-      if(_mbwManager.getSelectedAccount().getType() == WalletBtcAccount.Type.BCHSINGLEADDRESS
-          || _mbwManager.getSelectedAccount().getType() == WalletBtcAccount.Type.BCHBIP44) {
-         tv.setText(_mbwManager.getBchValueString(value));
-      } else {
-         tv.setText(_mbwManager.getBtcValueString(value));
-      }
+      tv.setText(_mbwManager.getBtcValueString(value));
       tv.setTextColor(_white_color);
       tv.setTag(tag);
 
