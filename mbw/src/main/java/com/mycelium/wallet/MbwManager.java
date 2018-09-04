@@ -175,7 +175,7 @@ public class MbwManager {
    private final CurrencySwitcher _currencySwitcher;
    private boolean startUpPinUnlocked = false;
    private boolean randomizePinPad;
-   privateTimer _addressWatchTimer;
+   private Timer _addressWatchTimer;
 
     public static synchronized MbwManager getInstance(Context context) {
         if (_instance == null) {
@@ -1268,7 +1268,7 @@ public class MbwManager {
         try {
             accountId = _walletManager.createAdditionalBip44Account(AesKeyCipher.defaultKeyCipher());
             //set default label for the created HD account
-            WalletAccount account = _walletManager.getAccount(accountId);
+            WalletBtcAccount account = _walletManager.getAccount(accountId);
             String defaultName = Utils.getNameForNewAccount(account, context);
             _storage.storeAccountLabel(accountId, defaultName);
         } catch (KeyCipher.InvalidKeyCipher e) {

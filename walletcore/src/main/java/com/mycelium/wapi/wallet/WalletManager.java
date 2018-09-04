@@ -773,7 +773,7 @@ public class WalletManager {
             account = getBip44Account(context, keyManagerMap, accountBacking);
 
             addAccount(account);
-            _bip44Accounts.add(account);
+            HDAccounts.add(account);
 
             if (_spvBalanceFetcher != null) {
                 Bip44BCHAccount bchAccount;
@@ -798,8 +798,8 @@ public class WalletManager {
         }
     }
 
-    private Bip44Account getBip44Account(HDAccountContext context, Map<BipDerivationType, HDAccountKeyManager> keyManagerMap, Bip44AccountBacking accountBacking) {
-        Bip44Account account;
+    private HDAccount getBip44Account(HDAccountContext context, Map<BipDerivationType, HDAccountKeyManager> keyManagerMap, Bip44AccountBacking accountBacking) {
+        HDAccount account;
         switch (context.getAccountType()) {
             case ACCOUNT_TYPE_FROM_MASTERSEED:
                 // Normal account - derived from masterseed
