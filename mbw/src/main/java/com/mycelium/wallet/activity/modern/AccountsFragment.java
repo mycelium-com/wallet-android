@@ -108,6 +108,7 @@ import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bip44.HDAccount;
+import com.mycelium.wapi.wallet.bip44.HDAccountContext;
 import com.mycelium.wapi.wallet.bip44.HDPubOnlyAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
@@ -1169,14 +1170,14 @@ public class AccountsFragment extends Fragment {
     */
    private boolean accountProtected(WalletAccount toRemove) {
       if (toRemove.getType() != WalletAccount.Type.BTCBIP44
-              || ((Bip44Account) toRemove).getTypeFromContext() != Bip44AccountContext.ACCOUNT_TYPE_FROM_MASTERSEED) {
+              || ((HDAccount) toRemove).getAccountType() != HDAccountContext.ACCOUNT_TYPE_FROM_MASTERSEED) {
          // unprotected account type
          return false;
       }
       int count = 0;
       for (WalletAccount account : _mbwManager.getWalletManager(false).
               getActiveAccounts(WalletAccount.Type.BTCBIP44)) {
-         if (((Bip44Account) account).getAccountType() == Bip44AccountContext.ACCOUNT_TYPE_FROM_MASTERSEED) {
+         if (((HDAccount) account).getAccountType() == HDAccountContext.ACCOUNT_TYPE_FROM_MASTERSEED) {
             count++;
          }
          if (count > 1) {
