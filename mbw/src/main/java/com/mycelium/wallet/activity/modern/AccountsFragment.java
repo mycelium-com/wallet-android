@@ -69,6 +69,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.AddressType;
 import com.mycelium.wallet.AccountManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -945,11 +946,13 @@ public class AccountsFragment extends Fragment {
             WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
             if (_focusedAccount instanceof CoinapultAccount) {
                CoinapultManager coinapultManager = _mbwManager.getCoinapultManager();
-               MessageSigningActivity.callMe(getActivity(), coinapultManager.getAccountKey());
+               MessageSigningActivity.callMe(getActivity(), coinapultManager.getAccountKey(), AddressType.P2SH_P2WPKH);
             } else if (_focusedAccount instanceof SingleAddressAccount) {
-               MessageSigningActivity.callMe(getActivity(), (SingleAddressAccount) _focusedAccount);
+               MessageSigningActivity.callMe(getActivity(), (SingleAddressAccount) _focusedAccount,
+                       ((SingleAddressAccount) _focusedAccount).getAddress().getType());
             } else if(_focusedAccount instanceof ColuAccount){
-               MessageSigningActivity.callMe(getActivity(), ((ColuAccount) _focusedAccount).getPrivateKey());
+               MessageSigningActivity.callMe(getActivity(), ((ColuAccount) _focusedAccount).getPrivateKey(),
+                       AddressType.P2PKH);
             } else {
                Intent intent = new Intent(getActivity(), HDSigningActivity.class);
                intent.putExtra("account", _focusedAccount.getId());

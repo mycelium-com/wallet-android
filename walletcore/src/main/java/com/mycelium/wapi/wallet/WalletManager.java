@@ -180,10 +180,6 @@ public class WalletManager {
     public UUID createSingleAddressAccount(Address address) {
         UUID id = SingleAddressAccount.calculateId(address);
 
-        // Create a UUID from the byte indexes 8-15 and 16-23 of the account public key
-        //byte[] publicKeyBytes = publicKey.getPublicKeyBytes();
-       // UUID id = new UUID(BitUtils.uint64ToLong(publicKeyBytes, 8), BitUtils.uint64ToLong(
-        //        publicKeyBytes, 16));
         synchronized (_walletAccounts) {
             if (_walletAccounts.containsKey(id)) {
                 return id;

@@ -120,7 +120,7 @@ public class HDSigningActivity extends Activity {
          } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
             throw new RuntimeException(invalidKeyCipher);
          }
-         MessageSigningActivity.callMe(HDSigningActivity.this, key);
+         MessageSigningActivity.callMe(HDSigningActivity.this, key, addressLabel.getAddress().getType());
       }
    }
 }
