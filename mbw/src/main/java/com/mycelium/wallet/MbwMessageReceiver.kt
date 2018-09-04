@@ -48,12 +48,30 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
     override fun onMessage(callingPackageName: String, intent: Intent) {
         when (callingPackageName) {
             getSpvModuleName(BCHBIP44) -> onMessageFromSpvModuleBch(intent, getModule(callingPackageName))
+            BuildConfig.appIdTsm -> onMessageFromTsmModule(intent)
             else -> Log.e(TAG, "Ignoring unexpected package $callingPackageName calling with intent $intent.")
         }
     }
 
     private fun getModule(packageName: String): Module? =
             CommunicationManager.getInstance().pairedModules.find { it.modulePackage == packageName }
+
+    private fun onMessageFromTsmModule(intent: Intent) {
+        when (intent.action) {
+            "com.mycelium.wallet.getMyceliumId" -> {
+                val mbwManager = MbwManager.getInstance(context)
+                val service = IntentContract.MyceliumIdTransfer.createIntent(mbwManager.myceliumId)
+                WalletApplication.sendToTsm(service)
+            }
+            "com.mycelium.wallet.signData" -> {
+                val mbwManager = MbwManager.getInstance(context)
+                val message = intent.getStringExtra(IntentContract.MESSAGE)
+                val signature = mbwManager.signMessage(message)
+                val service = IntentContract.TransferSignedData.createIntent(message, signature)
+                WalletApplication.sendToTsm(service)
+            }
+        }
+    }
 
     @Suppress("UNCHECKED_CAST")
     private fun onMessageFromSpvModuleBch(intent: Intent, module: Module?) {

@@ -105,6 +105,7 @@ import com.squareup.otto.Subscribe;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -168,6 +169,12 @@ public class TransactionHistoryFragment extends Fragment {
             public void onChanged(@Nullable List<? extends TransactionSummary> transactionSummaries) {
                history.clear();
                history.addAll(transactionSummaries);
+               adapter.sort(new Comparator<TransactionSummary>() {
+                  @Override
+                  public int compare(TransactionSummary ts1, TransactionSummary ts2) {
+                     return Long.compare(ts2.time, ts1.time);
+                  }
+               });
                adapter.notifyDataSetChanged();
                showHistory(!history.isEmpty());
                refreshList();
