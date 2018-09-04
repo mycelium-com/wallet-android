@@ -8,6 +8,8 @@ import javax.annotation.Nullable;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.MathContext;
+import java.math.RoundingMode;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -83,6 +85,7 @@ public class Value implements Monetary, Comparable<Value> {
      */
     public static Value parse(final ValueType type, final BigDecimal decimal) {
         return Value.valueOf(type, decimal.movePointRight(type.getUnitExponent())
+                .setScale(0, RoundingMode.HALF_DOWN)
                 .toBigIntegerExact().longValue());
     }
 

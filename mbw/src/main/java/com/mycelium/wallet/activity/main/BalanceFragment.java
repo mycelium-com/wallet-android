@@ -53,7 +53,6 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.Constants;
-import com.mycelium.wallet.exchange.ExchangeRateManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.StringHandleConfig;
@@ -73,6 +72,7 @@ import com.mycelium.wallet.event.RefreshingExchangeRatesFailed;
 import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wallet.event.SyncStopped;
+import com.mycelium.wallet.exchange.ExchangeRateManager;
 import com.mycelium.wallet.modularisation.BCHHelper;
 import com.mycelium.wapi.model.ExchangeRate;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
@@ -398,7 +398,7 @@ public class BalanceFragment extends Fragment {
             Value converted =  _mbwManager.getExchangeRateManager().get(value, currency);
 //            tv.setText(getResources().getString(R.string.approximate_fiat_value, currency, converted));
 //            Utils.getFormattedValueWithUnit(balance.confirmed, _mbwManager.getBitcoinDenomination());
-            tv.setText(converted.toString());
+            tv.setText(converted != null ? converted.toString() : null);
          } catch (Exception ex) {
             // something failed while calculating the bitcoin amount
             tv.setVisibility(View.GONE);

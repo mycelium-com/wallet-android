@@ -119,7 +119,8 @@ public class ColdStorageSummaryActivity extends Activity {
       } else {
          String currency = _mbwManager.getFiatCurrency();
          String converted = _mbwManager.getExchangeRateManager().get(Utils.getSpendable(balance), currency).toFriendlyString();
-         tvFiat.setText(getResources().getString(R.string.approximate_fiat_value, currency, converted));
+         tvFiat.setText(getResources().getString(R.string.approximate_fiat_value, currency
+                 , converted != null ? converted : ""));
       }
 
       // Show/Hide Receiving
