@@ -307,7 +307,7 @@ public class StandardTransactionBuilder {
       final UnspentTransactionOutput[] funding = unsigned.getFundingOutputs();
       TransactionInput[] inputs = new TransactionInput[funding.length];
       for (int i = 0; i < funding.length; i++) {
-         if (unsigned.getInputs()[i].script instanceof ScriptInputP2WPKH || unsigned.getInputs()[i].script instanceof ScriptInputP2WSH) { // TODO SEGWIT FIX
+         if (isScriptInputSegWit(unsigned, i)) {
             inputs[i] = unsigned.getInputs()[i];
             InputWitness witness = new InputWitness(2);
             witness.setStack(0, signatures.get(i));
@@ -323,6 +323,10 @@ public class StandardTransactionBuilder {
 
       // Create transaction with valid outputs and empty inputs
       return new Transaction(1, inputs, unsigned.getOutputs(), unsigned.getLockTime());
+   }
+
+   private static boolean isScriptInputSegWit(UnsignedTransaction unsigned, int i) {
+      return unsigned.getInputs()[i].script instanceof ScriptInputP2WPKH || unsigned.getInputs()[i].script instanceof ScriptInputP2WSH;
    }
 
    private long outputSum() {

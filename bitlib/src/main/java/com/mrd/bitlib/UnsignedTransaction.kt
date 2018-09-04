@@ -54,7 +54,6 @@ open class UnsignedTransaction constructor(
                     inputs[i].script = inputScript
                 }
                 is ScriptOutputP2WPKH -> throw NotImplementedError()
-                is ScriptOutputP2WSH -> throw NotImplementedError()
             }
 
             val scriptsList: MutableList<ScriptInput> = mutableListOf()
@@ -80,8 +79,8 @@ open class UnsignedTransaction constructor(
         }
     }
 
-    fun isSegWitOutput(i: Int) =
-            fundingOutputs[i].script is ScriptOutputP2WPKH || fundingOutputs[i].script is ScriptOutputP2WSH || fundingOutputs[i].script is ScriptOutputP2SH
+    private fun isSegWitOutput(i: Int) =
+            fundingOutputs[i].script is ScriptOutputP2WPKH || fundingOutputs[i].script is ScriptOutputP2SH
 
     /**
      * @return fee in satoshis
