@@ -29,4 +29,8 @@ public class Balance {
         this.pendingSending = pendingSending;
         this.pendingChange = pendingChange;
     }
+
+    public Value getSpendable() {
+        return confirmed.add(pendingReceiving).add(pendingChange);
+    }
 }

@@ -1153,15 +1153,7 @@ public class Utils {
                 , denomination.getUnicodeString(value.type.getSymbol()));
     }
 
-   public static Value getSpendable(Balance balance) {
-      return balance.confirmed.add(balance.pendingReceiving).add(balance.pendingChange);
-   }
-
    public static boolean isBtc(Value value) {
       return value.type.getSymbol().equals("BTC");
-   }
-
-   public static BigDecimal getBigDecimal(Value value) {
-      return BigDecimal.valueOf(value.value).movePointLeft(value.type.getUnitExponent());
    }
 }

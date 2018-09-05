@@ -486,7 +486,7 @@ public class ExchangeFragment extends Fragment {
             buttonContinue.setEnabled(false);
             toast("Please wait while loading minimum amount information.");
             return false;
-        } else if (Utils.getBigDecimal(fromAccount.getAccountBalance().confirmed).compareTo(BigDecimal.valueOf(dblAmount)) < 0) {
+        } else if (fromAccount.getAccountBalance().confirmed.getAsBigDecimal().compareTo(BigDecimal.valueOf(dblAmount)) < 0) {
             buttonContinue.setEnabled(false);
             TextView tvError = valueKeyboard.getVisibility() == View.VISIBLE
                     && valueKeyboard.getInputTextView() == toValue

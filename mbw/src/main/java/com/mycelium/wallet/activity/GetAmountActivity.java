@@ -537,7 +537,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       if (value == null) {
          return AmountValidation.Ok; //entering a fiat value + exchange is not availible
       }
-      if(Utils.getBigDecimal(_account.getAccountBalance().confirmed).compareTo(value.getValue()) < 0) {
+      if(_account.getAccountBalance().confirmed.getAsBigDecimal().compareTo(value.getValue()) < 0) {
          return AmountValidation.ValueTooSmall;
       } else if(!_account.getAccountBalance().confirmed.isPositive()) {
          return AmountValidation.NotEnoughFunds;
@@ -571,7 +571,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          tvAmount.setTextColor(getResources().getColor(R.color.red));
          if (result == AmountValidation.NotEnoughFunds) {
             // We do not have enough funds
-            if (satoshis == null || Utils.getSpendable(_account.getAccountBalance()).value < satoshis.getLongValue()) {
+            if (satoshis == null || _account.getAccountBalance().getSpendable().value < satoshis.getLongValue()) {
                // We do not have enough funds for sending the requested amount
                String msg = getResources().getString(R.string.insufficient_funds);
                Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();

@@ -46,6 +46,14 @@ public class Value implements Monetary, Comparable<Value> {
         return type.getUnitExponent();
     }
 
+    public static Value zeroValue(final ValueType type) {
+        return new Value(type, 0);
+    }
+
+    public BigDecimal getAsBigDecimal() {
+        return BigDecimal.valueOf(value).movePointLeft(type.getUnitExponent());
+    }
+
     /**
      * Returns the number of units of this monetary value.
      */
