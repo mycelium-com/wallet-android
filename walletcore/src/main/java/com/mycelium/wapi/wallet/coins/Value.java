@@ -3,18 +3,18 @@ package com.mycelium.wapi.wallet.coins;
 import com.google.common.math.LongMath;
 import com.mycelium.wapi.wallet.Monetary;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.math.MathContext;
 import java.math.RoundingMode;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class Value implements Monetary, Comparable<Value> {
+public class Value implements Monetary, Comparable<Value>, Serializable {
     /**
      * The type of this value
      */
@@ -24,7 +24,7 @@ public class Value implements Monetary, Comparable<Value> {
      */
     public final long value;
 
-    Value(final ValueType type, final long units) {
+    public Value(final ValueType type, final long units) {
         this.type = checkNotNull(type);
         this.value = units;
     }
@@ -44,6 +44,14 @@ public class Value implements Monetary, Comparable<Value> {
     @Override
     public int smallestUnitExponent() {
         return type.getUnitExponent();
+    }
+
+    public static Value zeroValue(final ValueType type) {
+        return new Value(type, 0);
+    }
+
+    public BigDecimal getAsBigDecimal() {
+        return BigDecimal.valueOf(value).movePointLeft(type.getUnitExponent());
     }
 
     /**
@@ -87,6 +95,19 @@ public class Value implements Monetary, Comparable<Value> {
         return Value.valueOf(type, decimal.movePointRight(type.getUnitExponent())
                 .setScale(0, RoundingMode.HALF_DOWN)
                 .toBigIntegerExact().longValue());
+    }
+
+    public static boolean isNullOrZero(Value value) {
+        return value == null || value.getValue() == 0 || value.isZero();
+    }
+
+    public ValueType getType() {
+        return type;
+    }
+
+    public String getCurrencySymbol()
+    {
+        return type.getSymbol();
     }
 
     public Value add(final Value value) {

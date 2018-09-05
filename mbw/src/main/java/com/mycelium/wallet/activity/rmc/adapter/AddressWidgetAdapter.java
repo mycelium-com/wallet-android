@@ -141,7 +141,7 @@ public class AddressWidgetAdapter extends PagerAdapter {
             if(coluAccount == null) {
                 return;
             }
-            BigDecimal rmc = Utils.getBigDecimal(coluAccount.getAccountBalance().confirmed);
+            BigDecimal rmc = coluAccount.getAccountBalance().confirmed.getAsBigDecimal();
             String[] split = rmc.setScale(4, BigDecimal.ROUND_DOWN).toPlainString().split("\\.");
             rmcValue.setText(split[0]);
             rmcValueAfterDot.setText("." + split[1]);

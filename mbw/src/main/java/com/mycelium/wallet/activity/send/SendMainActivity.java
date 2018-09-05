@@ -64,8 +64,8 @@ import com.google.common.base.Strings;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
 import com.mrd.bitlib.StandardTransactionBuilder.UnableToBuildTransactionException;
-import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.TransactionUtils;
+import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
@@ -96,13 +96,11 @@ import com.mycelium.wallet.activity.send.helper.FeeItemsBuilder;
 import com.mycelium.wallet.activity.send.model.FeeItem;
 import com.mycelium.wallet.activity.send.model.FeeLvlItem;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
-import com.mycelium.wallet.activity.util.AccountDisplayType;
 import com.mycelium.wallet.activity.util.AnimationUtils;
 import com.mycelium.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.colu.ColuCurrencyValue;
 import com.mycelium.wallet.colu.ColuManager;
-import com.mycelium.wallet.colu.ColuTransactionData;
 import com.mycelium.wallet.colu.json.ColuBroadcastTxHex;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
@@ -111,20 +109,22 @@ import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.paymentrequest.PaymentRequestHandler;
 import com.mycelium.wapi.api.lib.FeeEstimation;
 import com.mycelium.wapi.api.response.Feature;
-import com.mycelium.wapi.wallet.*;
+import com.mycelium.wapi.wallet.SyncMode;
+import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
+import com.mycelium.wapi.wallet.btc.bip44.Bip44AccountExternalSignature;
+import com.mycelium.wapi.wallet.coins.BitcoinTest;
+import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.currency.BitcoinValue;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
-import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
-import com.mycelium.wapi.wallet.currency.ExchangeBasedBitcoinValue;
 import com.squareup.otto.Subscribe;
 
 import org.bitcoin.protocols.payments.PaymentACK;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -144,6 +144,7 @@ import static com.mrd.bitlib.StandardTransactionBuilder.estimateTransactionSize;
 
 public class SendMainActivity extends Activity {
     private static final String TAG = "SendMainActivity";
+    private static final String TAG_MCS = "mulicurrencyslplog";
 
     private static final int GET_AMOUNT_RESULT_CODE = 1;
     private static final int SCAN_RESULT_CODE = 2;
@@ -244,8 +245,7 @@ public class SendMainActivity extends Activity {
     private String _paymentRequestHandlerUuid;
 
     protected WalletBtcAccount _account;
-    private CurrencyValue _amountToSend;
-    private BitcoinValue _lastBitcoinAmountToSend = null;
+    private Value _amountToSend;
     private Address _receivingAddress;
     private String _receivingLabel;
     protected String _transactionLabel;
@@ -282,7 +282,9 @@ public class SendMainActivity extends Activity {
     public static Intent getIntent(Activity currentActivity, UUID account,
                                    Long amountToSend, Address receivingAddress, boolean isColdStorage) {
         return getIntent(currentActivity, account, isColdStorage)
-                .putExtra(AMOUNT, ExactBitcoinValue.from(amountToSend))
+                .putExtra(AMOUNT, Value.valueOf(
+                        BitcoinTest.get(), // todo get valuetype depending on the account
+                        amountToSend != null ? amountToSend : 0))
                 .putExtra(RECEIVING_ADDRESS, receivingAddress);
     }
 
@@ -299,7 +301,7 @@ public class SendMainActivity extends Activity {
 
     public static Intent getIntent(Activity currentActivity, UUID account, ColuAssetUri uri, boolean isColdStorage) {
         return getIntent(currentActivity, account, isColdStorage)
-                .putExtra(AMOUNT, new ColuCurrencyValue(uri.amount, uri.scheme))
+                .putExtra(AMOUNT, new ColuCurrencyValue(uri.amount, uri.scheme)) // todo
                 .putExtra(RECEIVING_ADDRESS, uri.address)
                 .putExtra(TRANSACTION_LABEL, uri.label)
                 .putExtra(RMC_URI, uri);
@@ -332,7 +334,7 @@ public class SendMainActivity extends Activity {
         UUID accountId = Preconditions.checkNotNull((UUID) getIntent().getSerializableExtra(ACCOUNT));
 
         // May be null
-        setAmountToSend((CurrencyValue) getIntent().getSerializableExtra(AMOUNT));
+        _amountToSend = (Value) getIntent().getSerializableExtra(AMOUNT); // todo
         // May be null
         _receivingAddress = (Address) getIntent().getSerializableExtra(RECEIVING_ADDRESS);
         //May be null
@@ -354,7 +356,7 @@ public class SendMainActivity extends Activity {
 
         // Load saved state, overwriting amount and address
         if (savedInstanceState != null) {
-            setAmountToSend((CurrencyValue) savedInstanceState.getSerializable(AMOUNT));
+            _amountToSend = (Value) getIntent().getSerializableExtra(AMOUNT); // todo
             _receivingAddress = (Address) savedInstanceState.getSerializable(RECEIVING_ADDRESS);
             _transactionLabel = savedInstanceState.getString(TRANSACTION_LABEL);
             feeLvl = (MinerFee) savedInstanceState.getSerializable(FEE_LVL);
@@ -385,11 +387,11 @@ public class SendMainActivity extends Activity {
         if (_account.canSpend()) {
             // See if we can create the transaction with what we have
             _transactionStatus = tryCreateUnsignedTransaction();
-        } else {
+        } else { // todo uri
             //we need the user to pick a spending account - the activity will then init sendmain correctly
             BitcoinUri uri;
             if (_bitcoinUri == null) {
-                uri = BitcoinUri.from(_receivingAddress, getBitcoinValueToSend() == null ? null : getBitcoinValueToSend().getLongValue(), _transactionLabel, null);
+                uri = BitcoinUri.from(_receivingAddress, getValueToSend() == null ? null : getValueToSend().getValue(), _transactionLabel, null);
             } else {
                 uri = _bitcoinUri;
             }
@@ -568,7 +570,7 @@ public class SendMainActivity extends Activity {
     private boolean canFundColuFrom(WalletBtcAccount walletAccount) {
         return walletAccount != null && walletAccount.canSpend()
                 && Utils.isBtc(walletAccount.getAccountBalance().confirmed)
-                && Utils.getSpendable(walletAccount.getAccountBalance()).value >=
+                && walletAccount.getAccountBalance().getSpendable().value >=
                 _mbwManager.getColuManager().getColuTransactionFee(feePerKbValue) + getAmountForColuTxOutputs();
     }
 
@@ -592,28 +594,13 @@ public class SendMainActivity extends Activity {
         return spendableAmount >= (fundingAmountShouldHave);
     }
 
-    // returns the amcountToSend in Bitcoin - it tries to get it from the entered amount and
-   // only uses the ExchangeRate-Manager if we dont have it already converted
-   private BitcoinValue getBitcoinValueToSend() {
-      if (CurrencyValue.isNullOrZero(_amountToSend)) {
-         return null;
-      } else if (_amountToSend.getExactValueIfPossible().isBtc()) {
-         return (BitcoinValue) _amountToSend.getExactValueIfPossible();
-      } else if (_amountToSend.isBtc()) {
-         return (BitcoinValue) _amountToSend;
-      } else {
-         if (_lastBitcoinAmountToSend == null) {
-            // only convert once and keep that fx rate for further calls - the cache gets invalidated in setAmountToSend
-            _lastBitcoinAmountToSend = (BitcoinValue) ExchangeBasedBitcoinValue.fromValue(_amountToSend, _mbwManager.getExchangeRateManager());
-         }
-         return _lastBitcoinAmountToSend;
-      }
-   }
-
-   private void setAmountToSend(CurrencyValue toSend) {
-      _amountToSend = toSend;
-      _lastBitcoinAmountToSend = null;
-   }
+    // returns the amountToSend in cryptocurrency - it tries to get it from the entered amount and
+    // only uses the ExchangeRate-Manager if we dont have it already converted
+    private Value getValueToSend() {
+        if (Value.isNullOrZero(_amountToSend)) {
+            return null;
+        } else return _amountToSend;
+    }
 
    private void verifyPaymentRequest(BitcoinUri uri) {
       Intent intent = VerifyPaymentRequestActivity.getIntent(this, uri);
@@ -682,30 +669,32 @@ public class SendMainActivity extends Activity {
       startActivityForResult(intent, MANUAL_ENTRY_RESULT_CODE);
    }
 
-   @OnClick(R.id.btClipboard)
-   void onClickClipboard() {
-      BitcoinUriWithAddress uri = getUriFromClipboard();
-      if (uri != null) {
-         makeText(this, getResources().getString(R.string.using_address_from_clipboard), LENGTH_SHORT).show();
-         _receivingAddress = uri.address;
-         if (uri.amount != null && uri.amount >= 0) {
-             _amountToSend = ExactBitcoinValue.from(uri.amount);
-         }
-         _transactionStatus = tryCreateUnsignedTransaction();
-         updateUi();
-      }
-   }
+    // todo parse not only bitcoin addresses
+    @OnClick(R.id.btClipboard)
+    void onClickClipboard() {
+//      BitcoinUriWithAddress uri = getUriFromClipboard();
+//      if (uri != null) {
+//         makeText(this, getResources().getString(R.string.using_address_from_clipboard), LENGTH_SHORT).show();
+//         _receivingAddress = uri.address;
+//         if (uri.amount != null && uri.amount >= 0) {
+//             _amountToSend = ExactBitcoinValue.from(uri.amount);
+//         }
+//         _transactionStatus = tryCreateUnsignedTransaction();
+//         updateUi();
+//      }
+    }
 
-   @OnClick(R.id.btEnterAmount)
-   void onClickAmount() {
-      CurrencyValue presetAmount = _amountToSend;
-      if (CurrencyValue.isNullOrZero(presetAmount)) {
-         // if no amount is set so far, use an unknown amount but in the current accounts currency
-         presetAmount = ExactCurrencyValue.from(null, _account.getAccountDefaultCurrency());
-      }
-      GetAmountActivity.callMeToSend(this, GET_AMOUNT_RESULT_CODE, _account.getId(), presetAmount, feePerKbValue,
-              AccountDisplayType.getAccountType(_account), _isColdStorage);
-   }
+    // todo
+    @OnClick(R.id.btEnterAmount)
+    void onClickAmount() {
+//      Value presetAmount = _amountToSend;
+//      if (Value.isNullOrZero(presetAmount)) {
+//         // if no amount is set so far, use an unknown amount but in the current accounts currency // todo?
+//         presetAmount = Value.valueOf(BitcoinTest.get(), 0);
+//      }
+//      GetAmountActivity.callMeToSend(this, GET_AMOUNT_RESULT_CODE, _account.getId(), presetAmount, feePerKbValue,
+//              AccountDisplayType.getAccountType(_account), _isColdStorage);
+    }
 
    @OnClick(R.id.btSend)
    void onClickSend() {
@@ -727,17 +716,17 @@ public class SendMainActivity extends Activity {
         progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progress.setMessage(getString(R.string.colu_sending_via_colu));
         progress.show();
-        tryCreateUnsignedColuTX(new PrepareCallback() {
-            @Override
-            public void success() {
-                sendColu();
-            }
-
-            @Override
-            public void fail() {
-                progress.dismiss();
-            }
-        });
+//        tryCreateUnsignedColuTX(new PrepareCallback() {
+//            @Override
+//            public void success() {
+//                sendColu();
+//            }
+//
+//            @Override
+//            public void fail() {
+//                progress.dismiss();
+//            }
+//        });
     }
 
     private void sendColu() {
@@ -848,70 +837,72 @@ public class SendMainActivity extends Activity {
     private TransactionStatus tryCreateUnsignedTransaction() {
         Log.d(TAG, "tryCreateUnsignedTransaction");
         if (isCoinapult()) {
-            return tryCreateCoinapultTX();
+//            return tryCreateCoinapultTX();
+            return null;
         } else if (isColu()) {
-            return tryCreateUnsignedColuTX(null);
+//            return tryCreateUnsignedColuTX(null);
+            return null;
         } else {
             return tryCreateUnsignedTransactionFromWallet();
         }
     }
 
-   private TransactionStatus tryCreateUnsignedTransactionFromWallet() {
-      _unsigned = null;
+    private TransactionStatus tryCreateUnsignedTransactionFromWallet() {
+        _unsigned = null;
 
-      BitcoinValue toSend = getBitcoinValueToSend();
-      boolean hasAddressData = toSend != null && toSend.getAsBitcoin() != null && _receivingAddress != null;
-      boolean hasRequestData = _paymentRequestHandler != null && _paymentRequestHandler.hasValidPaymentRequest();
+        Value toSend = getValueToSend();
+        boolean hasAddressData = toSend != null && ((BitcoinValue) toSend).getAsBitcoin() != null && _receivingAddress != null; // todo
+        boolean hasRequestData = _paymentRequestHandler != null && _paymentRequestHandler.hasValidPaymentRequest();
 
-      // Create the unsigned transaction
-      try {
-         if (hasRequestData) {
-            PaymentRequestInformation paymentRequestInformation = _paymentRequestHandler.getPaymentRequestInformation();
-            OutputList outputs = paymentRequestInformation.getOutputs();
+        // Create the unsigned transaction
+        try {
+            if (hasRequestData) {
+                PaymentRequestInformation paymentRequestInformation = _paymentRequestHandler.getPaymentRequestInformation();
+                OutputList outputs = paymentRequestInformation.getOutputs();
 
-            // has the payment request an amount set?
-            if (paymentRequestInformation.hasAmount()) {
-               setAmountToSend(ExactBitcoinValue.from(paymentRequestInformation.getOutputs().getTotalAmount()));
+                // has the payment request an amount set?
+                if (paymentRequestInformation.hasAmount()) {
+                    _amountToSend = Value.valueOf(_amountToSend.getType(), paymentRequestInformation.getOutputs().getTotalAmount());
+                } else {
+                    if (Value.isNullOrZero(_amountToSend)) {
+                        return TransactionStatus.MissingArguments;
+                    }
+
+                    // build new output list with user specified amount
+                    outputs = outputs.newOutputsWithTotalAmount(toSend.getValue());
+                }
+                _unsigned = _account.createUnsignedTransaction(outputs, feePerKbValue);
+                _receivingAddress = null;
+                _transactionLabel = paymentRequestInformation.getPaymentDetails().memo;
+                return TransactionStatus.OK;
+            } else if(hasAddressData) {
+                WalletBtcAccount.Receiver receiver = new WalletBtcAccount.Receiver(_receivingAddress, toSend.getValue());
+                _unsigned = _account.createUnsignedTransaction(Collections.singletonList(receiver), feePerKbValue);
+                checkSpendingUnconfirmed();
+                return TransactionStatus.OK;
             } else {
-               if (CurrencyValue.isNullOrZero(_amountToSend)) {
-                  return TransactionStatus.MissingArguments;
-               }
-
-               // build new output list with user specified amount
-               outputs = outputs.newOutputsWithTotalAmount(toSend.getLongValue());
+                return TransactionStatus.MissingArguments;
             }
-            _unsigned = _account.createUnsignedTransaction(outputs, feePerKbValue);
-            _receivingAddress = null;
-            _transactionLabel = paymentRequestInformation.getPaymentDetails().memo;
-            return TransactionStatus.OK;
-         } else if(hasAddressData) {
-             WalletBtcAccount.Receiver receiver = new WalletBtcAccount.Receiver(_receivingAddress, toSend.getLongValue());
-             _unsigned = _account.createUnsignedTransaction(Collections.singletonList(receiver), feePerKbValue);
-             checkSpendingUnconfirmed();
-            return TransactionStatus.OK;
-         } else {
+        } catch (InsufficientFundsException e) {
+            if(_transactionStatus != TransactionStatus.InsufficientFunds) {
+                makeText(this, getResources().getString(R.string.insufficient_funds), LENGTH_LONG).show();
+            }
+            return TransactionStatus.InsufficientFunds;
+        } catch (OutputTooSmallException e1) {
+            if(_transactionStatus != TransactionStatus.OutputTooSmall) {
+                makeText(this, getResources().getString(R.string.amount_too_small), LENGTH_LONG).show();
+            }
+            return TransactionStatus.OutputTooSmall;
+        } catch (UnableToBuildTransactionException e) {
+            if(_transactionStatus != TransactionStatus.MissingArguments) {
+                makeText(this, getResources().getString(R.string.unable_to_build_tx), LENGTH_LONG).show();
+            }
+            // under certain conditions the max-miner-fee check fails - report it back to the server, so we can better
+            // debug it
+            _mbwManager.reportIgnoredException("MinerFeeException", e);
             return TransactionStatus.MissingArguments;
-         }
-      } catch (InsufficientFundsException e) {
-          if(_transactionStatus != TransactionStatus.InsufficientFunds) {
-              makeText(this, getResources().getString(R.string.insufficient_funds), LENGTH_LONG).show();
-          }
-         return TransactionStatus.InsufficientFunds;
-      } catch (OutputTooSmallException e1) {
-          if(_transactionStatus != TransactionStatus.OutputTooSmall) {
-              makeText(this, getResources().getString(R.string.amount_too_small), LENGTH_LONG).show();
-          }
-         return TransactionStatus.OutputTooSmall;
-      } catch (UnableToBuildTransactionException e) {
-          if(_transactionStatus != TransactionStatus.MissingArguments) {
-              makeText(this, getResources().getString(R.string.unable_to_build_tx), LENGTH_LONG).show();
-          }
-         // under certain conditions the max-miner-fee check fails - report it back to the server, so we can better
-         // debug it
-         _mbwManager.reportIgnoredException("MinerFeeException", e);
-         return TransactionStatus.MissingArguments;
-      }
-   }
+        }
+    }
 
     private ColuBroadcastTxHex.Json createEmptyColuBroadcastJson() {
         ColuBroadcastTxHex.Json result = new ColuBroadcastTxHex.Json();
@@ -930,7 +921,7 @@ public class SendMainActivity extends Activity {
             _unsigned = null;
             _preparedCoinapult = null;
 
-            if (CurrencyValue.isNullOrZero(_amountToSend) || _receivingAddress == null) {
+            if (Value.isNullOrZero(_amountToSend) || _receivingAddress == null) {
                 Log.d(TAG, "tryCreateUnsignedColuTX Missing argument: amountToSend or receiving address is null.");
                 if (_amountToSend != null) {
                     Log.d(TAG, "_amountToSend=" + _amountToSend);
@@ -943,103 +934,105 @@ public class SendMainActivity extends Activity {
                 return TransactionStatus.MissingArguments;
             }
 
-            if (!_amountToSend.getCurrency().equals(coluAccount.getColuAsset().name)) {
-                //TODO: add new code for incorrect input data (wrong asset type)
-                Log.d(TAG, "tryCreateUnsignedColuTX Missing argument: incorrect asset type: " + _amountToSend.getCurrency()
-                        + " expected: " + coluAccount.getColuAsset().name);
-                return TransactionStatus.MissingArguments;
-            }
+            // todo colu
+//            if (!_amountToSend.getCurrency().equals(coluAccount.getColuAsset().name)) {
+//                //TODO: add new code for incorrect input data (wrong asset type)
+//                Log.d(TAG, "tryCreateUnsignedColuTX Missing argument: incorrect asset type: " + _amountToSend.type.getSymbol()
+//                        + " expected: " + coluAccount.getColuAsset().name);
+//                return TransactionStatus.MissingArguments;
+//            }
 
-            ExactCurrencyValue nativeAmount = ExactCurrencyValue.from(_amountToSend.getValue(), _amountToSend.getCurrency());
-            Log.d(TAG, "preparing colutx");
-            final ColuManager coluManager = _mbwManager.getColuManager();
-            final long feePerKb = feePerKbValue;
-            ColuTransactionData coluTransactionData = new ColuTransactionData(_receivingAddress, nativeAmount,
-                    coluAccount, feePerKb);
+//            ExactCurrencyValue nativeAmount = ExactCurrencyValue.from(_amountToSend.getValue(), _amountToSend.getCurrency());
+//            Log.d(TAG, "preparing colutx");
+//            final ColuManager coluManager = _mbwManager.getColuManager();
+//            final long feePerKb = feePerKbValue;
+//            ColuTransactionData coluTransactionData = new ColuTransactionData(_receivingAddress, nativeAmount,
+//                    coluAccount, feePerKb);
 
-            if(callback != null) {
-                new AsyncTask<ColuTransactionData, Void, ColuBroadcastTxHex.Json>() {
-                    @Override
-                    protected ColuBroadcastTxHex.Json doInBackground(ColuTransactionData... params) {
-
-                        if (!checkFee(true)) {
-
-                            // Handling the abnormal use case when a colu account doesn't have enough funds
-                            // and however it is chosen itself for funding
-                            if (coluAccount.getLinkedAccount() == fundColuAccount) {
-                                return createEmptyColuBroadcastJson();
-                            }
-
-                            //Create funding transaction and broadcast it to network
-                            List<WalletBtcAccount.Receiver> receivers = new ArrayList<WalletBtcAccount.Receiver>();
-                            long txFee = _mbwManager.getColuManager().getColuTransactionFee(feePerKb);
-                            long fundingAmountToSend = txFee + getAmountForColuTxOutputs();
-
-                            if (txFee < TransactionUtils.MINIMUM_OUTPUT_VALUE)
-                                fundingAmountToSend = TransactionUtils.MINIMUM_OUTPUT_VALUE;
-
-                            WalletBtcAccount.Receiver coluReceiver = new WalletBtcAccount.Receiver(_account.getReceivingAddress().get(), fundingAmountToSend);
-                            receivers.add(coluReceiver);
-                            try {
-                                UnsignedTransaction fundingTransaction = fundColuAccount.createUnsignedTransaction(receivers, feePerKb);
-                                Transaction signedFundingTransaction = fundColuAccount.signTransaction(fundingTransaction, AesKeyCipher.defaultKeyCipher());
-                                WalletBtcAccount.BroadcastResult broadcastResult = fundColuAccount.broadcastTransaction(signedFundingTransaction);
-                                if (broadcastResult != WalletBtcAccount.BroadcastResult.SUCCESS) {
-                                    return createEmptyColuBroadcastJson();
-                                }
-
-                                //Broadcast the transaction through ColoredCoins' BTC node
-                                coluManager.broadcastTransaction(signedFundingTransaction);
-
-                            } catch (OutputTooSmallException | InsufficientFundsException | UnableToBuildTransactionException | KeyCipher.InvalidKeyCipher ex) {
-                                return createEmptyColuBroadcastJson();
-                            }
-
-                            //Before sending colu transaction preparation request we make sure colu see the new funding transaction
-
-                            for (int attemtps = 0; attemtps < 10; attemtps++) {
-                                if (checkFee(true)) {
-                                    Log.d(TAG, "Now we have enough fee on the address");
-                                    break;
-                                }
-
-                                try {
-                                    Thread.sleep(ColuManager.TIME_INTERVAL_BETWEEN_BALANCE_FUNDING_CHECKS);
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-
-                        }
-
-                        return coluManager.prepareColuTx(params[0].getReceivingAddress(), params[0].getNativeAmount(),
-                                params[0].getColuAccount(), (int)params[0].getFeePerKb());
-                    }
-
-                    @Override
-                    protected void onPostExecute(ColuBroadcastTxHex.Json preparedTransaction) {
-                        super.onPostExecute(preparedTransaction);
-                        Log.d(TAG, "onPostExecute prepareColuTransaction");
-                        //TODO: add feedback to user about fees when missing funds
-                        if (preparedTransaction != null && !preparedTransaction.txHex.isEmpty()) {
-                            Log.d(TAG, " preparedTransaction=" + preparedTransaction.txHex);
-                            _preparedColuTx = preparedTransaction;
-                            if (callback != null) {
-                                callback.success();
-                            }
-                        } else {
-                            if (callback != null) {
-                                callback.fail();
-                            }
-                            Toast.makeText(SendMainActivity.this, getString(R.string.colu_failed_to_prepare), Toast.LENGTH_SHORT).show();
-                            updateUi();
-                        }
-                    }
-                }.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, coluTransactionData);
-            }
-            TransactionStatus status = checkHaveSpendAccount();
-            return status == TransactionStatus.InsufficientFundsForFee ?
-                    TransactionStatus.InsufficientFundsForFee : TransactionStatus.OK;
+//            if(callback != null) {
+//                new AsyncTask<ColuTransactionData, Void, ColuBroadcastTxHex.Json>() {
+//                    @Override
+//                    protected ColuBroadcastTxHex.Json doInBackground(ColuTransactionData... params) {
+//
+//                        if (!checkFee(true)) {
+//
+//                            // Handling the abnormal use case when a colu account doesn't have enough funds
+//                            // and however it is chosen itself for funding
+//                            if (coluAccount.getLinkedAccount() == fundColuAccount) {
+//                                return createEmptyColuBroadcastJson();
+//                            }
+//
+//                            //Create funding transaction and broadcast it to network
+//                            List<WalletBtcAccount.Receiver> receivers = new ArrayList<WalletBtcAccount.Receiver>();
+//                            long txFee = _mbwManager.getColuManager().getColuTransactionFee(feePerKb);
+//                            long fundingAmountToSend = txFee + getAmountForColuTxOutputs();
+//
+//                            if (txFee < TransactionUtils.MINIMUM_OUTPUT_VALUE)
+//                                fundingAmountToSend = TransactionUtils.MINIMUM_OUTPUT_VALUE;
+//
+//                            WalletBtcAccount.Receiver coluReceiver = new WalletBtcAccount.Receiver(_account.getReceivingAddress().get(), fundingAmountToSend);
+//                            receivers.add(coluReceiver);
+//                            try {
+//                                UnsignedTransaction fundingTransaction = fundColuAccount.createUnsignedTransaction(receivers, feePerKb);
+//                                Transaction signedFundingTransaction = fundColuAccount.signTransaction(fundingTransaction, AesKeyCipher.defaultKeyCipher());
+//                                WalletBtcAccount.BroadcastResult broadcastResult = fundColuAccount.broadcastTransaction(signedFundingTransaction);
+//                                if (broadcastResult != WalletBtcAccount.BroadcastResult.SUCCESS) {
+//                                    return createEmptyColuBroadcastJson();
+//                                }
+//
+//                                //Broadcast the transaction through ColoredCoins' BTC node
+//                                coluManager.broadcastTransaction(signedFundingTransaction);
+//
+//                            } catch (OutputTooSmallException | InsufficientFundsException | UnableToBuildTransactionException | KeyCipher.InvalidKeyCipher ex) {
+//                                return createEmptyColuBroadcastJson();
+//                            }
+//
+//                            //Before sending colu transaction preparation request we make sure colu see the new funding transaction
+//
+//                            for (int attemtps = 0; attemtps < 10; attemtps++) {
+//                                if (checkFee(true)) {
+//                                    Log.d(TAG, "Now we have enough fee on the address");
+//                                    break;
+//                                }
+//
+//                                try {
+//                                    Thread.sleep(ColuManager.TIME_INTERVAL_BETWEEN_BALANCE_FUNDING_CHECKS);
+//                                } catch (InterruptedException e) {
+//                                    e.printStackTrace();
+//                                }
+//                            }
+//
+//                        }
+//
+//                        return coluManager.prepareColuTx(params[0].getReceivingAddress(), params[0].getNativeAmount(),
+//                                params[0].getColuAccount(), (int)params[0].getFeePerKb());
+//                    }
+//
+//                    @Override
+//                    protected void onPostExecute(ColuBroadcastTxHex.Json preparedTransaction) {
+//                        super.onPostExecute(preparedTransaction);
+//                        Log.d(TAG, "onPostExecute prepareColuTransaction");
+//                        //TODO: add feedback to user about fees when missing funds
+//                        if (preparedTransaction != null && !preparedTransaction.txHex.isEmpty()) {
+//                            Log.d(TAG, " preparedTransaction=" + preparedTransaction.txHex);
+//                            _preparedColuTx = preparedTransaction;
+//                            if (callback != null) {
+//                                callback.success();
+//                            }
+//                        } else {
+//                            if (callback != null) {
+//                                callback.fail();
+//                            }
+//                            Toast.makeText(SendMainActivity.this, getString(R.string.colu_failed_to_prepare), Toast.LENGTH_SHORT).show();
+//                            updateUi();
+//                        }
+//                    }
+//                }.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, coluTransactionData);
+//            }
+//            TransactionStatus status = checkHaveSpendAccount();
+//            return status == TransactionStatus.InsufficientFundsForFee ?
+//                    TransactionStatus.InsufficientFundsForFee : TransactionStatus.OK;
+            return TransactionStatus.MissingArguments; // todo delete
         }
     }
 
@@ -1048,56 +1041,56 @@ public class SendMainActivity extends Activity {
         void fail();
     }
 
-    private TransactionStatus tryCreateCoinapultTX() {
-        if (_account instanceof CoinapultAccount) {
-            CoinapultAccount coinapultAccount = (CoinapultAccount) _account;
-            _unsigned = null;
-            _preparedCoinapult = null;
-
-         if (CurrencyValue.isNullOrZero(_amountToSend) || _receivingAddress == null) {
-            return TransactionStatus.MissingArguments;
-         }
-
-         try {
-            // try to get it in the accounts native currency, but dont convert anything
-            Optional<ExactCurrencyValue> nativeAmount = CurrencyValue.checkCurrencyAmount(
-                  _amountToSend,
-                  coinapultAccount.getCoinapultCurrency().name
-            );
-
-            BigDecimal minimumConversationValue = coinapultAccount.getCoinapultCurrency().minimumConversationValue;
-            if (nativeAmount.isPresent()) {
-               if (nativeAmount.get().getValue().compareTo(minimumConversationValue) < 0) {
-                  //trying to send less than coinapults minimum withdrawal
-                  return TransactionStatus.OutputTooSmall;
-               }
-               _preparedCoinapult = coinapultAccount.prepareCoinapultTx(_receivingAddress, nativeAmount.get());
-               return TransactionStatus.OK;
-            } else {
-               // if we dont have it in the account-native currency, send it as bitcoin value and
-               // let coinapult to the conversation
-
-               // convert it to native, only to check if its larger the the minValue
-               BigDecimal nativeValue = CurrencyValue.fromValue(
-                     _amountToSend, coinapultAccount.getCoinapultCurrency().name,
-                     _mbwManager.getExchangeRateManager()).getValue();
-
-               if (nativeValue == null || nativeValue.compareTo(minimumConversationValue) < 0) {
-                  // trying to send less than coinapults minimum withdrawal, or no fx rate available
-                  return TransactionStatus.OutputTooSmall;
-               }
-               WalletBtcAccount.Receiver receiver = new WalletBtcAccount.Receiver(_receivingAddress, getBitcoinValueToSend().getLongValue());
-               _preparedCoinapult = coinapultAccount.prepareCoinapultTx(receiver);
-               return TransactionStatus.OK;
-            }
-         } catch (InsufficientFundsException e) {
-            makeText(this, getResources().getString(R.string.insufficient_funds), LENGTH_LONG).show();
-            return TransactionStatus.InsufficientFunds;
-         }
-      } else {
-         throw new IllegalStateException("only attempt this for coinapult accounts");
-      }
-   }
+//    private TransactionStatus tryCreateCoinapultTX() {
+//        if (_account instanceof CoinapultAccount) {
+//            CoinapultAccount coinapultAccount = (CoinapultAccount) _account;
+//            _unsigned = null;
+//            _preparedCoinapult = null;
+//
+//         if (CurrencyValue.isNullOrZero(_amountToSend) || _receivingAddress == null) {
+//            return TransactionStatus.MissingArguments;
+//         }
+//
+//         try {
+//            // try to get it in the accounts native currency, but dont convert anything
+//            Optional<ExactCurrencyValue> nativeAmount = CurrencyValue.checkCurrencyAmount(
+//                  _amountToSend,
+//                  coinapultAccount.getCoinapultCurrency().name
+//            );
+//
+//            BigDecimal minimumConversationValue = coinapultAccount.getCoinapultCurrency().minimumConversationValue;
+//            if (nativeAmount.isPresent()) {
+//               if (nativeAmount.get().getValue().compareTo(minimumConversationValue) < 0) {
+//                  //trying to send less than coinapults minimum withdrawal
+//                  return TransactionStatus.OutputTooSmall;
+//               }
+//               _preparedCoinapult = coinapultAccount.prepareCoinapultTx(_receivingAddress, nativeAmount.get());
+//               return TransactionStatus.OK;
+//            } else {
+//               // if we dont have it in the account-native currency, send it as bitcoin value and
+//               // let coinapult to the conversation
+//
+//               // convert it to native, only to check if its larger the the minValue
+//               BigDecimal nativeValue = CurrencyValue.fromValue(
+//                     _amountToSend, coinapultAccount.getCoinapultCurrency().name,
+//                     _mbwManager.getExchangeRateManager()).getValue();
+//
+//               if (nativeValue == null || nativeValue.compareTo(minimumConversationValue) < 0) {
+//                  // trying to send less than coinapults minimum withdrawal, or no fx rate available
+//                  return TransactionStatus.OutputTooSmall;
+//               }
+//               WalletBtcAccount.Receiver receiver = new WalletBtcAccount.Receiver(_receivingAddress, getValueToSend().getLongValue());
+//               _preparedCoinapult = coinapultAccount.prepareCoinapultTx(receiver);
+//               return TransactionStatus.OK;
+//            }
+//         } catch (InsufficientFundsException e) {
+//            makeText(this, getResources().getString(R.string.insufficient_funds), LENGTH_LONG).show();
+//            return TransactionStatus.InsufficientFunds;
+//         }
+//      } else {
+//         throw new IllegalStateException("only attempt this for coinapult accounts");
+//      }
+//   }
 
    private void checkSpendingUnconfirmed() {
       for (UnspentTransactionOutput out : _unsigned.getFundingOutputs()) {
@@ -1224,90 +1217,95 @@ public class SendMainActivity extends Activity {
       return _mbwManager.getMetadataStorage().getLabelByAccount(accountId.get());
    }
 
-   private void updateAmount() {
-       // Update Amount
-       if (_amountToSend == null) {
-           // No amount to show
-           tvAmountTitle.setText(R.string.enter_amount_title);
-           tvAmount.setText("");
-           tvAmountFiat.setVisibility(GONE);
-       } else {
-           tvAmountTitle.setText(R.string.amount_title);
-           switch (_transactionStatus) {
-               case OutputTooSmall:
-                   // Amount too small
-                   tvAmount.setText(_mbwManager.getBtcValueString(getBitcoinValueToSend().getLongValue()));
-                   tvAmountFiat.setVisibility(GONE);
-                   break;
-               case InsufficientFunds:
-                   // Insufficient funds
-                   tvAmount.setText(
-                           Utils.getFormattedValueWithUnit(_amountToSend, _mbwManager.getBitcoinDenomination())
-                   );
-                   break;
-               default:
-                   // Set Amount
-                   if (!CurrencyValue.isNullOrZero(_amountToSend)) {
-                       // show the user entered value as primary amount
-                       CurrencyValue primaryAmount = _amountToSend;
-                       CurrencyValue alternativeAmount;
-                       if (primaryAmount.getCurrency().equals(_account.getAccountDefaultCurrency())) {
-                           if (primaryAmount.isBtc() || _mbwManager.getColuManager().isColuAsset(primaryAmount.getCurrency())) {
-                               // if the accounts default currency is BTC and the user entered BTC, use the current
-                               // selected fiat as alternative currency
-                               alternativeAmount = CurrencyValue.fromValue(
-                                       primaryAmount, _mbwManager.getFiatCurrency(), _mbwManager.getExchangeRateManager()
-                               );
-                           } else {
-                               // if the accounts default currency isn't BTC, use BTC as alternative
-                               alternativeAmount = ExchangeBasedBitcoinValue.fromValue(
-                                       primaryAmount, _mbwManager.getExchangeRateManager()
-                               );
-                           }
-                       } else {
-                           // use the accounts default currency as alternative
-                           alternativeAmount = CurrencyValue.fromValue(
-                                   primaryAmount, _account.getAccountDefaultCurrency(), _mbwManager.getExchangeRateManager()
-                           );
-                       }
-                       String sendAmount = Utils.getFormattedValueWithUnit(primaryAmount, _mbwManager.getBitcoinDenomination());
-                       if (isColu()) {
-                           sendAmount = Utils.getColuFormattedValueWithUnit(primaryAmount);
-                       } else if (!primaryAmount.isBtc()) {
-                           // if the amount is not in BTC, show a ~ to inform the user, its only approximate and depends
-                           // on a FX rate
-                           sendAmount = "~ " + sendAmount;
-                       }
-                       tvAmount.setText(sendAmount);
-                       if (CurrencyValue.isNullOrZero(alternativeAmount)) {
-                           tvAmountFiat.setVisibility(GONE);
-                       } else {
-                           // show the alternative amount
-                           String alternativeAmountString =
-                                   Utils.getFormattedValueWithUnit(alternativeAmount, _mbwManager.getBitcoinDenomination());
+    private void updateAmount() {
+        // Update Amount
+        if (_amountToSend == null) {
+            // No amount to show
+            tvAmountTitle.setText(R.string.enter_amount_title);
+            tvAmount.setText("");
+            tvAmountFiat.setVisibility(GONE);
+        } else {
+            tvAmountTitle.setText(R.string.amount_title);
+            switch (_transactionStatus) {
+                case OutputTooSmall:
+                    // Amount too small
+                    tvAmount.setText(_mbwManager.getBtcValueString(getValueToSend().value));
+                    tvAmountFiat.setVisibility(GONE);
+                    break;
+                case InsufficientFunds:
+                    // Insufficient funds
+                    tvAmount.setText(
+//                           Utils.getFormattedValueWithUnit(_amountToSend, _mbwManager.getBitcoinDenomination())
+                            "Utils.getFormattedValueWithUnit(...)"
+                    );
+                    break;
+                default:
+                    // Set Amount
+                    if (!Value.isNullOrZero(_amountToSend)) {
+                        // show the user entered value as primary amount
+                        Value primaryAmount = _amountToSend;
+                        Value alternativeAmount = null;
+                        if (primaryAmount.getCurrencySymbol().equals(_account.getAccountDefaultCurrency())) {
+                            if (primaryAmount.getCurrencySymbol().equals("BTC") || _mbwManager.getColuManager().isColuAsset(primaryAmount.getCurrencySymbol())) {
+                                // if the accounts default currency is BTC and the user entered BTC, use the current
+                                // selected fiat as alternative currency
+//                               alternativeAmount = CurrencyValue.fromValue(
+//                                       primaryAmount, _mbwManager.getFiatCurrency(), _mbwManager.getExchangeRateManager()
+//                               );
+                                Log.d(TAG_MCS, "line 1257");
+                            } else {
+                                // if the accounts default currency isn't BTC, use BTC as alternative
+//                               alternativeAmount = ExchangeBasedBitcoinValue.fromValue(
+//                                       primaryAmount, _mbwManager.getExchangeRateManager()
+//                               );
+                                Log.d(TAG_MCS, "line 1263");
+                            }
+                        } else {
+                            // use the accounts default currency as alternative
+//                           alternativeAmount = CurrencyValue.fromValue(
+//                                   primaryAmount, _account.getAccountDefaultCurrency(), _mbwManager.getExchangeRateManager()
+//                           );
+                            Log.d(TAG_MCS, "line 1270");
+                        }
+                        String sendAmount = Utils.getFormattedValueWithUnit(primaryAmount, _mbwManager.getBitcoinDenomination());
+                        if (isColu()) {
+                            // todo colu
+//                           sendAmount = Utils.getColuFormattedValueWithUnit(primaryAmount);
+                        } else if (!primaryAmount.getCurrencySymbol().equals("BTC")) { // todo remove temp
+                            // if the amount is not in BTC, show a ~ to inform the user, its only approximate and depends
+                            // on a FX rate
+                            sendAmount = "~ " + sendAmount;
+                        }
+                        tvAmount.setText(sendAmount);
+                        if (Value.isNullOrZero(alternativeAmount)) {
+                            tvAmountFiat.setVisibility(GONE);
+                        } else {
+                            // show the alternative amount
+                            String alternativeAmountString =
+                                    Utils.getFormattedValueWithUnit(alternativeAmount, _mbwManager.getBitcoinDenomination());
 
-                           if (!alternativeAmount.isBtc()) {
-                               // if the amount is not in BTC, show a ~ to inform the user, its only approximate and depends
-                               // on a FX rate
-                               alternativeAmountString = "~ " + alternativeAmountString;
-                           }
+                            if (!alternativeAmount.getCurrencySymbol().equals("BTC")) {
+                                // if the amount is not in BTC, show a ~ to inform the user, its only approximate and depends
+                                // on a FX rate
+                                alternativeAmountString = "~ " + alternativeAmountString;
+                            }
 
-                           tvAmountFiat.setText(alternativeAmountString);
-                           tvAmountFiat.setVisibility(VISIBLE);
-                       }
-                   } else {
-                       tvAmount.setText("");
-                       tvAmountFiat.setText("");
-                   }
-                   break;
-           }
-       }
+                            tvAmountFiat.setText(alternativeAmountString);
+                            tvAmountFiat.setVisibility(VISIBLE);
+                        }
+                    } else {
+                        tvAmount.setText("");
+                        tvAmountFiat.setText("");
+                    }
+                    break;
+            }
+        }
 
-      // Disable Amount button if we have a payment request with valid amount
-      if (_paymentRequestHandler != null && _paymentRequestHandler.getPaymentRequestInformation().hasAmount()) {
-         btEnterAmount.setEnabled(false);
-      }
-   }
+        // Disable Amount button if we have a payment request with valid amount
+        if (_paymentRequestHandler != null && _paymentRequestHandler.getPaymentRequestInformation().hasAmount()) {
+            btEnterAmount.setEnabled(false);
+        }
+    }
 
 
     void updateError() {
@@ -1476,10 +1474,10 @@ public class SendMainActivity extends Activity {
                     _transactionLabel = uri.label;
                     if (uri.amount != null && uri.amount > 0) {
                         //we set the amount to the one contained in the qr code, even if another one was entered previously
-                        if (!CurrencyValue.isNullOrZero(_amountToSend)) {
+                        if (!Value.isNullOrZero(_amountToSend)) {
                             makeText(this, R.string.amount_changed, LENGTH_LONG).show();
                         }
-                        setAmountToSend(ExactBitcoinValue.from(uri.amount));
+                        _amountToSend = Value.valueOf(_amountToSend.getType(), uri.amount);
                     }
                 } else if (type == StringHandlerActivity.ResultType.URI) {
                     //todo: maybe merge with BitcoinUriWithAddress ?
@@ -1526,9 +1524,8 @@ public class SendMainActivity extends Activity {
             updateUi();
         } else if (requestCode == GET_AMOUNT_RESULT_CODE && resultCode == RESULT_OK) {
             // Get result from AmountEntry
-            CurrencyValue enteredAmount = (CurrencyValue) intent.getSerializableExtra(GetAmountActivity.AMOUNT);
-            setAmountToSend(enteredAmount);
-            if (!CurrencyValue.isNullOrZero(_amountToSend)) {
+            _amountToSend = (Value) intent.getSerializableExtra(GetAmountActivity.AMOUNT);
+            if (!Value.isNullOrZero(_amountToSend)) {
                 _transactionStatus = tryCreateUnsignedTransaction();
             }
             updateUi();
@@ -1589,7 +1586,8 @@ public class SendMainActivity extends Activity {
     }
 
     private String getFiatValue() {
-        long value = _amountToSend.getAsBitcoin(_mbwManager.getExchangeRateManager()).getLongValue() + _unsigned.calculateFee();
+//        long value = _amountToSend.getAsBitcoin(_mbwManager.getExchangeRateManager()).getLongValue() + _unsigned.calculateFee();
+        long value = 1000 + _unsigned.calculateFee();
         return _mbwManager.getCurrencySwitcher().getFormattedFiatValue(ExactBitcoinValue.from(value), true);
     }
 

@@ -108,7 +108,7 @@ public class ColdStorageSummaryActivity extends Activity {
       ((TextView) findViewById(R.id.tvAddress)).setText(receivingAddress.isPresent() ? receivingAddress.get().toMultiLineString() : "");
 
       // BalanceSatoshis
-      ((TextView) findViewById(R.id.tvBalance)).setText(_mbwManager.getBtcValueString(Utils.getSpendable(balance).value));
+      ((TextView) findViewById(R.id.tvBalance)).setText(_mbwManager.getBtcValueString(balance.getSpendable().value));
 
       Double price = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
 
@@ -118,7 +118,7 @@ public class ColdStorageSummaryActivity extends Activity {
          tvFiat.setVisibility(View.INVISIBLE);
       } else {
          String currency = _mbwManager.getFiatCurrency();
-         String converted = _mbwManager.getExchangeRateManager().get(Utils.getSpendable(balance), currency).toFriendlyString();
+         String converted = _mbwManager.getExchangeRateManager().get(balance.getSpendable(), currency).toFriendlyString();
          tvFiat.setText(getResources().getString(R.string.approximate_fiat_value, currency
                  , converted != null ? converted : ""));
       }
@@ -148,7 +148,7 @@ public class ColdStorageSummaryActivity extends Activity {
       // Send Button
       Button btSend = findViewById(R.id.btSend);
       if (_account.canSpend()) {
-         if (Utils.getSpendable(balance).isPositive()) {
+         if (balance.getSpendable().isPositive()) {
             btSend.setEnabled(true);
             btSend.setOnClickListener(new OnClickListener() {
                @Override

@@ -2,7 +2,9 @@ package com.mycelium.wapi.wallet.coins;
 
 import com.mycelium.wapi.wallet.MonetaryFormat;
 
-public interface ValueType {
+import java.io.Serializable;
+
+public interface ValueType extends Serializable {
     String getId();
     String getName();
     String getSymbol();
