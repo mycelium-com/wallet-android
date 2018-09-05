@@ -145,7 +145,6 @@ public class StandardTransactionBuilder {
                                                         Address changeAddress, IPublicKeyRing keyRing,
                                                         NetworkParameters network, long minerFeeToUse)
        throws InsufficientFundsException, UnableToBuildTransactionException {
-      boolean isSegwit = changeAddress.isMultisig(network); // TODO create more smart way to decide SegWit
 
       // Make a copy so we can mutate the list
       List<UnspentTransactionOutput> unspent = new LinkedList<>(inventory);
@@ -194,12 +193,7 @@ public class StandardTransactionBuilder {
       int estimateTransactionSize = estimateTransactionSize(unsignedTransaction.getFundingOutputs().length,
           unsignedTransaction.getOutputs().length);
       long calculatedFee = unsignedTransaction.calculateFee();
-      float estimatedFeePerKb;
-      if (isSegwit) {
-         estimatedFeePerKb = (long) ((float) calculatedFee / ((float) estimateTransactionSize / 1000)); // TODO change segwit
-      } else {
-         estimatedFeePerKb = (long) ((float) calculatedFee / ((float) estimateTransactionSize / 1000));
-      }
+      float estimatedFeePerKb = (long) ((float) calculatedFee / ((float) estimateTransactionSize / 1000)); // TODO change segwit
 
       // set a limit of MAX_MINER_FEE_PER_KB as absolute limit - it is very likely a bug in the fee estimator or transaction composer
       if (estimatedFeePerKb > Transaction.MAX_MINER_FEE_PER_KB) {
@@ -307,7 +301,7 @@ public class StandardTransactionBuilder {
       final UnspentTransactionOutput[] funding = unsigned.getFundingOutputs();
       TransactionInput[] inputs = new TransactionInput[funding.length];
       for (int i = 0; i < funding.length; i++) {
-         if (unsigned.getInputs()[i].script instanceof ScriptInputP2WPKH || unsigned.getInputs()[i].script instanceof ScriptInputP2WSH) { // TODO SEGWIT FIX
+         if (isScriptInputSegWit(unsigned, i)) {
             inputs[i] = unsigned.getInputs()[i];
             InputWitness witness = new InputWitness(2);
             witness.setStack(0, signatures.get(i));
@@ -323,6 +317,10 @@ public class StandardTransactionBuilder {
 
       // Create transaction with valid outputs and empty inputs
       return new Transaction(1, inputs, unsigned.getOutputs(), unsigned.getLockTime());
+   }
+
+   private static boolean isScriptInputSegWit(UnsignedTransaction unsigned, int i) {
+      return unsigned.getInputs()[i].script instanceof ScriptInputP2WPKH || unsigned.getInputs()[i].script instanceof ScriptInputP2WSH;
    }
 
    private long outputSum() {

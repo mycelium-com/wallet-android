@@ -227,11 +227,9 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
     }
 
     class ItemListDiffCallback(val context: Context) : DiffUtil.ItemCallback<AccountListItem>() {
-        private val pagePrefs = context.getSharedPreferences("account_list", Context.MODE_PRIVATE)
-
-        override fun areItemsTheSame(oldItem: AccountListItem?, newItem: AccountListItem?): Boolean {
+        override fun areItemsTheSame(oldItem: AccountListItem, newItem: AccountListItem): Boolean {
             return when {
-                oldItem!!.getType() != newItem!!.getType() -> false
+                oldItem.getType() != newItem.getType() -> false
                 listOf(GROUP_TITLE_TYPE, GROUP_ARCHIVED_TITLE_TYPE).any { it == oldItem.getType() } -> {
                     (oldItem as AccountsGroupModel).titleId == (newItem as AccountsGroupModel).titleId
                 }
@@ -242,9 +240,11 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
             }
         }
 
-        override fun areContentsTheSame(oldItem: AccountListItem?, newItem: AccountListItem?): Boolean {
+        private val pagePrefs = context.getSharedPreferences("account_list", Context.MODE_PRIVATE)
+
+        override fun areContentsTheSame(oldItem: AccountListItem, newItem: AccountListItem): Boolean {
             return when {
-                listOf(GROUP_TITLE_TYPE, GROUP_ARCHIVED_TITLE_TYPE).any { it == oldItem!!.getType() } -> {
+                listOf(GROUP_TITLE_TYPE, GROUP_ARCHIVED_TITLE_TYPE).any { it == oldItem.getType() } -> {
                     val title = (newItem as AccountsGroupModel).getTitle(context)
                     val sameCollapseState = newItem.isCollapsed == pagePrefs.getBoolean(title, true)
                     newItem.isCollapsed = pagePrefs.getBoolean(title, true)

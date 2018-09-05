@@ -50,7 +50,7 @@ import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.KeyCipher;
-import com.mycelium.wapi.wallet.btc.bip44.Bip44Account;
+import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 
 import java.util.List;
 import java.util.UUID;
@@ -80,7 +80,7 @@ public class HDSigningActivity extends Activity {
    private void updateUi() {
 
       LinearLayout addressView = (LinearLayout) findViewById(R.id.listPrivateKeyAddresses);
-      Bip44Account account = (Bip44Account) _mbwManager.getWalletManager(false).getAccount(_accountid);
+      HDAccount account = (HDAccount) _mbwManager.getWalletManager(false).getAccount(_accountid);
 
       //sort addresses by alphabet for easier selection
       List<Address> addresses = Utils.sortAddresses(account.getAllAddresses());
@@ -115,14 +115,14 @@ public class HDSigningActivity extends Activity {
          if (addressLabel.getAddress() == null) {
             return;
          }
-         Bip44Account account = (Bip44Account) _mbwManager.getWalletManager(false).getAccount(_accountid);
+         HDAccount account = (HDAccount) _mbwManager.getWalletManager(false).getAccount(_accountid);
          InMemoryPrivateKey key;
          try {
             key = account.getPrivateKeyForAddress(addressLabel.getAddress(), AesKeyCipher.defaultKeyCipher());
          } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
             throw new RuntimeException(invalidKeyCipher);
          }
-         MessageSigningActivity.callMe(HDSigningActivity.this, key);
+         MessageSigningActivity.callMe(HDSigningActivity.this, key, addressLabel.getAddress().getType());
       }
    }
 }

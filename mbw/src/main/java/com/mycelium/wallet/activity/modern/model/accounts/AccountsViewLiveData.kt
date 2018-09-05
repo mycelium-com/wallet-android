@@ -11,7 +11,7 @@ import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem.Type.G
 import com.mycelium.wallet.colu.ColuAccount
 import com.mycelium.wallet.event.AccountListChanged
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount
-import com.mycelium.wapi.wallet.btc.bip44.Bip44Account
+import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.squareup.otto.Subscribe
 import java.util.*
 import java.util.concurrent.ExecutorService
@@ -53,7 +53,7 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
         override fun doInBackground(vararg voids: Void): List<AccountsGroupModel> {
             val am = AccountManager
             val accountsList = mutableListOf(AccountsGroupModel(R.string.active_hd_accounts_name, GROUP_TITLE_TYPE,
-                    bipAccountsToViewModel(am.getBTCBip44Accounts().values as List<Bip44Account> )))
+                    bipAccountsToViewModel(am.getBTCBip44Accounts().values as List<HDAccount> )))
             val singleAddressList = accountsToViewModel(am.getBTCSingleAddressAccounts().values)
             if (singleAddressList.isNotEmpty()) {
                 accountsList.add(AccountsGroupModel((R.string.active_bitcoin_sa_group_name), GROUP_TITLE_TYPE,
@@ -63,7 +63,7 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
                 publishProgress(accountsList)
             }
 
-            val bchBipList = bipAccountsToViewModel(am.getBCHBip44Accounts().values as List<Bip44Account>)
+            val bchBipList = bipAccountsToViewModel(am.getBCHBip44Accounts().values as List<HDAccount>)
             if (bchBipList.isNotEmpty()) {
                 accountsList.add(AccountsGroupModel(R.string.bitcoin_cash_hd, GROUP_TITLE_TYPE,
                         bchBipList))
@@ -110,7 +110,7 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
         }
 
         private fun accountsToViewModel(accounts: Collection<WalletBtcAccount>) = accounts.map { AccountViewModel(it, mbwManager) }
-        private fun bipAccountsToViewModel(accounts: Collection<Bip44Account>) = accounts.map { AccountViewModel(it, mbwManager) }
+        private fun bipAccountsToViewModel(accounts: Collection<HDAccount>) = accounts.map { AccountViewModel(it, mbwManager) }
 
         @SafeVarargs
         override fun onProgressUpdate(vararg values: List<AccountsGroupModel>) {

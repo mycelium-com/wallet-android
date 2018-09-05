@@ -850,6 +850,11 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         _localCurrency.setTitle(localCurrencyTitle());
         _localCurrency.setSummary(localCurrencySummary());
         _mbwManager.getEventBus().register(this);
+        modulesPrefs.removeAll();
+        if (!CommunicationManager.getInstance().getPairedModules().isEmpty()) {
+            processPairedModules(modulesPrefs);
+        }
+        processUnpairedModules(modulesPrefs);
         super.onResume();
     }
 
@@ -860,6 +865,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     public void onPause() {
         _mbwManager.getEventBus().unregister(this);
         refreshPreferences();
+        if (pleaseWait != null) pleaseWait.dismiss();
         super.onPause();
     }
 

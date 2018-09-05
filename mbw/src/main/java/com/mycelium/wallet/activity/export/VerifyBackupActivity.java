@@ -179,14 +179,21 @@ public class VerifyBackupActivity extends Activity {
    }
 
    private void verify(InMemoryPrivateKey pk) {
+      UUID account = null;
+      boolean success = false;
+      Address address = null;
+      for (Address currentAddress : pk.getPublicKey().getAllSupportedAddresses(_mbwManager.getNetwork()).values()) {
+         // Figure out the account ID
+         account = SingleAddressAccount.calculateId(currentAddress);
+         // Check whether regular wallet contains that account
+         success = _mbwManager.getWalletManager(false).hasAccount(account)
+                 || _mbwManager.getColuManager().hasAccount(account);
+         if (success) {
+            address = currentAddress;
+            break;
+         }
+      }
 
-      // Figure out the account ID
-      Address address = pk.getPublicKey().toAddress(_mbwManager.getNetwork(), AddressType.P2SH_P2WPKH); // TODO fix SegWit
-      UUID account = SingleAddressBCHAccount.calculateId(address);
-
-      // Check whether regular wallet contains that account
-      boolean success = _mbwManager.getWalletManager(false).hasAccount(account)
-              || _mbwManager.getColuManager().hasAccount(account);
       for (ColuAccount.ColuAsset coluAsset : ColuAccount.ColuAsset.getAssetMap().values()) {
          UUID coluUUID = ColuAccount.getGuidForAsset(coluAsset, pk.getPublicKey().toAddress(_mbwManager.getNetwork(), AddressType.P2PKH).getAllAddressBytes());
          success |= _mbwManager.getColuManager().hasAccount(coluUUID);

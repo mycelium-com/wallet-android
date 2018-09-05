@@ -7,3 +7,6 @@
 [submodule "bitcoincashj"]
 	path = bitcoincashj
 	url = git@github.com:mycelium-com/bitcoincashj.git
+[submodule "wallet-android-modularization-tools"]
+	path = wallet-android-modularization-tools
+	url = git@github.com:mycelium-com/wallet-android-modularization-tools

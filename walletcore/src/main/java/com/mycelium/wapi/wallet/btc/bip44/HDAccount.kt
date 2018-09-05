@@ -50,7 +50,7 @@ import com.mycelium.wapi.wallet.btc.*
 import java.util.ArrayList
 import java.util.HashMap
 
-open class Bip44Account(
+open class HDAccount(
         protected var context: HDAccountContext,
         protected val keyManagerMap: Map<BipDerivationType, HDAccountKeyManager>,
         network: NetworkParameters,

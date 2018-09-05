@@ -415,10 +415,12 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
 
          try {
             //Check whether this address is already used in any account
-            address = key.getPublicKey().toAddress(_mbwManager.getNetwork(), AddressType.P2SH_P2WPKH); // TODO segwit fix
-            Optional<UUID> accountId = _mbwManager.getAccountId(address, null);
-            if (accountId.isPresent()) {
-               return null;
+            for (AddressType addressType : AddressType.values()) {
+               address = key.getPublicKey().toAddress(_mbwManager.getNetwork(), addressType);
+               Optional<UUID> accountId = _mbwManager.getAccountId(address, null);
+               if (accountId.isPresent()) {
+                  return null;
+               }
             }
 
             //check if address is colu
@@ -584,13 +586,13 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
                }
                break;
                case SA:
-                  acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(address);               //TODO segwit readonly
+                  acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(address);
                   break;
                case Colu:
                   ColuManager coluManager = _mbwManager.getColuManager();
                   List<ColuAccount.ColuAsset> asset = new ArrayList<>(coluManager.getColuAddressAssets(this.address));
 
-                  if (asset.size() > 0) {
+                  if (!asset.isEmpty()) {
                      acc = _mbwManager.getColuManager().enableReadOnlyAsset(asset.get(0), address);
                   }
                   break;
@@ -623,7 +625,7 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
                        public void onClick(DialogInterface dialogInterface, int i) {
                           UUID account;
                           if (selectedItem == 0) {
-                             account = _mbwManager.getWalletManager(false).createSingleAddressAccount(address); //TODO segwit readonly
+                             account = _mbwManager.getWalletManager(false).createSingleAddressAccount(address);
                           } else {
                              ColuAccount.ColuAsset coluAsset = ColuAccount.ColuAsset.getByType(ColuAccount.ColuAssetType.parse(list.get(selectedItem)));
                              account = _mbwManager.getColuManager().enableReadOnlyAsset(coluAsset, address);

@@ -6,13 +6,13 @@ import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.wallet.btc.Bip44AccountBacking
 
 
-open class Bip44PubOnlyAccount(
+open class HDPubOnlyAccount(
         context: HDAccountContext,
         keyManagerMap: Map<BipDerivationType, HDAccountKeyManager>,
         network: NetworkParameters,
         backing: Bip44AccountBacking,
         wapi: Wapi
-) : Bip44Account(context, keyManagerMap, network, backing, wapi) {
+) : HDAccount(context, keyManagerMap, network, backing, wapi) {
 
     override fun canSpend(): Boolean {
         return false

@@ -16,8 +16,6 @@
 
 package com.mrd.bitlib.model;
 
-import com.mrd.bitlib.util.BitUtils;
-
 import java.io.Serializable;
 
 public class ScriptOutputP2SH extends ScriptOutput implements Serializable {

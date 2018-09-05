@@ -13,7 +13,7 @@ import com.mycelium.wapi.wallet.btc.Bip44AccountBacking
 import com.mycelium.wapi.wallet.KeyCipher
 import com.mycelium.wapi.wallet.SpvBalanceFetcher
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount
-import com.mycelium.wapi.wallet.btc.bip44.Bip44Account
+import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.Companion.ACCOUNT_TYPE_FROM_MASTERSEED
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountKeyManager
@@ -24,14 +24,12 @@ import com.mycelium.wapi.wallet.currency.ExactCurrencyValue
 
 import java.util.UUID
 
-open class Bip44BCHAccount(
-        context: HDAccountContext,
+
+
+open class Bip44BCHAccount(context: HDAccountContext,
         keyManagerMap: Map<BipDerivationType, HDAccountKeyManager>,
-        network: NetworkParameters,
-        backing: Bip44AccountBacking,
-        wapi: Wapi,
-        private val spvBalanceFetcher: SpvBalanceFetcher
-) : Bip44Account(context, keyManagerMap, network, backing, wapi) {
+                           network: NetworkParameters, backing: Bip44AccountBacking, wapi: Wapi,
+                           private val spvBalanceFetcher: SpvBalanceFetcher) : HDAccount(context, keyManagerMap, network, backing, wapi) {
     private var blockChainHeight = 0
     private var visible = false
 
@@ -139,9 +137,9 @@ open class Bip44BCHAccount(
     override fun getPrivateKeyForAddress(address: Address, cipher: KeyCipher): InMemoryPrivateKey? {
         val info = spvBalanceFetcher.getPrivateKeysCount(accountIndex)
         val internalAddresses = getAddressRange(true, 0,
-                info.internalKeys + Bip44Account.INTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH, BipDerivationType.BIP44)
+                info.internalKeys + HDAccount.INTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH, BipDerivationType.BIP44)
         val externalAddresses = getAddressRange(false, 0,
-                info.externalKeys + Bip44Account.EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH, BipDerivationType.BIP44)
+                info.externalKeys + HDAccount.EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH, BipDerivationType.BIP44)
 
         val iix = internalAddresses.indexOf(address)
 

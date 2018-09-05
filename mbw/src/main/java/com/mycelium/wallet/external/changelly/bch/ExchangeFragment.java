@@ -356,7 +356,7 @@ public class ExchangeFragment extends Fragment {
                 int accountIndex = bip44BCHAccount.getAccountIndex();
                 satoshisTransferable = mbwManager.getSpvBchFetcher().getMaxFundsTransferrable(accountIndex);
             } else {
-                //We are dealing with unrelated Bip44Account and should handle it separately
+                //We are dealing with unrelated HDAccount and should handle it separately
                 satoshisTransferable = mbwManager.getSpvBchFetcher().getMaxFundsTransferrableUnrelatedAccount(bip44BCHAccount.getId().toString());
             }
             return ExactBitcoinCashValue.from(satoshisTransferable).getValue();

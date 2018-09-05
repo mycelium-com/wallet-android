@@ -95,7 +95,7 @@ public class CreateKeyActivity extends Activity {
          @Override
          protected void onPostExecute(InMemoryPrivateKey pk) {
             key = pk;
-            Address address = key.getPublicKey().toAddress(manager.getNetwork(), AddressType.P2SH_P2WPKH); // TODO segwit fix
+            Address address = key.getPublicKey().toAddress(manager.getNetwork(), AddressType.P2SH_P2WPKH);
             ((AddressLabel) findViewById(R.id.tvAddress)).setAddress(address);
             findViewById(R.id.btShuffle).setEnabled(true);
             findViewById(R.id.btUse).setEnabled(true);

@@ -62,7 +62,7 @@ import com.mycelium.wallet.event.BalanceChanged;
 import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
-import com.mycelium.wapi.wallet.btc.bip44.Bip44Account;
+import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.squareup.otto.Subscribe;
 
@@ -158,7 +158,7 @@ public class NoticeFragment extends Fragment {
 
       // First check if we have HD accounts with funds, but have no master seed backup
       if (meta.getMasterSeedBackupState() != MetadataStorage.BackupState.VERIFIED) {
-         if (account instanceof Bip44Account) {
+         if (account instanceof HDAccount) {
             /*
               We have an HD account and no master seed backup, tell the user to act
               We shouldn't check balance, in security reason user should create backup

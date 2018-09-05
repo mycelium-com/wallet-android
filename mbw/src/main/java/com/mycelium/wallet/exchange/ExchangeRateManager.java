@@ -202,7 +202,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
     }
 
     private List<QueryExchangeRatesResponse> localValues(List<String> selectedCurrencies,
-                                                         Map<String, String> savedExchangeRates) {
+                                                                Map<String, String> savedExchangeRates) {
         List<QueryExchangeRatesResponse> responses = new ArrayList<>();
 
         for (String currency : selectedCurrencies) {

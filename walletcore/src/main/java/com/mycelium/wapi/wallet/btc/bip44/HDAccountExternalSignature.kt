@@ -10,14 +10,14 @@ import com.mycelium.wapi.wallet.btc.Bip44AccountBacking
 import com.mycelium.wapi.wallet.ExportableAccount
 import com.mycelium.wapi.wallet.KeyCipher
 
-class Bip44AccountExternalSignature(
+class HDAccountExternalSignature(
         context: HDAccountContext,
         keyManagerMap: Map<BipDerivationType, HDAccountKeyManager>,
         network: NetworkParameters,
         backing: Bip44AccountBacking,
         wapi: Wapi,
         private val sigProvider: ExternalSignatureProvider
-) : Bip44PubOnlyAccount(context, keyManagerMap, network, backing, wapi) {
+) : HDPubOnlyAccount(context, keyManagerMap, network, backing, wapi) {
 
     @Override
     fun getBIP44AccountType() = sigProvider.biP44AccountType
