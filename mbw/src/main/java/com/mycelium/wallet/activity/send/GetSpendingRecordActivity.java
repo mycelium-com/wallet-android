@@ -180,9 +180,9 @@ public class GetSpendingRecordActivity extends Activity {
          warningNoSpendingAccounts.setVisibility(View.VISIBLE);
       } else {
          //remove it later
-         List<WalletBtcAccount> spendingAccountsBtc = new ArrayList<>();
+         List<WalletAccount> spendingAccountsBtc = new ArrayList<>();
          for(WalletAccount account : spendingAccounts){
-            spendingAccountsBtc.add((WalletBtcAccount) account);
+            spendingAccountsBtc.add(account);
          }
          List<ViewAccountModel> list = builder.convertList(Utils.sortAccounts(spendingAccountsBtc, storage));
          accountsAdapter = new AccountsAdapter(this, list);

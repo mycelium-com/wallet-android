@@ -79,7 +79,7 @@ class AccountViewModel(account: WalletBtcAccount, mbwManager: MbwManager) : Acco
     companion object {
         private fun isRmcAccountLinked(walletAccount: WalletBtcAccount, mbwManager: MbwManager): Boolean {
             val linked = Utils.getLinkedAccount(walletAccount, mbwManager.coluManager.accounts.values)
-            if (linked != null && linked.type == WalletBtcAccount.Type.COLU
+            if (linked != null && linked is ColuAccount
                     && (linked as ColuAccount).coluAsset.assetType == ColuAccount.ColuAssetType.RMC) {
                 return true
             }

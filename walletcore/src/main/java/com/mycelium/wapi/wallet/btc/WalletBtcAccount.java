@@ -116,26 +116,7 @@ public interface WalletBtcAccount extends WalletAccount<BtcTransaction, BtcAddre
 
    TransactionSummary getTransactionSummary(Sha256Hash txid);
 
-   /**
-    * Create a new unsigned transaction sending funds to one or more addresses.
-    * <p/>
-    * The unsigned transaction must be signed and queued before it will affect
-    * the transaction history.
-    * <p/>
-    * If you call this method twice without signing and queuing the unsigned
-    * transaction you are likely to create another unsigned transaction that
-    * double spends the first one. In other words, if you call this method and
-    * do not sign and queue the unspent transaction, then you should discard the
-    * unsigned transaction.
-    *
-    * @param receivers the receiving address and amount to send
-    * @return an unsigned transaction.
-    * @throws OutputTooSmallException    if one of the outputs were too small
-    * @throws InsufficientFundsException if not enough funds were present to create the unsigned
-    *                                    transaction
-    */
-   UnsignedTransaction createUnsignedTransaction(List<Receiver> receivers, long minerFeeToUse) throws OutputTooSmallException,
-           InsufficientFundsException, StandardTransactionBuilder.UnableToBuildTransactionException;
+
 
    /**
     * Create a new unsigned transaction sending funds to one or more defined script outputs.
@@ -226,10 +207,7 @@ public interface WalletBtcAccount extends WalletAccount<BtcTransaction, BtcAddre
     */
    boolean isValidEncryptionKey(KeyCipher cipher);
 
-   /*
-   * returns true if this is one of our already used or monitored internal (="change") addresses
-   */
-   boolean isOwnInternalAddress(Address address);
+
 
    /**
     * Create a new unsigned Proof of Payment according to
@@ -240,10 +218,7 @@ public interface WalletBtcAccount extends WalletAccount<BtcTransaction, BtcAddre
     */
    UnsignedTransaction createUnsignedPop(Sha256Hash txid, byte[] nonce);
 
-   /*
-   * returns true if this is one of our already used or monitored external (=normal receiving) addresses
-   */
-   boolean isOwnExternalAddress(Address address);
+
 
    /**
     * Get the summary list of unspent transaction outputs for this account.
@@ -263,10 +238,7 @@ public interface WalletBtcAccount extends WalletAccount<BtcTransaction, BtcAddre
     */
    String getAccountDefaultCurrency();
 
-   /**
-    * Returns the number of retrieved transactions during synchronization
-    */
-   int getSyncTotalRetrievedTransactions();
+
 
    /**
     * Class representing a receiver of funds

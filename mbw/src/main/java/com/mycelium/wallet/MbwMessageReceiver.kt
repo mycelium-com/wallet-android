@@ -20,6 +20,7 @@ import com.mycelium.wallet.event.SpvSendFundsResult
 import com.mycelium.wallet.event.SpvSyncChanged
 import com.mycelium.wapi.wallet.AesKeyCipher
 import com.mycelium.wapi.wallet.ExportableAccount
+import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount.Type.BCHBIP44
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount.Type.BCHSINGLEADDRESS
@@ -81,7 +82,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
         when (intent.action) {
             "com.mycelium.wallet.notifySatoshisReceived" -> {
                 val accountsIndex = intent.getIntArrayExtra(IntentContract.ACCOUNTS_INDEX)
-                val walletAccounts = mutableListOf<WalletBtcAccount>()
+                val walletAccounts = mutableListOf<WalletAccount<*,*>>()
                 for(accountIndex in accountsIndex) {
                     walletManager.activeAccounts.filterTo(walletAccounts) {
                         it is Bip44BCHAccount && it.accountIndex == accountIndex

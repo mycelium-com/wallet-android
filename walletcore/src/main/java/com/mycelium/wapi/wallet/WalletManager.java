@@ -483,13 +483,9 @@ public class WalletManager {
      *
      * @return the active accounts managed by the wallet manager
      */
-    // need to rewrite later
-    public List<WalletBtcAccount> getActiveAccounts() {
-        List<WalletBtcAccount> result = new ArrayList<>();
-         for(WalletAccount account :filterAndConvert(not(IS_ARCHIVE))){
-             result.add((WalletBtcAccount) account);
-         }
-         return result;
+
+    public List<WalletAccount> getActiveAccounts() {
+         return  filterAndConvert(not(IS_ARCHIVE));
     }
 
     /**
@@ -1070,7 +1066,7 @@ public class WalletManager {
     public void setActiveAccount(UUID accountId) {
         _activeAccountId = accountId;
         if (hasAccount(accountId)) {
-            WalletBtcAccount account = getAccount(_activeAccountId);
+            WalletAccount account = getAccount(_activeAccountId);
             if (account != null) {
                 // this account might not be synchronized - start a background sync
                 startSynchronization(SyncMode.NORMAL);
@@ -1145,7 +1141,7 @@ public class WalletManager {
         @Override
         public boolean apply(WalletAccount input) {
             // TODO: if relevant also check if this account is derived from the main-masterseed
-            return ((WalletBtcAccount)input).getType() == WalletBtcAccount.Type.BTCBIP44 &&
+            return input instanceof HDAccount &&
                    input.isDerivedFromInternalMasterseed();
         }
     };

@@ -256,7 +256,7 @@ public class AccountsFragment extends Fragment {
 
     private void deleteAccount(final WalletBtcAccount accountToDelete) {
        Preconditions.checkNotNull(accountToDelete);
-       final WalletBtcAccount linkedAccount = getLinkedAccount(accountToDelete);
+       final WalletAccount linkedAccount = getLinkedAccount(accountToDelete);
 
        final View checkBoxView = View.inflate(getActivity(), R.layout.delkey_checkbox, null);
        final CheckBox keepAddrCheckbox = checkBoxView.findViewById(R.id.checkbox);
@@ -265,7 +265,7 @@ public class AccountsFragment extends Fragment {
 
        final AlertDialog.Builder deleteDialog = new AlertDialog.Builder(getActivity());
        deleteDialog.setTitle(R.string.delete_account_title);
-       deleteDialog.setMessage(Html.fromHtml(createDeleteDialogText(accountToDelete, linkedAccount)));
+       deleteDialog.setMessage(Html.fromHtml(createDeleteDialogText(accountToDelete,(WalletBtcAccount) linkedAccount)));
 
       // add checkbox only for SingleAddressAccounts and only if a private key is present
       final boolean hasPrivateData = (accountToDelete instanceof ExportableAccount
@@ -348,7 +348,7 @@ public class AccountsFragment extends Fragment {
                      if (keepAddrCheckbox.isChecked() && accountToDelete instanceof SingleAddressAccount) {
                         try {
                            //Check if this SingleAddress account is related with ColuAccount
-                           WalletBtcAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, _mbwManager.getColuManager().getAccounts().values());
+                           WalletAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, _mbwManager.getColuManager().getAccounts().values());
                            if (linkedColuAccount != null && linkedColuAccount instanceof ColuAccount) {
                               ColuManager coluManager = _mbwManager.getColuManager();
                               coluManager.forgetPrivateKey((ColuAccount) linkedColuAccount);
@@ -378,7 +378,7 @@ public class AccountsFragment extends Fragment {
                            }
                         } else {
                            //Check if this SingleAddress account is related with ColuAccount
-                           WalletBtcAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, _mbwManager.getColuManager().getAccounts().values());
+                           WalletAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, _mbwManager.getColuManager().getAccounts().values());
                            if (linkedColuAccount != null && linkedColuAccount instanceof ColuAccount) {
                               ColuManager coluManager = _mbwManager.getColuManager();
                               coluManager.deleteAccount((ColuAccount) linkedColuAccount);
@@ -412,7 +412,7 @@ public class AccountsFragment extends Fragment {
                   coluManager.deleteAccount((ColuAccount) accountToDelete);
                } else {
                   //Check if this SingleAddress account is related with ColuAccount
-                  WalletBtcAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, _mbwManager.getColuManager().getAccounts().values());
+                  WalletAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, _mbwManager.getColuManager().getAccounts().values());
                   if (linkedColuAccount != null && linkedColuAccount instanceof ColuAccount) {
                      ColuManager coluManager = _mbwManager.getColuManager();
                      coluManager.deleteAccount((ColuAccount) linkedColuAccount);
@@ -515,9 +515,9 @@ public class AccountsFragment extends Fragment {
    /**
     * If account is colu we are asking for linked BTC. Else we are searching if any colu attached.
     */
-   private WalletBtcAccount getLinkedAccount(WalletBtcAccount account) {
-      WalletBtcAccount linkedAccount;
-      if (account.getType() ==  WalletBtcAccount.Type.COLU) {
+   private WalletAccount getLinkedAccount(WalletAccount account) {
+      WalletAccount linkedAccount;
+      if (account instanceof ColuAccount) {
          linkedAccount = ((ColuAccount) account).getLinkedAccount();
       } else {
          linkedAccount = Utils.getLinkedAccount(account, _mbwManager.getColuManager().getAccounts().values());
@@ -1105,7 +1105,7 @@ public class AccountsFragment extends Fragment {
 
    private void activate(WalletBtcAccount account) {
       account.activateAccount();
-      WalletBtcAccount linkedAccount = Utils.getLinkedAccount(account, _mbwManager.getColuManager().getAccounts().values());
+      WalletAccount linkedAccount = Utils.getLinkedAccount(account, _mbwManager.getColuManager().getAccounts().values());
       if (linkedAccount != null) {
          linkedAccount.activateAccount();
       }
@@ -1224,15 +1224,15 @@ public class AccountsFragment extends Fragment {
    }
 
    private void archive(final WalletBtcAccount account) {
-      final WalletBtcAccount linkedAccount = getLinkedAccount(account);
+      final WalletAccount linkedAccount = getLinkedAccount(account);
       new AlertDialog.Builder(getActivity())
               .setTitle(R.string.archiving_account_title)
-              .setMessage(Html.fromHtml(createArchiveDialogText(account,linkedAccount)))
+              .setMessage(Html.fromHtml(createArchiveDialogText(account,(WalletBtcAccount) linkedAccount)))
               .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 
                  public void onClick(DialogInterface arg0, int arg1) {
                     account.archiveAccount();
-                    WalletBtcAccount linkedAccount = Utils.getLinkedAccount(account, _mbwManager.getColuManager().getAccounts().values());
+                    WalletAccount linkedAccount = Utils.getLinkedAccount(account, _mbwManager.getColuManager().getAccounts().values());
                     if (linkedAccount != null) {
                        linkedAccount.archiveAccount();
                     }

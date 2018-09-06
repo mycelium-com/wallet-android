@@ -15,6 +15,7 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 import java.util.ArrayList;
@@ -54,12 +55,12 @@ public class AccountAdapter extends SelectableRecyclerView.Adapter<RecyclerView.
         this.accountUseType = accountUseType;
     }
 
-    public AccountAdapter(MbwManager mbwManager, List<WalletBtcAccount> accounts, int paddingWidth) {
+    public AccountAdapter(MbwManager mbwManager, List<WalletAccount> accounts, int paddingWidth) {
         this.mbwManager = mbwManager;
         this.paddingWidth = paddingWidth;
         items.add(new Item(null, VIEW_TYPE_PADDING));
         accounts = Utils.sortAccounts(accounts, mbwManager.getMetadataStorage());
-        for (WalletBtcAccount account : accounts) {
+        for (WalletAccount account : accounts) {
             items.add(new Item(account, VIEW_TYPE_ITEM));
         }
         items.add(new Item(null, VIEW_TYPE_PADDING));
@@ -70,13 +71,13 @@ public class AccountAdapter extends SelectableRecyclerView.Adapter<RecyclerView.
     }
 
     public static class Item {
-        public Item(WalletBtcAccount account, int type) {
+        public Item(WalletAccount account, int type) {
             this.type = type;
             this.account = account;
         }
 
         public int type;
-        public WalletBtcAccount account;
+        public WalletAccount account;
     }
 
     @Override

@@ -23,6 +23,7 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.send.event.SelectListener;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
 import com.mycelium.wallet.activity.view.ValueKeyboard;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 import java.util.ArrayList;
@@ -168,7 +169,7 @@ public class ChangellyActivity extends AppCompatActivity {
                 }
             }
         });
-        List<WalletBtcAccount> toAccounts = new ArrayList<>();
+        List<WalletAccount> toAccounts = new ArrayList<>();
         toAccounts.addAll(AccountManager.INSTANCE.getBTCBip44Accounts().values());
         toAccounts.addAll(AccountManager.INSTANCE.getBTCSingleAddressAccounts().values());
         toAccounts.addAll(AccountManager.INSTANCE.getCoinapultAccounts().values());
@@ -309,7 +310,7 @@ public class ChangellyActivity extends AppCompatActivity {
             return;
         }
         CurrencyAdapter.Item item = currencyAdapter.getItem(currencySelector.getSelectedItem());
-        WalletBtcAccount walletAccount = accountAdapter.getItem(accountSelector.getSelectedItem()).account;
+        WalletAccount walletAccount = accountAdapter.getItem(accountSelector.getSelectedItem()).account;
         startActivityForResult(new Intent(ChangellyActivity.this, ChangellyOfferActivity.class)
                 .putExtra(ChangellyService.FROM, item.currency)
                 .putExtra(ChangellyService.TO, ChangellyService.BTC)

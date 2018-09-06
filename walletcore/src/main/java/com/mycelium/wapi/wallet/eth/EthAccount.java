@@ -1,5 +1,8 @@
 package com.mycelium.wapi.wallet.eth;
-;
+
+import com.google.common.base.Optional;
+import com.mrd.bitlib.StandardTransactionBuilder;
+import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.wallet.GenericAddress;
@@ -7,6 +10,7 @@ import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.CoinType;
 import com.mycelium.wapi.wallet.coins.Value;
@@ -126,6 +130,31 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
     @Override
     public boolean isMine(Address address) {
         return false;
+    }
+
+    @Override
+    public Optional<Address> getReceivingAddress() {
+        return null;
+    }
+
+    @Override
+    public boolean isOwnExternalAddress(Address address) {
+        return false;
+    }
+
+    @Override
+    public boolean isOwnInternalAddress(Address address) {
+        return false;
+    }
+
+    @Override
+    public int getSyncTotalRetrievedTransactions() {
+        return 0;
+    }
+
+    @Override
+    public UnsignedTransaction createUnsignedTransaction(List<WalletBtcAccount.Receiver> receivers, long minerFeeToUse) throws StandardTransactionBuilder.OutputTooSmallException, StandardTransactionBuilder.InsufficientFundsException, StandardTransactionBuilder.UnableToBuildTransactionException {
+        return null;
     }
 
     @Override

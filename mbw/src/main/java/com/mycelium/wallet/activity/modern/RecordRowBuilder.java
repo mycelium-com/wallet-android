@@ -34,6 +34,7 @@
 
 package com.mycelium.wallet.activity.modern;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
@@ -50,6 +51,7 @@ import com.mycelium.wallet.activity.modern.adapter.holder.AccountViewHolder;
 import com.mycelium.wallet.activity.modern.model.ViewAccountModel;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.persistence.MetadataStorage;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
@@ -170,18 +172,19 @@ public class RecordRowBuilder {
         }
     };
 
-    public ViewAccountModel convert(WalletBtcAccount walletAccount) {
+    @SuppressLint("StringFormatMatches")
+    public ViewAccountModel convert(WalletAccount walletAccount) {
         ViewAccountModel result = new ViewAccountModel();
         result.accountId = walletAccount.getId();
 
         result.drawableForAccount = Utils.getDrawableForAccount(walletAccount, false, resources);
         result.drawableForAccountSelected = Utils.getDrawableForAccount(walletAccount, true, resources);
-        result.accountType = walletAccount.getType();
+        result.accountType = ((WalletBtcAccount)walletAccount).getType();
         result.syncTotalRetrievedTransactions = walletAccount.getSyncTotalRetrievedTransactions();
 
-        WalletBtcAccount linked = Utils.getLinkedAccount(walletAccount, mbwManager.getColuManager().getAccounts().values());
+        WalletAccount linked = Utils.getLinkedAccount(walletAccount, mbwManager.getColuManager().getAccounts().values());
         if (linked != null
-                && linked.getType() == WalletBtcAccount.Type.COLU
+                && linked instanceof ColuAccount
                 && ((ColuAccount) linked).getColuAsset().assetType == ColuAccount.ColuAssetType.RMC) {
             result.isRMCLinkedAccount = true;
         }
@@ -227,15 +230,15 @@ public class RecordRowBuilder {
     }
 
     @NonNull
-    public List<ViewAccountModel> convertList(List<WalletBtcAccount> accounts) {
+    public List<ViewAccountModel> convertList(List<WalletAccount> accounts) {
         List<ViewAccountModel> viewAccountList = new ArrayList<>();
-        for (WalletBtcAccount account : accounts) {
+        for (WalletAccount account : accounts) {
             viewAccountList.add(convert(account));
         }
         return viewAccountList;
     }
 
-    private static boolean showBackupMissingWarning(WalletBtcAccount account, MbwManager mbwManager) {
+    private static boolean showBackupMissingWarning(WalletAccount account, MbwManager mbwManager) {
         if (account.isArchived()) {
             return false;
         }

@@ -74,7 +74,10 @@ import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil.AddressLabelChangedHandler;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.AddressBookChanged;
+import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
@@ -163,9 +166,14 @@ public class AddressBookFragment extends Fragment {
    private void updateUiMine() {
       List<Entry> entries = new ArrayList<>();
       List<WalletBtcAccount> activeAccounts = AccountManager.INSTANCE.getActiveAccounts().values().asList();
-      for (WalletBtcAccount account : Utils.sortAccounts(activeAccounts, _mbwManager.getMetadataStorage())) {
+      List<WalletAccount> activeAccountsGeneric = new ArrayList<>();
+
+      for(WalletAccount account : activeAccounts){
+         activeAccountsGeneric.add(account);
+      }
+      for (WalletAccount account : Utils.sortAccounts(activeAccountsGeneric, _mbwManager.getMetadataStorage())) {
          // TODO rework on full bch release
-         if (AccountDisplayType.getAccountType(account).equals(AccountDisplayType.BCH_ACCOUNT)) {
+         if (account instanceof HDAccount || account instanceof Bip44BCHAccount) {
             continue;
          }
          String name = _mbwManager.getMetadataStorage().getLabelByAccount(account.getId());

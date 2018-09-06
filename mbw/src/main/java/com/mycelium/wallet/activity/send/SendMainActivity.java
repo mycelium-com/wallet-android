@@ -110,6 +110,7 @@ import com.mycelium.wallet.paymentrequest.PaymentRequestHandler;
 import com.mycelium.wapi.api.lib.FeeEstimation;
 import com.mycelium.wapi.api.response.Feature;
 import com.mycelium.wapi.wallet.SyncMode;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
@@ -243,7 +244,7 @@ public class SendMainActivity extends Activity {
     private PaymentRequestHandler _paymentRequestHandler;
     private String _paymentRequestHandlerUuid;
 
-    protected WalletBtcAccount _account;
+    protected WalletAccount _account;
     private Value _amountToSend;
     private Address _receivingAddress;
     private String _receivingLabel;
@@ -264,7 +265,7 @@ public class SendMainActivity extends Activity {
     private boolean _spendingUnconfirmed = false;
     private boolean showStaleWarning = false;
     private boolean _paymentFetched = false;
-    private WalletBtcAccount fundColuAccount;
+    private WalletAccount fundColuAccount;
     private ProgressDialog progress;
     private FeeEstimation feeEstimation;
     private SharedPreferences transactionFiatValuePref;
@@ -553,11 +554,11 @@ public class SendMainActivity extends Activity {
         return _transactionStatus;
     }
 
-    private WalletBtcAccount getFundAccount() {
-        WalletBtcAccount fundColuAccount = null;
-        List<WalletBtcAccount> walletAccountList = _mbwManager.getWalletManager(false).getActiveAccounts();
+    private WalletAccount getFundAccount() {
+        WalletAccount fundColuAccount = null;
+        List<WalletAccount> walletAccountList = _mbwManager.getWalletManager(false).getActiveAccounts();
         walletAccountList = Utils.sortAccounts(walletAccountList, _mbwManager.getMetadataStorage());
-        for (WalletBtcAccount walletAccount : walletAccountList) {
+        for (WalletAccount walletAccount : walletAccountList) {
             if (canFundColuFrom(walletAccount)) {
                 fundColuAccount = walletAccount;
                 break;
@@ -566,7 +567,7 @@ public class SendMainActivity extends Activity {
         return fundColuAccount;
     }
 
-    private boolean canFundColuFrom(WalletBtcAccount walletAccount) {
+    private boolean canFundColuFrom(WalletAccount walletAccount) {
         return walletAccount != null && walletAccount.canSpend()
                 && Utils.isBtc(walletAccount.getAccountBalance().confirmed)
                 && walletAccount.getAccountBalance().getSpendable().value >=
@@ -1244,7 +1245,7 @@ public class SendMainActivity extends Activity {
                         // show the user entered value as primary amount
                         Value primaryAmount = _amountToSend;
                         Value alternativeAmount = null;
-                        if (primaryAmount.getCurrencySymbol().equals(_account.getAccountDefaultCurrency())) {
+                        if (primaryAmount.getCurrencySymbol().equals(_account.getCoinType().getSymbol())) {
                             if (primaryAmount.getCurrencySymbol().equals("BTC") || _mbwManager.getColuManager().isColuAsset(primaryAmount.getCurrencySymbol())) {
                                 // if the accounts default currency is BTC and the user entered BTC, use the current
                                 // selected fiat as alternative currency
@@ -1538,10 +1539,11 @@ public class SendMainActivity extends Activity {
 
                     // check again if the payment request isn't expired, as signing might have taken some time
                     // (e.g. with external signature provider)
-                    if (!_paymentRequestHandler.getPaymentRequestInformation().isExpired()) {
+                    if (!_paymentRequestHandler.getPaymentRequestInformation().isExpired() && _account.getReceivingAddress().isPresent()) {
                         // first send signed tx directly to the Merchant, and broadcast
                         // it only if we get a ACK from him (in paymentRequestAck)
-                        _paymentRequestHandler.sendResponse(_signedTransaction, _account.getReceivingAddress().get());
+
+                        _paymentRequestHandler.sendResponse(_signedTransaction, (Address) _account.getReceivingAddress().get());
                     } else {
                         makeText(this, getString(R.string.payment_request_not_sent_expired), LENGTH_LONG).show();
 
