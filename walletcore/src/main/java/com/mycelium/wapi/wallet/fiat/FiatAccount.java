@@ -1,5 +1,6 @@
 package com.mycelium.wapi.wallet.fiat;
 
+import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.GenericTransaction;
@@ -114,6 +115,16 @@ public class FiatAccount implements WalletAccount<FiatTransaction, FiatAddress> 
 
     @Override
     public boolean isSynchronizing() {
+        return false;
+    }
+
+    @Override
+    public boolean broadcastOutgoingTransactions() {
+        return false;
+    }
+
+    @Override
+    public boolean isMine(Address address) {
         return false;
     }
 

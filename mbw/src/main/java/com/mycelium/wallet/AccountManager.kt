@@ -9,6 +9,7 @@ import com.mycelium.wallet.event.AccountListChanged
 import com.mycelium.wallet.event.ExtraAccountsChanged
 import com.mycelium.wallet.event.SelectedAccountChanged
 import com.mycelium.wapi.wallet.AccountProvider
+import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount.Type
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount.Type.*
@@ -100,10 +101,10 @@ object AccountManager : AccountProvider {
 
     override fun hasAccount(uuid: UUID?): Boolean = accounts.containsKey(uuid)
 
-    private fun HashMap<UUID, WalletBtcAccount>.putAll(from: List<WalletBtcAccount>) {
+    private fun HashMap<UUID, WalletBtcAccount>.putAll(from: List<WalletAccount<*,*>>) {
         val result: MutableMap<UUID, WalletBtcAccount> = mutableMapOf()
         for (walletAccount in from) {
-            result[walletAccount.id] = walletAccount
+            result[walletAccount.id] = walletAccount as WalletBtcAccount
         }
         putAll(result)
     }

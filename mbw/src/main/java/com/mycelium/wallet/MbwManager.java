@@ -631,12 +631,12 @@ public class MbwManager {
     public void importLabelsToBch(WalletManager walletManager) {
         if (getSpvBchFetcher() == null)
             return;
-        List<WalletBtcAccount> accounts = new ArrayList<>();
+        List<WalletAccount> accounts = new ArrayList<>();
         accounts.addAll(walletManager.getActiveAccounts());
         accounts.addAll(walletManager.getArchivedAccounts());
-        for (WalletBtcAccount walletAccount : accounts) {
-            if (walletAccount.getType() == WalletBtcAccount.Type.BTCSINGLEADDRESS
-                    || walletAccount.getType() == WalletBtcAccount.Type.BTCBIP44) {
+        for (WalletAccount walletAccount : accounts) {
+            if (walletAccount instanceof HDAccount
+                    || walletAccount instanceof SingleAddressAccount) {
                 UUID bchId = getBitcoinCashAccountId(walletAccount);
                 String bchLabel = getMetadataStorage().getLabelByAccount(bchId);
                 if (bchLabel == null || bchLabel.isEmpty()) {
@@ -646,7 +646,7 @@ public class MbwManager {
         }
     }
 
-   public static UUID getBitcoinCashAccountId(WalletBtcAccount walletAccount) {
+   public static UUID getBitcoinCashAccountId(WalletAccount walletAccount) {
       return UUID.nameUUIDFromBytes(("BCH" + walletAccount.getId().toString()).getBytes());
    }
 
@@ -1164,7 +1164,7 @@ public class MbwManager {
                 // We had a bug that allowed it, and the app will crash always after restart.
                 _walletManager.activateFirstAccount();
             }
-            uuid = _walletManager.getActiveAccounts(WalletBtcAccount.Type.BTCBIP44).get(0).getId();
+            uuid = _walletManager.getActiveHDAccounts().get(0).getId();
             setSelectedAccount(uuid);
         }
 

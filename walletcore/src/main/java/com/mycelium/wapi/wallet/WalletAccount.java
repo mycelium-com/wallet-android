@@ -1,5 +1,6 @@
 package com.mycelium.wapi.wallet;
 
+import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.CoinType;
@@ -134,4 +135,8 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
      * Returns true, if this account is currently in process of synchronization.
      */
     boolean isSynchronizing();
+
+    boolean broadcastOutgoingTransactions();
+
+    boolean isMine(Address address);
 }

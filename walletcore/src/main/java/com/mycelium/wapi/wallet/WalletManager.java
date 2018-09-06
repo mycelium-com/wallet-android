@@ -79,10 +79,10 @@ public class WalletManager {
     public AccountScanManager accountScanManager;
     private final Set<AccountProvider> _extraAccountProviders = new HashSet<>();
     private final Set<String> _extraAccountsCurrencies = new HashSet<>();
-    private final Map<UUID, WalletBtcAccount> _extraAccounts = new HashMap<>();
+    private final Map<UUID, WalletAccount> _extraAccounts = new HashMap<>();
     private final SecureKeyValueStore _secureKeyValueStore;
     private WalletManagerBacking _backing;
-    private final Map<UUID, WalletBtcAccount> _walletAccounts;
+    private final Map<UUID, WalletAccount> _walletAccounts;
     private final Map<UUID, UUID> _btcToBchAccounts;
     private final List<HDAccount> HDAccounts;
     private final Collection<Observer> _observers;
@@ -421,7 +421,7 @@ public class WalletManager {
      */
     public void deleteUnrelatedAccount(UUID id, KeyCipher cipher) throws InvalidKeyCipher {
         synchronized (_walletAccounts) {
-            WalletBtcAccount account = _walletAccounts.get(id);
+            WalletAccount account = _walletAccounts.get(id);
             if (account instanceof AbstractBtcAccount) {
                 AbstractBtcAccount abstractAccount = (AbstractBtcAccount) account;
                 abstractAccount.setEventHandler(null);
@@ -472,7 +472,7 @@ public class WalletManager {
      */
     public List<UUID> getAccountIds() {
         List<UUID> list = new ArrayList<>(_walletAccounts.size() + _extraAccounts.size());
-        for (WalletBtcAccount account : getAllAccounts()) {
+        for (WalletAccount account : getAllAccounts()) {
             list.add(account.getId());
         }
         return list;
@@ -483,8 +483,13 @@ public class WalletManager {
      *
      * @return the active accounts managed by the wallet manager
      */
+    // need to rewrite later
     public List<WalletBtcAccount> getActiveAccounts() {
-        return filterAndConvert(not(IS_ARCHIVE));
+        List<WalletBtcAccount> result = new ArrayList<>();
+         for(WalletAccount account :filterAndConvert(not(IS_ARCHIVE))){
+             result.add((WalletBtcAccount) account);
+         }
+         return result;
     }
 
     /**
@@ -492,7 +497,8 @@ public class WalletManager {
      *
      * @return the list of accounts
      */
-    public List<WalletBtcAccount> getActiveMasterseedAccounts() {
+
+    public List<WalletAccount> getActiveMasterseedAccounts() {
         return filterAndConvert(and(MAIN_SEED_HD_ACCOUNT, not(IS_ARCHIVE)));
     }
     /**
@@ -500,11 +506,11 @@ public class WalletManager {
      *
      * @return the list of accounts
      */
-    public List<WalletBtcAccount> getActiveAccounts(final WalletBtcAccount.Type type) {
-        return filterAndConvert(and(new Predicate<WalletBtcAccount>() {
+    public List<WalletAccount> getActiveHDAccounts() {
+        return filterAndConvert(and(new Predicate<WalletAccount>() {
             @Override
-            public boolean apply(WalletBtcAccount input) {
-                return input.getType() == type;
+            public boolean apply(WalletAccount input) {
+                return input instanceof HDAccount;
             }
         }, not(IS_ARCHIVE)));
     }
@@ -514,16 +520,17 @@ public class WalletManager {
      *
      * @return the list of accounts
      */
-    public List<WalletBtcAccount> getActiveOtherAccounts() {
-        return filterAndConvert(not(or(MAIN_SEED_HD_ACCOUNT, IS_ARCHIVE)));
-    }
+    //unused method, rewrite later
+//    public List<WalletBtcAccount> getActiveOtherAccounts() {
+//        return filterAndConvert(not(or(MAIN_SEED_HD_ACCOUNT, IS_ARCHIVE)));
+//    }
 
     /**
      * Get archived accounts managed by the wallet manager
      *
      * @return the archived accounts managed by the wallet manager
      */
-    public List<WalletBtcAccount> getArchivedAccounts() {
+    public List<WalletAccount> getArchivedAccounts() {
         return filterAndConvert(IS_ARCHIVE);
     }
 
@@ -532,7 +539,7 @@ public class WalletManager {
      *
      * @return the list of accounts
      */
-    public List<WalletBtcAccount> getSpendingAccounts() {
+    public List<WalletAccount> getSpendingAccounts() {
         return filterAndConvert(ACTIVE_CAN_SPEND);
     }
 
@@ -541,11 +548,11 @@ public class WalletManager {
      *
      * @return the list of accounts
      */
-    public List<WalletBtcAccount> getSpendingAccountsWithBalance() {
+    public List<WalletAccount> getSpendingAccountsWithBalance() {
         return filterAndConvert(and(ACTIVE_CAN_SPEND, HAS_BALANCE));
     }
 
-    private List<WalletBtcAccount> filterAndConvert(Predicate<WalletBtcAccount> filter) {
+    private List<WalletAccount> filterAndConvert(Predicate<WalletAccount> filter) {
         return Lists.newArrayList(Iterables.filter(getAllAccounts(), filter));
     }
 
@@ -566,11 +573,11 @@ public class WalletManager {
      * @return a wallet account
      */
     public WalletBtcAccount getAccount(UUID id) {
-        WalletBtcAccount normalAccount = _walletAccounts.get(id);
+        WalletAccount normalAccount = _walletAccounts.get(id);
         if (normalAccount == null) {
             normalAccount = _extraAccounts.get(id);
         }
-        return normalAccount;
+        return (WalletBtcAccount) normalAccount;
     }
 
     /**
@@ -702,7 +709,7 @@ public class WalletManager {
      * @return the first account UUID if found.
      */
     public synchronized Optional<UUID> getAccountByAddress(Address address) {
-        for (WalletBtcAccount account : getAllAccounts()) {
+        for (WalletAccount account : getAllAccounts()) {
             if (account.isMine(address)) {
                 return Optional.of(account.getId());
             }
@@ -718,7 +725,7 @@ public class WalletManager {
      */
     public synchronized boolean hasPrivateKeyForAddress(Address address) {
         // don't use getAccountByAddress here, as we might have the same address in an pub-only account and a normal account too
-        for (WalletBtcAccount account : getAllAccounts()) {
+        for (WalletAccount account : getAllAccounts()) {
             if (account.canSpend() && account.isMine(address)) {
                 return true;
             }
@@ -978,7 +985,7 @@ public class WalletManager {
         }
 
         private boolean broadcastOutgoingTransactions() {
-            for (WalletBtcAccount account : getAllAccounts()) {
+            for (WalletAccount account : getAllAccounts()) {
                 if (account.isArchived()) {
                     continue;
                 }
@@ -1007,7 +1014,7 @@ public class WalletManager {
                     _spvBalanceFetcher.requestTransactionsFromUnrelatedAccountAsync(currentAccount.getId().toString(), /* IntentContract.UNRELATED_ACCOUNT_TYPE_SA */ 2);
                 }
 
-                for (WalletBtcAccount account : getAllAccounts()) {
+                for (WalletAccount account : getAllAccounts()) {
                     if (account instanceof HDAccount) {
                         //_transactionFetcher.getTransactions(((HDAccount) account).getAccountIndex());
                     } else {
@@ -1027,7 +1034,7 @@ public class WalletManager {
                     return currentAccount.synchronize(syncMode);
                 }
             } else {
-                for (WalletBtcAccount account : getAllAccounts()) {
+                for (WalletAccount account : getAllAccounts()) {
                     if (account.isArchived() || account instanceof Bip44BCHAccount || account instanceof SingleAddressBCHAccount) {
                         continue;
                     }
@@ -1042,10 +1049,10 @@ public class WalletManager {
         }
     }
 
-    private Iterable<WalletBtcAccount> getAllAccounts() {
+    private Iterable<WalletAccount> getAllAccounts() {
         //New collection should be created to prevent concurrent modification of iterator
-        Map<UUID, WalletBtcAccount> walletAccounts = new HashMap<>(_walletAccounts);
-        Map<UUID, WalletBtcAccount> extraAccounts = new HashMap<>(_extraAccounts);
+        Map<UUID, WalletAccount> walletAccounts = new HashMap<>(_walletAccounts);
+        Map<UUID, WalletAccount> extraAccounts = new HashMap<>(_extraAccounts);
         return Iterables.concat(walletAccounts.values(), extraAccounts.values());
     }
 
@@ -1111,42 +1118,42 @@ public class WalletManager {
         _secureKeyValueStore.encryptAndStoreValue(MASTER_SEED_ID, masterSeed.toBytes(false), cipher);
     }
 
-    private static final Predicate<WalletBtcAccount> IS_ARCHIVE = new Predicate<WalletBtcAccount>() {
+    private static final Predicate<WalletAccount> IS_ARCHIVE = new Predicate<WalletAccount>() {
         @Override
-        public boolean apply(WalletBtcAccount input) {
+        public boolean apply(WalletAccount input) {
             return input.isArchived();
         }
     };
 
-    private static final Predicate<WalletBtcAccount> ACTIVE_CAN_SPEND = new Predicate<WalletBtcAccount>() {
+    private static final Predicate<WalletAccount> ACTIVE_CAN_SPEND = new Predicate<WalletAccount>() {
         @Override
-        public boolean apply(WalletBtcAccount input) {
+        public boolean apply(WalletAccount input) {
             return input.isActive() && input.canSpend();
         }
     };
 
-    private static final Predicate<WalletBtcAccount> MAIN_SEED_HD_ACCOUNT = new Predicate<WalletBtcAccount>() {
+    private static final Predicate<WalletAccount> MAIN_SEED_HD_ACCOUNT = new Predicate<WalletAccount>() {
         @Override
-        public boolean apply(WalletBtcAccount input) {
+        public boolean apply(WalletAccount input) {
             // TODO: if relevant also check if this account is derived from the main-masterseed
             return input instanceof HDAccount &&
                    input.isDerivedFromInternalMasterseed();
         }
     };
 
-    private static final Predicate<WalletBtcAccount> MAIN_SEED_BTC_HD_ACCOUNT = new Predicate<WalletBtcAccount>() {
+    private static final Predicate<WalletAccount> MAIN_SEED_BTC_HD_ACCOUNT = new Predicate<WalletAccount>() {
         @Override
-        public boolean apply(WalletBtcAccount input) {
+        public boolean apply(WalletAccount input) {
             // TODO: if relevant also check if this account is derived from the main-masterseed
-            return input.getType() == WalletBtcAccount.Type.BTCBIP44 &&
+            return ((WalletBtcAccount)input).getType() == WalletBtcAccount.Type.BTCBIP44 &&
                    input.isDerivedFromInternalMasterseed();
         }
     };
 
-    private static final Predicate<WalletBtcAccount> HAS_BALANCE = new Predicate<WalletBtcAccount>() {
+    private static final Predicate<WalletAccount> HAS_BALANCE = new Predicate<WalletAccount>() {
         @Override
-        public boolean apply(WalletBtcAccount input) {
-            return input.getBalance().getSpendableBalance() > 0;
+        public boolean apply(WalletAccount input) {
+            return input.canSpend();
         }
     };
 

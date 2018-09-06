@@ -104,6 +104,7 @@ import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.ExportableAccount;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SyncMode;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
@@ -1175,8 +1176,8 @@ public class AccountsFragment extends Fragment {
          return false;
       }
       int count = 0;
-      for (WalletBtcAccount account : _mbwManager.getWalletManager(false).
-              getActiveAccounts(WalletBtcAccount.Type.BTCBIP44)) {
+      for (WalletAccount account : _mbwManager.getWalletManager(false).
+              getActiveHDAccounts()) {
          if (((HDAccount) account).getAccountType() == HDAccountContext.ACCOUNT_TYPE_FROM_MASTERSEED) {
             count++;
          }

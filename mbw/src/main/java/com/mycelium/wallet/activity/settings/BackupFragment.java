@@ -12,6 +12,7 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.export.VerifyBackupActivity;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 
@@ -110,13 +111,13 @@ public class BackupFragment extends PreferenceFragmentCompat {
 
     @SuppressWarnings("deprecation")
     private void showOrHideLegacyBackup() {
-        List<WalletBtcAccount> accounts = _mbwManager.getWalletManager(false).getSpendingAccounts();
+        List<WalletAccount> accounts = _mbwManager.getWalletManager(false).getSpendingAccounts();
         Preference legacyPref = findPreference("legacyBackup");
         if (legacyPref == null) {
             return; // it was already removed, don't remove it again.
         }
 
-        for (WalletBtcAccount account : accounts) {
+        for (WalletAccount account : accounts) {
             if (account instanceof SingleAddressAccount) {
                 return; //we have a single address account with priv key, so its fine to show the setting
             }

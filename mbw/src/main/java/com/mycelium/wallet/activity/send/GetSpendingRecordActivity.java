@@ -56,6 +56,7 @@ import com.mycelium.wallet.activity.modern.RecordRowBuilder;
 import com.mycelium.wallet.activity.modern.adapter.holder.AccountViewHolder;
 import com.mycelium.wallet.activity.modern.model.ViewAccountModel;
 import com.mycelium.wallet.persistence.MetadataStorage;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 import java.util.ArrayList;
@@ -160,13 +161,13 @@ public class GetSpendingRecordActivity extends Activity {
       View warningNoSpendingAccounts = findViewById(R.id.tvNoSpendingAccounts);
       MetadataStorage storage = _mbwManager.getMetadataStorage();
       //get accounts with key and positive balance
-      List<WalletBtcAccount> spendingAccounts = _mbwManager.getWalletManager(false).getSpendingAccountsWithBalance();
+      List<WalletAccount> spendingAccounts = _mbwManager.getWalletManager(false).getSpendingAccountsWithBalance();
       if (spendingAccounts.isEmpty()) {
          //if we dont have any account with a balance, just show all accounts with priv key
          spendingAccounts = _mbwManager.getWalletManager(false).getSpendingAccounts();
       }
-      ArrayList<WalletBtcAccount> result = new ArrayList<>();
-      for (WalletBtcAccount spendingAccount : spendingAccounts) {
+      ArrayList<WalletAccount> result = new ArrayList<>();
+      for (WalletAccount spendingAccount : spendingAccounts) {
          if(Utils.isBtc(spendingAccount.getAccountBalance().confirmed)) {
             result.add(spendingAccount);
          }
@@ -178,7 +179,12 @@ public class GetSpendingRecordActivity extends Activity {
          listView.setVisibility(View.GONE);
          warningNoSpendingAccounts.setVisibility(View.VISIBLE);
       } else {
-         List<ViewAccountModel> list = builder.convertList(Utils.sortAccounts(spendingAccounts, storage));
+         //remove it later
+         List<WalletBtcAccount> spendingAccountsBtc = new ArrayList<>();
+         for(WalletAccount account : spendingAccounts){
+            spendingAccountsBtc.add((WalletBtcAccount) account);
+         }
+         List<ViewAccountModel> list = builder.convertList(Utils.sortAccounts(spendingAccountsBtc, storage));
          accountsAdapter = new AccountsAdapter(this, list);
          listView.setAdapter(accountsAdapter);
          listView.setVisibility(View.VISIBLE);

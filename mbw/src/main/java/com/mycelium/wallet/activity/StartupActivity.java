@@ -74,6 +74,7 @@ import com.mycelium.wallet.external.glidera.activities.GlideraSendToNextStep;
 import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
@@ -429,7 +430,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
 
          MbwManager mbwManager = MbwManager.getInstance(StartupActivity.this.getApplication());
 
-         List<WalletBtcAccount> spendingAccounts = mbwManager.getWalletManager(false).getSpendingAccountsWithBalance();
+         List<WalletAccount> spendingAccounts = mbwManager.getWalletManager(false).getSpendingAccountsWithBalance();
          if (spendingAccounts.isEmpty()) {
             //if we dont have an account which can spend and has a balance, we fetch all accounts with priv keys
             spendingAccounts = mbwManager.getWalletManager(false).getSpendingAccounts();
@@ -511,7 +512,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
             return;
          }
 
-         List<WalletBtcAccount> spendingAccounts = mbwManager.getWalletManager(false).getSpendingAccountsWithBalance();
+         List<WalletAccount> spendingAccounts = mbwManager.getWalletManager(false).getSpendingAccountsWithBalance();
          if (spendingAccounts.isEmpty()) {
             //if we dont have an account which can spend and has a balance, we fetch all accounts with priv keys
             spendingAccounts = mbwManager.getWalletManager(false).getSpendingAccounts();
