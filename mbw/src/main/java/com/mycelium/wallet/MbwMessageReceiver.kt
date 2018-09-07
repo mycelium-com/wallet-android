@@ -18,16 +18,11 @@ import com.mycelium.wallet.WalletApplication.getSpvModuleName
 import com.mycelium.wallet.activity.modern.ModernMain
 import com.mycelium.wallet.event.SpvSendFundsResult
 import com.mycelium.wallet.event.SpvSyncChanged
-import com.mycelium.wapi.wallet.AesKeyCipher
-import com.mycelium.wapi.wallet.ExportableAccount
-import com.mycelium.wapi.wallet.WalletAccount
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount
+import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount.Type.BCHBIP44
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount.Type.BCHSINGLEADDRESS
-import com.mycelium.wapi.wallet.WalletManager
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount
-import com.mycelium.wapi.wallet.currency.CurrencyValue
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
 import com.mycelium.wapi.wallet.coins.Value
 import com.squareup.otto.Bus
@@ -41,7 +36,6 @@ import org.bitcoinj.signers.TransactionSigner
 import org.bitcoinj.wallet.FreeStandingTransactionOutput
 import org.bitcoinj.wallet.KeyChainGroup
 import java.io.ByteArrayInputStream
-import java.math.BigDecimal
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -183,7 +177,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
 
                 when(accountType) {
                     IntentContract.UNRELATED_ACCOUNT_TYPE_HD -> {
-                        val account: WalletBtcAccount =_mbwManager.getWalletManager(false).getAccount(UUID.fromString(accountGuid))
+                        val account: WalletAccount<out GenericTransaction, out GenericAddress> =_mbwManager.getWalletManager(false).getAccount(UUID.fromString(accountGuid))
                             //This is a way to not to pass information that this is a cold storage to BCH module and back
                             ?: _mbwManager.getWalletManager(true).getAccount(UUID.fromString(accountGuid))
 
