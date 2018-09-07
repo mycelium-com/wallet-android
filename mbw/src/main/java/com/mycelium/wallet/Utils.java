@@ -98,13 +98,11 @@ import com.mycelium.wapi.wallet.ExportableAccount;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
 import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
-import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.currency.BitcoinValue;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
@@ -755,7 +753,7 @@ public class Utils {
    }
 
    public static void exportSelectedAccount(final Activity parent) {
-      final WalletBtcAccount account = MbwManager.getInstance(parent).getSelectedAccount();
+      final WalletAccount account = MbwManager.getInstance(parent).getSelectedAccount();
       if (!(account instanceof ExportableAccount)) {
          return;
       }
@@ -936,7 +934,7 @@ public class Utils {
       return resources.getDrawable(R.drawable.singlekey_grey);
    }
 
-   public static String getNameForNewAccount(WalletBtcAccount account, Context context) {
+   public static String getNameForNewAccount(WalletAccount account, Context context) {
       if (account instanceof HDAccountExternalSignature) {
          String baseName;
          int accountType = ((HDAccountExternalSignature) account).getAccountType();
@@ -957,11 +955,11 @@ public class Utils {
       }
    }
 
-   public static boolean isAllowedForLocalTrader(WalletBtcAccount account) {
+   public static boolean isAllowedForLocalTrader(WalletAccount account) {
       if (account instanceof CoinapultAccount
-              || account.getType() == WalletBtcAccount.Type.BCHBIP44
-              || account.getType() == WalletBtcAccount.Type.BCHSINGLEADDRESS
-              || account.getType() == WalletBtcAccount.Type.COLU) {
+              || account instanceof Bip44BCHAccount
+              || account instanceof SingleAddressBCHAccount
+              || account instanceof ColuAccount) {
          return false; //we do not support coinapult accs in lt (yet)
       }
       if (!account.getReceivingAddress().isPresent()) {

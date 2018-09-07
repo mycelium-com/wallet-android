@@ -112,7 +112,7 @@ public class CreateTrader2Activity extends Activity {
       List<String> choices = new LinkedList<String>();
       WalletManager walletManager = _mbwManager.getWalletManager(false);
       for (UUID accountId : walletManager.getAccountIds()) {
-         WalletBtcAccount account = walletManager.getAccount(accountId);
+         WalletAccount account = walletManager.getAccount(accountId);
          if (!account.canSpend()) {
             continue;
          }
@@ -145,7 +145,7 @@ public class CreateTrader2Activity extends Activity {
       _btUse.setEnabled(_spAddress.getSelectedItemPosition() != Spinner.INVALID_POSITION);
    }
 
-   private String createDefaultName(WalletBtcAccount account) {
+   private String createDefaultName(WalletAccount account) {
       if (account instanceof SingleAddressAccount) {
          Address address = ((SingleAddressAccount) account).getAddress();
          String addressString = address.toString();

@@ -231,13 +231,13 @@ public class AccountsFragment extends Fragment {
          if (accountid != null) {
             //check whether the account is active - we might have scanned the priv key for an archived watchonly
             WalletManager walletManager = _mbwManager.getWalletManager(false);
-            WalletBtcAccount account = walletManager.getAccount(accountid);
+            WalletAccount account = walletManager.getAccount(accountid);
             if (account.isActive()) {
                _mbwManager.setSelectedAccount(accountid);
             }
             accountListAdapter.setFocusedAccountId(account.getId());
             updateIncludingMenus();
-            if (account.getType() != WalletBtcAccount.Type.COLU && !intent.getBooleanExtra(AddAccountActivity.IS_UPGRADE, false)) {
+            if (account instanceof ColuAccount && !intent.getBooleanExtra(AddAccountActivity.IS_UPGRADE, false)) {
                setNameForNewAccount(account);
             }
             eventBus.post(new ExtraAccountsChanged());
@@ -535,7 +535,7 @@ public class AccountsFragment extends Fragment {
       }
    }
 
-   private void setNameForNewAccount(WalletBtcAccount account) {
+   private void setNameForNewAccount(WalletAccount account) {
       if (account == null || !isAdded()) {
          return;
       }
@@ -984,7 +984,7 @@ public class AccountsFragment extends Fragment {
       return super.onOptionsItemSelected(item);
    }
 
-   private void setLabelOnAccount(final WalletBtcAccount account, final String defaultName, boolean askForPin) {
+   private void setLabelOnAccount(final WalletAccount account, final String defaultName, boolean askForPin) {
       if (!AccountsFragment.this.isAdded()) {
          return;
       }
