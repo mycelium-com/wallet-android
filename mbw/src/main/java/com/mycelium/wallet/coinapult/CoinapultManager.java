@@ -19,6 +19,7 @@ import com.mycelium.wallet.event.ExtraAccountsChanged;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AccountProvider;
 import com.mycelium.wapi.wallet.SyncMode;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.squareup.otto.Bus;
 
@@ -193,8 +194,8 @@ public class CoinapultManager implements AccountProvider {
 
 
    @Override
-   public Map<UUID, WalletBtcAccount> getAccounts() {
-      return ImmutableMap.<UUID, WalletBtcAccount>copyOf(coinapultAccounts);
+   public Map<UUID, WalletAccount> getAccounts() {
+      return ImmutableMap.<UUID, WalletAccount>copyOf(coinapultAccounts);
    }
 
    @Override

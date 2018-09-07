@@ -135,10 +135,10 @@ public class WalletManager {
         _extraAccounts.clear();
         _extraAccountsCurrencies.clear();
         for (AccountProvider accounts : _extraAccountProviders) {
-            for (WalletBtcAccount account : accounts.getAccounts().values()) {
+            for (WalletAccount account : accounts.getAccounts().values()) {
                 if (!_extraAccounts.containsKey(account.getId())) {
                     _extraAccounts.put(account.getId(), account);
-                    _extraAccountsCurrencies.add(account.getAccountDefaultCurrency());
+                    _extraAccountsCurrencies.add(account.getCoinType().getSymbol());
                 }
             }
         }

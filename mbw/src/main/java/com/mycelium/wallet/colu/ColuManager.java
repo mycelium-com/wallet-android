@@ -44,7 +44,6 @@ import com.mycelium.wapi.api.response.QueryUnspentOutputsResponse;
 import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
@@ -84,7 +83,7 @@ public class ColuManager implements AccountProvider {
     private final Bus eventBus;
     private final Handler handler;
     private final ColuClient coluClient;
-    private final Map<UUID, WalletBtcAccount> _walletAccounts;
+    private final Map<UUID, WalletAccount> _walletAccounts;
     private final MetadataStorage metadataStorage;
     private SqliteColuManagerBacking _backing;
     private final HashMap<UUID, ColuAccount> coluAccounts;
@@ -191,7 +190,7 @@ public class ColuManager implements AccountProvider {
     }
 
     public boolean hasAccountWithType(Address address, ColuAccount.ColuAssetType type) {
-        for (WalletBtcAccount account : getAccounts().values()) {
+        for (WalletAccount account : getAccounts().values()) {
             if (account instanceof ColuAccount
                     && ((ColuAccount) account).getColuAsset().assetType == type
                     && ((ColuAccount) account).getAddress().equals(address)) {
@@ -646,8 +645,8 @@ public class ColuManager implements AccountProvider {
 
     // getAccounts is called by WalletManager
     @Override
-    public Map<UUID, WalletBtcAccount> getAccounts() {
-        Map<UUID, WalletBtcAccount> allAccounts = new HashMap<>();
+    public Map<UUID, WalletAccount> getAccounts() {
+        Map<UUID, WalletAccount> allAccounts = new HashMap<>();
         allAccounts.putAll(coluAccounts);
 
         for (ColuAccount coluAccount : coluAccounts.values()) {
@@ -668,7 +667,7 @@ public class ColuManager implements AccountProvider {
     public void scanForAccounts(SyncMode mode) {
         // We run Colu synchronization if we need to sync all accounts or the only active account
         // should be synced and it has COLU type
-        if (mode.onlyActiveAccount && mgr.getSelectedAccount().getType() != WalletBtcAccount.Type.COLU) {
+        if (mode.onlyActiveAccount && mgr.getSelectedAccount() instanceof ColuAccount) {
             return;
         }
 

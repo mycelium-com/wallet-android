@@ -40,9 +40,9 @@ import java.util.*;
 
 public interface AccountProvider {
 
-   Map<UUID, WalletBtcAccount> getAccounts();
+   Map<UUID, WalletAccount> getAccounts();
 
-   WalletBtcAccount getAccount(UUID id);
+   WalletAccount getAccount(UUID id);
 
    boolean hasAccount(UUID uuid);
 

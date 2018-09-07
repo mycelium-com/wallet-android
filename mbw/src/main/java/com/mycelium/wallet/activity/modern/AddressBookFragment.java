@@ -165,7 +165,10 @@ public class AddressBookFragment extends Fragment {
 
    private void updateUiMine() {
       List<Entry> entries = new ArrayList<>();
-      List<WalletBtcAccount> activeAccounts = AccountManager.INSTANCE.getActiveAccounts().values().asList();
+      List<WalletAccount> activeAccounts = new ArrayList<>();
+      for(WalletAccount account : AccountManager.INSTANCE.getActiveAccounts().values().asList()){
+         activeAccounts.add(account);
+      }
       List<WalletAccount> activeAccountsGeneric = new ArrayList<>();
 
       for(WalletAccount account : activeAccounts){

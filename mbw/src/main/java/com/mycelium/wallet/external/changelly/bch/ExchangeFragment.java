@@ -174,8 +174,18 @@ public class ExchangeFragment extends Fragment {
         toRecyclerView.setAdapter(toAccountAdapter);
 
         List<WalletAccount> fromAccounts = new ArrayList<>();
-        fromAccounts.addAll(filterAccount(AccountManager.INSTANCE.getBCHBip44Accounts().values()));
-        fromAccounts.addAll(filterAccount(AccountManager.INSTANCE.getBCHSingleAddressAccounts().values()));
+        for (WalletAccount walletAccount : AccountManager.INSTANCE.getBCHBip44Accounts().values()) {
+            if (walletAccount.canSpend() && !walletAccount.getAccountBalance().confirmed.isZero()) {
+                fromAccounts.add(walletAccount);
+            }
+        }
+
+        for (WalletAccount walletAccount : AccountManager.INSTANCE.getBCHSingleAddressAccounts().values()) {
+            if (walletAccount.canSpend() && !walletAccount.getAccountBalance().confirmed.isZero()) {
+                fromAccounts.add(walletAccount);
+            }
+        }
+
         if (fromAccounts.isEmpty()) {
             toast(getString(R.string.no_spendable_accounts));
             getActivity().finish();
@@ -228,16 +238,6 @@ public class ExchangeFragment extends Fragment {
 
     private void stopCursor(final TextView textView) {
         textView.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
-    }
-
-    private List<WalletBtcAccount> filterAccount(Collection<WalletBtcAccount> accounts) {
-        List<WalletBtcAccount> result = new ArrayList<>();
-        for (WalletBtcAccount walletAccount : accounts) {
-            if (walletAccount.canSpend() && !walletAccount.getAccountBalance().confirmed.isZero()) {
-                result.add(walletAccount);
-            }
-        }
-        return result;
     }
 
     @Override
