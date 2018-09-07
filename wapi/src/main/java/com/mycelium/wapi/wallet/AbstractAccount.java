@@ -85,6 +85,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import static com.mrd.bitlib.StandardTransactionBuilder.createOutput;
 import static com.mrd.bitlib.StandardTransactionBuilder.estimateTransactionSize;
@@ -250,7 +251,23 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
             // we need to fetch associated transactions, to see the outgoing tx in the history
             ScriptOutput scriptOutput = ScriptOutput.fromScriptBytes(l.script);
             boolean removeLocally = true;
-            if (scriptOutput != null) {
+
+            // Start of the hack to prevent actual local data removal if server still didn't process just sent tx
+            youngTransactions:
+            for (TransactionEx transactionEx : _backing.getTransactionsSince(System.currentTimeMillis() -
+                    TimeUnit.SECONDS.toMillis(15))) {
+                TransactionOutputEx output;
+                int i = 0;
+                while ((output = TransactionEx.getTransactionOutput(transactionEx, i++)) != null) {
+                   if (output.equals(l) && !_backing.hasParentTransactionOutput(l.outPoint)) {
+                      removeLocally = false;
+                      break youngTransactions;
+                   }
+                }
+            }
+            // End of hack
+
+            if (scriptOutput != null && removeLocally) {
                Address address = scriptOutput.getAddress(_network);
                if (addresses.contains(address)) {
                   // the output was associated with an address we were scanning for

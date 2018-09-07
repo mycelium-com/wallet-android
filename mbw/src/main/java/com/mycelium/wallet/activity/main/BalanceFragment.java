@@ -152,7 +152,6 @@ public class BalanceFragment extends Fragment {
          } else {
             item = source + " (" + price + ")";
          }
-
          sourcesAndValues.put(item, source);
          exchangeMenu.getMenu().add(item);
       }
