@@ -49,12 +49,11 @@ import com.mrd.bitlib.model.hdpath.HdKeyPath;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wapi.model.BalanceSatoshis;
 import com.mycelium.wapi.wallet.AccountScanManager;
 import com.mycelium.wallet.activity.util.MasterseedPasswordSetter;
 import com.mycelium.wallet.activity.util.AbstractAccountScanManager;
 import com.mycelium.wapi.wallet.SyncMode;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
@@ -242,7 +241,7 @@ public abstract class HdAccountSelectorActivity extends Activity implements Mast
 
          HdAccountWrapper account = getItem(position);
          ((TextView)row.findViewById(R.id.tvLabel)).setText(account.name);
-         WalletBtcAccount walletAccount = MbwManager.getInstance(getContext()).getWalletManager(true).getAccount(account.id);
+         WalletAccount walletAccount = MbwManager.getInstance(getContext()).getWalletManager(true).getAccount(account.id);
          Balance balance = walletAccount.getAccountBalance();
          String balanceString = MbwManager.getInstance(getContext()).getBtcValueString(balance.confirmed.add(balance.pendingChange).value);
 

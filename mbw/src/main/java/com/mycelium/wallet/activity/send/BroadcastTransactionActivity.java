@@ -61,7 +61,7 @@ import java.util.UUID;
 
 public class BroadcastTransactionActivity extends Activity {
    protected MbwManager _mbwManager;
-   protected WalletBtcAccount _account;
+   protected WalletAccount _account;
    protected boolean _isColdStorage;
    private String _transactionLabel;
    private Transaction _transaction;

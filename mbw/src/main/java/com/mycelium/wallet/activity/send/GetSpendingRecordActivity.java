@@ -145,7 +145,7 @@ public class GetSpendingRecordActivity extends Activity {
       @Override
       public void onItemClick(AdapterView<?> list, View v, int position, long id) {
          ViewAccountModel model = accountsAdapter.getItem(position);
-         WalletBtcAccount account = _mbwManager.getWalletManager(false).getAccount(model.accountId);
+         WalletAccount account = _mbwManager.getWalletManager(false).getAccount(model.accountId);
          callSendInitActivity(account);
          GetSpendingRecordActivity.this.finish();
       }

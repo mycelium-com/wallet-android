@@ -27,8 +27,7 @@ import com.mycelium.wallet.modularisation.BCHHelper.*
 import com.mycelium.wapi.model.IssuedKeysInfo
 import com.mycelium.wapi.model.TransactionDetails
 import com.mycelium.wapi.model.TransactionSummary
-import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal
-import com.mycelium.wapi.wallet.SpvBalanceFetcher
+import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
@@ -279,17 +278,17 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
         }
     }
 
-    override fun isAccountSynced(account: WalletBtcAccount?): Boolean {
+    override fun isAccountSynced(account: WalletAccount<out GenericTransaction, out GenericAddress>?): Boolean {
         val sharedPreferences = context.getSharedPreferences(BCH_PREFS, MODE_PRIVATE)
         return sharedPreferences.getBoolean(ALREADY_FOUND_ACCOUNT + account!!.id.toString(), false)
     }
 
-    override fun isAccountVisible(account: WalletBtcAccount?): Boolean {
+    override fun isAccountVisible(account: WalletAccount<out GenericTransaction, out GenericAddress>?): Boolean {
         val sharedPreferences = context.getSharedPreferences(BCH_PREFS, MODE_PRIVATE)
         return sharedPreferences.getBoolean(IS_ACCOUNT_VISIBLE + account!!.id.toString(), false)
     }
 
-    override fun setVisible(account: WalletBtcAccount?) {
+    override fun setVisible(account: WalletAccount<out GenericTransaction, out GenericAddress>?) {
         val sharedPreferences = context.getSharedPreferences(BCH_PREFS, MODE_PRIVATE)
         sharedPreferences.edit()
                 .putBoolean(IS_ACCOUNT_VISIBLE + account!!.id.toString(), true)

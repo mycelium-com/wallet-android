@@ -4,6 +4,7 @@ import com.google.common.base.Optional;
 import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionSummary;
@@ -37,6 +38,23 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
     void signTransaction(SendRequest<T> request) throws WalletAccountException;
 
     void broadcastTx(T tx) throws TransactionBroadcastException;
+
+    /**
+     * Broadcast a transaction
+     * @param transaction the transaction to broadcast
+     * @return the broadcast result
+     */
+    WalletBtcAccount.BroadcastResult broadcastTransaction(Transaction transaction);
+
+
+    /**
+     * Queue a transaction for broadcasting.
+     * <p/>
+     * The transaction is broadcast on next synchronization.
+     *
+     * @param transaction     an transaction
+     */
+    void queueTransaction(TransactionEx transaction);
 
     CoinType getCoinType();
 

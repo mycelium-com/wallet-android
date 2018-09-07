@@ -8,6 +8,7 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.modern.model.accounts.AccountViewModel;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
@@ -37,7 +38,7 @@ public class ViewAccountModel {
     public ViewAccountModel(AccountViewModel viewModel, Context context) {
         accountId = viewModel.getAccountId();
         accountType = viewModel.getAccountType();
-        final WalletBtcAccount account = MbwManager.getInstance(context).getWalletManager(false).getAccount(accountId);
+        final WalletAccount account = MbwManager.getInstance(context).getWalletManager(false).getAccount(accountId);
         if (account instanceof HDPubOnlyAccount && account.isActive()) {
             int numKeys = ((HDAccount) account).getPrivateKeyCount();
             if (numKeys > 1) {

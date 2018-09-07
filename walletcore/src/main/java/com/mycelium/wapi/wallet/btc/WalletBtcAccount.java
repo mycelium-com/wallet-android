@@ -152,26 +152,6 @@ public interface WalletBtcAccount extends WalletAccount<BtcTransaction, BtcAddre
 
    boolean broadcastOutgoingTransactions();
 
-   /**
-    * Broadcast a transaction
-    * @param transaction the transaction to broadcast
-    * @return the broadcast result
-    */
-   BroadcastResult broadcastTransaction(Transaction transaction);
-
-
-   /**
-    * Queue a transaction for broadcasting.
-    * <p/>
-    * The transaction is broadcast on next synchronization.
-    *
-    * @param transaction     an transaction
-    */
-   void queueTransaction(TransactionEx transaction);
-
-
-
-
 
    /**
     * Determine whether the provided encryption key is valid for this wallet account.

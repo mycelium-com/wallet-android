@@ -4,6 +4,7 @@ import com.google.common.base.Optional;
 import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionSummary;
@@ -43,6 +44,16 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
 
     @Override
     public void broadcastTx(EthTransaction tx) throws TransactionBroadcastException {
+
+    }
+
+    @Override
+    public WalletBtcAccount.BroadcastResult broadcastTransaction(Transaction transaction) {
+        return null;
+    }
+
+    @Override
+    public void queueTransaction(TransactionEx transaction) {
 
     }
 
