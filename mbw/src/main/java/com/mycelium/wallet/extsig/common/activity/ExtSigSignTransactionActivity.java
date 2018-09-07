@@ -101,7 +101,7 @@ public abstract class ExtSigSignTransactionActivity
    }
 
    private void updateUi(){
-      if (getExtSigManager().currentState != ExternalSignatureDeviceManager.Status.unableToScan){
+      if (getExtSigManager().getCurrentState() != ExternalSignatureDeviceManager.Status.unableToScan){
          findViewById(R.id.ivConnectExtSig).setVisibility(View.GONE);
          findViewById(R.id.tvPluginDevice).setVisibility(View.GONE);
       } else {

@@ -35,9 +35,13 @@
 package com.mycelium.wapi.wallet;
 
 import com.google.common.base.Optional;
+import com.mrd.bitlib.crypto.BipDerivationType;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.model.hdpath.HdKeyPath;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public interface AccountScanManager {
@@ -48,9 +52,9 @@ public interface AccountScanManager {
 
    void forgetAccounts();
 
-   Optional<HdKeyNode> getNextUnusedAccount();
-   Optional<HdKeyNode> getAccountPubKeyNode(HdKeyPath keyPath);
-   Optional<? extends HdKeyPath> getAccountPathToScan(Optional<? extends HdKeyPath> lastPath, boolean wasUsed);
+   List<HdKeyNode> getNextUnusedAccounts();
+   Optional<HdKeyNode> getAccountPubKeyNode(HdKeyPath keyPath, BipDerivationType derivationType);
+   Map<BipDerivationType, ? extends HdKeyPath> getAccountPathsToScan(HdKeyPath lastPath, boolean wasUsed);
 
    void setPassphrase(String passphrase);
 
@@ -64,13 +68,13 @@ public interface AccountScanManager {
    }
 
    class HdKeyNodeWrapper {
-      final public HdKeyPath keyPath;
-      final public HdKeyNode accountRoot;
+      final public Collection<HdKeyPath> keysPaths;
+      final public List<HdKeyNode> accountsRoots;
       final public UUID accountId;
 
-      public HdKeyNodeWrapper(HdKeyPath keyPath, HdKeyNode accountRoot, UUID accountId) {
-         this.keyPath = keyPath;
-         this.accountRoot = accountRoot;
+      public HdKeyNodeWrapper(Collection<HdKeyPath> keysPaths, List<HdKeyNode> accountsRoots, UUID accountId) {
+         this.keysPaths = keysPaths;
+         this.accountsRoots = accountsRoots;
          this.accountId = accountId;
       }
    }

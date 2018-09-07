@@ -63,13 +63,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Queues;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Ints;
-import com.mrd.bitlib.crypto.Bip39;
-import com.mrd.bitlib.crypto.HdKeyNode;
-import com.mrd.bitlib.crypto.InMemoryPrivateKey;
-import com.mrd.bitlib.crypto.MrdExport;
-import com.mrd.bitlib.crypto.PrivateKey;
-import com.mrd.bitlib.crypto.RandomSource;
-import com.mrd.bitlib.crypto.SignedMessage;
+import com.mrd.bitlib.crypto.*;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.BitUtils;
@@ -1241,7 +1235,7 @@ public class MbwManager {
 
     private InMemoryPrivateKey createBip32WebsitePrivateKey(byte[] masterSeed, int accountIndex, String site) {
         // Create BIP32 root node
-        HdKeyNode rootNode = HdKeyNode.fromSeed(masterSeed);
+        HdKeyNode rootNode = HdKeyNode.fromSeed(masterSeed, null);
         // Create bit id node
         HdKeyNode bidNode = rootNode.createChildNode(BIP32_ROOT_AUTHENTICATION_INDEX);
         // Create the private key for the specified account
@@ -1435,7 +1429,7 @@ public class MbwManager {
     // Derives a key for signing messages (messages signing key) from the master seed
     private PrivateKey getMessagesSigningKey() throws KeyCipher.InvalidKeyCipher {
         Bip39.MasterSeed seed = getWalletManager(false).getMasterSeed(AesKeyCipher.defaultKeyCipher());
-        return HdKeyNode.fromSeed(seed.getBip32Seed()).createChildNode(DERIVATION_NUMBER_LEVEL_ONE).createChildNode(DERIVATION_NUMBER_LEVEL_TWO).getPrivateKey();
+        return HdKeyNode.fromSeed(seed.getBip32Seed(), null).createChildNode(DERIVATION_NUMBER_LEVEL_ONE).createChildNode(DERIVATION_NUMBER_LEVEL_TWO).getPrivateKey();
     }
 
     // Signs a message using the mycelium messages' signing key

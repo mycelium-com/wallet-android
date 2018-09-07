@@ -158,7 +158,7 @@ public class HdKeyNode implements Serializable {
     *            if the seed is not suitable for seeding an HD wallet key
     *            generation. This is extremely unlikely
     */
-   public static HdKeyNode fromSeed(byte[] seed) throws KeyGenerationException {
+   public static HdKeyNode fromSeed(byte[] seed, BipDerivationType derivationType) throws KeyGenerationException {
       Preconditions.checkArgument(seed.length * 8 >= 128, "seed must be larger than 128");
       Preconditions.checkArgument(seed.length * 8 <= 512, "seed must be smaller than 512");
       byte[] I = Hmac.hmacSha512(asciiStringToBytes(BITCOIN_SEED), seed);
@@ -177,7 +177,7 @@ public class HdKeyNode implements Serializable {
 
       // Construct chain code
       byte[] IR = BitUtils.copyOfRange(I, 32, 32 + CHAIN_CODE_SIZE);
-      return new HdKeyNode(privateKey, IR, 0, 0, 0);
+      return new HdKeyNode(privateKey, IR, 0, 0, 0, derivationType);
    }
 
    /**
@@ -314,14 +314,14 @@ public class HdKeyNode implements Serializable {
          // Make a 32 byte result where k is copied to the end
          byte[] privateKeyBytes = bigIntegerTo32Bytes(k);
          InMemoryPrivateKey key = new InMemoryPrivateKey(privateKeyBytes, true);
-         return new HdKeyNode(key, lR, _depth + 1, getFingerprint(), index);
+         return new HdKeyNode(key, lR, _depth + 1, getFingerprint(), index, derivationType);
       } else {
          Point q = Parameters.G.multiply(m).add(Parameters.curve.decodePoint(_publicKey.getPublicKeyBytes()));
          if (q.isInfinity()) {
             throw new KeyGenerationException("An unlikely thing happened: Invalid key point at infinity");
          }
          PublicKey newPublicKey = new PublicKey(new Point(Parameters.curve, q.getX(), q.getY(), true).getEncoded());
-         return new HdKeyNode(newPublicKey, lR, _depth + 1, getFingerprint(), index);
+         return new HdKeyNode(newPublicKey, lR, _depth + 1, getFingerprint(), index, derivationType);
       }
    }
 

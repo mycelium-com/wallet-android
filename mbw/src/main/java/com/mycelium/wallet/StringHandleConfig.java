@@ -65,6 +65,7 @@ import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.single.SingleAddressBCHAccount;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -314,7 +315,7 @@ public class StringHandleConfig implements Serializable {
             try {
                HdKeyNode hdKey = HdKeyNode.parse(content, handlerActivity.getNetwork());
                final WalletManager tempWalletManager = MbwManager.getInstance(handlerActivity).getWalletManager(true);
-               UUID acc = tempWalletManager.createUnrelatedBip44Account(hdKey);
+               UUID acc = tempWalletManager.createUnrelatedBip44Account(Collections.singletonList(hdKey));
                tempWalletManager.setActiveAccount(acc);
                BitcoinUri uri = new BitcoinUri(null,null,null);
                SendInitializationActivity.callMeWithResult(handlerActivity, acc, uri, true,

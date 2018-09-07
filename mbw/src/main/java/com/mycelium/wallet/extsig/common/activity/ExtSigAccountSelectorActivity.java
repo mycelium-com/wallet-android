@@ -70,7 +70,7 @@ public abstract class ExtSigAccountSelectorActivity extends HdAccountSelectorAct
    @Override
    protected void updateUi() {
 
-      if (masterseedScanManager.currentState == ExternalSignatureDeviceManager.Status.readyToScan) {
+      if (masterseedScanManager.getCurrentState() == ExternalSignatureDeviceManager.Status.readyToScan) {
          findViewById(R.id.tvWaitForExtSig).setVisibility(View.GONE);
          findViewById(R.id.ivConnectExtSig).setVisibility(View.GONE);
          txtStatus.setText(getString(R.string.ext_sig_scanning_status));
@@ -78,7 +78,7 @@ public abstract class ExtSigAccountSelectorActivity extends HdAccountSelectorAct
          super.updateUi();
       }
 
-      if (masterseedScanManager.currentAccountState == ExternalSignatureDeviceManager.AccountStatus.scanning) {
+      if (masterseedScanManager.getCurrentAccountState() == ExternalSignatureDeviceManager.AccountStatus.scanning) {
          findViewById(R.id.llStatus).setVisibility(View.VISIBLE);
          if (accounts.size()>0) {
             super.updateUi();
@@ -86,7 +86,7 @@ public abstract class ExtSigAccountSelectorActivity extends HdAccountSelectorAct
             txtStatus.setText(getString(R.string.ext_sig_scanning_status));
          }
 
-      }else if (masterseedScanManager.currentAccountState == AccountScanManager.AccountStatus.done) {
+      }else if (masterseedScanManager.getCurrentAccountState() == AccountScanManager.AccountStatus.done) {
          // DONE
          findViewById(R.id.llStatus).setVisibility(View.GONE);
          findViewById(R.id.llSelectAccount).setVisibility(View.VISIBLE);

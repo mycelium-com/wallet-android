@@ -55,6 +55,7 @@ import com.ledger.tbase.comm.LedgerTransportTEEProxyFactory;
 import com.mrd.bitlib.SigningRequest;
 import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.UnsignedTransaction;
+import com.mrd.bitlib.crypto.BipDerivationType;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.*;
@@ -76,6 +77,7 @@ import nordpol.android.OnDiscoveredTagListener;
 
 import java.io.ByteArrayInputStream;
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 import java.util.Vector;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -126,7 +128,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
 
    public LedgerManager(Context context, NetworkParameters network, Bus eventBus) {
       super(context, network, eventBus);
-      SharedPreferences preferences = this.context.getSharedPreferences(Constants.LEDGER_SETTINGS_NAME,
+      SharedPreferences preferences = this.getContext().getSharedPreferences(Constants.LEDGER_SETTINGS_NAME,
             Activity.MODE_PRIVATE);
       disableTee = preferences.getBoolean(Constants.LEDGER_DISABLE_TEE_SETTING, false);
       aid = Dump.hexToBin(preferences.getString(Constants.LEDGER_UNPLUGGED_AID_SETTING, DEFAULT_UNPLUGGED_AID));
@@ -151,7 +153,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
       if (transportFactory == null) {
          boolean initialized = false;
          if (!disableTee) {
-            transportFactory = new LedgerTransportTEEProxyFactory(context);
+            transportFactory = new LedgerTransportTEEProxyFactory(getContext());
             LedgerTransportTEEProxy proxy = (LedgerTransportTEEProxy) transportFactory.getTransport();
             byte[] nvm = proxy.loadNVM(NVM_IMAGE);
             if (nvm != null) {
@@ -159,7 +161,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
             }
             // Check if the TEE can be connected
             final LinkedBlockingQueue<Boolean> waitConnected = new LinkedBlockingQueue<Boolean>(1);
-            boolean result = transportFactory.connect(context, new BTChipTransportFactoryCallback() {
+            boolean result = transportFactory.connect(getContext(), new BTChipTransportFactoryCallback() {
 
                @Override
                public void onConnected(boolean success) {
@@ -181,7 +183,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
             }
          }
          if (!initialized) {
-            transportFactory = new BTChipTransportAndroid(context);
+            transportFactory = new BTChipTransportAndroid(getContext());
             ((BTChipTransportAndroid) transportFactory).setAID(aid);
          }
          Log.d(LOG_TAG, "Using transport " + transportFactory.getClass());
@@ -230,7 +232,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
       }
       boolean isTEE = isTee();
 
-      setState(Status.readyToScan, currentAccountState);
+      setState(Status.readyToScan, getCurrentAccountState());
 
       if (isTEE) {
          // Check that the TEE PIN is not blocked
@@ -326,10 +328,10 @@ public class LedgerManager extends AbstractAccountScanManager implements
                   }
                   dongle.startUntrustedTransction(i == 0, i, inputs, currentInput.script.getScriptBytes());
                } else {
-                  mainThreadHandler.post(new Runnable() {
+                  getMainThreadHandler().post(new Runnable() {
                      @Override
                      public void run() {
-                        eventBus.post(new OnPinRequest());
+                        getEventBus().post(new OnPinRequest());
                      }
                   });
                   String pin;
@@ -356,10 +358,10 @@ public class LedgerManager extends AbstractAccountScanManager implements
          }
 
          // notify the activity to show the transaction details on screen
-         mainThreadHandler.post(new Runnable() {
+         getMainThreadHandler().post(new Runnable() {
             @Override
             public void run() {
-               eventBus.post(new OnShowTransactionVerification());
+               getEventBus().post(new OnShowTransactionVerification());
             }
          });
 
@@ -367,10 +369,10 @@ public class LedgerManager extends AbstractAccountScanManager implements
          final BTChipDongle.BTChipOutput output = outputData;
          // Check OTP confirmation
          if ((i == 0) && outputData.isConfirmationNeeded()) {
-            mainThreadHandler.post(new Runnable() {
+            getMainThreadHandler().post(new Runnable() {
                @Override
                public void run() {
-                  eventBus.post(new On2FaRequest(output));
+                  getEventBus().post(new On2FaRequest(output));
                }
             });
             try {
@@ -439,13 +441,13 @@ public class LedgerManager extends AbstractAccountScanManager implements
       while (!getTransport().isPluggedIn()) {
          dongle = null;
          try {
-            setState(Status.unableToScan, currentAccountState);
+            setState(Status.unableToScan, getCurrentAccountState());
             Thread.sleep(PAUSE_RESCAN);
          } catch (InterruptedException e) {
             break;
          }
       }
-      boolean connectResult = getTransport().connect(context, new BTChipTransportFactoryCallback() {
+      boolean connectResult = getTransport().connect(getContext(), new BTChipTransportFactoryCallback() {
          @Override
          public void onConnected(boolean success) {
             try {
@@ -478,20 +480,23 @@ public class LedgerManager extends AbstractAccountScanManager implements
    }
 
    @Override
-   public UUID createOnTheFlyAccount(HdKeyNode accountRoot,
+   public UUID createOnTheFlyAccount(List<? extends HdKeyNode> accountRoots,
                                      WalletManager walletManager, int accountIndex) {
-      UUID account;
-      if (walletManager.hasAccount(accountRoot.getUuid())) {
-         // Account already exists
-         account = accountRoot.getUuid();
-      } else {
-         account = walletManager.createExternalSignatureAccount(accountRoot, this, accountIndex);
+      UUID account = null;
+      for (HdKeyNode accountRoot : accountRoots) {
+         if (walletManager.hasAccount(accountRoot.getUuid())) {
+            // Account already exists
+            account = accountRoot.getUuid();
+         }
+      }
+      if (account == null) {
+         account = walletManager.createExternalSignatureAccount(accountRoots, this, accountIndex);
       }
       return account;
    }
 
    @Override
-   public Optional<HdKeyNode> getAccountPubKeyNode(HdKeyPath keyPath) {
+   public Optional<HdKeyNode> getAccountPubKeyNode(HdKeyPath keyPath, BipDerivationType derivationType) {
       boolean isTEE = isTee();
       // ledger needs it in the format "/44'/0'/0'" - our default toString format
       // is with leading "m/" -> replace the "m" away
@@ -572,10 +577,10 @@ public class LedgerManager extends AbstractAccountScanManager implements
                   }
                   publicKey = dongle.getWalletPublicKey(keyPathString);
                } else {
-                  mainThreadHandler.post(new Runnable() {
+                  getMainThreadHandler().post(new Runnable() {
                      @Override
                      public void run() {
-                        eventBus.post(new OnPinRequest());
+                        getEventBus().post(new OnPinRequest());
                      }
                   });
                   String pin;
@@ -608,7 +613,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
             }
          }
          PublicKey pubKey = new PublicKey(KeyUtils.compressPublicKey(publicKey.getPublicKey()));
-         HdKeyNode accountRootNode = new HdKeyNode(pubKey, publicKey.getChainCode(), 3, 0, keyPath.getLastIndex());
+         HdKeyNode accountRootNode = new HdKeyNode(pubKey, publicKey.getChainCode(), 3, 0, keyPath.getLastIndex(), derivationType);
          return Optional.of(accountRootNode);
       } catch (Exception e) {
          Log.d(LOG_TAG, "Generic error", e);
@@ -623,7 +628,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
    }
 
    public String getLabelOrDefault() {
-      return context.getString(R.string.ledger);
+      return getContext().getString(R.string.ledger);
    }
 
    public boolean getDisableTEE() {
@@ -649,7 +654,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
    }
 
    private SharedPreferences.Editor getEditor() {
-      return context.getSharedPreferences(Constants.LEDGER_SETTINGS_NAME, Activity.MODE_PRIVATE).edit();
+      return getContext().getSharedPreferences(Constants.LEDGER_SETTINGS_NAME, Activity.MODE_PRIVATE).edit();
    }
 
    @Override
