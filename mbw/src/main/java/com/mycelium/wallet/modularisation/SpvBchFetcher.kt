@@ -29,6 +29,7 @@ import com.mycelium.wapi.model.TransactionDetails
 import com.mycelium.wapi.model.TransactionSummary
 import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal
 import com.mycelium.wapi.wallet.SpvBalanceFetcher
+import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance
@@ -188,11 +189,11 @@ class SpvBchFetcher(private val context: Context) : SpvBalanceFetcher {
         var transactionDetails: TransactionDetails? = null
         val mbwManager = MbwManager.getInstance(context)
         val uri = Uri.withAppendedPath(TransactionContract.TransactionDetails.CONTENT_URI(
-                WalletApplication.getSpvModuleName(mbwManager.selectedAccount.type)), txid.toHex())
+                WalletApplication.getSpvModuleName((mbwManager.selectedAccount as WalletBtcAccount).type)), txid.toHex())
         val selection = TransactionContract.TransactionDetails.SELECTION_ACCOUNT_INDEX
         val account = mbwManager.selectedAccount
         val contentResolver = context.contentResolver
-        val selectionArgs = if ((account.type == WalletBtcAccount.Type.BTCBIP44 || account.type == WalletBtcAccount.Type.BCHBIP44)
+        val selectionArgs = if ((account is HDAccount || account is Bip44BCHAccount)
                 && mbwManager.selectedAccount.isDerivedFromInternalMasterseed) {
             val accountIndex = (mbwManager.selectedAccount as HDAccount).accountIndex
             arrayOf(Integer.toString(accountIndex))

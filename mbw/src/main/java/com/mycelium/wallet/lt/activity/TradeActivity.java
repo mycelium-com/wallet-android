@@ -338,7 +338,7 @@ public class TradeActivity extends Activity {
 
    private void createSignedTransaction(TradeSession ts, MbwManager mbwManager) {
       Preconditions.checkNotNull(ts.buyerAddress);
-      WalletBtcAccount acc = mbwManager.getSelectedAccount();
+      WalletAccount acc = mbwManager.getSelectedAccount();
 
       // Create unsigned transaction
       UnsignedTransaction unsigned = TradeActivityUtil.createUnsignedTransaction(ts.satoshisFromSeller, ts.satoshisForBuyer,

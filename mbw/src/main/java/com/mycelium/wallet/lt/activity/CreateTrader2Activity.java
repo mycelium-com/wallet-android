@@ -174,7 +174,7 @@ public class CreateTrader2Activity extends Activity {
          // We have exactly one private key, use it automatically
          findViewById(R.id.pbWait).setVisibility(View.VISIBLE);
          findViewById(R.id.llRoot).setVisibility(View.GONE);
-         WalletBtcAccount account = _mbwManager.getWalletManager(false).getAccount(_accounts.get(0));
+         WalletAccount account = _mbwManager.getWalletManager(false).getAccount(_accounts.get(0));
          InMemoryPrivateKey privateKey = _mbwManager.obtainPrivateKeyForAccount(account, LocalTraderManager.LT_DERIVATION_SEED, AesKeyCipher.defaultKeyCipher());
          _ltManager.makeRequest(new TryLogin(privateKey, _mbwManager.getNetwork()));
       } else {
@@ -197,7 +197,7 @@ public class CreateTrader2Activity extends Activity {
          return null;
       }
       UUID accountId = _accounts.get(index);
-      WalletBtcAccount account = _mbwManager.getWalletManager(false).getAccount(accountId);
+      WalletAccount account = _mbwManager.getWalletManager(false).getAccount(accountId);
       return _mbwManager.obtainPrivateKeyForAccount(account, LocalTraderManager.LT_DERIVATION_SEED, AesKeyCipher.defaultKeyCipher());
    }
 

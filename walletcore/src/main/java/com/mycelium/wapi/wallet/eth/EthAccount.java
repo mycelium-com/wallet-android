@@ -5,6 +5,8 @@ import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.Sha256Hash;
+import com.mycelium.wapi.model.TransactionEx;
+import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.SendRequest;
@@ -14,6 +16,8 @@ import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.CoinType;
 import com.mycelium.wapi.wallet.coins.Value;
+import com.mycelium.wapi.wallet.currency.CurrencyValue;
+import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;;
 
 import java.util.List;
@@ -58,8 +62,38 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
     }
 
     @Override
+    public TransactionSummary getTransactionSummary(Sha256Hash txid) {
+        return null;
+    }
+
+    @Override
+    public boolean cancelQueuedTransaction(Sha256Hash transactionId) {
+        return false;
+    }
+
+    @Override
+    public boolean deleteTransaction(Sha256Hash transactionId) {
+        return false;
+    }
+
+    @Override
     public List<GenericTransaction> getTransactions(int offset, int limit) {
         return null;
+    }
+
+    @Override
+    public UnsignedTransaction createUnsignedPop(Sha256Hash txid, byte[] nonce) {
+        return null;
+    }
+
+    @Override
+    public TransactionEx getTransactionEx(Sha256Hash txid) {
+        return null;
+    }
+
+    @Override
+    public void checkAmount(WalletBtcAccount.Receiver receiver, long kbMinerFee, CurrencyValue enteredAmount) throws StandardTransactionBuilder.InsufficientFundsException, StandardTransactionBuilder.OutputTooSmallException, StandardTransactionBuilder.UnableToBuildTransactionException {
+
     }
 
     @Override
@@ -159,6 +193,16 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
 
     @Override
     public SendRequest getSendToRequest(GenericAddress destination, Value amount) {
+        return null;
+    }
+
+    @Override
+    public ExactCurrencyValue calculateMaxSpendableAmount(long minerFeeToUse) {
+        return null;
+    }
+
+    @Override
+    public List<TransactionSummary> getTransactionsSince(Long receivingSince) {
         return null;
     }
 }

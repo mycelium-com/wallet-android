@@ -63,6 +63,7 @@ import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.model.TransactionDetails;
 import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.GenericTransaction;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
@@ -220,7 +221,7 @@ public class PopActivity extends Activity {
          return 0;
       }
       long amountSatoshis = (transaction.isIncoming()?transaction.getReceived():transaction.getSent()).getValue();
-      GenericTransaction genericTransaction = _mbwManager.getSelectedAccountGeneric().getTransaction(transaction.getHash());
+      GenericTransaction genericTransaction = _mbwManager.getSelectedAccount().getTransaction(transaction.getHash());
       amountSatoshis -= genericTransaction.getFee().getValue();
       return amountSatoshis;
    }
@@ -238,7 +239,7 @@ public class PopActivity extends Activity {
          if (txidToProve == null) {
             Toast.makeText(this, R.string.pop_no_transaction_selected, Toast.LENGTH_LONG).show();
          }
-         WalletBtcAccount account = _mbwManager.getSelectedAccount();
+         WalletAccount account = _mbwManager.getSelectedAccount();
 
          final UnsignedTransaction unsignedPop = account.createUnsignedPop(txidToProve, popRequest.getN());
 

@@ -126,7 +126,7 @@ public class GetSpendingRecordActivity extends Activity {
 
    }
 
-   private void callSendInitActivity(WalletBtcAccount account) {
+   private void callSendInitActivity(WalletAccount account) {
       if (_rawPr != null){
          SendInitializationActivity.callMe(GetSpendingRecordActivity.this, account.getId(), _rawPr, false);
       } else {

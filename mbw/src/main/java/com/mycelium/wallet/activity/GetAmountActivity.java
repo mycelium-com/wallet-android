@@ -63,6 +63,7 @@ import com.mycelium.wallet.activity.util.AccountDisplayType;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
@@ -100,7 +101,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
 
    private boolean isSendMode;
 
-   private WalletBtcAccount _account;
+   private WalletAccount _account;
    private NumberEntry _numberEntry;
    private CurrencyValue _amount;
    private MbwManager _mbwManager;
@@ -176,7 +177,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
 
       // if no amount is set, create an null amount with the correct currency
       if (_amount == null || _amount.getValue() == null) {
-         _amount = ExactCurrencyValue.from(null, _account.getAccountDefaultCurrency());
+         _amount = ExactCurrencyValue.from(null, _account.getCoinType().getSymbol());
          updateUI();
       }
 
@@ -226,7 +227,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          if (_amount != null && _amount.getCurrency() != null) {
             _mbwManager.getCurrencySwitcher().setCurrency(_amount.getCurrency());
          } else {
-            _mbwManager.getCurrencySwitcher().setCurrency(_account.getAccountDefaultCurrency());
+            _mbwManager.getCurrencySwitcher().setCurrency(_account.getCoinType().getSymbol());
          }
          amountString = "";
       }

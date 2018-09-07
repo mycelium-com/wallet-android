@@ -35,6 +35,7 @@ import com.mycelium.wallet.external.glidera.api.response.SellPriceResponse;
 import com.mycelium.wallet.external.glidera.api.response.SellResponse;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 import org.spongycastle.util.encoders.Hex;
@@ -174,7 +175,7 @@ public class GlideraSell2faDialog extends DialogFragment {
                receivers.add(new WalletBtcAccount.Receiver(Address.fromString(sellAddress), Bitcoins.nearestValue(_sellPriceResponse
                        .getQty())));
 
-               WalletBtcAccount selectedAccount = mbwManager.getSelectedAccount();
+               WalletAccount selectedAccount = mbwManager.getSelectedAccount();
                final UnsignedTransaction unsignedTransaction;
 
                try {
@@ -198,7 +199,7 @@ public class GlideraSell2faDialog extends DialogFragment {
 
                final Transaction signedTransaction;
                try {
-                  signedTransaction = selectedAccount.signTransaction(unsignedTransaction, AesKeyCipher.defaultKeyCipher());
+                  signedTransaction = ((WalletBtcAccount)selectedAccount).signTransaction(unsignedTransaction, AesKeyCipher.defaultKeyCipher());
                } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
                   invalidKeyCipher.printStackTrace();
                   buttonContinue.setEnabled(false);

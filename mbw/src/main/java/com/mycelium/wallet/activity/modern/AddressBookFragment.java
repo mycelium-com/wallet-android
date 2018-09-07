@@ -183,7 +183,7 @@ public class AddressBookFragment extends Fragment {
          Drawable drawableForAccount = Utils.getDrawableForAccount(account, true, getResources());
          Optional<Address> receivingAddress = account.getReceivingAddress();
          //TODO a lot of pr
-         WalletBtcAccount selectedAccount = _mbwManager.getSelectedAccount();
+         WalletAccount selectedAccount = _mbwManager.getSelectedAccount();
          if (receivingAddress.isPresent()) {
             if ((spendableOnly && account.canSpend()
                     && (!excudeSelected || !account.getReceivingAddress().equals(_mbwManager.getSelectedAccount().getReceivingAddress()))

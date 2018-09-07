@@ -16,6 +16,7 @@ import com.mycelium.wallet.activity.rmc.BtcPoolStatisticsManager;
 import com.mycelium.wallet.activity.rmc.view.ProfitMeterView;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.colu.json.AssetMetadata;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 import java.math.BigDecimal;
@@ -51,7 +52,7 @@ public class AddressWidgetAdapter extends PagerAdapter {
         this.context = context;
         this.mbwManager = mbwManager;
         sharedPreferences = context.getSharedPreferences(PREFERENCE_RMC_PROFIT_METER, Context.MODE_PRIVATE);
-        WalletBtcAccount account = mbwManager.getSelectedAccount();
+        WalletAccount account = mbwManager.getSelectedAccount();
         if(account instanceof ColuAccount) {
             coluAccount = (ColuAccount) mbwManager.getSelectedAccount();
 

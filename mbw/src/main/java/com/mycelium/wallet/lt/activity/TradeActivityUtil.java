@@ -54,6 +54,7 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.lt.LocalTraderManager;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 import static com.mrd.bitlib.TransactionUtils.MINIMUM_OUTPUT_VALUE;
@@ -61,7 +62,7 @@ import static com.mrd.bitlib.TransactionUtils.MINIMUM_OUTPUT_VALUE;
 public class TradeActivityUtil {
 
    public static boolean canAffordTrade(TradeSession ts, MbwManager mbwManager) {
-      WalletBtcAccount account = mbwManager.getSelectedAccount();
+      WalletAccount account = mbwManager.getSelectedAccount();
       LocalTraderManager lt = mbwManager.getLocalTraderManager();
 
       if (!account.canSpend()) {
@@ -83,7 +84,7 @@ public class TradeActivityUtil {
    }
 
    public static UnsignedTransaction createUnsignedTransaction(long satoshisFromSeller, long satoshisForBuyer,
-                                                               Address buyerAddress, Address feeAddress, WalletBtcAccount acc, long minerFeeToUse) {
+                                                               Address buyerAddress, Address feeAddress, WalletAccount acc, long minerFeeToUse) {
       Preconditions.checkArgument(satoshisForBuyer > MINIMUM_OUTPUT_VALUE);
       Preconditions.checkArgument(satoshisFromSeller >= satoshisForBuyer);
       long localTraderFee = satoshisFromSeller - satoshisForBuyer;

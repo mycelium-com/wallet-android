@@ -646,7 +646,7 @@ public class SendMainActivity extends Activity {
     void onClickScan() {
         StringHandleConfig config = StringHandleConfig.returnKeyOrAddressOrUriOrKeynode();
 
-        WalletBtcAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
+        WalletAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
         if(account instanceof ColuAccount) {
             config.bitcoinUriAction = StringHandleConfig.BitcoinUriAction.SEND_COLU_ASSET;
             config.bitcoinUriWithAddressAction = StringHandleConfig.BitcoinUriWithAddressAction.SEND_COLU_ASSET;

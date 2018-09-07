@@ -97,6 +97,8 @@ import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
+import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
@@ -416,8 +418,8 @@ public class TransactionHistoryFragment extends Fragment {
                      checkNotNull(menu.findItem(R.id.miShowDetails)).setVisible(true); //hasDetails
                      checkNotNull(menu.findItem(R.id.miShowCoinapultDebug)).setVisible(false); //canCoinapult
                      checkNotNull(menu.findItem(R.id.miAddToAddressBook)).setVisible(!record.getInputs().isEmpty()); //hasAddressBook
-                     if((_mbwManager.getSelectedAccount().getType() == WalletBtcAccount.Type.BCHBIP44
-                         || _mbwManager.getSelectedAccount().getType() == WalletBtcAccount.Type.BCHSINGLEADDRESS)) {
+                     if((_mbwManager.getSelectedAccount() instanceof Bip44BCHAccount
+                         || _mbwManager.getSelectedAccount() instanceof SingleAddressBCHAccount)) {
                        checkNotNull(menu.findItem(R.id.miCancelTransaction)).setVisible(false);
                        checkNotNull(menu.findItem(R.id.miRebroadcastTransaction)).setVisible(false);
                        checkNotNull(menu.findItem(R.id.miBumpFee)).setVisible(false);
@@ -592,9 +594,8 @@ public class TransactionHistoryFragment extends Fragment {
                                       @Override
                                       public void onClick(DialogInterface dialog, int which) {
                                          String transaction;
-                                         if(_mbwManager.getSelectedAccount().getType() == WalletBtcAccount.Type.BCHBIP44
-                                             || _mbwManager.getSelectedAccount().getType()
-                                             == WalletBtcAccount.Type.BCHSINGLEADDRESS) {
+                                         if(_mbwManager.getSelectedAccount() instanceof Bip44BCHAccount
+                                             || _mbwManager.getSelectedAccount() instanceof SingleAddressBCHAccount) {
                                             //TODO Module should provide full bytes of transaction.
                                             transaction = HexUtils.toHex(_mbwManager.getSelectedAccount()
                                                 .getTransactionSummary(record.getHash()).txid.getBytes());
@@ -636,7 +637,7 @@ public class TransactionHistoryFragment extends Fragment {
     * TODO: consider parallel attempts to PFP
     */
    private UnsignedTransaction tryCreateBumpTransaction(Sha256Hash txid, long feePerKB) {
-      GenericTransaction transaction = _mbwManager.getSelectedAccountGeneric().getTransaction(txid);
+      GenericTransaction transaction = _mbwManager.getSelectedAccount().getTransaction(txid);
       long txFee = 0;
       for(GenericTransaction.GenericOutput i : transaction.getInputs()) {
          txFee += i.getValue().getValue();
@@ -650,7 +651,7 @@ public class TransactionHistoryFragment extends Fragment {
       }
 
       try {
-         return ((AbstractBtcAccount)_mbwManager.getSelectedAccountGeneric()).createUnsignedCPFPTransaction(txid, feePerKB, txFee);
+         return ((AbstractBtcAccount)_mbwManager.getSelectedAccount()).createUnsignedCPFPTransaction(txid, feePerKB, txFee);
       } catch (InsufficientFundsException e) {
          makeText(getActivity(), getResources().getString(R.string.insufficient_funds), LENGTH_LONG).show();
       } catch (UnableToBuildTransactionException e) {
