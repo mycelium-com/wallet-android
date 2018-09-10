@@ -35,8 +35,8 @@
 package com.mycelium.wallet.activity.main;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -171,14 +171,14 @@ public class BalanceFragment extends Fragment {
    }
 
    @Override
-   public void onAttach(Activity activity) {
-      _mbwManager = MbwManager.getInstance(getActivity());
-      _toaster = new Toaster(activity);
-      super.onAttach(activity);
+   public void onAttach(Context context) {
+      _mbwManager = MbwManager.getInstance(context);
+      _toaster = new Toaster(this);
+      super.onAttach(context);
    }
 
    @Override
-   public void onResume() {
+   public void onStart() {
       _mbwManager.getEventBus().register(this);
       _exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
       if (_exchangeRatePrice == null) {
@@ -189,7 +189,13 @@ public class BalanceFragment extends Fragment {
       _tcdFiatDisplay.setEventBus(_mbwManager.getEventBus());
 
       updateUi();
-      super.onResume();
+      super.onStart();
+   }
+
+   @Override
+   public void onStop() {
+      _mbwManager.getEventBus().unregister(this);
+      super.onStop();
    }
 
    @OnClick(R.id.btSend)
@@ -245,12 +251,6 @@ public class BalanceFragment extends Fragment {
          config.bitcoinUriWithAddressAction = StringHandleConfig.BitcoinUriWithAddressAction.SEND_COLU_ASSET;
       }
       ScanActivity.callMe(getActivity(), ModernMain.GENERIC_SCAN_REQUEST, config);
-   }
-
-   @Override
-   public void onPause() {
-      _mbwManager.getEventBus().unregister(this);
-      super.onPause();
    }
 
    private boolean isBCH() {

@@ -53,38 +53,58 @@ public class PackageRemovedReceiver extends BroadcastReceiver {
         if (intent.getData() != null) {
             String packageName = intent.getData().getEncodedSchemeSpecificPart();
             String spvModuleName = WalletApplication.getSpvModuleName(WalletAccount.Type.BCHBIP44);
+            String mebModuleName = BuildConfig.appIdMeb;
+
             if (packageName.equals(spvModuleName)) {
                 switch (intent.getAction()) {
                     case Intent.ACTION_PACKAGE_ADDED:
                         if (!intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
-                            initiateRestart(context, R.string.installed);
+                            handlePackageChange(context, R.string.bch_module_change, R.string.installed, true);
                         }
                         break;
                     case Intent.ACTION_PACKAGE_REPLACED:
-                        initiateRestart(context, R.string.updated);
+                        handlePackageChange(context, R.string.bch_module_change, R.string.updated, true);
                         break;
                     case Intent.ACTION_PACKAGE_REMOVED:
                         if (!intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
-                            initiateRestart(context, R.string.removed);
+                            handlePackageChange(context, R.string.bch_module_change, R.string.removed, true);
+                        }
+                }
+            }
+
+            if (packageName.equals(mebModuleName)) {
+                switch (intent.getAction()) {
+                    case Intent.ACTION_PACKAGE_ADDED:
+                        if (!intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
+                            handlePackageChange(context, R.string.meb_module_change, R.string.installed, false);
+                        }
+                        break;
+                    case Intent.ACTION_PACKAGE_REPLACED:
+                        handlePackageChange(context, R.string.meb_module_change, R.string.updated, false);
+                        break;
+                    case Intent.ACTION_PACKAGE_REMOVED:
+                        if (!intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
+                            handlePackageChange(context, R.string.meb_module_change, R.string.removed, false);
                         }
                 }
             }
         }
     }
 
-    private void initiateRestart(Context context, int stringId) {
+    private void handlePackageChange(Context context, int moduleChangeStringId, int statusStringId, boolean restartRequired) {
         if (isAppOnForeground(context)) {
-            showRestartWarning(context, String.format(context.getString(R.string.bch_module_change), context.getString(stringId)));
-        } else if (stringId == R.string.installed){
+            showNotification(context, String.format(context.getString(moduleChangeStringId), context.getString(statusStringId)), restartRequired);
+        } else if (statusStringId == R.string.installed){
             restart(context);
         } else {
             Runtime.getRuntime().exit(0);
         }
     }
 
-    private void showRestartWarning(Context context, String warningHeader) {
+    private void showNotification(Context context, String warningHeader, boolean restartRequired) {
         Intent newIntent = new Intent(context, RestartPopupActivity.class);
         newIntent.putExtra(RestartPopupActivity.RESTART_WARNING_HEADER, warningHeader);
+        newIntent.putExtra(RestartPopupActivity.RESTART_REQUIRED, restartRequired);
         newIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(newIntent);
     }

@@ -856,7 +856,7 @@ public class Utils {
    }
 
    public static Drawable getDrawableForAccount(WalletAccount walletAccount, boolean isSelectedAccount, Resources resources) {
-      if(walletAccount instanceof ColuAccount) {
+      if (walletAccount instanceof ColuAccount) {
          ColuAccount account = (ColuAccount) walletAccount;
          switch (account.getColuAsset().assetType) {
             case MT:

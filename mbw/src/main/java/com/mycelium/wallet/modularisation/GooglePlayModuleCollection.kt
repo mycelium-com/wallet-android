@@ -3,6 +3,7 @@ package com.mycelium.wallet.modularisation
 import android.content.Context
 import android.graphics.drawable.Drawable
 import com.mycelium.modularizationtools.model.Module
+import com.mycelium.wallet.BuildConfig
 import com.mycelium.wallet.R
 import com.mycelium.wallet.WalletApplication
 import com.mycelium.wapi.wallet.WalletAccount
@@ -14,7 +15,11 @@ object GooglePlayModuleCollection {
             hashMapOf("bch" to Module(WalletApplication.getSpvModuleName(WalletAccount.Type.BCHBIP44)
                     , context.getString(R.string.bitcoin_cash_module)
                     , context.getString(R.string.bitcoin_cash_module_short)
-                    , context.getString(R.string.bch_module_description)))
+                    , context.getString(R.string.bch_module_description)),
+                    "meb" to Module(BuildConfig.appIdMeb,
+                            context.getString(R.string.make_extra_btc_module),
+                            context.getString(R.string.make_extra_btc_module_short),
+                            context.getString(R.string.make_extra_btc_module_desc)))
 
     @JvmStatic
     fun getModuleByPackage(context: Context, packageName: String) =

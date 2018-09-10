@@ -196,6 +196,10 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         CommunicationManager.getInstance().send(getSpvModuleName(accountType), intent);
     }
 
+    public static void sendToMeb(Intent intent) {
+        CommunicationManager.getInstance().send(BuildConfig.appIdMeb, intent);
+    }
+
     private static Map<WalletAccount.Type, String> initTrustedSpvModulesMapping() {
         Map<WalletAccount.Type, String> spvModulesMapping = new HashMap<>();
         spvModulesMapping.put(WalletAccount.Type.BCHBIP44, BuildConfig.appIdSpvBch);

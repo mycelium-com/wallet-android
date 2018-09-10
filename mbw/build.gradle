@@ -39,7 +39,9 @@ dependencies {
     androidTestImplementation 'com.android.support.test:rules:1.0.1'
 
     implementation project(includePrefix + ':coinapult')
+    implementation project(includePrefix + ':walletmodel')
     implementation project(includePrefix + ':wapi')
+    implementation project(includePrefix + ':walletcore')
     implementation project(includePrefix + ':trezor')
     implementation project(includePrefix + ':lt-api')
     implementation project(includePrefix + ':mbwlib')
@@ -51,9 +53,9 @@ dependencies {
     implementation project(includePrefix + ':bitcoincashj:core')
 
     implementation guavaArtifact
-    implementation 'com.squareup.retrofit2:retrofit:2.3.0'
-    implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
-    implementation 'com.squareup.retrofit2:converter-jackson:2.3.0'
+    implementation 'com.squareup.retrofit2:retrofit:2.4.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.4.0'
+    implementation 'com.squareup.retrofit2:converter-jackson:2.4.0'
     implementation 'com.squareup.okhttp3:logging-interceptor:3.6.0'
 
     // ViewModel and LiveData
@@ -85,7 +87,7 @@ dependencies {
 
     implementation 'com.journeyapps:zxing-android-embedded:3.6.0'
 
-    implementation project(includePrefix + ':myceliummodularizationtools')
+    implementation project(includePrefix + ':wallet-android-modularization-tools:modularization-lib')
     implementation project(includePrefix + ':modulespvcontract')
 
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
@@ -145,10 +147,15 @@ android {
                     project.hasProperty('prodKeyAlias') &&
                     project.hasProperty('prodKeyStorePassword') &&
                     project.hasProperty('prodKeyAliasPassword')) {
-                storeFile file('../../' + prodKeyStore)
+                storeFile file('../' + prodKeyStore)
                 keyAlias prodKeyAlias
                 storePassword prodKeyStorePassword
                 keyPassword prodKeyAliasPassword
+            } else {
+				        storeFile commonDebugKeystore
+				        storePassword 'android'
+				        keyAlias 'androiddebugkey'
+				        keyPassword 'android'
             }
         }
         btctestnet {
@@ -156,10 +163,15 @@ android {
                     project.hasProperty('testKeyAlias') &&
                     project.hasProperty('testKeyStorePassword') &&
                     project.hasProperty('testKeyAliasPassword')) {
-                storeFile file('../../' + testKeyStore)
+                storeFile file('../' + testKeyStore)
                 keyAlias testKeyAlias
                 storePassword testKeyStorePassword
                 keyPassword testKeyAliasPassword
+            } else {
+				        storeFile commonDebugKeystore
+				        storePassword 'android'
+				        keyAlias 'androiddebugkey'
+				        keyPassword 'android'
             }
         }
         commonDebug {
@@ -201,6 +213,8 @@ android {
 
                 appIdSpvBch = [release: "com.mycelium.module.spvbch",
                                debug  : "com.mycelium.module.spvbch.debug"]
+                appIdMeb = [release: "com.modules.tradingbots.makeextrabtc",
+                            debug  : "com.modules.tradingbots.makeextrabtc.debug"]
             }
             logger.info("Signing config is ", signingConfig)
         }
@@ -222,6 +236,8 @@ android {
 
                 appIdSpvBch = [release: "com.mycelium.module.spvbch.testnet",
                                debug  : "com.mycelium.module.spvbch.testnet.debug"]
+                appIdMeb = [release: "com.modules.tradingbots.makeextrabtc.testnet",
+                            debug  : "com.modules.tradingbots.makeextrabtc.testnet.debug"]
             }
             logger.info("Signing config is ", signingConfig)
         }
@@ -238,6 +254,7 @@ android {
         variant.buildConfigField "String", "RMCChangeAddress", "\"${flavor.ext.RMCChangeAddress}\""
         variant.buildConfigField "String[]", "ElectrumServers", "${flavor.ext.ElectrumServers}"
         variant.buildConfigField "String", "appIdSpvBch", "\"${flavor.ext.appIdSpvBch[variant.buildType.name]}\""
+        variant.buildConfigField "String", "appIdMeb", "\"${flavor.ext.appIdMeb[variant.buildType.name]}\""
     }
 
     testOptions {
