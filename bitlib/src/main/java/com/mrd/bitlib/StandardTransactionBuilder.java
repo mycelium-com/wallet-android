@@ -219,17 +219,26 @@ public class StandardTransactionBuilder {
       return unsignedTransaction;
    }
 
+   /**
+    * Get a number of segwit outputs from the entire list of output
+    *
+    * @param outputs A list of outputs
+    * @return A number of segwit outputs
+    */
+   private int getSegwitOutputsCount(List<UnspentTransactionOutput> outputs) {
+      int segwitOutputs = 0;
+      for(UnspentTransactionOutput u : outputs) {
+         if (u.script instanceof ScriptOutputP2WPKH || u.script instanceof ScriptOutputP2SH) {
+            segwitOutputs++;
+         }
+      }
+      return segwitOutputs;
+   }
+
    private boolean needChangeOutputInEstimation(List<UnspentTransactionOutput> funding,
                                                 long outputSum, long minerFeeToUse) {
 
-      int fundingSegwitOutputs = 0;
-      for(UnspentTransactionOutput u : funding) {
-         if (u.script instanceof ScriptOutputP2WPKH || u.script instanceof ScriptOutputP2SH) {
-            fundingSegwitOutputs++;
-         }
-      }
-
-      long fee = estimateFee(funding.size(), _outputs.size(), fundingSegwitOutputs, minerFeeToUse);
+      long fee = estimateFee(funding.size(), _outputs.size(), getSegwitOutputsCount(funding), minerFeeToUse);
 
       long found = 0;
       for (UnspentTransactionOutput output : funding) {
@@ -361,25 +370,27 @@ public class StandardTransactionBuilder {
     * @return The estimated transaction size in bytes
     */
    public static int estimateTransactionSize(int inputsTotal, int outputsTotal, int segwitInputs) {
-      int fullEstimate = 0;
-      fullEstimate += 4; // Version info
-      fullEstimate += CompactInt.toBytes(inputsTotal).length; // num input encoding. Usually 1. >253 inputs -> 3
-      fullEstimate += MAX_INPUT_SIZE * inputsTotal;
-      fullEstimate += CompactInt.toBytes(outputsTotal).length; // num output encoding. Usually 1. >253 outputs -> 3
-      fullEstimate += OUTPUT_SIZE * outputsTotal;
-      fullEstimate += 4; // nLockTime
+      int totalOutputsSize = OUTPUT_SIZE * outputsTotal;
 
-      int segwitEstimate = 0;
+      int estimateWithSignatures = 0;
+      estimateWithSignatures += 4; // Version info
+      estimateWithSignatures += CompactInt.toBytes(inputsTotal).length; // num input encoding. Usually 1. >253 inputs -> 3
+      estimateWithSignatures += MAX_INPUT_SIZE * inputsTotal;
+      estimateWithSignatures += CompactInt.toBytes(outputsTotal).length; // num output encoding. Usually 1. >253 outputs -> 3
+      estimateWithSignatures += totalOutputsSize;
+      estimateWithSignatures += 4; // nLockTime
 
-      segwitEstimate += 4; // Version info
-      segwitEstimate += CompactInt.toBytes(inputsTotal).length; // num input encoding. Usually 1. >253 inputs -> 3
-      segwitEstimate += MAX_SEGWIT_INPUT_SIZE * segwitInputs + MAX_INPUT_SIZE * (inputsTotal - segwitInputs);
-      segwitEstimate += CompactInt.toBytes(outputsTotal).length; // num output encoding. Usually 1. >253 outputs -> 3
-      segwitEstimate += OUTPUT_SIZE * outputsTotal;
-      segwitEstimate += 4; // nLockTime
+      int estimateWithoutWitness = 0;
+
+      estimateWithoutWitness += 4; // Version info
+      estimateWithoutWitness += CompactInt.toBytes(inputsTotal).length; // num input encoding. Usually 1. >253 inputs -> 3
+      estimateWithoutWitness += MAX_SEGWIT_INPUT_SIZE * segwitInputs + MAX_INPUT_SIZE * (inputsTotal - segwitInputs);
+      estimateWithoutWitness += CompactInt.toBytes(outputsTotal).length; // num output encoding. Usually 1. >253 outputs -> 3
+      estimateWithoutWitness += totalOutputsSize;
+      estimateWithoutWitness += 4; // nLockTime
 
 
-      return (segwitEstimate * 3 + fullEstimate) / 4;
+      return (estimateWithoutWitness * 3 + estimateWithSignatures) / 4;
    }
 
    /**
@@ -412,15 +423,7 @@ public class StandardTransactionBuilder {
           throws InsufficientFundsException {
          // Find the funding for this transaction
          allFunding = new LinkedList<>();
-
-         int fundingSegwitOutputs = 0;
-         for(UnspentTransactionOutput u : unspent) {
-            if (u.script instanceof ScriptOutputP2WPKH || u.script instanceof ScriptOutputP2SH) {
-               fundingSegwitOutputs++;
-            }
-         }
-
-         feeSat = estimateFee(unspent.size(), 1, fundingSegwitOutputs, feeSatPerKb);
+         feeSat = estimateFee(unspent.size(), 1, getSegwitOutputsCount(unspent), feeSatPerKb);
          outputSum = outputSum();
          long foundSat = 0;
          while (foundSat < feeSat + outputSum) {
@@ -432,17 +435,10 @@ public class StandardTransactionBuilder {
             foundSat += unspentTransactionOutput.value;
             allFunding.add(unspentTransactionOutput);
 
-            int allFundingSegwitOutputs = 0;
-            for(UnspentTransactionOutput u : allFunding) {
-               if (u.script instanceof ScriptOutputP2WPKH || u.script instanceof ScriptOutputP2SH) {
-                  allFundingSegwitOutputs++;
-               }
-            }
-
             feeSat = estimateFee(allFunding.size(), needChangeOutputInEstimation(allFunding, outputSum, feeSatPerKb)
                     ? _outputs.size() + 1
                     : _outputs.size(),
-                    allFundingSegwitOutputs,
+                    getSegwitOutputsCount(allFunding),
                     feeSatPerKb);
          }
       }
