@@ -365,23 +365,15 @@ public class StandardTransactionBuilder {
    public static int estimateTransactionSize(int inputsTotal, int outputsTotal, int segwitInputs) {
       int totalOutputsSize = OUTPUT_SIZE * outputsTotal;
 
-      int estimateWithSignatures = 0;
-      estimateWithSignatures += 4; // Version info
-      estimateWithSignatures += CompactInt.toBytes(inputsTotal).length; // num input encoding. Usually 1. >253 inputs -> 3
-      estimateWithSignatures += MAX_INPUT_SIZE * inputsTotal;
-      estimateWithSignatures += CompactInt.toBytes(outputsTotal).length; // num output encoding. Usually 1. >253 outputs -> 3
-      estimateWithSignatures += totalOutputsSize;
-      estimateWithSignatures += 4; // nLockTime
+      int estimateExceptInputs = 0;
+      estimateExceptInputs += 4; // Version info
+      estimateExceptInputs += CompactInt.toBytes(inputsTotal).length; // num input encoding. Usually 1. >253 inputs -> 3
+      estimateExceptInputs += CompactInt.toBytes(outputsTotal).length; // num output encoding. Usually 1. >253 outputs -> 3
+      estimateExceptInputs += totalOutputsSize;
+      estimateExceptInputs += 4; // nLockTime
 
-      int estimateWithoutWitness = 0;
-
-      estimateWithoutWitness += 4; // Version info
-      estimateWithoutWitness += CompactInt.toBytes(inputsTotal).length; // num input encoding. Usually 1. >253 inputs -> 3
-      estimateWithoutWitness += MAX_SEGWIT_INPUT_SIZE * segwitInputs + MAX_INPUT_SIZE * (inputsTotal - segwitInputs);
-      estimateWithoutWitness += CompactInt.toBytes(outputsTotal).length; // num output encoding. Usually 1. >253 outputs -> 3
-      estimateWithoutWitness += totalOutputsSize;
-      estimateWithoutWitness += 4; // nLockTime
-
+      int estimateWithSignatures = estimateExceptInputs + MAX_INPUT_SIZE * inputsTotal;
+      int estimateWithoutWitness = estimateExceptInputs + MAX_SEGWIT_INPUT_SIZE * segwitInputs + MAX_INPUT_SIZE * (inputsTotal - segwitInputs);
 
       return (estimateWithoutWitness * 3 + estimateWithSignatures) / 4;
    }
