@@ -49,7 +49,7 @@ import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.StringHandlerActivity;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.persistence.MetadataStorage;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 
@@ -140,7 +140,7 @@ public class VerifyBackupActivity extends Activity {
    private int countKeysToVerify() {
       int num = 0;
       for (UUID accountid : _mbwManager.getWalletManager(false).getAccountIds()) {
-         WalletBtcAccount account = _mbwManager.getWalletManager(false).getAccount(accountid);
+         WalletAccount account = _mbwManager.getWalletManager(false).getAccount(accountid);
          MetadataStorage.BackupState backupState = _mbwManager.getMetadataStorage().getOtherAccountBackupState(accountid);
 
          if (backupState!= MetadataStorage.BackupState.IGNORED) {
@@ -154,7 +154,7 @@ public class VerifyBackupActivity extends Activity {
          }
       }
       for (UUID accountid : _mbwManager.getColuManager().getAccounts().keySet()) {
-         WalletBtcAccount account = _mbwManager.getColuManager().getAccount(accountid);
+         WalletAccount account = _mbwManager.getColuManager().getAccount(accountid);
          MetadataStorage.BackupState backupState = _mbwManager.getMetadataStorage().getOtherAccountBackupState(accountid);
 
          if (backupState!= MetadataStorage.BackupState.IGNORED) {

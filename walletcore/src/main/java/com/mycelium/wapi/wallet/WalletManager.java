@@ -42,7 +42,6 @@ import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
 import com.mycelium.wapi.wallet.btc.Bip44AccountBacking;
 import com.mycelium.wapi.wallet.btc.InMemoryWalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.SynchronizeAbleWalletBtcAccount;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.bip44.*;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.AccountIndexesContext;
@@ -568,12 +567,12 @@ public class WalletManager {
      * @param id the ID of the account to get
      * @return a wallet account
      */
-    public WalletBtcAccount getAccount(UUID id) {
+    public WalletAccount getAccount(UUID id) {
         WalletAccount normalAccount = _walletAccounts.get(id);
         if (normalAccount == null) {
             normalAccount = _extraAccounts.get(id);
         }
-        return (WalletBtcAccount) normalAccount;
+        return  normalAccount;
     }
 
     /**

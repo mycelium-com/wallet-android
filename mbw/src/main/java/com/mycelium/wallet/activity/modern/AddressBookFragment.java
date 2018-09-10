@@ -76,7 +76,6 @@ import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.AddressBookChanged;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.squareup.otto.Subscribe;
 

@@ -7,6 +7,7 @@ import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.model.TransactionEx;
+import com.mycelium.wapi.model.TransactionOutputSummary;
 import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
@@ -21,6 +22,11 @@ import java.util.List;
 import java.util.UUID;
 
 public interface WalletAccount<T extends GenericTransaction, A extends GenericAddress> {
+
+    void setAllowZeroConfSpending(boolean b);
+
+    List<TransactionOutputSummary> getUnspentTransactionOutputSummary();
+
     class WalletAccountException extends Exception {
         public WalletAccountException(Throwable cause) {
             super(cause);

@@ -20,7 +20,6 @@ import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AccountProvider;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.squareup.otto.Bus;
 
 import javax.annotation.Nullable;

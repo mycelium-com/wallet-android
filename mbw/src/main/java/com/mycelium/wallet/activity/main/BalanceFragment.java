@@ -78,7 +78,6 @@ import com.mycelium.wapi.model.ExchangeRate;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
@@ -346,8 +345,6 @@ public class BalanceFragment extends Fragment {
    }
 
    private void updateUiKnownBalance(Balance balance) {
-      // Set BalanceSatoshis
-//      WalletBtcAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
 
       CharSequence valueString = Utils.getFormattedValueWithUnit(balance.confirmed, _mbwManager.getBitcoinDenomination()); // TODO need call with denomination
       ((TextView) _root.findViewById(R.id.tvBalance)).setText(valueString);

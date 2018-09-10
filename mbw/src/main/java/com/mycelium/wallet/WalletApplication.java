@@ -51,21 +51,17 @@ import com.mycelium.modularizationtools.CommunicationManager;
 import com.mycelium.modularizationtools.ModuleMessageReceiver;
 import com.mycelium.wallet.activity.settings.SettingsPreference;
 import com.mycelium.wallet.modularisation.BCHHelper;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
+import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 
 import java.security.Security;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 public class WalletApplication extends MultiDexApplication implements ModuleMessageReceiver {
     private ModuleMessageReceiver moduleMessageReceiver;
     private static WalletApplication INSTANCE;
-
-    private static Map<WalletBtcAccount.Type, String> spvModulesMapping = initTrustedSpvModulesMapping();
     private NetworkChangedReceiver networkChangedReceiver;
 
     static {
@@ -116,20 +112,20 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
 
     public List<ModuleVersionError> moduleVersionErrors = new ArrayList<>();
     private void pairSpvModules(CommunicationManager communicationManager) {
-        for (String moduleId : new HashSet<>(spvModulesMapping.values())) {
-            try {
-                communicationManager.requestPair(moduleId);
-            } catch(SecurityException se) {
-                String message = se.getMessage();
-                if(message.contains("Version conflict")) {
-                    String[] strings = message.split("\\|");
-                    int otherModuleApiVersion = Integer.decode(strings[1]);
-                    moduleVersionErrors.add(new ModuleVersionError(moduleId, otherModuleApiVersion));
-                } else {
-                    Log.w("WalletApplication", message);
-                }
+
+        try {
+            communicationManager.requestPair(BuildConfig.appIdSpvBch);
+        } catch(SecurityException se) {
+            String message = se.getMessage();
+            if(message.contains("Version conflict")) {
+                String[] strings = message.split("\\|");
+                int otherModuleApiVersion = Integer.decode(strings[1]);
+                moduleVersionErrors.add(new ModuleVersionError(BuildConfig.appIdSpvBch, otherModuleApiVersion));
+            } else {
+                Log.w("WalletApplication", message);
             }
         }
+
     }
 
     private void cleanModulesIfFirstRun(Context context, SharedPreferences sharedPreferences) {
@@ -184,27 +180,21 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         unregisterReceiver(networkChangedReceiver);
     }
 
-    public static String getSpvModuleName(WalletBtcAccount.Type accountType) {
-        if (spvModulesMapping.containsKey(accountType)) {
-            return spvModulesMapping.get(accountType);
+    public static <T> String getSpvModuleName(Class<T> type) {
+        if (type.isAssignableFrom(Bip44BCHAccount.class) ||
+                type.isAssignableFrom(SingleAddressBCHAccount.class)) {
+            return BuildConfig.appIdSpvBch;
         } else {
-            throw new RuntimeException("No spv module defined for account type " + accountType);
+            throw new RuntimeException("No spv module defined for account type " + type.getSimpleName());
         }
     }
 
-    public static void sendToSpv(Intent intent, WalletBtcAccount.Type accountType) {
-        CommunicationManager.getInstance().send(getSpvModuleName(accountType), intent);
+    public static <T> void sendToSpv(Intent intent, Class<T> type) {
+        CommunicationManager.getInstance().send(getSpvModuleName(type), intent);
     }
 
     public static void sendToTsm(Intent intent) {
         CommunicationManager.getInstance().send(BuildConfig.appIdTsm, intent);
-    }
-
-    private static Map<WalletBtcAccount.Type, String> initTrustedSpvModulesMapping() {
-        Map<WalletBtcAccount.Type, String> spvModulesMapping = new HashMap<>();
-        spvModulesMapping.put(WalletBtcAccount.Type.BCHBIP44, BuildConfig.appIdSpvBch);
-        spvModulesMapping.put(WalletBtcAccount.Type.BCHSINGLEADDRESS, BuildConfig.appIdSpvBch);
-        return spvModulesMapping;
     }
 
     private class ApplicationLifecycleHandler implements ActivityLifecycleCallbacks {

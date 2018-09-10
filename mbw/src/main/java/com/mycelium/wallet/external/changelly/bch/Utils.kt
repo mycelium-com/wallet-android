@@ -5,7 +5,6 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.Companion.ACCOUNT_TYPE_FROM_MASTERSEED
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue

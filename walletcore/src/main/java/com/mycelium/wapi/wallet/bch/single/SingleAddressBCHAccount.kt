@@ -10,7 +10,6 @@ import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal
 import com.mycelium.wapi.wallet.SingleAddressAccountBacking
 import com.mycelium.wapi.wallet.SpvBalanceFetcher
 import com.mycelium.wapi.wallet.btc.BtcTransaction
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount
 import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
@@ -26,10 +25,6 @@ class SingleAddressBCHAccount(context: SingleAddressAccountContext,
                               backing: SingleAddressAccountBacking, wapi: Wapi,
                               private val spvBalanceFetcher: SpvBalanceFetcher) : SingleAddressAccount(context, keyStore, network, backing, wapi) {
     private var visible: Boolean = false
-
-    init {
-        this.type = WalletBtcAccount.Type.BCHSINGLEADDRESS
-    }
 
     override fun getAccountDefaultCurrency(): String {
         return CurrencyValue.BCH

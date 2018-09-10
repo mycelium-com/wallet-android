@@ -74,7 +74,6 @@ import com.mycelium.wallet.lt.TradeSessionChangeMonitor;
 import com.mycelium.wallet.lt.activity.buy.SetTradeAddress;
 import com.mycelium.wallet.lt.api.*;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 
 import java.net.MalformedURLException;

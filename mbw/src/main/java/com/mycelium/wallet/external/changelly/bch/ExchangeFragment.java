@@ -40,7 +40,6 @@ import com.mycelium.wallet.external.changelly.ChangellyService;
 import com.mycelium.wallet.external.changelly.Constants;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;

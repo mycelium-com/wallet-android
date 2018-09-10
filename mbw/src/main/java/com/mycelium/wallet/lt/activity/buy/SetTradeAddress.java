@@ -51,7 +51,6 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.lt.activity.SendRequestActivity;
 import com.mycelium.wallet.lt.api.SetTradeReceivingAddress;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 public class SetTradeAddress extends Activity {
 

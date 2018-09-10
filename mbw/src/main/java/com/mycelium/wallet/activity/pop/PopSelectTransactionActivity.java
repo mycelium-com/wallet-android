@@ -56,10 +56,8 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.main.adapter.TransactionArrayAdapter;
 import com.mycelium.wallet.event.AddressBookChanged;
 import com.mycelium.wallet.pop.PopRequest;
-import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;

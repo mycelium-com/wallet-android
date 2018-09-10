@@ -1652,7 +1652,7 @@ public class SendMainActivity extends Activity {
    public void syncFinished(SyncStopped event) {
       if (_xpubSyncing) {
          _xpubSyncing = false;
-         _receivingAddress = _mbwManager.getWalletManager(true).getAccount(_receivingAcc).getReceivingAddress().get();
+         _receivingAddress = (Address) _mbwManager.getWalletManager(true).getAccount(_receivingAcc).getReceivingAddress().get();
          if (_progress != null) {
             _progress.dismiss();
          }

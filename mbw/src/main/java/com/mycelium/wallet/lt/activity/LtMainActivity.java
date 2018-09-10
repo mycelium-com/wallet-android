@@ -72,7 +72,6 @@ import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.ExportableAccount;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 public class LtMainActivity extends AppCompatActivity {
    public static final String TAB_TO_SELECT = "tabToSelect";

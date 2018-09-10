@@ -6,7 +6,6 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 
 public class BTCAccountDisplayStrategy implements AccountDisplayStrategy {

@@ -36,13 +36,10 @@ package com.mycelium.wallet;
 
 
 import com.mycelium.wallet.persistence.MetadataStorage;
-import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 import java.io.*;
-import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;

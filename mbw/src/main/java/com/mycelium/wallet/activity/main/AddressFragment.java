@@ -61,7 +61,6 @@ import com.mycelium.wallet.event.ReceivingAddressChanged;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 

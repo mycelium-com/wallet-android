@@ -15,7 +15,6 @@ import com.mycelium.wapi.wallet.GenericTransaction
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
 import com.squareup.otto.Subscribe

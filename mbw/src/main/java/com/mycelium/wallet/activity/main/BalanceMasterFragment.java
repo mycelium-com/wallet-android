@@ -53,7 +53,6 @@ import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.event.TorStateChanged;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.squareup.otto.Subscribe;
 
 public class BalanceMasterFragment extends Fragment {

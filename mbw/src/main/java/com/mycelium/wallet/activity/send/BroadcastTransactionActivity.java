@@ -131,7 +131,7 @@ public class BroadcastTransactionActivity extends Activity {
             if (CommunicationManager.getInstance().getPairedModules()
                     .contains(GooglePlayModuleCollection.getModules(getApplicationContext()).get("btc"))) {
                   Intent intent = IntentContract.BroadcastTransaction.createIntent(_transaction.toBytes());
-                  WalletApplication.sendToSpv(intent,((WalletBtcAccount) _mbwManager.getSelectedAccount()).getType());
+                  WalletApplication.sendToSpv(intent, _mbwManager.getSelectedAccount().getClass());
                   return WalletBtcAccount.BroadcastResult.SUCCESS;
              }
              return _account.broadcastTransaction(_transaction);

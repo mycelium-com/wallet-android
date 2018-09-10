@@ -13,9 +13,6 @@ import com.mycelium.wallet.event.ExtraAccountsChanged
 import com.mycelium.wallet.event.SelectedAccountChanged
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount.Type
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount.Type.*
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
 import com.squareup.otto.Subscribe

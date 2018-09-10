@@ -7,6 +7,7 @@ import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.model.TransactionEx;
+import com.mycelium.wapi.model.TransactionOutputSummary;
 import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.GenericTransaction;
@@ -26,6 +27,16 @@ import java.util.Map;
 import java.util.UUID;
 
 public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
+
+    @Override
+    public void setAllowZeroConfSpending(boolean b) {
+
+    }
+
+    @Override
+    public List<TransactionOutputSummary> getUnspentTransactionOutputSummary() {
+        return null;
+    }
 
     @Override
     public void completeAndSignTx(SendRequest<EthTransaction> request) throws WalletAccountException {

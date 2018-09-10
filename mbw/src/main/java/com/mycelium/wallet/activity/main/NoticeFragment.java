@@ -62,7 +62,6 @@ import com.mycelium.wallet.event.BalanceChanged;
 import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.squareup.otto.Subscribe;

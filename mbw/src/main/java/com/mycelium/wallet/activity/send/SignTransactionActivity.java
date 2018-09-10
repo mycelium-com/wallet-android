@@ -108,7 +108,7 @@ public class SignTransactionActivity extends Activity {
       // Get intent parameters
       UUID accountId = Preconditions.checkNotNull((UUID) getIntent().getSerializableExtra("account"));
       _isColdStorage = getIntent().getBooleanExtra("isColdStorage", false);
-      _account = Preconditions.checkNotNull(_mbwManager.getWalletManager(_isColdStorage).getAccount(accountId));
+      _account = (WalletBtcAccount) Preconditions.checkNotNull(_mbwManager.getWalletManager(_isColdStorage).getAccount(accountId));
       _unsigned = Preconditions.checkNotNull((UnsignedTransaction) getIntent().getSerializableExtra("unsigned"));
 
       // Load state

@@ -52,11 +52,11 @@ import com.mycelium.wallet.activity.modern.model.ViewAccountModel;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
+import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
-import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -144,8 +144,8 @@ public class RecordRowBuilder {
             // We don't show anything if the account is archived
             holder.tvBalance.setVisibility(View.GONE);
             holder.backupMissing.setVisibility(View.GONE);
-            if (model.accountType == WalletBtcAccount.Type.BCHBIP44
-                    || model.accountType == WalletBtcAccount.Type.BCHSINGLEADDRESS) {
+            if (model.accountType.isAssignableFrom(Bip44BCHAccount.class)
+                    || model.accountType.isAssignableFrom(SingleAddressBCHAccount.class)) {
                 holder.tvAccountType.setText(Html.fromHtml(holder.tvAccountType.getResources().getString(R.string.bitcoin_cash)));
                 holder.tvAccountType.setVisibility(View.VISIBLE);
             } else {
@@ -179,7 +179,7 @@ public class RecordRowBuilder {
 
         result.drawableForAccount = Utils.getDrawableForAccount(walletAccount, false, resources);
         result.drawableForAccountSelected = Utils.getDrawableForAccount(walletAccount, true, resources);
-        result.accountType = ((WalletBtcAccount)walletAccount).getType();
+        result.accountType = walletAccount.getClass();
         result.syncTotalRetrievedTransactions = walletAccount.getSyncTotalRetrievedTransactions();
 
         WalletAccount linked = Utils.getLinkedAccount(walletAccount, mbwManager.getColuManager().getAccounts().values());

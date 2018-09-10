@@ -56,7 +56,6 @@ import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.api.TryLogin;
 import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 
 import java.util.LinkedList;

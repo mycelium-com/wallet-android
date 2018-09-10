@@ -5,7 +5,6 @@ import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.model.IssuedKeysInfo;
 import com.mycelium.wapi.model.TransactionDetails;
 import com.mycelium.wapi.model.TransactionSummary;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 
 import java.util.List;

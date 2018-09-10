@@ -7,6 +7,7 @@ import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.model.TransactionEx;
+import com.mycelium.wapi.model.TransactionOutputSummary;
 import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.GenericTransaction;
@@ -27,6 +28,16 @@ import java.util.List;
 import java.util.UUID;
 
 public class FiatAccount implements WalletAccount<FiatTransaction, FiatAddress> {
+    @Override
+    public void setAllowZeroConfSpending(boolean b) {
+
+    }
+
+    @Override
+    public List<TransactionOutputSummary> getUnspentTransactionOutputSummary() {
+        return null;
+    }
+
     @Override
     public void completeAndSignTx(SendRequest<FiatTransaction> request) throws WalletAccountException {
 

@@ -21,7 +21,6 @@ import com.mycelium.wallet.activity.modern.AddressBookFragment;
 import com.mycelium.wallet.activity.modern.adapter.AddressBookAdapter;
 import com.mycelium.wallet.activity.send.model.AccountForFee;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 import java.util.ArrayList;
 import java.util.List;

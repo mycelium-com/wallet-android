@@ -72,7 +72,7 @@ import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coins.Value;
 
@@ -701,7 +701,7 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
       Intent result = new Intent();
       String accountType;
       UUID walletId = _mbwManager.getAccountId(address, null).get();
-      if (_mbwManager.getWalletManager(false).getAccount(walletId).getType().equals(WalletBtcAccount.Type.BCHBIP44)) {
+      if (_mbwManager.getWalletManager(false).getAccount(walletId) instanceof Bip44BCHAccount) {
          accountType = "BTC HD account";
       } else {
          accountType = "BTC Single Address";

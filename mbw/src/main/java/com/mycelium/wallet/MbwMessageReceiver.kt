@@ -19,10 +19,9 @@ import com.mycelium.wallet.activity.modern.ModernMain
 import com.mycelium.wallet.event.SpvSendFundsResult
 import com.mycelium.wallet.event.SpvSyncChanged
 import com.mycelium.wapi.wallet.*
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount.Type.BCHBIP44
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount.Type.BCHSINGLEADDRESS
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount
+import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
 import com.mycelium.wapi.wallet.coins.Value
 import com.squareup.otto.Bus
@@ -44,7 +43,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
 
     override fun onMessage(callingPackageName: String, intent: Intent) {
         when (callingPackageName) {
-            getSpvModuleName(BCHBIP44) -> onMessageFromSpvModuleBch(intent, getModule(callingPackageName))
+            getSpvModuleName(Bip44BCHAccount::class.java) -> onMessageFromSpvModuleBch(intent, getModule(callingPackageName))
             BuildConfig.appIdTsm -> onMessageFromTsmModule(intent)
             else -> Log.e(TAG, "Ignoring unexpected package $callingPackageName calling with intent $intent.")
         }
@@ -93,7 +92,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
             "com.mycelium.wallet.getMyceliumId" -> {
                 val mbwManager = MbwManager.getInstance(context)
                 val service = IntentContract.MyceliumIdTransfer.createIntent(mbwManager.myceliumId)
-                WalletApplication.sendToSpv(service, BCHBIP44)
+                WalletApplication.sendToSpv(service, Bip44BCHAccount::class.java)
             }
 
             // MBW receives 'com.mycelium.wallet.signData' message
@@ -103,7 +102,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 val message = intent.getStringExtra(IntentContract.MESSAGE)
                 val signature = mbwManager.signMessage(message)
                 val service = IntentContract.TransferSignedData.createIntent(message, signature)
-                WalletApplication.sendToSpv(service, BCHBIP44)
+                WalletApplication.sendToSpv(service, Bip44BCHAccount::class.java)
             }
 
             "com.mycelium.wallet.blockchainState" -> {
@@ -168,7 +167,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                         ArrayList(accountIndexes.toList()),
                         ArrayList(accountLevelKeys.toList()),
                         0) //TODO Don't commit an evil value close to releasing the prodnet version. maybe do some BuildConfig.DEBUG ? 1504664986L: 0L
-                WalletApplication.sendToSpv(service, BCHBIP44)
+                WalletApplication.sendToSpv(service, Bip44BCHAccount::class.java)
             }
             "com.mycelium.wallet.requestPublicKeyUnrelatedToMBW" -> {
                 val _mbwManager = MbwManager.getInstance(context)
@@ -190,7 +189,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                             val publicKeyB58 = account.getExportData(AesKeyCipher.defaultKeyCipher()).publicData.get()
                             val service = IntentContract.SendUnrelatedPublicKeyToSPV.createIntent(accountGuid,
                                     publicKeyB58, accountType)
-                            WalletApplication.sendToSpv(service, BCHBIP44)
+                            WalletApplication.sendToSpv(service, Bip44BCHAccount::class.java)
                         } catch (e: Exception) {
                             Log.e(TAG, "Still can't handle account ${_mbwManager.metadataStorage.getLabelByAccount(account.id)}")
                         }
@@ -208,7 +207,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                             IntentContract.SendUnrelatedPublicKeyToSPV.createIntent(accountGuid,
                                     account.publicKey.toString(), accountType)
                         }
-                        WalletApplication.sendToSpv(service, BCHSINGLEADDRESS)
+                        WalletApplication.sendToSpv(service, SingleAddressBCHAccount::class.java)
                     }
                     else -> Log.e(TAG, "Unknown accountType $accountType")
                 }
@@ -254,7 +253,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
 
                 val service = IntentContract.SendSignedTransactionToSPV.createIntent(operationId, accountIndex,
                         signedTransaction)
-                WalletApplication.sendToSpv(service, BCHBIP44)
+                WalletApplication.sendToSpv(service, Bip44BCHAccount::class.java)
             }
             "com.mycelium.wallet.sendUnsignedTransactionToMbwUnrelated" -> {
                 val operationId = intent.getStringExtra(IntentContract.OPERATION_ID)
@@ -295,7 +294,8 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 val signedTransaction = signAndSerialize(networkParameters, keyList, txUTXOsHexList, transaction)
                 val service = IntentContract.SendSignedTransactionUnrelatedToSPV.createIntent(operationId, accountGuid,
                         signedTransaction)
-                WalletApplication.sendToSpv(service, if (account is HDAccount) BCHBIP44 else BCHSINGLEADDRESS)
+                WalletApplication.sendToSpv(service, if (account is HDAccount) Bip44BCHAccount::class.java
+                else SingleAddressBCHAccount::class.java)
             }
             null -> Log.w(TAG, "onMessage failed. No action defined.")
             else -> Log.e(TAG, "onMessage failed. Unknown action ${intent.action}")

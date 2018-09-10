@@ -45,7 +45,6 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 public class AddressLabel extends GenericBlockExplorerLabel {
    private Address address;

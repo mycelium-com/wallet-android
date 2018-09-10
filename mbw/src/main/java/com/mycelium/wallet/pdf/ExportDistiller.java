@@ -45,7 +45,7 @@ import android.util.Log;
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Preconditions;
 import com.mycelium.wallet.R;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -63,21 +63,21 @@ public class ExportDistiller {
     private static final int LABEL_FONT_SIZE = 15;
     private static final int RECORDS_PR_PAGE = 3;
 
-    public static class ExportEntry implements Serializable {
+    public static class ExportEntry<T> implements Serializable {
         private static final long serialVersionUID = 1L;
 
         public String address;
         public String encryptedKey;
         public String encryptedMasterSeed;
         public String label;
-        public WalletBtcAccount.Type accountType;
+        public Class<T> accountType;
 
-        public ExportEntry(String address, String encryptedKey, String encryptedMasterSeed, String label, WalletBtcAccount.Type accountType) {
+        public ExportEntry(String address, String encryptedKey, String encryptedMasterSeed, String label, Class<T> type) {
             this.address = address;
             this.encryptedKey = encryptedKey;
             this.encryptedMasterSeed = encryptedMasterSeed;
             this.label = label;
-            this.accountType = accountType;
+            this.accountType = type;
         }
     }
 
@@ -379,20 +379,21 @@ public class ExportDistiller {
         boolean hasEpk = entry.encryptedKey != null;
 
       // Titles
-      writer.setTextColor(0, 0, 0);
-      switch (entry.accountType) {
-         case BCHSINGLEADDRESS:
-            writer.addText(2.05F, fromTop, 13, "Bitcoin");
-            writer.setTextColor(0.9411, 0.5490, 0.09411);
-            writer.addText(3.60F, fromTop, 13, "Cash");
-            writer.setTextColor(0, 0, 0);
-            writer.addText(4.72F, fromTop, 13, "Address");
-            break;
-         default:writer.addText(3F, fromTop, 13, "Bitcoin Address");}
-      if (hasEpk) {
-         writer.addText(12F, fromTop, 13, "Encrypted Private Key");
-      }
-      fromTop += 1.5F;
+         writer.setTextColor(0, 0, 0);
+         if(entry.accountType.isAssignableFrom(SingleAddressBCHAccount.class)) {
+             writer.addText(2.05F, fromTop, 13, "Bitcoin");
+             writer.setTextColor(0.9411, 0.5490, 0.09411);
+             writer.addText(3.60F, fromTop, 13, "Cash");
+             writer.setTextColor(0, 0, 0);
+             writer.addText(4.72F, fromTop, 13, "Address");
+         } else {
+             writer.addText(3F, fromTop, 13, "Bitcoin Address");
+         }
+
+        if (hasEpk) {
+            writer.addText(12F, fromTop, 13, "Encrypted Private Key");
+        }
+        fromTop += 1.5F;
 
         // QR codes
         // Bitmap addressQr = Utils.getQRCodeBitmap("bitcoin:" + address, 200, 0);

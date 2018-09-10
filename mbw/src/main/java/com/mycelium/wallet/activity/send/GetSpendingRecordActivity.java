@@ -57,7 +57,6 @@ import com.mycelium.wallet.activity.modern.adapter.holder.AccountViewHolder;
 import com.mycelium.wallet.activity.modern.model.ViewAccountModel;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 import java.util.ArrayList;
 import java.util.List;

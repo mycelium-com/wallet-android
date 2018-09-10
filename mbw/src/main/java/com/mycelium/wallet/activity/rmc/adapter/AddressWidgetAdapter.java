@@ -11,13 +11,11 @@ import android.widget.TextView;
 
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.rmc.BtcPoolStatisticsManager;
 import com.mycelium.wallet.activity.rmc.view.ProfitMeterView;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.colu.json.AssetMetadata;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;

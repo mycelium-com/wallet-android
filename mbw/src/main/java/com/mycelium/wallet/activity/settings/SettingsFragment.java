@@ -70,7 +70,7 @@ import com.mycelium.wallet.lt.api.SetNotificationMail;
 import com.mycelium.wallet.modularisation.BCHHelper;
 import com.mycelium.wallet.modularisation.GooglePlayModuleCollection;
 import com.mycelium.wallet.modularisation.ModularisationVersionHelper;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.squareup.otto.Subscribe;
 
 import java.text.DecimalFormat;
@@ -839,7 +839,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
     @Subscribe
     public void onSyncStateChanged(SpvSyncChanged syncChanged) {
-        String bchPackage = "Module_" + WalletApplication.getSpvModuleName(WalletBtcAccount.Type.BCHBIP44);
+        String bchPackage = "Module_" + WalletApplication.getSpvModuleName(Bip44BCHAccount.class);
         Preference preference = modulesPrefs.findPreference(bchPackage);
         updateModulePreferenceSync((ButtonPreference) preference, syncChanged.chainDownloadPercentDone);
     }

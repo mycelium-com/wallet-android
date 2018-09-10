@@ -24,7 +24,6 @@ import com.mycelium.wallet.activity.send.event.SelectListener;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
 import com.mycelium.wallet.activity.view.ValueKeyboard;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 import java.util.ArrayList;
 import java.util.Collections;
