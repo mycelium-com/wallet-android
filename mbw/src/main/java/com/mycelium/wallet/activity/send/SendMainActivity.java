@@ -333,7 +333,7 @@ public class SendMainActivity extends Activity {
 
         // May be null
         _amountToSend = (Value) getIntent().getSerializableExtra(AMOUNT);
-//        _amountToSend = Value.valueOf(BitcoinTest.get(), 123456); // todo delete test (since we can't use GetAmountActivity)
+        _amountToSend = Value.valueOf(BitcoinTest.get(), 123456); // todo delete test (since we can't use GetAmountActivity)
         // May be null
         _receivingAddress = (Address) getIntent().getSerializableExtra(RECEIVING_ADDRESS);
         //May be null
