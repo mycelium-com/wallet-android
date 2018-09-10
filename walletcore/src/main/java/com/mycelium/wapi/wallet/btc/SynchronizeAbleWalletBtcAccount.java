@@ -135,7 +135,7 @@ public abstract class SynchronizeAbleWalletBtcAccount implements WalletBtcAccoun
    public abstract boolean cancelQueuedTransaction(Sha256Hash transaction);
 
    @Override
-   public abstract void checkAmount(Receiver receiver, long kbMinerFee, CurrencyValue enteredAmount) throws StandardTransactionBuilder.InsufficientFundsException, StandardTransactionBuilder.OutputTooSmallException, StandardTransactionBuilder.UnableToBuildTransactionException;
+   public abstract void checkAmount(Receiver receiver, long kbMinerFee, Value enteredAmount) throws StandardTransactionBuilder.InsufficientFundsException, StandardTransactionBuilder.OutputTooSmallException, StandardTransactionBuilder.UnableToBuildTransactionException;
 
    @Override
    public abstract NetworkParameters getNetwork();

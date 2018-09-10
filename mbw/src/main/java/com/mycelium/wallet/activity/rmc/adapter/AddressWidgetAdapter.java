@@ -11,7 +11,6 @@ import android.widget.TextView;
 
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.rmc.BtcPoolStatisticsManager;
 import com.mycelium.wallet.activity.rmc.view.ProfitMeterView;
 import com.mycelium.wallet.colu.ColuAccount;
@@ -141,7 +140,7 @@ public class AddressWidgetAdapter extends PagerAdapter {
             if(coluAccount == null) {
                 return;
             }
-            BigDecimal rmc = coluAccount.getAccountBalance().confirmed.getAsBigDecimal();
+            BigDecimal rmc = coluAccount.getAccountBalance().confirmed.getValueAsBigDecimal();
             String[] split = rmc.setScale(4, BigDecimal.ROUND_DOWN).toPlainString().split("\\.");
             rmcValue.setText(split[0]);
             rmcValueAfterDot.setText("." + split[1]);

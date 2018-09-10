@@ -96,6 +96,7 @@ import com.mycelium.wallet.activity.send.helper.FeeItemsBuilder;
 import com.mycelium.wallet.activity.send.model.FeeItem;
 import com.mycelium.wallet.activity.send.model.FeeLvlItem;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
+import com.mycelium.wallet.activity.util.AccountDisplayType;
 import com.mycelium.wallet.activity.util.AnimationUtils;
 import com.mycelium.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wallet.colu.ColuAccount;
@@ -116,7 +117,6 @@ import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.bip44.Bip44AccountExternalSignature;
 import com.mycelium.wapi.wallet.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.Value;
-import com.mycelium.wapi.wallet.currency.BitcoinValue;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.squareup.otto.Subscribe;
@@ -332,7 +332,8 @@ public class SendMainActivity extends Activity {
         UUID accountId = Preconditions.checkNotNull((UUID) getIntent().getSerializableExtra(ACCOUNT));
 
         // May be null
-        _amountToSend = (Value) getIntent().getSerializableExtra(AMOUNT); // todo
+        _amountToSend = (Value) getIntent().getSerializableExtra(AMOUNT);
+//        _amountToSend = Value.valueOf(BitcoinTest.get(), 123456); // todo delete test (since we can't use GetAmountActivity)
         // May be null
         _receivingAddress = (Address) getIntent().getSerializableExtra(RECEIVING_ADDRESS);
         //May be null
@@ -685,13 +686,13 @@ public class SendMainActivity extends Activity {
     // todo
     @OnClick(R.id.btEnterAmount)
     void onClickAmount() {
-//      Value presetAmount = _amountToSend;
-//      if (Value.isNullOrZero(presetAmount)) {
-//         // if no amount is set so far, use an unknown amount but in the current accounts currency // todo?
-//         presetAmount = Value.valueOf(BitcoinTest.get(), 0);
-//      }
-//      GetAmountActivity.callMeToSend(this, GET_AMOUNT_RESULT_CODE, _account.getId(), presetAmount, feePerKbValue,
-//              AccountDisplayType.getAccountType(_account), _isColdStorage);
+        Value presetAmount = _amountToSend;
+        if (Value.isNullOrZero(presetAmount)) {
+            // if no amount is set so far, use an unknown amount but in the current accounts currency // todo?
+            presetAmount = Value.valueOf(BitcoinTest.get(), 0);
+        }
+        GetAmountActivity.callMeToSend(this, GET_AMOUNT_RESULT_CODE, _account.getId(), presetAmount, feePerKbValue,
+                AccountDisplayType.getAccountType(_account), _isColdStorage);
     }
 
    @OnClick(R.id.btSend)
@@ -849,7 +850,7 @@ public class SendMainActivity extends Activity {
         _unsigned = null;
 
         Value toSend = getValueToSend();
-        boolean hasAddressData = toSend != null && ((BitcoinValue) toSend).getAsBitcoin() != null && _receivingAddress != null; // todo
+        boolean hasAddressData = toSend != null && _receivingAddress != null; // todo
         boolean hasRequestData = _paymentRequestHandler != null && _paymentRequestHandler.hasValidPaymentRequest();
 
         // Create the unsigned transaction

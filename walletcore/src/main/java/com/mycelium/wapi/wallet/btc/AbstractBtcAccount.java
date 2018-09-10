@@ -890,7 +890,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    protected abstract void persistContextIfNecessary();
 
    @Override
-   public void checkAmount(Receiver receiver, long kbMinerFee, CurrencyValue enteredAmount) throws InsufficientFundsException, OutputTooSmallException, StandardTransactionBuilder.UnableToBuildTransactionException {
+   public void checkAmount(Receiver receiver, long kbMinerFee, Value enteredAmount) throws InsufficientFundsException, OutputTooSmallException, StandardTransactionBuilder.UnableToBuildTransactionException {
       createUnsignedTransaction(singletonList(receiver), kbMinerFee);
    }
 
