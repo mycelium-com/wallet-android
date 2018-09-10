@@ -523,7 +523,7 @@ public class SendMainActivity extends Activity {
         int inCount = _unsigned != null ? _unsigned.getFundingOutputs().length : 1;
         int outCount = _unsigned != null ? _unsigned.getOutputs().length : 2;
         int segwitInCount = _unsigned != null ? _unsigned.getSegwitInputsCount() : 1;
-        int segwitOutCount = _unsigned != null ? _unsigned.getSegwitOutputsCount(): 1;
+        int segwitOutCount = _unsigned != null ? _unsigned.getSegwitOutputsCount(): 2;
         return estimateTransactionSize(inCount, outCount, segwitInCount, segwitOutCount);
     }
 
