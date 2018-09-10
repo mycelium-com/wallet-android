@@ -71,7 +71,10 @@ import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.OutputList;
+import com.mrd.bitlib.model.ScriptOutputP2SH;
+import com.mrd.bitlib.model.ScriptOutputP2WPKH;
 import com.mrd.bitlib.model.Transaction;
+import com.mrd.bitlib.model.TransactionOutput;
 import com.mrd.bitlib.model.UnspentTransactionOutput;
 import com.mycelium.paymentrequest.PaymentRequestException;
 import com.mycelium.paymentrequest.PaymentRequestInformation;
@@ -519,7 +522,9 @@ public class SendMainActivity extends Activity {
     private int estimateTxSize() {
         int inCount = _unsigned != null ? _unsigned.getFundingOutputs().length : 1;
         int outCount = _unsigned != null ? _unsigned.getOutputs().length : 2;
-        return estimateTransactionSize(inCount, outCount);
+        int segwitInCount = _unsigned != null ? _unsigned.getSegwitInputsCount() : 1;
+        int segwitOutCount = _unsigned != null ? _unsigned.getSegwitOutputsCount(): 1;
+        return estimateTransactionSize(inCount, outCount, segwitInCount, segwitOutCount);
     }
 
     //TODO: fee from other bitcoin account if colu
@@ -1367,7 +1372,22 @@ public class SendMainActivity extends Activity {
         } else {
             int inCount = _unsigned.getFundingOutputs().length;
             int outCount = _unsigned.getOutputs().length;
-            int size = estimateTransactionSize(inCount, outCount);
+
+            int fundingSegwitOutputs = 0;
+            for(UnspentTransactionOutput u : _unsigned.getFundingOutputs()) {
+                if (u.script instanceof ScriptOutputP2WPKH || u.script instanceof ScriptOutputP2SH) {
+                    fundingSegwitOutputs++;
+                }
+            }
+
+            int segwitOutputs = 0;
+            for(TransactionOutput u : _unsigned.getOutputs()) {
+                if (u.script instanceof ScriptOutputP2WPKH || u.script instanceof ScriptOutputP2SH) {
+                    segwitOutputs++;
+                }
+            }
+
+            int size = estimateTransactionSize(inCount, outCount,fundingSegwitOutputs, segwitOutputs);
 
             tvSatFeeValue.setText(inCount + " In- / " + outCount + " Outputs, ~" + size + " bytes");
 

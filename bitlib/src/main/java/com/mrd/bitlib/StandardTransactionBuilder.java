@@ -30,6 +30,7 @@ import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.mrd.bitlib.TransactionUtils.MINIMUM_OUTPUT_VALUE;
 
@@ -39,6 +40,10 @@ public class StandardTransactionBuilder {
    public static final int MAX_INPUT_SIZE = 32 + 4 + 1 + 107 + 4;
    // output value 8B + script length 1B + script 25B (always)
    private static final int OUTPUT_SIZE = 8 + 1 + 25;
+
+
+   private static final int MAX_SEGWIT_INPUT_SIZE = 32 + 4 + 4;
+   private static final int SEGWIT_OUTPUT_SIZE = 8 + 1 + 20;
 
    private NetworkParameters _network;
    private List<TransactionOutput> _outputs;
@@ -159,8 +164,23 @@ public class StandardTransactionBuilder {
       if (needChangeOutputInEstimation) {
          outputsSizeInFeeEstimation += 1;
       }
-      fee = estimateFee(funding.size(), outputsSizeInFeeEstimation, minerFeeToUse);
 
+      int fundingSegwitOutputs = 0;
+      for(UnspentTransactionOutput u : funding) {
+         if (u.script instanceof ScriptOutputP2WPKH || u.script instanceof ScriptOutputP2SH) {
+            fundingSegwitOutputs++;
+         }
+      }
+
+      int outputsSegwit = 0;
+
+      for(TransactionOutput u : _outputs) {
+         if (u.script instanceof ScriptOutputP2WPKH || u.script instanceof ScriptOutputP2SH) {
+            outputsSegwit++;
+         }
+      }
+
+      fee = estimateFee(funding.size(), outputsSizeInFeeEstimation, fundingSegwitOutputs, outputsSegwit, minerFeeToUse);
       long found = 0;
       for (UnspentTransactionOutput output : funding) {
          found += output.value;
@@ -191,7 +211,7 @@ public class StandardTransactionBuilder {
 
       // check if we have a reasonable Fee or throw an error otherwise
       int estimateTransactionSize = estimateTransactionSize(unsignedTransaction.getFundingOutputs().length,
-          unsignedTransaction.getOutputs().length);
+          unsignedTransaction.getOutputs().length, unsignedTransaction.getSegwitInputsCount(), unsignedTransaction.getSegwitOutputsCount());
       long calculatedFee = unsignedTransaction.calculateFee();
       float estimatedFeePerKb = (long) ((float) calculatedFee / ((float) estimateTransactionSize / 1000)); // TODO change segwit
 
@@ -209,7 +229,23 @@ public class StandardTransactionBuilder {
 
    private boolean needChangeOutputInEstimation(List<UnspentTransactionOutput> funding,
                                                 long outputSum, long minerFeeToUse) {
-      long fee = estimateFee(funding.size(), _outputs.size(), minerFeeToUse);
+
+      int fundingSegwitOutputs = 0;
+      for(UnspentTransactionOutput u : funding) {
+         if (u.script instanceof ScriptOutputP2WPKH || u.script instanceof ScriptOutputP2SH) {
+            fundingSegwitOutputs++;
+         }
+      }
+
+      int outputsSegwit = 0;
+
+      for(TransactionOutput u : _outputs) {
+         if (u.script instanceof ScriptOutputP2WPKH || u.script instanceof ScriptOutputP2SH) {
+            outputsSegwit++;
+         }
+      }
+
+      long fee = estimateFee(funding.size(), _outputs.size(), fundingSegwitOutputs, outputsSegwit, minerFeeToUse);
 
       long found = 0;
       for (UnspentTransactionOutput output : funding) {
@@ -335,19 +371,33 @@ public class StandardTransactionBuilder {
     * Estimate the size of a transaction by taking the number of inputs and outputs into account. This allows us to
     * give a good estimate of the final transaction size, and determine whether out fee size is large enough.
     *
-    * @param inputs  the number of inputs of the transaction
-    * @param outputs the number of outputs of a transaction
+    * @param inputsTotal  the number of inputs of the transaction
+    * @param outputsTotal the number of outputs of a transaction
+    * @param segwitInputs  the number of segwit inputs of the transaction
+    * @param segwitOutputs the number of segwit outputs of a transaction
     * @return The estimated transaction size in bytes
     */
-   public static int estimateTransactionSize(int inputs, int outputs) {
-      int estimate = 0;
-      estimate += 4; // Version info
-      estimate += CompactInt.toBytes(inputs).length; // num input encoding. Usually 1. >253 inputs -> 3
-      estimate += MAX_INPUT_SIZE * inputs;
-      estimate += CompactInt.toBytes(outputs).length; // num output encoding. Usually 1. >253 outputs -> 3
-      estimate += OUTPUT_SIZE * outputs;
-      estimate += 4; // nLockTime
-      return estimate;
+   public static int estimateTransactionSize(int inputsTotal, int outputsTotal, int segwitInputs, int segwitOutputs) {
+      int fullEstimate = 0;
+      fullEstimate += 4; // Version info
+      fullEstimate += CompactInt.toBytes(inputsTotal).length; // num input encoding. Usually 1. >253 inputs -> 3
+      fullEstimate += MAX_INPUT_SIZE * inputsTotal;
+      fullEstimate += CompactInt.toBytes(outputsTotal).length; // num output encoding. Usually 1. >253 outputs -> 3
+      fullEstimate += OUTPUT_SIZE * (outputsTotal - segwitOutputs) + SEGWIT_OUTPUT_SIZE * segwitOutputs;
+      fullEstimate += 4; // nLockTime
+
+
+      int segwitEstimate = 0;
+      if (segwitInputs > 0) {
+         segwitEstimate += 4; // Version info
+         segwitEstimate += CompactInt.toBytes(segwitInputs).length; // num input encoding. Usually 1. >253 inputs -> 3
+         segwitEstimate += MAX_SEGWIT_INPUT_SIZE * segwitInputs;
+         segwitEstimate += CompactInt.toBytes(segwitOutputs).length; // num output encoding. Usually 1. >253 outputs -> 3
+         segwitEstimate += OUTPUT_SIZE * (outputsTotal - segwitOutputs) + SEGWIT_OUTPUT_SIZE * segwitOutputs;
+         segwitEstimate += 4; // nLockTime
+      }
+
+      return (segwitEstimate * 3 + fullEstimate) / 4;
    }
 
    /**
@@ -358,10 +408,10 @@ public class StandardTransactionBuilder {
     * @param outputs number of outputs
     * @param minerFeePerKb miner fee in satoshis per kB
     **/
-   public static long estimateFee(int inputs, int outputs, long minerFeePerKb) {
+   public static long estimateFee(int inputs, int outputs, int segwitInputs, int segwitOutputs, long minerFeePerKb) {
       // fee is based on the size of the transaction, we have to pay for
       // every 1000 bytes
-      float txSizeKb = (float) (estimateTransactionSize(inputs, outputs) / 1000.0); //in kilobytes
+      float txSizeKb = (float) (estimateTransactionSize(inputs, outputs, segwitInputs, segwitOutputs) / 1000.0); //in kilobytes
       return (long) (txSizeKb * minerFeePerKb);
    }
 
@@ -380,7 +430,15 @@ public class StandardTransactionBuilder {
           throws InsufficientFundsException {
          // Find the funding for this transaction
          allFunding = new LinkedList<>();
-         feeSat = estimateFee(unspent.size(), 1, feeSatPerKb);
+
+         int fundingSegwitOutputs = 0;
+         for(UnspentTransactionOutput u : unspent) {
+            if (u.script instanceof ScriptOutputP2WPKH || u.script instanceof ScriptOutputP2SH) {
+               fundingSegwitOutputs++;
+            }
+         }
+
+         feeSat = estimateFee(unspent.size(), 1, fundingSegwitOutputs, 1, feeSatPerKb);
          outputSum = outputSum();
          long foundSat = 0;
          while (foundSat < feeSat + outputSum) {
@@ -391,10 +449,21 @@ public class StandardTransactionBuilder {
             }
             foundSat += unspentTransactionOutput.value;
             allFunding.add(unspentTransactionOutput);
-            feeSat = estimateFee(allFunding.size(),
-                needChangeOutputInEstimation(allFunding, outputSum, feeSatPerKb)
+
+            int allFundingSegwitOutputs = 0;
+            for(UnspentTransactionOutput u : allFunding) {
+               if (u.script instanceof ScriptOutputP2WPKH || u.script instanceof ScriptOutputP2SH) {
+                  allFundingSegwitOutputs++;
+               }
+            }
+
+            int outputsSize = needChangeOutputInEstimation(allFunding, outputSum, feeSatPerKb)
                     ? _outputs.size() + 1
-                    : _outputs.size(), feeSatPerKb);
+                    : _outputs.size();
+
+            feeSat = estimateFee(allFunding.size(), outputsSize,
+                    allFundingSegwitOutputs, outputsSize,
+                    feeSatPerKb);
          }
       }
 
