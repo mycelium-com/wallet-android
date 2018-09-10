@@ -165,14 +165,7 @@ public class StandardTransactionBuilder {
          outputsSizeInFeeEstimation += 1;
       }
 
-      int fundingSegwitOutputs = 0;
-      for(UnspentTransactionOutput u : funding) {
-         if (u.script instanceof ScriptOutputP2WPKH || u.script instanceof ScriptOutputP2SH) {
-            fundingSegwitOutputs++;
-         }
-      }
-
-      fee = estimateFee(funding.size(), outputsSizeInFeeEstimation, fundingSegwitOutputs, minerFeeToUse);
+      fee = estimateFee(funding.size(), outputsSizeInFeeEstimation, getSegwitOutputsCount(funding), minerFeeToUse);
       long found = 0;
       for (UnspentTransactionOutput output : funding) {
          found += output.value;
