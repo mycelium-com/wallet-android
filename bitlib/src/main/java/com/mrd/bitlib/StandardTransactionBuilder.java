@@ -218,7 +218,7 @@ public class StandardTransactionBuilder {
     * @param outputs A list of outputs
     * @return A number of segwit outputs
     */
-   private int getSegwitOutputsCount(List<UnspentTransactionOutput> outputs) {
+   public static int getSegwitOutputsCount(Collection<UnspentTransactionOutput> outputs) {
       int segwitOutputs = 0;
       for(UnspentTransactionOutput u : outputs) {
          if (u.script instanceof ScriptOutputP2WPKH || u.script instanceof ScriptOutputP2SH) {
