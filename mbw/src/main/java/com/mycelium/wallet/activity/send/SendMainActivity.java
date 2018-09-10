@@ -1373,14 +1373,7 @@ public class SendMainActivity extends Activity {
             int inCount = _unsigned.getFundingOutputs().length;
             int outCount = _unsigned.getOutputs().length;
 
-            int fundingSegwitOutputs = 0;
-            for(UnspentTransactionOutput u : _unsigned.getFundingOutputs()) {
-                if (u.script instanceof ScriptOutputP2WPKH || u.script instanceof ScriptOutputP2SH) {
-                    fundingSegwitOutputs++;
-                }
-            }
-
-            int size = estimateTransactionSize(inCount, outCount,fundingSegwitOutputs);
+            int size = estimateTransactionSize(inCount, outCount, StandardTransactionBuilder.getSegwitOutputsCount(Arrays.asList(_unsigned.getFundingOutputs())));
 
             tvSatFeeValue.setText(inCount + " In- / " + outCount + " Outputs, ~" + size + " bytes");
 
