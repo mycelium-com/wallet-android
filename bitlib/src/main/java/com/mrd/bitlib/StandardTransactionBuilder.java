@@ -196,7 +196,7 @@ public class StandardTransactionBuilder {
 
       // check if we have a reasonable Fee or throw an error otherwise
       int estimateTransactionSize = estimateTransactionSize(unsignedTransaction.getFundingOutputs().length,
-          unsignedTransaction.getOutputs().length, unsignedTransaction.getSegwitInputsCount());
+          unsignedTransaction.getOutputs().length, getSegwitOutputsCount(Arrays.asList(unsignedTransaction.getFundingOutputs())));
       long calculatedFee = unsignedTransaction.calculateFee();
       float estimatedFeePerKb = (long) ((float) calculatedFee / ((float) estimateTransactionSize / 1000)); // TODO change segwit
 

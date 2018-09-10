@@ -85,12 +85,6 @@ open class UnsignedTransaction constructor(
     private fun isSegWitOutput(i: Int) =
             isSegwitOutputScript(fundingOutputs[i].script)
 
-    public fun getSegwitInputsCount() =
-            fundingOutputs.filter { out -> isSegwitOutputScript(out.script)}.size
-
-    public fun getSegwitOutputsCount() =
-            outputs.filter { out -> isSegwitOutputScript(out.script)}.size
-
     /**
      * @return fee in satoshis
      */

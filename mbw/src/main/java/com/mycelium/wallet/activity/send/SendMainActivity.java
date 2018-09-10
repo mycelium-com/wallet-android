@@ -61,6 +61,7 @@ import android.widget.Toast;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
 import com.mrd.bitlib.StandardTransactionBuilder.UnableToBuildTransactionException;
@@ -522,7 +523,7 @@ public class SendMainActivity extends Activity {
     private int estimateTxSize() {
         int inCount = _unsigned != null ? _unsigned.getFundingOutputs().length : 1;
         int outCount = _unsigned != null ? _unsigned.getOutputs().length : 2;
-        int segwitInCount = _unsigned != null ? _unsigned.getSegwitInputsCount() : 1;
+        int segwitInCount = _unsigned != null ? StandardTransactionBuilder.getSegwitOutputsCount(Arrays.asList(_unsigned.getFundingOutputs())) : 1;
         return estimateTransactionSize(inCount, outCount, segwitInCount);
     }
 
