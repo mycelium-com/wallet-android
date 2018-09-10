@@ -33,6 +33,8 @@ import com.mrd.bitlib.model.OutPoint;
 import com.mrd.bitlib.model.OutputList;
 import com.mrd.bitlib.model.Script;
 import com.mrd.bitlib.model.ScriptOutput;
+import com.mrd.bitlib.model.ScriptOutputP2SH;
+import com.mrd.bitlib.model.ScriptOutputP2WPKH;
 import com.mrd.bitlib.model.ScriptOutputStrange;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.model.Transaction.TransactionParsingException;
@@ -1008,7 +1010,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       // we will use all of the available inputs and it will be only one output
       // but we use "2" here, because the tx-estimation in StandardTransactionBuilder always includes an
       // output into its estimate - so add one here too to arrive at the same tx fee
-      long feeToUse = StandardTransactionBuilder.estimateFee(spendableOutputs.size(), 1, minerFeePerKbToUse);
+      long feeToUse = StandardTransactionBuilder.estimateFee(spendableOutputs.size(), 1, StandardTransactionBuilder.getSegwitOutputsCount(spendableOutputs), minerFeePerKbToUse);
 
       // TODO: 25.06.17 why was there a loop from here to end of method?
       // Iteratively figure out whether we can send everything by removing the smallest input
@@ -1116,7 +1118,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       Address changeAddress = getChangeAddress();
       long parentChildFeeSat;
       do {
-         long childSize = estimateTransactionSize(utxosToSpend.size(), 1);
+         long childSize = estimateTransactionSize(utxosToSpend.size(), 1, 0);
          long parentChildSize = parent.rawSize + childSize;
          parentChildFeeSat = parentChildSize * minerFeeToUse / 1000 - satoshisPaid;
          if(parentChildFeeSat < childSize * minerFeeToUse / 1000) {

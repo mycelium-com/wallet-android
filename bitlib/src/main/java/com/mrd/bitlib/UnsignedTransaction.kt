@@ -79,8 +79,11 @@ open class UnsignedTransaction constructor(
         }
     }
 
+    private fun isSegwitOutputScript(script: ScriptOutput) =
+        script is ScriptOutputP2WPKH || script is ScriptOutputP2SH
+
     private fun isSegWitOutput(i: Int) =
-            fundingOutputs[i].script is ScriptOutputP2WPKH || fundingOutputs[i].script is ScriptOutputP2SH
+            isSegwitOutputScript(fundingOutputs[i].script)
 
     /**
      * @return fee in satoshis
