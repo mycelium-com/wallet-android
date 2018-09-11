@@ -382,73 +382,72 @@ public class ExportDistiller {
             fromTop += 0.7F;
             // Use Standard font
             writer.setStandardFont();
-
         }
 
         boolean hasEpk = entry.encryptedKey != null;
 
-      // Titles
-      writer.setTextColor(0, 0, 0);
-      switch (entry.accountType) {
-         case BCHSINGLEADDRESS:
-            writer.addText(2.05F, fromTop, 13, "Bitcoin");
-            writer.setTextColor(0.9411, 0.5490, 0.09411);
-            writer.addText(3.60F, fromTop, 13, "Cash");
-            writer.setTextColor(0, 0, 0);
-            writer.addText(4.72F, fromTop, 13, "Address");
-            break;
-         default:writer.addText(3F, fromTop, 13, "Bitcoin Address");}
-      if (hasEpk) {
-         writer.addText(12F, fromTop, 13, "Public keys");
-         for(AddressType type: AddressType.values()){
-
-         }
-         fromTop += 1.5F;
-
-         writer.addText(12F, fromTop, 13, "Encrypted Private Key");
-      }
-      fromTop += 1.5F;
-
-        // QR codes
-        // Bitmap addressQr = Utils.getQRCodeBitmap("bitcoin:" + address, 200, 0);
-        // writer.addImage(2.9, fromTop, 3.5, 3.5, addressQr);
-
-        //writer.addQrCode(2.9, fromTop - 0.25, 3.5, "bitcoin:" + address);
-        progressTracker.addressCompleted();
-        // Encrypted private key QR-code
-        if (hasEpk) {
-            // Bitmap keyQr = Utils.getQRCodeBitmap(encryptedKey, 200, 0);
-            // writer.addImage(12.5, fromTop, 3.5, 3.5, keyQr);
-
-            writer.addQrCode(12.5, fromTop - 0.5, 4, encryptedKey);
-
-            progressTracker.privateKeyCompleted();
+        // Titles
+        writer.setTextColor(0, 0, 0);
+        switch (entry.accountType) {
+            case BCHSINGLEADDRESS:
+                writer.addText(2.05F, fromTop, 13, "Bitcoin");
+                writer.setTextColor(0.9411, 0.5490, 0.09411);
+                writer.addText(3.60F, fromTop, 13, "Cash");
+                writer.setTextColor(0, 0, 0);
+                writer.addText(4.72F, fromTop, 13, "Addresses");
+                break;
+            default:
+                writer.addText(2.05F, fromTop, 13, "Bitcoin Addresses");
         }
-        fromTop += 4;
+
+        if (hasEpk) {
+            writer.addText(12F, fromTop, 13, "Encrypted Private Key");
+        }
+
+        fromTop += 1.5F;
+        double fromTopAddressesColumn = fromTop;
+        double fromTopPrivateKeyColumn = fromTop;
+        progressTracker.addressCompleted();
 
         // Use Monospace font
         writer.setMonoFont();
 
-        for(Address address : entry.addresses.values()) {
-            // Strings
+        //Addresses QR-codes
+        for (Address address : entry.addresses.values()) {
+
             String a1 = address.toString().substring(0, address.toString().length() / 2);
             String a2 = address.toString().substring(address.toString().length() / 2);
-            writer.addText(2.3, fromTop, 12, a1);
-            fromTop += 0.5F;
-            writer.addText(2.3, fromTop, 12, a2);
-            fromTop += 0.5F;
-            writer.addQrCode(2.9, fromTop - 0.25, 3.5, "bitcoin:" + address);
-            fromTop += 1;
+            writer.addQrCode(2.4, fromTopAddressesColumn - 0.25, 3.5, "bitcoin:" + address);
+            fromTopAddressesColumn += 4.0F;
+            writer.addText(2, fromTopAddressesColumn, 12, a2);
+            fromTopAddressesColumn += 0.5F;
+            writer.addText(2, fromTopAddressesColumn, 12, a1);
+            fromTopAddressesColumn += 1.0F;
         }
-            // Use Standard font
-            writer.setStandardFont();
 
-            // Add end line if necessary
-            if (addEndLine) {
-                writer.setLineColor(0, 0.5, 1);
-                writer.addLine(1F, fromTop, 18F, fromTop);
-            }
-            fromTop += 0.5F;
+        // Encrypted private key QR-code
+        if (hasEpk) {
+            String k1 = encryptedKey.substring(0, encryptedKey.length() / 2);
+            String k2 = encryptedKey.substring(encryptedKey.length() / 2);
+            writer.addQrCode(12.5, fromTopPrivateKeyColumn - 0.5, 4, encryptedKey);
+            fromTopPrivateKeyColumn += 4.0F;
+            writer.addText(9.8, fromTopPrivateKeyColumn, 12, k1);
+            fromTopPrivateKeyColumn += 0.5F;
+            writer.addText(9.8, fromTopPrivateKeyColumn, 12, k2);
+            progressTracker.privateKeyCompleted();
+            fromTopPrivateKeyColumn += 1;
+        }
+
+        fromTop = Math.max(fromTopAddressesColumn, fromTopPrivateKeyColumn);
+        // Use Standard font
+        writer.setStandardFont();
+
+        // Add end line if necessary
+        if (addEndLine) {
+            writer.setLineColor(0, 0.5, 1);
+            writer.addLine(1F, fromTop, 18F, fromTop);
+        }
+        fromTop += 0.5F;
         return fromTop;
     }
 

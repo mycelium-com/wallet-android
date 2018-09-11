@@ -123,15 +123,11 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
             if (a.canSpend()) {
                try {
                   base58EncodedPrivateKey = a.getPrivateKey(cipher).getBase58EncodedPrivateKey(network);
+                  entry = new EntryToExport(a.getPrivateKey(cipher).getPublicKey().getAllSupportedAddresses(network),
+                          base58EncodedPrivateKey, label, account.getType());
                } catch (KeyCipher.InvalidKeyCipher e) {
                   throw new RuntimeException(e);
                }
-            }
-            try {
-               entry = new EntryToExport(a.getPrivateKey(cipher).getPublicKey().getAllSupportedAddresses(network),
-                       base58EncodedPrivateKey, label, account.getType());
-            } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
-               invalidKeyCipher.printStackTrace();
             }
          } else if (account instanceof ColuAccount) {
             ColuAccount a = (ColuAccount) account;
@@ -139,9 +135,9 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
             String base58EncodedPrivateKey = null;
             if (a.canSpend()) {
                base58EncodedPrivateKey = a.getPrivateKey().getBase58EncodedPrivateKey(network);
+               entry = new EntryToExport(a.getPrivateKey().getPublicKey().getAllSupportedAddresses(network),
+                       base58EncodedPrivateKey, label, account.getType());
             }
-            entry = new EntryToExport(a.getPrivateKey().getPublicKey().getAllSupportedAddresses(network),
-                    base58EncodedPrivateKey, label, account.getType());
          }
          if (entry != null) {
             if (account.isActive()) {
