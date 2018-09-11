@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="2.11.1.20" versioncode="2110120">
+        <change>Unconfirmed transaction in chronologic order</change>
+        <change>Bugs fixed</change>
+    </release>
     <release version="2.11.1.19" versioncode="2110119">
         <change>Hotfix: Updating server list caused crashes</change>
     </release>
