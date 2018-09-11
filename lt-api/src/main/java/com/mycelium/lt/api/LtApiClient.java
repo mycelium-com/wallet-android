@@ -47,16 +47,14 @@ import com.mycelium.lt.api.params.ReleaseBtcParameters;
 import com.mycelium.lt.api.params.SearchParameters;
 import com.mycelium.lt.api.params.SetTradeReceivingAddressParameters;
 import com.mycelium.lt.api.params.TradeChangeParameters;
-import com.mycelium.lt.api.params.TradeParameters;
 import com.mycelium.lt.api.params.TraderParameters;
 import com.mycelium.net.HttpEndpoint;
 import com.mycelium.net.FeedbackEndpoint;
 import com.mycelium.net.ServerEndpoints;
 import com.squareup.okhttp.*;
 
-@SuppressWarnings("deprecation")
 public class LtApiClient implements LtApi {
-   public static final int TIMEOUT_MS = 60000 * 2;
+   private static final long TIMEOUT_MS = TimeUnit.MINUTES.toMillis(2);
 
    public interface Logger {
       void logError(String message, Exception e);
@@ -99,19 +97,19 @@ public class LtApiClient implements LtApi {
       try {
          Response response = getConnectionAndSendRequest(request, TIMEOUT_MS);
          if (response == null) {
-            return new LtResponse<T>(ERROR_CODE_NO_SERVER_CONNECTION, null);
+            return new LtResponse<>(ERROR_CODE_NO_SERVER_CONNECTION, null);
          }
          String retVal = response.body().string();
          return _objectMapper.readValue(retVal, typeReference);
       } catch (JsonParseException e) {
          logError("sendRequest failed with Json parsing error.", e);
-         return new LtResponse<T>(ERROR_CODE_INTERNAL_CLIENT_ERROR, null);
+         return new LtResponse<>(ERROR_CODE_INTERNAL_CLIENT_ERROR, null);
       } catch (JsonMappingException e) {
          logError("sendRequest failed with Json mapping error.", e);
-         return new LtResponse<T>(ERROR_CODE_INTERNAL_CLIENT_ERROR, null);
+         return new LtResponse<>(ERROR_CODE_INTERNAL_CLIENT_ERROR, null);
       } catch (IOException e) {
          logError("sendRequest failed IO exception.", e);
-         return new LtResponse<T>(ERROR_CODE_INTERNAL_CLIENT_ERROR, null);
+         return new LtResponse<>(ERROR_CODE_INTERNAL_CLIENT_ERROR, null);
       }
    }
 
@@ -127,12 +125,9 @@ public class LtApiClient implements LtApi {
       }
    }
 
-   private Response getConnectionAndSendRequest(LtRequest request, int timeout) {
+   private Response getConnectionAndSendRequest(LtRequest request, long timeout) {
       int originalConnectionIndex = _serverEndpoints.getCurrentEndpointIndex();
 
-      // Figure what our current endpoint is. On errors we fail over until we
-      // are back at the initial endpoint
-      HttpEndpoint initialEndpoint = getEndpoint();
       while (true) {
          HttpEndpoint serverEndpoint = _serverEndpoints.getCurrentEndpoint();
          try {
@@ -225,14 +220,6 @@ public class LtApiClient implements LtApi {
    }
 
    @Override
-   public LtResponse<Collection<SellOrder>> listSellOrders(UUID sessionId) {
-      LtRequest r = new LtRequest(Function.LIST_SELL_ORDERS);
-      r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
-      return sendRequest(r, new TypeReference<LtResponse<Collection<SellOrder>>>() {
-      });
-   }
-
-   @Override
    public LtResponse<Collection<Ad>> listAds(UUID sessionId) {
       LtRequest r = new LtRequest(Function.LIST_ADS);
       r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
@@ -245,15 +232,6 @@ public class LtApiClient implements LtApi {
       LtRequest r = new LtRequest(Function.GET_SUPPORTED_PRICE_FORMULAS);
       r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
       return sendRequest(r, new TypeReference<LtResponse<List<PriceFormula>>>() {
-      });
-   }
-
-   @Override
-   public LtResponse<UUID> createSellOrder(UUID sessionId, TradeParameters params) {
-      LtRequest r = new LtRequest(Function.CREATE_SELL_ORDER);
-      r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
-      r.setPostObject(_objectMapper, params);
-      return sendRequest(r, new TypeReference<LtResponse<UUID>>() {
       });
    }
 
@@ -285,30 +263,11 @@ public class LtApiClient implements LtApi {
    }
 
    @Override
-   public LtResponse<Void> editSellOrder(UUID sessionId, UUID sellOrderId, TradeParameters params) {
-      LtRequest r = new LtRequest(Function.EDIT_SELL_ORDER);
-      r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
-      r.addQueryParameter(Param.SELL_ORDER_ID, sellOrderId.toString());
-      r.setPostObject(_objectMapper, params);
-      return sendRequest(r, new TypeReference<LtResponse<Void>>() {
-      });
-   }
-
-   @Override
    public LtResponse<Void> editAd(UUID sessionId, UUID adId, AdParameters params) {
       LtRequest r = new LtRequest(Function.EDIT_AD);
       r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
       r.addQueryParameter(Param.AD_ID, adId.toString());
       r.setPostObject(_objectMapper, params);
-      return sendRequest(r, new TypeReference<LtResponse<Void>>() {
-      });
-   }
-
-   @Override
-   public LtResponse<Void> activateSellOrder(UUID sessionId, UUID sellOrderId) {
-      LtRequest r = new LtRequest(Function.ACTIVATE_SELL_ORDER);
-      r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
-      r.addQueryParameter(Param.SELL_ORDER_ID, sellOrderId.toString());
       return sendRequest(r, new TypeReference<LtResponse<Void>>() {
       });
    }

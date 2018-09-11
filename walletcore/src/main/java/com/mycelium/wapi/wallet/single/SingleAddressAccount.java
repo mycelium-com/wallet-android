@@ -51,9 +51,11 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
       _context = context;
       _addressList = new ArrayList<>(3);
       _keyStore = keyStore;
-      persistAddresses();
-      _addressList.addAll(context.getAddresses().values());
-      _cachedBalance = _context.isArchived() ? new Balance(0, 0, 0, 0, 0, 0, false, _allowZeroConfSpending) : calculateLocalBalance();
+       persistAddresses();
+       _addressList.addAll(context.getAddresses().values());
+       _cachedBalance = _context.isArchived()
+               ? new Balance(0, 0, 0, 0, 0, 0, false, _allowZeroConfSpending)
+               : calculateLocalBalance();
    }
 
    private void persistAddresses() {

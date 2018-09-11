@@ -630,8 +630,7 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
          Cursor cursor = null;
          List<TransactionOutputEx> list = new LinkedList<>();
          try {
-            SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(_db);
-            cursor = blobQuery.query(false, utxoTableName, new String[]{"outpoint", "height", "value", "isCoinbase",
+            cursor = _db.query(false, utxoTableName, new String[]{"outpoint", "height", "value", "isCoinbase",
                   "script"}, null, null, null, null, null, null);
             while (cursor.moveToNext()) {
                TransactionOutputEx tex = new TransactionOutputEx(SQLiteQueryWithBlobs.outPointFromBytes(cursor
@@ -1200,7 +1199,7 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
 
       @Override
       public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-         //We don't really support downgrade
+         //We don't really support downgrade but some android devices need this empty method
       }
    }
 }

@@ -33,7 +33,6 @@ import com.mycelium.lt.api.params.ReleaseBtcParameters;
 import com.mycelium.lt.api.params.SearchParameters;
 import com.mycelium.lt.api.params.SetTradeReceivingAddressParameters;
 import com.mycelium.lt.api.params.TradeChangeParameters;
-import com.mycelium.lt.api.params.TradeParameters;
 import com.mycelium.lt.api.params.TraderParameters;
 
 public interface LtApi {
@@ -120,9 +119,6 @@ public interface LtApi {
     */
    LtResponse<String> traderLogin(UUID sessionId, LoginParameters params);
 
-   @Deprecated
-   LtResponse<Collection<SellOrder>> listSellOrders(UUID sessionId);
-
    /*
    Example HTTP POST:
    curl  -k -X POST -H "Content-Type: application/json" https://node3.mycelium.com/lttestnet/listAds?sessionId=1ecc892f-249f-4e3a-bde8-cb06bb3cf891
@@ -130,9 +126,6 @@ public interface LtApi {
    LtResponse<Collection<Ad>> listAds(UUID sessionId);
 
    LtResponse<List<PriceFormula>> getSupportedPriceFormulas(UUID sessionId);
-
-   @Deprecated
-   LtResponse<UUID> createSellOrder(UUID sessionId, TradeParameters params);
 
    /* Example HTTP POST:
    curl  -k -X POST -H "Content-Type: application/json"
@@ -151,18 +144,12 @@ public interface LtApi {
 
    LtResponse<Void> deleteAd(UUID sessionId, UUID adId);
 
-   @Deprecated
-   LtResponse<Void> activateSellOrder(UUID sessionId, UUID sellOrderId);
-
    LtResponse<Void> activateAd(UUID sessionId, UUID adId);
 
    @Deprecated
    LtResponse<Void> deactivateSellOrder(UUID sessionId, UUID sellOrderId);
 
    LtResponse<Void> deactivateAd(UUID sessionId, UUID adId);
-
-   @Deprecated
-   LtResponse<Void> editSellOrder(UUID sessionId, UUID sellOrderId, TradeParameters params);
 
    LtResponse<Void> editAd(UUID sessionId, UUID adId, AdParameters params);
 
