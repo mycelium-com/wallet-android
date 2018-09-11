@@ -35,7 +35,6 @@
 package com.mycelium.wallet.colu;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.mrd.bitlib.StandardTransactionBuilder;
@@ -46,14 +45,11 @@ import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.OutputList;
 import com.mrd.bitlib.model.ScriptOutput;
-import com.mrd.bitlib.model.Transaction;
-import com.mrd.bitlib.model.TransactionOutput;
 import com.mrd.bitlib.util.ByteWriter;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.colu.json.Asset;
-import com.mycelium.wallet.colu.json.ColuTxDetailsItem;
 import com.mycelium.wallet.colu.json.Tx;
 import com.mycelium.wallet.colu.json.Utxo;
 import com.mycelium.wallet.colu.json.Vin;
@@ -64,7 +60,13 @@ import com.mycelium.wapi.model.BalanceSatoshis;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputSummary;
 import com.mycelium.wapi.model.TransactionSummary;
-import com.mycelium.wapi.wallet.*;
+import com.mycelium.wapi.wallet.AccountBacking;
+import com.mycelium.wapi.wallet.ExportableAccount;
+import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.GenericTransaction;
+import com.mycelium.wapi.wallet.KeyCipher;
+import com.mycelium.wapi.wallet.SendRequest;
+import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.btc.BtcTransaction;
 import com.mycelium.wapi.wallet.btc.SynchronizeAbleWalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
@@ -72,10 +74,9 @@ import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.CoinType;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
-import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
-
 import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
+
 import org.spongycastle.util.encoders.Hex;
 
 import java.io.IOException;
@@ -185,11 +186,11 @@ public class ColuAccount extends SynchronizeAbleWalletBtcAccount implements Expo
     }
 
     @Override
-    public void checkAmount(Receiver receiver, long kbMinerFee, CurrencyValue enteredAmount) throws StandardTransactionBuilder.InsufficientFundsException, StandardTransactionBuilder.OutputTooSmallException {
+    public void checkAmount(Receiver receiver, long kbMinerFee, Value enteredAmount) throws StandardTransactionBuilder.InsufficientFundsException, StandardTransactionBuilder.OutputTooSmallException {
         //TODO: remove this as we do not send money here ?
-        Optional<ExactCurrencyValue> sendValue = com.mycelium.wapi.wallet.currency.CurrencyValue.checkCurrencyAmount(enteredAmount, "UNKNOWN");
+//        Optional<Value> sendValue = com.mycelium.wapi.wallet.currency.CurrencyValue.checkCurrencyAmount(enteredAmount, "UNKNOWN");
 
-        if (balanceFiat == null || sendValue.isPresent() && sendValue.get().getValue().compareTo(balanceFiat.confirmed.getValue()) > 0) {
+        if (balanceFiat == null || enteredAmount != null && enteredAmount.getValueAsBigDecimal().compareTo(balanceFiat.confirmed.getValue()) > 0) {
             //not enough funds
             throw new StandardTransactionBuilder.InsufficientFundsException(receiver.amount, 0);
         }
