@@ -62,6 +62,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -123,12 +124,19 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
             if (a.canSpend()) {
                try {
                   base58EncodedPrivateKey = a.getPrivateKey(cipher).getBase58EncodedPrivateKey(network);
-                  entry = new EntryToExport(a.getPrivateKey(cipher).getPublicKey().getAllSupportedAddresses(network),
+                  entry = new EntryToExport(a.getPublicKey().getAllSupportedAddresses(network),
                           base58EncodedPrivateKey, label, account.getType());
+
                } catch (KeyCipher.InvalidKeyCipher e) {
                   throw new RuntimeException(e);
                }
+            } else {
+               Address address = a.getReceivingAddress().get();
+               Map<AddressType, Address> addressMap= new HashMap<>();
+               addressMap.put(address.getType(), address);
+               entry = new EntryToExport(addressMap, null, label, account.getType());
             }
+
          } else if (account instanceof ColuAccount) {
             ColuAccount a = (ColuAccount) account;
             String label = storage.getLabelByAccount(a.getId());
@@ -139,6 +147,7 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
                        base58EncodedPrivateKey, label, account.getType());
             }
          }
+
          if (entry != null) {
             if (account.isActive()) {
                _active.add(entry);

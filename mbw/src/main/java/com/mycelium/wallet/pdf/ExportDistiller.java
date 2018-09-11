@@ -66,7 +66,7 @@ import crl.android.pdfwriter.PaperSize;
 
 public class ExportDistiller {
     private static final int LABEL_FONT_SIZE = 15;
-    private static final int RECORDS_PR_PAGE = 3;
+    private static final int RECORDS_PR_PAGE = 2;
 
     public static class ExportEntry implements Serializable {
         private static final long serialVersionUID = 1L;
@@ -182,7 +182,24 @@ public class ExportDistiller {
         int totalAddresses = activeRecords + archivedRecords;
         int totalRecords = activeRecords + archivedRecords;
 
-        int totalPages = 1 + ((totalRecords + RECORDS_PR_PAGE - 1) / RECORDS_PR_PAGE) + 1;
+        //first page, last page and our records
+        int totalPages = 2;
+        int entryInPageCounter = 0;
+        boolean lastEntryHasOneAddress = false;
+        for(ExportEntry entry : params.getAllEntries()){
+            if(entryInPageCounter == 0){
+                totalPages++;
+                entryInPageCounter++;
+            } else {
+                if(entryInPageCounter == 1 && (lastEntryHasOneAddress || entry.addresses.size() ==1)){
+                    entryInPageCounter++;
+                } else {
+                    entryInPageCounter = 1;
+                    totalPages++;
+                }
+            }
+            lastEntryHasOneAddress = entry.addresses.size() == 1;
+        }
 
         PdfWriter writer = new PdfWriter(pageWidth, pageHeight, 20, 20, 20, 20);
 
@@ -293,7 +310,7 @@ public class ExportDistiller {
         // Add page number
         addPageNumber(writer, pageNum++, totalPages);
 
-        // There are 3 records positions per page
+        // There are 2 records positions per page
         int recordsOnThisPage = 0;
         fromTop = 0F;
         int remainingRecords = totalRecords;
@@ -303,18 +320,13 @@ public class ExportDistiller {
             writer.addPage();
         }
 
-        List<ExportEntry> active = params.getActive();
-        for (int i = 0; i < active.size(); i++) {
-            ExportEntry exportEntry = active.get(i);
-            recordsOnThisPage++;
-            remainingRecords--;
-            boolean lastRecordOnPage = recordsOnThisPage == RECORDS_PR_PAGE || remainingRecords == 0;
-
-            // Add Record
-            fromTop += addRecord(new OffsetWriter(0F, fromTop, writer), getTitle(true, i + 1, active.size()),
-                    exportEntry, lastRecordOnPage, progressTracker);
-
-            if (lastRecordOnPage) {
+        List<ExportEntry> allEntries = params.getAllEntries();
+        int previousNumberOfAddresses = 0;
+        for (int i = 0; i < allEntries.size(); i++) {
+            ExportEntry exportEntry = allEntries.get(i);
+            // we can't put two records on page if both have two or more addresses
+            if((previousNumberOfAddresses > 1 && exportEntry.addresses.size() > 1) ||
+                    recordsOnThisPage == RECORDS_PR_PAGE || remainingRecords == 0) {
                 recordsOnThisPage = 0;
                 addPageNumber(writer, pageNum++, totalPages);
                 if (remainingRecords > 0) {
@@ -322,29 +334,17 @@ public class ExportDistiller {
                     fromTop = 0F;
                 }
             }
-        }
-
-        List<ExportEntry> archived = params.getArchived();
-        for (int i = 0; i < archived.size(); i++) {
-            ExportEntry exportEntry = archived.get(i);
             recordsOnThisPage++;
             remainingRecords--;
-            boolean lastRecordOnPage = recordsOnThisPage == RECORDS_PR_PAGE || remainingRecords == 0;
 
-            // Add Record
-            fromTop += addRecord(new OffsetWriter(0F, fromTop, writer), getTitle(false, i + 1, archived.size()),
-                    exportEntry, lastRecordOnPage, progressTracker);
-
-            if (lastRecordOnPage) {
-                recordsOnThisPage = 0;
-                addPageNumber(writer, pageNum++, totalPages);
-                if (remainingRecords > 0) {
-                    writer.addPage();
-                    fromTop = 0F;
-                }
-            }
+            boolean addEndLine = recordsOnThisPage == RECORDS_PR_PAGE || remainingRecords == 0 ||
+                    (recordsOnThisPage == 1 && allEntries.get(i+1).addresses.size() > 1);
+            fromTop += addRecord(new OffsetWriter(0F, fromTop, writer), getTitle(true, i + 1, allEntries.size()),
+                    exportEntry, addEndLine, progressTracker);
+            previousNumberOfAddresses = exportEntry.addresses.size();
         }
 
+        addPageNumber(writer, pageNum++, totalPages);
         addFinalPage(writer, totalPages);
         return writer.asString();
     }
@@ -439,15 +439,13 @@ public class ExportDistiller {
         }
 
         fromTop = Math.max(fromTopAddressesColumn, fromTopPrivateKeyColumn);
-        // Use Standard font
-        writer.setStandardFont();
-
-        // Add end line if necessary
-        if (addEndLine) {
+        fromTop += 0.5F;
+        if(addEndLine) {
             writer.setLineColor(0, 0.5, 1);
             writer.addLine(1F, fromTop, 18F, fromTop);
         }
-        fromTop += 0.5F;
+        // Use Standard font
+        writer.setStandardFont();
         return fromTop;
     }
 
