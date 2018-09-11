@@ -125,8 +125,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = 'VERSION_1_8'
-        targetCompatibility = 'VERSION_1_8'
+        sourceCompatibility = 'VERSION_1_7'
+        targetCompatibility = 'VERSION_1_7'
     }
 
     compileSdkVersion androidCompileSdkVersion
