@@ -1599,8 +1599,10 @@ public class SendMainActivity extends Activity {
       _progress = ProgressDialog.show(this, "", getString(R.string.retrieving_pubkey_address), true);
       _receivingAcc = _mbwManager.getWalletManager(true).createUnrelatedBip44Account(hdKeyNode);
       _xpubSyncing = true;
-      _mbwManager.getWalletManager(true).startSynchronization(_receivingAcc);
-   }
+      if (!_mbwManager.getWalletManager(true).startSynchronization(_receivingAcc)) {
+          _mbwManager.getEventBus().post(new SyncFailed());
+      }
+    }
 
    private BitcoinUriWithAddress getUriFromClipboard() {
       String content = Utils.getClipboardString(SendMainActivity.this);

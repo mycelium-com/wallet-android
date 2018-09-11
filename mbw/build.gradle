@@ -16,9 +16,7 @@ buildscript {
 
     dependencies {
         classpath androidBuildArtifact
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version") {
-            exclude(group: 'org.jetbrains', module: 'annotations')
-        }
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
 
@@ -133,8 +131,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 2110117
-        versionName '2.11.1.17'
+        versionCode 2110120
+        versionName '2.11.1.20'
         multiDexEnabled true
 
         minSdkVersion 19
@@ -154,10 +152,11 @@ android {
                 storePassword prodKeyStorePassword
                 keyPassword prodKeyAliasPassword
             } else {
-				        storeFile commonDebugKeystore
-				        storePassword 'android'
-				        keyAlias 'androiddebugkey'
-				        keyPassword 'android'
+                failIfSigningKeyEnforced()
+                storeFile commonDebugKeystore
+                storePassword 'android'
+                keyAlias 'androiddebugkey'
+                keyPassword 'android'
             }
         }
         btctestnet {
@@ -170,10 +169,11 @@ android {
                 storePassword testKeyStorePassword
                 keyPassword testKeyAliasPassword
             } else {
-				        storeFile commonDebugKeystore
-				        storePassword 'android'
-				        keyAlias 'androiddebugkey'
-				        keyPassword 'android'
+                failIfSigningKeyEnforced()
+                storeFile commonDebugKeystore
+                storePassword 'android'
+                keyAlias 'androiddebugkey'
+                keyPassword 'android'
             }
         }
         commonDebug {

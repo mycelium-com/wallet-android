@@ -69,8 +69,18 @@ def getGitBranch() {
     return branch
 }
 
+def failIfSigningKeyEnforced() {
+    Properties properties = new Properties()
+    properties.load(project.rootProject.file('local.properties').newDataInputStream())
+    def enforceReleaseSigning = properties.getProperty('enforceReleaseSigning', "false")
+    if (enforceReleaseSigning == "true") {
+        throw new GradleException("Couldn't load release signing keys!")
+    }
+}
+
 // export the functions
-ext{
+ext {
+    failIfSigningKeyEnforced = this.&failIfSigningKeyEnforced
     getCheckedOutGitCommitHash = this.&getCheckedOutGitCommitHash
     getGitBranch = this.&getGitBranch
 }
