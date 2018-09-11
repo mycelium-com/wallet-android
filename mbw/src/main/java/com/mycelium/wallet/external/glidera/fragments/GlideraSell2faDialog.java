@@ -171,8 +171,8 @@ public class GlideraSell2faDialog extends DialogFragment {
                Address refundAddress = optionalRefundAddress.get();
                UUID uuid = _sellPriceResponse.getPriceUuid();
 
-               List<WalletBtcAccount.Receiver> receivers = new ArrayList<WalletBtcAccount.Receiver>();
-               receivers.add(new WalletBtcAccount.Receiver(Address.fromString(sellAddress), Bitcoins.nearestValue(_sellPriceResponse
+               List<WalletAccount.Receiver> receivers = new ArrayList<>();
+               receivers.add(new WalletAccount.Receiver(Address.fromString(sellAddress), Bitcoins.nearestValue(_sellPriceResponse
                        .getQty())));
 
                WalletAccount selectedAccount = mbwManager.getSelectedAccount();

@@ -78,6 +78,7 @@ import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.SyncMode;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.BtcTransaction;
 import com.mycelium.wapi.wallet.btc.SynchronizeAbleWalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
@@ -255,7 +256,7 @@ public class CoinapultAccount extends SynchronizeAbleWalletBtcAccount {
    }
 
 
-   public PreparedCoinapult prepareCoinapultTx(WalletBtcAccount.Receiver receiver) throws StandardTransactionBuilder.InsufficientFundsException {
+   public PreparedCoinapult prepareCoinapultTx(WalletAccount.Receiver receiver) throws StandardTransactionBuilder.InsufficientFundsException {
       if (balanceFiat == null || getSatoshis(balanceFiat.confirmed) < receiver.amount) {
          throw new StandardTransactionBuilder.InsufficientFundsException(receiver.amount, 0);
       } else {
@@ -790,7 +791,7 @@ public class CoinapultAccount extends SynchronizeAbleWalletBtcAccount {
          this.amount = value;
       }
 
-      public PreparedCoinapult(WalletBtcAccount.Receiver receiver) {
+      public PreparedCoinapult(WalletAccount.Receiver receiver) {
          address = receiver.address;
          satoshis = receiver.amount;
       }

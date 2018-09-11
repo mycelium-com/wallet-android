@@ -877,7 +877,7 @@ public class SendMainActivity extends Activity {
                 _transactionLabel = paymentRequestInformation.getPaymentDetails().memo;
                 return TransactionStatus.OK;
             } else if(hasAddressData) {
-                WalletBtcAccount.Receiver receiver = new WalletBtcAccount.Receiver(_receivingAddress, toSend.getValue());
+                WalletAccount.Receiver receiver = new WalletAccount.Receiver(_receivingAddress, toSend.getValue());
                 _unsigned = ((WalletBtcAccount)_account).createUnsignedTransaction(Collections.singletonList(receiver), feePerKbValue);
                 checkSpendingUnconfirmed();
                 return TransactionStatus.OK;

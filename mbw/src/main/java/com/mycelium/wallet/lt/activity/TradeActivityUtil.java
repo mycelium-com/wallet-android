@@ -70,7 +70,7 @@ public class TradeActivityUtil {
          return false;
       }
       Address nullAddress = Address.getNullAddress(mbwManager.getNetwork());
-      WalletBtcAccount.Receiver receiver = new WalletBtcAccount.Receiver(nullAddress, ts.satoshisFromSeller);
+      WalletAccount.Receiver receiver = new WalletAccount.Receiver(nullAddress, ts.satoshisFromSeller);
       try {
          ((WalletBtcAccount)account).createUnsignedTransaction(Collections.singletonList(receiver), lt.getMinerFeeEstimation().getLongValue());
       } catch (OutputTooSmallException e) {
@@ -88,10 +88,10 @@ public class TradeActivityUtil {
       Preconditions.checkArgument(satoshisForBuyer > MINIMUM_OUTPUT_VALUE);
       Preconditions.checkArgument(satoshisFromSeller >= satoshisForBuyer);
       long localTraderFee = satoshisFromSeller - satoshisForBuyer;
-      List<WalletBtcAccount.Receiver> receiver = new ArrayList<>();
-      receiver.add(new WalletBtcAccount.Receiver(buyerAddress, satoshisForBuyer));
+      List<WalletAccount.Receiver> receiver = new ArrayList<>();
+      receiver.add(new WalletAccount.Receiver(buyerAddress, satoshisForBuyer));
       if (localTraderFee >= MINIMUM_OUTPUT_VALUE) {
-         receiver.add(new WalletBtcAccount.Receiver(feeAddress, localTraderFee));
+         receiver.add(new WalletAccount.Receiver(feeAddress, localTraderFee));
       }
       try {
          return ((WalletBtcAccount)acc).createUnsignedTransaction(receiver, minerFeeToUse);

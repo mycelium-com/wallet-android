@@ -124,7 +124,7 @@ public interface WalletBtcAccount extends WalletAccount<BtcTransaction, BtcAddre
     * @throws StandardTransactionBuilder.InsufficientFundsException if not enough funds were present to create the unsigned
     *                                    transaction
     */
-   UnsignedTransaction createUnsignedTransaction(List<WalletBtcAccount.Receiver> receivers, long minerFeeToUse) throws StandardTransactionBuilder.OutputTooSmallException,
+   UnsignedTransaction createUnsignedTransaction(List<WalletAccount.Receiver> receivers, long minerFeeToUse) throws StandardTransactionBuilder.OutputTooSmallException,
            StandardTransactionBuilder.InsufficientFundsException, StandardTransactionBuilder.UnableToBuildTransactionException;
 
    /**
@@ -190,32 +190,4 @@ public interface WalletBtcAccount extends WalletAccount<BtcTransaction, BtcAddre
     * Returns the account native currency as a ISO String, e.g. "BTC", "USD", ...
     */
    String getAccountDefaultCurrency();
-
-
-
-   /**
-    * Class representing a receiver of funds
-    */
-   class Receiver implements Serializable {
-      private static final long serialVersionUID = 1L;
-
-      /**
-       * The address to send funds to
-       */
-      public final Address address;
-
-      /**
-       * The amount to send measured in satoshis
-       */
-      public final long amount;
-
-      public Receiver(Address address, long amount) {
-         this.address = address;
-         this.amount = amount;
-      }
-
-      public Receiver(Address address, Bitcoins amount) {
-         this(address, amount.getLongValue());
-      }
-   }
 }

@@ -1,6 +1,7 @@
 package com.mycelium.wapi.wallet;
 
 import com.google.common.base.Optional;
+import com.megiontechnologies.Bitcoins;
 import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.model.Address;
@@ -17,6 +18,7 @@ import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -104,7 +106,7 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
      */
     TransactionEx getTransactionEx(Sha256Hash txid);
 
-    void checkAmount(WalletBtcAccount.Receiver receiver, long kbMinerFee, Value enteredAmount)
+    void checkAmount(Receiver receiver, long kbMinerFee, Value enteredAmount)
             throws StandardTransactionBuilder.InsufficientFundsException,
             StandardTransactionBuilder.OutputTooSmallException,
             StandardTransactionBuilder.UnableToBuildTransactionException;
@@ -239,4 +241,30 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
      * Returns the number of retrieved transactions during synchronization
      */
     int getSyncTotalRetrievedTransactions();
+
+    /**
+     * Class representing a receiver of funds
+     */
+    class Receiver implements Serializable {
+        private static final long serialVersionUID = 1L;
+
+        /**
+         * The address to send funds to
+         */
+        public final Address address;
+
+        /**
+         * The amount to send measured in satoshis
+         */
+        public final long amount;
+
+        public Receiver(Address address, long amount) {
+            this.address = address;
+            this.amount = amount;
+        }
+
+        public Receiver(Address address, Bitcoins amount) {
+            this(address, amount.getLongValue());
+        }
+    }
 }
