@@ -42,7 +42,6 @@ import com.mycelium.wapi.wallet.WalletManager.Event;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.BtcTransaction;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.coins.BitcoinTest;
@@ -63,7 +62,6 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
                                NetworkParameters network, SingleAddressAccountBacking backing, Wapi wapi) {
       super(backing, network, wapi);
       _backing = backing;
-      type = WalletBtcAccount.Type.BTCSINGLEADDRESS;
       _context = context;
       _addressList = new ArrayList<>(3);
       _keyStore = keyStore;

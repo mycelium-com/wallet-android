@@ -29,16 +29,9 @@ public abstract class SynchronizeAbleWalletBtcAccount implements WalletBtcAccoun
    );
    private final HashMap<SyncMode.Mode, Date> _lastSync = new HashMap<>(SyncMode.Mode.values().length);
 
-   protected Type type = Type.UNKNOWN;
-
    @Override
    public UUID getId(){
       return new UUID(0,0);
-   }
-
-   @Override
-   public Type getType() {
-      return type;
    }
 
    /**

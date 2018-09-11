@@ -95,11 +95,14 @@ import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.ExportableAccount;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
+import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
 import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
+import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.currency.BitcoinValue;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
@@ -750,7 +753,7 @@ public class Utils {
    }
 
    public static void exportSelectedAccount(final Activity parent) {
-      final WalletBtcAccount account = MbwManager.getInstance(parent).getSelectedAccount();
+      final WalletAccount account = MbwManager.getInstance(parent).getSelectedAccount();
       if (!(account instanceof ExportableAccount)) {
          return;
       }
@@ -780,8 +783,8 @@ public class Utils {
       activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
    }
 
-   public static boolean checkIsLinked(WalletBtcAccount account, final Collection<WalletBtcAccount> accounts) {
-      for (WalletBtcAccount walletAccount : accounts) {
+   public static boolean checkIsLinked(WalletAccount account, final Collection<? extends WalletAccount> accounts) {
+      for (WalletAccount walletAccount : accounts) {
          if (walletAccount instanceof ColuAccount
                  && ((ColuAccount) walletAccount).getLinkedAccount() != null
                  && ((ColuAccount) walletAccount).getLinkedAccount().equals(account)) {
@@ -791,8 +794,8 @@ public class Utils {
       return false;
    }
 
-   public static WalletBtcAccount getLinkedAccount(WalletBtcAccount account, final Collection<WalletBtcAccount> accounts) {
-      for (WalletBtcAccount walletAccount : accounts) {
+   public static WalletAccount getLinkedAccount(WalletAccount account, final Collection<? extends WalletAccount> accounts) {
+      for (WalletAccount walletAccount : accounts) {
          if (walletAccount instanceof ColuAccount
                  && ((ColuAccount) walletAccount).getLinkedAccount() != null
                  && ((ColuAccount) walletAccount).getLinkedAccount().equals(account)) {
@@ -802,30 +805,31 @@ public class Utils {
       return null;
    }
 
-   public static List<WalletBtcAccount> sortAccounts(final List<WalletBtcAccount> accounts, final MetadataStorage storage) {
-      Ordering<WalletBtcAccount> type = Ordering.natural().onResultOf(new Function<WalletBtcAccount, Integer>() {
+   public static List<WalletAccount> sortAccounts(final List<WalletAccount> accounts, final MetadataStorage storage) {
+      Ordering<WalletAccount> type = Ordering.natural().onResultOf(new Function<WalletAccount, Integer>() {
+         //maybe need to add new method in WalletAccount and use polymorphism
+         //but I think it's unnecessary
          @Override
-         public Integer apply(@Nullable WalletBtcAccount input) {
-            switch (input.getType()) {
-               case BTCBIP44:
-               case BCHBIP44:
-                  return 0;
-               case BTCSINGLEADDRESS:
-               case BCHSINGLEADDRESS:
-                  return checkIsLinked(input, accounts) ? 5 : 1;
-               case COLU:
-                  return 5;
-               case COINAPULT:
-                  return 6; //coinapult last
-               default:
-                  return 4;
+         public Integer apply(@Nullable WalletAccount input) {
+            if(input instanceof HDAccount || input instanceof Bip44BCHAccount){
+               return 0;
             }
+            if(input instanceof SingleAddressAccount || input instanceof SingleAddressBCHAccount) {
+               return checkIsLinked(input, accounts) ? 5 : 1;
+            }
+            if(input instanceof ColuAccount) {
+               return 5;
+            }
+            if(input instanceof CoinapultAccount) {
+               return 6;
+            }
+            return 4;
          }
       });
-      Ordering<WalletBtcAccount> index = Ordering.natural().onResultOf(new Function<WalletBtcAccount, Integer>() {
+      Ordering<WalletAccount> index = Ordering.natural().onResultOf(new Function<WalletAccount, Integer>() {
          @Nullable
          @Override
-         public Integer apply(@Nullable WalletBtcAccount input) {
+         public Integer apply(@Nullable WalletAccount input) {
             if (input instanceof HDAccount) {
                HDAccount HDAccount = (HDAccount) input;
                return HDAccount.getAccountIndex();
@@ -834,27 +838,27 @@ public class Utils {
          }
       });
 
-      Comparator<WalletBtcAccount> linked = new Comparator<WalletBtcAccount>() {
+      Comparator<WalletAccount> linked = new Comparator<WalletAccount>() {
          @Override
-         public int compare(WalletBtcAccount w1, WalletBtcAccount w2) {
-            if (w1.getType() == WalletBtcAccount.Type.COLU) {
+         public int compare(WalletAccount w1, WalletAccount w2) {
+            if (w1 instanceof ColuAccount) {
                return ((ColuAccount) w1).getLinkedAccount().getId().equals(w2.getId()) ? -1 : 0;
-            } else if (w2.getType() == WalletBtcAccount.Type.COLU) {
+            } else if (w2 instanceof ColuAccount) {
                return ((ColuAccount) w2).getLinkedAccount().getId().equals(w1.getId()) ? 1 : 0;
-            } else if (w1.getType() == WalletBtcAccount.Type.BCHBIP44
-                    && w2.getType() == WalletBtcAccount.Type.BTCBIP44
+            } else if (w1 instanceof Bip44BCHAccount
+                    && w2 instanceof HDAccount
                     && MbwManager.getBitcoinCashAccountId(w2).equals(w1.getId())) {
                return 1;
-            } else if (w1.getType() == WalletBtcAccount.Type.BTCBIP44
-                    && w2.getType() == WalletBtcAccount.Type.BCHBIP44
+            } else if (w1 instanceof HDAccount
+                    && w2 instanceof Bip44BCHAccount
                     && MbwManager.getBitcoinCashAccountId(w1).equals(w2.getId())) {
                return -1;
-            } else if (w1.getType() == WalletBtcAccount.Type.BCHSINGLEADDRESS
-                    && w2.getType() == WalletBtcAccount.Type.BTCSINGLEADDRESS
+            } else if (w1 instanceof SingleAddressBCHAccount
+                    && w2 instanceof SingleAddressAccount
                     && MbwManager.getBitcoinCashAccountId(w2).equals(w1.getId())) {
                return 1;
-            } else if (w1.getType() == WalletBtcAccount.Type.BTCSINGLEADDRESS
-                    && w2.getType() == WalletBtcAccount.Type.BCHSINGLEADDRESS
+            } else if (w1 instanceof SingleAddressAccount
+                    && w2 instanceof SingleAddressBCHAccount
                     && MbwManager.getBitcoinCashAccountId(w1).equals(w2.getId())) {
                return -1;
             } else {
@@ -863,10 +867,10 @@ public class Utils {
          }
       };
 
-      Ordering<WalletBtcAccount> name = Ordering.natural().onResultOf(new Function<WalletBtcAccount, String>() {
+      Ordering<WalletAccount> name = Ordering.natural().onResultOf(new Function<WalletAccount, String>() {
          @Nullable
          @Override
-         public String apply(@Nullable WalletBtcAccount input) {
+         public String apply(@Nullable WalletAccount input) {
             return storage.getLabelByAccount(input.getId());
          }
       });
@@ -881,7 +885,7 @@ public class Utils {
       return Ordering.natural().onResultOf(ENTRY_NAME).sortedCopy(entries);
    }
 
-   public static Drawable getDrawableForAccount(WalletBtcAccount walletAccount, boolean isSelectedAccount, Resources resources) {
+   public static Drawable getDrawableForAccount(WalletAccount walletAccount, boolean isSelectedAccount, Resources resources) {
       if (walletAccount instanceof ColuAccount) {
          ColuAccount account = (ColuAccount) walletAccount;
          switch (account.getColuAsset().assetType) {
@@ -930,7 +934,7 @@ public class Utils {
       return resources.getDrawable(R.drawable.singlekey_grey);
    }
 
-   public static String getNameForNewAccount(WalletBtcAccount account, Context context) {
+   public static String getNameForNewAccount(WalletAccount account, Context context) {
       if (account instanceof HDAccountExternalSignature) {
          String baseName;
          int accountType = ((HDAccountExternalSignature) account).getAccountType();
@@ -951,11 +955,11 @@ public class Utils {
       }
    }
 
-   public static boolean isAllowedForLocalTrader(WalletBtcAccount account) {
+   public static boolean isAllowedForLocalTrader(WalletAccount account) {
       if (account instanceof CoinapultAccount
-              || account.getType() == WalletBtcAccount.Type.BCHBIP44
-              || account.getType() == WalletBtcAccount.Type.BCHSINGLEADDRESS
-              || account.getType() == WalletBtcAccount.Type.COLU) {
+              || account instanceof Bip44BCHAccount
+              || account instanceof SingleAddressBCHAccount
+              || account instanceof ColuAccount) {
          return false; //we do not support coinapult accs in lt (yet)
       }
       if (!account.getReceivingAddress().isPresent()) {

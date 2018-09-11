@@ -75,10 +75,7 @@ import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
-import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -255,7 +252,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
          }
          activity._progress.dismiss();
          //set default label for the created HD account
-         WalletBtcAccount account = activity._mbwManager.getWalletManager(false).getAccount(accountid);
+         WalletAccount account = activity._mbwManager.getWalletManager(false).getAccount(accountid);
          String defaultName = Utils.getNameForNewAccount(account, activity);
          activity._mbwManager.getMetadataStorage().storeAccountLabel(accountid, defaultName);
          //finish initialization
@@ -295,7 +292,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
             return;
          }
          //set default label for the created HD account
-         WalletBtcAccount account = activity._mbwManager.getWalletManager(false).getAccount(accountid);
+         WalletAccount account = activity._mbwManager.getWalletManager(false).getAccount(accountid);
          String defaultName = Utils.getNameForNewAccount(account, activity);
          activity._mbwManager.getMetadataStorage().storeAccountLabel(accountid, defaultName);
          //finish initialization
@@ -539,7 +536,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
             //we have restored a backup
             UUID accountid = (UUID) data.getSerializableExtra(AddAccountActivity.RESULT_KEY);
             //set default label for the created HD account
-            WalletBtcAccount account = _mbwManager.getWalletManager(false).getAccount(accountid);
+            WalletAccount account = _mbwManager.getWalletManager(false).getAccount(accountid);
             String defaultName = Utils.getNameForNewAccount(account, this);
             _mbwManager.getMetadataStorage().storeAccountLabel(accountid, defaultName);
             //finish initialization

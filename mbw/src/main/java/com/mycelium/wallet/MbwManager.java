@@ -120,7 +120,6 @@ import com.mycelium.wapi.wallet.SecureKeyValueStore;
 import com.mycelium.wapi.wallet.SpvBalanceFetcher;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
@@ -1144,16 +1143,11 @@ public class MbwManager {
     public void forgetColdStorageWalletManager() {
         createTempWalletManager();
     }
-
     public int getBitcoinBlockheight() {
         return _walletManager.getBlockheight();
     }
 
-   public WalletAccount getSelectedAccountGeneric() {
-      return getSelectedAccount();
-   }
-
-   public WalletBtcAccount getSelectedAccount() {
+   public WalletAccount getSelectedAccount() {
       UUID uuid = getLastSelectedAccountId();
 
         // If nothing is selected, or selected is archived, pick the first one
@@ -1175,7 +1169,7 @@ public class MbwManager {
    public Optional<UUID> getAccountId(Address address, Class accountClass) {
       Optional<UUID> result = Optional.absent();
       for (UUID uuid : _walletManager.getAccountIds()) {
-         WalletBtcAccount account = _walletManager.getAccount(uuid);
+         WalletAccount account = _walletManager.getAccount(uuid);
          if ((accountClass == null || accountClass.isAssignableFrom(account.getClass()))
                  && account.isMine(address)) {
             result = Optional.of(uuid);
@@ -1201,7 +1195,7 @@ public class MbwManager {
     }
 
     public void setSelectedAccount(UUID uuid) {
-        final WalletBtcAccount account;
+        final WalletAccount account;
         account = _walletManager.getAccount(uuid);
         Preconditions.checkState(account.isActive());
         getEditor().putString(SELECTED_ACCOUNT, uuid.toString()).apply();
@@ -1212,7 +1206,7 @@ public class MbwManager {
         _walletManager.setActiveAccount(account.getId());
     }
 
-    public InMemoryPrivateKey obtainPrivateKeyForAccount(WalletBtcAccount account, String website, KeyCipher cipher) {
+    public InMemoryPrivateKey obtainPrivateKeyForAccount(WalletAccount account, String website, KeyCipher cipher) {
         if (account instanceof SingleAddressAccount) {
             // For single address accounts we use the private key directly
             try {
@@ -1268,7 +1262,7 @@ public class MbwManager {
         try {
             accountId = _walletManager.createAdditionalBip44Account(AesKeyCipher.defaultKeyCipher());
             //set default label for the created HD account
-            WalletBtcAccount account = _walletManager.getAccount(accountId);
+            WalletAccount account = _walletManager.getAccount(accountId);
             String defaultName = Utils.getNameForNewAccount(account, context);
             _storage.storeAccountLabel(accountId, defaultName);
         } catch (KeyCipher.InvalidKeyCipher e) {

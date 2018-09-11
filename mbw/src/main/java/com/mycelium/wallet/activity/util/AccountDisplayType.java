@@ -1,6 +1,12 @@
 package com.mycelium.wallet.activity.util;
 
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+import com.mycelium.wallet.coinapult.CoinapultAccount;
+import com.mycelium.wallet.colu.ColuAccount;
+import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
+import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
+import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
+import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 
 public enum AccountDisplayType {
     BTC_ACCOUNT("BTC"),
@@ -16,23 +22,20 @@ public enum AccountDisplayType {
         this.accountLabel = accountLabel;
     }
 
-    public static AccountDisplayType getAccountType(WalletBtcAccount account) {
-        switch(account.getType()) {
-            case BTCBIP44:
-            case BTCSINGLEADDRESS:
-                return BTC_ACCOUNT;
-            case BCHBIP44:
-            case BCHSINGLEADDRESS:
-                return BCH_ACCOUNT;
-            case COINAPULT:
-                return COINAPULT_ACCOUNT;
-            case COLU:
-                return COLU_ACCOUNT;
-            case DASH:
-                return DASH_ACCOUNT;
-            default:
-                return UNKNOWN_ACCOUNT;
+    public static AccountDisplayType getAccountType(WalletAccount account) {
+        if (account instanceof HDAccount || account instanceof SingleAddressAccount) {
+            return BTC_ACCOUNT;
         }
+        if (account instanceof Bip44BCHAccount || account instanceof SingleAddressBCHAccount) {
+            return BCH_ACCOUNT;
+        }
+        if (account instanceof CoinapultAccount){
+            return COINAPULT_ACCOUNT;
+        }
+        if (account instanceof ColuAccount) {
+            return COLU_ACCOUNT;
+        }
+        return UNKNOWN_ACCOUNT;
     }
 
     public String getAccountLabel() {

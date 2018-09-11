@@ -74,7 +74,6 @@ import com.mycelium.wallet.lt.TradeSessionChangeMonitor;
 import com.mycelium.wallet.lt.activity.buy.SetTradeAddress;
 import com.mycelium.wallet.lt.api.*;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 
 import java.net.MalformedURLException;
@@ -338,7 +337,7 @@ public class TradeActivity extends Activity {
 
    private void createSignedTransaction(TradeSession ts, MbwManager mbwManager) {
       Preconditions.checkNotNull(ts.buyerAddress);
-      WalletBtcAccount acc = mbwManager.getSelectedAccount();
+      WalletAccount acc = mbwManager.getSelectedAccount();
 
       // Create unsigned transaction
       UnsignedTransaction unsigned = TradeActivityUtil.createUnsignedTransaction(ts.satoshisFromSeller, ts.satoshisForBuyer,

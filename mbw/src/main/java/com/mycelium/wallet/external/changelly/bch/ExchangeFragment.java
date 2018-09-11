@@ -38,7 +38,8 @@ import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.external.changelly.AccountAdapter;
 import com.mycelium.wallet.external.changelly.ChangellyService;
 import com.mycelium.wallet.external.changelly.Constants;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
@@ -163,7 +164,7 @@ public class ExchangeFragment extends Fragment {
         int senderFinalWidth = getActivity().getWindowManager().getDefaultDisplay().getWidth();
         int firstItemWidth = (senderFinalWidth - getResources().getDimensionPixelSize(R.dimen.item_dob_width)) / 2;
 
-        List<WalletBtcAccount> toAccounts = new ArrayList<>();
+        List<WalletAccount> toAccounts = new ArrayList<>();
         toAccounts.addAll(AccountManager.INSTANCE.getBTCBip44Accounts().values());
         toAccounts.addAll(AccountManager.INSTANCE.getBTCSingleAddressAccounts().values());
         toAccounts.addAll(AccountManager.INSTANCE.getCoinapultAccounts().values());
@@ -171,9 +172,19 @@ public class ExchangeFragment extends Fragment {
         toAccountAdapter.setAccountUseType(AccountAdapter.AccountUseType.IN);
         toRecyclerView.setAdapter(toAccountAdapter);
 
-        List<WalletBtcAccount> fromAccounts = new ArrayList<>();
-        fromAccounts.addAll(filterAccount(AccountManager.INSTANCE.getBCHBip44Accounts().values()));
-        fromAccounts.addAll(filterAccount(AccountManager.INSTANCE.getBCHSingleAddressAccounts().values()));
+        List<WalletAccount> fromAccounts = new ArrayList<>();
+        for (WalletAccount walletAccount : AccountManager.INSTANCE.getBCHBip44Accounts().values()) {
+            if (walletAccount.canSpend() && !walletAccount.getAccountBalance().confirmed.isZero()) {
+                fromAccounts.add(walletAccount);
+            }
+        }
+
+        for (WalletAccount walletAccount : AccountManager.INSTANCE.getBCHSingleAddressAccounts().values()) {
+            if (walletAccount.canSpend() && !walletAccount.getAccountBalance().confirmed.isZero()) {
+                fromAccounts.add(walletAccount);
+            }
+        }
+
         if (fromAccounts.isEmpty()) {
             toast(getString(R.string.no_spendable_accounts));
             getActivity().finish();
@@ -185,7 +196,7 @@ public class ExchangeFragment extends Fragment {
         fromRecyclerView.setSelectListener(new SelectListener() {
             @Override
             public void onSelect(RecyclerView.Adapter adapter, int position) {
-                WalletBtcAccount fromAccount = fromAccountAdapter.getItem(fromRecyclerView.getSelectedItem()).account;
+                WalletAccount fromAccount = fromAccountAdapter.getItem(fromRecyclerView.getSelectedItem()).account;
                 valueKeyboard.setSpendableValue(getMaxSpend(fromAccount));
                 isValueForOfferOk(true);
             }
@@ -228,16 +239,6 @@ public class ExchangeFragment extends Fragment {
         textView.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
     }
 
-    private List<WalletBtcAccount> filterAccount(Collection<WalletBtcAccount> accounts) {
-        List<WalletBtcAccount> result = new ArrayList<>();
-        for (WalletBtcAccount walletAccount : accounts) {
-            if (walletAccount.canSpend() && !walletAccount.getAccountBalance().confirmed.isZero()) {
-                result.add(walletAccount);
-            }
-        }
-        return result;
-    }
-
     @Override
     public void onResume() {
         super.onResume();
@@ -264,9 +265,9 @@ public class ExchangeFragment extends Fragment {
         Fragment fragment = new ConfirmExchangeFragment();
         Bundle bundle = new Bundle();
         bundle.putDouble(Constants.FROM_AMOUNT, dblAmount);
-        WalletBtcAccount toAccount = toAccountAdapter.getItem(toRecyclerView.getSelectedItem()).account;
+        WalletAccount toAccount = toAccountAdapter.getItem(toRecyclerView.getSelectedItem()).account;
         bundle.putSerializable(Constants.DESTADDRESS, toAccount.getId());
-        WalletBtcAccount fromAccount = fromAccountAdapter.getItem(fromRecyclerView.getSelectedItem()).account;
+        WalletAccount fromAccount = fromAccountAdapter.getItem(fromRecyclerView.getSelectedItem()).account;
         bundle.putSerializable(Constants.FROM_ADDRESS, fromAccount.getId());
         bundle.putString(Constants.TO_AMOUNT, toValue.getText().toString());
 
@@ -347,8 +348,8 @@ public class ExchangeFragment extends Fragment {
     }
 
     //TODO call getMaxFundsTransferrable need refactoring, we should call account object
-    private BigDecimal getMaxSpend(WalletBtcAccount account) {
-        if (account.getType() == WalletBtcAccount.Type.BCHBIP44) {
+    private BigDecimal getMaxSpend(WalletAccount account) {
+        if (account instanceof Bip44BCHAccount) {
             Bip44BCHAccount bip44BCHAccount = (Bip44BCHAccount) account;
             //Find out the type of Bip44 account
             long satoshisTransferable;
@@ -360,7 +361,7 @@ public class ExchangeFragment extends Fragment {
                 satoshisTransferable = mbwManager.getSpvBchFetcher().getMaxFundsTransferrableUnrelatedAccount(bip44BCHAccount.getId().toString());
             }
             return ExactBitcoinCashValue.from(satoshisTransferable).getValue();
-        } else if (account.getType() == WalletBtcAccount.Type.BCHSINGLEADDRESS) {
+        } else if (account instanceof SingleAddressBCHAccount) {
             String accountGuid = account.getId().toString();
             return ExactBitcoinCashValue.from(mbwManager.getSpvBchFetcher().getMaxFundsTransferrableUnrelatedAccount(accountGuid)).getValue();
         }
@@ -481,7 +482,7 @@ public class ExchangeFragment extends Fragment {
         } catch (NumberFormatException ignore) {
         }
 
-        WalletBtcAccount fromAccount = fromAccountAdapter.getItem(fromRecyclerView.getSelectedItem()).account;
+        WalletAccount fromAccount = fromAccountAdapter.getItem(fromRecyclerView.getSelectedItem()).account;
         if (checkMin && minAmount == NOT_LOADED) {
             buttonContinue.setEnabled(false);
             toast("Please wait while loading minimum amount information.");
@@ -514,10 +515,10 @@ public class ExchangeFragment extends Fragment {
         return true;
     }
 
-    private Map<WalletBtcAccount, Double> cachedMinAmountWithFee = new HashMap<>();
+    private Map<WalletAccount, Double> cachedMinAmountWithFee = new HashMap<>();
 
     private double getMinAmountWithFee() {
-        WalletBtcAccount account = fromAccountAdapter.getItem(fromRecyclerView.getSelectedItem()).account;
+        WalletAccount account = fromAccountAdapter.getItem(fromRecyclerView.getSelectedItem()).account;
         Double result = cachedMinAmountWithFee.get(account);
         if (result == null) {
             BigDecimal txFee = UtilsKt.estimateFeeFromTransferrableAmount(account

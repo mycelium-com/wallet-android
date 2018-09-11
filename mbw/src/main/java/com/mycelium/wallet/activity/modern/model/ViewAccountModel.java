@@ -4,11 +4,12 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 
+import com.google.protobuf.Any;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.modern.model.accounts.AccountViewModel;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
@@ -17,9 +18,9 @@ import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import java.util.Objects;
 import java.util.UUID;
 
-public class ViewAccountModel {
+public class ViewAccountModel{
     public UUID accountId;
-    public WalletBtcAccount.Type accountType;
+    public Class<?> accountType;
     public String displayAddress;
     public Balance balance;
     public boolean isActive;
@@ -37,7 +38,7 @@ public class ViewAccountModel {
     public ViewAccountModel(AccountViewModel viewModel, Context context) {
         accountId = viewModel.getAccountId();
         accountType = viewModel.getAccountType();
-        final WalletBtcAccount account = MbwManager.getInstance(context).getWalletManager(false).getAccount(accountId);
+        final WalletAccount account = MbwManager.getInstance(context).getWalletManager(false).getAccount(accountId);
         if (account instanceof HDPubOnlyAccount && account.isActive()) {
             int numKeys = ((HDAccount) account).getPrivateKeyCount();
             if (numKeys > 1) {

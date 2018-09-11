@@ -54,6 +54,7 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.lt.LocalTraderManager;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 import static com.mrd.bitlib.TransactionUtils.MINIMUM_OUTPUT_VALUE;
@@ -61,7 +62,7 @@ import static com.mrd.bitlib.TransactionUtils.MINIMUM_OUTPUT_VALUE;
 public class TradeActivityUtil {
 
    public static boolean canAffordTrade(TradeSession ts, MbwManager mbwManager) {
-      WalletBtcAccount account = mbwManager.getSelectedAccount();
+      WalletAccount account = mbwManager.getSelectedAccount();
       LocalTraderManager lt = mbwManager.getLocalTraderManager();
 
       if (!account.canSpend()) {
@@ -69,9 +70,9 @@ public class TradeActivityUtil {
          return false;
       }
       Address nullAddress = Address.getNullAddress(mbwManager.getNetwork());
-      WalletBtcAccount.Receiver receiver = new WalletBtcAccount.Receiver(nullAddress, ts.satoshisFromSeller);
+      WalletAccount.Receiver receiver = new WalletAccount.Receiver(nullAddress, ts.satoshisFromSeller);
       try {
-         account.createUnsignedTransaction(Collections.singletonList(receiver), lt.getMinerFeeEstimation().getLongValue());
+         ((WalletBtcAccount)account).createUnsignedTransaction(Collections.singletonList(receiver), lt.getMinerFeeEstimation().getLongValue());
       } catch (OutputTooSmallException e) {
          throw new RuntimeException(e);
       } catch (InsufficientFundsException e) {
@@ -83,17 +84,17 @@ public class TradeActivityUtil {
    }
 
    public static UnsignedTransaction createUnsignedTransaction(long satoshisFromSeller, long satoshisForBuyer,
-                                                               Address buyerAddress, Address feeAddress, WalletBtcAccount acc, long minerFeeToUse) {
+                                                               Address buyerAddress, Address feeAddress, WalletAccount acc, long minerFeeToUse) {
       Preconditions.checkArgument(satoshisForBuyer > MINIMUM_OUTPUT_VALUE);
       Preconditions.checkArgument(satoshisFromSeller >= satoshisForBuyer);
       long localTraderFee = satoshisFromSeller - satoshisForBuyer;
-      List<WalletBtcAccount.Receiver> receiver = new ArrayList<>();
-      receiver.add(new WalletBtcAccount.Receiver(buyerAddress, satoshisForBuyer));
+      List<WalletAccount.Receiver> receiver = new ArrayList<>();
+      receiver.add(new WalletAccount.Receiver(buyerAddress, satoshisForBuyer));
       if (localTraderFee >= MINIMUM_OUTPUT_VALUE) {
-         receiver.add(new WalletBtcAccount.Receiver(feeAddress, localTraderFee));
+         receiver.add(new WalletAccount.Receiver(feeAddress, localTraderFee));
       }
       try {
-         return acc.createUnsignedTransaction(receiver, minerFeeToUse);
+         return ((WalletBtcAccount)acc).createUnsignedTransaction(receiver, minerFeeToUse);
       } catch (OutputTooSmallException | InsufficientFundsException | UnableToBuildTransactionException e) {
          throw new RuntimeException(e);
       }

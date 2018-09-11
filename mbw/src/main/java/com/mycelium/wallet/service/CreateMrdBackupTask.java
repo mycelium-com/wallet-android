@@ -51,9 +51,11 @@ import com.mycelium.wallet.pdf.ExportDistiller.ExportProgressTracker;
 import com.mycelium.wallet.pdf.ExportPdfParameters;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.KeyCipher;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
+
+import org.bitcoinj.wallet.Protos;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -66,15 +68,15 @@ import java.util.UUID;
 public class CreateMrdBackupTask extends ServiceTask<Boolean> {
    private static final long serialVersionUID = 1L;
 
-   private static class EntryToExport implements Serializable {
+   private static class EntryToExport<T> implements Serializable {
       private static final long serialVersionUID = 1L;
 
       public String address;
       public String base58PrivateKey;
       public String label;
-      private final WalletBtcAccount.Type accountType;
+      private final Class<T> accountType;
 
-      public EntryToExport(String address, String base58PrivateKey, String label, WalletBtcAccount.Type accountType) {
+      public EntryToExport(String address, String base58PrivateKey, String label, Class<T> accountType) {
          this.address = address;
          this.base58PrivateKey = base58PrivateKey;
          this.label = label;
@@ -100,13 +102,13 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
       // Populate the active and archived entries to export
       _active = new LinkedList<>();
       _archived = new LinkedList<>();
-      List<WalletBtcAccount> accounts = new ArrayList<>();
+      List<WalletAccount> accounts = new ArrayList<>();
       for (UUID id : walletManager.getAccountIds()) {
          accounts.add(walletManager.getAccount(id));
       }
       accounts = Utils.sortAccounts(accounts, storage);
       EntryToExport entry;
-      for (WalletBtcAccount account : accounts) {
+      for (WalletAccount account : accounts) {
          //TODO: add check whether coluaccount is in hd or singleaddress mode
          entry = null;
          if (account instanceof SingleAddressAccount) {
@@ -125,7 +127,7 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
                   throw new RuntimeException(e);
                }
             }
-            entry = new EntryToExport(address.toString(), base58EncodedPrivateKey, label, account.getType());
+            entry = new EntryToExport(address.toString(), base58EncodedPrivateKey, label, account.getClass());
          } else if (account instanceof ColuAccount) {
             ColuAccount a = (ColuAccount) account;
             String label = storage.getLabelByAccount(a.getId());
@@ -134,7 +136,7 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
             if (a.canSpend()) {
                base58EncodedPrivateKey = a.getPrivateKey().getBase58EncodedPrivateKey(network);
             }
-            entry = new EntryToExport(address.toString(), base58EncodedPrivateKey, label, account.getType());
+            entry = new EntryToExport(address.toString(), base58EncodedPrivateKey, label, account.getClass());
          }
          if (entry != null) {
             if (account.isActive()) {
@@ -202,13 +204,13 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
       _kdfParameters.terminate();
    }
 
-   private static ExportEntry createExportEntry(EntryToExport toExport, EncryptionParameters parameters,
-                                                NetworkParameters network, WalletBtcAccount.Type accountType) {
+   private static <T> ExportEntry createExportEntry(EntryToExport toExport, EncryptionParameters parameters,
+                                                NetworkParameters network, Class<T> type) {
       String encrypted = null;
       if (toExport.base58PrivateKey != null) {
          encrypted = MrdExport.V1.encryptPrivateKey(parameters, toExport.base58PrivateKey, network);
       }
-      return new ExportEntry(toExport.address, encrypted, null, toExport.label, accountType);
+      return new ExportEntry(toExport.address, encrypted, null, toExport.label, type);
    }
 
    @Override

@@ -71,7 +71,7 @@ import com.mycelium.wallet.lt.api.GetTraderInfo;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.ExportableAccount;
 import com.mycelium.wapi.wallet.KeyCipher;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+import com.mycelium.wapi.wallet.WalletAccount;
 
 public class LtMainActivity extends AppCompatActivity {
    public static final String TAB_TO_SELECT = "tabToSelect";
@@ -273,7 +273,7 @@ public class LtMainActivity extends AppCompatActivity {
    }
 
    private void backupTraderAccount() throws KeyCipher.InvalidKeyCipher {
-      WalletBtcAccount account = _mbwManager.getWalletManager(false).getAccount(_ltManager.getLocalTraderAccountId());
+      WalletAccount account = _mbwManager.getWalletManager(false).getAccount(_ltManager.getLocalTraderAccountId());
       final InMemoryPrivateKey privateKey = _mbwManager.obtainPrivateKeyForAccount(account, LocalTraderManager.LT_DERIVATION_SEED, AesKeyCipher.defaultKeyCipher());
 
       ExportableAccount exportableAccount = new ExportableAccount() {

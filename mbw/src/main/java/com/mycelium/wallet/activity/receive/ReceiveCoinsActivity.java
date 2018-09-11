@@ -70,11 +70,16 @@ import com.mycelium.wallet.activity.util.accountstrategy.BTCAccountDisplayStrate
 import com.mycelium.wallet.activity.util.accountstrategy.CoinapultAccountDisplayStrategy;
 import com.mycelium.wallet.activity.util.accountstrategy.CoCoAccountDisplayStrategy;
 import com.mycelium.wallet.activity.util.QrImageView;
+import com.mycelium.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.SyncFailed;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wapi.model.TransactionSummary;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
+import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
+import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
+import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
@@ -155,25 +160,20 @@ public class ReceiveCoinsActivity extends Activity {
         ButterKnife.bind(this);
 
         _mbwManager = MbwManager.getInstance(getApplication());
-        WalletBtcAccount selectedAccount = _mbwManager.getSelectedAccount();
+        WalletAccount selectedAccount = _mbwManager.getSelectedAccount();
         Context context = getApplicationContext();
-        switch (AccountDisplayType.getAccountType(selectedAccount)) {
-        case BCH_ACCOUNT:
+        if(selectedAccount instanceof Bip44BCHAccount || selectedAccount instanceof SingleAddressBCHAccount) {
             accountDisplayType = AccountDisplayType.BCH_ACCOUNT;
             accountDisplayStrategy = new BCHAccountDisplayStrategy(selectedAccount, context, _mbwManager);
-            break;
-        case BTC_ACCOUNT:
+        } else if(selectedAccount instanceof HDAccount || selectedAccount instanceof SingleAddressAccount) {
             accountDisplayType = AccountDisplayType.BTC_ACCOUNT;
             accountDisplayStrategy = new BTCAccountDisplayStrategy(selectedAccount, context, _mbwManager);
-            break;
-        case COLU_ACCOUNT:
+        } else if(selectedAccount instanceof ColuAccount) {
             accountDisplayType = AccountDisplayType.COLU_ACCOUNT;
             accountDisplayStrategy = new CoCoAccountDisplayStrategy((ColuAccount) selectedAccount, context);
-            break;
-        case COINAPULT_ACCOUNT:
+        } else if(selectedAccount instanceof CoinapultAccount){
             accountDisplayType = AccountDisplayType.COINAPULT_ACCOUNT;
             accountDisplayStrategy = new CoinapultAccountDisplayStrategy(selectedAccount, context, _mbwManager);
-            break;
         }
 
         // Get intent parameters
@@ -329,10 +329,10 @@ public class ReceiveCoinsActivity extends Activity {
 
     private void updateAmount() {
         if (!CurrencyValue.isNullOrZero(_amount)) {
-            WalletBtcAccount account = _mbwManager.getSelectedAccount();
+            WalletAccount account = _mbwManager.getSelectedAccount();
             CurrencyValue primaryAmount = _amount;
             CurrencyValue alternativeAmount;
-            if (primaryAmount.getCurrency().equals(account.getAccountDefaultCurrency())) {
+            if (primaryAmount.getCurrency().equals(account.getCoinType().getSymbol())) {
                 if (primaryAmount.isBtc() || primaryAmount.isBch()
                         || _mbwManager.getColuManager().isColuAsset(primaryAmount.getCurrency())) {
                     // if the accounts default currency is BTC and the user entered BTC, use the current
@@ -349,8 +349,8 @@ public class ReceiveCoinsActivity extends Activity {
             } else {
                 // use the accounts default currency as alternative
                 alternativeAmount = CurrencyValue.fromValue(
-                                        primaryAmount, account.getAccountDefaultCurrency(), _mbwManager.getExchangeRateManager()
-                                    );
+                        primaryAmount, account.getCoinType().getSymbol(), _mbwManager.getExchangeRateManager()
+                );
             }
             if (CurrencyValue.isNullOrZero(alternativeAmount)) {
                 tvAmountFiat.setVisibility(GONE);
@@ -433,13 +433,14 @@ public class ReceiveCoinsActivity extends Activity {
     @OnClick(R.id.btEnterAmount)
     public void onEnterClick() {
         if (CurrencyValue.isNullOrZero(_amount)) {
-            GetAmountActivity.callMeToReceive(this, ExactCurrencyValue.from(null, _mbwManager.getSelectedAccount().getAccountDefaultCurrency()),
-                                              GET_AMOUNT_RESULT_CODE, accountDisplayType);
+            GetAmountActivity.callMeToReceive(this, ExactCurrencyValue.from(null,
+                    _mbwManager.getSelectedAccount().getCoinType().getSymbol()),
+                    GET_AMOUNT_RESULT_CODE, accountDisplayType);
         } else {
             // call the amount activity with the exact amount, so that the user sees the same amount he had entered
             // it in non-BTC
             GetAmountActivity.callMeToReceive(this, _amount.getExactValueIfPossible(),
-                                              GET_AMOUNT_RESULT_CODE, accountDisplayType);
+                    GET_AMOUNT_RESULT_CODE, accountDisplayType);
         }
     }
 
@@ -456,7 +457,7 @@ public class ReceiveCoinsActivity extends Activity {
     public void syncStopped(SyncStopped event) {
         TextView tvRecv = (TextView) findViewById(R.id.tvReceived);
         TextView tvRecvWarning = (TextView) findViewById(R.id.tvReceivedWarningAmount);
-        final WalletBtcAccount selectedAccount = _mbwManager.getSelectedAccount();
+        final WalletAccount selectedAccount = _mbwManager.getSelectedAccount();
         final List<TransactionSummary> transactionsSince = selectedAccount.getTransactionsSince(_receivingSince);
         final ArrayList<TransactionSummary> interesting = new ArrayList<TransactionSummary>();
         CurrencyValue sum = ExactBitcoinValue.ZERO;

@@ -71,7 +71,8 @@ import com.mycelium.wallet.modularisation.BCHHelper;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coins.Value;
 
@@ -349,7 +350,7 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
       switch (depth) {
          case 3:
             if (_mbwManager.getWalletManager(false).hasAccount(hdKeyNode.getUuid())){
-               final WalletBtcAccount existingAccount = _mbwManager.getWalletManager(false).getAccount(hdKeyNode.getUuid());
+               final WalletAccount existingAccount = _mbwManager.getWalletManager(false).getAccount(hdKeyNode.getUuid());
                if (hdKeyNode.isPrivateHdKeyNode() && !existingAccount.canSpend()) {
                   new AlertDialog.Builder(AddAdvancedAccountActivity.this)
                           .setTitle(R.string.priv_key_of_watch_only_account)
@@ -357,7 +358,7 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
                           .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                              @Override
                              public void onClick(DialogInterface dialogInterface, int i) {
-                                finishAlreadyExist(existingAccount.getReceivingAddress().get());
+                                finishAlreadyExist((Address) existingAccount.getReceivingAddress().get());
                              }
                           })
                           .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
@@ -473,7 +474,7 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
                     .create()
                     .show();
          } else if (accountId.isPresent()) {
-            final WalletBtcAccount existingAccount = _mbwManager.getWalletManager(false).getAccount((UUID) accountId.get());
+            final WalletAccount existingAccount = _mbwManager.getWalletManager(false).getAccount((UUID) accountId.get());
             if(!existingAccount.canSpend() && (existingAccount instanceof SingleAddressAccount || existingAccount instanceof ColuAccount)) {
                // scanned the private key of a watch only single address account
                String existingAccountName = _mbwManager.getMetadataStorage().getLabelByAccount(existingAccount.getId());
@@ -700,7 +701,7 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
       Intent result = new Intent();
       String accountType;
       UUID walletId = _mbwManager.getAccountId(address, null).get();
-      if (_mbwManager.getWalletManager(false).getAccount(walletId).getType().equals(WalletBtcAccount.Type.BCHBIP44)) {
+      if (_mbwManager.getWalletManager(false).getAccount(walletId) instanceof Bip44BCHAccount) {
          accountType = "BTC HD account";
       } else {
          accountType = "BTC Single Address";

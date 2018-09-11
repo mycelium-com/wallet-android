@@ -56,7 +56,6 @@ import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.api.TryLogin;
 import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 
 import java.util.LinkedList;
@@ -112,7 +111,7 @@ public class CreateTrader2Activity extends Activity {
       List<String> choices = new LinkedList<String>();
       WalletManager walletManager = _mbwManager.getWalletManager(false);
       for (UUID accountId : walletManager.getAccountIds()) {
-         WalletBtcAccount account = walletManager.getAccount(accountId);
+         WalletAccount account = walletManager.getAccount(accountId);
          if (!account.canSpend()) {
             continue;
          }
@@ -145,7 +144,7 @@ public class CreateTrader2Activity extends Activity {
       _btUse.setEnabled(_spAddress.getSelectedItemPosition() != Spinner.INVALID_POSITION);
    }
 
-   private String createDefaultName(WalletBtcAccount account) {
+   private String createDefaultName(WalletAccount account) {
       if (account instanceof SingleAddressAccount) {
          Address address = ((SingleAddressAccount) account).getAddress();
          String addressString = address.toString();
@@ -174,7 +173,7 @@ public class CreateTrader2Activity extends Activity {
          // We have exactly one private key, use it automatically
          findViewById(R.id.pbWait).setVisibility(View.VISIBLE);
          findViewById(R.id.llRoot).setVisibility(View.GONE);
-         WalletBtcAccount account = _mbwManager.getWalletManager(false).getAccount(_accounts.get(0));
+         WalletAccount account = _mbwManager.getWalletManager(false).getAccount(_accounts.get(0));
          InMemoryPrivateKey privateKey = _mbwManager.obtainPrivateKeyForAccount(account, LocalTraderManager.LT_DERIVATION_SEED, AesKeyCipher.defaultKeyCipher());
          _ltManager.makeRequest(new TryLogin(privateKey, _mbwManager.getNetwork()));
       } else {
@@ -197,7 +196,7 @@ public class CreateTrader2Activity extends Activity {
          return null;
       }
       UUID accountId = _accounts.get(index);
-      WalletBtcAccount account = _mbwManager.getWalletManager(false).getAccount(accountId);
+      WalletAccount account = _mbwManager.getWalletManager(false).getAccount(accountId);
       return _mbwManager.obtainPrivateKeyForAccount(account, LocalTraderManager.LT_DERIVATION_SEED, AesKeyCipher.defaultKeyCipher());
    }
 

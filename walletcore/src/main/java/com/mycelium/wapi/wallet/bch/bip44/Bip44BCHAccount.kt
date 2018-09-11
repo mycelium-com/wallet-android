@@ -12,7 +12,6 @@ import com.mycelium.wapi.model.TransactionSummary
 import com.mycelium.wapi.wallet.btc.Bip44AccountBacking
 import com.mycelium.wapi.wallet.KeyCipher
 import com.mycelium.wapi.wallet.SpvBalanceFetcher
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.Companion.ACCOUNT_TYPE_FROM_MASTERSEED
@@ -35,10 +34,6 @@ open class Bip44BCHAccount(context: HDAccountContext,
 
     override fun getAccountDefaultCurrency(): String {
         return CurrencyValue.BCH
-    }
-
-    init {
-        this.type = WalletBtcAccount.Type.BCHBIP44
     }
 
     override fun getCurrencyBasedBalance(): CurrencyBasedBalance {

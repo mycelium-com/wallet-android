@@ -4,27 +4,28 @@ import android.os.AsyncTask
 import android.os.Handler
 import android.os.Looper
 import com.google.common.collect.ImmutableMap
+import com.mrd.bitlib.model.hdpath.Bip44Account
+import com.mycelium.wallet.coinapult.CoinapultAccount
+import com.mycelium.wallet.colu.ColuAccount
 import com.mycelium.wallet.event.AccountChanged
 import com.mycelium.wallet.event.AccountListChanged
 import com.mycelium.wallet.event.ExtraAccountsChanged
 import com.mycelium.wallet.event.SelectedAccountChanged
-import com.mycelium.wapi.wallet.AccountProvider
-import com.mycelium.wapi.wallet.WalletAccount
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount.Type
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount.Type.*
-import com.mycelium.wapi.wallet.WalletManager
+import com.mycelium.wapi.wallet.*
+import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount
+import com.mycelium.wapi.wallet.btc.bip44.HDAccount
+import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
 import com.squareup.otto.Subscribe
 import java.util.*
 import java.util.concurrent.Semaphore
 import kotlin.collections.HashMap
 
 object AccountManager : AccountProvider {
-    val accounts: HashMap<UUID, WalletBtcAccount> = hashMapOf()
+    val accounts: HashMap<UUID, WalletAccount<out GenericTransaction, out GenericAddress>> = hashMapOf()
     private val accountsSemaphore = Semaphore(100)
-    private val archivedAccounts: HashMap<UUID, WalletBtcAccount> = hashMapOf()
+    private val archivedAccounts: HashMap<UUID, WalletAccount<out GenericTransaction, out GenericAddress>> = hashMapOf()
     private val archivedAccountsSemaphore = Semaphore(100)
-    private val masterSeedAccounts: HashMap<UUID, WalletBtcAccount> = hashMapOf()
+    private val masterSeedAccounts: HashMap<UUID, WalletAccount<out GenericTransaction, out GenericAddress>> = hashMapOf()
     private val masterSeedAccountsSemaphore = Semaphore(100)
 
     init {
@@ -58,53 +59,53 @@ object AccountManager : AccountProvider {
         }
     }
 
-    override fun getAccounts(): ImmutableMap<UUID, WalletBtcAccount> = ImmutableMap.copyOf<UUID, WalletBtcAccount>(accounts)
+    override fun getAccounts(): ImmutableMap<UUID, WalletAccount<out GenericTransaction, out GenericAddress>>
+            = ImmutableMap.copyOf<UUID, WalletAccount<out GenericTransaction, out GenericAddress>>(accounts)
 
-    fun getBTCSingleAddressAccounts(): ImmutableMap<UUID, WalletBtcAccount> =
+    fun getBTCSingleAddressAccounts(): ImmutableMap<UUID, WalletAccount<out GenericTransaction, out GenericAddress>> =
             getFilteredAccounts(accountsSemaphore, accounts) {
-                it.value.type == BTCSINGLEADDRESS && !Utils.checkIsLinked(it.value, accounts.values)
+                it.value is SingleAddressAccount && !Utils.checkIsLinked(it.value, accounts.values)
             }
 
-    fun getBTCBip44Accounts() = getAccountsByType(BTCBIP44)
+    fun getBTCBip44Accounts() = getAccountsByType<HDAccount>()
 
-    fun getBCHSingleAddressAccounts() = getAccountsByType(BCHSINGLEADDRESS)
+    fun getBCHSingleAddressAccounts() = getAccountsByType<SingleAddressBCHAccount>()
 
-    fun getBCHBip44Accounts() = getAccountsByType(BCHBIP44)
+    fun getBCHBip44Accounts() = getAccountsByType<Bip44Account>()
 
-    fun getCoinapultAccounts() = getAccountsByType(COINAPULT)
+    fun getCoinapultAccounts() = getAccountsByType<CoinapultAccount>()
 
-    fun getColuAccounts() = getAccountsByType(COLU)
+    fun getColuAccounts() = getAccountsByType<ColuAccount>()
 
-    fun getDashAccounts() = getAccountsByType(DASH)
-
-    fun getActiveAccounts(): ImmutableMap<UUID, WalletBtcAccount> =
+    fun getActiveAccounts(): ImmutableMap<UUID, WalletAccount<out GenericTransaction, out GenericAddress>> =
             getFilteredAccounts(accountsSemaphore, accounts) {
                 it.value.isVisible
             }
 
-    private fun getAccountsByType(coinType: Type): ImmutableMap<UUID, WalletBtcAccount> =
+    private inline fun <reified T> getAccountsByType(): ImmutableMap<UUID, WalletAccount<out GenericTransaction, out GenericAddress>> =
             getFilteredAccounts(accountsSemaphore, accounts) {
-                it.value.type == coinType && it.value.isVisible
+                it.value is T && it.value.isVisible
             }
 
-    fun getBTCMasterSeedAccounts(): ImmutableMap<UUID, WalletBtcAccount> =
+    fun getBTCMasterSeedAccounts(): ImmutableMap<UUID, WalletAccount<out GenericTransaction, out GenericAddress>> =
             getFilteredAccounts(masterSeedAccountsSemaphore, masterSeedAccounts) {
-                it.value.type == BTCBIP44 && it.value.isVisible
+                it.value is HDAccount && it.value.isVisible
             }
 
-    fun getArchivedAccounts(): ImmutableMap<UUID, WalletBtcAccount> =
+    fun getArchivedAccounts(): ImmutableMap<UUID, WalletAccount<out GenericTransaction, out GenericAddress>> =
             getFilteredAccounts(archivedAccountsSemaphore, archivedAccounts) {
                 it.value.isVisible
             }
 
-    override fun getAccount(uuid: UUID?): WalletBtcAccount? = accounts[uuid]
+    override fun getAccount(uuid: UUID?): WalletAccount<out GenericTransaction, out GenericAddress>? = accounts[uuid]
 
     override fun hasAccount(uuid: UUID?): Boolean = accounts.containsKey(uuid)
 
-    private fun HashMap<UUID, WalletBtcAccount>.putAll(from: List<WalletAccount<*,*>>) {
-        val result: MutableMap<UUID, WalletBtcAccount> = mutableMapOf()
+    private fun HashMap<UUID, WalletAccount<out GenericTransaction, out GenericAddress>>.putAll
+            (from: List<WalletAccount<out GenericTransaction, out GenericAddress>>) {
+        val result: MutableMap<UUID, WalletAccount<out GenericTransaction, out GenericAddress>> = mutableMapOf()
         for (walletAccount in from) {
-            result[walletAccount.id] = walletAccount as WalletBtcAccount
+            result[walletAccount.id] = walletAccount
         }
         putAll(result)
     }
@@ -124,10 +125,11 @@ object AccountManager : AccountProvider {
         FillAccountsTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
     }
 
-    private fun getFilteredAccounts(s: Semaphore, accounts: Map<UUID, WalletBtcAccount>,
-                                    filter: (mapEntry: Map.Entry<UUID, WalletBtcAccount>) -> Boolean): ImmutableMap<UUID, WalletBtcAccount> {
+    private fun getFilteredAccounts(s: Semaphore, accounts: Map<UUID, WalletAccount<out GenericTransaction, out GenericAddress>>,
+                                    filter: (mapEntry: Map.Entry<UUID, WalletAccount<out GenericTransaction, out GenericAddress>>)
+                                    -> Boolean): ImmutableMap<UUID, WalletAccount<out GenericTransaction, out GenericAddress>> {
         s.acquire()
-        val filteredAccounts = ImmutableMap.copyOf<UUID, WalletBtcAccount>(accounts.filter { filter(it) })
+        val filteredAccounts = ImmutableMap.copyOf<UUID, WalletAccount<out GenericTransaction, out GenericAddress>>(accounts.filter { filter(it) })
         s.release()
         return filteredAccounts
     }

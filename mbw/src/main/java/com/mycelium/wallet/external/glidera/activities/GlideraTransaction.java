@@ -93,7 +93,7 @@ public class GlideraTransaction extends Activity {
          TransactionDetailsLabel tvTransactionHash = ((TransactionDetailsLabel) findViewById(R.id.tvTransactionHash));
          GenericTransaction txDetails;
          try {
-            txDetails = mbwManager.getSelectedAccountGeneric().getTransaction(transactionResponse.getTransactionHash());
+            txDetails = mbwManager.getSelectedAccount().getTransaction(transactionResponse.getTransactionHash());
 
          } catch (RuntimeException runtimeException) {
                 /*

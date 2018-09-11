@@ -43,7 +43,8 @@ import com.mycelium.net.ServerEndpointType;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wapi.wallet.GenericAddress;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
+import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 
 public class AddressLabel extends GenericBlockExplorerLabel {
    private Address address;
@@ -85,10 +86,8 @@ public class AddressLabel extends GenericBlockExplorerLabel {
       update_ui();
       if (coluMode) {
          setHandler(MbwManager.getInstance(getContext()).getColuManager().getBlockExplorer());
-      } else if (MbwManager.getInstance(getContext()).getSelectedAccount().getType() ==
-              WalletBtcAccount.Type.BCHSINGLEADDRESS
-              || MbwManager.getInstance(getContext()).getSelectedAccount().getType() ==
-              WalletBtcAccount.Type.BCHBIP44) {
+      } else if (MbwManager.getInstance(getContext()).getSelectedAccount() instanceof SingleAddressBCHAccount
+              || MbwManager.getInstance(getContext()).getSelectedAccount() instanceof Bip44BCHAccount) {
          if (MbwManager.getInstance(getContext()).getNetwork().getNetworkType() == NetworkParameters.NetworkType.PRODNET) {
             setHandler(new BlockExplorer("BTL", "blockTrail",
                     "https://www.blocktrail.com/BCC/address/",

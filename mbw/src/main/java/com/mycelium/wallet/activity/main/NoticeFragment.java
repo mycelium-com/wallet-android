@@ -61,7 +61,7 @@ import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.BalanceChanged;
 import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.persistence.MetadataStorage;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.squareup.otto.Subscribe;
@@ -142,7 +142,7 @@ public class NoticeFragment extends Fragment {
    }
 
    private Notice determineNotice() {
-      WalletBtcAccount account = _mbwManager.getSelectedAccount();
+      WalletAccount account = _mbwManager.getSelectedAccount();
       MetadataStorage meta = _mbwManager.getMetadataStorage();
 
       Optional<Integer> resetPinRemainingBlocksCount = _mbwManager.getResetPinRemainingBlocksCount();
@@ -189,7 +189,7 @@ public class NoticeFragment extends Fragment {
 
    @OnClick(R.id.btnSecond)
    void secondButtonClick() {
-      WalletBtcAccount account = _mbwManager.getSelectedAccount();
+      WalletAccount account = _mbwManager.getSelectedAccount();
       switch (_notice) {
          case SINGLEKEY_VERIFY_MISSING:
             showSingleKeyBackupWarning();
@@ -321,7 +321,7 @@ public class NoticeFragment extends Fragment {
 
       // Show button, that a PIN reset is in progress and allow to abort it
       _root.findViewById(R.id.btPinResetNotice).setVisibility(_notice == Notice.RESET_PIN_AVAILABLE || _notice == Notice.RESET_PIN_IN_PROGRESS ? View.VISIBLE : View.GONE);
-      WalletBtcAccount account = _mbwManager.getSelectedAccount();
+      WalletAccount account = _mbwManager.getSelectedAccount();
       // Only show the "Secure My Funds" button when necessary
       backupMissingLayout.setVisibility(
               (_notice == Notice.BACKUP_MISSING && TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis() - sharedPreferences.getLong(LATER_CLICK_TIME_MASTER_SEED, 0)) > 0)

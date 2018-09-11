@@ -57,7 +57,6 @@ import com.mycelium.wallet.activity.modern.adapter.holder.AccountViewHolder;
 import com.mycelium.wallet.activity.modern.model.ViewAccountModel;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -126,7 +125,7 @@ public class GetSpendingRecordActivity extends Activity {
 
    }
 
-   private void callSendInitActivity(WalletBtcAccount account) {
+   private void callSendInitActivity(WalletAccount account) {
       if (_rawPr != null){
          SendInitializationActivity.callMe(GetSpendingRecordActivity.this, account.getId(), _rawPr, false);
       } else {
@@ -145,7 +144,7 @@ public class GetSpendingRecordActivity extends Activity {
       @Override
       public void onItemClick(AdapterView<?> list, View v, int position, long id) {
          ViewAccountModel model = accountsAdapter.getItem(position);
-         WalletBtcAccount account = _mbwManager.getWalletManager(false).getAccount(model.accountId);
+         WalletAccount account = _mbwManager.getWalletManager(false).getAccount(model.accountId);
          callSendInitActivity(account);
          GetSpendingRecordActivity.this.finish();
       }
@@ -180,9 +179,9 @@ public class GetSpendingRecordActivity extends Activity {
          warningNoSpendingAccounts.setVisibility(View.VISIBLE);
       } else {
          //remove it later
-         List<WalletBtcAccount> spendingAccountsBtc = new ArrayList<>();
+         List<WalletAccount> spendingAccountsBtc = new ArrayList<>();
          for(WalletAccount account : spendingAccounts){
-            spendingAccountsBtc.add((WalletBtcAccount) account);
+            spendingAccountsBtc.add(account);
          }
          List<ViewAccountModel> list = builder.convertList(Utils.sortAccounts(spendingAccountsBtc, storage));
          accountsAdapter = new AccountsAdapter(this, list);

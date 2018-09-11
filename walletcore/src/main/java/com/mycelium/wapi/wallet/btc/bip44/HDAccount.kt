@@ -105,7 +105,6 @@ open class HDAccount(
     val accountType = context.accountType
 
     init {
-        type = WalletBtcAccount.Type.BTCBIP44
         if (!isArchived) {
             ensureAddressIndexes()
             _cachedBalance = calculateLocalBalance()

@@ -53,6 +53,7 @@ import com.mycelium.wallet.event.SyncFailed;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.modularisation.GooglePlayModuleCollection;
 import com.mycelium.wapi.model.TransactionEx;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.squareup.otto.Subscribe;
 
@@ -60,7 +61,7 @@ import java.util.UUID;
 
 public class BroadcastTransactionActivity extends Activity {
    protected MbwManager _mbwManager;
-   protected WalletBtcAccount _account;
+   protected WalletAccount _account;
    protected boolean _isColdStorage;
    private String _transactionLabel;
    private Transaction _transaction;
@@ -80,7 +81,7 @@ public class BroadcastTransactionActivity extends Activity {
       currentActivity.startActivityForResult(intent, requestCode);
    }
 
-   public static boolean callMe(Activity currentActivity, WalletBtcAccount account, Sha256Hash txid) {
+   public static boolean callMe(Activity currentActivity, WalletAccount account, Sha256Hash txid) {
       TransactionEx tx = account.getTransactionEx(txid);
       if (tx == null) {
          return false;
@@ -130,7 +131,7 @@ public class BroadcastTransactionActivity extends Activity {
             if (CommunicationManager.getInstance().getPairedModules()
                     .contains(GooglePlayModuleCollection.getModules(getApplicationContext()).get("btc"))) {
                   Intent intent = IntentContract.BroadcastTransaction.createIntent(_transaction.toBytes());
-                  WalletApplication.sendToSpv(intent, _mbwManager.getSelectedAccount().getType());
+                  WalletApplication.sendToSpv(intent, _mbwManager.getSelectedAccount().getClass());
                   return WalletBtcAccount.BroadcastResult.SUCCESS;
              }
              return _account.broadcastTransaction(_transaction);

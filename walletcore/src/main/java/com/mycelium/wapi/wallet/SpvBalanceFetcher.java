@@ -5,7 +5,6 @@ import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.model.IssuedKeysInfo;
 import com.mycelium.wapi.model.TransactionDetails;
 import com.mycelium.wapi.model.TransactionSummary;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 
 import java.util.List;
@@ -30,9 +29,9 @@ public interface SpvBalanceFetcher {
     Address getCurrentReceiveAddressUnrelated(String guid);
     IssuedKeysInfo getPrivateKeysCount(int accountIndex);
     IssuedKeysInfo getPrivateKeysCountUnrelated(String guid);
-    boolean isAccountSynced(WalletBtcAccount account);
-    boolean isAccountVisible(WalletBtcAccount account);
-    void setVisible(WalletBtcAccount account);
+    boolean isAccountSynced(WalletAccount account);
+    boolean isAccountVisible(WalletAccount account);
+    void setVisible(WalletAccount account);
     void forceCleanCache();
     long calculateMaxSpendableAmount(int accountIndex, String txFee, float txFeeFactor);
     long calculateMaxSpendableAmountUnrelatedAccount(String guid, String txFee, float txFeeFactor);

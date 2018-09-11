@@ -10,8 +10,13 @@ import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem.Type.G
 import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem.Type.GROUP_TITLE_TYPE
 import com.mycelium.wallet.colu.ColuAccount
 import com.mycelium.wallet.event.AccountListChanged
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount
+import com.mycelium.wapi.wallet.GenericAddress
+import com.mycelium.wapi.wallet.GenericTransaction
+import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount
+import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
+import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
 import com.squareup.otto.Subscribe
 import java.util.*
 import java.util.concurrent.ExecutorService
@@ -74,7 +79,7 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
                         bchSAList))
             }
 
-            val coluAccounts = ArrayList<WalletBtcAccount>()
+            val coluAccounts = ArrayList<WalletAccount<out GenericTransaction, out GenericAddress>>()
             for (walletAccount in am.getColuAccounts().values) {
                 coluAccounts.add(walletAccount)
                 coluAccounts.add((walletAccount as ColuAccount).linkedAccount)
@@ -84,14 +89,15 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
                         accountsToViewModel(coluAccounts)))
             }
             val accounts = am.getActiveAccounts().values.asList()
-            val other = ArrayList<WalletBtcAccount>()
+            val other = ArrayList<WalletAccount<out GenericTransaction, out GenericAddress>>()
             for (account in accounts) {
-                when (account.type) {
-                    WalletBtcAccount.Type.BTCSINGLEADDRESS, WalletBtcAccount.Type.BTCBIP44,
-                    WalletBtcAccount.Type.BCHSINGLEADDRESS, WalletBtcAccount.Type.BCHBIP44, WalletBtcAccount.Type.COLU -> {
-                    }
-                    else -> other.add(account)
-                }
+                 if (account is SingleAddressAccount || account is HDAccount ||
+                         account is SingleAddressBCHAccount || account is Bip44BCHAccount ||
+                         account is ColuAccount) {
+
+                 } else {
+                    other.add(account)
+                 }
             }
             if (other.isNotEmpty()) {
                 accountsList.add(AccountsGroupModel(R.string.active_other_accounts_name, GROUP_TITLE_TYPE,
@@ -109,7 +115,7 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
             return accountsList
         }
 
-        private fun accountsToViewModel(accounts: Collection<WalletBtcAccount>) = accounts.map { AccountViewModel(it, mbwManager) }
+        private fun accountsToViewModel(accounts: Collection<WalletAccount<out GenericTransaction, out GenericAddress>>) = accounts.map { AccountViewModel(it as HDAccount, mbwManager) }
         private fun bipAccountsToViewModel(accounts: Collection<HDAccount>) = accounts.map { AccountViewModel(it, mbwManager) }
 
         @SafeVarargs

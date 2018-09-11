@@ -75,7 +75,9 @@ import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.exchange.ExchangeRateManager;
 import com.mycelium.wallet.modularisation.BCHHelper;
 import com.mycelium.wapi.model.ExchangeRate;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
+import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
@@ -147,7 +149,7 @@ public class BalanceFragment extends Fragment {
          String price = exchangeRate == null || exchangeRate.price == null ? "not available"
                  : new BigDecimal(exchangeRate.price).setScale(2, BigDecimal.ROUND_DOWN).toPlainString() + " " + _mbwManager.getFiatCurrency();
          String item;
-         if (_mbwManager.getSelectedAccount().getType() == WalletBtcAccount.Type.COLU) {
+         if (_mbwManager.getSelectedAccount() instanceof ColuAccount) {
             item = COINMARKETCAP + "/" + source;
          } else {
             item = source + " (" + price + ")";
@@ -206,9 +208,9 @@ public class BalanceFragment extends Fragment {
          BCHHelper.bchTechnologyPreviewDialog(getActivity());
          return;
       }
-      WalletBtcAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
+      WalletAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
       if (account.canSpend()) {
-         if (account.getType() == WalletBtcAccount.Type.COLU && ((ColuAccount) account).getSatoshiAmount() == 0) {
+         if (account instanceof ColuAccount && ((ColuAccount) account).getSatoshiAmount() == 0) {
             new AlertDialog.Builder(getActivity())
                     .setMessage(getString(R.string.rmc_send_warning, ((ColuAccount) account).getColuAsset().label))
                     .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
@@ -247,8 +249,8 @@ public class BalanceFragment extends Fragment {
       }
       //perform a generic scan, act based upon what we find in the QR code
       StringHandleConfig config = StringHandleConfig.genericScanRequest();
-      WalletBtcAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
-      if (account.getType() == WalletBtcAccount.Type.COLU) {
+      WalletAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
+      if (account instanceof ColuAccount) {
          config.bitcoinUriAction = StringHandleConfig.BitcoinUriAction.SEND_COLU_ASSET;
          config.bitcoinUriWithAddressAction = StringHandleConfig.BitcoinUriWithAddressAction.SEND_COLU_ASSET;
       }
@@ -256,8 +258,8 @@ public class BalanceFragment extends Fragment {
    }
 
    private boolean isBCH() {
-      return _mbwManager.getSelectedAccount().getType() == WalletBtcAccount.Type.BCHBIP44
-              || _mbwManager.getSelectedAccount().getType() == WalletBtcAccount.Type.BCHSINGLEADDRESS;
+      return _mbwManager.getSelectedAccount() instanceof Bip44BCHAccount
+              || _mbwManager.getSelectedAccount() instanceof SingleAddressBCHAccount;
    }
 
    @SuppressLint("SetTextI18n")
@@ -268,7 +270,7 @@ public class BalanceFragment extends Fragment {
       if (_mbwManager.getSelectedAccount().isArchived()) {
          return;
       }
-      WalletBtcAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
+      WalletAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
       updateUiKnownBalance(Preconditions.checkNotNull(account.getAccountBalance()));
 
       TextView tvBtcRate = _root.findViewById(R.id.tvBtcRate);
@@ -343,8 +345,6 @@ public class BalanceFragment extends Fragment {
    }
 
    private void updateUiKnownBalance(Balance balance) {
-      // Set BalanceSatoshis
-//      WalletBtcAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
 
       CharSequence valueString = Utils.getFormattedValueWithUnit(balance.confirmed, _mbwManager.getBitcoinDenomination()); // TODO need call with denomination
       ((TextView) _root.findViewById(R.id.tvBalance)).setText(valueString);

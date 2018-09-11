@@ -49,8 +49,7 @@ import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.Utils;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
 
 import java.util.UUID;
@@ -58,7 +57,7 @@ import java.util.UUID;
 public class ColdStorageSummaryActivity extends Activity {
    private static final int SEND_MAIN_REQUEST_CODE = 1;
    private MbwManager _mbwManager;
-   private WalletBtcAccount _account;
+   private WalletAccount _account;
 
    public static void callMe(Activity currentActivity, UUID account) {
       Intent intent = new Intent(currentActivity, ColdStorageSummaryActivity.class)

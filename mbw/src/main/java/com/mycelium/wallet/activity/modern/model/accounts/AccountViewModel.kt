@@ -4,17 +4,19 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.colu.ColuAccount
 import com.mycelium.wallet.persistence.MetadataStorage
+import com.mycelium.wapi.wallet.GenericAddress
+import com.mycelium.wapi.wallet.GenericTransaction
+import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.coins.Balance
-import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance
 
 /**
  * Model for the account item on the accounts tab.
  */
-class AccountViewModel(account: WalletBtcAccount, mbwManager: MbwManager) : AccountListItem {
+class AccountViewModel(account: WalletAccount<out GenericTransaction, out GenericAddress>, mbwManager: MbwManager) : AccountListItem {
     val accountId = account.id!!
-    val accountType = account.type!!
+    val accountType = account::class.java
     val isActive = account.isActive
     val balance: Balance? = if (isActive) account.accountBalance else null
     val syncTotalRetrievedTransactions = account.syncTotalRetrievedTransactions
@@ -77,16 +79,16 @@ class AccountViewModel(account: WalletBtcAccount, mbwManager: MbwManager) : Acco
     }
 
     companion object {
-        private fun isRmcAccountLinked(walletAccount: WalletBtcAccount, mbwManager: MbwManager): Boolean {
+        private fun isRmcAccountLinked(walletAccount: WalletAccount<out GenericTransaction, out GenericAddress>, mbwManager: MbwManager): Boolean {
             val linked = Utils.getLinkedAccount(walletAccount, mbwManager.coluManager.accounts.values)
-            if (linked != null && linked.type == WalletBtcAccount.Type.COLU
-                    && (linked as ColuAccount).coluAsset.assetType == ColuAccount.ColuAssetType.RMC) {
+            if (linked != null && linked is ColuAccount
+                    && linked.coluAsset.assetType == ColuAccount.ColuAssetType.RMC) {
                 return true
             }
             return false
         }
 
-        private fun showBackupMissingWarning(account: WalletBtcAccount, mbwManager: MbwManager): Boolean {
+        private fun showBackupMissingWarning(account: WalletAccount<out GenericTransaction, out GenericAddress>, mbwManager: MbwManager): Boolean {
             if (account.isArchived) {
                 return false
             }

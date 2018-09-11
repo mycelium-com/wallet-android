@@ -144,7 +144,6 @@ public class ColuAccount extends SynchronizeAbleWalletBtcAccount implements Expo
         this.coluAsset = coluAsset;
         this.satoshiAmount = 0;
         this.address = address;
-        type = Type.COLU;
 
         uuid = getGuidForAsset(coluAsset, address.getAllAddressBytes());
 
@@ -161,7 +160,6 @@ public class ColuAccount extends SynchronizeAbleWalletBtcAccount implements Expo
 
         this.accountKey = accountKey;
         this.address = this.accountKey.getPublicKey().toAddress(manager.getNetwork(), AddressType.P2PKH);
-        type = Type.COLU;
 
         uuid = getGuidForAsset(coluAsset, accountKey.getPublicKey().toAddress(getNetwork(), AddressType.P2PKH).getAllAddressBytes());
 
@@ -354,11 +352,6 @@ public class ColuAccount extends SynchronizeAbleWalletBtcAccount implements Expo
                                getSatoshis(balanceFiat.sending),
                                0, 0, 0, false, true);
         }
-    }
-
-    @Override
-    public Type getType() {
-        return Type.COLU;
     }
 
     @Override
