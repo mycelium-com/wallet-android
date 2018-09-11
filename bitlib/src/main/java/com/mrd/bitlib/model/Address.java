@@ -65,6 +65,12 @@ public class Address implements Serializable, Comparable<Address> {
       if (address.length() == 0) {
          return null;
       }
+      try {
+         return SegwitAddress.decode(address);
+      } catch (SegwitAddress.SegwitAddressException e) {
+         // this is not a SegWit address
+      }
+
       byte[] bytes = Base58.decodeChecked(address);
       if (bytes == null || bytes.length != NUM_ADDRESS_BYTES) {
          return null;

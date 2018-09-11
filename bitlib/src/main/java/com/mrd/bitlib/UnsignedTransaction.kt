@@ -47,7 +47,7 @@ open class UnsignedTransaction constructor(
                     throw RuntimeException("Public key not found")
 
             when (utxo.script) {
-                is ScriptOutputP2SH -> {
+                is ScriptOutputP2SH  -> {
                     val inpScriptBytes = BitUtils.concatenate(byteArrayOf(Script.OP_0.toByte(), publicKey.pubKeyHashCompressed.size.toByte()), publicKey.pubKeyHashCompressed)
                     val inputScript = ScriptInput.fromScriptBytes(BitUtils.concatenate(byteArrayOf((inpScriptBytes.size and 0xFF).toByte()), inpScriptBytes))
                     transaction.inputs[i].script = inputScript

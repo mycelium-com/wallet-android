@@ -284,22 +284,26 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
    }
 
    private void updateBip44AccountContext(HDAccountContext context) {
+      SqliteColuAccountBacking backing = _backings.get(context.getId());
+      backing.beginTransaction();
       //UPDATE bip44 SET archived=?,blockheight=?,lastExternalIndexWithActivity=?,lastInternalIndexWithActivity=?,firstMonitoredInternalIndex=?,lastDiscovery=?,accountType=?,accountSubId=? WHERE id=?
-
-      _updateBip44Account.bindLong(1, context.isArchived() ? 1 : 0);
-      _updateBip44Account.bindLong(2, context.getBlockHeight());
       final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
       try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteStream)) {
+         _updateBip44Account.bindLong(1, context.isArchived() ? 1 : 0);
+         _updateBip44Account.bindLong(2, context.getBlockHeight());
          objectOutputStream.writeObject(context.getIndexesMap());
          _updateBip44Account.bindBlob(3, byteStream.toByteArray());
+         _updateBip44Account.bindLong(4, context.getLastDiscovery());
+         _updateBip44Account.bindLong(5, context.getAccountType());
+         _updateBip44Account.bindLong(6, context.getAccountSubId());
+         _updateBip44Account.bindBlob(7, uuidToBytes(context.getId()));
+         _updateBip44Account.execute();
+         backing.setTransactionSuccessful();
       } catch (IOException ignore) {
          // should never happen
+      } finally {
+         backing.endTransaction();
       }
-      _updateBip44Account.bindLong(4, context.getLastDiscovery());
-      _updateBip44Account.bindLong(5, context.getAccountType());
-      _updateBip44Account.bindLong(6, context.getAccountSubId());
-      _updateBip44Account.bindBlob(7, uuidToBytes(context.getId()));
-      _updateBip44Account.execute();
    }
 
    @Override
@@ -365,18 +369,23 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
    }
 
    private void updateSingleAddressAccountContext(SingleAddressAccountContext context) {
-      // "UPDATE single SET archived=?,blockheight=? WHERE id=?"
-      _updateSingleAddressAccount.bindLong(1, context.isArchived() ? 1 : 0);
-      _updateSingleAddressAccount.bindLong(2, context.getBlockHeight());
+      SqliteColuAccountBacking backing = _backings.get(context.getId());
+      backing.beginTransaction();
       final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
       try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteStream)) {
+         // "UPDATE single SET archived=?,blockheight=? WHERE id=?"
+         _updateSingleAddressAccount.bindLong(1, context.isArchived() ? 1 : 0);
+         _updateSingleAddressAccount.bindLong(2, context.getBlockHeight());
          objectOutputStream.writeObject(context.getAddresses());
          _updateSingleAddressAccount.bindBlob(3, byteStream.toByteArray());
+         _updateSingleAddressAccount.bindBlob(4, uuidToBytes(context.getId()));
+         _updateSingleAddressAccount.execute();
+         backing.setTransactionSuccessful();
       } catch (IOException ignore) {
-         // should never happen
+         // ignore
+      } finally {
+         backing.endTransaction();
       }
-      _updateSingleAddressAccount.bindBlob(4, uuidToBytes(context.getId()));
-      _updateSingleAddressAccount.execute();
    }
 
    @Override

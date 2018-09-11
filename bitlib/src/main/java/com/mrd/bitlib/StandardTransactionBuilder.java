@@ -26,12 +26,9 @@ import com.mrd.bitlib.crypto.BitcoinSigner;
 import com.mrd.bitlib.crypto.IPrivateKeyRing;
 import com.mrd.bitlib.crypto.IPublicKeyRing;
 import com.mrd.bitlib.model.*;
-import com.mrd.bitlib.util.BitUtils;
-import com.mrd.bitlib.util.Sha256Hash;
 import kotlin.NotImplementedError;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.mrd.bitlib.TransactionUtils.MINIMUM_OUTPUT_VALUE;
 

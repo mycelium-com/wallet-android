@@ -88,25 +88,29 @@ public class SegwitAddress extends Address {
         return out.toByteArray();
     }
 
+    public static SegwitAddress decode(final String address) throws SegwitAddressException {
+        return decode(null, address);
+    }
+
     /**
      * Decode a SegWit address.
      */
-    public static SegwitAddress decode(final String hrp, final String addr)
+    public static SegwitAddress decode(final String hrp, final String address)
             throws SegwitAddressException {
         Bech32.Bech32Data dec;
         try {
-            dec = Bech32.decode(addr);
+            dec = Bech32.decode(address);
         } catch (Bech32.Bech32Exception e) {
             throw new SegwitAddressException(e);
         }
-        if (dec.hrp.compareToIgnoreCase(hrp) != 0) {
+        if (hrp != null && dec.hrp.compareToIgnoreCase(hrp) != 0) {
             throw new SegwitAddressException(String.format(
                     "Human-readable part expected '%s' but found '%s'", hrp, dec.hrp));
         }
         if (dec.values.length < 1) throw new SegwitAddressException("Zero data found");
         // Skip the version byte and convert the rest of the decoded bytes
         byte[] conv = convertBits(dec.values, 1, dec.values.length - 1, 5, 8, false);
-        NetworkParameters network = hrp.equalsIgnoreCase("bc") ? NetworkParameters.productionNetwork :
+        NetworkParameters network = dec.hrp.equalsIgnoreCase("bc") ? NetworkParameters.productionNetwork :
                 NetworkParameters.testNetwork;
         return new SegwitAddress(network, dec.values[0], conv);
     }
