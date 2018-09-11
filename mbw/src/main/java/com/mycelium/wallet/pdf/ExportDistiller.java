@@ -44,6 +44,10 @@ import android.util.Log;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Preconditions;
+import com.mrd.bitlib.crypto.PublicKey;
+import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.AddressType;
+import com.mrd.bitlib.model.Transaction;
 import com.mycelium.wallet.R;
 import com.mycelium.wapi.wallet.WalletAccount;
 
@@ -56,6 +60,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import crl.android.pdfwriter.PaperSize;
 
@@ -66,18 +71,19 @@ public class ExportDistiller {
     public static class ExportEntry implements Serializable {
         private static final long serialVersionUID = 1L;
 
-        public String address;
         public String encryptedKey;
         public String encryptedMasterSeed;
         public String label;
         public WalletAccount.Type accountType;
+        public Map<AddressType, Address> addresses;
 
-        public ExportEntry(String address, String encryptedKey, String encryptedMasterSeed, String label, WalletAccount.Type accountType) {
-            this.address = address;
+        public ExportEntry(Map<AddressType, Address> addresses, String encryptedKey, String encryptedMasterSeed, String label,
+                           WalletAccount.Type accountType) {
             this.encryptedKey = encryptedKey;
             this.encryptedMasterSeed = encryptedMasterSeed;
             this.label = label;
             this.accountType = accountType;
+            this.addresses = addresses;
         }
     }
 
@@ -94,9 +100,12 @@ public class ExportDistiller {
             // Sum up all the work to do
             _totalWork = WATER_MARK_WORK;
             for (ExportEntry entry : entries) {
-                if (entry.address != null) {
-                    _totalWork += ADDRESS_WORK;
+                for(Address address: entry.addresses.values()){
+                    if(address != null) {
+                        _totalWork += ADDRESS_WORK;
+                    }
                 }
+
                 if (entry.encryptedKey != null) {
                     _totalWork += PRIVATE_KEY_WORK;
                 }
@@ -350,7 +359,7 @@ public class ExportDistiller {
 
     private static double addRecord(OffsetWriter writer, String title,
                                     ExportEntry entry, boolean addEndLine, ExportProgressTracker progressTracker) {
-        String address = entry.address;
+        //String address = entry.address;
         String encryptedKey = entry.encryptedKey;
         double fromTop = 0;
         // Add separator line and key title
@@ -390,6 +399,12 @@ public class ExportDistiller {
             break;
          default:writer.addText(3F, fromTop, 13, "Bitcoin Address");}
       if (hasEpk) {
+         writer.addText(12F, fromTop, 13, "Public keys");
+         for(AddressType type: AddressType.values()){
+
+         }
+         fromTop += 1.5F;
+
          writer.addText(12F, fromTop, 13, "Encrypted Private Key");
       }
       fromTop += 1.5F;
@@ -398,8 +413,7 @@ public class ExportDistiller {
         // Bitmap addressQr = Utils.getQRCodeBitmap("bitcoin:" + address, 200, 0);
         // writer.addImage(2.9, fromTop, 3.5, 3.5, addressQr);
 
-        writer.addQrCode(2.9, fromTop - 0.25, 3.5, "bitcoin:" + address);
-
+        //writer.addQrCode(2.9, fromTop - 0.25, 3.5, "bitcoin:" + address);
         progressTracker.addressCompleted();
         // Encrypted private key QR-code
         if (hasEpk) {
@@ -415,35 +429,26 @@ public class ExportDistiller {
         // Use Monospace font
         writer.setMonoFont();
 
-        // Strings
-        String a1 = address.substring(0, address.length() / 2);
-        String a2 = address.substring(address.length() / 2);
-        String k1 = "";
-        String k2 = "";
-        if (hasEpk) {
-            k1 = encryptedKey.substring(0, encryptedKey.length() / 2);
-            k2 = encryptedKey.substring(encryptedKey.length() / 2);
+        for(Address address : entry.addresses.values()) {
+            // Strings
+            String a1 = address.toString().substring(0, address.toString().length() / 2);
+            String a2 = address.toString().substring(address.toString().length() / 2);
+            writer.addText(2.3, fromTop, 12, a1);
+            fromTop += 0.5F;
+            writer.addText(2.3, fromTop, 12, a2);
+            fromTop += 0.5F;
+            writer.addQrCode(2.9, fromTop - 0.25, 3.5, "bitcoin:" + address);
+            fromTop += 1;
         }
-        writer.addText(2.3, fromTop, 12, a1);
-        if (hasEpk) {
-            writer.addText(9.8, fromTop, 12, k1);
-        }
-        fromTop += 0.5F;
-        writer.addText(2.3, fromTop, 12, a2);
-        if (hasEpk) {
-            writer.addText(9.8, fromTop, 12, k2);
-        }
-        fromTop += 1;
+            // Use Standard font
+            writer.setStandardFont();
 
-        // Use Standard font
-        writer.setStandardFont();
-
-        // Add end line if necessary
-        if (addEndLine) {
-            writer.setLineColor(0, 0.5, 1);
-            writer.addLine(1F, fromTop, 18F, fromTop);
-        }
-        fromTop += 0.5F;
+            // Add end line if necessary
+            if (addEndLine) {
+                writer.setLineColor(0, 0.5, 1);
+                writer.addLine(1F, fromTop, 18F, fromTop);
+            }
+            fromTop += 0.5F;
         return fromTop;
     }
 

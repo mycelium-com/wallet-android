@@ -36,10 +36,13 @@ package com.mycelium.wallet.service;
 
 import android.content.Context;
 
+import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.MrdExport;
 import com.mrd.bitlib.crypto.MrdExport.V1.EncryptionParameters;
 import com.mrd.bitlib.crypto.MrdExport.V1.KdfParameters;
+import com.mrd.bitlib.crypto.PrivateKey;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.UserFacingException;
@@ -61,6 +64,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public class CreateMrdBackupTask extends ServiceTask<Boolean> {
@@ -68,17 +72,16 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
 
    private static class EntryToExport implements Serializable {
       private static final long serialVersionUID = 1L;
-
-      public String address;
       public String base58PrivateKey;
       public String label;
       private final WalletAccount.Type accountType;
+      private final Map<AddressType, Address> addresses;
 
-      public EntryToExport(String address, String base58PrivateKey, String label, WalletAccount.Type accountType) {
-         this.address = address;
+      public EntryToExport(Map<AddressType, Address> addresses, String base58PrivateKey, String label, WalletAccount.Type accountType) {
          this.base58PrivateKey = base58PrivateKey;
          this.label = label;
          this.accountType = accountType;
+         this.addresses = addresses;
       }
    }
 
@@ -114,7 +117,6 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
                continue;
             }
             SingleAddressAccount a = (SingleAddressAccount) account;
-            Address address = a.getAddress();
             String label = storage.getLabelByAccount(a.getId());
 
             String base58EncodedPrivateKey = null;
@@ -125,16 +127,21 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
                   throw new RuntimeException(e);
                }
             }
-            entry = new EntryToExport(address.toString(), base58EncodedPrivateKey, label, account.getType());
+            try {
+               entry = new EntryToExport(a.getPrivateKey(cipher).getPublicKey().getAllSupportedAddresses(network),
+                       base58EncodedPrivateKey, label, account.getType());
+            } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
+               invalidKeyCipher.printStackTrace();
+            }
          } else if (account instanceof ColuAccount) {
             ColuAccount a = (ColuAccount) account;
             String label = storage.getLabelByAccount(a.getId());
             String base58EncodedPrivateKey = null;
-            Address address = a.getReceivingAddress().get();
             if (a.canSpend()) {
                base58EncodedPrivateKey = a.getPrivateKey().getBase58EncodedPrivateKey(network);
             }
-            entry = new EntryToExport(address.toString(), base58EncodedPrivateKey, label, account.getType());
+            entry = new EntryToExport(a.getPrivateKey().getPublicKey().getAllSupportedAddresses(network),
+                    base58EncodedPrivateKey, label, account.getType());
          }
          if (entry != null) {
             if (account.isActive()) {
@@ -208,7 +215,7 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
       if (toExport.base58PrivateKey != null) {
          encrypted = MrdExport.V1.encryptPrivateKey(parameters, toExport.base58PrivateKey, network);
       }
-      return new ExportEntry(toExport.address, encrypted, null, toExport.label, accountType);
+      return new ExportEntry(toExport.addresses, encrypted, null, toExport.label, accountType);
    }
 
    @Override
