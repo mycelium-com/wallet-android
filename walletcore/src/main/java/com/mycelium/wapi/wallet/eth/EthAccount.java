@@ -114,7 +114,7 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
     }
 
     @Override
-    public void checkAmount(WalletBtcAccount.Receiver receiver, long kbMinerFee, CurrencyValue enteredAmount) throws StandardTransactionBuilder.InsufficientFundsException, StandardTransactionBuilder.OutputTooSmallException, StandardTransactionBuilder.UnableToBuildTransactionException {
+    public void checkAmount(WalletBtcAccount.Receiver receiver, long kbMinerFee, Value enteredAmount) throws StandardTransactionBuilder.InsufficientFundsException, StandardTransactionBuilder.OutputTooSmallException, StandardTransactionBuilder.UnableToBuildTransactionException {
 
     }
 

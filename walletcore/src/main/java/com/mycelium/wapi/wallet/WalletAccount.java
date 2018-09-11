@@ -104,7 +104,7 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
      */
     TransactionEx getTransactionEx(Sha256Hash txid);
 
-    void checkAmount(WalletBtcAccount.Receiver receiver, long kbMinerFee, CurrencyValue enteredAmount)
+    void checkAmount(WalletBtcAccount.Receiver receiver, long kbMinerFee, Value enteredAmount)
             throws StandardTransactionBuilder.InsufficientFundsException,
             StandardTransactionBuilder.OutputTooSmallException,
             StandardTransactionBuilder.UnableToBuildTransactionException;

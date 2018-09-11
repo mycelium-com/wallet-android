@@ -43,8 +43,6 @@ import java.util.List;
 import java.util.UUID;
 
 public interface WalletBtcAccount extends WalletAccount<BtcTransaction, BtcAddress> {
-   void checkAmount(Receiver receiver, long kbMinerFee, Value enteredAmount) throws InsufficientFundsException, OutputTooSmallException, StandardTransactionBuilder.UnableToBuildTransactionException;
-
    enum BroadcastResult { SUCCESS, REJECTED, NO_SERVER_CONNECTION}
 
    /**
