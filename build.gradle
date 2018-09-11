@@ -15,8 +15,8 @@ buildscript {
 allprojects {
     tasks.withType(JavaCompile) {
         options.compilerArgs << "-Xlint:deprecation,unchecked"
-        sourceCompatibility = 1.8
-        targetCompatibility = 1.8
+        sourceCompatibility = 1.7
+        targetCompatibility = 1.7
     }
 }
 
