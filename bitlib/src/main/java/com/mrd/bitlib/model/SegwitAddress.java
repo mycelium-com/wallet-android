@@ -26,8 +26,11 @@ import com.mrd.bitlib.util.Sha256Hash;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.Serializable;
 
-public class SegwitAddress extends Address {
+public class SegwitAddress extends Address implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private final byte version;
     private final byte[] program;
     private final String hrp;
@@ -113,6 +116,16 @@ public class SegwitAddress extends Address {
         NetworkParameters network = dec.hrp.equalsIgnoreCase("bc") ? NetworkParameters.productionNetwork :
                 NetworkParameters.testNetwork;
         return new SegwitAddress(network, dec.values[0], conv);
+    }
+
+    @Override
+    public boolean isValidAddress(NetworkParameters network) {
+        try {
+            verify(this);
+        } catch (SegwitAddressException e) {
+            return false;
+        }
+        return hrp.equalsIgnoreCase(network.isProdnet() ? "bc" : "tb");
     }
 
     /**
