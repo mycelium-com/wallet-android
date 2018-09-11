@@ -41,8 +41,13 @@ class PublicKey(val publicKeyBytes: ByteArray) : Serializable {
         return when (addressType) {
             AddressType.P2PKH -> toP2PKHAddress(networkParameters)
             AddressType.P2SH_P2WPKH -> toNestedP2WPKH(networkParameters)
+            AddressType.P2WPKH -> toP2WPKH(networkParameters)
             else -> throw IllegalArgumentException("Not supported address type")
         }
+    }
+
+    fun toP2WPKH(networkParameters: NetworkParameters) : SegwitAddress {
+        return SegwitAddress(networkParameters, 0x00, HashUtils.addressHash(pubKeyHashCompressed))
     }
 
     fun getAllSupportedAddresses(networkParameters: NetworkParameters) =
@@ -113,6 +118,7 @@ class PublicKey(val publicKeyBytes: ByteArray) : Serializable {
         private const val HASH_TYPE = 1
         private val SUPPORTED_ADDRESS_TYPES = listOf(
                 AddressType.P2PKH,
+                AddressType.P2WPKH,
                 AddressType.P2SH_P2WPKH
         )
     }

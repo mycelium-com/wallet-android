@@ -222,7 +222,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       // Get the current unspent outputs as dictated by the block chain
       QueryUnspentOutputsResponse unspentOutputResponse;
       try {
-         unspentOutputResponse = _wapi.queryUnspentOutputs(new QueryUnspentOutputsRequest(Wapi.VERSION, addresses))
+            unspentOutputResponse = _wapi.queryUnspentOutputs(new QueryUnspentOutputsRequest(Wapi.VERSION, addresses))
                .getResult();
       } catch (WapiException e) {
          _logger.logError("Server connection failed with error code: " + e.errorCode, e);
