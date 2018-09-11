@@ -73,7 +73,7 @@ class Bech32Test {
             dec = SegwitAddress.decode(hrp, valid.address)
         }
 
-        val spk = SegwitAddress.toScriptpubkey(dec)
+        val spk = SegwitAddress.getScriptBytes(dec)
         assertArrayEquals("decode produces wrong result: '${valid.address}'",
                 valid.scriptPubKey, spk)
         val recode = SegwitAddress.encode(hrp, dec.version.toInt(), dec.program)

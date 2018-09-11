@@ -129,6 +129,16 @@ public class SegwitAddress extends Address {
         return ret;
     }
 
+    @Override
+    public AddressType getType() {
+        return AddressType.P2WPKH;
+    }
+
+    @Override
+    public byte[] getTypeSpecificBytes() {
+        return getScriptBytes(this);                    //TODO segwit check if correct
+    }
+
     /**
      * Runs the SegWit address verification
      *
@@ -158,10 +168,10 @@ public class SegwitAddress extends Address {
 
     @Override
     public Sha256Hash getScriptHash() {
-        return HashUtils.sha256(toScriptpubkey(this));
+        return HashUtils.sha256(getScriptBytes(this)).reverse();
     }
 
-    public static byte[] toScriptpubkey(SegwitAddress data) {
+    public static byte[] getScriptBytes(SegwitAddress data) {
         ByteArrayOutputStream pubkey = new ByteArrayOutputStream(40 + 1);
         int v = data.version;
         // OP_0 is encoded as 0x00, but OP_1 through OP_16 are encoded as 0x51 though 0x60

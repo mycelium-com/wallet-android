@@ -28,6 +28,7 @@ import com.mrd.bitlib.crypto.IPublicKeyRing;
 import com.mrd.bitlib.model.*;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.Sha256Hash;
+import kotlin.NotImplementedError;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -108,10 +109,18 @@ public class StandardTransactionBuilder {
 
    public static TransactionOutput createOutput(Address sendTo, long value, NetworkParameters network) {
       ScriptOutput script;
-      if (sendTo.isP2SH(network)) {
-         script = new ScriptOutputP2SH(sendTo.getTypeSpecificBytes());
-      } else {
-         script = new ScriptOutputStandard(sendTo.getTypeSpecificBytes());
+      switch (sendTo.getType()) {
+         case P2SH_P2WPKH:
+            script = new ScriptOutputP2SH(sendTo.getTypeSpecificBytes());
+            break;
+         case P2PKH:
+            script = new ScriptOutputStandard(sendTo.getTypeSpecificBytes());
+            break;
+         case P2WPKH:
+            script = new ScriptOutputP2WPKH(sendTo.getTypeSpecificBytes());
+            break;
+         default:
+            throw new NotImplementedError();
       }
       return new TransactionOutput(value, script);
    }
