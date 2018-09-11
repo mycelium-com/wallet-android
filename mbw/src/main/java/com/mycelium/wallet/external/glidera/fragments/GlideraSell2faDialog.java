@@ -179,7 +179,7 @@ public class GlideraSell2faDialog extends DialogFragment {
                final UnsignedTransaction unsignedTransaction;
 
                try {
-                  unsignedTransaction = selectedAccount.createUnsignedTransaction(receivers, TransactionUtils.DEFAULT_KB_FEE);
+                  unsignedTransaction = ((WalletBtcAccount)selectedAccount).createUnsignedTransaction(receivers, TransactionUtils.DEFAULT_KB_FEE);
                } catch (StandardTransactionBuilder.OutputTooSmallException outputTooSmallException) {
                   outputTooSmallException.printStackTrace();
                   buttonContinue.setEnabled(false);

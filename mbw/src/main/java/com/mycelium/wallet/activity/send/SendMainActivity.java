@@ -871,13 +871,13 @@ public class SendMainActivity extends Activity {
                     // build new output list with user specified amount
                     outputs = outputs.newOutputsWithTotalAmount(toSend.getValue());
                 }
-                _unsigned = _account.createUnsignedTransaction(outputs, feePerKbValue);
+                _unsigned = ((WalletBtcAccount)_account).createUnsignedTransaction(outputs, feePerKbValue);
                 _receivingAddress = null;
                 _transactionLabel = paymentRequestInformation.getPaymentDetails().memo;
                 return TransactionStatus.OK;
             } else if(hasAddressData) {
                 WalletBtcAccount.Receiver receiver = new WalletBtcAccount.Receiver(_receivingAddress, toSend.getValue());
-                _unsigned = _account.createUnsignedTransaction(Collections.singletonList(receiver), feePerKbValue);
+                _unsigned = ((WalletBtcAccount)_account).createUnsignedTransaction(Collections.singletonList(receiver), feePerKbValue);
                 checkSpendingUnconfirmed();
                 return TransactionStatus.OK;
             } else {

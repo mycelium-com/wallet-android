@@ -239,25 +239,4 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
      * Returns the number of retrieved transactions during synchronization
      */
     int getSyncTotalRetrievedTransactions();
-
-    /**
-     * Create a new unsigned transaction sending funds to one or more addresses.
-     * <p/>
-     * The unsigned transaction must be signed and queued before it will affect
-     * the transaction history.
-     * <p/>
-     * If you call this method twice without signing and queuing the unsigned
-     * transaction you are likely to create another unsigned transaction that
-     * double spends the first one. In other words, if you call this method and
-     * do not sign and queue the unspent transaction, then you should discard the
-     * unsigned transaction.
-     *
-     * @param receivers the receiving address and amount to send
-     * @return an unsigned transaction.
-     * @throws StandardTransactionBuilder.OutputTooSmallException    if one of the outputs were too small
-     * @throws StandardTransactionBuilder.InsufficientFundsException if not enough funds were present to create the unsigned
-     *                                    transaction
-     */
-    UnsignedTransaction createUnsignedTransaction(List<WalletBtcAccount.Receiver> receivers, long minerFeeToUse) throws StandardTransactionBuilder.OutputTooSmallException,
-            StandardTransactionBuilder.InsufficientFundsException, StandardTransactionBuilder.UnableToBuildTransactionException;
 }

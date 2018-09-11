@@ -209,11 +209,6 @@ public class FiatAccount implements WalletAccount<FiatTransaction, FiatAddress> 
     }
 
     @Override
-    public UnsignedTransaction createUnsignedTransaction(List<WalletBtcAccount.Receiver> receivers, long minerFeeToUse) throws StandardTransactionBuilder.OutputTooSmallException, StandardTransactionBuilder.InsufficientFundsException, StandardTransactionBuilder.UnableToBuildTransactionException {
-        return null;
-    }
-
-    @Override
     public SendRequest getSendToRequest(GenericAddress destination, Value amount) {
         return null;
     }

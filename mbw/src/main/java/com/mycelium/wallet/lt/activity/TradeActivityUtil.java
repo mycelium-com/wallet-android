@@ -72,7 +72,7 @@ public class TradeActivityUtil {
       Address nullAddress = Address.getNullAddress(mbwManager.getNetwork());
       WalletBtcAccount.Receiver receiver = new WalletBtcAccount.Receiver(nullAddress, ts.satoshisFromSeller);
       try {
-         account.createUnsignedTransaction(Collections.singletonList(receiver), lt.getMinerFeeEstimation().getLongValue());
+         ((WalletBtcAccount)account).createUnsignedTransaction(Collections.singletonList(receiver), lt.getMinerFeeEstimation().getLongValue());
       } catch (OutputTooSmallException e) {
          throw new RuntimeException(e);
       } catch (InsufficientFundsException e) {
@@ -94,7 +94,7 @@ public class TradeActivityUtil {
          receiver.add(new WalletBtcAccount.Receiver(feeAddress, localTraderFee));
       }
       try {
-         return acc.createUnsignedTransaction(receiver, minerFeeToUse);
+         return ((WalletBtcAccount)acc).createUnsignedTransaction(receiver, minerFeeToUse);
       } catch (OutputTooSmallException | InsufficientFundsException | UnableToBuildTransactionException e) {
          throw new RuntimeException(e);
       }
