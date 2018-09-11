@@ -37,6 +37,7 @@ package com.mycelium.wallet.activity.main;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -171,10 +172,10 @@ public class BalanceFragment extends Fragment {
    }
 
    @Override
-   public void onAttach(Activity activity) {
+   public void onAttach(Context context) {
       _mbwManager = MbwManager.getInstance(getActivity());
-      _toaster = new Toaster(activity);
-      super.onAttach(activity);
+      _toaster = new Toaster(this);
+      super.onAttach(context);
    }
 
    @Override

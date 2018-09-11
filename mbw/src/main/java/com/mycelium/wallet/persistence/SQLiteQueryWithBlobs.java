@@ -51,8 +51,8 @@ import android.database.sqlite.SQLiteStatement;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteQuery;
 
+// TODO: 31.08.18 Document what exactly is the purpose of this class. Is it not a performance overhead in most cases to use it?
 public class SQLiteQueryWithBlobs {
-
    private static class GenericIndex<T> {
       public T value;
       public int index;
@@ -62,6 +62,7 @@ public class SQLiteQueryWithBlobs {
          this.index = index;
       }
    }
+
    private static class BlobIndex  extends  GenericIndex<byte[]>{
       public BlobIndex(byte[] blob, int index) {
          super(blob, index);
@@ -75,8 +76,6 @@ public class SQLiteQueryWithBlobs {
    }
 
    private class MyCursorFactory implements CursorFactory {
-
-      @SuppressWarnings("deprecation")
       @Override
       public Cursor newCursor(SQLiteDatabase db, SQLiteCursorDriver masterQuery, String editTable, SQLiteQuery query) {
          for (BlobIndex blobIndex : _blobIndex) {
@@ -85,9 +84,8 @@ public class SQLiteQueryWithBlobs {
          for (LongIndex longIndex : _longIndex) {
             query.bindLong(longIndex.index, longIndex.value);
          }
-         return new SQLiteCursor(db, masterQuery, editTable, query);
+         return new SQLiteCursor(masterQuery, editTable, query);
       }
-
    }
 
    private SQLiteDatabase _db;
@@ -97,8 +95,8 @@ public class SQLiteQueryWithBlobs {
 
    public SQLiteQueryWithBlobs(SQLiteDatabase db) {
       _db = db;
-      _blobIndex = new LinkedList<BlobIndex>();
-      _longIndex = new LinkedList<LongIndex>();
+      _blobIndex = new LinkedList<>();
+      _longIndex = new LinkedList<>();
       _cursorFactory = new MyCursorFactory();
    }
 
@@ -147,11 +145,10 @@ public class SQLiteQueryWithBlobs {
    }
    
    public static void bindBlobWithNull(SQLiteStatement statement, int index, byte[] value){
-      if(value == null){
+      if(value == null) {
          statement.bindNull(index);
-      }else{
+      } else {
          statement.bindBlob(index, value);
       }
    }
-
 }

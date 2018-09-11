@@ -1049,7 +1049,7 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
 
       @Override
       public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-         //We don't really support downgrade
+         //We don't really support downgrade but some android devices need this empty method
       }
    }
 }

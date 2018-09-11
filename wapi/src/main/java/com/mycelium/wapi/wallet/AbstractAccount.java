@@ -347,8 +347,8 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
          }
       }
 
-      // if we removed some UTXO because of an sync, it means that there are transactions
-      // we dont yet know about. Run a discover for all addresses related to the UTXOs we removed
+      // if we removed some UTXO because of a sync, it means that there are transactions
+      // we don't yet know about. Run a discover for all addresses related to the UTXOs we removed
       if (addressesToDiscover.size() > 0) {
          try {
             doDiscoveryForAddresses(Lists.newArrayList(addressesToDiscover));
@@ -592,7 +592,6 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
                }
             }
          }
-
       }
 
       int blockHeight = getBlockChainHeight();
@@ -1155,7 +1154,6 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       return b != null ? new Balance(b.confirmed, b.pendingReceiving, b.pendingSending, b.pendingChange, b.updateTime,
               b.blockHeight, isSynchronizing(), b.allowsZeroConfSpending)
               : new Balance(0, 0, 0, 0, 0, 0, isSynchronizing(), false);
-
    }
 
    @Override
