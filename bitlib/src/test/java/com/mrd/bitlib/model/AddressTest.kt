@@ -65,12 +65,12 @@ class AddressTest {
     fun standardAddressTest() {
         val tAddr = Address.fromString("muvtKjWtqcxrsDYfvFCgGnkmB4EqEcU8Bk")
         Assert.assertNotNull(tAddr)
-        Assert.assertFalse(tAddr.isMultisig(tAddr.network))
+        Assert.assertFalse(tAddr.isP2SH(tAddr.network))
         Assert.assertTrue(tAddr.network.isTestnet)
 
         val pAddr = Address.fromString("1NiKrdcsiat3NVRu5XCmGkzZhZDTGXabU5")
         Assert.assertNotNull(pAddr)
-        Assert.assertFalse(pAddr.isMultisig(pAddr.network))
+        Assert.assertFalse(pAddr.isP2SH(pAddr.network))
         Assert.assertTrue(pAddr.network.isProdnet)
     }
 
@@ -78,12 +78,12 @@ class AddressTest {
     fun multisigAddressTest() {
         val tAddr = Address.fromString("2N9ZkpDh83uygvhTSy5syYADZvDuVZi8mRH")
         Assert.assertNotNull(tAddr)
-        Assert.assertTrue(tAddr.isMultisig(tAddr.network))
+        Assert.assertTrue(tAddr.isP2SH(tAddr.network))
         Assert.assertTrue(tAddr.network.isTestnet)
 
         val pAddr = Address.fromString("31qh3GkM3RLPfMy86XjisS7bVkz7Pz8wee")
         Assert.assertNotNull(pAddr)
-        Assert.assertTrue(pAddr.isMultisig(pAddr.network))
+        Assert.assertTrue(pAddr.isP2SH(pAddr.network))
         Assert.assertTrue(pAddr.network.isProdnet)
     }
 
