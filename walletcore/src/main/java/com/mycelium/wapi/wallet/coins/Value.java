@@ -50,7 +50,7 @@ public class Value implements Monetary, Comparable<Value>, Serializable {
         return new Value(type, 0);
     }
 
-    public BigDecimal getAsBigDecimal() {
+    public BigDecimal getValueAsBigDecimal() {
         return BigDecimal.valueOf(value).movePointLeft(type.getUnitExponent());
     }
 

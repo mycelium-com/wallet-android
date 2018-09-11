@@ -38,6 +38,7 @@ import android.os.AsyncTask;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.util.Log;
+
 import com.coinapult.api.httpclient.AccountInfo;
 import com.coinapult.api.httpclient.CoinapultClient;
 import com.coinapult.api.httpclient.Transaction;
@@ -46,7 +47,12 @@ import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
-import com.google.common.collect.*;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Ordering;
 import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
@@ -57,13 +63,16 @@ import com.mrd.bitlib.util.ByteWriter;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.WapiLogger;
-import com.mycelium.wallet.exchange.ExchangeRateManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.event.BalanceChanged;
 import com.mycelium.wallet.event.SyncFailed;
+import com.mycelium.wallet.exchange.ExchangeRateManager;
 import com.mycelium.wallet.persistence.MetadataStorage;
-import com.mycelium.wapi.model.*;
-import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal;
+import com.mycelium.wapi.model.BalanceSatoshis;
+import com.mycelium.wapi.model.ExchangeRate;
+import com.mycelium.wapi.model.TransactionEx;
+import com.mycelium.wapi.model.TransactionOutputSummary;
+import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.KeyCipher;
@@ -76,12 +85,10 @@ import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.CoinType;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
-import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
 import com.squareup.otto.Bus;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -89,7 +96,17 @@ import java.math.MathContext;
 import java.nio.ByteBuffer;
 import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
+
+import javax.annotation.Nullable;
 
 public class CoinapultAccount extends SynchronizeAbleWalletBtcAccount {
    private static final BalanceSatoshis EMPTY_BALANCE = new BalanceSatoshis(0, 0, 0, 0, 0, 0, true, true);
@@ -155,14 +172,13 @@ public class CoinapultAccount extends SynchronizeAbleWalletBtcAccount {
 
 
    @Override
-   public void checkAmount(Receiver receiver, long kbMinerFee, CurrencyValue enteredAmount) throws StandardTransactionBuilder.InsufficientFundsException, StandardTransactionBuilder.OutputTooSmallException {
-      Optional<ExactCurrencyValue> sendValue = com.mycelium.wapi.wallet.currency.CurrencyValue.checkCurrencyAmount(enteredAmount, coinapultCurrency.name);
-
-      if (balanceFiat == null || sendValue.isPresent() && sendValue.get().getValue().compareTo(balanceFiat.confirmed.getValue()) > 0) {
+   public void checkAmount(Receiver receiver, long kbMinerFee, Value enteredAmount) throws StandardTransactionBuilder.InsufficientFundsException, StandardTransactionBuilder.OutputTooSmallException {
+      if (balanceFiat == null || enteredAmount != null && enteredAmount.getValueAsBigDecimal().compareTo(balanceFiat.confirmed.getValue()) > 0) {
          //not enough funds
          throw new StandardTransactionBuilder.InsufficientFundsException(receiver.amount, 0);
       }
-      if (!sendValue.isPresent() && receiver.amount > getSatoshis(balanceFiat.confirmed)) {
+//      if (!sendValue.isPresent() && receiver.amount > getSatoshis(balanceFiat.confirmed)) {
+      if (enteredAmount == null && receiver.amount > getSatoshis(balanceFiat.confirmed)) {
          //non-fiat value, but approximately not enough funds
          throw new StandardTransactionBuilder.InsufficientFundsException(receiver.amount, 0);
       }

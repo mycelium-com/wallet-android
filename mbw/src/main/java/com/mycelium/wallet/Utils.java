@@ -100,7 +100,6 @@ import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
 import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
-import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.currency.BitcoinValue;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
@@ -981,6 +980,7 @@ public class Utils {
       return format.format(date);
    }
 
+   // todo delete and use method below
    public static String getFormattedValue(CurrencyValue value, CoinUtil.Denomination denomination) {
       if (value == null) {
          return "";
@@ -994,6 +994,20 @@ public class Utils {
          return CoinUtil.valueString(val, denomination, false);
       } else {
 
+         return FIAT_FORMAT.format(val);
+      }
+   }
+
+   public static String getFormattedValue(Value value, CoinUtil.Denomination denomination) {
+      if (value == null) {
+         return "";
+      }
+
+      long val = value.value;
+      // todo
+      if (value.getCurrencySymbol().equals("BTC") || value.getCurrencySymbol().equals("BCH")) {
+         return CoinUtil.valueString(val, denomination, false);
+      } else {
          return FIAT_FORMAT.format(val);
       }
    }
@@ -1040,12 +1054,18 @@ public class Utils {
       }
    }
 
+   // todo delete and use method below
    public static String getColuFormattedValueWithUnit(CurrencyValue value) {
       return String.format("%s %s", value.getValue().stripTrailingZeros().toPlainString(), value.getCurrency());
    }
 
-   public static String getColuFormattedValue(CurrencyValue value) {
-      return value.getValue().stripTrailingZeros().toPlainString();
+   public static String getColuFormattedValueWithUnit(Value value) {
+      return String.format("%s %s", value.getValueAsBigDecimal().stripTrailingZeros().toPlainString(), value.getCurrencySymbol());
+   }
+
+   public static String getColuFormattedValue(Value value) {
+//      return value.value.stripTrailingZeros().toPlainString(); // todo ?
+      return value.getValueAsBigDecimal().stripTrailingZeros().toPlainString();
    }
 
    // prevent ambiguous call for ExactBitcoinValue
