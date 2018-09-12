@@ -98,6 +98,7 @@ import com.mycelium.wallet.activity.send.model.FeeLvlItem;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
 import com.mycelium.wallet.activity.util.AccountDisplayType;
 import com.mycelium.wallet.activity.util.AnimationUtils;
+import com.mycelium.wallet.activity.util.ValueExtentionsKt;
 import com.mycelium.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.colu.ColuCurrencyValue;
@@ -141,6 +142,7 @@ import static android.widget.Toast.LENGTH_LONG;
 import static android.widget.Toast.LENGTH_SHORT;
 import static android.widget.Toast.makeText;
 import static com.mrd.bitlib.StandardTransactionBuilder.estimateTransactionSize;
+import static com.mycelium.wallet.activity.util.ValueExtentionsKt.isBtc;
 
 public class SendMainActivity extends Activity {
     private static final String TAG = "SendMainActivity";
@@ -570,7 +572,7 @@ public class SendMainActivity extends Activity {
 
     private boolean canFundColuFrom(WalletAccount walletAccount) {
         return walletAccount != null && walletAccount.canSpend()
-                && Utils.isBtc(walletAccount.getAccountBalance().confirmed)
+                && isBtc(walletAccount.getAccountBalance().confirmed.type)
                 && walletAccount.getAccountBalance().getSpendable().value >=
                 _mbwManager.getColuManager().getColuTransactionFee(feePerKbValue) + getAmountForColuTxOutputs();
     }
@@ -1268,7 +1270,7 @@ public class SendMainActivity extends Activity {
 //                           );
                             Log.d(TAG_MCS, "line 1270");
                         }
-                        String sendAmount = Utils.getFormattedValueWithUnit(primaryAmount, _mbwManager.getBitcoinDenomination());
+                        String sendAmount = ValueExtentionsKt.toStringWithUnit(primaryAmount, _mbwManager.getBitcoinDenomination());
                         if (isColu()) {
                             // todo colu
 //                           sendAmount = Utils.getColuFormattedValueWithUnit(primaryAmount);
@@ -1283,7 +1285,7 @@ public class SendMainActivity extends Activity {
                         } else {
                             // show the alternative amount
                             String alternativeAmountString =
-                                    Utils.getFormattedValueWithUnit(alternativeAmount, _mbwManager.getBitcoinDenomination());
+                                    ValueExtentionsKt.toStringWithUnit(alternativeAmount, _mbwManager.getBitcoinDenomination());
 
                             if (!alternativeAmount.getCurrencySymbol().equals("BTC")) {
                                 // if the amount is not in BTC, show a ~ to inform the user, its only approximate and depends

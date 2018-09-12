@@ -38,8 +38,11 @@ import com.google.api.client.util.Lists;
 import com.google.common.base.Strings;
 import com.mrd.bitlib.util.CoinUtil;
 import com.mycelium.wallet.exchange.ExchangeRateManager;
+import com.mycelium.wallet.exchange.FiatType;
 import com.mycelium.wallet.exchange.ValueSum;
 import com.mycelium.wapi.model.ExchangeRate;
+import com.mycelium.wapi.wallet.coins.BitcoinMain;
+import com.mycelium.wapi.wallet.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.currency.CurrencySum;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
@@ -348,7 +351,7 @@ public class CurrencySwitcher {
         if (Strings.isNullOrEmpty(currentFiatCurrency)) {
             return null;
         }
-        return exchangeRateManager.get(value, getCurrentFiatCurrency());
+        return exchangeRateManager.get(value, new FiatType(getCurrentFiatCurrency()));
     }
 
     public CurrencyValue getAsFiatValue(CurrencyValue value){
@@ -379,16 +382,23 @@ public class CurrencySwitcher {
       return rate == null ? null : rate.price;
    }
 
-   public CurrencyValue getValueFromSum(CurrencySum sum) {
-      return sum.getSumAsCurrency(currentCurrency, exchangeRateManager);
-   }
-
-   public Value getValue(ValueSum sum) {
-
-//       for (Value value : sum.getValues()) {
-//
-//       }
-//       return
-        return null;
-   }
+    public Value getValue(ValueSum sum) {
+        Value result;
+        String currency = getCurrentCurrency();
+        //TODO replace by value factory
+        if (currency.equals(BitcoinMain.get().getSymbol())) {
+            result = Value.zeroValue(BitcoinMain.get());
+        } else if (currency.equals(BitcoinTest.get().getSymbol())) {
+            result = Value.zeroValue(BitcoinTest.get());
+        } else {
+            result = Value.zeroValue(new FiatType(currency));
+        }
+        for (Value value : sum.getValues()) {
+            Value value1 = exchangeRateManager.get(value, result.type);
+            if (value1 != null) {
+                result = result.add(value1);
+            }
+        }
+        return result;
+    }
 }

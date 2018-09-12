@@ -69,7 +69,6 @@ import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.StringHandlerActivity;
 import com.mycelium.wallet.activity.modern.adapter.AddressBookAdapter;
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity;
-import com.mycelium.wallet.activity.util.AccountDisplayType;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil.AddressLabelChangedHandler;
 import com.mycelium.wallet.colu.ColuAccount;
@@ -82,6 +81,8 @@ import com.squareup.otto.Subscribe;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import static com.mycelium.wallet.activity.util.ValueExtentionsKt.isBtc;
 
 public class AddressBookFragment extends Fragment {
 
@@ -187,7 +188,7 @@ public class AddressBookFragment extends Fragment {
             if ((spendableOnly && account.canSpend()
                     && (!excudeSelected || !account.getReceivingAddress().equals(_mbwManager.getSelectedAccount().getReceivingAddress()))
                     && !account.getAccountBalance().confirmed.isZero()
-                    && Utils.isBtc(account.getAccountBalance().confirmed)) || !spendableOnly) {
+                    && isBtc(account.getAccountBalance().confirmed.type)) || !spendableOnly) {
                if (selectedAccount instanceof ColuAccount && account instanceof ColuAccount
                        && ((ColuAccount) account).getColuAsset().assetType == ((ColuAccount) selectedAccount).getColuAsset().assetType) {
                   entries.add(new AddressBookManager.IconEntry(receivingAddress.get(), name, drawableForAccount, account.getId()));

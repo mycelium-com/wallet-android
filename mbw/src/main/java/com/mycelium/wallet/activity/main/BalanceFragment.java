@@ -63,6 +63,7 @@ import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity;
 import com.mycelium.wallet.activity.send.SendInitializationActivity;
 import com.mycelium.wallet.activity.util.ToggleableCurrencyButton;
+import com.mycelium.wallet.activity.util.ValueExtentionsKt;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.BalanceChanged;
@@ -73,6 +74,7 @@ import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.exchange.ExchangeRateManager;
+import com.mycelium.wallet.exchange.FiatType;
 import com.mycelium.wallet.modularisation.BCHHelper;
 import com.mycelium.wapi.model.ExchangeRate;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -346,7 +348,7 @@ public class BalanceFragment extends Fragment {
 
    private void updateUiKnownBalance(Balance balance) {
 
-      CharSequence valueString = Utils.getFormattedValueWithUnit(balance.confirmed, _mbwManager.getBitcoinDenomination()); // TODO need call with denomination
+      CharSequence valueString = ValueExtentionsKt.toStringWithUnit(balance.confirmed, _mbwManager.getBitcoinDenomination());
       ((TextView) _root.findViewById(R.id.tvBalance)).setText(valueString);
 // TODO remove or change isSynchronizing call and uncomment
 //      _root.findViewById(R.id.pbProgress).setVisibility(balance.isSynchronizing ? View.VISIBLE : View.GONE);
@@ -356,7 +358,7 @@ public class BalanceFragment extends Fragment {
 
       // Show/Hide Receiving
       if (balance.pendingReceiving.isPositive()) {
-         String receivingString = Utils.getFormattedValueWithUnit(balance.pendingReceiving, _mbwManager.getBitcoinDenomination());
+         String receivingString = ValueExtentionsKt.toStringWithUnit(balance.pendingReceiving, _mbwManager.getBitcoinDenomination());
          String receivingText = getResources().getString(R.string.receiving, receivingString);
          TextView tvReceiving = _root.findViewById(R.id.tvReceiving);
          tvReceiving.setText(receivingText);
@@ -369,7 +371,7 @@ public class BalanceFragment extends Fragment {
 
       // Show/Hide Sending
       if (balance.pendingSending.isPositive()) {
-         String sendingString = Utils.getFormattedValueWithUnit(balance.pendingSending, _mbwManager.getBitcoinDenomination());
+         String sendingString = ValueExtentionsKt.toStringWithUnit(balance.pendingSending, _mbwManager.getBitcoinDenomination());
          String sendingText = getResources().getString(R.string.sending, sendingString);
          TextView tvSending = _root.findViewById(R.id.tvSending);
          tvSending.setText(sendingText);
@@ -391,14 +393,11 @@ public class BalanceFragment extends Fragment {
          tv.setVisibility(View.GONE);
       } else {
          try {
-//            long satoshis = value.getAsBitcoin(_mbwManager.getExchangeRateManager()).getLongValue();
-//            tv.setVisibility(View.VISIBLE);
-//            String converted = Utils.getFiatValueAsString(satoshis, _exchangeRatePrice);
+            tv.setVisibility(View.VISIBLE);
+
             String currency = _mbwManager.getFiatCurrency();
-            Value converted =  _mbwManager.getExchangeRateManager().get(value, currency);
-//            tv.setText(getResources().getString(R.string.approximate_fiat_value, currency, converted));
-//            Utils.getFormattedValueWithUnit(balance.confirmed, _mbwManager.getBitcoinDenomination());
-            tv.setText(converted != null ? converted.toString() : null);
+            Value converted = _mbwManager.getExchangeRateManager().get(value, new FiatType(currency));
+            tv.setText(converted != null ? ValueExtentionsKt.toStringWithUnit(converted, _mbwManager.getBitcoinDenomination()) : null);
          } catch (Exception ex) {
             // something failed while calculating the bitcoin amount
             tv.setVisibility(View.GONE);

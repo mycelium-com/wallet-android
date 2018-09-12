@@ -103,7 +103,9 @@ import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
 import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
+import com.mycelium.wapi.wallet.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.coins.Value;
+import com.mycelium.wapi.wallet.coins.ValueType;
 import com.mycelium.wapi.wallet.currency.BitcoinValue;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
@@ -1168,16 +1170,4 @@ public class Utils {
       return hasPermission;
    }
 
-   public static String getFormattedValueWithUnit(Value value) {
-      return getFormattedValueWithUnit(value, CoinUtil.Denomination.BTC);
-   }
-
-    public static String getFormattedValueWithUnit(Value value, CoinUtil.Denomination denomination) {
-        return String.format("%s %s", CoinUtil.valueString(value.value, denomination, false)
-                , denomination.getUnicodeString(value.type.getSymbol()));
-    }
-
-   public static boolean isBtc(Value value) {
-      return value.type.getSymbol().equals("BTC");
-   }
 }

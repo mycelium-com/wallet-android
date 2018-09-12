@@ -61,6 +61,8 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.mycelium.wallet.activity.util.ValueExtentionsKt.isBtc;
+
 public class GetSpendingRecordActivity extends Activity {
 
    private BitcoinUri _uri;
@@ -167,7 +169,7 @@ public class GetSpendingRecordActivity extends Activity {
       }
       ArrayList<WalletAccount> result = new ArrayList<>();
       for (WalletAccount spendingAccount : spendingAccounts) {
-         if(Utils.isBtc(spendingAccount.getAccountBalance().confirmed)) {
+         if(isBtc(spendingAccount.getAccountBalance().confirmed.type)) {
             result.add(spendingAccount);
          }
       }

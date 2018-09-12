@@ -61,6 +61,7 @@ import com.mycelium.wallet.NumberEntry.NumberEntryListener;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.util.AccountDisplayType;
+import com.mycelium.wallet.activity.util.ValueExtentionsKt;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
@@ -391,8 +392,8 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          maxBalanceString = getResources().getString(R.string.max_btc,
                  Utils.getColuFormattedValueWithUnit(maxSpendable));
       } else {
-         maxBalanceString = getResources().getString(R.string.max_btc,
-                 Utils.getFormattedValueWithUnit(maxSpendable, _mbwManager.getBitcoinDenomination()));
+         maxBalanceString = getResources().getString(R.string.max_btc
+                 , ValueExtentionsKt.toStringWithUnit(maxSpendable, _mbwManager.getBitcoinDenomination()));
       }
       tvMaxAmount.setText(maxBalanceString);
    }
@@ -495,7 +496,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
                convertedAmount = Value.valueOf(BitcoinTest.get(), 0);// todo not bitcoin
             }
          }
-         tvAlternateAmount.setText(Utils.getFormattedValueWithUnit(convertedAmount, _mbwManager.getBitcoinDenomination()));
+         tvAlternateAmount.setText(ValueExtentionsKt.toStringWithUnit(convertedAmount, _mbwManager.getBitcoinDenomination()));
       }
    }
 

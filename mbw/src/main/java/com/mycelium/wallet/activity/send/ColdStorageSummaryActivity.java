@@ -49,6 +49,7 @@ import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.exchange.FiatType;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
 
@@ -117,7 +118,8 @@ public class ColdStorageSummaryActivity extends Activity {
          tvFiat.setVisibility(View.INVISIBLE);
       } else {
          String currency = _mbwManager.getFiatCurrency();
-         String converted = _mbwManager.getExchangeRateManager().get(balance.getSpendable(), currency).toFriendlyString();
+         String converted = _mbwManager.getExchangeRateManager().get(balance.getSpendable()
+                 , new FiatType(currency)).toFriendlyString();
          tvFiat.setText(getResources().getString(R.string.approximate_fiat_value, currency
                  , converted != null ? converted : ""));
       }

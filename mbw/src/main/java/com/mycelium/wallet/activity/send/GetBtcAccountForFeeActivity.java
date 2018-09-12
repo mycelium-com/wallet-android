@@ -20,6 +20,7 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.modern.AddressBookFragment;
 import com.mycelium.wallet.activity.modern.adapter.AddressBookAdapter;
 import com.mycelium.wallet.activity.send.model.AccountForFee;
+import com.mycelium.wallet.activity.util.ValueExtentionsKt;
 import com.mycelium.wapi.wallet.WalletAccount;
 
 import java.util.ArrayList;
@@ -27,6 +28,8 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+
+import static com.mycelium.wallet.activity.util.ValueExtentionsKt.isBtc;
 
 
 public class GetBtcAccountForFeeActivity extends AppCompatActivity {
@@ -53,7 +56,7 @@ public class GetBtcAccountForFeeActivity extends AppCompatActivity {
             if (receivingAddress.isPresent() && account.canSpend()
                     && !account.getReceivingAddress().equals(selectedAccount.getReceivingAddress())
                     && !account.getAccountBalance().confirmed.isZero()
-                    && Utils.isBtc(account.getAccountBalance().confirmed)) {
+                    && isBtc(account.getAccountBalance().confirmed.type)) {
                 String name = _mbwManager.getMetadataStorage().getLabelByAccount(account.getId());
                 Drawable drawableForAccount = Utils.getDrawableForAccount(account, true, getResources());
                 entries.add(new AccountForFee(receivingAddress.get(), name, drawableForAccount, account.getId(), account.getAccountBalance().confirmed));
@@ -71,7 +74,7 @@ public class GetBtcAccountForFeeActivity extends AppCompatActivity {
                 public View getView(int position, View convertView, ViewGroup parent) {
                     View view = super.getView(position, convertView, parent);
                     AccountForFee accountForFee = (AccountForFee) getItem(position);
-                    ((TextView) view.findViewById(R.id.tvBalance)).setText(Utils.getFormattedValueWithUnit(accountForFee.getBalance(), _mbwManager.getBitcoinDenomination()));
+                    ((TextView) view.findViewById(R.id.tvBalance)).setText(ValueExtentionsKt.toStringWithUnit(accountForFee.getBalance(), _mbwManager.getBitcoinDenomination()));
                     return view;
                 }
             });

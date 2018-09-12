@@ -81,6 +81,7 @@ import com.mycelium.wallet.activity.MessageSigningActivity;
 import com.mycelium.wallet.activity.export.VerifyBackupActivity;
 import com.mycelium.wallet.activity.modern.adapter.AccountListAdapter;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
+import com.mycelium.wallet.activity.util.ValueExtentionsKt;
 import com.mycelium.wallet.activity.view.DividerItemDecoration;
 import com.mycelium.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wallet.coinapult.CoinapultManager;
@@ -92,6 +93,7 @@ import com.mycelium.wallet.event.BalanceChanged;
 import com.mycelium.wallet.event.ExchangeSourceChanged;
 import com.mycelium.wallet.event.ExtraAccountsChanged;
 import com.mycelium.wallet.event.ReceivingAddressChanged;
+import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wallet.event.SyncProgressUpdated;
 import com.mycelium.wallet.event.SyncStarted;
 import com.mycelium.wallet.event.SyncStopped;
@@ -312,18 +314,14 @@ public class AccountsFragment extends Fragment {
                      }
                      message = getString(R.string.confirm_delete_pk_with_balance_with_label,
                              getResources().getQuantityString(R.plurals.account_label, labelCount, label),
-                             address, accountToDelete instanceof ColuAccount ?
-                                     Utils.getFormattedValueWithUnit(getPotentialBalanceColu(accountToDelete))
-                                     : _mbwManager.getBtcValueString(satoshis)
+                             address,
+                             ValueExtentionsKt.toStringWithUnit(getPotentialBalanceColu(accountToDelete))
                      );
                   } else {
                      message = getString(
                              R.string.confirm_delete_pk_with_balance,
                              receivingAddress.isPresent() ? receivingAddress.get().toMultiLineString() : "",
-                             accountToDelete instanceof ColuAccount ?
-                                     Utils.getFormattedValueWithUnit(getPotentialBalanceColu(accountToDelete))
-                                     : _mbwManager.getBtcValueString(satoshis)
-
+                             ValueExtentionsKt.toStringWithUnit(getPotentialBalanceColu(accountToDelete))
                      );
                   }
                } else {
@@ -504,11 +502,7 @@ public class AccountsFragment extends Fragment {
    }
 
    private String getBalanceString(WalletAccount account, Balance balance) {
-      String valueString = Utils.getFormattedValueWithUnit(balance.confirmed, _mbwManager.getBitcoinDenomination());
-      if (account instanceof ColuAccount) {
-         valueString = Utils.getFormattedValueWithUnit(balance.confirmed);
-      }
-      return valueString;
+      return ValueExtentionsKt.toStringWithUnit(balance.confirmed, _mbwManager.getBitcoinDenomination());
    }
 
    /**
@@ -1340,6 +1334,11 @@ public class AccountsFragment extends Fragment {
 
    @Subscribe
    public void exchangeSourceChange(ExchangeSourceChanged event) {
+      accountListAdapter.notifyDataSetChanged();
+   }
+
+   @Subscribe
+   public void selectedCurrencyChanged(SelectedCurrencyChanged event){
       accountListAdapter.notifyDataSetChanged();
    }
 

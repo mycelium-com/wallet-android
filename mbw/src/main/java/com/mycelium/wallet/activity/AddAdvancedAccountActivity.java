@@ -61,8 +61,8 @@ import com.mycelium.wallet.StringHandleConfig;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.util.ImportCoCoHDAccount;
+import com.mycelium.wallet.activity.util.ValueExtentionsKt;
 import com.mycelium.wallet.colu.ColuAccount;
-import com.mycelium.wallet.colu.ColuCurrencyValue;
 import com.mycelium.wallet.colu.ColuManager;
 import com.mycelium.wallet.extsig.keepkey.activity.KeepKeyAccountImportActivity;
 import com.mycelium.wallet.extsig.ledger.activity.LedgerAccountImportActivity;
@@ -77,7 +77,6 @@ import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coins.Value;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -647,13 +646,13 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
                                Value mtFound, Value massFound, Value rmcFound) {
       List<String> amountStrings = new ArrayList<>();
       if (rmcFound.isPositive()) {
-         amountStrings.add(Utils.getFormattedValueWithUnit(rmcFound));
+         amountStrings.add(ValueExtentionsKt.toStringWithUnit(rmcFound));
       }
       if (mtFound.isPositive()) {
-         amountStrings.add(Utils.getFormattedValueWithUnit(mtFound));
+         amountStrings.add(ValueExtentionsKt.toStringWithUnit(mtFound));
       }
       if (massFound.isPositive()) {
-         amountStrings.add(Utils.getFormattedValueWithUnit(massFound));
+         amountStrings.add(ValueExtentionsKt.toStringWithUnit(massFound));
       }
       String fundsFound = TextUtils.join(", ", amountStrings);
       String message = null;

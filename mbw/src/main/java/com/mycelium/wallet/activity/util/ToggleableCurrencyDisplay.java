@@ -62,7 +62,6 @@ public class ToggleableCurrencyDisplay extends LinearLayout {
    protected TextView tvCurrency;
    protected TextView tvValue;
 
-//   protected CurrencyValue currentValue;
    protected Value currentValue;
 
    protected boolean fiatOnly = false;
@@ -146,15 +145,8 @@ public class ToggleableCurrencyDisplay extends LinearLayout {
          }
 
          setVisibility(VISIBLE);
-//         String formattedValue;
-//         if (precision >= 0) {
-//            formattedValue = currencySwitcher.getFormattedValue(currentValue, false, precision);
-//         } else {
-//            formattedValue = currencySwitcher.getFormattedValue(currentValue, false);
-//         }
 
-//         tvValue.setText(formattedValue);
-         tvValue.setText(currentValue != null ? currentValue.toFriendlyString() : null);
+         tvValue.setText(currentValue != null ? ValueExtentionsKt.toString(currentValue, currencySwitcher.getBitcoinDenomination()) : null);
          String currentCurrency = currencySwitcher.getCurrentCurrencyIncludingDenomination();
          tvCurrency.setText(currentCurrency);
       }
@@ -168,21 +160,11 @@ public class ToggleableCurrencyDisplay extends LinearLayout {
          setVisibility(VISIBLE);
 
          // convert to the target fiat currency, if needed
-         Value value = getValueToShow();
-
-//         if (precision >= 0) {
-//            formattedFiatValue = currencySwitcher.getFormattedFiatValue(valueToShow, false, precision);
-//         } else {
-//            formattedFiatValue = currencySwitcher.getFormattedFiatValue(valueToShow, false);
-//         }
+         Value value = currencySwitcher.getAsFiatValue(currentValue);
 
          tvCurrency.setText(currencySwitcher.getCurrentFiatCurrency());
-         tvValue.setText(value != null ? value.toPlainString() : null);
+         tvValue.setText(value != null ? ValueExtentionsKt.toString(value) : null);
       }
-   }
-
-   protected Value getValueToShow() {
-      return currencySwitcher.getAsFiatValue(currentValue);
    }
 
    public void setEventBus(Bus eventBus) {
@@ -217,11 +199,6 @@ public class ToggleableCurrencyDisplay extends LinearLayout {
       this.currencySwitcher = currencySwitcher;
       updateUi();
    }
-
-//   public void setValue(CurrencyValue value) {
-//      this.currentValue = value;
-//      updateUi();
-//   }
 
    public void setValue(Value value) {
       this.currentValue = value;

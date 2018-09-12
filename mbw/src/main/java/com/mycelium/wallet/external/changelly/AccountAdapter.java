@@ -15,6 +15,7 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
+import com.mycelium.wallet.activity.util.ValueExtentionsKt;
 import com.mycelium.wapi.wallet.WalletAccount;
 
 import java.util.ArrayList;
@@ -121,7 +122,7 @@ public class AccountAdapter extends SelectableRecyclerView.Adapter<RecyclerView.
             Item item = items.get(position);
             viewHolder.categoryTextView.setText(mbwManager.getMetadataStorage().getLabelByAccount(item.account.getId()));
             CoinUtil.Denomination denomination = mbwManager.getBitcoinDenomination();
-            viewHolder.itemTextView.setText(Utils.getFormattedValueWithUnit(item.account.getAccountBalance().confirmed, denomination));
+            viewHolder.itemTextView.setText(ValueExtentionsKt.toStringWithUnit(item.account.getAccountBalance().confirmed, denomination));
             if (item.account.getReceivingAddress().isPresent()) {
                 viewHolder.valueTextView.setText(item.account.getReceivingAddress().get().toString());
             }

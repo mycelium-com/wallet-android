@@ -55,6 +55,7 @@ import com.mycelium.wapi.api.request.QueryExchangeRatesRequest;
 import com.mycelium.wapi.api.response.QueryExchangeRatesResponse;
 import com.mycelium.wapi.model.ExchangeRate;
 import com.mycelium.wapi.wallet.coins.Value;
+import com.mycelium.wapi.wallet.coins.ValueType;
 import com.mycelium.wapi.wallet.currency.ExchangeRateProvider;
 
 import java.math.BigDecimal;
@@ -447,14 +448,14 @@ public class ExchangeRateManager implements ExchangeRateProvider {
         }
     }
 
-    public Value get(Value value, String toCurrency) {
-        GetExchangeRate rate = new GetExchangeRate(toCurrency, value.type.getSymbol(), this).invoke();
+    public Value get(Value value, ValueType toCurrency) {
+        GetExchangeRate rate = new GetExchangeRate(toCurrency.getSymbol(), value.type.getSymbol(), this).invoke();
         BigDecimal rateValue = rate.getRate();
         if(rateValue != null) {
             BigDecimal bigDecimal = rateValue.multiply(BigDecimal.valueOf(value.value))
                     .movePointLeft(value.type.getUnitExponent())
                     .round(MathContext.DECIMAL32);
-            return Value.parse(new FiatType(toCurrency), bigDecimal);
+            return Value.parse(toCurrency, bigDecimal);
         }else {
             return null;
         }
