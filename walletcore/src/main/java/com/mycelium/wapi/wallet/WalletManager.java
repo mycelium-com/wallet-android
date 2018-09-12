@@ -18,15 +18,11 @@ package com.mycelium.wapi.wallet;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import com.google.common.collect.*;
 import com.mrd.bitlib.crypto.*;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
-import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.WapiLogger;
 import com.mycelium.wapi.api.Wapi;
@@ -36,26 +32,18 @@ import com.mycelium.wapi.api.lib.FeeEstimation;
 import com.mycelium.wapi.api.response.MinerFeeEstimationResponse;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
 import com.mycelium.wapi.wallet.bip44.*;
-import com.mycelium.wapi.wallet.bip44.HDAccountContext.AccountIndexesContext;
+import com.mycelium.wapi.wallet.bip44.HDAccountContext.*;
 import com.mycelium.wapi.wallet.single.PublicPrivateKeyStore;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.single.SingleAddressAccountContext;
 import com.mycelium.wapi.wallet.single.SingleAddressBCHAccount;
 
+import javax.annotation.Nonnull;
 import java.util.*;
 
-import javax.annotation.Nonnull;
-
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Predicates.and;
-import static com.google.common.base.Predicates.not;
-import static com.google.common.base.Predicates.or;
-import static com.mycelium.wapi.wallet.bip44.HDAccountContext.ACCOUNT_TYPE_FROM_MASTERSEED;
-import static com.mycelium.wapi.wallet.bip44.HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PRIV;
-import static com.mycelium.wapi.wallet.bip44.HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB;
-import static com.mycelium.wapi.wallet.bip44.HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY;
-import static com.mycelium.wapi.wallet.bip44.HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER;
-import static com.mycelium.wapi.wallet.bip44.HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR;
+import static com.google.common.base.Predicates.*;
+import static com.mycelium.wapi.wallet.bip44.HDAccountContext.*;
 
 /**
  * Allows you to manage a wallet that contains multiple HD accounts and
@@ -215,12 +203,7 @@ public class WalletManager {
      * @return the ID of the new account
      */
     public UUID createSingleAddressAccount(PublicKey publicKey) {
-        //UUID id = SingleAddressAccount.calculateId(address);
-
-        // Create a UUID from the byte indexes 8-15 and 16-23 of the account public key
-        byte[] publicKeyBytes = publicKey.getPublicKeyBytes();
-        UUID id = new UUID(BitUtils.uint64ToLong(publicKeyBytes, 8), BitUtils.uint64ToLong(
-                publicKeyBytes, 16));
+        UUID id = SingleAddressAccount.calculateId(publicKey.toAddress(_network, AddressType.P2SH_P2WPKH));
         synchronized (_walletAccounts) {
             if (_walletAccounts.containsKey(id)) {
                 return id;
