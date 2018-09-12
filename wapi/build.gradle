@@ -12,9 +12,9 @@ dependencies {
     implementation project(includePrefix + ':walletmodel')
 
     testImplementation "junit:junit:$junitVersion"
-    testImplementation "org.mockito:mockito-core:2.0.44-beta"
-    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.8.4'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.8.4'
+    testImplementation "org.mockito:mockito-core:2.21.0"
+    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.9.5'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.5'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.23.4'
     implementation 'com.squareup.okhttp:okhttp:2.7.5'
     implementation guavaArtifact
@@ -24,7 +24,6 @@ dependencies {
 }
 
 buildscript {
-    ext.kotlin_version = '1.2.61'
     repositories {
         mavenCentral()
     }
@@ -40,17 +39,5 @@ kapt {
 kotlin {
     experimental {
         coroutines "enable"
-    }
-}
-
-compileKotlin {
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
-}
-
-compileTestKotlin {
-    kotlinOptions {
-        jvmTarget = "1.8"
     }
 }

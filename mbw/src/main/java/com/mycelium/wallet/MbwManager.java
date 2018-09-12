@@ -63,13 +63,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Queues;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Ints;
-import com.mrd.bitlib.crypto.Bip39;
-import com.mrd.bitlib.crypto.HdKeyNode;
-import com.mrd.bitlib.crypto.InMemoryPrivateKey;
-import com.mrd.bitlib.crypto.MrdExport;
-import com.mrd.bitlib.crypto.PrivateKey;
-import com.mrd.bitlib.crypto.RandomSource;
-import com.mrd.bitlib.crypto.SignedMessage;
+import com.mrd.bitlib.crypto.*;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.BitUtils;
@@ -103,7 +97,7 @@ import com.mycelium.wallet.extsig.trezor.TrezorManager;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.modularisation.GooglePlayModuleCollection;
 import com.mycelium.wallet.modularisation.SpvBchFetcher;
-import com.mycelium.wallet.modularisation.TSMHelper;
+import com.mycelium.wallet.modularisation.MEBHelper;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.persistence.TradeSessionDb;
 import com.mycelium.wallet.wapi.SqliteWalletManagerBackingWrapper;
@@ -192,7 +186,7 @@ public class MbwManager {
     private final ExternalSignatureDeviceManager _trezorManager;
     private final KeepKeyManager _keepkeyManager;
     private final LedgerManager _ledgerManager;
-    private final TSMHelper _tsmHelper;
+    private final MEBHelper _mebHelper;
     private final WapiClientElectrumX _wapi;
 
     private final LtApiClient _ltApi;
@@ -312,7 +306,7 @@ public class MbwManager {
         _keepkeyManager = new KeepKeyManager(_applicationContext, getNetwork(), getEventBus());
         _ledgerManager = new LedgerManager(_applicationContext, getNetwork(), getEventBus());
         _walletManager = createWalletManager(_applicationContext, _environment);
-        _tsmHelper = new TSMHelper(_applicationContext);
+        _mebHelper = new MEBHelper(_applicationContext);
 
         _eventTranslator = new EventTranslator(new Handler(), _eventBus);
         _exchangeRateManager.subscribe(_eventTranslator);
@@ -1241,7 +1235,7 @@ public class MbwManager {
 
     private InMemoryPrivateKey createBip32WebsitePrivateKey(byte[] masterSeed, int accountIndex, String site) {
         // Create BIP32 root node
-        HdKeyNode rootNode = HdKeyNode.fromSeed(masterSeed);
+        HdKeyNode rootNode = HdKeyNode.fromSeed(masterSeed, null);
         // Create bit id node
         HdKeyNode bidNode = rootNode.createChildNode(BIP32_ROOT_AUTHENTICATION_INDEX);
         // Create the private key for the specified account
@@ -1297,8 +1291,8 @@ public class MbwManager {
         return _ledgerManager;
     }
 
-    public TSMHelper getTSMHelper() {
-        return _tsmHelper;
+    public MEBHelper getMEBHelper() {
+        return _mebHelper;
     }
 
     public WapiClientElectrumX getWapi() {
@@ -1435,7 +1429,7 @@ public class MbwManager {
     // Derives a key for signing messages (messages signing key) from the master seed
     private PrivateKey getMessagesSigningKey() throws KeyCipher.InvalidKeyCipher {
         Bip39.MasterSeed seed = getWalletManager(false).getMasterSeed(AesKeyCipher.defaultKeyCipher());
-        return HdKeyNode.fromSeed(seed.getBip32Seed()).createChildNode(DERIVATION_NUMBER_LEVEL_ONE).createChildNode(DERIVATION_NUMBER_LEVEL_TWO).getPrivateKey();
+        return HdKeyNode.fromSeed(seed.getBip32Seed(), null).createChildNode(DERIVATION_NUMBER_LEVEL_ONE).createChildNode(DERIVATION_NUMBER_LEVEL_TWO).getPrivateKey();
     }
 
     // Signs a message using the mycelium messages' signing key

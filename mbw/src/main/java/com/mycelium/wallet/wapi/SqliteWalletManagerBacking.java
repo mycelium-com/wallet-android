@@ -285,22 +285,26 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
    }
 
    private void updateBip44AccountContext(HDAccountContext context) {
+      SqliteAccountBacking backing = _backings.get(context.getId());
+      backing.beginTransaction();
       //UPDATE bip44 SET archived=?,blockheight=?,lastExternalIndexWithActivity=?,lastInternalIndexWithActivity=?,firstMonitoredInternalIndex=?,lastDiscovery=?,accountType=?,accountSubId=? WHERE id=?
-
-      _updateBip44Account.bindLong(1, context.isArchived() ? 1 : 0);
-      _updateBip44Account.bindLong(2, context.getBlockHeight());
       final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
       try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteStream)) {
+         _updateBip44Account.bindLong(1, context.isArchived() ? 1 : 0);
+         _updateBip44Account.bindLong(2, context.getBlockHeight());
          objectOutputStream.writeObject(context.getIndexesMap());
          _updateBip44Account.bindBlob(3, byteStream.toByteArray());
+         _updateBip44Account.bindLong(4, context.getLastDiscovery());
+         _updateBip44Account.bindLong(5, context.getAccountType());
+         _updateBip44Account.bindLong(6, context.getAccountSubId());
+         _updateBip44Account.bindBlob(7, uuidToBytes(context.getId()));
+         _updateBip44Account.execute();
+         backing.setTransactionSuccessful();
       } catch (IOException ignore) {
          // should never happen
+      } finally {
+         backing.endTransaction();
       }
-      _updateBip44Account.bindLong(4, context.getLastDiscovery());
-      _updateBip44Account.bindLong(5, context.getAccountType());
-      _updateBip44Account.bindLong(6, context.getAccountSubId());
-      _updateBip44Account.bindBlob(7, uuidToBytes(context.getId()));
-      _updateBip44Account.execute();
    }
 
    @Override
@@ -367,18 +371,23 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
    }
 
    private void updateSingleAddressAccountContext(SingleAddressAccountContext context) {
-      // "UPDATE single SET archived=?,blockheight=? WHERE id=?"
-      _updateSingleAddressAccount.bindLong(1, context.isArchived() ? 1 : 0);
-      _updateSingleAddressAccount.bindLong(2, context.getBlockHeight());
+      SqliteAccountBacking backing = _backings.get(context.getId());
+      backing.beginTransaction();
       final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
       try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteStream)) {
+         // "UPDATE single SET archived=?,blockheight=? WHERE id=?"
+         _updateSingleAddressAccount.bindLong(1, context.isArchived() ? 1 : 0);
+         _updateSingleAddressAccount.bindLong(2, context.getBlockHeight());
          objectOutputStream.writeObject(context.getAddresses());
          _updateSingleAddressAccount.bindBlob(3, byteStream.toByteArray());
+         _updateSingleAddressAccount.bindBlob(4, uuidToBytes(context.getId()));
+         _updateSingleAddressAccount.execute();
+         backing.setTransactionSuccessful();
       } catch (IOException ignore) {
-         // should never happen
+         // ignore
+      } finally {
+         backing.endTransaction();
       }
-      _updateSingleAddressAccount.bindBlob(4, uuidToBytes(context.getId()));
-      _updateSingleAddressAccount.execute();
    }
 
    @Override
@@ -630,8 +639,7 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
          Cursor cursor = null;
          List<TransactionOutputEx> list = new LinkedList<>();
          try {
-            SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(_db);
-            cursor = blobQuery.query(false, utxoTableName, new String[]{"outpoint", "height", "value", "isCoinbase",
+            cursor = _db.query(false, utxoTableName, new String[]{"outpoint", "height", "value", "isCoinbase",
                   "script"}, null, null, null, null, null, null);
             while (cursor.moveToNext()) {
                TransactionOutputEx tex = new TransactionOutputEx(SQLiteQueryWithBlobs.outPointFromBytes(cursor
@@ -1200,7 +1208,7 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
 
       @Override
       public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-         //We don't really support downgrade
+         //We don't really support downgrade but some android devices need this empty method
       }
    }
 }

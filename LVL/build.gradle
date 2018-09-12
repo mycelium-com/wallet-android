@@ -4,9 +4,4 @@ android {
     compileSdkVersion androidCompileSdkVersion
     buildToolsVersion androidSdkBuildVersion
     useLibrary 'org.apache.http.legacy'
-
-    defaultConfig {
-        minSdkVersion 14
-        targetSdkVersion 19
-    }
 }

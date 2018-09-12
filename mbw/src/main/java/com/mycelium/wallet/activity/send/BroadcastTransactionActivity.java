@@ -48,7 +48,11 @@ import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.modularizationtools.CommunicationManager;
 import com.mycelium.spvmodule.IntentContract;
-import com.mycelium.wallet.*;
+import com.mycelium.wallet.Constants;
+import com.mycelium.wallet.MbwManager;
+import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.WalletApplication;
 import com.mycelium.wallet.event.SyncFailed;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.modularisation.GooglePlayModuleCollection;
@@ -148,7 +152,16 @@ public class BroadcastTransactionActivity extends Activity {
    }
 
    private void showResult() {
-      if (_broadcastResult == WalletAccount.BroadcastResult.REJECTED) {
+      if (_broadcastResult == WalletAccount.BroadcastResult.REJECTED_DOUBLE_SPENDING) {
+         // Transaction rejected, display message and exit
+         Utils.showSimpleMessageDialog(this, R.string.transaction_rejected_double_spending_message, new Runnable() {
+            @Override
+            public void run() {
+               BroadcastTransactionActivity.this.finish();
+            }
+         });
+      }
+      else if (_broadcastResult == WalletAccount.BroadcastResult.REJECTED) {
          // Transaction rejected, display message and exit
          Utils.showSimpleMessageDialog(this, R.string.transaction_rejected_message, new Runnable() {
             @Override

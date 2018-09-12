@@ -155,8 +155,18 @@ public class StandardTransactionBuilderTest {
     }
 
     @Test
+    public void testTransactionEstimation() throws Exception {
+        int txNonSegwitSize = StandardTransactionBuilder.estimateTransactionSize(1, 1, 0);
+        assertEquals(txNonSegwitSize, 192);
+
+        int txSegwitSize = StandardTransactionBuilder.estimateTransactionSize(1, 1, 1);
+        assertEquals(txSegwitSize, 111);
+    }
+
+    @Test
     public void testCreateUnsignedTransactionWithoutChange() throws Exception {
-        int feeExpected = StandardTransactionBuilder.estimateTransactionSize(1, 1) * 200; //68000
+        int txSize = StandardTransactionBuilder.estimateTransactionSize(1, 1, 0);
+        int feeExpected = txSize * 200; //68000
         long utxoAvailable = 2 * SATOSHIS_PER_BITCOIN + feeExpected + MINIMUM_OUTPUT_VALUE - 10;
         // UTXOs worth utxoAvailable satoshis, should result in 1 in 1 out.
         // MINIMUM_OUTPUT_VALUE - 10 satoshis will be
@@ -185,7 +195,7 @@ public class StandardTransactionBuilderTest {
                 getUtxo(ADDRS[0], 10 * SATOSHIS_PER_BITCOIN)
         );
         testme.addOutput(ADDRS[1], SATOSHIS_PER_BITCOIN);
-        int feeExpected = StandardTransactionBuilder.estimateTransactionSize(1, 2) * 200;
+        int feeExpected = StandardTransactionBuilder.estimateTransactionSize(1, 2, 0) * 200;
 
         UnsignedTransaction tx = testme.createUnsignedTransaction(inventory, ADDRS[2], KEY_RING,
             testNetwork, 200000); // miner fees to use = 200 satoshis per bytes.

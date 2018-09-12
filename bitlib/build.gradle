@@ -15,9 +15,9 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.google.protobuf:protobuf-java:3.1.0@jar'
-    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.8.4'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.8.4'
+    implementation 'com.google.protobuf:protobuf-java:3.4.0@jar'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.9.5'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.5'
     testImplementation "junit:junit:$junitVersion"
     implementation guavaArtifact
     implementation project(includePrefix +':bitcoincashj:core')
