@@ -4,9 +4,8 @@ import com.google.common.base.Optional;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal;
-import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.GenericTransaction;
-import com.mycelium.wapi.wallet.coins.CoinType;
+import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
 
 import javax.annotation.Nullable;
@@ -15,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BtcTransaction implements GenericTransaction {
-    final CoinType type;
+    final CryptoCurrency type;
     final Sha256Hash hash;
     final Transaction tx;
     final Value valueSent;
@@ -31,7 +30,7 @@ public class BtcTransaction implements GenericTransaction {
     @Nullable
     final Value fee;
 
-    public BtcTransaction(CoinType type, Transaction transaction,
+    public BtcTransaction(CryptoCurrency type, Transaction transaction,
                           long valueSent, long valueReceived, int timestamp, int confirmations,
                           boolean isQueuedOutgoing, ArrayList<GenericInput> inputs,
                           ArrayList<GenericOutput> outputs, ConfirmationRiskProfileLocal risk,
@@ -58,7 +57,7 @@ public class BtcTransaction implements GenericTransaction {
     }
 
     @Override
-    public CoinType getType() {
+    public CryptoCurrency getType() {
         return type;
     }
 

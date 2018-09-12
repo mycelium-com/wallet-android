@@ -34,21 +34,9 @@ import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher
 import com.mycelium.wapi.wallet.WalletManager.Event
 import com.mrd.bitlib.crypto.BipDerivationType.Companion.getDerivationTypeByAddress
-import com.mrd.bitlib.model.hdpath.HdKeyPath
-import com.mycelium.wapi.wallet.coins.Balance
-import com.mycelium.wapi.wallet.coins.BitcoinMain
-import com.mycelium.wapi.wallet.coins.BitcoinTest
-import com.mycelium.wapi.wallet.coins.CoinType
-import com.mycelium.wapi.wallet.coins.Value
-import com.mycelium.wapi.wallet.currency.ExactBitcoinValue
-import com.mycelium.wapi.model.TransactionEx
-import com.mrd.bitlib.util.ByteReader
-import com.mycelium.wapi.api.request.CheckTransactionsRequest
-import com.mycelium.wapi.api.response.CheckTransactionsResponse
 import com.mycelium.wapi.wallet.btc.*
 
 import java.util.ArrayList
-import java.util.HashMap
 
 open class HDAccount(
         protected var context: HDAccountContext,

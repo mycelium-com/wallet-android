@@ -3,9 +3,8 @@ package com.mycelium.wapi.wallet.fiat;
 import com.google.common.base.Optional;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal;
-import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.GenericTransaction;
-import com.mycelium.wapi.wallet.coins.CoinType;
+import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
 
 import java.util.List;
@@ -13,7 +12,7 @@ import java.util.List;
 public class FiatTransaction implements GenericTransaction {
 
     @Override
-    public CoinType getType() {
+    public CryptoCurrency getType() {
         return null;
     }
 

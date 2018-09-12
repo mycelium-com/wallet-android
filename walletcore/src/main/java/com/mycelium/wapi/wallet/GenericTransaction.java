@@ -2,7 +2,7 @@ package com.mycelium.wapi.wallet;
 
 import com.google.common.base.Optional;
 import com.mrd.bitlib.util.Sha256Hash;
-import com.mycelium.wapi.wallet.coins.CoinType;
+import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
 
 import java.util.List;
@@ -32,7 +32,7 @@ public interface GenericTransaction {
         }
     }
 
-    CoinType getType();
+    CryptoCurrency getType();
 
     Sha256Hash getHash();
     String getHashAsString();

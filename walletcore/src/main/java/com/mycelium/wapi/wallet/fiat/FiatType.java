@@ -1,12 +1,16 @@
-package com.mycelium.wallet.exchange;
+package com.mycelium.wapi.wallet.fiat;
 
 import com.mycelium.wapi.wallet.MonetaryFormat;
+import com.mycelium.wapi.wallet.coins.AbstractAsset;
 import com.mycelium.wapi.wallet.coins.Value;
-import com.mycelium.wapi.wallet.coins.ValueType;
+import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
+import com.mycelium.wapi.wallet.coins.families.Families;
 
+import java.math.BigInteger;
 import java.util.Objects;
 
-public class FiatType implements ValueType {
+public class FiatType extends AbstractAsset {
+
     private String symbol;
 
     public FiatType(String symbol) {
@@ -35,12 +39,11 @@ public class FiatType implements ValueType {
 
     @Override
     public Value oneCoin() {
-        return null;
-    }
-
-    @Override
-    public Value getMinNonDust() {
-        return null;
+        if (oneCoin == null) {
+            BigInteger units = BigInteger.TEN.pow(getUnitExponent());
+            oneCoin = Value.valueOf(this, units.longValue());
+        }
+        return oneCoin;
     }
 
     @Override
@@ -60,13 +63,16 @@ public class FiatType implements ValueType {
                 .minDecimals(0).repeatOptionalDecimals(1, getUnitExponent()).noCode();
     }
 
+ /* TODO - implement equals
+e
     @Override
-    public boolean equals(ValueType o) {
+    public boolean equals(GenericAssetInfo o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        FiatType fiatType = (FiatType) o;
+       if (o == null || getClass() != o.getClass()) return false;
+       FiatType fiatType = (FiatType) o;
         return Objects.equals(symbol, fiatType.symbol);
     }
+*/
 
     @Override
     public int hashCode() {

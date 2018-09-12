@@ -18,26 +18,26 @@ public class Value implements Monetary, Comparable<Value>, Serializable {
     /**
      * The type of this value
      */
-    public final ValueType type;
+    public final GenericAssetInfo type;
     /**
      * The number of units of this monetary value.
      */
     public final long value;
 
-    public Value(final ValueType type, final long units) {
+    public Value(final GenericAssetInfo type, final long units) {
         this.type = checkNotNull(type);
         this.value = units;
     }
 
-    public static Value valueOf(final ValueType type, final long units) {
+    public static Value valueOf(final GenericAssetInfo type, final long units) {
         return new Value(type, units);
     }
 
-    public static Value valueOf(final ValueType type, BigInteger units) {
+    public static Value valueOf(final GenericAssetInfo type, BigInteger units) {
         return new Value(type, units.longValue());
     }
 
-    public static Value valueOf(final ValueType type, String unitsStr) {
+    public static Value valueOf(final GenericAssetInfo type, String unitsStr) {
         return valueOf(type, new BigInteger(unitsStr));
     }
 
@@ -46,7 +46,7 @@ public class Value implements Monetary, Comparable<Value>, Serializable {
         return type.getUnitExponent();
     }
 
-    public static Value zeroValue(final ValueType type) {
+    public static Value zeroValue(final GenericAssetInfo type) {
         return new Value(type, 0);
     }
 
@@ -65,7 +65,7 @@ public class Value implements Monetary, Comparable<Value>, Serializable {
     /**
      * Convert an amount expressed in the way humans are used to into units.
      */
-    public static Value valueOf(final ValueType type, final int coins, final int cents) {
+    public static Value valueOf(final GenericAssetInfo type, final int coins, final int cents) {
         checkArgument(cents < 100);
         checkArgument(cents >= 0);
         checkArgument(coins >= 0);
@@ -81,7 +81,7 @@ public class Value implements Monetary, Comparable<Value>, Serializable {
      * @throws IllegalArgumentException if you try to specify fractional units, or a value out of
      * range.
      */
-    public static Value parse(final ValueType type, final String str) {
+    public static Value parse(final GenericAssetInfo type, final String str) {
         return parse(type, new BigDecimal(str));
     }
 
@@ -91,7 +91,7 @@ public class Value implements Monetary, Comparable<Value>, Serializable {
      * @throws IllegalArgumentException if you try to specify fractional units, or a value out of
      * range.
      */
-    public static Value parse(final ValueType type, final BigDecimal decimal) {
+    public static Value parse(final GenericAssetInfo type, final BigDecimal decimal) {
         return Value.valueOf(type, decimal.movePointRight(type.getUnitExponent())
                 .setScale(0, RoundingMode.HALF_DOWN)
                 .toBigIntegerExact().longValue());
@@ -101,7 +101,7 @@ public class Value implements Monetary, Comparable<Value>, Serializable {
         return value == null || value.getValue() == 0 || value.isZero();
     }
 
-    public ValueType getType() {
+    public GenericAssetInfo getType() {
         return type;
     }
 
@@ -265,11 +265,7 @@ public class Value implements Monetary, Comparable<Value>, Serializable {
         return this.value > other.value ? 1 : -1;
     }
 
-    public boolean isDust() {
-        return compareTo(type.getMinNonDust()) < 0;
-    }
-
-    public boolean isOfType(ValueType otherType) {
+    public boolean isOfType(GenericAssetInfo otherType) {
         return type.equals(otherType);
     }
 

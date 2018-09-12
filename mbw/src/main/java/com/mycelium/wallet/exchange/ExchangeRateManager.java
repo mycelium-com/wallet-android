@@ -54,6 +54,7 @@ import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.api.request.QueryExchangeRatesRequest;
 import com.mycelium.wapi.api.response.QueryExchangeRatesResponse;
 import com.mycelium.wapi.model.ExchangeRate;
+import com.mycelium.wapi.wallet.fiat.FiatType;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.coins.ValueType;
 import com.mycelium.wapi.wallet.currency.ExchangeRateProvider;
