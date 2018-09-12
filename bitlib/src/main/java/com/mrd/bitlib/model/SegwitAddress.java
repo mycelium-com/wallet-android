@@ -151,6 +151,20 @@ public class SegwitAddress extends Address implements Serializable {
         return AddressType.P2WPKH;
     }
 
+
+    @Override
+    public byte[] getAllAddressBytes() {
+        ByteArrayOutputStream pubkey = new ByteArrayOutputStream(40 + 1);   //TODO Check segwit if correct
+        int v = version;
+        // OP_0 is encoded as 0x00, but OP_1 through OP_16 are encoded as 0x51 though 0x60
+        if (v > 0) {
+            v += 0x50;
+        }
+        pubkey.write(v);
+        pubkey.write(program, 0, program.length);
+        return pubkey.toByteArray();
+    }
+
     @Override
     public byte[] getTypeSpecificBytes() {
         return getScriptBytes(this);                    //TODO segwit check if correct

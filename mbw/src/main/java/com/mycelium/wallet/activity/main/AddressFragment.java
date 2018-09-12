@@ -44,11 +44,13 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.model.HdDerivedAddress;
+import com.mrd.bitlib.model.hdpath.HdKeyPath;
 import com.mycelium.wallet.BitcoinUriWithAddress;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -58,14 +60,9 @@ import com.mycelium.wallet.activity.util.QrImageView;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.BalanceChanged;
 import com.mycelium.wallet.event.ReceivingAddressChanged;
-import com.mycelium.wallet.modularisation.BCHHelper;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 
 public class AddressFragment extends Fragment {
 
@@ -128,9 +125,9 @@ public class AddressFragment extends Fragment {
          String address = receivingAddress.get().toString();
          qrButton.setQrCode(BitcoinUriWithAddress.fromAddress(receivingAddress.get()).toString());
          ((TextView) _root.findViewById(R.id.tvAddress)).setText(address);
-         if (_showBip44Path && receivingAddress.get() instanceof HdDerivedAddress) {
-            HdDerivedAddress hdAdr = (HdDerivedAddress) receivingAddress.get();
-            ((TextView) _root.findViewById(R.id.tvAddressPath)).setText(hdAdr.getBip32Path().toString());
+         if (_showBip44Path && receivingAddress.get().getBip32Path() != null) {
+            HdKeyPath path = receivingAddress.get().getBip32Path();
+            ((TextView) _root.findViewById(R.id.tvAddressPath)).setText(path.toString());
          } else {
             ((TextView) _root.findViewById(R.id.tvAddressPath)).setText("");
          }

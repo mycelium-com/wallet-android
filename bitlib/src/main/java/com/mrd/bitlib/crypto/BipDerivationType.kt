@@ -6,8 +6,8 @@ import java.io.Serializable
 
 enum class BipDerivationType(val purpose: Byte, val addressType: AddressType) : Serializable {
     BIP44(44, AddressType.P2PKH),
-    BIP49(49, AddressType.P2SH_P2WPKH);
-    //BIP84(84); TODO SEGWIT activate after implement, bech
+    BIP49(49, AddressType.P2SH_P2WPKH),
+    BIP84(84, AddressType.P2WPKH);
 
     fun getHardenedPurpose() = purpose + 0x80000000.toInt()
 
@@ -16,7 +16,7 @@ enum class BipDerivationType(val purpose: Byte, val addressType: AddressType) : 
             return when (address.type) {
                 AddressType.P2PKH -> BIP44
                 AddressType.P2SH_P2WPKH -> BIP49
-                //AddressType.P2WPKH -> BIP84 TODO SEGWIT uncomment when implemented, bech
+                AddressType.P2WPKH -> BIP84
                 else -> throw IllegalArgumentException("Unsupported derivation scheme")
             }
         }
