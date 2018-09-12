@@ -4,7 +4,7 @@ import com.mycelium.wapi.wallet.MonetaryFormat;
 
 import java.io.Serializable;
 
-public interface ValueType extends Serializable {
+public interface GenericAssetInfo extends Serializable {
     String getId();
     String getName();
     String getSymbol();
@@ -25,7 +25,7 @@ public interface ValueType extends Serializable {
     MonetaryFormat getMonetaryFormat();
     MonetaryFormat getPlainFormat();
 
-    boolean equals(ValueType obj);
+    //boolean equals(GenericAssetInfo obj);
 
     Value value(String string);
 }

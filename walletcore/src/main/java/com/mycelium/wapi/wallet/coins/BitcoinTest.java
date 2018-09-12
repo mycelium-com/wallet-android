@@ -25,7 +25,7 @@ public class BitcoinTest extends BitFamily {
     }
 
     private static BitcoinTest instance = new BitcoinTest();
-    public static synchronized CoinType get() {
+    public static synchronized CryptoCurrency get() {
         return instance;
     }
 }

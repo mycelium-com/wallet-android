@@ -1,12 +1,12 @@
 package com.mycelium.wapi.wallet.eth;
 
 import com.mycelium.wapi.wallet.GenericAddress;
-import com.mycelium.wapi.wallet.coins.CoinType;
+import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 
 public class EthAddress implements GenericAddress {
 
     @Override
-    public CoinType getCoinType() {
+    public CryptoCurrency getCoinType() {
         return null;
     }
 

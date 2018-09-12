@@ -12,14 +12,12 @@ import com.mycelium.wapi.model.TransactionOutputSummary;
 import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
-import com.mycelium.wapi.wallet.coins.CoinType;
+import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
-import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -64,7 +62,7 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
      */
     void queueTransaction(TransactionEx transaction);
 
-    CoinType getCoinType();
+    CryptoCurrency getCoinType();
 
     Balance getAccountBalance();
 

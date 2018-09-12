@@ -2,7 +2,7 @@ package com.mycelium.wapi.wallet.btc;
 
 import com.mrd.bitlib.model.Address;
 import com.mycelium.wapi.wallet.GenericAddress;
-import com.mycelium.wapi.wallet.coins.CoinType;
+import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 
 public class BtcAddress extends Address implements GenericAddress {
 
@@ -15,7 +15,7 @@ public class BtcAddress extends Address implements GenericAddress {
     }
 
     @Override
-    public CoinType getCoinType() {
+    public CryptoCurrency getCoinType() {
         return null;
     }
 

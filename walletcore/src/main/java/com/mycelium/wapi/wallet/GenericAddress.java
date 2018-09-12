@@ -1,9 +1,9 @@
 package com.mycelium.wapi.wallet;
 
-import com.mycelium.wapi.wallet.coins.CoinType;
+import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 
 public interface GenericAddress {
-    CoinType getCoinType();
+    CryptoCurrency getCoinType();
     String toString();
     long getId();
 }

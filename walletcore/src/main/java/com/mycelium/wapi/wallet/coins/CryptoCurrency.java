@@ -3,14 +3,13 @@ package com.mycelium.wapi.wallet.coins;
 import com.google.common.base.Charsets;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.MonetaryFormat;
-import com.mycelium.wapi.wallet.coins.families.Families;
 import com.mycelium.wapi.wallet.exceptions.AddressMalformedException;
 
 import java.math.BigInteger;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public abstract class CoinType implements ValueType {
+public abstract class CryptoCurrency extends AbstractAsset {
     private static final long serialVersionUID = 1L;
 
     private static final String BIP_44_KEY_PATH = "44H/%dH/%dH";
@@ -21,9 +20,6 @@ public abstract class CoinType implements ValueType {
     protected int dumpedPrivateKeyHeader;
     protected int[] acceptableAddressCodes;
     protected int spendableCoinbaseDepth;
-    protected Families family;
-    protected String name;
-    protected String symbol;
     protected String uriScheme;
     protected Integer bip44Index;
     protected Integer unitExponent;
@@ -35,19 +31,11 @@ public abstract class CoinType implements ValueType {
     protected FeePolicy feePolicy = FeePolicy.FEE_PER_KB;
     protected byte[] signedMessageHeader;
 
-    private transient MonetaryFormat friendlyFormat;
-    private transient MonetaryFormat plainFormat;
-    private transient Value oneCoin;
-
     private static FeeProvider feeProvider = null;
 
     @Override
     public String getName() {
         return checkNotNull(name, "A coin failed to set a name");
-    }
-
-    public boolean isTestnet() {
-        return id.endsWith("test");
     }
 
     @Override
@@ -177,17 +165,12 @@ public abstract class CoinType implements ValueType {
         return plainFormat;
     }
 
-    @Override
-    public boolean equals(ValueType obj) {
-        return super.equals(obj);
-    }
-
     public static void setFeeProvider(FeeProvider feeProvider) {
-        CoinType.feeProvider = feeProvider;
+        CryptoCurrency.feeProvider = feeProvider;
     }
 
     public interface FeeProvider {
-        Value getFeeValue(CoinType type);
+        Value getFeeValue(CryptoCurrency type);
     }
 
     public String getId() {

@@ -2,11 +2,14 @@ package com.mycelium.wallet.exchange;
 
 import com.mycelium.wapi.wallet.MonetaryFormat;
 import com.mycelium.wapi.wallet.coins.Value;
-import com.mycelium.wapi.wallet.coins.ValueType;
+import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
+import com.mycelium.wapi.wallet.coins.families.Families;
 
 import java.util.Objects;
 
-public class FiatType implements ValueType {
+public class FiatType implements GenericAssetInfo {
+    protected Families family = Families.FIAT;
+
     private String symbol;
 
     public FiatType(String symbol) {
@@ -60,13 +63,16 @@ public class FiatType implements ValueType {
                 .minDecimals(0).repeatOptionalDecimals(1, getUnitExponent()).noCode();
     }
 
+ /* TODO - implement equals
+
     @Override
-    public boolean equals(ValueType o) {
+    public boolean equals(GenericAssetInfo o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        FiatType fiatType = (FiatType) o;
+       if (o == null || getClass() != o.getClass()) return false;
+       FiatType fiatType = (FiatType) o;
         return Objects.equals(symbol, fiatType.symbol);
     }
+*/
 
     @Override
     public int hashCode() {
