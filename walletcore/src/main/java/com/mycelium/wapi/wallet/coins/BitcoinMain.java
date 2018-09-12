@@ -1,10 +1,10 @@
 package com.mycelium.wapi.wallet.coins;
 
-import com.mycelium.wapi.wallet.coins.families.BitFamily;
+import com.mycelium.wapi.wallet.coins.families.BitcoinBasedCryptoCurrency;
 
 import static javax.management.Query.value;
 
-public class BitcoinMain extends BitFamily {
+public class BitcoinMain extends BitcoinBasedCryptoCurrency {
     private BitcoinMain() {
         id = "bitcoin.main";
 

@@ -68,7 +68,6 @@ public abstract class CryptoCurrency extends AbstractAsset {
         return checkNotNull(feeValue, "A coin failed to set a fee value");
     }
 
-    @Override
     public Value getMinNonDust() {
         return checkNotNull(minNonDust, "A coin failed to set a minimum amount to be considered not dust");
     }

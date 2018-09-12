@@ -1,8 +1,8 @@
 package com.mycelium.wapi.wallet.coins;
 
-import com.mycelium.wapi.wallet.coins.families.BitFamily;
+import com.mycelium.wapi.wallet.coins.families.BitcoinBasedCryptoCurrency;
 
-public class BitcoinTest extends BitFamily {
+public class BitcoinTest extends BitcoinBasedCryptoCurrency {
     private BitcoinTest() {
         id = "bitcoin.test";
 

@@ -15,11 +15,6 @@ public interface GenericAssetInfo extends Serializable {
      */
     Value oneCoin();
 
-    /**
-     * Get the minimum valid amount that can be sent a.k.a. dust amount or minimum input
-     */
-    Value getMinNonDust();
-
     Value value(long units);
 
     MonetaryFormat getMonetaryFormat();
