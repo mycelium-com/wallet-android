@@ -16,17 +16,14 @@
 
 package com.mrd.bitlib.model;
 
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-
-import com.mrd.bitlib.bitcoinj.Base58;
-
 import com.google.common.base.Function;
+import com.mrd.bitlib.bitcoinj.Base58;
+import com.mrd.bitlib.model.hdpath.HdKeyPath;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
+
+import java.io.Serializable;
 
 public class Address implements Serializable, Comparable<Address> {
    private static final long serialVersionUID = 1L;
@@ -41,6 +38,7 @@ public class Address implements Serializable, Comparable<Address> {
    private byte[] _bytes;
    private String _address;
    private Sha256Hash scriptHash;
+   private HdKeyPath bip32Path;
 
    public static Address fromString(String address, NetworkParameters network) {
       Address addr = Address.fromString(address);
@@ -274,5 +272,13 @@ public class Address implements Serializable, Comparable<Address> {
          scriptHash = HashUtils.sha256(scriptBytes).reverse();
       }
       return scriptHash;
+   }
+
+   public HdKeyPath getBip32Path() {
+      return bip32Path;
+   }
+
+   public void setBip32Path(HdKeyPath bip32Path) {
+      this.bip32Path = bip32Path;
    }
 }

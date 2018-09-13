@@ -22,8 +22,8 @@ import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.model.HdDerivedAddress;
 import com.mrd.bitlib.model.NetworkParameters;
+import com.mrd.bitlib.model.SegwitAddress;
 import com.mrd.bitlib.model.hdpath.Bip44Address;
 import com.mrd.bitlib.model.hdpath.Bip44Purpose;
 import com.mrd.bitlib.model.hdpath.HdKeyPath;
@@ -179,19 +179,20 @@ public class HDAccountKeyManager {
       return publicLeafNode.getPublicKey();
    }
 
-   public HdDerivedAddress getAddress(boolean isChangeChain, int index) {
+   public Address getAddress(boolean isChangeChain, int index) {
       // See if we have it in the store
       byte[] id = getLeafNodeId(_network, _accountIndex, isChangeChain, index, false, derivationType);
       byte[] addressNodeBytes = _secureKeyValueStore.getPlaintextValue(id);
       Bip44Purpose purpose;
       switch (derivationType) {
          case BIP44:
-            purpose = HdKeyPath
-                    .BIP44;
+            purpose = HdKeyPath.BIP44;
             break;
          case BIP49:
-            purpose = HdKeyPath
-                    .BIP49;
+            purpose = HdKeyPath.BIP49;
+            break;
+         case BIP84:
+            purpose = HdKeyPath.BIP84;
             break;
          default:
             throw new NotImplementedError();
@@ -211,7 +212,8 @@ public class HDAccountKeyManager {
 
       // We don't have it, need to calculate it from the public key
       PublicKey publicKey = getPublicKey(isChangeChain, index);
-      HdDerivedAddress address = new HdDerivedAddress(publicKey.toAddress(_network, derivationType.getAddressType()), path);
+      Address address = publicKey.toAddress(_network, derivationType.getAddressType());
+      address.setBip32Path(path);
 
       // Store it for next time
       _secureKeyValueStore.storePlaintextValue(id, addressToBytes(address));
@@ -267,14 +269,16 @@ public class HDAccountKeyManager {
       return writer.toBytes();
    }
 
-   private static HdDerivedAddress bytesToAddress(byte[] bytes, HdKeyPath path) {
+   private static Address bytesToAddress(byte[] bytes, HdKeyPath path) {
       try {
          ByteReader reader = new ByteReader(bytes);
          // Address bytes
          byte[] addressBytes = reader.getBytes(21);
          // Read length encoded string
          String addressString = new String(reader.getBytes((int) reader.get()));
-         return new HdDerivedAddress(addressBytes, addressString, path);
+         Address address = new Address(addressBytes, addressString);    //TODO check bech if works???, should it???
+         address.setBip32Path(path);
+         return address;
       } catch (ByteReader.InsufficientBytesException e) {
          throw new RuntimeException(e);
       }
