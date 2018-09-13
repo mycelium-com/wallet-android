@@ -17,8 +17,8 @@ import static org.mockito.Mockito.when;
 
 public class HDAccountTest {
     private static final String MASTER_SEED_WORDS = "degree rain vendor coffee push math onion inside pyramid blush stick treat";
-    private static final String MASTER_SEED_ACCOUNT_0_EXTERNAL_0_ADDRESS = "1F1QAzNLutBEuB4QZLXghqu6PdxEFdb2PV";
-    private static final String MASTER_SEED_ACCOUNT_0_INTERNAL_0_ADDRESS = "1PGrHHNjVXBr8JJhg9zRQVFvmUSu9XsMeV";
+    private static final String MASTER_SEED_ACCOUNT_0_EXTERNAL_0_ADDRESS = "32LRQQsZt2dAzZq5HADLDEw5Fn8NzLhT35";
+    private static final String MASTER_SEED_ACCOUNT_0_INTERNAL_0_ADDRESS = "38irRg7yBNjrpiAFxK2ac6GX1EHhYyjCLy";
     private HDAccount account;
 
     @Before

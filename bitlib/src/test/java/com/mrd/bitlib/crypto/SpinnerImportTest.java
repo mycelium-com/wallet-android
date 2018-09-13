@@ -50,8 +50,9 @@ public class SpinnerImportTest {
    public void spinnerImprt() {
       SpinnerPrivateUri spinnerImport = SpinnerPrivateUri.fromSpinnerUri("bsb:6hm5yUxrSXRYpPkeu5HrfcQ8BXbf6e7d91AQtwa6ViUz?net=0");
       Collection<Address> addressList = spinnerImport.key.getPublicKey().getAllSupportedAddresses(NetworkParameters.productionNetwork).values();
-      assertEquals(2, addressList.size());
+      assertEquals(3, addressList.size());
       assertTrue(addressList.contains(Address.fromString("1Ea3kC4swu6v6rnaEe1BDDkek85286YAiL")));
       assertTrue(addressList.contains(Address.fromString("379csUoGP78NJEABtVB7FSUf26WDA5YZGF")));
+      assertTrue(addressList.contains(Address.fromString("bc1qtvnagjeenrdts5wvw30qna75dgz2uwkkh9xatu")));
    }
 }
