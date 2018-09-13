@@ -356,17 +356,15 @@ open class HDAccount(
             return false
         }
         var indexChanged = false
+        val lastExternalIndexesBefore = derivePaths.map { it to context.getLastExternalIndexWithActivity(it) }.toMap()
+        val lastInternalIndexesBefore = derivePaths.map { it to context.getLastInternalIndexWithActivity(it) }.toMap()
+        val transactions = getTransactionsBatched(ids).result.transactions
+        handleNewExternalTransactions(transactions)
         derivePaths.forEach { derivationType ->
-            val lastExternalIndexBefore = context.getLastExternalIndexWithActivity(derivationType)
-            val lastInternalIndexBefore = context.getLastInternalIndexWithActivity(derivationType)
-
-            val transactions = getTransactionsBatched(ids).result.transactions
-            handleNewExternalTransactions(transactions)
             // Return true if the last external or internal index has changed
-
             indexChanged = indexChanged ||
-                    lastExternalIndexBefore != context.getLastExternalIndexWithActivity(derivationType)
-                    || lastInternalIndexBefore != context.getLastInternalIndexWithActivity(derivationType)
+                    lastExternalIndexesBefore[derivationType] != context.getLastExternalIndexWithActivity(derivationType)
+                    || lastInternalIndexesBefore[derivationType] != context.getLastInternalIndexWithActivity(derivationType)
         }
         return indexChanged
     }
