@@ -134,7 +134,7 @@ public class BroadcastTransactionActivity extends Activity {
                   WalletApplication.sendToSpv(intent, _mbwManager.getSelectedAccount().getClass());
                   return WalletBtcAccount.BroadcastResult.SUCCESS;
              }
-             return _account.broadcastTransaction(_transaction);
+             return ((WalletBtcAccount)_account).broadcastTransaction(_transaction);
          }
 
          @Override

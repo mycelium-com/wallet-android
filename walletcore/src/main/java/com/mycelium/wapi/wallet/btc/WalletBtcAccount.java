@@ -107,6 +107,13 @@ public interface WalletBtcAccount extends WalletAccount<BtcTransaction, BtcAddre
    List<TransactionSummary> getTransactionsSince(Long receivingSince);
 
    /**
+    * Broadcast a transaction
+    * @param transaction the transaction to broadcast
+    * @return the broadcast result
+    */
+   WalletBtcAccount.BroadcastResult broadcastTransaction(Transaction transaction);
+
+   /**
     * Create a new unsigned transaction sending funds to one or more addresses.
     * <p/>
     * The unsigned transaction must be signed and queued before it will affect
