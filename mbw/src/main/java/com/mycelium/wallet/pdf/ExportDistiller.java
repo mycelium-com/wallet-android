@@ -66,7 +66,7 @@ import crl.android.pdfwriter.PaperSize;
 
 public class ExportDistiller {
     private static final int LABEL_FONT_SIZE = 15;
-    private static final int RECORDS_PR_PAGE = 2;
+    private static final int RECORDS_PR_PAGE = 3;
 
     public static class ExportEntry implements Serializable {
         private static final long serialVersionUID = 1L;
@@ -186,19 +186,27 @@ public class ExportDistiller {
         int totalPages = 2;
         int entryInPageCounter = 0;
         int lastEntryAddressCounter = 0;
+        int accountWithOneAddressCounter = 0;
         for(ExportEntry entry : params.getAllEntries()){
             if(entryInPageCounter == 0){
                 totalPages++;
                 entryInPageCounter++;
             } else {
-                if(entryInPageCounter == 1 && (lastEntryAddressCounter + entry.addresses.size() < 4)){
+                if((entryInPageCounter == 1 && (lastEntryAddressCounter + entry.addresses.size() < 4)) ||
+                        (entryInPageCounter == 2 && accountWithOneAddressCounter == 2 && entry.addresses.size() == 1)){
                     entryInPageCounter++;
+                    accountWithOneAddressCounter = 0;
                 } else {
                     entryInPageCounter = 1;
                     totalPages++;
                 }
             }
             lastEntryAddressCounter = entry.addresses.size();
+            if(entry.addresses.size() == 1){
+                accountWithOneAddressCounter++;
+            } else {
+                accountWithOneAddressCounter = 0;
+            }
         }
 
         PdfWriter writer = new PdfWriter(pageWidth, pageHeight, 20, 20, 20, 20);
@@ -310,7 +318,6 @@ public class ExportDistiller {
         // Add page number
         addPageNumber(writer, pageNum++, totalPages);
 
-        // There are 2 records positions per page
         int recordsOnThisPage = 0;
         fromTop = 0F;
         int remainingRecords = totalRecords;
@@ -322,10 +329,12 @@ public class ExportDistiller {
 
         List<ExportEntry> allEntries = params.getAllEntries();
         int previousNumberOfAddresses = 0;
+        int entryWithOneAddressCounter = 0;
         for (int i = 0; i < allEntries.size(); i++) {
             ExportEntry exportEntry = allEntries.get(i);
-            // we can't put two records on page if both have two or more addresses
-            if((previousNumberOfAddresses + exportEntry.addresses.size() > 3) ||
+
+            if(recordsOnThisPage == 1 &&(previousNumberOfAddresses + exportEntry.addresses.size() > 3) ||
+                    (recordsOnThisPage == 2 && (entryWithOneAddressCounter < 2 || exportEntry.addresses.size()>1)) ||
                     recordsOnThisPage == RECORDS_PR_PAGE || remainingRecords == 0) {
                 recordsOnThisPage = 0;
                 addPageNumber(writer, pageNum++, totalPages);
@@ -342,6 +351,11 @@ public class ExportDistiller {
             fromTop += addRecord(new OffsetWriter(0F, fromTop, writer), getTitle(true, i + 1, allEntries.size()),
                     exportEntry, addEndLine, progressTracker);
             previousNumberOfAddresses = exportEntry.addresses.size();
+            if(exportEntry.addresses.size() == 1){
+                entryWithOneAddressCounter++;
+            } else {
+                entryWithOneAddressCounter = 0;
+            }
         }
 
         addPageNumber(writer, pageNum++, totalPages);
