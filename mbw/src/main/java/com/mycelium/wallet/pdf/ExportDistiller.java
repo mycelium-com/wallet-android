@@ -373,7 +373,7 @@ public class ExportDistiller {
 
     private static double addRecord(OffsetWriter writer, String title,
                                     ExportEntry entry, boolean addEndLine, ExportProgressTracker progressTracker) {
-        //String address = entry.address;
+
         String encryptedKey = entry.encryptedKey;
         double fromTop = 0;
         // Add separator line and key title

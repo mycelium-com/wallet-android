@@ -136,7 +136,6 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
                addressMap.put(address.getType(), address);
                entry = new EntryToExport(addressMap, null, label, account.getType());
             }
-
          } else if (account instanceof ColuAccount) {
             ColuAccount a = (ColuAccount) account;
             String label = storage.getLabelByAccount(a.getId());
