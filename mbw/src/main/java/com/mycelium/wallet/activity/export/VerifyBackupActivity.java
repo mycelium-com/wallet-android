@@ -37,6 +37,7 @@ package com.mycelium.wallet.activity.export;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
@@ -53,6 +54,8 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.single.SingleAddressBCHAccount;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -207,10 +210,12 @@ public class VerifyBackupActivity extends Activity {
             _mbwManager.getMetadataStorage().setOtherAccountBackupState(coluUUID, MetadataStorage.BackupState.VERIFIED);
          }
          updateUi();
-         StringBuilder addresses = new StringBuilder();
+         List<String> addressList = new ArrayList<>();
          for(Address address : addressMap.values()){
-             addresses.append(address.toMultiLineString()).append("\n\n");
+             addressList.add(address.toMultiLineString());
          }
+
+         String addresses = TextUtils.join("\n\n", addressList);
          String message = getResources().getString(R.string.verify_backup_ok, addresses);
          ShowDialogMessage(message, false);
       } else {
