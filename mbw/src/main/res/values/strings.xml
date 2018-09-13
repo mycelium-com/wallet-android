@@ -199,7 +199,7 @@
     <string name="verify_backup_one_key">You have 1 key that has never been verified.</string>
     <string name="verify_backup_master_seed">Your master seed has not been verified.</string>
     <string name="verify_backup_no_such_record">The private key does not match any of your Bitcoin addresses.</string>
-    <string name="verify_backup_ok">Private key backup successfully verified for the following address:\n\n%1$s</string>
+    <string name="verify_backup_ok">Private key backup successfully verified for the following account: \n\n%1$s\n\nAddresses:\n\n%2$s</string>
     <string name="wrong_seed">The scanned seed does not match your master seed.</string>
     <string name="backup_missing">Backup missing</string>
     <string name="verify_backup_title">Backup and Verify</string>
