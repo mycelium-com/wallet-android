@@ -45,7 +45,10 @@ import com.google.common.base.Optional;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
-import com.mycelium.wallet.*;
+import com.mycelium.wallet.MbwManager;
+import com.mycelium.wallet.R;
+import com.mycelium.wallet.StringHandleConfig;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.StringHandlerActivity;
 import com.mycelium.wallet.colu.ColuAccount;
@@ -55,8 +58,8 @@ import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.single.SingleAddressBCHAccount;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 public class VerifyBackupActivity extends Activity {
@@ -185,7 +188,7 @@ public class VerifyBackupActivity extends Activity {
    private void verify(InMemoryPrivateKey pk) {
       UUID account = null;
       boolean success = false;
-      Map<AddressType, Address> addressMap = null;
+      Collection<Address> allAddresses = null;
       for (Address currentAddress : pk.getPublicKey().getAllSupportedAddresses(_mbwManager.getNetwork()).values()) {
          // Figure out the account ID
          account = SingleAddressAccount.calculateId(currentAddress);
@@ -193,7 +196,7 @@ public class VerifyBackupActivity extends Activity {
          success = _mbwManager.getWalletManager(false).hasAccount(account)
                  || _mbwManager.getColuManager().hasAccount(account);
          if (success) {
-            addressMap = pk.getPublicKey().getAllSupportedAddresses(_mbwManager.getNetwork());
+            allAddresses = pk.getPublicKey().getAllSupportedAddresses(_mbwManager.getNetwork()).values();
             break;
          }
       }
@@ -211,9 +214,9 @@ public class VerifyBackupActivity extends Activity {
          }
          updateUi();
          List<String> addressList = new ArrayList<>();
-         for(Address address : addressMap.values()){
-             addressList.add(address.toMultiLineString());
-         }
+         for (Address address : allAddresses){
+              addressList.add(address.toMultiLineString());
+          }
          String label = _mbwManager.getMetadataStorage().getLabelByAccount(account);
 
          String addresses = TextUtils.join("\n\n", addressList);
