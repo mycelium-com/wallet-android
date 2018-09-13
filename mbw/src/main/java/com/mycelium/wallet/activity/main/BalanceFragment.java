@@ -74,7 +74,7 @@ import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.exchange.ExchangeRateManager;
-import com.mycelium.wallet.exchange.FiatType;
+import com.mycelium.wapi.wallet.fiat.FiatType;
 import com.mycelium.wallet.modularisation.BCHHelper;
 import com.mycelium.wapi.model.ExchangeRate;
 import com.mycelium.wapi.wallet.WalletAccount;

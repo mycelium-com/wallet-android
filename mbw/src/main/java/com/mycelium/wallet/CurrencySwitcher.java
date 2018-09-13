@@ -38,7 +38,7 @@ import com.google.api.client.util.Lists;
 import com.google.common.base.Strings;
 import com.mrd.bitlib.util.CoinUtil;
 import com.mycelium.wallet.exchange.ExchangeRateManager;
-import com.mycelium.wallet.exchange.FiatType;
+import com.mycelium.wapi.wallet.fiat.FiatType;
 import com.mycelium.wallet.exchange.ValueSum;
 import com.mycelium.wapi.model.ExchangeRate;
 import com.mycelium.wapi.wallet.coins.BitcoinMain;

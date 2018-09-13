@@ -1,11 +1,11 @@
 package com.mycelium.wallet.activity.util
 
 import com.mrd.bitlib.util.CoinUtil
-import com.mycelium.wallet.exchange.FiatType
+import com.mycelium.wapi.wallet.fiat.FiatType
 import com.mycelium.wapi.wallet.coins.BitcoinMain
 import com.mycelium.wapi.wallet.coins.BitcoinTest
 import com.mycelium.wapi.wallet.coins.Value
-import com.mycelium.wapi.wallet.coins.ValueType
+import com.mycelium.wapi.wallet.coins.GenericAssetInfo
 import java.text.DecimalFormat
 
 
@@ -26,7 +26,7 @@ fun Value.toString(denomination: CoinUtil.Denomination = CoinUtil.Denomination.B
     return CoinFormat.format(result)
 }
 
-fun ValueType.isBtc(): Boolean {
+fun GenericAssetInfo.isBtc(): Boolean {
     return this == BitcoinMain.get() || this == BitcoinTest.get()
 }
 
