@@ -25,4 +25,5 @@ if (System.getenv()['MYCELIUM_BUILD_SYSTEM'] == 'server') {
     include 'coinapult'
     include 'LVL'
     include 'backuputil'
+    include 'wallet-console'
 }
