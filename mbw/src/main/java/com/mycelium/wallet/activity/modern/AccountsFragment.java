@@ -303,37 +303,10 @@ public class AccountsFragment extends Fragment {
                // For active accounts we check whether there is money on them before deleting. we don't know if there
                // is money on archived accounts
                String address;
-               if(accountToDelete instanceof SingleAddressAccount){
+               if (accountToDelete instanceof SingleAddressAccount) {
                   Map<AddressType, Address> addressMap = ((SingleAddressAccount) accountToDelete).getPublicKey().
                           getAllSupportedAddresses(_mbwManager.getNetwork());
                   address = TextUtils.join("\n\n", addressMap.values());
-                  if (accountToDelete.isActive() && satoshis != null && satoshis > 0) {
-                     if (label != null && label.length() != 0) {
-
-                        message = getString(R.string.confirm_delete_pk_with_balance_with_label_sa,
-                                getResources().getQuantityString(R.plurals.account_label, labelCount, label),
-                                address, accountToDelete instanceof ColuAccount ?
-                                        Utils.getColuFormattedValueWithUnit(getPotentialBalanceColu(accountToDelete))
-                                        : _mbwManager.getBtcValueString(satoshis)
-                        );
-                     } else {
-                        message = getString(
-                                R.string.confirm_delete_pk_with_balance_sa,
-                                address, accountToDelete instanceof ColuAccount ?
-                                        Utils.getColuFormattedValueWithUnit(getPotentialBalanceColu(accountToDelete))
-                                        : _mbwManager.getBtcValueString(satoshis)
-
-                        );
-                     }
-                  } else {
-                     if (label != null && label.length() != 0) {
-                        message = getString(R.string.confirm_delete_pk_without_balance_with_label_sa,
-                                getResources().getQuantityString(R.plurals.account_label, labelCount, label), address);
-                     } else {
-                        message = getString(R.string.confirm_delete_pk_without_balance_sa, address);
-                     }
-                  }
-
                } else {
                   Optional<Address> receivingAddress = accountToDelete.getReceivingAddress();
                   if (receivingAddress.isPresent()) {
@@ -341,31 +314,31 @@ public class AccountsFragment extends Fragment {
                   } else {
                      address = "";
                   }
-                  if (accountToDelete.isActive() && satoshis != null && satoshis > 0) {
-                     if (label != null && label.length() != 0) {
+               }
+               if (accountToDelete.isActive() && satoshis != null && satoshis > 0) {
+                  if (label != null && label.length() != 0) {
 
-                        message = getString(R.string.confirm_delete_pk_with_balance_with_label,
-                                getResources().getQuantityString(R.plurals.account_label, labelCount, label),
-                                address, accountToDelete instanceof ColuAccount ?
-                                        Utils.getColuFormattedValueWithUnit(getPotentialBalanceColu(accountToDelete))
-                                        : _mbwManager.getBtcValueString(satoshis)
-                        );
-                     } else {
-                        message = getString(
-                                R.string.confirm_delete_pk_with_balance,
-                                address, accountToDelete instanceof ColuAccount ?
-                                        Utils.getColuFormattedValueWithUnit(getPotentialBalanceColu(accountToDelete))
-                                        : _mbwManager.getBtcValueString(satoshis)
-
-                        );
-                     }
+                     message = getResources().getQuantityString(R.plurals.confirm_delete_pk_with_balance_with_label,
+                             !(accountToDelete instanceof SingleAddressAccount) ? 1 : 0,
+                             getResources().getQuantityString(R.plurals.account_label, labelCount, label),
+                             address, accountToDelete instanceof ColuAccount ?
+                                     Utils.getColuFormattedValueWithUnit(getPotentialBalanceColu(accountToDelete))
+                                     : _mbwManager.getBtcValueString(satoshis));
                   } else {
-                     if (label != null && label.length() != 0) {
-                        message = getString(R.string.confirm_delete_pk_without_balance_with_label,
-                                getResources().getQuantityString(R.plurals.account_label, labelCount, label), address);
-                     } else {
-                        message = getString(R.string.confirm_delete_pk_without_balance, address);
-                     }
+                     message = getResources().getQuantityString(R.plurals.confirm_delete_pk_with_balance,
+                             !(accountToDelete instanceof SingleAddressAccount) ? 1 : 0,
+                             address, accountToDelete instanceof ColuAccount ?
+                                     Utils.getColuFormattedValueWithUnit(getPotentialBalanceColu(accountToDelete))
+                                     : _mbwManager.getBtcValueString(satoshis));
+                  }
+               } else {
+                  if (label != null && label.length() != 0) {
+                     message = getResources().getQuantityString(R.plurals.confirm_delete_pk_without_balance_with_label,
+                             !(accountToDelete instanceof SingleAddressAccount) ? 1 : 0,
+                             getResources().getQuantityString(R.plurals.account_label, labelCount, label), address);
+                  } else {
+                     message = getResources().getQuantityString(R.plurals.confirm_delete_pk_without_balance,
+                             !(accountToDelete instanceof SingleAddressAccount) ? 1 : 0, address);
                   }
                }
                confirmDeleteDialog.setMessage(message);
