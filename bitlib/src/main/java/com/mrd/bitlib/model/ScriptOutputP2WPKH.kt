@@ -13,20 +13,22 @@ class ScriptOutputP2WPKH : ScriptOutput, Serializable {
         addressBytes = chunks[1]
     }
 
+    constructor(scriptBytes: ByteArray) : super(scriptBytes) {
+        addressBytes = scriptBytes
+    }
+
     override fun getAddressBytes(): ByteArray {
         return addressBytes
     }
 
     override fun getAddress(network: NetworkParameters): Address {
-            return object : Address (addressBytes) {
-            }
-        //      byte[] addressBytes = getAddressBytes();
-        //      return Address.fromP2SHBytes(addressBytes, network);
+        return SegwitAddress(network, 0x00, addressBytes)
     }
 
     companion object {
         private const val serialVersionUID = 1L
 
+        @JvmStatic
         fun isScriptOutputP2WPKH(chunks: Array<ByteArray>): Boolean {
             if (chunks.isEmpty()) {
                 return false

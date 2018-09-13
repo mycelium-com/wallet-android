@@ -48,6 +48,7 @@ import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AccountScanManager;
 import com.squareup.otto.Subscribe;
 
+import java.util.List;
 import java.util.UUID;
 
 
@@ -66,7 +67,7 @@ public abstract class ExtSigAccountImportActivity extends ExtSigAccountSelectorA
                   .createExternalSignatureAccount(
                         item.xPub,
                         (ExternalSignatureDeviceManager) masterseedScanManager,
-                        item.accountHdKeyPath.getLastIndex()
+                        item.accountHdKeysPaths.iterator().next().getLastIndex()
                   );
 
             // Mark this account as backup warning ignored
@@ -83,7 +84,7 @@ public abstract class ExtSigAccountImportActivity extends ExtSigAccountSelectorA
    @Override
    protected void updateUi() {
       super.updateUi();
-      if (masterseedScanManager.currentAccountState == AccountScanManager.AccountStatus.done) {
+      if (masterseedScanManager.getCurrentAccountState() == AccountScanManager.AccountStatus.done) {
          findViewById(R.id.btNextAccount).setEnabled(true);
       } else {
          findViewById(R.id.btNextAccount).setEnabled(false);
@@ -104,16 +105,16 @@ public abstract class ExtSigAccountImportActivity extends ExtSigAccountSelectorA
                @Override
                public void run() {
 
-                  Optional<HdKeyNode> nextAccount = masterseedScanManager.getNextUnusedAccount();
+                  List<HdKeyNode> nextAccount = masterseedScanManager.getNextUnusedAccounts();
 
                   MbwManager mbwManager = MbwManager.getInstance(ExtSigAccountImportActivity.this);
 
-                  if (nextAccount.isPresent()) {
+                  if (nextAccount.isEmpty()) {
                      UUID acc = mbwManager.getWalletManager(false)
                            .createExternalSignatureAccount(
-                                 nextAccount.get(),
+                                 nextAccount,
                                  (ExternalSignatureDeviceManager) masterseedScanManager,
-                                 nextAccount.get().getIndex()
+                                 nextAccount.get(0).getIndex()
                            );
 
                      mbwManager.getMetadataStorage().setOtherAccountBackupState(acc, MetadataStorage.BackupState.IGNORED);

@@ -50,7 +50,7 @@ public class KeepKeyManager extends ExternalSignatureDeviceManager {
 
    @Override
    protected ExternalSignatureDevice createDevice() {
-      return new KeepKey(context);
+      return new KeepKey(getContext());
    }
 
    @Override

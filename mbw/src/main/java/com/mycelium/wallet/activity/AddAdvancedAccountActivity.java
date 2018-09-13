@@ -77,9 +77,8 @@ import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coins.Value;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.math.BigDecimal;
+import java.util.*;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -229,7 +228,7 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
     * @param hdKeyNode node of depth 3.
     */
    private void returnAccount(HdKeyNode hdKeyNode) {
-      UUID acc = _mbwManager.getWalletManager(false).createUnrelatedBip44Account(hdKeyNode);
+      UUID acc = _mbwManager.getWalletManager(false).createUnrelatedBip44Account(Collections.singletonList(hdKeyNode));
       // set BackupState as ignored - we currently have no option to backup xPrivs after all
       _mbwManager.getMetadataStorage().setOtherAccountBackupState(acc, MetadataStorage.BackupState.IGNORED);
       finishOk(acc, false);
@@ -536,7 +535,7 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
    }
 
    private void returnAccount(HdKeyNode hdKeyNode, boolean isUpgrade) {
-      UUID acc = _mbwManager.getWalletManager(false).createUnrelatedBip44Account(hdKeyNode);
+      UUID acc = _mbwManager.getWalletManager(false).createUnrelatedBip44Account(Collections.singletonList(hdKeyNode));
       // set BackupState as ignored - we currently have no option to backup xPrivs after all
       _mbwManager.getMetadataStorage().setOtherAccountBackupState(acc, MetadataStorage.BackupState.IGNORED);
       finishOk(acc, isUpgrade);

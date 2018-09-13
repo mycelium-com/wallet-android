@@ -33,6 +33,8 @@ import com.mrd.bitlib.model.OutPoint;
 import com.mrd.bitlib.model.OutputList;
 import com.mrd.bitlib.model.Script;
 import com.mrd.bitlib.model.ScriptOutput;
+import com.mrd.bitlib.model.ScriptOutputP2SH;
+import com.mrd.bitlib.model.ScriptOutputP2WPKH;
 import com.mrd.bitlib.model.ScriptOutputStrange;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.model.Transaction.TransactionParsingException;
@@ -92,6 +94,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import static com.mrd.bitlib.StandardTransactionBuilder.createOutput;
 import static com.mrd.bitlib.StandardTransactionBuilder.estimateTransactionSize;
@@ -224,7 +227,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       // Get the current unspent outputs as dictated by the block chain
       QueryUnspentOutputsResponse unspentOutputResponse;
       try {
-         unspentOutputResponse = _wapi.queryUnspentOutputs(new QueryUnspentOutputsRequest(Wapi.VERSION, addresses))
+            unspentOutputResponse = _wapi.queryUnspentOutputs(new QueryUnspentOutputsRequest(Wapi.VERSION, addresses))
                .getResult();
       } catch (WapiException e) {
          _logger.logError("Server connection failed with error code: " + e.errorCode, e);
@@ -255,7 +258,23 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
             // we need to fetch associated transactions, to see the outgoing tx in the history
             ScriptOutput scriptOutput = ScriptOutput.fromScriptBytes(l.script);
             boolean removeLocally = true;
-            if (scriptOutput != null) {
+
+            // Start of the hack to prevent actual local data removal if server still didn't process just sent tx
+            youngTransactions:
+            for (TransactionEx transactionEx : _backing.getTransactionsSince(System.currentTimeMillis() -
+                    TimeUnit.SECONDS.toMillis(15))) {
+                TransactionOutputEx output;
+                int i = 0;
+                while ((output = TransactionEx.getTransactionOutput(transactionEx, i++)) != null) {
+                   if (output.equals(l) && !_backing.hasParentTransactionOutput(l.outPoint)) {
+                      removeLocally = false;
+                      break youngTransactions;
+                   }
+                }
+            }
+            // End of hack
+
+            if (scriptOutput != null && removeLocally) {
                Address address = scriptOutput.getAddress(_network);
                if (addresses.contains(address)) {
                   // the output was associated with an address we were scanning for
@@ -341,8 +360,8 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
          }
       }
 
-      // if we removed some UTXO because of an sync, it means that there are transactions
-      // we dont yet know about. Run a discover for all addresses related to the UTXOs we removed
+      // if we removed some UTXO because of a sync, it means that there are transactions
+      // we don't yet know about. Run a discover for all addresses related to the UTXOs we removed
       if (addressesToDiscover.size() > 0) {
          try {
             doDiscoveryForAddresses(Lists.newArrayList(addressesToDiscover));
@@ -583,7 +602,6 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
                }
             }
          }
-
       }
 
       int blockHeight = getBlockChainHeight();
@@ -663,7 +681,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
                // malleability, delete it locally.
                _logger.logError("Failed to broadcast transaction due to a double spend or malleability issue");
                postEvent(Event.BROADCASTED_TRANSACTION_DENIED);
-               return BroadcastResult.REJECTED;
+               return BroadcastResult.REJECTED_DOUBLE_SPENDING;
             }
          } else if (response.getErrorCode() == Wapi.ERROR_CODE_NO_SERVER_CONNECTION) {
             postEvent(Event.SERVER_CONNECTION_ERROR);
@@ -1013,7 +1031,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       // we will use all of the available inputs and it will be only one output
       // but we use "2" here, because the tx-estimation in StandardTransactionBuilder always includes an
       // output into its estimate - so add one here too to arrive at the same tx fee
-      long feeToUse = StandardTransactionBuilder.estimateFee(spendableOutputs.size(), 1, minerFeePerKbToUse);
+      long feeToUse = StandardTransactionBuilder.estimateFee(spendableOutputs.size(), 1, StandardTransactionBuilder.getSegwitOutputsCount(spendableOutputs), minerFeePerKbToUse);
 
       // TODO: 25.06.17 why was there a loop from here to end of method?
       // Iteratively figure out whether we can send everything by removing the smallest input
@@ -1124,8 +1142,8 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       Address changeAddress = getChangeAddress();
       long parentChildFeeSat;
       do {
-         long childSize = estimateTransactionSize(utxosToSpend.size(), 1);
-         long parentChildSize = tex.binary.length + childSize;
+         long childSize = estimateTransactionSize(utxosToSpend.size(), 1, 0);
+         long parentChildSize = parent.rawSize + childSize;
          parentChildFeeSat = parentChildSize * minerFeeToUse / 1000 - satoshisPaid;
          if(parentChildFeeSat < childSize * minerFeeToUse / 1000) {
             // if child doesn't get itself to target priority, it's not needed to boost a parent to it.

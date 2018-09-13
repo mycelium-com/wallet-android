@@ -16,17 +16,14 @@
 
 package com.mrd.bitlib.model;
 
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-
-import com.mrd.bitlib.bitcoinj.Base58;
-
 import com.google.common.base.Function;
+import com.mrd.bitlib.bitcoinj.Base58;
+import com.mrd.bitlib.model.hdpath.HdKeyPath;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
+
+import java.io.Serializable;
 
 public class Address implements Serializable, Comparable<Address> {
    private static final long serialVersionUID = 1L;
@@ -38,8 +35,10 @@ public class Address implements Serializable, Comparable<Address> {
       }
    };
 
-   protected byte[] _bytes;
-   protected String _address;
+   private byte[] _bytes;
+   private String _address;
+   private Sha256Hash scriptHash;
+   private HdKeyPath bip32Path;
 
    public static Address fromString(String address, NetworkParameters network) {
       Address addr = Address.fromString(address);
@@ -64,6 +63,12 @@ public class Address implements Serializable, Comparable<Address> {
       if (address.length() == 0) {
          return null;
       }
+      try {
+         return SegwitAddress.decode(address);
+      } catch (SegwitAddress.SegwitAddressException e) {
+         // this is not a SegWit address
+      }
+
       byte[] bytes = Base58.decodeChecked(address);
       if (bytes == null || bytes.length != NUM_ADDRESS_BYTES) {
          return null;
@@ -131,7 +136,7 @@ public class Address implements Serializable, Comparable<Address> {
             || ((byte) (network.getMultisigAddressHeader() & 0xFF)) == version;
    }
 
-   public boolean isMultisig(NetworkParameters network) {
+   public boolean isP2SH(NetworkParameters network) {
       return getVersion() == (byte) (network.getMultisigAddressHeader() & 0xFF);
    }
 
@@ -149,6 +154,9 @@ public class Address implements Serializable, Comparable<Address> {
       return _bytes;
    }
 
+   /**
+    * @return hash160 big endian bytes
+    */
    public byte[] getTypeSpecificBytes() {
       byte[] result = new byte[20];
       System.arraycopy(_bytes, 1, result, 0, 20);
@@ -169,7 +177,7 @@ public class Address implements Serializable, Comparable<Address> {
    }
 
    public AddressType getType() {
-       if (isMultisig(getNetwork())) {
+       if (isP2SH(getNetwork())) {
            return AddressType.P2SH_P2WPKH;
        } else {
            return AddressType.P2PKH;
@@ -226,21 +234,17 @@ public class Address implements Serializable, Comparable<Address> {
    }
 
    public String toMultiLineString() {
-      StringBuilder sb = new StringBuilder();
       String address = toString();
-      sb.append(address.substring(0, 12)).append("\r\n");
-      sb.append(address.substring(12, 24)).append("\r\n");
-      sb.append(address.substring(24));
-      return sb.toString();
+      return address.substring(0, 12) + "\r\n" +
+              address.substring(12, 24) + "\r\n" +
+              address.substring(24);
    }
 
    public String toDoubleLineString() {
-      StringBuilder sb = new StringBuilder();
       String address = toString();
       int splitIndex = address.length() / 2;
-      sb.append(address.substring(0, splitIndex)).append("\r\n");
-      sb.append(address.substring(splitIndex));
-      return sb.toString();
+      return address.substring(0, splitIndex) + "\r\n" +
+              address.substring(splitIndex);
    }
 
    public NetworkParameters getNetwork() {
@@ -255,5 +259,26 @@ public class Address implements Serializable, Comparable<Address> {
 
    private boolean matchesNetwork(NetworkParameters network, byte version) {
       return ((byte) (network.getStandardAddressHeader() & 0xFF)) == version || ((byte) (network.getMultisigAddressHeader() & 0xFF)) == version;
+   }
+
+   public Sha256Hash getScriptHash() {
+      if (scriptHash == null) {
+         byte[] scriptBytes;
+         if (isP2SH(getNetwork())) {
+            scriptBytes = new ScriptOutputP2SH(getTypeSpecificBytes()).getScriptBytes();
+         } else {
+            scriptBytes = new ScriptOutputStandard(getTypeSpecificBytes()).getScriptBytes();
+         }
+         scriptHash = HashUtils.sha256(scriptBytes).reverse();
+      }
+      return scriptHash;
+   }
+
+   public HdKeyPath getBip32Path() {
+      return bip32Path;
+   }
+
+   public void setBip32Path(HdKeyPath bip32Path) {
+      this.bip32Path = bip32Path;
    }
 }

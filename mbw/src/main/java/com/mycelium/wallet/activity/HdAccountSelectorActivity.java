@@ -61,6 +61,7 @@ import com.squareup.otto.Subscribe;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -107,9 +108,9 @@ public abstract class HdAccountSelectorActivity extends Activity implements Mast
             WalletManager walletManager = mbwManager.getWalletManager(true);
 
             UUID id = masterseedScanManager.createOnTheFlyAccount(
-                  account.accountRoot,
+                  account.accountsRoots,
                   walletManager,
-                  account.keyPath.getLastIndex());
+                  account.keysPaths.iterator().next().getLastIndex());
 
             HDAccount tempAccount = (HDAccount) walletManager.getAccount(id);
             tempAccount.doSynchronization(SyncMode.NORMAL_WITHOUT_TX_LOOKUP);
@@ -147,13 +148,13 @@ public abstract class HdAccountSelectorActivity extends Activity implements Mast
    }
 
    protected void updateUi() {
-      if (masterseedScanManager.currentAccountState == AccountScanManager.AccountStatus.scanning) {
+      if (masterseedScanManager.getCurrentAccountState() == AccountScanManager.AccountStatus.scanning) {
          findViewById(R.id.llStatus).setVisibility(View.VISIBLE);
          if (accounts.size()>0) {
             txtStatus.setText(String.format(getString(R.string.account_found), Iterables.getLast(accounts).name));
             findViewById(R.id.llSelectAccount).setVisibility(View.VISIBLE);
          }
-      }else if (masterseedScanManager.currentAccountState == AccountScanManager.AccountStatus.done) {
+      }else if (masterseedScanManager.getCurrentAccountState() == AccountScanManager.AccountStatus.done) {
          // DONE
          findViewById(R.id.llStatus).setVisibility(View.GONE);
          findViewById(R.id.llSelectAccount).setVisibility(View.VISIBLE);
@@ -200,8 +201,8 @@ public abstract class HdAccountSelectorActivity extends Activity implements Mast
 
    protected class HdAccountWrapper implements Serializable {
       public UUID id;
-      public HdKeyPath accountHdKeyPath;
-      public HdKeyNode xPub;
+      public Collection<HdKeyPath> accountHdKeysPaths;
+      public List<HdKeyNode> xPub;
       public String name;
 
       @Override
@@ -275,16 +276,17 @@ public abstract class HdAccountSelectorActivity extends Activity implements Mast
    }
 
    @Subscribe
-   public void onAccountFound(AccountScanManager.OnAccountFound event){
+   public void onAccountFound(AccountScanManager.OnAccountFound event) {
       HdAccountWrapper acc = new HdAccountWrapper();
       acc.id = event.account.accountId;
-      acc.accountHdKeyPath = event.account.keyPath;
-      if (event.account.keyPath.equals(HdKeyPath.BIP32_ROOT)) {
+      acc.accountHdKeysPaths = event.account.keysPaths;
+      HdKeyPath path = event.account.keysPaths.iterator().next();
+      if (path.equals(HdKeyPath.BIP32_ROOT)) {
          acc.name = getString(R.string.bip32_root_account);
       } else {
-         acc.name = String.format(getString(R.string.account_number), event.account.keyPath.getLastIndex() + 1);
+         acc.name = String.format(getString(R.string.account_number), path.getLastIndex() + 1);
       }
-      acc.xPub = event.account.accountRoot;
+      acc.xPub = event.account.accountsRoots;
       if (!accounts.contains(acc)) {
          accountsAdapter.add(acc);
          updateUi();

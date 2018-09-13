@@ -47,13 +47,18 @@ open class UnsignedTransaction constructor(
                     throw RuntimeException("Public key not found")
 
             when (utxo.script) {
-                is ScriptOutputP2SH -> {
+                is ScriptOutputP2SH  -> {
                     val inpScriptBytes = BitUtils.concatenate(byteArrayOf(Script.OP_0.toByte(), publicKey.pubKeyHashCompressed.size.toByte()), publicKey.pubKeyHashCompressed)
                     val inputScript = ScriptInput.fromScriptBytes(BitUtils.concatenate(byteArrayOf((inpScriptBytes.size and 0xFF).toByte()), inpScriptBytes))
                     transaction.inputs[i].script = inputScript
                     inputs[i].script = inputScript
                 }
-                is ScriptOutputP2WPKH -> throw NotImplementedError()
+                is ScriptOutputP2WPKH -> {
+                    val inpScriptBytes = BitUtils.concatenate(byteArrayOf(Script.OP_0.toByte(), publicKey.pubKeyHashCompressed.size.toByte()), publicKey.pubKeyHashCompressed)
+                    val inputScript = ScriptInput.fromScriptBytes(BitUtils.concatenate(byteArrayOf((inpScriptBytes.size and 0xFF).toByte()), inpScriptBytes))
+                    transaction.inputs[i].script = inputScript
+                    inputs[i].script = inputScript
+                }
             }
 
             val scriptsList: MutableList<ScriptInput> = mutableListOf()
@@ -79,8 +84,11 @@ open class UnsignedTransaction constructor(
         }
     }
 
+    private fun isSegwitOutputScript(script: ScriptOutput) =
+        script is ScriptOutputP2WPKH || script is ScriptOutputP2SH
+
     private fun isSegWitOutput(i: Int) =
-            fundingOutputs[i].script is ScriptOutputP2WPKH || fundingOutputs[i].script is ScriptOutputP2SH
+            isSegwitOutputScript(fundingOutputs[i].script)
 
     /**
      * @return fee in satoshis

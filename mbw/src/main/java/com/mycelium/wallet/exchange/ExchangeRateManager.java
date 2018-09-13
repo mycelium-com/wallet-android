@@ -80,6 +80,7 @@ public class ExchangeRateManager implements ExchangeRateProvider, com.mycelium.w
     private static final Pattern EXCHANGE_RATE_PATTERN;
     public static final String CHANGELLY_MARKET = "Changelly";
     public static final String RMC_MARKET = "Coinmarketcap";
+    public static final String DEFAULT_EXCHANGE = "Bitstamp";
 
     static {
         String regexKeyExchangeRate = "(.*)_(.*)_(.*)";
@@ -120,7 +121,7 @@ public class ExchangeRateManager implements ExchangeRateProvider, com.mycelium.w
         _api = api;
         _latestRates = null;
         _latestRatesTime = 0;
-        _currentExchangeSourceName = getPreferences().getString("currentRateName", null);
+        _currentExchangeSourceName = getPreferences().getString("currentRateName", DEFAULT_EXCHANGE);
 
         _subscribers = new LinkedList<>();
         _latestRates = new HashMap<>();

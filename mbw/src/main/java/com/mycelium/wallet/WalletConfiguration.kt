@@ -59,7 +59,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                     prefs.edit().putStringSet(PREFS_ELECTRUM_SERVERS, nodes).apply()
                     serverListChangedListener?.serverListChanged(getElectrumEndpoints())
                 }
-            } catch (_: IOException) {}
+            } catch (_: Exception) {}
         }
     }
 

@@ -46,6 +46,7 @@ import com.google.protobuf.GeneratedMessage;
 import com.google.protobuf.Message;
 import com.mrd.bitlib.SigningRequest;
 import com.mrd.bitlib.UnsignedTransaction;
+import com.mrd.bitlib.crypto.BipDerivationType;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.*;
@@ -75,6 +76,7 @@ import com.squareup.otto.Bus;
 import org.bitcoinj.core.ScriptException;
 import org.bitcoinj.script.*;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -174,7 +176,7 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
       // wait until a device is connected
       while (!getSignatureDevice().isDevicePluggedIn()) {
          try {
-            setState(Status.unableToScan, currentAccountState);
+            setState(Status.unableToScan, getCurrentAccountState());
             Thread.sleep(4000);
          } catch (InterruptedException e) {
             break;
@@ -182,14 +184,14 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
       }
 
       // set up the connection and afterwards send a Features-Request
-      if (getSignatureDevice().connect(context)) {
+      if (getSignatureDevice().connect(getContext())) {
          TrezorMessage.Initialize req = TrezorMessage.Initialize.newBuilder().build();
          Message resp = getSignatureDevice().send(req);
          if (resp != null && resp instanceof TrezorMessage.Features) {
             final TrezorMessage.Features f = (TrezorMessage.Features) resp;
 
             // remember the features
-            mainThreadHandler.post(new Runnable() {
+            getMainThreadHandler().post(new Runnable() {
                @Override
                public void run() {
                   features = f;
@@ -213,7 +215,7 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
          return null;
       }
 
-      setState(Status.readyToScan, currentAccountState);
+      setState(Status.readyToScan, getCurrentAccountState());
 
       // send initial signing-request
       SignTx signTx = SignTx.newBuilder()
@@ -428,7 +430,7 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
    }
 
    @Override
-   public Optional<HdKeyNode> getAccountPubKeyNode(HdKeyPath keyPath) {
+   public Optional<HdKeyNode> getAccountPubKeyNode(HdKeyPath keyPath, BipDerivationType derivationType) {
       TrezorMessage.GetPublicKey msgGetPubKey = TrezorMessage.GetPublicKey.newBuilder()
             .addAllAddressN(keyPath.getAddressN())
             .build();
@@ -442,7 +444,8 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
                   pubKey,
                   pubKeyNode.getNode().getChainCode().toByteArray(),
                   3, 0,
-                  keyPath.getLastIndex()
+                  keyPath.getLastIndex(),
+                  derivationType
             );
             return Optional.of(accountRootNode);
          } else {
@@ -455,13 +458,17 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
    }
 
    @Override
-   public UUID createOnTheFlyAccount(HdKeyNode accountRoot, WalletManager walletManager, int accountIndex) {
-      UUID account;
-      if (walletManager.hasAccount(accountRoot.getUuid())) {
-         // Account already exists
-         account = accountRoot.getUuid();
-      } else {
-         account = walletManager.createExternalSignatureAccount(accountRoot, this, accountIndex);
+   public UUID createOnTheFlyAccount(List<? extends HdKeyNode> accountRoots, WalletManager walletManager, int accountIndex) {
+      UUID account = null;
+      for (HdKeyNode root:
+           accountRoots) {
+         if (walletManager.hasAccount(root.getUuid())) {
+            // Account already exists
+            account = root.getUuid();
+         }
+      }
+      if (account == null) {
+         account = walletManager.createExternalSignatureAccount(accountRoots, this, accountIndex);
       }
       return account;
    }
@@ -473,10 +480,10 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
 
    private Message filterMessages(final Message msg) {
       if (msg instanceof TrezorMessage.ButtonRequest) {
-         mainThreadHandler.post(new Runnable() {
+         getMainThreadHandler().post(new Runnable() {
             @Override
             public void run() {
-               eventBus.post(new OnButtonRequest());
+               getEventBus().post(new OnButtonRequest());
             }
          });
 
@@ -485,10 +492,10 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
          return filterMessages(getSignatureDevice().send(txButtonAck));
 
       } else if (msg instanceof TrezorMessage.PinMatrixRequest) {
-         mainThreadHandler.post(new Runnable() {
+         getMainThreadHandler().post(new Runnable() {
             @Override
             public void run() {
-               eventBus.post(new OnPinMatrixRequest());
+               getEventBus().post(new OnPinMatrixRequest());
             }
          });
          String pin;
