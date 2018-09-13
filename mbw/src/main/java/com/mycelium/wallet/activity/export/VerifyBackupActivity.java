@@ -214,9 +214,10 @@ public class VerifyBackupActivity extends Activity {
          for(Address address : addressMap.values()){
              addressList.add(address.toMultiLineString());
          }
+         String label = _mbwManager.getMetadataStorage().getLabelByAccount(account);
 
          String addresses = TextUtils.join("\n\n", addressList);
-         String message = getResources().getString(R.string.verify_backup_ok, addresses);
+         String message = getResources().getString(R.string.verify_backup_ok, label, addresses);
          ShowDialogMessage(message, false);
       } else {
          ShowDialogMessage(R.string.verify_backup_no_such_record, false);
