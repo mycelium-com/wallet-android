@@ -53,6 +53,7 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.single.SingleAddressBCHAccount;
 
+import java.util.Map;
 import java.util.UUID;
 
 public class VerifyBackupActivity extends Activity {
@@ -181,7 +182,7 @@ public class VerifyBackupActivity extends Activity {
    private void verify(InMemoryPrivateKey pk) {
       UUID account = null;
       boolean success = false;
-      Address address = null;
+      Map<AddressType, Address> addressMap = null;
       for (Address currentAddress : pk.getPublicKey().getAllSupportedAddresses(_mbwManager.getNetwork()).values()) {
          // Figure out the account ID
          account = SingleAddressAccount.calculateId(currentAddress);
@@ -189,7 +190,7 @@ public class VerifyBackupActivity extends Activity {
          success = _mbwManager.getWalletManager(false).hasAccount(account)
                  || _mbwManager.getColuManager().hasAccount(account);
          if (success) {
-            address = currentAddress;
+            addressMap = pk.getPublicKey().getAllSupportedAddresses(_mbwManager.getNetwork());
             break;
          }
       }
@@ -206,7 +207,11 @@ public class VerifyBackupActivity extends Activity {
             _mbwManager.getMetadataStorage().setOtherAccountBackupState(coluUUID, MetadataStorage.BackupState.VERIFIED);
          }
          updateUi();
-         String message = getResources().getString(R.string.verify_backup_ok, address.toMultiLineString());
+         StringBuilder addresses = new StringBuilder();
+         for(Address address : addressMap.values()){
+             addresses.append(address.toMultiLineString()).append("\n\n");
+         }
+         String message = getResources().getString(R.string.verify_backup_ok, addresses);
          ShowDialogMessage(message, false);
       } else {
          ShowDialogMessage(R.string.verify_backup_no_such_record, false);
