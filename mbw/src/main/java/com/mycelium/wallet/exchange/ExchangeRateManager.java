@@ -54,10 +54,8 @@ import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.api.request.QueryExchangeRatesRequest;
 import com.mycelium.wapi.api.response.QueryExchangeRatesResponse;
 import com.mycelium.wapi.model.ExchangeRate;
-import com.mycelium.wapi.wallet.fiat.FiatType;
+import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
-import com.mycelium.wapi.wallet.coins.ValueType;
-import com.mycelium.wapi.wallet.currency.ExchangeRateProvider;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -72,8 +70,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import retrofit.RetrofitError;
-
-public class ExchangeRateManager implements ExchangeRateProvider {
+// TODO remove com.mycelium.wapi.wallet.currency.ExchangeRateProvider after refactoring
+public class ExchangeRateManager implements ExchangeRateProvider, com.mycelium.wapi.wallet.currency.ExchangeRateProvider {
     private static final int MAX_RATE_AGE_MS = 5 * 1000 * 60; /// 5 minutes
     private static final int MIN_RATE_AGE_MS = 5 * 1000; /// 5 seconds
     private static final String EXCHANGE_DATA = "wapi_exchange_rates";
@@ -449,7 +447,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
         }
     }
 
-    public Value get(Value value, ValueType toCurrency) {
+    public Value get(Value value, GenericAssetInfo toCurrency) {
         GetExchangeRate rate = new GetExchangeRate(toCurrency.getSymbol(), value.type.getSymbol(), this).invoke();
         BigDecimal rateValue = rate.getRate();
         if(rateValue != null) {
