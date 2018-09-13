@@ -333,9 +333,11 @@ public class ExportDistiller {
         for (int i = 0; i < allEntries.size(); i++) {
             ExportEntry exportEntry = allEntries.get(i);
 
-            if(recordsOnThisPage == 1 &&(previousNumberOfAddresses + exportEntry.addresses.size() > 3) ||
-                    (recordsOnThisPage == 2 && (entryWithOneAddressCounter < 2 || exportEntry.addresses.size()>1)) ||
-                    recordsOnThisPage == RECORDS_PR_PAGE || remainingRecords == 0) {
+            boolean isEndOfPage = (recordsOnThisPage == 1 && (previousNumberOfAddresses + exportEntry.addresses.size() > 3)) ||
+                    (recordsOnThisPage == 2 && (entryWithOneAddressCounter < 2 || exportEntry.addresses.size() > 1)) ||
+                    recordsOnThisPage == RECORDS_PR_PAGE || remainingRecords == 0;
+
+            if(isEndOfPage) {
                 recordsOnThisPage = 0;
                 addPageNumber(writer, pageNum++, totalPages);
                 if (remainingRecords > 0) {
@@ -347,7 +349,9 @@ public class ExportDistiller {
             remainingRecords--;
 
             boolean addEndLine = recordsOnThisPage == RECORDS_PR_PAGE || remainingRecords == 0 ||
-                    (recordsOnThisPage == 1 && allEntries.get(i+1).addresses.size() > 1);
+                    (recordsOnThisPage == 1 && (exportEntry.addresses.size() + allEntries.get(i+1).addresses.size() > 3)) ||
+                    (recordsOnThisPage == 2 && (previousNumberOfAddresses == 1 && exportEntry.addresses.size() == 2));
+
             fromTop += addRecord(new OffsetWriter(0F, fromTop, writer), getTitle(true, i + 1, allEntries.size()),
                     exportEntry, addEndLine, progressTracker);
             previousNumberOfAddresses = exportEntry.addresses.size();
