@@ -32,7 +32,7 @@ import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
 import com.mrd.bitlib.util.ByteWriter;
-import kotlin.NotImplementedError;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Implementation of BIP 32 HD wallet key derivation.
@@ -158,7 +158,7 @@ public class HdKeyNode implements Serializable {
     *            if the seed is not suitable for seeding an HD wallet key
     *            generation. This is extremely unlikely
     */
-   public static HdKeyNode fromSeed(byte[] seed, BipDerivationType derivationType) throws KeyGenerationException {
+   public static HdKeyNode fromSeed(byte[] seed, @Nullable BipDerivationType derivationType) throws KeyGenerationException {
       Preconditions.checkArgument(seed.length * 8 >= 128, "seed must be larger than 128");
       Preconditions.checkArgument(seed.length * 8 <= 512, "seed must be smaller than 512");
       byte[] I = Hmac.hmacSha512(asciiStringToBytes(BITCOIN_SEED), seed);

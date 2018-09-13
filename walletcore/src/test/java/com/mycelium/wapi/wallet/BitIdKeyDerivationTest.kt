@@ -24,7 +24,7 @@ class BitIdKeyDerivationTest {
     @Throws(KeyCipher.InvalidKeyCipher::class)
     fun bitIdDefaultAccount() {
         val seed = Bip39.generateSeedFromWordList(WORD_LIST, "")
-        val rootNode = HdKeyNode.fromSeed(seed.bip32Seed)
+        val rootNode = HdKeyNode.fromSeed(seed.bip32Seed, null)
         val store = SecureKeyValueStore(InMemoryWalletManagerBacking(), MyRandomSource())
         val cipher = AesKeyCipher.defaultKeyCipher()
 
@@ -41,7 +41,7 @@ class BitIdKeyDerivationTest {
     @Throws(KeyCipher.InvalidKeyCipher::class)
     fun bitIdOtherAccount() {
         val seed = Bip39.generateSeedFromWordList(WORD_LIST, PWD)
-        val rootNode = HdKeyNode.fromSeed(seed.bip32Seed)
+        val rootNode = HdKeyNode.fromSeed(seed.bip32Seed, null)
         val store = SecureKeyValueStore(InMemoryWalletManagerBacking(), MyRandomSource())
         val cipher = AesKeyCipher.defaultKeyCipher()
 
@@ -58,7 +58,7 @@ class BitIdKeyDerivationTest {
     @Throws(KeyCipher.InvalidKeyCipher::class)
     fun bitIdBipTestVector() {
         val seed = Bip39.generateSeedFromWordList(WORD_LIST_BITID, "")
-        val rootNode = HdKeyNode.fromSeed(seed.bip32Seed)
+        val rootNode = HdKeyNode.fromSeed(seed.bip32Seed, null)
         val store = SecureKeyValueStore(InMemoryWalletManagerBacking(), MyRandomSource())
         val cipher = AesKeyCipher.defaultKeyCipher()
 
