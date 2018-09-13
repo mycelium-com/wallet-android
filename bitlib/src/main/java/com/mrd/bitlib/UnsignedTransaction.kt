@@ -50,12 +50,14 @@ open class UnsignedTransaction constructor(
                 is ScriptOutputP2SH  -> {
                     val inpScriptBytes = BitUtils.concatenate(byteArrayOf(Script.OP_0.toByte(), publicKey.pubKeyHashCompressed.size.toByte()), publicKey.pubKeyHashCompressed)
                     val inputScript = ScriptInput.fromScriptBytes(BitUtils.concatenate(byteArrayOf((inpScriptBytes.size and 0xFF).toByte()), inpScriptBytes))
+                    (inputScript as ScriptInputP2WPKH).isNested = true
                     transaction.inputs[i].script = inputScript
                     inputs[i].script = inputScript
                 }
                 is ScriptOutputP2WPKH -> {
                     val inpScriptBytes = BitUtils.concatenate(byteArrayOf(Script.OP_0.toByte(), publicKey.pubKeyHashCompressed.size.toByte()), publicKey.pubKeyHashCompressed)
                     val inputScript = ScriptInput.fromScriptBytes(BitUtils.concatenate(byteArrayOf((inpScriptBytes.size and 0xFF).toByte()), inpScriptBytes))
+                    (inputScript as ScriptInputP2WPKH).isNested = false
                     transaction.inputs[i].script = inputScript
                     inputs[i].script = inputScript
                 }
