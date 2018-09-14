@@ -56,6 +56,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.text.DateFormat;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -184,28 +186,25 @@ public class ExportDistiller {
 
         //first page, last page and our records
         int totalPages = 2;
-        int entryInPageCounter = 0;
-        int lastEntryAddressCounter = 0;
+        boolean isOneEntryOnPage = false;
         int accountWithOneAddressCounter = 0;
+        totalPages++; //first page with entries
         for(ExportEntry entry : params.getAllEntries()){
-            if(entryInPageCounter == 0){
-                totalPages++;
-                entryInPageCounter++;
-            } else {
-                if((entryInPageCounter == 1 && (lastEntryAddressCounter + entry.addresses.size() < 4)) ||
-                        (entryInPageCounter == 2 && accountWithOneAddressCounter == 2 && entry.addresses.size() == 1)){
-                    entryInPageCounter++;
-                    accountWithOneAddressCounter = 0;
+            if(!isOneEntryOnPage){
+                if(entry.addresses.size() == 1){
+                    if(accountWithOneAddressCounter == 3){
+                        totalPages++;
+                        accountWithOneAddressCounter = 0;
+                    }
+                    accountWithOneAddressCounter++;
                 } else {
-                    entryInPageCounter = 1;
-                    totalPages++;
+                    if(!(accountWithOneAddressCounter == 1 && entry.addresses.size() == 2)){
+                        totalPages++;
+                        isOneEntryOnPage = true;
+                    }
                 }
-            }
-            lastEntryAddressCounter = entry.addresses.size();
-            if(entry.addresses.size() == 1){
-                accountWithOneAddressCounter++;
             } else {
-                accountWithOneAddressCounter = 0;
+                totalPages++;
             }
         }
 
@@ -328,37 +327,47 @@ public class ExportDistiller {
         }
 
         List<ExportEntry> allEntries = params.getAllEntries();
-        int previousNumberOfAddresses = 0;
+        Collections.sort(allEntries, new Comparator<ExportEntry>() {
+            @Override
+            public int compare(ExportEntry firstExportEntry, ExportEntry secondExportEntry) {
+                return Integer.compare(firstExportEntry.addresses.size(), secondExportEntry.addresses.size());
+            }
+        });
+
         int entryWithOneAddressCounter = 0;
+        boolean oneEntryOnPage = false;
+
         for (int i = 0; i < allEntries.size(); i++) {
             ExportEntry exportEntry = allEntries.get(i);
 
-            boolean isEndOfPage = (recordsOnThisPage == 1 && (previousNumberOfAddresses + exportEntry.addresses.size() > 3)) ||
-                    (recordsOnThisPage == 2 && (entryWithOneAddressCounter < 2 || exportEntry.addresses.size() > 1)) ||
-                    recordsOnThisPage == RECORDS_PR_PAGE || remainingRecords == 0;
+            recordsOnThisPage++;
+            remainingRecords--;
 
-            if(isEndOfPage) {
+            if(!oneEntryOnPage) {
+                if (exportEntry.addresses.size() == 1) {
+                    if (entryWithOneAddressCounter == 3) {
+                        entryWithOneAddressCounter = 1;
+                    } else {
+                        entryWithOneAddressCounter++;
+                    }
+                } else {
+                    oneEntryOnPage = true;
+                }
+            }
+            boolean addEndLine = recordsOnThisPage == RECORDS_PR_PAGE || remainingRecords == 0 ||
+                    oneEntryOnPage || entryWithOneAddressCounter == 3;
+
+            fromTop += addRecord(new OffsetWriter(0F, fromTop, writer), getTitle(true, i + 1, allEntries.size()),
+                    exportEntry, addEndLine, progressTracker);
+
+            if(addEndLine) {
                 recordsOnThisPage = 0;
+                entryWithOneAddressCounter = 0;
                 addPageNumber(writer, pageNum++, totalPages);
                 if (remainingRecords > 0) {
                     writer.addPage();
                     fromTop = 0F;
                 }
-            }
-            recordsOnThisPage++;
-            remainingRecords--;
-
-            boolean addEndLine = recordsOnThisPage == RECORDS_PR_PAGE || remainingRecords == 0 ||
-                    (recordsOnThisPage == 1 && (exportEntry.addresses.size() + allEntries.get(i+1).addresses.size() > 3)) ||
-                    (recordsOnThisPage == 2 && (previousNumberOfAddresses == 1 && exportEntry.addresses.size() == 2));
-
-            fromTop += addRecord(new OffsetWriter(0F, fromTop, writer), getTitle(true, i + 1, allEntries.size()),
-                    exportEntry, addEndLine, progressTracker);
-            previousNumberOfAddresses = exportEntry.addresses.size();
-            if(exportEntry.addresses.size() == 1){
-                entryWithOneAddressCounter++;
-            } else {
-                entryWithOneAddressCounter = 0;
             }
         }
 
