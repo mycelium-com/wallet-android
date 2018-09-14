@@ -17,6 +17,7 @@
 package com.mycelium.wapi.wallet.single;
 
 import com.google.common.base.Optional;
+import com.mrd.bitlib.crypto.BipDerivationType;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
@@ -372,8 +373,8 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
    }
 
    @Override
-   protected boolean doDiscoveryForAddresses(List<Address> lookAhead) throws WapiException {
+   protected Map<BipDerivationType, Boolean> doDiscoveryForAddresses(List<Address> lookAhead) throws WapiException {
       // not needed for SingleAddressAccount
-      return true;
+      return Collections.emptyMap();
    }
 }
