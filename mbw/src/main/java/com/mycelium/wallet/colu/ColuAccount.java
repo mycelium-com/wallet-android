@@ -57,6 +57,7 @@ import com.mycelium.wallet.colu.json.Vout;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.api.lib.TransactionExApi;
 import com.mycelium.wapi.model.BalanceSatoshis;
+import com.mycelium.wapi.model.TransactionDetails;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputSummary;
 import com.mycelium.wapi.model.TransactionSummary;
@@ -313,7 +314,7 @@ public class ColuAccount extends SynchronizeAbleWalletBtcAccount implements Expo
     }
 
     @Override
-    public BtcTransaction getTransaction(Sha256Hash transactionId) {
+    public BtcTransaction getTx(Sha256Hash transactionId) {
         return null;
     }
 
@@ -524,6 +525,11 @@ public class ColuAccount extends SynchronizeAbleWalletBtcAccount implements Expo
     }
 
     @Override
+    public TransactionDetails getTransactionDetails(Sha256Hash txid) {
+        return null;
+    }
+
+    @Override
     public TransactionSummary getTransactionSummary(Sha256Hash txid) {
         //TODO: call getTransactionSummaries to always work on fresh data
         if (allTransactionSummaries != null) {
@@ -609,6 +615,11 @@ public class ColuAccount extends SynchronizeAbleWalletBtcAccount implements Expo
         return true;
     }
 
+    @Override
+    public TransactionEx getTransaction(Sha256Hash txid) {
+        return accountBacking.getTransaction(txid);
+    }
+
     /**
      * Determine whether an output script was created by one of our own addresses
      *
@@ -655,11 +666,6 @@ public class ColuAccount extends SynchronizeAbleWalletBtcAccount implements Expo
         } else {
             return BroadcastResult.REJECTED;
         }
-    }
-
-    @Override
-    public TransactionEx getTransactionEx(Sha256Hash txid) {
-        return accountBacking.getTransaction(txid);
     }
 
     @Override

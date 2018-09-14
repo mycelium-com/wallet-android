@@ -53,7 +53,7 @@ public class PackageRemovedReceiver extends BroadcastReceiver {
         if (intent.getData() != null) {
             String packageName = intent.getData().getEncodedSchemeSpecificPart();
             String spvModuleName = WalletApplication.getSpvModuleName(Bip44BCHAccount.class);
-            String tsmModuleName = BuildConfig.appIdTsm;
+            String mebModuleName = BuildConfig.appIdMeb;
 
             if (packageName.equals(spvModuleName)) {
                 switch (intent.getAction()) {

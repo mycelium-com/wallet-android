@@ -76,7 +76,7 @@ public class FiatAccount implements WalletAccount<FiatTransaction, FiatAddress> 
     }
 
     @Override
-    public FiatTransaction getTransaction(Sha256Hash transactionId) {
+    public FiatTransaction getTx(Sha256Hash transactionId) {
         return null;
     }
 
@@ -102,11 +102,6 @@ public class FiatAccount implements WalletAccount<FiatTransaction, FiatAddress> 
 
     @Override
     public UnsignedTransaction createUnsignedPop(Sha256Hash txid, byte[] nonce) {
-        return null;
-    }
-
-    @Override
-    public TransactionEx getTransactionEx(Sha256Hash txid) {
         return null;
     }
 

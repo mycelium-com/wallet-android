@@ -115,8 +115,8 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
             return accountsList
         }
 
-        private fun accountsToViewModel(accounts: Collection<WalletAccount<out GenericTransaction, out GenericAddress>>) = accounts.map { AccountViewModel(it as HDAccount, mbwManager) }
-        private fun bipAccountsToViewModel(accounts: Collection<HDAccount>) = accounts.map { AccountViewModel(it, mbwManager) }
+        private fun accountsToViewModel(accounts: Collection<WalletAccount<out GenericTransaction, out GenericAddress>>) = accounts.map { AccountViewModel(it, mbwManager) }
+        private fun bipAccountsToViewModel(accounts: Collection<WalletAccount<out GenericTransaction, out GenericAddress>>) = accounts.map { AccountViewModel(it, mbwManager) }
 
         @SafeVarargs
         override fun onProgressUpdate(vararg values: List<AccountsGroupModel>) {

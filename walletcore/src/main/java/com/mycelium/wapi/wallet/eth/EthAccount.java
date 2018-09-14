@@ -77,7 +77,7 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
     }
 
     @Override
-    public EthTransaction getTransaction(Sha256Hash transactionId) {
+    public EthTransaction getTx(Sha256Hash transactionId) {
         return null;
     }
 
@@ -103,11 +103,6 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
 
     @Override
     public UnsignedTransaction createUnsignedPop(Sha256Hash txid, byte[] nonce) {
-        return null;
-    }
-
-    @Override
-    public TransactionEx getTransactionEx(Sha256Hash txid) {
         return null;
     }
 

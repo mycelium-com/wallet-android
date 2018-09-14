@@ -86,7 +86,9 @@ public class BroadcastTransactionActivity extends Activity {
    }
 
    public static boolean callMe(Activity currentActivity, WalletAccount account, Sha256Hash txid) {
-      TransactionEx tx = account.getTransactionEx(txid);
+      //TODO non-generic classes are used
+      WalletBtcAccount walletBtcAccount = (WalletBtcAccount)account;
+      TransactionEx tx = walletBtcAccount.getTransaction(txid);
       if (tx == null) {
          return false;
       }

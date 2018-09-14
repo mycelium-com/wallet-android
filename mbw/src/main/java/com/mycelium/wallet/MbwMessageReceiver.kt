@@ -44,7 +44,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
     override fun onMessage(callingPackageName: String, intent: Intent) {
         when (callingPackageName) {
             getSpvModuleName(Bip44BCHAccount::class.java) -> onMessageFromSpvModuleBch(intent, getModule(callingPackageName))
-            BuildConfig.appIdTsm -> onMessageFromTsmModule(intent)
+            BuildConfig.appIdMeb -> onMessageFromTsmModule(intent)
             else -> Log.e(TAG, "Ignoring unexpected package $callingPackageName calling with intent $intent.")
         }
     }

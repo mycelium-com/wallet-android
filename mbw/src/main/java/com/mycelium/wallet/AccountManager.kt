@@ -12,6 +12,7 @@ import com.mycelium.wallet.event.AccountListChanged
 import com.mycelium.wallet.event.ExtraAccountsChanged
 import com.mycelium.wallet.event.SelectedAccountChanged
 import com.mycelium.wapi.wallet.*
+import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
@@ -71,7 +72,7 @@ object AccountManager : AccountProvider {
 
     fun getBCHSingleAddressAccounts() = getAccountsByType<SingleAddressBCHAccount>()
 
-    fun getBCHBip44Accounts() = getAccountsByType<Bip44Account>()
+    fun getBCHBip44Accounts() = getAccountsByType<Bip44BCHAccount>()
 
     fun getCoinapultAccounts() = getAccountsByType<CoinapultAccount>()
 

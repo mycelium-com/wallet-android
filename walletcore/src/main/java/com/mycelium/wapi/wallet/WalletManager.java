@@ -43,13 +43,14 @@ import com.mycelium.wapi.wallet.btc.bip44.*;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.AccountIndexesContext;
 import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
+import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext;
 
 import javax.annotation.Nonnull;
 import java.util.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Predicates.*;
-import static com.mycelium.wapi.wallet.bip44.HDAccountContext.*;
+import static com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.*;
 
 /**
  * Allows you to manage a wallet that contains multiple HD accounts and

@@ -70,6 +70,7 @@ import com.mycelium.wallet.exchange.ExchangeRateManager;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.model.BalanceSatoshis;
 import com.mycelium.wapi.model.ExchangeRate;
+import com.mycelium.wapi.model.TransactionDetails;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputSummary;
 import com.mycelium.wapi.model.TransactionSummary;
@@ -434,7 +435,7 @@ public class CoinapultAccount extends SynchronizeAbleWalletBtcAccount {
     }
 
    @Override
-   public BtcTransaction getTransaction(Sha256Hash transactionId) {
+   public BtcTransaction getTx(Sha256Hash transactionId) {
       return null;
    }
 
@@ -515,6 +516,11 @@ public class CoinapultAccount extends SynchronizeAbleWalletBtcAccount {
       } else {
          return Lists.newArrayList();
       }
+   }
+
+   @Override
+   public TransactionDetails getTransactionDetails(Sha256Hash txid) {
+      return null;
    }
 
    @Override
@@ -627,6 +633,11 @@ public class CoinapultAccount extends SynchronizeAbleWalletBtcAccount {
    }
 
    @Override
+   public TransactionEx getTransaction(Sha256Hash txid) {
+      return null;
+   }
+
+   @Override
    public boolean isMine(Address address) {
       // there might be more, but currently we only know about this one...
       Optional<Address> receivingAddress = getReceivingAddress();
@@ -708,11 +719,6 @@ public class CoinapultAccount extends SynchronizeAbleWalletBtcAccount {
 
    @Override
    public BroadcastResult broadcastTransaction(com.mrd.bitlib.model.Transaction transaction) {
-      return null;
-   }
-
-   @Override
-   public TransactionEx getTransactionEx(Sha256Hash txid) {
       return null;
    }
 
