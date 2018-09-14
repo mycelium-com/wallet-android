@@ -4,19 +4,20 @@ import com.mrd.bitlib.model.Address;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 
+import java.util.Currency;
+
 public class BtcAddress extends Address implements GenericAddress {
 
-    public BtcAddress(byte[] bytes) {
-        super(bytes);
-    }
+    CryptoCurrency currencyType;
 
-    public BtcAddress(byte[] bytes, String stringAddress) {
-        super(bytes, stringAddress);
+    public BtcAddress(CryptoCurrency currencyType, byte[] bytes) {
+        super(bytes);
+        this.currencyType = currencyType;
     }
 
     @Override
     public CryptoCurrency getCoinType() {
-        return null;
+        return currencyType;
     }
 
     @Override
@@ -24,7 +25,8 @@ public class BtcAddress extends Address implements GenericAddress {
         return 0;
     }
 
-    public static BtcAddress from(String address) {
-        return new BtcAddress(Address.fromString(address).getAllAddressBytes());
+    public static BtcAddress from(CryptoCurrency currencyType, String address) {
+        Address addr = Address.fromString(address);
+        return new BtcAddress(currencyType, addr.getAllAddressBytes());
     }
 }

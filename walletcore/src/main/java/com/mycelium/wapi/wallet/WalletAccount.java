@@ -45,6 +45,20 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
 
     void broadcastTx(T tx) throws TransactionBroadcastException;
 
+    /**
+     * Get current receive address
+     */
+    GenericAddress getReceiveAddress();
+
+    /**
+     * Queue a transaction for broadcasting.
+     * <p/>
+     * The transaction is broadcast on next synchronization.
+     *
+     * @param transaction     an transaction
+     */
+    void queueTransaction(TransactionEx transaction);
+
     CryptoCurrency getCoinType();
 
     Balance getAccountBalance();

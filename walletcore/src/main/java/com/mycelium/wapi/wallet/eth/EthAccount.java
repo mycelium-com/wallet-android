@@ -57,6 +57,16 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
     }
 
     @Override
+    public GenericAddress getReceiveAddress() {
+        return null;
+    }
+
+    @Override
+    public void queueTransaction(TransactionEx transaction) {
+
+    }
+
+    @Override
     public CryptoCurrency getCoinType() {
         return null;
     }
