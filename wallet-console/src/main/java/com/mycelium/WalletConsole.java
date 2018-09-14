@@ -1,8 +1,11 @@
 package com.mycelium;
 
 import com.mrd.bitlib.crypto.Bip39;
+import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.RandomSource;
+import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
+import com.mrd.bitlib.model.Transaction;
 import com.mycelium.net.HttpEndpoint;
 import com.mycelium.net.HttpsEndpoint;
 import com.mycelium.net.ServerEndpoints;
@@ -11,17 +14,23 @@ import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiClientElectrumX;
 import com.mycelium.wapi.api.jsonrpc.TcpEndpoint;
 import com.mycelium.wapi.wallet.AesKeyCipher;
+import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SecureKeyValueStore;
+import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.InMemoryWalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.bip44.ExternalSignatureProviderProxy;
+import com.mycelium.wapi.wallet.coins.BitcoinTest;
+import com.mycelium.wapi.wallet.coins.Value;
+import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
 
 import java.security.SecureRandom;
 import java.util.List;
+import java.util.UUID;
 
 class WalletConsole {
 
@@ -77,18 +86,37 @@ class WalletConsole {
                 true);
 
         try {
+
             walletManager.configureBip32MasterSeed(masterSeed, AesKeyCipher.defaultKeyCipher());
             walletManager.createAdditionalBip44Account(AesKeyCipher.defaultKeyCipher());
-        } catch(KeyCipher.InvalidKeyCipher cipher) {
-            cipher.printStackTrace();
+
+
+            List<WalletAccount> accounts = walletManager.getActiveAccounts();
+
+            WalletAccount account = accounts.get(0);
+            account.synchronize(SyncMode.NORMAL);
+
+            System.out.println("Account balance: " + account.getAccountBalance().getSpendable().toString());
+
+            InMemoryPrivateKey key = new InMemoryPrivateKey(new MyRandomSource());
+
+            GenericAddress saAddress;
+
+            UUID accountUUID = walletManager.createSingleAddressAccount(key, AesKeyCipher.defaultKeyCipher());
+            WalletAccount saWalletAccount = walletManager.getAccount(accountUUID);
+            saAddress = saWalletAccount.getReceiveAddress();
+
+            System.out.println("Generated new SA account address: " + saAddress.toString());
+
+            Value amountToSend = Value.valueOf(BitcoinTest.get(), 1000000);
+            SendRequest sendRequest = account.getSendToRequest(saAddress, amountToSend);
+            account.completeAndSignTx(sendRequest);
+
+            account.broadcastTx(sendRequest.tx);
+
+        } catch (KeyCipher.InvalidKeyCipher | WalletAccount.WalletAccountException | TransactionBroadcastException ex) {
+            ex.printStackTrace();
         }
-
-        List<WalletAccount> accounts = walletManager.getActiveAccounts();
-
-        WalletAccount account = accounts.get(0);
-        account.synchronize(SyncMode.NORMAL);
-
-        System.out.println("Account balance: " + account.getAccountBalance().getSpendable().toString());
 
     }
 }
