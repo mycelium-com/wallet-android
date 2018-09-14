@@ -52,6 +52,42 @@
 
         </LinearLayout>
 
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:gravity="center">
+
+            <RadioGroup
+                android:id="@+id/rg_key_types"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkedButton="@id/rb_key_x"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/rb_key_x"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="20dp"
+                    android:text="xpub" />
+
+                <RadioButton
+                    android:id="@+id/rb_key_y"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="20dp"
+                    android:text="ypub" />
+
+                <RadioButton
+                    android:id="@+id/rb_key_z"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="zpub" />
+
+            </RadioGroup>
+        </LinearLayout>
+
         <TextView
                 android:id="@+id/tvWarning"
                 android:layout_width="wrap_content"
