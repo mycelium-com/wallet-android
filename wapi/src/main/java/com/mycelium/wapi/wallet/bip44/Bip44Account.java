@@ -263,7 +263,7 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
 
     protected List<Address> getAddressRange(boolean isChangeChain, int fromIndex, int toIndex) {
         fromIndex = Math.max(0, fromIndex); // clip at zero
-        ArrayList<Address> ret = new ArrayList<Address>(toIndex - fromIndex + 1);
+        ArrayList<Address> ret = new ArrayList<>(toIndex - fromIndex + 1);
         for (int i = fromIndex; i <= toIndex; i++) {
             ret.add(_keyManager.getAddress(isChangeChain, i));
         }
@@ -319,7 +319,6 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
      * transactions and their parent transactions stored.
      *
      * @return true if something was found and the call should be repeated.
-     * @throws com.mycelium.wapi.api.WapiException
      */
     private boolean doDiscovery() throws WapiException {
         // Ensure that all addresses in the look ahead window have been created
@@ -360,9 +359,7 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
         Collection<TransactionExApi> transactions = getTransactionsBatched(ids).getResult().transactions;
         handleNewExternalTransactions(transactions);
         // Return true if the last external or internal index has changed
-        boolean indexHasChanged = lastExternalIndexBefore != _context.getLastExternalIndexWithActivity() || lastInternalIndexBefore != _context.getLastInternalIndexWithActivity();
-
-        return indexHasChanged;
+        return lastExternalIndexBefore != _context.getLastExternalIndexWithActivity() || lastInternalIndexBefore != _context.getLastInternalIndexWithActivity();
     }
 
     private boolean updateUnspentOutputs(SyncMode mode) {
@@ -450,7 +447,7 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
 
     //used for message signing picker
     public List<Address> getAllAddresses() {
-        List<Address> addresses = new ArrayList<Address>();
+        List<Address> addresses = new ArrayList<>();
 
         //get all used external plus the next unused
         BiMap<Integer, Address> external = _externalAddresses.inverse();
