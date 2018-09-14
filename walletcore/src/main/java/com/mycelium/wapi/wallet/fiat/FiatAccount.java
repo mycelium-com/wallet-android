@@ -56,11 +56,6 @@ public class FiatAccount implements WalletAccount<FiatTransaction, FiatAddress> 
     }
 
     @Override
-    public void queueTransaction(TransactionEx transaction) {
-
-    }
-
-    @Override
     public CryptoCurrency getCoinType() {
         return null;
     }
@@ -76,27 +71,7 @@ public class FiatAccount implements WalletAccount<FiatTransaction, FiatAddress> 
     }
 
     @Override
-    public TransactionSummary getTransactionSummary(Sha256Hash txid) {
-        return null;
-    }
-
-    @Override
-    public boolean cancelQueuedTransaction(Sha256Hash transactionId) {
-        return false;
-    }
-
-    @Override
-    public boolean deleteTransaction(Sha256Hash transactionId) {
-        return false;
-    }
-
-    @Override
     public List<GenericTransaction> getTransactions(int offset, int limit) {
-        return null;
-    }
-
-    @Override
-    public UnsignedTransaction createUnsignedPop(Sha256Hash txid, byte[] nonce) {
         return null;
     }
 

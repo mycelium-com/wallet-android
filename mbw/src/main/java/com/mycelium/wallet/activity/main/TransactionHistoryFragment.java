@@ -493,7 +493,7 @@ public class TransactionHistoryFragment extends Fragment {
                                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                                       @Override
                                       public void onClick(DialogInterface dialog, int which) {
-                                         boolean okay = _mbwManager.getSelectedAccount().cancelQueuedTransaction(record.getHash());
+                                         boolean okay = ((WalletBtcAccount)_mbwManager.getSelectedAccount()).cancelQueuedTransaction(record.getHash());
                                          dialog.dismiss();
                                          if (okay) {
                                             Utils.showSimpleMessageDialog(getActivity(), _context.getString(R.string.remove_queued_transaction_hint));
@@ -517,7 +517,7 @@ public class TransactionHistoryFragment extends Fragment {
                                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                                       @Override
                                       public void onClick(DialogInterface dialog, int which) {
-                                         _mbwManager.getSelectedAccount().deleteTransaction(record.getHash());
+                                         ((WalletBtcAccount)_mbwManager.getSelectedAccount()).deleteTransaction(record.getHash());
                                          dialog.dismiss();
                                       }
                                    })
@@ -595,8 +595,8 @@ public class TransactionHistoryFragment extends Fragment {
                                          if(_mbwManager.getSelectedAccount() instanceof Bip44BCHAccount
                                              || _mbwManager.getSelectedAccount() instanceof SingleAddressBCHAccount) {
                                             //TODO Module should provide full bytes of transaction.
-                                            transaction = HexUtils.toHex(_mbwManager.getSelectedAccount()
-                                                .getTransactionSummary(record.getHash()).txid.getBytes());
+                                            transaction = HexUtils.toHex(((WalletBtcAccount)_mbwManager.getSelectedAccount()).
+                                                    getTransactionSummary(record.getHash()).txid.getBytes());
                                          } else {
                                             //TODO non-generic classes are used
                                             WalletBtcAccount account = (WalletBtcAccount)_mbwManager.getSelectedAccount();
