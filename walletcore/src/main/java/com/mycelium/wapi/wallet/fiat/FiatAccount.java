@@ -72,6 +72,11 @@ public class FiatAccount implements WalletAccount<FiatTransaction, FiatAddress> 
     }
 
     @Override
+    public boolean isMineAddress(GenericAddress address) {
+        return false;
+    }
+
+    @Override
     public FiatTransaction getTx(Sha256Hash transactionId) {
         return null;
     }
@@ -152,42 +157,12 @@ public class FiatAccount implements WalletAccount<FiatTransaction, FiatAddress> 
     }
 
     @Override
-    public boolean isMine(Address address) {
-        return false;
-    }
-
-    @Override
-    public Optional<Address> getReceivingAddress() {
-        return null;
-    }
-
-    @Override
-    public boolean isOwnExternalAddress(Address address) {
-        return false;
-    }
-
-    @Override
-    public boolean isOwnInternalAddress(Address address) {
-        return false;
-    }
-
-    @Override
     public int getSyncTotalRetrievedTransactions() {
         return 0;
     }
 
     @Override
     public SendRequest getSendToRequest(GenericAddress destination, Value amount) {
-        return null;
-    }
-
-    @Override
-    public ExactCurrencyValue calculateMaxSpendableAmount(long minerFeeToUse) {
-        return null;
-    }
-
-    @Override
-    public List<TransactionSummary> getTransactionsSince(Long receivingSince) {
         return null;
     }
 }

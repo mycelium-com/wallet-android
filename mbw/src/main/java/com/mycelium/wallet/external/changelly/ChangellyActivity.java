@@ -24,6 +24,7 @@ import com.mycelium.wallet.activity.send.event.SelectListener;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
 import com.mycelium.wallet.activity.view.ValueKeyboard;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -314,7 +315,7 @@ public class ChangellyActivity extends AppCompatActivity {
                 .putExtra(ChangellyService.FROM, item.currency)
                 .putExtra(ChangellyService.TO, ChangellyService.BTC)
                 .putExtra(ChangellyService.AMOUNT, dblAmount)
-                .putExtra(ChangellyService.DESTADDRESS, walletAccount.getReceivingAddress().get().toString()), REQUEST_OFFER);
+                .putExtra(ChangellyService.DESTADDRESS, ((WalletBtcAccount)(walletAccount)).getReceivingAddress().get().toString()), REQUEST_OFFER);
     }
 
     boolean isValueForOfferOk(boolean checkMin) {

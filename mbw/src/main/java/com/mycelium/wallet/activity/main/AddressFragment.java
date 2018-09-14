@@ -63,6 +63,7 @@ import com.mycelium.wallet.event.ReceivingAddressChanged;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -178,13 +179,13 @@ public class AddressFragment extends Fragment {
    }
 
    public Optional<Address> getAddress() {
-      return _mbwManager.getSelectedAccount().getReceivingAddress();
+      return ((WalletBtcAccount)(_mbwManager.getSelectedAccount())).getReceivingAddress();
    }
 
    @OnClick(R.id.ivQR)
    void qrClick() {
       WalletAccount account = _mbwManager.getSelectedAccount();
-      Optional<Address> receivingAddress = account.getReceivingAddress();
+      Optional<Address> receivingAddress = ((WalletBtcAccount)(account)).getReceivingAddress();
       if (receivingAddress.isPresent()) {
          ReceiveCoinsActivity.callMe(getActivity(), receivingAddress.get(), account.canSpend());
       }

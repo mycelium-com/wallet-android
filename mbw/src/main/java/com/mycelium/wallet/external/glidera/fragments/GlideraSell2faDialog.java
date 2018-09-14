@@ -166,7 +166,7 @@ public class GlideraSell2faDialog extends DialogFragment {
 
             buttonContinue.setEnabled(false);
 
-            Optional<Address> optionalRefundAddress = mbwManager.getSelectedAccount().getReceivingAddress();
+            Optional<Address> optionalRefundAddress = ((WalletBtcAccount)(mbwManager.getSelectedAccount())).getReceivingAddress();
 
             if (optionalRefundAddress.isPresent()) {
                Address refundAddress = optionalRefundAddress.get();

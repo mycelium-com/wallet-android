@@ -212,6 +212,15 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    }
 
 
+   public boolean isMineAddress(GenericAddress address) {
+      if (!(address instanceof BtcAddress)) {
+         return false;
+      }
+
+      return isMine((BtcAddress)address);
+   }
+
+
    protected static UUID addressToUUID(Address address) {
       return new UUID(BitUtils.uint64ToLong(address.getAllAddressBytes(), 1), BitUtils.uint64ToLong(
             address.getAllAddressBytes(), 9));

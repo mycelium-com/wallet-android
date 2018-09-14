@@ -9,6 +9,7 @@ import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.external.changelly.ChangellyActivity;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 public class ChangellyServiceDescription extends BuySellServiceDescriptor {
     public ChangellyServiceDescription() {
@@ -18,7 +19,7 @@ public class ChangellyServiceDescription extends BuySellServiceDescriptor {
     @Override
     public void launchService(Activity activity, MbwManager mbwManager, Optional<Address> activeReceivingAddress) {
 //        final ChangellyService changellyService = ChangellyService.getInstance();
-        Optional<Address> receivingAddress = mbwManager.getSelectedAccount().getReceivingAddress();
+        Optional<Address> receivingAddress = ((WalletBtcAccount)(mbwManager.getSelectedAccount())).getReceivingAddress();
         if (receivingAddress.isPresent()) {
             Address address = receivingAddress.get();
             Intent intent = new Intent(activity, ChangellyActivity.class);

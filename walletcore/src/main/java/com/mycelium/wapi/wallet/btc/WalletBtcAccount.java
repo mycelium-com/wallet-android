@@ -248,4 +248,19 @@ public interface WalletBtcAccount extends WalletAccount<BtcTransaction, BtcAddre
     * @return An UnsignedTransaction that represents the unsigned PoP.
     */
    UnsignedTransaction createUnsignedPop(Sha256Hash txid, byte[] nonce);
+
+   /**
+    * returns true if this is one of our already used or monitored external (=normal receiving) addresses
+    */
+   boolean isOwnExternalAddress(Address address);
+
+   /**
+    * returns true if this is one of our already used or monitored internal (="change") addresses
+    */
+   boolean isOwnInternalAddress(Address address);
+
+   /**
+    * Determine the maximum spendable amount you can send in a transaction
+    */
+   ExactCurrencyValue calculateMaxSpendableAmount(long minerFeeToUse);
 }

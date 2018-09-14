@@ -443,6 +443,11 @@ public class CoinapultAccount extends SynchronizeAbleWalletBtcAccount {
     }
 
    @Override
+   public boolean isMineAddress(GenericAddress address) {
+      return false;
+   }
+
+   @Override
    public BtcTransaction getTx(Sha256Hash transactionId) {
       return null;
    }

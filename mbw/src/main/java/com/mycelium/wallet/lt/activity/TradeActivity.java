@@ -245,6 +245,7 @@ public class TradeActivity extends Activity {
       @Override
       public void onClick(View arg0) {
          // if we are a buyer, verify that the address is still in our wallet and spendable
+      /* TODO - should be fixed in order to switch to multi-currency architecture
          if (_tradeSession.isBuyer) {
             final WalletManager walletManager = _mbwManager.getWalletManager(false);
             final Optional<UUID> accountByAddress = walletManager.getAccountByAddress(_tradeSession.buyerAddress);
@@ -284,6 +285,7 @@ public class TradeActivity extends Activity {
          } else {
             doAcceptTrade();
          }
+         */
       }
    };
 

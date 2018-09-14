@@ -56,6 +56,7 @@ import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.activity.LtMainActivity;
 import com.mycelium.wallet.simplex.SimplexMainActivity;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 public class SimplexFragment extends Fragment {
    private MbwManager _mbwManager;
@@ -115,7 +116,7 @@ public class SimplexFragment extends Fragment {
          Toast.makeText(SimplexFragment.this.getActivity(), R.string.lt_warning_wrong_account_type, Toast.LENGTH_LONG).show();
          return;
       }
-      Optional<Address> receivingAddress = _mbwManager.getSelectedAccount().getReceivingAddress();
+      Optional<Address> receivingAddress = ((WalletBtcAccount)(_mbwManager.getSelectedAccount())).getReceivingAddress();
       if (receivingAddress.isPresent()) {
           Address address = receivingAddress.get();
           //Toast.makeText(SimplexFragment.this.getActivity(), "Starting Simplex", Toast.LENGTH_LONG).show();

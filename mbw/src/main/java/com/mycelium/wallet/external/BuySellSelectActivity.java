@@ -20,6 +20,7 @@ import com.google.common.collect.Iterables;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.modern.ModernMain;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 import java.util.List;
 
@@ -58,7 +59,7 @@ public class BuySellSelectActivity extends FragmentActivity {
       }
 
       if (onlyOneEnabled != null){
-         onlyOneEnabled.launchService(this, mbwManager, mbwManager.getSelectedAccount().getReceivingAddress());
+         onlyOneEnabled.launchService(this, mbwManager, ((WalletBtcAccount)(mbwManager.getSelectedAccount())).getReceivingAddress());
       }
 
       final List<BuySellServiceDescriptor> enabledServices = Lists.newArrayList(Iterables.filter(buySellServices, new Predicate<BuySellServiceDescriptor>() {
@@ -116,7 +117,7 @@ public class BuySellSelectActivity extends FragmentActivity {
          v.findViewById(R.id.llServiceRow).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               service.launchService(BuySellSelectActivity.this, mbwManager, mbwManager.getSelectedAccount().getReceivingAddress());
+               service.launchService(BuySellSelectActivity.this, mbwManager, ((WalletBtcAccount)(mbwManager.getSelectedAccount())).getReceivingAddress());
             }
          });
 

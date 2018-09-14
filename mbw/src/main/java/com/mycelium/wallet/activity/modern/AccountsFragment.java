@@ -110,6 +110,7 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
 import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
@@ -303,7 +304,7 @@ public class AccountsFragment extends Fragment {
 
                // For active accounts we check whether there is money on them before deleting. we don't know if there
                // is money on archived accounts
-               Optional<Address> receivingAddress = accountToDelete.getReceivingAddress();
+               Optional<Address> receivingAddress = ((WalletBtcAccount)(accountToDelete)).getReceivingAddress();
                if (accountToDelete.isActive() && satoshis != null && satoshis > 0) {
                   if (label != null && label.length() != 0) {
                      String address;

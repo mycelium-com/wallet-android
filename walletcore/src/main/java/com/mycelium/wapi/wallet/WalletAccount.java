@@ -56,6 +56,14 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
 
     Balance getAccountBalance();
 
+    /**
+     * Determine whether an address is one of our own addresses
+     *
+     * @param address the address to check
+     * @return true iff this address is one of our own
+     */
+    boolean isMineAddress(GenericAddress address);
+
     T getTx(Sha256Hash transactionId);
 
     List<GenericTransaction> getTransactions(int offset, int limit);
@@ -68,17 +76,6 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
 
 
     SendRequest getSendToRequest(GenericAddress destination, Value amount);
-
-    /**
-     * Determine the maximum spendable amount you can send in a transaction
-     */
-    ExactCurrencyValue calculateMaxSpendableAmount(long minerFeeToUse);
-
-    /**
-     * Get the transaction history of this account since the stated timestamp
-     * @param receivingSince only include tx older than this
-     */
-    List<TransactionSummary> getTransactionsSince(Long receivingSince);
 
     /**
      * Synchronize this account
@@ -177,20 +174,6 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
     boolean isSynchronizing();
 
     boolean broadcastOutgoingTransactions();
-
-    boolean isMine(Address address);
-
-    Optional<Address> getReceivingAddress();
-
-    /**
-     * returns true if this is one of our already used or monitored external (=normal receiving) addresses
-     */
-    boolean isOwnExternalAddress(Address address);
-
-    /**
-     * returns true if this is one of our already used or monitored internal (="change") addresses
-     */
-    boolean isOwnInternalAddress(Address address);
 
     /**
      * Returns the number of retrieved transactions during synchronization
