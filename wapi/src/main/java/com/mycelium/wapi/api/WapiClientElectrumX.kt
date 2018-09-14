@@ -107,8 +107,7 @@ class WapiClientElectrumX(
             val transactionHistoryArray = connectionManager.write(requestsList).responses
 
             val outputs = transactionHistoryArray.flatMap { it.getResult(Array<TransactionHistoryInfo>::class.java)!!.asIterable() }
-            val txIds = outputs.slice(IntRange(0, Math.min(request.limit, outputs.size) - 1))
-                    .map { Sha256Hash.fromString(it.tx_hash) }
+            val txIds = outputs.map { Sha256Hash.fromString(it.tx_hash) }
 
             return WapiResponse(QueryTransactionInventoryResponse(bestChainHeight, txIds))
         } catch (ex: CancellationException) {
