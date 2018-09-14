@@ -343,10 +343,10 @@ public class Bip44Account extends AbstractAccount implements ExportableAccount {
     }
 
     @Override
-    protected boolean doDiscoveryForAddresses(List<Address> lookAhead) throws WapiException {
+    protected boolean doDiscoveryForAddresses(List<Address> addresses) throws WapiException {
         // Do look ahead query
         final QueryTransactionInventoryResponse result = _wapi.queryTransactionInventory(
-                new QueryTransactionInventoryRequest(Wapi.VERSION, lookAhead, Wapi.MAX_TRANSACTION_INVENTORY_LIMIT)).getResult();
+                new QueryTransactionInventoryRequest(Wapi.VERSION, addresses)).getResult();
         setBlockChainHeight(result.height);
         List<Sha256Hash> ids = result.txIds;
         if (ids.isEmpty()) {
