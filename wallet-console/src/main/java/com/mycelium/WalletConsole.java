@@ -24,7 +24,10 @@ import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.InMemoryWalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.bip44.ExternalSignatureProviderProxy;
+import com.mycelium.wapi.wallet.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.coins.BitcoinTest;
+import com.mycelium.wapi.wallet.coins.CryptoCurrency;
+import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
 
@@ -77,9 +80,10 @@ class WalletConsole {
 
         Bip39.MasterSeed masterSeed =  Bip39.generateSeedFromWordList(new String[]{"cliff", "battle","noise","aisle","inspire","total","sting","vital","marble","add","daring","mouse"}, "");
 
+        NetworkParameters network = NetworkParameters.testNetwork;
         WalletManager walletManager = new WalletManager(store,
                 backing,
-                NetworkParameters.testNetwork,
+                network,
                 wapiClient,
                 externalSignatureProviderProxy,
                 null,
@@ -100,15 +104,14 @@ class WalletConsole {
 
             InMemoryPrivateKey key = new InMemoryPrivateKey(new MyRandomSource());
 
-            GenericAddress saAddress;
-
             UUID accountUUID = walletManager.createSingleAddressAccount(key, AesKeyCipher.defaultKeyCipher());
             WalletAccount saWalletAccount = walletManager.getAccount(accountUUID);
-            saAddress = saWalletAccount.getReceiveAddress();
+            GenericAddress saAddress = saWalletAccount.getReceiveAddress();
 
             System.out.println("Generated new SA account address: " + saAddress.toString());
 
-            Value amountToSend = Value.valueOf(BitcoinTest.get(), 1000000);
+            GenericAssetInfo currency = network.isProdnet() ? BitcoinMain.get() : BitcoinTest.get();
+            Value amountToSend = Value.valueOf(currency, 1000000);
             SendRequest sendRequest = account.getSendToRequest(saAddress, amountToSend);
             account.completeAndSignTx(sendRequest);
 
