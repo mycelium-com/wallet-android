@@ -103,6 +103,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private LocalTraderManager _ltManager;
     private ListPreference _minerFee;
     private ListPreference _blockExplorer;
+    private CheckBoxPreference accountMode;
     private Preference notificationPreference;
     private CheckBoxPreference useTor;
     private PreferenceCategory modulesPrefs;
@@ -140,6 +141,13 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             CheckBoxPreference p = (CheckBoxPreference) preference;
             _ltManager.setLocalTraderEnabled(p.isChecked());
             applyLocalTraderEnablement();
+            return true;
+        }
+    };
+    private final Preference.OnPreferenceClickListener accountModeClickListener = new Preference.OnPreferenceClickListener() {
+        public boolean onPreferenceClick(Preference preference) {
+            CheckBoxPreference p = (CheckBoxPreference) preference;
+            _mbwManager.setAccountMode(!p.isChecked());
             return true;
         }
     };
@@ -222,6 +230,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         _minerFee = (ListPreference) findPreference(Constants.SETTING_MINER_FEE);
         //Block Explorer
         _blockExplorer = (ListPreference) findPreference("block_explorer");
+        // account mode (p2sh/bech)
+        accountMode = (CheckBoxPreference) findPreference("account_mode");
         //localcurrency
         _localCurrency = findPreference("local_currency");
         // Exchange Source
@@ -448,6 +458,11 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 return true;
             }
         });
+
+        // Account mode
+        accountMode.setChecked(!_mbwManager.getAccountMode());
+        accountMode.setOnPreferenceClickListener(accountModeClickListener);
+
         _minerFee.setSummary(getMinerFeeSummary());
         _minerFee.setValue(_mbwManager.getMinerFee().toString());
         CharSequence[] minerFees = new CharSequence[]{

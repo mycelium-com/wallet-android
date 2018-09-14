@@ -141,6 +141,14 @@
             android:layout="@layout/preference_layout"
             android:widgetLayout="@layout/preference_arrow" />
 
+        <CheckBoxPreference
+            android:icon="@drawable/ic_exchange_coin"
+            android:key="account_mode"
+            android:layout="@layout/preference_layout"
+            android:summary="Use full SegWit (Bech32). P2SH by default."
+            android:title="Account Mode"
+            android:widgetLayout="@layout/preference_switch" />
+
         <ListPreference
             android:icon="@drawable/ic_mining"
             android:key="miner_fee"
