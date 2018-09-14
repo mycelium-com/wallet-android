@@ -61,11 +61,6 @@ public class FiatAccount implements WalletAccount<FiatTransaction, FiatAddress> 
     }
 
     @Override
-    public void queueTransaction(TransactionEx transaction) {
-
-    }
-
-    @Override
     public CryptoCurrency getCoinType() {
         return null;
     }

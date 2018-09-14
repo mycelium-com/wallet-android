@@ -305,6 +305,11 @@ public class ColuAccount extends SynchronizeAbleWalletBtcAccount implements Expo
     }
 
     @Override
+    public GenericAddress getReceiveAddress() {
+        return null;
+    }
+
+    @Override
     public CryptoCurrency getCoinType() {
         return null;
     }

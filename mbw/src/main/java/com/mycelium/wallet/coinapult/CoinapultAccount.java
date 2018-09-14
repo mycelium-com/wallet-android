@@ -426,6 +426,11 @@ public class CoinapultAccount extends SynchronizeAbleWalletBtcAccount {
    }
 
    @Override
+   public GenericAddress getReceiveAddress() {
+      return null;
+   }
+
+   @Override
     public CryptoCurrency getCoinType() {
         return null;
     }
