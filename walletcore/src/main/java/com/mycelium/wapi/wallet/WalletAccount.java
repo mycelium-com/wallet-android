@@ -21,6 +21,8 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
+import sun.net.www.content.text.Generic;
+
 public interface WalletAccount<T extends GenericTransaction, A extends GenericAddress> {
 
     void setAllowZeroConfSpending(boolean b);
@@ -204,19 +206,19 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
         /**
          * The address to send funds to
          */
-        public final Address address;
+        public final GenericAddress address;
 
         /**
          * The amount to send measured in satoshis
          */
         public final long amount;
 
-        public Receiver(Address address, long amount) {
+        public Receiver(GenericAddress address, long amount) {
             this.address = address;
             this.amount = amount;
         }
 
-        public Receiver(Address address, Bitcoins amount) {
+        public Receiver(GenericAddress address, Bitcoins amount) {
             this(address, amount.getLongValue());
         }
     }

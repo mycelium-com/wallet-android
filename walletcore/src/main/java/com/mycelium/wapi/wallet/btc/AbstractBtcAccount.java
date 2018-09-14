@@ -1083,7 +1083,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       // Create the unsigned transaction
       StandardTransactionBuilder stb = new StandardTransactionBuilder(_network);
       for (Receiver receiver : receivers) {
-         stb.addOutput(receiver.address, receiver.amount);
+         stb.addOutput((BtcAddress)receiver.address, receiver.amount);
       }
       Address changeAddress = getChangeAddress();
       return stb.createUnsignedTransaction(spendable, changeAddress, new PublicKeyRing(),

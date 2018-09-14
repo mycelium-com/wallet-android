@@ -81,6 +81,7 @@ import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.BtcTransaction;
 import com.mycelium.wapi.wallet.btc.SynchronizeAbleWalletBtcAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
@@ -803,7 +804,7 @@ public class CoinapultAccount extends SynchronizeAbleWalletBtcAccount {
       }
 
       public PreparedCoinapult(WalletAccount.Receiver receiver) {
-         address = receiver.address;
+         address = (BtcAddress)receiver.address;
          satoshis = receiver.amount;
       }
 
