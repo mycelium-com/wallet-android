@@ -115,6 +115,12 @@ public interface WalletBtcAccount extends WalletAccount<BtcTransaction, BtcAddre
     */
    TransactionDetails getTransactionDetails(Sha256Hash txid);
 
+    * Broadcast a transaction
+    * @param transaction the transaction to broadcast
+    * @return the broadcast result
+    */
+   WalletBtcAccount.BroadcastResult broadcastTransaction(Transaction transaction);
+
    /**
     * Create a new unsigned transaction sending funds to one or more addresses.
     * <p/>

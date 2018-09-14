@@ -57,11 +57,6 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
     }
 
     @Override
-    public WalletBtcAccount.BroadcastResult broadcastTransaction(Transaction transaction) {
-        return null;
-    }
-
-    @Override
     public void queueTransaction(TransactionEx transaction) {
 
     }

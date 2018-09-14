@@ -56,11 +56,6 @@ public class FiatAccount implements WalletAccount<FiatTransaction, FiatAddress> 
     }
 
     @Override
-    public WalletBtcAccount.BroadcastResult broadcastTransaction(Transaction transaction) {
-        return null;
-    }
-
-    @Override
     public void queueTransaction(TransactionEx transaction) {
 
     }

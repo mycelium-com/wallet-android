@@ -46,14 +46,6 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
     void broadcastTx(T tx) throws TransactionBroadcastException;
 
     /**
-     * Broadcast a transaction
-     * @param transaction the transaction to broadcast
-     * @return the broadcast result
-     */
-    WalletBtcAccount.BroadcastResult broadcastTransaction(Transaction transaction);
-
-
-    /**
      * Queue a transaction for broadcasting.
      * <p/>
      * The transaction is broadcast on next synchronization.
