@@ -157,15 +157,9 @@ public class ExportAsQrCodeActivity extends Activity {
     * @param forPrivate key or for public
     */
    private void updateKeyTypes(boolean forPrivate) {
-      if(forPrivate) {
-         for (int i = 0; i < rgKeyTypes.getChildCount(); i++) {
-            ((RadioButton) rgKeyTypes.getChildAt(i)).setText(allKeyTypes[3+i]);
-         }
-      }
-      else {
-         for (int i = 0; i < rgKeyTypes.getChildCount(); i++) {
-            ((RadioButton) rgKeyTypes.getChildAt(i)).setText(allKeyTypes[i]);
-         }
+      int num = forPrivate ? 3 : 0; // to continue the string iteration from 3 if private
+      for (int i =0 ; i < rgKeyTypes.getChildCount(); i++) {
+         ((RadioButton) rgKeyTypes.getChildAt(i)).setText(allKeyTypes[i + num]);
       }
    }
 
