@@ -299,7 +299,13 @@ open class HDAccount(
     @Synchronized
     private fun discovery(): Boolean {
         try {
-            while (doDiscovery()); // Nothing
+            var discovered = derivePaths.map { it to true }.toMap()
+            do {
+                val pathsToDiscover = discovered.filter { it.value }
+                        .map { it.key }
+                        .toSet()
+                discovered = doDiscovery(pathsToDiscover)
+            } while (discovered.any { it.value })
         } catch (e: WapiException) {
             _logger.logError("Server connection failed with error code: " + e.errorCode, e)
             postEvent(Event.SERVER_CONNECTION_ERROR)
@@ -320,32 +326,32 @@ open class HDAccount(
      * @throws com.mycelium.wapi.api.WapiException
      */
     @Throws(WapiException::class)
-    private fun doDiscovery(): Boolean {
+    private fun doDiscovery(derivePaths: Set<BipDerivationType> = this.derivePaths): Map<BipDerivationType, Boolean> {
         // Ensure that all addresses in the look ahead window have been created
         ensureAddressIndexes()
+        return doDiscoveryForAddresses(derivePaths.flatMap { getAddressesToDiscover(it) })
+    }
 
+    private fun getAddressesToDiscover(derivationType: BipDerivationType): ArrayList<Address> {
         // Make look ahead address list
         val lookAhead = ArrayList<Address>(EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH + INTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH)
+        val extInverse = externalAddresses[derivationType]!!.inverse()
+        val intInverse = internalAddresses[derivationType]!!.inverse()
 
-        derivePaths.forEach { derivationType ->
-            val extInverse = externalAddresses[derivationType]!!.inverse()
-            val intInverse = internalAddresses[derivationType]!!.inverse()
-
-            for (i in 0 until EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH) {
-                val externalAddress = extInverse[context.getLastExternalIndexWithActivity(derivationType) + 1 + i]
-                if (externalAddress != null) {
-                    lookAhead.add(externalAddress)
-                }
-            }
-            for (i in 0 until INTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH) {
-                lookAhead.add(intInverse[context.getLastInternalIndexWithActivity(derivationType) + 1 + i]!!)
+        for (i in 0 until EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH) {
+            val externalAddress = extInverse[context.getLastExternalIndexWithActivity(derivationType) + 1 + i]
+            if (externalAddress != null) {
+                lookAhead.add(externalAddress)
             }
         }
-        return doDiscoveryForAddresses(lookAhead)
+        for (i in 0 until INTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH) {
+            lookAhead.add(intInverse[context.getLastInternalIndexWithActivity(derivationType) + 1 + i]!!)
+        }
+        return lookAhead
     }
 
     @Throws(WapiException::class)
-    override fun doDiscoveryForAddresses(lookAhead: List<Address>): Boolean {
+    override fun doDiscoveryForAddresses(lookAhead: List<Address>): Map<BipDerivationType, Boolean> {
         // Do look ahead query
         val result = _wapi.queryTransactionInventory(
                 QueryTransactionInventoryRequest(Wapi.VERSION, lookAhead, Wapi.MAX_TRANSACTION_INVENTORY_LIMIT)).result
@@ -353,22 +359,19 @@ open class HDAccount(
         val ids = result.txIds
         if (ids.isEmpty()) {
             // nothing found
-            return false
+            return derivePaths.map { it to false }.toMap()
         }
-        var indexChanged = false
-        derivePaths.forEach { derivationType ->
-            val lastExternalIndexBefore = context.getLastExternalIndexWithActivity(derivationType)
-            val lastInternalIndexBefore = context.getLastInternalIndexWithActivity(derivationType)
 
-            val transactions = getTransactionsBatched(ids).result.transactions
-            handleNewExternalTransactions(transactions)
+        val lastExternalIndexesBefore = derivePaths.map { it to context.getLastExternalIndexWithActivity(it) }.toMap()
+        val lastInternalIndexesBefore = derivePaths.map { it to context.getLastInternalIndexWithActivity(it) }.toMap()
+        val transactions = getTransactionsBatched(ids).result.transactions
+        handleNewExternalTransactions(transactions)
+        return derivePaths.map { derivationType ->
             // Return true if the last external or internal index has changed
-
-            indexChanged = indexChanged ||
-                    lastExternalIndexBefore != context.getLastExternalIndexWithActivity(derivationType)
-                    || lastInternalIndexBefore != context.getLastInternalIndexWithActivity(derivationType)
-        }
-        return indexChanged
+            derivationType to
+                    (lastExternalIndexesBefore[derivationType] != context.getLastExternalIndexWithActivity(derivationType)
+                    || lastInternalIndexesBefore[derivationType] != context.getLastInternalIndexWithActivity(derivationType))
+        }.toMap()
     }
 
     private fun updateUnspentOutputs(mode: SyncMode): Boolean {
