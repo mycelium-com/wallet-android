@@ -119,6 +119,7 @@ import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
+import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
@@ -884,7 +885,7 @@ public class SendMainActivity extends Activity {
                 _transactionLabel = paymentRequestInformation.getPaymentDetails().memo;
                 return TransactionStatus.OK;
             } else if(hasAddressData) {
-                WalletAccount.Receiver receiver = new WalletAccount.Receiver(_receivingAddress, toSend.getValue());
+                WalletAccount.Receiver receiver = new WalletAccount.Receiver((BtcAddress)_receivingAddress, toSend.getValue());
                 _unsigned = ((WalletBtcAccount)_account).createUnsignedTransaction(Collections.singletonList(receiver), feePerKbValue);
                 checkSpendingUnconfirmed();
                 return TransactionStatus.OK;

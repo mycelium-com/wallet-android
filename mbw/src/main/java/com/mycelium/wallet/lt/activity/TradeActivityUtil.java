@@ -55,6 +55,7 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 import static com.mrd.bitlib.TransactionUtils.MINIMUM_OUTPUT_VALUE;
@@ -69,7 +70,7 @@ public class TradeActivityUtil {
          // this is a watch-only account
          return false;
       }
-      Address nullAddress = Address.getNullAddress(mbwManager.getNetwork());
+      BtcAddress nullAddress = (BtcAddress) Address.getNullAddress(mbwManager.getNetwork());
       WalletAccount.Receiver receiver = new WalletAccount.Receiver(nullAddress, ts.satoshisFromSeller);
       try {
          ((WalletBtcAccount)account).createUnsignedTransaction(Collections.singletonList(receiver), lt.getMinerFeeEstimation().getLongValue());
@@ -89,9 +90,9 @@ public class TradeActivityUtil {
       Preconditions.checkArgument(satoshisFromSeller >= satoshisForBuyer);
       long localTraderFee = satoshisFromSeller - satoshisForBuyer;
       List<WalletAccount.Receiver> receiver = new ArrayList<>();
-      receiver.add(new WalletAccount.Receiver(buyerAddress, satoshisForBuyer));
+      receiver.add(new WalletAccount.Receiver((BtcAddress)buyerAddress, satoshisForBuyer));
       if (localTraderFee >= MINIMUM_OUTPUT_VALUE) {
-         receiver.add(new WalletAccount.Receiver(feeAddress, localTraderFee));
+         receiver.add(new WalletAccount.Receiver((BtcAddress)feeAddress, localTraderFee));
       }
       try {
          return ((WalletBtcAccount)acc).createUnsignedTransaction(receiver, minerFeeToUse);

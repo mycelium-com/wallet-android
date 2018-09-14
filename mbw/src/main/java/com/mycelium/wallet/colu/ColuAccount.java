@@ -62,6 +62,7 @@ import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputSummary;
 import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.AccountBacking;
+import com.mycelium.wapi.wallet.BroadcastResult;
 import com.mycelium.wapi.wallet.ExportableAccount;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.GenericTransaction;
@@ -300,7 +301,13 @@ public class ColuAccount extends SynchronizeAbleWalletBtcAccount implements Expo
     }
 
     @Override
-    public void broadcastTx(BtcTransaction tx) throws TransactionBroadcastException {
+    public BroadcastResult broadcastTx(BtcTransaction tx) throws TransactionBroadcastException {
+        return null;
+    }
+
+    @Override
+    public GenericAddress getReceiveAddress() {
+        return null;
     }
 
     @Override

@@ -63,6 +63,7 @@ import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.model.TransactionDetails;
 import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.squareup.okhttp.MediaType;
@@ -239,7 +240,7 @@ public class PopActivity extends Activity {
          }
          WalletAccount account = _mbwManager.getSelectedAccount();
 
-         final UnsignedTransaction unsignedPop = account.createUnsignedPop(txidToProve, popRequest.getN());
+         final UnsignedTransaction unsignedPop = ((WalletBtcAccount)account).createUnsignedPop(txidToProve, popRequest.getN());
 
          _mbwManager.runPinProtectedFunction(this, new Runnable() {
 

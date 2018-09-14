@@ -46,6 +46,7 @@ import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.WapiLogger;
 import com.mycelium.wapi.model.*;
+import com.mycelium.wapi.wallet.BroadcastResult;
 import com.mycelium.wapi.wallet.ColuTransferInstructionsParser;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiException;
@@ -1082,7 +1083,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       // Create the unsigned transaction
       StandardTransactionBuilder stb = new StandardTransactionBuilder(_network);
       for (Receiver receiver : receivers) {
-         stb.addOutput(receiver.address, receiver.amount);
+         stb.addOutput((BtcAddress)receiver.address, receiver.amount);
       }
       Address changeAddress = getChangeAddress();
       return stb.createUnsignedTransaction(spendable, changeAddress, new PublicKeyRing(),
