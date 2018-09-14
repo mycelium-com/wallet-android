@@ -156,19 +156,14 @@ public class ExportAsQrCodeActivity extends Activity {
     * This method updates the texts for the radio buttons. Change the allKeyTypes array for your need
     * @param forPrivate key or for public
     */
-   private void updateKeyTypes(boolean forPrivate)
-   {
-      if(forPrivate)
-      {
-         for (int i = 0; i < rgKeyTypes.getChildCount(); i++)
-         {
+   private void updateKeyTypes(boolean forPrivate) {
+      if(forPrivate) {
+         for (int i = 0; i < rgKeyTypes.getChildCount(); i++) {
             ((RadioButton) rgKeyTypes.getChildAt(i)).setText(allKeyTypes[3+i]);
          }
       }
-      else
-      {
-         for (int i = 0; i < rgKeyTypes.getChildCount(); i++)
-         {
+      else {
+         for (int i = 0; i < rgKeyTypes.getChildCount(); i++) {
             ((RadioButton) rgKeyTypes.getChildAt(i)).setText(allKeyTypes[i]);
          }
       }
