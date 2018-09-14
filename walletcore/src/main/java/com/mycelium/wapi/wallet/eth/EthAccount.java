@@ -9,6 +9,7 @@ import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputSummary;
 import com.mycelium.wapi.model.TransactionSummary;
+import com.mycelium.wapi.wallet.BroadcastResult;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.SendRequest;
@@ -52,8 +53,8 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
     }
 
     @Override
-    public void broadcastTx(EthTransaction tx) throws TransactionBroadcastException {
-
+    public BroadcastResult broadcastTx(EthTransaction tx) throws TransactionBroadcastException {
+        return null;
     }
 
     @Override

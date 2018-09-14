@@ -423,7 +423,8 @@ public class CoinapultAccount extends SynchronizeAbleWalletBtcAccount {
    }
 
    @Override
-   public void broadcastTx(BtcTransaction tx) throws TransactionBroadcastException {
+   public BroadcastResult broadcastTx(BtcTransaction tx) throws TransactionBroadcastException {
+      return null;
    }
 
    @Override

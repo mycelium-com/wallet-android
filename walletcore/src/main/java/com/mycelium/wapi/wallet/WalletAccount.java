@@ -45,7 +45,7 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
 
     void signTransaction(SendRequest<T> request) throws WalletAccountException;
 
-    void broadcastTx(T tx) throws TransactionBroadcastException;
+    BroadcastResult broadcastTx(T tx) throws TransactionBroadcastException;
 
     /**
      * Get current receive address

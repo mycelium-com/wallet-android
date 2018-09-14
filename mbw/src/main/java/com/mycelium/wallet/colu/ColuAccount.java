@@ -301,7 +301,8 @@ public class ColuAccount extends SynchronizeAbleWalletBtcAccount implements Expo
     }
 
     @Override
-    public void broadcastTx(BtcTransaction tx) throws TransactionBroadcastException {
+    public BroadcastResult broadcastTx(BtcTransaction tx) throws TransactionBroadcastException {
+        return null;
     }
 
     @Override

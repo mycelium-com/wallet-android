@@ -391,7 +391,8 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
    }
 
    @Override
-   public void broadcastTx(BtcTransaction tx) throws TransactionBroadcastException {
+   public BroadcastResult broadcastTx(BtcTransaction tx) throws TransactionBroadcastException {
+      return null;
    }
 
 }

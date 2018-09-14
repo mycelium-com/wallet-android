@@ -730,7 +730,7 @@ open class HDAccount(
         btcSendRequest.setTransaction(signTransaction(btcSendRequest.unsignedTx, AesKeyCipher.defaultKeyCipher()))
     }
 
-    override fun broadcastTx(tx: BtcTransaction) {
-        broadcastTransaction(tx.rawTransaction)
+    override fun broadcastTx(tx: BtcTransaction) :BroadcastResult {
+        return broadcastTransaction(tx.rawTransaction)
     }
 }
