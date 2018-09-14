@@ -28,6 +28,7 @@ import com.mrd.bitlib.model.OutputList;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.model.BalanceSatoshis;
+import com.mycelium.wapi.model.TransactionDetails;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputSummary;
 import com.mycelium.wapi.model.TransactionSummary;
@@ -43,7 +44,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface WalletBtcAccount extends WalletAccount<BtcTransaction, BtcAddress> {
-   enum BroadcastResult { SUCCESS, REJECTED, NO_SERVER_CONNECTION}
+   enum BroadcastResult { SUCCESS, REJECTED, REJECTED_DOUBLE_SPENDING, NO_SERVER_CONNECTION}
 
    /**
     * Get the network that this account is for.
@@ -107,6 +108,13 @@ public interface WalletBtcAccount extends WalletAccount<BtcTransaction, BtcAddre
    List<TransactionSummary> getTransactionsSince(Long receivingSince);
 
    /**
+    * Get the details of a transaction that originated from this account
+    *
+    * @param txid the ID of the transaction
+    * @return the details of a transaction
+    */
+   TransactionDetails getTransactionDetails(Sha256Hash txid);
+
     * Broadcast a transaction
     * @param transaction the transaction to broadcast
     * @return the broadcast result
@@ -169,7 +177,12 @@ public interface WalletBtcAccount extends WalletAccount<BtcTransaction, BtcAddre
 
    boolean broadcastOutgoingTransactions();
 
-
+   /**
+    * returns the transactionex for the hash from the backing, if available
+    * @param txid transaction hash
+    * @return the corresponding transaction or null
+    */
+   TransactionEx getTransaction(Sha256Hash txid);
    /**
     * Determine whether the provided encryption key is valid for this wallet account.
     * <p/>

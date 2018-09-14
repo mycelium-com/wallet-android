@@ -18,15 +18,11 @@ package com.mycelium.wapi.wallet;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import com.google.common.collect.*;
 import com.mrd.bitlib.crypto.*;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
-import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.WapiLogger;
 import com.mycelium.wapi.api.Wapi;
@@ -49,20 +45,12 @@ import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext;
 
+import javax.annotation.Nonnull;
 import java.util.*;
 
-import javax.annotation.Nonnull;
-
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Predicates.and;
-import static com.google.common.base.Predicates.not;
-import static com.google.common.base.Predicates.or;
-import static com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.ACCOUNT_TYPE_FROM_MASTERSEED;
-import static com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PRIV;
-import static com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB;
-import static com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY;
-import static com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER;
-import static com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR;
+import static com.google.common.base.Predicates.*;
+import static com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.*;
 
 /**
  * Allows you to manage a wallet that contains multiple HD accounts and
@@ -222,12 +210,7 @@ public class WalletManager {
      * @return the ID of the new account
      */
     public UUID createSingleAddressAccount(PublicKey publicKey) {
-        //UUID id = SingleAddressAccount.calculateId(address);
-
-        // Create a UUID from the byte indexes 8-15 and 16-23 of the account public key
-        byte[] publicKeyBytes = publicKey.getPublicKeyBytes();
-        UUID id = new UUID(BitUtils.uint64ToLong(publicKeyBytes, 8), BitUtils.uint64ToLong(
-                publicKeyBytes, 16));
+        UUID id = SingleAddressAccount.calculateId(publicKey.toAddress(_network, AddressType.P2SH_P2WPKH));
         synchronized (_walletAccounts) {
             if (_walletAccounts.containsKey(id)) {
                 return id;
@@ -260,37 +243,40 @@ public class WalletManager {
     /**
      * Create a new Bp44 account using an accountRoot or xPrivKey (unrelated to the Masterseed)
      *
-     * @param hdKeyNode the xPub/xPriv to use
+     * @param hdKeyNodes the xPub/xPrv, yPub/yPrv, zPub/zPrv to use
      * @return the ID of the new account
      */
-    public UUID createUnrelatedBip44Account(HdKeyNode hdKeyNode) {
+    public UUID createUnrelatedBip44Account(List<HdKeyNode> hdKeyNodes) {
         final int accountIndex = 0;  // use any index for this account, as we don't know and we don't care
         final Map<BipDerivationType, HDAccountKeyManager> keyManagerMap = new HashMap<>();
+        final List<BipDerivationType> derivationTypes = new ArrayList<>();
 
         // get a subKeyStorage, to ensure that the data for this key does not get mixed up
         // with other derived or imported keys.
         SecureSubKeyValueStore secureStorage = getSecureStorage().createNewSubKeyStore();
 
-        BipDerivationType derivationType = hdKeyNode.getDerivationType();
-        if (hdKeyNode.isPrivateHdKeyNode()) {
-            try {
-                keyManagerMap.put(derivationType, HDAccountKeyManager.createFromAccountRoot(hdKeyNode, _network,
-                        accountIndex, secureStorage, AesKeyCipher.defaultKeyCipher(), derivationType));
-            } catch (InvalidKeyCipher invalidKeyCipher) {
-                throw new RuntimeException(invalidKeyCipher);
+        for (HdKeyNode hdKeyNode : hdKeyNodes) {
+            BipDerivationType derivationType = hdKeyNode.getDerivationType();
+            derivationTypes.add(derivationType);
+            if (hdKeyNode.isPrivateHdKeyNode()) {
+                try {
+                    keyManagerMap.put(derivationType, HDAccountKeyManager.createFromAccountRoot(hdKeyNode, _network,
+                            accountIndex, secureStorage, AesKeyCipher.defaultKeyCipher(), derivationType));
+                } catch (InvalidKeyCipher invalidKeyCipher) {
+                    throw new RuntimeException(invalidKeyCipher);
+                }
+            } else {
+                keyManagerMap.put(derivationType, HDPubOnlyAccountKeyManager.createFromPublicAccountRoot(hdKeyNode,
+                        _network, accountIndex, secureStorage, derivationType));
             }
-        } else {
-            keyManagerMap.put(derivationType, HDPubOnlyAccountKeyManager.createFromPublicAccountRoot(hdKeyNode,
-                    _network, accountIndex, secureStorage, derivationType));
         }
-
-        final UUID id = keyManagerMap.get(derivationType).getAccountId();
+        final UUID id = keyManagerMap.get(derivationTypes.get(0)).getAccountId();
 
         synchronized (_walletAccounts) {
             // check if it already exists
             boolean isUpgrade = false;
             if (_walletAccounts.containsKey(id)) {
-                isUpgrade = !_walletAccounts.get(id).canSpend() && hdKeyNode.isPrivateHdKeyNode();
+                isUpgrade = !_walletAccounts.get(id).canSpend() && hdKeyNodes.get(0).isPrivateHdKeyNode();
                 if (!isUpgrade) {
                     return id;
                 }
@@ -300,12 +286,12 @@ public class WalletManager {
 
                 // Generate the context for the account
                 HDAccountContext context;
-                if (hdKeyNode.isPrivateHdKeyNode()) {
-                    context = new HDAccountContext(id, accountIndex, false,
-                            ACCOUNT_TYPE_UNRELATED_X_PRIV, secureStorage.getSubId(), Collections.singletonList(derivationType));
+                if (hdKeyNodes.get(0).isPrivateHdKeyNode()) {
+                    context = new HDAccountContext(id, accountIndex, false, ACCOUNT_TYPE_UNRELATED_X_PRIV,
+                            secureStorage.getSubId(), derivationTypes);
                 } else {
-                    context = new HDAccountContext(id, accountIndex, false,
-                            ACCOUNT_TYPE_UNRELATED_X_PUB, secureStorage.getSubId(), Collections.singletonList(derivationType));
+                    context = new HDAccountContext(id, accountIndex, false, ACCOUNT_TYPE_UNRELATED_X_PUB,
+                            secureStorage.getSubId(), derivationTypes);
                 }
                 if (isUpgrade) {
                     _backing.upgradeBip44AccountContext(context);
@@ -317,7 +303,7 @@ public class WalletManager {
 
                 // Create actual account
                 HDAccount account;
-                if (hdKeyNode.isPrivateHdKeyNode()) {
+                if (hdKeyNodes.get(0).isPrivateHdKeyNode()) {
                     account = new HDAccount(context, keyManagerMap, _network, accountBacking, _wapi);
                 } else {
                     account = new HDPubOnlyAccount(context, keyManagerMap, _network, accountBacking, _wapi);
@@ -335,7 +321,7 @@ public class WalletManager {
                 }
                 if (_spvBalanceFetcher != null) {
                     Bip44BCHAccount bip44BCHAccount;
-                    if (hdKeyNode.isPrivateHdKeyNode()) {
+                    if (hdKeyNodes.get(0).isPrivateHdKeyNode()) {
                         bip44BCHAccount = new Bip44BCHAccount(context, keyManagerMap, _network, accountBacking, _wapi, _spvBalanceFetcher);
                     } else {
                         bip44BCHAccount = new Bip44BCHPubOnlyAccount(context, keyManagerMap, _network, accountBacking, _wapi, _spvBalanceFetcher);
@@ -351,15 +337,18 @@ public class WalletManager {
         }
     }
 
-    public UUID createExternalSignatureAccount(HdKeyNode hdKeyNode, ExternalSignatureProvider externalSignatureProvider, int accountIndex) {
+    public UUID createExternalSignatureAccount(List<? extends HdKeyNode> hdKeyNodes, ExternalSignatureProvider externalSignatureProvider, int accountIndex) {
         SecureSubKeyValueStore newSubKeyStore = getSecureStorage().createNewSubKeyStore();
-        BipDerivationType derivationType = hdKeyNode.getDerivationType();
+        final Map<BipDerivationType, HDPubOnlyAccountKeyManager> keyManagerMap = new HashMap<>();
+        final List<BipDerivationType> derivationTypes = new ArrayList<>();
+        for (HdKeyNode hdKeyNode : hdKeyNodes) {
+            BipDerivationType derivationType = hdKeyNode.getDerivationType();
+            derivationTypes.add(derivationType);
 
-        Map <BipDerivationType, HDPubOnlyAccountKeyManager> keyManagerMap = ImmutableMap.of(derivationType,
-                HDPubOnlyAccountKeyManager.createFromPublicAccountRoot(hdKeyNode,_network, accountIndex,
-                        newSubKeyStore, derivationType));
-
-        final UUID id = keyManagerMap.get(BipDerivationType.BIP44).getAccountId();
+            keyManagerMap.put(derivationType,HDPubOnlyAccountKeyManager.createFromPublicAccountRoot(hdKeyNode,
+                    _network, accountIndex, newSubKeyStore, derivationType));
+        }
+        final UUID id = keyManagerMap.get(derivationTypes.get(0)).getAccountId();
 
         synchronized (_walletAccounts) {
             _backing.beginTransaction();
@@ -372,7 +361,7 @@ public class WalletManager {
 
                 // Generate the context for the account
                 HDAccountContext context = new HDAccountContext(id, accountIndex, false,
-                        externalSignatureProvider.getBIP44AccountType(), newSubKeyStore.getSubId(), Collections.singletonList(derivationType));
+                        externalSignatureProvider.getBIP44AccountType(), newSubKeyStore.getSubId(), derivationTypes);
                 _backing.createBip44AccountContext(context);
 
                 // Get the backing for the new account
@@ -462,6 +451,7 @@ public class WalletManager {
      * address has been used a lot.
      */
     public void disableTransactionHistorySynchronization() {
+        //TODO SegWit make this working again, as in number of addresses to sync increases 3 times.
     }
 
     /**
@@ -648,13 +638,17 @@ public class WalletManager {
         startSynchronizationThread(synchronizer);
     }
 
-    public void startSynchronization(UUID receivingAcc) {
-        if (!isNetworkConnected) {
-            return;
-        }
+    /**
+     * This method only used to synchronize the unrelated bip44 account (created from xpub from scan)..
+     * .. to retrieve the address to send funds. If there is no network,
+     * user will be notified and only the first address will be reused (SendMainActivity.java)
+     * @return whether the network is present or not.
+     */
+    public boolean startSynchronization(UUID receivingAcc) {
         // Launch synchronizer thread
         SynchronizeAbleWalletBtcAccount activeAccount = (SynchronizeAbleWalletBtcAccount) getAccount(receivingAcc);
         startSynchronizationThread(new Synchronizer(SyncMode.NORMAL, activeAccount));
+        return isNetworkConnected;
     }
 
     private synchronized void startSynchronizationThread(Synchronizer synchronizer) {
@@ -756,8 +750,8 @@ public class WalletManager {
                 try {
                     AesKeyCipher cipher = AesKeyCipher.defaultKeyCipher();
                     Bip39.MasterSeed masterSeed = getMasterSeed(cipher);
-                    HdKeyNode root = HdKeyNode.fromSeed(masterSeed.getBip32Seed());
                     for (BipDerivationType derivationType : BipDerivationType.values()) {
+                        HdKeyNode root = HdKeyNode.fromSeed(masterSeed.getBip32Seed(), derivationType);
                         if (context.getIndexesMap().get(derivationType) == null) {
                             keyManagerMap.put(derivationType, HDAccountKeyManager.createNew(root, _network,
                                     context.getAccountIndex(), _secureKeyValueStore, cipher, derivationType));
@@ -1255,8 +1249,6 @@ public class WalletManager {
         final List<Integer> gaps = getGapsBug();
         // Get the master seed
         Bip39.MasterSeed masterSeed = getMasterSeed(cipher);
-        // Generate the root private key
-        HdKeyNode root = HdKeyNode.fromSeed(masterSeed.getBip32Seed());
         InMemoryWalletManagerBacking tempSecureBacking = new InMemoryWalletManagerBacking();
 
         final SecureKeyValueStore tempSecureKeyValueStore = new SecureKeyValueStore(tempSecureBacking, new RandomSource() {
@@ -1269,6 +1261,8 @@ public class WalletManager {
         final LinkedList<Address> addresses = new LinkedList<>();
         for (Integer gapIndex : gaps) {
             for (BipDerivationType derivationType : BipDerivationType.values()) {
+                // Generate the root private key
+                HdKeyNode root = HdKeyNode.fromSeed(masterSeed.getBip32Seed(), derivationType);
                 final HDAccountKeyManager keyManager = HDAccountKeyManager.createNew(root, _network, gapIndex,
                         tempSecureKeyValueStore, cipher, derivationType);
                 addresses.add(keyManager.getAddress(false, 0)); // get first external address for the account in the gap
@@ -1282,15 +1276,14 @@ public class WalletManager {
         // Get the master seed
         Bip39.MasterSeed masterSeed = getMasterSeed(cipher);
 
-        // Generate the root private key
-        HdKeyNode root = HdKeyNode.fromSeed(masterSeed.getBip32Seed());
-
         synchronized (_walletAccounts) {
             _backing.beginTransaction();
             try {
                 // Create the base keys for the account
                 Map<BipDerivationType, HDAccountKeyManager> keyManagerMap = new HashMap<>();
                 for (BipDerivationType derivationType : BipDerivationType.values()) {
+                    // Generate the root private key
+                    HdKeyNode root = HdKeyNode.fromSeed(masterSeed.getBip32Seed(), derivationType);
                     keyManagerMap.put(derivationType, HDAccountKeyManager.createNew(root, _network, accountIndex,
                             _secureKeyValueStore, cipher, derivationType));
                 }
@@ -1330,9 +1323,6 @@ public class WalletManager {
         // Get the master seed
         Bip39.MasterSeed masterSeed = getMasterSeed(cipher);
 
-        // Generate the root private key
-        HdKeyNode root = HdKeyNode.fromSeed(masterSeed.getBip32Seed());
-
         synchronized (_walletAccounts) {
             // Determine the next BIP44 account index
             int accountIndex = getNextBip44Index();
@@ -1342,6 +1332,8 @@ public class WalletManager {
                 // Create the base keys for the account
                 Map<BipDerivationType, HDAccountKeyManager> keyManagerMap = new HashMap<>();
                 for (BipDerivationType derivationType : BipDerivationType.values()) {
+                    // Generate the root private key
+                    HdKeyNode root = HdKeyNode.fromSeed(masterSeed.getBip32Seed(), derivationType);
                     keyManagerMap.put(derivationType, HDAccountKeyManager.createNew(root, _network, accountIndex,
                             _secureKeyValueStore, cipher, derivationType));
                 }
@@ -1393,7 +1385,7 @@ public class WalletManager {
         if (!hasBip32MasterSeed()) {
             throw new RuntimeException("accessed identity account with no master seed configured");
         }
-        HdKeyNode rootNode = HdKeyNode.fromSeed(getMasterSeed(cipher).getBip32Seed());
+        HdKeyNode rootNode = HdKeyNode.fromSeed(getMasterSeed(cipher).getBip32Seed(), null);
         _identityAccountKeyManager = IdentityAccountKeyManager.createNew(rootNode, _secureKeyValueStore, cipher);
         return _identityAccountKeyManager;
     }

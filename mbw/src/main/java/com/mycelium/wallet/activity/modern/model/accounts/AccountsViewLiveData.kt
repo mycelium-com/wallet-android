@@ -58,7 +58,7 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
         override fun doInBackground(vararg voids: Void): List<AccountsGroupModel> {
             val am = AccountManager
             val accountsList = mutableListOf(AccountsGroupModel(R.string.active_hd_accounts_name, GROUP_TITLE_TYPE,
-                    bipAccountsToViewModel(am.getBTCBip44Accounts().values as List<HDAccount> )))
+                    bipAccountsToViewModel(am.getBTCBip44Accounts().values)))
             val singleAddressList = accountsToViewModel(am.getBTCSingleAddressAccounts().values)
             if (singleAddressList.isNotEmpty()) {
                 accountsList.add(AccountsGroupModel((R.string.active_bitcoin_sa_group_name), GROUP_TITLE_TYPE,
@@ -68,7 +68,7 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
                 publishProgress(accountsList)
             }
 
-            val bchBipList = bipAccountsToViewModel(am.getBCHBip44Accounts().values as List<HDAccount>)
+            val bchBipList = bipAccountsToViewModel(am.getBCHBip44Accounts().values)
             if (bchBipList.isNotEmpty()) {
                 accountsList.add(AccountsGroupModel(R.string.bitcoin_cash_hd, GROUP_TITLE_TYPE,
                         bchBipList))
@@ -115,8 +115,8 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
             return accountsList
         }
 
-        private fun accountsToViewModel(accounts: Collection<WalletAccount<out GenericTransaction, out GenericAddress>>) = accounts.map { AccountViewModel(it as HDAccount, mbwManager) }
-        private fun bipAccountsToViewModel(accounts: Collection<HDAccount>) = accounts.map { AccountViewModel(it, mbwManager) }
+        private fun accountsToViewModel(accounts: Collection<WalletAccount<out GenericTransaction, out GenericAddress>>) = accounts.map { AccountViewModel(it, mbwManager) }
+        private fun bipAccountsToViewModel(accounts: Collection<WalletAccount<out GenericTransaction, out GenericAddress>>) = accounts.map { AccountViewModel(it, mbwManager) }
 
         @SafeVarargs
         override fun onProgressUpdate(vararg values: List<AccountsGroupModel>) {

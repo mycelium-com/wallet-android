@@ -38,6 +38,7 @@ import com.mycelium.net.HttpsEndpoint;
 import com.mycelium.net.ServerEndpoints;
 import com.mycelium.wapi.api.WapiClient;
 import com.mycelium.WapiLogger;
+import com.mycelium.wapi.api.WapiClientElectrumX;
 
 public abstract class Node3Test {
 
@@ -61,6 +62,6 @@ public abstract class Node3Test {
       }
    };
 
-   protected final WapiClient api = new WapiClient(new ServerEndpoints(new HttpsEndpoint[]{endpoint}), log, "test");
+   protected final WapiClient api = new WapiClientElectrumX(new ServerEndpoints(new HttpsEndpoint[]{endpoint}), null, log, "test");
 
 }

@@ -48,7 +48,11 @@ import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.modularizationtools.CommunicationManager;
 import com.mycelium.spvmodule.IntentContract;
-import com.mycelium.wallet.*;
+import com.mycelium.wallet.Constants;
+import com.mycelium.wallet.MbwManager;
+import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.WalletApplication;
 import com.mycelium.wallet.event.SyncFailed;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.modularisation.GooglePlayModuleCollection;
@@ -82,7 +86,9 @@ public class BroadcastTransactionActivity extends Activity {
    }
 
    public static boolean callMe(Activity currentActivity, WalletAccount account, Sha256Hash txid) {
-      TransactionEx tx = account.getTransactionEx(txid);
+      //TODO non-generic classes are used
+      WalletBtcAccount walletBtcAccount = (WalletBtcAccount)account;
+      TransactionEx tx = walletBtcAccount.getTransaction(txid);
       if (tx == null) {
          return false;
       }

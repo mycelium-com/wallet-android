@@ -58,7 +58,7 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
 
     Balance getAccountBalance();
 
-    T getTransaction(Sha256Hash transactionId);
+    T getTx(Sha256Hash transactionId);
 
     TransactionSummary getTransactionSummary(Sha256Hash txid);
 
@@ -88,13 +88,6 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
      * @return An UnsignedTransaction that represents the unsigned PoP.
      */
     UnsignedTransaction createUnsignedPop(Sha256Hash txid, byte[] nonce);
-
-    /**
-     * returns the transactionex for the hash from the backing, if available
-     * @param txid transaction hash
-     * @return the corresponding transaction or null
-     */
-    TransactionEx getTransactionEx(Sha256Hash txid);
 
     void checkAmount(Receiver receiver, long kbMinerFee, Value enteredAmount)
             throws StandardTransactionBuilder.InsufficientFundsException,

@@ -49,7 +49,7 @@ public class TrezorManager extends ExternalSignatureDeviceManager {
 
    @Override
    protected ExternalSignatureDevice createDevice() {
-      return new Trezor(context);
+      return new Trezor(getContext());
    }
 
    @Override

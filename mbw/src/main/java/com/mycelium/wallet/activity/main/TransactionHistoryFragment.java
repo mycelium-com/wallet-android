@@ -99,6 +99,7 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.squareup.otto.Subscribe;
@@ -106,7 +107,6 @@ import com.squareup.otto.Subscribe;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -598,9 +598,10 @@ public class TransactionHistoryFragment extends Fragment {
                                             transaction = HexUtils.toHex(_mbwManager.getSelectedAccount()
                                                 .getTransactionSummary(record.getHash()).txid.getBytes());
                                          } else {
-                                            transaction = HexUtils.toHex(_mbwManager
-                                                .getSelectedAccount()
-                                                .getTransactionEx(record.getHash()).binary);
+                                            //TODO non-generic classes are used
+                                            WalletBtcAccount account = (WalletBtcAccount)_mbwManager.getSelectedAccount();
+                                            transaction = HexUtils.toHex(account
+                                                .getTransaction(record.getHash()).binary);
                                          }
 
                                          Intent shareIntent = new Intent(Intent.ACTION_SEND);
@@ -635,7 +636,7 @@ public class TransactionHistoryFragment extends Fragment {
     * TODO: consider parallel attempts to PFP
     */
    private UnsignedTransaction tryCreateBumpTransaction(Sha256Hash txid, long feePerKB) {
-      GenericTransaction transaction = _mbwManager.getSelectedAccount().getTransaction(txid);
+      GenericTransaction transaction = _mbwManager.getSelectedAccount().getTx(txid);
       long txFee = 0;
       for(GenericTransaction.GenericOutput i : transaction.getInputs()) {
          txFee += i.getValue().getValue();

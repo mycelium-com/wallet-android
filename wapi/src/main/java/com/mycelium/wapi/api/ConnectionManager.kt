@@ -1,5 +1,6 @@
 package com.mycelium.wapi.api
 
+import com.google.common.collect.Sets
 import com.mycelium.WapiLogger
 import com.mycelium.wapi.api.jsonrpc.*
 import kotlinx.coroutines.experimental.*
@@ -10,7 +11,7 @@ import java.util.concurrent.TimeoutException
 import kotlin.collections.ArrayList
 import kotlin.concurrent.timerTask
 
-class ConnectionManager(private val connectionsCount: Int, private var endpoints: Array<TcpEndpoint>,
+class ConnectionManager(private val connectionsCount: Int, internal var endpoints: Array<TcpEndpoint>,
                         val logger: WapiLogger) {
     @Volatile
     private var maintenanceTimer: Timer? = null
@@ -246,7 +247,12 @@ class ConnectionManager(private val connectionsCount: Int, private var endpoints
     }
 
     fun changeEndpoints(newEndpoints: Array<TcpEndpoint>) {
-        if(newEndpoints.toSet() != endpoints.toSet()) {
+        if(newEndpoints.isEmpty()) {
+            return
+        }
+        val newSet = newEndpoints.toSet()
+        val oldSet = endpoints.toSet()
+        if(Sets.symmetricDifference(oldSet, newSet).size != 0) {
             endpoints = newEndpoints
             if (maintenancedClientsList.isNotEmpty()) {
                 removeDeadClients()

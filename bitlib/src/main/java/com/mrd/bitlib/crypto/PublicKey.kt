@@ -27,8 +27,9 @@ import kotlin.experimental.and
 
 
 class PublicKey(val publicKeyBytes: ByteArray) : Serializable {
+    private val pubKeyCompressed: ByteArray by lazy { compressPublicKey(publicKeyBytes) }
     val publicKeyHash: ByteArray by lazy { HashUtils.addressHash(publicKeyBytes) }
-    val pubKeyHashCompressed: ByteArray by lazy { HashUtils.addressHash(compressPublicKey(publicKeyBytes)) }
+    val pubKeyHashCompressed: ByteArray by lazy { HashUtils.addressHash(pubKeyCompressed) }
     val Q: Point by lazy { Parameters.curve.decodePoint(publicKeyBytes) }
 
     /**
@@ -41,6 +42,7 @@ class PublicKey(val publicKeyBytes: ByteArray) : Serializable {
         return when (addressType) {
             AddressType.P2PKH -> toP2PKHAddress(networkParameters)
             AddressType.P2SH_P2WPKH -> toNestedP2WPKH(networkParameters)
+            AddressType.P2WPKH -> toP2WPKH(networkParameters)
             else -> throw IllegalArgumentException("Not supported address type")
         }
     }
@@ -56,6 +58,13 @@ class PublicKey(val publicKeyBytes: ByteArray) : Serializable {
         val prefix = byteArrayOf(Script.OP_0.toByte(), hashedPublicKey.size.toByte())
         return Address.fromP2SHBytes(HashUtils.addressHash(
                 BitUtils.concatenate(prefix, hashedPublicKey)), networkParameters)
+    }
+
+    /**
+     * @return [AddressType.P2WPKH] address
+     */
+    private fun toP2WPKH(networkParameters: NetworkParameters) : SegwitAddress {
+        return SegwitAddress(networkParameters, 0x00, HashUtils.addressHash(pubKeyCompressed))
     }
 
     /**
@@ -113,6 +122,7 @@ class PublicKey(val publicKeyBytes: ByteArray) : Serializable {
         private const val HASH_TYPE = 1
         private val SUPPORTED_ADDRESS_TYPES = listOf(
                 AddressType.P2PKH,
+                AddressType.P2WPKH,
                 AddressType.P2SH_P2WPKH
         )
     }

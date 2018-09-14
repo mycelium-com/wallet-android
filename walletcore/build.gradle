@@ -24,11 +24,11 @@ dependencies {
     implementation 'org.mockito:mockito-core:2.21.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     testImplementation "junit:junit:$junitVersion"
+    testImplementation "org.mockito:mockito-core:2.0.44-beta"
 }
 
 
 buildscript {
-    ext.kotlin_version = '1.2.61'
     repositories {
         mavenCentral()
     }

@@ -87,7 +87,7 @@ public class TransactionDetailsActivity extends Activity {
 
       Sha256Hash txid = (Sha256Hash) getIntent().getSerializableExtra("transaction");
 
-      _txs = _mbwManager.getSelectedAccount().getTransaction(txid);
+      _txs = _mbwManager.getSelectedAccount().getTx(txid);
 
       if(_mbwManager.getSelectedAccount() instanceof ColuAccount) {
          coluMode = true;

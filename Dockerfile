@@ -25,3 +25,39 @@ RUN echo y | android update sdk --no-ui -a --filter extra-android-m2repository,e
 RUN echo y | android update sdk --no-ui -a --filter tools,platform-tools,build-tools-${ANDROID_BUILD_TOOLS_VERSION}
 RUN rm -rf ${ANDROID_HOME}/tools
 
+
+
+ENV ANDROID_NDK_HOME /opt/android-ndk
+ENV ANDROID_NDK_VERSION r17b
+
+# ------------------------------------------------------
+# --- Install required tools
+
+RUN apt-get update -qq && \
+    apt-get clean
+
+
+# ------------------------------------------------------
+# --- Android NDK
+
+# download
+RUN mkdir ${ANDROID_NDK_HOME}-tmp && \
+    cd ${ANDROID_NDK_HOME}-tmp && \
+    wget -q https://dl.google.com/android/repository/android-ndk-${ANDROID_NDK_VERSION}-linux-x86_64.zip && \
+# uncompress
+    unzip -q android-ndk-${ANDROID_NDK_VERSION}-linux-x86_64.zip && \
+# move to its final location
+    mv ./android-ndk-${ANDROID_NDK_VERSION} ${ANDROID_NDK_HOME} && \
+# remove temp dir
+    cd ${ANDROID_NDK_HOME} && \
+    rm -rf ${ANDROID_NDK_HOME}-tmp
+
+# add to PATH
+ENV PATH ${PATH}:${ANDROID_NDK_HOME}
+
+
+# ------------------------------------------------------
+# --- Cleanup and rev num
+
+ENV BITRISE_DOCKER_REV_NUMBER_ANDROID_NDK v2018_06_13_1
+CMD bitrise -version

@@ -53,7 +53,7 @@ public class PackageRemovedReceiver extends BroadcastReceiver {
         if (intent.getData() != null) {
             String packageName = intent.getData().getEncodedSchemeSpecificPart();
             String spvModuleName = WalletApplication.getSpvModuleName(Bip44BCHAccount.class);
-            String tsmModuleName = BuildConfig.appIdTsm;
+            String mebModuleName = BuildConfig.appIdMeb;
 
             if (packageName.equals(spvModuleName)) {
                 switch (intent.getAction()) {
@@ -72,19 +72,19 @@ public class PackageRemovedReceiver extends BroadcastReceiver {
                 }
             }
 
-            if (packageName.equals(tsmModuleName)) {
+            if (packageName.equals(mebModuleName)) {
                 switch (intent.getAction()) {
                     case Intent.ACTION_PACKAGE_ADDED:
                         if (!intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
-                            handlePackageChange(context, R.string.tsm_module_change, R.string.installed, false);
+                            handlePackageChange(context, R.string.meb_module_change, R.string.installed, false);
                         }
                         break;
                     case Intent.ACTION_PACKAGE_REPLACED:
-                        handlePackageChange(context, R.string.tsm_module_change, R.string.updated, false);
+                        handlePackageChange(context, R.string.meb_module_change, R.string.updated, false);
                         break;
                     case Intent.ACTION_PACKAGE_REMOVED:
                         if (!intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
-                            handlePackageChange(context, R.string.tsm_module_change, R.string.removed, false);
+                            handlePackageChange(context, R.string.meb_module_change, R.string.removed, false);
                         }
                 }
             }

@@ -2,6 +2,11 @@ apply from: 'tools.gradle'
 apply plugin: 'kotlin'
 apply plugin: 'kotlin-kapt'
 
+repositories {
+    google()
+    jcenter()
+}
+
 buildscript {
     apply from: 'ext_settings.gradle'
     repositories {
