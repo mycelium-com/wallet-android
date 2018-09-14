@@ -66,7 +66,7 @@ class WalletConsole {
 
         SecureKeyValueStore store = new SecureKeyValueStore(backing, new MyRandomSource());
 
-        Bip39.MasterSeed masterSeed =  Bip39.generateSeedFromWordList(new String[]{"oil", "oil","oil","oil","oil","oil","oil","oil","oil","oil","oil","oil"}, "");
+        Bip39.MasterSeed masterSeed =  Bip39.generateSeedFromWordList(new String[]{"cliff", "battle","noise","aisle","inspire","total","sting","vital","marble","add","daring","mouse"}, "");
 
         WalletManager walletManager = new WalletManager(store,
                 backing,
@@ -88,13 +88,7 @@ class WalletConsole {
         WalletAccount account = accounts.get(0);
         account.synchronize(SyncMode.NORMAL);
 
-        try {
-            Thread.sleep(10000);
-        } catch(InterruptedException ex) {
-
-        }
-
-        System.out.println("Account balance: " + account.getAccountBalance());
+        System.out.println("Account balance: " + account.getAccountBalance().getSpendable().toString());
 
     }
 }

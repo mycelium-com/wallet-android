@@ -9,8 +9,7 @@ public abstract class BitcoinBasedCryptoCurrency extends CryptoCurrency {
         family = Families.BITCOIN;
     }
 
-    @Override
     public BtcAddress newAddress(String addressStr) throws AddressMalformedException {
-        return BtcAddress.from(addressStr);
+        return BtcAddress.from(this, addressStr);
     }
 }

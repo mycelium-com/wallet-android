@@ -1569,7 +1569,8 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
                satoshisReceived += output.value;
             }
             if (address != null && address != Address.getNullAddress(_network)) {
-               outputs.add(new GenericTransaction.GenericOutput(new BtcAddress(address.getAllAddressBytes()), Value.valueOf(getCoinType(), output.value)));
+               CryptoCurrency currency = getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get();
+               outputs.add(new GenericTransaction.GenericOutput(new BtcAddress(currency, address.getAllAddressBytes()), Value.valueOf(getCoinType(), output.value)));
             }
          }
 
@@ -1589,7 +1590,8 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
                }
 
                Address address = ScriptOutput.fromScriptBytes(funding.script).getAddress(_network);
-               inputs.add(new GenericTransaction.GenericInput(new BtcAddress(address.getAllAddressBytes()), Value.valueOf(getCoinType(), funding.value)));
+               CryptoCurrency currency = getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get();
+               inputs.add(new GenericTransaction.GenericInput(new BtcAddress(currency, address.getAllAddressBytes()), Value.valueOf(getCoinType(), funding.value)));
             }
          }
 
@@ -1636,7 +1638,8 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
             satoshisReceived += output.value;
          }
          if (address != null && address != Address.getNullAddress(_network)) {
-            outputs.add(new GenericTransaction.GenericOutput(new BtcAddress(address.getAllAddressBytes()), Value.valueOf(getCoinType(), output.value)));
+            CryptoCurrency currency = getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get();
+            outputs.add(new GenericTransaction.GenericOutput(new BtcAddress(currency, address.getAllAddressBytes()), Value.valueOf(getCoinType(), output.value)));
          }
       }
       ArrayList<GenericTransaction.GenericInput> inputs = new ArrayList<>(); //need to create list of outputs
@@ -1654,7 +1657,8 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
                satoshisSent += funding.value;
             }
             Address address = ScriptOutput.fromScriptBytes(funding.script).getAddress(_network);
-            inputs.add(new GenericTransaction.GenericInput(new BtcAddress(address.getAllAddressBytes()), Value.valueOf(getCoinType(), funding.value)));
+            CryptoCurrency currency = getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get();
+            inputs.add(new GenericTransaction.GenericInput(new BtcAddress(currency, address.getAllAddressBytes()), Value.valueOf(getCoinType(), funding.value)));
          }
       }
 
@@ -1721,6 +1725,12 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
 
    public void updateSyncProgress() {
       postEvent(Event.SYNC_PROGRESS_UPDATED);
+   }
+
+   @Override
+   public GenericAddress getReceiveAddress(){
+      CryptoCurrency currency = getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get();
+      return BtcAddress.from(currency, getReceivingAddress().get().toString());
    }
 }
 

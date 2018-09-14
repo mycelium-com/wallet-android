@@ -1,16 +1,21 @@
 package com.mycelium.wapi.wallet.btc;
 
 import com.google.common.base.Optional;
+import com.mrd.bitlib.StandardTransactionBuilder;
+import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.Transaction;
+import com.mrd.bitlib.model.UnspentTransactionOutput;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal;
 import com.mycelium.wapi.wallet.GenericTransaction;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
 
 import javax.annotation.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class BtcTransaction implements GenericTransaction {
@@ -29,6 +34,23 @@ public class BtcTransaction implements GenericTransaction {
     public final Optional<ConfirmationRiskProfileLocal> confirmationRiskProfile;
     @Nullable
     final Value fee;
+
+    public BtcTransaction(CryptoCurrency type, Transaction transaction) {
+        this.type = type;
+        this.tx = transaction;
+        this.hash = tx.getId();
+        this.valueSent = Value.zeroValue(type);
+        this.valueReceived = Value.zeroValue(type);
+        this.value = Value.zeroValue(type);
+        this.timestamp = 0;
+        this.confirmations = 0;
+        this.isQueuedOutgoing = false;
+        this.inputs = new ArrayList<>();
+        this.outputs = new ArrayList<>();
+        this.confirmationRiskProfile = null;
+        this.rawSize = 0;
+        this.fee = Value.zeroValue(type);
+    }
 
     public BtcTransaction(CryptoCurrency type, Transaction transaction,
                           long valueSent, long valueReceived, int timestamp, int confirmations,

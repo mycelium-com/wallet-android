@@ -56,6 +56,11 @@ public class FiatAccount implements WalletAccount<FiatTransaction, FiatAddress> 
     }
 
     @Override
+    public GenericAddress getReceiveAddress() {
+        return null;
+    }
+
+    @Override
     public void queueTransaction(TransactionEx transaction) {
 
     }
