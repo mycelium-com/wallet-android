@@ -56,6 +56,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -188,22 +189,34 @@ public class ExportDistiller {
         int totalPages = 2;
         boolean isOneEntryOnPage = false;
         int accountWithOneAddressCounter = 0;
-        totalPages++; //first page with entries
-        for(ExportEntry entry : params.getAllEntries()){
+        List<ExportEntry> entries = new ArrayList<>(params.getAllEntries());
+        Collections.sort(entries, new Comparator<ExportEntry>() {
+            @Override
+            public int compare(ExportEntry firstExportEntry, ExportEntry secondExportEntry) {
+                return Integer.compare(firstExportEntry.addresses.size(), secondExportEntry.addresses.size());
+            }
+        });
+        for(ExportEntry entry : entries){
             if(!isOneEntryOnPage){
                 if(entry.addresses.size() == 1){
-                    if(accountWithOneAddressCounter == 3){
-                        totalPages++;
-                        accountWithOneAddressCounter = 0;
-                    }
                     accountWithOneAddressCounter++;
+                    if(accountWithOneAddressCounter == RECORDS_PR_PAGE){
+                        accountWithOneAddressCounter = 0;
+                    } else {
+                        if(accountWithOneAddressCounter == 1){
+                            totalPages++;
+                        }
+                    }
                 } else {
                     if(!(accountWithOneAddressCounter == 1 && entry.addresses.size() == 2)){
                         totalPages++;
                         isOneEntryOnPage = true;
+                    } else {
+                        accountWithOneAddressCounter = 0;
                     }
                 }
             } else {
+                isOneEntryOnPage = true;
                 totalPages++;
             }
         }
@@ -326,7 +339,8 @@ public class ExportDistiller {
             writer.addPage();
         }
 
-        List<ExportEntry> allEntries = params.getAllEntries();
+        List<ExportEntry> allEntries = new ArrayList(params.getAllEntries());
+
         Collections.sort(allEntries, new Comparator<ExportEntry>() {
             @Override
             public int compare(ExportEntry firstExportEntry, ExportEntry secondExportEntry) {
@@ -340,29 +354,30 @@ public class ExportDistiller {
         for (int i = 0; i < allEntries.size(); i++) {
             ExportEntry exportEntry = allEntries.get(i);
 
-            recordsOnThisPage++;
             remainingRecords--;
 
             if(!oneEntryOnPage) {
                 if (exportEntry.addresses.size() == 1) {
-                    if (entryWithOneAddressCounter == 3) {
-                        entryWithOneAddressCounter = 1;
-                    } else {
-                        entryWithOneAddressCounter++;
+                    if (entryWithOneAddressCounter == RECORDS_PR_PAGE) {
+                        entryWithOneAddressCounter = 0;
+                    }
+                    entryWithOneAddressCounter++;
+                    if((i < allEntries.size() - 1) && allEntries.get(i+1).addresses.size() != 1){
+                        if (!(entryWithOneAddressCounter == 1 && allEntries.get(i+1).addresses.size() == 2)){
+                            oneEntryOnPage = true;
+                        }
                     }
                 } else {
                     oneEntryOnPage = true;
                 }
             }
-            boolean addEndLine = recordsOnThisPage == RECORDS_PR_PAGE || remainingRecords == 0 ||
-                    oneEntryOnPage || entryWithOneAddressCounter == 3;
+            boolean addEndLine = remainingRecords == 0 || oneEntryOnPage ||
+                    entryWithOneAddressCounter == RECORDS_PR_PAGE;
 
             fromTop += addRecord(new OffsetWriter(0F, fromTop, writer), getTitle(true, i + 1, allEntries.size()),
                     exportEntry, addEndLine, progressTracker);
 
             if(addEndLine) {
-                recordsOnThisPage = 0;
-                entryWithOneAddressCounter = 0;
                 addPageNumber(writer, pageNum++, totalPages);
                 if (remainingRecords > 0) {
                     writer.addPage();
@@ -371,7 +386,6 @@ public class ExportDistiller {
             }
         }
 
-        addPageNumber(writer, pageNum++, totalPages);
         addFinalPage(writer, totalPages);
         return writer.asString();
     }
