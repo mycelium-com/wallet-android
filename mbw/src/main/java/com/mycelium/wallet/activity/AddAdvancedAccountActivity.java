@@ -73,6 +73,7 @@ import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coins.Value;
 
@@ -356,7 +357,7 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
                           .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                              @Override
                              public void onClick(DialogInterface dialogInterface, int i) {
-                                finishAlreadyExist((Address) existingAccount.getReceivingAddress().get());
+                                finishAlreadyExist((Address) ((WalletBtcAccount)(existingAccount)).getReceivingAddress().get());
                              }
                           })
                           .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {

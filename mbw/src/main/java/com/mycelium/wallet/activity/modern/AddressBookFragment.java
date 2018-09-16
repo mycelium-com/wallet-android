@@ -75,6 +75,7 @@ import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.AddressBookChanged;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.squareup.otto.Subscribe;
 
@@ -181,12 +182,12 @@ public class AddressBookFragment extends Fragment {
          }
          String name = _mbwManager.getMetadataStorage().getLabelByAccount(account.getId());
          Drawable drawableForAccount = Utils.getDrawableForAccount(account, true, getResources());
-         Optional<Address> receivingAddress = account.getReceivingAddress();
+         Optional<Address> receivingAddress = ((WalletBtcAccount)(account)).getReceivingAddress();
          //TODO a lot of pr
          WalletAccount selectedAccount = _mbwManager.getSelectedAccount();
          if (receivingAddress.isPresent()) {
             if ((spendableOnly && account.canSpend()
-                    && (!excudeSelected || !account.getReceivingAddress().equals(_mbwManager.getSelectedAccount().getReceivingAddress()))
+                    && (!excudeSelected || !((WalletBtcAccount)(account)).getReceivingAddress().equals(((WalletBtcAccount)(_mbwManager.getSelectedAccount())).getReceivingAddress()))
                     && !account.getAccountBalance().confirmed.isZero()
                     && isBtc(account.getAccountBalance().confirmed.type)) || !spendableOnly) {
                if (selectedAccount instanceof ColuAccount && account instanceof ColuAccount

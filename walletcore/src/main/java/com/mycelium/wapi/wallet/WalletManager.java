@@ -38,6 +38,7 @@ import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
 import com.mycelium.wapi.wallet.btc.Bip44AccountBacking;
 import com.mycelium.wapi.wallet.btc.InMemoryWalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.SynchronizeAbleWalletBtcAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.bip44.*;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.AccountIndexesContext;
@@ -686,7 +687,7 @@ public class WalletManager {
      * @param address the address to query for
      * @return if any account in the wallet manager has the address
      */
-    public boolean isMyAddress(Address address) {
+    public boolean isMyAddress(GenericAddress address) {
         return getAccountByAddress(address).isPresent();
     }
 
@@ -697,9 +698,9 @@ public class WalletManager {
      * @param address the address to query for
      * @return the first account UUID if found.
      */
-    public synchronized Optional<UUID> getAccountByAddress(Address address) {
+    public synchronized Optional<UUID> getAccountByAddress(GenericAddress address) {
         for (WalletAccount account : getAllAccounts()) {
-            if (account.isMine(address)) {
+            if (account.isMineAddress(address)) {
                 return Optional.of(account.getId());
             }
         }
@@ -715,7 +716,8 @@ public class WalletManager {
     public synchronized boolean hasPrivateKeyForAddress(Address address) {
         // don't use getAccountByAddress here, as we might have the same address in an pub-only account and a normal account too
         for (WalletAccount account : getAllAccounts()) {
-            if (account.canSpend() && account.isMine(address)) {
+            WalletBtcAccount btcAccount = (WalletBtcAccount)account;
+            if (btcAccount.canSpend() && btcAccount.isMine(address)) {
                 return true;
             }
         }

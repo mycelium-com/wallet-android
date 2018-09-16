@@ -74,6 +74,7 @@ import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.exchange.ExchangeRateManager;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.fiat.FiatType;
 import com.mycelium.wallet.modularisation.BCHHelper;
 import com.mycelium.wapi.model.ExchangeRate;
@@ -236,7 +237,7 @@ public class BalanceFragment extends Fragment {
 
    @OnClick(R.id.btReceive)
    void onClickReceive() {
-      Optional<Address> receivingAddress = _mbwManager.getSelectedAccount().getReceivingAddress();
+      Optional<Address> receivingAddress = ((WalletBtcAccount)(_mbwManager.getSelectedAccount())).getReceivingAddress();
       if (receivingAddress.isPresent()) {
          ReceiveCoinsActivity.callMe(getActivity(), receivingAddress.get(),
                _mbwManager.getSelectedAccount().canSpend(), true);

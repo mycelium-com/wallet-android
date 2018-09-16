@@ -55,6 +55,7 @@ import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
@@ -206,7 +207,7 @@ public class RecordRowBuilder {
                     result.displayAddress = resources.getString(R.string.account_contains_one_key_info);
                 }
             } else {
-                Optional<Address> receivingAddress = walletAccount.getReceivingAddress();
+                Optional<Address> receivingAddress = ((WalletBtcAccount)(walletAccount)).getReceivingAddress();
                 if (receivingAddress.isPresent()) {
                     if (result.label.length() == 0) {
                         // Display address in it's full glory, chopping it into three

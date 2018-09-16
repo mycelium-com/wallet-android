@@ -22,6 +22,7 @@ import com.google.common.collect.BiMap
 import com.google.common.collect.HashBiMap
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.Lists
+import com.mrd.bitlib.UnsignedTransaction
 import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.crypto.PublicKey
@@ -713,17 +714,23 @@ open class HDAccount(
     }
 
     override fun completeAndSignTx(request: SendRequest<BtcTransaction>) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        completeTransaction(request)
+        signTransaction(request)
     }
 
     override fun completeTransaction(request: SendRequest<BtcTransaction>) {
+        val btcSendRequest = request as BtcSendRequest
+        val receivers = ArrayList<WalletAccount.Receiver>()
+        receivers.add(WalletAccount.Receiver(btcSendRequest.destination, btcSendRequest.amount.value))
+        btcSendRequest.unsignedTx = createUnsignedTransaction(receivers, request.fee.value)
     }
 
     override fun signTransaction(request: SendRequest<BtcTransaction>) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        val btcSendRequest = request as BtcSendRequest
+        btcSendRequest.setTransaction(signTransaction(btcSendRequest.unsignedTx, AesKeyCipher.defaultKeyCipher()))
     }
 
-    override fun broadcastTx(tx: BtcTransaction) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun broadcastTx(tx: BtcTransaction) :BroadcastResult {
+        return broadcastTransaction(tx.rawTransaction)
     }
 }

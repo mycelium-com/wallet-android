@@ -9,6 +9,7 @@ import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputSummary;
 import com.mycelium.wapi.model.TransactionSummary;
+import com.mycelium.wapi.wallet.BroadcastResult;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.SendRequest;
@@ -52,13 +53,13 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
     }
 
     @Override
-    public void broadcastTx(EthTransaction tx) throws TransactionBroadcastException {
-
+    public BroadcastResult broadcastTx(EthTransaction tx) throws TransactionBroadcastException {
+        return null;
     }
 
     @Override
-    public void queueTransaction(TransactionEx transaction) {
-
+    public GenericAddress getReceiveAddress() {
+        return null;
     }
 
     @Override
@@ -72,32 +73,17 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
     }
 
     @Override
+    public boolean isMineAddress(GenericAddress address) {
+        return false;
+    }
+
+    @Override
     public EthTransaction getTx(Sha256Hash transactionId) {
         return null;
     }
 
     @Override
-    public TransactionSummary getTransactionSummary(Sha256Hash txid) {
-        return null;
-    }
-
-    @Override
-    public boolean cancelQueuedTransaction(Sha256Hash transactionId) {
-        return false;
-    }
-
-    @Override
-    public boolean deleteTransaction(Sha256Hash transactionId) {
-        return false;
-    }
-
-    @Override
     public List<GenericTransaction> getTransactions(int offset, int limit) {
-        return null;
-    }
-
-    @Override
-    public UnsignedTransaction createUnsignedPop(Sha256Hash txid, byte[] nonce) {
         return null;
     }
 
@@ -172,26 +158,6 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
     }
 
     @Override
-    public boolean isMine(Address address) {
-        return false;
-    }
-
-    @Override
-    public Optional<Address> getReceivingAddress() {
-        return null;
-    }
-
-    @Override
-    public boolean isOwnExternalAddress(Address address) {
-        return false;
-    }
-
-    @Override
-    public boolean isOwnInternalAddress(Address address) {
-        return false;
-    }
-
-    @Override
     public int getSyncTotalRetrievedTransactions() {
         return 0;
     }
@@ -201,13 +167,4 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
         return null;
     }
 
-    @Override
-    public ExactCurrencyValue calculateMaxSpendableAmount(long minerFeeToUse) {
-        return null;
-    }
-
-    @Override
-    public List<TransactionSummary> getTransactionsSince(Long receivingSince) {
-        return null;
-    }
 }

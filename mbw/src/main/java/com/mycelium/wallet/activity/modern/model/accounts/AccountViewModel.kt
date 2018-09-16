@@ -26,7 +26,7 @@ class AccountViewModel(account: WalletAccount<out GenericTransaction, out Generi
     var displayAddress: String
 
     init {
-        val receivingAddress = account.receivingAddress
+        val receivingAddress = (account as WalletBtcAccount).receivingAddress
         displayAddress = if (receivingAddress.isPresent) {
             if (label.isEmpty()) {
                 // Display address in it's full glory, chopping it into three

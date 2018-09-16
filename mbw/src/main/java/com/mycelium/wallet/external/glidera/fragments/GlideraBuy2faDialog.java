@@ -28,6 +28,7 @@ import com.mycelium.wallet.external.glidera.api.response.BuyPriceResponse;
 import com.mycelium.wallet.external.glidera.api.response.BuyResponse;
 import com.mycelium.wallet.external.glidera.api.response.GlideraError;
 import com.mycelium.wallet.external.glidera.api.response.TwoFactorResponse;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -185,7 +186,7 @@ public class GlideraBuy2faDialog extends DialogFragment {
                twoFACode = null;
             }
 
-            Optional<Address> receivingAddress = mbwManager.getSelectedAccount().getReceivingAddress();
+            Optional<Address> receivingAddress = ((WalletBtcAccount)(mbwManager.getSelectedAccount())).getReceivingAddress();
             if (receivingAddress.isPresent()) {
                Address address = receivingAddress.get();
                BigDecimal qty = _buyPriceResponse.getQty();

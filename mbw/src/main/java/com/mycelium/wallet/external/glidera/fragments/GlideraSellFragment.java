@@ -24,6 +24,7 @@ import com.mycelium.wallet.external.glidera.api.response.GlideraError;
 import com.mycelium.wallet.external.glidera.api.response.SellAddressResponse;
 import com.mycelium.wallet.external.glidera.api.response.SellPriceResponse;
 import com.mycelium.wallet.external.glidera.api.response.TransactionLimitsResponse;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 import java.math.BigDecimal;
 
@@ -55,7 +56,7 @@ public class GlideraSellFragment extends Fragment {
 
       glideraService = GlideraService.getInstance();
       MbwManager mbwManager = MbwManager.getInstance(this.getActivity());
-      btcAvailible = mbwManager.getSelectedAccount().calculateMaxSpendableAmount(TransactionUtils.DEFAULT_KB_FEE).getExactValue()
+      btcAvailible = ((WalletBtcAccount)(mbwManager.getSelectedAccount())).calculateMaxSpendableAmount(TransactionUtils.DEFAULT_KB_FEE).getExactValue()
               .getValue();
 
         /*

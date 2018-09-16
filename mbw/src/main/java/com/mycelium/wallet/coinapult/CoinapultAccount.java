@@ -74,12 +74,14 @@ import com.mycelium.wapi.model.TransactionDetails;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputSummary;
 import com.mycelium.wapi.model.TransactionSummary;
+import com.mycelium.wapi.wallet.BroadcastResult;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.BtcTransaction;
 import com.mycelium.wapi.wallet.btc.SynchronizeAbleWalletBtcAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
@@ -421,7 +423,13 @@ public class CoinapultAccount extends SynchronizeAbleWalletBtcAccount {
    }
 
    @Override
-   public void broadcastTx(BtcTransaction tx) throws TransactionBroadcastException {
+   public BroadcastResult broadcastTx(BtcTransaction tx) throws TransactionBroadcastException {
+      return null;
+   }
+
+   @Override
+   public GenericAddress getReceiveAddress() {
+      return null;
    }
 
    @Override
@@ -433,6 +441,11 @@ public class CoinapultAccount extends SynchronizeAbleWalletBtcAccount {
     public Balance getAccountBalance() {
         return null;
     }
+
+   @Override
+   public boolean isMineAddress(GenericAddress address) {
+      return false;
+   }
 
    @Override
    public BtcTransaction getTx(Sha256Hash transactionId) {
@@ -797,7 +810,7 @@ public class CoinapultAccount extends SynchronizeAbleWalletBtcAccount {
       }
 
       public PreparedCoinapult(WalletAccount.Receiver receiver) {
-         address = receiver.address;
+         address = (BtcAddress)receiver.address;
          satoshis = receiver.amount;
       }
 

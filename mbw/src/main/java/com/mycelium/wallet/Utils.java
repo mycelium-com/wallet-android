@@ -99,6 +99,7 @@ import com.mycelium.wapi.wallet.ExportableAccount;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
 import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
@@ -937,7 +938,7 @@ public class Utils {
               || account instanceof ColuAccount) {
          return false; //we do not support coinapult accs in lt (yet)
       }
-      if (!account.getReceivingAddress().isPresent()) {
+      if (!((WalletBtcAccount)(account)).getReceivingAddress().isPresent()) {
          return false;  // the account has no valid receiving address (should not happen) - dont use it
       }
       return true; //all other account types including trezor accs are fine

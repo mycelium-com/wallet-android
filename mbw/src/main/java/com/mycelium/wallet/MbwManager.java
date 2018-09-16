@@ -114,6 +114,7 @@ import com.mycelium.wapi.wallet.SecureKeyValueStore;
 import com.mycelium.wapi.wallet.SpvBalanceFetcher;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletManager;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
@@ -1165,7 +1166,7 @@ public class MbwManager {
       for (UUID uuid : _walletManager.getAccountIds()) {
          WalletAccount account = _walletManager.getAccount(uuid);
          if ((accountClass == null || accountClass.isAssignableFrom(account.getClass()))
-                 && account.isMine(address)) {
+                 && ((WalletBtcAccount)(account)).isMine(address)) {
             result = Optional.of(uuid);
             break;
          }
@@ -1194,7 +1195,7 @@ public class MbwManager {
         Preconditions.checkState(account.isActive());
         getEditor().putString(SELECTED_ACCOUNT, uuid.toString()).apply();
         getEventBus().post(new SelectedAccountChanged(uuid));
-        Optional<Address> receivingAddress = account.getReceivingAddress();
+        Optional<Address> receivingAddress = ((WalletBtcAccount)(account)).getReceivingAddress();
         getEventBus().post(new ReceivingAddressChanged(receivingAddress));
         // notify the wallet manager that this is the active account now
         _walletManager.setActiveAccount(account.getId());

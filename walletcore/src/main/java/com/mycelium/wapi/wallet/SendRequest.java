@@ -1,6 +1,7 @@
 package com.mycelium.wapi.wallet;
 
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
+import com.mycelium.wapi.wallet.coins.Value;
 
 public class SendRequest<T extends GenericTransaction> {
 
@@ -10,6 +11,8 @@ public class SendRequest<T extends GenericTransaction> {
     public CryptoCurrency type;
 
     public T tx;
+
+    public Value fee;
 
     public boolean isCompleted() {
         return completed;
@@ -25,5 +28,6 @@ public class SendRequest<T extends GenericTransaction> {
 
     protected SendRequest(CryptoCurrency type) {
         this.type = type;
+        fee = type.getFeeValue();
     }
 }

@@ -119,6 +119,7 @@ import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
+import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
@@ -531,7 +532,8 @@ public class SendMainActivity extends Activity {
 
     //TODO: fee from other bitcoin account if colu
     private TransactionStatus checkHaveSpendAccount() {
-        if(isColu()) {
+   /*    TODO this should be uncommented and fixed to comply generic accounts model
+    if(isColu()) {
             if (checkFee(true)) {
                 if (btFeeFromAccount.getVisibility() == VISIBLE) {
                     AnimationUtils.collapse(btFeeFromAccount, null);
@@ -560,6 +562,9 @@ public class SendMainActivity extends Activity {
             }
         }
         return _transactionStatus;
+        */
+        return TransactionStatus.OK;
+
     }
 
     private WalletAccount getFundAccount() {
@@ -884,7 +889,7 @@ public class SendMainActivity extends Activity {
                 _transactionLabel = paymentRequestInformation.getPaymentDetails().memo;
                 return TransactionStatus.OK;
             } else if(hasAddressData) {
-                WalletAccount.Receiver receiver = new WalletAccount.Receiver(_receivingAddress, toSend.getValue());
+                WalletAccount.Receiver receiver = new WalletAccount.Receiver((BtcAddress)_receivingAddress, toSend.getValue());
                 _unsigned = ((WalletBtcAccount)_account).createUnsignedTransaction(Collections.singletonList(receiver), feePerKbValue);
                 checkSpendingUnconfirmed();
                 return TransactionStatus.OK;
@@ -1103,7 +1108,8 @@ public class SendMainActivity extends Activity {
    private void checkSpendingUnconfirmed() {
       for (UnspentTransactionOutput out : _unsigned.getFundingOutputs()) {
          Address address = out.script.getAddress(_mbwManager.getNetwork());
-         if (out.height == -1 && _account.isOwnExternalAddress(address)) {
+
+         if (out.height == -1 && ((WalletBtcAccount)(_account)).isOwnExternalAddress(address)) {
             // this is an unconfirmed output from an external address -> we want to warn the user
             // we allow unconfirmed spending of internal (=change addresses) without warning
             _spendingUnconfirmed = true;
@@ -1187,7 +1193,7 @@ public class SendMainActivity extends Activity {
 
       //Check the wallet manager to see whether its our own address, and whether we can spend from it
       WalletManager walletManager = _mbwManager.getWalletManager(false);
-      if (_receivingAddress != null && walletManager.isMyAddress(_receivingAddress)) {
+      if (_receivingAddress != null && walletManager.isMyAddress((BtcAddress)_receivingAddress)) {
          if (walletManager.hasPrivateKeyForAddress(_receivingAddress)) {
             // Show a warning as we are sending to one of our own addresses
             tvWarning.setVisibility(VISIBLE);
@@ -1548,11 +1554,11 @@ public class SendMainActivity extends Activity {
 
                     // check again if the payment request isn't expired, as signing might have taken some time
                     // (e.g. with external signature provider)
-                    if (!_paymentRequestHandler.getPaymentRequestInformation().isExpired() && _account.getReceivingAddress().isPresent()) {
+                    if (!_paymentRequestHandler.getPaymentRequestInformation().isExpired()) {
                         // first send signed tx directly to the Merchant, and broadcast
                         // it only if we get a ACK from him (in paymentRequestAck)
 
-                        _paymentRequestHandler.sendResponse(_signedTransaction, (Address) _account.getReceivingAddress().get());
+                        _paymentRequestHandler.sendResponse(_signedTransaction, (Address)(_account.getReceiveAddress()));
                     } else {
                         makeText(this, getString(R.string.payment_request_not_sent_expired), LENGTH_LONG).show();
 
@@ -1663,7 +1669,8 @@ public class SendMainActivity extends Activity {
    public void syncFinished(SyncStopped event) {
       if (_xpubSyncing) {
          _xpubSyncing = false;
-         _receivingAddress = (Address) _mbwManager.getWalletManager(true).getAccount(_receivingAcc).getReceivingAddress().get();
+          WalletBtcAccount account = (WalletBtcAccount)_mbwManager.getWalletManager(true).getAccount(_receivingAcc);
+         _receivingAddress = (Address) account.getReceivingAddress().get();
          if (_progress != null) {
             _progress.dismiss();
          }

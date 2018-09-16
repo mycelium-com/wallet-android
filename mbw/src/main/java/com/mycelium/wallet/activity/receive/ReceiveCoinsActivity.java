@@ -78,6 +78,7 @@ import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
@@ -458,7 +459,7 @@ public class ReceiveCoinsActivity extends Activity {
         TextView tvRecv = (TextView) findViewById(R.id.tvReceived);
         TextView tvRecvWarning = (TextView) findViewById(R.id.tvReceivedWarningAmount);
         final WalletAccount selectedAccount = _mbwManager.getSelectedAccount();
-        final List<TransactionSummary> transactionsSince = selectedAccount.getTransactionsSince(_receivingSince);
+        final List<TransactionSummary> transactionsSince = ((WalletBtcAccount)(selectedAccount)).getTransactionsSince(_receivingSince);
         final ArrayList<TransactionSummary> interesting = new ArrayList<TransactionSummary>();
         CurrencyValue sum = ExactBitcoinValue.ZERO;
         for (TransactionSummary item : transactionsSince) {

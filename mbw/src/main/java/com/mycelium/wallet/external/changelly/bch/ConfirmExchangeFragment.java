@@ -42,6 +42,7 @@ import com.mycelium.wallet.external.changelly.model.Order;
 import com.mycelium.wallet.pdf.BCHExchangeReceiptBuilder;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
@@ -215,8 +216,8 @@ public class ConfirmExchangeFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        fromAddress.setText(((Address)fromAccount.getReceivingAddress().get()).getShortAddress());
-        toAddress.setText(((Address)toAccount.getReceivingAddress().get()).getShortAddress());
+        fromAddress.setText(((Address)((WalletBtcAccount)(fromAccount)).getReceivingAddress().get()).getShortAddress());
+        toAddress.setText(((Address)(((WalletBtcAccount)toAccount)).getReceivingAddress().get()).getShortAddress());
 
         fromLabel.setText(mbwManager.getMetadataStorage().getLabelByAccount(fromAccount.getId()));
         toLabel.setText(mbwManager.getMetadataStorage().getLabelByAccount(toAccount.getId()));
@@ -258,7 +259,7 @@ public class ConfirmExchangeFragment extends Fragment {
                 .putExtra(ChangellyService.FROM, ChangellyService.BCH)
                 .putExtra(ChangellyService.TO, ChangellyService.BTC)
                 .putExtra(ChangellyService.AMOUNT, sentAmount)
-                .putExtra(ChangellyService.DESTADDRESS, toAccount.getReceivingAddress().get().toString());
+                .putExtra(ChangellyService.DESTADDRESS, ((WalletBtcAccount)(toAccount)).getReceivingAddress().get().toString());
         getActivity().startService(changellyServiceIntent);
 
     }
@@ -364,7 +365,7 @@ public class ConfirmExchangeFragment extends Fragment {
         order.exchangingAmount = decimalFormat.format(amount);
         order.exchangingCurrency = CurrencyValue.BCH;
 
-        order.receivingAddress = toAccount.getReceivingAddress().get().toString();
+        order.receivingAddress = ((WalletBtcAccount)(toAccount)).getReceivingAddress().get().toString();
         order.receivingAmount = toValue;
         order.receivingCurrency = CurrencyValue.BTC;
         order.timestamp = SimpleDateFormat.getDateTimeInstance(SimpleDateFormat.LONG, SimpleDateFormat.LONG, Locale.ENGLISH)
