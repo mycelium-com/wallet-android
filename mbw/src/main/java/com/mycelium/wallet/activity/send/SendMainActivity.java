@@ -72,10 +72,7 @@ import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.OutputList;
-import com.mrd.bitlib.model.ScriptOutputP2SH;
-import com.mrd.bitlib.model.ScriptOutputP2WPKH;
 import com.mrd.bitlib.model.Transaction;
-import com.mrd.bitlib.model.TransactionOutput;
 import com.mrd.bitlib.model.UnspentTransactionOutput;
 import com.mycelium.paymentrequest.PaymentRequestException;
 import com.mycelium.paymentrequest.PaymentRequestInformation;
@@ -122,7 +119,6 @@ import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
-
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
 import com.mycelium.wapi.wallet.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.Value;
@@ -1520,7 +1516,8 @@ public class SendMainActivity extends Activity {
             String s = Preconditions.checkNotNull(intent.getStringExtra(AddressBookFragment.ADDRESS_RESULT_NAME));
             String result = s.trim();
             // Is it really an address?
-            Address address = Address.fromString(result, _mbwManager.getNetwork());
+            GenericAddress address = new BtcAddress(BitcoinTest.get(), result.getBytes()); // todo bitcoin
+//            Address.fromString(result, _mbwManager.getNetwork());
             if (address == null) {
                 return;
             }

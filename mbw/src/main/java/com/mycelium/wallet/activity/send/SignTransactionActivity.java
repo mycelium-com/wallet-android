@@ -34,11 +34,13 @@
 
 package com.mycelium.wallet.activity.send;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Window;
+
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.model.Transaction;
@@ -138,6 +140,7 @@ public class SignTransactionActivity extends Activity {
       super.onResume();
    }
 
+   @SuppressLint("StaticFieldLeak")
    protected AsyncTask<Void, Integer, Transaction> startSigningTask() {
       cancelSigningTask();
       // Sign transaction in the background
@@ -145,6 +148,11 @@ public class SignTransactionActivity extends Activity {
          @Override
          protected Transaction doInBackground(Void... args) {
             try {
+               // todo
+//               SendRequest sendRequest = _account.getSendToRequest(saAddress, amountToSend);
+//               _account.completeAndSignTx(sendRequest);
+//               return sendRequest.tx;
+
                return _account.signTransaction(_unsigned, AesKeyCipher.defaultKeyCipher());
             } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
                throw new RuntimeException(invalidKeyCipher);

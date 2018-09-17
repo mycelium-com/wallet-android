@@ -34,6 +34,7 @@
 
 package com.mycelium.wallet.activity.send;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -129,9 +130,13 @@ public class BroadcastTransactionActivity extends Activity {
 
    private AsyncTask<Void, Integer, BroadcastResult> startBroadcastingTask() {
       // Broadcast the transaction in the background
-      AsyncTask<Void, Integer, BroadcastResult> task = new AsyncTask<Void, Integer, BroadcastResult>() {
+      @SuppressLint("StaticFieldLeak") AsyncTask<Void, Integer, BroadcastResult> task = new AsyncTask<Void, Integer, BroadcastResult>() {
          @Override
          protected BroadcastResult doInBackground(Void... args) {
+            // todo
+//            SendRequest sendRequest = account.getSendToRequest(saAddress, amountToSend);
+//            _account.broadcastTx(sendRequest.tx);
+
             if (!Utils.isConnected(BroadcastTransactionActivity.this)) {
                return BroadcastResult.NO_SERVER_CONNECTION;
             }

@@ -1,10 +1,12 @@
 package com.mycelium.wapi.wallet.btc;
 
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.AddressType;
+import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.coins.BitcoinMain;
+import com.mycelium.wapi.wallet.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
-
-import java.util.Currency;
 
 public class BtcAddress extends Address implements GenericAddress {
 
@@ -13,6 +15,23 @@ public class BtcAddress extends Address implements GenericAddress {
     public BtcAddress(CryptoCurrency currencyType, byte[] bytes) {
         super(bytes);
         this.currencyType = currencyType;
+    }
+
+    @Override
+    public AddressType getType() {
+        NetworkParameters networkParameters;
+        if(currencyType instanceof BitcoinTest)
+            networkParameters = NetworkParameters.testNetwork;
+        else if(currencyType instanceof BitcoinMain)
+            networkParameters = NetworkParameters.productionNetwork;
+        else
+            networkParameters = NetworkParameters.regtestNetwork;
+
+        if (isP2SH(networkParameters)) {
+            return AddressType.P2SH_P2WPKH;
+        } else {
+            return AddressType.P2PKH;
+        }
     }
 
     @Override
