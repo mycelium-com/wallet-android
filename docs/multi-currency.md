@@ -23,7 +23,7 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
 }
 
 ```
-The methods of WalletAccount cover all operations necessary to manage an asset. 
+The methods of [WalletAccount](../walletcore/src/main/java/com/mycelium/wapi/wallet/WalletAccount.java) cover all operations necessary to manage an asset. 
 The Mycelium Wallet's user is able to get the balance of the specific asset, get a list of transactions,
 prepare a transaction by signing it, broadcast the transaction to the network. 
 
