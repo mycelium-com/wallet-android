@@ -10,10 +10,7 @@ import com.mrd.bitlib.model.Transaction
 import com.mrd.bitlib.util.ByteWriter
 import com.mrd.bitlib.util.HashUtils
 import com.mrd.bitlib.util.Sha256Hash
-import com.mycelium.wapi.model.BalanceSatoshis
-import com.mycelium.wapi.model.TransactionEx
-import com.mycelium.wapi.model.TransactionOutputSummary
-import com.mycelium.wapi.model.TransactionSummary
+import com.mycelium.wapi.model.*
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.BtcTransaction
 import com.mycelium.wapi.wallet.btc.SynchronizeAbleWalletBtcAccount
@@ -30,6 +27,21 @@ import java.util.*
 class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InMemoryPrivateKey
                        , val _network: NetworkParameters, coinapultCurrency: Currency)
     : SynchronizeAbleWalletBtcAccount() {
+    override fun getTransactionDetails(txid: Sha256Hash?): TransactionDetails {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun getReceiveAddress(): GenericAddress {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun isMineAddress(address: GenericAddress?): Boolean {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun getTx(transactionId: Sha256Hash?): BtcTransaction {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
 
     val uuid: UUID
 
@@ -64,7 +76,7 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun broadcastTransaction(transaction: Transaction?): WalletBtcAccount.BroadcastResult {
+    override fun broadcastTransaction(transaction: Transaction?): BroadcastResult {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
@@ -76,7 +88,7 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun getTransaction(transactionId: Sha256Hash?): BtcTransaction {
+    override fun getTransaction(transactionId: Sha256Hash?): TransactionEx? {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
@@ -114,15 +126,9 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun getReceivingAddress(): Optional<Address> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun getReceivingAddress(): Optional<Address> = Optional.absent()
 
     override fun isOwnInternalAddress(address: Address?): Boolean {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun getTransactionEx(txid: Sha256Hash?): TransactionEx {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
@@ -168,7 +174,7 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun broadcastTx(tx: BtcTransaction?) {
+    override fun broadcastTx(tx: BtcTransaction?): BroadcastResult? {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 

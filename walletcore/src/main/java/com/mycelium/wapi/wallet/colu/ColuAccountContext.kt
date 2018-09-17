@@ -1,7 +1,8 @@
 package com.mycelium.wapi.wallet.colu
 
 
-class ColuAccountContext(private var isArchived: Boolean) {
+class ColuAccountContext(private var isArchived: Boolean, var blockHeight: Int) {
+
     /**
      * Is this account archived?
      */
