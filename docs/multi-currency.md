@@ -27,6 +27,11 @@ The methods of WalletAccount cover all operations necessary to manage an asset.
 The Mycelium Wallet user is able to get the balance for the specific asset, get the list of transactions,
 prepare a transaction by signing it and broadcast it to the network. 
 
+As long as a majority of crypto-currencies have their own transaction formats
+and address representation, the *WalletAccount* interface use templates. To describe the specific 
+assets' transactions and its address representation, the custom classes implementing *GenericAddress* and *GenericTransaction*
+should be created and used as templates.
+ 
 Below is an example of some assets implementing *WalletAccount* interface:
 
 ![Image](images/accs.png)
