@@ -29,4 +29,20 @@ public class BtcAddress extends Address implements GenericAddress {
         Address addr = Address.fromString(address);
         return new BtcAddress(currencyType, addr.getAllAddressBytes());
     }
+
+    @Override
+    public String toDoubleLineString() {
+        String address = toString();
+        int splitIndex = address.length() / 2;
+        return address.substring(0, splitIndex) + "\r\n" +
+                address.substring(splitIndex);
+    }
+
+    @Override
+    public String toMultiLineString() {
+        String address = toString();
+        return address.substring(0, 12) + "\r\n" +
+                address.substring(12, 24) + "\r\n" +
+                address.substring(24);
+    }
 }

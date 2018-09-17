@@ -6,4 +6,6 @@ public interface GenericAddress {
     CryptoCurrency getCoinType();
     String toString();
     long getId();
+    String toMultiLineString();
+    String toDoubleLineString();
 }

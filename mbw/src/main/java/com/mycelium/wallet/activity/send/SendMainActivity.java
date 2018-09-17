@@ -115,6 +115,7 @@ import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.paymentrequest.PaymentRequestHandler;
 import com.mycelium.wapi.api.lib.FeeEstimation;
 import com.mycelium.wapi.api.response.Feature;
+import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
@@ -253,7 +254,7 @@ public class SendMainActivity extends Activity {
 
     protected WalletAccount _account;
     private Value _amountToSend;
-    private Address _receivingAddress;
+    private GenericAddress _receivingAddress;
     private String _receivingLabel;
     protected String _transactionLabel;
     private BitcoinUri _bitcoinUri;
@@ -344,7 +345,7 @@ public class SendMainActivity extends Activity {
         _amountToSend = (Value) getIntent().getSerializableExtra(AMOUNT);
         _amountToSend = Value.valueOf(BitcoinTest.get(), 123456); // todo delete test (since we can't use GetAmountActivity)
         // May be null
-        _receivingAddress = (Address) getIntent().getSerializableExtra(RECEIVING_ADDRESS);
+        _receivingAddress = (BtcAddress) getIntent().getSerializableExtra(RECEIVING_ADDRESS);
         //May be null
         _transactionLabel = getIntent().getStringExtra(TRANSACTION_LABEL);
         //May be null
@@ -365,7 +366,7 @@ public class SendMainActivity extends Activity {
         // Load saved state, overwriting amount and address
         if (savedInstanceState != null) {
             _amountToSend = (Value) getIntent().getSerializableExtra(AMOUNT); // todo
-            _receivingAddress = (Address) savedInstanceState.getSerializable(RECEIVING_ADDRESS);
+            _receivingAddress = (BtcAddress) savedInstanceState.getSerializable(RECEIVING_ADDRESS);
             _transactionLabel = savedInstanceState.getString(TRANSACTION_LABEL);
             feeLvl = (MinerFee) savedInstanceState.getSerializable(FEE_LVL);
             feePerKbValue = savedInstanceState.getLong(FEE_PER_KB);
@@ -399,7 +400,7 @@ public class SendMainActivity extends Activity {
             //we need the user to pick a spending account - the activity will then init sendmain correctly
             BitcoinUri uri;
             if (_bitcoinUri == null) {
-                uri = BitcoinUri.from(_receivingAddress, getValueToSend() == null ? null : getValueToSend().getValue(), _transactionLabel, null);
+                uri = BitcoinUri.from((BtcAddress)_receivingAddress, getValueToSend() == null ? null : getValueToSend().getValue(), _transactionLabel, null);
             } else {
                 uri = _bitcoinUri;
             }
@@ -629,7 +630,7 @@ public class SendMainActivity extends Activity {
    public void onSaveInstanceState(Bundle savedInstanceState) {
       super.onSaveInstanceState(savedInstanceState);
       savedInstanceState.putSerializable(AMOUNT, _amountToSend);
-      savedInstanceState.putSerializable(RECEIVING_ADDRESS, _receivingAddress);
+      savedInstanceState.putSerializable(RECEIVING_ADDRESS, (BtcAddress)_receivingAddress);
       savedInstanceState.putString(TRANSACTION_LABEL, _transactionLabel);
       savedInstanceState.putSerializable(FEE_LVL, feeLvl);
       savedInstanceState.putLong(FEE_PER_KB, feePerKbValue);
@@ -1157,7 +1158,7 @@ public class SendMainActivity extends Activity {
         if (_receivingLabel != null) {
             label = _receivingLabel;
         } else if (_receivingAddress != null) {
-            label = getAddressLabel(_receivingAddress);
+            label = getAddressLabel((BtcAddress)_receivingAddress);
         }
       if (label == null || label.length() == 0) {
          // Hide label
@@ -1193,7 +1194,7 @@ public class SendMainActivity extends Activity {
 
       //Check the wallet manager to see whether its our own address, and whether we can spend from it
       WalletManager walletManager = _mbwManager.getWalletManager(false);
-      if (_receivingAddress != null && walletManager.isMyAddress((BtcAddress)_receivingAddress)) {
+      if (_receivingAddress != null && walletManager.isMyAddress(_receivingAddress)) {
          if (walletManager.hasPrivateKeyForAddress(_receivingAddress)) {
             // Show a warning as we are sending to one of our own addresses
             tvWarning.setVisibility(VISIBLE);
@@ -1473,9 +1474,9 @@ public class SendMainActivity extends Activity {
                 StringHandlerActivity.ResultType type = (StringHandlerActivity.ResultType) intent.getSerializableExtra(StringHandlerActivity.RESULT_TYPE_KEY);
                 if (type == StringHandlerActivity.ResultType.PRIVATE_KEY) {
                     InMemoryPrivateKey key = StringHandlerActivity.getPrivateKey(intent);
-                    _receivingAddress = key.getPublicKey().toAddress(_mbwManager.getNetwork(), AddressType.P2SH_P2WPKH);    //TODO SegWit fix
+                    _receivingAddress = (BtcAddress)key.getPublicKey().toAddress(_mbwManager.getNetwork(), AddressType.P2SH_P2WPKH);    //TODO SegWit fix
                 } else if (type == StringHandlerActivity.ResultType.ADDRESS) {
-                    _receivingAddress = StringHandlerActivity.getAddress(intent);
+                    _receivingAddress = (BtcAddress)StringHandlerActivity.getAddress(intent);
                 } else if (type == StringHandlerActivity.ResultType.URI_WITH_ADDRESS) {
                     BitcoinUriWithAddress uri = StringHandlerActivity.getUriWithAddress(intent);
                     if (uri.callbackURL != null) {
@@ -1485,7 +1486,7 @@ public class SendMainActivity extends Activity {
                         verifyPaymentRequest(_bitcoinUri);
                         return;
                     }
-                    _receivingAddress = uri.address;
+                    _receivingAddress = (BtcAddress)uri.address;
                     _transactionLabel = uri.label;
                     if (uri.amount != null && uri.amount > 0) {
                         //we set the amount to the one contained in the qr code, even if another one was entered previously
@@ -1523,7 +1524,7 @@ public class SendMainActivity extends Activity {
             if (address == null) {
                 return;
             }
-            _receivingAddress = address;
+            _receivingAddress = (BtcAddress)address;
             if (intent.getExtras().containsKey(AddressBookFragment.ADDRESS_RESULT_LABEL)) {
                 _receivingLabel = intent.getStringExtra(AddressBookFragment.ADDRESS_RESULT_LABEL);
             }
@@ -1532,7 +1533,7 @@ public class SendMainActivity extends Activity {
             _transactionStatus = tryCreateUnsignedTransaction();
             updateUi();
         } else if (requestCode == MANUAL_ENTRY_RESULT_CODE && resultCode == RESULT_OK) {
-            _receivingAddress = Preconditions.checkNotNull((Address) intent
+            _receivingAddress = (BtcAddress)Preconditions.checkNotNull((Address) intent
                     .getSerializableExtra(ManualAddressEntry.ADDRESS_RESULT_NAME));
 
             _transactionStatus = tryCreateUnsignedTransaction();
@@ -1669,8 +1670,8 @@ public class SendMainActivity extends Activity {
    public void syncFinished(SyncStopped event) {
       if (_xpubSyncing) {
          _xpubSyncing = false;
-          WalletBtcAccount account = (WalletBtcAccount)_mbwManager.getWalletManager(true).getAccount(_receivingAcc);
-         _receivingAddress = (Address) account.getReceivingAddress().get();
+          WalletAccount account = _mbwManager.getWalletManager(true).getAccount(_receivingAcc);
+         _receivingAddress =  account.getReceiveAddress();
          if (_progress != null) {
             _progress.dismiss();
          }

@@ -713,11 +713,11 @@ public class WalletManager {
      * @param address the address to query for
      * @return true if any account in the wallet manager has the private key for the specified address
      */
-    public synchronized boolean hasPrivateKeyForAddress(Address address) {
+    public synchronized boolean hasPrivateKeyForAddress(GenericAddress address) {
         // don't use getAccountByAddress here, as we might have the same address in an pub-only account and a normal account too
         for (WalletAccount account : getAllAccounts()) {
-            WalletBtcAccount btcAccount = (WalletBtcAccount)account;
-            if (btcAccount.canSpend() && btcAccount.isMine(address)) {
+            WalletAccount btcAccount = account;
+            if (btcAccount.canSpend() && btcAccount.isMineAddress(address)) {
                 return true;
             }
         }

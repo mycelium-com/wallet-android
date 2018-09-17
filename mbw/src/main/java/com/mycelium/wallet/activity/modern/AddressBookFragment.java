@@ -73,8 +73,10 @@ import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil.AddressLabelChangedHandler;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.AddressBookChanged;
+import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
+import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.squareup.otto.Subscribe;
@@ -97,7 +99,7 @@ public class AddressBookFragment extends Fragment {
    public static final String ADDRESS_RESULT_LABEL = "address_result_label";
 
 
-   private Address mSelectedAddress;
+   private GenericAddress mSelectedAddress;
    private MbwManager _mbwManager;
    private Dialog _addDialog;
    private ActionMode currentActionMode;
@@ -246,7 +248,7 @@ public class AddressBookFragment extends Fragment {
 
       @Override
       public void onItemClick(AdapterView<?> listView, final View view, int position, long id) {
-         mSelectedAddress = (Address) view.getTag();
+         mSelectedAddress = (GenericAddress) view.getTag();
          AppCompatActivity parent = (AppCompatActivity) getActivity();
          currentActionMode = parent.startSupportActionMode(new ActionMode.Callback() {
             @Override
@@ -298,7 +300,7 @@ public class AddressBookFragment extends Fragment {
    };
 
    private void doEditEntry() {
-      EnterAddressLabelUtil.enterAddressLabel(getActivity(), _mbwManager.getMetadataStorage(), mSelectedAddress, "", addressLabelChanged);
+      EnterAddressLabelUtil.enterAddressLabel(getActivity(), _mbwManager.getMetadataStorage(),(BtcAddress) mSelectedAddress, "", addressLabelChanged);
    }
 
    private void doShowQrCode() {
@@ -309,7 +311,7 @@ public class AddressBookFragment extends Fragment {
          return;
       }
       boolean hasPrivateKey = _mbwManager.getWalletManager(false).hasPrivateKeyForAddress(mSelectedAddress);
-      ReceiveCoinsActivity.callMe(getActivity(), mSelectedAddress, hasPrivateKey);
+      ReceiveCoinsActivity.callMe(getActivity(),(BtcAddress) mSelectedAddress, hasPrivateKey);
       finishActionMode();
    }
 
@@ -326,7 +328,7 @@ public class AddressBookFragment extends Fragment {
             .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                public void onClick(DialogInterface dialog, int id) {
                   dialog.cancel();
-                  _mbwManager.getMetadataStorage().deleteAddressMetadata(mSelectedAddress);
+                  _mbwManager.getMetadataStorage().deleteAddressMetadata((BtcAddress)mSelectedAddress);
                   finishActionMode();
                   _mbwManager.getEventBus().post(new AddressBookChanged());
                }

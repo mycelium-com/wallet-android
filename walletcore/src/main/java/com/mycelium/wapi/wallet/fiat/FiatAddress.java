@@ -19,4 +19,14 @@ public class FiatAddress implements GenericAddress {
     public long getId() {
         return 0;
     }
+
+    @Override
+    public String toDoubleLineString() {
+        return null;
+    }
+
+    @Override
+    public String toMultiLineString() {
+        return null;
+    }
 }
