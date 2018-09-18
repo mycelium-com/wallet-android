@@ -65,7 +65,9 @@ and a number of transferred currency units:
      Value amountToSend = Value.valueOf(asset, 1000000);
 ``` 
 
-Then a send request object is created using the information about the receiving address and the 
+A send request object contains all the nesessary information to prepare a transaction,
+including fee size. If a fee size is not specified, a default value is taken.
+It's time to create a send request object using the information about the receiving address and the 
 amount to send:
 
 ```      
@@ -83,3 +85,8 @@ And we can broadcast the transaction:
 ``` 
      account.broadcastTx(request.tx);
 ```    
+
+## Retrieving fee estimations
+
+Each asset has its own fee policy and ways to get an average fee.
+The fees information could be retrieved using *WalletManager*.
