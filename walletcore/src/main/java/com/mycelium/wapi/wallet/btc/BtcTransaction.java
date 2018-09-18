@@ -1,24 +1,20 @@
 package com.mycelium.wapi.wallet.btc;
 
 import com.google.common.base.Optional;
-import com.mrd.bitlib.StandardTransactionBuilder;
-import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.Transaction;
-import com.mrd.bitlib.model.UnspentTransactionOutput;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal;
 import com.mycelium.wapi.wallet.GenericTransaction;
-import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
 
-import javax.annotation.Nullable;
-
+import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
-public class BtcTransaction implements GenericTransaction {
+import javax.annotation.Nullable;
+
+public class BtcTransaction implements GenericTransaction, Serializable {
     final CryptoCurrency type;
     final Sha256Hash hash;
     final Transaction tx;

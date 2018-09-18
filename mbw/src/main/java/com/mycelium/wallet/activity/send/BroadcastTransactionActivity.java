@@ -45,22 +45,19 @@ import android.view.Window;
 import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
-import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.modularizationtools.CommunicationManager;
-import com.mycelium.spvmodule.IntentContract;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.WalletApplication;
 import com.mycelium.wallet.event.SyncFailed;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.modularisation.GooglePlayModuleCollection;
-import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.wallet.BroadcastResult;
+import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
 import com.squareup.otto.Subscribe;
 
 import java.util.UUID;
@@ -70,17 +67,18 @@ public class BroadcastTransactionActivity extends Activity {
    protected WalletAccount _account;
    protected boolean _isColdStorage;
    private String _transactionLabel;
-   private Transaction _transaction;
+//   private Transaction _transaction;
+   private SendRequest sendRequest;
    private String _fiatValue;
    private AsyncTask<Void, Integer, BroadcastResult> _broadcastingTask;
    private BroadcastResult _broadcastResult;
 
    public static void callMe(Activity currentActivity, UUID account, boolean isColdStorage
-           , Transaction signed, String transactionLabel, String fiatValue, int requestCode) {
+           , SendRequest signedRequest, String transactionLabel, String fiatValue, int requestCode) {
       Intent intent = new Intent(currentActivity, BroadcastTransactionActivity.class)
               .putExtra("account", account)
               .putExtra("isColdStorage", isColdStorage)
-              .putExtra("signed", signed)
+              .putExtra("signed", signedRequest)
               .putExtra("transactionLabel", transactionLabel)
               .putExtra("fiatValue", fiatValue)
               .addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
@@ -89,13 +87,14 @@ public class BroadcastTransactionActivity extends Activity {
 
    public static boolean callMe(Activity currentActivity, WalletAccount account, Sha256Hash txid) {
       //TODO non-generic classes are used
-      WalletBtcAccount walletBtcAccount = (WalletBtcAccount)account;
-      TransactionEx tx = walletBtcAccount.getTransaction(txid);
-      if (tx == null) {
-         return false;
-      }
-      callMe(currentActivity, account.getId(), false, TransactionEx.toTransaction(tx), null, "", 0);
-      return  true;
+//      WalletBtcAccount walletBtcAccount = (WalletBtcAccount)account;
+//      TransactionEx tx = walletBtcAccount.getTransaction(txid);
+//      if (tx == null) {
+//         return false;
+//      }
+//      callMe(currentActivity, account.getId(), false, TransactionEx.toTransaction(tx), null, "", 0);
+//      return  true;
+      return false; // todo uncomment above and use generic
    }
 
    @Override
@@ -109,7 +108,8 @@ public class BroadcastTransactionActivity extends Activity {
       UUID accountId = Preconditions.checkNotNull((UUID) getIntent().getSerializableExtra("account"));
       _isColdStorage = getIntent().getBooleanExtra("isColdStorage", false);
       _account = Preconditions.checkNotNull(_mbwManager.getWalletManager(_isColdStorage).getAccount(accountId));
-      _transaction = (Transaction) Preconditions.checkNotNull(getIntent().getSerializableExtra("signed"));
+//      _transaction = (Transaction) Preconditions.checkNotNull(getIntent().getSerializableExtra("signed"));
+      sendRequest = (SendRequest) Preconditions.checkNotNull(getIntent().getSerializableExtra("signed"));
 
       //May be null
       _transactionLabel = getIntent().getStringExtra("transactionLabel");
@@ -133,20 +133,25 @@ public class BroadcastTransactionActivity extends Activity {
       @SuppressLint("StaticFieldLeak") AsyncTask<Void, Integer, BroadcastResult> task = new AsyncTask<Void, Integer, BroadcastResult>() {
          @Override
          protected BroadcastResult doInBackground(Void... args) {
-            // todo
-//            SendRequest sendRequest = account.getSendToRequest(saAddress, amountToSend);
-//            _account.broadcastTx(sendRequest.tx);
-
             if (!Utils.isConnected(BroadcastTransactionActivity.this)) {
                return BroadcastResult.NO_SERVER_CONNECTION;
             }
             if (CommunicationManager.getInstance().getPairedModules()
                     .contains(GooglePlayModuleCollection.getModules(getApplicationContext()).get("btc"))) {
-                  Intent intent = IntentContract.BroadcastTransaction.createIntent(_transaction.toBytes());
-                  WalletApplication.sendToSpv(intent, _mbwManager.getSelectedAccount().getClass());
+               // todo?
+//                  Intent intent = IntentContract.BroadcastTransaction.createIntent(_transaction.toBytes());
+//                  WalletApplication.sendToSpv(intent, _mbwManager.getSelectedAccount().getClass());
                   return BroadcastResult.SUCCESS;
              }
-             return ((WalletBtcAccount)_account).broadcastTransaction(_transaction);
+            // todo was return ((WalletBtcAccount)_account).broadcastTransaction(_transaction);
+
+            try {
+               return _account.broadcastTx(sendRequest.tx);
+            } catch (TransactionBroadcastException e) {
+               e.printStackTrace();
+               return BroadcastResult.REJECTED;
+            }
+
          }
 
          @Override
@@ -188,9 +193,10 @@ public class BroadcastTransactionActivity extends Activity {
                     .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 
                        public void onClick(DialogInterface arg0, int arg1) {
-                          ((WalletBtcAccount)_account).queueTransaction(TransactionEx.fromUnconfirmedTransaction(_transaction));
-                          setResultOkay();
-                          BroadcastTransactionActivity.this.finish();
+                          // todo broadcast in queue
+//                          ((WalletBtcAccount)_account).queueTransaction(TransactionEx.fromUnconfirmedTransaction(sendRequest.tx));
+//                          setResultOkay();
+//                          BroadcastTransactionActivity.this.finish();
                        }
                     })
                     .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
@@ -218,13 +224,13 @@ public class BroadcastTransactionActivity extends Activity {
    private void setResultOkay() {
       //store the transaction label if there is one
       if (_transactionLabel != null) {
-         _mbwManager.getMetadataStorage().storeTransactionLabel(_transaction.getId(), _transactionLabel);
+         _mbwManager.getMetadataStorage().storeTransactionLabel(sendRequest.tx.getHash(), _transactionLabel);
       }
 
       // Include the transaction hash in the response
       Intent result = new Intent()
               .putExtra(Constants.TRANSACTION_FIAT_VALUE_KEY, _fiatValue)
-              .putExtra(Constants.TRANSACTION_ID_INTENT_KEY, _transaction.getId().toString());
+              .putExtra(Constants.TRANSACTION_ID_INTENT_KEY, sendRequest.tx.getHash().toString());
       setResult(RESULT_OK, result);
    }
 

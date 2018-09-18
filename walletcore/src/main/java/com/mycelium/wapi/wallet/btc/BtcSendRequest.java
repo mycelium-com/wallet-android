@@ -6,7 +6,9 @@ import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
 
-public class BtcSendRequest extends SendRequest<BtcTransaction> {
+import java.io.Serializable;
+
+public class BtcSendRequest extends SendRequest<BtcTransaction> implements Serializable {
 
     private Value amount;
     private BtcAddress destination;

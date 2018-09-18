@@ -113,6 +113,7 @@ import com.mycelium.wallet.paymentrequest.PaymentRequestHandler;
 import com.mycelium.wapi.api.lib.FeeEstimation;
 import com.mycelium.wapi.api.response.Feature;
 import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
@@ -171,7 +172,8 @@ public class SendMainActivity extends Activity {
     public static final String FEE_LVL = "feeLvl";
     public static final String PAYMENT_FETCHED = "paymentFetched";
     private static final String PAYMENT_REQUEST_HANDLER_ID = "paymentRequestHandlerId";
-    private static final String SIGNED_TRANSACTION = "signedTransaction";
+    private static final String SIGNED_TRANSACTION = "signedTransaction"; // todo delete
+    private static final String SIGNED_SEND_REQUEST = "signedSendRequest";
     private static final String RMC_URI = "rmcUri";
     private static final String FEE_PER_KB = "fee_per_kb";
     public static final String TRANSACTION_FIAT_VALUE = "transaction_fiat_value";
@@ -260,7 +262,8 @@ public class SendMainActivity extends Activity {
     protected UnsignedTransaction _unsigned;
     protected CoinapultAccount.PreparedCoinapult _preparedCoinapult;
     protected ColuBroadcastTxHex.Json _preparedColuTx;
-    private Transaction _signedTransaction;
+//    private Transaction _signedTransaction; // todo remove
+    private SendRequest signedSendRequest;
     private MinerFee feeLvl;
     private long feePerKbValue;
     private ProgressDialog _progress;
@@ -369,7 +372,8 @@ public class SendMainActivity extends Activity {
             _bitcoinUri = (BitcoinUri) savedInstanceState.getSerializable(BITCOIN_URI);
             _coluAssetUri = (ColuAssetUri) savedInstanceState.getSerializable(RMC_URI);
             _paymentFetched = savedInstanceState.getBoolean(PAYMENT_FETCHED);
-            _signedTransaction = (Transaction) savedInstanceState.getSerializable(SIGNED_TRANSACTION);
+//            _signedTransaction = (Transaction) savedInstanceState.getSerializable(SIGNED_TRANSACTION);
+            signedSendRequest = (SendRequest) savedInstanceState.getSerializable(SIGNED_SEND_REQUEST);
 
             // get the payment request handler from the BackgroundObject cache - if the application
             // has restarted since it was cached, the user gets queried again
@@ -634,7 +638,8 @@ public class SendMainActivity extends Activity {
       savedInstanceState.putSerializable(BITCOIN_URI, _bitcoinUri);
       savedInstanceState.putSerializable(RMC_URI, _coluAssetUri);
       savedInstanceState.putSerializable(PAYMENT_REQUEST_HANDLER_ID, _paymentRequestHandlerUuid);
-      savedInstanceState.putSerializable(SIGNED_TRANSACTION, _signedTransaction);
+//      savedInstanceState.putSerializable(SIGNED_TRANSACTION, _signedTransaction);
+      savedInstanceState.putSerializable(SIGNED_SEND_REQUEST, signedSendRequest);
    }
 
     @OnClick(R.id.colu_tips_check_address)
@@ -685,7 +690,7 @@ public class SendMainActivity extends Activity {
 //      BitcoinUriWithAddress uri = getUriFromClipboard();
 //      if (uri != null) {
 //         makeText(this, getResources().getString(R.string.using_address_from_clipboard), LENGTH_SHORT).show();
-//         _receivingAddress = uri.address;
+//         _receivingAddress = uri.genericAddress;
 //         if (uri.amount != null && uri.amount >= 0) {
 //             _amountToSend = ExactBitcoinValue.from(uri.amount);
 //         }
@@ -1443,7 +1448,8 @@ public class SendMainActivity extends Activity {
         }
 
         disableButtons();
-        SignTransactionActivity.callMe(this, _account.getId(), _isColdStorage, _unsigned, SIGN_TRANSACTION_REQUEST_CODE);
+        SignTransactionActivity.callMe(this, _account.getId(), _isColdStorage, _unsigned, SIGN_TRANSACTION_REQUEST_CODE,
+                getValueToSend(), _receivingAddress);
     }
 
    protected void disableButtons() {
@@ -1530,7 +1536,7 @@ public class SendMainActivity extends Activity {
             _transactionStatus = tryCreateUnsignedTransaction();
             updateUi();
         } else if (requestCode == MANUAL_ENTRY_RESULT_CODE && resultCode == RESULT_OK) {
-            _receivingAddress = (BtcAddress)Preconditions.checkNotNull((Address) intent
+            _receivingAddress = (BtcAddress)Preconditions.checkNotNull(intent
                     .getSerializableExtra(ManualAddressEntry.ADDRESS_RESULT_NAME));
 
             _transactionStatus = tryCreateUnsignedTransaction();
@@ -1544,7 +1550,8 @@ public class SendMainActivity extends Activity {
             updateUi();
         } else if (requestCode == SIGN_TRANSACTION_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
-                _signedTransaction = (Transaction) Preconditions.checkNotNull(intent.getSerializableExtra("signedTx"));
+//                _signedTransaction = (Transaction) Preconditions.checkNotNull(intent.getSerializableExtra("signedTx"));
+                signedSendRequest = (SendRequest) Preconditions.checkNotNull(intent.getSerializableExtra("transactionRequest"));
 
                 // if we have a payment request with a payment_url, handle the send differently:
                 if (_paymentRequestHandler != null
@@ -1556,13 +1563,15 @@ public class SendMainActivity extends Activity {
                         // first send signed tx directly to the Merchant, and broadcast
                         // it only if we get a ACK from him (in paymentRequestAck)
 
-                        _paymentRequestHandler.sendResponse(_signedTransaction, (Address)(_account.getReceiveAddress()));
+                        // todo
+                        //_paymentRequestHandler.sendResponse(_signedTransaction, (Address)(_account.getReceiveAddress()));
                     } else {
                         makeText(this, getString(R.string.payment_request_not_sent_expired), LENGTH_LONG).show();
 
                     }
                 } else {
-                    BroadcastTransactionActivity.callMe(this, _account.getId(), _isColdStorage, _signedTransaction, _transactionLabel, getFiatValue(), BROADCAST_REQUEST_CODE);
+//                    BroadcastTransactionActivity.callMe(this, _account.getId(), _isColdStorage, _signedTransaction, _transactionLabel, getFiatValue(), BROADCAST_REQUEST_CODE);
+                    BroadcastTransactionActivity.callMe(this, _account.getId(), _isColdStorage, signedSendRequest, _transactionLabel, getFiatValue(), BROADCAST_REQUEST_CODE);
                 }
             }
         } else if (requestCode == BROADCAST_REQUEST_CODE) {
@@ -1647,10 +1656,11 @@ public class SendMainActivity extends Activity {
 
    @Subscribe
    public void paymentRequestAck(PaymentACK paymentACK) {
-      if (paymentACK != null) {
-         BroadcastTransactionActivity.callMe(this, _account.getId(), _isColdStorage, _signedTransaction
-                 , _transactionLabel, getFiatValue(), BROADCAST_REQUEST_CODE);
-      }
+        // todo PaymentACK
+//      if (paymentACK != null) {
+//         BroadcastTransactionActivity.callMe(this, _account.getId(), _isColdStorage, _signedTransaction
+//                 , _transactionLabel, getFiatValue(), BROADCAST_REQUEST_CODE);
+//      }
    }
 
    @Subscribe
