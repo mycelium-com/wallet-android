@@ -35,6 +35,7 @@
 package com.mycelium.wallet;
 
 import android.net.Uri;
+
 import com.google.common.base.Optional;
 import com.mrd.bitlib.crypto.Bip38;
 import com.mrd.bitlib.model.Address;
@@ -51,7 +52,7 @@ import java.math.BigDecimal;
 public class BitcoinUri implements Serializable {
    private static final long serialVersionUID = 1L;
 
-   public final Address address;
+   public final Address address; // todo replace with Generic address
    public final Long amount;
    public final String label;
    public final String callbackURL;

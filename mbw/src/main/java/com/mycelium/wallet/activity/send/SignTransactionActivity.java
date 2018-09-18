@@ -49,12 +49,13 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.extsig.keepkey.activity.KeepKeySignTransactionActivity;
 import com.mycelium.wallet.extsig.ledger.activity.LedgerSignTransactionActivity;
 import com.mycelium.wallet.extsig.trezor.activity.TrezorSignTransactionActivity;
-import com.mycelium.wapi.wallet.AesKeyCipher;
-import com.mycelium.wapi.wallet.KeyCipher;
+import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
+import com.mycelium.wapi.wallet.coins.Value;
 
 import java.util.UUID;
 
@@ -64,14 +65,18 @@ public class SignTransactionActivity extends Activity {
    protected boolean _isColdStorage;
    protected UnsignedTransaction _unsigned;
    private Transaction _transaction;
-   private AsyncTask<Void, Integer, Transaction> _signingTask;
-   private AsyncTask<Void, Integer, Transaction> signingTask;
+   private AsyncTask<Void, Integer, SendRequest> signingTask;
+   private Value amountToSend;
+   private GenericAddress receivingAddress;
 
-   public static void callMe(Activity currentActivity, UUID account, boolean isColdStorage, UnsignedTransaction unsigned, int requestCode) {
-      currentActivity.startActivityForResult(getIntent(currentActivity, account, isColdStorage, unsigned), requestCode);
+   public static void callMe(Activity currentActivity, UUID account, boolean isColdStorage, UnsignedTransaction unsigned, int requestCode,
+                             Value amountToSend, GenericAddress receivingAddress) {
+      currentActivity.startActivityForResult(getIntent(currentActivity, account, isColdStorage, unsigned,
+              amountToSend, receivingAddress), requestCode);
    }
 
-   public static Intent getIntent(Activity currentActivity, UUID account, boolean isColdStorage, UnsignedTransaction unsigned) {
+   public static Intent getIntent(Activity currentActivity, UUID account, boolean isColdStorage, UnsignedTransaction unsigned,
+                                  Value amountToSend, GenericAddress receivingAddress) {
       WalletAccount walletAccount = MbwManager.getInstance(currentActivity).getWalletManager(isColdStorage).getAccount(account);
 
       Class targetClass;
@@ -98,7 +103,9 @@ public class SignTransactionActivity extends Activity {
       return new Intent(currentActivity, targetClass)
               .putExtra("account", account)
               .putExtra("isColdStorage", isColdStorage)
-              .putExtra("unsigned", unsigned);
+              .putExtra("unsigned", unsigned)
+              .putExtra("amountToSend", amountToSend)
+              .putExtra("receivingAddress", receivingAddress);
    }
 
    @Override
@@ -112,6 +119,8 @@ public class SignTransactionActivity extends Activity {
       _isColdStorage = getIntent().getBooleanExtra("isColdStorage", false);
       _account = (WalletBtcAccount) Preconditions.checkNotNull(_mbwManager.getWalletManager(_isColdStorage).getAccount(accountId));
       _unsigned = Preconditions.checkNotNull((UnsignedTransaction) getIntent().getSerializableExtra("unsigned"));
+      amountToSend = Preconditions.checkNotNull((Value) getIntent().getSerializableExtra("amountToSend"));
+      receivingAddress = (GenericAddress) Preconditions.checkNotNull(getIntent().getSerializableExtra("receivingAddress"));
 
       // Load state
       if (savedInstanceState != null) {
@@ -134,36 +143,34 @@ public class SignTransactionActivity extends Activity {
 
    @Override
    protected void onResume() {
-      if (_signingTask == null) {
-         _signingTask = startSigningTask();
+      if (signingTask == null) {
+         signingTask = startSigningTask();
       }
       super.onResume();
    }
 
    @SuppressLint("StaticFieldLeak")
-   protected AsyncTask<Void, Integer, Transaction> startSigningTask() {
+   protected AsyncTask<Void, Integer, SendRequest> startSigningTask() {
       cancelSigningTask();
       // Sign transaction in the background
-      signingTask = new AsyncTask<Void, Integer, Transaction>() {
+      signingTask = new AsyncTask<Void, Integer, SendRequest>() {
          @Override
-         protected Transaction doInBackground(Void... args) {
+         protected SendRequest doInBackground(Void... args) {
             try {
-               // todo
-//               SendRequest sendRequest = _account.getSendToRequest(saAddress, amountToSend);
-//               _account.completeAndSignTx(sendRequest);
-//               return sendRequest.tx;
-
-               return _account.signTransaction(_unsigned, AesKeyCipher.defaultKeyCipher());
-            } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
-               throw new RuntimeException(invalidKeyCipher);
+               SendRequest sendRequest = _account.getSendToRequest(receivingAddress, amountToSend);
+               _account.completeAndSignTx(sendRequest);
+               return sendRequest; //_account.signTransaction(_unsigned, AesKeyCipher.defaultKeyCipher());
+            }
+            catch (WalletAccount.WalletAccountException e) {
+               throw new RuntimeException("doInBackground" + e.getMessage());
             }
          }
 
          @Override
-         protected void onPostExecute(Transaction transaction) {
-            if (transaction != null) {
+         protected void onPostExecute(SendRequest transactionRequest) {
+            if (transactionRequest != null) {
                Intent ret = new Intent();
-               ret.putExtra("signedTx", transaction);
+               ret.putExtra("transactionRequest", transactionRequest);
                setResult(RESULT_OK, ret);
                SignTransactionActivity.this.finish();
             } else {
@@ -188,8 +195,8 @@ public class SignTransactionActivity extends Activity {
 
    @Override
    protected void onDestroy() {
-      if (_signingTask != null){
-         _signingTask.cancel(true);
+      if (signingTask != null){
+         signingTask.cancel(true);
       }
       super.onDestroy();
    }

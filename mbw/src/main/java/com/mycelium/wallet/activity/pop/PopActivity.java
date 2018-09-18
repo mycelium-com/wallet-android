@@ -56,7 +56,6 @@ import com.mycelium.net.ServerEndpointType;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.activity.send.SignTransactionActivity;
 import com.mycelium.wallet.activity.util.AdaptiveDateFormat;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.pop.PopRequest;
@@ -247,8 +246,9 @@ public class PopActivity extends Activity {
             @Override
             public void run() {
                disableButtons();
-               SignTransactionActivity.callMe(PopActivity.this, _mbwManager.getSelectedAccount().getId(),
-                     false, unsignedPop, SIGN_TRANSACTION_REQUEST_CODE);
+               // TODO: 9/19/18 Nuru commented this
+//               SignTransactionActivity.callMe(PopActivity.this, _mbwManager.getSelectedAccount().getId(),
+//                     false, unsignedPop, SIGN_TRANSACTION_REQUEST_CODE);
             }
          });
       } catch (Exception e) {

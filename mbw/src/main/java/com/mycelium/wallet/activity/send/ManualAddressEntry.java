@@ -57,7 +57,7 @@ import java.util.UUID;
 public class ManualAddressEntry extends Activity {
 
    public static final String ADDRESS_RESULT_NAME = "address";
-   private Address _address;
+   private Address _address; // // todo replace with Generic address
    private String _entered;
    private MbwManager _mbwManager;
 

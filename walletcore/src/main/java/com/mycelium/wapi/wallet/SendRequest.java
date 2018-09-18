@@ -3,7 +3,9 @@ package com.mycelium.wapi.wallet;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
 
-public class SendRequest<T extends GenericTransaction> {
+import java.io.Serializable;
+
+public class SendRequest<T extends GenericTransaction> implements Serializable {
 
     /**
      * The blockchain network that this request is going to transact

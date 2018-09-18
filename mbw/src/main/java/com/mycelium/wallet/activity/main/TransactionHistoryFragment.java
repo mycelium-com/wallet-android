@@ -83,7 +83,6 @@ import com.mycelium.wallet.activity.main.adapter.TransactionArrayAdapter;
 import com.mycelium.wallet.activity.main.model.transactionhistory.TransactionHistoryModel;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.send.BroadcastTransactionActivity;
-import com.mycelium.wallet.activity.send.SignTransactionActivity;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
 import com.mycelium.wallet.coinapult.CoinapultTransactionSummary;
 import com.mycelium.wallet.colu.ColuAccount;
@@ -218,7 +217,8 @@ public class TransactionHistoryFragment extends Fragment {
       if (requestCode == SIGN_TRANSACTION_REQUEST_CODE) {
          if (resultCode == RESULT_OK) {
             Transaction transaction = (Transaction) Preconditions.checkNotNull(intent.getSerializableExtra("signedTx"));
-            BroadcastTransactionActivity.callMe(getActivity(), _mbwManager.getSelectedAccount().getId(), false, transaction, "CPFP", null, BROADCAST_REQUEST_CODE);
+            // TODO: 9/19/18 Nuru commented this
+//            BroadcastTransactionActivity.callMe(getActivity(), _mbwManager.getSelectedAccount().getId(), false, transaction, "CPFP", null, BROADCAST_REQUEST_CODE);
          }
       } else {
          super.onActivityResult(requestCode, resultCode, intent);
@@ -570,8 +570,9 @@ public class TransactionHistoryFragment extends Fragment {
                                          public void onClick(DialogInterface dialog, int which) {
                                             // 'unsigned' Object might become null when the dialog is displayed and not used for a long time
                                             if(unsigned != null) {
-                                               Intent intent = SignTransactionActivity.getIntent(getActivity(), _mbwManager.getSelectedAccount().getId(), false, unsigned);
-                                               startActivityForResult(intent, SIGN_TRANSACTION_REQUEST_CODE);
+                                               // TODO: 9/19/18 Nuru commented this
+//                                               Intent intent = SignTransactionActivity.getIntent(getActivity(), _mbwManager.getSelectedAccount().getId(), false, unsigned);
+//                                               startActivityForResult(intent, SIGN_TRANSACTION_REQUEST_CODE);
                                             }
                                             else
                                             {
