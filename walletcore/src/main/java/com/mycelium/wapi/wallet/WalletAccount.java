@@ -40,7 +40,7 @@ import java.util.UUID;
 public interface WalletAccount {
    void checkAmount(Receiver receiver, long kbMinerFee, CurrencyValue enteredAmount) throws InsufficientFundsException, OutputTooSmallException, StandardTransactionBuilder.UnableToBuildTransactionException;
 
-   enum BroadcastResult { SUCCESS, REJECTED, NO_SERVER_CONNECTION}
+   enum BroadcastResult { SUCCESS, REJECTED, REJECTED_DOUBLE_SPENDING, NO_SERVER_CONNECTION}
 
    enum Type {
       BTCSINGLEADDRESS, BTCBIP44,

@@ -171,6 +171,7 @@
     <string name="signing_transaction">Signing Transaction</string>
     <string name="broadcasting_transaction">Broadcasting Transaction</string>
     <string name="transaction_rejected_message">The transaction was rejected by the network. This indicates that your wallet is out of sync</string>
+    <string name="transaction_rejected_double_spending_message">Failed to broadcast transaction due to a double spend or malleability issue.</string>
     <string name="enter_bitcoin_address">Enter Bitcoin Address</string>
     <string name="bitcoin_address_invalid">Invalid Bitcoin Address</string>
     <string name="bitcoin_address_valid">Bitcoin Address Valid</string>
@@ -317,7 +318,7 @@
     <string name="lt_ad_edited">Ad edited</string>
     <string name="lt_pref_category">Local Trader</string>
     <string name="lt_preference_title">Local Trader</string>
-    <string name="lt_preference_summary">Buy/Sell bitcoin peer-to-peer</string>
+    <string name="lt_preference_summary">Buy/Sell Bitcoin peer-to-peer</string>
     <string name="lt_sound_on_trade_preference">Play Sound on Trade Activity</string>
     <string name="lt_sound_on_trade_preference_summary">Play a notification sound when trade activity occurs</string>
     <string name="lt_use_email_for_notifications">Use email for notifications</string>

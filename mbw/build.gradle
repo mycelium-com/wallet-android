@@ -16,9 +16,7 @@ buildscript {
 
     dependencies {
         classpath androidBuildArtifact
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version") {
-            exclude(group: 'org.jetbrains', module: 'annotations')
-        }
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
 
@@ -37,8 +35,8 @@ dependencies {
     testImplementation "junit:junit:$junitVersion"
     androidTestImplementation "junit:junit:$junitVersion"
     androidTestImplementation "com.android.support:support-annotations:$androidSupportVersion"
-    androidTestImplementation 'com.android.support.test:runner:1.0.1'
-    androidTestImplementation 'com.android.support.test:rules:1.0.1'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test:rules:1.0.2'
 
     implementation project(includePrefix + ':coinapult')
     implementation project(includePrefix + ':walletmodel')
@@ -97,7 +95,7 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.23.4'
     implementation 'com.github.tony19:logback-android-core:1.1.1-6'
     implementation 'com.google.http-client:google-http-client-jackson2:1.19.0'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.8.4'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.5'
     implementation 'com.madgag.spongycastle:core:1.58.0.0'
     implementation 'com.madgag.spongycastle:prov:1.58.0.0'
     implementation('org.bitcoinj:orchid:1.2.1') {
@@ -133,12 +131,12 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 2110117
-        versionName '2.11.1.17'
+        versionCode 2110120
+        versionName '2.11.1.20'
         multiDexEnabled true
 
         minSdkVersion 19
-        targetSdkVersion 23
+        targetSdkVersion 28
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary true
     }
@@ -154,10 +152,11 @@ android {
                 storePassword prodKeyStorePassword
                 keyPassword prodKeyAliasPassword
             } else {
-				        storeFile commonDebugKeystore
-				        storePassword 'android'
-				        keyAlias 'androiddebugkey'
-				        keyPassword 'android'
+                failIfSigningKeyEnforced()
+                storeFile commonDebugKeystore
+                storePassword 'android'
+                keyAlias 'androiddebugkey'
+                keyPassword 'android'
             }
         }
         btctestnet {
@@ -170,10 +169,11 @@ android {
                 storePassword testKeyStorePassword
                 keyPassword testKeyAliasPassword
             } else {
-				        storeFile commonDebugKeystore
-				        storePassword 'android'
-				        keyAlias 'androiddebugkey'
-				        keyPassword 'android'
+                failIfSigningKeyEnforced()
+                storeFile commonDebugKeystore
+                storePassword 'android'
+                keyAlias 'androiddebugkey'
+                keyPassword 'android'
             }
         }
         commonDebug {
