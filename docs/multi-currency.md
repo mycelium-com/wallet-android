@@ -37,3 +37,49 @@ Below is an example of some assets implementing *WalletAccount* interface:
 
 ![Image](images/accs.png)
 
+## Getting account balance
+
+```
+     Balance balance = account.getAccountBalance();
+``` 
+
+## Getting a list of transactions
+
+The example below retrieves the first 100 transactions for the account:
+
+```
+     List<GenericTransaction> transactions = account.getTransactions(0, 100);
+``` 
+
+## Creating and broadcasting a transaction
+
+As mentioned below, a transaction is created in generic way using a set of *WalletAccount* methods.
+
+Let's assume we have an instance of WalletAccount and want to send 1000000 cryptocurrency units
+from this account to an address. The receiving address object is an instance of GenericAddress.
+
+At the first step, create a Value object based on asset type 
+and a number of transferred currency units:
+ 
+```
+     Value amountToSend = Value.valueOf(asset, 1000000);
+``` 
+
+Then a send request object is created using the information about the receiving address and the 
+amount to send:
+
+```      
+     SendRequest sendRequest = account.getSendToRequest(toAddress, amountToSend);     
+```      
+
+Since, the send request is ready, the transaction need to be completed and signed:
+
+``` 
+     account.completeAndSignTx(sendRequest);
+```    
+
+And we can broadcast the transaction:    
+    
+``` 
+     account.broadcastTx(request.tx);
+```    
