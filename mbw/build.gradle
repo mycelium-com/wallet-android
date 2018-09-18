@@ -215,7 +215,7 @@ android {
 
                 appIdSpvBch = [release: "com.mycelium.module.spvbch",
                                debug  : "com.mycelium.module.spvbch.debug"]
-                appIdMeb = [release: "com.modules.tradingbots.makeextrabtc",
+                appIdGeb = [release: "com.modules.tradingbots.makeextrabtc",
                             debug  : "com.modules.tradingbots.makeextrabtc.debug"]
             }
             logger.info("Signing config is ", signingConfig)
@@ -238,7 +238,7 @@ android {
 
                 appIdSpvBch = [release: "com.mycelium.module.spvbch.testnet",
                                debug  : "com.mycelium.module.spvbch.testnet.debug"]
-                appIdMeb = [release: "com.modules.tradingbots.makeextrabtc.testnet",
+                appIdGeb = [release: "com.modules.tradingbots.makeextrabtc.testnet",
                             debug  : "com.modules.tradingbots.makeextrabtc.testnet.debug"]
             }
             logger.info("Signing config is ", signingConfig)
@@ -256,7 +256,7 @@ android {
         variant.buildConfigField "String", "RMCChangeAddress", "\"${flavor.ext.RMCChangeAddress}\""
         variant.buildConfigField "String[]", "ElectrumServers", "${flavor.ext.ElectrumServers}"
         variant.buildConfigField "String", "appIdSpvBch", "\"${flavor.ext.appIdSpvBch[variant.buildType.name]}\""
-        variant.buildConfigField "String", "appIdMeb", "\"${flavor.ext.appIdMeb[variant.buildType.name]}\""
+        variant.buildConfigField "String", "appIdGeb", "\"${flavor.ext.appIdGeb[variant.buildType.name]}\""
     }
 
     testOptions {

@@ -53,7 +53,7 @@ public class PackageRemovedReceiver extends BroadcastReceiver {
         if (intent.getData() != null) {
             String packageName = intent.getData().getEncodedSchemeSpecificPart();
             String spvModuleName = WalletApplication.getSpvModuleName(WalletAccount.Type.BCHBIP44);
-            String mebModuleName = BuildConfig.appIdMeb;
+            String gebModuleName = BuildConfig.appIdGeb;
 
             if (packageName.equals(spvModuleName)) {
                 switch (intent.getAction()) {
@@ -72,19 +72,19 @@ public class PackageRemovedReceiver extends BroadcastReceiver {
                 }
             }
 
-            if (packageName.equals(mebModuleName)) {
+            if (packageName.equals(gebModuleName)) {
                 switch (intent.getAction()) {
                     case Intent.ACTION_PACKAGE_ADDED:
                         if (!intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
-                            handlePackageChange(context, R.string.meb_module_change, R.string.installed, false);
+                            handlePackageChange(context, R.string.get_module_change, R.string.installed, false);
                         }
                         break;
                     case Intent.ACTION_PACKAGE_REPLACED:
-                        handlePackageChange(context, R.string.meb_module_change, R.string.updated, false);
+                        handlePackageChange(context, R.string.get_module_change, R.string.updated, false);
                         break;
                     case Intent.ACTION_PACKAGE_REMOVED:
                         if (!intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
-                            handlePackageChange(context, R.string.meb_module_change, R.string.removed, false);
+                            handlePackageChange(context, R.string.get_module_change, R.string.removed, false);
                         }
                 }
             }
