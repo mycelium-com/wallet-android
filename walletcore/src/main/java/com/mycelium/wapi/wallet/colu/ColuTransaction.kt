@@ -9,25 +9,20 @@ import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 
 
-class ColuTransaction(type: CryptoCurrency, sent: Long, receive: Long, time: Int, val tx: Transaction
-                      , val confirmation: Int, isQueuedOutgoing: Boolean, fee: Value? = null)
+class ColuTransaction(val _type: CryptoCurrency, val _sent: Value, val receive: Value, var time: Int
+                      , val tx: Transaction, var confirmation: Int, val _isQueuedOutgoing: Boolean
+                      , fee: Value? = null)
     : GenericTransaction {
 
-    override fun getType(): CryptoCurrency {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun getType(): CryptoCurrency = _type
 
     override fun getHash(): Sha256Hash {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return tx.id
     }
 
-    override fun getHashAsString(): String {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun getHashAsString(): String = hash.toString()
 
-    override fun getHashBytes(): ByteArray {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun getHashBytes(): ByteArray = hash.bytes
 
     override fun getDepthInBlocks(): Int {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
@@ -37,28 +32,22 @@ class ColuTransaction(type: CryptoCurrency, sent: Long, receive: Long, time: Int
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun getAppearedAtChainHeight(): Int {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun getAppearedAtChainHeight(): Int = confirmation
 
     override fun setAppearedAtChainHeight(appearedAtChainHeight: Int) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        confirmation = appearedAtChainHeight
     }
 
-    override fun getTimestamp(): Long {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun getTimestamp(): Long = time.toLong()
 
     override fun setTimestamp(timestamp: Int) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        time = timestamp
     }
 
-    override fun isQueuedOutgoing(): Boolean {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun isQueuedOutgoing(): Boolean = _isQueuedOutgoing
 
     override fun getConfirmationRiskProfile(): Optional<ConfirmationRiskProfileLocal> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return Optional.absent()
     }
 
     override fun getFee(): Value {
@@ -73,17 +62,11 @@ class ColuTransaction(type: CryptoCurrency, sent: Long, receive: Long, time: Int
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun getSent(): Value {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun getSent(): Value = _sent
 
-    override fun getReceived(): Value {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun getReceived(): Value = receive
 
-    override fun isIncoming(): Boolean {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun isIncoming() = received.subtract(sent).value > 0
 
     override fun getRawSize(): Int {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.

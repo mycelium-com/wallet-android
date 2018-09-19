@@ -9,4 +9,8 @@ object RMCCoin : ColuMain() {
     override fun getSymbol(): String {
         return "RMC"
     }
+
+    override fun getUnitExponent(): Int {
+        return 4
+    }
 }

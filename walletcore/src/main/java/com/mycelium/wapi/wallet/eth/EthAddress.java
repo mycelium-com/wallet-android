@@ -21,6 +21,11 @@ public class EthAddress implements GenericAddress {
     }
 
     @Override
+    public String toShortString() {
+        return null;
+    }
+
+    @Override
     public String toMultiLineString() {
         return null;
     }

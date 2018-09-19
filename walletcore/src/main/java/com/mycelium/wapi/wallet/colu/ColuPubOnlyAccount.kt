@@ -140,7 +140,10 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext, val publicKey: Pu
         val isQueuedOutgoing = backing.isOutgoingTransaction(tx.id)
 
 
-        return ColuTransaction(coinType, satoshisSent, satoshisReceived, time
+        return ColuTransaction(coinType
+                , Value.valueOf(coinType, satoshisSent)
+                , Value.valueOf(coinType, satoshisReceived)
+                , time
                 , tx, confirmations, isQueuedOutgoing)
 //            , satoshisSent, satoshisReceived, tex.time,
 //                    confirmations, isQueuedOutgoing, inputs, outputs, riskAssessmentForUnconfirmedTx.get(tx.id),

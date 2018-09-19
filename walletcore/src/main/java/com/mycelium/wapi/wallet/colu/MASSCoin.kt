@@ -8,6 +8,7 @@ object MASSCoin : ColuMain() {
 
 
     override fun getSymbol() = "MSS"
-
-
+    override fun getUnitExponent(): Int {
+        return 0
+    }
 }

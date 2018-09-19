@@ -9,4 +9,8 @@ object MTCoin : ColuMain() {
     override fun getSymbol(): String {
         return "MT"
     }
+
+    override fun getUnitExponent(): Int {
+        return 7
+    }
 }

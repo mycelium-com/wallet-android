@@ -12,6 +12,7 @@ class ColuSendRequest(type: CryptoCurrency?, val destination: BtcAddress, val am
     var txHex: String? = null
 
     fun setTransaction(tx: Transaction) {
-        this.tx = ColuTransaction(this.type, 0, 0, 0, tx, 0, false)
+        this.tx = ColuTransaction(this.type, Value.zeroValue(type), Value.zeroValue(type), 0
+                , tx, 0, false)
     }
 }
