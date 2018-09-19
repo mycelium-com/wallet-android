@@ -156,7 +156,7 @@ public class BroadcastTransactionActivity extends Activity {
          @Override
          protected void onPostExecute(BroadcastResult result) {
             _broadcastResult = result;
-            Log.d("mulicurrencyslplog", "onPostExecute: " + result.name());
+            Log.d("mulicurrencyslplog", "onPostExecute: " + result.toString());
             showResult();
          }
       };
@@ -166,7 +166,16 @@ public class BroadcastTransactionActivity extends Activity {
    }
 
    private void showResult() {
-      if (_broadcastResult == BroadcastResult.REJECTED) {
+      if (_broadcastResult == BroadcastResult.REJECTED_DOUBLE_SPENDING) {
+         // Transaction rejected, display message and exit
+         Utils.showSimpleMessageDialog(this, R.string.transaction_rejected_double_spending_message, new Runnable() {
+            @Override
+            public void run() {
+               BroadcastTransactionActivity.this.finish();
+            }
+         });
+      }
+      else if (_broadcastResult == BroadcastResult.REJECTED) {
          // Transaction rejected, display message and exit
          Utils.showSimpleMessageDialog(this, R.string.transaction_rejected_message, new Runnable() {
             @Override
