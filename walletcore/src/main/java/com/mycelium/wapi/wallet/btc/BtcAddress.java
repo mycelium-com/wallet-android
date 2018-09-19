@@ -46,6 +46,9 @@ public class BtcAddress extends Address implements GenericAddress {
 
     public static BtcAddress from(CryptoCurrency currencyType, String address) {
         Address addr = Address.fromString(address);
+        if (addr == null) {
+            return null;
+        }
         return new BtcAddress(currencyType, addr.getAllAddressBytes());
     }
 

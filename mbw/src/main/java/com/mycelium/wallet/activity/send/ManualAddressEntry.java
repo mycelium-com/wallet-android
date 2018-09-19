@@ -46,93 +46,95 @@ import android.view.Window;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.colu.ColuAccount;
+import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.btc.BtcAddress;
+import com.mycelium.wapi.wallet.coins.BitcoinTest;
 
 import java.util.UUID;
 
 public class ManualAddressEntry extends Activity {
 
-   public static final String ADDRESS_RESULT_NAME = "address";
-   private Address _address; // // todo replace with Generic address
-   private String _entered;
-   private MbwManager _mbwManager;
+    public static final String ADDRESS_RESULT_NAME = "address";
+    private GenericAddress address;
+    private String entered;
+    private MbwManager mbwManager;
 
-   @Override
-   protected void onCreate(Bundle savedInstanceState) {
-      this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-      super.onCreate(savedInstanceState);
-      setContentView(R.layout.manual_entry);
-      boolean isColdStorage = getIntent().getBooleanExtra(SendMainActivity.IS_COLD_STORAGE, false);
-      UUID accountUUID = (UUID) getIntent().getSerializableExtra(SendMainActivity.ACCOUNT);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.manual_entry);
+        boolean isColdStorage = getIntent().getBooleanExtra(SendMainActivity.IS_COLD_STORAGE, false);
+        UUID accountUUID = (UUID) getIntent().getSerializableExtra(SendMainActivity.ACCOUNT);
 
-      _mbwManager = MbwManager.getInstance(this);
-      ((EditText) findViewById(R.id.etAddress)).addTextChangedListener(textWatcher);
-      findViewById(R.id.btOk).setOnClickListener(okClickListener);
-      ((EditText) findViewById(R.id.etAddress)).setInputType(InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE);
+        mbwManager = MbwManager.getInstance(this);
+        ((EditText) findViewById(R.id.etAddress)).addTextChangedListener(textWatcher);
+        findViewById(R.id.btOk).setOnClickListener(okClickListener);
+        ((EditText) findViewById(R.id.etAddress)).setInputType(InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE);
 
-      WalletAccount account = _mbwManager.getWalletManager(isColdStorage).getAccount(accountUUID);
-      if(account instanceof ColuAccount) {
-         ColuAccount coluAccount = (ColuAccount) account;
-         ((TextView) findViewById(R.id.title)).setText(getString(R.string.enter_address, coluAccount.getColuAsset().name));
-         ((TextView) findViewById(R.id.tvBitcoinAddressValid)).setText(getString(R.string.address_valid, coluAccount.getColuAsset().name));
-         ((TextView) findViewById(R.id.tvBitcoinAddressInvalid)).setText(getString(R.string.address_invalid, coluAccount.getColuAsset().name));
-      }
-      // Load saved state
-      if (savedInstanceState != null) {
-         _entered = savedInstanceState.getString("entered");
-      } else {
-         _entered = "";
-      }
+        WalletAccount account = mbwManager.getWalletManager(isColdStorage).getAccount(accountUUID);
+        if (account instanceof ColuAccount) {
+            ColuAccount coluAccount = (ColuAccount) account;
+            ((TextView) findViewById(R.id.title)).setText(getString(R.string.enter_address, coluAccount.getColuAsset().name));
+            ((TextView) findViewById(R.id.tvBitcoinAddressValid)).setText(getString(R.string.address_valid, coluAccount.getColuAsset().name));
+            ((TextView) findViewById(R.id.tvBitcoinAddressInvalid)).setText(getString(R.string.address_invalid, coluAccount.getColuAsset().name));
+        }
+        // Load saved state
+        if (savedInstanceState != null) {
+            entered = savedInstanceState.getString("entered");
+        } else {
+            entered = "";
+        }
 
-   }
+    }
 
-   @Override
-   protected void onResume() {
-      ((EditText) findViewById(R.id.etAddress)).setText(_entered);
-      super.onResume();
-   }
+    @Override
+    protected void onResume() {
+        ((EditText) findViewById(R.id.etAddress)).setText(entered);
+        super.onResume();
+    }
 
-   @Override
-   public void onSaveInstanceState(Bundle savedInstanceState) {
-      super.onSaveInstanceState(savedInstanceState);
-      savedInstanceState.putSerializable("entered", ((EditText) findViewById(R.id.etAddress)).getText().toString());
-   }
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        savedInstanceState.putSerializable("entered", ((EditText) findViewById(R.id.etAddress)).getText().toString());
+    }
 
-   OnClickListener okClickListener = new OnClickListener() {
+    OnClickListener okClickListener = new OnClickListener() {
 
-      @Override
-      public void onClick(View arg0) {
-         Intent result = new Intent();
-         result.putExtra(ADDRESS_RESULT_NAME, _address);
-         ManualAddressEntry.this.setResult(RESULT_OK, result);
-         ManualAddressEntry.this.finish();
-      }
-   };
-   TextWatcher textWatcher = new TextWatcher() {
+        @Override
+        public void onClick(View arg0) {
+            Intent result = new Intent();
+            result.putExtra(ADDRESS_RESULT_NAME, address);
+            ManualAddressEntry.this.setResult(RESULT_OK, result);
+            ManualAddressEntry.this.finish();
+        }
+    };
+    TextWatcher textWatcher = new TextWatcher() {
 
-      @Override
-      public void onTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
-      }
+        @Override
+        public void onTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
+        }
 
-      @Override
-      public void beforeTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
-      }
+        @Override
+        public void beforeTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
+        }
 
       @Override
       public void afterTextChanged(Editable editable) {
-         _entered = editable.toString();
-         _address = Address.fromString(_entered.trim(), _mbwManager.getNetwork());
+         entered = editable.toString();
+         address = BtcAddress.from(BitcoinTest.get(), entered); // todo generic
 
-         findViewById(R.id.btOk).setEnabled(_address != null);
-         boolean addressValid = _address != null;
-         findViewById(R.id.tvBitcoinAddressInvalid).setVisibility(!addressValid ? View.VISIBLE : View.GONE);
-         findViewById(R.id.tvBitcoinAddressValid).setVisibility(addressValid ? View.VISIBLE : View.GONE);
-         findViewById(R.id.btOk).setEnabled(addressValid);
-      }
-   };
+            findViewById(R.id.btOk).setEnabled(address != null);
+            boolean addressValid = address != null;
+            findViewById(R.id.tvBitcoinAddressInvalid).setVisibility(!addressValid ? View.VISIBLE : View.GONE);
+            findViewById(R.id.tvBitcoinAddressValid).setVisibility(addressValid ? View.VISIBLE : View.GONE);
+            findViewById(R.id.btOk).setEnabled(addressValid);
+        }
+    };
 
 }

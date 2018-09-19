@@ -1536,7 +1536,7 @@ public class SendMainActivity extends Activity {
             _transactionStatus = tryCreateUnsignedTransaction();
             updateUi();
         } else if (requestCode == MANUAL_ENTRY_RESULT_CODE && resultCode == RESULT_OK) {
-            _receivingAddress = (BtcAddress)Preconditions.checkNotNull(intent
+            _receivingAddress = (GenericAddress) Preconditions.checkNotNull(intent
                     .getSerializableExtra(ManualAddressEntry.ADDRESS_RESULT_NAME));
 
             _transactionStatus = tryCreateUnsignedTransaction();

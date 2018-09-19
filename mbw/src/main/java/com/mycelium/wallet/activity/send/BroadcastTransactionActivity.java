@@ -41,6 +41,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Window;
 import android.widget.Toast;
 
@@ -143,8 +144,6 @@ public class BroadcastTransactionActivity extends Activity {
 //                  WalletApplication.sendToSpv(intent, _mbwManager.getSelectedAccount().getClass());
                   return BroadcastResult.SUCCESS;
              }
-            // todo was return ((WalletBtcAccount)_account).broadcastTransaction(_transaction);
-
             try {
                return _account.broadcastTx(sendRequest.tx);
             } catch (TransactionBroadcastException e) {
@@ -157,6 +156,7 @@ public class BroadcastTransactionActivity extends Activity {
          @Override
          protected void onPostExecute(BroadcastResult result) {
             _broadcastResult = result;
+            Log.d("mulicurrencyslplog", "onPostExecute: " + result.name());
             showResult();
          }
       };
