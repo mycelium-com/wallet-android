@@ -4,6 +4,7 @@ import android.graphics.drawable.Drawable;
 
 import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.AddressBookManager;
+import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.coins.Value;
 
 import java.util.UUID;
@@ -12,7 +13,7 @@ public class AccountForFee extends AddressBookManager.IconEntry {
     private Value balance;
 
     public AccountForFee(Address address, String name, Drawable icon, UUID id, Value balance) {
-        super(address, name, icon, id);
+        super((BtcAddress)address, name, icon, id);
         this.balance = balance;
     }
 

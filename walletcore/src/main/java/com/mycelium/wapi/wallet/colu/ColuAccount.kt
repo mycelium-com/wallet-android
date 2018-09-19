@@ -209,10 +209,6 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
             Value.valueOf(coinType, _cachedBalance.pendingChange))
 
 
-    override fun getUnspentTransactionOutputSummary(): MutableList<TransactionOutputSummary> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
     override fun isDerivedFromInternalMasterseed(): Boolean = true
 
     override fun getCoinType(): CryptoCurrency = ColuMain

@@ -46,6 +46,7 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.util.AddressLabel;
 import com.mycelium.wapi.model.TransactionOutputSummary;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 import java.util.List;
 import java.util.UUID;
@@ -71,7 +72,7 @@ public class UnspentOutputsActivity extends Activity {
    private void updateUi() {
       LinearLayout outputView = findViewById(R.id.listUnspentOutputs);
       WalletAccount account = _mbwManager.getWalletManager(false).getAccount(_accountid);
-      List<TransactionOutputSummary> outputs = account.getUnspentTransactionOutputSummary();
+      List<TransactionOutputSummary> outputs = ((WalletBtcAccount)account).getUnspentTransactionOutputSummary();
 
       if (outputs.isEmpty()) {
          findViewById(R.id.tvNoOutputs).setVisibility(View.VISIBLE);
