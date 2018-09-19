@@ -453,8 +453,8 @@ public class CoinapultAccount extends SynchronizeAbleWalletBtcAccount {
    }
 
    @Override
-   public List<GenericTransaction> getTransactions(int offset, int limit) {
-      return new ArrayList<GenericTransaction>();
+   public List<BtcTransaction> getTransactions(int offset, int limit) {
+      return new ArrayList<BtcTransaction>();
    }
 
    @Override

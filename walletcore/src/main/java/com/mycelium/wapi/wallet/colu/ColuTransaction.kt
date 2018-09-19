@@ -9,7 +9,9 @@ import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 
 
-class ColuTransaction(type: CryptoCurrency, val tx: Transaction) : GenericTransaction {
+class ColuTransaction(type: CryptoCurrency, sent: Long, receive: Long, time: Int, val tx: Transaction
+                      , val confirmation: Int, isQueuedOutgoing: Boolean, fee: Value? = null)
+    : GenericTransaction {
 
     override fun getType(): CryptoCurrency {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.

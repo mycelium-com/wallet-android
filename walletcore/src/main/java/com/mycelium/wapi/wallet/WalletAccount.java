@@ -1,27 +1,17 @@
 package com.mycelium.wapi.wallet;
 
-import com.google.common.base.Optional;
 import com.megiontechnologies.Bitcoins;
 import com.mrd.bitlib.StandardTransactionBuilder;
-import com.mrd.bitlib.UnsignedTransaction;
-import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.Sha256Hash;
-import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputSummary;
-import com.mycelium.wapi.model.TransactionSummary;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
-import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
 
 import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
-
-import sun.net.www.content.text.Generic;
 
 public interface WalletAccount<T extends GenericTransaction, A extends GenericAddress> {
 
@@ -66,7 +56,7 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
 
     T getTx(Sha256Hash transactionId);
 
-    List<GenericTransaction> getTransactions(int offset, int limit);
+    List<T> getTransactions(int offset, int limit);
 
 
     void checkAmount(Receiver receiver, long kbMinerFee, Value enteredAmount)
@@ -163,6 +153,7 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
      * Returns true, if this account is based on the internal masterseed.
      */
     boolean isDerivedFromInternalMasterseed();
+
     /**
      * Returns account id
      */

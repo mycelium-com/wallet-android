@@ -83,7 +83,7 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
     }
 
     @Override
-    public List<GenericTransaction> getTransactions(int offset, int limit) {
+    public List<EthTransaction> getTransactions(int offset, int limit) {
         return null;
     }
 

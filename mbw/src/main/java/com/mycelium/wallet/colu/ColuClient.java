@@ -19,6 +19,7 @@ import com.mycelium.wallet.colu.json.ColuTransactionRequest;
 import com.mycelium.wallet.colu.json.ColuTxDest;
 import com.mycelium.wallet.colu.json.ColuTxFlags;
 import com.mycelium.wallet.colu.json.Utxo;
+import com.mycelium.wapi.wallet.colu.ColuApi;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 
 import org.spongycastle.jce.provider.BouncyCastleProvider;
@@ -34,7 +35,7 @@ import java.util.logging.Logger;
 /**
  * Client for the Colu HTTP API.
  */
-public class ColuClient {
+public class ColuClient implements ColuApi{
     private static final String TAG = "ColuClient";
 
     private static final boolean coluAutoSelectUtxo = true;
@@ -157,5 +158,11 @@ public class ColuClient {
         byte[] signedTr = coluSignedTransaction.toBytes();
         tx.txHex = HexUtils.toHex(signedTr);
         return coloredCoinsClient.sendPostRequest(ColuBroadcastTxId.Json.class, "broadcast", null, tx);
+    }
+
+    @Override
+    public String broadcastTx(Transaction coluSignedTransaction) throws IOException{
+        ColuBroadcastTxId.Json result = broadcastTransaction(coluSignedTransaction);
+        return result.txid;
     }
 }
