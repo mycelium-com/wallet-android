@@ -76,15 +76,15 @@ public class PackageRemovedReceiver extends BroadcastReceiver {
                 switch (intent.getAction()) {
                     case Intent.ACTION_PACKAGE_ADDED:
                         if (!intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
-                            handlePackageChange(context, R.string.get_module_change, R.string.installed, false);
+                            handlePackageChange(context, R.string.geb_module_change, R.string.installed, false);
                         }
                         break;
                     case Intent.ACTION_PACKAGE_REPLACED:
-                        handlePackageChange(context, R.string.get_module_change, R.string.updated, false);
+                        handlePackageChange(context, R.string.geb_module_change, R.string.updated, false);
                         break;
                     case Intent.ACTION_PACKAGE_REMOVED:
                         if (!intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
-                            handlePackageChange(context, R.string.get_module_change, R.string.removed, false);
+                            handlePackageChange(context, R.string.geb_module_change, R.string.removed, false);
                         }
                 }
             }

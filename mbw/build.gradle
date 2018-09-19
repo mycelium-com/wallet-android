@@ -215,8 +215,8 @@ android {
 
                 appIdSpvBch = [release: "com.mycelium.module.spvbch",
                                debug  : "com.mycelium.module.spvbch.debug"]
-                appIdGeb = [release: "com.modules.tradingbots.makeextrabtc",
-                            debug  : "com.modules.tradingbots.makeextrabtc.debug"]
+                appIdGeb = [release: "com.modules.tradingbots.getextrabtc",
+                            debug  : "com.modules.tradingbots.getextrabtc.debug"]
             }
             logger.info("Signing config is ", signingConfig)
         }
@@ -238,8 +238,8 @@ android {
 
                 appIdSpvBch = [release: "com.mycelium.module.spvbch.testnet",
                                debug  : "com.mycelium.module.spvbch.testnet.debug"]
-                appIdGeb = [release: "com.modules.tradingbots.makeextrabtc.testnet",
-                            debug  : "com.modules.tradingbots.makeextrabtc.testnet.debug"]
+                appIdGeb = [release: "com.modules.tradingbots.getextrabtc.testnet",
+                            debug  : "com.modules.tradingbots.getextrabtc.testnet.debug"]
             }
             logger.info("Signing config is ", signingConfig)
         }
