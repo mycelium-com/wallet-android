@@ -44,6 +44,7 @@ import com.mycelium.wapi.api.response.QueryUnspentOutputsResponse;
 import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
+import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
@@ -466,7 +467,7 @@ public class ColuManager implements AccountProvider {
     }
 
     private boolean isAddressInUse(Address address) {
-        Optional<UUID> accountId = mgr.getAccountId(address, null);
+        Optional<UUID> accountId = mgr.getAccountId((BtcAddress)address, null);
         return accountId.isPresent();
     }
 

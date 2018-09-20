@@ -1159,7 +1159,7 @@ public class SendMainActivity extends Activity {
         if (_receivingLabel != null) {
             label = _receivingLabel;
         } else if (_receivingAddress != null) {
-            label = getAddressLabel((BtcAddress)_receivingAddress);
+            label = getAddressLabel(_receivingAddress);
         }
       if (label == null || label.length() == 0) {
          // Hide label
@@ -1223,11 +1223,11 @@ public class SendMainActivity extends Activity {
       }
    }
 
-   private String getAddressLabel(Address address) {
+   private String getAddressLabel(GenericAddress address) {
       Optional<UUID> accountId = _mbwManager.getAccountId(address, isColu() ? ColuAccount.class : null);
       if (!accountId.isPresent()) {
          // We don't have it in our accounts, look in address book, returns empty string by default
-         return _mbwManager.getMetadataStorage().getLabelByAddress(address);
+         return _mbwManager.getMetadataStorage().getLabelByAddress((BtcAddress)address);
       }
       // Get the name of the account
       return _mbwManager.getMetadataStorage().getLabelByAccount(accountId.get());

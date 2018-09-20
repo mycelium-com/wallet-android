@@ -106,6 +106,7 @@ import com.mycelium.wapi.api.WapiClientElectrumX;
 import com.mycelium.wapi.api.jsonrpc.TcpEndpoint;
 import com.mycelium.wapi.wallet.AccountProvider;
 import com.mycelium.wapi.wallet.AesKeyCipher;
+import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.IdentityAccountKeyManager;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.InMemoryWalletManagerBacking;
@@ -1161,12 +1162,12 @@ public class MbwManager {
     }
 
 
-   public Optional<UUID> getAccountId(Address address, Class accountClass) {
+   public Optional<UUID> getAccountId(GenericAddress address, Class accountClass) {
       Optional<UUID> result = Optional.absent();
       for (UUID uuid : _walletManager.getAccountIds()) {
          WalletAccount account = _walletManager.getAccount(uuid);
          if ((accountClass == null || accountClass.isAssignableFrom(account.getClass()))
-                 && ((WalletBtcAccount)(account)).isMine(address)) {
+                 && account.isMineAddress(address)) {
             result = Optional.of(uuid);
             break;
          }

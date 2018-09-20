@@ -70,9 +70,11 @@ import com.mycelium.wallet.extsig.trezor.activity.TrezorAccountImportActivity;
 import com.mycelium.wallet.modularisation.BCHHelper;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AesKeyCipher;
+import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
+import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coins.Value;
@@ -221,7 +223,7 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
     */
    private void returnAccount(Address address) {
       //UUID acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(address);
-      new ImportReadOnlySingleAddressAccountAsyncTask(address, AccountType.Unknown).execute();
+      new ImportReadOnlySingleAddressAccountAsyncTask((BtcAddress)address, AccountType.Unknown).execute();
    }
 
    /**
@@ -357,7 +359,7 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
                           .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                              @Override
                              public void onClick(DialogInterface dialogInterface, int i) {
-                                finishAlreadyExist((Address) ((WalletBtcAccount)(existingAccount)).getReceivingAddress().get());
+                                finishAlreadyExist((BtcAddress)existingAccount.getReceiveAddress());
                              }
                           })
                           .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
@@ -393,7 +395,7 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
       private MetadataStorage.BackupState backupState;
       private ProgressDialog dialog;
       private boolean askUserForColorize = false;
-      private Address address;
+      private GenericAddress address;
       private int selectedItem;
 
       public ImportSingleAddressAccountAsyncTask(InMemoryPrivateKey key, MetadataStorage.BackupState backupState) {
@@ -416,7 +418,7 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
          try {
             //Check whether this address is already used in any account
             for (AddressType addressType : AddressType.values()) {
-               address = key.getPublicKey().toAddress(_mbwManager.getNetwork(), addressType);
+               address = (BtcAddress)key.getPublicKey().toAddress(_mbwManager.getNetwork(), addressType);
                Optional<UUID> accountId = _mbwManager.getAccountId(address, null);
                if (accountId.isPresent()) {
                   return null;
@@ -543,13 +545,13 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
    }
 
    private class ImportReadOnlySingleAddressAccountAsyncTask extends AsyncTask<Void, Integer, UUID> {
-      private Address address;
+      private GenericAddress address;
       private AccountType addressType;
       private ProgressDialog dialog;
       private boolean askUserForColorize = false;
       private int selectedItem;
 
-      ImportReadOnlySingleAddressAccountAsyncTask(Address address, AccountType addressType) {
+      ImportReadOnlySingleAddressAccountAsyncTask(GenericAddress address, AccountType addressType) {
          this.address = address;
          this.addressType = addressType;
       }
@@ -576,24 +578,24 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
             switch(addressType) {
                case Unknown: {
                   ColuManager coluManager = _mbwManager.getColuManager();
-                  List<ColuAccount.ColuAsset> asset = new ArrayList<>(coluManager.getColuAddressAssets(this.address));
+                  List<ColuAccount.ColuAsset> asset = new ArrayList<>(coluManager.getColuAddressAssets((BtcAddress)this.address));
 
                   if (asset.size() > 0) {
-                     acc = _mbwManager.getColuManager().enableReadOnlyAsset(asset.get(0), address);
+                     acc = _mbwManager.getColuManager().enableReadOnlyAsset(asset.get(0), (BtcAddress)address);
                   } else {
                      askUserForColorize = true;
                   }
                }
                break;
                case SA:
-                  acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(address);
+                  acc = _mbwManager.getWalletManager(false).createSingleAddressAccount((BtcAddress)address);
                   break;
                case Colu:
                   ColuManager coluManager = _mbwManager.getColuManager();
-                  List<ColuAccount.ColuAsset> asset = new ArrayList<>(coluManager.getColuAddressAssets(this.address));
+                  List<ColuAccount.ColuAsset> asset = new ArrayList<>(coluManager.getColuAddressAssets((BtcAddress)this.address));
 
                   if (!asset.isEmpty()) {
-                     acc = _mbwManager.getColuManager().enableReadOnlyAsset(asset.get(0), address);
+                     acc = _mbwManager.getColuManager().enableReadOnlyAsset(asset.get(0), (BtcAddress)address);
                   }
                   break;
             }
@@ -625,10 +627,10 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
                        public void onClick(DialogInterface dialogInterface, int i) {
                           UUID account;
                           if (selectedItem == 0) {
-                             account = _mbwManager.getWalletManager(false).createSingleAddressAccount(address);
+                             account = _mbwManager.getWalletManager(false).createSingleAddressAccount((BtcAddress)address);
                           } else {
                              ColuAccount.ColuAsset coluAsset = ColuAccount.ColuAsset.getByType(ColuAccount.ColuAssetType.parse(list.get(selectedItem)));
-                             account = _mbwManager.getColuManager().enableReadOnlyAsset(coluAsset, address);
+                             account = _mbwManager.getColuManager().enableReadOnlyAsset(coluAsset, (BtcAddress)address);
                           }
                           finishOk(account, false);
                        }
@@ -696,7 +698,7 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
               .show();
    }
 
-   private void finishAlreadyExist(Address address) {
+   private void finishAlreadyExist(GenericAddress address) {
       Intent result = new Intent();
       String accountType;
       UUID walletId = _mbwManager.getAccountId(address, null).get();
@@ -706,7 +708,7 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
          accountType = "BTC Single Address";
       }
       for (ColuAccount.ColuAssetType type : ColuAccount.ColuAssetType.values()) {
-         if (_mbwManager.getColuManager().hasAccountWithType(address, type)) {
+         if (_mbwManager.getColuManager().hasAccountWithType((BtcAddress)address, type)) {
             accountType = ColuAccount.ColuAsset.getByType(type).name;
             break;
          }
