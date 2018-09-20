@@ -32,7 +32,7 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext, val publicKey: Pu
 
     init {
         val address1 = publicKey.toAddress(networkParameters, AddressType.P2PKH)!!
-        address = BtcAddress.from(coluCoinType, address1.toString())
+        address = AddressUtils.from(coluCoinType, address1.toString())
         uuid = getGuidForAsset(coluCoinType, address1.allAddressBytes)
     }
 
@@ -56,10 +56,6 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext, val publicKey: Pu
     }
 
     override fun setAllowZeroConfSpending(b: Boolean) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun getUnspentTransactionOutputSummary(): MutableList<TransactionOutputSummary> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
