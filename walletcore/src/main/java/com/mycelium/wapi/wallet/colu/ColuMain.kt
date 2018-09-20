@@ -5,7 +5,7 @@ import com.mycelium.wapi.wallet.coins.SoftDustPolicy
 import com.mycelium.wapi.wallet.coins.families.BitcoinBasedCryptoCurrency
 
 
-object ColuMain : BitcoinBasedCryptoCurrency() {
+abstract class ColuMain : BitcoinBasedCryptoCurrency() {
 
     init {
         id = "colu.main"

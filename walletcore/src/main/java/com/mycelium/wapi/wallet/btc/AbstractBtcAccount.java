@@ -79,6 +79,7 @@ import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
+import com.mycelium.wapi.wallet.fiat.FiatTransaction;
 
 import java.nio.ByteBuffer;
 import java.text.ParseException;
@@ -1556,13 +1557,13 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       }
    }
 
-   public List<GenericTransaction> getTransactions(int offset, int limit) {
+   public List<BtcTransaction> getTransactions(int offset, int limit) {
       // Note that this method is not synchronized, and we might fetch the transaction history while synchronizing
       // accounts. That should be ok as we write to the DB in a sane order.
 
       checkNotArchived();
       List<TransactionEx> list = _backing.getTransactionHistory(offset, limit);
-      List<GenericTransaction> history = new ArrayList<>();
+      List<BtcTransaction> history = new ArrayList<>();
       for (TransactionEx tex: list) {
          Transaction tx = TransactionEx.toTransaction(tex);
          if (tx == null) {

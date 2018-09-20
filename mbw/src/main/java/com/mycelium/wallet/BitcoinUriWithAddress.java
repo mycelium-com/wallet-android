@@ -33,13 +33,11 @@
  */
 
 package com.mycelium.wallet;
-
-import java.io.Serializable;
-
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
+import java.io.Serializable;
 
 /**
  * This subclass of BitcoinUri guarantees to always have an address

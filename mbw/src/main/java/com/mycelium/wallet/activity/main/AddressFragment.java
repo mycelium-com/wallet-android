@@ -60,6 +60,7 @@ import com.mycelium.wallet.activity.util.QrImageView;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.BalanceChanged;
 import com.mycelium.wallet.event.ReceivingAddressChanged;
+import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
@@ -119,17 +120,18 @@ public class AddressFragment extends Fragment {
 
       // Update QR code
 
-      Optional<Address> receivingAddress = getAddress();
+      GenericAddress receivingAddress = getAddress();
 
       // Update address
-      if (receivingAddress.isPresent()) {
+      if (receivingAddress != null) {
          // Set address
          qrButton.setVisibility(View.VISIBLE);
-         String address = receivingAddress.get().toString();
-         qrButton.setQrCode(BitcoinUriWithAddress.fromAddress(receivingAddress.get()).toString());
+         String address = receivingAddress.toString();
+         Address oldFormatAddress = Address.fromString(address); // TODO need change to GenericAddress
+         qrButton.setQrCode(BitcoinUriWithAddress.fromAddress(oldFormatAddress).toString());
          ((TextView) _root.findViewById(R.id.tvAddress)).setText(address);
-         if (_showBip44Path && receivingAddress.get().getBip32Path() != null) {
-            HdKeyPath path = receivingAddress.get().getBip32Path();
+         if (_showBip44Path && oldFormatAddress.getBip32Path() != null) {
+            HdKeyPath path = oldFormatAddress.getBip32Path();
             ((TextView) _root.findViewById(R.id.tvAddressPath)).setText(path.toString());
          } else {
             ((TextView) _root.findViewById(R.id.tvAddressPath)).setText("");
@@ -171,15 +173,15 @@ public class AddressFragment extends Fragment {
 
    @OnClick(R.id.address_layout)
    void addressClick() {
-      final Optional<Address> address = getAddress();
-      if (address.isPresent()) {
-         Utils.setClipboardString(address.get().toString(), getActivity());
+      final GenericAddress address = getAddress();
+      if (address != null) {
+         Utils.setClipboardString(address.toString(), getActivity());
          Toast.makeText(getActivity(), R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
       }
    }
 
-   public Optional<Address> getAddress() {
-      return ((WalletBtcAccount)(_mbwManager.getSelectedAccount())).getReceivingAddress();
+   public GenericAddress getAddress() {
+      return _mbwManager.getSelectedAccount().getReceiveAddress();
    }
 
    @OnClick(R.id.ivQR)

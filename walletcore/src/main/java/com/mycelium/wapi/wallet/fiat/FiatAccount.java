@@ -77,7 +77,7 @@ public class FiatAccount implements WalletAccount<FiatTransaction, FiatAddress> 
     }
 
     @Override
-    public List<GenericTransaction> getTransactions(int offset, int limit) {
+    public List<FiatTransaction> getTransactions(int offset, int limit) {
         return null;
     }
 

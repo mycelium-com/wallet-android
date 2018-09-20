@@ -1,140 +1,31 @@
 package com.mycelium.wapi.wallet.colu
 
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
-import com.mrd.bitlib.model.*
-import com.mrd.bitlib.util.ByteWriter
-import com.mrd.bitlib.util.HashUtils
-import com.mrd.bitlib.util.Sha256Hash
-import com.mycelium.wapi.model.BalanceSatoshis
-import com.mycelium.wapi.model.TransactionEx
+import com.mrd.bitlib.model.NetworkParameters
+import com.mrd.bitlib.model.Transaction
 import com.mycelium.wapi.model.TransactionOutputSummary
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.BtcSendRequest
-import com.mycelium.wapi.wallet.coins.*
+import com.mycelium.wapi.wallet.coins.CryptoCurrency
+import com.mycelium.wapi.wallet.coins.Value
 import org.apache.commons.codec.binary.Hex
 import org.bitcoinj.core.ECKey
 import org.bitcoinj.script.ScriptBuilder
-import java.nio.ByteBuffer
-import java.util.*
 
 
-class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPrivateKey
-                  , val networkParameters: NetworkParameters
-                  , val coluNetworkParameters: org.bitcoinj.core.NetworkParameters
-                  , val coluClient: ColuApi
-                  , val backing: AccountBacking) : WalletAccount<ColuTransaction, BtcAddress> {
-
-    private var address: GenericAddress
-    private var uuid: UUID
-    @Volatile
-    private var _isSynchronizing: Boolean = false
-
-    private var _cachedBalance = BalanceSatoshis(0, 0, 0, 0
-            , 0, 0, true, true)
-
-    init {
-        val address1 = privateKey.publicKey.toAddress(networkParameters, AddressType.P2PKH)!!
-        address = AddressUtils.from(ColuMain, address1.toString())
-        uuid = getGuidForAsset(ColuMain, address1.allAddressBytes)
-    }
-
-    private fun getGuidForAsset(cryptoCurrency: CryptoCurrency, addressBytes: ByteArray): UUID {
-        val byteWriter = ByteWriter(36)
-        byteWriter.putBytes(addressBytes)
-        byteWriter.putRawStringUtf8(cryptoCurrency.id)
-        val accountId = HashUtils.sha256(byteWriter.toBytes())
-        return getGuidFromByteArray(accountId.bytes)
-    }
-
-    private fun getGuidFromByteArray(bytes: ByteArray): UUID {
-        val bb = ByteBuffer.wrap(bytes)
-        val high = bb.long
-        val low = bb.long
-        return UUID(high, low)
-    }
-
-
-    override fun getId(): UUID {
-        return uuid
-    }
-
-//    override fun getTransactionDetails(txid: Sha256Hash?): TransactionDetails {
-//        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-//    }
-
-    override fun getReceiveAddress(): GenericAddress = address
-
-    override fun isMineAddress(address: GenericAddress?): Boolean {
-        return receiveAddress == address
-    }
-
-    override fun getTx(transactionId: Sha256Hash?): ColuTransaction? {
-//        checkNotArchived()
-        val tex = backing.getTransaction(transactionId)
-        val tx = TransactionEx.toTransaction(tex) ?: return null
-
-        var satoshisReceived: Long = 0
-        var satoshisSent: Long = 0
-        val outputs = ArrayList<GenericTransaction.GenericOutput>()
-        for (output in tx.outputs) {
-            val address = output.script.getAddress(networkParameters)
-            if (isMineAddress(BtcAddress(ColuMain, address.allAddressBytes)/*output.script*/)) {
-                satoshisReceived += output.value
-            }
-            if (address != null && address !== Address.getNullAddress(networkParameters)) {
-                val currency = if (networkParameters.isProdnet) BitcoinMain.get() else BitcoinTest.get()
-                outputs.add(GenericTransaction.GenericOutput(BtcAddress(currency, address.allAddressBytes), Value.valueOf(coinType, output.value)))
-            }
-        }
-        val inputs = ArrayList<GenericTransaction.GenericInput>() //need to create list of outputs
-
-        // Inputs
-        if (!tx.isCoinbase) {
-            for (input in tx.inputs) {
-                // find parent output
-                val funding = backing.getParentTransactionOutput(input.outPoint)
-                        ?: //                    _logger.logError("Unable to find parent output for: " + input.outPoint)
-                        continue
-//                if (isMineAddress(funding)) {
-//                    satoshisSent += funding.value
-//                }
-                val address = ScriptOutput.fromScriptBytes(funding.script)!!.getAddress(networkParameters)
-                val currency = if (networkParameters.isProdnet) BitcoinMain.get() else BitcoinTest.get()
-                inputs.add(GenericTransaction.GenericInput(BtcAddress(currency, address.allAddressBytes), Value.valueOf(coinType, funding.value)))
-            }
-        }
-
-        val confirmations: Int
-        if (tex.height == -1) {
-            confirmations = 0
-        } else {
-            confirmations = Math.max(0, blockChainHeight - tex.height + 1)
-        }
-        val isQueuedOutgoing = backing.isOutgoingTransaction(tx.id)
-        return ColuTransaction(coinType, tx)
-
-    }
-
-
-    override fun getTransactions(offset: Int, limit: Int): MutableList<GenericTransaction> {
-
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun isActive() = !context.isArchived()
+class ColuAccount(context: ColuAccountContext, val privateKey: InMemoryPrivateKey
+                  , coluCoinType: CryptoCurrency
+                  , networkParameters: NetworkParameters
+                  , coluNetworkParameters: org.bitcoinj.core.NetworkParameters
+                  , coluClient: ColuApi
+                  , backing: AccountBacking)
+    : ColuPubOnlyAccount(context, privateKey.publicKey, coluCoinType, networkParameters
+        , coluNetworkParameters, coluClient, backing), ExportableAccount {
 
     override fun broadcastOutgoingTransactions(): Boolean {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return false
     }
-
-//    override fun deleteTransaction(transactionId: Sha256Hash?): Boolean {
-//        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-//    }
-//
-//    override fun getBalance(): BalanceSatoshis {
-//        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-//    }
 
     override fun completeAndSignTx(request: SendRequest<ColuTransaction>) {
         completeTransaction(request)
@@ -201,19 +92,8 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
         }
     }
 
-    override fun archiveAccount() = context.setArchived(true)
-
-    override fun getAccountBalance(): Balance = Balance(Value.valueOf(coinType, _cachedBalance.confirmed),
-            Value.valueOf(coinType, _cachedBalance.pendingReceiving),
-            Value.valueOf(coinType, _cachedBalance.pendingSending),
-            Value.valueOf(coinType, _cachedBalance.pendingChange))
-
 
     override fun isDerivedFromInternalMasterseed(): Boolean = true
-
-    override fun getCoinType(): CryptoCurrency = ColuMain
-
-    override fun getBlockChainHeight(): Int = context.blockHeight
 
     override fun dropCachedData() {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
@@ -224,7 +104,7 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
     }
 
     override fun broadcastTx(transaction: ColuTransaction): BroadcastResult {
-        if (coluClient.broadcastTransaction(transaction.tx) != null) {
+        if (coluClient.broadcastTx(transaction.tx) != null) {
             return BroadcastResult.SUCCESS
         } else {
             return BroadcastResult.REJECTED
@@ -239,21 +119,11 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
 
     override fun canSpend(): Boolean = true
 
-    override fun isArchived() = context.isArchived()
-
-    override fun activateAccount() = context.setArchived(false)
-
-    override fun isSynchronizing() = _isSynchronizing
-
     override fun checkAmount(receiver: WalletAccount.Receiver?, kbMinerFee: Long, enteredAmount: Value?) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun synchronize(mode: SyncMode?): Boolean {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun isVisible(): Boolean {
+    override fun getExportData(cipher: KeyCipher?): ExportableAccount.Data {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 

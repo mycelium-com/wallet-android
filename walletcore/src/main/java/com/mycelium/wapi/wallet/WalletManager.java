@@ -629,7 +629,7 @@ public class WalletManager {
         }
         // Launch synchronizer thread
         Synchronizer synchronizer;
-        if (hasAccount(_activeAccountId)) {
+        if (hasAccount(_activeAccountId) && getAccount(_activeAccountId) instanceof SynchronizeAbleWalletBtcAccount) {
             SynchronizeAbleWalletBtcAccount activeAccount = (SynchronizeAbleWalletBtcAccount) getAccount(_activeAccountId);
             synchronizer = new Synchronizer(mode, activeAccount);
         } else {

@@ -54,6 +54,13 @@ public class BtcAddress extends Address implements GenericAddress {
     }
 
     @Override
+    public String toShortString() {
+        int showChars = 3;
+        String addressString = toString();
+        return addressString.substring(0, showChars) + "..." + addressString.substring(addressString.length() - showChars);
+    }
+
+    @Override
     public String toMultiLineString() {
         String address = toString();
         return address.substring(0, 12) + "\r\n" +
