@@ -1570,7 +1570,6 @@ public class SendMainActivity extends Activity {
 
                     }
                 } else {
-//                    BroadcastTransactionActivity.callMe(this, _account.getId(), _isColdStorage, _signedTransaction, _transactionLabel, getFiatValue(), BROADCAST_REQUEST_CODE);
                     BroadcastTransactionActivity.callMe(this, _account.getId(), _isColdStorage, signedSendRequest, _transactionLabel, getFiatValue(), BROADCAST_REQUEST_CODE);
                 }
             }
