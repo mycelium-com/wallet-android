@@ -1488,7 +1488,7 @@ public class SendMainActivity extends Activity {
                         verifyPaymentRequest(_bitcoinUri);
                         return;
                     }
-                    _receivingAddress = (BtcAddress)uri.address;
+                    _receivingAddress = new BtcAddress(BitcoinTest.get(), uri.address.getAllAddressBytes()); // todo not only btc
                     _transactionLabel = uri.label;
                     if (uri.amount != null && uri.amount > 0) {
                         //we set the amount to the one contained in the qr code, even if another one was entered previously
