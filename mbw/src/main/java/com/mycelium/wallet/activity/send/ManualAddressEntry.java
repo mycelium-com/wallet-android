@@ -46,18 +46,20 @@ import android.view.Window;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.colu.ColuAccount;
+import com.mycelium.wapi.wallet.AddressUtils;
+import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 
 import java.util.UUID;
 
 public class ManualAddressEntry extends Activity {
 
    public static final String ADDRESS_RESULT_NAME = "address";
-   private Address _address; // // todo replace with Generic address
+   private GenericAddress _address;
    private String _entered;
    private MbwManager _mbwManager;
 
@@ -125,7 +127,8 @@ public class ManualAddressEntry extends Activity {
       @Override
       public void afterTextChanged(Editable editable) {
          _entered = editable.toString();
-         _address = Address.fromString(_entered.trim(), _mbwManager.getNetwork());
+         CryptoCurrency currencyType = (CryptoCurrency) getIntent().getSerializableExtra(SendMainActivity.CURRENCY_TYPE);
+         _address = AddressUtils.from(currencyType, _entered.trim());
 
          findViewById(R.id.btOk).setEnabled(_address != null);
          boolean addressValid = _address != null;

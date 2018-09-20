@@ -165,6 +165,7 @@ public class SendMainActivity extends Activity {
     public static final String ACCOUNT = "account";
     private static final String AMOUNT = "amount";
     public static final String IS_COLD_STORAGE = "isColdStorage";
+    public static final String CURRENCY_TYPE = "currencyType";
     public static final String RECEIVING_ADDRESS = "receivingAddress";
     public static final String HD_KEY = "hdKey";
     public static final String TRANSACTION_LABEL = "transactionLabel";
@@ -681,6 +682,7 @@ public class SendMainActivity extends Activity {
       Intent intent = new Intent(this, ManualAddressEntry.class);
       intent.putExtra(ACCOUNT, _account.getId());
       intent.putExtra(IS_COLD_STORAGE, _isColdStorage);
+      intent.putExtra(CURRENCY_TYPE, _account.getCoinType());
       startActivityForResult(intent, MANUAL_ENTRY_RESULT_CODE);
    }
 

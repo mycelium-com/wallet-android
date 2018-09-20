@@ -109,6 +109,7 @@ import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.IdentityAccountKeyManager;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.InMemoryWalletManagerBacking;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SecureKeyValueStore;
@@ -1375,13 +1376,13 @@ public class MbwManager {
         }
     }
 
-    public void watchAddress(final Address address) {
+    public void watchAddress(final GenericAddress address) {
         stopWatchingAddress();
         _addressWatchTimer = new Timer();
         _addressWatchTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                getWalletManager(false).startSynchronization(new SyncMode(address));
+                getWalletManager(false).startSynchronization(new SyncMode((BtcAddress)address));
             }
         }, 1000, 5 * 1000);
     }

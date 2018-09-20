@@ -1,5 +1,6 @@
 package com.mycelium.wapi.wallet.eth;
 
+import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 
@@ -22,6 +23,10 @@ public class EthAddress implements GenericAddress {
 
     @Override
     public String toMultiLineString() {
+        return null;
+    }
+
+    public static EthAddress from(CryptoCurrency currencyType, String address) {
         return null;
     }
 }

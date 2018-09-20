@@ -35,7 +35,7 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
 
     init {
         val address1 = privateKey.publicKey.toAddress(networkParameters, AddressType.P2PKH)!!
-        address = BtcAddress.from(ColuMain, address1.toString())
+        address = AddressUtils.from(ColuMain, address1.toString())
         uuid = getGuidForAsset(ColuMain, address1.allAddressBytes)
     }
 

@@ -75,6 +75,7 @@ import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.SyncFailed;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wapi.model.TransactionSummary;
+import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
@@ -122,7 +123,7 @@ public class ReceiveCoinsActivity extends Activity {
     @BindView(R.id.btShare) Button btShare;
 
     private MbwManager _mbwManager;
-    private Address _address;
+    private GenericAddress _address;
     private boolean _havePrivateKey;
     private CurrencyValue _amount;
     private Long _receivingSince;
@@ -178,7 +179,7 @@ public class ReceiveCoinsActivity extends Activity {
         }
 
         // Get intent parameters
-        _address = Preconditions.checkNotNull((Address) getIntent().getSerializableExtra("address"));
+        _address = Preconditions.checkNotNull((GenericAddress) getIntent().getSerializableExtra("address"));
         _havePrivateKey = getIntent().getBooleanExtra("havePrivateKey", false);
         _showIncomingUtxo = getIntent().getBooleanExtra("showIncomingUtxo", false);
 
