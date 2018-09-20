@@ -106,6 +106,7 @@ import com.mycelium.wapi.api.WapiClientElectrumX;
 import com.mycelium.wapi.api.jsonrpc.TcpEndpoint;
 import com.mycelium.wapi.wallet.AccountProvider;
 import com.mycelium.wapi.wallet.AesKeyCipher;
+import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.IdentityAccountKeyManager;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.InMemoryWalletManagerBacking;
@@ -1195,7 +1196,7 @@ public class MbwManager {
         Preconditions.checkState(account.isActive());
         getEditor().putString(SELECTED_ACCOUNT, uuid.toString()).apply();
         getEventBus().post(new SelectedAccountChanged(uuid));
-        Optional<Address> receivingAddress = ((WalletBtcAccount)(account)).getReceivingAddress();
+        GenericAddress receivingAddress = account.getReceiveAddress();
         getEventBus().post(new ReceivingAddressChanged(receivingAddress));
         // notify the wallet manager that this is the active account now
         _walletManager.setActiveAccount(account.getId());

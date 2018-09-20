@@ -10,4 +10,5 @@ public interface GenericAddress extends Serializable{
     long getId();
     String toMultiLineString();
     String toDoubleLineString();
+    String toShortString();
 }

@@ -62,7 +62,7 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
 
     override fun getId() = uuid
 
-    override fun getTransactions(offset: Int, limit: Int): MutableList<GenericTransaction> {
+    override fun getTransactions(offset: Int, limit: Int): List<BtcTransaction> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
