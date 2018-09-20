@@ -301,7 +301,7 @@ public class SendMainActivity extends Activity {
    }
 
     public static Intent getIntent(Activity currentActivity, UUID account, BitcoinUri uri, boolean isColdStorage) {
-        return getIntent(currentActivity, account, uri.amount, uri.address, isColdStorage)
+        return getIntent(currentActivity, account, uri.amount, (BtcAddress) uri.address, isColdStorage)
                 .putExtra(TRANSACTION_LABEL, uri.label)
                 .putExtra(BITCOIN_URI, uri);
     }
@@ -684,19 +684,19 @@ public class SendMainActivity extends Activity {
       startActivityForResult(intent, MANUAL_ENTRY_RESULT_CODE);
    }
 
-    // todo parse not only bitcoin addresses
     @OnClick(R.id.btClipboard)
     void onClickClipboard() {
-//      BitcoinUriWithAddress uri = getUriFromClipboard();
-//      if (uri != null) {
-//         makeText(this, getResources().getString(R.string.using_address_from_clipboard), LENGTH_SHORT).show();
-//         _receivingAddress = uri.genericAddress;
-//         if (uri.amount != null && uri.amount >= 0) {
-//             _amountToSend = ExactBitcoinValue.from(uri.amount);
-//         }
-//         _transactionStatus = tryCreateUnsignedTransaction();
-//         updateUi();
-//      }
+        // todo not only bitcoin
+        BitcoinUriWithAddress uri = getUriFromClipboard();
+        if (uri != null) {
+            makeText(this, getResources().getString(R.string.using_address_from_clipboard), LENGTH_SHORT).show();
+            _receivingAddress = new BtcAddress(BitcoinTest.get(), uri.address.getAllAddressBytes());
+            if (uri.amount != null && uri.amount >= 0) {
+                _amountToSend = Value.valueOf(BitcoinTest.get(), uri.amount);
+            }
+            _transactionStatus = tryCreateUnsignedTransaction();
+            updateUi();
+        }
     }
 
     // todo
