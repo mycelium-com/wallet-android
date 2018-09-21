@@ -33,11 +33,6 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
     }
 
     @Override
-    public List<TransactionOutputSummary> getUnspentTransactionOutputSummary() {
-        return null;
-    }
-
-    @Override
     public void completeAndSignTx(SendRequest<EthTransaction> request) throws WalletAccountException {
 
     }

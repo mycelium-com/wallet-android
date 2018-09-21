@@ -46,6 +46,7 @@ import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.WapiLogger;
 import com.mycelium.wapi.model.*;
+import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.BroadcastResult;
 import com.mycelium.wapi.wallet.ColuTransferInstructionsParser;
 import com.mycelium.wapi.api.Wapi;
@@ -1741,7 +1742,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    @Override
    public GenericAddress getReceiveAddress(){
       CryptoCurrency currency = getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get();
-      return BtcAddress.from(currency, getReceivingAddress().get().toString());
+      return AddressUtils.from(currency, getReceivingAddress().get().toString());
    }
 }
 

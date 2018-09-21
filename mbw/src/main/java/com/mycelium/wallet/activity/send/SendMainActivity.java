@@ -165,6 +165,7 @@ public class SendMainActivity extends Activity {
     public static final String ACCOUNT = "account";
     private static final String AMOUNT = "amount";
     public static final String IS_COLD_STORAGE = "isColdStorage";
+    public static final String CURRENCY_TYPE = "currencyType";
     public static final String RECEIVING_ADDRESS = "receivingAddress";
     public static final String HD_KEY = "hdKey";
     public static final String TRANSACTION_LABEL = "transactionLabel";
@@ -681,6 +682,7 @@ public class SendMainActivity extends Activity {
       Intent intent = new Intent(this, ManualAddressEntry.class);
       intent.putExtra(ACCOUNT, _account.getId());
       intent.putExtra(IS_COLD_STORAGE, _isColdStorage);
+      intent.putExtra(CURRENCY_TYPE, _account.getCoinType());
       startActivityForResult(intent, MANUAL_ENTRY_RESULT_CODE);
    }
 
@@ -1159,7 +1161,7 @@ public class SendMainActivity extends Activity {
         if (_receivingLabel != null) {
             label = _receivingLabel;
         } else if (_receivingAddress != null) {
-            label = getAddressLabel((BtcAddress)_receivingAddress);
+            label = getAddressLabel(_receivingAddress);
         }
       if (label == null || label.length() == 0) {
          // Hide label
@@ -1223,11 +1225,11 @@ public class SendMainActivity extends Activity {
       }
    }
 
-   private String getAddressLabel(Address address) {
+   private String getAddressLabel(GenericAddress address) {
       Optional<UUID> accountId = _mbwManager.getAccountId(address, isColu() ? ColuAccount.class : null);
       if (!accountId.isPresent()) {
          // We don't have it in our accounts, look in address book, returns empty string by default
-         return _mbwManager.getMetadataStorage().getLabelByAddress(address);
+         return _mbwManager.getMetadataStorage().getLabelByAddress((BtcAddress)address);
       }
       // Get the name of the account
       return _mbwManager.getMetadataStorage().getLabelByAccount(accountId.get());

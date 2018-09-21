@@ -93,10 +93,6 @@ class ColuAccount(context: ColuAccountContext, val privateKey: InMemoryPrivateKe
     }
 
 
-    override fun getUnspentTransactionOutputSummary(): MutableList<TransactionOutputSummary> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
     override fun isDerivedFromInternalMasterseed(): Boolean = true
 
     override fun dropCachedData() {

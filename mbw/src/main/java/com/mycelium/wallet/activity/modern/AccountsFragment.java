@@ -239,7 +239,8 @@ public class AccountsFragment extends Fragment {
             }
             accountListAdapter.setFocusedAccountId(account.getId());
             updateIncludingMenus();
-            if (account instanceof ColuAccount && !intent.getBooleanExtra(AddAccountActivity.IS_UPGRADE, false)) {
+            if (!(account instanceof ColuAccount)
+                    && !intent.getBooleanExtra(AddAccountActivity.IS_UPGRADE, false)) {
                setNameForNewAccount(account);
             }
             eventBus.post(new ExtraAccountsChanged());

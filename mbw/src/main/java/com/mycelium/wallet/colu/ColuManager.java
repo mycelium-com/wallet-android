@@ -489,7 +489,7 @@ public class ColuManager implements AccountProvider {
     }
 
     private boolean isAddressInUse(Address address) {
-        Optional<UUID> accountId = mgr.getAccountId(address, null);
+        Optional<UUID> accountId = mgr.getAccountId((BtcAddress)address, null);
         return accountId.isPresent();
     }
 

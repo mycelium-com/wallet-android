@@ -49,19 +49,19 @@ import android.widget.TextView;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.colu.ColuAccount;
+import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.btc.BtcAddress;
-import com.mycelium.wapi.wallet.coins.BitcoinTest;
+import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 
 import java.util.UUID;
 
 public class ManualAddressEntry extends Activity {
 
-    public static final String ADDRESS_RESULT_NAME = "address";
-    private GenericAddress address;
-    private String entered;
-    private MbwManager mbwManager;
+   public static final String ADDRESS_RESULT_NAME = "address";
+   private GenericAddress _address;
+   private String _entered;
+   private MbwManager _mbwManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,12 +71,12 @@ public class ManualAddressEntry extends Activity {
         boolean isColdStorage = getIntent().getBooleanExtra(SendMainActivity.IS_COLD_STORAGE, false);
         UUID accountUUID = (UUID) getIntent().getSerializableExtra(SendMainActivity.ACCOUNT);
 
-        mbwManager = MbwManager.getInstance(this);
+        _mbwManager = MbwManager.getInstance(this);
         ((EditText) findViewById(R.id.etAddress)).addTextChangedListener(textWatcher);
         findViewById(R.id.btOk).setOnClickListener(okClickListener);
         ((EditText) findViewById(R.id.etAddress)).setInputType(InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE);
 
-        WalletAccount account = mbwManager.getWalletManager(isColdStorage).getAccount(accountUUID);
+        WalletAccount account = _mbwManager.getWalletManager(isColdStorage).getAccount(accountUUID);
         if (account instanceof ColuAccount) {
             ColuAccount coluAccount = (ColuAccount) account;
             ((TextView) findViewById(R.id.title)).setText(getString(R.string.enter_address, coluAccount.getColuAsset().name));
@@ -85,16 +85,16 @@ public class ManualAddressEntry extends Activity {
         }
         // Load saved state
         if (savedInstanceState != null) {
-            entered = savedInstanceState.getString("entered");
+            _entered = savedInstanceState.getString("entered");
         } else {
-            entered = "";
+            _entered = "";
         }
 
     }
 
     @Override
     protected void onResume() {
-        ((EditText) findViewById(R.id.etAddress)).setText(entered);
+        ((EditText) findViewById(R.id.etAddress)).setText(_entered);
         super.onResume();
     }
 
@@ -109,7 +109,7 @@ public class ManualAddressEntry extends Activity {
         @Override
         public void onClick(View arg0) {
             Intent result = new Intent();
-            result.putExtra(ADDRESS_RESULT_NAME, address);
+            result.putExtra(ADDRESS_RESULT_NAME, _address);
             ManualAddressEntry.this.setResult(RESULT_OK, result);
             ManualAddressEntry.this.finish();
         }
@@ -126,11 +126,12 @@ public class ManualAddressEntry extends Activity {
 
       @Override
       public void afterTextChanged(Editable editable) {
-         entered = editable.toString();
-         address = BtcAddress.from(BitcoinTest.get(), entered); // todo generic
+         _entered = editable.toString();
+         CryptoCurrency currencyType = (CryptoCurrency) getIntent().getSerializableExtra(SendMainActivity.CURRENCY_TYPE);
+         _address = AddressUtils.from(currencyType, _entered.trim());
 
-            findViewById(R.id.btOk).setEnabled(address != null);
-            boolean addressValid = address != null;
+            findViewById(R.id.btOk).setEnabled(_address != null);
+            boolean addressValid = _address != null;
             findViewById(R.id.tvBitcoinAddressInvalid).setVisibility(!addressValid ? View.VISIBLE : View.GONE);
             findViewById(R.id.tvBitcoinAddressValid).setVisibility(addressValid ? View.VISIBLE : View.GONE);
             findViewById(R.id.btOk).setEnabled(addressValid);

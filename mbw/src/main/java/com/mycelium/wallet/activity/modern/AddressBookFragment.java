@@ -168,35 +168,27 @@ public class AddressBookFragment extends Fragment {
 
    private void updateUiMine() {
       List<Entry> entries = new ArrayList<>();
-      List<WalletAccount> activeAccounts = new ArrayList<>();
-      for(WalletAccount account : AccountManager.INSTANCE.getActiveAccounts().values().asList()){
-         activeAccounts.add(account);
-      }
       List<WalletAccount> activeAccountsGeneric = new ArrayList<>();
 
-      for(WalletAccount account : activeAccounts){
+      for(WalletAccount account : AccountManager.INSTANCE.getActiveAccounts().values().asList()){
          activeAccountsGeneric.add(account);
       }
       for (WalletAccount account : Utils.sortAccounts(activeAccountsGeneric, _mbwManager.getMetadataStorage())) {
-         // TODO rework on full bch release
-         if (account instanceof HDAccount || account instanceof Bip44BCHAccount) {
-            continue;
-         }
+
          String name = _mbwManager.getMetadataStorage().getLabelByAccount(account.getId());
          Drawable drawableForAccount = Utils.getDrawableForAccount(account, true, getResources());
-         Optional<Address> receivingAddress = ((WalletBtcAccount)(account)).getReceivingAddress();
          //TODO a lot of pr
          WalletAccount selectedAccount = _mbwManager.getSelectedAccount();
-         if (receivingAddress.isPresent()) {
-            if ((spendableOnly && account.canSpend()
-                    && (!excudeSelected || !((WalletBtcAccount)(account)).getReceivingAddress().equals(((WalletBtcAccount)(_mbwManager.getSelectedAccount())).getReceivingAddress()))
-                    && !account.getAccountBalance().confirmed.isZero()
-                    && isBtc(account.getAccountBalance().confirmed.type)) || !spendableOnly) {
+         if (account.getReceiveAddress() != null) {
+            if (!account.getCoinType().equals(_mbwManager.getSelectedAccount().getCoinType()) &&
+                    (spendableOnly && account.canSpend()
+                    && (!excudeSelected || !account.getReceiveAddress().equals(_mbwManager.getSelectedAccount().getReceiveAddress()))
+                    && !account.getAccountBalance().confirmed.isZero()) || !spendableOnly) {
                if (selectedAccount instanceof ColuAccount && account instanceof ColuAccount
                        && ((ColuAccount) account).getColuAsset().assetType == ((ColuAccount) selectedAccount).getColuAsset().assetType) {
-                  entries.add(new AddressBookManager.IconEntry(receivingAddress.get(), name, drawableForAccount, account.getId()));
+                  entries.add(new AddressBookManager.IconEntry(account.getReceiveAddress(), name, drawableForAccount, account.getId()));
                } else if (!(_mbwManager.getSelectedAccount() instanceof ColuAccount)) {
-                  entries.add(new AddressBookManager.IconEntry(receivingAddress.get(), name, drawableForAccount, account.getId()));
+                  entries.add(new AddressBookManager.IconEntry(account.getReceiveAddress(), name, drawableForAccount, account.getId()));
                }
             }
          }
@@ -216,7 +208,7 @@ public class AddressBookFragment extends Fragment {
       Map<Address, String> rawentries = _mbwManager.getMetadataStorage().getAllAddressLabels();
       List<Entry> entries = new ArrayList<Entry>();
       for (Map.Entry<Address, String> e : rawentries.entrySet()) {
-         entries.add(new Entry(e.getKey(), e.getValue()));
+         entries.add(new Entry((BtcAddress)e.getKey(), e.getValue()));
       }
       entries = Utils.sortAddressbookEntries(entries);
       if (entries.isEmpty()) {

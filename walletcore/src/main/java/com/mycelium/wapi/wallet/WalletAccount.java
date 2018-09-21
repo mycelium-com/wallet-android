@@ -17,8 +17,6 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
 
     void setAllowZeroConfSpending(boolean b);
 
-    List<TransactionOutputSummary> getUnspentTransactionOutputSummary();
-
     class WalletAccountException extends Exception {
         public WalletAccountException(Throwable cause) {
             super(cause);

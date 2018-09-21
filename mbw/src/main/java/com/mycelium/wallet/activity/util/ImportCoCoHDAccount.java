@@ -15,6 +15,7 @@ import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.colu.ColuManager;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.coins.Value;
 
 import java.io.IOException;
@@ -105,7 +106,7 @@ public class ImportCoCoHDAccount extends AsyncTask<Void, Integer, UUID> {
         while (empty < coloredLookAhead) {
             HdKeyNode currentNode = hdKeyNode.createChildNode(HdKeyPath.valueOf(String.format(coCoDerivationPath, accountIndex, addressIndex)));
             Address address = currentNode.getPublicKey().toAddress(mbwManager.getNetwork(), AddressType.P2PKH);
-            Optional<UUID> accountId = mbwManager.getAccountId(address, null);
+            Optional<UUID> accountId = mbwManager.getAccountId((BtcAddress)address, null);
             if (accountId.isPresent()) {
                 existingAccountsFound++;
                 addressIndex++;

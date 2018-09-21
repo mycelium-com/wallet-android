@@ -32,11 +32,6 @@ public class FiatAccount implements WalletAccount<FiatTransaction, FiatAddress> 
     }
 
     @Override
-    public List<TransactionOutputSummary> getUnspentTransactionOutputSummary() {
-        return null;
-    }
-
-    @Override
     public void completeAndSignTx(SendRequest<FiatTransaction> request) throws WalletAccountException {
 
     }
