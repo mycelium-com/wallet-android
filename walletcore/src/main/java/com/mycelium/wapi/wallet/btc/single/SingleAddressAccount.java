@@ -17,6 +17,7 @@
 package com.mycelium.wapi.wallet.btc.single;
 
 import com.google.common.base.Optional;
+import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
@@ -30,14 +31,26 @@ import com.mycelium.wapi.api.request.QueryTransactionInventoryRequest;
 import com.mycelium.wapi.api.response.GetTransactionsResponse;
 import com.mycelium.wapi.api.response.QueryTransactionInventoryResponse;
 import com.mycelium.wapi.model.BalanceSatoshis;
-import com.mycelium.wapi.wallet.*;
+import com.mycelium.wapi.wallet.AesKeyCipher;
+import com.mycelium.wapi.wallet.BroadcastResult;
+import com.mycelium.wapi.wallet.ExportableAccount;
+import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
+import com.mycelium.wapi.wallet.SendRequest;
+import com.mycelium.wapi.wallet.SingleAddressAccountBacking;
+import com.mycelium.wapi.wallet.SyncMode;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager.Event;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
+import com.mycelium.wapi.wallet.btc.BtcSendRequest;
 import com.mycelium.wapi.wallet.btc.BtcTransaction;
 import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class SingleAddressAccount extends AbstractBtcAccount implements ExportableAccount {
    private SingleAddressAccountContext _context;
@@ -380,19 +393,36 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
 
    @Override
    public void completeAndSignTx(SendRequest<BtcTransaction> request) throws WalletAccountException {
+      completeTransaction(request);
+      signTransaction(request);
    }
 
    @Override
    public void completeTransaction(SendRequest<BtcTransaction> request) throws WalletAccountException {
+      BtcSendRequest btcSendRequest = (BtcSendRequest) request;
+      List<WalletAccount.Receiver> receivers = new ArrayList<>();
+      receivers.add(new WalletAccount.Receiver(btcSendRequest.getDestination(), btcSendRequest.getAmount().value));
+      try {
+         btcSendRequest.setUnsignedTx(createUnsignedTransaction(receivers, request.fee.value));
+      } catch (StandardTransactionBuilder.OutputTooSmallException | StandardTransactionBuilder.InsufficientFundsException
+              | StandardTransactionBuilder.UnableToBuildTransactionException e) {
+         e.printStackTrace();
+      }
    }
 
    @Override
    public void signTransaction(SendRequest<BtcTransaction> request) throws WalletAccountException {
+      BtcSendRequest btcSendRequest = (BtcSendRequest) request;
+      try {
+         btcSendRequest.setTransaction(signTransaction(btcSendRequest.getUnsignedTx(), AesKeyCipher.defaultKeyCipher()));
+      } catch (InvalidKeyCipher invalidKeyCipher) {
+         invalidKeyCipher.printStackTrace();
+      }
    }
 
    @Override
    public BroadcastResult broadcastTx(BtcTransaction tx) throws TransactionBroadcastException {
-      return null;
+      return broadcastTransaction(tx.getRawTransaction());
    }
 
 }
