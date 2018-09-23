@@ -1,70 +1,93 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            xmlns:tools="http://schemas.android.com/tools"
-            android:fadeScrollbars="false">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:bind="http://schemas.android.com/apk/res-auto">
 
-    <LinearLayout
+    <data>
+
+        <import type="android.arch.lifecycle.AndroidViewModel" />
+
+        <import type="android.view.View" />
+
+        <import type="com.mycelium.wallet.Utils" />
+
+        <import type="com.mycelium.wapi.wallet.currency.CurrencyValue" />
+
+
+        <variable
+            name="activity"
+            type="android.support.v7.app.AppCompatActivity" />
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.wallet.activity.receive.ReceiveCoinsViewModel" />
+    </data>
+
+    <ScrollView android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:fadeScrollbars="false">
+
+
+        <LinearLayout
             android:id="@+id/llRoot"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:gravity="center_horizontal"
             android:orientation="vertical"
-            android:padding="0dp" >
+            android:padding="0dp">
 
-        <TextView
+            <TextView
                 android:id="@+id/tvTitle"
                 android:layout_marginTop="10dp"
                 android:layout_width="wrap_content"
+                android:text="@{viewModel.title}"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:textSize="30sp" />
 
-        <View
+            <View
                 android:layout_width="fill_parent"
                 android:layout_height="10dp" />
 
-        <TextView
+            <TextView
                 android:id="@+id/tvReceived"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/green"
                 android:gravity="center"
                 android:textStyle="bold"
-                tools:text="Payment detected: 100BTC"
+                android:text="@{@string/incoming_payment(viewModel.currentlyReceivingFormatted)}"
                 android:textSize="20sp"
-                android:visibility="gone"
-                tools:visibility="visible"
-                />
-        <TextView
+                android:visibility="@{CurrencyValue.isNullOrZero(viewModel.currentlyReceivingAmount) ? View.GONE : View.VISIBLE}"
+                tools:visibility="visible" />
+
+            <TextView
                 android:id="@+id/tvReceivedWarningAmount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/yellow"
                 android:gravity="center"
                 android:text="@string/warning_amount_does_not_match"
-                android:visibility="gone"
-                tools:visibility="visible"
-                />
+                android:visibility="@{viewModel.isReceivingAmountWrong() ? View.VISIBLE : View.GONE}"
+                tools:visibility="visible" />
 
-        <View
+            <View
                 android:layout_width="fill_parent"
                 android:layout_height="10dp" />
 
-        <LinearLayout
+            <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_margin="0dp"
                 android:gravity="center"
-                android:orientation="vertical" >
+                android:orientation="vertical">
 
-            <FrameLayout
+                <FrameLayout
                     android:layout_width="fill_parent"
-                    android:layout_height="wrap_content" >
+                    android:layout_height="wrap_content">
 
-                <com.mycelium.wallet.activity.util.QrImageView
+                    <com.mycelium.wallet.activity.util.QrImageView
                         android:id="@+id/ivQrCode"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -76,149 +99,138 @@
                         android:maxWidth="@dimen/large_qrcode"
                         android:minHeight="@dimen/large_qrcode"
                         android:minWidth="@dimen/large_qrcode" />
-            </FrameLayout>
+                </FrameLayout>
 
-            <TextView
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/tap_qr_code_desc"
                     android:textColor="@color/grey"
                     android:textSize="12sp" />
-        </LinearLayout>
+            </LinearLayout>
 
-        <View
+            <View
                 android:layout_width="fill_parent"
                 android:layout_height="10dp" />
 
-        <!-- Read-only warning -->
+            <!-- Read-only warning -->
 
-        <TextView
+            <TextView
                 android:id="@+id/tvWarning"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="10dp"
                 android:gravity="center"
+                android:visibility="@{viewModel.hasPrivateKey ? View.GONE : View.VISIBLE}"
                 android:text="@string/read_only_warning"
                 android:textColor="@color/red"
                 android:textSize="20sp" />
 
-        <!-- Bitcoin Address -->
-        <FrameLayout
+            <!-- Bitcoin Address -->
+            <FrameLayout
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content">
-            <LinearLayout
+
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_margin="5dp"
-                    android:orientation="vertical" >
+                    android:orientation="vertical">
 
-                <TextView
-                        android:id="@+id/tvAddress1"
+                    <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_margin="0dp"
                         android:gravity="left"
+                        android:text="@{viewModel.receivingAddress.toMultiLineString()}"
                         android:textSize="18sp"
                         android:typeface="monospace" />
-
-                <TextView
-                        android:id="@+id/tvAddress2"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="0dp"
-                        android:gravity="left"
-                        android:textSize="18sp"
-                        android:typeface="monospace" />
-
-                <TextView
-                        android:id="@+id/tvAddress3"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="0dp"
-                        android:gravity="left"
-                        android:textSize="18sp"
-                        android:typeface="monospace" />
-            </LinearLayout>
+                </LinearLayout>
 
 
-            <ImageView
+                <ImageView
                     android:id="@+id/ivNfc"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:visibility="@{viewModel.isNfcAvailable() ? View.VISIBLE : View.GONE}"
                     android:src="@drawable/nfc_logo"
-                    android:paddingRight="20dp"
-                    android:layout_gravity="center_vertical|right"
-                    android:contentDescription="@string/nfc_payment_request_hint"/>
-        </FrameLayout>
+                    android:onClick="@{_ -> Utils.showSimpleMessageDialog(activity, @string/nfc_payment_request_hint) }"
+                    android:paddingEnd="20dp"
+                    android:layout_gravity="center_vertical|end"
+                    android:contentDescription="@string/nfc_payment_request_hint" />
+            </FrameLayout>
 
-        <!-- Amount -->
+            <!-- Amount -->
 
-        <TextView
+            <TextView
                 android:id="@+id/tvAmountLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginBottom="5dp"
                 android:paddingTop="10dp"
-                android:text="@string/amount_label"
+                android:text="@{CurrencyValue.isNullOrZero(viewModel.requestedAmount) ? @string/optional_amount : @string/amount_title}"
                 android:textSize="22sp" />
-
-        <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:orientation="horizontal" >
-
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:orientation="vertical">
+                android:orientation="horizontal">
 
-                <!-- Amount -->
 
-                <TextView
-                    android:id="@+id/tvAmount"
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:textColor="@color/white"
-                    android:textColorHint="@color/darkgrey"
-                    android:textSize="20sp" />
+                    android:orientation="vertical">
 
-                <!-- Fiat Amount -->
+                    <!-- Amount -->
 
-                <TextView
-                    android:id="@+id/tvAmountFiat"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginBottom="10dp"
-                    android:textSize="13sp"/>
-            </LinearLayout>
+                    <TextView
+                        android:id="@+id/tvAmount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:textColor="@color/white"
+                        android:hint="@{viewModel.hint}"
+                        android:textColorHint="@color/darkgrey"
+                        android:textSize="20sp" />
 
-            <View
+                    <!-- Fiat Amount -->
+
+                    <TextView
+                        android:id="@+id/tvAmountFiat"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginBottom="10dp"
+                        android:textSize="13sp" />
+                </LinearLayout>
+
+                <View
                     android:layout_width="20dp"
-                    android:layout_height="1dp" >
-            </View>
+                    android:layout_height="1dp" />
 
-            <!-- Enter Amount button -->
+                <!-- Enter Amount button -->
 
-            <ImageButton
+                <ImageButton
                     android:id="@+id/btEnterAmount"
                     style="@style/MyceliumSlimButton"
                     android:layout_width="75dp"
                     android:layout_height="45dp"
+                    android:onClick="@{_ -> viewModel.onEnterClick(activity)}"
                     android:layout_gravity="center"
                     android:contentDescription="@string/enter_amount_title"
                     android:scaleType="fitCenter"
                     android:src="@drawable/keyboard_icon" />
+            </LinearLayout>
+
+            <include
+                layout="@layout/receive_coins_activity_share"
+                bind:viewModel="@{viewModel}" />
         </LinearLayout>
 
-
-
-    </LinearLayout>
-
-</ScrollView>
+    </ScrollView>
+</layout>

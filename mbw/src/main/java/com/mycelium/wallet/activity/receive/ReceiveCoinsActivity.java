@@ -35,72 +35,34 @@
 package com.mycelium.wallet.activity.receive;
 
 import android.app.Activity;
-import android.app.NotificationManager;
-import android.content.Context;
-import android.content.Intent;
-import android.media.AudioManager;
-import android.media.RingtoneManager;
-import android.net.Uri;
-import android.nfc.NdefMessage;
-import android.nfc.NdefRecord;
-import android.nfc.NfcAdapter;
-import android.nfc.NfcEvent;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.NotificationCompat;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.util.CoinUtil;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.activity.GetAmountActivity;
-import com.mycelium.wallet.activity.util.accountstrategy.AccountDisplayStrategy;
 import com.mycelium.wallet.activity.util.AccountDisplayType;
-import com.mycelium.wallet.activity.util.accountstrategy.BCHAccountDisplayStrategy;
-import com.mycelium.wallet.activity.util.accountstrategy.BTCAccountDisplayStrategy;
-import com.mycelium.wallet.activity.util.accountstrategy.CoinapultAccountDisplayStrategy;
-import com.mycelium.wallet.activity.util.accountstrategy.CoCoAccountDisplayStrategy;
 import com.mycelium.wallet.activity.util.QrImageView;
-import com.mycelium.wallet.colu.ColuAccount;
-import com.mycelium.wallet.event.SyncFailed;
-import com.mycelium.wallet.event.SyncStopped;
-import com.mycelium.wapi.model.TransactionSummary;
+import com.mycelium.wallet.activity.util.accountstrategy.AccountDisplayStrategy;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
-import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
-import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExchangeBasedBitcoinCashValue;
 import com.mycelium.wapi.wallet.currency.ExchangeBasedBitcoinValue;
 import com.mycelium.wapi.wallet.currency.ExchangeBasedCurrencyValue;
-import com.squareup.otto.Subscribe;
-
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
 public class ReceiveCoinsActivity extends Activity {
-    private static final int GET_AMOUNT_RESULT_CODE = 1;
     private static final String LAST_ADDRESS_BALANCE = "lastAddressBalance";
     private static final String RECEIVING_SINCE = "receivingSince";
-    private static final String AMOUNT = "amount";
+    private static final String AMOUNT = "amountData";
     public static final String SYNC_ERRORS = "syncErrors";
     private static final int MAX_SYNC_ERRORS = 8;
 
@@ -127,123 +89,26 @@ public class ReceiveCoinsActivity extends Activity {
     private AccountDisplayStrategy accountDisplayStrategy;
     private AccountDisplayType accountDisplayType;
 
-    public static void callMe(Activity currentActivity, Address address, boolean havePrivateKey) {
-        Intent intent = new Intent(currentActivity, ReceiveCoinsActivity.class);
-        intent.putExtra("address", address);
-        intent.putExtra("havePrivateKey", havePrivateKey);
-        intent.putExtra("showIncomingUtxo", false);
-        currentActivity.startActivity(intent);
-    }
-
-    public static void callMe(Activity currentActivity, Address address, boolean havePrivateKey,
-                              boolean showIncomingUtxo) {
-        Intent intent = new Intent(currentActivity, ReceiveCoinsActivity.class);
-        intent.putExtra("address", address);
-        intent.putExtra("havePrivateKey", havePrivateKey);
-        intent.putExtra("showIncomingUtxo", showIncomingUtxo);
-        currentActivity.startActivity(intent);
-    }
-
     /**
      * Called when the activity is first created.
      */
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.receive_coins_activity);
         ButterKnife.bind(this);
 
         _mbwManager = MbwManager.getInstance(getApplication());
-        WalletAccount selectedAccount = _mbwManager.getSelectedAccount();
-        Context context = getApplicationContext();
-        switch (AccountDisplayType.getAccountType(selectedAccount)) {
-        case BCH_ACCOUNT:
-            accountDisplayType = AccountDisplayType.BCH_ACCOUNT;
-            accountDisplayStrategy = new BCHAccountDisplayStrategy(selectedAccount, context, _mbwManager);
-            break;
-        case BTC_ACCOUNT:
-            accountDisplayType = AccountDisplayType.BTC_ACCOUNT;
-            accountDisplayStrategy = new BTCAccountDisplayStrategy(selectedAccount, context, _mbwManager);
-            break;
-        case COLU_ACCOUNT:
-            accountDisplayType = AccountDisplayType.COLU_ACCOUNT;
-            accountDisplayStrategy = new CoCoAccountDisplayStrategy((ColuAccount) selectedAccount, context);
-            break;
-        case COINAPULT_ACCOUNT:
-            accountDisplayType = AccountDisplayType.COINAPULT_ACCOUNT;
-            accountDisplayStrategy = new CoinapultAccountDisplayStrategy(selectedAccount, context, _mbwManager);
-            break;
-        }
 
         // Get intent parameters
         _address = Preconditions.checkNotNull((Address) getIntent().getSerializableExtra("address"));
         _havePrivateKey = getIntent().getBooleanExtra("havePrivateKey", false);
         _showIncomingUtxo = getIntent().getBooleanExtra("showIncomingUtxo", false);
-
-        // Load saved state
-        if (savedInstanceState != null) {
-            _amount = (CurrencyValue) savedInstanceState.getSerializable(AMOUNT);
-            _receivingSince = savedInstanceState.getLong(RECEIVING_SINCE);
-            _lastAddressBalance = (CurrencyValue) savedInstanceState.getSerializable(LAST_ADDRESS_BALANCE);
-            _syncErrors = savedInstanceState.getInt(SYNC_ERRORS);
-        } else {
-            _receivingSince = new Date().getTime();
-        }
-
-        // Amount Hint
-        tvAmount.setHint(accountDisplayStrategy.getHint());
-        shareByNfc();
-    }
-
-    protected void shareByNfc() {
-        NfcAdapter nfc = NfcAdapter.getDefaultAdapter(this);
-        if (nfc != null && nfc.isNdefPushEnabled()) {
-            nfc.setNdefPushMessageCallback(new NfcAdapter.CreateNdefMessageCallback() {
-                @Override
-                public NdefMessage createNdefMessage(NfcEvent event) {
-                    NdefRecord uriRecord = NdefRecord.createUri(getPaymentUri());
-                    return new NdefMessage(new NdefRecord[] {uriRecord});
-                }
-            }, this);
-            ivNfc.setVisibility(View.VISIBLE);
-            ivNfc.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Utils.showSimpleMessageDialog(ReceiveCoinsActivity.this, getString(R.string.nfc_payment_request_hint));
-                }
-            });
-        } else {
-            ivNfc.setVisibility(View.GONE);
-        }
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        if (!CurrencyValue.isNullOrZero(_amount)) {
-            outState.putSerializable(AMOUNT, _amount);
-        }
-        outState.putLong(RECEIVING_SINCE, _receivingSince);
-        outState.putInt(SYNC_ERRORS, _syncErrors);
-        outState.putSerializable(LAST_ADDRESS_BALANCE, _lastAddressBalance);
-        super.onSaveInstanceState(outState);
-    }
-
-    @Override
-    protected void onPause() {
-        _mbwManager.stopWatchingAddress();
-        _mbwManager.getEventBus().unregister(this);
-        super.onPause();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        _mbwManager.getEventBus().register(this);
-        if (_showIncomingUtxo && _syncErrors < MAX_SYNC_ERRORS) {
-            _mbwManager.watchAddress(_address);
-        }
         updateUi();
     }
 
@@ -256,7 +121,7 @@ public class ReceiveCoinsActivity extends Activity {
             switch (accountDisplayType) {
             case COINAPULT_ACCOUNT:
             case BTC_ACCOUNT:
-                // convert the amount to btc, but only once and stay within btc for all next calls
+                // convert the amountData to btc, but only once and stay within btc for all next calls
                 _amount = ExchangeBasedBitcoinValue.fromValue(_amount, _mbwManager.getExchangeRateManager());
                 break;
             case BCH_ACCOUNT:
@@ -271,42 +136,15 @@ public class ReceiveCoinsActivity extends Activity {
     }
 
     private void updateUi() {
-        final String qrText = getPaymentUri();
 
         if (CurrencyValue.isNullOrZero(_amount)) {
-            if(accountDisplayType == AccountDisplayType.COLU_ACCOUNT) {
-                tvTitle.setText(getString(R.string.address_title, accountDisplayStrategy.getLabel()));
-                btShare.setText(getString(R.string.share_x_address, accountDisplayStrategy.getCurrencyName()));
-            } else {
-                tvTitle.setText(getString(R.string.address_title, accountDisplayStrategy.getCurrencyName()));
-                btShare.setText(getString(R.string.share_x_address, accountDisplayStrategy.getCurrencyName()));
-            }
-            tvAmountLabel.setText(R.string.optional_amount);
+            btShare.setText(getString(R.string.share_x_address, accountDisplayStrategy.getCurrencyName()));
             tvAmount.setText("");
             tvAmountFiat.setVisibility(GONE);
         } else {
-            tvTitle.setText(R.string.payment_request);
             btShare.setText(R.string.share_payment_request);
-            tvAmountLabel.setText(R.string.amount_title);
-
             updateAmountText();
         }
-
-        // QR code
-        ivQrCode.setQrCode(qrText);
-
-        // Show warning if the record has no private key
-        if (_havePrivateKey) {
-            tvWarning.setVisibility(View.GONE);
-        } else {
-            tvWarning.setVisibility(View.VISIBLE);
-        }
-
-        String[] addressStrings = Utils.stringChopper(getBitcoinAddress(), 12);
-        tvAddress1.setText(addressStrings[0]);
-        tvAddress2.setText(addressStrings[1]);
-        tvAddress3.setText(addressStrings[2]);
-
         updateAmount();
     }
 
@@ -356,11 +194,11 @@ public class ReceiveCoinsActivity extends Activity {
             if (CurrencyValue.isNullOrZero(alternativeAmount)) {
                 tvAmountFiat.setVisibility(GONE);
             } else {
-                // show the alternative amount
+                // show the alternative amountData
                 String alternativeAmountString = accountDisplayStrategy.getFormattedValue(alternativeAmount);
 
                 if (!alternativeAmount.isBtc()) {
-                    // if the amount is not in BTC, show a ~ to inform the user, its only approximate and depends
+                    // if the amountData is not in BTC, show a ~ to inform the user, its only approximate and depends
                     // on a FX rate
                     alternativeAmountString = "~ " + alternativeAmountString;
                 }
@@ -368,129 +206,6 @@ public class ReceiveCoinsActivity extends Activity {
                 tvAmountFiat.setText(alternativeAmountString);
                 tvAmountFiat.setVisibility(VISIBLE);
             }
-        }
-    }
-
-    private String getPaymentUri() {
-        String prefix = accountDisplayStrategy.getLabel() + ":";
-
-        final StringBuilder uri = new StringBuilder(prefix);
-        uri.append(getBitcoinAddress());
-        if (!CurrencyValue.isNullOrZero(_amount)) {
-            if(accountDisplayType == AccountDisplayType.COLU_ACCOUNT) {
-                uri.append("?amount=").append(_amount.getValue().toPlainString());
-            } else {
-                BigDecimal value = getDefaultCurrencyAmount().getValue();
-                if (value != null) {
-                    uri.append("?amount=").append(CoinUtil.valueString(value,
-                            CoinUtil.Denomination.BTC, false));
-                } else {
-                    Toast.makeText(this, R.string.value_conversion_error, Toast.LENGTH_LONG).show();
-                }
-            }
-        }
-        return uri.toString();
-    }
-
-    private String getBitcoinAddress() {
-        return _address.toString();
-    }
-
-    public void shareRequest(View view) {
-        Intent s = new Intent(android.content.Intent.ACTION_SEND);
-        s.setType("text/plain");
-        if (CurrencyValue.isNullOrZero(_amount)) {
-            s.putExtra(Intent.EXTRA_SUBJECT, getResources().getString(R.string.bitcoin_address_title));
-            s.putExtra(Intent.EXTRA_TEXT, getBitcoinAddress());
-            startActivity(Intent.createChooser(s, getResources().getString(R.string.share_bitcoin_address)));
-        } else {
-            s.putExtra(Intent.EXTRA_SUBJECT, getResources().getString(R.string.payment_request));
-            s.putExtra(Intent.EXTRA_TEXT, getPaymentUri());
-            startActivity(Intent.createChooser(s, getResources().getString(R.string.share_payment_request)));
-        }
-    }
-
-    public void copyToClipboard(View view) {
-        String text;
-        if (CurrencyValue.isNullOrZero(_amount)) {
-            text = getBitcoinAddress();
-        } else {
-            text = getPaymentUri();
-        }
-        Utils.setClipboardString(text, this);
-        Toast.makeText(this, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
-        if (requestCode == GET_AMOUNT_RESULT_CODE && resultCode == RESULT_OK) {
-            // Get result from address chooser (may be null)
-            _amount = (CurrencyValue) intent.getSerializableExtra(GetAmountActivity.AMOUNT);
-        } else {
-            super.onActivityResult(requestCode, resultCode, intent);
-        }
-    }
-
-    @OnClick(R.id.btEnterAmount)
-    public void onEnterClick() {
-        if (CurrencyValue.isNullOrZero(_amount)) {
-            GetAmountActivity.callMeToReceive(this, ExactCurrencyValue.from(null, _mbwManager.getSelectedAccount().getAccountDefaultCurrency()),
-                                              GET_AMOUNT_RESULT_CODE, accountDisplayType);
-        } else {
-            // call the amount activity with the exact amount, so that the user sees the same amount he had entered
-            // it in non-BTC
-            GetAmountActivity.callMeToReceive(this, _amount.getExactValueIfPossible(),
-                                              GET_AMOUNT_RESULT_CODE, accountDisplayType);
-        }
-    }
-
-    @Subscribe
-    public void syncError(SyncFailed event) {
-        _syncErrors++;
-        // stop syncing after a certain amount of errors (no network available)
-        if (_syncErrors > MAX_SYNC_ERRORS) {
-            _mbwManager.stopWatchingAddress();
-        }
-    }
-
-    @Subscribe
-    public void syncStopped(SyncStopped event) {
-        TextView tvRecv = (TextView) findViewById(R.id.tvReceived);
-        TextView tvRecvWarning = (TextView) findViewById(R.id.tvReceivedWarningAmount);
-        final WalletAccount selectedAccount = _mbwManager.getSelectedAccount();
-        final List<TransactionSummary> transactionsSince = selectedAccount.getTransactionsSince(_receivingSince);
-        final ArrayList<TransactionSummary> interesting = new ArrayList<TransactionSummary>();
-        CurrencyValue sum = ExactBitcoinValue.ZERO;
-        for (TransactionSummary item : transactionsSince) {
-            if (item.toAddresses.contains(_address)) {
-                interesting.add(item);
-                sum = item.value;
-            }
-        }
-
-        if (interesting.size() > 0) {
-            String formattedValue = accountDisplayStrategy.getFormattedValue(sum);
-            tvRecv.setText(getString(R.string.incoming_payment, formattedValue));
-            // if the user specified an amount, also check it if it matches up...
-            if (!CurrencyValue.isNullOrZero(_amount)) {
-                tvRecvWarning.setVisibility(sum.equals(_amount) ? View.GONE : View.VISIBLE);
-            } else {
-                tvRecvWarning.setVisibility(View.GONE);
-            }
-            tvRecv.setVisibility(View.VISIBLE);
-            if (!sum.equals(_lastAddressBalance)) {
-                Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-
-                NotificationManager notificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
-                NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext())
-                .setSmallIcon(R.drawable.ic_launcher)
-                .setSound(soundUri, AudioManager.STREAM_NOTIFICATION); //This sets the sound to play
-                notificationManager.notify(0, mBuilder.build());
-
-                _lastAddressBalance = sum;
-            }
-        } else {
-            tvRecv.setVisibility(View.GONE);
         }
     }
 }

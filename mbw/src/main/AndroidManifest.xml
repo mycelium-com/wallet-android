@@ -282,6 +282,7 @@
         <activity android:name=".activity.MessageVerifyActivity"/>
         <activity android:name=".external.changelly.bch.ExchangeActivity"
             android:theme="@style/MyceliumExchange"/>
+        <activity android:name=".activity.receive.ReceiveCoinsActivityN"/>
     </application>
 
 </manifest>
