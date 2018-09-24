@@ -29,9 +29,9 @@ import static org.bitcoinj.core.Utils.formatMessageForSigning;
 
 public class MessageVerifyActivity extends Activity {
 
-    private Pattern messagePattern = Pattern.compile("-----BEGIN BITCOIN SIGNED MESSAGE-----\n?" +
+    private Pattern messagePattern = Pattern.compile("-----BEGIN BITCOIN SIGNED MESSAGE-----(?s)\n?" +
             "(.*?)\n?" +
-            "-----(BEGIN SIGNATURE|BEGIN BITCOIN SIGNATURE)-----\n?" +
+            "-----(BEGIN SIGNATURE|BEGIN BITCOIN SIGNATURE)-----(?-s)\n?" +
             "(Version: (.*?))?\n?" +
             "(Address: )?(.*?)\n?\n?" +
             "(.*?)\n?" +
