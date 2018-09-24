@@ -5,10 +5,7 @@
         <variable name="viewModel" type="com.mycelium.wallet.activity.receive.ReceiveCoinsViewModel"/>
     </data>
 
-    <LinearLayout android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:orientation="vertical"
-                  android:gravity="center">
+    <merge>
         <View
                 android:layout_width="fill_parent"
                 android:layout_height="10dp"/>
@@ -34,6 +31,6 @@
                 android:paddingRight="20dp"
                 android:layout_marginBottom="20dp"
                 android:text="@string/copy_to_clipboard"/>
-    </LinearLayout>
+    </merge>
 
 </layout>
