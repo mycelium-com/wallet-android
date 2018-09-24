@@ -18,6 +18,7 @@ import com.mycelium.wallet.activity.receive.ReceiveCoinsViewModel.Companion.GET_
 import com.mycelium.wallet.coinapult.CoinapultAccount
 import com.mycelium.wallet.colu.ColuAccount
 import com.mycelium.wallet.databinding.ReceiveCoinsActivityNBinding
+import com.mycelium.wallet.databinding.ReceiveCoinsActivityNBtcBinding
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.bip44.HDAccount
@@ -42,11 +43,6 @@ class ReceiveCoinsActivityN : AppCompatActivity() {
         val showIncomingUtxo = intent.getBooleanExtra("showIncomingUtxo", false)
         val viewModelProvider = ViewModelProviders.of(this)
 
-        //Data binding, should be called after everything else
-        val receiveCoinsActivityNBinding: ReceiveCoinsActivityNBinding =
-                DataBindingUtil.setContentView(this, R.layout.receive_coins_activity_n)
-
-        receiveCoinsActivityNBinding.setLifecycleOwner(this)
         viewModel = when (account) {
             is SingleAddressAccount, is HDAccount, is CoinapultAccount -> viewModelProvider.get(ReceiveBtcViewModel::class.java)
             is SingleAddressBCHAccount, is Bip44BCHAccount -> viewModelProvider.get(ReceiveBchViewModel::class.java)
@@ -59,10 +55,29 @@ class ReceiveCoinsActivityN : AppCompatActivity() {
         }
         activateNfc()
 
-        receiveCoinsActivityNBinding.viewModel = viewModel
-        receiveCoinsActivityNBinding.activity = this
+        initDatabinding(account)
 
-        ivQrCode.qrCode =  viewModel.getPaymentUri()
+        ivQrCode.qrCode = viewModel.getPaymentUri()
+    }
+
+    private fun initDatabinding(account: WalletAccount) {
+        //Data binding, should be called after everything else
+        val receiveCoinsActivityNBinding =
+                when (account) {
+                    is SingleAddressAccount, is HDAccount ->  {
+                        val contentView = DataBindingUtil.setContentView<ReceiveCoinsActivityNBtcBinding>(this, R.layout.receive_coins_activity_n_btc)
+                        contentView.viewModel = viewModel as ReceiveBtcViewModel
+                        contentView.activity = this
+                        contentView
+                    }
+                    else -> {
+                        val contentView = DataBindingUtil.setContentView<ReceiveCoinsActivityNBinding>(this, R.layout.receive_coins_activity_n)
+                        contentView.viewModel = viewModel
+                        contentView.activity = this
+                        contentView
+                    }
+                }
+        receiveCoinsActivityNBinding.setLifecycleOwner(this)
     }
 
     private fun activateNfc() {
