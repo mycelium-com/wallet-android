@@ -11,7 +11,7 @@
 
         <variable
             name="viewModel"
-            type="com.mycelium.wallet.activity.receive.ReceiveCoinsViewModel" />
+            type="com.mycelium.wallet.activity.receive.ReceiveBtcViewModel" />
     </data>
 
     <ScrollView
@@ -41,6 +41,10 @@
             <include
                 layout="@layout/receive_coins_activity_ro"
                 bind:viewModel="@{viewModel}" />
+
+            <!-- Selecting address type to display -->
+            <include layout="@layout/receive_coins_activity_btc_addr_type"
+                bind:viewModel="@{viewModel}"/>
 
             <!-- Bitcoin Address -->
             <FrameLayout
