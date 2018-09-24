@@ -68,6 +68,16 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
         }
     }
 
+    fun getRequestedAmountAlternative() = model.alternativeAmountData
+
+    fun getRequestedAmountAlternativeFormatted() = Transformations.map(model.alternativeAmountData) {
+        if (!CurrencyValue.isNullOrZero(it)) {
+            "~ " + getFormattedValue(it!!)
+        } else {
+            ""
+        }
+    }
+
     fun isNfcAvailable() = model.nfc?.isNdefPushEnabled == true
 
     fun getNfc() = model.nfc
@@ -103,7 +113,7 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
     }
 
     fun setAmount(amount: CurrencyValue) {
-        model.amountData.value = amount
+        model.setAmount(amount)
     }
 
     fun onEnterClick(activity: AppCompatActivity) {

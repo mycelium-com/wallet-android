@@ -12,12 +12,14 @@ import android.widget.Toast
 import com.mrd.bitlib.util.CoinUtil
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
+import com.mycelium.wallet.R.id.tvAmountFiat
 import com.mycelium.wallet.activity.util.AccountDisplayType
 import com.mycelium.wallet.event.SyncFailed
 import com.mycelium.wallet.event.SyncStopped
 import com.mycelium.wapi.model.TransactionSummary
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.currency.CurrencyValue
+import com.mycelium.wapi.wallet.currency.ExchangeBasedBitcoinValue
 import com.mycelium.wapi.wallet.currency.ExchangeBasedCurrencyValue
 import com.squareup.otto.Subscribe
 
@@ -29,6 +31,7 @@ class ReceiveCoinsModel(
         showIncomingUtxo: Boolean = false
 ) {
     val amountData: MutableLiveData<CurrencyValue?> = MutableLiveData()
+    val alternativeAmountData: MutableLiveData<CurrencyValue?> = MutableLiveData()
     val nfc: NfcAdapter? = NfcAdapter.getDefaultAdapter(context)
     val receivingAmount: MutableLiveData<CurrencyValue?> = MutableLiveData()
     val receivingAmountWrong: MutableLiveData<Boolean> = MutableLiveData()
@@ -53,6 +56,21 @@ class ReceiveCoinsModel(
         mbwManager.eventBus.unregister(this)
     }
 
+    fun setAmount(newAmount: CurrencyValue) {
+        if (!CurrencyValue.isNullOrZero(newAmount)) {
+            if (newAmount.currency == account.accountDefaultCurrency) {
+                alternativeAmountData.value = CurrencyValue.fromValue(newAmount, mbwManager.fiatCurrency, mbwManager
+                        .exchangeRateManager)
+                amountData.value = newAmount
+            } else {
+                // use the accounts default currency as alternative
+                amountData.value = CurrencyValue.fromValue(newAmount, account.accountDefaultCurrency,
+                        mbwManager.exchangeRateManager)
+                alternativeAmountData.value = newAmount
+            }
+        }
+    }
+    
     fun getPaymentUri(): String {
         val prefix = accountLabel
 

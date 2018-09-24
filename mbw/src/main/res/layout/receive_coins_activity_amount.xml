@@ -64,7 +64,8 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_marginBottom="10dp"
-                    android:visibility="@{CurrencyValue.isNullOrZero(viewModel.requestedAmount) ? View.GONE : View.VISIBLE}"
+                    android:visibility="@{CurrencyValue.isNullOrZero(viewModel.requestedAmountAlternative) ? View.GONE : View.VISIBLE}"
+                    android:text="@{viewModel.requestedAmountAlternativeFormatted}"
                     android:textSize="13sp" />
             </LinearLayout>
 

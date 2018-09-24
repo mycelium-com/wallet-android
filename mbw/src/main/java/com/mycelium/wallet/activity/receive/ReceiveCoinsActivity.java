@@ -112,29 +112,6 @@ public class ReceiveCoinsActivity extends Activity {
         updateUi();
     }
 
-    CurrencyValue getDefaultCurrencyAmount() {
-        if (CurrencyValue.isNullOrZero(_amount)) {
-            return null;
-        }
-
-        if (!_amount.getCurrency().equals(accountDisplayType.getAccountLabel())) {
-            switch (accountDisplayType) {
-            case COINAPULT_ACCOUNT:
-            case BTC_ACCOUNT:
-                // convert the amountData to btc, but only once and stay within btc for all next calls
-                _amount = ExchangeBasedBitcoinValue.fromValue(_amount, _mbwManager.getExchangeRateManager());
-                break;
-            case BCH_ACCOUNT:
-                _amount = ExchangeBasedBitcoinCashValue.fromValue(_amount, _mbwManager.getExchangeRateManager());
-                break;
-            default:
-                _amount = ExchangeBasedCurrencyValue.fromValue(_amount, accountDisplayType.getAccountLabel(),
-                          _mbwManager.getExchangeRateManager());
-            }
-        }
-        return _amount;
-    }
-
     private void updateUi() {
         updateAmount();
     }
