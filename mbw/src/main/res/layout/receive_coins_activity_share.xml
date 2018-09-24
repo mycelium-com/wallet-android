@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:tools="http://schemas.android.com/tools" xmlns:android="http://schemas.android.com/apk/res/android"
-        tools:showIn="@layout/receive_coins_activity_n">
+        tools:showIn="@layout/receive_coins_activity">
     <data>
 
         <import type="com.mycelium.wapi.wallet.currency.CurrencyValue" />

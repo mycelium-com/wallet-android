@@ -69,14 +69,12 @@ import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.StringHandlerActivity;
 import com.mycelium.wallet.activity.modern.adapter.AddressBookAdapter;
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity;
-import com.mycelium.wallet.activity.receive.ReceiveCoinsActivityN;
 import com.mycelium.wallet.activity.util.AccountDisplayType;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil.AddressLabelChangedHandler;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.AddressBookChanged;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
@@ -301,7 +299,7 @@ public class AddressBookFragment extends Fragment {
       }
       boolean hasPrivateKey = _mbwManager.getWalletManager(false).hasPrivateKeyForAddress(mSelectedAddress);
       UUID tempAccount = _mbwManager.createOnTheFlyAccount(mSelectedAddress);
-      ReceiveCoinsActivityN.callMe(getActivity(), _mbwManager.getWalletManager(true).getAccount(tempAccount),
+      ReceiveCoinsActivity.callMe(getActivity(), _mbwManager.getWalletManager(true).getAccount(tempAccount),
               hasPrivateKey, false, true);
       finishActionMode();
    }

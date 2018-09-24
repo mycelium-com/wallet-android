@@ -9,7 +9,7 @@
         android:layout_margin="0dp"
         android:gravity="center"
         android:orientation="vertical"
-        tools:showIn="@layout/receive_coins_activity_n">
+        tools:showIn="@layout/receive_coins_activity">
 
         <FrameLayout
             android:layout_width="fill_parent"

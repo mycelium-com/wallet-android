@@ -56,7 +56,6 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity;
-import com.mycelium.wallet.activity.receive.ReceiveCoinsActivityN;
 import com.mycelium.wallet.activity.util.QrImageView;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.BalanceChanged;
@@ -184,7 +183,7 @@ public class AddressFragment extends Fragment {
    void qrClick() {
       WalletAccount account = _mbwManager.getSelectedAccount();
       if (account.getReceivingAddress().isPresent()) {
-         ReceiveCoinsActivityN.callMe(getActivity(), account, account.canSpend());
+         ReceiveCoinsActivity.callMe(getActivity(), account, account.canSpend());
       }
    }
 

@@ -62,7 +62,6 @@ import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.modern.ModernMain;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity;
-import com.mycelium.wallet.activity.receive.ReceiveCoinsActivityN;
 import com.mycelium.wallet.activity.send.SendInitializationActivity;
 import com.mycelium.wallet.activity.util.ToggleableCurrencyButton;
 import com.mycelium.wallet.colu.ColuAccount;
@@ -233,7 +232,7 @@ public class BalanceFragment extends Fragment {
     void onClickReceive() {
         Optional<Address> receivingAddress = _mbwManager.getSelectedAccount().getReceivingAddress();
         if (receivingAddress.isPresent()) {
-            ReceiveCoinsActivityN.callMe(getActivity(), _mbwManager.getSelectedAccount(),
+            ReceiveCoinsActivity.callMe(getActivity(), _mbwManager.getSelectedAccount(),
                                         _mbwManager.getSelectedAccount().canSpend(), true);
         }
     }

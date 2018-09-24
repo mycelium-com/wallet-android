@@ -17,8 +17,8 @@ import com.mycelium.wallet.activity.GetAmountActivity
 import com.mycelium.wallet.activity.receive.ReceiveCoinsViewModel.Companion.GET_AMOUNT_RESULT_CODE
 import com.mycelium.wallet.coinapult.CoinapultAccount
 import com.mycelium.wallet.colu.ColuAccount
-import com.mycelium.wallet.databinding.ReceiveCoinsActivityNBinding
-import com.mycelium.wallet.databinding.ReceiveCoinsActivityNBtcBinding
+import com.mycelium.wallet.databinding.ReceiveCoinsActivityBinding
+import com.mycelium.wallet.databinding.ReceiveCoinsActivityBtcBinding
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.bip44.HDAccount
@@ -28,7 +28,7 @@ import com.mycelium.wapi.wallet.single.SingleAddressBCHAccount
 import kotlinx.android.synthetic.main.receive_coins_activity_qr.*
 import java.util.*
 
-class ReceiveCoinsActivityN : AppCompatActivity() {
+class ReceiveCoinsActivity : AppCompatActivity() {
     private lateinit var viewModel: ReceiveCoinsViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -65,13 +65,13 @@ class ReceiveCoinsActivityN : AppCompatActivity() {
         val receiveCoinsActivityNBinding =
                 when (account) {
                     is SingleAddressAccount, is HDAccount ->  {
-                        val contentView = DataBindingUtil.setContentView<ReceiveCoinsActivityNBtcBinding>(this, R.layout.receive_coins_activity_n_btc)
+                        val contentView = DataBindingUtil.setContentView<ReceiveCoinsActivityBtcBinding>(this, R.layout.receive_coins_activity_btc)
                         contentView.viewModel = viewModel as ReceiveBtcViewModel
                         contentView.activity = this
                         contentView
                     }
                     else -> {
-                        val contentView = DataBindingUtil.setContentView<ReceiveCoinsActivityNBinding>(this, R.layout.receive_coins_activity_n)
+                        val contentView = DataBindingUtil.setContentView<ReceiveCoinsActivityBinding>(this, R.layout.receive_coins_activity)
                         contentView.viewModel = viewModel
                         contentView.activity = this
                         contentView
@@ -105,7 +105,7 @@ class ReceiveCoinsActivityN : AppCompatActivity() {
         @JvmOverloads
         fun callMe(currentActivity: Activity, account: WalletAccount, havePrivateKey: Boolean,
                    showIncomingUtxo: Boolean = false, isColdStorage: Boolean = false) {
-            val intent = Intent(currentActivity, ReceiveCoinsActivityN::class.java)
+            val intent = Intent(currentActivity, ReceiveCoinsActivity::class.java)
             intent.putExtra("accountUuid", account.id)
             intent.putExtra("havePrivateKey", havePrivateKey)
             intent.putExtra("showIncomingUtxo", showIncomingUtxo)
