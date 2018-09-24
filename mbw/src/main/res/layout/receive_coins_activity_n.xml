@@ -20,9 +20,9 @@
             type="com.mycelium.wallet.activity.receive.ReceiveCoinsViewModel" />
     </data>
 
-    <ScrollView android:layout_width="fill_parent"
+    <ScrollView
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        xmlns:tools="http://schemas.android.com/tools"
         android:fadeScrollbars="false">
 
 
@@ -35,95 +35,13 @@
             android:orientation="vertical"
             android:padding="0dp">
 
-            <TextView
-                android:id="@+id/tvTitle"
-                android:layout_marginTop="10dp"
-                android:layout_width="wrap_content"
-                android:text="@{viewModel.title}"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:textSize="30sp" />
+            <include layout="@layout/receive_coins_activity_heap"
+                bind:viewModel="@{viewModel}"/>
 
-            <View
-                android:layout_width="fill_parent"
-                android:layout_height="10dp" />
+            <include layout="@layout/receive_coins_activity_qr" />
 
-            <TextView
-                android:id="@+id/tvReceived"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/green"
-                android:gravity="center"
-                android:textStyle="bold"
-                android:text="@{@string/incoming_payment(viewModel.currentlyReceivingFormatted)}"
-                android:textSize="20sp"
-                android:visibility="@{CurrencyValue.isNullOrZero(viewModel.currentlyReceivingAmount) ? View.GONE : View.VISIBLE}"
-                tools:visibility="visible" />
-
-            <TextView
-                android:id="@+id/tvReceivedWarningAmount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/yellow"
-                android:gravity="center"
-                android:text="@string/warning_amount_does_not_match"
-                android:visibility="@{viewModel.isReceivingAmountWrong() ? View.VISIBLE : View.GONE}"
-                tools:visibility="visible" />
-
-            <View
-                android:layout_width="fill_parent"
-                android:layout_height="10dp" />
-
-            <LinearLayout
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_margin="0dp"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <FrameLayout
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content">
-
-                    <com.mycelium.wallet.activity.util.QrImageView
-                        android:id="@+id/ivQrCode"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
-                        android:background="@color/white"
-                        android:contentDescription="@string/qr_code"
-                        android:longClickable="false"
-                        android:maxHeight="@dimen/large_qrcode"
-                        android:maxWidth="@dimen/large_qrcode"
-                        android:minHeight="@dimen/large_qrcode"
-                        android:minWidth="@dimen/large_qrcode" />
-                </FrameLayout>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/tap_qr_code_desc"
-                    android:textColor="@color/grey"
-                    android:textSize="12sp" />
-            </LinearLayout>
-
-            <View
-                android:layout_width="fill_parent"
-                android:layout_height="10dp" />
-
-            <!-- Read-only warning -->
-
-            <TextView
-                android:id="@+id/tvWarning"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
-                android:gravity="center"
-                android:visibility="@{viewModel.hasPrivateKey ? View.GONE : View.VISIBLE}"
-                android:text="@string/read_only_warning"
-                android:textColor="@color/red"
-                android:textSize="20sp" />
+            <include layout="@layout/receive_coins_activity_ro"
+                bind:viewModel="@{viewModel}"/>
 
             <!-- Bitcoin Address -->
             <FrameLayout

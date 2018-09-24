@@ -25,7 +25,7 @@ import com.mycelium.wapi.wallet.bip44.HDAccount
 import com.mycelium.wapi.wallet.currency.CurrencyValue
 import com.mycelium.wapi.wallet.single.SingleAddressAccount
 import com.mycelium.wapi.wallet.single.SingleAddressBCHAccount
-import kotlinx.android.synthetic.main.receive_coins_activity_n.*
+import kotlinx.android.synthetic.main.receive_coins_activity_qr.*
 import java.util.*
 
 class ReceiveCoinsActivityN : AppCompatActivity() {
