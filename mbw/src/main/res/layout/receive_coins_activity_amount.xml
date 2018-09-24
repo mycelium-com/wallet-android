@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="com.mycelium.wapi.wallet.currency.CurrencyValue" />
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.wallet.activity.receive.ReceiveCoinsViewModel" />
+
+        <variable
+            name="activity"
+            type="android.support.v7.app.AppCompatActivity" />
+    </data>
+
+    <merge>
+
+        <TextView
+            android:id="@+id/tvAmountLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="5dp"
+            android:paddingTop="10dp"
+            android:text="@{CurrencyValue.isNullOrZero(viewModel.requestedAmount) ? @string/optional_amount : @string/amount_title}"
+            android:textSize="22sp" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="horizontal"
+            tools:showIn="@layout/receive_coins_activity_n">
+
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:orientation="vertical">
+
+                <!-- Amount -->
+
+                <TextView
+                    android:id="@+id/tvAmount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:textColor="@color/white"
+                    android:hint="@{viewModel.hint}"
+                    android:textColorHint="@color/darkgrey"
+                    android:textSize="20sp" />
+
+                <!-- Fiat Amount -->
+
+                <TextView
+                    android:id="@+id/tvAmountFiat"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginBottom="10dp"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="20dp"
+                android:layout_height="1dp" />
+
+            <!-- Enter Amount button -->
+
+            <ImageButton
+                android:id="@+id/btEnterAmount"
+                style="@style/MyceliumSlimButton"
+                android:layout_width="75dp"
+                android:layout_height="45dp"
+                android:onClick="@{_ -> viewModel.onEnterClick(activity)}"
+                android:layout_gravity="center"
+                android:contentDescription="@string/enter_amount_title"
+                android:scaleType="fitCenter"
+                android:src="@drawable/keyboard_icon" />
+        </LinearLayout>
+    </merge>
+</layout>

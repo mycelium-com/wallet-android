@@ -5,25 +5,18 @@
 
         <import type="android.arch.lifecycle.AndroidViewModel" />
 
-        <import type="android.view.View" />
-
-        <import type="com.mycelium.wallet.Utils" />
-
-        <import type="com.mycelium.wapi.wallet.currency.CurrencyValue" />
-
-        <import type="com.mrd.bitlib.model.AddressType" />
-
         <variable
             name="activity"
             type="android.support.v7.app.AppCompatActivity" />
+
         <variable
             name="viewModel"
             type="com.mycelium.wallet.activity.receive.ReceiveBtcViewModel" />
     </data>
 
-    <ScrollView android:layout_width="fill_parent"
+    <ScrollView
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        xmlns:tools="http://schemas.android.com/tools"
         android:fadeScrollbars="false">
 
 
@@ -36,232 +29,48 @@
             android:orientation="vertical"
             android:padding="0dp">
 
-            <TextView
-                android:id="@+id/tvTitle"
-                android:layout_marginTop="10dp"
-                android:layout_width="wrap_content"
-                android:text="@{viewModel.title}"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:textSize="30sp" />
+            <!-- Receiving currency name, receiving amount and warning if amount don't match-->
+            <include
+                layout="@layout/receive_coins_activity_heap"
+                bind:viewModel="@{viewModel}" />
 
-            <View
-                android:layout_width="fill_parent"
-                android:layout_height="10dp" />
+            <!-- QR code and comment-->
+            <include layout="@layout/receive_coins_activity_qr" />
 
-            <TextView
-                android:id="@+id/tvReceived"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/green"
-                android:gravity="center"
-                android:textStyle="bold"
-                android:text="@{@string/incoming_payment(viewModel.currentlyReceivingFormatted)}"
-                android:textSize="20sp"
-                android:visibility="@{CurrencyValue.isNullOrZero(viewModel.currentlyReceivingAmount) ? View.GONE : View.VISIBLE}"
-                tools:visibility="visible" />
-
-            <TextView
-                android:id="@+id/tvReceivedWarningAmount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/yellow"
-                android:gravity="center"
-                android:text="@string/warning_amount_does_not_match"
-                android:visibility="@{viewModel.isReceivingAmountWrong() ? View.VISIBLE : View.GONE}"
-                tools:visibility="visible" />
-
-            <View
-                android:layout_width="fill_parent"
-                android:layout_height="10dp" />
-
-            <LinearLayout
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_margin="0dp"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <FrameLayout
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content">
-
-                    <com.mycelium.wallet.activity.util.QrImageView
-                        android:id="@+id/ivQrCode"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
-                        android:background="@color/white"
-                        android:contentDescription="@string/qr_code"
-                        android:longClickable="false"
-                        android:maxHeight="@dimen/large_qrcode"
-                        android:maxWidth="@dimen/large_qrcode"
-                        android:minHeight="@dimen/large_qrcode"
-                        android:minWidth="@dimen/large_qrcode" />
-                </FrameLayout>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/tap_qr_code_desc"
-                    android:textColor="@color/grey"
-                    android:textSize="12sp" />
-            </LinearLayout>
-
-            <View
-                android:layout_width="fill_parent"
-                android:layout_height="10dp" />
-
-            <!-- Read-only warning -->
-
-            <TextView
-                android:id="@+id/tvWarning"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
-                android:gravity="center"
-                android:visibility="@{viewModel.hasPrivateKey ? View.GONE : View.VISIBLE}"
-                android:text="@string/read_only_warning"
-                android:textColor="@color/red"
-                android:textSize="20sp" />
+            <!-- Warning if account is RO -->
+            <include
+                layout="@layout/receive_coins_activity_ro"
+                bind:viewModel="@{viewModel}" />
 
             <!-- Selecting address type to send -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:orientation="vertical">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginBottom="8dp"
-                    android:text="@string/account_mode" />
-                <RadioGroup
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center">
-                    <RadioButton
-                        android:id="@+id/rb_address_type_p2sh"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/normal_p2sh"
-                        android:checked="@{viewModel.addressType == AddressType.P2SH_P2WPKH}"/>
-                    <RadioButton
-                        android:id="@+id/rb_address_type_bech"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/native_segwit_bech_32"
-                        android:checked="@{viewModel.addressType == AddressType.P2WPKH}"/>
-                </RadioGroup>
-            </LinearLayout>
+            <include layout="@layout/receive_coins_activity_btc_addr_type"
+                bind:viewModel="@{viewModel}"/>
 
             <!-- Bitcoin Address -->
             <FrameLayout
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content">
 
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_margin="5dp"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="0dp"
-                        android:gravity="left"
-                        android:text="@{viewModel.receivingAddress.toMultiLineString()}"
-                        android:textSize="18sp"
-                        android:typeface="monospace" />
-                </LinearLayout>
+                <include
+                    layout="@layout/receive_coins_activity_addr"
+                    bind:viewModel="@{viewModel}"/>
 
 
-                <ImageView
-                    android:id="@+id/ivNfc"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:visibility="@{viewModel.isNfcAvailable() ? View.VISIBLE : View.GONE}"
-                    android:src="@drawable/nfc_logo"
-                    android:onClick="@{_ -> Utils.showSimpleMessageDialog(activity, @string/nfc_payment_request_hint) }"
-                    android:paddingEnd="20dp"
-                    android:layout_gravity="center_vertical|end"
-                    android:contentDescription="@string/nfc_payment_request_hint" />
+                <include
+                    layout="@layout/receive_coins_activity_nfc"
+                    bind:viewModel="@{viewModel}"
+                    bind:activity="@{activity}" />
             </FrameLayout>
 
             <!-- Amount -->
 
-            <TextView
-                android:id="@+id/tvAmountLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginBottom="5dp"
-                android:paddingTop="10dp"
-                android:text="@{CurrencyValue.isNullOrZero(viewModel.requestedAmount) ? @string/optional_amount : @string/amount_title}"
-                android:textSize="22sp" />
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:orientation="horizontal">
-
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:orientation="vertical">
-
-                    <!-- Amount -->
-
-                    <TextView
-                        android:id="@+id/tvAmount"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:textColor="@color/white"
-                        android:hint="@{viewModel.hint}"
-                        android:textColorHint="@color/darkgrey"
-                        android:textSize="20sp" />
-
-                    <!-- Fiat Amount -->
-
-                    <TextView
-                        android:id="@+id/tvAmountFiat"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginBottom="10dp"
-                        android:textSize="13sp" />
-                </LinearLayout>
-
-                <View
-                    android:layout_width="20dp"
-                    android:layout_height="1dp" />
-
-                <!-- Enter Amount button -->
-
-                <ImageButton
-                    android:id="@+id/btEnterAmount"
-                    style="@style/MyceliumSlimButton"
-                    android:layout_width="75dp"
-                    android:layout_height="45dp"
-                    android:onClick="@{_ -> viewModel.onEnterClick(activity)}"
-                    android:layout_gravity="center"
-                    android:contentDescription="@string/enter_amount_title"
-                    android:scaleType="fitCenter"
-                    android:src="@drawable/keyboard_icon" />
-            </LinearLayout>
+            <include layout="@layout/receive_coins_activity_amount"
+                bind:viewModel="@{viewModel}"
+                bind:activity="@{activity}"/>
 
             <include
                 layout="@layout/receive_coins_activity_share"
                 bind:viewModel="@{viewModel}" />
         </LinearLayout>
-
     </ScrollView>
 </layout>

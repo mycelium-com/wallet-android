@@ -8,12 +8,20 @@
             type="com.mycelium.wallet.activity.receive.ReceiveCoinsViewModel" />
     </data>
 
-    <TextView
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="0dp"
-        android:gravity="left"
-        android:text="@{viewModel.receivingAddress.toMultiLineString()}"
-        android:textSize="18sp"
-        android:typeface="monospace" />
+        android:layout_gravity="center"
+        android:layout_margin="5dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="0dp"
+            android:gravity="left"
+            android:text="@{viewModel.receivingAddress.toMultiLineString()}"
+            android:textSize="18sp"
+            android:typeface="monospace" />
+    </LinearLayout>
 </layout>
