@@ -20,6 +20,8 @@ class ReceiveBtcViewModel(application: Application) : ReceiveCoinsViewModel(appl
     override fun getHint() = context.getString(R.string.amount_hint_denomination,
                 mbwManager.bitcoinDenomination.toString())
 
+    override fun getCurrencyName() = context.getString(R.string.bitcoin_name)
+
     override fun getFormattedValue(sum: CurrencyValue) = Utils.getFormattedValueWithUnit(sum, mbwManager.bitcoinDenomination)
 
     override fun getTitle(): String {

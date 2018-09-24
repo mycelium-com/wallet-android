@@ -27,6 +27,8 @@ class ReceiveBchViewModel(application: Application) : ReceiveCoinsViewModel(appl
         }
     }
 
+    override fun getCurrencyName() = context.getString(R.string.bitcoin_cash_name)
+
     companion object {
         private const val ACCOUNT_LABEL = "bitcoincash"
     }

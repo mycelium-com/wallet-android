@@ -40,6 +40,8 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
 
     abstract fun getTitle(): String
 
+    abstract fun getCurrencyName(): String
+
     override fun onCleared() = model.onCleared()
 
     fun isInitialized() = ::model.isInitialized
@@ -57,6 +59,14 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
     fun getCurrentlyReceivingAmount() = model.receivingAmount
 
     fun getRequestedAmount() = model.amountData
+
+    fun getRequestedAmountFormatted() = Transformations.map(model.amountData) {
+        if (!CurrencyValue.isNullOrZero(it)) {
+            getFormattedValue(it!!)
+        } else {
+            ""
+        }
+    }
 
     fun isNfcAvailable() = model.nfc?.isNdefPushEnabled == true
 

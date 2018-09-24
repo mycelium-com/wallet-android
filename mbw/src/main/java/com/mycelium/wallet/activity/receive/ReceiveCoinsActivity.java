@@ -136,34 +136,7 @@ public class ReceiveCoinsActivity extends Activity {
     }
 
     private void updateUi() {
-
-        if (CurrencyValue.isNullOrZero(_amount)) {
-            btShare.setText(getString(R.string.share_x_address, accountDisplayStrategy.getCurrencyName()));
-            tvAmount.setText("");
-            tvAmountFiat.setVisibility(GONE);
-        } else {
-            btShare.setText(R.string.share_payment_request);
-            updateAmountText();
-        }
         updateAmount();
-    }
-
-    private void updateAmountText() {
-        switch(accountDisplayType) {
-        case COINAPULT_ACCOUNT:
-        case BTC_ACCOUNT:
-            tvAmount.setText(Utils.getFormattedValueWithUnit(getDefaultCurrencyAmount(), _mbwManager.getBitcoinDenomination()));
-            break;
-        case BCH_ACCOUNT:
-            tvAmount.setText(Utils.getFormattedValueWithUnit(getDefaultCurrencyAmount(), _mbwManager.getBitcoinDenomination()).replace("BTC", "BCH"));
-            break;
-        case COLU_ACCOUNT:
-            tvAmount.setText(Utils.getColuFormattedValueWithUnit(_amount));
-            break;
-        default:
-            Toast.makeText(this, "Can't handle account " + accountDisplayType.getAccountLabel(), Toast.LENGTH_LONG).show();
-            finish();
-        }
     }
 
     private void updateAmount() {

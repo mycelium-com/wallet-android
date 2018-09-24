@@ -100,7 +100,7 @@ class ReceiveCoinsModel(
         }
     }
 
-    fun makeNotification(sum: CurrencyValue?) {
+    private fun makeNotification(sum: CurrencyValue?) {
         val soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager?
         val mBuilder = NotificationCompat.Builder(context) //TODO api 28 change, broken.

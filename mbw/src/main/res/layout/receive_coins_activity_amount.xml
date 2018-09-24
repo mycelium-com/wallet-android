@@ -6,6 +6,8 @@
 
         <import type="com.mycelium.wapi.wallet.currency.CurrencyValue" />
 
+        <import type="android.view.View" />
+
         <variable
             name="viewModel"
             type="com.mycelium.wallet.activity.receive.ReceiveCoinsViewModel" />
@@ -50,6 +52,7 @@
                     android:layout_gravity="center"
                     android:textColor="@color/white"
                     android:hint="@{viewModel.hint}"
+                    android:text="@{viewModel.requestedAmountFormatted}"
                     android:textColorHint="@color/darkgrey"
                     android:textSize="20sp" />
 
@@ -61,6 +64,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_marginBottom="10dp"
+                    android:visibility="@{CurrencyValue.isNullOrZero(viewModel.requestedAmount) ? View.GONE : View.VISIBLE}"
                     android:textSize="13sp" />
             </LinearLayout>
 
