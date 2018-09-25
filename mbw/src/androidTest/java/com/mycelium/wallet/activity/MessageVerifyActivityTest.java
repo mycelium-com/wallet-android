@@ -5,23 +5,19 @@ import android.widget.EditText;
 
 import com.mycelium.wallet.R;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
 
-/**
- * This test is for PRODNET only.
- */
 public class MessageVerifyActivityTest {
 
     @Rule
     public ActivityTestRule<MessageVerifyActivity> messageVerifyRule
             = new ActivityTestRule<>(MessageVerifyActivity.class);
 
-    private MessageVerifyActivity SUT = null;
+    private MessageVerifyActivity SUT;
     private EditText signedMessageEditText;
 
     @Before
@@ -31,7 +27,7 @@ public class MessageVerifyActivityTest {
     }
 
     @Test
-    public void testResult_Multiline_correct() {
+    public void testResultWithMultiline() {
         final String input_correct_multiline = "-----BEGIN BITCOIN SIGNED MESSAGE-----\n" +
                 // region user message
                 "I am the owner of Instagram account \"bitcoin\".\n" +
@@ -51,13 +47,13 @@ public class MessageVerifyActivityTest {
         SUT.runOnUiThread(new Runnable() {
             public void run() {
                 signedMessageEditText.setText(input_correct_multiline);
-                assertEquals(true, SUT.getCheckResult());
+                assertEquals(true, SUT.checkResult);
             }
         });
     }
 
     @Test
-    public void testResult_Multiline_correct2() {
+    public void testResultWithMultiline2() {
         final String input_correct_multiline = "-----BEGIN BITCOIN SIGNED MESSAGE-----\n" +
                 // region user message
                 "Hello.\n" + "Ok" +
@@ -72,13 +68,13 @@ public class MessageVerifyActivityTest {
         SUT.runOnUiThread(new Runnable() {
             public void run() {
                 signedMessageEditText.setText(input_correct_multiline);
-                assertEquals(true, SUT.getCheckResult());
+                assertEquals(true, SUT.checkResult);
             }
         });
     }
 
     @Test
-    public void testResult_SingleLine_correct() {
+    public void testResultWithSingleLine() {
         final String input = "-----BEGIN BITCOIN SIGNED MESSAGE-----\n" +
                 // region user message
                 "thisisatest" +
@@ -93,13 +89,13 @@ public class MessageVerifyActivityTest {
         SUT.runOnUiThread(new Runnable() {
             public void run() {
                 signedMessageEditText.setText(input);
-                assertEquals(true, SUT.getCheckResult());
+                assertEquals(true, SUT.checkResult);
             }
         });
     }
 
     @Test
-    public void testResult_spaceNewlineSpace_correct() {
+    public void testResultWithSpaceNewlineSpace() {
         final String input = "-----BEGIN BITCOIN SIGNED MESSAGE-----\n" +
                 // region user message
                 " \n " +
@@ -114,13 +110,13 @@ public class MessageVerifyActivityTest {
         SUT.runOnUiThread(new Runnable() {
             public void run() {
                 signedMessageEditText.setText(input);
-                assertEquals(true, SUT.getCheckResult());
+                assertEquals(true, SUT.checkResult);
             }
         });
     }
 
     @Test
-    public void testResult_loremIpsum_correct() {
+    public void testResultWithLoremIpsum() {
         final String input = "-----BEGIN BITCOIN SIGNED MESSAGE-----\n" +
                 // region user message
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut " +
@@ -139,13 +135,13 @@ public class MessageVerifyActivityTest {
         SUT.runOnUiThread(new Runnable() {
             public void run() {
                 signedMessageEditText.setText(input);
-                assertEquals(true, SUT.getCheckResult());
+                assertEquals(true, SUT.checkResult);
             }
         });
     }
 
     @Test
-    public void testResult_nothing_correct() {
+    public void testResultWithNothing() {
         final String input = "-----BEGIN BITCOIN SIGNED MESSAGE-----\n" +
                 // region user message
                 "" +
@@ -160,13 +156,13 @@ public class MessageVerifyActivityTest {
         SUT.runOnUiThread(new Runnable() {
             public void run() {
                 signedMessageEditText.setText(input);
-                assertEquals(true, SUT.getCheckResult());
+                assertEquals(true, SUT.checkResult);
             }
         });
     }
 
     @Test
-    public void testResult_regexChars_correct() {
+    public void testResultWithRegexChars() {
         final String input = "-----BEGIN BITCOIN SIGNED MESSAGE-----\n" +
                 // region user message
                 "..?.*.+[A-Z]+123[\\^abc][a-c&&[\\^b-c]]" +
@@ -181,15 +177,29 @@ public class MessageVerifyActivityTest {
         SUT.runOnUiThread(new Runnable() {
             public void run() {
                 signedMessageEditText.setText(input);
-                assertEquals(true, SUT.getCheckResult());
+                assertEquals(true, SUT.checkResult);
             }
         });
     }
 
-    // no tests needed for incorrect data since it won't match Pattern
+    @Test
+    public void testResultWithSingeLineTestnet() {
+        final String input = "-----BEGIN BITCOIN SIGNED MESSAGE-----\n" +
+                // region user message
+                "Hello" +
+                // endregion user message
+                "-----BEGIN BITCOIN SIGNATURE-----\n" +
+                "Version: Bitcoin-qt (1.0)\n" +
+                "Address: mg4u71KgaMToQ1GnV7eXkRifrdv9moNqoA\n" +
+                "\n" +
+                "IP1nHlu95JS4VYV92diIh+SYONiNbVlpUdtcZuaNQEL6RKQ5f9DnTj63+BBH+/rIQx6H4Fcc3sG+AHdUW7ym+mE=\n" +
+                "-----END BITCOIN SIGNATURE-----";
 
-    @After
-    public void tearDown() throws Exception {
-        //SUT = null;
+        SUT.runOnUiThread(new Runnable() {
+            public void run() {
+                signedMessageEditText.setText(input);
+                assertEquals(true, SUT.checkResult);
+            }
+        });
     }
 }

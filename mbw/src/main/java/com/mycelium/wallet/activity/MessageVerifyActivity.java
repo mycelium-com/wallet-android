@@ -46,7 +46,7 @@ public class MessageVerifyActivity extends Activity {
     @BindView(R.id.btPaste)
     protected Button pasteView;
 
-    private boolean checkResult = false;
+    protected boolean checkResult = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,9 +91,4 @@ public class MessageVerifyActivity extends Activity {
         verifyResultView.setTextColor(getResources().getColor(checkResult ? R.color.status_green : R.color.status_red));
     }
 
-    // this public method is needed for test in MessageVerifyActivityTest
-    public boolean getCheckResult()
-    {
-        return checkResult;
-    }
 }
