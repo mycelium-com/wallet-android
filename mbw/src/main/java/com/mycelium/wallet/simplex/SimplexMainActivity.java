@@ -24,10 +24,6 @@ import com.squareup.otto.ThreadEnforcer;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 
-/**
- * Created by tomb on 11/17/16.
- */
-
 public class SimplexMainActivity extends Activity {
     private static final int ERROR_CONTACTING_SERVER = 0x101;
     private static final int ERROR_INVALID_PACKAGE_NAME = 0x102;
@@ -62,7 +58,7 @@ public class SimplexMainActivity extends Activity {
         setLayout(SimplexUITypes.Loading);
 
 
-        Button retryButton = (Button) findViewById(R.id.btSimplexRetry);
+        Button retryButton = findViewById(R.id.btSimplexRetry);
         retryButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -209,7 +205,7 @@ public class SimplexMainActivity extends Activity {
         error.activityHandler.post(new Runnable() {
             public void run() {
                 //update the UI
-                TextView errorTextView = (TextView) findViewById(R.id.tvSimplexError);
+                TextView errorTextView = findViewById(R.id.tvSimplexError);
                 String errorMessage;
                 if (error.message != null && !error.message.isEmpty())
                     errorMessage = generateDisplayErrorMessage(error.message);

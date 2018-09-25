@@ -16,17 +16,12 @@
 
 package com.google.android.vending.licensing;
 
-import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URLEncodedUtils;
-
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.util.Log;
 
 /**
@@ -44,7 +39,6 @@ import android.util.Log;
  * licensing policy should implement a custom Policy.
  */
 public class ServerManagedPolicy implements Policy {
-
     private static final String TAG = "ServerManagedPolicy";
     private static final String PREFS_FILE = "com.android.vending.licensing.ServerManagedPolicy";
     private static final String PREF_LAST_RESPONSE = "lastResponse";
@@ -150,10 +144,6 @@ public class ServerManagedPolicy implements Policy {
         mPreferences.putString(PREF_RETRY_COUNT, Long.toString(c));
     }
 
-    public long getRetryCount() {
-        return mRetryCount;
-    }
-
     /**
      * Set the last validity timestamp (VT) received from the server and add to
      * preferences. You must manually call PreferenceObfuscator.commit() to
@@ -176,10 +166,6 @@ public class ServerManagedPolicy implements Policy {
         mPreferences.putString(PREF_VALIDITY_TIMESTAMP, validityTimestamp);
     }
 
-    public long getValidityTimestamp() {
-        return mValidityTimestamp;
-    }
-
     /**
      * Set the retry until timestamp (GT) received from the server and add to
      * preferences. You must manually call PreferenceObfuscator.commit() to
@@ -195,15 +181,11 @@ public class ServerManagedPolicy implements Policy {
             // No response or not parsable, expire immediately
             Log.w(TAG, "License retry timestamp (GT) missing, grace period disabled");
             retryUntil = "0";
-            lRetryUntil = 0l;
+            lRetryUntil = 0L;
         }
 
         mRetryUntil = lRetryUntil;
         mPreferences.putString(PREF_RETRY_UNTIL, retryUntil);
-    }
-
-    public long getRetryUntil() {
-      return mRetryUntil;
     }
 
     /**
@@ -221,15 +203,11 @@ public class ServerManagedPolicy implements Policy {
             // No response or not parsable, expire immediately
             Log.w(TAG, "Licence retry count (GR) missing, grace period disabled");
             maxRetries = "0";
-            lMaxRetries = 0l;
+            lMaxRetries = 0L;
         }
 
         mMaxRetries = lMaxRetries;
         mPreferences.putString(PREF_MAX_RETRIES, maxRetries);
-    }
-
-    public long getMaxRetries() {
-        return mMaxRetries;
     }
 
     /**
@@ -260,17 +238,11 @@ public class ServerManagedPolicy implements Policy {
     }
 
     private Map<String, String> decodeExtras(String extras) {
-        Map<String, String> results = new HashMap<String, String>();
-        try {
-            URI rawExtras = new URI("?" + extras);
-            List<NameValuePair> extraList = URLEncodedUtils.parse(rawExtras, "UTF-8");
-            for (NameValuePair item : extraList) {
-                results.put(item.getName(), item.getValue());
-            }
-        } catch (URISyntaxException e) {
-          Log.w(TAG, "Invalid syntax error while decoding extras data from server.");
+        Map<String, String> results = new HashMap<>();
+        Uri uri = Uri.parse("https://bla.foo/?" + extras);
+        for( String name : uri.getQueryParameterNames()) {
+            results.put(name, uri.getQueryParameter(name));
         }
         return results;
     }
-
 }
