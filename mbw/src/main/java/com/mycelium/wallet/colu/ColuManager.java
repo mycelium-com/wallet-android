@@ -60,9 +60,13 @@ import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.colu.ColuAccountContext;
 import com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount;
 import com.mycelium.wapi.wallet.colu.ColuTransaction;
-import com.mycelium.wapi.wallet.colu.MASSCoin;
-import com.mycelium.wapi.wallet.colu.MTCoin;
-import com.mycelium.wapi.wallet.colu.RMCCoin;
+import com.mycelium.wapi.wallet.colu.ColuUtils;
+import com.mycelium.wapi.wallet.colu.coins.ColuMain;
+import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
+import com.mycelium.wapi.wallet.colu.coins.MTCoin;
+import com.mycelium.wapi.wallet.colu.coins.MTCoinTest;
+import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
+import com.mycelium.wapi.wallet.colu.coins.RMCCoinTest;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 import com.squareup.otto.Bus;
@@ -315,10 +319,12 @@ public class ColuManager implements AccountProvider {
         return false;
     }
 
-    private Map<String, CryptoCurrency> coinMap = new HashMap<String, CryptoCurrency>() {{
+    private Map<String, ColuMain> coinMap = new HashMap<String, ColuMain>() {{
         put(MASSCoin.INSTANCE.getId(), MASSCoin.INSTANCE);
         put(MTCoin.INSTANCE.getId(), MTCoin.INSTANCE);
         put(RMCCoin.INSTANCE.getId(), RMCCoin.INSTANCE);
+        put(MTCoinTest.INSTANCE.getId(), MTCoinTest.INSTANCE);
+        put(RMCCoinTest.INSTANCE.getId(), RMCCoinTest.INSTANCE);
     }};
 
     private void loadAccounts() {
@@ -501,7 +507,9 @@ public class ColuManager implements AccountProvider {
 //                ColuManager.this, createdAccountInfo.accountBacking, metadataStorage, ,
 //                coluAsset
 //        );
-        ColuPubOnlyAccount account = new ColuPubOnlyAccount(new ColuAccountContext(false, 0)
+        ColuPubOnlyAccount account = new ColuPubOnlyAccount(
+                new ColuAccountContext(createdAccountInfo.id, coinMap.get(coluAsset.id)
+                        , address, false, 0)
                 , new PublicKey(address.getAllAddressBytes()), coinMap.get(coluAsset.id)
                 , _network, netParams, coluClient, createdAccountInfo.accountBacking);
 
@@ -533,7 +541,8 @@ public class ColuManager implements AccountProvider {
 //                account = new ColuAccount(
 //                        ColuManager.this, createdAccountInfo.accountBacking, metadataStorage, singleAddressAccount.getAddress(AddressType.P2PKH),
 //                        coluAsset);
-                account = new ColuPubOnlyAccount(new ColuAccountContext(false, 0)
+                account = new ColuPubOnlyAccount(new ColuAccountContext(uuid, coinMap.get(coluAsset.getId())
+                        , singleAddressAccount.getAddress(AddressType.P2PKH), false, 0)
                         , new PublicKey(singleAddressAccount.getAddress(AddressType.P2PKH).getAllAddressBytes())
                         , coluAsset
                         , _network, netParams, coluClient, createdAccountInfo.accountBacking);
@@ -542,7 +551,8 @@ public class ColuManager implements AccountProvider {
 //                        ColuManager.this, createdAccountInfo.accountBacking, metadataStorage, accountKey,
 //                        coluAsset
 //                );
-                account = new com.mycelium.wapi.wallet.colu.ColuAccount(new ColuAccountContext(false, 0)
+                account = new com.mycelium.wapi.wallet.colu.ColuAccount(new ColuAccountContext(uuid, coinMap.get(coluAsset.getId())
+                        , singleAddressAccount.getAddress(AddressType.P2PKH), false, 0)
                         , accountKey, coluAsset,
                         _network, netParams, coluClient, createdAccountInfo.accountBacking);
             }
@@ -581,9 +591,10 @@ public class ColuManager implements AccountProvider {
 //                ColuManager.this, createdAccountInfo.accountBacking, metadataStorage, accountKey,
 //                coluAsset
 //        );
-
+        UUID id = ColuUtils.getGuidForAsset(coinMap.get(coluAsset.id), importKey.getPublicKey().getPublicKeyBytes());
         com.mycelium.wapi.wallet.colu.ColuAccount account = new com.mycelium.wapi.wallet.colu.ColuAccount(
-                new ColuAccountContext(false, 0)
+                new ColuAccountContext(id, coinMap.get(coluAsset.id), importKey.getPublicKey().toAddress(_network, AddressType.P2PKH)
+                        , false, 0)
                 , accountKey, coinMap.get(coluAsset.id)
                 , _network, netParams, coluClient, createdAccountInfo.accountBacking);
 

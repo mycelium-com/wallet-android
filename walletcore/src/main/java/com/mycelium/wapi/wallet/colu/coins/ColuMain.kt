@@ -1,4 +1,4 @@
-package com.mycelium.wapi.wallet.colu
+package com.mycelium.wapi.wallet.colu.coins
 
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.SoftDustPolicy
@@ -8,7 +8,7 @@ import com.mycelium.wapi.wallet.coins.families.BitcoinBasedCryptoCurrency
 abstract class ColuMain : BitcoinBasedCryptoCurrency() {
 
     init {
-        id = "colu.main"
+//        id = "colu.main"
 
         addressHeader = 0
         p2shHeader = 5

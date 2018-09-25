@@ -72,7 +72,6 @@ import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.OutputList;
-import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.model.UnspentTransactionOutput;
 import com.mycelium.paymentrequest.PaymentRequestException;
 import com.mycelium.paymentrequest.PaymentRequestInformation;
@@ -122,9 +121,14 @@ import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
 import com.mycelium.wapi.wallet.coins.BitcoinTest;
+import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
+import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
+import com.mycelium.wapi.wallet.colu.coins.MTCoin;
+import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
+import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
 import com.squareup.otto.Subscribe;
 
 import org.bitcoin.protocols.payments.PaymentACK;
@@ -132,7 +136,9 @@ import org.bitcoin.protocols.payments.PaymentACK;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import butterknife.BindView;
@@ -262,7 +268,7 @@ public class SendMainActivity extends Activity {
     private TransactionStatus _transactionStatus;
     protected UnsignedTransaction _unsigned;
     protected CoinapultAccount.PreparedCoinapult _preparedCoinapult;
-    protected ColuBroadcastTxHex.Json _preparedColuTx;
+//    protected ColuBroadcastTxHex.Json _preparedColuTx;
 //    private Transaction _signedTransaction; // todo remove
     private SendRequest signedSendRequest;
     private MinerFee feeLvl;
@@ -280,6 +286,14 @@ public class SendMainActivity extends Activity {
     private FeeItemsBuilder feeItemsBuilder;
 
     int feeFirstItemWidth;
+
+    private Map<GenericAssetInfo, Feature> featureMap = new HashMap<GenericAssetInfo, Feature>() {
+        {
+            put(MTCoin.INSTANCE, Feature.COLU_PREPARE_OUTGOING_TX);
+            put(MASSCoin.INSTANCE, Feature.COLU_PREPARE_OUTGOING_TX);
+            put(RMCCoin.INSTANCE, Feature.COLU_PREPARE_OUTGOING_TX);
+        }
+    };
 
     public static Intent getIntent(Activity currentActivity, UUID account, boolean isColdStorage) {
         return new Intent(currentActivity, SendMainActivity.class)
@@ -631,7 +645,7 @@ public class SendMainActivity extends Activity {
    public void onSaveInstanceState(Bundle savedInstanceState) {
       super.onSaveInstanceState(savedInstanceState);
       savedInstanceState.putSerializable(AMOUNT, _amountToSend);
-      savedInstanceState.putSerializable(RECEIVING_ADDRESS, (BtcAddress)_receivingAddress);
+      savedInstanceState.putSerializable(RECEIVING_ADDRESS, _receivingAddress);
       savedInstanceState.putString(TRANSACTION_LABEL, _transactionLabel);
       savedInstanceState.putSerializable(FEE_LVL, feeLvl);
       savedInstanceState.putLong(FEE_PER_KB, feePerKbValue);
@@ -713,128 +727,70 @@ public class SendMainActivity extends Activity {
                 AccountDisplayType.getAccountType(_account), _isColdStorage);
     }
 
-   @OnClick(R.id.btSend)
-   void onClickSend() {
-      if (isCoinapult()) {
-         sendCoinapultTransaction();
-      } else if (isColu()) {
-          sendColuTransaction();
-      } else if (_isColdStorage || _account instanceof HDAccountExternalSignature) {
-         // We do not ask for pin when the key is from cold storage or from a external device (trezor,...)
-         signTransaction();
-      } else {
-         _mbwManager.runPinProtectedFunction(this, pinProtectedSignAndSend);
-      }
-   }
-
-    private void sendColuTransaction() {
-        progress = new ProgressDialog(SendMainActivity.this);
-        progress.setCancelable(false);
-        progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        progress.setMessage(getString(R.string.colu_sending_via_colu));
-        progress.show();
-//        tryCreateUnsignedColuTX(new PrepareCallback() {
-//            @Override
-//            public void success() {
-//                sendColu();
-//            }
-//
-//            @Override
-//            public void fail() {
-//                progress.dismiss();
-//            }
-//        });
+    @OnClick(R.id.btSend)
+    void onClickSend() {
+        if (isCoinapult() || isColu()) {
+            sendTransaction();
+        } else if (_isColdStorage || _account instanceof HDAccountExternalSignature) {
+            // We do not ask for pin when the key is from cold storage or from a external device (trezor,...)
+            signTransaction();
+        } else {
+            _mbwManager.runPinProtectedFunction(this, pinProtectedSignAndSend);
+        }
     }
 
-    private void sendColu() {
+    private void sendTransaction() {
         _mbwManager.getVersionManager().showFeatureWarningIfNeeded(SendMainActivity.this,
-                Feature.COLU_PREPARE_OUTGOING_TX, true, new Runnable() {
+                featureMap.get(_account.getCoinType()), true, new Runnable() {
                     @Override
                     public void run() {
                         _mbwManager.runPinProtectedFunction(SendMainActivity.this, new Runnable() {
                             @Override
                             public void run() {
-                                if (_account instanceof ColuAccount) {
-                                    Log.d(TAG, "send Colored Coin Transaction account type is Colored Coin Account");
-                                    final ColuAccount coluAccount = (ColuAccount) _account;
-                                    final ColuManager coluManager = _mbwManager.getColuManager();
-                                    disableButtons();
-                                    new AsyncTask<ColuBroadcastTxHex.Json, Void, Boolean>() {
-                                        @Override
-                                        protected Boolean doInBackground(ColuBroadcastTxHex.Json... params) {
-                                            Log.d(TAG, "In doInBackground: Colored Coin Prepared Transaction");
-                                            //UnsignedTransaction unsignedTx = new UnsignedTransaction();
-                                            Transaction coluSignedTransaction = coluManager.signTransaction(params[0], coluAccount);
-                                            if (coluSignedTransaction != null) {
-                                                Log.d(TAG, "broadcasting transaction");
-                                                return coluManager.broadcastTransaction(coluSignedTransaction);
-                                            } else {
-                                                Log.d(TAG, "Failed to sign transaction");
-                                                return false;
-                                            }
-                                        }
+                                progress = new ProgressDialog(SendMainActivity.this);
+                                progress.setCancelable(false);
+                                progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                                progress.setMessage(getString(R.string.colu_sending_via_colu));
+                                progress.show();
+                                disableButtons();
 
-                                        @Override
-                                        protected void onPostExecute(Boolean aBoolean) {
-                                            super.onPostExecute(aBoolean);
-                                            progress.dismiss();
-                                            if (aBoolean) {
-                                                coluManager.startSynchronization(SyncMode.FAST_SYNC_CURRENT_ACCOUNT);
-                                                Toast.makeText(SendMainActivity.this, R.string.transaction_sent, Toast.LENGTH_SHORT).show();
-                                                SendMainActivity.this.finish();
-                                            } else {
-                                                Toast.makeText(SendMainActivity.this, R.string.colu_failed_to_broadcast, Toast.LENGTH_SHORT).show();
-                                                updateUi();
-                                            }
+                                new AsyncTask<Void, Void, Boolean>() {
+                                    @Override
+                                    protected Boolean doInBackground(Void... voids) {
+                                        SendRequest sendRequest = _account.getSendToRequest(_receivingAddress, _amountToSend);
+                                        try {
+                                            _account.completeAndSignTx(sendRequest);
+                                            _account.broadcastTx(sendRequest.tx);
+                                            return true;
+                                        } catch (WalletAccount.WalletAccountException e) {
+                                            Log.e(TAG, "", e);
+                                        } catch (TransactionBroadcastException e) {
+                                            Log.e(TAG, "", e);
                                         }
-                                    }.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, _preparedColuTx);
-                                }
+                                        return false;
+                                    }
+
+                                    @Override
+                                    protected void onPostExecute(Boolean aBoolean) {
+                                        super.onPostExecute(aBoolean);
+                                        progress.dismiss();
+                                        if (aBoolean) {
+                                            _account.synchronize(SyncMode.FAST_SYNC_CURRENT_ACCOUNT);
+                                            Toast.makeText(SendMainActivity.this, R.string.transaction_sent, Toast.LENGTH_SHORT).show();
+                                            SendMainActivity.this.finish();
+                                        } else {
+                                            Toast.makeText(SendMainActivity.this, R.string.colu_failed_to_broadcast, Toast.LENGTH_SHORT).show();
+                                            updateUi();
+                                        }
+                                    }
+                                }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
                             }
                         });
+
                     }
                 });
     }
-
-    private void sendCoinapultTransaction() {
-        _mbwManager.getVersionManager().showFeatureWarningIfNeeded(this,
-                Feature.COINAPULT_MAKE_OUTGOING_TX, true, new Runnable() {
-                    @Override
-                    public void run() {
-                        _mbwManager.runPinProtectedFunction(SendMainActivity.this, new Runnable() {
-                            @Override
-                            public void run() {
-                                if (_account instanceof CoinapultAccount) {
-                                    final ProgressDialog progress = new ProgressDialog(SendMainActivity.this);
-                                    progress.setCancelable(false);
-                                    progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                                    progress.setMessage(getString(R.string.coinapult_sending_via_coinapult));
-                                    progress.show();
-                                    final CoinapultAccount coinapultManager = (CoinapultAccount) _account;
-                                    disableButtons();
-                                    new AsyncTask<CoinapultAccount.PreparedCoinapult, Void, Boolean>() {
-                                        @Override
-                                        protected Boolean doInBackground(CoinapultAccount.PreparedCoinapult... params) {
-                                            return coinapultManager.broadcast(params[0]);
-                                        }
-
-                              @Override
-                              protected void onPostExecute(Boolean aBoolean) {
-                                 super.onPostExecute(aBoolean);
-                                 progress.dismiss();
-                                 if (aBoolean) {
-                                    SendMainActivity.this.finish();
-                                 } else {
-                                    makeText(SendMainActivity.this, R.string.coinapult_failed_to_broadcast, LENGTH_SHORT).show();
-                                    SendMainActivity.this.finish();
-                                 }
-                              }
-                           }.execute(_preparedCoinapult);
-                        }
-                     }
-                  });
-               }
-            });
-   }
 
     @OnClick(R.id.tvUnconfirmedWarning)
     void onClickUnconfirmedWarning() {
@@ -856,9 +812,9 @@ public class SendMainActivity extends Activity {
         if (isCoinapult()) {
 //            return tryCreateCoinapultTX();
             return null;
-        } else if (isColu()) {
-//            return tryCreateUnsignedColuTX(null);
-            return null;
+//        } else if (isColu()) {
+////            return tryCreateUnsignedColuTX(null);
+//            return null;
         } else {
             return tryCreateUnsignedTransactionFromWallet();
         }
@@ -893,7 +849,7 @@ public class SendMainActivity extends Activity {
                 _transactionLabel = paymentRequestInformation.getPaymentDetails().memo;
                 return TransactionStatus.OK;
             } else if(hasAddressData) {
-                WalletAccount.Receiver receiver = new WalletAccount.Receiver((BtcAddress)_receivingAddress, toSend.getValue());
+                WalletAccount.Receiver receiver = new WalletAccount.Receiver(_receivingAddress, toSend.getValue());
                 _unsigned = ((WalletBtcAccount)_account).createUnsignedTransaction(Collections.singletonList(receiver), feePerKbValue);
                 checkSpendingUnconfirmed();
                 return TransactionStatus.OK;
@@ -966,6 +922,7 @@ public class SendMainActivity extends Activity {
 //            ColuTransactionData coluTransactionData = new ColuTransactionData(_receivingAddress, nativeAmount,
 //                    coluAccount, feePerKb);
 
+            SendRequest sendRequest = _account.getSendToRequest(_receivingAddress, _amountToSend);
 //            if(callback != null) {
 //                new AsyncTask<ColuTransactionData, Void, ColuBroadcastTxHex.Json>() {
 //                    @Override

@@ -45,7 +45,7 @@ public class ColuClient implements ColuApi{
     private AdvancedHttpClient coloredCoinsClient;
     private AdvancedHttpClient blockExplorerClient;
 
-    ColuClient(NetworkParameters network) {
+    public ColuClient(NetworkParameters network) {
         this.coloredCoinsClient = new AdvancedHttpClient(BuildConfig.ColoredCoinsApiURLs);
         this.blockExplorerClient = new AdvancedHttpClient(BuildConfig.ColuBlockExplorerApiURLs);
         this.network = network;
