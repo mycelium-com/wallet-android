@@ -94,7 +94,6 @@ public class ServerManagedPolicy implements Policy {
      * @param rawData the raw server response data
      */
     public void processServerResponse(int response, ResponseData rawData) {
-
         // Update retry counter
         if (response != Policy.RETRY) {
             setRetryCount(0);
