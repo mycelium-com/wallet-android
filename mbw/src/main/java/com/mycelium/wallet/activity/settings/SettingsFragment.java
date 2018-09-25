@@ -45,6 +45,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.ledger.tbase.comm.LedgerTransportTEEProxyFactory;
+import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.util.CoinUtil;
 import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.lt.api.model.TraderInfo;
@@ -147,7 +148,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private final Preference.OnPreferenceClickListener accountModeClickListener = new Preference.OnPreferenceClickListener() {
         public boolean onPreferenceClick(Preference preference) {
             CheckBoxPreference p = (CheckBoxPreference) preference;
-            _mbwManager.setAccountMode(!p.isChecked());
+            _mbwManager.setDefaultAddressType(p.isChecked() ? AddressType.P2WPKH : AddressType.P2SH_P2WPKH);
             return true;
         }
     };
@@ -460,7 +461,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         });
 
         // Account mode
-        accountMode.setChecked(!_mbwManager.getAccountMode());
+        accountMode.setChecked(_mbwManager.getDefaultAddressType() == AddressType.P2WPKH);
         accountMode.setOnPreferenceClickListener(accountModeClickListener);
 
         _minerFee.setSummary(getMinerFeeSummary());

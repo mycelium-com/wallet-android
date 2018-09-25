@@ -65,6 +65,7 @@ import com.google.common.collect.Sets;
 import com.google.common.primitives.Ints;
 import com.mrd.bitlib.crypto.*;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.CoinUtil;
@@ -507,6 +508,13 @@ public class MbwManager {
         _environment.getLtEndpoints().setTorManager(this._torManager);
     }
 
+    public void setDefaultAddressType(AddressType addressType) {
+
+    }
+
+    public AddressType getDefaultAddressType() {
+        return AddressType.P2SH_P2WPKH;
+    }
 
     private void migrateOldKeys() {
         // We only migrate old keys if we don't have any accounts yet - otherwise, migration has already taken place

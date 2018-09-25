@@ -145,8 +145,9 @@
             android:icon="@drawable/ic_exchange_coin"
             android:key="account_mode"
             android:layout="@layout/preference_layout"
-            android:summary="Use full SegWit (Bech32). P2SH by default."
-            android:title="Account Mode"
+            android:summaryOff="P2SH mode"
+            android:summaryOn="SegWit native (Bech32)."
+            android:title="Default address type"
             android:widgetLayout="@layout/preference_switch" />
 
         <ListPreference
