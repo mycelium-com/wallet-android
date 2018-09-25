@@ -346,8 +346,8 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
     * @return default address
     */
    public Address getAddress() {
-      if (getAddress(AddressType.P2WPKH) != null) {
-         return getAddress(AddressType.P2WPKH);
+      if (getAddress(_context.getDefaultAddressType()) != null) {
+         return getAddress(_context.getDefaultAddressType());
       } else {
          return _context.getAddresses().values().iterator().next();
       }

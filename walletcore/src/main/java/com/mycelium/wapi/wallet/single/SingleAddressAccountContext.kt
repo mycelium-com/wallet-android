@@ -24,11 +24,17 @@ import java.util.*
 /**
  * The abstract context of an account
  */
-class SingleAddressAccountContext(val id: UUID, var addresses: Map<AddressType, Address>,
-                                  private var isArchived: Boolean, private var blockHeight: Int) {
+class SingleAddressAccountContext @JvmOverloads constructor(
+        val id: UUID,
+        var addresses: Map<AddressType, Address>,
+        private var isArchived: Boolean,
+        private var blockHeight: Int,
+        var defaultAddressType: AddressType = AddressType.P2SH_P2WPKH
+) {
     private var isDirty = false
 
-    constructor(context: SingleAddressAccountContext) : this(context.id, context.addresses, context.isArchived(), context.getBlockHeight())
+    constructor(context: SingleAddressAccountContext) :
+            this(context.id, context.addresses, context.isArchived(), context.getBlockHeight(), context.defaultAddressType)
 
     /**
      * Is this account archived?
