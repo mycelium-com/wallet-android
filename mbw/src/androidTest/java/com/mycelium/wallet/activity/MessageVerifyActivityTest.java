@@ -28,7 +28,7 @@ public class MessageVerifyActivityTest {
 
     @Test
     public void testResultWithMultiline() {
-        final String input_correct_multiline = "-----BEGIN BITCOIN SIGNED MESSAGE-----\n" +
+        final String input = "-----BEGIN BITCOIN SIGNED MESSAGE-----\n" +
                 // region user message
                 "I am the owner of Instagram account \"bitcoin\".\n" +
                 "The email it was registered with is prostoosloshnom@gmail.com\n" +
@@ -44,17 +44,12 @@ public class MessageVerifyActivityTest {
                 "IMsV/oKkUwS5XPhQIjPY7X0tzd9NL/nUt8UaE8EUZi54SDNyrAk0ogzH8YsYzSkNsuujPrjtTBhXjO66fMA5374=\n" +
                 "-----END BITCOIN SIGNATURE-----";
 
-        SUT.runOnUiThread(new Runnable() {
-            public void run() {
-                signedMessageEditText.setText(input_correct_multiline);
-                assertEquals(true, SUT.checkResult);
-            }
-        });
+        verify(input);
     }
 
     @Test
     public void testResultWithMultiline2() {
-        final String input_correct_multiline = "-----BEGIN BITCOIN SIGNED MESSAGE-----\n" +
+        final String input = "-----BEGIN BITCOIN SIGNED MESSAGE-----\n" +
                 // region user message
                 "Hello.\n" + "Ok" +
                 // endregion user message
@@ -65,12 +60,7 @@ public class MessageVerifyActivityTest {
                 "H1KinN1aIeXJpRyqUcwNovOkE1rVPE5ZELqbVrooBQZOamT/sUmciq0wGIcSJRj4SUIz9fFAFlFWmPvO5QAnbEM=\n" +
                 "-----END BITCOIN SIGNATURE-----";
 
-        SUT.runOnUiThread(new Runnable() {
-            public void run() {
-                signedMessageEditText.setText(input_correct_multiline);
-                assertEquals(true, SUT.checkResult);
-            }
-        });
+        verify(input);
     }
 
     @Test
@@ -86,12 +76,7 @@ public class MessageVerifyActivityTest {
                 "IB066t2s+CpjlCJx00oERatuz/jaQRDvms9zx9kH2DW2dvUVoJsSIKCrxI419mJtpvyZoqm5eLNTbtBQWmqM324=\n" +
                 "-----END BITCOIN SIGNATURE-----";
 
-        SUT.runOnUiThread(new Runnable() {
-            public void run() {
-                signedMessageEditText.setText(input);
-                assertEquals(true, SUT.checkResult);
-            }
-        });
+        verify(input);
     }
 
     @Test
@@ -107,12 +92,7 @@ public class MessageVerifyActivityTest {
                 "H2Kv4LAl5NARmpQ6EWY7vnT18fI8M84QK2sD54PaqYdOBVFaF6PnxfZaLyDF2akuOsP+KpebW4OVOGL8VU0daKw=\n" +
                 "-----END BITCOIN SIGNATURE-----";
 
-        SUT.runOnUiThread(new Runnable() {
-            public void run() {
-                signedMessageEditText.setText(input);
-                assertEquals(true, SUT.checkResult);
-            }
-        });
+        verify(input);
     }
 
     @Test
@@ -132,12 +112,7 @@ public class MessageVerifyActivityTest {
                 "H36ukDLATPxOUNizAkABOUvRoMqvWfd8FYWnRVH46Y9lSPvvrjYqhFGx2KWshOBICsOk6Qn+CmRoE79Sfk0E9xw=\n" +
                 "-----END BITCOIN SIGNATURE-----";
 
-        SUT.runOnUiThread(new Runnable() {
-            public void run() {
-                signedMessageEditText.setText(input);
-                assertEquals(true, SUT.checkResult);
-            }
-        });
+        verify(input);
     }
 
     @Test
@@ -153,12 +128,7 @@ public class MessageVerifyActivityTest {
                 "HyVnOv6mTYO2BoCynsOzBNA1VSPStnKj9rhS2VjzO6anRn6ahLjCZwcoHxTgGJNz+KBnzgNNlbeGovWnmcWfbww=\n" +
                 "-----END BITCOIN SIGNATURE-----";
 
-        SUT.runOnUiThread(new Runnable() {
-            public void run() {
-                signedMessageEditText.setText(input);
-                assertEquals(true, SUT.checkResult);
-            }
-        });
+        verify(input);
     }
 
     @Test
@@ -174,12 +144,7 @@ public class MessageVerifyActivityTest {
                 "IME5kO4S7rFZabmV2/7ZlJqLt/BVWmjXel2gOtHubaVWMVyuaND9xkxtlBvUN7XAjdHShavbZ2d1OtmRNmfN+ug=\n" +
                 "-----END BITCOIN SIGNATURE-----";
 
-        SUT.runOnUiThread(new Runnable() {
-            public void run() {
-                signedMessageEditText.setText(input);
-                assertEquals(true, SUT.checkResult);
-            }
-        });
+        verify(input);
     }
 
     @Test
@@ -195,6 +160,10 @@ public class MessageVerifyActivityTest {
                 "IP1nHlu95JS4VYV92diIh+SYONiNbVlpUdtcZuaNQEL6RKQ5f9DnTj63+BBH+/rIQx6H4Fcc3sG+AHdUW7ym+mE=\n" +
                 "-----END BITCOIN SIGNATURE-----";
 
+        verify(input);
+    }
+
+    private void verify(final String input) {
         SUT.runOnUiThread(new Runnable() {
             public void run() {
                 signedMessageEditText.setText(input);
