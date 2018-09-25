@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="@layout/receive_coins_activity_btc">
+
+    <data>
+
+        <import type="com.mrd.bitlib.model.AddressType" />
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.wallet.activity.receive.ReceiveBtcViewModel" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="8dp"
+            android:text="@string/account_mode" />
+
+        <RadioGroup
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center">
+
+            <RadioButton
+                android:id="@+id/rb_address_type_p2sh"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/normal_p2sh"
+                android:checked="@{viewModel.addressType == AddressType.P2SH_P2WPKH}" />
+
+            <RadioButton
+                android:id="@+id/rb_address_type_bech"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/native_segwit_bech_32"
+                android:checked="@{viewModel.addressType == AddressType.P2WPKH}" />
+        </RadioGroup>
+    </LinearLayout>
+</layout>

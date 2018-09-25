@@ -18,6 +18,7 @@ package com.mycelium.wapi.wallet.btc.single;
 
 import com.google.common.base.Optional;
 import com.mrd.bitlib.StandardTransactionBuilder;
+import com.mrd.bitlib.crypto.BipDerivationType;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
@@ -47,6 +48,7 @@ import com.mycelium.wapi.wallet.btc.BtcTransaction;
 import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -359,8 +361,8 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
     * @return default address
     */
    public Address getAddress() {
-      if (getAddress(AddressType.P2SH_P2WPKH) != null) {
-         return getAddress(AddressType.P2SH_P2WPKH);
+      if (getAddress(AddressType.P2WPKH) != null) {
+         return getAddress(AddressType.P2WPKH);
       } else {
          return _context.getAddresses().values().iterator().next();
       }
@@ -386,9 +388,9 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
    }
 
    @Override
-   protected boolean doDiscoveryForAddresses(List<Address> lookAhead) throws WapiException {
+   protected Map<BipDerivationType, Boolean> doDiscoveryForAddresses(List<Address> lookAhead) throws WapiException {
       // not needed for SingleAddressAccount
-      return true;
+      return Collections.emptyMap();
    }
 
    @Override

@@ -22,11 +22,7 @@ import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
 import com.mrd.bitlib.UnsignedTransaction;
-import com.mrd.bitlib.crypto.BitcoinSigner;
-import com.mrd.bitlib.crypto.IPrivateKeyRing;
-import com.mrd.bitlib.crypto.IPublicKeyRing;
-import com.mrd.bitlib.crypto.InMemoryPrivateKey;
-import com.mrd.bitlib.crypto.PublicKey;
+import com.mrd.bitlib.crypto.*;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.OutPoint;
@@ -128,6 +124,11 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       _wapi = wapi;
       _backing = backing;
       coluTransferInstructionsParser = new ColuTransferInstructionsParser(_logger);
+   }
+
+   @Override
+   public Type getType() {
+      return null;
    }
 
    @Override
@@ -386,7 +387,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       return _wapi.getTransactions(fullRequest);
    }
 
-   protected abstract boolean doDiscoveryForAddresses(List<Address> lookAhead) throws WapiException;
+   protected abstract Map<BipDerivationType, Boolean> doDiscoveryForAddresses(List<Address> lookAhead) throws WapiException;
 
    private static Map<OutPoint, TransactionOutputEx> toMap(Collection<TransactionOutputEx> list) {
       Map<OutPoint, TransactionOutputEx> map = new HashMap<>();

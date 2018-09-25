@@ -84,6 +84,7 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.BtcTransaction;
 import com.mycelium.wapi.wallet.btc.SynchronizeAbleWalletBtcAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
@@ -387,6 +388,11 @@ public class CoinapultAccount extends SynchronizeAbleWalletBtcAccount {
       return new ArrayList<T>(list.subList(offset, endIndex));
    }
 
+   // TODO - added temporary for back compartibility. Should be removed again
+   @Override
+   public Type getType() {
+      return null;
+   }
 
    @Override
    public NetworkParameters getNetwork() {

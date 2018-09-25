@@ -44,18 +44,27 @@ import android.util.Log;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Preconditions;
+import com.mrd.bitlib.crypto.PublicKey;
+import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.AddressType;
+import com.mrd.bitlib.model.Transaction;
 import com.mycelium.wallet.R;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import crl.android.pdfwriter.PaperSize;
 
@@ -66,18 +75,19 @@ public class ExportDistiller {
     public static class ExportEntry<T> implements Serializable {
         private static final long serialVersionUID = 1L;
 
-        public String address;
         public String encryptedKey;
         public String encryptedMasterSeed;
         public String label;
-        public Class<T> accountType;
+        public WalletBtcAccount.Type accountType;
+        public Map<AddressType, Address> addresses;
 
-        public ExportEntry(String address, String encryptedKey, String encryptedMasterSeed, String label, Class<T> type) {
-            this.address = address;
+        public ExportEntry(Map<AddressType, Address> addresses, String encryptedKey, String encryptedMasterSeed, String label,
+                           WalletBtcAccount.Type accountType) {
             this.encryptedKey = encryptedKey;
             this.encryptedMasterSeed = encryptedMasterSeed;
             this.label = label;
-            this.accountType = type;
+            this.accountType = accountType;
+            this.addresses = addresses;
         }
     }
 
@@ -93,10 +103,13 @@ public class ExportDistiller {
         public ExportProgressTracker(Iterable<ExportEntry> entries) {
             // Sum up all the work to do
             _totalWork = WATER_MARK_WORK;
-            for (ExportEntry entry : entries) {
-                if (entry.address != null) {
-                    _totalWork += ADDRESS_WORK;
+            for (ExportEntry<?> entry : entries) {
+                for(Address address: entry.addresses.values()){
+                    if(address != null) {
+                        _totalWork += ADDRESS_WORK;
+                    }
                 }
+
                 if (entry.encryptedKey != null) {
                     _totalWork += PRIVATE_KEY_WORK;
                 }
@@ -173,7 +186,41 @@ public class ExportDistiller {
         int totalAddresses = activeRecords + archivedRecords;
         int totalRecords = activeRecords + archivedRecords;
 
-        int totalPages = 1 + ((totalRecords + RECORDS_PR_PAGE - 1) / RECORDS_PR_PAGE) + 1;
+        //first page, last page and our records
+        int totalPages = 2;
+        boolean isOneEntryOnPage = false;
+        int accountWithOneAddressCounter = 0;
+        List<ExportEntry> entries = new ArrayList<>(params.getAllEntries());
+        Collections.sort(entries, new Comparator<ExportEntry>() {
+            @Override
+            public int compare(ExportEntry firstExportEntry, ExportEntry secondExportEntry) {
+                return Integer.compare(firstExportEntry.addresses.size(), secondExportEntry.addresses.size());
+            }
+        });
+        for(ExportEntry entry : entries){
+            if(!isOneEntryOnPage){
+                if(entry.addresses.size() == 1){
+                    accountWithOneAddressCounter++;
+                    if(accountWithOneAddressCounter == RECORDS_PR_PAGE){
+                        accountWithOneAddressCounter = 0;
+                    } else {
+                        if(accountWithOneAddressCounter == 1){
+                            totalPages++;
+                        }
+                    }
+                } else {
+                    if(!(accountWithOneAddressCounter == 1 && entry.addresses.size() == 2)){
+                        totalPages++;
+                        isOneEntryOnPage = true;
+                    } else {
+                        accountWithOneAddressCounter = 0;
+                    }
+                }
+            } else {
+                isOneEntryOnPage = true;
+                totalPages++;
+            }
+        }
 
         PdfWriter writer = new PdfWriter(pageWidth, pageHeight, 20, 20, 20, 20);
 
@@ -284,7 +331,6 @@ public class ExportDistiller {
         // Add page number
         addPageNumber(writer, pageNum++, totalPages);
 
-        // There are 3 records positions per page
         int recordsOnThisPage = 0;
         fromTop = 0F;
         int remainingRecords = totalRecords;
@@ -294,40 +340,45 @@ public class ExportDistiller {
             writer.addPage();
         }
 
-        List<ExportEntry> active = params.getActive();
-        for (int i = 0; i < active.size(); i++) {
-            ExportEntry exportEntry = active.get(i);
-            recordsOnThisPage++;
+        List<ExportEntry> allEntries = new ArrayList(params.getAllEntries());
+
+        Collections.sort(allEntries, new Comparator<ExportEntry>() {
+            @Override
+            public int compare(ExportEntry firstExportEntry, ExportEntry secondExportEntry) {
+                return Integer.compare(firstExportEntry.addresses.size(), secondExportEntry.addresses.size());
+            }
+        });
+
+        int entryWithOneAddressCounter = 0;
+        boolean oneEntryOnPage = false;
+
+        for (int i = 0; i < allEntries.size(); i++) {
+            ExportEntry exportEntry = allEntries.get(i);
+
             remainingRecords--;
-            boolean lastRecordOnPage = recordsOnThisPage == RECORDS_PR_PAGE || remainingRecords == 0;
 
-            // Add Record
-            fromTop += addRecord(new OffsetWriter(0F, fromTop, writer), getTitle(true, i + 1, active.size()),
-                    exportEntry, lastRecordOnPage, progressTracker);
-
-            if (lastRecordOnPage) {
-                recordsOnThisPage = 0;
-                addPageNumber(writer, pageNum++, totalPages);
-                if (remainingRecords > 0) {
-                    writer.addPage();
-                    fromTop = 0F;
+            if(!oneEntryOnPage) {
+                if (exportEntry.addresses.size() == 1) {
+                    if (entryWithOneAddressCounter == RECORDS_PR_PAGE) {
+                        entryWithOneAddressCounter = 0;
+                    }
+                    entryWithOneAddressCounter++;
+                    if((i < allEntries.size() - 1) && allEntries.get(i+1).addresses.size() != 1){
+                        if (!(entryWithOneAddressCounter == 1 && allEntries.get(i+1).addresses.size() == 2)){
+                            oneEntryOnPage = true;
+                        }
+                    }
+                } else {
+                    oneEntryOnPage = true;
                 }
             }
-        }
+            boolean addEndLine = remainingRecords == 0 || oneEntryOnPage ||
+                    entryWithOneAddressCounter == RECORDS_PR_PAGE;
 
-        List<ExportEntry> archived = params.getArchived();
-        for (int i = 0; i < archived.size(); i++) {
-            ExportEntry exportEntry = archived.get(i);
-            recordsOnThisPage++;
-            remainingRecords--;
-            boolean lastRecordOnPage = recordsOnThisPage == RECORDS_PR_PAGE || remainingRecords == 0;
+            fromTop += addRecord(new OffsetWriter(0F, fromTop, writer), getTitle(true, i + 1, allEntries.size()),
+                    exportEntry, addEndLine, progressTracker);
 
-            // Add Record
-            fromTop += addRecord(new OffsetWriter(0F, fromTop, writer), getTitle(false, i + 1, archived.size()),
-                    exportEntry, lastRecordOnPage, progressTracker);
-
-            if (lastRecordOnPage) {
-                recordsOnThisPage = 0;
+            if(addEndLine) {
                 addPageNumber(writer, pageNum++, totalPages);
                 if (remainingRecords > 0) {
                     writer.addPage();
@@ -349,8 +400,8 @@ public class ExportDistiller {
     }
 
     private static double addRecord(OffsetWriter writer, String title,
-                                    ExportEntry entry, boolean addEndLine, ExportProgressTracker progressTracker) {
-        String address = entry.address;
+                                    ExportEntry<?> entry, boolean addEndLine, ExportProgressTracker progressTracker) {
+
         String encryptedKey = entry.encryptedKey;
         double fromTop = 0;
         // Add separator line and key title
@@ -373,78 +424,70 @@ public class ExportDistiller {
             fromTop += 0.7F;
             // Use Standard font
             writer.setStandardFont();
-
         }
 
         boolean hasEpk = entry.encryptedKey != null;
 
-      // Titles
-         writer.setTextColor(0, 0, 0);
-         if(entry.accountType.isAssignableFrom(SingleAddressBCHAccount.class)) {
-             writer.addText(2.05F, fromTop, 13, "Bitcoin");
-             writer.setTextColor(0.9411, 0.5490, 0.09411);
-             writer.addText(3.60F, fromTop, 13, "Cash");
-             writer.setTextColor(0, 0, 0);
-             writer.addText(4.72F, fromTop, 13, "Address");
-         } else {
-             writer.addText(3F, fromTop, 13, "Bitcoin Address");
-         }
+        // Titles
+        writer.setTextColor(0, 0, 0);
+        switch (entry.accountType) {
+            case BCHSINGLEADDRESS:
+                writer.addText(2.05F, fromTop, 13, "Bitcoin");
+                writer.setTextColor(0.9411, 0.5490, 0.09411);
+                writer.addText(3.60F, fromTop, 13, "Cash");
+                writer.setTextColor(0, 0, 0);
+                writer.addText(4.72F, fromTop, 13, "Addresses");
+                break;
+            default:
+                writer.addText(2.05F, fromTop, 13, "Bitcoin Addresses");
+        }
 
         if (hasEpk) {
             writer.addText(12F, fromTop, 13, "Encrypted Private Key");
         }
+
         fromTop += 1.5F;
-
-        // QR codes
-        // Bitmap addressQr = Utils.getQRCodeBitmap("bitcoin:" + address, 200, 0);
-        // writer.addImage(2.9, fromTop, 3.5, 3.5, addressQr);
-
-        writer.addQrCode(2.9, fromTop - 0.25, 3.5, "bitcoin:" + address);
-
+        double fromTopAddressesColumn = fromTop;
+        double fromTopPrivateKeyColumn = fromTop;
         progressTracker.addressCompleted();
-        // Encrypted private key QR-code
-        if (hasEpk) {
-            // Bitmap keyQr = Utils.getQRCodeBitmap(encryptedKey, 200, 0);
-            // writer.addImage(12.5, fromTop, 3.5, 3.5, keyQr);
-
-            writer.addQrCode(12.5, fromTop - 0.5, 4, encryptedKey);
-
-            progressTracker.privateKeyCompleted();
-        }
-        fromTop += 4;
 
         // Use Monospace font
         writer.setMonoFont();
 
-        // Strings
-        String a1 = address.substring(0, address.length() / 2);
-        String a2 = address.substring(address.length() / 2);
-        String k1 = "";
-        String k2 = "";
-        if (hasEpk) {
-            k1 = encryptedKey.substring(0, encryptedKey.length() / 2);
-            k2 = encryptedKey.substring(encryptedKey.length() / 2);
+        //Addresses QR-codes
+        for (Address address : entry.addresses.values()) {
+
+            String a1 = address.toString().substring(0, address.toString().length() / 2);
+            String a2 = address.toString().substring(address.toString().length() / 2);
+            writer.addQrCode(2.4, fromTopAddressesColumn - 0.25, 3.5, "bitcoin:" + address);
+            fromTopAddressesColumn += 4.0F;
+            writer.addText(2, fromTopAddressesColumn, 12, a2);
+            fromTopAddressesColumn += 0.5F;
+            writer.addText(2, fromTopAddressesColumn, 12, a1);
+            fromTopAddressesColumn += 1.0F;
         }
-        writer.addText(2.3, fromTop, 12, a1);
+
+        // Encrypted private key QR-code
         if (hasEpk) {
-            writer.addText(9.8, fromTop, 12, k1);
+            String k1 = encryptedKey.substring(0, encryptedKey.length() / 2);
+            String k2 = encryptedKey.substring(encryptedKey.length() / 2);
+            writer.addQrCode(12.5, fromTopPrivateKeyColumn - 0.5, 4, encryptedKey);
+            fromTopPrivateKeyColumn += 4.0F;
+            writer.addText(9.8, fromTopPrivateKeyColumn, 12, k1);
+            fromTopPrivateKeyColumn += 0.5F;
+            writer.addText(9.8, fromTopPrivateKeyColumn, 12, k2);
+            progressTracker.privateKeyCompleted();
+            fromTopPrivateKeyColumn += 1;
         }
+
+        fromTop = Math.max(fromTopAddressesColumn, fromTopPrivateKeyColumn);
         fromTop += 0.5F;
-        writer.addText(2.3, fromTop, 12, a2);
-        if (hasEpk) {
-            writer.addText(9.8, fromTop, 12, k2);
-        }
-        fromTop += 1;
-
-        // Use Standard font
-        writer.setStandardFont();
-
-        // Add end line if necessary
-        if (addEndLine) {
+        if(addEndLine) {
             writer.setLineColor(0, 0.5, 1);
             writer.addLine(1F, fromTop, 18F, fromTop);
         }
-        fromTop += 0.5F;
+        // Use Standard font
+        writer.setStandardFont();
         return fromTop;
     }
 

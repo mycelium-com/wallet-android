@@ -27,6 +27,11 @@ import java.util.*
 class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InMemoryPrivateKey
                        , val _network: NetworkParameters, coinapultCurrency: Currency)
     : SynchronizeAbleWalletBtcAccount() {
+
+    override fun getType(): WalletBtcAccount.Type {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
     override fun getTransactionDetails(txid: Sha256Hash?): TransactionDetails {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }

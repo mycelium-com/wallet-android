@@ -71,6 +71,7 @@ import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.btc.BtcTransaction;
 import com.mycelium.wapi.wallet.btc.SynchronizeAbleWalletBtcAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
@@ -264,6 +265,12 @@ public class ColuAccount extends SynchronizeAbleWalletBtcAccount implements Expo
         }
         int endIndex = Math.min(offset + limit, list.size());
         return new ArrayList<>(list.subList(offset, endIndex));
+    }
+
+    // TODO - added temporary for backward compartibility. Should be removed again
+    @Override
+    public Type getType() {
+        return null;
     }
 
     @Override

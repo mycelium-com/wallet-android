@@ -186,10 +186,9 @@ public class AddressFragment extends Fragment {
 
    @OnClick(R.id.ivQR)
    void qrClick() {
-      WalletAccount account = _mbwManager.getSelectedAccount();
-      Optional<Address> receivingAddress = ((WalletBtcAccount)(account)).getReceivingAddress();
-      if (receivingAddress.isPresent()) {
-         ReceiveCoinsActivity.callMe(getActivity(), receivingAddress.get(), account.canSpend());
+      WalletBtcAccount account = (WalletBtcAccount)_mbwManager.getSelectedAccount();
+      if (account.getReceivingAddress().isPresent()) {
+         ReceiveCoinsActivity.callMe(getActivity(), account, account.canSpend());
       }
    }
 

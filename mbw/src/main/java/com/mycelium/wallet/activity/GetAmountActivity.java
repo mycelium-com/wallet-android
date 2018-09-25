@@ -251,7 +251,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       Intent result = new Intent();
       result.putExtra(AMOUNT, _amount);
       setResult(RESULT_OK, result);
-      GetAmountActivity.this.finish();
+      finish();
    }
 
    @OnClick(R.id.btMax)
