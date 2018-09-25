@@ -46,6 +46,8 @@ public class MessageVerifyActivity extends Activity {
     @BindView(R.id.btPaste)
     protected Button pasteView;
 
+    private boolean checkResult = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,7 +71,7 @@ public class MessageVerifyActivity extends Activity {
 
     @OnTextChanged(value = R.id.signedMessage, callback = AFTER_TEXT_CHANGED)
     void textChanged(Editable editable) {
-        boolean checkResult = false;
+        checkResult = false;
         Address address = null;
         String msgWithSign = signedMessageEditText.getText().toString();
         Matcher matcher = messagePattern.matcher(msgWithSign);
@@ -87,5 +89,11 @@ public class MessageVerifyActivity extends Activity {
         verifyResultView.setVisibility(View.VISIBLE);
         verifyResultView.setText(checkResult ? "Message verified to be from " + address.toString() : "Message failed to verify! ");
         verifyResultView.setTextColor(getResources().getColor(checkResult ? R.color.status_green : R.color.status_red));
+    }
+
+    // this public method is needed for test in MessageVerifyActivityTest
+    public boolean getCheckResult()
+    {
+        return checkResult;
     }
 }
