@@ -170,6 +170,14 @@ public class SegwitAddress extends Address implements Serializable {
         return getScriptBytes(this);                    //TODO segwit check if correct
     }
 
+    @Override
+    public String toMultiLineString() {
+        String address = toString();
+        return address.substring(0, 14) + "\r\n" +
+                address.substring(14, 28) + "\r\n" +
+                address.substring(28);
+    }
+
     /**
      * Runs the SegWit address verification
      *

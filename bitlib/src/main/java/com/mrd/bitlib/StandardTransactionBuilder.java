@@ -331,7 +331,9 @@ public class StandardTransactionBuilder {
       for (int i = 0; i < funding.length; i++) {
          if (isScriptInputSegWit(unsigned, i)) {
             inputs[i] = unsigned.getInputs()[i];
-            inputs[i].script = ScriptInput.EMPTY;     // TODO this correctly works only for bech addresses. MUST BE FIXED
+            if (inputs[i].script instanceof  ScriptInputP2WPKH && !((ScriptInputP2WPKH) inputs[i].script).isNested()) {
+               inputs[i].script = ScriptInput.EMPTY;
+            }
             InputWitness witness = new InputWitness(2);
             witness.setStack(0, signatures.get(i));
             witness.setStack(1, unsigned.getSigningRequests()[i].getPublicKey().getPublicKeyBytes());

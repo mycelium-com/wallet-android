@@ -46,6 +46,17 @@ import java.util.UUID;
 
 public interface WalletBtcAccount extends WalletAccount<BtcTransaction, BtcAddress> {
 
+   // TODO - added temporary for backward compartibility. Should be removed again
+   enum Type {
+      BTCSINGLEADDRESS, BTCBIP44,
+      BCHSINGLEADDRESS, BCHBIP44,
+      COINAPULT, COLU, UNKNOWN,
+      DASH,
+   }
+
+   // TODO - added temporary for backward compartibility. Should be removed again
+   Type getType();
+
    /**
     * Get the network that this account is for.
     *

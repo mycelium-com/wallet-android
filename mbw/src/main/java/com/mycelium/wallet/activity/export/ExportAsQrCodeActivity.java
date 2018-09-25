@@ -44,8 +44,11 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
 import android.widget.CompoundButton;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
@@ -58,6 +61,10 @@ public class ExportAsQrCodeActivity extends Activity {
    private ExportableAccount.Data accountData;
    private SwitchCompat swSelectData;
    private boolean hasWarningAccepted = false;
+   private RadioGroup rgKeyTypes;
+   private final String[] allKeyTypes =
+           {"xpub", "ypub", "zpub",
+           "xprv", "yprv", "zprv"};
 
    public static Intent getIntent(Activity activity, ExportableAccount.Data accountData) {
       Intent intent = new Intent(activity, ExportAsQrCodeActivity.class);
@@ -91,6 +98,7 @@ public class ExportAsQrCodeActivity extends Activity {
       swSelectData = (SwitchCompat) findViewById(R.id.swSelectData);
       TextView privateText = (TextView) findViewById(R.id.prv_key);
       TextView publicText = (TextView) findViewById(R.id.pub_key);
+      rgKeyTypes = findViewById(R.id.rg_key_types);
       if (accountData.privateData.isPresent()) {
          swSelectData.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -103,6 +111,23 @@ public class ExportAsQrCodeActivity extends Activity {
          privateText.setVisibility(View.GONE);
          publicText.setVisibility(View.GONE);
       }
+
+      // listener for exporting xpub/ypub/zpub  /  xprv/yprv/zprv
+      rgKeyTypes.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+         @Override
+         public void onCheckedChanged(RadioGroup group, int checkedId) {
+            switch (checkedId) {
+               case R.id.rb_key_x:
+                  if (isPrivateDataSelected()) {/* todo xpriv*/} else {/* todo xpub*/}
+                  break;
+               case R.id.rb_key_y:
+                  if (isPrivateDataSelected()) {/* todo ypriv*/} else {/* todo ypub*/}
+                  break;
+               case R.id.rb_key_z:
+                  if (isPrivateDataSelected()) {/* todo zpriv*/} else {/* todo zpub*/}
+            }
+         }
+      });
 
       findViewById(R.id.llPrivKeyWarning).setOnLongClickListener(new View.OnLongClickListener() {
          @Override
@@ -118,8 +143,23 @@ public class ExportAsQrCodeActivity extends Activity {
    private void updateData() {
       if (isPrivateDataSelected()) {
          showPrivateData();
+         updateKeyTypes(true);
       } else {
          showPublicData();
+         updateKeyTypes(false);
+      }
+
+      ((RadioButton) rgKeyTypes.getChildAt(0)).setChecked(true);
+   }
+
+   /**
+    * This method updates the texts for the radio buttons. Change the allKeyTypes array for your need
+    * @param forPrivate key or for public
+    */
+   private void updateKeyTypes(boolean forPrivate) {
+      int num = forPrivate ? 3 : 0; // to continue the string iteration from 3 if private
+      for (int i =0 ; i < rgKeyTypes.getChildCount(); i++) {
+         ((RadioButton) rgKeyTypes.getChildAt(i)).setText(allKeyTypes[i + num]);
       }
    }
 
