@@ -132,7 +132,11 @@ public class SimplexMainActivity extends Activity {
     }
 
     private void redirectWebView(String siteUrl, int responseCode, String signedData, String signature) {
-        if (responseCode != ERROR_CONTACTING_SERVER && responseCode != ERROR_INVALID_PACKAGE_NAME && responseCode != ERROR_NON_MATCHING_UID) {
+        if (responseCode != ERROR_CONTACTING_SERVER
+                && responseCode != ERROR_INVALID_PACKAGE_NAME
+                && responseCode != ERROR_NON_MATCHING_UID
+                && signedData != null
+                && signature != null) {
             Log.d("Simplex", "RedirectWebView...");
             String fullSiteUrl = String.format("%s?nonce=%s&wallet_address=%s&lvlcode=%s&lvlsignedData=%s&signature=%s", siteUrl, _simplexNonce.simplexNonce, _walletAddress, responseCode, signedData, signature);
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(fullSiteUrl));
