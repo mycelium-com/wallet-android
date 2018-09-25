@@ -174,7 +174,8 @@ public class WalletManager {
             }
             _backing.beginTransaction();
             try {
-                SingleAddressAccountContext context = new SingleAddressAccountContext(id, ImmutableMap.of(address.getType(), address), false, 0);
+                SingleAddressAccountContext context = new SingleAddressAccountContext(id, ImmutableMap.of(address.getType(), address),
+                        false, 0);
                 _backing.createSingleAddressAccountContext(context);
                 SingleAddressAccountBacking accountBacking = checkNotNull(_backing.getSingleAddressAccountBacking(context.getId()));
                 PublicPrivateKeyStore store = new PublicPrivateKeyStore(_secureKeyValueStore);
@@ -202,7 +203,7 @@ public class WalletManager {
      *
      * @return the ID of the new account
      */
-    public UUID createSingleAddressAccount(PublicKey publicKey) {
+    public UUID createSingleAddressAccount(PublicKey publicKey, AddressType defaultAddressType) {
         UUID id = SingleAddressAccount.calculateId(publicKey.toAddress(_network, AddressType.P2SH_P2WPKH));
         synchronized (_walletAccounts) {
             if (_walletAccounts.containsKey(id)) {
@@ -210,7 +211,8 @@ public class WalletManager {
             }
             _backing.beginTransaction();
             try {
-                SingleAddressAccountContext context = new SingleAddressAccountContext(id, publicKey.getAllSupportedAddresses(_network), false, 0);
+                SingleAddressAccountContext context = new SingleAddressAccountContext(id,
+                        publicKey.getAllSupportedAddresses(_network), false, 0, defaultAddressType);
                 _backing.createSingleAddressAccountContext(context);
                 SingleAddressAccountBacking accountBacking = checkNotNull(_backing.getSingleAddressAccountBacking(context.getId()));
                 PublicPrivateKeyStore store = new PublicPrivateKeyStore(_secureKeyValueStore);
@@ -384,13 +386,14 @@ public class WalletManager {
      *                   cipher as the one used by the secure storage instance
      * @return the ID of the new account
      */
-    public UUID createSingleAddressAccount(InMemoryPrivateKey privateKey, KeyCipher cipher) throws InvalidKeyCipher {
+    public UUID createSingleAddressAccount(InMemoryPrivateKey privateKey, KeyCipher cipher,
+                                           AddressType defaultAddressType) throws InvalidKeyCipher {
         PublicKey publicKey = privateKey.getPublicKey();
         PublicPrivateKeyStore store = new PublicPrivateKeyStore(_secureKeyValueStore);
         for (Address address : publicKey.getAllSupportedAddresses(_network).values()) {
             store.setPrivateKey(address, privateKey, cipher);
         }
-        return createSingleAddressAccount(publicKey);
+        return createSingleAddressAccount(publicKey, defaultAddressType);
     }
 
     /**

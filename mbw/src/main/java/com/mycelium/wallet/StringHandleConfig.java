@@ -189,7 +189,8 @@ public class StringHandleConfig implements Serializable {
             Optional<InMemoryPrivateKey> key = getPrivateKey(handlerActivity.getNetwork(), content);
             if (!key.isPresent()) return false;
             try {
-               handlerActivity.getWalletManager().createSingleAddressAccount(key.get(), AesKeyCipher.defaultKeyCipher());
+               handlerActivity.getWalletManager().createSingleAddressAccount(key.get(), AesKeyCipher.defaultKeyCipher(),
+                       MbwManager.getInstance(handlerActivity).getDefaultAddressType());
             } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
                throw new RuntimeException(invalidKeyCipher);
             }

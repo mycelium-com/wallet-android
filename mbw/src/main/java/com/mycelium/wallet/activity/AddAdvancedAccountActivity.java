@@ -459,7 +459,7 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
                        public void onClick(DialogInterface dialogInterface, int i) {
                           UUID account;
                           if (selectedItem == 0) {
-                             account = returnSAAccount(key, backupState);
+                             account = returnSAAccount(key, backupState, _mbwManager.getDefaultAddressType());
                           } else {
                              ColuAccount.ColuAsset coluAsset = ColuAccount.ColuAsset.getByType(ColuAccount.ColuAssetType.parse(list.get(selectedItem)));
                              account = _mbwManager.getColuManager().enableAsset(coluAsset, key);
@@ -509,10 +509,11 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
       }
    }
 
-   private UUID returnSAAccount(InMemoryPrivateKey key, MetadataStorage.BackupState backupState) {
+   private UUID returnSAAccount(InMemoryPrivateKey key, MetadataStorage.BackupState backupState, AddressType defaultAddressType) {
       UUID acc;
       try {
-         acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(key, AesKeyCipher.defaultKeyCipher());
+         acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(key,
+                 AesKeyCipher.defaultKeyCipher(), defaultAddressType);
 
          _mbwManager.getMetadataStorage().setOtherAccountBackupState(acc, backupState);
          return acc;
@@ -526,7 +527,7 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
     */
    private void returnAccount(InMemoryPrivateKey key, MetadataStorage.BackupState backupState, AccountType type) {
       if (type == AccountType.SA) {
-         finishOk(returnSAAccount(key, backupState), false);
+         finishOk(returnSAAccount(key, backupState, _mbwManager.getDefaultAddressType()), false);
       } else {
          new ImportSingleAddressAccountAsyncTask(key, backupState).execute();
       }

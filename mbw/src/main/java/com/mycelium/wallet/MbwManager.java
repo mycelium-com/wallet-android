@@ -198,6 +198,7 @@ public class MbwManager {
     private Pin _pin;
     private boolean _pinRequiredOnStartup;
 
+    private AddressType defaultAddressType;
     private MinerFee _minerFee;
     private boolean _enableContinuousFocus;
     private boolean _keyManagementLocked;
@@ -266,6 +267,8 @@ public class MbwManager {
         _minerFee = MinerFee.fromString(preferences.getString(Constants.MINER_FEE_SETTING, MinerFee.NORMAL.toString()));
         _enableContinuousFocus = preferences.getBoolean(Constants.ENABLE_CONTINUOUS_FOCUS_SETTING, false);
         _keyManagementLocked = preferences.getBoolean(Constants.KEY_MANAGEMENT_LOCKED_SETTING, false);
+        defaultAddressType = AddressType.valueOf(preferences.getString(Constants.DEFAULT_ADDRESS_MODE,
+                AddressType.P2SH_P2WPKH.name()));
 
         // Get the display metrics of this device
         DisplayMetrics dm = new DisplayMetrics();
@@ -509,11 +512,12 @@ public class MbwManager {
     }
 
     public void setDefaultAddressType(AddressType addressType) {
-
+        defaultAddressType = addressType;
+        getEditor().putString(Constants.DEFAULT_ADDRESS_MODE, addressType.name()).apply();
     }
 
     public AddressType getDefaultAddressType() {
-        return AddressType.P2SH_P2WPKH;
+        return defaultAddressType;
     }
 
     private void migrateOldKeys() {
@@ -540,12 +544,13 @@ public class MbwManager {
             UUID account;
             if (record.hasPrivateKey()) {
                 try {
-                    account = _walletManager.createSingleAddressAccount(record.key, AesKeyCipher.defaultKeyCipher());
+                    account = _walletManager.createSingleAddressAccount(record.key, AesKeyCipher.defaultKeyCipher(),
+                            defaultAddressType);
                 } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
                     throw new RuntimeException(invalidKeyCipher);
                 }
             } else {
-                account = _walletManager.createSingleAddressAccount(record.key.getPublicKey());
+                account = _walletManager.createSingleAddressAccount(record.key.getPublicKey(), defaultAddressType);
             }
 
             //check whether this was the selected record
@@ -1133,7 +1138,8 @@ public class MbwManager {
     public UUID createOnTheFlyAccount(InMemoryPrivateKey privateKey) {
         UUID accountId;
         try {
-            accountId = _tempWalletManager.createSingleAddressAccount(privateKey, AesKeyCipher.defaultKeyCipher());
+            accountId = _tempWalletManager.createSingleAddressAccount(privateKey, AesKeyCipher.defaultKeyCipher(),
+                    defaultAddressType);
         } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
             throw new RuntimeException(invalidKeyCipher);
         }

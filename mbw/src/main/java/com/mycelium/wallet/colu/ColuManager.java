@@ -379,7 +379,8 @@ public class ColuManager implements AccountProvider {
         createdAccountInfo.id = SingleAddressAccount.calculateId(address);
         _backing.beginTransaction();
         try {
-            SingleAddressAccountContext singleAccountContext = new SingleAddressAccountContext(createdAccountInfo.id, ImmutableMap.of(address.getType(), address), false, 0);
+            SingleAddressAccountContext singleAccountContext = new SingleAddressAccountContext(createdAccountInfo.id,
+                    ImmutableMap.of(address.getType(), address), false, 0);
             _backing.createSingleAddressAccountContext(singleAccountContext);
             SingleAddressAccountBacking accountBacking = checkNotNull(_backing.getSingleAddressAccountBacking(singleAccountContext.getId()));
             singleAccountContext.persist(accountBacking);

@@ -122,7 +122,8 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
 
    private void clearInternalStateInt(boolean isArchived) {
       _backing.clear();
-      _context = new SingleAddressAccountContext(_context.getId(), _context.getAddresses(), isArchived, 0);
+      _context = new SingleAddressAccountContext(_context.getId(), _context.getAddresses(), isArchived, 0,
+              _context.getDefaultAddressType());
       _context.persist(_backing);
       _cachedBalance = null;
       if (isActive()) {
