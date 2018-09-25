@@ -192,7 +192,6 @@ public class MbwManager {
     private final ExternalSignatureDeviceManager _trezorManager;
     private final KeepKeyManager _keepkeyManager;
     private final LedgerManager _ledgerManager;
-    private final GEBHelper _gebHelper;
     private final WapiClientElectrumX _wapi;
 
     private final LtApiClient _ltApi;
@@ -231,7 +230,6 @@ public class MbwManager {
         _wapiLogs  = Queues.synchronizedQueue(unsafeWapiLogs);
         _applicationContext = Preconditions.checkNotNull(evilContext.getApplicationContext());
         _environment = MbwEnvironment.verifyEnvironment();
-        String version = VersionManager.determineVersion(_applicationContext);
 
         // Preferences
         SharedPreferences preferences = getPreferences();
@@ -266,7 +264,6 @@ public class MbwManager {
             preferences.getString(Constants.PIN_SETTING_RESETTABLE, "1").equals("1")
         );
         _pinRequiredOnStartup = preferences.getBoolean(Constants.PIN_SETTING_REQUIRED_ON_STARTUP, false);
-
         randomizePinPad = preferences.getBoolean(Constants.RANDOMIZE_PIN, false);
         _minerFee = MinerFee.fromString(preferences.getString(Constants.MINER_FEE_SETTING, MinerFee.NORMAL.toString()));
         _enableContinuousFocus = preferences.getBoolean(Constants.ENABLE_CONTINUOUS_FOCUS_SETTING, false);
@@ -279,7 +276,7 @@ public class MbwManager {
 
         _storage = new MetadataStorage(_applicationContext);
         _language = preferences.getString(Constants.LANGUAGE_SETTING, Locale.getDefault().getLanguage());
-        _versionManager = new VersionManager(_applicationContext, _language, new AndroidAsyncApi(_wapi, _eventBus), version, _eventBus);
+        _versionManager = new VersionManager(_applicationContext, _language, new AndroidAsyncApi(_wapi, _eventBus), _eventBus);
 
         Set<String> currencyList = getPreferences().getStringSet(Constants.SELECTED_CURRENCIES, null);
         //TODO: get it through coluManager instead ?
@@ -335,7 +332,7 @@ public class MbwManager {
         _blockExplorerManager = new BlockExplorerManager(this,
                 _environment.getBlockExplorerList(),
                 preferences.getString(Constants.BLOCK_EXPLORER,
-                                           _environment.getBlockExplorerList().get(0).getIdentifier()));
+                                      _environment.getBlockExplorerList().get(0).getIdentifier()));
     }
 
     private class InitColuManagerTask extends AsyncTask<Void, Void, Optional<ColuManager>> {
@@ -470,17 +467,7 @@ public class MbwManager {
     };
 
     private WapiClientElectrumX initWapi() {
-        String version;
-        try {
-            PackageInfo packageInfo = _applicationContext.getPackageManager().getPackageInfo(_applicationContext.getPackageName(), 0);
-            if (packageInfo != null) {
-                version = String.valueOf(packageInfo.versionCode);
-            } else {
-                version = "na";
-            }
-        } catch (PackageManager.NameNotFoundException e) {
-            version = "na";
-        }
+        String version = "" + BuildConfig.VERSION_CODE;
 
         List<TcpEndpoint> tcpEndpoints = configuration.getElectrumEndpoints();
         return new WapiClientElectrumX(_environment.getWapiEndpoints(), tcpEndpoints.toArray(new TcpEndpoint[tcpEndpoints.size()]), retainingWapiLogger, version);
@@ -1336,7 +1323,6 @@ public class MbwManager {
 
     public void setPinRequiredOnStartup(boolean _pinRequiredOnStartup) {
         getEditor().putBoolean(Constants.PIN_SETTING_REQUIRED_ON_STARTUP, _pinRequiredOnStartup).apply();
-
         this._pinRequiredOnStartup = _pinRequiredOnStartup;
     }
 
