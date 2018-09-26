@@ -191,18 +191,10 @@ public class RecordRowBuilder {
         if (walletAccount.isActive()) {
             if (walletAccount instanceof Bip44PubOnlyAccount) {
                 int numKeys = ((Bip44Account) walletAccount).getPrivateKeyCount();
-                if (numKeys > 1) {
-                    result.displayAddress = resources.getString(R.string.contains_addresses, Integer.toString(numKeys));
-                } else {
-                    result.displayAddress = resources.getString(R.string.account_contains_one_address_info);
-                }
+                result.displayAddress = resources.getQuantityString(R.plurals.contains_addresses, numKeys, numKeys);
             } else if (walletAccount instanceof Bip44Account) {
                 int numKeys = ((Bip44Account) walletAccount).getPrivateKeyCount();
-                if (numKeys > 1) {
-                    result.displayAddress = resources.getString(R.string.contains_keys, Integer.toString(numKeys));
-                } else {
-                    result.displayAddress = resources.getString(R.string.account_contains_one_key_info);
-                }
+                result.displayAddress = resources.getQuantityString(R.plurals.contains_keys, numKeys, numKeys);
             } else {
                 Optional<Address> receivingAddress = walletAccount.getReceivingAddress();
                 if (receivingAddress.isPresent()) {

@@ -407,8 +407,14 @@
   <!-- LT end -->
   <string name="cs_private_key_description">Stai usando una chiave privata con il seguente indirizzo Bitcoin:</string>
   <string name="cs_address_description">Hai scansionato un indirizzo Bitcoin. Puoi vedere il saldo ma non puoi prelevare da li.</string>
-  <string name="contains_keys">Contiene %1$s chiavi private.</string>
-  <string name="contains_addresses">Contiene %1$s indirizzi.</string>
+  <plurals name="contains_keys">
+    <item quantity="one">Contiene una chiave privata.</item>
+    <item quantity="other">Contiene %1$d chiavi private.</item>
+  </plurals>
+  <plurals name="contains_addresses">
+    <item quantity="one">Contiene un indirizzo.</item>
+    <item quantity="other">Contiene %1$d indirizzi.</item>
+  </plurals>
   <string name="archiving_account_title">Archiviazione account</string>
   <string name="new_version_exists">È disponibile una nuova versione</string>
   <string name="check_update">Ricerca aggiornamenti</string>
@@ -466,8 +472,6 @@
   <string name="unspent_outputs_title">Output non spesi</string>
   <string name="no_unspent_outputs_description">Questa pagina mostra su quali indirizzi si trovano i fondi dell\'account selezionato. Non ci sono attualmente fondi da visualizzare.</string>
   <string name="warning_words_import">Attenzione: Non copiare le tue parole negli appunti, altre applicazioni potrebbero leggerli e sottrarre i tuoi fondi.</string>
-  <string name="account_contains_one_key_info">Contiene una chiave privata.</string>
-  <string name="account_contains_one_address_info">Contiene un indirizzo.</string>
   <string name="verify_backup_ok_message">Backup verificato con successo.</string>
   <string name="wordlist_import_invalid_checksum">Il checksum della tua wordlist non è valido, assicurati di aver inserito correttamente tutte le parole.</string>
   <string name="checkbox_wordlist_passphrase">Ho una passphrase</string>

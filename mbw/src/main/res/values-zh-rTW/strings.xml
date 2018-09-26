@@ -404,8 +404,12 @@
   <!-- LT end -->
   <string name="cs_private_key_description">您正在使用基於下面比特幣地址的私鑰：</string>
   <string name="cs_address_description">你已經掃描一個比特的地址。你可以查看餘額，但是不能用它進行消費。</string>
-  <string name="contains_keys">包含 %1$s 私鑰。</string>
-  <string name="contains_addresses">包含 %1$s 地址。</string>
+  <plurals name="contains_keys">
+    <item quantity="other">包含 %1$d 私鑰。</item>
+  </plurals>
+  <plurals name="contains_addresses">
+    <item quantity="other">包含 %1$d 地址。</item>
+  </plurals>
   <string name="archiving_account_title">存檔帳戶</string>
   <string name="new_version_exists">新版本可供升級</string>
   <string name="check_update">檢測更新</string>
@@ -461,8 +465,6 @@
   <string name="unspent_outputs_title">未消費的產出</string>
   <string name="no_unspent_outputs_description">此頁顯示所選帳戶中的資金在哪些地址上。目前沒有資金可以顯示。</string>
   <string name="warning_words_import">警告： 不要把你的單詞放在剪貼板中，其他應用程序可以訪問它們並獲得你的錢。</string>
-  <string name="account_contains_one_key_info">包含一個私鑰。</string>
-  <string name="account_contains_one_address_info">包含一個位址。</string>
   <string name="verify_backup_ok_message">備份驗證成功。</string>
   <string name="wordlist_import_invalid_checksum">單詞列表校驗碼無效，請確保您正確地輸入了所有單詞。</string>
   <string name="checkbox_wordlist_passphrase">我有一個密碼</string>
