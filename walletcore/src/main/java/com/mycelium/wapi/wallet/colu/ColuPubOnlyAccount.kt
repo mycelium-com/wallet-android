@@ -187,7 +187,7 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext, val publicKey: Pu
     override fun broadcastOutgoingTransactions(): Boolean = false
 
     override fun getSyncTotalRetrievedTransactions(): Int {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return 0;
     }
 
 

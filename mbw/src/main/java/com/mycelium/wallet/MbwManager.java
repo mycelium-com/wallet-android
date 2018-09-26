@@ -129,8 +129,10 @@ import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
 import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
+import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext;
 import com.mycelium.wapi.wallet.manager.WalletManagerkt;
 import com.mycelium.wapi.wallet.manager.bchsa.BitcoinCashSingleAddressModule;
+import com.mycelium.wapi.wallet.manager.btchd.BitcoinHDModule;
 import com.mycelium.wapi.wallet.manager.btcsa.BitcoinSingleAddressModule;
 import com.mycelium.wapi.wallet.manager.colu.ColuModule;
 import com.squareup.otto.Bus;
@@ -645,34 +647,35 @@ public class MbwManager {
 
     private WalletManagerkt createWalletManagerkt(final Context context, MbwEnvironment environment) {
         // Create persisted account backing
-        WalletManagerBacking backing = new SqliteWalletManagerBackingWrapper(context);
+        WalletManagerBacking<SingleAddressAccountContext> backing = new SqliteWalletManagerBackingWrapper(context);
 
         // Create persisted secure storage instance
         SecureKeyValueStore secureKeyValueStore = new SecureKeyValueStore(backing,
                 new AndroidRandomSource());
 
-        ExternalSignatureProviderProxy externalSignatureProviderProxy = new ExternalSignatureProviderProxy(
-                getTrezorManager(),
-                getKeepKeyManager(),
-                getLedgerManager()
-        );
+//        ExternalSignatureProviderProxy externalSignatureProviderProxy = new ExternalSignatureProviderProxy(
+//                getTrezorManager(),
+//                getKeepKeyManager(),
+//                getLedgerManager()
+//        );
 
         SpvBalanceFetcher spvBchFetcher = getSpvBchFetcher();
         // Create and return wallet manager
-        WalletManager walletManager = new WalletManager(secureKeyValueStore,
-                backing, environment.getNetwork(), _wapi, externalSignatureProviderProxy, spvBchFetcher, Utils.isConnected(context));
+//        WalletManager walletManager = new WalletManager(secureKeyValueStore,
+//                backing, environment.getNetwork(), _wapi, externalSignatureProviderProxy, spvBchFetcher, Utils.isConnected(context));
 
         NetworkParameters networkParameters = environment.getNetwork();
         PublicPrivateKeyStore publicPrivateKeyStore = new PublicPrivateKeyStore(secureKeyValueStore);
         WalletManagerkt result = WalletManagerkt.INSTANCE;
 
-        result.add(new BitcoinSingleAddressModule(backing, publicPrivateKeyStore, environment.getNetwork(), _wapi));
-        if(spvBchFetcher != null) {
-            result.add(new BitcoinCashSingleAddressModule(backing, publicPrivateKeyStore, environment.getNetwork(), spvBchFetcher, _wapi));
+        result.add(new BitcoinSingleAddressModule(backing, publicPrivateKeyStore, networkParameters, _wapi));
+        if (spvBchFetcher != null) {
+            result.add(new BitcoinCashSingleAddressModule(backing, publicPrivateKeyStore, networkParameters, spvBchFetcher, _wapi));
         }
+        result.add(new BitcoinHDModule(backing, secureKeyValueStore, networkParameters, _wapi));
 
         SqliteColuManagerBacking coluBacking = new SqliteColuManagerBacking(context);
-        ColuClient coluClient = new ColuClient(environment.getNetwork());
+        ColuClient coluClient = new ColuClient(networkParameters);
         org.bitcoinj.core.NetworkParameters netParams;
         if (networkParameters.isProdnet()) {
             netParams = MainNetParams.get();
@@ -681,14 +684,14 @@ public class MbwManager {
         } else {
             netParams = RegTestParams.get();
         }
-        result.add(new ColuModule(environment.getNetwork(), netParams, publicPrivateKeyStore, coluClient, coluBacking));
+        result.add(new ColuModule(networkParameters, netParams, publicPrivateKeyStore, coluClient, coluBacking));
         result.init();
 
         // notify the walletManager about the current selected account
-        UUID lastSelectedAccountId = getLastSelectedAccountId();
-        if (lastSelectedAccountId != null) {
-            walletManager.setActiveAccount(lastSelectedAccountId);
-        }
+//        UUID lastSelectedAccountId = getLastSelectedAccountId();
+//        if (lastSelectedAccountId != null) {
+//            walletManagerkt.setActiveAccount(lastSelectedAccountId);
+//        }
 
 
         return result;
