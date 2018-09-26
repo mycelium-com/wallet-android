@@ -34,7 +34,6 @@
 
 package com.mycelium.wallet.colu;
 
-import com.google.gson.Gson;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -44,6 +43,8 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.gson.Gson;
+import com.mrd.bitlib.crypto.BipDerivationType;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.OutPoint;
@@ -55,16 +56,20 @@ import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wallet.persistence.SQLiteQueryWithBlobs;
 import com.mycelium.wapi.api.exception.DbCorruptedException;
+import com.mycelium.wapi.api.lib.FeeEstimation;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputEx;
-import com.mycelium.wapi.wallet.btc.Bip44AccountBacking;
+import com.mycelium.wapi.wallet.AccountBacking;
 import com.mycelium.wapi.wallet.SingleAddressAccountBacking;
+import com.mycelium.wapi.wallet.btc.Bip44AccountBacking;
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking;
-import com.mrd.bitlib.crypto.BipDerivationType;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.AccountIndexesContext;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext;
-import com.mycelium.wapi.api.lib.FeeEstimation;
+import com.mycelium.wapi.wallet.colu.ColuAccountContext;
+import com.mycelium.wapi.wallet.colu.ColuUtils;
+import com.mycelium.wapi.wallet.colu.coins.ColuMain;
+import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -84,7 +89,7 @@ import java.util.UUID;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.mycelium.wallet.persistence.SQLiteQueryWithBlobs.uuidToBytes;
 
-public class SqliteColuManagerBacking implements WalletManagerBacking {
+public class SqliteColuManagerBacking implements WalletManagerBacking<ColuAccountContext> {
    private static final String LOG_TAG = "SqliteColuManagerBackin";
    private static final String TABLE_KV = "kv";
    private static final int DEFAULT_SUB_ID = 0;
@@ -140,6 +145,24 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
          feeEstimation = gson.fromJson(valueString, FeeEstimation.class);
       } catch (Exception ignore) { }
        return feeEstimation;
+   }
+
+   @Override
+   public List<ColuAccountContext> loadAccountContexts() {
+      List<ColuAccountContext> result = new ArrayList<>();
+      for (SingleAddressAccountContext singleAddressAccountContext : loadSingleAddressAccountContexts()) {
+
+         ColuMain coluMain = MASSCoin.INSTANCE;
+         Address address = singleAddressAccountContext.getAddresses().get(AddressType.P2PKH);
+//         UUID id = ColuUtils.getGuidForAsset(coluMain, address.getAllAddressBytes());
+         result.add(new ColuAccountContext(singleAddressAccountContext.getId(), coluMain, address, singleAddressAccountContext.isArchived(), singleAddressAccountContext.getBlockHeight()));
+      }
+      return result;
+   }
+
+   @Override
+   public AccountBacking getAccountBacking(UUID accountId) {
+      return checkNotNull(_backings.get(accountId));
    }
 
    private List<UUID> getAccountIds(SQLiteDatabase db) {

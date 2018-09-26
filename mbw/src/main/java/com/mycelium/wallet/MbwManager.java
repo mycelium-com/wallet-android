@@ -63,7 +63,13 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Queues;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Ints;
-import com.mrd.bitlib.crypto.*;
+import com.mrd.bitlib.crypto.Bip39;
+import com.mrd.bitlib.crypto.HdKeyNode;
+import com.mrd.bitlib.crypto.InMemoryPrivateKey;
+import com.mrd.bitlib.crypto.MrdExport;
+import com.mrd.bitlib.crypto.PrivateKey;
+import com.mrd.bitlib.crypto.RandomSource;
+import com.mrd.bitlib.crypto.SignedMessage;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.BitUtils;
@@ -82,6 +88,7 @@ import com.mycelium.wallet.activity.util.Pin;
 import com.mycelium.wallet.api.AndroidAsyncApi;
 import com.mycelium.wallet.bitid.ExternalService;
 import com.mycelium.wallet.coinapult.CoinapultManager;
+import com.mycelium.wallet.colu.ColuClient;
 import com.mycelium.wallet.colu.ColuManager;
 import com.mycelium.wallet.colu.SqliteColuManagerBacking;
 import com.mycelium.wallet.event.EventTranslator;
@@ -97,8 +104,8 @@ import com.mycelium.wallet.extsig.ledger.LedgerManager;
 import com.mycelium.wallet.extsig.trezor.TrezorManager;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.modularisation.GooglePlayModuleCollection;
-import com.mycelium.wallet.modularisation.SpvBchFetcher;
 import com.mycelium.wallet.modularisation.MEBHelper;
+import com.mycelium.wallet.modularisation.SpvBchFetcher;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.persistence.TradeSessionDb;
 import com.mycelium.wallet.wapi.SqliteWalletManagerBackingWrapper;
@@ -108,22 +115,32 @@ import com.mycelium.wapi.wallet.AccountProvider;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.IdentityAccountKeyManager;
-import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.btc.BtcAddress;
-import com.mycelium.wapi.wallet.btc.InMemoryWalletManagerBacking;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SecureKeyValueStore;
 import com.mycelium.wapi.wallet.SpvBalanceFetcher;
 import com.mycelium.wapi.wallet.SyncMode;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+import com.mycelium.wapi.wallet.btc.BtcAddress;
+import com.mycelium.wapi.wallet.btc.InMemoryWalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking;
+import com.mycelium.wapi.wallet.btc.bip44.ExternalSignatureProviderProxy;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
-import com.mycelium.wapi.wallet.btc.bip44.ExternalSignatureProviderProxy;
+import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
+import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext;
+import com.mycelium.wapi.wallet.manager.WalletManagerkt;
+import com.mycelium.wapi.wallet.bch.single.BitcoinCashSingleAddressModule;
+import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
+import com.mycelium.wapi.wallet.btc.single.BitcoinSingleAddressModule;
+import com.mycelium.wapi.wallet.colu.ColuModule;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
+
+import org.bitcoinj.params.MainNetParams;
+import org.bitcoinj.params.RegTestParams;
+import org.bitcoinj.params.TestNet3Params;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -223,6 +240,8 @@ public class MbwManager {
     private Cache<String, Object> _semiPersistingBackgroundObjects = CacheBuilder.newBuilder().maximumSize(10).build();
 
     private WalletConfiguration configuration;
+
+    private WalletManagerkt walletManagerkt;
 
     private MbwManager(Context evilContext) {
         Queue<LogEntry> unsafeWapiLogs = EvictingQueue.create(100);
@@ -328,6 +347,8 @@ public class MbwManager {
 
         migrateOldKeys();
         createTempWalletManager();
+
+        createWalletManagerkt(_applicationContext, _environment);
 
         _versionManager.initBackgroundVersionChecker();
         _blockExplorerManager = new BlockExplorerManager(this,
@@ -622,6 +643,58 @@ public class MbwManager {
         importLabelsToBch(walletManager);
 
         return walletManager;
+    }
+
+    private WalletManagerkt createWalletManagerkt(final Context context, MbwEnvironment environment) {
+        // Create persisted account backing
+        WalletManagerBacking<SingleAddressAccountContext> backing = new SqliteWalletManagerBackingWrapper(context);
+
+        // Create persisted secure storage instance
+        SecureKeyValueStore secureKeyValueStore = new SecureKeyValueStore(backing,
+                new AndroidRandomSource());
+
+//        ExternalSignatureProviderProxy externalSignatureProviderProxy = new ExternalSignatureProviderProxy(
+//                getTrezorManager(),
+//                getKeepKeyManager(),
+//                getLedgerManager()
+//        );
+
+        SpvBalanceFetcher spvBchFetcher = getSpvBchFetcher();
+        // Create and return wallet manager
+//        WalletManager walletManager = new WalletManager(secureKeyValueStore,
+//                backing, environment.getNetwork(), _wapi, externalSignatureProviderProxy, spvBchFetcher, Utils.isConnected(context));
+
+        NetworkParameters networkParameters = environment.getNetwork();
+        PublicPrivateKeyStore publicPrivateKeyStore = new PublicPrivateKeyStore(secureKeyValueStore);
+        WalletManagerkt result = WalletManagerkt.INSTANCE;
+
+        result.add(new BitcoinSingleAddressModule(backing, publicPrivateKeyStore, networkParameters, _wapi));
+        if (spvBchFetcher != null) {
+            result.add(new BitcoinCashSingleAddressModule(backing, publicPrivateKeyStore, networkParameters, spvBchFetcher, _wapi));
+        }
+        result.add(new BitcoinHDModule(backing, secureKeyValueStore, networkParameters, _wapi));
+
+        SqliteColuManagerBacking coluBacking = new SqliteColuManagerBacking(context);
+        ColuClient coluClient = new ColuClient(networkParameters);
+        org.bitcoinj.core.NetworkParameters netParams;
+        if (networkParameters.isProdnet()) {
+            netParams = MainNetParams.get();
+        } else if (networkParameters.isTestnet()) {
+            netParams = TestNet3Params.get();
+        } else {
+            netParams = RegTestParams.get();
+        }
+        result.add(new ColuModule(networkParameters, netParams, publicPrivateKeyStore, coluClient, coluBacking));
+        result.init();
+
+        // notify the walletManager about the current selected account
+//        UUID lastSelectedAccountId = getLastSelectedAccountId();
+//        if (lastSelectedAccountId != null) {
+//            walletManagerkt.setActiveAccount(lastSelectedAccountId);
+//        }
+
+
+        return result;
     }
 
     public void importLabelsToBch(WalletManager walletManager) {

@@ -59,6 +59,7 @@ import com.mycelium.wapi.api.exception.DbCorruptedException;
 import com.mycelium.wapi.api.lib.FeeEstimation;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputEx;
+import com.mycelium.wapi.wallet.AccountBacking;
 import com.mycelium.wapi.wallet.btc.Bip44AccountBacking;
 import com.mycelium.wapi.wallet.SingleAddressAccountBacking;
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking;
@@ -86,7 +87,7 @@ import java.util.UUID;
 
 import static com.mycelium.wallet.persistence.SQLiteQueryWithBlobs.uuidToBytes;
 
-public class SqliteWalletManagerBacking implements WalletManagerBacking {
+public class SqliteWalletManagerBacking implements WalletManagerBacking<SingleAddressAccountContext> {
    private static final String LOG_TAG = "SqliteAccountBacking";
    private static final String TABLE_KV = "kv";
    private static final int DEFAULT_SUB_ID = 0;
@@ -167,6 +168,16 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
          feeEstimation = gson.fromJson(valueString, FeeEstimation.class);
       } catch(Exception ignore) { }
       return feeEstimation;
+   }
+
+   @Override
+   public List<SingleAddressAccountContext> loadAccountContexts() {
+      return loadSingleAddressAccountContexts();
+   }
+
+   @Override
+   public AccountBacking getAccountBacking(UUID accountId) {
+      return getSingleAddressAccountBacking(accountId);
    }
 
 

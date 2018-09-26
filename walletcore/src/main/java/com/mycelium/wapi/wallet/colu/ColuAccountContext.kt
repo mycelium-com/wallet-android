@@ -1,7 +1,13 @@
 package com.mycelium.wapi.wallet.colu
 
+import com.mrd.bitlib.model.Address
+import com.mycelium.wapi.wallet.colu.coins.ColuMain
+import java.util.*
 
-class ColuAccountContext(private var isArchived: Boolean, var blockHeight: Int) {
+
+class ColuAccountContext(val id: UUID, val coinType: ColuMain
+                         , val address: Address
+                         , private var isArchived: Boolean, var blockHeight: Int) {
 
     /**
      * Is this account archived?

@@ -24,6 +24,7 @@ import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.api.lib.FeeEstimation;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputEx;
+import com.mycelium.wapi.wallet.AccountBacking;
 import com.mycelium.wapi.wallet.SingleAddressAccountBacking;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext;
@@ -33,7 +34,7 @@ import java.util.*;
 /**
  * Backing for a wallet manager which is only kept temporarily in memory
  */
-public class InMemoryWalletManagerBacking implements WalletManagerBacking {
+public class InMemoryWalletManagerBacking implements WalletManagerBacking<SingleAddressAccountContext> {
    private final Map<String, byte[]> _values = new HashMap<>();
    private final Map<UUID, InMemoryAccountBacking> _backings = new HashMap<>();
    private final Map<UUID, HDAccountContext> _bip44Contexts = new HashMap<>();
@@ -107,6 +108,16 @@ public class InMemoryWalletManagerBacking implements WalletManagerBacking {
    @Override
    public FeeEstimation loadLastFeeEstimation() {
       return _feeEstimation;
+   }
+
+   @Override
+   public List<SingleAddressAccountContext> loadAccountContexts() {
+      return loadSingleAddressAccountContexts();
+   }
+
+   @Override
+   public AccountBacking getAccountBacking(UUID accountId) {
+      return getSingleAddressAccountBacking(accountId);
    }
 
 

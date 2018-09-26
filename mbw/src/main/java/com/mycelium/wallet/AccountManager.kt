@@ -4,7 +4,6 @@ import android.os.AsyncTask
 import android.os.Handler
 import android.os.Looper
 import com.google.common.collect.ImmutableMap
-import com.mrd.bitlib.model.hdpath.Bip44Account
 import com.mycelium.wallet.coinapult.CoinapultAccount
 import com.mycelium.wallet.colu.ColuAccount
 import com.mycelium.wallet.event.AccountChanged
@@ -16,10 +15,10 @@ import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
+import com.mycelium.wapi.wallet.manager.WalletManagerkt
 import com.squareup.otto.Subscribe
 import java.util.*
 import java.util.concurrent.Semaphore
-import kotlin.collections.HashMap
 
 object AccountManager : AccountProvider {
     val accounts: HashMap<UUID, WalletAccount<out GenericTransaction, out GenericAddress>> = hashMapOf()
@@ -136,3 +135,8 @@ object AccountManager : AccountProvider {
     }
 }
 
+fun WalletManagerkt.getBTCSingleAddressAccounts() = getAccounts().filter { it is SingleAddressAccount }
+
+fun WalletManagerkt.getActiveAccounts(): List<WalletAccount<*, *>> = getAccounts().filter { it.isActive }
+
+fun WalletManagerkt.getArchivedAccounts(): List<WalletAccount<*, *>> = getAccounts().filter { !it.isActive }
