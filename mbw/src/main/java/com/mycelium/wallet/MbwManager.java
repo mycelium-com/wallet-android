@@ -1118,10 +1118,6 @@ public class MbwManager {
         createTempWalletManager();
     }
 
-    public int getBitcoinBlockheight() {
-        return _walletManager.getBlockheight();
-    }
-
     public WalletAccount getSelectedAccount() {
         UUID uuid = getLastSelectedAccountId();
 
