@@ -1,4 +1,4 @@
-package com.mycelium.wapi.wallet.manager.btchd
+package com.mycelium.wapi.wallet.btc.bip44
 
 import com.mrd.bitlib.crypto.HdKeyNode
 import com.mycelium.wapi.wallet.manager.Config

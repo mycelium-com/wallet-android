@@ -1,4 +1,4 @@
-package com.mycelium.wapi.wallet.manager.btchd
+package com.mycelium.wapi.wallet.btc.bip44
 
 import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.model.NetworkParameters
@@ -8,7 +8,6 @@ import com.mycelium.wapi.wallet.KeyCipher
 import com.mycelium.wapi.wallet.SecureKeyValueStore
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking
-import com.mycelium.wapi.wallet.btc.bip44.*
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.Companion.ACCOUNT_TYPE_UNRELATED_X_PRIV
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.Companion.ACCOUNT_TYPE_UNRELATED_X_PUB
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext

@@ -27,11 +27,10 @@ import com.mycelium.wapi.wallet.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
-import com.mycelium.wapi.wallet.manager.colu.ColuModule;
 import com.mycelium.wapi.wallet.manager.WalletManagerkt;
-import com.mycelium.wapi.wallet.manager.bchsa.BitcoinCashSingleAddressModule;
-import com.mycelium.wapi.wallet.manager.btcsa.BitcoinSingleAddressModule;
-import com.mycelium.wapi.wallet.manager.btcsa.PrivateSingleConfig;
+import com.mycelium.wapi.wallet.bch.single.BitcoinCashSingleAddressModule;
+import com.mycelium.wapi.wallet.btc.single.BitcoinSingleAddressModule;
+import com.mycelium.wapi.wallet.btc.single.PrivateSingleConfig;
 
 import java.security.SecureRandom;
 import java.util.List;

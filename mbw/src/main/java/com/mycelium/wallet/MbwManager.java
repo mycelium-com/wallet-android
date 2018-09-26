@@ -131,10 +131,10 @@ import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext;
 import com.mycelium.wapi.wallet.manager.WalletManagerkt;
-import com.mycelium.wapi.wallet.manager.bchsa.BitcoinCashSingleAddressModule;
-import com.mycelium.wapi.wallet.manager.btchd.BitcoinHDModule;
-import com.mycelium.wapi.wallet.manager.btcsa.BitcoinSingleAddressModule;
-import com.mycelium.wapi.wallet.manager.colu.ColuModule;
+import com.mycelium.wapi.wallet.bch.single.BitcoinCashSingleAddressModule;
+import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
+import com.mycelium.wapi.wallet.btc.single.BitcoinSingleAddressModule;
+import com.mycelium.wapi.wallet.colu.ColuModule;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 

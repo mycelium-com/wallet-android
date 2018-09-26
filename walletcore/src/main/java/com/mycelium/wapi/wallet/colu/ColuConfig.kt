@@ -1,4 +1,4 @@
-package com.mycelium.wapi.wallet.manager.colu
+package com.mycelium.wapi.wallet.colu
 
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.crypto.PublicKey

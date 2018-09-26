@@ -1,4 +1,4 @@
-package com.mycelium.wapi.wallet.manager.coinapult
+package com.mycelium.wapi.wallet.coinapult
 
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.manager.Config

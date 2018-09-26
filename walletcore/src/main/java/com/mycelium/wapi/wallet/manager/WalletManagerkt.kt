@@ -73,14 +73,6 @@ object WalletManagerkt {
         accounts.remove(id)
     }
 
-    fun getActiveAccounts(): List<WalletAccount<*, *>> {
-        return accounts.values.filter { it.isActive }
-    }
-
-    fun getArchivedAccounts(): List<WalletAccount<*, *>> {
-        return accounts.values.filter { !it.isActive }
-    }
-
     fun hasAccount(id: UUID): Boolean = accounts.containsKey(id)
 
     fun getAccount(id: UUID): WalletAccount<*, *>? = accounts[id]

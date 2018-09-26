@@ -1,4 +1,4 @@
-package com.mycelium.wapi.wallet.manager.colu
+package com.mycelium.wapi.wallet.colu
 
 import com.mrd.bitlib.crypto.PublicKey
 import com.mrd.bitlib.model.AddressType
@@ -7,7 +7,6 @@ import com.mycelium.wapi.wallet.AesKeyCipher
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking
 import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore
-import com.mycelium.wapi.wallet.colu.*
 import com.mycelium.wapi.wallet.manager.Config
 import com.mycelium.wapi.wallet.manager.WalletModule
 import java.util.*

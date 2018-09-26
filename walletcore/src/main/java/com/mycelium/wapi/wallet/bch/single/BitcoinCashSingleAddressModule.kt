@@ -1,4 +1,4 @@
-package com.mycelium.wapi.wallet.manager.bchsa
+package com.mycelium.wapi.wallet.bch.single
 
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.crypto.PublicKey
@@ -8,15 +8,14 @@ import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.wallet.KeyCipher
 import com.mycelium.wapi.wallet.SpvBalanceFetcher
 import com.mycelium.wapi.wallet.WalletAccount
-import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking
 import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext
 import com.mycelium.wapi.wallet.manager.Config
 import com.mycelium.wapi.wallet.manager.WalletModule
-import com.mycelium.wapi.wallet.manager.btcsa.PrivateSingleConfig
-import com.mycelium.wapi.wallet.manager.btcsa.PublicSingleConfig
+import com.mycelium.wapi.wallet.btc.single.PrivateSingleConfig
+import com.mycelium.wapi.wallet.btc.single.PublicSingleConfig
 import java.util.*
 
 

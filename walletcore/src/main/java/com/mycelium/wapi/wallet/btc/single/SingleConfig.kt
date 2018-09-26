@@ -1,4 +1,4 @@
-package com.mycelium.wapi.wallet.manager.btcsa
+package com.mycelium.wapi.wallet.btc.single
 
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.crypto.PublicKey
