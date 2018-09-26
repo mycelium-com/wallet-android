@@ -2,6 +2,7 @@ package com.mycelium.wallet.activity.receive
 
 import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
+import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.Transformations
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
@@ -22,7 +23,7 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
     protected val mbwManager = MbwManager.getInstance(context)!!
     protected lateinit var model: ReceiveCoinsModel
     protected lateinit var account: WalletAccount
-    lateinit var receivingAddress: Address
+    var receivingAddress: MutableLiveData<Address> = MutableLiveData()
     var hasPrivateKey: Boolean = false
 
     open fun init(account: WalletAccount, hasPrivateKey: Boolean, showIncomingUtxo: Boolean = false) {
@@ -30,7 +31,7 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
             throw IllegalStateException("This method should be called only once.")
         }
         this.account = account
-        this.receivingAddress = account.receivingAddress.get()
+        this.receivingAddress.value = account.receivingAddress.get()
         this.hasPrivateKey = hasPrivateKey
     }
 
@@ -90,7 +91,7 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
         s.type = "text/plain"
         if (CurrencyValue.isNullOrZero(model.amountData.value)) {
             s.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.bitcoin_address_title))
-            s.putExtra(Intent.EXTRA_TEXT, receivingAddress.toString())
+            s.putExtra(Intent.EXTRA_TEXT, receivingAddress.value.toString())
             context.startActivity(Intent.createChooser(s, context.getString(R.string.share_bitcoin_address))
                     .addFlags(FLAG_ACTIVITY_NEW_TASK))
         } else {
@@ -104,7 +105,7 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
     @Suppress("unused") // used for data binding
     fun copyToClipboard() {
         val text = if (CurrencyValue.isNullOrZero(model.amountData.value)) {
-            receivingAddress.toString()
+            receivingAddress.value.toString()
         } else {
             getPaymentUri()
         }

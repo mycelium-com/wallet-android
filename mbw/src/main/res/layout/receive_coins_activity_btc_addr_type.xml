@@ -35,14 +35,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/normal_p2sh"
-                android:checked="@{viewModel.addressType == AddressType.P2SH_P2WPKH}" />
+                android:checked="@{viewModel.addressType == AddressType.P2SH_P2WPKH}"
+                android:onClick="@{_ -> viewModel.setAddressType(AddressType.P2SH_P2WPKH)}" />
 
             <RadioButton
                 android:id="@+id/rb_address_type_bech"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/native_segwit_bech_32"
-                android:checked="@{viewModel.addressType == AddressType.P2WPKH}" />
+                android:checked="@{viewModel.addressType == AddressType.P2WPKH}"
+                android:onClick="@{_ -> viewModel.setAddressType(AddressType.P2WPKH)}" />
         </RadioGroup>
     </LinearLayout>
 </layout>

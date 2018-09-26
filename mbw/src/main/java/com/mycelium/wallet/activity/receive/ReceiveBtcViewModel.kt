@@ -6,7 +6,9 @@ import com.mrd.bitlib.model.AddressType
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.bip44.HDAccount
 import com.mycelium.wapi.wallet.currency.CurrencyValue
+import com.mycelium.wapi.wallet.single.SingleAddressAccount
 
 class ReceiveBtcViewModel(application: Application) : ReceiveCoinsViewModel(application) {
     val addressType: MutableLiveData<AddressType> = MutableLiveData()
@@ -14,7 +16,16 @@ class ReceiveBtcViewModel(application: Application) : ReceiveCoinsViewModel(appl
     override fun init(account: WalletAccount, hasPrivateKey: Boolean, showIncomingUtxo: Boolean) {
         super.init(account, hasPrivateKey, showIncomingUtxo)
         model = ReceiveCoinsModel(getApplication(), account, ACCOUNT_LABEL, hasPrivateKey, showIncomingUtxo)
-        addressType.value = AddressType.P2SH_P2WPKH
+        addressType.value = account.receivingAddress.get().type
+    }
+
+    fun setAddressType(addressType: AddressType) {
+        this.addressType.value = addressType
+        receivingAddress.value = when (account) {
+            is HDAccount -> (account as HDAccount).getReceivingAddress(addressType)!!
+            is SingleAddressAccount -> (account as SingleAddressAccount).getAddress(addressType)
+            else -> throw IllegalStateException()
+        }
     }
 
     override fun getHint() = context.getString(R.string.amount_hint_denomination,
