@@ -41,6 +41,7 @@ import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.HdKeyNode
 import com.mrd.bitlib.model.*
 import com.mrd.bitlib.model.hdpath.HdKeyPath
+import com.mycelium.wallet.MbwManager
 import com.mycelium.wapi.wallet.WalletManager
 import com.squareup.otto.Bus
 import java.util.UUID

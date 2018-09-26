@@ -233,7 +233,8 @@ public class ModernMain extends AppCompatActivity {
       final WalletManager walletManager = _mbwManager.getWalletManager(false);
       for (Integer index: gapIndex) {
          try {
-            final UUID newAccount = walletManager.createArchivedGapFiller(AesKeyCipher.defaultKeyCipher(), index, true);
+            final UUID newAccount = walletManager.createArchivedGapFiller(AesKeyCipher.defaultKeyCipher(), index,
+                    true, _mbwManager.getDefaultAddressType());
             _mbwManager.getMetadataStorage().storeAccountLabel(newAccount, "Gap Account " + (index+1));
          } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
             throw new RuntimeException(invalidKeyCipher);

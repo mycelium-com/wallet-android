@@ -17,6 +17,7 @@
 package com.mycelium.wapi.wallet.bip44
 
 import com.mrd.bitlib.crypto.BipDerivationType
+import com.mrd.bitlib.model.AddressType
 import com.mycelium.wapi.wallet.Bip44AccountBacking
 import java.io.Serializable
 import java.util.*
@@ -32,17 +33,22 @@ class HDAccountContext @JvmOverloads constructor(
         private var lastDiscovery: Long = 0,
         val indexesMap: Map<BipDerivationType, AccountIndexesContext> = createNewIndexesContexts(BipDerivationType.values().asIterable()),
         val accountType: Int = ACCOUNT_TYPE_FROM_MASTERSEED,
-        val accountSubId: Int = 0
+        val accountSubId: Int = 0,
+        var defaultAddressType: AddressType = AddressType.P2SH_P2WPKH
 ) {
     private var isDirty: Boolean = false
 
+    constructor(id: UUID, accountIndex: Int, isArchived: Boolean, defaultAddressTyp: AddressType) :
+            this(id, accountIndex, isArchived, defaultAddressType = defaultAddressTyp)
+
     constructor(context: HDAccountContext) : this(context.id, context.accountIndex,
             context.isArchived(), context.getBlockHeight(), context.getLastDiscovery(), context.indexesMap,
-            context.accountType,
-            context.accountSubId)
+            context.accountType, context.accountSubId, context.defaultAddressType)
 
-    constructor(id: UUID, accountIndex: Int, isArchived: Boolean, accountType: Int, accountSubId: Int, derivationTypes: Iterable<BipDerivationType>) :
-            this(id, accountIndex, isArchived, 0, 0, createNewIndexesContexts(derivationTypes), accountType, accountSubId)
+    @JvmOverloads constructor(id: UUID, accountIndex: Int, isArchived: Boolean, accountType: Int, accountSubId: Int,
+                              derivationTypes: Iterable<BipDerivationType>, defaultAddressType: AddressType = AddressType.P2SH_P2WPKH) :
+            this(id, accountIndex, isArchived, 0, 0, createNewIndexesContexts(derivationTypes),
+                    accountType, accountSubId, defaultAddressType)
 
     init {
         isDirty = false

@@ -149,7 +149,7 @@ open class HDAccount(
     }
 
     protected fun initContext(isArchived: Boolean) {
-        context = HDAccountContext(context.id, context.accountIndex, isArchived, context.accountType, context.accountSubId, derivePaths)
+        context = HDAccountContext(context.id, context.accountIndex, isArchived, context.accountType, context.accountSubId, derivePaths, context.defaultAddressType)
         context.persist(backing)
     }
 
@@ -459,7 +459,7 @@ open class HDAccount(
         return if (isArchived) {
             Optional.absent()
         } else {
-            var receivingAddress = getReceivingAddress(AddressType.P2SH_P2WPKH)
+            var receivingAddress = getReceivingAddress(context.defaultAddressType)
             if (receivingAddress == null) {
                 receivingAddress = receivingAddressMap.values.first()
             }

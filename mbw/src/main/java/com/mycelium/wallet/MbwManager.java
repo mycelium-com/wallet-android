@@ -1270,7 +1270,8 @@ public class MbwManager {
     public UUID createAdditionalBip44Account(Context context) {
         UUID accountId;
         try {
-            accountId = _walletManager.createAdditionalBip44Account(AesKeyCipher.defaultKeyCipher());
+            accountId = _walletManager.createAdditionalBip44Account(AesKeyCipher.defaultKeyCipher(),
+                    MbwManager.getInstance(context).getDefaultAddressType());
             //set default label for the created HD account
             WalletAccount account = _walletManager.getAccount(accountId);
             String defaultName = Utils.getNameForNewAccount(account, context);

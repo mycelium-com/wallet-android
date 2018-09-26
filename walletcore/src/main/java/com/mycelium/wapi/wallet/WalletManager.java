@@ -332,7 +332,8 @@ public class WalletManager {
         }
     }
 
-    public UUID createExternalSignatureAccount(List<? extends HdKeyNode> hdKeyNodes, ExternalSignatureProvider externalSignatureProvider, int accountIndex) {
+    public UUID createExternalSignatureAccount(List<? extends HdKeyNode> hdKeyNodes,
+                                               ExternalSignatureProvider externalSignatureProvider, int accountIndex) {
         SecureSubKeyValueStore newSubKeyStore = getSecureStorage().createNewSubKeyStore();
         final Map<BipDerivationType, HDPubOnlyAccountKeyManager> keyManagerMap = new HashMap<>();
         final List<BipDerivationType> derivationTypes = new ArrayList<>();
@@ -1265,7 +1266,8 @@ public class WalletManager {
         return addresses;
     }
 
-    public UUID createArchivedGapFiller(KeyCipher cipher, Integer accountIndex, boolean archived) throws InvalidKeyCipher {
+    public UUID createArchivedGapFiller(KeyCipher cipher, Integer accountIndex, boolean archived,
+                                        AddressType defaultAddressType) throws InvalidKeyCipher {
         // Get the master seed
         Bip39.MasterSeed masterSeed = getMasterSeed(cipher);
 
@@ -1283,7 +1285,7 @@ public class WalletManager {
 
                 // Generate the context for the account
                 HDAccountContext context = new HDAccountContext(
-                        keyManagerMap.get(BipDerivationType.BIP44).getAccountId(), accountIndex, false);
+                        keyManagerMap.get(BipDerivationType.BIP44).getAccountId(), accountIndex, false, defaultAddressType);
                 _backing.createBip44AccountContext(context);
 
                 // Get the backing for the new account
@@ -1308,7 +1310,7 @@ public class WalletManager {
         }
     }
 
-    public UUID createAdditionalBip44Account(KeyCipher cipher) throws InvalidKeyCipher {
+    public UUID createAdditionalBip44Account(KeyCipher cipher, AddressType defaultAddressType) throws InvalidKeyCipher {
         if (!canCreateAdditionalBip44Account()) {
             throw new RuntimeException("Unable to create additional HD account");
         }
@@ -1332,7 +1334,7 @@ public class WalletManager {
                 }
                 // Generate the context for the account
                 HDAccountContext context = new HDAccountContext(
-                        keyManagerMap.get(BipDerivationType.BIP44).getAccountId(), accountIndex,false);
+                        keyManagerMap.get(BipDerivationType.BIP44).getAccountId(), accountIndex, false, defaultAddressType);
                 _backing.createBip44AccountContext(context);
 
                 // Get the backing for the new account

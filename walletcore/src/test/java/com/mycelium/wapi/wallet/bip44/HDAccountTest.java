@@ -3,6 +3,7 @@ package com.mycelium.wapi.wallet.bip44;
 import com.mrd.bitlib.crypto.Bip39;
 import com.mrd.bitlib.crypto.RandomSource;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.WapiLogger;
@@ -39,7 +40,7 @@ public class HDAccountTest {
 
         walletManager.configureBip32MasterSeed(masterSeed, cipher);
 
-        UUID account1Id = walletManager.createAdditionalBip44Account(cipher);
+        UUID account1Id = walletManager.createAdditionalBip44Account(cipher, AddressType.P2SH_P2WPKH);
 
         account = (HDAccount) walletManager.getAccount(account1Id);
     }
