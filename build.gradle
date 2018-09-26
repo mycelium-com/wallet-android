@@ -29,6 +29,11 @@ allprojects {
         sourceCompatibility = 1.7
         targetCompatibility = 1.7
     }
+
+    repositories {
+        google()
+        jcenter()
+    }
 }
 
 def props = new Properties()
