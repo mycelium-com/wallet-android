@@ -40,8 +40,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
@@ -203,7 +201,6 @@ public class MbwManager {
     private boolean _pinRequiredOnStartup;
 
     private MinerFee _minerFee;
-    private boolean _enableContinuousFocus;
     private boolean _keyManagementLocked;
     private MrdExport.V1.EncryptionParameters _cachedEncryptionParameters;
     private final MrdExport.V1.ScryptParameters _deviceScryptParameters;
@@ -224,6 +221,7 @@ public class MbwManager {
     private Cache<String, Object> _semiPersistingBackgroundObjects = CacheBuilder.newBuilder().maximumSize(10).build();
 
     private WalletConfiguration configuration;
+    private final GEBHelper _gebHelper;
 
     private MbwManager(Context evilContext) {
         Queue<LogEntry> unsafeWapiLogs = EvictingQueue.create(100);
@@ -266,7 +264,6 @@ public class MbwManager {
         _pinRequiredOnStartup = preferences.getBoolean(Constants.PIN_SETTING_REQUIRED_ON_STARTUP, false);
         randomizePinPad = preferences.getBoolean(Constants.RANDOMIZE_PIN, false);
         _minerFee = MinerFee.fromString(preferences.getString(Constants.MINER_FEE_SETTING, MinerFee.NORMAL.toString()));
-        _enableContinuousFocus = preferences.getBoolean(Constants.ENABLE_CONTINUOUS_FOCUS_SETTING, false);
         _keyManagementLocked = preferences.getBoolean(Constants.KEY_MANAGEMENT_LOCKED_SETTING, false);
 
         // Get the display metrics of this device
@@ -984,16 +981,6 @@ public class MbwManager {
         getEditor().putBoolean(Constants.KEY_MANAGEMENT_LOCKED_SETTING, _keyManagementLocked).apply();
     }
 
-    public boolean getContinuousFocus() {
-        return _enableContinuousFocus;
-    }
-
-    public void setContinuousFocus(boolean enableContinuousFocus) {
-        _enableContinuousFocus = enableContinuousFocus;
-        getEditor().putBoolean(Constants.ENABLE_CONTINUOUS_FOCUS_SETTING, _enableContinuousFocus).apply();
-    }
-
-
     public void setProxy(String proxy) {
         getEditor().putString(Constants.PROXY_SETTING, proxy).apply();
         ImmutableList<String> vals = ImmutableList.copyOf(Splitter.on(":").split(proxy));
@@ -1126,7 +1113,6 @@ public class MbwManager {
         _tempWalletManager.setActiveAccount(accountId); // this also starts a sync
         return accountId;
     }
-
 
     public void forgetColdStorageWalletManager() {
         createTempWalletManager();
@@ -1401,7 +1387,6 @@ public class MbwManager {
                 lastPinAgeOkay.set(false);
             }
         }, 1, SECONDS);
-
     }
 
     // Derivation constants for mycelium messages' signing key
