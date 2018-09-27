@@ -236,7 +236,7 @@ public class BitIDAuthenticationActivity extends AppCompatActivity {
    private void signAndSend(boolean enforceSslCorrectness) {
       MbwManager manager = MbwManager.getInstance(this);
       InMemoryPrivateKey key = manager.getBitIdKeyForWebsite(request.getIdUri());
-      Address address = key.getPublicKey().toAddress(manager.getNetwork(), AddressType.P2PKH); // TODO SegWit add address choice
+      Address address = key.getPublicKey().toAddress(manager.getNetwork(), AddressType.P2PKH);
       progress.setCancelable(false);
       progress.setMessage(getString(R.string.bitid_processing));
       progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);

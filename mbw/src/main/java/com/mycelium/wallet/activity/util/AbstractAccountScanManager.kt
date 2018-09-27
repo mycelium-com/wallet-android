@@ -229,7 +229,7 @@ abstract class AbstractAccountScanManager(protected val context: Context, protec
     override fun getAccountPathsToScan(lastPath: HdKeyPath?, wasUsed: Boolean): Map<BipDerivationType, HdKeyPath> {
         val bip44CoinType = HdKeyPath.BIP44.getBip44CoinType(network)
         val bip49CoinType = HdKeyPath.BIP49.getBip44CoinType(network)
-        //val bip84CoinType = HdKeyPath.BIP84.getBip44CoinType(network) todo segwit bech
+        val bip84CoinType = HdKeyPath.BIP84.getBip44CoinType(network)
 
         // this is the first call - no lastPath given
         if (lastPath == null) {
@@ -240,7 +240,8 @@ abstract class AbstractAccountScanManager(protected val context: Context, protec
         // otherwise use the next bip44 account, as long as the last one had activity on it
         return if (wasUsed) {
             mapOf(BipDerivationType.BIP44 to bip44CoinType.getAccount(lastPath.lastIndex + 1),
-                    BipDerivationType.BIP49 to bip49CoinType.getAccount(lastPath.lastIndex + 1))
+                    BipDerivationType.BIP49 to bip49CoinType.getAccount(lastPath.lastIndex + 1),
+                    BipDerivationType.BIP84 to bip84CoinType.getAccount(lastPath.lastIndex + 1))
         } else {
             emptyMap()
         }
