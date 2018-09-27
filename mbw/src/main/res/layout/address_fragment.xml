@@ -1,29 +1,32 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:bind="http://schemas.android.com/tools">
-<data>
-    <variable
-        name="fragment"
-        type="com.mycelium.wallet.activity.main.address.AddressFragment"/>
-<variable
-    name="viewModel"
-    type="com.mycelium.wallet.activity.main.address.AddressFragmentViewModel" />
-</data>
 
-<RelativeLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:paddingTop="20dp"
-    android:paddingBottom="20dp">
+    <data>
 
-    <FrameLayout
+        <variable
+            name="fragment"
+            type="com.mycelium.wallet.activity.main.address.AddressFragment" />
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.wallet.activity.main.address.AddressFragmentViewModel" />
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="20dp"
+        android:paddingBottom="20dp">
+
+        <FrameLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_marginLeft="20dp"
             android:layout_centerVertical="true">
 
-        <LinearLayout
+            <LinearLayout
                 android:id="@+id/llAddress"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -32,26 +35,24 @@
                 android:layout_gravity="center"
                 android:orientation="vertical">
 
-            <include
-                layout="@layout/address_fragment_label"
-                bind:viewModel="@{viewModel}" />
+                <include
+                    layout="@layout/address_fragment_label"
+                    bind:viewModel="@{viewModel}" />
 
-            <include
-                layout="@layout/address_fragment_addr"
-                bind:viewModel="@{viewModel}"/>
+                <include
+                    layout="@layout/address_fragment_addr"
+                    bind:viewModel="@{viewModel}" />
 
-            <include
-                layout="@layout/address_fragment_path"
-                bind:viewModel="@{viewModel}"
-                bind:activity="@{fragment}"/>
-        </LinearLayout>
-    </FrameLayout>
+                <include
+                    layout="@layout/address_fragment_path"
+                    bind:viewModel="@{viewModel}" />
+            </LinearLayout>
+        </FrameLayout>
 
 
-    <include
-        layout="@layout/address_fragment_qr"
-        bind:viewModel="@{viewModel}"
-        bind:activity="@{fragment}"/>
+        <include
+            layout="@layout/address_fragment_qr"
+            bind:viewModel="@{viewModel}" />
 
-</RelativeLayout>
+    </RelativeLayout>
 </layout>

@@ -32,15 +32,14 @@ import com.mycelium.wapi.wallet.bip44.HDAccount
 import com.mycelium.wapi.wallet.single.SingleAddressAccount
 import com.squareup.otto.Bus
 import com.squareup.otto.Subscribe
+import kotlinx.android.synthetic.main.address_fragment_qr.*
 
 class AddressFragment : Fragment() {
 
-    private var _root: View? = null
+    private var root: View? = null
     private lateinit var _mbwManager: MbwManager
     private lateinit var viewModel: AddressFragmentViewModel
     private var _showBip44Path: Boolean = false
-    @BindView(R.id.ivQR)
-    public var qrButton: QrImageView? = null
 
     private val eventBus: Bus
         get() = _mbwManager!!.eventBus
@@ -49,7 +48,10 @@ class AddressFragment : Fragment() {
         get() = _mbwManager!!.selectedAccount.receivingAddress
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val binding = DataBindingUtil.inflate<AddressFragmentBinding>(inflater, R.layout.address_fragment, container, false)
+        val binding = DataBindingUtil.inflate<AddressFragmentBinding>(inflater, R.layout.address_fragment,
+                container, false)
+        binding.fragment = this
+        binding.viewModel = viewModel
         binding.setLifecycleOwner(this)
         return this.view
     }
@@ -95,26 +97,26 @@ class AddressFragment : Fragment() {
         // Update address
         if (receivingAddress.isPresent) {
             // Set address
-            qrButton!!.visibility = View.VISIBLE
+            ivQR.visibility = View.VISIBLE
             val address = receivingAddress.get().toString()
-            qrButton!!.qrCode = BitcoinUriWithAddress.fromAddress(receivingAddress.get()).toString()
-            (_root!!.findViewById(R.id.tvAddress) as TextView).text = address
+            ivQR.qrCode = BitcoinUriWithAddress.fromAddress(receivingAddress.get()).toString()
+            (root!!.findViewById(R.id.tvAddress) as TextView).text = address
             if (_showBip44Path && receivingAddress.get().bip32Path != null) {
                 val path = receivingAddress.get().bip32Path
-                (_root!!.findViewById(R.id.tvAddressPath) as TextView).text = path.toString()
+                (root!!.findViewById(R.id.tvAddressPath) as TextView).text = path.toString()
             } else {
-                (_root!!.findViewById(R.id.tvAddressPath) as TextView).text = ""
+                (root!!.findViewById(R.id.tvAddressPath) as TextView).text = ""
             }
         } else {
             // No address available
-            qrButton!!.visibility = View.INVISIBLE
-            (_root!!.findViewById(R.id.tvAddress) as TextView).text = ""
-            (_root!!.findViewById(R.id.tvAddressPath) as TextView).text = ""
+            ivQR.visibility = View.INVISIBLE
+            (root!!.findViewById(R.id.tvAddress) as TextView).text = ""
+            (root!!.findViewById(R.id.tvAddressPath) as TextView).text = ""
         }
 
         // Show name of bitcoin address according to address book
-        val tvAddressTitle = _root!!.findViewById(R.id.tvAddressLabel) as TextView
-        val ivAccountType = _root!!.findViewById(R.id.ivAccountType) as ImageView
+        val tvAddressTitle = root!!.findViewById(R.id.tvAddressLabel) as TextView
+        val ivAccountType = root!!.findViewById(R.id.ivAccountType) as ImageView
 
         var name = _mbwManager!!.metadataStorage.getLabelByAccount(account.id)
         if (account.type == WalletAccount.Type.BCHSINGLEADDRESS || account.type == WalletAccount.Type.BCHBIP44) {
