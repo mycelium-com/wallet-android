@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable
+            name="viewModel"
+            type="com.mycelium.wallet.activity.main.address.AddressFragmentViewModel" />
+    </data>
+
+<LinearLayout xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/address_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+
+    <TextView
+        android:id="@+id/tvAddress"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:drawablePadding="2dp"
+        android:ellipsize="middle"
+        android:singleLine="true"
+        android:textColor="@color/lightgrey"
+        android:textSize="15sp"
+        android:typeface="monospace"
+        tools:text="@{viewModel.getAccountAddress()}" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/ic_content_copy_white" />
+</LinearLayout>
+</layout>

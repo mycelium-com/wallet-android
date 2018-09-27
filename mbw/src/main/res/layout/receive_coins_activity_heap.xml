@@ -4,12 +4,8 @@
     tools:showIn="@layout/receive_coins_activity">
 
     <data>
-
         <import type="android.view.View" />
-
         <import type="com.mycelium.wapi.wallet.currency.CurrencyValue" />
-
-
         <variable
             name="viewModel"
             type="com.mycelium.wallet.activity.receive.ReceiveCoinsViewModel" />
