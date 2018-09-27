@@ -6,6 +6,7 @@ import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.Transformations
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
 import com.mrd.bitlib.model.Address
@@ -33,6 +34,14 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
         this.account = account
         this.receivingAddress.value = account.receivingAddress.get()
         this.hasPrivateKey = hasPrivateKey
+    }
+
+    open fun loadInstance(savedInstanceState: Bundle) {
+        model.loadInstance(savedInstanceState)
+    }
+
+    open fun saveInstance(outState: Bundle) {
+        model.saveInstance(outState)
     }
 
     abstract fun getHint(): String

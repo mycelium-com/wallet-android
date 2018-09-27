@@ -7,6 +7,7 @@ import android.content.Context
 import android.media.AudioManager
 import android.media.RingtoneManager
 import android.nfc.NfcAdapter
+import android.os.Bundle
 import android.support.v4.app.NotificationCompat
 import android.widget.Toast
 import com.mrd.bitlib.util.CoinUtil
@@ -99,6 +100,22 @@ class ReceiveCoinsModel(
         return uri.toString()
     }
 
+    fun loadInstance(savedInstanceState: Bundle) {
+        amountData.value = savedInstanceState.getSerializable(AMOUNT) as CurrencyValue?
+        receivingSince = savedInstanceState.getLong(RECEIVING_SINCE)
+        syncErrors = savedInstanceState.getInt(SYNC_ERRORS)
+        lastAddressBalance = savedInstanceState.getSerializable(LAST_ADDRESS_BALANCE) as CurrencyValue?
+    }
+
+    fun saveInstance(outState: Bundle) {
+        if (!CurrencyValue.isNullOrZero(amountData.value)) {
+            outState.putSerializable(AMOUNT, amountData.value)
+        }
+        outState.putLong(RECEIVING_SINCE, receivingSince)
+        outState.putInt(SYNC_ERRORS, syncErrors)
+        outState.putSerializable(LAST_ADDRESS_BALANCE, lastAddressBalance)
+    }
+
     @Subscribe
     fun syncError(event: SyncFailed) {
         // stop syncing after a certain amountData of errors (no network available)
@@ -139,5 +156,9 @@ class ReceiveCoinsModel(
 
     companion object {
         private const val MAX_SYNC_ERRORS = 8
+        private const val LAST_ADDRESS_BALANCE = "lastAddressBalance"
+        private const val RECEIVING_SINCE = "receivingSince"
+        private const val SYNC_ERRORS = "syncErrors"
+        private const val AMOUNT = "amount"
     }
 }

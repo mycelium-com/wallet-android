@@ -2,6 +2,7 @@ package com.mycelium.wallet.activity.receive
 
 import android.app.Application
 import android.arch.lifecycle.MutableLiveData
+import android.os.Bundle
 import com.mrd.bitlib.model.AddressType
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
@@ -35,6 +36,16 @@ class ReceiveBtcViewModel(application: Application) : ReceiveCoinsViewModel(appl
 
     override fun getFormattedValue(sum: CurrencyValue) = Utils.getFormattedValueWithUnit(sum, mbwManager.bitcoinDenomination)
 
+    override fun loadInstance(savedInstanceState: Bundle) {
+        setAddressType(savedInstanceState.getSerializable(ADDRESS_TYPE) as AddressType)
+        super.loadInstance(savedInstanceState)
+    }
+
+    override fun saveInstance(outState: Bundle) {
+        outState.putSerializable(ADDRESS_TYPE, addressType.value)
+        super.saveInstance(outState)
+    }
+
     override fun getTitle(): String {
         return if (CurrencyValue.isNullOrZero(model.amountData.value)) {
             context.getString(R.string.address_title, context.getString(R.string.bitcoin_name))
@@ -44,6 +55,7 @@ class ReceiveBtcViewModel(application: Application) : ReceiveCoinsViewModel(appl
     }
 
     companion object {
-        private val ACCOUNT_LABEL = "bitcoin"
+        private const val ACCOUNT_LABEL = "bitcoin"
+        private const val ADDRESS_TYPE = "addressType"
     }
 }
