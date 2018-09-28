@@ -22,12 +22,13 @@ abstract class AddressFragmentViewModel(val context: Application) : AndroidViewM
 
     abstract fun getAccountAddress(): String
 
-    abstract fun getAccountType() : WalletAccount.Type
+    abstract fun getAccountType(): WalletAccount.Type
 
-    fun getAccountLabel() : String {
+    fun getAccountLabel(): String {
         return mbwManager.metadataStorage.getLabelByAccount(account.id)
     }
-    abstract fun getAddressPath() : String
+
+    abstract fun getAddressPath(): String
 
     abstract fun qrClickReaction()
 

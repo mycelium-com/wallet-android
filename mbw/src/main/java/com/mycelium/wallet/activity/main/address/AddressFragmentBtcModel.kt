@@ -10,7 +10,7 @@ import com.mycelium.wapi.wallet.single.SingleAddressAccount
 
 class AddressFragmentBtcModel(val app: Application) : AddressFragmentViewModel(app) {
 
-    var addresses = MutableList<AddressType>()
+    var addresses = mutableListOf<AddressType>()
     private var position = 0
 
     override fun init(acc: WalletAccount) {
@@ -21,14 +21,14 @@ class AddressFragmentBtcModel(val app: Application) : AddressFragmentViewModel(a
     }
 
     override fun getAccountType(): WalletAccount.Type {
-        if(account is HDAccount){
+        if (account is HDAccount) {
             return WalletAccount.Type.BTCBIP44
         }
         return WalletAccount.Type.BTCSINGLEADDRESS
     }
 
     override fun getAddressPath(): String {
-        if(account is SingleAddressAccount){
+        if (account is SingleAddressAccount) {
             return (account as SingleAddressAccount).getAddress(addresses[position]).bip32Path.toString()
         } else {
             (account as HDAccount).getReceivingAddress(addresses[position])!!.bip32Path.toString()
@@ -37,7 +37,7 @@ class AddressFragmentBtcModel(val app: Application) : AddressFragmentViewModel(a
     }
 
     override fun getAccountAddress(): String {
-        if(account is SingleAddressAccount){
+        if (account is SingleAddressAccount) {
             return (account as SingleAddressAccount).getAddress(addresses[position]).toString()
         } else {
             return (account as HDAccount).getReceivingAddress(addresses[position]).toString()

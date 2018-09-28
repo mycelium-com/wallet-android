@@ -5,21 +5,21 @@
 
     <data>
         <variable
-            name="viewModel"
-            type="com.mycelium.wallet.activity.main.address.AddressFragmentViewModel" />
+                name="viewModel"
+                type="com.mycelium.wallet.activity.main.address.AddressFragmentViewModel"/>
     </data>
 
     <merge>
 
         <TextView
-            android:id="@+id/tvAddressPath"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:gravity="left"
-            android:textSize="12sp"
-            android:textColor="@color/lightgrey"
-            tools:text="m'/44'/0'/0/1"/>
+                android:id="@+id/tvAddressPath"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:gravity="left"
+                android:textSize="12sp"
+                android:textColor="@color/lightgrey"
+                tools:text="m'/44'/0'/0/1"/>
 
     </merge>
 </layout>

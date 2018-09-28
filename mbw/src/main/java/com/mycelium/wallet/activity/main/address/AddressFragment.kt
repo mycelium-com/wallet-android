@@ -10,7 +10,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import butterknife.OnClick
 import com.mrd.bitlib.model.Address
 import com.mycelium.wallet.BitcoinUriWithAddress
 import com.mycelium.wallet.MbwManager
@@ -34,12 +33,12 @@ import kotlinx.android.synthetic.main.address_fragment_label.*
 import kotlinx.android.synthetic.main.address_fragment_path.*
 
 class AddressFragment : Fragment() {
-    private lateinit var _mbwManager: MbwManager
+    private lateinit var mbwManager: MbwManager
     private lateinit var viewModel: AddressFragmentViewModel
-    private var _showBip44Path: Boolean = false
+    private var showBip44Path: Boolean = false
 
     private val eventBus: Bus
-        get() = _mbwManager!!.eventBus
+        get() = mbwManager!!.eventBus
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val binding = DataBindingUtil.inflate<AddressFragmentBinding>(inflater, R.layout.address_fragment,
@@ -51,16 +50,16 @@ class AddressFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setHasOptionsMenu(true)
-        _mbwManager = MbwManager.getInstance(activity)
+        mbwManager = MbwManager.getInstance(activity)
         val viewModelProvider = ViewModelProviders.of(this)
-        this.viewModel = when (_mbwManager.selectedAccount) {
+        this.viewModel = when (mbwManager.selectedAccount) {
             is SingleAddressAccount, is HDAccount, is CoinapultAccount -> viewModelProvider.get(AddressFragmentBtcModel::class.java)
             else -> viewModelProvider.get(AddressFragmentCoinsModel::class.java)
         }
         if (!viewModel.isInitialized()) {
-            viewModel.init(_mbwManager.selectedAccount)
+            viewModel.init(mbwManager.selectedAccount)
         }
-        _showBip44Path = _mbwManager.getMetadataStorage().getShowBip44Path();
+        showBip44Path = mbwManager.getMetadataStorage().getShowBip44Path();
         super.onCreate(savedInstanceState)
     }
 
@@ -89,7 +88,7 @@ class AddressFragment : Fragment() {
         if (!isAdded) {
             return
         }
-        val account = _mbwManager.selectedAccount
+        val account = mbwManager.selectedAccount
         if (account.isArchived) {
             return
         }
@@ -102,7 +101,7 @@ class AddressFragment : Fragment() {
             val address = viewModel.getAccountAddress()
             ivQR.qrCode = BitcoinUriWithAddress.fromAddress(receivingAddress).toString()
             tvAddress.setText(address)
-            if (_showBip44Path && receivingAddress.bip32Path != null) {
+            if (showBip44Path && receivingAddress.bip32Path != null) {
                 val path = receivingAddress.bip32Path
                 tvAddressPath.setText(path.toString())
             } else {
@@ -114,7 +113,7 @@ class AddressFragment : Fragment() {
         val tvAddressTitle = tvAddressLabel
         val ivAccountType = ivAccountType
 
-        var name = _mbwManager!!.metadataStorage.getLabelByAccount(account.id)
+        var name = mbwManager!!.metadataStorage.getLabelByAccount(account.id)
         if (account is SingleAddressBCHAccount || account is Bip44BCHAccount) {
             name = getString(R.string.bitcoin_cash) + " - " + name
         }
@@ -146,7 +145,7 @@ class AddressFragment : Fragment() {
     }
 
     internal fun qrClick() {
-        val account = _mbwManager!!.selectedAccount
+        val account = mbwManager!!.selectedAccount
         viewModel.qrClickReaction()
         if(account is HDAccount || account is SingleAddressAccount || account is CoinapultAccount){
             updateUi()

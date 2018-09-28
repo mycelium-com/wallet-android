@@ -13,10 +13,8 @@ import com.mycelium.wapi.wallet.currency.CurrencyValue
 import com.squareup.otto.Bus
 
 class AddressFragmentModel(
-        val context : Application
-
+        val context: Application
 ) {
-    private var root: View? = null
     private var mbwManager: MbwManager = MbwManager.getInstance(context)
     private var showBip44Path: Boolean = false
 
