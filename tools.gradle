@@ -70,11 +70,11 @@ def getGitBranch() {
 }
 
 def failIfSigningKeyEnforced() {
-    Properties properties = new Properties()
-    properties.load(project.rootProject.file('local.properties').newDataInputStream())
-    def enforceReleaseSigning = properties.getProperty('enforceReleaseSigning', "false")
-    if (enforceReleaseSigning == "true") {
-        throw new GradleException("Couldn't load release signing keys!")
+    def warning="Couldn't load release signing keys!"
+    if (project.hasProperty("enforceReleaseSigning")) {
+        throw new GradleException(warning)
+    } else {
+        logger.warn(warning)
     }
 }
 
