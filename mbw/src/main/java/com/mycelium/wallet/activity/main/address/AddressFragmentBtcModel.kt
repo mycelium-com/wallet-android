@@ -29,26 +29,18 @@ class AddressFragmentBtcModel(val app: Application) : AddressFragmentViewModel(a
         if(account is SingleAddressAccount){
             return (account as SingleAddressAccount).getAddress(addresses[position]).bip32Path.toString()
         } else {
-            (account as HDAccount).allAddresses.forEach {
-                if (it.type == addresses[position]) {
-                    return it.bip32Path.toString()
-                }
-            }
+            (account as HDAccount).getReceivingAddress(addresses[position])!!.bip32Path.toString()
         }
-        return ""
+        return account.getReceivingAddress().get().bip32Path.toString()
     }
 
     override fun getAccountAddress(): String {
         if(account is SingleAddressAccount){
-            return (account as SingleAddressAccount).getAddress(addresses[position]).shortAddress
+            return (account as SingleAddressAccount).getAddress(addresses[position]).toString()
         } else {
-            (account as HDAccount).allAddresses.forEach {
-                if (it.type == addresses[position]) {
-                    return it.shortAddress
-                }
-            }
+            return (account as HDAccount).getReceivingAddress(addresses[position]).toString()
         }
-        return ""
+        return account.receivingAddress.get().toString()
     }
 
     override fun qrClickReaction() {

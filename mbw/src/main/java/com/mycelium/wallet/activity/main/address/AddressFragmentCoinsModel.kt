@@ -1,12 +1,13 @@
 package com.mycelium.wallet.activity.main.address
 
 import android.app.Application
+import com.mrd.bitlib.model.Address
 import com.mycelium.wapi.wallet.WalletAccount
 
 class AddressFragmentCoinsModel(app: Application): AddressFragmentViewModel(app) {
 
     override fun getAccountAddress(): String {
-        return account.receivingAddress.get().shortAddress
+        return account.receivingAddress.get().toString()
     }
 
     override fun getAccountType(): WalletAccount.Type {
@@ -17,8 +18,6 @@ class AddressFragmentCoinsModel(app: Application): AddressFragmentViewModel(app)
         return account.receivingAddress.get().bip32Path.toString()
     }
 
-    override fun qrClickReaction() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun qrClickReaction() { }
 
 }

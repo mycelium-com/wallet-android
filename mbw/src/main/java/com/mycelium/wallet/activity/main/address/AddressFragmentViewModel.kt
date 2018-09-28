@@ -17,7 +17,7 @@ abstract class AddressFragmentViewModel(val context: Application) : AndroidViewM
         if (::model.isInitialized) {
             throw IllegalStateException("This method should be called only once.")
         }
-        this.account = account
+        this.account = acc
     }
 
     abstract fun getAccountAddress(): String
