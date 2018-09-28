@@ -37,8 +37,8 @@ package com.mycelium.wallet;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.ClipboardManager;
 import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -90,6 +90,7 @@ import com.mrd.bitlib.util.CoinUtil;
 import com.mycelium.wallet.activity.AdditionalBackupWarningActivity;
 import com.mycelium.wallet.activity.BackupWordListActivity;
 import com.mycelium.wallet.activity.export.BackupToPdfActivity;
+import com.mycelium.wallet.activity.export.ExportAsQrActivity;
 import com.mycelium.wallet.activity.export.ExportAsQrCodeActivity;
 import com.mycelium.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wallet.colu.ColuAccount;
@@ -111,7 +112,6 @@ import org.ocpsoft.prettytime.PrettyTime;
 import org.ocpsoft.prettytime.TimeUnit;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Calendar;
@@ -734,10 +734,11 @@ public class Utils {
             .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                public void onClick(DialogInterface dialog, int id) {
                   dialog.dismiss();
-                  Intent intent = ExportAsQrCodeActivity.getIntent(parent,
-                        ((ExportableAccount) account).getExportData(AesKeyCipher.defaultKeyCipher())
-                  );
-                  parent.startActivity(intent);
+                  Intent intent = ExportAsQrCodeActivity.getIntent(parent, ((ExportableAccount) account).getExportData(AesKeyCipher.defaultKeyCipher()));
+//                  parent.startActivity(intent);
+
+                  ExportAsQrActivity.callMe(parent, ((ExportableAccount) account).getExportData(AesKeyCipher.defaultKeyCipher()),
+                          account instanceof HDAccount);
                }
             }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
          public void onClick(DialogInterface dialog, int id) {
