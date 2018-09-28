@@ -10,11 +10,13 @@ import com.mycelium.wapi.wallet.single.SingleAddressAccount
 
 class AddressFragmentBtcModel(val app: Application) : AddressFragmentViewModel(app) {
 
-    val addresses: List<AddressType> = AddressType.values().toList()
+    var addresses = MutableList<AddressType>()
     private var position = 0
 
     override fun init(acc: WalletAccount) {
         super.init(acc)
+        addresses.addAll(AddressType.values())
+        addresses.remove(AddressType.P2PKH)
         position = 0
     }
 
