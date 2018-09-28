@@ -21,11 +21,6 @@ class AddressFragmentModel(
     init {
         showBip44Path = mbwManager.getMetadataStorage().getShowBip44Path()
     }
-
-    private fun getEventBus(): Bus {
-        return mbwManager.getEventBus()
-    }
-
     fun getAddress(): Optional<Address> {
         return mbwManager.getSelectedAccount().getReceivingAddress()
     }

@@ -20,17 +20,23 @@ abstract class AddressFragmentViewModel(val context: Application) : AndroidViewM
         this.account = acc
     }
 
-    abstract fun getAccountAddress(): String
-
-    abstract fun getAccountType(): WalletAccount.Type
-
     fun getAccountLabel(): String {
         return mbwManager.metadataStorage.getLabelByAccount(account.id)
     }
 
-    abstract fun getAddressPath(): String
+    fun getAccountAddress(): String {
+        return account.receivingAddress.get().toString()
+    }
 
-    abstract fun qrClickReaction()
+    fun getAccountType(): WalletAccount.Type {
+        return account.type
+    }
+
+    fun getAddressPath(): String {
+        return account.receivingAddress.get().bip32Path.toString()
+    }
+
+    fun qrClickReaction() {}
 
     fun isInitialized() = ::model.isInitialized
 }

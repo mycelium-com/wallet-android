@@ -33,7 +33,7 @@ import kotlinx.android.synthetic.main.address_fragment_label.*
 import kotlinx.android.synthetic.main.address_fragment_path.*
 
 class AddressFragment : Fragment() {
-    private lateinit var mbwManager: MbwManager
+    private var mbwManager = MbwManager.getInstance(activity)
     private lateinit var viewModel: AddressFragmentViewModel
     private var showBip44Path: Boolean = false
 
@@ -50,7 +50,6 @@ class AddressFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setHasOptionsMenu(true)
-        mbwManager = MbwManager.getInstance(activity)
         val viewModelProvider = ViewModelProviders.of(this)
         this.viewModel = when (mbwManager.selectedAccount) {
             is SingleAddressAccount, is HDAccount, is CoinapultAccount -> viewModelProvider.get(AddressFragmentBtcModel::class.java)
