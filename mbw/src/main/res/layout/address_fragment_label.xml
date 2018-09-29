@@ -3,6 +3,9 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
     <data>
         <variable
+                name="Utils"
+                type="com.mycelium.wallet.Utils"/>
+        <variable
                 name="viewModel"
                 type="com.mycelium.wallet.activity.main.address.AddressFragmentViewModel"/>
     </data>

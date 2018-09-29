@@ -5,7 +5,6 @@ import android.arch.lifecycle.ViewModelProviders
 import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.support.v4.app.Fragment
-import android.text.Html
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,13 +17,14 @@ import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity
 import com.mycelium.wallet.coinapult.CoinapultAccount
 import com.mycelium.wallet.databinding.AddressFragmentBinding
+import com.mycelium.wallet.databinding.AddressFragmentBindingImpl
+import com.mycelium.wallet.databinding.AddressFragmentBtcBindingImpl
 import com.mycelium.wallet.event.AccountChanged
 import com.mycelium.wallet.event.BalanceChanged
 import com.mycelium.wallet.event.ReceivingAddressChanged
 import com.mycelium.wapi.wallet.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.bip44.HDAccount
 import com.mycelium.wapi.wallet.single.SingleAddressAccount
-import com.mycelium.wapi.wallet.single.SingleAddressBCHAccount
 import com.squareup.otto.Bus
 import com.squareup.otto.Subscribe
 import kotlinx.android.synthetic.main.address_fragment_qr.*
@@ -35,16 +35,29 @@ import kotlinx.android.synthetic.main.address_fragment_path.*
 class AddressFragment : Fragment() {
     private var mbwManager = MbwManager.getInstance(activity)
     private lateinit var viewModel: AddressFragmentViewModel
-    private var showBip44Path: Boolean = false
 
     private val eventBus: Bus
         get() = mbwManager!!.eventBus
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val binding = DataBindingUtil.inflate<AddressFragmentBinding>(inflater, R.layout.address_fragment,
-                container, false)
-        binding.fragment = this
-        binding.viewModel = viewModel
+        val binding =
+        when (mbwManager.selectedAccount) {
+            is SingleAddressAccount, is HDAccount -> {
+                val contentView = DataBindingUtil.inflate<AddressFragmentBtcBindingImpl>(inflater, R.layout.address_fragment_btc,
+                        container, false)
+                contentView.fragment = this
+                contentView.viewModel = viewModel as AddressFragmentBtcModel
+                contentView
+            }
+            else -> {
+                val contentView = DataBindingUtil.inflate<AddressFragmentBindingImpl>(inflater, R.layout.address_fragment,
+                        container, false)
+                contentView.fragment = this
+                contentView.viewModel = viewModel as AddressFragmentCoinsModel
+                contentView
+            }
+        }
+
         return binding.root
     }
 
@@ -52,24 +65,25 @@ class AddressFragment : Fragment() {
         setHasOptionsMenu(true)
         val viewModelProvider = ViewModelProviders.of(this)
         this.viewModel = when (mbwManager.selectedAccount) {
-            is SingleAddressAccount, is HDAccount, is CoinapultAccount -> viewModelProvider.get(AddressFragmentBtcModel::class.java)
+            is SingleAddressAccount, is HDAccount -> viewModelProvider.get(AddressFragmentBtcModel::class.java)
             else -> viewModelProvider.get(AddressFragmentCoinsModel::class.java)
         }
-        if (!viewModel.isInitialized()) {
-            viewModel.init(mbwManager.selectedAccount)
-        }
-        showBip44Path = mbwManager.getMetadataStorage().getShowBip44Path();
         super.onCreate(savedInstanceState)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        if (!viewModel.isInitialized()) {
+            viewModel.init()
+        }
         ivQR.setOnClickListener {
             qrClick()
         }
         copyTo.setOnClickListener {
             addressClick()
         }
+
     }
 
     override fun onResume() {
@@ -87,58 +101,33 @@ class AddressFragment : Fragment() {
         if (!isAdded) {
             return
         }
+
         val account = mbwManager.selectedAccount
         if (account.isArchived) {
             return
         }
 
+        tvAddressLabel.setText(viewModel.getAccountLabel())
+        tvAddress.setText(viewModel.getAccountAddress())
+        tvAddressPath.setText(viewModel.getAddressPath())
+
         // Update QR code
-        val receivingAddress = Address.fromString(viewModel.getAccountAddress())
+        ivQR.visibility = View.VISIBLE
+        ivQR.qrCode = viewModel.getAddressUri()
 
-            // Set address
-            ivQR.visibility = View.VISIBLE
-            val address = viewModel.getAccountAddress()
-            ivQR.qrCode = BitcoinUriWithAddress.fromAddress(receivingAddress).toString()
-            tvAddress.setText(address)
-            if (showBip44Path && receivingAddress.bip32Path != null) {
-                val path = receivingAddress.bip32Path
-                tvAddressPath.setText(path.toString())
-            } else {
-                tvAddressPath.setText("")
-            }
-
-
-        // Show name of bitcoin address according to address book
-        val tvAddressTitle = tvAddressLabel
-        val ivAccountType = ivAccountType
-
-        var name = mbwManager!!.metadataStorage.getLabelByAccount(account.id)
-        if (account is SingleAddressBCHAccount || account is Bip44BCHAccount) {
-            name = getString(R.string.bitcoin_cash) + " - " + name
-        }
-        if (name.length == 0) {
-            tvAddressTitle.visibility = View.GONE
+        if (viewModel.getAccountLabel().equals("")) {
+            tvAddressLabel.visibility = View.GONE
             ivAccountType.visibility = View.GONE
         } else {
-            tvAddressTitle.visibility = View.VISIBLE
-            tvAddressTitle.setText(Html.fromHtml(name))
-
             // show account type icon next to the name
-            val drawableForAccount = Utils.getDrawableForAccount(account, true, resources)
-            if (drawableForAccount == null) {
-                ivAccountType.visibility = View.GONE
-            } else {
-                ivAccountType.setImageDrawable(drawableForAccount)
-                ivAccountType.visibility = View.VISIBLE
-            }
+            ivAccountType.setImageDrawable(viewModel.getDrawableForAccount(resources))
+            ivAccountType.visibility = View.VISIBLE
         }
     }
 
 
     internal fun addressClick() {
-        val address = viewModel.getAccountAddress()
-
-        Utils.setClipboardString(address, activity)
+        Utils.setClipboardString(viewModel.getAccountAddress(), activity)
         Toast.makeText(activity, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show()
 
     }
@@ -146,7 +135,7 @@ class AddressFragment : Fragment() {
     internal fun qrClick() {
         val account = mbwManager!!.selectedAccount
         viewModel.qrClickReaction()
-        if(account is HDAccount || account is SingleAddressAccount || account is CoinapultAccount){
+        if(account is HDAccount || account is SingleAddressAccount){
             updateUi()
         } else if (account.receivingAddress.isPresent) {
             ReceiveCoinsActivity.callMe(activity as Activity, account, account.canSpend())
@@ -171,6 +160,4 @@ class AddressFragment : Fragment() {
     fun balanceChanged(event: BalanceChanged) {
         updateUi()
     }
-
-
 }
