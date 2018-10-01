@@ -1,6 +1,7 @@
 package com.mycelium.wallet.activity.export
 
 import android.app.Activity
+import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.databinding.DataBindingUtil
@@ -43,13 +44,17 @@ class ExportAsQrActivity : AppCompatActivity() {
 
         // Prevent the OS from taking screenshots of this activity
         Utils.preventScreenshots(this)
+
+        setQrCode()
     }
 
-    fun setQrode()
-    {
-        // Set QR code
-        val iv = findViewById<View>(R.id.ivQrCode) as QrImageView
-        iv.qrCode = viewModel.getData()
+    fun setQrCode() {
+        val ivQrCode = findViewById<View>(R.id.ivQrCode) as QrImageView
+        val accountDataObserver = Observer<String> { aString ->
+            ivQrCode.qrCode = aString
+        }
+
+        viewModel.accountDataString.observe(this, accountDataObserver)
     }
 
     override fun onPause() {
@@ -64,7 +69,7 @@ class ExportAsQrActivity : AppCompatActivity() {
         private const val ACCOUNT_HD = "accountHd"
 
         @JvmStatic
-        fun callMe(currentActivity: Activity, accountData: ExportableAccount.Data, isHdAccount : Boolean) {
+        fun callMe(currentActivity: Activity, accountData: ExportableAccount.Data, isHdAccount: Boolean) {
             val intent = Intent(currentActivity, ExportAsQrActivity::class.java)
             intent.putExtra(ACCOUNT_DATA, accountData)
             intent.putExtra(ACCOUNT_HD, isHdAccount)

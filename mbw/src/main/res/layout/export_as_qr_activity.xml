@@ -60,7 +60,7 @@
                     android:id="@+id/swSelectData"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:onCheckedChanged="@{(button, bool)->viewModel.updateBools(bool)}"
+                    android:onCheckedChanged="@{(button, bool)->viewModel.updateData(bool)}"
                     android:theme="@style/Switch" />
 
                 <TextView
