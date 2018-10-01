@@ -77,9 +77,6 @@ class AddressFragment : Fragment() {
         if (!viewModel.isInitialized()) {
             viewModel.init()
         }
-        ivQR.setOnClickListener {
-            qrClick()
-        }
         copyTo.setOnClickListener {
             addressClick()
         }
@@ -98,18 +95,9 @@ class AddressFragment : Fragment() {
     }
 
     private fun updateUi() {
-        if (!isAdded) {
+        if (!isAdded || mbwManager.selectedAccount.isArchived) {
             return
         }
-
-        val account = mbwManager.selectedAccount
-        if (account.isArchived) {
-            return
-        }
-
-        tvAddressLabel.setText(viewModel.getAccountLabel())
-        tvAddress.setText(viewModel.getAccountAddress())
-        tvAddressPath.setText(viewModel.getAddressPath())
 
         // Update QR code
         ivQR.visibility = View.VISIBLE
@@ -120,8 +108,9 @@ class AddressFragment : Fragment() {
             ivAccountType.visibility = View.GONE
         } else {
             // show account type icon next to the name
-            ivAccountType.setImageDrawable(viewModel.getDrawableForAccount(resources))
+            tvAddressLabel.visibility = View.VISIBLE
             ivAccountType.visibility = View.VISIBLE
+            ivAccountType.setImageDrawable(viewModel.getDrawableForAccount(resources))
         }
     }
 
@@ -130,16 +119,6 @@ class AddressFragment : Fragment() {
         Utils.setClipboardString(viewModel.getAccountAddress(), activity)
         Toast.makeText(activity, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show()
 
-    }
-
-    internal fun qrClick() {
-        val account = mbwManager!!.selectedAccount
-        viewModel.qrClickReaction()
-        if(account is HDAccount || account is SingleAddressAccount){
-            updateUi()
-        } else if (account.receivingAddress.isPresent) {
-            ReceiveCoinsActivity.callMe(activity as Activity, account, account.canSpend())
-        }
     }
 
     /**

@@ -5,6 +5,9 @@
         <variable
                 name="viewModel"
                 type="com.mycelium.wallet.activity.main.address.AddressFragmentViewModel"/>
+        <variable
+                name="activity"
+                type="android.support.v7.app.AppCompatActivity" />
     </data>
 
     <merge>
@@ -17,7 +20,8 @@
                 android:layout_marginRight="20dp"
                 android:background="@color/white"
                 android:contentDescription="@string/qr_code"
-                android:longClickable="false"/>
+                android:longClickable="false"
+                android:onClick="@{_ -> viewModel.qrClickReaction(activity) }"/>
 
     </merge>
 </layout>

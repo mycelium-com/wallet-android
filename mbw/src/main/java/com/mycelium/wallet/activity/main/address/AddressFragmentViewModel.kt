@@ -1,5 +1,6 @@
 package com.mycelium.wallet.activity.main.address
 
+import android.app.Activity
 import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
 import android.content.res.Resources
@@ -21,6 +22,7 @@ abstract class AddressFragmentViewModel(val context: Application) : AndroidViewM
     protected val mbwManager = MbwManager.getInstance(context)!!
     protected lateinit var model: AddressFragmentModel
     protected lateinit var account: WalletAccount
+    protected val showBip44Path: Boolean = mbwManager.metadataStorage.showBip44Path
 
     open fun init() {
         if (::model.isInitialized) {
@@ -29,41 +31,27 @@ abstract class AddressFragmentViewModel(val context: Application) : AndroidViewM
         this.account = mbwManager.selectedAccount
     }
 
-    open fun getAccountLabel(): String {
-        var name = mbwManager!!.metadataStorage.getLabelByAccount(account.id)
-        if (account is SingleAddressBCHAccount || account is Bip44BCHAccount) {
-            name = context.getString(R.string.bitcoin_cash) + " - " + name
-        }
-        return name
-    }
+    abstract fun getAccountLabel(): String
 
-    open fun getAccountAddress(): String {
-        return account.receivingAddress.get().toString()
-    }
-
-    open fun getAccountType(): WalletAccount.Type {
-        return account.type
-    }
+    abstract fun getAccountAddress(): String
 
     open fun getAddressPath(): String {
-        if (mbwManager.getMetadataStorage().getShowBip44Path() && Address.fromString(getAccountAddress()).bip32Path != null) {
-            val path = Address.fromString(getAccountAddress()).bip32Path
-            return path.toString()
+        if (showBip44Path && model.addressPath.value != null) {
+            return model.addressPath.value!!
         } else {
             return ""
         }
     }
 
     fun getAddressUri() : String{
-        val receivingAddress = Address.fromString(getAccountAddress())
-        return BitcoinUriWithAddress.fromAddress(receivingAddress).toString()
+        return BitcoinUriWithAddress.fromAddress(model.accountAddress.value).toString()
     }
 
     fun getDrawableForAccount(resources: Resources) : Drawable {
         return Utils.getDrawableForAccount(account, true, resources)
     }
 
-    open fun qrClickReaction() {}
+    open fun qrClickReaction(activity: Activity) {}
 
     fun isInitialized() = ::model.isInitialized
 }
