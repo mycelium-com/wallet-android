@@ -3,6 +3,7 @@ package com.mycelium.wallet.activity.main.address
 import android.app.Activity
 import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
+import android.arch.lifecycle.MutableLiveData
 import android.content.res.Resources
 import android.graphics.drawable.Drawable
 import android.os.Bundle
@@ -29,29 +30,18 @@ abstract class AddressFragmentViewModel(val context: Application) : AndroidViewM
             throw IllegalStateException("This method should be called only once.")
         }
         this.account = mbwManager.selectedAccount
+        model = AddressFragmentModel(context, account, showBip44Path)
     }
 
-    abstract fun getAccountLabel(): String
-
-    abstract fun getAccountAddress(): String
-
-    open fun getAddressPath(): String {
-        if (showBip44Path && model.addressPath.value != null) {
-            return model.addressPath.value!!
-        } else {
-            return ""
-        }
-    }
-
-    fun getAddressUri() : String{
-        return BitcoinUriWithAddress.fromAddress(model.accountAddress.value).toString()
-    }
+    fun getAccountLabel() = model.accountLabel
+    fun getAccountAddress() = model.accountAddress
+    fun getAddressPath() = model.addressPath
 
     fun getDrawableForAccount(resources: Resources) : Drawable {
         return Utils.getDrawableForAccount(account, true, resources)
     }
 
-    open fun qrClickReaction(activity: Activity) {}
+    abstract fun qrClickReaction()
 
     fun isInitialized() = ::model.isInitialized
 }

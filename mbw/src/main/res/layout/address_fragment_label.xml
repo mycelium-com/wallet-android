@@ -30,7 +30,7 @@
                 android:ellipsize="end"
                 android:singleLine="true"
                 android:textSize="18sp"
-                tools:text="@{viewModel.getAccountLabel()}"/>
+                android:text="@{viewModel.accountLabel}"/>
 
     </LinearLayout>
 </layout>

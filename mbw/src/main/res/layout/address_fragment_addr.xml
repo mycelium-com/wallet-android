@@ -24,7 +24,7 @@
                 android:textColor="@color/lightgrey"
                 android:textSize="15sp"
                 android:typeface="monospace"
-                tools:text="@{viewModel.getAccountAddress()}"/>
+                android:text="@{viewModel.accountAddress}"/>
 
         <ImageView
                 android:id="@+id/copyTo"

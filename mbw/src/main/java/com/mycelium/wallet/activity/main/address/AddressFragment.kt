@@ -1,6 +1,6 @@
 package com.mycelium.wallet.activity.main.address
 
-import android.app.Activity
+
 import android.arch.lifecycle.ViewModelProviders
 import android.databinding.DataBindingUtil
 import android.os.Bundle
@@ -14,15 +14,11 @@ import com.mycelium.wallet.BitcoinUriWithAddress
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
-import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity
-import com.mycelium.wallet.coinapult.CoinapultAccount
-import com.mycelium.wallet.databinding.AddressFragmentBinding
 import com.mycelium.wallet.databinding.AddressFragmentBindingImpl
 import com.mycelium.wallet.databinding.AddressFragmentBtcBindingImpl
 import com.mycelium.wallet.event.AccountChanged
 import com.mycelium.wallet.event.BalanceChanged
 import com.mycelium.wallet.event.ReceivingAddressChanged
-import com.mycelium.wapi.wallet.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.bip44.HDAccount
 import com.mycelium.wapi.wallet.single.SingleAddressAccount
 import com.squareup.otto.Bus
@@ -30,7 +26,6 @@ import com.squareup.otto.Subscribe
 import kotlinx.android.synthetic.main.address_fragment_qr.*
 import kotlinx.android.synthetic.main.address_fragment_addr.*
 import kotlinx.android.synthetic.main.address_fragment_label.*
-import kotlinx.android.synthetic.main.address_fragment_path.*
 
 class AddressFragment : Fragment() {
     private var mbwManager = MbwManager.getInstance(activity)
@@ -101,7 +96,8 @@ class AddressFragment : Fragment() {
 
         // Update QR code
         ivQR.visibility = View.VISIBLE
-        ivQR.qrCode = viewModel.getAddressUri()
+        ivQR.qrCode = BitcoinUriWithAddress.fromAddress(
+                Address.fromString(viewModel.getAccountAddress().value)).toString()
 
         if (viewModel.getAccountLabel().equals("")) {
             tvAddressLabel.visibility = View.GONE
@@ -116,7 +112,7 @@ class AddressFragment : Fragment() {
 
 
     internal fun addressClick() {
-        Utils.setClipboardString(viewModel.getAccountAddress(), activity)
+        Utils.setClipboardString(viewModel.getAccountAddress().value, activity)
         Toast.makeText(activity, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show()
 
     }

@@ -15,44 +15,48 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.receive.ReceiveCoinsModel
 import com.mycelium.wallet.activity.util.AccountDisplayType
 import com.mycelium.wallet.activity.util.QrImageView
+import com.mycelium.wallet.event.HdAccountCreated
 import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.bip44.HDAccount
 import com.mycelium.wapi.wallet.currency.CurrencyValue
 import com.mycelium.wapi.wallet.currency.ExchangeBasedCurrencyValue
 import com.mycelium.wapi.wallet.single.SingleAddressAccount
+import com.mycelium.wapi.wallet.single.SingleAddressBCHAccount
 import com.squareup.otto.Bus
 
 class AddressFragmentModel(
         val context: Application,
         val account: WalletAccount,
-        val isBtc: Boolean
+        val showBip44Path: Boolean
 ) {
     private var mbwManager: MbwManager = MbwManager.getInstance(context)
     val accountLabel: MutableLiveData<String> = MutableLiveData()
-    val accountAddress: MutableLiveData<Address> = MutableLiveData()
+    val accountAddress: MutableLiveData<String> = MutableLiveData()
     val addressPath : MutableLiveData<String> = MutableLiveData()
-    private var position = 0
+    var position = 0
 
     init {
-        accountLabel.value = mbwManager.metadataStorage.getLabelByAccount(account.id)
-        accountAddress.value = account.receivingAddress.get()
-        addressPath.value = accountAddress.value!!.bip32Path.toString()
+        val label = mbwManager.metadataStorage.getLabelByAccount(account.id)
+        accountLabel.value =
+                when (account) {
+                    is Bip44BCHAccount, is SingleAddressBCHAccount ->
+                        context.getString(R.string.bitcoin_cash) + " - " + label
+                    else -> label
+                }
+
+        accountAddress.value =
+                when (account) {
+                    is SingleAddressAccount ->
+                        account.getAddress(AddressType.P2WPKH).toString()
+                    is HDAccount ->
+                        account.getReceivingAddress(AddressType.P2WPKH).toString()
+                    else -> account.receivingAddress.get().toString()
+                }
+        addressPath.value =
+                when(showBip44Path){
+                    true -> Address.fromString(accountAddress.value).bip32Path.toString()
+                    false -> ""
+                }
     }
-
-    fun changePosition() {
-        if(isBtc) {
-            val addresses = mutableListOf<AddressType>()
-            addresses.add(AddressType.P2WPKH)
-            addresses.add(AddressType.P2SH_P2WPKH)
-
-            position = (position + 1) % addresses.size
-
-            if(account is SingleAddressAccount){
-                accountAddress.value = account.getAddress(addresses[position])
-                addressPath.value = accountAddress.value!!.bip32Path.toString()
-            }
-        }
-
-    }
-
 }

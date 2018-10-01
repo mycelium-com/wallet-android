@@ -19,7 +19,7 @@
                 android:gravity="left"
                 android:textSize="12sp"
                 android:textColor="@color/lightgrey"
-                tools:text="@{viewModel.getAddressPath()}"/>
+                android:text="@{viewModel.addressPath}"/>
 
     </merge>
 </layout>

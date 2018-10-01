@@ -21,7 +21,7 @@
                 android:background="@color/white"
                 android:contentDescription="@string/qr_code"
                 android:longClickable="false"
-                android:onClick="@{_ -> viewModel.qrClickReaction(activity) }"/>
+                android:onClick="@{_ -> viewModel.qrClickReaction() }"/>
 
     </merge>
 </layout>
