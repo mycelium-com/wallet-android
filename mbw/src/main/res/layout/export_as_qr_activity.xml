@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:bind="http://schemas.android.com/apk/res-auto"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
 
     <data>
 
@@ -92,6 +90,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="20dp"
+                        android:onClick="@{_ -> viewModel.getToggledData(1)}"
                         android:text="xpub" />
 
                     <RadioButton
@@ -99,12 +98,14 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="20dp"
+                        android:onClick="@{_ -> viewModel.getToggledData(2)}"
                         android:text="ypub" />
 
                     <RadioButton
                         android:id="@+id/rb_key_z"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:onClick="@{_ -> viewModel.getToggledData(3)}"
                         android:text="zpub" />
 
                 </RadioGroup>
@@ -153,7 +154,7 @@
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:text="Only copy this key in a secure environment.\nAnyone who has access to it gains control over all current and in the future available bitcoin for this account.\n\nLong-press here to show the \nQR-Code " />
+                        android:text="@string/export_private_key_red_warning" />
                 </LinearLayout>
 
                 <com.mycelium.wallet.activity.util.QrImageView
@@ -190,7 +191,6 @@
                 android:paddingLeft="20dp"
                 android:paddingRight="20dp"
                 android:paddingTop="15dp"
-                android:text="@{swSelectData.checked ? viewModel.getReadableData() : viewModel.getReadableData()}"
                 android:typeface="monospace"
                 android:visibility="@{viewModel.showRedWarning ? View.GONE : View.VISIBLE}" />
 
@@ -200,7 +200,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginBottom="20dp"
-                android:onClick="@{() -> viewModel.exportDataToClipboard()}"
+                android:onClick="@{() -> viewModel.exportDataToClipboard(activity)}"
                 android:paddingLeft="20dp"
                 android:paddingRight="20dp"
                 android:text="@string/copy_to_clipboard"
@@ -211,7 +211,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"
-                android:onClick="@{() -> viewModel.shareData()}"
+                android:onClick="@{() -> viewModel.shareData(activity)}"
                 android:paddingLeft="20dp"
                 android:paddingRight="20dp"
                 android:text="@string/share_account_data"

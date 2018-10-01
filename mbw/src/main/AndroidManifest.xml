@@ -194,7 +194,6 @@
         <activity
             android:name=".activity.settings.SetLocalCurrencyActivity"
             android:theme="@style/MyceliumSettings" />
-        <activity android:name=".activity.export.ExportAsQrCodeActivity" /> <!-- todo delete and replace with below everywhere -->
         <activity android:name=".activity.export.ExportAsQrActivity" />
         <activity android:name=".activity.export.BackupToPdfActivity" />
         <activity android:name=".activity.export.MrdDecryptDataActivity" />

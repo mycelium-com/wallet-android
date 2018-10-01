@@ -7,7 +7,9 @@ import android.content.Intent
 import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import android.view.View
+import android.widget.RadioButton
+import android.widget.RadioGroup
+import android.widget.TextView
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
@@ -45,16 +47,38 @@ class ExportAsQrActivity : AppCompatActivity() {
         // Prevent the OS from taking screenshots of this activity
         Utils.preventScreenshots(this)
 
-        setQrCode()
+        setData()
+        setToggleNames()
     }
 
-    fun setQrCode() {
-        val ivQrCode = findViewById<View>(R.id.ivQrCode) as QrImageView
+    // sets key as qr and as textView
+    private fun setData() {
+        val ivQrCode = findViewById<QrImageView>(R.id.ivQrCode)
+        val tvData = findViewById<TextView>(R.id.tvShowData)
+
         val accountDataObserver = Observer<String> { aString ->
             ivQrCode.qrCode = aString
+            tvData.text = viewModel.getReadableData(aString!!)
         }
 
         viewModel.accountDataString.observe(this, accountDataObserver)
+    }
+
+    private fun setToggleNames(){
+        val toggleNames = arrayOf("xpub", "ypub", "zpub", "xprv", "yprv", "zprv")
+
+        val rgKeyTypes = findViewById<RadioGroup>(R.id.rg_key_types)
+
+        val privateSelectedObserver = Observer<Boolean> { aBool ->
+            (rgKeyTypes.getChildAt(0) as RadioButton).isChecked = true
+
+            val num = if (aBool!!) 3 else 0 // to continue the string iteration from 3 if private
+            for (i in 0 until rgKeyTypes.childCount) {
+                (rgKeyTypes.getChildAt(i) as RadioButton).text = toggleNames[i + num]
+            }
+        }
+
+        viewModel.privateDataSelected.observe(this, privateSelectedObserver)
     }
 
     override fun onPause() {
