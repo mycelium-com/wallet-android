@@ -40,7 +40,7 @@ public class HDAccountTest {
 
         walletManager.configureBip32MasterSeed(masterSeed, cipher);
 
-        UUID account1Id = walletManager.createAdditionalBip44Account(cipher, AddressType.P2SH_P2WPKH);
+        UUID account1Id = walletManager.createAdditionalBip44Account(cipher);
 
         account = (HDAccount) walletManager.getAccount(account1Id);
     }

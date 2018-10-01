@@ -184,8 +184,7 @@ public class AddAccountActivity extends Activity {
       @Override
       protected UUID doInBackground(Void... params) {
          try {
-            return _mbwManager.getWalletManager(false).createAdditionalBip44Account(AesKeyCipher.defaultKeyCipher(),
-                    _mbwManager.getDefaultAddressType());
+            return _mbwManager.getWalletManager(false).createAdditionalBip44Account(AesKeyCipher.defaultKeyCipher());
          } catch (KeyCipher.InvalidKeyCipher e) {
             throw new RuntimeException(e);
          }
