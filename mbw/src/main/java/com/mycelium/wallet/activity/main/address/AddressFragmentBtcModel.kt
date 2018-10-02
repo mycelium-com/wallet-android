@@ -1,17 +1,16 @@
 package com.mycelium.wallet.activity.main.address
 
 import android.app.Application
-import android.support.v7.app.AppCompatActivity
-import com.mrd.bitlib.model.Address
+import android.support.v4.app.FragmentActivity
 import com.mrd.bitlib.model.AddressType
 import com.mycelium.wapi.wallet.bip44.HDAccount
 import com.mycelium.wapi.wallet.single.SingleAddressAccount
 
 class AddressFragmentBtcModel(val app: Application) : AddressFragmentViewModel(app) {
+    private lateinit var currentType: AddressType
 
-    var currentType = mbwManager.defaultAddressType
-
-    override fun qrClickReaction(activity: AppCompatActivity) {
+    override fun qrClickReaction(activity: FragmentActivity) {
+        currentType = model.accountAddress.value!!.type
         currentType = if (currentType == AddressType.P2SH_P2WPKH) {
             AddressType.P2WPKH
         } else {
@@ -19,16 +18,15 @@ class AddressFragmentBtcModel(val app: Application) : AddressFragmentViewModel(a
         }
 
         if (account is SingleAddressAccount) {
-            model.accountAddress.value = (account as SingleAddressAccount).getAddress(currentType).toString()
+            model.accountAddress.value = (account as SingleAddressAccount).getAddress(currentType)
         } else {
-            model.accountAddress.value = (account as HDAccount).getReceivingAddress(currentType).toString()
+            model.accountAddress.value = (account as HDAccount).getReceivingAddress(currentType)
         }
         model.addressPath.value =
                 when (showBip44Path) {
-                    true -> Address.fromString(model.accountAddress.value).bip32Path.toString()
+                    true -> model.accountAddress.value!!.bip32Path.toString()
                     false -> ""
                 }
-
     }
 
 }

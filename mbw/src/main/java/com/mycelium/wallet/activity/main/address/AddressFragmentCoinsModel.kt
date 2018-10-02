@@ -1,12 +1,13 @@
 package com.mycelium.wallet.activity.main.address
 
 import android.app.Application
+import android.support.v4.app.FragmentActivity
 import android.support.v7.app.AppCompatActivity
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity
 
 class AddressFragmentCoinsModel(app: Application) : AddressFragmentViewModel(app) {
 
-    override fun qrClickReaction(activity: AppCompatActivity) {
+    override fun qrClickReaction(activity: FragmentActivity) {
         if (account.receivingAddress.isPresent) {
             ReceiveCoinsActivity.callMe(activity, account, account.canSpend())
         }

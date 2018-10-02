@@ -3,8 +3,8 @@
 
     <data>
         <variable
-                name="fragment"
-                type="com.mycelium.wallet.activity.main.address.AddressFragment"/>
+                name="activity"
+                type="android.support.v4.app.FragmentActivity"/>
 
         <variable
                 name="viewModel"
@@ -53,6 +53,7 @@
 
         <include
                 layout="@layout/address_fragment_qr"
-                bind:viewModel="@{viewModel}"/>
+                bind:viewModel="@{viewModel}"
+                bind:activity="@{activity}"/>
     </RelativeLayout>
 </layout>

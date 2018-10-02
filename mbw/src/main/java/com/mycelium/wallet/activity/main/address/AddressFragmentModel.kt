@@ -19,7 +19,7 @@ class AddressFragmentModel(
 ) {
     private var mbwManager: MbwManager = MbwManager.getInstance(context)
     val accountLabel: MutableLiveData<String> = MutableLiveData()
-    val accountAddress: MutableLiveData<String> = MutableLiveData()
+    val accountAddress: MutableLiveData<Address> = MutableLiveData()
     val addressPath: MutableLiveData<String> = MutableLiveData()
 
     init {
@@ -35,14 +35,15 @@ class AddressFragmentModel(
         accountAddress.value =
                 when (account) {
                     is SingleAddressAccount ->
-                        account.getAddress(defaultAddressType).toString()
+                        account.getAddress(defaultAddressType)
                     is HDAccount ->
-                        account.getReceivingAddress(defaultAddressType).toString()
-                    else -> account.receivingAddress.get().toString()
+                        account.getReceivingAddress(defaultAddressType)
+                    else -> account.receivingAddress.get()
                 }
+
         addressPath.value =
-                when (showBip44Path) {
-                    true -> Address.fromString(accountAddress.value).bip32Path.toString()
+                when (showBip44Path && accountAddress.value!!.bip32Path != null) {
+                    true -> accountAddress.value!!.bip32Path.toString()
                     false -> ""
                 }
     }

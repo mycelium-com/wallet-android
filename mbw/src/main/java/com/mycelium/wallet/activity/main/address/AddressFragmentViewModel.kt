@@ -4,8 +4,11 @@ import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
 import android.content.res.Resources
 import android.graphics.drawable.Drawable
+import android.support.v4.app.FragmentActivity
 import android.support.v7.app.AppCompatActivity
+import android.widget.Toast
 import com.mycelium.wallet.MbwManager
+import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wapi.wallet.WalletAccount
 
@@ -31,9 +34,14 @@ abstract class AddressFragmentViewModel(val context: Application) : AndroidViewM
         return Utils.getDrawableForAccount(account, true, resources)
     }
 
+    fun addressClick() {
+        Utils.setClipboardString(getAccountAddress().value!!.toString(), context)
+        Toast.makeText(context, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show()
+    }
+
     fun isLabelNullOrEmpty() = (getAccountLabel().value == null || getAccountLabel().value.equals(""))
 
-    abstract fun qrClickReaction(activity: AppCompatActivity)
+    abstract fun qrClickReaction(activity: FragmentActivity)
 
     fun isInitialized() = ::model.isInitialized
 }
