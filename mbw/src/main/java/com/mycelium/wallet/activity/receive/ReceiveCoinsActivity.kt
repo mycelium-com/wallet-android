@@ -68,20 +68,23 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         //Data binding, should be called after everything else
         val receiveCoinsActivityNBinding =
                 when (account) {
-                    is SingleAddressAccount, is HDAccount, !is SingleAddressBCHAccount, !is Bip44BCHAccount  ->  {
+                    is SingleAddressBCHAccount, is Bip44BCHAccount -> getDefaultBinding()
+                    is SingleAddressAccount, is HDAccount  ->  {
                         val contentView = DataBindingUtil.setContentView<ReceiveCoinsActivityBtcBinding>(this, R.layout.receive_coins_activity_btc)
                         contentView.viewModel = viewModel as ReceiveBtcViewModel
                         contentView.activity = this
                         contentView
                     }
-                    else -> {
-                        val contentView = DataBindingUtil.setContentView<ReceiveCoinsActivityBinding>(this, R.layout.receive_coins_activity)
-                        contentView.viewModel = viewModel
-                        contentView.activity = this
-                        contentView
-                    }
+                    else -> getDefaultBinding()
                 }
         receiveCoinsActivityNBinding.setLifecycleOwner(this)
+    }
+
+    private fun getDefaultBinding(): ReceiveCoinsActivityBinding {
+        val contentView = DataBindingUtil.setContentView<ReceiveCoinsActivityBinding>(this, R.layout.receive_coins_activity)
+        contentView.viewModel = viewModel
+        contentView.activity = this
+        return contentView
     }
 
     private fun activateNfc() {
