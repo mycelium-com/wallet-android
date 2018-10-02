@@ -7,13 +7,11 @@ import android.content.Intent
 import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import android.widget.TextView
-import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
-import com.mycelium.wallet.activity.util.QrImageView
 import com.mycelium.wallet.databinding.ExportAsQrActivityBinding
 import com.mycelium.wapi.wallet.ExportableAccount
+import kotlinx.android.synthetic.main.export_as_qr_activity.*
 
 class ExportAsQrActivity : AppCompatActivity() {
 
@@ -21,8 +19,6 @@ class ExportAsQrActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        val mbwManager = MbwManager.getInstance(application)
 
         val accountData = intent.getSerializableExtra(ACCOUNT_DATA) as ExportableAccount.Data
         val isHdAccount = intent.getSerializableExtra(ACCOUNT_HD) as Boolean
@@ -47,21 +43,12 @@ class ExportAsQrActivity : AppCompatActivity() {
         // Prevent the OS from taking screenshots of this activity
         Utils.preventScreenshots(this)
 
-        setData()
+        subscribeQR()
     }
 
     // sets key as qr and as textView
-    private fun setData() {
-        val ivQrCode = findViewById<QrImageView>(R.id.ivQrCode)
-        val tvData = findViewById<TextView>(R.id.tvShowData)
-
-        val accountDataObserver = Observer<String> {accountData ->
-            ivQrCode.qrCode = accountData
-            tvData.text = viewModel.getReadableData(accountData!!)
-        }
-
-        viewModel.accountDataString.observe(this, accountDataObserver)
-    }
+    private fun subscribeQR() =
+        viewModel.getAccountDataString().observe(this, Observer { accountData -> ivQrCode.qrCode = accountData})
 
     override fun onPause() {
         // This way we finish the activity when home is pressed, so you are forced

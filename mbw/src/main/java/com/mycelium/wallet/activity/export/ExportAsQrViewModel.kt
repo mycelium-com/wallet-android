@@ -2,7 +2,6 @@ package com.mycelium.wallet.activity.export
 
 import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
-import android.arch.lifecycle.MutableLiveData
 import android.content.Intent
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
@@ -14,10 +13,6 @@ import com.mycelium.wapi.wallet.ExportableAccount
 
 class ExportAsQrViewModel(val context: Application) : AndroidViewModel(context) {
     private lateinit var model: ExportAsQrModel
-    val accountDataString: MutableLiveData<String> = MutableLiveData()
-    val privateDataSelected: MutableLiveData<Boolean> = MutableLiveData()  // whether user switched to private
-    val showRedWarning: MutableLiveData<Boolean> = MutableLiveData()       // show warning instead of qr for private
-    private var hasWarningAccepted = false
     var isBtcHdAccount = false
         private set
 
@@ -27,28 +22,24 @@ class ExportAsQrViewModel(val context: Application) : AndroidViewModel(context) 
         }
         model = ExportAsQrModel(context, accountData)
         this.isBtcHdAccount = isBtcHdAccount
-        accountDataString.value = accountData.publicData.get()
+        model.accountDataString.value = accountData.publicData.get()
 
         updateData(false)
     }
 
     fun hasPrivateData(): Boolean = model.hasPrivateData()
 
-    fun updateData(privateDataSelected: Boolean) {
-        this.privateDataSelected.value = privateDataSelected
-        if (privateDataSelected) {
-            showRedWarning.value = !hasWarningAccepted
-            accountDataString.value = model.accountData.privateData.get()
-        } else {
-            showRedWarning.value = false
-            accountDataString.value = model.accountData.publicData.get()
-        }
-    }
+    fun updateData(privateDataSelected: Boolean) = model.updateData(privateDataSelected)
+
+    fun isPrivateDataSelected() = model.privateDataSelected
+
+    fun getShowRedWarning() = model.showRedWarning
+
+    fun getAccountDataString() = model.accountDataString
 
     // must return false to bind with onLongClick in xml
     fun acceptWarning(): Boolean {
-        hasWarningAccepted = true
-        showRedWarning.value = false
+        model.acceptWaring()
         return false
     }
 
@@ -58,18 +49,19 @@ class ExportAsQrViewModel(val context: Application) : AndroidViewModel(context) 
     fun getToggledData(toggleNum: Int): String {
         // todo
         var data = "todo Sergey"
+        val privateData = model.privateDataSelected.value!!
         when (toggleNum) {
-            1 -> data = when (privateDataSelected.value!!) {
+            1 -> data = when (privateData) {
                 true -> "todo xpriv"
                 false -> "todo xpub"
             }
 
-            2 -> data = when (privateDataSelected.value!!) {
+            2 -> data = when (privateData) {
                 true -> "todo ypriv"
                 false -> "todo ypub"
             }
 
-            3 -> data = when (privateDataSelected.value!!) {
+            3 -> data = when (privateData) {
                 true -> "todo zpriv"
                 false -> "todo zpub"
             }
@@ -95,31 +87,33 @@ class ExportAsQrViewModel(val context: Application) : AndroidViewModel(context) 
     }
 
     fun exportDataToClipboard(activity: AppCompatActivity) {
-        if (privateDataSelected.value!!) {
+        val accountDataString = model.accountDataString.value
+        if (model.privateDataSelected.value!!) {
             val builder = AlertDialog.Builder(activity)
             builder.setMessage(R.string.export_to_clipboard_warning).setCancelable(false)
                     .setPositiveButton(R.string.yes) { dialog, id ->
-                        Utils.setClipboardString(accountDataString.value, context)
+                        Utils.setClipboardString(accountDataString, context)
                         Toast.makeText(context, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show()
                         dialog.dismiss()
                     }.setNegativeButton(R.string.no) { dialog, id -> }
             val alertDialog = builder.create()
             alertDialog.show()
         } else {
-            Utils.setClipboardString(accountDataString.value, context)
+            Utils.setClipboardString(accountDataString, context)
             Toast.makeText(context, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show()
         }
     }
 
     fun shareData(activity: AppCompatActivity) {
-        if (privateDataSelected.value!!) {
+        val sharedData = model.accountDataString.value
+        if (model.privateDataSelected.value!!) {
             val builder = AlertDialog.Builder(activity)
             builder.setMessage(R.string.export_share_warning).setCancelable(false)
                     .setPositiveButton(R.string.yes) { dialog, id ->
                         val sendIntent = Intent(Intent.ACTION_SEND)
                         sendIntent.type = "text/plain"
                         sendIntent.putExtra(Intent.EXTRA_SUBJECT, context.resources.getString(R.string.xpriv_title))
-                        sendIntent.putExtra(Intent.EXTRA_TEXT, accountDataString.value)
+                        sendIntent.putExtra(Intent.EXTRA_TEXT, sharedData)
                         context.startActivity(Intent.createChooser(sendIntent, context.resources.getString(R.string.share_xpriv)))
                         dialog.dismiss()
                     }.setNegativeButton(R.string.no) { dialog, id -> }
@@ -129,7 +123,7 @@ class ExportAsQrViewModel(val context: Application) : AndroidViewModel(context) 
             val sendIntent = Intent(Intent.ACTION_SEND)
             sendIntent.type = "text/plain"
             sendIntent.putExtra(Intent.EXTRA_SUBJECT, context.resources.getString(R.string.xpub_title))
-            sendIntent.putExtra(Intent.EXTRA_TEXT, accountDataString.value)
+            sendIntent.putExtra(Intent.EXTRA_TEXT, sharedData)
             context.startActivity(Intent.createChooser(sendIntent, context.resources.getString(R.string.share_xpub)))
         }
     }

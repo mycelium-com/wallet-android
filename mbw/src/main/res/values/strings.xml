@@ -55,9 +55,9 @@
     <string name="export_toggle_xpub">xpub</string>
     <string name="export_toggle_ypub">ypub</string>
     <string name="export_toggle_zpub">zpub</string>
-    <string name="export_toggle_xpriv">xpriv</string>
-    <string name="export_toggle_ypriv">ypriv</string>
-    <string name="export_toggle_zpriv">zpriv</string>
+    <string name="export_toggle_xprv">xprv</string>
+    <string name="export_toggle_yprv">yprv</string>
+    <string name="export_toggle_zprv">zprv</string>
     <string name="backup_private_key">Backup</string>
     <string name="copy_to_clipboard">Copy to Clipboard</string>
     <string name="copy_address_to_clipboard">Copy address to Clipboard</string>
