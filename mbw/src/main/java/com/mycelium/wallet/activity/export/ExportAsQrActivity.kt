@@ -53,9 +53,9 @@ class ExportAsQrActivity : AppCompatActivity() {
         val ivQrCode = findViewById<QrImageView>(R.id.ivQrCode)
         val tvData = findViewById<TextView>(R.id.tvShowData)
 
-        val accountDataObserver = Observer<String> { aString ->
-            ivQrCode.qrCode = aString
-            tvData.text = viewModel.getReadableData(aString!!)
+        val accountDataObserver = Observer<String> {accountData ->
+            ivQrCode.qrCode = accountData
+            tvData.text = viewModel.getReadableData(accountData!!)
         }
 
         viewModel.accountDataString.observe(this, accountDataObserver)

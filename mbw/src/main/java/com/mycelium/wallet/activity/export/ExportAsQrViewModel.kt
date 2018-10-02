@@ -7,16 +7,13 @@ import android.content.Intent
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
-import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wapi.wallet.ExportableAccount
 
 
 class ExportAsQrViewModel(val context: Application) : AndroidViewModel(context) {
-    private val mbwManager = MbwManager.getInstance(context)!!
     private lateinit var model: ExportAsQrModel
-    private lateinit var accountData: ExportableAccount.Data
     val accountDataString: MutableLiveData<String> = MutableLiveData()
     val privateDataSelected: MutableLiveData<Boolean> = MutableLiveData()  // whether user switched to private
     val showRedWarning: MutableLiveData<Boolean> = MutableLiveData()       // show warning instead of qr for private
@@ -29,23 +26,22 @@ class ExportAsQrViewModel(val context: Application) : AndroidViewModel(context) 
             throw IllegalStateException("This method should be called only once.")
         }
         model = ExportAsQrModel(context, accountData)
-        this.accountData = accountData
         this.isBtcHdAccount = isBtcHdAccount
-        accountDataString.value = accountData.privateData.get()
+        accountDataString.value = accountData.publicData.get()
 
         updateData(false)
     }
 
-    fun hasPrivateData(): Boolean = accountData.privateData.isPresent
+    fun hasPrivateData(): Boolean = model.hasPrivateData()
 
     fun updateData(privateDataSelected: Boolean) {
         this.privateDataSelected.value = privateDataSelected
         if (privateDataSelected) {
             showRedWarning.value = !hasWarningAccepted
-            accountDataString.value = accountData.privateData.get()
+            accountDataString.value = model.accountData.privateData.get()
         } else {
             showRedWarning.value = false
-            accountDataString.value = accountData.publicData.get()
+            accountDataString.value = model.accountData.publicData.get()
         }
     }
 

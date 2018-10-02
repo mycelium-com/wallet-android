@@ -6,7 +6,6 @@ import com.mycelium.wapi.wallet.ExportableAccount
 class ExportAsQrModel(val context: Application,
                       val accountData : ExportableAccount.Data) {
 
-    init {
-    }
+    fun hasPrivateData(): Boolean = accountData.privateData.isPresent
 
 }
