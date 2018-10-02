@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+
+        <import type="android.arch.lifecycle.AndroidViewModel" />
+
+        <import type="android.support.v7.app.AppCompatActivity" />
+
+        <import type="android.view.View" />
+
+        <variable
+            name="activity"
+            type="android.support.v7.app.AppCompatActivity" />
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.wallet.activity.export.ExportAsQrViewModel" />
+    </data>
+
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:id="@+id/llRoot"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:padding="0dp">
+
+            <TextView
+                android:id="@+id/tvTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginBottom="16dp"
+                android:text="@string/export"
+                android:textSize="30sp" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:visibility="@{viewModel.hasPrivateData() ? View.VISIBLE : View.GONE}">
+
+                <TextView
+                    android:id="@+id/pub_key"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:text="@string/public_key" />
+
+                <android.support.v7.widget.SwitchCompat
+                    android:id="@+id/swSelectData"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onCheckedChanged="@{(button, bool)->viewModel.updateData(bool)}"
+                    android:theme="@style/Switch" />
+
+                <TextView
+                    android:id="@+id/prv_key"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:text="@string/private_key_s" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:gravity="center"
+                android:visibility="@{viewModel.isBtcHdAccount() ? View.VISIBLE : View.GONE}">
+
+                <RadioGroup
+                    android:id="@+id/rg_key_types"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkedButton="@{viewModel.privateDataSelected ? @id/rb_key_x : @id/rb_key_x}"
+                    android:orientation="horizontal">
+
+                    <RadioButton
+                        android:id="@+id/rb_key_x"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="20dp"
+                        android:onClick="@{_ -> viewModel.getToggledData(1)}"
+                        android:text="@{viewModel.privateDataSelected ? @string/export_toggle_xprv : @string/export_toggle_xpub}" />
+
+                    <RadioButton
+                        android:id="@+id/rb_key_y"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="20dp"
+                        android:onClick="@{_ -> viewModel.getToggledData(2)}"
+                        android:text="@{viewModel.privateDataSelected ? @string/export_toggle_yprv : @string/export_toggle_ypub}" />
+
+                    <RadioButton
+                        android:id="@+id/rb_key_z"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:onClick="@{_ -> viewModel.getToggledData(3)}"
+                        android:text="@{viewModel.privateDataSelected ? @string/export_toggle_zprv : @string/export_toggle_zpub}" />
+
+                </RadioGroup>
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvWarning"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingBottom="5dp"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp"
+                android:paddingTop="5dp"
+                android:text="@{swSelectData.checked ? @string/export_warning_privkey : @string/export_warning_pubkey}"
+                android:textSize="12sp" />
+
+            <LinearLayout
+                android:layout_width="260dp"
+                android:layout_height="260dp"
+                android:layout_marginTop="10dp"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:id="@+id/llPrivKeyWarning"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:longClickable="true"
+                    android:orientation="vertical"
+                    android:onLongClick="@{_ -> viewModel.acceptWarning()}"
+                    android:visibility="@{viewModel.showRedWarning ? View.VISIBLE : View.GONE}">
+
+                    <TextView
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:paddingBottom="10dp"
+                        android:text="@string/warning"
+                        android:textColor="@color/buttonredcolor"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="@string/export_private_key_red_warning" />
+                </LinearLayout>
+
+                <com.mycelium.wallet.activity.util.QrImageView
+                    android:id="@+id/ivQrCode"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginBottom="5dp"
+                    android:background="@color/white"
+                    android:contentDescription="@string/qr_code"
+                    android:longClickable="false"
+                    android:maxHeight="@dimen/large_qrcode"
+                    android:maxWidth="@dimen/large_qrcode"
+                    android:minHeight="@dimen/large_qrcode"
+                    android:minWidth="@dimen/large_qrcode"
+                    android:visibility="@{viewModel.showRedWarning ? View.GONE : View.VISIBLE}" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvQrTapHint"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/tap_qr_code_desc"
+                android:textColor="@color/grey"
+                android:textSize="12sp"
+                android:visibility="@{viewModel.showRedWarning ? View.GONE : View.VISIBLE}" />
+
+            <TextView
+                android:id="@+id/tvShowData"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingBottom="15dp"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp"
+                android:paddingTop="15dp"
+                android:typeface="monospace"
+                android:text="@{viewModel.getReadableData(viewModel.accountDataString)}"
+                android:visibility="@{viewModel.showRedWarning ? View.GONE : View.VISIBLE}" />
+
+            <Button
+                android:id="@+id/btCopyToClipboard"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginBottom="20dp"
+                android:onClick="@{() -> viewModel.exportDataToClipboard(activity)}"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp"
+                android:text="@string/copy_to_clipboard"
+                android:visibility="@{viewModel.showRedWarning ? View.GONE : View.VISIBLE}" />
+
+            <Button
+                android:id="@+id/btShare"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:onClick="@{() -> viewModel.shareData(activity)}"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp"
+                android:text="@string/share_account_data"
+                android:visibility="@{viewModel.showRedWarning ? View.GONE : View.VISIBLE}" />
+        </LinearLayout>
+
+    </ScrollView>
+
+</layout>

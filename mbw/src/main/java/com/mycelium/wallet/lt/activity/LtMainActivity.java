@@ -60,8 +60,11 @@ import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.AddressType;
 import com.mycelium.lt.api.LtApi;
 import com.mycelium.lt.api.model.TraderInfo;
-import com.mycelium.wallet.*;
-import com.mycelium.wallet.activity.export.ExportAsQrCodeActivity;
+import com.mycelium.wallet.Constants;
+import com.mycelium.wallet.MbwManager;
+import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.export.ExportAsQrActivity;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.activity.buy.AdSearchFragment;
@@ -286,10 +289,8 @@ public class LtMainActivity extends AppCompatActivity {
          }
       };
 
-      Intent intent = ExportAsQrCodeActivity.getIntent(this,
-            exportableAccount.getExportData(AesKeyCipher.defaultKeyCipher())
-      );
-      startActivity(intent);
+      ExportAsQrActivity.callMe(this, exportableAccount.getExportData(AesKeyCipher.defaultKeyCipher()),
+              account.getType() == WalletAccount.Type.BTCBIP44);
    }
 
    private void deleteTraderAccount() {

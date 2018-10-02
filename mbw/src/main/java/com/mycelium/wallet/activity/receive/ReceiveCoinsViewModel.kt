@@ -24,7 +24,7 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
     protected val mbwManager = MbwManager.getInstance(context)!!
     protected lateinit var model: ReceiveCoinsModel
     protected lateinit var account: WalletAccount
-    var receivingAddress: MutableLiveData<Address> = MutableLiveData()
+    val receivingAddress: MutableLiveData<Address> = MutableLiveData()
     var hasPrivateKey: Boolean = false
 
     open fun init(account: WalletAccount, hasPrivateKey: Boolean, showIncomingUtxo: Boolean = false) {
