@@ -62,7 +62,6 @@ public interface Constants {
    String DEFAULT_CURRENCY = "USD";
    String BITCOIN_DENOMINATION_SETTING = "BitcoinDenomination";
    String MINER_FEE_SETTING = "MinerFeeEstimationSetting";
-   String ENABLE_CONTINUOUS_FOCUS_SETTING = "EnableContinuousFocusSetting";
    String KEY_MANAGEMENT_LOCKED_SETTING = "KeyManagementLocked";
    String MYCELIUM_WALLET_HELP_URL = "http://www.mycelium.com/wallet/help_20.html";
    String PLAYSTORE_BASE_URL = "https://play.google.com/store/apps/details?id=";

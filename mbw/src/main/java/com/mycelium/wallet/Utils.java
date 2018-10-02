@@ -215,7 +215,7 @@ public class Utils {
 
    public static boolean isConnected(Context context) {
       ConnectivityManager cm =
-              (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+              (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 
       NetworkInfo activeNetwork = null;
       if (cm != null) {
@@ -776,7 +776,7 @@ public class Utils {
       return null;
    }
 
-   public static List<WalletAccount> sortAccounts(final List<WalletAccount> accounts, final MetadataStorage storage) {
+   public static List<WalletAccount> sortAccounts(final Collection<WalletAccount> accounts, final MetadataStorage storage) {
       Ordering<WalletAccount> type = Ordering.natural().onResultOf(new Function<WalletAccount, Integer>() {
          @Override
          public Integer apply(@Nullable WalletAccount input) {

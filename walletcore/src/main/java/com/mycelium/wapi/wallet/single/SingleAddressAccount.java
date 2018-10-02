@@ -157,7 +157,7 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
       // Get the latest transactions
       List<Sha256Hash> discovered;
       try {
-         final QueryTransactionInventoryResponse result = _wapi.queryTransactionInventory(new QueryTransactionInventoryRequest(Wapi.VERSION, _addressList, 30))
+         final QueryTransactionInventoryResponse result = _wapi.queryTransactionInventory(new QueryTransactionInventoryRequest(Wapi.VERSION, _addressList))
                  .getResult();
          setBlockChainHeight(result.height);
          discovered = result.txIds;

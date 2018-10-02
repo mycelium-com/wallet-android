@@ -82,7 +82,7 @@ dependencies {
     implementation 'com.squareup.okhttp:okhttp:2.7.5'
     implementation 'com.android.support:multidex:1.0.3'
     implementation 'commons-codec:commons-codec:1.10'
-    implementation 'com.google.protobuf:protobuf-java:3.1.0'
+    implementation 'com.google.protobuf:protobuf-java:3.4.0'
     implementation 'com.android.support.constraint:constraint-layout:1.1.0-beta5'
 
     implementation 'com.journeyapps:zxing-android-embedded:3.6.0'
@@ -131,12 +131,12 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 2110120
-        versionName '2.11.1.20'
+        versionCode 2110201
+        versionName '2.11.2.1'
         multiDexEnabled true
 
         minSdkVersion 19
-        targetSdkVersion 28
+        targetSdkVersion 23
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary true
     }

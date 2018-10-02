@@ -32,17 +32,10 @@ public class QueryTransactionInventoryRequest implements Serializable {
     */
    @JsonProperty
    public final List<Address> addresses;
-   /**
-    * The maximum number of transaction IDs to receive
-    */
-   @JsonProperty
-   public final int limit;
 
    public QueryTransactionInventoryRequest(@JsonProperty("version") int version,
-         @JsonProperty("addresses") List<Address> addresses, @JsonProperty("limit") int limit) {
+         @JsonProperty("addresses") List<Address> addresses) {
       this.version = version;
       this.addresses = addresses;
-      this.limit = limit;
    }
-
 }

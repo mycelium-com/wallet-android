@@ -13,7 +13,7 @@ import kotlinx.coroutines.experimental.launch
 import java.io.IOException
 
 interface  MyceliumNodesApi {
-    @GET("/nodes.json")
+    @GET("/nodes-b.json")
     fun getNodes(): Call<MyceliumNodesResponse>
 }
 
