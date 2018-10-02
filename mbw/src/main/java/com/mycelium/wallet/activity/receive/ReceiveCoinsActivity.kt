@@ -68,7 +68,13 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         //Data binding, should be called after everything else
         val receiveCoinsActivityNBinding =
                 when (account) {
-                    is SingleAddressAccount, is HDAccount, !is SingleAddressBCHAccount, !is Bip44BCHAccount  ->  {
+                    !is SingleAddressBCHAccount, !is Bip44BCHAccount -> {
+                        val contentView = DataBindingUtil.setContentView<ReceiveCoinsActivityBinding>(this, R.layout.receive_coins_activity)
+                        contentView.viewModel = viewModel
+                        contentView.activity = this
+                        contentView
+                    }
+                    is SingleAddressAccount, is HDAccount -> {
                         val contentView = DataBindingUtil.setContentView<ReceiveCoinsActivityBtcBinding>(this, R.layout.receive_coins_activity_btc)
                         contentView.viewModel = viewModel as ReceiveBtcViewModel
                         contentView.activity = this

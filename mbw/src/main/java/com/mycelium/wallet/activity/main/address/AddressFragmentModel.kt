@@ -31,12 +31,13 @@ class AddressFragmentModel(
                     else -> label
                 }
 
+        val defaultAddressType = mbwManager.defaultAddressType
         accountAddress.value =
                 when (account) {
                     is SingleAddressAccount ->
-                        account.getAddress(AddressType.P2WPKH).toString()
+                        account.getAddress(defaultAddressType).toString()
                     is HDAccount ->
-                        account.getReceivingAddress(AddressType.P2WPKH).toString()
+                        account.getReceivingAddress(defaultAddressType).toString()
                     else -> account.receivingAddress.get().toString()
                 }
         addressPath.value =

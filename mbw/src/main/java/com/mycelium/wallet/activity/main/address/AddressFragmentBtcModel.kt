@@ -1,6 +1,7 @@
 package com.mycelium.wallet.activity.main.address
 
 import android.app.Application
+import android.support.v7.app.AppCompatActivity
 import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.model.AddressType
 import com.mycelium.wapi.wallet.bip44.HDAccount
@@ -8,9 +9,9 @@ import com.mycelium.wapi.wallet.single.SingleAddressAccount
 
 class AddressFragmentBtcModel(val app: Application) : AddressFragmentViewModel(app) {
 
-    var currentType = AddressType.P2WPKH
+    var currentType = mbwManager.defaultAddressType
 
-    override fun qrClickReaction() {
+    override fun qrClickReaction(activity: AppCompatActivity) {
         currentType = if (currentType == AddressType.P2SH_P2WPKH) {
             AddressType.P2WPKH
         } else {

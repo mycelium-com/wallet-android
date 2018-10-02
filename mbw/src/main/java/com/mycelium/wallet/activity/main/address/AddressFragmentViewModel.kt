@@ -31,8 +31,9 @@ abstract class AddressFragmentViewModel(val context: Application) : AndroidViewM
         return Utils.getDrawableForAccount(account, true, resources)
     }
 
-    open fun qrClickReaction() {}
-    open fun qrClickReaction(activity: AppCompatActivity) {}
+    fun isLabelNullOrEmpty() = (getAccountLabel().value == null || getAccountLabel().value.equals(""))
+
+    abstract fun qrClickReaction(activity: AppCompatActivity)
 
     fun isInitialized() = ::model.isInitialized
 }

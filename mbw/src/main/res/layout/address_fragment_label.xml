@@ -2,10 +2,7 @@
 
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
     <data>
-        <import type="com.mycelium.wapi.wallet.currency.CurrencyValue"/>
-        <variable
-                name="Utils"
-                type="com.mycelium.wallet.Utils"/>
+        <import type="android.view.View"/>
         <variable
                 name="viewModel"
                 type="com.mycelium.wallet.activity.main.address.AddressFragmentViewModel"/>
@@ -21,7 +18,8 @@
                 android:layout_width="22dp"
                 android:layout_height="22dp"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginRight="5dp"/>
+                android:layout_marginRight="5dp"
+                android:visibility="@{viewModel.isLabelNullOrEmpty() ? View.GONE : View.VISIBLE}"/>
 
         <TextView
                 android:id="@+id/tvAddressLabel"
@@ -31,6 +29,7 @@
                 android:ellipsize="end"
                 android:singleLine="true"
                 android:textSize="18sp"
+                android:visibility="@{viewModel.isLabelNullOrEmpty() ? View.GONE : View.VISIBLE}"
                 android:text="@{viewModel.accountLabel}"/>
 
     </LinearLayout>
