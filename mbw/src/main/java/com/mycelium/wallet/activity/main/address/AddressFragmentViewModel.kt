@@ -1,23 +1,13 @@
 package com.mycelium.wallet.activity.main.address
 
-import android.app.Activity
 import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
-import android.arch.lifecycle.MutableLiveData
 import android.content.res.Resources
 import android.graphics.drawable.Drawable
-import android.os.Bundle
-import android.text.Html
-import android.view.View
-import com.mrd.bitlib.model.Address
-import com.mycelium.wallet.BitcoinUriWithAddress
+import android.support.v7.app.AppCompatActivity
 import com.mycelium.wallet.MbwManager
-import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wapi.wallet.WalletAccount
-import com.mycelium.wapi.wallet.bip44.Bip44BCHAccount
-import com.mycelium.wapi.wallet.single.SingleAddressBCHAccount
-import kotlinx.android.synthetic.main.address_fragment_qr.*
 
 abstract class AddressFragmentViewModel(val context: Application) : AndroidViewModel(context) {
     protected val mbwManager = MbwManager.getInstance(context)!!
@@ -37,11 +27,12 @@ abstract class AddressFragmentViewModel(val context: Application) : AndroidViewM
     fun getAccountAddress() = model.accountAddress
     fun getAddressPath() = model.addressPath
 
-    fun getDrawableForAccount(resources: Resources) : Drawable {
+    fun getDrawableForAccount(resources: Resources): Drawable {
         return Utils.getDrawableForAccount(account, true, resources)
     }
 
-    abstract fun qrClickReaction()
+    open fun qrClickReaction() {}
+    open fun qrClickReaction(activity: AppCompatActivity) {}
 
     fun isInitialized() = ::model.isInitialized
 }

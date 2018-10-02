@@ -3,29 +3,31 @@ package com.mycelium.wallet.activity.main.address
 import android.app.Application
 import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.model.AddressType
-import com.mycelium.wallet.activity.util.QrImageView
 import com.mycelium.wapi.wallet.bip44.HDAccount
 import com.mycelium.wapi.wallet.single.SingleAddressAccount
 
 class AddressFragmentBtcModel(val app: Application) : AddressFragmentViewModel(app) {
 
-    override fun qrClickReaction() {
-        val addresses = mutableListOf<AddressType>()
-        addresses.add(AddressType.P2WPKH)
-        addresses.add(AddressType.P2SH_P2WPKH)
+    var currentType = AddressType.P2WPKH
 
-        model.position = (model.position + 1) % addresses.size
+    override fun qrClickReaction() {
+        currentType = if (currentType == AddressType.P2SH_P2WPKH) {
+            AddressType.P2WPKH
+        } else {
+            AddressType.P2SH_P2WPKH
+        }
 
         if (account is SingleAddressAccount) {
-            model.accountAddress.value = (account as SingleAddressAccount).getAddress(addresses[model.position]).toString()
+            model.accountAddress.value = (account as SingleAddressAccount).getAddress(currentType).toString()
         } else {
-            model.accountAddress.value = (account as HDAccount).getReceivingAddress(addresses[model.position]).toString()
+            model.accountAddress.value = (account as HDAccount).getReceivingAddress(currentType).toString()
         }
         model.addressPath.value =
-                when(showBip44Path){
+                when (showBip44Path) {
                     true -> Address.fromString(model.accountAddress.value).bip32Path.toString()
                     false -> ""
                 }
+
     }
 
 }

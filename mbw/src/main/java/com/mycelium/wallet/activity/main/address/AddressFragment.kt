@@ -5,12 +5,11 @@ import android.arch.lifecycle.ViewModelProviders
 import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v7.app.AppCompatActivity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import com.mrd.bitlib.model.Address
-import com.mycelium.wallet.BitcoinUriWithAddress
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
@@ -36,23 +35,23 @@ class AddressFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val binding =
-        when (mbwManager.selectedAccount) {
-            is SingleAddressAccount, is HDAccount -> {
-                val contentView = DataBindingUtil.inflate<AddressFragmentBtcBindingImpl>(inflater, R.layout.address_fragment_btc,
-                        container, false)
-                contentView.fragment = this
-                contentView.viewModel = viewModel as AddressFragmentBtcModel
-                contentView
-            }
-            else -> {
-                val contentView = DataBindingUtil.inflate<AddressFragmentBindingImpl>(inflater, R.layout.address_fragment,
-                        container, false)
-                contentView.fragment = this
-                contentView.viewModel = viewModel as AddressFragmentCoinsModel
-                contentView
-            }
-        }
-
+                when (mbwManager.selectedAccount) {
+                    is SingleAddressAccount, is HDAccount -> {
+                        val contentView = DataBindingUtil.inflate<AddressFragmentBtcBindingImpl>(inflater, R.layout.address_fragment_btc,
+                                container, false)
+                        contentView.fragment = this
+                        contentView.viewModel = viewModel as AddressFragmentBtcModel
+                        contentView
+                    }
+                    else -> {
+                        val contentView = DataBindingUtil.inflate<AddressFragmentBindingImpl>(inflater, R.layout.address_fragment,
+                                container, false)
+                        contentView.fragment = this
+                        contentView.viewModel = viewModel as AddressFragmentCoinsModel
+                        contentView
+                    }
+                }
+        binding.setLifecycleOwner(this)
         return binding.root
     }
 
@@ -72,8 +71,19 @@ class AddressFragment : Fragment() {
         if (!viewModel.isInitialized()) {
             viewModel.init()
         }
+        ivQR.visibility = View.VISIBLE
+        ivQR.tapToCycleBrightness = false
+        ivQR.setQrCode(viewModel.getAccountAddress().value)
         copyTo.setOnClickListener {
             addressClick()
+        }
+        ivQR.setOnClickListener {
+            when (viewModel) {
+                is AddressFragmentBtcModel -> viewModel.qrClickReaction()
+                else -> viewModel.qrClickReaction(activity as AppCompatActivity)
+            }
+
+            ivQR.setQrCode(viewModel.getAccountAddress().value)
         }
 
     }
@@ -94,12 +104,7 @@ class AddressFragment : Fragment() {
             return
         }
 
-        // Update QR code
-        ivQR.visibility = View.VISIBLE
-        ivQR.qrCode = BitcoinUriWithAddress.fromAddress(
-                Address.fromString(viewModel.getAccountAddress().value)).toString()
-
-        if (viewModel.getAccountLabel().equals("")) {
+        if (viewModel.getAccountLabel().value.equals("")) {
             tvAddressLabel.visibility = View.GONE
             ivAccountType.visibility = View.GONE
         } else {

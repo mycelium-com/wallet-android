@@ -2,6 +2,7 @@
 
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
     <data>
+        <import type="com.mycelium.wapi.wallet.currency.CurrencyValue"/>
         <variable
                 name="Utils"
                 type="com.mycelium.wallet.Utils"/>
