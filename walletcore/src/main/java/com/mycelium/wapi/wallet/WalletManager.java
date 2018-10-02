@@ -78,7 +78,7 @@ public class WalletManager {
     private FeeEstimation _lastFeeEstimations;
     private SpvBalanceFetcher _spvBalanceFetcher;
     private volatile boolean isNetworkConnected;
-    private Map<Currency, CurrencySettings> currenciesSettingsMap = new HashMap<>(); //this maps currencies to their settings. TODO replace in multicurency branch to Map<Enum, String>
+    private Map<Currency, CurrencySettings> currenciesSettingsMap = new HashMap<>(); //this maps currencies to their settings.
 
     /**
      * Create a new wallet manager instance
@@ -89,7 +89,7 @@ public class WalletManager {
      */
     public WalletManager(SecureKeyValueStore secureKeyValueStore, WalletManagerBacking backing,
                          NetworkParameters network, Wapi wapi, ExternalSignatureProviderProxy signatureProviders,
-                         SpvBalanceFetcher spvBalanceFetcher, boolean isNetworkConnected) {
+                         SpvBalanceFetcher spvBalanceFetcher, boolean isNetworkConnected, Map<Currency, CurrencySettings> currenciesSettingsMap) {
         _secureKeyValueStore = secureKeyValueStore;
         _backing = backing;
         _network = network;
@@ -105,6 +105,7 @@ public class WalletManager {
         _btcToBchAccounts = new HashMap<>();
         this.isNetworkConnected = isNetworkConnected;
         _lastFeeEstimations = _backing.loadLastFeeEstimation();
+        this.currenciesSettingsMap = currenciesSettingsMap;
         loadAccounts();
     }
 
@@ -179,9 +180,11 @@ public class WalletManager {
                 SingleAddressAccountContext context = new SingleAddressAccountContext(id, ImmutableMap.of(address.getType(), address),
                         false, 0);
                 _backing.createSingleAddressAccountContext(context);
+                BTCSettings btcSettings = (BTCSettings) currenciesSettingsMap.get(Currency.BTC);
                 SingleAddressAccountBacking accountBacking = checkNotNull(_backing.getSingleAddressAccountBacking(context.getId()));
                 PublicPrivateKeyStore store = new PublicPrivateKeyStore(_secureKeyValueStore);
-                SingleAddressAccount account = new SingleAddressAccount(context, store, _network, accountBacking, _wapi);
+                SingleAddressAccount account = new SingleAddressAccount(context, store, _network, accountBacking, _wapi,
+                        btcSettings.getChangeAddressModeReference());
                 context.persist(accountBacking);
                 _backing.setTransactionSuccessful();
                 addAccount(account);
@@ -205,7 +208,7 @@ public class WalletManager {
      *
      * @return the ID of the new account
      */
-    public UUID createSingleAddressAccount(PublicKey publicKey, AddressType defaultAddressType) {
+    public UUID createSingleAddressAccount(PublicKey publicKey) {
         UUID id = SingleAddressAccount.calculateId(publicKey.toAddress(_network, AddressType.P2SH_P2WPKH));
         synchronized (_walletAccounts) {
             if (_walletAccounts.containsKey(id)) {
@@ -213,12 +216,15 @@ public class WalletManager {
             }
             _backing.beginTransaction();
             try {
+                BTCSettings btcSettings = (BTCSettings) currenciesSettingsMap.get(Currency.BTC);
+                AddressType defaultAddressType = btcSettings.getDefaultAddressType();
                 SingleAddressAccountContext context = new SingleAddressAccountContext(id,
                         publicKey.getAllSupportedAddresses(_network), false, 0, defaultAddressType);
                 _backing.createSingleAddressAccountContext(context);
                 SingleAddressAccountBacking accountBacking = checkNotNull(_backing.getSingleAddressAccountBacking(context.getId()));
                 PublicPrivateKeyStore store = new PublicPrivateKeyStore(_secureKeyValueStore);
-                SingleAddressAccount account = new SingleAddressAccount(context, store, _network, accountBacking, _wapi);
+                SingleAddressAccount account = new SingleAddressAccount(context, store, _network, accountBacking, _wapi,
+                        btcSettings.getChangeAddressModeReference());
                 context.persist(accountBacking);
                 _backing.setTransactionSuccessful();
                 addAccount(account);
@@ -283,7 +289,8 @@ public class WalletManager {
 
                 // Generate the context for the account
                 HDAccountContext context;
-                AddressType defaultAddressType = ((BTCSettings) currenciesSettingsMap.get(Currency.BTC)).getDefaultAddressType();
+                BTCSettings btcSettings = (BTCSettings) currenciesSettingsMap.get(Currency.BTC);
+                AddressType defaultAddressType = btcSettings.getDefaultAddressType();
                 if (hdKeyNodes.get(0).isPrivateHdKeyNode()) {
                     context = new HDAccountContext(id, accountIndex, false, ACCOUNT_TYPE_UNRELATED_X_PRIV,
                             secureStorage.getSubId(), derivationTypes, defaultAddressType);
@@ -302,7 +309,8 @@ public class WalletManager {
                 // Create actual account
                 HDAccount account;
                 if (hdKeyNodes.get(0).isPrivateHdKeyNode()) {
-                    account = new HDAccount(context, keyManagerMap, _network, accountBacking, _wapi);
+                    account = new HDAccount(context, keyManagerMap, _network, accountBacking, _wapi,
+                            btcSettings.getChangeAddressModeReference());
                 } else {
                     account = new HDPubOnlyAccount(context, keyManagerMap, _network, accountBacking, _wapi);
                 }
@@ -391,14 +399,13 @@ public class WalletManager {
      *                   cipher as the one used by the secure storage instance
      * @return the ID of the new account
      */
-    public UUID createSingleAddressAccount(InMemoryPrivateKey privateKey, KeyCipher cipher,
-                                           AddressType defaultAddressType) throws InvalidKeyCipher {
+    public UUID createSingleAddressAccount(InMemoryPrivateKey privateKey, KeyCipher cipher) throws InvalidKeyCipher {
         PublicKey publicKey = privateKey.getPublicKey();
         PublicPrivateKeyStore store = new PublicPrivateKeyStore(_secureKeyValueStore);
         for (Address address : publicKey.getAllSupportedAddresses(_network).values()) {
             store.setPrivateKey(address, privateKey, cipher);
         }
-        return createSingleAddressAccount(publicKey, defaultAddressType);
+        return createSingleAddressAccount(publicKey);
     }
 
     /**
@@ -794,10 +801,12 @@ public class WalletManager {
 
     private HDAccount getBip44Account(HDAccountContext context, Map<BipDerivationType, HDAccountKeyManager> keyManagerMap, Bip44AccountBacking accountBacking) {
         HDAccount account;
+        BTCSettings btcSettings = (BTCSettings) currenciesSettingsMap.get(Currency.BTC);
         switch (context.getAccountType()) {
             case ACCOUNT_TYPE_FROM_MASTERSEED:
                 // Normal account - derived from masterseed
-                account = new HDAccount(context, keyManagerMap, _network, accountBacking, _wapi);
+                account = new HDAccount(context, keyManagerMap, _network, accountBacking, _wapi,
+                        btcSettings.getChangeAddressModeReference());
                 break;
             case ACCOUNT_TYPE_UNRELATED_X_PUB:
                 // Imported xPub-based account
@@ -805,7 +814,8 @@ public class WalletManager {
                 break;
             case ACCOUNT_TYPE_UNRELATED_X_PRIV:
                 // Imported xPriv-based account
-                account = new HDAccount(context, keyManagerMap, _network, accountBacking, _wapi);
+                account = new HDAccount(context, keyManagerMap, _network, accountBacking, _wapi,
+                        btcSettings.getChangeAddressModeReference());
                 break;
             case ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR:
                 account = new HDAccountExternalSignature(
@@ -889,8 +899,10 @@ public class WalletManager {
         List<SingleAddressAccountContext> contexts = _backing.loadSingleAddressAccountContexts();
         for (SingleAddressAccountContext context : contexts) {
             PublicPrivateKeyStore store = new PublicPrivateKeyStore(_secureKeyValueStore);
+            BTCSettings btcSettings = (BTCSettings) currenciesSettingsMap.get(Currency.BTC);
             SingleAddressAccountBacking accountBacking = checkNotNull(_backing.getSingleAddressAccountBacking(context.getId()));
-            SingleAddressAccount account = new SingleAddressAccount(context, store, _network, accountBacking, _wapi);
+            SingleAddressAccount account = new SingleAddressAccount(context, store, _network, accountBacking, _wapi,
+                    btcSettings.getChangeAddressModeReference());
             addAccount(account);
 
             if (_spvBalanceFetcher != null) {
@@ -1298,7 +1310,8 @@ public class WalletManager {
                             _secureKeyValueStore, cipher, derivationType));
                 }
 
-                AddressType defaultAddressType = ((BTCSettings) currenciesSettingsMap.get(Currency.BTC)).getDefaultAddressType();
+                BTCSettings btcSettings = (BTCSettings) currenciesSettingsMap.get(Currency.BTC);
+                AddressType defaultAddressType = btcSettings.getDefaultAddressType();
                 // Generate the context for the account
                 HDAccountContext context = new HDAccountContext(
                         keyManagerMap.get(BipDerivationType.BIP44).getAccountId(), accountIndex, false, defaultAddressType);
@@ -1308,7 +1321,8 @@ public class WalletManager {
                 Bip44AccountBacking accountBacking = getBip44AccountBacking(context.getId());
 
                 // Create actual account
-                HDAccount account = new HDAccount(context, keyManagerMap, _network, accountBacking, _wapi);
+                HDAccount account = new HDAccount(context, keyManagerMap, _network, accountBacking, _wapi,
+                        btcSettings.getChangeAddressModeReference());
 
                 // Finally persist context and add account
                 context.persist(accountBacking);
@@ -1348,7 +1362,8 @@ public class WalletManager {
                     keyManagerMap.put(derivationType, HDAccountKeyManager.createNew(root, _network, accountIndex,
                             _secureKeyValueStore, cipher, derivationType));
                 }
-                AddressType defaultAddressType = ((BTCSettings) currenciesSettingsMap.get(Currency.BTC)).getDefaultAddressType();
+                BTCSettings btcSettings = (BTCSettings) currenciesSettingsMap.get(Currency.BTC);
+                AddressType defaultAddressType = btcSettings.getDefaultAddressType();
                 // Generate the context for the account
                 HDAccountContext context = new HDAccountContext(
                         keyManagerMap.get(BipDerivationType.BIP44).getAccountId(), accountIndex, false, defaultAddressType);
@@ -1358,7 +1373,8 @@ public class WalletManager {
                 Bip44AccountBacking accountBacking = getBip44AccountBacking(context.getId());
 
                 // Create actual account
-                HDAccount account = new HDAccount(context, keyManagerMap, _network, accountBacking, _wapi);
+                HDAccount account = new HDAccount(context, keyManagerMap, _network, accountBacking, _wapi,
+                        btcSettings.getChangeAddressModeReference());
 
                 // Finally persist context and add account
                 context.persist(accountBacking);

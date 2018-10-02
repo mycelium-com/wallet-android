@@ -460,7 +460,7 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
                        public void onClick(DialogInterface dialogInterface, int i) {
                           UUID account;
                           if (selectedItem == 0) {
-                             account = returnSAAccount(key, backupState, _mbwManager.getDefaultAddressType());
+                             account = returnSAAccount(key, backupState);
                           } else {
                              ColuAccount.ColuAsset coluAsset = ColuAccount.ColuAsset.getByType(ColuAccount.ColuAssetType.parse(list.get(selectedItem)));
                              account = _mbwManager.getColuManager().enableAsset(coluAsset, key);
@@ -510,11 +510,11 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
       }
    }
 
-   private UUID returnSAAccount(InMemoryPrivateKey key, MetadataStorage.BackupState backupState, AddressType defaultAddressType) {
+   private UUID returnSAAccount(InMemoryPrivateKey key, MetadataStorage.BackupState backupState) {
       UUID acc;
       try {
          acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(key,
-                 AesKeyCipher.defaultKeyCipher(), defaultAddressType);
+                 AesKeyCipher.defaultKeyCipher());
 
          _mbwManager.getMetadataStorage().setOtherAccountBackupState(acc, backupState);
          return acc;
@@ -528,7 +528,7 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
     */
    private void returnAccount(InMemoryPrivateKey key, MetadataStorage.BackupState backupState, AccountType type) {
       if (type == AccountType.SA) {
-         finishOk(returnSAAccount(key, backupState, _mbwManager.getDefaultAddressType()), false);
+         finishOk(returnSAAccount(key, backupState), false);
       } else {
          new ImportSingleAddressAccountAsyncTask(key, backupState).execute();
       }

@@ -996,7 +996,11 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       return allUnspentOutputs;
    }
 
+   protected abstract Address getChangeAddress(Address destinationAddress);
+
    protected abstract Address getChangeAddress();
+
+   protected abstract Address getChangeAddress(List<Address> destinationAddresses);
 
    private static Collection<UnspentTransactionOutput> transform(Collection<TransactionOutputEx> source) {
       List<UnspentTransactionOutput> outputs = new ArrayList<>();
@@ -1046,7 +1050,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
 
       // Try to create an unsigned transaction
       try {
-         stb.createUnsignedTransaction(spendableOutputs, getChangeAddress(), new PublicKeyRing(), _network, minerFeePerKbToUse);
+         stb.createUnsignedTransaction(spendableOutputs, getChangeAddress(Address.getNullAddress(_network)), new PublicKeyRing(), _network, minerFeePerKbToUse); // TODO FIX SEGWIT this should be calculated including risk of segwit tx
          // We have enough to pay the fees, return the amount as the maximum
          return ExactBitcoinValue.from(satoshis);
       } catch (InsufficientFundsException | StandardTransactionBuilder.UnableToBuildTransactionException e) {
@@ -1074,10 +1078,12 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
 
       // Create the unsigned transaction
       StandardTransactionBuilder stb = new StandardTransactionBuilder(_network);
+      List<Address> addressList = new ArrayList<>();
       for (Receiver receiver : receivers) {
          stb.addOutput(receiver.address, receiver.amount);
+         addressList.add(receiver.address);
       }
-      Address changeAddress = getChangeAddress();
+      Address changeAddress = getChangeAddress(addressList);
       return stb.createUnsignedTransaction(spendable, changeAddress, new PublicKeyRing(),
             _network, minerFeeToUse);
    }
@@ -1149,7 +1155,6 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
             continue;
          }
          List<TransactionOutput> outputs = singletonList(createOutput(changeAddress, value, _network));
-          final TransactionEx fundedTransaction = getTransaction(txid);
           return new UnsignedTransaction(outputs, utxosToSpend, new PublicKeyRing(), _network, 0, UnsignedTransaction.NO_SEQUENCE);
       } while(!utxos.isEmpty());
       throw new InsufficientFundsException(0, parentChildFeeSat);
