@@ -361,7 +361,7 @@ open class HDAccount constructor(
             // Return true if the last external or internal index has changed
             derivationType to
                     (lastExternalIndexesBefore[derivationType] != context.getLastExternalIndexWithActivity(derivationType)
-                    || lastInternalIndexesBefore[derivationType] != context.getLastInternalIndexWithActivity(derivationType))
+                            || lastInternalIndexesBefore[derivationType] != context.getLastInternalIndexWithActivity(derivationType))
         }.toMap()
     }
 
@@ -678,23 +678,23 @@ open class HDAccount constructor(
     }
 
     override fun getExportData(cipher: KeyCipher): ExportableAccount.Data {
-        var privKey = Optional.absent<String>()
-
-        val derivationType = BipDerivationType.BIP44 // TODO FIX SEGWIT, requires export screen
-        if (canSpend()) {
+        val privateDataMap = if (canSpend()) {
             try {
-                privKey = Optional.of(keyManagerMap[derivationType]!!
-                        .getPrivateAccountRoot(cipher)
-                        .serialize(_network, derivationType))
+                BipDerivationType.values().map { derivationType ->
+                    derivationType to (keyManagerMap[derivationType]!!.getPrivateAccountRoot(cipher)
+                            .serialize(_network, derivationType))
+                }.toMap()
             } catch (ignore: InvalidKeyCipher) {
+                null
             }
-
+        } else {
+            null
         }
-
-        val pubKey = Optional.of(keyManagerMap[derivationType]!!
-                .publicAccountRoot
-                .serialize(network, derivationType))
-        return ExportableAccount.Data(privKey, pubKey)
+        val publicDataMap = BipDerivationType.values().map { derivationType ->
+            derivationType to (keyManagerMap[derivationType]!!.publicAccountRoot
+                    .serialize(_network, derivationType))
+        }.toMap()
+        return ExportableAccount.Data(privateDataMap, publicDataMap)
     }
 
     // deletes everything account related from the backing

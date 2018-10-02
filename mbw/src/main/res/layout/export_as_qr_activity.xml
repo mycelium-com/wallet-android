@@ -90,7 +90,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="20dp"
-                        android:onClick="@{_ -> viewModel.getToggledData(1)}"
+                        android:onClick="@{_ -> viewModel.onToggleClicked(1)}"
                         android:text="@{viewModel.privateDataSelected ? @string/export_toggle_xprv : @string/export_toggle_xpub}" />
 
                     <RadioButton
@@ -98,14 +98,14 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="20dp"
-                        android:onClick="@{_ -> viewModel.getToggledData(2)}"
+                        android:onClick="@{_ -> viewModel.onToggleClicked(2)}"
                         android:text="@{viewModel.privateDataSelected ? @string/export_toggle_yprv : @string/export_toggle_ypub}" />
 
                     <RadioButton
                         android:id="@+id/rb_key_z"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:onClick="@{_ -> viewModel.getToggledData(3)}"
+                        android:onClick="@{_ -> viewModel.onToggleClicked(3)}"
                         android:text="@{viewModel.privateDataSelected ? @string/export_toggle_zprv : @string/export_toggle_zpub}" />
 
                 </RadioGroup>

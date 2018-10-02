@@ -6,6 +6,7 @@ import android.content.Intent
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
+import com.mrd.bitlib.crypto.BipDerivationType
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wapi.wallet.ExportableAccount
@@ -46,28 +47,32 @@ class ExportAsQrViewModel(val context: Application) : AndroidViewModel(context) 
     /**
      * Updates account data based on extra toggles
      */
-    fun getToggledData(toggleNum: Int): String {
-        // todo
-        var data = "todo Sergey"
+    fun onToggleClicked(toggleNum: Int) {
         val privateData = model.privateDataSelected.value!!
-        when (toggleNum) {
-            1 -> data = when (privateData) {
-                true -> "todo xpriv"
-                false -> "todo xpub"
+        val privateDataMap = model.accountData.privateDataMap
+        val publicDataMap = model.accountData.publicDataMap
+
+        val data = when (toggleNum) {
+            1 -> if (privateData) {
+                privateDataMap[BipDerivationType.BIP44]!!
+            } else {
+                publicDataMap[BipDerivationType.BIP44]!!
             }
 
-            2 -> data = when (privateData) {
-                true -> "todo ypriv"
-                false -> "todo ypub"
+            2 -> if (privateData) {
+                privateDataMap[BipDerivationType.BIP49]!!
+            } else {
+                publicDataMap[BipDerivationType.BIP49]!!
             }
 
-            3 -> data = when (privateData) {
-                true -> "todo zpriv"
-                false -> "todo zpub"
+            3 -> if (privateData) {
+                privateDataMap[BipDerivationType.BIP84]!!
+            } else {
+                publicDataMap[BipDerivationType.BIP84]!!
             }
+            else -> throw  java.lang.IllegalStateException("Unexpected toggle position")
         }
-
-        return data
+        model.accountDataString.value = data
     }
 
     /**
