@@ -5,7 +5,6 @@ import android.arch.lifecycle.AndroidViewModel
 import android.content.res.Resources
 import android.graphics.drawable.Drawable
 import android.support.v4.app.FragmentActivity
-import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
@@ -32,6 +31,10 @@ abstract class AddressFragmentViewModel(val context: Application) : AndroidViewM
 
     fun getDrawableForAccount(resources: Resources): Drawable {
         return Utils.getDrawableForAccount(account, true, resources)
+    }
+
+    override fun onCleared() {
+        model.onCleared()
     }
 
     fun addressClick() {
