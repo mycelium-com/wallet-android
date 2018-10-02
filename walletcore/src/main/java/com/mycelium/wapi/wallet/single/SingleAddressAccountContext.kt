@@ -29,9 +29,14 @@ class SingleAddressAccountContext @JvmOverloads constructor(
         var addresses: Map<AddressType, Address>,
         private var isArchived: Boolean,
         private var blockHeight: Int,
-        var defaultAddressType: AddressType = AddressType.P2SH_P2WPKH
+        defaultAddressType: AddressType = AddressType.P2SH_P2WPKH
 ) {
     private var isDirty = false
+    var defaultAddressType = defaultAddressType
+        set(value) {
+            field = value
+            isDirty = true
+        }
 
     constructor(context: SingleAddressAccountContext) :
             this(context.id, context.addresses, context.isArchived(), context.getBlockHeight(), context.defaultAddressType)

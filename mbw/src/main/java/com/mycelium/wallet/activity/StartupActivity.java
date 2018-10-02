@@ -239,7 +239,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
          try {
             WalletManager walletManager = activity._mbwManager.getWalletManager(false);
             walletManager.configureBip32MasterSeed(masterSeed, AesKeyCipher.defaultKeyCipher());
-            return walletManager.createAdditionalBip44Account(AesKeyCipher.defaultKeyCipher(), activity._mbwManager.getDefaultAddressType());
+            return walletManager.createAdditionalBip44Account(AesKeyCipher.defaultKeyCipher());
          } catch (KeyCipher.InvalidKeyCipher e) {
             throw new RuntimeException(e);
          }

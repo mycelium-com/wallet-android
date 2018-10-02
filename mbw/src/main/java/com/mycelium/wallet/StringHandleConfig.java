@@ -189,8 +189,7 @@ public class StringHandleConfig implements Serializable {
             Optional<InMemoryPrivateKey> key = getPrivateKey(handlerActivity.getNetwork(), content);
             if (!key.isPresent()) return false;
             try {
-               handlerActivity.getWalletManager().createSingleAddressAccount(key.get(), AesKeyCipher.defaultKeyCipher(),
-                       MbwManager.getInstance(handlerActivity).getDefaultAddressType());
+               handlerActivity.getWalletManager().createSingleAddressAccount(key.get(), AesKeyCipher.defaultKeyCipher());
             } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
                throw new RuntimeException(invalidKeyCipher);
             }
@@ -868,8 +867,7 @@ public class StringHandleConfig implements Serializable {
                      return true;
                   }
                   walletManager.configureBip32MasterSeed(masterSeed.get(), AesKeyCipher.defaultKeyCipher());
-                  acc = walletManager.createAdditionalBip44Account(AesKeyCipher.defaultKeyCipher(),
-                          MbwManager.getInstance(handlerActivity.getApplicationContext()).getDefaultAddressType());
+                  acc = walletManager.createAdditionalBip44Account(AesKeyCipher.defaultKeyCipher());
                   MbwManager.getInstance(handlerActivity).getMetadataStorage().setMasterSeedBackupState(MetadataStorage.BackupState.VERIFIED);
                } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
                   throw new RuntimeException(invalidKeyCipher);

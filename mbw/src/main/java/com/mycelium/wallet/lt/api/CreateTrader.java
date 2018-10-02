@@ -72,7 +72,7 @@ public class CreateTrader extends Request {
       // Sign session ID with private key
       String sigHashSessionId = ApiUtils.generateUuidHashSignature(_privateKey, sessionId);
       PublicKey publicKey = _privateKey.getPublicKey();
-      Address address = publicKey.toAddress(_network, AddressType.P2PKH); // TODO segwit evaluate
+      Address address = publicKey.toAddress(_network, AddressType.P2PKH);
 
       try {
 

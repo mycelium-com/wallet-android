@@ -1,19 +1,3 @@
-/*
- * Copyright 2013, 2014 Megion Research & Development GmbH
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.mycelium.wapi.wallet.bip44
 
 import com.google.common.base.Optional
@@ -34,15 +18,17 @@ import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher
 import com.mycelium.wapi.wallet.WalletManager.Event
 import com.mrd.bitlib.crypto.BipDerivationType.Companion.getDerivationTypeByAddress
+import java.lang.IllegalStateException
 
 import java.util.ArrayList
 
-open class HDAccount(
+open class HDAccount constructor(
         protected var context: HDAccountContext,
         protected val keyManagerMap: Map<BipDerivationType, HDAccountKeyManager>,
         network: NetworkParameters,
         protected val backing: Bip44AccountBacking,
-        wapi: Wapi
+        wapi: Wapi,
+        protected val changeAddressModeReference: Reference<ChangeAddressMode>
 ) : AbstractAccount(backing, network, wapi), ExportableAccount {
 
     // Used to determine which bips this account support
@@ -146,6 +132,11 @@ open class HDAccount(
             ensureAddressIndexes()
             _cachedBalance = calculateLocalBalance()
         }
+    }
+
+    fun setDefaultAddressType(addressType: AddressType) {
+        context.defaultAddressType = addressType
+        context.persistIfNecessary(backing)
     }
 
     protected fun initContext(isArchived: Boolean) {
@@ -442,10 +433,38 @@ open class HDAccount(
     }
 
     // Get the next internal address just above the last address with activity
-    public override fun getChangeAddress(): Address {
-        val derivationType = if (derivePaths.contains(BipDerivationType.BIP49)) {
-            // DEFAULT ADDRESS TYPE
-            BipDerivationType.BIP49
+    public override fun getChangeAddress(destinationAddress: Address): Address {
+        return when (changeAddressModeReference.get()!!) {
+            ChangeAddressMode.P2WPKH -> getChangeAddress(BipDerivationType.BIP84)
+            ChangeAddressMode.P2SH_P2WPKH -> getChangeAddress(BipDerivationType.BIP49)
+            ChangeAddressMode.PRIVACY -> getChangeAddress(getDerivationTypeByAddress(destinationAddress))
+            ChangeAddressMode.NONE -> throw IllegalStateException()
+        }
+    }
+
+    public override fun getChangeAddress(destinationAddresses: List<Address>): Address {
+        val preferredForPrivacy = destinationAddresses.groupingBy { BipDerivationType.getDerivationTypeByAddress(it) }
+                .eachCount()
+                .maxBy { it.value }
+        return when (changeAddressModeReference.get()!!) {
+            ChangeAddressMode.P2WPKH -> getChangeAddress(BipDerivationType.BIP84)
+            ChangeAddressMode.P2SH_P2WPKH -> getChangeAddress(BipDerivationType.BIP49)
+            ChangeAddressMode.PRIVACY -> getChangeAddress(preferredForPrivacy!!.key)
+            ChangeAddressMode.NONE -> throw IllegalStateException()
+        }
+    }
+
+    override fun getChangeAddress(): Address {
+        return when (changeAddressModeReference.get()!!) {
+            ChangeAddressMode.P2WPKH -> getChangeAddress(BipDerivationType.BIP84)
+            ChangeAddressMode.P2SH_P2WPKH, ChangeAddressMode.PRIVACY -> getChangeAddress(BipDerivationType.BIP49)
+            ChangeAddressMode.NONE -> throw IllegalStateException()
+        }
+    }
+
+    private fun getChangeAddress(preferredDerivationType: BipDerivationType): Address {
+        val derivationType = if (derivePaths.contains(preferredDerivationType)) {
+            preferredDerivationType
         } else {
             derivePaths.first()
         }

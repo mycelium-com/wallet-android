@@ -34,9 +34,14 @@ class HDAccountContext @JvmOverloads constructor(
         val indexesMap: Map<BipDerivationType, AccountIndexesContext> = createNewIndexesContexts(BipDerivationType.values().asIterable()),
         val accountType: Int = ACCOUNT_TYPE_FROM_MASTERSEED,
         val accountSubId: Int = 0,
-        var defaultAddressType: AddressType = AddressType.P2SH_P2WPKH
+        defaultAddressType: AddressType = AddressType.P2SH_P2WPKH
 ) {
     private var isDirty: Boolean = false
+    var defaultAddressType = defaultAddressType
+        set(value) {
+            field = value
+            isDirty = true
+        }
 
     constructor(id: UUID, accountIndex: Int, isArchived: Boolean, defaultAddressTyp: AddressType) :
             this(id, accountIndex, isArchived, defaultAddressType = defaultAddressTyp)

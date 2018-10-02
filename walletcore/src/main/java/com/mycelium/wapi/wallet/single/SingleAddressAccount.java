@@ -34,6 +34,7 @@ import com.mycelium.wapi.model.Balance;
 import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
 import com.mycelium.wapi.wallet.WalletManager.Event;
+import com.mycelium.wapi.wallet.bip44.ChangeAddressMode;
 
 import java.util.*;
 
@@ -43,10 +44,13 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
    private volatile boolean _isSynchronizing;
    private PublicPrivateKeyStore _keyStore;
    private SingleAddressAccountBacking _backing;
+   private Reference<ChangeAddressMode> changeAddressModeReference;
 
    public SingleAddressAccount(SingleAddressAccountContext context, PublicPrivateKeyStore keyStore,
-                               NetworkParameters network, SingleAddressAccountBacking backing, Wapi wapi) {
+                               NetworkParameters network, SingleAddressAccountBacking backing, Wapi wapi,
+                               Reference<ChangeAddressMode> changeAddressModeReference) {
       super(backing, network, wapi);
+      this.changeAddressModeReference = changeAddressModeReference;
       _backing = backing;
       type = WalletAccount.Type.BTCSINGLEADDRESS;
       _context = context;
@@ -166,6 +170,11 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
 
    }
 
+   public void setDefaultAddressType(AddressType addressType) {
+      _context.setDefaultAddressType(addressType);
+      _context.persistIfNecessary(_backing);
+   }
+
    private boolean discoverTransactions() {
       // Get the latest transactions
       List<Sha256Hash> discovered;
@@ -272,6 +281,60 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
    @Override
    protected Address getChangeAddress() {
       return getAddress();
+   }
+
+   @Override
+   protected Address getChangeAddress(Address destinationAddress) {
+      Address result;
+      switch (changeAddressModeReference.get()) {
+         case P2WPKH:
+            result = getAddress(AddressType.P2WPKH);
+            break;
+         case P2SH_P2WPKH:
+            result = getAddress(AddressType.P2SH_P2WPKH);
+            break;
+         case PRIVACY:
+            result = getAddress(destinationAddress.getType());
+            break;
+         default:
+            throw new IllegalStateException();
+      }
+      return result;
+   }
+
+   @Override
+   protected Address getChangeAddress(List<Address> destinationAddresses) {
+      Map<AddressType, Integer> mostUsedTypesMap = new HashMap<>();
+      for (Address address: destinationAddresses) {
+         Integer currentValue = mostUsedTypesMap.get(address.getType());
+         if (currentValue == null) {
+            currentValue = 0;
+         }
+         mostUsedTypesMap.put(address.getType(), currentValue + 1);
+      }
+      int max = 0;
+      AddressType maxedOn = null;
+      for (AddressType addressType : mostUsedTypesMap.keySet()) {
+         if (mostUsedTypesMap.get(addressType) > max) {
+            max = mostUsedTypesMap.get(addressType);
+            maxedOn = addressType;
+         }
+      }
+      Address result;
+      switch (changeAddressModeReference.get()) {
+         case P2WPKH:
+            result = getAddress(AddressType.P2WPKH);
+            break;
+         case P2SH_P2WPKH:
+            result = getAddress(AddressType.P2SH_P2WPKH);
+            break;
+         case PRIVACY:
+            result = getAddress(maxedOn);
+            break;
+         default:
+            throw new IllegalStateException();
+      }
+      return result;
    }
 
    @Override

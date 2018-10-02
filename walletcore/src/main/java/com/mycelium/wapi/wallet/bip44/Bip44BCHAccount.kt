@@ -9,10 +9,7 @@ import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.model.TransactionDetails
 import com.mycelium.wapi.model.TransactionSummary
-import com.mycelium.wapi.wallet.Bip44AccountBacking
-import com.mycelium.wapi.wallet.KeyCipher
-import com.mycelium.wapi.wallet.SpvBalanceFetcher
-import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.bip44.HDAccountContext.Companion.ACCOUNT_TYPE_FROM_MASTERSEED
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance
 import com.mycelium.wapi.wallet.currency.CurrencyValue
@@ -28,7 +25,7 @@ open class Bip44BCHAccount(
         backing: Bip44AccountBacking,
         wapi: Wapi,
         private val spvBalanceFetcher: SpvBalanceFetcher
-) : HDAccount(context, keyManagerMap, network, backing, wapi) {
+) : HDAccount(context, keyManagerMap, network, backing, wapi, Reference(ChangeAddressMode.NONE)) {
     private var blockChainHeight = 0
     private var visible = false
 

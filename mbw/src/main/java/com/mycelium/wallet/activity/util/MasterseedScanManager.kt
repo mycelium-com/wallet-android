@@ -105,11 +105,12 @@ class MasterseedScanManager : AbstractAccountScanManager {
         // if the lastPath was the Bip32, we dont care if it wasUsed - always scan the first Bip44 account
         val bip44CoinType = HdKeyPath.BIP44.getBip44CoinType(network)
         val bip49CoinType = HdKeyPath.BIP49.getBip44CoinType(network)
-        //val bip84CoinType = HdKeyPath.BIP84.getBip44CoinType(network) todo segwit bech
+        val bip84CoinType = HdKeyPath.BIP84.getBip44CoinType(network)
 
         return if (lastPath == HdKeyPath.BIP32_ROOT) {
             mapOf(BipDerivationType.BIP44 to bip44CoinType.getAccount(0),
-                    BipDerivationType.BIP49 to bip49CoinType.getAccount(0))
+                    BipDerivationType.BIP49 to bip49CoinType.getAccount(0),
+                    BipDerivationType.BIP84 to bip84CoinType.getAccount(0))
         } else {
             // otherwise just return the normal bip44 accounts
             super.getAccountPathsToScan(lastPath, wasUsed)

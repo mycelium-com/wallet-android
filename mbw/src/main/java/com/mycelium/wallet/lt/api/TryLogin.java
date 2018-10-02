@@ -69,7 +69,7 @@ public class TryLogin extends Request {
       try {
 
          // Call function
-         Address address = _privateKey.getPublicKey().toAddress(_network, AddressType.P2PKH); // TODO segwit evaluate
+         Address address = _privateKey.getPublicKey().toAddress(_network, AddressType.P2PKH);
          LoginParameters params = new LoginParameters(address, signedMessage);
          final String nickname = api.traderLogin(sessionId, params).getResult();
 
