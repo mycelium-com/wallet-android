@@ -78,6 +78,8 @@ public class WalletManager {
     private FeeEstimation _lastFeeEstimations;
     private SpvBalanceFetcher _spvBalanceFetcher;
     private volatile boolean isNetworkConnected;
+    private Map<Currency, CurrencySettings> currenciesSettingsMap = new HashMap<>(); //this maps currencies to their settings. TODO replace in multicurency branch to Map<Enum, String>
+
     /**
      * Create a new wallet manager instance
      *
@@ -281,12 +283,13 @@ public class WalletManager {
 
                 // Generate the context for the account
                 HDAccountContext context;
+                AddressType defaultAddressType = ((BTCSettings) currenciesSettingsMap.get(Currency.BTC)).getDefaultAddressType();
                 if (hdKeyNodes.get(0).isPrivateHdKeyNode()) {
                     context = new HDAccountContext(id, accountIndex, false, ACCOUNT_TYPE_UNRELATED_X_PRIV,
-                            secureStorage.getSubId(), derivationTypes);
+                            secureStorage.getSubId(), derivationTypes, defaultAddressType);
                 } else {
                     context = new HDAccountContext(id, accountIndex, false, ACCOUNT_TYPE_UNRELATED_X_PUB,
-                            secureStorage.getSubId(), derivationTypes);
+                            secureStorage.getSubId(), derivationTypes, defaultAddressType);
                 }
                 if (isUpgrade) {
                     _backing.upgradeBip44AccountContext(context);
@@ -355,9 +358,10 @@ public class WalletManager {
                     return id;
                 }
 
+                AddressType defaultAddressType = ((BTCSettings) currenciesSettingsMap.get(Currency.BTC)).getDefaultAddressType();
                 // Generate the context for the account
                 HDAccountContext context = new HDAccountContext(id, accountIndex, false,
-                        externalSignatureProvider.getBIP44AccountType(), newSubKeyStore.getSubId(), derivationTypes);
+                        externalSignatureProvider.getBIP44AccountType(), newSubKeyStore.getSubId(), derivationTypes, defaultAddressType);
                 _backing.createBip44AccountContext(context);
 
                 // Get the backing for the new account
@@ -910,6 +914,18 @@ public class WalletManager {
         isNetworkConnected = networkConnected;
     }
 
+    public Map<Currency, CurrencySettings> getCurrenciesSettingsMap() {
+        return currenciesSettingsMap;
+    }
+
+    public CurrencySettings getCurrencySettings(Currency currency) {
+        return currenciesSettingsMap.get(currency);
+    }
+
+    public void setCurrencySettings(Currency currency, CurrencySettings settings) {
+        currenciesSettingsMap.put(currency, settings);
+    }
+
     private class Synchronizer implements Runnable {
         private final SyncMode syncMode;
         private final SynchronizeAbleWalletAccount currentAccount;
@@ -1266,8 +1282,7 @@ public class WalletManager {
         return addresses;
     }
 
-    public UUID createArchivedGapFiller(KeyCipher cipher, Integer accountIndex, boolean archived,
-                                        AddressType defaultAddressType) throws InvalidKeyCipher {
+    public UUID createArchivedGapFiller(KeyCipher cipher, Integer accountIndex, boolean archived) throws InvalidKeyCipher {
         // Get the master seed
         Bip39.MasterSeed masterSeed = getMasterSeed(cipher);
 
@@ -1283,6 +1298,7 @@ public class WalletManager {
                             _secureKeyValueStore, cipher, derivationType));
                 }
 
+                AddressType defaultAddressType = ((BTCSettings) currenciesSettingsMap.get(Currency.BTC)).getDefaultAddressType();
                 // Generate the context for the account
                 HDAccountContext context = new HDAccountContext(
                         keyManagerMap.get(BipDerivationType.BIP44).getAccountId(), accountIndex, false, defaultAddressType);
@@ -1310,7 +1326,7 @@ public class WalletManager {
         }
     }
 
-    public UUID createAdditionalBip44Account(KeyCipher cipher, AddressType defaultAddressType) throws InvalidKeyCipher {
+    public UUID createAdditionalBip44Account(KeyCipher cipher) throws InvalidKeyCipher {
         if (!canCreateAdditionalBip44Account()) {
             throw new RuntimeException("Unable to create additional HD account");
         }
@@ -1332,6 +1348,7 @@ public class WalletManager {
                     keyManagerMap.put(derivationType, HDAccountKeyManager.createNew(root, _network, accountIndex,
                             _secureKeyValueStore, cipher, derivationType));
                 }
+                AddressType defaultAddressType = ((BTCSettings) currenciesSettingsMap.get(Currency.BTC)).getDefaultAddressType();
                 // Generate the context for the account
                 HDAccountContext context = new HDAccountContext(
                         keyManagerMap.get(BipDerivationType.BIP44).getAccountId(), accountIndex, false, defaultAddressType);

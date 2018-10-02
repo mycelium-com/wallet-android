@@ -29,6 +29,23 @@ class ReceiveBtcViewModel(application: Application) : ReceiveCoinsViewModel(appl
         }
     }
 
+    fun getAccountDefaultAddressType(): AddressType {
+        return when (account) {
+            is HDAccount -> (account as HDAccount).receivingAddress.get().type
+            is SingleAddressAccount -> (account as SingleAddressAccount).address.type
+            else -> throw IllegalStateException()
+        }
+    }
+
+    fun setCurrentAddressTypeAsDefault() {
+        when (account) {
+            is HDAccount -> (account as HDAccount).setDefaultAddressType(addressType.value!!)
+            is SingleAddressAccount -> (account as SingleAddressAccount).setDefaultAddressType(addressType.value)
+            else -> throw IllegalStateException()
+        }
+        this.addressType.value = addressType.value // this is required to update UI
+    }
+
     override fun getHint() = context.getString(R.string.amount_hint_denomination,
                 mbwManager.bitcoinDenomination.toString())
 

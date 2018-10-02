@@ -5,6 +5,8 @@
 
     <data>
 
+        <import type="android.view.View" />
+
         <import type="com.mrd.bitlib.model.AddressType" />
 
         <variable
@@ -25,26 +27,48 @@
             android:layout_marginBottom="8dp"
             android:text="@string/account_mode" />
 
-        <RadioGroup
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center">
+            android:orientation="horizontal">
 
-            <RadioButton
-                android:id="@+id/rb_address_type_p2sh"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/normal_p2sh"
-                android:checked="@{viewModel.addressType == AddressType.P2SH_P2WPKH}"
-                android:onClick="@{_ -> viewModel.setAddressType(AddressType.P2SH_P2WPKH)}" />
+                android:layout_weight="1"
+                android:orientation="vertical">
 
-            <RadioButton
-                android:id="@+id/rb_address_type_bech"
+                <RadioGroup
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center">
+
+                    <RadioButton
+                        android:id="@+id/rb_address_type_p2sh"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/normal_p2sh"
+                        android:checked="@{viewModel.addressType == AddressType.P2SH_P2WPKH}"
+                        android:onClick="@{_ -> viewModel.setAddressType(AddressType.P2SH_P2WPKH)}" />
+
+                    <RadioButton
+                        android:id="@+id/rb_address_type_bech"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/native_segwit_bech_32"
+                        android:checked="@{viewModel.addressType == AddressType.P2WPKH}"
+                        android:onClick="@{_ -> viewModel.setAddressType(AddressType.P2WPKH)}" />
+                </RadioGroup>
+            </LinearLayout>
+
+            <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/native_segwit_bech_32"
-                android:checked="@{viewModel.addressType == AddressType.P2WPKH}"
-                android:onClick="@{_ -> viewModel.setAddressType(AddressType.P2WPKH)}" />
-        </RadioGroup>
+                android:layout_weight="1"
+                android:visibility="@{viewModel.addressType != viewModel.getAccountDefaultAddressType() ? View.VISIBLE : View.INVISIBLE}"
+                android:layout_gravity="center"
+                android:onClick="@{_ -> viewModel.setCurrentAddressTypeAsDefault()}"
+                android:text="@string/set_default" />
+        </LinearLayout>
     </LinearLayout>
 </layout>

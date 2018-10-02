@@ -104,17 +104,8 @@ import com.mycelium.wallet.persistence.TradeSessionDb;
 import com.mycelium.wallet.wapi.SqliteWalletManagerBackingWrapper;
 import com.mycelium.wapi.api.WapiClientElectrumX;
 import com.mycelium.wapi.api.jsonrpc.TcpEndpoint;
-import com.mycelium.wapi.wallet.AccountProvider;
-import com.mycelium.wapi.wallet.AesKeyCipher;
-import com.mycelium.wapi.wallet.IdentityAccountKeyManager;
-import com.mycelium.wapi.wallet.InMemoryWalletManagerBacking;
-import com.mycelium.wapi.wallet.KeyCipher;
-import com.mycelium.wapi.wallet.SecureKeyValueStore;
-import com.mycelium.wapi.wallet.SpvBalanceFetcher;
-import com.mycelium.wapi.wallet.SyncMode;
-import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.WalletManagerBacking;
+import com.mycelium.wapi.wallet.*;
+import com.mycelium.wapi.wallet.bip44.ChangeAddressMode;
 import com.mycelium.wapi.wallet.bip44.HDAccount;
 import com.mycelium.wapi.wallet.bip44.HDAccountContext;
 import com.mycelium.wapi.wallet.bip44.ExternalSignatureProviderProxy;
@@ -334,6 +325,17 @@ public class MbwManager {
                 _environment.getBlockExplorerList(),
                 preferences.getString(Constants.BLOCK_EXPLORER,
                                            _environment.getBlockExplorerList().get(0).getIdentifier()));
+
+        initPerCurrencySettings();
+    }
+
+    private void initPerCurrencySettings() {
+        initBTCSettings();
+    }
+
+    private void initBTCSettings() {
+        BTCSettings btcSettings = new BTCSettings(defaultAddressType, ChangeAddressMode.SAFE);  //TODO fix
+        _walletManager.setCurrencySettings(Currency.BTC, btcSettings);
     }
 
     private class InitColuManagerTask extends AsyncTask<Void, Void, Optional<ColuManager>> {
@@ -513,6 +515,9 @@ public class MbwManager {
 
     public void setDefaultAddressType(AddressType addressType) {
         defaultAddressType = addressType;
+        BTCSettings currencySettings = (BTCSettings) _walletManager.getCurrencySettings(Currency.BTC);
+        currencySettings.setDefaultAddressType(addressType);
+        _walletManager.setCurrencySettings(Currency.BTC, currencySettings);
         getEditor().putString(Constants.DEFAULT_ADDRESS_MODE, addressType.name()).apply();
     }
 
@@ -1270,8 +1275,7 @@ public class MbwManager {
     public UUID createAdditionalBip44Account(Context context) {
         UUID accountId;
         try {
-            accountId = _walletManager.createAdditionalBip44Account(AesKeyCipher.defaultKeyCipher(),
-                    MbwManager.getInstance(context).getDefaultAddressType());
+            accountId = _walletManager.createAdditionalBip44Account(AesKeyCipher.defaultKeyCipher());
             //set default label for the created HD account
             WalletAccount account = _walletManager.getAccount(accountId);
             String defaultName = Utils.getNameForNewAccount(account, context);

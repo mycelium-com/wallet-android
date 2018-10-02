@@ -303,29 +303,31 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
    }
 
    private void updateBip44AccountContext(HDAccountContext context) {
-      SqliteAccountBacking backing = _backings.get(context.getId());
-      backing.beginTransaction();
+      _database.beginTransaction();
       //UPDATE bip44 SET archived=?,blockheight=?,lastExternalIndexWithActivity=?,lastInternalIndexWithActivity=?,firstMonitoredInternalIndex=?,lastDiscovery=?,accountType=?,accountSubId=? WHERE id=?
-      final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-      try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteStream)) {
+      try {
          _updateBip44Account.bindLong(1, context.isArchived() ? 1 : 0);
          _updateBip44Account.bindLong(2, context.getBlockHeight());
-         objectOutputStream.writeObject(context.getIndexesMap());
+         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+         try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteStream)) {
+            objectOutputStream.writeObject(context.getIndexesMap());
+         }
          _updateBip44Account.bindBlob(3, byteStream.toByteArray());
          _updateBip44Account.bindLong(4, context.getLastDiscovery());
          _updateBip44Account.bindLong(5, context.getAccountType());
          _updateBip44Account.bindLong(6, context.getAccountSubId());
-         _updateBip44Account.bindBlob(7, uuidToBytes(context.getId()));
-         objectOutputStream.reset();
-         byteStream.reset();
-         objectOutputStream.writeObject(context.getDefaultAddressType());
-         _updateBip44Account.bindBlob(8, byteStream.toByteArray());
+         byteStream = new ByteArrayOutputStream();
+         try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteStream)) {
+            objectOutputStream.writeObject(context.getDefaultAddressType());
+         }
+         _updateBip44Account.bindBlob(7, byteStream.toByteArray());
+         _updateBip44Account.bindBlob(8, uuidToBytes(context.getId()));
          _updateBip44Account.execute();
-         backing.setTransactionSuccessful();
+         _database.setTransactionSuccessful();
       } catch (IOException ignore) {
          // should never happen
       } finally {
-         backing.endTransaction();
+         _database.endTransaction();
       }
    }
 
@@ -412,26 +414,28 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
    }
 
    private void updateSingleAddressAccountContext(SingleAddressAccountContext context) {
-      SqliteAccountBacking backing = _backings.get(context.getId());
-      backing.beginTransaction();
-      final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-      try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteStream)) {
+      _database.beginTransaction();
+      try {
          // "UPDATE single SET archived=?,blockheight=? WHERE id=?"
          _updateSingleAddressAccount.bindLong(1, context.isArchived() ? 1 : 0);
          _updateSingleAddressAccount.bindLong(2, context.getBlockHeight());
-         objectOutputStream.writeObject(context.getAddresses());
+         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+         try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteStream)) {
+            objectOutputStream.writeObject(context.getAddresses());
+         }
          _updateSingleAddressAccount.bindBlob(3, byteStream.toByteArray());
-         _updateSingleAddressAccount.bindBlob(4, uuidToBytes(context.getId()));
-         objectOutputStream.reset();
-         byteStream.reset();
-         objectOutputStream.writeObject(context.getDefaultAddressType());
-         _updateSingleAddressAccount.bindBlob(5, byteStream.toByteArray());
+         byteStream = new ByteArrayOutputStream();
+         try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteStream)) {
+            objectOutputStream.writeObject(context.getDefaultAddressType());
+         }
+         _updateSingleAddressAccount.bindBlob(4, byteStream.toByteArray());
+         _updateSingleAddressAccount.bindBlob(5, uuidToBytes(context.getId()));
          _updateSingleAddressAccount.execute();
-         backing.setTransactionSuccessful();
+         _database.setTransactionSuccessful();
       } catch (IOException ignore) {
          // ignore
       } finally {
-         backing.endTransaction();
+         _database.endTransaction();
       }
    }
 

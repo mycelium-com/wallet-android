@@ -87,15 +87,7 @@ import com.mycelium.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wallet.coinapult.CoinapultManager;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.colu.ColuManager;
-import com.mycelium.wallet.event.AccountChanged;
-import com.mycelium.wallet.event.AccountListChanged;
-import com.mycelium.wallet.event.BalanceChanged;
-import com.mycelium.wallet.event.ExchangeSourceChanged;
-import com.mycelium.wallet.event.ExtraAccountsChanged;
-import com.mycelium.wallet.event.ReceivingAddressChanged;
-import com.mycelium.wallet.event.SyncProgressUpdated;
-import com.mycelium.wallet.event.SyncStarted;
-import com.mycelium.wallet.event.SyncStopped;
+import com.mycelium.wallet.event.*;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.api.CreateTrader;
@@ -1215,7 +1207,7 @@ public class AccountsFragment extends Fragment {
                _mbwManager.getWalletManager(false).removeUnusedBip44Account(account);
                //in case user had labeled the account, delete the stored name
                _storage.deleteAccountMetadata(account.getId());
-               //setselected also broadcasts AccountChanged event, which will cause an ui update
+               eventBus.post(new AccountChanged(account.getId()));
                _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
                //we dont want to show the context menu for the automatically selected account
                accountListAdapter.setFocusedAccountId(null);

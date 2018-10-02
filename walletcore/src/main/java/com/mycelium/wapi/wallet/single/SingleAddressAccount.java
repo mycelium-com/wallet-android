@@ -166,6 +166,11 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
 
    }
 
+   public void setDefaultAddressType(AddressType addressType) {
+      _context.setDefaultAddressType(addressType);
+      _context.persistIfNecessary(_backing);
+   }
+
    private boolean discoverTransactions() {
       // Get the latest transactions
       List<Sha256Hash> discovered;
