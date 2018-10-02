@@ -17,11 +17,12 @@ class AddressFragmentBtcModel(val app: Application) : AddressFragmentViewModel(a
             AddressType.P2SH_P2WPKH
         }
 
-        if (account is SingleAddressAccount) {
-            model.accountAddress.value = (account as SingleAddressAccount).getAddress(currentType)
+        if (model.account is SingleAddressAccount) {
+            (model.account as SingleAddressAccount).setDefaultAddressType(currentType)
         } else {
-            model.accountAddress.value = (account as HDAccount).getReceivingAddress(currentType)
+            (model.account as HDAccount).setDefaultAddressType(currentType)
         }
+        model.accountAddress.value = model.account.receivingAddress.get()
         model.addressPath.value =
                 when (showBip44Path) {
                     true -> model.accountAddress.value!!.bip32Path.toString()

@@ -8,8 +8,8 @@ import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity
 class AddressFragmentCoinsModel(app: Application) : AddressFragmentViewModel(app) {
 
     override fun qrClickReaction(activity: FragmentActivity) {
-        if (account.receivingAddress.isPresent) {
-            ReceiveCoinsActivity.callMe(activity, account, account.canSpend())
+        if (model.account.receivingAddress.isPresent) {
+            ReceiveCoinsActivity.callMe(activity, model.account, model.account.canSpend())
         }
     }
 }

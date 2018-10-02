@@ -9,8 +9,6 @@ import com.mycelium.wallet.event.AccountChanged
 import com.mycelium.wallet.event.ReceivingAddressChanged
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.bip44.Bip44BCHAccount
-import com.mycelium.wapi.wallet.bip44.HDAccount
-import com.mycelium.wapi.wallet.single.SingleAddressAccount
 import com.mycelium.wapi.wallet.single.SingleAddressBCHAccount
 import com.squareup.otto.Subscribe
 
@@ -50,27 +48,17 @@ class AddressFragmentModel(
     }
 
     private fun updateAddress(account: WalletAccount) {
-        val defaultAddressType = mbwManager.defaultAddressType
-        accountAddress.value =
-                when (account) {
-                    is SingleAddressAccount -> account.getAddress(defaultAddressType)
-                    is HDAccount -> account.getReceivingAddress(defaultAddressType)
-                    else -> account.receivingAddress.get()
-                }
+        accountAddress.value = account.receivingAddress.get()
     }
 
-    fun onCleared() {
-        mbwManager.eventBus.unregister(this)
-    }
+    fun onCleared() = mbwManager.eventBus.unregister(this)
 
     /**
      * We got a new Receiving Address, either because the selected Account changed,
      * or because our HD Account received Coins and changed the Address
      */
     @Subscribe
-    fun receivingAddressChanged(event: ReceivingAddressChanged) {
-        onAddressChange()
-    }
+    fun receivingAddressChanged(event: ReceivingAddressChanged) = onAddressChange()
 
     @Subscribe
     fun accountChanged(event: AccountChanged) {

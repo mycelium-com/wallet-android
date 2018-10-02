@@ -75,7 +75,10 @@ class AddressFragment : Fragment() {
         ivQR.tapToCycleBrightness = false
         ivQR.qrCode = viewModel.getAccountAddress().value.toString()
 
-        ivAccountType.setImageDrawable(viewModel.getDrawableForAccount(resources))
-        viewModel.getAccountAddress().observe(this, Observer { newAddress -> ivQR.qrCode = newAddress!!.toString() })
+        val drawableForAccount = viewModel.getDrawableForAccount(resources)
+        if (drawableForAccount != null) {
+            ivAccountType.setImageDrawable(drawableForAccount)
+        }
+        viewModel.getAccountAddress().observe(this, Observer { newAddress -> ivQR.qrCode = newAddress?.toString() })
     }
 }

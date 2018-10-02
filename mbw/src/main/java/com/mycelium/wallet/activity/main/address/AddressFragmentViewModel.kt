@@ -14,23 +14,21 @@ import com.mycelium.wapi.wallet.WalletAccount
 abstract class AddressFragmentViewModel(val context: Application) : AndroidViewModel(context) {
     protected val mbwManager = MbwManager.getInstance(context)!!
     protected lateinit var model: AddressFragmentModel
-    protected lateinit var account: WalletAccount
     protected val showBip44Path: Boolean = mbwManager.metadataStorage.showBip44Path
 
     open fun init() {
         if (::model.isInitialized) {
             throw IllegalStateException("This method should be called only once.")
         }
-        this.account = mbwManager.selectedAccount
-        model = AddressFragmentModel(context, account, showBip44Path)
+        model = AddressFragmentModel(context, mbwManager.selectedAccount, showBip44Path)
     }
 
     fun getAccountLabel() = model.accountLabel
     fun getAccountAddress() = model.accountAddress
     fun getAddressPath() = model.addressPath
 
-    fun getDrawableForAccount(resources: Resources): Drawable {
-        return Utils.getDrawableForAccount(account, true, resources)
+    fun getDrawableForAccount(resources: Resources): Drawable? {
+        return Utils.getDrawableForAccount(model.account, true, resources)
     }
 
     override fun onCleared() {
