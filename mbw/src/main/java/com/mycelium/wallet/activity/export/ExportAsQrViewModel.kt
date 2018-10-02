@@ -133,4 +133,6 @@ class ExportAsQrViewModel(val context: Application) : AndroidViewModel(context) 
             context.startActivity(Intent.createChooser(sendIntent, context.resources.getString(R.string.share_xpub)))
         }
     }
+
+    fun isInitialized() = ::model.isInitialized
 }

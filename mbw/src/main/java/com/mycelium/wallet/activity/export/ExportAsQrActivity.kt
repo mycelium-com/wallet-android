@@ -34,7 +34,9 @@ class ExportAsQrActivity : AppCompatActivity() {
 
         val viewModelProvider = ViewModelProviders.of(this)
         viewModel = viewModelProvider.get(ExportAsQrViewModel::class.java)
-        viewModel.init(accountData, isHdAccount)
+        if (!viewModel.isInitialized()) {
+            viewModel.init(accountData, isHdAccount)
+        }
 
         // Inflate view and obtain an instance of the binding class.
         val binding = DataBindingUtil.setContentView<ExportAsQrActivityBinding>(this, R.layout.export_as_qr_activity)
