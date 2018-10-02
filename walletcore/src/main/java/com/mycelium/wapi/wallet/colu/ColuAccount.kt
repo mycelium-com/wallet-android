@@ -3,10 +3,8 @@ package com.mycelium.wapi.wallet.colu
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.model.Transaction
-import com.mycelium.wapi.model.TransactionOutputSummary
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.BtcAddress
-import com.mycelium.wapi.wallet.btc.BtcSendRequest
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import org.apache.commons.codec.binary.Hex
@@ -19,9 +17,10 @@ class ColuAccount(context: ColuAccountContext, val privateKey: InMemoryPrivateKe
                   , networkParameters: NetworkParameters
                   , coluNetworkParameters: org.bitcoinj.core.NetworkParameters
                   , coluClient: ColuApi
-                  , backing: AccountBacking)
+                  , backing: AccountBacking<ColuTransaction>
+                  , listener: AccountListener? = null)
     : ColuPubOnlyAccount(context, privateKey.publicKey, coluCoinType, networkParameters
-        , coluNetworkParameters, coluClient, backing), ExportableAccount {
+        , coluNetworkParameters, coluClient, backing, listener), ExportableAccount {
 
     override fun broadcastOutgoingTransactions(): Boolean {
         return false
@@ -92,27 +91,20 @@ class ColuAccount(context: ColuAccountContext, val privateKey: InMemoryPrivateKe
         }
     }
 
-
-    override fun isDerivedFromInternalMasterseed(): Boolean = true
-
-    override fun dropCachedData() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
     override fun setAllowZeroConfSpending(allowZeroConfSpending: Boolean) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun broadcastTx(transaction: ColuTransaction): BroadcastResult {
-        if (coluClient.broadcastTx(transaction.tx) != null) {
+        if (transaction.tx != null && coluClient.broadcastTx(transaction.tx) != null) {
             return BroadcastResult.SUCCESS
         } else {
             return BroadcastResult.REJECTED
         }
     }
 
-    override fun getSendToRequest(destination: GenericAddress?, amount: Value?): SendRequest<*> {
-        return BtcSendRequest.to(destination as BtcAddress, amount) //TODO change to Colu Send Request
+    override fun getSendToRequest(destination: GenericAddress, amount: Value): SendRequest<*> {
+        return ColuSendRequest(coinType, destination as BtcAddress, amount)
     }
 
     override fun getSyncTotalRetrievedTransactions(): Int = 0

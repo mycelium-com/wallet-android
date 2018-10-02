@@ -6,8 +6,6 @@ import com.mrd.bitlib.util.ByteWriter
 import com.mrd.bitlib.util.HashUtils
 import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.wapi.model.BalanceSatoshis
-import com.mycelium.wapi.model.TransactionEx
-import com.mycelium.wapi.model.TransactionOutputSummary
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.coins.*
@@ -20,7 +18,8 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext, val publicKey: Pu
                               , val networkParameters: NetworkParameters
                               , val coluNetworkParameters: org.bitcoinj.core.NetworkParameters
                               , val coluClient: ColuApi
-                              , val backing: AccountBacking) : WalletAccount<ColuTransaction, BtcAddress> {
+                              , val backing: AccountBacking<ColuTransaction>
+                              , val listener: AccountListener? = null) : WalletAccount<ColuTransaction, BtcAddress> {
     protected var address: GenericAddress
     protected var uuid: UUID
     @Volatile
@@ -28,6 +27,9 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext, val publicKey: Pu
 
     protected var _cachedBalance = BalanceSatoshis(0, 0, 0, 0
             , 0, 0, true, true)
+
+    protected var cachedBalance = Balance(Value.zeroValue(coinType), Value.zeroValue(coinType)
+            , Value.zeroValue(coinType), Value.zeroValue(coinType))
 
 
     init {
@@ -63,31 +65,18 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext, val publicKey: Pu
 
     override fun getCoinType(): CryptoCurrency = coluCoinType
 
-    override fun getAccountBalance(): Balance = Balance(Value.valueOf(coinType, _cachedBalance.confirmed),
-            Value.valueOf(coinType, _cachedBalance.pendingReceiving),
-            Value.valueOf(coinType, _cachedBalance.pendingSending),
-            Value.valueOf(coinType, _cachedBalance.pendingChange))
+    override fun getAccountBalance(): Balance = cachedBalance
 
 
     override fun isMineAddress(address: GenericAddress?) = receiveAddress == address
 
     override fun getTx(transactionId: Sha256Hash?): ColuTransaction? {
         //        checkNotArchived()
-        val tex = backing.getTransaction(transactionId)
-        val tx = TransactionEx.toTransaction(tex) ?: return null
-        return convertTx(tx, tex.height, tex.time)
+        return backing.getTx(transactionId)
     }
 
     override fun getTransactions(offset: Int, limit: Int): List<ColuTransaction> {
-        val transactions = backing.getTransactionHistory(offset, limit)
-        val result = mutableListOf<ColuTransaction>()
-        transactions.forEach { txEx ->
-            val tx = TransactionEx.toTransaction(txEx)
-            tx?.let {
-                result.add(convertTx(it, txEx.height, txEx.time))
-            }
-        }
-        return result
+        return backing.getTransactions(offset, limit)
     }
 
     private fun convertTx(tx: Transaction, height: Int, time: Int): ColuTransaction {
@@ -136,11 +125,12 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext, val publicKey: Pu
         val isQueuedOutgoing = backing.isOutgoingTransaction(tx.id)
 
 
-        return ColuTransaction(coinType
+        return ColuTransaction(tx.id, coinType
                 , Value.valueOf(coinType, satoshisSent)
                 , Value.valueOf(coinType, satoshisReceived)
                 , time
-                , tx, confirmations, isQueuedOutgoing)
+                , tx, confirmations, isQueuedOutgoing
+                , inputs, outputs)
 //            , satoshisSent, satoshisReceived, tex.time,
 //                    confirmations, isQueuedOutgoing, inputs, outputs, riskAssessmentForUnconfirmedTx.get(tx.id),
 //                    tex.binary.size, Value.valueOf(BitcoinMain.get(), Math.abs(satoshisReceived - satoshisSent)))
@@ -154,13 +144,96 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext, val publicKey: Pu
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun getSendToRequest(destination: GenericAddress?, amount: Value?): SendRequest<*> {
+    override fun getSendToRequest(destination: GenericAddress, amount: Value): SendRequest<*> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
+    @Synchronized
     override fun synchronize(mode: SyncMode?): Boolean {
-        return false
+//        Log.e(TAG, "getBalances: address=" + address.get().toString())
+
+
+        // collect all tx history at that address from mycelium wapi server (non colored)
+//        val allTxidList = LinkedList<com.mrd.bitlib.util.Sha256Hash>()
+
+//        val wapiClient = getWapi()
+//        if (wapiClient == null) {
+//            Log.e(TAG, "getTransactionSummaries: wapiClient not found !")
+//            return
+//        }
+
+        // retrieve history from colu server
+        val transactions = coluClient.getAddressTransactions(receiveAddress)
+        backing.putTransactions(transactions)
+
+        cachedBalance = calculateBalance(transactions)
+        listener?.balanceUpdated(this)
+
+
+//        if (addressInfoWithTransactions.transactions != null && addressInfoWithTransactions!!.transactions.size > 0) {
+//            account.setHistory(addressInfoWithTransactions!!.transactions)
+//            for (historyTx in addressInfoWithTransactions!!.transactions) {
+//                allTxidList.add(com.mrd.bitlib.util.Sha256Hash.fromString(historyTx.txid))
+//            }
+//        }
+
+//        try {
+//            val unspentOutputResponse = wapiClient!!.queryUnspentOutputs(QueryUnspentOutputsRequest(Wapi.VERSION, account.getSendingAddresses()))
+//                    .getResult()
+//            account.setBlockChainHeight(unspentOutputResponse.height)
+//        } catch (e: WapiException) {
+//            Log.w(TAG, "Warning ! Error accessing unspent outputs response: " + e.message)
+//        }
+//
+//
+//        account.setUtxos(addressInfoWithTransactions!!.utxos)
+
+        // start additional code to retrieve extended info from wapi server
+//        val trRequest = GetTransactionsRequest(2, allTxidList)
+//        val wapiResponse = wapiClient!!.getTransactions(trRequest)
+//        var trResponse: GetTransactionsResponse? = null
+//        if (wapiResponse == null) {
+//            return
+//        }
+//        try {
+//            trResponse = wapiResponse!!.getResult()
+//        } catch (e: Exception) {
+//            Log.w(TAG, "Warning ! Error accessing transaction response: " + e.message)
+//        }
+
+
+//        if (trResponse != null && trResponse.transactions != null) {
+//            account.setHistoryTxInfos(trResponse.transactions)
+//        }
+        return true
     }
+
+    private fun calculateBalance(transactions: List<ColuTransaction>): Balance {
+        var confirmed = Value.zeroValue(coinType)
+        var receiving = Value.zeroValue(coinType)
+        var sending = Value.zeroValue(coinType)
+
+        for (tx in transactions) {
+            tx.inputs.forEach {
+                if (tx.depthInBlocks < 6 && isMineAddress(it.address)) {
+                    sending = sending.add(it.value)
+                } else if (isMineAddress(it.address)) {
+                    confirmed = confirmed.subtract(it.value)
+                }
+            }
+            tx.outputs.forEach {
+                if (tx.depthInBlocks < 6 && isMineAddress(it.address)) {
+                    receiving = receiving.add(it.value)
+                } else if (isMineAddress(it.address)) {
+                    confirmed = confirmed.add(it.value)
+                }
+            }
+
+        }
+//            storeColuBalance(account.getUuid(), assetConfirmedBalance.toString())
+        return Balance(confirmed, receiving, sending, Value.zeroValue(coinType))
+    }
+
 
     override fun canSpend(): Boolean = false
 
@@ -173,14 +246,11 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext, val publicKey: Pu
     override fun activateAccount() = context.setArchived(false)
 
     override fun dropCachedData() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun isVisible() = true
 
-    override fun isDerivedFromInternalMasterseed(): Boolean {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun isDerivedFromInternalMasterseed(): Boolean = false
 
     override fun isSynchronizing() = _isSynchronizing
 

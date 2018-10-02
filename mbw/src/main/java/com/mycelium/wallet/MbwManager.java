@@ -88,9 +88,11 @@ import com.mycelium.wallet.activity.util.Pin;
 import com.mycelium.wallet.api.AndroidAsyncApi;
 import com.mycelium.wallet.bitid.ExternalService;
 import com.mycelium.wallet.coinapult.CoinapultManager;
+import com.mycelium.wallet.colu.ColuApiImpl;
 import com.mycelium.wallet.colu.ColuClient;
 import com.mycelium.wallet.colu.ColuManager;
 import com.mycelium.wallet.colu.SqliteColuManagerBacking;
+import com.mycelium.wallet.event.BalanceChanged;
 import com.mycelium.wallet.event.EventTranslator;
 import com.mycelium.wallet.event.ExtraAccountsChanged;
 import com.mycelium.wallet.event.ReceivingAddressChanged;
@@ -111,6 +113,7 @@ import com.mycelium.wallet.persistence.TradeSessionDb;
 import com.mycelium.wallet.wapi.SqliteWalletManagerBackingWrapper;
 import com.mycelium.wapi.api.WapiClientElectrumX;
 import com.mycelium.wapi.api.jsonrpc.TcpEndpoint;
+import com.mycelium.wapi.wallet.AccountListener;
 import com.mycelium.wapi.wallet.AccountProvider;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.GenericAddress;
@@ -121,20 +124,21 @@ import com.mycelium.wapi.wallet.SpvBalanceFetcher;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
+import com.mycelium.wapi.wallet.bch.single.BitcoinCashSingleAddressModule;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
+import com.mycelium.wapi.wallet.btc.BtcTransaction;
 import com.mycelium.wapi.wallet.btc.InMemoryWalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking;
+import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
 import com.mycelium.wapi.wallet.btc.bip44.ExternalSignatureProviderProxy;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
+import com.mycelium.wapi.wallet.btc.single.BitcoinSingleAddressModule;
 import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext;
-import com.mycelium.wapi.wallet.manager.WalletManagerkt;
-import com.mycelium.wapi.wallet.bch.single.BitcoinCashSingleAddressModule;
-import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
-import com.mycelium.wapi.wallet.btc.single.BitcoinSingleAddressModule;
 import com.mycelium.wapi.wallet.colu.ColuModule;
+import com.mycelium.wapi.wallet.manager.WalletManagerkt;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -647,7 +651,7 @@ public class MbwManager {
 
     private WalletManagerkt createWalletManagerkt(final Context context, MbwEnvironment environment) {
         // Create persisted account backing
-        WalletManagerBacking<SingleAddressAccountContext> backing = new SqliteWalletManagerBackingWrapper(context);
+        WalletManagerBacking<SingleAddressAccountContext, BtcTransaction> backing = new SqliteWalletManagerBackingWrapper(context);
 
         // Create persisted secure storage instance
         SecureKeyValueStore secureKeyValueStore = new SecureKeyValueStore(backing,
@@ -684,7 +688,20 @@ public class MbwManager {
         } else {
             netParams = RegTestParams.get();
         }
-        result.add(new ColuModule(networkParameters, netParams, publicPrivateKeyStore, coluClient, coluBacking));
+
+        result.add(new ColuModule(networkParameters, netParams, publicPrivateKeyStore
+                , new ColuApiImpl(coluClient), coluBacking
+                , new AccountListener() {
+            @Override
+            public void balanceUpdated(final WalletAccount<?, ?> walletAccount) {
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        _eventBus.post(new BalanceChanged(walletAccount.getId()));
+                    }
+                });
+            }
+        }));
         result.init();
 
         // notify the walletManager about the current selected account
@@ -1221,7 +1238,9 @@ public class MbwManager {
       UUID uuid = getLastSelectedAccountId();
 
         // If nothing is selected, or selected is archived, pick the first one
-        if (uuid == null || !_walletManager.hasAccount(uuid) || _walletManager.getAccount(uuid).isArchived()) {
+       if (uuid != null && WalletManagerkt.INSTANCE.hasAccount(uuid) && WalletManagerkt.INSTANCE.getAccount(uuid).isActive()) {
+           return WalletManagerkt.INSTANCE.getAccount(uuid);
+       } else if (uuid == null || !_walletManager.hasAccount(uuid) || _walletManager.getAccount(uuid).isArchived()) {
             if (_walletManager.getActiveAccounts().isEmpty()) {
                 // That case should never happen, because we prevent users from archiving all of their
                 // accounts.
@@ -1265,8 +1284,10 @@ public class MbwManager {
     }
 
     public void setSelectedAccount(UUID uuid) {
-        final WalletAccount account;
-        account = _walletManager.getAccount(uuid);
+        WalletAccount account = _walletManager.getAccount(uuid);
+        if(account == null) {
+            account = WalletManagerkt.INSTANCE.getAccount(uuid);
+        }
         Preconditions.checkState(account.isActive());
         getEditor().putString(SELECTED_ACCOUNT, uuid.toString()).apply();
         getEventBus().post(new SelectedAccountChanged(uuid));

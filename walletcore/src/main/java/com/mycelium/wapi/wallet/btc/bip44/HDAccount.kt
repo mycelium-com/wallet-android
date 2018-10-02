@@ -35,6 +35,7 @@ import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher
 import com.mycelium.wapi.wallet.WalletManager.Event
 import com.mrd.bitlib.crypto.BipDerivationType.Companion.getDerivationTypeByAddress
+import com.mycelium.wapi.model.TransactionOutputEx
 import com.mycelium.wapi.wallet.btc.*
 
 import java.util.ArrayList

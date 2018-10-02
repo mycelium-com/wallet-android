@@ -1,10 +1,13 @@
 package com.mycelium.wapi.wallet.colu
 
 import com.mrd.bitlib.crypto.PublicKey
+import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.model.AddressType
 import com.mrd.bitlib.model.NetworkParameters
+import com.mycelium.wapi.wallet.AccountListener
 import com.mycelium.wapi.wallet.AesKeyCipher
 import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking
 import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore
 import com.mycelium.wapi.wallet.manager.Config
@@ -16,7 +19,8 @@ class ColuModule(val networkParameters: NetworkParameters
                  , val netParams: org.bitcoinj.core.NetworkParameters
                  , internal val publicPrivateKeyStore: PublicPrivateKeyStore
                  , val coluApi: ColuApi
-                 , val backing: WalletManagerBacking<ColuAccountContext>) : WalletModule {
+                 , val backing: WalletManagerBacking<ColuAccountContext, ColuTransaction>
+                 , val listener: AccountListener) : WalletModule {
 
     override fun getId(): String = "colored coin module"
 
@@ -24,17 +28,18 @@ class ColuModule(val networkParameters: NetworkParameters
         val contexts = backing.loadAccountContexts()
         val result = mutableMapOf<UUID, WalletAccount<*, *>>()
         for (context in contexts) {
-            val account: ColuPubOnlyAccount
-            val accountKey = publicPrivateKeyStore.getPrivateKey(context.address, AesKeyCipher.defaultKeyCipher())
-            if (accountKey == null) {
-                account = ColuPubOnlyAccount(context
+            val accountKey = publicPrivateKeyStore.getPrivateKey(Address(context.address.allAddressBytes), AesKeyCipher.defaultKeyCipher())
+            val account = if (accountKey == null) {
+                ColuPubOnlyAccount(context
                         , PublicKey(context.address.allAddressBytes)
                         , context.coinType, networkParameters, netParams, coluApi
-                        , backing.getAccountBacking(context.id))
+                        , backing.getAccountBacking(context.id)
+                        , listener)
             } else {
-                account = ColuAccount(context
+                ColuAccount(context
                         , accountKey, context.coinType, networkParameters, netParams, coluApi
-                        , backing.getAccountBacking(context.id))
+                        , backing.getAccountBacking(context.id)
+                        , listener)
             }
             result[account.id] = account
         }
@@ -48,20 +53,22 @@ class ColuModule(val networkParameters: NetworkParameters
                 val cfg = config as PrivateColuConfig
                 val id = ColuUtils.getGuidForAsset(cfg.coinType, cfg.privateKey.publicKey.publicKeyBytes)
                 val context = ColuAccountContext(id, cfg.coinType
-                        , cfg.privateKey.publicKey.toAddress(networkParameters, AddressType.P2PKH)!!
+                        , BtcAddress(cfg.coinType, cfg.privateKey.publicKey.publicKeyBytes)
                         , false, 0)
+                backing.createAccountContext(context)
                 result = ColuAccount(context, cfg.privateKey, cfg.coinType, networkParameters, netParams
-                        , coluApi, backing.getSingleAddressAccountBacking(id))
-
+                        , coluApi, backing.getAccountBacking(id), listener)
+                publicPrivateKeyStore.setPrivateKey(cfg.privateKey.publicKey.toAddress(networkParameters, AddressType.P2PKH)
+                        , cfg.privateKey, cfg.cipher)
             }
             "colu_public" -> {
                 val cfg = config as PublicColuConfig
                 val id = ColuUtils.getGuidForAsset(cfg.coinType, cfg.publicKey.publicKeyBytes)
-                val context = ColuAccountContext(id, cfg.coinType,
-                        cfg.publicKey.toAddress(networkParameters, AddressType.P2PKH)!!
+                val context = ColuAccountContext(id, cfg.coinType
+                        , BtcAddress(cfg.coinType, cfg.publicKey.publicKeyBytes)
                         , false, 0)
                 result = ColuPubOnlyAccount(context, cfg.publicKey, cfg.coinType, networkParameters
-                        , netParams, coluApi, backing.getSingleAddressAccountBacking(id))
+                        , netParams, coluApi, backing.getAccountBacking(id), listener)
             }
         }
         return result

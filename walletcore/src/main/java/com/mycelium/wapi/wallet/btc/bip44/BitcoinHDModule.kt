@@ -7,6 +7,7 @@ import com.mycelium.wapi.wallet.AesKeyCipher
 import com.mycelium.wapi.wallet.KeyCipher
 import com.mycelium.wapi.wallet.SecureKeyValueStore
 import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.btc.BtcTransaction
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.Companion.ACCOUNT_TYPE_UNRELATED_X_PRIV
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.Companion.ACCOUNT_TYPE_UNRELATED_X_PUB
@@ -16,7 +17,7 @@ import com.mycelium.wapi.wallet.manager.WalletModule
 import java.util.*
 
 
-class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAccountContext>
+class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAccountContext, BtcTransaction>
                       , internal val secureStore: SecureKeyValueStore
                       , internal val networkParameters: NetworkParameters
                       , internal var _wapi: Wapi) : WalletModule {

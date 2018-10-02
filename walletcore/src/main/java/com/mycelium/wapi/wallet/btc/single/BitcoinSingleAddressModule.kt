@@ -7,13 +7,14 @@ import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.wallet.KeyCipher
 import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.btc.BtcTransaction
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking
 import com.mycelium.wapi.wallet.manager.Config
 import com.mycelium.wapi.wallet.manager.WalletModule
 import java.util.*
 
 
-class BitcoinSingleAddressModule(internal val backing: WalletManagerBacking<SingleAddressAccountContext>
+class BitcoinSingleAddressModule(internal val backing: WalletManagerBacking<SingleAddressAccountContext, BtcTransaction>
                                  , internal val publicPrivateKeyStore: PublicPrivateKeyStore
                                  , internal val networkParameters: NetworkParameters
                                  , internal var _wapi: Wapi) : WalletModule {

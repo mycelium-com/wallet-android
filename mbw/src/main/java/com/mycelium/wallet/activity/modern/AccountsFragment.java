@@ -118,6 +118,7 @@ import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.Value;
+import com.mycelium.wapi.wallet.manager.WalletManagerkt;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -236,6 +237,9 @@ public class AccountsFragment extends Fragment {
             //check whether the account is active - we might have scanned the priv key for an archived watchonly
             WalletManager walletManager = _mbwManager.getWalletManager(false);
             WalletAccount account = walletManager.getAccount(accountid);
+            if(account != null) {
+               account = WalletManagerkt.INSTANCE.getAccount(accountid);
+            }
             if (account.isActive()) {
                _mbwManager.setSelectedAccount(accountid);
             }
@@ -1035,7 +1039,7 @@ public class AccountsFragment extends Fragment {
       }
       accountListAdapter.getFocusedAccount().dropCachedData();
       _mbwManager.getWalletManager(false).startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
-      _mbwManager.getColuManager().startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
+//      _mbwManager.getColuManager().startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
    }
 
    private void exportSelectedPrivateKey() {

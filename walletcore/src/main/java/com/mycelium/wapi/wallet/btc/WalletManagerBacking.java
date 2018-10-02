@@ -18,6 +18,7 @@ package com.mycelium.wapi.wallet.btc;
 
 import com.mycelium.wapi.api.lib.FeeEstimation;
 import com.mycelium.wapi.wallet.AccountBacking;
+import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.SecureKeyValueStoreBacking;
 import com.mycelium.wapi.wallet.SingleAddressAccountBacking;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
@@ -26,7 +27,7 @@ import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext;
 import java.util.List;
 import java.util.UUID;
 
-public interface WalletManagerBacking<AccountContext> extends SecureKeyValueStoreBacking {
+public interface WalletManagerBacking<AccountContext, T extends GenericTransaction> extends SecureKeyValueStoreBacking {
     void beginTransaction();
 
     void setTransactionSuccessful();
@@ -58,5 +59,7 @@ public interface WalletManagerBacking<AccountContext> extends SecureKeyValueStor
 
     List<AccountContext> loadAccountContexts();
 
-    AccountBacking getAccountBacking(UUID accountId);
+    AccountBacking<T> getAccountBacking(UUID accountId);
+
+    void createAccountContext(AccountContext context);
 }

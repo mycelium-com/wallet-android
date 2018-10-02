@@ -18,10 +18,10 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.util.AdaptiveDateFormat;
 import com.mycelium.wallet.activity.util.TransactionConfirmationsDisplay;
+import com.mycelium.wallet.activity.util.ValueExtentionsKt;
 import com.mycelium.wallet.persistence.MetadataStorage;
-import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.GenericTransaction;
-import com.mycelium.wapi.wallet.currency.CurrencyValue;
+import com.mycelium.wapi.wallet.coins.Value;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -107,7 +107,8 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransaction> {
       TextView tvAmount = (TextView) rowView.findViewById(R.id.tvAmount);
       //Maybe it's wrong
 
-      tvAmount.setText(MbwManager.getInstance(_context).getBtcValueString(record.isIncoming()?record.getReceived().getValue() : record.getSent().getValue()));
+      Value valueTx = record.isIncoming() ? record.getReceived() : record.getSent();
+      tvAmount.setText(ValueExtentionsKt.toStringWithUnit(valueTx, _mbwManager.getBitcoinDenomination()));
       tvAmount.setTextColor(color);
 
       // Set alternative value

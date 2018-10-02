@@ -32,6 +32,11 @@ public class FiatAddress implements GenericAddress {
     }
 
     @Override
+    public byte[] getAllAddressBytes() {
+        return new byte[0];
+    }
+
+    @Override
     public String toMultiLineString() {
         return null;
     }

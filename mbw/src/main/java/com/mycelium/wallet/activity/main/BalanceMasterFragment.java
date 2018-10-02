@@ -53,6 +53,7 @@ import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.event.TorStateChanged;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
 import com.squareup.otto.Subscribe;
 
 public class BalanceMasterFragment extends Fragment {
@@ -74,7 +75,9 @@ public class BalanceMasterFragment extends Fragment {
 
     private void defineAddressAccountView(FragmentTransaction fragmentTransaction, WalletAccount account) {
         fragmentTransaction.replace(R.id.phFragmentAddress,
-                account instanceof ColuAccount && ((ColuAccount) account).getColuAsset().assetType == ColuAccount.ColuAssetType.RMC ?
+                ((account instanceof ColuAccount && ((ColuAccount) account).getColuAsset().assetType == ColuAccount.ColuAssetType.RMC) ||
+                        account.getCoinType() == RMCCoin.INSTANCE)
+                        ?
                         new RMCAddressFragment() : new AddressFragment());
     }
 

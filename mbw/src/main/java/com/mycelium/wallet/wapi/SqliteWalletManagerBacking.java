@@ -62,6 +62,7 @@ import com.mycelium.wapi.model.TransactionOutputEx;
 import com.mycelium.wapi.wallet.AccountBacking;
 import com.mycelium.wapi.wallet.btc.Bip44AccountBacking;
 import com.mycelium.wapi.wallet.SingleAddressAccountBacking;
+import com.mycelium.wapi.wallet.btc.BtcTransaction;
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking;
 import com.mrd.bitlib.crypto.BipDerivationType;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
@@ -87,7 +88,7 @@ import java.util.UUID;
 
 import static com.mycelium.wallet.persistence.SQLiteQueryWithBlobs.uuidToBytes;
 
-public class SqliteWalletManagerBacking implements WalletManagerBacking<SingleAddressAccountContext> {
+public class SqliteWalletManagerBacking implements WalletManagerBacking<SingleAddressAccountContext, BtcTransaction> {
    private static final String LOG_TAG = "SqliteAccountBacking";
    private static final String TABLE_KV = "kv";
    private static final int DEFAULT_SUB_ID = 0;
@@ -173,6 +174,11 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking<SingleAd
    @Override
    public List<SingleAddressAccountContext> loadAccountContexts() {
       return loadSingleAddressAccountContexts();
+   }
+
+   @Override
+   public void createAccountContext(SingleAddressAccountContext singleAddressAccountContext) {
+      createSingleAddressAccountContext(singleAddressAccountContext);
    }
 
    @Override
@@ -735,6 +741,21 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking<SingleAd
             _insertTxRefersParentTx.bindBlob(2, SQLiteQueryWithBlobs.outPointToBytes(output));
             _insertTxRefersParentTx.executeInsert();
          }
+      }
+
+      @Override
+      public BtcTransaction getTx(Sha256Hash hash) {
+         return null;
+      }
+
+      @Override
+      public List<BtcTransaction> getTransactions(int offset, int limit) {
+         return null;
+      }
+
+      @Override
+      public void putTransactions(List<BtcTransaction> txList) {
+
       }
 
       @Override

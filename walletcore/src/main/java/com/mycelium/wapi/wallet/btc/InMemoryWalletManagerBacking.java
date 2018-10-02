@@ -34,7 +34,7 @@ import java.util.*;
 /**
  * Backing for a wallet manager which is only kept temporarily in memory
  */
-public class InMemoryWalletManagerBacking implements WalletManagerBacking<SingleAddressAccountContext> {
+public class InMemoryWalletManagerBacking implements WalletManagerBacking<SingleAddressAccountContext, BtcTransaction> {
    private final Map<String, byte[]> _values = new HashMap<>();
    private final Map<UUID, InMemoryAccountBacking> _backings = new HashMap<>();
    private final Map<UUID, HDAccountContext> _bip44Contexts = new HashMap<>();
@@ -118,6 +118,11 @@ public class InMemoryWalletManagerBacking implements WalletManagerBacking<Single
    @Override
    public AccountBacking getAccountBacking(UUID accountId) {
       return getSingleAddressAccountBacking(accountId);
+   }
+
+   @Override
+   public void createAccountContext(SingleAddressAccountContext singleAddressAccountContext) {
+
    }
 
 
@@ -374,6 +379,21 @@ public class InMemoryWalletManagerBacking implements WalletManagerBacking<Single
          for (OutPoint outpoint : refersOutputs) {
             _txRefersParentTxOpus.put(txId, outpoint);
          }
+      }
+
+      @Override
+      public BtcTransaction getTx(Sha256Hash hash) {
+         return null;
+      }
+
+      @Override
+      public List<BtcTransaction> getTransactions(int offset, int limit) {
+         return null;
+      }
+
+      @Override
+      public void putTransactions(List<BtcTransaction> txList) {
+
       }
 
       @Override

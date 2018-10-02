@@ -8,6 +8,7 @@ import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.wallet.KeyCipher
 import com.mycelium.wapi.wallet.SpvBalanceFetcher
 import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.btc.BtcTransaction
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking
 import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
@@ -19,7 +20,7 @@ import com.mycelium.wapi.wallet.btc.single.PublicSingleConfig
 import java.util.*
 
 
-class BitcoinCashSingleAddressModule(internal val backing: WalletManagerBacking<SingleAddressAccountContext>
+class BitcoinCashSingleAddressModule(internal val backing: WalletManagerBacking<SingleAddressAccountContext, BtcTransaction>
                                      , internal val publicPrivateKeyStore: PublicPrivateKeyStore
                                      , internal val networkParameters: NetworkParameters
                                      , internal val spvBalanceFetcher: SpvBalanceFetcher

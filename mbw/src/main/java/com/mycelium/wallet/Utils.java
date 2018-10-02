@@ -37,8 +37,8 @@ package com.mycelium.wallet;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.ClipboardManager;
 import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -101,11 +101,14 @@ import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
+import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
 import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
-import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coins.Value;
+import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
+import com.mycelium.wapi.wallet.colu.coins.MTCoin;
+import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
 import com.mycelium.wapi.wallet.currency.BitcoinValue;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
@@ -116,7 +119,6 @@ import org.ocpsoft.prettytime.PrettyTime;
 import org.ocpsoft.prettytime.TimeUnit;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Calendar;
@@ -875,6 +877,18 @@ public class Utils {
                return account.canSpend() ? resources.getDrawable(R.drawable.rmc_icon)
                        : resources.getDrawable(R.drawable.rmc_icon_no_priv_key);
          }
+      }
+      if (walletAccount instanceof com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount) {
+         com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount account = (com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount) walletAccount;
+         if (account.getCoinType() == MTCoin.INSTANCE) {
+            return account.canSpend() ? resources.getDrawable(R.drawable.mt_icon) :
+                    resources.getDrawable(R.drawable.mt_icon_no_priv_key);
+         } else if (account.getCoinType() == MASSCoin.INSTANCE) {
+            return account.canSpend() ? resources.getDrawable(R.drawable.mass_icon)
+                    : resources.getDrawable(R.drawable.mass_icon_no_priv_key);
+         } else if (account.getCoinType() == RMCCoin.INSTANCE)
+            return account.canSpend() ? resources.getDrawable(R.drawable.rmc_icon)
+                    : resources.getDrawable(R.drawable.rmc_icon_no_priv_key);
       }
 
       // Watch only

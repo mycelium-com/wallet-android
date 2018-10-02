@@ -115,7 +115,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    protected BalanceSatoshis _cachedBalance;
 
    private EventHandler _eventHandler;
-   private final AccountBacking _backing;
+   private final AccountBacking<BtcTransaction> _backing;
    protected int syncTotalRetrievedTransactions = 0;
 
    protected AbstractBtcAccount(AccountBacking backing, NetworkParameters network, Wapi wapi) {

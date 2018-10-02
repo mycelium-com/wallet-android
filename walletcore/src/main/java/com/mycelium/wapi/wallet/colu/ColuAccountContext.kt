@@ -1,12 +1,12 @@
 package com.mycelium.wapi.wallet.colu
 
-import com.mrd.bitlib.model.Address
+import com.mycelium.wapi.wallet.GenericAddress
 import com.mycelium.wapi.wallet.colu.coins.ColuMain
 import java.util.*
 
 
 class ColuAccountContext(val id: UUID, val coinType: ColuMain
-                         , val address: Address
+                         , val address: GenericAddress
                          , private var isArchived: Boolean, var blockHeight: Int) {
 
     /**

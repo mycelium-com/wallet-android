@@ -5,10 +5,11 @@ import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
 
+import java.io.Serializable;
 import java.util.List;
 
 public interface GenericTransaction {
-    class GenericOutput {
+    class GenericOutput implements Serializable {
         final GenericAddress genericAddress;
         final Value value;
 

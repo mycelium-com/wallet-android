@@ -77,10 +77,12 @@ object WalletManagerkt {
 
     fun getAccount(id: UUID): WalletAccount<*, *>? = accounts[id]
 
+    @JvmOverloads
     fun startSynchronization(mode: SyncMode = SyncMode.NORMAL_FORCED) {
-        if (!isNetworkConnected) {
-            return
-        }
+//        if (!isNetworkConnected) {
+//            return
+//        }
+        Thread(Synchronizer(mode)).start()
     }
 
     fun getAccounts(): List<WalletAccount<*, *>> = accounts.values.toList()

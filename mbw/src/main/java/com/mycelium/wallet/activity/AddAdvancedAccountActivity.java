@@ -75,13 +75,18 @@ import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
+import com.mycelium.wapi.wallet.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.coins.Value;
+import com.mycelium.wapi.wallet.colu.PrivateColuConfig;
+import com.mycelium.wapi.wallet.colu.coins.ColuMain;
+import com.mycelium.wapi.wallet.manager.WalletManagerkt;
 
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -418,7 +423,7 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
          try {
             //Check whether this address is already used in any account
             for (AddressType addressType : AddressType.values()) {
-               address = (BtcAddress)key.getPublicKey().toAddress(_mbwManager.getNetwork(), addressType);
+               address = new BtcAddress(BitcoinMain.get(), key.getPublicKey().toAddress(_mbwManager.getNetwork(), addressType).getAllAddressBytes());
                Optional<UUID> accountId = _mbwManager.getAccountId(address, null);
                if (accountId.isPresent()) {
                   return null;
@@ -431,7 +436,9 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
             List<ColuAccount.ColuAsset> asset = new ArrayList<>(coluManager.getColuAddressAssets(key.getPublicKey().toAddress(_mbwManager.getNetwork(), AddressType.P2PKH)));
 
             if (asset.size() > 0) {
-               acc = _mbwManager.getColuManager().enableAsset(asset.get(0), key);
+               ColuMain coinType = coluManager.coinMap.get(asset.get(0).id);
+//               acc = _mbwManager.getColuManager().enableAsset(, key);
+               WalletManagerkt.INSTANCE.createAccounts(new PrivateColuConfig(key, coinType, AesKeyCipher.defaultKeyCipher()));
             } else {
                askUserForColorize = true;
             }
@@ -467,7 +474,10 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
                              account = returnSAAccount(key, backupState);
                           } else {
                              ColuAccount.ColuAsset coluAsset = ColuAccount.ColuAsset.getByType(ColuAccount.ColuAssetType.parse(list.get(selectedItem)));
-                             account = _mbwManager.getColuManager().enableAsset(coluAsset, key);
+//                             account = _mbwManager.getColuManager().enableAsset(coluAsset, key);
+                             ColuMain coinType = _mbwManager.getColuManager().coinMap.get(coluAsset.id);
+                             List<UUID> accounts = WalletManagerkt.INSTANCE.createAccounts(new PrivateColuConfig(key, coinType, AesKeyCipher.defaultKeyCipher()));
+                             account = accounts.get(0);
                           }
                           finishOk(account, false);
                        }
