@@ -34,6 +34,7 @@ import com.mycelium.wapi.model.Balance;
 import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
 import com.mycelium.wapi.wallet.WalletManager.Event;
+import com.mycelium.wapi.wallet.bip44.ChangeAddressMode;
 
 import java.util.*;
 
@@ -43,10 +44,13 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
    private volatile boolean _isSynchronizing;
    private PublicPrivateKeyStore _keyStore;
    private SingleAddressAccountBacking _backing;
+   private Reference<ChangeAddressMode> changeAddressModeReference;
 
    public SingleAddressAccount(SingleAddressAccountContext context, PublicPrivateKeyStore keyStore,
-                               NetworkParameters network, SingleAddressAccountBacking backing, Wapi wapi) {
+                               NetworkParameters network, SingleAddressAccountBacking backing, Wapi wapi,
+                               Reference<ChangeAddressMode> changeAddressModeReference) {
       super(backing, network, wapi);
+      this.changeAddressModeReference = changeAddressModeReference;
       _backing = backing;
       type = WalletAccount.Type.BTCSINGLEADDRESS;
       _context = context;
@@ -272,6 +276,16 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
    @Override
    public UUID getId() {
       return _context.getId();
+   }
+
+   @Override
+   protected Address getChangeAddress(Address destinationAddress) {
+      return getAddress();
+   }
+
+   @Override
+   protected Address getChangeAddress(List<Address> destinationAddresses) {
+      return getAddress();
    }
 
    @Override

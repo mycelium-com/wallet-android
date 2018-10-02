@@ -46,7 +46,6 @@ import android.support.annotation.NonNull;
 import android.support.multidex.MultiDexApplication;
 import android.support.v7.app.AppCompatDelegate;
 import android.util.Log;
-
 import com.mycelium.modularizationtools.CommunicationManager;
 import com.mycelium.modularizationtools.ModuleMessageReceiver;
 import com.mycelium.wallet.activity.settings.SettingsPreference;
@@ -54,12 +53,7 @@ import com.mycelium.wallet.modularisation.BCHHelper;
 import com.mycelium.wapi.wallet.WalletAccount;
 
 import java.security.Security;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 public class WalletApplication extends MultiDexApplication implements ModuleMessageReceiver {
     private ModuleMessageReceiver moduleMessageReceiver;

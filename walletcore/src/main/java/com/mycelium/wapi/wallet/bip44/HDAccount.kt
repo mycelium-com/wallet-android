@@ -18,6 +18,7 @@ import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher
 import com.mycelium.wapi.wallet.WalletManager.Event
 import com.mrd.bitlib.crypto.BipDerivationType.Companion.getDerivationTypeByAddress
+import java.lang.IllegalStateException
 
 import java.util.ArrayList
 
@@ -26,7 +27,8 @@ open class HDAccount constructor(
         protected val keyManagerMap: Map<BipDerivationType, HDAccountKeyManager>,
         network: NetworkParameters,
         protected val backing: Bip44AccountBacking,
-        wapi: Wapi
+        wapi: Wapi,
+        protected val changeAddressModeReference: Reference<ChangeAddressMode>
 ) : AbstractAccount(backing, network, wapi), ExportableAccount {
 
     // Used to determine which bips this account support
@@ -431,10 +433,38 @@ open class HDAccount constructor(
     }
 
     // Get the next internal address just above the last address with activity
-    public override fun getChangeAddress(): Address {
-        val derivationType = if (derivePaths.contains(BipDerivationType.BIP49)) {
-            // DEFAULT ADDRESS TYPE
-            BipDerivationType.BIP49
+    public override fun getChangeAddress(destinationAddress: Address): Address {
+        return when (changeAddressModeReference.get()!!) {
+            ChangeAddressMode.P2WPKH -> getChangeAddress(BipDerivationType.BIP84)
+            ChangeAddressMode.P2SH_P2WPKH -> getChangeAddress(BipDerivationType.BIP49)
+            ChangeAddressMode.PRIVACY -> getChangeAddress(getDerivationTypeByAddress(destinationAddress))
+            ChangeAddressMode.NONE -> throw IllegalStateException()
+        }
+    }
+
+    public override fun getChangeAddress(destinationAddresses: List<Address>): Address {
+        val preferredForPrivacy = destinationAddresses.groupingBy { BipDerivationType.getDerivationTypeByAddress(it) }
+                .eachCount()
+                .maxBy { it.value }
+        return when (changeAddressModeReference.get()!!) {
+            ChangeAddressMode.P2WPKH -> getChangeAddress(BipDerivationType.BIP84)
+            ChangeAddressMode.P2SH_P2WPKH -> getChangeAddress(BipDerivationType.BIP49)
+            ChangeAddressMode.PRIVACY -> getChangeAddress(preferredForPrivacy!!.key)
+            ChangeAddressMode.NONE -> throw IllegalStateException()
+        }
+    }
+
+    override fun getChangeAddress(): Address {
+        return when (changeAddressModeReference.get()!!) {
+            ChangeAddressMode.P2WPKH -> getChangeAddress(BipDerivationType.BIP84)
+            ChangeAddressMode.P2SH_P2WPKH, ChangeAddressMode.PRIVACY -> getChangeAddress(BipDerivationType.BIP49)
+            ChangeAddressMode.NONE -> throw IllegalStateException()
+        }
+    }
+
+    private fun getChangeAddress(preferredDerivationType: BipDerivationType): Address {
+        val derivationType = if (derivePaths.contains(preferredDerivationType)) {
+            preferredDerivationType
         } else {
             derivePaths.first()
         }
