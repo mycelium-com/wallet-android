@@ -67,7 +67,7 @@ class AddressFragmentModel(
         onAddressChange()
     }
 
-    private fun onAddressChange() {
+    fun onAddressChange() {
         updateAddress(account)
         updateAddressPath(showBip44Path)
     }

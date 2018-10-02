@@ -22,12 +22,7 @@ class AddressFragmentBtcModel(val app: Application) : AddressFragmentViewModel(a
         } else {
             (model.account as HDAccount).setDefaultAddressType(currentType)
         }
-        model.accountAddress.value = model.account.receivingAddress.get()
-        model.addressPath.value =
-                when (showBip44Path) {
-                    true -> model.accountAddress.value!!.bip32Path.toString()
-                    false -> ""
-                }
+        model.onAddressChange()
     }
 
 }
