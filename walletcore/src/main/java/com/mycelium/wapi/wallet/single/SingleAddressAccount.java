@@ -279,18 +279,62 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
    }
 
    @Override
-   protected Address getChangeAddress(Address destinationAddress) {
+   protected Address getChangeAddress() {
       return getAddress();
+   }
+
+   @Override
+   protected Address getChangeAddress(Address destinationAddress) {
+      Address result;
+      switch (changeAddressModeReference.get()) {
+         case P2WPKH:
+            result = getAddress(AddressType.P2WPKH);
+            break;
+         case P2SH_P2WPKH:
+            result = getAddress(AddressType.P2SH_P2WPKH);
+            break;
+         case PRIVACY:
+            result = getAddress(destinationAddress.getType());
+            break;
+         default:
+            throw new IllegalStateException();
+      }
+      return result;
    }
 
    @Override
    protected Address getChangeAddress(List<Address> destinationAddresses) {
-      return getAddress();
-   }
-
-   @Override
-   protected Address getChangeAddress() {
-      return getAddress();
+      Map<AddressType, Integer> mostUsedTypesMap = new HashMap<>();
+      for (Address address: destinationAddresses) {
+         Integer currentValue = mostUsedTypesMap.get(address.getType());
+         if (currentValue == null) {
+            currentValue = 0;
+         }
+         mostUsedTypesMap.put(address.getType(), currentValue + 1);
+      }
+      int max = 0;
+      AddressType maxedOn = null;
+      for (AddressType addressType : mostUsedTypesMap.keySet()) {
+         if (mostUsedTypesMap.get(addressType) > max) {
+            max = mostUsedTypesMap.get(addressType);
+            maxedOn = addressType;
+         }
+      }
+      Address result;
+      switch (changeAddressModeReference.get()) {
+         case P2WPKH:
+            result = getAddress(AddressType.P2WPKH);
+            break;
+         case P2SH_P2WPKH:
+            result = getAddress(AddressType.P2SH_P2WPKH);
+            break;
+         case PRIVACY:
+            result = getAddress(maxedOn);
+            break;
+         default:
+            throw new IllegalStateException();
+      }
+      return result;
    }
 
    @Override
