@@ -76,13 +76,13 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:gravity="center"
-                android:visibility="@{viewModel.isHdAccount() ? View.VISIBLE : View.GONE}">
+                android:visibility="@{viewModel.isBtcHdAccount() ? View.VISIBLE : View.GONE}">
 
                 <RadioGroup
                     android:id="@+id/rg_key_types"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:checkedButton="@id/rb_key_x"
+                    android:checkedButton="@{viewModel.privateDataSelected ? @id/rb_key_x : @id/rb_key_x}"
                     android:orientation="horizontal">
 
                     <RadioButton
@@ -91,7 +91,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="20dp"
                         android:onClick="@{_ -> viewModel.getToggledData(1)}"
-                        android:text="xpub" />
+                        android:text="@{viewModel.privateDataSelected ? @string/export_toggle_xpriv : @string/export_toggle_xpub}"/>
 
                     <RadioButton
                         android:id="@+id/rb_key_y"
@@ -99,14 +99,14 @@
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="20dp"
                         android:onClick="@{_ -> viewModel.getToggledData(2)}"
-                        android:text="ypub" />
+                        android:text="@{viewModel.privateDataSelected ? @string/export_toggle_ypriv : @string/export_toggle_ypub}" />
 
                     <RadioButton
                         android:id="@+id/rb_key_z"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:onClick="@{_ -> viewModel.getToggledData(3)}"
-                        android:text="zpub" />
+                        android:text="@{viewModel.privateDataSelected ? @string/export_toggle_zpriv : @string/export_toggle_zpub}" />
 
                 </RadioGroup>
             </LinearLayout>

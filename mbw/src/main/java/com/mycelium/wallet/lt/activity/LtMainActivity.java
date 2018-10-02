@@ -75,7 +75,6 @@ import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.ExportableAccount;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.bip44.HDAccount;
 
 public class LtMainActivity extends AppCompatActivity {
    public static final String TAB_TO_SELECT = "tabToSelect";
@@ -291,7 +290,7 @@ public class LtMainActivity extends AppCompatActivity {
       };
 
       ExportAsQrActivity.callMe(this, exportableAccount.getExportData(AesKeyCipher.defaultKeyCipher()),
-              account instanceof HDAccount);
+              account.getType() == WalletAccount.Type.BTCBIP44);
    }
 
    private void deleteTraderAccount() {

@@ -7,46 +7,41 @@ import android.content.Intent
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
-import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wapi.wallet.ExportableAccount
 
 
 class ExportAsQrViewModel(val context: Application) : AndroidViewModel(context) {
-    private val mbwManager = MbwManager.getInstance(context)!!
     private lateinit var model: ExportAsQrModel
-    private lateinit var accountData: ExportableAccount.Data
-    var accountDataString: MutableLiveData<String> = MutableLiveData()
-    private var isHdAccount = false
-    var privateDataSelected: MutableLiveData<Boolean> = MutableLiveData()  // whether user switched to private
-    var showRedWarning: MutableLiveData<Boolean> = MutableLiveData()       // show warning instead of qr for private
+    val accountDataString: MutableLiveData<String> = MutableLiveData()
+    val privateDataSelected: MutableLiveData<Boolean> = MutableLiveData()  // whether user switched to private
+    val showRedWarning: MutableLiveData<Boolean> = MutableLiveData()       // show warning instead of qr for private
     private var hasWarningAccepted = false
+    var isBtcHdAccount = false
+        private set
 
-    fun init(accountData: ExportableAccount.Data, isHdAccount: Boolean) {
+    fun init(accountData: ExportableAccount.Data, isBtcHdAccount: Boolean) {
         if (::model.isInitialized) {
             throw IllegalStateException("This method should be called only once.")
         }
         model = ExportAsQrModel(context, accountData)
-        this.accountData = accountData
-        this.isHdAccount = isHdAccount
-        accountDataString.value = accountData.privateData.get()
+        this.isBtcHdAccount = isBtcHdAccount
+        accountDataString.value = accountData.publicData.get()
 
         updateData(false)
     }
 
-    fun hasPrivateData(): Boolean = accountData.privateData.isPresent
-
-    fun isHdAccount(): Boolean = isHdAccount
+    fun hasPrivateData(): Boolean = model.hasPrivateData()
 
     fun updateData(privateDataSelected: Boolean) {
         this.privateDataSelected.value = privateDataSelected
         if (privateDataSelected) {
             showRedWarning.value = !hasWarningAccepted
-            accountDataString.value = accountData.privateData.get()
+            accountDataString.value = model.accountData.privateData.get()
         } else {
             showRedWarning.value = false
-            accountDataString.value = accountData.publicData.get()
+            accountDataString.value = model.accountData.publicData.get()
         }
     }
 
@@ -121,23 +116,23 @@ class ExportAsQrViewModel(val context: Application) : AndroidViewModel(context) 
             val builder = AlertDialog.Builder(activity)
             builder.setMessage(R.string.export_share_warning).setCancelable(false)
                     .setPositiveButton(R.string.yes) { dialog, id ->
-                        val s = Intent(Intent.ACTION_SEND)
-                        s.type = "text/plain"
-                        s.putExtra(Intent.EXTRA_SUBJECT, context.resources.getString(R.string.xpriv_title))
-                        s.putExtra(Intent.EXTRA_TEXT, accountDataString.value)
-                        context.startActivity(Intent.createChooser(s, context.resources.getString(R.string.share_xpriv)))
+                        val sendIntent = Intent(Intent.ACTION_SEND)
+                        sendIntent.type = "text/plain"
+                        sendIntent.putExtra(Intent.EXTRA_SUBJECT, context.resources.getString(R.string.xpriv_title))
+                        sendIntent.putExtra(Intent.EXTRA_TEXT, accountDataString.value)
+                        context.startActivity(Intent.createChooser(sendIntent, context.resources.getString(R.string.share_xpriv)))
                         dialog.dismiss()
                     }.setNegativeButton(R.string.no) { dialog, id -> }
             val alertDialog = builder.create()
             alertDialog.show()
         } else {
-            val s = Intent(Intent.ACTION_SEND)
-            s.type = "text/plain"
-            s.putExtra(Intent.EXTRA_SUBJECT, context.resources.getString(R.string.xpub_title))
-            s.putExtra(Intent.EXTRA_TEXT, accountDataString.value)
-            context.startActivity(Intent.createChooser(s, context.resources.getString(R.string.share_xpub)))
+            val sendIntent = Intent(Intent.ACTION_SEND)
+            sendIntent.type = "text/plain"
+            sendIntent.putExtra(Intent.EXTRA_SUBJECT, context.resources.getString(R.string.xpub_title))
+            sendIntent.putExtra(Intent.EXTRA_TEXT, accountDataString.value)
+            context.startActivity(Intent.createChooser(sendIntent, context.resources.getString(R.string.share_xpub)))
         }
     }
 
-    override fun onCleared() = model.onCleared()
+    fun isInitialized() = ::model.isInitialized
 }

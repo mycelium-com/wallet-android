@@ -52,6 +52,12 @@
     <string name="transaction_sent">Transaction sent.</string>
     <string name="export">Export account keys</string>
     <string name="export_private_key_red_warning">Only copy this key in a secure environment.\nAnyone who has access to it gains control over all current and in the future available bitcoin for this account.\n\nLong-press here to show the \nQR-Code </string>
+    <string name="export_toggle_xpub">xpub</string>
+    <string name="export_toggle_ypub">ypub</string>
+    <string name="export_toggle_zpub">zpub</string>
+    <string name="export_toggle_xpriv">xpriv</string>
+    <string name="export_toggle_ypriv">ypriv</string>
+    <string name="export_toggle_zpriv">zpriv</string>
     <string name="backup_private_key">Backup</string>
     <string name="copy_to_clipboard">Copy to Clipboard</string>
     <string name="copy_address_to_clipboard">Copy address to Clipboard</string>

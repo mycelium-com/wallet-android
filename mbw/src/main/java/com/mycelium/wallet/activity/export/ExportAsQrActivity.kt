@@ -7,8 +7,6 @@ import android.content.Intent
 import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import android.widget.RadioButton
-import android.widget.RadioGroup
 import android.widget.TextView
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
@@ -36,7 +34,9 @@ class ExportAsQrActivity : AppCompatActivity() {
 
         val viewModelProvider = ViewModelProviders.of(this)
         viewModel = viewModelProvider.get(ExportAsQrViewModel::class.java)
-        viewModel.init(accountData, isHdAccount)
+        if (!viewModel.isInitialized()) {
+            viewModel.init(accountData, isHdAccount)
+        }
 
         // Inflate view and obtain an instance of the binding class.
         val binding = DataBindingUtil.setContentView<ExportAsQrActivityBinding>(this, R.layout.export_as_qr_activity)
@@ -48,7 +48,6 @@ class ExportAsQrActivity : AppCompatActivity() {
         Utils.preventScreenshots(this)
 
         setData()
-        setToggleNames()
     }
 
     // sets key as qr and as textView
@@ -56,29 +55,12 @@ class ExportAsQrActivity : AppCompatActivity() {
         val ivQrCode = findViewById<QrImageView>(R.id.ivQrCode)
         val tvData = findViewById<TextView>(R.id.tvShowData)
 
-        val accountDataObserver = Observer<String> { aString ->
-            ivQrCode.qrCode = aString
-            tvData.text = viewModel.getReadableData(aString!!)
+        val accountDataObserver = Observer<String> {accountData ->
+            ivQrCode.qrCode = accountData
+            tvData.text = viewModel.getReadableData(accountData!!)
         }
 
         viewModel.accountDataString.observe(this, accountDataObserver)
-    }
-
-    private fun setToggleNames(){
-        val toggleNames = arrayOf("xpub", "ypub", "zpub", "xprv", "yprv", "zprv")
-
-        val rgKeyTypes = findViewById<RadioGroup>(R.id.rg_key_types)
-
-        val privateSelectedObserver = Observer<Boolean> { aBool ->
-            (rgKeyTypes.getChildAt(0) as RadioButton).isChecked = true
-
-            val num = if (aBool!!) 3 else 0 // to continue the string iteration from 3 if private
-            for (i in 0 until rgKeyTypes.childCount) {
-                (rgKeyTypes.getChildAt(i) as RadioButton).text = toggleNames[i + num]
-            }
-        }
-
-        viewModel.privateDataSelected.observe(this, privateSelectedObserver)
     }
 
     override fun onPause() {
