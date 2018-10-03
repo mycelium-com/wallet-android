@@ -37,22 +37,25 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
         val mbwManager = MbwManager.getInstance(application)
-        val isColdStorage = intent.getBooleanExtra("isColdStorage", false)
+        val isColdStorage = intent.getBooleanExtra(IS_COLD_STORAGE, false)
         val walletManager = mbwManager.getWalletManager(isColdStorage)
-        val account = walletManager.getAccount(intent.getSerializableExtra("accountUuid") as UUID) as WalletBtcAccount
-        val havePrivateKey = intent.getBooleanExtra("havePrivateKey", false)
-        val showIncomingUtxo = intent.getBooleanExtra("showIncomingUtxo", false)
+        val account = walletManager.getAccount(intent.getSerializableExtra(UUID) as UUID)
+        val havePrivateKey = intent.getBooleanExtra(PRIVATE_KEY, false)
+        val showIncomingUtxo = intent.getBooleanExtra(SHOW_UTXO, false)
         val viewModelProvider = ViewModelProviders.of(this)
 
         viewModel = when (account) {
-            is SingleAddressAccount, is HDAccount, is CoinapultAccount -> viewModelProvider.get(ReceiveBtcViewModel::class.java)
             is SingleAddressBCHAccount, is Bip44BCHAccount -> viewModelProvider.get(ReceiveBchViewModel::class.java)
+            is SingleAddressAccount, is HDAccount, is CoinapultAccount -> viewModelProvider.get(ReceiveBtcViewModel::class.java)
             is ColuAccount -> viewModelProvider.get(ReceiveCoCoViewModel::class.java)
             else -> throw NotImplementedError()
         }
 
         if (!viewModel.isInitialized()) {
             viewModel.init(account, havePrivateKey, showIncomingUtxo)
+        }
+        if (savedInstanceState != null) {
+            viewModel.loadInstance(savedInstanceState)
         }
         activateNfc()
 
@@ -65,20 +68,23 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         //Data binding, should be called after everything else
         val receiveCoinsActivityNBinding =
                 when (account) {
-                    is SingleAddressAccount, is HDAccount ->  {
+                    is SingleAddressBCHAccount, is Bip44BCHAccount -> getDefaultBinding()
+                    is SingleAddressAccount, is HDAccount  ->  {
                         val contentView = DataBindingUtil.setContentView<ReceiveCoinsActivityBtcBinding>(this, R.layout.receive_coins_activity_btc)
                         contentView.viewModel = viewModel as ReceiveBtcViewModel
                         contentView.activity = this
                         contentView
                     }
-                    else -> {
-                        val contentView = DataBindingUtil.setContentView<ReceiveCoinsActivityBinding>(this, R.layout.receive_coins_activity)
-                        contentView.viewModel = viewModel
-                        contentView.activity = this
-                        contentView
-                    }
+                    else -> getDefaultBinding()
                 }
         receiveCoinsActivityNBinding.setLifecycleOwner(this)
+    }
+
+    private fun getDefaultBinding(): ReceiveCoinsActivityBinding {
+        val contentView = DataBindingUtil.setContentView<ReceiveCoinsActivityBinding>(this, R.layout.receive_coins_activity)
+        contentView.viewModel = viewModel
+        contentView.activity = this
+        return contentView
     }
 
     private fun activateNfc() {
@@ -89,6 +95,11 @@ class ReceiveCoinsActivity : AppCompatActivity() {
                 NdefMessage(arrayOf(uriRecord))
             }, this)
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        viewModel.saveInstance(outState)
+        super.onSaveInstanceState(outState)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -102,15 +113,20 @@ class ReceiveCoinsActivity : AppCompatActivity() {
     }
 
     companion object {
+        private const val UUID = "accountUuid"
+        private const val PRIVATE_KEY = "havePrivateKey"
+        private const val SHOW_UTXO = "showIncomingUtxo"
+        private const val IS_COLD_STORAGE = "isColdStorage"
+
         @JvmStatic
         @JvmOverloads
         fun callMe(currentActivity: Activity, account: WalletAccount<*,*>, havePrivateKey: Boolean,
                    showIncomingUtxo: Boolean = false, isColdStorage: Boolean = false) {
             val intent = Intent(currentActivity, ReceiveCoinsActivity::class.java)
-            intent.putExtra("accountUuid", account.id)
-            intent.putExtra("havePrivateKey", havePrivateKey)
-            intent.putExtra("showIncomingUtxo", showIncomingUtxo)
-            intent.putExtra("isColdStorage", isColdStorage)
+            intent.putExtra(UUID, account.id)
+            intent.putExtra(PRIVATE_KEY, havePrivateKey)
+            intent.putExtra(SHOW_UTXO, showIncomingUtxo)
+            intent.putExtra(IS_COLD_STORAGE, isColdStorage)
             currentActivity.startActivity(intent)
         }
     }

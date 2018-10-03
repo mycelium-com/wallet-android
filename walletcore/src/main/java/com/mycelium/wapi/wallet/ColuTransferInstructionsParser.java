@@ -23,7 +23,7 @@ public class ColuTransferInstructionsParser {
     private static final int RANGE_FLAG = 0x40;
     private static final int PERCENT_FLAG = 0x20;
 
-    static final Map<Byte, Integer> SFFC_FLAG_BYTES_MAP = new LinkedHashMap<Byte, Integer>(){{
+    public static final Map<Byte, Integer> SFFC_FLAG_BYTES_MAP = new LinkedHashMap<Byte, Integer>(){{
         put((byte)0x20, 2);
         put((byte)0x40, 3);
         put((byte)0x60, 4);
@@ -50,7 +50,7 @@ public class ColuTransferInstructionsParser {
     private static final int PROTOCOL_IDENTIFIER_BYTE = 0x43;
     public static final int SCRIPTBYTES_MIN_SIZE = 8;
 
-    static int getAmountTotalBytesSFFC(byte flagByte) {
+    public static int getAmountTotalBytesSFFC(byte flagByte) {
         for(byte ssfcFlagByte : SFFC_FLAG_BYTES_MAP.keySet()) {
             if(flagByte == ssfcFlagByte) {
                 return SFFC_FLAG_BYTES_MAP.get(ssfcFlagByte);

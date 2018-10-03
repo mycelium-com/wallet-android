@@ -2,9 +2,11 @@ package com.mycelium.wallet.activity.receive
 
 import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
+import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.Transformations
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
 import com.mrd.bitlib.model.Address
@@ -13,6 +15,7 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.GetAmountActivity
 import com.mycelium.wallet.activity.util.AccountDisplayType
+import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount
 import com.mycelium.wapi.wallet.currency.CurrencyValue
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue
@@ -21,17 +24,25 @@ import com.mycelium.wapi.wallet.currency.ExactCurrencyValue
 abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewModel(context) {
     protected val mbwManager = MbwManager.getInstance(context)!!
     protected lateinit var model: ReceiveCoinsModel
-    protected lateinit var account: WalletBtcAccount
-    lateinit var receivingAddress: Address
+    protected lateinit var account: WalletAccount<*,*>
+    val receivingAddress: MutableLiveData<Address> = MutableLiveData()
     var hasPrivateKey: Boolean = false
 
-    open fun init(account: WalletBtcAccount, hasPrivateKey: Boolean, showIncomingUtxo: Boolean = false) {
+    open fun init(account: WalletAccount<*,*>, hasPrivateKey: Boolean, showIncomingUtxo: Boolean = false) {
         if (::model.isInitialized) {
             throw IllegalStateException("This method should be called only once.")
         }
         this.account = account
-        this.receivingAddress = account.receivingAddress.get()
+        this.receivingAddress.value = (account as WalletBtcAccount).receivingAddress.get()
         this.hasPrivateKey = hasPrivateKey
+    }
+
+    open fun loadInstance(savedInstanceState: Bundle) {
+        model.loadInstance(savedInstanceState)
+    }
+
+    open fun saveInstance(outState: Bundle) {
+        model.saveInstance(outState)
     }
 
     abstract fun getHint(): String
@@ -90,7 +101,7 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
         s.type = "text/plain"
         if (CurrencyValue.isNullOrZero(model.amountData.value)) {
             s.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.bitcoin_address_title))
-            s.putExtra(Intent.EXTRA_TEXT, receivingAddress.toString())
+            s.putExtra(Intent.EXTRA_TEXT, receivingAddress.value.toString())
             context.startActivity(Intent.createChooser(s, context.getString(R.string.share_bitcoin_address))
                     .addFlags(FLAG_ACTIVITY_NEW_TASK))
         } else {
@@ -104,7 +115,7 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
     @Suppress("unused") // used for data binding
     fun copyToClipboard() {
         val text = if (CurrencyValue.isNullOrZero(model.amountData.value)) {
-            receivingAddress.toString()
+            receivingAddress.value.toString()
         } else {
             getPaymentUri()
         }

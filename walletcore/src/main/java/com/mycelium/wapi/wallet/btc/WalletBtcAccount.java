@@ -219,11 +219,6 @@ public interface WalletBtcAccount extends WalletAccount<BtcTransaction, BtcAddre
    boolean onlySyncWhenActive();
 
    /**
-    * Returns the account native currency as a ISO String, e.g. "BTC", "USD", ...
-    */
-   String getAccountDefaultCurrency();
-
-   /**
     * Queue a transaction for broadcasting.
     * <p/>
     * The transaction is broadcast on next synchronization.

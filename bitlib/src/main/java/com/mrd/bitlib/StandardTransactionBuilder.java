@@ -204,7 +204,7 @@ public class StandardTransactionBuilder {
       int estimateTransactionSize = estimateTransactionSize(unsignedTransaction.getFundingOutputs().length,
           unsignedTransaction.getOutputs().length, getSegwitOutputsCount(Arrays.asList(unsignedTransaction.getFundingOutputs())));
       long calculatedFee = unsignedTransaction.calculateFee();
-      float estimatedFeePerKb = (long) ((float) calculatedFee / ((float) estimateTransactionSize / 1000)); // TODO change segwit
+      float estimatedFeePerKb = (long) ((float) calculatedFee / ((float) estimateTransactionSize / 1000));
 
       // set a limit of MAX_MINER_FEE_PER_KB as absolute limit - it is very likely a bug in the fee estimator or transaction composer
       if (estimatedFeePerKb > Transaction.MAX_MINER_FEE_PER_KB) {

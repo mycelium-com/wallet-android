@@ -51,6 +51,13 @@
     <string name="queue_transaction_message">Failed to broadcast transaction.\nWould you like to queue the transaction so it gets sent automatically once you get online?</string>
     <string name="transaction_sent">Transaction sent.</string>
     <string name="export">Export account keys</string>
+    <string name="export_private_key_red_warning">Only copy this key in a secure environment.\nAnyone who has access to it gains control over all current and in the future available bitcoin for this account.\n\nLong-press here to show the \nQR-Code </string>
+    <string name="export_toggle_xpub">xpub</string>
+    <string name="export_toggle_ypub">ypub</string>
+    <string name="export_toggle_zpub">zpub</string>
+    <string name="export_toggle_xprv">xprv</string>
+    <string name="export_toggle_yprv">yprv</string>
+    <string name="export_toggle_zprv">zprv</string>
     <string name="backup_private_key">Backup</string>
     <string name="copy_to_clipboard">Copy to Clipboard</string>
     <string name="copy_address_to_clipboard">Copy address to Clipboard</string>
@@ -1279,6 +1286,11 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="account_mode">Account mode:</string>
     <string name="normal_p2sh">Normal (P2SH)</string>
     <string name="native_segwit_bech_32">Native Segwit (Bech 32)</string>
+    <string name="change_address_type">Transaction change address type</string>
+    <string name="block_explorer">Block explorer</string>
+    <string name="p2sh_receive_mode">P2SH mode</string>
+    <string name="bech32_receive_mode">SegWit native (Bech32).</string>
+    <string name="set_default">Set default</string>
     <plurals name="account_label">
         <item quantity="one">Account label:\n%s</item>
         <item quantity="other">Accounts labels:\n%s</item>

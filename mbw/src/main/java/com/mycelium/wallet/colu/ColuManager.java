@@ -41,6 +41,7 @@ import com.mycelium.wapi.api.request.GetTransactionsRequest;
 import com.mycelium.wapi.api.request.QueryUnspentOutputsRequest;
 import com.mycelium.wapi.api.response.GetTransactionsResponse;
 import com.mycelium.wapi.api.response.QueryUnspentOutputsResponse;
+import com.mycelium.wapi.wallet.Reference;
 import com.mycelium.wapi.wallet.AccountBacking;
 import com.mycelium.wapi.wallet.AccountProvider;
 import com.mycelium.wapi.wallet.AesKeyCipher;
@@ -51,6 +52,7 @@ import com.mycelium.wapi.wallet.SingleAddressAccountBacking;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
+import com.mycelium.wapi.wallet.bip44.ChangeAddressMode;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore;
@@ -612,7 +614,7 @@ public class ColuManager implements AccountProvider {
         for (SingleAddressAccountContext context : contexts) {
             PublicPrivateKeyStore store = new PublicPrivateKeyStore(_secureKeyValueStore);
             SingleAddressAccountBacking accountBacking = checkNotNull(_backing.getSingleAddressAccountBacking(context.getId()));
-            SingleAddressAccount account = new SingleAddressAccount(context, store, _network, accountBacking, getWapi());
+            SingleAddressAccount account = new SingleAddressAccount(context, store, _network, accountBacking, getWapi(), new Reference(ChangeAddressMode.P2WPKH));
             addAccount(account);
 
             for (com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount coluAccount : coluAccounts.values()) {

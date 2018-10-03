@@ -1,19 +1,3 @@
-/*
- * Copyright 2013, 2014 Megion Research & Development GmbH
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.mycelium.wapi.wallet.btc.bip44
 
 import com.google.common.base.Optional
@@ -22,7 +6,6 @@ import com.google.common.collect.BiMap
 import com.google.common.collect.HashBiMap
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.Lists
-import com.mrd.bitlib.UnsignedTransaction
 import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.crypto.PublicKey
@@ -35,6 +18,7 @@ import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher
 import com.mycelium.wapi.wallet.WalletManager.Event
 import com.mrd.bitlib.crypto.BipDerivationType.Companion.getDerivationTypeByAddress
+import com.mycelium.wapi.wallet.bip44.ChangeAddressMode
 import com.mycelium.wapi.model.TransactionOutputEx
 import com.mycelium.wapi.wallet.btc.*
 
@@ -45,13 +29,13 @@ open class HDAccount(
         protected val keyManagerMap: Map<BipDerivationType, HDAccountKeyManager>,
         network: NetworkParameters,
         protected val backing: Bip44AccountBacking,
-        wapi: Wapi
-) :
-        AbstractBtcAccount(backing, network, wapi), ExportableAccount {
+        wapi: Wapi,
+        protected val changeAddressModeReference: Reference<ChangeAddressMode>
+) : AbstractBtcAccount(backing, network, wapi), ExportableAccount {
 
     // Used to determine which bips this account support
     private val derivePaths = context.indexesMap.keys
-    //private val riskAssessmentForUnconfirmedTx: ConfirmationRiskProfileLocal = ConfirmationRiskProfileLocal(0,false,false);
+
     private var externalAddresses: MutableMap<BipDerivationType, BiMap<Address, Int>> = initAddressesMap()
     private var internalAddresses: MutableMap<BipDerivationType, BiMap<Address, Int>> = initAddressesMap()
     private var receivingAddressMap: MutableMap<AddressType, Address> = mutableMapOf()
@@ -150,8 +134,13 @@ open class HDAccount(
         }
     }
 
+    fun setDefaultAddressType(addressType: AddressType) {
+        context.defaultAddressType = addressType
+        context.persistIfNecessary(backing)
+    }
+
     protected fun initContext(isArchived: Boolean) {
-        context = HDAccountContext(context.id, context.accountIndex, isArchived, context.accountType, context.accountSubId, derivePaths)
+        context = HDAccountContext(context.id, context.accountIndex, isArchived, context.accountType, context.accountSubId, derivePaths, context.defaultAddressType)
         context.persist(backing)
     }
 
@@ -372,7 +361,7 @@ open class HDAccount(
             // Return true if the last external or internal index has changed
             derivationType to
                     (lastExternalIndexesBefore[derivationType] != context.getLastExternalIndexWithActivity(derivationType)
-                    || lastInternalIndexesBefore[derivationType] != context.getLastInternalIndexWithActivity(derivationType))
+                            || lastInternalIndexesBefore[derivationType] != context.getLastInternalIndexWithActivity(derivationType))
         }.toMap()
     }
 
@@ -444,10 +433,38 @@ open class HDAccount(
     }
 
     // Get the next internal address just above the last address with activity
-    public override fun getChangeAddress(): Address {
-        val derivationType = if (derivePaths.contains(BipDerivationType.BIP49)) {
-            // DEFAULT ADDRESS TYPE
-            BipDerivationType.BIP49
+    public override fun getChangeAddress(destinationAddress: Address): Address {
+        return when (changeAddressModeReference.get()!!) {
+            ChangeAddressMode.P2WPKH -> getChangeAddress(BipDerivationType.BIP84)
+            ChangeAddressMode.P2SH_P2WPKH -> getChangeAddress(BipDerivationType.BIP49)
+            ChangeAddressMode.PRIVACY -> getChangeAddress(getDerivationTypeByAddress(destinationAddress))
+            ChangeAddressMode.NONE -> throw IllegalStateException()
+        }
+    }
+
+    public override fun getChangeAddress(destinationAddresses: List<Address>): Address {
+        val preferredForPrivacy = destinationAddresses.groupingBy { BipDerivationType.getDerivationTypeByAddress(it) }
+                .eachCount()
+                .maxBy { it.value }
+        return when (changeAddressModeReference.get()!!) {
+            ChangeAddressMode.P2WPKH -> getChangeAddress(BipDerivationType.BIP84)
+            ChangeAddressMode.P2SH_P2WPKH -> getChangeAddress(BipDerivationType.BIP49)
+            ChangeAddressMode.PRIVACY -> getChangeAddress(preferredForPrivacy!!.key)
+            ChangeAddressMode.NONE -> throw IllegalStateException()
+        }
+    }
+
+    override fun getChangeAddress(): Address {
+        return when (changeAddressModeReference.get()!!) {
+            ChangeAddressMode.P2WPKH -> getChangeAddress(BipDerivationType.BIP84)
+            ChangeAddressMode.P2SH_P2WPKH, ChangeAddressMode.PRIVACY -> getChangeAddress(BipDerivationType.BIP49)
+            ChangeAddressMode.NONE -> throw IllegalStateException()
+        }
+    }
+
+    private fun getChangeAddress(preferredDerivationType: BipDerivationType): Address {
+        val derivationType = if (derivePaths.contains(preferredDerivationType)) {
+            preferredDerivationType
         } else {
             derivePaths.first()
         }
@@ -461,7 +478,7 @@ open class HDAccount(
         return if (isArchived) {
             Optional.absent()
         } else {
-            var receivingAddress = getReceivingAddress(AddressType.P2SH_P2WPKH)
+            var receivingAddress = getReceivingAddress(context.defaultAddressType)
             if (receivingAddress == null) {
                 receivingAddress = receivingAddressMap.values.first()
             }
@@ -661,23 +678,23 @@ open class HDAccount(
     }
 
     override fun getExportData(cipher: KeyCipher): ExportableAccount.Data {
-        var privKey = Optional.absent<String>()
-
-        val derivationType = BipDerivationType.BIP44 // TODO FIX SEGWIT
-        if (canSpend()) {
+        val privateDataMap = if (canSpend()) {
             try {
-                privKey = Optional.of(keyManagerMap[derivationType]!!
-                        .getPrivateAccountRoot(cipher)
-                        .serialize(_network, derivationType))
+                BipDerivationType.values().map { derivationType ->
+                    derivationType to (keyManagerMap[derivationType]!!.getPrivateAccountRoot(cipher)
+                            .serialize(_network, derivationType))
+                }.toMap()
             } catch (ignore: InvalidKeyCipher) {
+                null
             }
-
+        } else {
+            null
         }
-
-        val pubKey = Optional.of(keyManagerMap[derivationType]!!
-                .publicAccountRoot
-                .serialize(network, derivationType))
-        return ExportableAccount.Data(privKey, pubKey)
+        val publicDataMap = BipDerivationType.values().map { derivationType ->
+            derivationType to (keyManagerMap[derivationType]!!.publicAccountRoot
+                    .serialize(_network, derivationType))
+        }.toMap()
+        return ExportableAccount.Data(privateDataMap, publicDataMap)
     }
 
     // deletes everything account related from the backing

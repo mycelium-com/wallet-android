@@ -7,6 +7,7 @@ import android.content.Context
 import android.media.AudioManager
 import android.media.RingtoneManager
 import android.nfc.NfcAdapter
+import android.os.Bundle
 import android.support.v4.app.NotificationCompat
 import android.widget.Toast
 import com.mrd.bitlib.util.CoinUtil
@@ -27,7 +28,7 @@ import com.squareup.otto.Subscribe
 
 class ReceiveCoinsModel(
         val context: Application,
-        val account: WalletBtcAccount,
+        val account: WalletAccount<*,*>,
         private val accountLabel: String,
         val havePrivateKey: Boolean,
         showIncomingUtxo: Boolean = false
@@ -40,7 +41,7 @@ class ReceiveCoinsModel(
 
     private var syncErrors = 0
     private val mbwManager = MbwManager.getInstance(context)
-    private var address = account.receivingAddress.get()
+    private var address = (account as WalletBtcAccount).receivingAddress.get()
     private var receivingSince = System.currentTimeMillis()
     private var lastAddressBalance: CurrencyValue? = null
     private var accountDisplayType: AccountDisplayType? = null
@@ -101,6 +102,22 @@ class ReceiveCoinsModel(
         return uri.toString()
     }
 
+    fun loadInstance(savedInstanceState: Bundle) {
+        amountData.value = savedInstanceState.getSerializable(AMOUNT) as CurrencyValue?
+        receivingSince = savedInstanceState.getLong(RECEIVING_SINCE)
+        syncErrors = savedInstanceState.getInt(SYNC_ERRORS)
+        lastAddressBalance = savedInstanceState.getSerializable(LAST_ADDRESS_BALANCE) as CurrencyValue?
+    }
+
+    fun saveInstance(outState: Bundle) {
+        if (!CurrencyValue.isNullOrZero(amountData.value)) {
+            outState.putSerializable(AMOUNT, amountData.value)
+        }
+        outState.putLong(RECEIVING_SINCE, receivingSince)
+        outState.putInt(SYNC_ERRORS, syncErrors)
+        outState.putSerializable(LAST_ADDRESS_BALANCE, lastAddressBalance)
+    }
+
     @Subscribe
     fun syncError(event: SyncFailed) {
         // stop syncing after a certain amountData of errors (no network available)
@@ -111,7 +128,7 @@ class ReceiveCoinsModel(
 
     @Subscribe
     fun syncStopped(event: SyncStopped) {
-        val transactionsSince = account.getTransactionsSince(receivingSince)
+        val transactionsSince = (account as WalletBtcAccount).getTransactionsSince(receivingSince)
         val interesting = getTransactionsToCurrentAddress(transactionsSince)
         var sum = if (interesting.isEmpty()) { null } else { interesting.first().value }
         interesting.drop(1).forEach { sum = sum!!.add(it.value, mbwManager.exchangeRateManager)}
@@ -141,5 +158,9 @@ class ReceiveCoinsModel(
 
     companion object {
         private const val MAX_SYNC_ERRORS = 8
+        private const val LAST_ADDRESS_BALANCE = "lastAddressBalance"
+        private const val RECEIVING_SINCE = "receivingSince"
+        private const val SYNC_ERRORS = "syncErrors"
+        private const val AMOUNT = "amount"
     }
 }

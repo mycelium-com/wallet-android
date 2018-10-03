@@ -170,6 +170,11 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
     int getSyncTotalRetrievedTransactions();
 
     /**
+     * Returns the account native currency as a ISO String, e.g. "BTC", "USD", ...
+     */
+    String getAccountDefaultCurrency();
+
+    /**
      * Class representing a receiver of funds
      */
     class Receiver implements Serializable {

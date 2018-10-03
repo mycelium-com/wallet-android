@@ -274,7 +274,7 @@ public class AccountsFragment extends Fragment {
 
        final AlertDialog.Builder deleteDialog = new AlertDialog.Builder(getActivity());
        deleteDialog.setTitle(R.string.delete_account_title);
-       deleteDialog.setMessage(Html.fromHtml(createDeleteDialogText(accountToDelete,linkedAccount)));
+       deleteDialog.setMessage(Html.fromHtml(createDeleteDialogText(accountToDelete, linkedAccount)));
 
       // add checkbox only for SingleAddressAccounts and only if a private key is present
       final boolean hasPrivateData = (accountToDelete instanceof ExportableAccount
@@ -1219,7 +1219,7 @@ public class AccountsFragment extends Fragment {
                _mbwManager.getWalletManager(false).removeUnusedBip44Account(account);
                //in case user had labeled the account, delete the stored name
                _storage.deleteAccountMetadata(account.getId());
-               //setselected also broadcasts AccountChanged event, which will cause an ui update
+               eventBus.post(new AccountChanged(account.getId()));
                _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
                //we dont want to show the context menu for the automatically selected account
                accountListAdapter.setFocusedAccountId(null);

@@ -47,6 +47,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.StrictMode;
 import android.os.Vibrator;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -63,14 +64,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Queues;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Ints;
-import com.mrd.bitlib.crypto.Bip39;
-import com.mrd.bitlib.crypto.HdKeyNode;
-import com.mrd.bitlib.crypto.InMemoryPrivateKey;
-import com.mrd.bitlib.crypto.MrdExport;
-import com.mrd.bitlib.crypto.PrivateKey;
-import com.mrd.bitlib.crypto.RandomSource;
-import com.mrd.bitlib.crypto.SignedMessage;
+import com.mrd.bitlib.crypto.*;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.CoinUtil;
@@ -114,16 +110,10 @@ import com.mycelium.wallet.wapi.SqliteWalletManagerBackingWrapper;
 import com.mycelium.wapi.api.WapiClientElectrumX;
 import com.mycelium.wapi.api.jsonrpc.TcpEndpoint;
 import com.mycelium.wapi.wallet.AccountListener;
-import com.mycelium.wapi.wallet.AccountProvider;
-import com.mycelium.wapi.wallet.AesKeyCipher;
-import com.mycelium.wapi.wallet.GenericAddress;
-import com.mycelium.wapi.wallet.IdentityAccountKeyManager;
-import com.mycelium.wapi.wallet.KeyCipher;
-import com.mycelium.wapi.wallet.SecureKeyValueStore;
-import com.mycelium.wapi.wallet.SpvBalanceFetcher;
-import com.mycelium.wapi.wallet.SyncMode;
-import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.WalletManager;
+import com.mycelium.wapi.wallet.*;
+import com.mycelium.wapi.wallet.Currency;
+import com.mycelium.wapi.wallet.bch.single.BitcoinCashSingleAddressModule;
+import com.mycelium.wapi.wallet.bip44.ChangeAddressMode;
 import com.mycelium.wapi.wallet.bch.single.BitcoinCashSingleAddressModule;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.BtcTransaction;
@@ -147,18 +137,7 @@ import org.bitcoinj.params.RegTestParams;
 import org.bitcoinj.params.TestNet3Params;
 
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Queue;
-import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -222,6 +201,8 @@ public class MbwManager {
     private Pin _pin;
     private boolean _pinRequiredOnStartup;
 
+    private AddressType defaultAddressType;
+    private ChangeAddressMode changeAddressMode;
     private MinerFee _minerFee;
     private boolean _enableContinuousFocus;
     private boolean _keyManagementLocked;
@@ -239,6 +220,7 @@ public class MbwManager {
     private ServerEndpointType.Types _torMode;
     private TorManager _torManager;
     public final BlockExplorerManager _blockExplorerManager;
+    private Map<Currency, CurrencySettings> currenciesSettingsMap = new HashMap<>();
 
     private final Queue<LogEntry> _wapiLogs;
     private Cache<String, Object> _semiPersistingBackgroundObjects = CacheBuilder.newBuilder().maximumSize(10).build();
@@ -292,6 +274,11 @@ public class MbwManager {
         _minerFee = MinerFee.fromString(preferences.getString(Constants.MINER_FEE_SETTING, MinerFee.NORMAL.toString()));
         _enableContinuousFocus = preferences.getBoolean(Constants.ENABLE_CONTINUOUS_FOCUS_SETTING, false);
         _keyManagementLocked = preferences.getBoolean(Constants.KEY_MANAGEMENT_LOCKED_SETTING, false);
+        defaultAddressType = AddressType.valueOf(preferences.getString(Constants.DEFAULT_ADDRESS_MODE,
+                AddressType.P2SH_P2WPKH.name()));
+        SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(_applicationContext);
+        changeAddressMode = ChangeAddressMode.valueOf(defaultSharedPreferences.getString(Constants.CHANGE_ADDRESS_MODE,
+                ChangeAddressMode.PRIVACY.name()));
 
         // Get the display metrics of this device
         DisplayMetrics dm = new DisplayMetrics();
@@ -329,6 +316,8 @@ public class MbwManager {
                                   ? MrdExport.V1.ScryptParameters.DEFAULT_PARAMS
                                   : MrdExport.V1.ScryptParameters.LOW_MEM_PARAMS;
 
+        initPerCurrencySettings();
+
         _trezorManager = new TrezorManager(_applicationContext, getNetwork(), getEventBus());
         _keepkeyManager = new KeepKeyManager(_applicationContext, getNetwork(), getEventBus());
         _ledgerManager = new LedgerManager(_applicationContext, getNetwork(), getEventBus());
@@ -359,6 +348,15 @@ public class MbwManager {
                 _environment.getBlockExplorerList(),
                 preferences.getString(Constants.BLOCK_EXPLORER,
                                            _environment.getBlockExplorerList().get(0).getIdentifier()));
+    }
+
+    private void initPerCurrencySettings() {
+        initBTCSettings();
+    }
+
+    private void initBTCSettings() {
+        BTCSettings btcSettings = new BTCSettings(defaultAddressType, new Reference<>(changeAddressMode));
+        currenciesSettingsMap.put(Currency.BTC, btcSettings);
     }
 
     private class InitColuManagerTask extends AsyncTask<Void, Void, Optional<ColuManager>> {
@@ -536,6 +534,28 @@ public class MbwManager {
         _environment.getLtEndpoints().setTorManager(this._torManager);
     }
 
+    public void setDefaultAddressType(AddressType addressType) {
+        defaultAddressType = addressType;
+        BTCSettings currencySettings = (BTCSettings) _walletManager.getCurrencySettings(Currency.BTC);
+        currencySettings.setDefaultAddressType(addressType);
+        _walletManager.setCurrencySettings(Currency.BTC, currencySettings);
+        getEditor().putString(Constants.DEFAULT_ADDRESS_MODE, addressType.name()).apply();
+    }
+
+    public AddressType getDefaultAddressType() {
+        return defaultAddressType;
+    }
+
+    public ChangeAddressMode getChangeAddressMode() {
+        return changeAddressMode;
+    }
+
+    public void setChangeAddressMode(ChangeAddressMode changeAddressMode) {
+        this.changeAddressMode = changeAddressMode;
+        BTCSettings currencySettings = (BTCSettings) _walletManager.getCurrencySettings(Currency.BTC);
+        currencySettings.setChangeAddressMode(changeAddressMode);
+        _walletManager.setCurrencySettings(Currency.BTC, currencySettings);
+    }
 
     private void migrateOldKeys() {
         // We only migrate old keys if we don't have any accounts yet - otherwise, migration has already taken place
@@ -635,8 +655,8 @@ public class MbwManager {
 
         SpvBalanceFetcher spvBchFetcher = getSpvBchFetcher();
         // Create and return wallet manager
-        WalletManager walletManager = new WalletManager(secureKeyValueStore,
-                backing, environment.getNetwork(), _wapi, externalSignatureProviderProxy, spvBchFetcher, Utils.isConnected(context));
+        WalletManager walletManager = new WalletManager(secureKeyValueStore, backing, environment.getNetwork(), _wapi,
+                externalSignatureProviderProxy, spvBchFetcher, Utils.isConnected(context), currenciesSettingsMap);
 
         // notify the walletManager about the current selected account
         UUID lastSelectedAccountId = getLastSelectedAccountId();
@@ -751,8 +771,8 @@ public class MbwManager {
 
 
         // Create and return wallet manager
-        WalletManager walletManager = new WalletManager(secureKeyValueStore,
-                backing, environment.getNetwork(), _wapi, null, getSpvBchFetcher(), Utils.isConnected(_applicationContext));
+        WalletManager walletManager = new WalletManager(secureKeyValueStore, backing, environment.getNetwork(), _wapi,
+                null, getSpvBchFetcher(), Utils.isConnected(_applicationContext), currenciesSettingsMap);
 
         walletManager.disableTransactionHistorySynchronization();
         return walletManager;

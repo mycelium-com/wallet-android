@@ -41,10 +41,6 @@ import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.WapiLogger;
-import com.mycelium.wapi.model.*;
-import com.mycelium.wapi.wallet.AddressUtils;
-import com.mycelium.wapi.wallet.BroadcastResult;
-import com.mycelium.wapi.wallet.ColuTransferInstructionsParser;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.api.WapiResponse;
@@ -57,25 +53,16 @@ import com.mycelium.wapi.api.response.BroadcastTransactionResponse;
 import com.mycelium.wapi.api.response.CheckTransactionsResponse;
 import com.mycelium.wapi.api.response.GetTransactionsResponse;
 import com.mycelium.wapi.api.response.QueryUnspentOutputsResponse;
-import com.mycelium.wapi.model.BalanceSatoshis;
-import com.mycelium.wapi.wallet.AccountBacking;
-import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal;
-import com.mycelium.wapi.wallet.GenericAddress;
-import com.mycelium.wapi.wallet.GenericTransaction;
-import com.mycelium.wapi.wallet.KeyCipher;
+import com.mycelium.wapi.model.*;
+import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
-import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.WalletManager.Event;
-import com.mycelium.wapi.wallet.coins.Balance;
-import com.mycelium.wapi.wallet.coins.BitcoinMain;
-import com.mycelium.wapi.wallet.coins.BitcoinTest;
-import com.mycelium.wapi.wallet.coins.CryptoCurrency;
-import com.mycelium.wapi.wallet.coins.Value;
+import com.mycelium.wapi.wallet.btc.SynchronizeAbleWalletBtcAccount;
+import com.mycelium.wapi.wallet.coins.*;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
-import com.mycelium.wapi.wallet.fiat.FiatTransaction;
 
 import java.nio.ByteBuffer;
 import java.text.ParseException;
@@ -213,7 +200,6 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       Address address = script.getAddress(_network);
       return isMine(address);
    }
-
 
    public boolean isMineAddress(GenericAddress address) {
       if (!(address instanceof BtcAddress)) {
@@ -617,7 +603,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
 
       int blockHeight = getBlockChainHeight();
       return new BalanceSatoshis(confirmed, pendingReceiving, pendingSending, pendingChange, System.currentTimeMillis(),
-            blockHeight, true, _allowZeroConfSpending);
+              blockHeight, true, _allowZeroConfSpending);
    }
 
    private TransactionOutput transform(TransactionOutputEx parent) {
@@ -764,7 +750,6 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       }
       return history;
    }
-
 
    @Override
    public abstract int getBlockChainHeight();
@@ -1016,7 +1001,11 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       return allUnspentOutputs;
    }
 
-   protected abstract Address getChangeAddress();
+   protected abstract Address getChangeAddress(Address destinationAddress);
+
+   public abstract Address getChangeAddress();
+
+   protected abstract Address getChangeAddress(List<Address> destinationAddresses);
 
    private static Collection<UnspentTransactionOutput> transform(Collection<TransactionOutputEx> source) {
       List<UnspentTransactionOutput> outputs = new ArrayList<>();
@@ -1066,7 +1055,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
 
       // Try to create an unsigned transaction
       try {
-         stb.createUnsignedTransaction(spendableOutputs, getChangeAddress(), new PublicKeyRing(), _network, minerFeePerKbToUse);
+         stb.createUnsignedTransaction(spendableOutputs, getChangeAddress(Address.getNullAddress(_network)), new PublicKeyRing(), _network, minerFeePerKbToUse); // TODO FIX SEGWIT this should be calculated including risk of segwit tx
          // We have enough to pay the fees, return the amount as the maximum
          return ExactBitcoinValue.from(satoshis);
       } catch (InsufficientFundsException | StandardTransactionBuilder.UnableToBuildTransactionException e) {
@@ -1094,11 +1083,13 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
 
       // Create the unsigned transaction
       StandardTransactionBuilder stb = new StandardTransactionBuilder(_network);
+      List<GenericAddress> addressList = new ArrayList<>();
       for (Receiver receiver : receivers) {
          stb.addOutput((BtcAddress)receiver.address, receiver.amount);
+         addressList.add(receiver.address);
       }
-      Address changeAddress = getChangeAddress();
-      return stb.createUnsignedTransaction(spendable, changeAddress, new PublicKeyRing(),
+      Address changeAddress = getChangeAddress((BtcAddress)addressList);
+      return stb.createUnsignedTransaction(spendable, (BtcAddress)changeAddress, new PublicKeyRing(),
             _network, minerFeeToUse);
    }
 
@@ -1169,8 +1160,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
             continue;
          }
          List<TransactionOutput> outputs = singletonList(createOutput(changeAddress, value, _network));
-         final TransactionEx fundedTransaction = getTransaction(txid);
-         return new UnsignedTransaction(outputs, utxosToSpend, new PublicKeyRing(), _network, 0, UnsignedTransaction.NO_SEQUENCE);
+          return new UnsignedTransaction(outputs, utxosToSpend, new PublicKeyRing(), _network, 0, UnsignedTransaction.NO_SEQUENCE);
       } while(!utxos.isEmpty());
       throw new InsufficientFundsException(0, parentChildFeeSat);
    }
@@ -1185,7 +1175,6 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       return b != null ? new BalanceSatoshis(b.confirmed, b.pendingReceiving, b.pendingSending, b.pendingChange, b.updateTime,
               b.blockHeight, isSynchronizing(), b.allowsZeroConfSpending)
               : new BalanceSatoshis(0, 0, 0, 0, 0, 0, isSynchronizing(), false);
-
    }
 
    @Override
@@ -1427,7 +1416,9 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    }
 
    // local cache for received risk assessments for unconfirmed transactions - does not get persisted in the db
-   protected HashMap<Sha256Hash, ConfirmationRiskProfileLocal> riskAssessmentForUnconfirmedTx = new HashMap<>();
+   private HashMap<Sha256Hash, ConfirmationRiskProfileLocal> riskAssessmentForUnconfirmedTx = new HashMap<>();
+
+   public abstract boolean isSynchronizing();
 
    public class PublicKeyRing implements IPublicKeyRing {
       @Override
@@ -1523,9 +1514,9 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       }
 
       return new TransactionDetails(
-              txid, tex.height, tex.time,
-              inputs.toArray(new TransactionDetails.Item[inputs.size()]), outputs,
-              tex.binary.length
+            txid, tex.height, tex.time,
+            inputs.toArray(new TransactionDetails.Item[inputs.size()]), outputs,
+            tex.binary.length
       );
    }
 

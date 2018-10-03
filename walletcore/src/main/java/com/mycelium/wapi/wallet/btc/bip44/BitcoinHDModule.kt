@@ -3,6 +3,8 @@ package com.mycelium.wapi.wallet.btc.bip44
 import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wapi.api.Wapi
+import com.mycelium.wapi.wallet.*
+import com.mycelium.wapi.wallet.bip44.ChangeAddressMode
 import com.mycelium.wapi.wallet.AesKeyCipher
 import com.mycelium.wapi.wallet.KeyCipher
 import com.mycelium.wapi.wallet.SecureKeyValueStore
@@ -88,7 +90,7 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
 
                 // Create actual account
                 result = if (cfg.hdKeyNodes.get(0).isPrivateHdKeyNode) {
-                    HDAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi)
+                    HDAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi, Reference(ChangeAddressMode.P2WPKH))
                 } else {
                     HDPubOnlyAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi)
                 }

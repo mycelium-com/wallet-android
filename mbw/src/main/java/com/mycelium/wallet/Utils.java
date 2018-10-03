@@ -90,7 +90,7 @@ import com.mrd.bitlib.util.CoinUtil;
 import com.mycelium.wallet.activity.AdditionalBackupWarningActivity;
 import com.mycelium.wallet.activity.BackupWordListActivity;
 import com.mycelium.wallet.activity.export.BackupToPdfActivity;
-import com.mycelium.wallet.activity.export.ExportAsQrCodeActivity;
+import com.mycelium.wallet.activity.export.ExportAsQrActivity;
 import com.mycelium.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.persistence.MetadataStorage;
@@ -741,10 +741,9 @@ public class Utils {
             .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                public void onClick(DialogInterface dialog, int id) {
                   dialog.dismiss();
-                  Intent intent = ExportAsQrCodeActivity.getIntent(parent,
-                        ((ExportableAccount) account).getExportData(AesKeyCipher.defaultKeyCipher())
-                  );
-                  parent.startActivity(intent);
+                  ExportAsQrActivity.callMe(parent, ((ExportableAccount) account).getExportData(AesKeyCipher.defaultKeyCipher()),
+                          account instanceof HDAccount);
+
                }
             }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
          public void onClick(DialogInterface dialog, int id) {

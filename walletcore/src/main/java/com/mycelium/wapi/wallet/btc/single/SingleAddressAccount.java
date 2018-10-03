@@ -32,10 +32,7 @@ import com.mycelium.wapi.api.request.QueryTransactionInventoryRequest;
 import com.mycelium.wapi.api.response.GetTransactionsResponse;
 import com.mycelium.wapi.api.response.QueryTransactionInventoryResponse;
 import com.mycelium.wapi.model.BalanceSatoshis;
-import com.mycelium.wapi.wallet.AesKeyCipher;
-import com.mycelium.wapi.wallet.BroadcastResult;
-import com.mycelium.wapi.wallet.ExportableAccount;
-import com.mycelium.wapi.wallet.KeyCipher;
+import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
 import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.SingleAddressAccountBacking;
@@ -46,13 +43,9 @@ import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
 import com.mycelium.wapi.wallet.btc.BtcSendRequest;
 import com.mycelium.wapi.wallet.btc.BtcTransaction;
 import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
+import com.mycelium.wapi.wallet.bip44.ChangeAddressMode;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class SingleAddressAccount extends AbstractBtcAccount implements ExportableAccount {
    private SingleAddressAccountContext _context;
@@ -60,10 +53,13 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
    private volatile boolean _isSynchronizing;
    private PublicPrivateKeyStore _keyStore;
    private SingleAddressAccountBacking _backing;
+   private Reference<ChangeAddressMode> changeAddressModeReference;
 
    public SingleAddressAccount(SingleAddressAccountContext context, PublicPrivateKeyStore keyStore,
-                               NetworkParameters network, SingleAddressAccountBacking backing, Wapi wapi) {
+                               NetworkParameters network, SingleAddressAccountBacking backing, Wapi wapi,
+                               Reference<ChangeAddressMode> changeAddressModeReference) {
       super(backing, network, wapi);
+      this.changeAddressModeReference = changeAddressModeReference;
       _backing = backing;
       _context = context;
       _addressList = new ArrayList<>(3);
@@ -106,7 +102,6 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
       _context.persistIfNecessary(_backing);
    }
 
-
    @Override
    public synchronized void activateAccount() {
       if (!_context.isArchived()) {
@@ -137,7 +132,8 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
 
    private void clearInternalStateInt(boolean isArchived) {
       _backing.clear();
-      _context = new SingleAddressAccountContext(_context.getId(), _context.getAddresses(), isArchived, 0);
+      _context = new SingleAddressAccountContext(_context.getId(), _context.getAddresses(), isArchived, 0,
+              _context.getDefaultAddressType());
       _context.persist(_backing);
       _cachedBalance = null;
       if (isActive()) {
@@ -168,7 +164,7 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
             }
          }
 
-         // recalculate cached BalanceSatoshis
+         // recalculate cached Balance
          updateLocalBalance();
 
          _context.persistIfNecessary(_backing);
@@ -178,6 +174,11 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
          syncTotalRetrievedTransactions = 0;
       }
 
+   }
+
+   public void setDefaultAddressType(AddressType addressType) {
+      _context.setDefaultAddressType(addressType);
+      _context.persistIfNecessary(_backing);
    }
 
    private boolean discoverTransactions() {
@@ -284,8 +285,62 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
    }
 
    @Override
-   protected Address getChangeAddress() {
+   public Address getChangeAddress() {
       return getAddress();
+   }
+
+   @Override
+   protected Address getChangeAddress(Address destinationAddress) {
+      Address result;
+      switch (changeAddressModeReference.get()) {
+         case P2WPKH:
+            result = getAddress(AddressType.P2WPKH);
+            break;
+         case P2SH_P2WPKH:
+            result = getAddress(AddressType.P2SH_P2WPKH);
+            break;
+         case PRIVACY:
+            result = getAddress(destinationAddress.getType());
+            break;
+         default:
+            throw new IllegalStateException();
+      }
+      return result;
+   }
+
+   @Override
+   protected Address getChangeAddress(List<Address> destinationAddresses) {
+      Map<AddressType, Integer> mostUsedTypesMap = new HashMap<>();
+      for (Address address: destinationAddresses) {
+         Integer currentValue = mostUsedTypesMap.get(address.getType());
+         if (currentValue == null) {
+            currentValue = 0;
+         }
+         mostUsedTypesMap.put(address.getType(), currentValue + 1);
+      }
+      int max = 0;
+      AddressType maxedOn = null;
+      for (AddressType addressType : mostUsedTypesMap.keySet()) {
+         if (mostUsedTypesMap.get(addressType) > max) {
+            max = mostUsedTypesMap.get(addressType);
+            maxedOn = addressType;
+         }
+      }
+      Address result;
+      switch (changeAddressModeReference.get()) {
+         case P2WPKH:
+            result = getAddress(AddressType.P2WPKH);
+            break;
+         case P2SH_P2WPKH:
+            result = getAddress(AddressType.P2SH_P2WPKH);
+            break;
+         case PRIVACY:
+            result = getAddress(maxedOn);
+            break;
+         default:
+            throw new IllegalStateException();
+      }
+      return result;
    }
 
    @Override
@@ -361,8 +416,8 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
     * @return default address
     */
    public Address getAddress() {
-      if (getAddress(AddressType.P2WPKH) != null) {
-         return getAddress(AddressType.P2WPKH);
+      if (getAddress(_context.getDefaultAddressType()) != null) {
+         return getAddress(_context.getDefaultAddressType());
       } else {
          return _context.getAddresses().values().iterator().next();
       }

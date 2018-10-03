@@ -22,6 +22,7 @@ import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.Bech32;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.SegwitAddress;
 import com.mrd.bitlib.model.hdpath.Bip44Address;
@@ -273,10 +274,10 @@ public class HDAccountKeyManager {
       try {
          ByteReader reader = new ByteReader(bytes);
          // Address bytes
-         byte[] addressBytes = reader.getBytes(21);
+         reader.getBytes(21);
          // Read length encoded string
          String addressString = new String(reader.getBytes((int) reader.get()));
-         Address address = new Address(addressBytes, addressString);    //TODO check bech if works???, should it???
+         Address address = Address.fromString(addressString);
          address.setBip32Path(path);
          return address;
       } catch (ByteReader.InsufficientBytesException e) {

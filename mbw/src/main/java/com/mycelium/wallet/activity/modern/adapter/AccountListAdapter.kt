@@ -34,7 +34,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
     private val context = fragment.context!!
 
     private var focusedAccountId: UUID? = null
-    private var selectedAccountId: UUID? = null
+    private var selectedAccountId: UUID? = mbwManager.selectedAccount.id
 
     private var itemClickListener: ItemClickListener? = null
     private val layoutInflater: LayoutInflater
@@ -49,6 +49,10 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
         layoutInflater = LayoutInflater.from(context)
         listModel.accountsData.observe(fragment, Observer { accountsGroupModels ->
             accountsGroupModels!!
+            val selectedAccountExists = accountsGroupModels.any { it.accountsList.any { it.accountId == selectedAccountId } }
+            if (!selectedAccountExists) {
+                setFocusedAccountId(null)
+            }
             refreshList(accountsGroupModels)
         })
         val accountsGroupsList = listModel.accountsData.value!!
@@ -91,6 +95,8 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
             this.focusedAccountId = mbwManager.selectedAccount.id
         }
         val oldFocusedPosition = findPosition(this.focusedAccountId)
+        // If old account was removed we don't want to notify removed element. It would be updated itself.
+        val updateOld = mbwManager.getWalletManager(false).getAccount(this.focusedAccountId) != null
         val oldSelectedPosition = findPosition(this.selectedAccountId)
         this.focusedAccountId = focusedAccountId
         if(focusedAccountId != null
@@ -103,7 +109,9 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
             this.selectedAccountId = focusedAccountId
             notifyItemChanged(oldSelectedPosition)
         }
-        notifyItemChanged(oldFocusedPosition)
+        if (updateOld) {
+            notifyItemChanged(oldFocusedPosition)
+        }
         notifyItemChanged(findPosition(this.focusedAccountId))
     }
 
