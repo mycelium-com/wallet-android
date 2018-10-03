@@ -50,7 +50,9 @@ class AddressFragmentModel(
     }
 
     private fun updateAddress(account: WalletAccount<*,*>) {
-        accountAddress.value = (account as WalletBtcAccount).receivingAddress.get()
+        if(account is WalletBtcAccount) {
+            accountAddress.value = (account as WalletBtcAccount).receivingAddress.get()
+        }
     }
 
     fun onCleared() = mbwManager.eventBus.unregister(this)

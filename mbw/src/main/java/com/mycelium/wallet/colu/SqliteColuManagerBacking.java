@@ -118,7 +118,7 @@ public class SqliteColuManagerBacking implements WalletManagerBacking<ColuAccoun
       _database = _openHelper.getWritableDatabase();
 
       _insertOrReplaceBip44Account = _database.compileStatement("INSERT OR REPLACE INTO bip44 VALUES (?,?,?,?,?,?,?,?,?)");
-      _insertOrReplaceSingleAddressAccount = _database.compileStatement("INSERT OR REPLACE INTO single VALUES (?,?,?,?,?)");
+      _insertOrReplaceSingleAddressAccount = _database.compileStatement("INSERT OR REPLACE INTO single VALUES (?,?,?,?,?,?)");
       _updateBip44Account = _database.compileStatement("UPDATE bip44 SET archived=?,blockheight=?, indexContexts=?, lastDiscovery=?,accountType=?,accountSubId=?,addressType=? WHERE id=?");
       _updateSingleAddressAccount = _database.compileStatement("UPDATE single SET archived=?,blockheight=?,addresses=?,addressType=? WHERE id=?");
       _deleteSingleAddressAccount = _database.compileStatement("DELETE FROM single WHERE id = ?");
@@ -218,7 +218,14 @@ public class SqliteColuManagerBacking implements WalletManagerBacking<ColuAccoun
 //         }
          _insertOrReplaceSingleAddressAccount.bindLong(3, context.isArchived() ? 1 : 0);
          _insertOrReplaceSingleAddressAccount.bindLong(4, context.getBlockHeight());
-         _insertOrReplaceSingleAddressAccount.bindString(5, context.getCoinType().getId());
+         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+         try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteStream)) {
+            objectOutputStream.writeObject(context.getDefaultAddressType());
+            _insertOrReplaceSingleAddressAccount.bindBlob(5, byteStream.toByteArray());
+         } catch (IOException ignore) {
+            // should never happen
+         }
+         _insertOrReplaceSingleAddressAccount.bindString(6, context.getCoinType().getId());
          _insertOrReplaceSingleAddressAccount.executeInsert();
          _database.setTransactionSuccessful();
       } finally {
