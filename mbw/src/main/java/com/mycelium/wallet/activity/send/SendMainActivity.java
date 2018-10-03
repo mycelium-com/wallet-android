@@ -1574,7 +1574,8 @@ public class SendMainActivity extends Activity {
 
     private void setReceivingAddressFromKeynode(HdKeyNode hdKeyNode) {
       _progress = ProgressDialog.show(this, "", getString(R.string.retrieving_pubkey_address), true);
-      _receivingAcc = _mbwManager.getWalletManager(true).createUnrelatedBip44Account(Collections.singletonList(hdKeyNode));
+      _receivingAcc = _mbwManager.getWalletManager(true)
+              .createUnrelatedBip44Account(Collections.singletonList(hdKeyNode));
       _xpubSyncing = true;
       if (!_mbwManager.getWalletManager(true).startSynchronization(_receivingAcc)) {
           _mbwManager.getEventBus().post(new SyncFailed());

@@ -231,7 +231,8 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
     * @param hdKeyNode node of depth 3.
     */
    private void returnAccount(HdKeyNode hdKeyNode) {
-      UUID acc = _mbwManager.getWalletManager(false).createUnrelatedBip44Account(Collections.singletonList(hdKeyNode));
+      UUID acc = _mbwManager.getWalletManager(false)
+              .createUnrelatedBip44Account(Collections.singletonList(hdKeyNode));
       // set BackupState as ignored - we currently have no option to backup xPrivs after all
       _mbwManager.getMetadataStorage().setOtherAccountBackupState(acc, MetadataStorage.BackupState.IGNORED);
       finishOk(acc, false);
@@ -517,7 +518,8 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
    private UUID returnSAAccount(InMemoryPrivateKey key, MetadataStorage.BackupState backupState) {
       UUID acc;
       try {
-         acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(key, AesKeyCipher.defaultKeyCipher());
+         acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(key,
+                 AesKeyCipher.defaultKeyCipher());
 
          _mbwManager.getMetadataStorage().setOtherAccountBackupState(acc, backupState);
          return acc;
@@ -538,7 +540,8 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
    }
 
    private void returnAccount(HdKeyNode hdKeyNode, boolean isUpgrade) {
-      UUID acc = _mbwManager.getWalletManager(false).createUnrelatedBip44Account(Collections.singletonList(hdKeyNode));
+      UUID acc = _mbwManager.getWalletManager(false)
+              .createUnrelatedBip44Account(Collections.singletonList(hdKeyNode));
       // set BackupState as ignored - we currently have no option to backup xPrivs after all
       _mbwManager.getMetadataStorage().setOtherAccountBackupState(acc, MetadataStorage.BackupState.IGNORED);
       finishOk(acc, isUpgrade);

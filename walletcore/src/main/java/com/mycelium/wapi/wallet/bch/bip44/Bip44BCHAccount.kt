@@ -23,12 +23,11 @@ import com.mycelium.wapi.wallet.currency.ExactCurrencyValue
 
 import java.util.UUID
 
-
-
-open class Bip44BCHAccount(context: HDAccountContext,
+open class Bip44BCHAccount(
+        context: HDAccountContext,
         keyManagerMap: Map<BipDerivationType, HDAccountKeyManager>,
                            network: NetworkParameters, backing: Bip44AccountBacking, wapi: Wapi,
-                           private val spvBalanceFetcher: SpvBalanceFetcher) : HDAccount(context, keyManagerMap, network, backing, wapi) {
+                           private val spvBalanceFetcher: SpvBalanceFetcher) : HDAccount(context, keyManagerMap, network, backing, wapi, Reference(ChangeAddressMode.NONE)) {
     private var blockChainHeight = 0
     private var visible = false
 

@@ -3,6 +3,7 @@ package com.mycelium.wapi.wallet.bip44;
 import com.mrd.bitlib.crypto.Bip39;
 import com.mrd.bitlib.crypto.RandomSource;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.WapiLogger;
@@ -13,6 +14,9 @@ import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
@@ -39,7 +43,10 @@ public class HDAccountTest {
         // Determine the next BIP44 account index
         Bip39.MasterSeed masterSeed = Bip39.generateSeedFromWordList(MASTER_SEED_WORDS.split(" "), "");
 
-        WalletManager walletManager = new WalletManager(store, backing, NetworkParameters.productionNetwork, fakeWapi, null, null, false);
+        Map<Currency, CurrencySettings> currenciesSettingsMap = new HashMap<>();
+        currenciesSettingsMap.put(Currency.BTC, new BTCSettings(AddressType.P2SH_P2WPKH, new Reference<>(ChangeAddressMode.PRIVACY)));
+
+        WalletManager walletManager = new WalletManager(store, backing, NetworkParameters.productionNetwork, fakeWapi, null, null, false, currenciesSettingsMap);
 
         walletManager.configureBip32MasterSeed(masterSeed, cipher);
 

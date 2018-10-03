@@ -41,32 +41,9 @@ import com.mycelium.wapi.api.request.GetTransactionsRequest;
 import com.mycelium.wapi.api.request.QueryUnspentOutputsRequest;
 import com.mycelium.wapi.api.response.GetTransactionsResponse;
 import com.mycelium.wapi.api.response.QueryUnspentOutputsResponse;
-import com.mycelium.wapi.wallet.AccountBacking;
-import com.mycelium.wapi.wallet.AccountProvider;
-import com.mycelium.wapi.wallet.AesKeyCipher;
-import com.mycelium.wapi.wallet.KeyCipher;
+import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
-import com.mycelium.wapi.wallet.SecureKeyValueStore;
-import com.mycelium.wapi.wallet.SingleAddressAccountBacking;
-import com.mycelium.wapi.wallet.SyncMode;
-import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
-import com.mycelium.wapi.wallet.btc.BtcAddress;
-import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore;
-import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
-import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext;
-import com.mycelium.wapi.wallet.coins.CryptoCurrency;
-import com.mycelium.wapi.wallet.colu.ColuAccountContext;
-import com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount;
-import com.mycelium.wapi.wallet.colu.ColuTransaction;
-import com.mycelium.wapi.wallet.colu.ColuUtils;
-import com.mycelium.wapi.wallet.colu.coins.ColuMain;
-import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
-import com.mycelium.wapi.wallet.colu.coins.MTCoin;
-import com.mycelium.wapi.wallet.colu.coins.MTCoinTest;
-import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
-import com.mycelium.wapi.wallet.colu.coins.RMCCoinTest;
+import com.mycelium.wapi.wallet.bip44.ChangeAddressMode;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 import com.squareup.otto.Bus;
@@ -106,7 +83,7 @@ public class ColuManager implements AccountProvider {
     private final Map<UUID, WalletAccount> _walletAccounts;
     private final MetadataStorage metadataStorage;
     private SqliteColuManagerBacking _backing;
-    private final HashMap<UUID, com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount> coluAccounts;
+    private final HashMap<UUID, ColuAccount> coluAccounts;
     private NetworkParameters _network;
     private final SecureKeyValueStore _secureKeyValueStore;
     private WalletManager.State state;
@@ -190,11 +167,11 @@ public class ColuManager implements AccountProvider {
     private void saveEnabledAssetIds() {
         List<String> assetIds = new ArrayList<>();
 
-//        for(ColuAccount account : coluAccounts.values()) {
-//            if (!assetIds.contains(account.getColuAsset().id)) {
-//                assetIds.add(account.getColuAsset().id);
-//            }
-//        }
+        for(ColuAccount account : coluAccounts.values()) {
+            if (!assetIds.contains(account.getColuAsset().id)) {
+                assetIds.add(account.getColuAsset().id);
+            }
+        }
 
         String all = Joiner.on(",").join(assetIds);
         metadataStorage.storeColuAssetIds(all);
@@ -400,7 +377,8 @@ public class ColuManager implements AccountProvider {
         createdAccountInfo.id = SingleAddressAccount.calculateId(address);
         _backing.beginTransaction();
         try {
-            SingleAddressAccountContext singleAccountContext = new SingleAddressAccountContext(createdAccountInfo.id, ImmutableMap.of(address.getType(), address), false, 0);
+            SingleAddressAccountContext singleAccountContext = new SingleAddressAccountContext(createdAccountInfo.id,
+                    ImmutableMap.of(address.getType(), address), false, 0);
             _backing.createSingleAddressAccountContext(singleAccountContext);
             SingleAddressAccountBacking accountBacking = checkNotNull(_backing.getSingleAddressAccountBacking(singleAccountContext.getId()));
             singleAccountContext.persist(accountBacking);
@@ -611,7 +589,8 @@ public class ColuManager implements AccountProvider {
         for (SingleAddressAccountContext context : contexts) {
             PublicPrivateKeyStore store = new PublicPrivateKeyStore(_secureKeyValueStore);
             SingleAddressAccountBacking accountBacking = checkNotNull(_backing.getSingleAddressAccountBacking(context.getId()));
-            SingleAddressAccount account = new SingleAddressAccount(context, store, _network, accountBacking, getWapi());
+            SingleAddressAccount account = new SingleAddressAccount(context, store, _network, accountBacking, getWapi(),
+                    new Reference<>(ChangeAddressMode.NONE));
             addAccount(account);
 
             for (com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount coluAccount : coluAccounts.values()) {

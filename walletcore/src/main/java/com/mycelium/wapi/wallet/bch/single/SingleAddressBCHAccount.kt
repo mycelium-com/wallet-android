@@ -6,6 +6,7 @@ import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.model.TransactionDetails
 import com.mycelium.wapi.model.TransactionSummary
+import com.mycelium.wapi.wallet.Reference
 import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal
 import com.mycelium.wapi.wallet.SingleAddressAccountBacking
 import com.mycelium.wapi.wallet.SpvBalanceFetcher
@@ -13,6 +14,8 @@ import com.mycelium.wapi.wallet.btc.BtcTransaction
 import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
+import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.bip44.ChangeAddressMode
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance
 import com.mycelium.wapi.wallet.currency.CurrencyValue
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue
@@ -23,7 +26,8 @@ import java.util.UUID
 class SingleAddressBCHAccount(context: SingleAddressAccountContext,
                               keyStore: PublicPrivateKeyStore, network: NetworkParameters,
                               backing: SingleAddressAccountBacking, wapi: Wapi,
-                              private val spvBalanceFetcher: SpvBalanceFetcher) : SingleAddressAccount(context, keyStore, network, backing, wapi) {
+                              private val spvBalanceFetcher: SpvBalanceFetcher)
+    : SingleAddressAccount(context, keyStore, network, backing, wapi, Reference(ChangeAddressMode.NONE)) {
     private var visible: Boolean = false
 
     override fun getAccountDefaultCurrency(): String {

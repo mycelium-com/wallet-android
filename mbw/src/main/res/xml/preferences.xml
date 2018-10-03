@@ -133,13 +133,32 @@
         android:layout="@layout/preference_category_layout"
         android:title="@string/transactions">
         <ListPreference
-            android:dialogTitle="Block explorer"
+            android:dialogTitle="@string/block_explorer"
             android:icon="@drawable/ic_exchange_coin"
             android:key="block_explorer"
             android:title="@string/block_explorer_title"
             android:summary="@string/block_explorer_summary_2"
             android:layout="@layout/preference_layout"
             android:widgetLayout="@layout/preference_arrow" />
+
+        <CheckBoxPreference
+            android:icon="@drawable/ic_exchange_coin"
+            android:key="account_mode"
+            android:layout="@layout/preference_layout"
+            android:summaryOff="@string/p2sh_receive_mode"
+            android:summaryOn="@string/bech32_receive_mode"
+            android:title="Default address type"
+            android:widgetLayout="@layout/preference_switch" />
+
+        <ListPreference
+            android:dialogTitle="@string/change_address_type"
+            android:key="change_type"
+            android:defaultValue="PRIVACY"
+            android:entries="@array/change_settings_names"
+            android:entryValues="@array/change_settings_values"
+            android:layout="@layout/preference_layout_no_icon"
+            android:summary="Setup change address preferences."
+            android:title="@string/change_address_type"/>
 
         <ListPreference
             android:icon="@drawable/ic_mining"
