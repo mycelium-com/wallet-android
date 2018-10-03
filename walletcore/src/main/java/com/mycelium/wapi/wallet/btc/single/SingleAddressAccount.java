@@ -31,7 +31,7 @@ import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.api.request.QueryTransactionInventoryRequest;
 import com.mycelium.wapi.api.response.GetTransactionsResponse;
 import com.mycelium.wapi.api.response.QueryTransactionInventoryResponse;
-import com.mycelium.wapi.model.Balance;
+import com.mycelium.wapi.model.BalanceSatoshis;
 import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
 import com.mycelium.wapi.wallet.SendRequest;
@@ -285,7 +285,7 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
    }
 
    @Override
-   protected Address getChangeAddress() {
+   public Address getChangeAddress() {
       return getAddress();
    }
 

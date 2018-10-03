@@ -16,6 +16,7 @@ import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.GetAmountActivity
 import com.mycelium.wallet.activity.util.AccountDisplayType
 import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount
 import com.mycelium.wapi.wallet.currency.CurrencyValue
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue
@@ -23,16 +24,16 @@ import com.mycelium.wapi.wallet.currency.ExactCurrencyValue
 abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewModel(context) {
     protected val mbwManager = MbwManager.getInstance(context)!!
     protected lateinit var model: ReceiveCoinsModel
-    protected lateinit var account: WalletAccount
+    protected lateinit var account: WalletAccount<*,*>
     val receivingAddress: MutableLiveData<Address> = MutableLiveData()
     var hasPrivateKey: Boolean = false
 
-    open fun init(account: WalletAccount, hasPrivateKey: Boolean, showIncomingUtxo: Boolean = false) {
+    open fun init(account: WalletAccount<*,*>, hasPrivateKey: Boolean, showIncomingUtxo: Boolean = false) {
         if (::model.isInitialized) {
             throw IllegalStateException("This method should be called only once.")
         }
         this.account = account
-        this.receivingAddress.value = account.receivingAddress.get()
+        this.receivingAddress.value = (account as WalletBtcAccount).receivingAddress.get()
         this.hasPrivateKey = hasPrivateKey
     }
 
@@ -130,7 +131,7 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
         val amount = model.amountData
         if (CurrencyValue.isNullOrZero(amount.value)) {
             GetAmountActivity.callMeToReceive(activity, ExactCurrencyValue.from(null,
-                    mbwManager.selectedAccount.accountDefaultCurrency),
+                    (mbwManager.selectedAccount as WalletBtcAccount).accountDefaultCurrency),
                     GET_AMOUNT_RESULT_CODE, AccountDisplayType.getAccountType(model.account))
         } else {
             // call the amountData activity with the exact amountData, so that the user sees the same amountData he had entered

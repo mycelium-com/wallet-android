@@ -11,7 +11,7 @@ import com.mycelium.wapi.wallet.currency.CurrencyValue
 class ReceiveCoCoViewModel(application: Application) : ReceiveCoinsViewModel(application) {
     private lateinit var accountLabel: String
 
-    override fun init(account: WalletBtcAccount, hasPrivateKey: Boolean, showIncomingUtxo: Boolean) {
+    override fun init(account: WalletAccount<*,*>, hasPrivateKey: Boolean, showIncomingUtxo: Boolean) {
         super.init(account, hasPrivateKey, showIncomingUtxo)
         accountLabel = (account as ColuAccount).label
         model = ReceiveCoinsModel(getApplication(), account, accountLabel, hasPrivateKey, showIncomingUtxo)

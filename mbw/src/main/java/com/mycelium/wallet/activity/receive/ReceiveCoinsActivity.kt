@@ -8,7 +8,6 @@ import android.nfc.NdefMessage
 import android.nfc.NdefRecord
 import android.nfc.NfcAdapter
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.support.v7.app.AppCompatActivity
 import android.view.Window
 import android.view.WindowManager
@@ -40,7 +39,7 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         val mbwManager = MbwManager.getInstance(application)
         val isColdStorage = intent.getBooleanExtra(IS_COLD_STORAGE, false)
         val walletManager = mbwManager.getWalletManager(isColdStorage)
-        val account = walletManager.getAccount(intent.getSerializableExtra(UUID) as UUID) as WalletBtcAccount
+        val account = walletManager.getAccount(intent.getSerializableExtra(UUID) as UUID)
         val havePrivateKey = intent.getBooleanExtra(PRIVATE_KEY, false)
         val showIncomingUtxo = intent.getBooleanExtra(SHOW_UTXO, false)
         val viewModelProvider = ViewModelProviders.of(this)

@@ -6,7 +6,9 @@ import com.mrd.bitlib.model.AddressType
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.wallet.KeyCipher
+import com.mycelium.wapi.wallet.Reference
 import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.bip44.ChangeAddressMode
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking
 import com.mycelium.wapi.wallet.manager.Config
 import com.mycelium.wapi.wallet.manager.WalletModule
@@ -26,7 +28,7 @@ class BitcoinSingleAddressModule(internal val backing: WalletManagerBacking<Sing
         for (context in contexts) {
             val store = publicPrivateKeyStore
             val accountBacking = backing.getSingleAddressAccountBacking(context.id)
-            val account = SingleAddressAccount(context, store, networkParameters, accountBacking, _wapi)
+            val account = SingleAddressAccount(context, store, networkParameters, accountBacking, _wapi, Reference(ChangeAddressMode.P2WPKH))
             result[account.id] = account
         }
         return result
@@ -60,7 +62,7 @@ class BitcoinSingleAddressModule(internal val backing: WalletManagerBacking<Sing
             val context = SingleAddressAccountContext(id, publicKey.getAllSupportedAddresses(networkParameters), false, 0)
             backing.createSingleAddressAccountContext(context)
             val accountBacking = backing.getSingleAddressAccountBacking(context.id)
-            result = SingleAddressAccount(context, publicPrivateKeyStore, networkParameters, accountBacking, _wapi)
+            result = SingleAddressAccount(context, publicPrivateKeyStore, networkParameters, accountBacking, _wapi,  Reference(ChangeAddressMode.P2WPKH))
             context.persist(accountBacking)
             backing.setTransactionSuccessful()
         } finally {

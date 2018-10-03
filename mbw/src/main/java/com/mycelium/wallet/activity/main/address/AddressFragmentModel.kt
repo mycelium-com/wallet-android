@@ -8,13 +8,15 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.event.AccountChanged
 import com.mycelium.wallet.event.ReceivingAddressChanged
 import com.mycelium.wapi.wallet.WalletAccount
-import com.mycelium.wapi.wallet.bip44.Bip44BCHAccount
-import com.mycelium.wapi.wallet.single.SingleAddressBCHAccount
+import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount
+import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount
+import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount
 import com.squareup.otto.Subscribe
 
 class AddressFragmentModel(
         val context: Application,
-        var account: WalletAccount,
+        var account: WalletAccount<*,*>,
         val showBip44Path: Boolean
 ) {
     private var mbwManager: MbwManager = MbwManager.getInstance(context)
@@ -47,8 +49,8 @@ class AddressFragmentModel(
                 }
     }
 
-    private fun updateAddress(account: WalletAccount) {
-        accountAddress.value = account.receivingAddress.get()
+    private fun updateAddress(account: WalletAccount<*,*>) {
+        accountAddress.value = (account as WalletBtcAccount).receivingAddress.get()
     }
 
     fun onCleared() = mbwManager.eventBus.unregister(this)

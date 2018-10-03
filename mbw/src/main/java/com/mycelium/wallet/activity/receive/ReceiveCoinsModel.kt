@@ -28,7 +28,7 @@ import com.squareup.otto.Subscribe
 
 class ReceiveCoinsModel(
         val context: Application,
-        val account: WalletBtcAccount,
+        val account: WalletAccount<*,*>,
         private val accountLabel: String,
         val havePrivateKey: Boolean,
         showIncomingUtxo: Boolean = false
@@ -41,7 +41,7 @@ class ReceiveCoinsModel(
 
     private var syncErrors = 0
     private val mbwManager = MbwManager.getInstance(context)
-    private var address = account.receivingAddress.get()
+    private var address = (account as WalletBtcAccount).receivingAddress.get()
     private var receivingSince = System.currentTimeMillis()
     private var lastAddressBalance: CurrencyValue? = null
     private var accountDisplayType: AccountDisplayType? = null
@@ -128,7 +128,7 @@ class ReceiveCoinsModel(
 
     @Subscribe
     fun syncStopped(event: SyncStopped) {
-        val transactionsSince = account.getTransactionsSince(receivingSince)
+        val transactionsSince = (account as WalletBtcAccount).getTransactionsSince(receivingSince)
         val interesting = getTransactionsToCurrentAddress(transactionsSince)
         var sum = if (interesting.isEmpty()) { null } else { interesting.first().value }
         interesting.drop(1).forEach { sum = sum!!.add(it.value, mbwManager.exchangeRateManager)}

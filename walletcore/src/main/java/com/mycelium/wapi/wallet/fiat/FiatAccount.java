@@ -157,6 +157,11 @@ public class FiatAccount implements WalletAccount<FiatTransaction, FiatAddress> 
     }
 
     @Override
+    public String getAccountDefaultCurrency() {
+        return null;
+    }
+
+    @Override
     public SendRequest getSendToRequest(GenericAddress destination, Value amount) {
         return null;
     }

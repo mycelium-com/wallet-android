@@ -739,7 +739,7 @@ public class Utils {
                public void onClick(DialogInterface dialog, int id) {
                   dialog.dismiss();
                   ExportAsQrActivity.callMe(parent, ((ExportableAccount) account).getExportData(AesKeyCipher.defaultKeyCipher()),
-                          account.getType() == WalletAccount.Type.BTCBIP44);
+                          account instanceof HDAccount);
 
                }
             }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {

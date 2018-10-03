@@ -7,19 +7,18 @@ import com.mrd.bitlib.model.AddressType
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wapi.wallet.WalletAccount
-import com.mycelium.wapi.wallet.bip44.HDAccount
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
 import com.mycelium.wapi.wallet.currency.CurrencyValue
-import com.mycelium.wapi.wallet.single.SingleAddressAccount
 
 class ReceiveBtcViewModel(application: Application) : ReceiveCoinsViewModel(application) {
     val addressType: MutableLiveData<AddressType> = MutableLiveData()
 
-    override fun init(account: WalletAccount, hasPrivateKey: Boolean, showIncomingUtxo: Boolean) {
+    override fun init(account: WalletAccount<*,*>, hasPrivateKey: Boolean, showIncomingUtxo: Boolean) {
         super.init(account, hasPrivateKey, showIncomingUtxo)
         model = ReceiveCoinsModel(getApplication(), account, ACCOUNT_LABEL, hasPrivateKey, showIncomingUtxo)
-        addressType.value = account.receivingAddress.get().type
+        addressType.value = (account as WalletBtcAccount).receivingAddress.get().type
     }
 
     fun setAddressType(addressType: AddressType) {

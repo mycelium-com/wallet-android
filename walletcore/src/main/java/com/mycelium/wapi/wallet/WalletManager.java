@@ -34,12 +34,7 @@ import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHPubOnlyAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
-import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
-import com.mycelium.wapi.wallet.btc.Bip44AccountBacking;
-import com.mycelium.wapi.wallet.btc.InMemoryWalletManagerBacking;
-import com.mycelium.wapi.wallet.btc.SynchronizeAbleWalletBtcAccount;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
-import com.mycelium.wapi.wallet.btc.WalletManagerBacking;
+import com.mycelium.wapi.wallet.btc.*;
 import com.mycelium.wapi.wallet.btc.bip44.*;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.AccountIndexesContext;
 import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore;
@@ -86,7 +81,7 @@ public class WalletManager {
     private FeeEstimation _lastFeeEstimations;
     private SpvBalanceFetcher _spvBalanceFetcher;
     private volatile boolean isNetworkConnected;
-    private Map<Currency, CurrencySettings> currenciesSettingsMap = new HashMap<>(); //this maps currencies to their settings.
+    private Map<Currency, CurrencySettings> currenciesSettingsMap; //this maps currencies to their settings.
 
     /**
      * Create a new wallet manager instance

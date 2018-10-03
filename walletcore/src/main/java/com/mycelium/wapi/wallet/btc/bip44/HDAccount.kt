@@ -6,7 +6,6 @@ import com.google.common.collect.BiMap
 import com.google.common.collect.HashBiMap
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.Lists
-import com.mrd.bitlib.UnsignedTransaction
 import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.crypto.PublicKey
@@ -19,6 +18,7 @@ import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher
 import com.mycelium.wapi.wallet.WalletManager.Event
 import com.mrd.bitlib.crypto.BipDerivationType.Companion.getDerivationTypeByAddress
+import com.mycelium.wapi.wallet.bip44.ChangeAddressMode
 import com.mycelium.wapi.wallet.btc.*
 
 import java.util.ArrayList
@@ -30,7 +30,7 @@ open class HDAccount(
         protected val backing: Bip44AccountBacking,
         wapi: Wapi,
         protected val changeAddressModeReference: Reference<ChangeAddressMode>
-) : AbstractAccount(backing, network, wapi), ExportableAccount {
+) : AbstractBtcAccount(backing, network, wapi), ExportableAccount {
 
     // Used to determine which bips this account support
     private val derivePaths = context.indexesMap.keys

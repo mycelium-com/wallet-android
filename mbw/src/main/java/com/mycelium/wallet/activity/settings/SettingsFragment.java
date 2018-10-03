@@ -47,6 +47,7 @@ import com.mycelium.wallet.activity.settings.helper.DisplayPreferenceDialogHandl
 import com.mycelium.wallet.activity.view.ButtonPreference;
 import com.mycelium.wallet.activity.view.TwoButtonsPreference;
 import com.mycelium.wallet.event.SpvSyncChanged;
+import com.mycelium.wallet.exchange.ExchangeRateManager;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.api.GetTraderInfo;

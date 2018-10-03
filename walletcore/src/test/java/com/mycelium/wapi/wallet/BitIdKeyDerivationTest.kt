@@ -3,6 +3,7 @@ package com.mycelium.wapi.wallet
 import com.mrd.bitlib.crypto.*
 import com.mrd.bitlib.model.AddressType
 import com.mrd.bitlib.model.NetworkParameters
+import com.mycelium.wapi.wallet.btc.InMemoryWalletManagerBacking
 import org.junit.Test
 
 import org.junit.Assert.assertEquals

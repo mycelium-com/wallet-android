@@ -21,6 +21,11 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext, val publicKey: Pu
                               , val coluNetworkParameters: org.bitcoinj.core.NetworkParameters
                               , val coluClient: ColuApi
                               , val backing: AccountBacking) : WalletAccount<ColuTransaction, BtcAddress> {
+
+    override fun getAccountDefaultCurrency(): String {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
     protected var address: GenericAddress
     protected var uuid: UUID
     @Volatile
