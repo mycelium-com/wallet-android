@@ -165,25 +165,27 @@ public class StandardTransactionBuilder {
       List<UnspentTransactionOutput> funding = pruneRedundantOutputs(coinSelector.getFundings(), fee + outputSum);
       boolean needChangeOutputInEstimation = needChangeOutputInEstimation(funding, outputSum, minerFeeToUse);
 
-      // the number of inputs might have changed - recalculate the fee
-      int outputsSizeInFeeEstimation = _outputs.size();
-      if (needChangeOutputInEstimation) {
-         outputsSizeInFeeEstimation += 1;
+      if (changeAddress == null) {
+         // If no change address is specified, get the richest address from the
+         // funding set
+         changeAddress = getRichest(funding, network);
       }
 
-      fee = estimateFee(funding.size(), outputsSizeInFeeEstimation, getSegwitOutputsCount(funding), minerFeeToUse);
+      FeeEstimatorBuilder feeEstimatorBuilder = new FeeEstimatorBuilder().setArrayOfInputs(funding)
+              .setArrayOfOutputs(_outputs)
+              .setMinerFeePerKb(minerFeeToUse);
+      if (needChangeOutputInEstimation) {
+         feeEstimatorBuilder.addChangeOutput(changeAddress);
+      }
+      fee = feeEstimatorBuilder.createFeeEstimator()
+              .estimateFee();
+
       long found = 0;
       for (UnspentTransactionOutput output : funding) {
          found += output.value;
       }
       // We have found all the funds we need
       long toSend = fee + outputSum;
-
-      if (changeAddress == null) {
-         // If no change address is specified, get the richest address from the
-         // funding set
-         changeAddress = getRichest(funding, network);
-      }
 
       // We have our funding, calculate change
       long change = found - toSend;
@@ -201,8 +203,10 @@ public class StandardTransactionBuilder {
       UnsignedTransaction unsignedTransaction = new UnsignedTransaction(outputs, funding, keyRing, network, 0, UnsignedTransaction.NO_SEQUENCE);
 
       // check if we have a reasonable Fee or throw an error otherwise
-      int estimateTransactionSize = estimateTransactionSize(unsignedTransaction.getFundingOutputs().length,
-          unsignedTransaction.getOutputs().length, getSegwitOutputsCount(Arrays.asList(unsignedTransaction.getFundingOutputs())));
+      FeeEstimator estimator = new FeeEstimatorBuilder().setArrayOfInputs(unsignedTransaction.getFundingOutputs())
+              .setArrayOfOutputs(unsignedTransaction.getOutputs())
+              .createFeeEstimator();
+      int estimateTransactionSize = estimator.estimateTransactionSize();
       long calculatedFee = unsignedTransaction.calculateFee();
       float estimatedFeePerKb = (long) ((float) calculatedFee / ((float) estimateTransactionSize / 1000));
 
@@ -237,7 +241,11 @@ public class StandardTransactionBuilder {
    private boolean needChangeOutputInEstimation(List<UnspentTransactionOutput> funding,
                                                 long outputSum, long minerFeeToUse) {
 
-      long fee = estimateFee(funding.size(), _outputs.size(), getSegwitOutputsCount(funding), minerFeeToUse);
+      FeeEstimator feeEstimator = new FeeEstimatorBuilder().setArrayOfInputs(funding)
+              .setArrayOfOutputs(_outputs)
+              .setMinerFeePerKb(minerFeeToUse)
+              .createFeeEstimator();
+      long fee = feeEstimator.estimateFee();
 
       long found = 0;
       for (UnspentTransactionOutput output : funding) {
@@ -387,21 +395,6 @@ public class StandardTransactionBuilder {
       return (estimateWithoutWitness * 3 + estimateWithSignatures) / 4;
    }
 
-   /**
-    * Returns the estimate needed fee in satoshis for a default P2PKH transaction with a certain number
-    * of inputs and outputs and the specified per-kB-fee
-    *
-    * @param inputs  number of inputs
-    * @param outputs number of outputs
-    * @param minerFeePerKb miner fee in satoshis per kB
-    **/
-   public static long estimateFee(int inputs, int outputs, int segwitInputs, long minerFeePerKb) {
-      // fee is based on the size of the transaction, we have to pay for
-      // every 1000 bytes
-      float txSizeKb = (float) (estimateTransactionSize(inputs, outputs, segwitInputs) / 1000.0); //in kilobytes
-      return (long) (txSizeKb * minerFeePerKb);
-   }
-
    private interface CoinSelector {
       List<UnspentTransactionOutput> getFundings();
       long getFee();
@@ -417,7 +410,12 @@ public class StandardTransactionBuilder {
           throws InsufficientFundsException {
          // Find the funding for this transaction
          allFunding = new LinkedList<>();
-         feeSat = estimateFee(unspent.size(), 1, getSegwitOutputsCount(unspent), feeSatPerKb);
+         FeeEstimatorBuilder feeEstimatorBuilder = new FeeEstimatorBuilder().setArrayOfInputs(unspent)
+                 .setLegacyOutputs(1)
+                 .setMinerFeePerKb(feeSatPerKb);
+         FeeEstimator feeEstimator = feeEstimatorBuilder
+                 .createFeeEstimator();
+         feeSat = feeEstimator.estimateFee();
          outputSum = outputSum();
          long foundSat = 0;
          while (foundSat < feeSat + outputSum) {
@@ -429,11 +427,13 @@ public class StandardTransactionBuilder {
             foundSat += unspentTransactionOutput.value;
             allFunding.add(unspentTransactionOutput);
 
-            feeSat = estimateFee(allFunding.size(), needChangeOutputInEstimation(allFunding, outputSum, feeSatPerKb)
-                    ? _outputs.size() + 1
-                    : _outputs.size(),
-                    getSegwitOutputsCount(allFunding),
-                    feeSatPerKb);
+            FeeEstimatorBuilder estimatorBuilder = feeEstimatorBuilder.setArrayOfInputs(allFunding)
+                    .setArrayOfOutputs(_outputs)
+                    .setMinerFeePerKb(feeSatPerKb);
+            if (needChangeOutputInEstimation(allFunding, outputSum, feeSatPerKb)) {
+               estimatorBuilder.addChangeOutput(Address.getNullAddress(_network));
+            }
+            feeSat = estimatorBuilder.createFeeEstimator().estimateFee();
          }
       }
 
