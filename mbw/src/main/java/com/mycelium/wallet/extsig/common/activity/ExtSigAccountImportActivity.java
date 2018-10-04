@@ -104,12 +104,11 @@ public abstract class ExtSigAccountImportActivity extends ExtSigAccountSelectorA
             Utils.showSimpleMessageDialog(ExtSigAccountImportActivity.this, getString(R.string.ext_sig_next_unused_account_info), new Runnable() {
                @Override
                public void run() {
-
                   List<HdKeyNode> nextAccount = masterseedScanManager.getNextUnusedAccounts();
 
                   MbwManager mbwManager = MbwManager.getInstance(ExtSigAccountImportActivity.this);
 
-                  if (nextAccount.isEmpty()) {
+                  if (!nextAccount.isEmpty()) {
                      UUID acc = mbwManager.getWalletManager(false)
                            .createExternalSignatureAccount(
                                  nextAccount,
@@ -124,13 +123,11 @@ public abstract class ExtSigAccountImportActivity extends ExtSigAccountSelectorA
                      setResult(RESULT_OK, result);
                      finish();
                   }
-
                }
             });
          }
       });
    }
-
 
    // Otto.EventBus does not traverse class hierarchy to find subscribers
    @Subscribe
@@ -157,5 +154,4 @@ public abstract class ExtSigAccountImportActivity extends ExtSigAccountSelectorA
    public void onPassphraseRequest(AccountScanManager.OnPassphraseRequest event) {
       super.onPassphraseRequest(event);
    }
-
 }
