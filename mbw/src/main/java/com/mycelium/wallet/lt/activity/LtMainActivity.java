@@ -284,7 +284,7 @@ public class LtMainActivity extends AppCompatActivity {
          public Data getExportData(KeyCipher cipher) {
             return new Data(
                   Optional.of(privateKey.getBase58EncodedPrivateKey(_mbwManager.getNetwork())),
-                  Optional.of(privateKey.getPublicKey().toAddress(_mbwManager.getNetwork(), AddressType.P2PKH).toString()) // TODO fix
+                  Optional.of(privateKey.getPublicKey().toAddress(_mbwManager.getNetwork(), AddressType.P2PKH).toString()) // TODO fix segwit
             );
          }
       };

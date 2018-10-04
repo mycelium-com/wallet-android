@@ -20,9 +20,9 @@ public interface ExportableAccount {
       }
 
       public Data(Map<BipDerivationType, String> privateDataMap, Map<BipDerivationType, String> publicDataMap) {
-         this.privateData = Optional.of(privateDataMap.get(privateDataMap.keySet().iterator().next()));
+         this.privateData = Optional.fromNullable(privateDataMap.get(privateDataMap.keySet().iterator().next()));
          this.privateDataMap  = privateDataMap;
-         this.publicData = Optional.of(publicDataMap.get(publicDataMap.keySet().iterator().next()));
+         this.publicData = Optional.fromNullable(publicDataMap.get(publicDataMap.keySet().iterator().next()));
          this.publicDataMap = publicDataMap;
       }
 

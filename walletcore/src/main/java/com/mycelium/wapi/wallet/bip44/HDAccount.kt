@@ -22,7 +22,7 @@ import java.lang.IllegalStateException
 
 import java.util.ArrayList
 
-open class HDAccount constructor(
+open class HDAccount(
         protected var context: HDAccountContext,
         protected val keyManagerMap: Map<BipDerivationType, HDAccountKeyManager>,
         network: NetworkParameters,
@@ -134,7 +134,11 @@ open class HDAccount constructor(
         }
     }
 
-    fun setDefaultAddressType(addressType: AddressType) {
+    override fun getAvailableAddressTypes(): List<AddressType> =
+        derivePaths.asSequence().map { it.addressType }.toList()
+
+
+    override fun setDefaultAddressType(addressType: AddressType) {
         context.defaultAddressType = addressType
         context.persistIfNecessary(backing)
     }
@@ -680,7 +684,7 @@ open class HDAccount constructor(
     override fun getExportData(cipher: KeyCipher): ExportableAccount.Data {
         val privateDataMap = if (canSpend()) {
             try {
-                BipDerivationType.values().map { derivationType ->
+                keyManagerMap.keys.map { derivationType ->
                     derivationType to (keyManagerMap[derivationType]!!.getPrivateAccountRoot(cipher)
                             .serialize(_network, derivationType))
                 }.toMap()
@@ -690,7 +694,7 @@ open class HDAccount constructor(
         } else {
             null
         }
-        val publicDataMap = BipDerivationType.values().map { derivationType ->
+        val publicDataMap = keyManagerMap.keys.map { derivationType ->
             derivationType to (keyManagerMap[derivationType]!!.publicAccountRoot
                     .serialize(_network, derivationType))
         }.toMap()

@@ -21,20 +21,8 @@ import com.mrd.bitlib.*;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
 import com.mrd.bitlib.crypto.*;
-import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.model.NetworkParameters;
-import com.mrd.bitlib.model.OutPoint;
-import com.mrd.bitlib.model.OutputList;
-import com.mrd.bitlib.model.Script;
-import com.mrd.bitlib.model.ScriptOutput;
-import com.mrd.bitlib.model.ScriptOutputP2SH;
-import com.mrd.bitlib.model.ScriptOutputP2WPKH;
-import com.mrd.bitlib.model.ScriptOutputStrange;
-import com.mrd.bitlib.model.Transaction;
+import com.mrd.bitlib.model.*;
 import com.mrd.bitlib.model.Transaction.TransactionParsingException;
-import com.mrd.bitlib.model.TransactionInput;
-import com.mrd.bitlib.model.TransactionOutput;
-import com.mrd.bitlib.model.UnspentTransactionOutput;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.HashUtils;
@@ -1066,6 +1054,10 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
 
    protected abstract InMemoryPrivateKey getPrivateKeyForAddress(Address address, KeyCipher cipher)
          throws InvalidKeyCipher;
+
+   public abstract List<AddressType> getAvailableAddressTypes();
+
+   public abstract void setDefaultAddressType(AddressType addressType);
 
    protected abstract PublicKey getPublicKeyForAddress(Address address);
 

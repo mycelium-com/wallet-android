@@ -375,9 +375,10 @@ public class WalletManager {
                 // Get the backing for the new account
                 Bip44AccountBacking accountBacking = getBip44AccountBacking(context.getId());
 
+                BTCSettings btcSettings = (BTCSettings) currenciesSettingsMap.get(Currency.BTC);
                 // Create actual account
                 HDAccount account = new HDAccountExternalSignature(context, keyManagerMap, _network,
-                        accountBacking, _wapi, externalSignatureProvider);
+                        accountBacking, _wapi, externalSignatureProvider, btcSettings.getChangeAddressModeReference());
 
                 // Finally persist context and add account
                 context.persist(accountBacking);
@@ -818,34 +819,19 @@ public class WalletManager {
                         btcSettings.getChangeAddressModeReference());
                 break;
             case ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR:
-                account = new HDAccountExternalSignature(
-                        context,
-                        keyManagerMap,
-                        _network,
-                        accountBacking,
-                        _wapi,
-                        _signatureProviders.get(ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR)
-                );
+                account = new HDAccountExternalSignature(context, keyManagerMap, _network, accountBacking, _wapi,
+                        _signatureProviders.get(ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR),
+                        btcSettings.getChangeAddressModeReference());
                 break;
             case ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER:
-                account = new HDAccountExternalSignature(
-                        context,
-                        keyManagerMap,
-                        _network,
-                        accountBacking,
-                        _wapi,
-                        _signatureProviders.get(ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER)
-                );
+                account = new HDAccountExternalSignature(context, keyManagerMap, _network, accountBacking, _wapi,
+                        _signatureProviders.get(ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER),
+                        btcSettings.getChangeAddressModeReference());
                 break;
             case ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY:
-                account = new HDAccountExternalSignature(
-                        context,
-                        keyManagerMap,
-                        _network,
-                        accountBacking,
-                        _wapi,
-                        _signatureProviders.get(ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY)
-                );
+                account = new HDAccountExternalSignature(context, keyManagerMap, _network, accountBacking, _wapi,
+                        _signatureProviders.get(ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY),
+                        btcSettings.getChangeAddressModeReference());
                 break;
             default:
                 throw new IllegalArgumentException("Unknown account type " + context.getAccountType());
