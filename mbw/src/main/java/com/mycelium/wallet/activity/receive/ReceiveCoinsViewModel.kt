@@ -24,7 +24,6 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
     protected val mbwManager = MbwManager.getInstance(context)!!
     protected lateinit var model: ReceiveCoinsModel
     protected lateinit var account: WalletAccount
-    val receivingAddress: MutableLiveData<Address> = MutableLiveData()
     var hasPrivateKey: Boolean = false
 
     open fun init(account: WalletAccount, hasPrivateKey: Boolean, showIncomingUtxo: Boolean = false) {
@@ -32,7 +31,6 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
             throw IllegalStateException("This method should be called only once.")
         }
         this.account = account
-        this.receivingAddress.value = account.receivingAddress.get()
         this.hasPrivateKey = hasPrivateKey
     }
 
@@ -70,6 +68,8 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
 
     fun getRequestedAmount() = model.amountData
 
+    fun getReceivingAddress() = model.receivingAddress
+
     fun getRequestedAmountFormatted() = Transformations.map(model.amountData) {
         if (!CurrencyValue.isNullOrZero(it)) {
             getFormattedValue(it!!)
@@ -94,13 +94,12 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
 
     fun getPaymentUri() = model.getPaymentUri()
 
-    @Suppress("unused") // used for data binding
     fun shareRequest() {
         val s = Intent(Intent.ACTION_SEND)
         s.type = "text/plain"
         if (CurrencyValue.isNullOrZero(model.amountData.value)) {
             s.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.bitcoin_address_title))
-            s.putExtra(Intent.EXTRA_TEXT, receivingAddress.value.toString())
+            s.putExtra(Intent.EXTRA_TEXT, model.receivingAddress.value.toString())
             context.startActivity(Intent.createChooser(s, context.getString(R.string.share_bitcoin_address))
                     .addFlags(FLAG_ACTIVITY_NEW_TASK))
         } else {
@@ -111,10 +110,9 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
         }
     }
 
-    @Suppress("unused") // used for data binding
     fun copyToClipboard() {
         val text = if (CurrencyValue.isNullOrZero(model.amountData.value)) {
-            receivingAddress.value.toString()
+            model.receivingAddress.value.toString()
         } else {
             getPaymentUri()
         }

@@ -1,6 +1,7 @@
 package com.mycelium.wallet.activity.receive
 
 import android.app.Activity
+import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.databinding.DataBindingUtil
@@ -8,7 +9,6 @@ import android.nfc.NdefMessage
 import android.nfc.NdefRecord
 import android.nfc.NfcAdapter
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.support.v7.app.AppCompatActivity
 import android.view.Window
 import android.view.WindowManager
@@ -60,8 +60,13 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         activateNfc()
 
         initDatabinding(account)
+    }
+
+    override fun onStart() {
+        super.onStart()
 
         ivQrCode.qrCode = viewModel.getPaymentUri()
+        viewModel.getReceivingAddress().observe(this, Observer { address -> ivQrCode.qrCode = address.toString() })
     }
 
     private fun initDatabinding(account: WalletAccount) {

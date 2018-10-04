@@ -10,6 +10,7 @@ import android.nfc.NfcAdapter
 import android.os.Bundle
 import android.support.v4.app.NotificationCompat
 import android.widget.Toast
+import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.util.CoinUtil
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
@@ -36,10 +37,10 @@ class ReceiveCoinsModel(
     val nfc: NfcAdapter? = NfcAdapter.getDefaultAdapter(context)
     val receivingAmount: MutableLiveData<CurrencyValue?> = MutableLiveData()
     val receivingAmountWrong: MutableLiveData<Boolean> = MutableLiveData()
+    val receivingAddress: MutableLiveData<Address> = MutableLiveData()
 
     private var syncErrors = 0
     private val mbwManager = MbwManager.getInstance(context)
-    private var address = account.receivingAddress.get()
     private var receivingSince = System.currentTimeMillis()
     private var lastAddressBalance: CurrencyValue? = null
     private var accountDisplayType: AccountDisplayType? = null
@@ -47,9 +48,10 @@ class ReceiveCoinsModel(
     init {
         mbwManager.eventBus.register(this)
         if (showIncomingUtxo) {
-            mbwManager.watchAddress(address)
+            mbwManager.watchAddress(receivingAddress.value)
         }
         receivingAmountWrong.value = false
+        receivingAddress.value = account.receivingAddress.get()
     }
 
     fun onCleared() {
@@ -75,6 +77,9 @@ class ReceiveCoinsModel(
                 }
                 alternativeAmountData.value = newAmount
             }
+        } else {
+            amountData.value = null
+            alternativeAmountData.value = null
         }
     }
     
@@ -82,7 +87,7 @@ class ReceiveCoinsModel(
         val prefix = accountLabel
 
         val uri = StringBuilder(prefix).append(':')
-        uri.append(address)
+        uri.append(receivingAddress.value)
         if (!CurrencyValue.isNullOrZero(amountData.value)) {
             if (accountDisplayType == AccountDisplayType.COLU_ACCOUNT) {
                 uri.append("?amountData=").append(amountData.value!!.value.toPlainString())
@@ -152,7 +157,7 @@ class ReceiveCoinsModel(
     }
 
     private fun getTransactionsToCurrentAddress(transactionsSince: MutableList<TransactionSummary>) =
-            transactionsSince.filter { it.toAddresses.contains(address) }
+            transactionsSince.filter { it.toAddresses.contains(receivingAddress.value) }
 
     companion object {
         private const val MAX_SYNC_ERRORS = 8

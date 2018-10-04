@@ -22,7 +22,7 @@ class ReceiveBtcViewModel(application: Application) : ReceiveCoinsViewModel(appl
 
     fun setAddressType(addressType: AddressType) {
         this.addressType.value = addressType
-        receivingAddress.value = when (account) {
+        model.receivingAddress.value = when (account) {
             is HDAccount -> (account as HDAccount).getReceivingAddress(addressType)!!
             is SingleAddressAccount -> (account as SingleAddressAccount).getAddress(addressType)
             else -> throw IllegalStateException()
