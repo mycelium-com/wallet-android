@@ -219,7 +219,7 @@ abstract class AbstractAccountScanManager(protected val context: Context, protec
         return true
     }
 
-    override fun setPassphrase(passphrase: String) {
+    override fun setPassphrase(passphrase: String?) {
         passphraseSyncQueue.add(Optional.fromNullable(passphrase))
     }
 
