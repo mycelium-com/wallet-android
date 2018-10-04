@@ -520,7 +520,7 @@ open class HDAccount(
             val out = t.outputs[i]
             val receivingAddress = out.script.getAddress(_network)
             val derivationType = getDerivationTypeByAddress(receivingAddress)
-            val externalIndex = externalAddresses[derivationType]!![receivingAddress]
+            val externalIndex = externalAddresses[derivationType]?.get(receivingAddress)
             if (externalIndex != null) {
                 updateLastExternalIndex(externalIndex, derivationType)
             } else {
@@ -549,7 +549,7 @@ open class HDAccount(
      */
     protected fun updateLastInternalIndex(receivingAddress: Address) {
         val derivationType = getDerivationTypeByAddress(receivingAddress)
-        val internalIndex = internalAddresses[derivationType]!![receivingAddress]
+        val internalIndex = internalAddresses[derivationType]?.get(receivingAddress)
         if (internalIndex != null) {
             // Sends coins to an internal address, update internal max index
             // if necessary
