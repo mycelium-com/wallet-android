@@ -234,7 +234,8 @@ abstract class AbstractAccountScanManager(protected val context: Context, protec
         // this is the first call - no lastPath given
         if (lastPath == null) {
             return mapOf(BipDerivationType.BIP44 to bip44CoinType.getAccount(0),
-                    BipDerivationType.BIP49 to bip49CoinType.getAccount(0))
+                    BipDerivationType.BIP49 to bip49CoinType.getAccount(0),
+                    BipDerivationType.BIP84 to bip84CoinType.getAccount(0))
         }
 
         // otherwise use the next bip44 account, as long as the last one had activity on it
