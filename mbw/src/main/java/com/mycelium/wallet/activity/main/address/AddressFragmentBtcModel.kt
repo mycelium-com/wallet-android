@@ -10,7 +10,7 @@ class AddressFragmentBtcModel(val app: Application) : AddressFragmentViewModel(a
     private lateinit var currentType: AddressType
 
     override fun qrClickReaction(activity: FragmentActivity) {
-        currentType = model.accountAddress.value!!.type
+        currentType = model.type.value!!
         currentType = if (currentType == AddressType.P2SH_P2WPKH) {
             AddressType.P2WPKH
         } else {
