@@ -1177,7 +1177,7 @@ public class AccountsFragment extends Fragment {
     */
    private boolean accountProtected(WalletAccount toRemove) {
       if (toRemove instanceof HDAccount
-              || ((HDAccount) toRemove).getAccountType() != HDAccountContext.ACCOUNT_TYPE_FROM_MASTERSEED) {
+              && ((HDAccount) toRemove).getAccountType() != HDAccountContext.ACCOUNT_TYPE_FROM_MASTERSEED) {
          // unprotected account type
          return false;
       }

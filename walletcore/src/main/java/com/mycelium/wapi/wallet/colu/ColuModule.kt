@@ -53,7 +53,7 @@ class ColuModule(val networkParameters: NetworkParameters
                 val cfg = config as PrivateColuConfig
                 val id = ColuUtils.getGuidForAsset(cfg.coinType, cfg.privateKey.publicKey.publicKeyBytes)
                 val context = ColuAccountContext(id, cfg.coinType
-                        , BtcAddress(cfg.coinType, cfg.privateKey.publicKey.publicKeyBytes)
+                        , BtcAddress(cfg.coinType, cfg.privateKey.publicKey.toAddress(networkParameters, AddressType.P2PKH)?.allAddressBytes)
                         , false, 0)
                 backing.createAccountContext(context)
                 result = ColuAccount(context, cfg.privateKey, cfg.coinType, networkParameters, netParams

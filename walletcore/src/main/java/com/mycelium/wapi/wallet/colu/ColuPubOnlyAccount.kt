@@ -74,7 +74,7 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext, val publicKey: Pu
 
     override fun isMineAddress(address: GenericAddress?) = receiveAddress == address
 
-    override fun getTx(transactionId: Sha256Hash?): ColuTransaction? {
+    override fun getTx(transactionId: Sha256Hash): ColuTransaction? {
         //        checkNotArchived()
         return backing.getTx(transactionId)
     }
@@ -83,63 +83,63 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext, val publicKey: Pu
         return backing.getTransactions(offset, limit)
     }
 
-    private fun convertTx(tx: Transaction, height: Int, time: Int): ColuTransaction {
-
-        var satoshisReceived: Long = 0
-        val outputs = mutableListOf<GenericTransaction.GenericOutput>() //need to create list of outputs
-        for (output in tx.outputs) {
-            val address = output.script.getAddress(networkParameters)
-            if (isMineAddress(BtcAddress(coluCoinType, output.script.getAddress(networkParameters).allAddressBytes))) {
-                satoshisReceived += output.value
-            }
-            if (address != null && address != Address.getNullAddress(networkParameters)) {
-                outputs.add(GenericTransaction.GenericOutput(BtcAddress(coinType, address.allAddressBytes), Value.valueOf(coinType, output.value)))
-            }
-        }
-
-        var satoshisSent: Long = 0
-        val inputs = ArrayList<GenericTransaction.GenericInput>() //need to create list of outputs
-        // Inputs
-        if (!tx.isCoinbase) {
-            for (input in tx.inputs) {
-                // find parent output
-                val funding = backing.getParentTransactionOutput(input.outPoint)
-                if (funding == null) {
-//                        _logger.logError("Unable to find parent output for: " + input.outPoint)
-                    continue
-                }
-                val script = ScriptOutput.fromScriptBytes(funding.script)
-                if (isMineAddress(BtcAddress(coinType, script.getAddress(networkParameters).allAddressBytes))) {
-                    satoshisSent += funding.value
-                }
-
-                val address = ScriptOutput.fromScriptBytes(funding.script)!!.getAddress(networkParameters)
-                val currency = if (networkParameters.isProdnet) BitcoinMain.get() else BitcoinTest.get()
-                inputs.add(GenericTransaction.GenericInput(BtcAddress(currency, address.allAddressBytes), Value.valueOf(coinType, funding.value)))
-            }
-        }
-
-        val confirmations: Int
-        if (height == -1) {
-            confirmations = 0
-        } else {
-            confirmations = Math.max(0, blockChainHeight - height + 1)
-        }
-
-        val isQueuedOutgoing = backing.isOutgoingTransaction(tx.id)
-
-
-        return ColuTransaction(tx.id, coinType
-                , Value.valueOf(coinType, satoshisSent)
-                , Value.valueOf(coinType, satoshisReceived)
-                , time
-                , tx, confirmations, isQueuedOutgoing
-                , inputs, outputs)
-//            , satoshisSent, satoshisReceived, tex.time,
-//                    confirmations, isQueuedOutgoing, inputs, outputs, riskAssessmentForUnconfirmedTx.get(tx.id),
-//                    tex.binary.size, Value.valueOf(BitcoinMain.get(), Math.abs(satoshisReceived - satoshisSent)))
-
-    }
+//    private fun convertTx(tx: Transaction, height: Int, time: Int): ColuTransaction {
+//
+//        var satoshisReceived: Long = 0
+//        val outputs = mutableListOf<GenericTransaction.GenericOutput>() //need to create list of outputs
+//        for (output in tx.outputs) {
+//            val address = output.script.getAddress(networkParameters)
+//            if (isMineAddress(BtcAddress(coluCoinType, output.script.getAddress(networkParameters).allAddressBytes))) {
+//                satoshisReceived += output.value
+//            }
+//            if (address != null && address != Address.getNullAddress(networkParameters)) {
+//                outputs.add(GenericTransaction.GenericOutput(BtcAddress(coinType, address.allAddressBytes), Value.valueOf(coinType, output.value)))
+//            }
+//        }
+//
+//        var satoshisSent: Long = 0
+//        val inputs = ArrayList<GenericTransaction.GenericInput>() //need to create list of outputs
+//        // Inputs
+//        if (!tx.isCoinbase) {
+//            for (input in tx.inputs) {
+//                // find parent output
+//                val funding = backing.getParentTransactionOutput(input.outPoint)
+//                if (funding == null) {
+////                        _logger.logError("Unable to find parent output for: " + input.outPoint)
+//                    continue
+//                }
+//                val script = ScriptOutput.fromScriptBytes(funding.script)
+//                if (isMineAddress(BtcAddress(coinType, script.getAddress(networkParameters).allAddressBytes))) {
+//                    satoshisSent += funding.value
+//                }
+//
+//                val address = ScriptOutput.fromScriptBytes(funding.script)!!.getAddress(networkParameters)
+//                val currency = if (networkParameters.isProdnet) BitcoinMain.get() else BitcoinTest.get()
+//                inputs.add(GenericTransaction.GenericInput(BtcAddress(currency, address.allAddressBytes), Value.valueOf(coinType, funding.value)))
+//            }
+//        }
+//
+//        val confirmations: Int
+//        if (height == -1) {
+//            confirmations = 0
+//        } else {
+//            confirmations = Math.max(0, blockChainHeight - height + 1)
+//        }
+//
+//        val isQueuedOutgoing = backing.isOutgoingTransaction(tx.id)
+//
+//
+//        return ColuTransaction(tx.id, coinType
+//                , Value.valueOf(coinType, satoshisSent)
+//                , Value.valueOf(coinType, satoshisReceived)
+//                , time
+//                , tx, confirmations, isQueuedOutgoing
+//                , inputs, outputs)
+////            , satoshisSent, satoshisReceived, tex.time,
+////                    confirmations, isQueuedOutgoing, inputs, outputs, riskAssessmentForUnconfirmedTx.get(tx.id),
+////                    tex.binary.size, Value.valueOf(BitcoinMain.get(), Math.abs(satoshisReceived - satoshisSent)))
+//
+//    }
 
     override fun getBlockChainHeight(): Int = context.blockHeight
 

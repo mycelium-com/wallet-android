@@ -70,7 +70,13 @@ object WalletManagerkt {
     }
 
     fun deleteAccount(id: UUID) {
-        accounts.remove(id)
+        val account = accounts[id]
+        account?.let {
+            accounts.remove(id)
+            walletModules.forEach {
+                it.deleteAccount(account)
+            }
+        }
     }
 
     fun hasAccount(id: UUID): Boolean = accounts.containsKey(id)

@@ -10,7 +10,7 @@ import com.mycelium.wapi.wallet.coins.Value
 import java.io.Serializable
 
 
-class ColuTransaction(val id: Sha256Hash, val _type: CryptoCurrency, val _sent: Value, val receive: Value, var time: Int,
+class ColuTransaction(val id: Sha256Hash, val _type: CryptoCurrency, val _sent: Value, val receive: Value, var time: Long,
                       val tx: Transaction?, var confirmation: Int, val _isQueuedOutgoing: Boolean
                       , val input: List<GenericTransaction.GenericInput>, val output: List<GenericTransaction.GenericOutput>
                       , fee: Value? = null)
@@ -38,10 +38,10 @@ class ColuTransaction(val id: Sha256Hash, val _type: CryptoCurrency, val _sent: 
         confirmation = appearedAtChainHeight
     }
 
-    override fun getTimestamp(): Long = time.toLong()
+    override fun getTimestamp(): Long = time
 
     override fun setTimestamp(timestamp: Int) {
-        time = timestamp
+        time = timestamp.toLong()
     }
 
     override fun isQueuedOutgoing(): Boolean = _isQueuedOutgoing

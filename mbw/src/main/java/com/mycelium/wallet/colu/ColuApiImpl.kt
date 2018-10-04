@@ -57,7 +57,9 @@ class ColuApiImpl(val coluClient: ColuClient) : ColuApi {
 
                 if (input.size > 0 && output.size > 0) {
                     result.add(ColuTransaction(Sha256Hash.fromString(transaction.txid), MTCoin
-                            , sent, receive, transaction.time.toInt(), null
+                            , if (sent.isGreaterThan(receive)) sent.subtract(receive) else Value.zeroValue(address.coinType)
+                            , if (receive.isGreaterThan(sent)) receive.subtract(sent) else Value.zeroValue(address.coinType)
+                            , transaction.time / 1000, null
                             , transaction.confirmations, false, input, output))
                 }
             }
