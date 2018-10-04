@@ -94,6 +94,7 @@ import com.mycelium.wallet.activity.export.ExportAsQrActivity;
 import com.mycelium.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.persistence.MetadataStorage;
+import com.mycelium.wapi.wallet.AbstractAccount;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.ExportableAccount;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -733,8 +734,9 @@ public class Utils {
             .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                public void onClick(DialogInterface dialog, int id) {
                   dialog.dismiss();
+                  boolean btcMultiAddress = account instanceof AbstractAccount && ((AbstractAccount) account).getAvailableAddressTypes().size() > 1;
                   ExportAsQrActivity.callMe(parent, ((ExportableAccount) account).getExportData(AesKeyCipher.defaultKeyCipher()),
-                          account.getType() == WalletAccount.Type.BTCBIP44);
+                          btcMultiAddress);
 
                }
             }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {

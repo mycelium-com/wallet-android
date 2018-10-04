@@ -71,10 +71,7 @@ import com.mycelium.wallet.lt.activity.buy.AdSearchFragment;
 import com.mycelium.wallet.lt.activity.sell.AdsFragment;
 import com.mycelium.wallet.lt.api.DeleteTrader;
 import com.mycelium.wallet.lt.api.GetTraderInfo;
-import com.mycelium.wapi.wallet.AesKeyCipher;
-import com.mycelium.wapi.wallet.ExportableAccount;
-import com.mycelium.wapi.wallet.KeyCipher;
-import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.*;
 
 public class LtMainActivity extends AppCompatActivity {
    public static final String TAB_TO_SELECT = "tabToSelect";
@@ -289,8 +286,9 @@ public class LtMainActivity extends AppCompatActivity {
          }
       };
 
+      boolean btcMultiAddress = account instanceof AbstractAccount && ((AbstractAccount) account).getAvailableAddressTypes().size() > 1;
       ExportAsQrActivity.callMe(this, exportableAccount.getExportData(AesKeyCipher.defaultKeyCipher()),
-              account.getType() == WalletAccount.Type.BTCBIP44);
+              btcMultiAddress);
    }
 
    private void deleteTraderAccount() {

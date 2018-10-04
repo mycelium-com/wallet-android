@@ -47,11 +47,16 @@ class ReceiveCoinsModel(
 
     init {
         mbwManager.eventBus.register(this)
-        if (showIncomingUtxo) {
-            mbwManager.watchAddress(receivingAddress.value)
-        }
         receivingAmountWrong.value = false
         receivingAddress.value = account.receivingAddress.get()
+
+        if (showIncomingUtxo) {
+            updateObservingAddress()
+        }
+    }
+
+    fun updateObservingAddress() {
+        mbwManager.watchAddress(receivingAddress.value)
     }
 
     fun onCleared() {
@@ -68,7 +73,7 @@ class ReceiveCoinsModel(
             } else {
                 amountData.value = if (account.accountDefaultCurrency != newAmount.currency) {
                     // use the accounts default currency as alternative
-                     CurrencyValue.fromValue(newAmount, account.accountDefaultCurrency,
+                    CurrencyValue.fromValue(newAmount, account.accountDefaultCurrency,
                             mbwManager.exchangeRateManager)
                 } else {
                     // special case for Coinapult
@@ -82,7 +87,7 @@ class ReceiveCoinsModel(
             alternativeAmountData.value = null
         }
     }
-    
+
     fun getPaymentUri(): String {
         val prefix = accountLabel
 
@@ -133,8 +138,12 @@ class ReceiveCoinsModel(
     fun syncStopped(event: SyncStopped) {
         val transactionsSince = account.getTransactionsSince(receivingSince)
         val interesting = getTransactionsToCurrentAddress(transactionsSince)
-        var sum = if (interesting.isEmpty()) { null } else { interesting.first().value }
-        interesting.drop(1).forEach { sum = sum!!.add(it.value, mbwManager.exchangeRateManager)}
+        var sum = if (interesting.isEmpty()) {
+            null
+        } else {
+            interesting.first().value
+        }
+        interesting.drop(1).forEach { sum = sum!!.add(it.value, mbwManager.exchangeRateManager) }
         receivingAmount.value = sum
 
         if (!CurrencyValue.isNullOrZero(amountData.value) && sum != null) {

@@ -28,6 +28,7 @@ class ReceiveBtcViewModel(application: Application) : ReceiveCoinsViewModel(appl
             is SingleAddressAccount -> (account as SingleAddressAccount).getAddress(addressType)
             else -> throw IllegalStateException()
         }
+        model.updateObservingAddress()
     }
 
     fun getAccountDefaultAddressType(): AddressType {

@@ -261,7 +261,7 @@ public class AccountsFragment extends Fragment {
 
       // add checkbox only for SingleAddressAccounts and only if a private key is present
       final boolean hasPrivateData = (accountToDelete instanceof ExportableAccount
-              && ((ExportableAccount) accountToDelete).getExportData(AesKeyCipher.defaultKeyCipher()).privateData.isPresent());
+              && ((ExportableAccount) accountToDelete).getExportData(AesKeyCipher.defaultKeyCipher()).getPrivateData().isPresent());
 
       if (accountToDelete instanceof SingleAddressAccount && hasPrivateData) {
          deleteDialog.setView(checkBoxView);

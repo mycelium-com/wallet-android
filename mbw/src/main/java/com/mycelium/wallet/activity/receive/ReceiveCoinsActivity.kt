@@ -20,6 +20,7 @@ import com.mycelium.wallet.coinapult.CoinapultAccount
 import com.mycelium.wallet.colu.ColuAccount
 import com.mycelium.wallet.databinding.ReceiveCoinsActivityBinding
 import com.mycelium.wallet.databinding.ReceiveCoinsActivityBtcBinding
+import com.mycelium.wapi.wallet.AbstractAccount
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.bip44.HDAccount
@@ -74,11 +75,16 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         val receiveCoinsActivityNBinding =
                 when (account) {
                     is SingleAddressBCHAccount, is Bip44BCHAccount -> getDefaultBinding()
-                    is SingleAddressAccount, is HDAccount  ->  {
-                        val contentView = DataBindingUtil.setContentView<ReceiveCoinsActivityBtcBinding>(this, R.layout.receive_coins_activity_btc)
-                        contentView.viewModel = viewModel as ReceiveBtcViewModel
-                        contentView.activity = this
-                        contentView
+                    is AbstractAccount ->  {
+                        // This is only actual if account contains multiple address types inside
+                        if (account.availableAddressTypes.size > 1) {
+                            val contentView = DataBindingUtil.setContentView<ReceiveCoinsActivityBtcBinding>(this, R.layout.receive_coins_activity_btc)
+                            contentView.viewModel = viewModel as ReceiveBtcViewModel
+                            contentView.activity = this
+                            contentView
+                        } else {
+                            getDefaultBinding()
+                        }
                     }
                     else -> getDefaultBinding()
                 }
