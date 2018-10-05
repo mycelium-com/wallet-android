@@ -43,7 +43,6 @@ class PublicKey(val publicKeyBytes: ByteArray) : Serializable {
             AddressType.P2PKH -> toP2PKHAddress(networkParameters)
             AddressType.P2SH_P2WPKH -> toNestedP2WPKH(networkParameters)
             AddressType.P2WPKH -> toP2WPKH(networkParameters)
-            else -> throw IllegalArgumentException("Not supported address type")
         }
     }
 

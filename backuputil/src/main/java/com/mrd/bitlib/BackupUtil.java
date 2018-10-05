@@ -63,7 +63,8 @@ public class BackupUtil {
          InMemoryPrivateKey key = new InMemoryPrivateKey(privateKey, header.network);
          return "Private key (Wallet Import Format): " + key.getBase58EncodedPrivateKey(header.network) +
                "\n                   Bitcoin Address: " + key.getPublicKey().toAddress(header.network, AddressType.P2PKH) +
-               "\n                   Bitcoin Address: " + key.getPublicKey().toAddress(header.network, AddressType.P2SH_P2WPKH);
+               "\n                   Bitcoin Address: " + key.getPublicKey().toAddress(header.network, AddressType.P2SH_P2WPKH) +
+               "\n                   Bitcoin Address: " + key.getPublicKey().toAddress(header.network, AddressType.P2WPKH);
       } catch (InterruptedException e) {
          throw new RuntimeException(e);
       } catch (MrdExport.V1.WrongNetworkException e) {

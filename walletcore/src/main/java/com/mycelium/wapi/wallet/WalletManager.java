@@ -352,7 +352,7 @@ public class WalletManager {
             BipDerivationType derivationType = hdKeyNode.getDerivationType();
             derivationTypes.add(derivationType);
 
-            keyManagerMap.put(derivationType,HDPubOnlyAccountKeyManager.createFromPublicAccountRoot(hdKeyNode,
+            keyManagerMap.put(derivationType, HDPubOnlyAccountKeyManager.createFromPublicAccountRoot(hdKeyNode,
                     _network, accountIndex, newSubKeyStore, derivationType));
         }
         final UUID id = keyManagerMap.get(derivationTypes.get(0)).getAccountId();

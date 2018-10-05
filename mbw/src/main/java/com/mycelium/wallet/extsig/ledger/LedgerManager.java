@@ -390,7 +390,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
 
          // Sign
          SigningRequest signingRequest = signatureInfo[i];
-         Address toSignWith = signingRequest.getPublicKey().toAddress(getNetwork(), AddressType.P2PKH);
+         Address toSignWith = signingRequest.getPublicKey().toAddress(getNetwork(), AddressType.P2PKH);     //TODO segwit fix
          Optional<Integer[]> addressId = forAccount.getAddressId(toSignWith);
          String keyPath = commonPath + addressId.get()[0] + "/" + addressId.get()[1];
          byte[] signature = dongle.untrustedHashSign(keyPath, txpin);
