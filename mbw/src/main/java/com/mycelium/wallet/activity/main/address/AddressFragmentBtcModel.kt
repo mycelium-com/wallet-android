@@ -8,10 +8,14 @@ import com.mycelium.wallet.event.ReceivingAddressChanged
 import com.mycelium.wapi.wallet.AbstractAccount
 
 class AddressFragmentBtcModel(val app: Application) : AddressFragmentViewModel(app) {
-    private lateinit var currentType: AddressType
+    lateinit var currentType: AddressType
+
+    override fun init() {
+        super.init()
+        currentType = model.accountAddress.value!!.type
+    }
 
     override fun qrClickReaction(activity: FragmentActivity) {
-        currentType = model.accountAddress.value!!.type
         currentType = if (currentType == AddressType.P2SH_P2WPKH) {
             AddressType.P2WPKH
         } else {
