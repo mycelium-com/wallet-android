@@ -1023,12 +1023,12 @@ You can either add miner\'s fee from any account with bitcoins every time you ma
     <string name="partner_header_title">New to crypto?</string>
     <string name="partner_header_text">Please find here a selection of partner businesses.</string>
 
-    <string name="make_extra_btc_url">https://play.google.com/store/apps/details?id=com.modules.tradingbots.makeextrabtc</string>
-    <string name="make_extra_btc">Make extra BTC</string>
-    <string name="make_extra_btc_module"><![CDATA[<font color="#663aee82">Make Extra BTC</font> Module]]></string>
-    <string name="make_extra_btc_module_short">MEB</string>
-    <string name="make_extra_btc_module_desc">Make extra BTC with top trading strategies</string>
-    <string name="meb_module_change"><![CDATA[Mycelium <font color="#663aee82">Make Extra BTC</font> module has been %s!]]></string>
+    <string name="get_extra_btc_url">https://play.google.com/store/apps/details?id=com.modules.tradingbots.getextrabtc</string>
+    <string name="get_extra_btc">Get extra BTC</string>
+    <string name="get_extra_btc_module"><![CDATA[<font color="#663aee82">Get Extra BTC</font> Module]]></string>
+    <string name="get_extra_btc_module_short">GEB</string>
+    <string name="get_extra_btc_module_desc">Get extra BTC with top trading strategies</string>
+    <string name="geb_module_change"><![CDATA[Mycelium <font color="#663aee82">Get Extra BTC</font> module has been %s!]]></string>
 
     <string name="partner_ledger">Ledger</string>
     <string name="partner_ledger_short">Security solutions for cryptocurrencies</string>
