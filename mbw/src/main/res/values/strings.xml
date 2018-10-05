@@ -475,8 +475,14 @@
 
     <string name="cs_private_key_description">You are using a private key with the following Bitcoin address:</string>
     <string name="cs_address_description">You have scanned a Bitcoin address. You can view the balance but not spend from it.</string>
-    <string name="contains_keys">Contains %1$d private keys.</string>
-    <string name="contains_addresses">Contains %1$d addresses.</string>
+    <plurals name="contains_keys">
+        <item quantity="one">Contains one private key.</item>
+        <item quantity="other">Contains %1$d private keys.</item>
+    </plurals>
+    <plurals name="contains_addresses">
+        <item quantity="one">Contains one address.</item>
+        <item quantity="other">Contains %1$d addresses.</item>
+    </plurals>
     <string name="sync_total_retrieved_transactions">Syncing in progress: %1$s transactions retrieved</string>
     <string name="archiving_account_title">Archiving Account</string>
     <string name="new_version_exists">A new Version is available</string>
@@ -540,8 +546,6 @@
     <string name="unspent_outputs_title">Unspent Outputs</string>
     <string name="no_unspent_outputs_description">This page shows on which addresses the funds in the selected account are located. There are currently no funds to display.</string>
     <string name="warning_words_import">Warning: Do not put your words into the clipboard, other apps could read them and obtain your money.</string>
-    <string name="account_contains_one_key_info">Contains one private key.</string>
-    <string name="account_contains_one_address_info">Contains one address.</string>
     <string name="verify_backup_ok_message">The backup was successfully verified.</string>
     <string name="wordlist_import_invalid_checksum">The checksum of your word list is invalid, please make sure you entered all words correctly.</string>
     <string name="checkbox_wordlist_passphrase">I have a passphrase</string>

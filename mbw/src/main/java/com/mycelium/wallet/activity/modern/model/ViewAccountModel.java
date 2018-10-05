@@ -39,18 +39,10 @@ public class ViewAccountModel {
         final WalletAccount account = MbwManager.getInstance(context).getWalletManager(false).getAccount(accountId);
         if (account instanceof HDPubOnlyAccount && account.isActive()) {
             int numKeys = ((HDAccount) account).getPrivateKeyCount();
-            if (numKeys > 1) {
-                displayAddress = context.getString(R.string.contains_addresses, numKeys);
-            } else {
-                displayAddress = context.getString(R.string.account_contains_one_address_info);
-            }
+            displayAddress = context.getResources().getQuantityString(R.plurals.contains_addresses, numKeys, numKeys);
         } else if (account instanceof HDAccount && account.isActive()) {
             int numKeys = ((HDAccount) account).getPrivateKeyCount();
-            if (numKeys > 1) {
-                displayAddress = context.getString(R.string.contains_keys, numKeys);
-            } else {
-                displayAddress = context.getString(R.string.account_contains_one_key_info);
-            }
+            displayAddress = context.getResources().getQuantityString(R.plurals.contains_keys, numKeys, numKeys);
         } else {
             displayAddress = viewModel.getDisplayAddress();
         }

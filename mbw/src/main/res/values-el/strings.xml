@@ -396,8 +396,14 @@
   <!-- LT end -->
   <string name="cs_private_key_description">Χρησιμοποιείτε ένα μυστικό κλειδί με την παρακάτω διεύθυνση Bitcoin:</string>
   <string name="cs_address_description">Σαρώσατε μια διεύθυνση Bitcoin. Μπορείτε να παρακολουθείτε το ισοζύγιο συναλλαγών, αλλά όχι να ξοδέψετε από αυτήν.</string>
-  <string name="contains_keys">Περιέχει %1$s μυστικά κλειδιά.</string>
-  <string name="contains_addresses">Περιέχει %1$s διευθύνσεις.</string>
+  <plurals name="contains_keys">
+    <item quantity="one">Περιέχει ένα μυστικό κλειδί.</item>
+    <item quantity="other">Περιέχει %1$d μυστικά κλειδιά.</item>
+  </plurals>
+  <plurals name="contains_addresses">
+    <item quantity="one">Περιέχει μια διεύθυνση.</item>
+    <item quantity="other">Περιέχει %1$d διευθύνσεις.</item>
+  </plurals>
   <string name="archiving_account_title">Ο Λογαριασμός Αρχειοθετείται</string>
   <string name="new_version_exists">Μια νέα Έκδοση είναι διαθέσιμη</string>
   <string name="check_update">Έλεγχος για Ενημερώσεις</string>
@@ -451,8 +457,6 @@
   <string name="unspent_outputs_title">Αξόδευτες Εκροές</string>
   <string name="no_unspent_outputs_description">Η σελίδα αυτή εμφανίζει τις διευθύνσεις στις οποίες βρίσκονται τα κεφάλαια του επιλεγμένου λογαριασμού. Προς το παρόν δεν υπάρχουν κεφάλαια για εμφάνιση.</string>
   <string name="warning_words_import">Προειδοποίηση: Μην αντιγράφετε τις λέξεις σας στο πρόχειρο, άλλες εφαρμογές μπορούν να το διαβάσουν και να αποκτήσουν πρόσβαση στα χρήματά σας.</string>
-  <string name="account_contains_one_key_info">Περιέχει ένα μυστικό κλειδί.</string>
-  <string name="account_contains_one_address_info">Περιέχει μια διεύθυνση.</string>
   <string name="verify_backup_ok_message">Το αντίγραφο ασφαλείας επιβεβαιώθηκε επιτυχώς.</string>
   <string name="wordlist_import_invalid_checksum">Το ψηφίο επιβεβαίωσης της λίστας λέξεών σας είναι μη έγκυρο, παρακαλώ σιγουρευτείτε ότι εισαγάγατε όλες τις λέξεις σωστά.</string>
   <string name="wordlist_length_12">12 λέξεις</string>

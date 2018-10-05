@@ -3,5 +3,4 @@ apply plugin: 'com.android.library'
 android {
     compileSdkVersion androidCompileSdkVersion
     buildToolsVersion androidSdkBuildVersion
-    useLibrary 'org.apache.http.legacy'
 }

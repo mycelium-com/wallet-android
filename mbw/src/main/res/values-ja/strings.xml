@@ -392,8 +392,12 @@
   <!-- LT end -->
   <string name="cs_private_key_description">次のビットコインアドレスを秘密キーを使用しています：</string>
   <string name="cs_address_description">ビットコインアドレスが完了しました。残高を閲覧できますが、そこから支出することはできません。</string>
-  <string name="contains_keys">%1$sの秘密鍵が入っています。</string>
-  <string name="contains_addresses">%1$s 個のアドレスを含みます。</string>
+  <plurals name="contains_keys">
+    <item quantity="other">%1$dの秘密鍵が入っています。</item>
+  </plurals>
+  <plurals name="contains_addresses">
+    <item quantity="other">%1$d 個のアドレスを含みます。</item>
+  </plurals>
   <string name="archiving_account_title">アカウントをアーカイブ中</string>
   <string name="new_version_exists">新しいバージョンが利用可能</string>
   <string name="check_update">アップデートを確認</string>
@@ -447,8 +451,6 @@
   <string name="unspent_outputs_title">使用していない出力</string>
   <string name="no_unspent_outputs_description">このページは、選択したアカウントにおいてどのアドレスにお金が入っているかを示しています。表示するお金はありません。</string>
   <string name="warning_words_import">警告：クリップボードにあなたのワードを入力させないでください。他のアプリがこれらを読み取って、あなたのお金を入手できてしまいます。</string>
-  <string name="account_contains_one_key_info">秘密鍵が一つ入っています。</string>
-  <string name="account_contains_one_address_info">１個のアドレスを含みます。</string>
   <string name="verify_backup_ok_message">バックアップの確認に成功しました。</string>
   <string name="wordlist_import_invalid_checksum">ワードリストのチェックサムは無効です。すべてのワードが正しいかご確認下さい。</string>
   <string name="wordlist_length_12">12ワード</string>

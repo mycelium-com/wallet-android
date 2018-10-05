@@ -215,7 +215,7 @@ public class Utils {
 
    public static boolean isConnected(Context context) {
       ConnectivityManager cm =
-              (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+              (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 
       NetworkInfo activeNetwork = null;
       if (cm != null) {

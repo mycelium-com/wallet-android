@@ -346,10 +346,10 @@ open class HDAccount(
     }
 
     @Throws(WapiException::class)
-    override fun doDiscoveryForAddresses(lookAhead: List<Address>): Map<BipDerivationType, Boolean> {
+    override fun doDiscoveryForAddresses(addresses: List<Address>): Map<BipDerivationType, Boolean> {
         // Do look ahead query
         val result = _wapi.queryTransactionInventory(
-                QueryTransactionInventoryRequest(Wapi.VERSION, lookAhead, Wapi.MAX_TRANSACTION_INVENTORY_LIMIT)).result
+                QueryTransactionInventoryRequest(Wapi.VERSION, addresses)).result
         blockChainHeight = result.height
         val ids = result.txIds
         if (ids.isEmpty()) {

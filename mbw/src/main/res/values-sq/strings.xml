@@ -396,8 +396,14 @@
   <!-- LT end -->
   <string name="cs_private_key_description">Jeni duke përdorur një çelës privat me këtë Bitcoin adresë:</string>
   <string name="cs_address_description">Keni skanuar një Bitcoin adresë. Ju mund të shikoni bilancin por jo të shpenzoni nga kjo adresë.</string>
-  <string name="contains_keys">Përmban %1$s çelësa privat.</string>
-  <string name="contains_addresses">Përmban %1$s adresa.</string>
+  <plurals name="contains_keys">
+    <item quantity="one">Përmban një çelës privat.</item>
+    <item quantity="other">Përmban %1$d çelësa privat.</item>
+  </plurals>
+  <plurals name="contains_addresses">
+    <item quantity="one">Përmban një adresë.</item>
+    <item quantity="other">Përmban %1$d adresa.</item>
+  </plurals>
   <string name="archiving_account_title">Duke arkivuar llogarin</string>
   <string name="new_version_exists">Një version i ri është në dispozicion</string>
   <string name="check_update">Kontrollo për përditësim</string>
@@ -451,8 +457,6 @@
   <string name="unspent_outputs_title">Daljet e pashpenzuara</string>
   <string name="no_unspent_outputs_description">Kjo faqe tregon në cilat adresa janë fondet në llogarin e zgjedhur, Nuk ka fonde për të shfaqur.</string>
   <string name="warning_words_import">Paralajmërim: Mos fusni fjalët në memorje, pasi aplikacionet tjera mund ti lexojn ato dhe të kenë kontroll mbi fondet e juaja.</string>
-  <string name="account_contains_one_key_info">Përmban një çelës privat.</string>
-  <string name="account_contains_one_address_info">Përmban një adresë.</string>
   <string name="verify_backup_ok_message">Kopja rezervë u verifikua me sukses.</string>
   <string name="wordlist_import_invalid_checksum">\"Checksum\" i listës së fjalëve tuaja është jovalid, ju lutem sigurohuni që fjalët që shënuat janë korrekt.</string>
   <string name="wordlist_length_12">12 fjalë</string>

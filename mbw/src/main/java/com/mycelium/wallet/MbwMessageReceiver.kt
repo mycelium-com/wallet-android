@@ -57,14 +57,13 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
             CommunicationManager.getInstance().pairedModules.find { it.modulePackage == packageName }
 
     private fun onMessageFromGebModule(intent: Intent) {
+        val mbwManager = MbwManager.getInstance(context)
         when (intent.action) {
             "com.mycelium.wallet.getMyceliumId" -> {
-                val mbwManager = MbwManager.getInstance(context)
                 val service = IntentContract.MyceliumIdTransfer.createIntent(mbwManager.myceliumId)
                 WalletApplication.sendToGeb(service)
             }
             "com.mycelium.wallet.signData" -> {
-                val mbwManager = MbwManager.getInstance(context)
                 val message = intent.getStringExtra(IntentContract.MESSAGE)
                 val signature = mbwManager.signMessage(message)
                 val service = IntentContract.TransferSignedData.createIntent(message, signature)
