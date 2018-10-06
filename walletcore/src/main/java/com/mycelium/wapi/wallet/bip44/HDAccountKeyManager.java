@@ -22,11 +22,7 @@ import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.model.Bech32;
 import com.mrd.bitlib.model.NetworkParameters;
-import com.mrd.bitlib.model.SegwitAddress;
-import com.mrd.bitlib.model.hdpath.Bip44Address;
-import com.mrd.bitlib.model.hdpath.Bip44Purpose;
 import com.mrd.bitlib.model.hdpath.HdKeyPath;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.ByteReader;
@@ -184,7 +180,7 @@ public class HDAccountKeyManager {
       // See if we have it in the store
       byte[] id = getLeafNodeId(_network, _accountIndex, isChangeChain, index, false, derivationType);
       byte[] addressNodeBytes = _secureKeyValueStore.getPlaintextValue(id);
-      Bip44Purpose purpose;
+      HdKeyPath purpose;
       switch (derivationType) {
          case BIP44:
             purpose = HdKeyPath.BIP44;
@@ -199,8 +195,7 @@ public class HDAccountKeyManager {
             throw new NotImplementedError();
       }
 
-
-      final Bip44Address path = purpose
+      final HdKeyPath path = purpose
             .getCoinTypeBitcoin(_network.isTestnet())
             .getAccount(_accountIndex)
             .getChain(!isChangeChain)

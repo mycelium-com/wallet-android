@@ -41,7 +41,6 @@ import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.HdKeyNode
 import com.mrd.bitlib.model.*
 import com.mrd.bitlib.model.hdpath.HdKeyPath
-import com.mycelium.wallet.MbwManager
 import com.mycelium.wapi.wallet.WalletManager
 import com.squareup.otto.Bus
 import java.util.UUID
@@ -99,18 +98,16 @@ class MasterseedScanManager : AbstractAccountScanManager {
     override fun getAccountPathsToScan(lastPath: HdKeyPath?, wasUsed: Boolean): Map<BipDerivationType, HdKeyPath> {
         // this is the first call - no lastPath given
         if (lastPath == null) {
-            return mapOf(BipDerivationType.BIP44 to HdKeyPath.BIP32_ROOT)
+            return mapOf(BipDerivationType.BIP44 to HdKeyPath.BIP32_ROOT,
+                    BipDerivationType.BIP49 to HdKeyPath.BIP32_ROOT,
+                    BipDerivationType.BIP84 to HdKeyPath.BIP32_ROOT)
         }
 
-        // if the lastPath was the Bip32, we dont care if it wasUsed - always scan the first Bip44 account
-        val bip44CoinType = HdKeyPath.BIP44.getBip44CoinType(network)
-        val bip49CoinType = HdKeyPath.BIP49.getBip44CoinType(network)
-        val bip84CoinType = HdKeyPath.BIP84.getBip44CoinType(network)
-
+        // if the lastPath was the Bip32, we dont care if it wasUsed - always scan the first accounts
         return if (lastPath == HdKeyPath.BIP32_ROOT) {
-            mapOf(BipDerivationType.BIP44 to bip44CoinType.getAccount(0),
-                    BipDerivationType.BIP49 to bip49CoinType.getAccount(0),
-                    BipDerivationType.BIP84 to bip84CoinType.getAccount(0))
+            mapOf(BipDerivationType.BIP44 to BIP44COIN_TYPE.getAccount(0),
+                    BipDerivationType.BIP49 to BIP49COIN_TYPE.getAccount(0),
+                    BipDerivationType.BIP84 to BIP84COIN_TYPE.getAccount(0))
         } else {
             // otherwise just return the normal bip44 accounts
             super.getAccountPathsToScan(lastPath, wasUsed)

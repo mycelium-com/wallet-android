@@ -39,6 +39,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import com.google.common.base.Optional;
 import com.google.protobuf.ByteString;
@@ -58,6 +59,7 @@ import com.mrd.bitlib.model.TransactionOutput;
 import com.mrd.bitlib.model.hdpath.HdKeyPath;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.ByteWriter;
+import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.util.AbstractAccountScanManager;
@@ -315,14 +317,23 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
             // only for the unsigned txin
             if (!txRequestDetailsType.hasTxHash()) {
                SigningRequest signingRequest = signatureInfo[txRequestDetailsType.getRequestIndex()];
-               Address toSignWith = signingRequest.getPublicKey().toAddress(getNetwork(), AddressType.P2SH_P2WPKH);  //TODO fix segwit
-
-               if (toSignWith != null) {
-                  Optional<Integer[]> addId = forAccount.getAddressId(toSignWith);
-                  if (addId.isPresent()) {
-                     new InputAddressSetter(txInputBuilder).setAddressN(forAccount.getAccountIndex(), addId.get());
+               boolean foundKey = false;
+               for (BipDerivationType derivationType : new BipDerivationType[]{
+                       BipDerivationType.BIP44,
+                       BipDerivationType.BIP49,
+                       BipDerivationType.BIP84
+               }) {
+                  Address toSignWith = signingRequest.getPublicKey().toAddress(getNetwork(), derivationType.getAddressType());
+                  if (toSignWith != null) {
+                     Optional<Integer[]> addId = forAccount.getAddressId(toSignWith);
+                     if (addId.isPresent()) {
+                        new InputAddressSetter(txInputBuilder).setAddressN((int) derivationType.getPurpose(), forAccount.getAccountIndex(), addId.get());
+                        foundKey = true;
+                        break;
+                     }
                   }
-               } else {
+               }
+               if (!foundKey) {
                   Log.w("trezor", "no address found for signing InputIDX " + txRequestDetailsType.getRequestIndex());
                }
             }
@@ -365,10 +376,11 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
                      .setScriptType(mapScriptType(ak_output.script));
 
                Optional<Integer[]> addId = forAccount.getAddressId(address);
+               BipDerivationType derivationType = BipDerivationType.Companion.getDerivationTypeByAddress(address);
                if (addId.isPresent() && addId.get()[0] == 1) {
                   // If it is one of our internal change addresses, add the HD-PathID
                   // so that trezor knows, this is the change txout and can calculate the value of the tx correctly
-                  new OutputAddressSetter(txOutput).setAddressN(forAccount.getAccountIndex(), addId.get());
+                  new OutputAddressSetter(txOutput).setAddressN((int) derivationType.getPurpose(), forAccount.getAccountIndex(), addId.get());
                } else {
                   // If it is regular address (non-change), set address instead of address_n
                   txOutput.setAddress(address.toString());
@@ -384,6 +396,7 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
                   .build();
 
             response = getSignatureDevice().send(txAck);
+            Log.w(TAG, "getSignedTransaction: C " + HexUtils.toHex(txAck.toByteArray()) + " -> " + response);
          }
       }
 
@@ -437,7 +450,7 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
 
       try {
          Message resp = filterMessages(getSignatureDevice().send(msgGetPubKey));
-         if (resp != null && resp instanceof TrezorMessage.PublicKey) {
+         if (resp instanceof TrezorMessage.PublicKey) {
             TrezorMessage.PublicKey pubKeyNode = (TrezorMessage.PublicKey) resp;
             PublicKey pubKey = new PublicKey(pubKeyNode.getNode().getPublicKey().toByteArray());
             HdKeyNode accountRootNode = new HdKeyNode(
@@ -457,8 +470,9 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
       }
    }
 
+   @NonNull
    @Override
-   public UUID createOnTheFlyAccount(List<? extends HdKeyNode> accountRoots, WalletManager walletManager, int accountIndex) {
+   public UUID createOnTheFlyAccount(@NonNull List<? extends HdKeyNode> accountRoots, @NonNull WalletManager walletManager, int accountIndex) {
       UUID account = null;
       for (HdKeyNode root:
            accountRoots) {
@@ -551,9 +565,14 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
    private abstract class AddressSetter {
       public abstract void addAddressN(Integer addressPath);
 
-      public void setAddressN(Integer accountNumber, Integer[] addId) {
+      public void setAddressN(Integer purposeNumber, Integer accountNumber, Integer[] addId) {
          // build the full bip32 path
-         Integer[] addressPath = new Integer[]{44 | PRIME_DERIVATION_FLAG, getNetwork().getBip44CoinType().getLastIndex() | PRIME_DERIVATION_FLAG, accountNumber | PRIME_DERIVATION_FLAG, addId[0], addId[1]};
+         Integer[] addressPath = new Integer[]{
+                 purposeNumber | PRIME_DERIVATION_FLAG,
+                 getNetwork().getBip44CoinType() | PRIME_DERIVATION_FLAG,
+                 accountNumber | PRIME_DERIVATION_FLAG,
+                 addId[0],
+                 addId[1]};
          for (Integer b : addressPath) {
             this.addAddressN(b);
          }
