@@ -20,6 +20,7 @@ import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
+import com.mycelium.wapi.wallet.eth.coins.EthTest;
 import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;;
 
 import java.util.List;
@@ -59,7 +60,7 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
 
     @Override
     public CryptoCurrency getCoinType() {
-        return null;
+        return EthTest.get();
     }
 
     @Override

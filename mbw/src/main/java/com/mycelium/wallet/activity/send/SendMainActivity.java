@@ -120,7 +120,7 @@ import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
-import com.mycelium.wapi.wallet.coins.BitcoinTest;
+import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin;

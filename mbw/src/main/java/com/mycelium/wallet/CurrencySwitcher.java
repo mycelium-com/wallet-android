@@ -38,13 +38,12 @@ import com.google.api.client.util.Lists;
 import com.google.common.base.Strings;
 import com.mrd.bitlib.util.CoinUtil;
 import com.mycelium.wallet.exchange.ExchangeRateManager;
-import com.mycelium.wapi.wallet.fiat.FiatType;
+import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 import com.mycelium.wallet.exchange.ValueSum;
 import com.mycelium.wapi.model.ExchangeRate;
-import com.mycelium.wapi.wallet.coins.BitcoinMain;
-import com.mycelium.wapi.wallet.coins.BitcoinTest;
+import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
+import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.Value;
-import com.mycelium.wapi.wallet.currency.CurrencySum;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 
 import java.util.ArrayList;

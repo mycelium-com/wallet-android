@@ -7,9 +7,10 @@ import com.mrd.bitlib.util.HashUtils
 import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.wapi.model.BalanceSatoshis
 import com.mycelium.wapi.model.TransactionEx
-import com.mycelium.wapi.model.TransactionOutputSummary
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.BtcAddress
+import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
+import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
 import com.mycelium.wapi.wallet.coins.*
 import java.nio.ByteBuffer
 import java.util.*

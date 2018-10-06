@@ -79,6 +79,7 @@ import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
+import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
@@ -169,28 +170,17 @@ public class AddressBookFragment extends Fragment {
 
    private void updateUiMine() {
       List<Entry> entries = new ArrayList<>();
-      List<WalletAccount> activeAccountsGeneric = new ArrayList<>();
 
-      for(WalletAccount account : AccountManager.INSTANCE.getActiveAccounts().values().asList()){
-         activeAccountsGeneric.add(account);
-      }
+      List<WalletAccount> activeAccountsGeneric = new ArrayList<WalletAccount>(AccountManager.INSTANCE.getActiveAccounts().values().asList());
       for (WalletAccount account : Utils.sortAccounts(activeAccountsGeneric, _mbwManager.getMetadataStorage())) {
 
          String name = _mbwManager.getMetadataStorage().getLabelByAccount(account.getId());
          Drawable drawableForAccount = Utils.getDrawableForAccount(account, true, getResources());
-         //TODO a lot of pr
+
          WalletAccount selectedAccount = _mbwManager.getSelectedAccount();
          if (account.getReceiveAddress() != null) {
-            if (!account.getCoinType().equals(_mbwManager.getSelectedAccount().getCoinType()) &&
-                    (spendableOnly && account.canSpend()
-                    && (!excudeSelected || !account.getReceiveAddress().equals(_mbwManager.getSelectedAccount().getReceiveAddress()))
-                    && !account.getAccountBalance().confirmed.isZero()) || !spendableOnly) {
-               if (selectedAccount instanceof ColuAccount && account instanceof ColuAccount
-                       && ((ColuAccount) account).getColuAsset().assetType == ((ColuAccount) selectedAccount).getColuAsset().assetType) {
-                  entries.add(new AddressBookManager.IconEntry(account.getReceiveAddress(), name, drawableForAccount, account.getId()));
-               } else if (!(_mbwManager.getSelectedAccount() instanceof ColuAccount)) {
-                  entries.add(new AddressBookManager.IconEntry(account.getReceiveAddress(), name, drawableForAccount, account.getId()));
-               }
+            if (account.canSpend() && selectedAccount.getCoinType().equals(account.getCoinType())) {
+               entries.add(new AddressBookManager.IconEntry(account.getReceiveAddress(), name, drawableForAccount, account.getId()));
             }
          }
       }

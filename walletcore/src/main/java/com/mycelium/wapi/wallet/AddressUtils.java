@@ -2,8 +2,8 @@ package com.mycelium.wapi.wallet;
 
 import com.mrd.bitlib.model.Address;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
-import com.mycelium.wapi.wallet.coins.BitcoinMain;
-import com.mycelium.wapi.wallet.coins.BitcoinTest;
+import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
+import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
 

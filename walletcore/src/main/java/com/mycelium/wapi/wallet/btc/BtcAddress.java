@@ -4,8 +4,8 @@ import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wapi.wallet.GenericAddress;
-import com.mycelium.wapi.wallet.coins.BitcoinMain;
-import com.mycelium.wapi.wallet.coins.BitcoinTest;
+import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
+import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 
 public class BtcAddress extends Address implements GenericAddress {

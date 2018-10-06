@@ -13,11 +13,14 @@ import com.mycelium.wapi.wallet.btc.Bip44AccountBacking
 import com.mycelium.wapi.wallet.KeyCipher
 import com.mycelium.wapi.wallet.Reference
 import com.mycelium.wapi.wallet.SpvBalanceFetcher
+import com.mycelium.wapi.wallet.bch.coins.BchCoin
+import com.mycelium.wapi.wallet.bch.coins.BchTest
 import com.mycelium.wapi.wallet.bip44.ChangeAddressMode
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.Companion.ACCOUNT_TYPE_FROM_MASTERSEED
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountKeyManager
+import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance
 import com.mycelium.wapi.wallet.currency.CurrencyValue
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue
@@ -43,6 +46,10 @@ open class Bip44BCHAccount(
         } else {
             spvBalanceFetcher.retrieveByUnrelatedAccountId(id.toString())
         }
+    }
+
+    override fun getCoinType(): CryptoCurrency {
+        return BchTest.get()
     }
 
     override fun getTransactionSummary(txid: Sha256Hash): TransactionSummary? {

@@ -15,6 +15,8 @@ import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.BtcTransaction
 import com.mycelium.wapi.wallet.btc.SynchronizeAbleWalletBtcAccount
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount
+import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
+import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
@@ -27,6 +29,13 @@ import java.util.*
 class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InMemoryPrivateKey
                        , val _network: NetworkParameters, coinapultCurrency: Currency)
     : SynchronizeAbleWalletBtcAccount() {
+
+    override fun getCoinType(): CryptoCurrency {
+        if (_network.isProdnet) {
+            return BitcoinMain.get()
+        }
+        return BitcoinTest.get()
+    }
 
     override fun getType(): WalletBtcAccount.Type {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
@@ -138,10 +147,6 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
     }
 
     override fun deleteTransaction(transactionId: Sha256Hash?): Boolean {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun getCoinType(): CryptoCurrency {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 

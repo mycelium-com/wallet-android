@@ -42,7 +42,7 @@ import com.mycelium.net.ServerEndpointType;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wapi.wallet.GenericTransaction;
-import com.mycelium.wapi.wallet.coins.BitcoinMain;
+import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
 
 public class TransactionDetailsLabel extends GenericBlockExplorerLabel {
    private GenericTransaction transaction;

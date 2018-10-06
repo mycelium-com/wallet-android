@@ -15,7 +15,9 @@ import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
 import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.bch.coins.BchTest
 import com.mycelium.wapi.wallet.bip44.ChangeAddressMode
+import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance
 import com.mycelium.wapi.wallet.currency.CurrencyValue
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue
@@ -44,6 +46,11 @@ class SingleAddressBCHAccount(context: SingleAddressAccountContext,
         val txFeeFactor = 1.0f
         return ExactBitcoinCashValue.from(spvBalanceFetcher.calculateMaxSpendableAmountUnrelatedAccount(id.toString(), txFee, txFeeFactor))
     }
+
+    override fun getCoinType(): CryptoCurrency {
+        return BchTest.get()
+    }
+
 
     override fun getId(): UUID {
         return UUID.nameUUIDFromBytes(("BCH" + super.getId().toString()).toByteArray())
