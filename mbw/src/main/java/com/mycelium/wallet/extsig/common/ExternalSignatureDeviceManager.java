@@ -327,7 +327,11 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
                   if (toSignWith != null) {
                      Optional<Integer[]> addId = forAccount.getAddressId(toSignWith);
                      if (addId.isPresent()) {
-                        new InputAddressSetter(txInputBuilder).setAddressN((int) derivationType.getPurpose(), forAccount.getAccountIndex(), addId.get());
+                        new InputAddressSetter(txInputBuilder)
+                                .setAddressN(
+                                        (int) derivationType.getPurpose(),
+                                        forAccount.getAccountIndex(),
+                                        addId.get());
                         foundKey = true;
                         break;
                      }
