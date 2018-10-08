@@ -460,7 +460,6 @@ public class WalletManager {
      * address has been used a lot.
      */
     public void disableTransactionHistorySynchronization() {
-        //TODO SegWit make this working again, as in number of addresses to sync increases 3 times.
     }
 
     /**
