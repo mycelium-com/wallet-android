@@ -685,7 +685,7 @@ open class HDAccount(
         val privateDataMap = if (canSpend()) {
             try {
                 keyManagerMap.keys.map { derivationType ->
-                    derivationType to (keyManagerMap[derivationType]!!.getPrivateAccountRoot(cipher)
+                    derivationType to (keyManagerMap[derivationType]!!.getPrivateAccountRoot(cipher, derivationType)
                             .serialize(_network, derivationType))
                 }.toMap()
             } catch (ignore: InvalidKeyCipher) {
