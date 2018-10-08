@@ -734,7 +734,7 @@ public class Utils {
             .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                public void onClick(DialogInterface dialog, int id) {
                   dialog.dismiss();
-                  boolean btcMultiAddress = account instanceof AbstractAccount && ((AbstractAccount) account).getAvailableAddressTypes().size() > 1;
+                  boolean btcMultiAddress = account instanceof HDAccount && ((HDAccount) account).getAvailableAddressTypes().size() > 1;
                   ExportAsQrActivity.callMe(parent, ((ExportableAccount) account).getExportData(AesKeyCipher.defaultKeyCipher()),
                           btcMultiAddress);
 
