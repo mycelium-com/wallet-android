@@ -457,10 +457,11 @@ public class StandardTransactionBuilder {
          int minHeight = Integer.MAX_VALUE;
          UnspentTransactionOutput oldest = null;
          for (UnspentTransactionOutput output : unspent) {
-//         if (!(output.script instanceof ScriptOutputStandard)) {
-//            // only look for standard scripts
-//            continue;
-//         } todo evauluate SegWit
+            if (!(output.script instanceof ScriptOutputStandard) && !(output.script instanceof ScriptOutputP2SH)
+                    && !(output.script instanceof ScriptOutputP2WPKH)) {
+               // only look for certain scripts
+               continue;
+            }
 
             // Unconfirmed outputs have height = -1 -> change this to Int.MAX-1, so that we
             // choose them as the last possible option

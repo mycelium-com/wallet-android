@@ -63,8 +63,8 @@ import com.mycelium.wapi.wallet.Bip44AccountBacking;
 import com.mycelium.wapi.wallet.SingleAddressAccountBacking;
 import com.mycelium.wapi.wallet.WalletManagerBacking;
 import com.mrd.bitlib.crypto.BipDerivationType;
+import com.mycelium.wapi.wallet.bip44.AccountIndexesContext;
 import com.mycelium.wapi.wallet.bip44.HDAccountContext;
-import com.mycelium.wapi.wallet.bip44.HDAccountContext.AccountIndexesContext;
 import com.mycelium.wapi.wallet.single.SingleAddressAccountContext;
 
 import java.io.ByteArrayInputStream;
