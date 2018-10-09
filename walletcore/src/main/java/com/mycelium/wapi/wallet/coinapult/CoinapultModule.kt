@@ -4,24 +4,39 @@ import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wapi.wallet.SyncMode
 import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.WalletBacking
+import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.manager.Config
 import com.mycelium.wapi.wallet.manager.WalletModule
 import java.util.*
 
 
 class CoinapultModule(val accountKey: InMemoryPrivateKey
-                      , val networkParameters: NetworkParameters) : WalletModule {
+                      , val networkParameters: NetworkParameters
+                      , val coinapultApi: CoinapultApi
+                      , val backing: WalletBacking<CoinapultAccountContext, CoinapultTransaction>) : WalletModule {
     override fun getId(): String = "coinapult module"
 
     override fun loadAccounts(): Map<UUID, WalletAccount<*, *>> {
-        return mapOf()
+        val result = mutableMapOf<UUID, WalletAccount<*, *>>()
+        backing.loadAccountContexts().forEach { context ->
+            val id = CoinapultUtils.getGuidForAsset(context.currency, accountKey.publicKey.publicKeyBytes)
+            val account = CoinapultAccount(context, accountKey, coinapultApi, backing.getAccountBacking(id)
+                    , networkParameters, context.currency)
+            result[account.id] = account
+        }
+        return result
     }
 
     override fun createAccount(config: Config): WalletAccount<*, *>? {
         var result: WalletAccount<*, *>? = null
         if (config is CoinapultConfig) {
-            result = CoinapultAccount(CoinapultAccountContext(false), accountKey
-                    , networkParameters, config.currency)
+            val id = CoinapultUtils.getGuidForAsset(config.currency, accountKey.publicKey.publicKeyBytes)
+            val context = CoinapultAccountContext(id, BtcAddress(config.currency, accountKey.publicKey.publicKeyBytes)
+                    , false, config.currency)
+            result = CoinapultAccount(context, accountKey
+                    , coinapultApi, backing.getAccountBacking(id), networkParameters, config.currency)
+            backing.createAccountContext(context)
         }
         result?.synchronize(SyncMode.NORMAL)
         return result
@@ -32,6 +47,7 @@ class CoinapultModule(val accountKey: InMemoryPrivateKey
     }
 
     override fun deleteAccount(walletAccount: WalletAccount<*, *>): Boolean {
+        backing.deleteAccountContext(walletAccount.id)
         return true
     }
 

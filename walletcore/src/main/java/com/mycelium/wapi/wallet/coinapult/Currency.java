@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.Map;
 
-public class Currency extends AbstractAsset {
+public class Currency extends CryptoCurrency {
     public static final Currency USD = new Currency("USD", BigDecimal.ONE);
     public static final Currency EUR = new Currency("EUR", BigDecimal.ONE);
     public static final Currency GBP = new Currency("GBP", BigDecimal.ONE);
@@ -74,6 +74,11 @@ public class Currency extends AbstractAsset {
     @Override
     public int getUnitExponent() {
         return 0;
+    }
+
+    @Override
+    public GenericAddress newAddress(String addressStr) throws AddressMalformedException {
+        return null;
     }
 
     @Override

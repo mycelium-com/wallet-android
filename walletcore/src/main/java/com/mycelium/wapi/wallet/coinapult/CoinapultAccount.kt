@@ -22,6 +22,8 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
     val uuid: UUID = CoinapultUtils.getGuidForAsset(coinapultCurrency, accountKey.publicKey.publicKeyBytes)
     protected var cachedBalance = Balance(Value.zeroValue(coinType), Value.zeroValue(coinType)
             , Value.zeroValue(coinType), Value.zeroValue(coinType))
+    @Volatile
+    protected var _isSynchronizing: Boolean = false
 
     val address: GenericAddress? = null
 
@@ -29,9 +31,7 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
 
     override fun getReceiveAddress(): GenericAddress = address!!
 
-    override fun isMineAddress(address: GenericAddress?): Boolean {
-        return receiveAddress == address
-    }
+    override fun isMineAddress(address: GenericAddress?): Boolean = receiveAddress == address
 
     override fun getTx(transactionId: Sha256Hash?): CoinapultTransaction {
         return backing.getTx(transactionId)
@@ -57,24 +57,18 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
         context.setArchived(false)
     }
 
-    override fun isDerivedFromInternalMasterseed(): Boolean {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun isDerivedFromInternalMasterseed(): Boolean = true
 
     override fun dropCachedData() {
     }
 
-    override fun isSynchronizing(): Boolean {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun isSynchronizing(): Boolean = _isSynchronizing
 
     override fun getCoinType(): CryptoCurrency {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun getBlockChainHeight(): Int {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun getBlockChainHeight(): Int = 0
 
     override fun setAllowZeroConfSpending(allowZeroConfSpending: Boolean) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
@@ -85,9 +79,7 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
     }
 
 
-    override fun getSyncTotalRetrievedTransactions(): Int {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun getSyncTotalRetrievedTransactions(): Int = 0
 
     override fun canSpend(): Boolean = true
 

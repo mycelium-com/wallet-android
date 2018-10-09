@@ -57,9 +57,9 @@ class ColuModule(val networkParameters: NetworkParameters
                 val context = ColuAccountContext(id, cfg.coinType
                         , BtcAddress(cfg.coinType, cfg.privateKey.publicKey.toAddress(networkParameters, AddressType.P2PKH)?.allAddressBytes)
                         , false, 0)
-                backing.createAccountContext(context)
                 result = ColuAccount(context, cfg.privateKey, cfg.coinType, networkParameters, netParams
                         , coluApi, backing.getAccountBacking(id), listener)
+                backing.createAccountContext(context)
                 publicPrivateKeyStore.setPrivateKey(cfg.privateKey.publicKey.toAddress(networkParameters, AddressType.P2PKH)
                         , cfg.privateKey, cfg.cipher)
             }
@@ -71,6 +71,7 @@ class ColuModule(val networkParameters: NetworkParameters
                         , false, 0)
                 result = ColuPubOnlyAccount(context, cfg.publicKey, cfg.coinType, networkParameters
                         , netParams, coluApi, backing.getAccountBacking(id), listener)
+                backing.createAccountContext(context)
             }
         }
         result?.synchronize(SyncMode.NORMAL)
