@@ -131,7 +131,7 @@ public class Record implements Serializable, Comparable<Record> {
     * Constructor used when creating a new record from a private key
     */
    private Record(InMemoryPrivateKey key, Source source, NetworkParameters network) {
-      this(key, key.getPublicKey().toAddress(network, AddressType.P2SH_P2WPKH), System.currentTimeMillis(), source, //TODO Fix SegWit
+      this(key, key.getPublicKey().toAddress(network, AddressType.P2PKH), System.currentTimeMillis(), source,
             Tag.ACTIVE, BackupState.UNKNOWN);
    }
 
