@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="fill_parent"
-              android:layout_height="fill_parent"
-              android:orientation="vertical">
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical">
 
     <View
         android:layout_width="1dp"
@@ -24,26 +24,38 @@
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal" >
+        android:orientation="horizontal">
 
         <View
             android:layout_width="0dp"
             android:layout_height="1dp"
-            android:layout_weight="1" >
-        </View>
+            android:layout_weight="1" />
 
-        <com.mycelium.wallet.activity.util.AddressLabel
-            android:id="@+id/tvAddress"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="20sp"
-            android:typeface="monospace" />
+            android:orientation="vertical">
+
+            <com.mycelium.wallet.activity.util.AddressLabel
+                android:id="@+id/tvAddressP2SH"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:typeface="monospace" />
+
+            <com.mycelium.wallet.activity.util.AddressLabel
+                android:id="@+id/tvAddressBech"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:layout_marginTop="12dp"
+                android:typeface="monospace" />
+        </LinearLayout>
 
         <View
             android:layout_width="0dp"
             android:layout_height="1dp"
-            android:layout_weight="1" >
-        </View>
+            android:layout_weight="1" />
     </LinearLayout>
 
     <View
@@ -56,13 +68,12 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"
-        android:orientation="horizontal" >
+        android:orientation="horizontal">
 
         <View
             android:layout_width="0dp"
             android:layout_height="1dp"
-            android:layout_weight="1" >
-        </View>
+            android:layout_weight="1"></View>
 
         <Button
             android:id="@+id/btShuffle"
@@ -78,8 +89,7 @@
         <View
             android:layout_width="0dp"
             android:layout_height="1dp"
-            android:layout_weight="1" >
-        </View>
+            android:layout_weight="1"></View>
 
         <Button
             android:id="@+id/btUse"
@@ -95,8 +105,7 @@
         <View
             android:layout_width="0dp"
             android:layout_height="1dp"
-            android:layout_weight="1" >
-        </View>
+            android:layout_weight="1"></View>
     </LinearLayout>
 
 </LinearLayout>

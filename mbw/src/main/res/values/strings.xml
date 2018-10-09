@@ -643,7 +643,7 @@
     <string name="add_advanced_account_warning">Warning:\n These keys won\'t be included in your Master-Seed-Backup. You have to ensure that you have a separate backup of them.</string>
     <string name="new_random_key_desc">Generate new random key pair to use as BTC or BCH SA account.</string>
     <string name="generate_new_key">Generate BTC SA Account</string>
-    <string name="new_bitcoin_address_created">A new random private key has been generated with the following Bitcoin address:</string>
+    <string name="new_bitcoin_address_created">A new random private key has been generated with the following Bitcoin addresses:</string>
     <string name="shuffle">Shuffle</string>
     <string name="toast_warning_low_fee">might take longer to confirm</string>
     <string name="account_number">Account %d</string>
