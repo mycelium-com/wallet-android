@@ -40,8 +40,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
@@ -102,8 +100,8 @@ import com.mycelium.wallet.extsig.ledger.LedgerManager;
 import com.mycelium.wallet.extsig.trezor.TrezorManager;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.modularisation.GooglePlayModuleCollection;
-import com.mycelium.wallet.modularisation.MEBHelper;
 import com.mycelium.wallet.modularisation.SpvBchFetcher;
+import com.mycelium.wallet.modularisation.GEBHelper;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.persistence.TradeSessionDb;
 import com.mycelium.wallet.wapi.SqliteWalletManagerBackingWrapper;
@@ -190,7 +188,6 @@ public class MbwManager {
     private final ExternalSignatureDeviceManager _trezorManager;
     private final KeepKeyManager _keepkeyManager;
     private final LedgerManager _ledgerManager;
-    private final MEBHelper _mebHelper;
     private final WapiClientElectrumX _wapi;
 
     private final LtApiClient _ltApi;
@@ -204,7 +201,6 @@ public class MbwManager {
     private AddressType defaultAddressType;
     private ChangeAddressMode changeAddressMode;
     private MinerFee _minerFee;
-    private boolean _enableContinuousFocus;
     private boolean _keyManagementLocked;
     private MrdExport.V1.EncryptionParameters _cachedEncryptionParameters;
     private final MrdExport.V1.ScryptParameters _deviceScryptParameters;
@@ -226,6 +222,7 @@ public class MbwManager {
     private Cache<String, Object> _semiPersistingBackgroundObjects = CacheBuilder.newBuilder().maximumSize(10).build();
 
     private WalletConfiguration configuration;
+    private final GEBHelper _gebHelper;
 
     private WalletManagerkt walletManagerkt;
 
@@ -234,7 +231,6 @@ public class MbwManager {
         _wapiLogs  = Queues.synchronizedQueue(unsafeWapiLogs);
         _applicationContext = Preconditions.checkNotNull(evilContext.getApplicationContext());
         _environment = MbwEnvironment.verifyEnvironment();
-        String version = VersionManager.determineVersion(_applicationContext);
 
         // Preferences
         SharedPreferences preferences = getPreferences();
@@ -269,10 +265,8 @@ public class MbwManager {
             preferences.getString(Constants.PIN_SETTING_RESETTABLE, "1").equals("1")
         );
         _pinRequiredOnStartup = preferences.getBoolean(Constants.PIN_SETTING_REQUIRED_ON_STARTUP, false);
-
         randomizePinPad = preferences.getBoolean(Constants.RANDOMIZE_PIN, false);
         _minerFee = MinerFee.fromString(preferences.getString(Constants.MINER_FEE_SETTING, MinerFee.NORMAL.toString()));
-        _enableContinuousFocus = preferences.getBoolean(Constants.ENABLE_CONTINUOUS_FOCUS_SETTING, false);
         _keyManagementLocked = preferences.getBoolean(Constants.KEY_MANAGEMENT_LOCKED_SETTING, false);
         defaultAddressType = AddressType.valueOf(preferences.getString(Constants.DEFAULT_ADDRESS_MODE,
                 AddressType.P2SH_P2WPKH.name()));
@@ -287,7 +281,7 @@ public class MbwManager {
 
         _storage = new MetadataStorage(_applicationContext);
         _language = preferences.getString(Constants.LANGUAGE_SETTING, Locale.getDefault().getLanguage());
-        _versionManager = new VersionManager(_applicationContext, _language, new AndroidAsyncApi(_wapi, _eventBus), version, _eventBus);
+        _versionManager = new VersionManager(_applicationContext, _language, new AndroidAsyncApi(_wapi, _eventBus), _eventBus);
 
         Set<String> currencyList = getPreferences().getStringSet(Constants.SELECTED_CURRENCIES, null);
         //TODO: get it through coluManager instead ?
@@ -322,7 +316,7 @@ public class MbwManager {
         _keepkeyManager = new KeepKeyManager(_applicationContext, getNetwork(), getEventBus());
         _ledgerManager = new LedgerManager(_applicationContext, getNetwork(), getEventBus());
         _walletManager = createWalletManager(_applicationContext, _environment);
-        _mebHelper = new MEBHelper(_applicationContext);
+        _gebHelper = new GEBHelper(_applicationContext);
 
         _eventTranslator = new EventTranslator(new Handler(), _eventBus);
         _exchangeRateManager.subscribe(_eventTranslator);
@@ -347,7 +341,7 @@ public class MbwManager {
         _blockExplorerManager = new BlockExplorerManager(this,
                 _environment.getBlockExplorerList(),
                 preferences.getString(Constants.BLOCK_EXPLORER,
-                                           _environment.getBlockExplorerList().get(0).getIdentifier()));
+                                      _environment.getBlockExplorerList().get(0).getIdentifier()));
     }
 
     private void initPerCurrencySettings() {
@@ -491,17 +485,7 @@ public class MbwManager {
     };
 
     private WapiClientElectrumX initWapi() {
-        String version;
-        try {
-            PackageInfo packageInfo = _applicationContext.getPackageManager().getPackageInfo(_applicationContext.getPackageName(), 0);
-            if (packageInfo != null) {
-                version = String.valueOf(packageInfo.versionCode);
-            } else {
-                version = "na";
-            }
-        } catch (PackageManager.NameNotFoundException e) {
-            version = "na";
-        }
+        String version = "" + BuildConfig.VERSION_CODE;
 
         List<TcpEndpoint> tcpEndpoints = configuration.getElectrumEndpoints();
         return new WapiClientElectrumX(_environment.getWapiEndpoints(), tcpEndpoints.toArray(new TcpEndpoint[tcpEndpoints.size()]), retainingWapiLogger, version);
@@ -1103,16 +1087,6 @@ public class MbwManager {
         getEditor().putBoolean(Constants.KEY_MANAGEMENT_LOCKED_SETTING, _keyManagementLocked).apply();
     }
 
-    public boolean getContinuousFocus() {
-        return _enableContinuousFocus;
-    }
-
-    public void setContinuousFocus(boolean enableContinuousFocus) {
-        _enableContinuousFocus = enableContinuousFocus;
-        getEditor().putBoolean(Constants.ENABLE_CONTINUOUS_FOCUS_SETTING, _enableContinuousFocus).apply();
-    }
-
-
     public void setProxy(String proxy) {
         getEditor().putString(Constants.PROXY_SETTING, proxy).apply();
         ImmutableList<String> vals = ImmutableList.copyOf(Splitter.on(":").split(proxy));
@@ -1246,16 +1220,12 @@ public class MbwManager {
         return accountId;
     }
 
-
     public void forgetColdStorageWalletManager() {
         createTempWalletManager();
     }
-    public int getBitcoinBlockheight() {
-        return _walletManager.getBlockheight();
-    }
 
-   public WalletAccount getSelectedAccount() {
-      UUID uuid = getLastSelectedAccountId();
+    public WalletAccount getSelectedAccount() {
+        UUID uuid = getLastSelectedAccountId();
 
         // If nothing is selected, or selected is archived, pick the first one
        if (uuid != null && WalletManagerkt.INSTANCE.hasAccount(uuid) && WalletManagerkt.INSTANCE.getAccount(uuid).isActive()) {
@@ -1406,8 +1376,8 @@ public class MbwManager {
         return _ledgerManager;
     }
 
-    public MEBHelper getMEBHelper() {
-        return _mebHelper;
+    public GEBHelper getGEBHelper() {
+        return _gebHelper;
     }
 
     public WapiClientElectrumX getWapi() {
@@ -1522,7 +1492,6 @@ public class MbwManager {
             lastPinAgeOkay.set(false);
          }
       }, 1, SECONDS);
-
     }
 
     // Derivation constants for mycelium messages' signing key

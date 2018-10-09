@@ -16,10 +16,10 @@ object GooglePlayModuleCollection {
                     , context.getString(R.string.bitcoin_cash_module)
                     , context.getString(R.string.bitcoin_cash_module_short)
                     , context.getString(R.string.bch_module_description)),
-                    "meb" to Module(BuildConfig.appIdMeb,
-                            context.getString(R.string.make_extra_btc_module),
-                            context.getString(R.string.make_extra_btc_module_short),
-                            context.getString(R.string.make_extra_btc_module_desc)))
+                    "geb" to Module(BuildConfig.appIdGeb,
+                            context.getString(R.string.get_extra_btc_module),
+                            context.getString(R.string.get_extra_btc_module_short),
+                            context.getString(R.string.get_extra_btc_module_desc)))
 
     @JvmStatic
     fun getModuleByPackage(context: Context, packageName: String) =

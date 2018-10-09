@@ -405,8 +405,14 @@
   <!-- LT end -->
   <string name="cs_private_key_description">Você está usando uma chave privada com o seguinte endereço Bitcoin:</string>
   <string name="cs_address_description">Você escaneou um endereço Bitcoin. Você pode ver o seu saldo, mas não pode gastar dele.</string>
-  <string name="contains_keys">Contém %1$s chaves privadas.</string>
-  <string name="contains_addresses">Contém %1$s endereços.</string>
+  <plurals name="contains_keys">
+    <item quantity="one">Contém %d chave privada.</item>
+    <item quantity="other">Contém %1$d chaves privadas.</item>
+  </plurals>
+  <plurals name="contains_addresses">
+    <item quantity="one">Contém %d endereço.</item>
+    <item quantity="other">Contém %1$d endereços.</item>
+  </plurals>
   <string name="archiving_account_title">Arquivando Conta</string>
   <string name="new_version_exists">Uma nova Versão está disponível</string>
   <string name="check_update">Procurar Atualizações</string>
@@ -462,8 +468,6 @@
   <string name="unspent_outputs_title">Saídas (outputs) Não-gastas</string>
   <string name="no_unspent_outputs_description">Essa página exibe em quais endereços estão os fundos da conta selecionada. Atualmente não existem fundos para serem exibidos.</string>
   <string name="warning_words_import">Aviso: Não coloque suas palavras na área de transferência, outro apps podem ter acesso a ela e obter o seu dinheiro.</string>
-  <string name="account_contains_one_key_info">Contém uma chave privada.</string>
-  <string name="account_contains_one_address_info">Contém um endereço.</string>
   <string name="verify_backup_ok_message">O backup foi verificado com sucesso.</string>
   <string name="wordlist_import_invalid_checksum">A soma de verificação (checksum) da sua lista de palavras é inválida, por favor certifique-se que você inseriu todas as palavras corretamente.</string>
   <string name="checkbox_wordlist_passphrase">Eu tenho uma frase secreta</string>

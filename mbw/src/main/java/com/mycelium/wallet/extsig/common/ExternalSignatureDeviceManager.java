@@ -315,7 +315,7 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
             // only for the unsigned txin
             if (!txRequestDetailsType.hasTxHash()) {
                SigningRequest signingRequest = signatureInfo[txRequestDetailsType.getRequestIndex()];
-               Address toSignWith = signingRequest.getPublicKey().toAddress(getNetwork(), AddressType.P2PKH);
+               Address toSignWith = signingRequest.getPublicKey().toAddress(getNetwork(), AddressType.P2SH_P2WPKH);  //TODO fix segwit
 
                if (toSignWith != null) {
                   Optional<Integer[]> addId = forAccount.getAddressId(toSignWith);

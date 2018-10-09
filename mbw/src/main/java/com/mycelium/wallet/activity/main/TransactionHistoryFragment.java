@@ -108,6 +108,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import butterknife.BindView;
@@ -165,9 +166,9 @@ public class TransactionHistoryFragment extends Fragment {
       if (adapter == null) {
          adapter = new TransactionHistoryAdapter(getActivity(), history);
          updateWrapper(adapter);
-         model.getTransactionHistory().observe(this, new Observer<List<? extends GenericTransaction>>() {
+         model.getTransactionHistory().observe(this, new Observer<Set<? extends GenericTransaction>>() {
             @Override
-            public void onChanged(@Nullable List<? extends GenericTransaction> transaction) {
+            public void onChanged(@Nullable Set<? extends GenericTransaction> transaction) {
                history.clear();
                history.addAll(transaction);
                adapter.sort(new Comparator<GenericTransaction>() {
@@ -298,7 +299,7 @@ public class TransactionHistoryFragment extends Fragment {
                   toAddEmpty = toAdd.isEmpty();
                }
                if (toAddEmpty && isLoadingPossible.compareAndSet(true, false)) {
-                  new Preloader(toAdd, _mbwManager.getSelectedAccount(), totalItemCount,
+                  new Preloader(toAdd, _mbwManager.getSelectedAccount(), _mbwManager, totalItemCount,
                           OFFSET, isLoadingPossible).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                }
                if (firstVisibleItem + visibleItemCount == totalItemCount && !toAddEmpty) {
@@ -318,21 +319,26 @@ public class TransactionHistoryFragment extends Fragment {
       private final int offset;
       private final int limit;
       private final AtomicBoolean success;
+      private final MbwManager _mbwManager;
 
-      Preloader(List<GenericTransaction> toAdd, WalletAccount account, int offset, int limit, AtomicBoolean success) {
+      Preloader(List<GenericTransaction> toAdd, WalletAccount account, MbwManager _mbwManager
+              , int offset, int limit, AtomicBoolean success) {
          this.toAdd = toAdd;
          this.account = account;
          this.offset = offset;
          this.limit = limit;
          this.success = success;
+         this._mbwManager = _mbwManager;
       }
 
       @Override
       protected Void doInBackground(Void... voids) {
          List<GenericTransaction> preloadedData = account.getTransactions(offset, limit);
-         synchronized (toAdd) {
-            toAdd.addAll(preloadedData);
-            success.set(toAdd.size() == limit);
+         if(account.equals(_mbwManager.getSelectedAccount())) {
+            synchronized (toAdd) {
+               toAdd.addAll(preloadedData);
+               success.set(toAdd.size() == limit);
+            }
          }
          return null;
       }

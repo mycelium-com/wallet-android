@@ -1,6 +1,7 @@
 package com.mycelium.wallet.activity.receive
 
 import android.app.Activity
+import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.databinding.DataBindingUtil
@@ -19,6 +20,7 @@ import com.mycelium.wallet.coinapult.CoinapultAccount
 import com.mycelium.wallet.colu.ColuAccount
 import com.mycelium.wallet.databinding.ReceiveCoinsActivityBinding
 import com.mycelium.wallet.databinding.ReceiveCoinsActivityBtcBinding
+import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
@@ -60,8 +62,13 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         activateNfc()
 
         initDatabinding(account)
+    }
+
+    override fun onStart() {
+        super.onStart()
 
         ivQrCode.qrCode = viewModel.getPaymentUri()
+        viewModel.getReceivingAddress().observe(this, Observer { address -> ivQrCode.qrCode = address.toString() })
     }
 
     private fun initDatabinding(account: WalletAccount<*,*>) {
@@ -69,11 +76,16 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         val receiveCoinsActivityNBinding =
                 when (account) {
                     is SingleAddressBCHAccount, is Bip44BCHAccount -> getDefaultBinding()
-                    is SingleAddressAccount, is HDAccount  ->  {
-                        val contentView = DataBindingUtil.setContentView<ReceiveCoinsActivityBtcBinding>(this, R.layout.receive_coins_activity_btc)
-                        contentView.viewModel = viewModel as ReceiveBtcViewModel
-                        contentView.activity = this
-                        contentView
+                    is AbstractBtcAccount ->  {
+                        // This is only actual if account contains multiple address types inside
+                        if (account.availableAddressTypes.size > 1) {
+                            val contentView = DataBindingUtil.setContentView<ReceiveCoinsActivityBtcBinding>(this, R.layout.receive_coins_activity_btc)
+                            contentView.viewModel = viewModel as ReceiveBtcViewModel
+                            contentView.activity = this
+                            contentView
+                        } else {
+                            getDefaultBinding()
+                        }
                     }
                     else -> getDefaultBinding()
                 }

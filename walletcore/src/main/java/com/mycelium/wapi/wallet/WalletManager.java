@@ -36,7 +36,6 @@ import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHPubOnlyAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.mycelium.wapi.wallet.btc.*;
 import com.mycelium.wapi.wallet.btc.bip44.*;
-import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.AccountIndexesContext;
 import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext;
@@ -355,7 +354,7 @@ public class WalletManager {
             BipDerivationType derivationType = hdKeyNode.getDerivationType();
             derivationTypes.add(derivationType);
 
-            keyManagerMap.put(derivationType,HDPubOnlyAccountKeyManager.createFromPublicAccountRoot(hdKeyNode,
+            keyManagerMap.put(derivationType, HDPubOnlyAccountKeyManager.createFromPublicAccountRoot(hdKeyNode,
                     _network, accountIndex, newSubKeyStore, derivationType));
         }
         final UUID id = keyManagerMap.get(derivationTypes.get(0)).getAccountId();
@@ -378,9 +377,10 @@ public class WalletManager {
                 // Get the backing for the new account
                 Bip44AccountBacking accountBacking = getBip44AccountBacking(context.getId());
 
+                BTCSettings btcSettings = (BTCSettings) currenciesSettingsMap.get(Currency.BTC);
                 // Create actual account
                 HDAccount account = new HDAccountExternalSignature(context, keyManagerMap, _network,
-                        accountBacking, _wapi, externalSignatureProvider);
+                        accountBacking, _wapi, externalSignatureProvider, btcSettings.getChangeAddressModeReference());
 
                 // Finally persist context and add account
                 context.persist(accountBacking);
@@ -462,7 +462,6 @@ public class WalletManager {
      * address has been used a lot.
      */
     public void disableTransactionHistorySynchronization() {
-        //TODO SegWit make this working again, as in number of addresses to sync increases 3 times.
     }
 
     /**
@@ -825,34 +824,19 @@ public class WalletManager {
                         btcSettings.getChangeAddressModeReference());
                 break;
             case ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR:
-                account = new HDAccountExternalSignature(
-                        context,
-                        keyManagerMap,
-                        _network,
-                        accountBacking,
-                        _wapi,
-                        _signatureProviders.get(ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR)
-                );
+                account = new HDAccountExternalSignature(context, keyManagerMap, _network, accountBacking, _wapi,
+                        _signatureProviders.get(ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR),
+                        btcSettings.getChangeAddressModeReference());
                 break;
             case ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER:
-                account = new HDAccountExternalSignature(
-                        context,
-                        keyManagerMap,
-                        _network,
-                        accountBacking,
-                        _wapi,
-                        _signatureProviders.get(ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER)
-                );
+                account = new HDAccountExternalSignature(context, keyManagerMap, _network, accountBacking, _wapi,
+                        _signatureProviders.get(ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER),
+                        btcSettings.getChangeAddressModeReference());
                 break;
             case ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY:
-                account = new HDAccountExternalSignature(
-                        context,
-                        keyManagerMap,
-                        _network,
-                        accountBacking,
-                        _wapi,
-                        _signatureProviders.get(ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY)
-                );
+                account = new HDAccountExternalSignature(context, keyManagerMap, _network, accountBacking, _wapi,
+                        _signatureProviders.get(ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY),
+                        btcSettings.getChangeAddressModeReference());
                 break;
             default:
                 throw new IllegalArgumentException("Unknown account type " + context.getAccountType());

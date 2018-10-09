@@ -54,21 +54,21 @@ class ExportAsQrViewModel(val context: Application) : AndroidViewModel(context) 
 
         val data = when (toggleNum) {
             1 -> if (privateData) {
-                privateDataMap[BipDerivationType.BIP44]!!
+                privateDataMap?.get(BipDerivationType.BIP44)
             } else {
-                publicDataMap[BipDerivationType.BIP44]!!
+                publicDataMap?.get(BipDerivationType.BIP44)
             }
 
             2 -> if (privateData) {
-                privateDataMap[BipDerivationType.BIP49]!!
+                privateDataMap?.get(BipDerivationType.BIP49)
             } else {
-                publicDataMap[BipDerivationType.BIP49]!!
+                publicDataMap?.get(BipDerivationType.BIP49)
             }
 
             3 -> if (privateData) {
-                privateDataMap[BipDerivationType.BIP84]!!
+                privateDataMap?.get(BipDerivationType.BIP84)
             } else {
-                publicDataMap[BipDerivationType.BIP84]!!
+                publicDataMap?.get(BipDerivationType.BIP84)
             }
             else -> throw  java.lang.IllegalStateException("Unexpected toggle position")
         }

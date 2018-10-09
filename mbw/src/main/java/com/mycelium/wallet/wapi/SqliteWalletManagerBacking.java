@@ -67,8 +67,8 @@ import com.mycelium.wapi.wallet.btc.WalletManagerBacking;
 import com.mrd.bitlib.crypto.BipDerivationType;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
 import com.mrd.bitlib.crypto.BipDerivationType;
+import com.mycelium.wapi.wallet.btc.bip44.AccountIndexesContext;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
-import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.AccountIndexesContext;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext;
 
 import java.io.ByteArrayInputStream;

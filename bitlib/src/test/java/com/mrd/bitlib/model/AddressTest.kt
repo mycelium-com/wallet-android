@@ -51,7 +51,7 @@ class AddressTest {
         val priv = InMemoryPrivateKey(RANDOM_SOURCE)
         val pub = priv.publicKey
         val addressList = pub.getAllSupportedAddresses(NetworkParameters.productionNetwork)
-        println(addressList.map { it?.toString() }.toString())
+        println(addressList.map { it.toString() }.toString())
     }
 
     @Test

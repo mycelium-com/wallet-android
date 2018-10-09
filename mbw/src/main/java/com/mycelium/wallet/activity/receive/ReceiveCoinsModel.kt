@@ -10,6 +10,7 @@ import android.nfc.NfcAdapter
 import android.os.Bundle
 import android.support.v4.app.NotificationCompat
 import android.widget.Toast
+import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.util.CoinUtil
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
@@ -20,6 +21,8 @@ import com.mycelium.wallet.event.SyncStopped
 import com.mycelium.wapi.model.TransactionSummary
 import com.mycelium.wapi.wallet.GenericAddress
 import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
+import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount
 import com.mycelium.wapi.wallet.currency.CurrencyValue
 import com.mycelium.wapi.wallet.currency.ExchangeBasedBitcoinValue
@@ -38,20 +41,26 @@ class ReceiveCoinsModel(
     val nfc: NfcAdapter? = NfcAdapter.getDefaultAdapter(context)
     val receivingAmount: MutableLiveData<CurrencyValue?> = MutableLiveData()
     val receivingAmountWrong: MutableLiveData<Boolean> = MutableLiveData()
+    val receivingAddress: MutableLiveData<Address> = MutableLiveData()
 
     private var syncErrors = 0
     private val mbwManager = MbwManager.getInstance(context)
-    private var address = (account as WalletBtcAccount).receivingAddress.get()
     private var receivingSince = System.currentTimeMillis()
     private var lastAddressBalance: CurrencyValue? = null
     private var accountDisplayType: AccountDisplayType? = null
 
     init {
         mbwManager.eventBus.register(this)
-        if (showIncomingUtxo) {
-            mbwManager.watchAddress(address as GenericAddress)
-        }
         receivingAmountWrong.value = false
+        receivingAddress.value = (account as AbstractBtcAccount).receivingAddress.get()
+
+        if (showIncomingUtxo) {
+            updateObservingAddress()
+        }
+    }
+
+    fun updateObservingAddress() {
+        mbwManager.watchAddress(receivingAddress.value as BtcAddress)
     }
 
     fun onCleared() {
@@ -68,7 +77,7 @@ class ReceiveCoinsModel(
             } else {
                 amountData.value = if (account.coinType.symbol != newAmount.currency) {
                     // use the accounts default currency as alternative
-                     CurrencyValue.fromValue(newAmount, account.coinType.symbol,
+                    CurrencyValue.fromValue(newAmount, account.coinType.symbol,
                             mbwManager.exchangeRateManager)
                 } else {
                     // special case for Coinapult
@@ -77,14 +86,17 @@ class ReceiveCoinsModel(
                 }
                 alternativeAmountData.value = newAmount
             }
+        } else {
+            amountData.value = null
+            alternativeAmountData.value = null
         }
     }
-    
+
     fun getPaymentUri(): String {
         val prefix = accountLabel
 
         val uri = StringBuilder(prefix).append(':')
-        uri.append(address)
+        uri.append(receivingAddress.value)
         if (!CurrencyValue.isNullOrZero(amountData.value)) {
             if (accountDisplayType == AccountDisplayType.COLU_ACCOUNT) {
                 uri.append("?amountData=").append(amountData.value!!.value.toPlainString())
@@ -130,8 +142,12 @@ class ReceiveCoinsModel(
     fun syncStopped(event: SyncStopped) {
         val transactionsSince = (account as WalletBtcAccount).getTransactionsSince(receivingSince)
         val interesting = getTransactionsToCurrentAddress(transactionsSince)
-        var sum = if (interesting.isEmpty()) { null } else { interesting.first().value }
-        interesting.drop(1).forEach { sum = sum!!.add(it.value, mbwManager.exchangeRateManager)}
+        var sum = if (interesting.isEmpty()) {
+            null
+        } else {
+            interesting.first().value
+        }
+        interesting.drop(1).forEach { sum = sum!!.add(it.value, mbwManager.exchangeRateManager) }
         receivingAmount.value = sum
 
         if (!CurrencyValue.isNullOrZero(amountData.value) && sum != null) {
@@ -154,7 +170,7 @@ class ReceiveCoinsModel(
     }
 
     private fun getTransactionsToCurrentAddress(transactionsSince: MutableList<TransactionSummary>) =
-            transactionsSince.filter { it.toAddresses.contains(address) }
+            transactionsSince.filter { it.toAddresses.contains(receivingAddress.value) }
 
     companion object {
         private const val MAX_SYNC_ERRORS = 8

@@ -44,7 +44,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
     override fun onMessage(callingPackageName: String, intent: Intent) {
         when (callingPackageName) {
             getSpvModuleName(Bip44BCHAccount::class.java) -> onMessageFromSpvModuleBch(intent, getModule(callingPackageName))
-            BuildConfig.appIdMeb -> onMessageFromTsmModule(intent)
+            BuildConfig.appIdGeb -> onMessageFromGebModule(intent)
             else -> Log.e(TAG, "Ignoring unexpected package $callingPackageName calling with intent $intent.")
         }
     }
@@ -52,19 +52,18 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
     private fun getModule(packageName: String): Module? =
             CommunicationManager.getInstance().pairedModules.find { it.modulePackage == packageName }
 
-    private fun onMessageFromTsmModule(intent: Intent) {
+    private fun onMessageFromGebModule(intent: Intent) {
+        val mbwManager = MbwManager.getInstance(context)
         when (intent.action) {
             "com.mycelium.wallet.getMyceliumId" -> {
-                val mbwManager = MbwManager.getInstance(context)
                 val service = IntentContract.MyceliumIdTransfer.createIntent(mbwManager.myceliumId)
-                WalletApplication.sendToMeb(service)
+                WalletApplication.sendToGeb(service)
             }
             "com.mycelium.wallet.signData" -> {
-                val mbwManager = MbwManager.getInstance(context)
                 val message = intent.getStringExtra(IntentContract.MESSAGE)
                 val signature = mbwManager.signMessage(message)
                 val service = IntentContract.TransferSignedData.createIntent(message, signature)
-                WalletApplication.sendToMeb(service)
+                WalletApplication.sendToGeb(service)
             }
         }
     }
