@@ -36,8 +36,6 @@ public interface Wapi {
 
    String MYCELIUM_VERSION_HEADER = "MyceliumVersion";
 
-
-   int MAX_TRANSACTION_INVENTORY_LIMIT = 1000;
    /**
     * Get the logger configured for this {@link Wapi}
     *

@@ -21,7 +21,7 @@ class ExportAsQrActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         val accountData = intent.getSerializableExtra(ACCOUNT_DATA) as ExportableAccount.Data
-        val isHdAccount = intent.getSerializableExtra(ACCOUNT_HD) as Boolean
+        val isHdAccount = intent.getSerializableExtra(BTC_MULTIADDRESS) as Boolean
 
         if (!accountData.publicData.isPresent && !accountData.privateData.isPresent) {
             finish()
@@ -59,13 +59,13 @@ class ExportAsQrActivity : AppCompatActivity() {
 
     companion object {
         private const val ACCOUNT_DATA = "accountData"
-        private const val ACCOUNT_HD = "accountHd"
+        private const val BTC_MULTIADDRESS = "btcMultiAddress"
 
         @JvmStatic
-        fun callMe(currentActivity: Activity, accountData: ExportableAccount.Data, isHdAccount: Boolean) {
+        fun callMe(currentActivity: Activity, accountData: ExportableAccount.Data, btcMultiAddress: Boolean) {
             val intent = Intent(currentActivity, ExportAsQrActivity::class.java)
             intent.putExtra(ACCOUNT_DATA, accountData)
-            intent.putExtra(ACCOUNT_HD, isHdAccount)
+            intent.putExtra(BTC_MULTIADDRESS, btcMultiAddress)
             currentActivity.startActivity(intent)
         }
     }

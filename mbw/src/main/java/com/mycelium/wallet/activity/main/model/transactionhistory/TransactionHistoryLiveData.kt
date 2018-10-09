@@ -16,9 +16,9 @@ import kotlin.collections.ArrayList
 /**
  * This class is intended to manage transaction history for current selected account.
  */
-class TransactionHistoryLiveData(val mbwManager: MbwManager) : LiveData<List<GenericTransaction>>() {
+class TransactionHistoryLiveData(val mbwManager: MbwManager) : LiveData<Set<GenericTransaction>>() {
     private var account = mbwManager.selectedAccount!!
-    private var historyList: MutableList<GenericTransaction> = ArrayList()
+    private var historyList = mutableSetOf<GenericTransaction>()
     // Used to store reference for task from syncProgressUpdated().
     // Using weak reference as as soon as task completed it's irrelevant.
     private var syncProgressTaskWR: WeakReference<AsyncTask<Void, MutableList<GenericTransaction>, MutableList<GenericTransaction>>>? = null
@@ -77,7 +77,7 @@ class TransactionHistoryLiveData(val mbwManager: MbwManager) : LiveData<List<Gen
     }
 
     private fun updateValue(newValue: MutableList<GenericTransaction>) {
-        historyList = newValue
+        historyList = newValue.toMutableSet()
         value = historyList
     }
 

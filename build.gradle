@@ -24,6 +24,9 @@ kapt {
 }
 
 allprojects {
+    repositories {
+        google()
+    }
     tasks.withType(JavaCompile) {
         options.compilerArgs << "-Xlint:deprecation,unchecked"
         sourceCompatibility = 1.7

@@ -43,7 +43,6 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.gson.Gson;
 import com.mrd.bitlib.crypto.BipDerivationType;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
@@ -63,8 +62,8 @@ import com.mycelium.wapi.wallet.AccountBacking;
 import com.mycelium.wapi.wallet.SingleAddressAccountBacking;
 import com.mycelium.wapi.wallet.btc.Bip44AccountBacking;
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking;
+import com.mycelium.wapi.wallet.btc.bip44.AccountIndexesContext;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
-import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.AccountIndexesContext;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext;
 import com.mycelium.wapi.wallet.colu.ColuAccountContext;
 import com.mycelium.wapi.wallet.colu.ColuUtils;

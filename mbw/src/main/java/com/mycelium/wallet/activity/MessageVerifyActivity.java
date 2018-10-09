@@ -29,9 +29,9 @@ import static org.bitcoinj.core.Utils.formatMessageForSigning;
 
 public class MessageVerifyActivity extends Activity {
 
-    private Pattern messagePattern = Pattern.compile("-----BEGIN BITCOIN SIGNED MESSAGE-----\n?" +
+    private Pattern messagePattern = Pattern.compile("-----BEGIN BITCOIN SIGNED MESSAGE-----(?s)\n?" +
             "(.*?)\n?" +
-            "-----(BEGIN SIGNATURE|BEGIN BITCOIN SIGNATURE)-----\n?" +
+            "-----(BEGIN SIGNATURE|BEGIN BITCOIN SIGNATURE)-----(?-s)\n?" +
             "(Version: (.*?))?\n?" +
             "(Address: )?(.*?)\n?\n?" +
             "(.*?)\n?" +
@@ -45,6 +45,8 @@ public class MessageVerifyActivity extends Activity {
 
     @BindView(R.id.btPaste)
     protected Button pasteView;
+
+    protected boolean checkResult = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,7 +71,7 @@ public class MessageVerifyActivity extends Activity {
 
     @OnTextChanged(value = R.id.signedMessage, callback = AFTER_TEXT_CHANGED)
     void textChanged(Editable editable) {
-        boolean checkResult = false;
+        checkResult = false;
         Address address = null;
         String msgWithSign = signedMessageEditText.getText().toString();
         Matcher matcher = messagePattern.matcher(msgWithSign);
@@ -88,4 +90,5 @@ public class MessageVerifyActivity extends Activity {
         verifyResultView.setText(checkResult ? "Message verified to be from " + address.toString() : "Message failed to verify! ");
         verifyResultView.setTextColor(getResources().getColor(checkResult ? R.color.status_green : R.color.status_red));
     }
+
 }

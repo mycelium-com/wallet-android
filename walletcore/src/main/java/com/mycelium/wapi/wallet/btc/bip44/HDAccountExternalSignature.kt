@@ -1,6 +1,5 @@
 package com.mycelium.wapi.wallet.btc.bip44
 
-import com.google.common.base.Optional
 import com.mrd.bitlib.UnsignedTransaction
 import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.model.NetworkParameters
@@ -9,6 +8,7 @@ import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.wallet.btc.Bip44AccountBacking
 import com.mycelium.wapi.wallet.ExportableAccount
 import com.mycelium.wapi.wallet.KeyCipher
+import com.mycelium.wapi.wallet.Reference
 
 class HDAccountExternalSignature(
         context: HDAccountContext,
@@ -16,14 +16,15 @@ class HDAccountExternalSignature(
         network: NetworkParameters,
         backing: Bip44AccountBacking,
         wapi: Wapi,
-        private val sigProvider: ExternalSignatureProvider
-) : HDPubOnlyAccount(context, keyManagerMap, network, backing, wapi) {
+        private val sigProvider: ExternalSignatureProvider,
+        changeAddressModeReference: Reference<ChangeAddressMode>
+) : HDAccount(context, keyManagerMap, network, backing, wapi, changeAddressModeReference) {
 
     @Override
     fun getBIP44AccountType() = sigProvider.biP44AccountType
 
     @Throws(KeyCipher.InvalidKeyCipher::class)
-    override fun signTransaction(unsigned: UnsignedTransaction, cipher: KeyCipher): Transaction {
+    override fun signTransaction(unsigned: UnsignedTransaction, cipher: KeyCipher): Transaction? {
         checkNotArchived()
         if (!isValidEncryptionKey(cipher)) {
             throw KeyCipher.InvalidKeyCipher()
@@ -39,9 +40,10 @@ class HDAccountExternalSignature(
 
     override fun getExportData(cipher: KeyCipher): ExportableAccount.Data {
         // we dont have a private key we can export, always set it as absent
-        val pubKey = Optional.of(keyManagerMap[BipDerivationType.BIP44]!!
-                .getPublicAccountRoot()
-                .serialize(network, BipDerivationType.BIP44)) // TODO FIX SEGWIT
-        return ExportableAccount.Data(Optional.absent<String>(), pubKey)
+        val publicDataMap = keyManagerMap.keys.map { derivationType ->
+            derivationType to (keyManagerMap[derivationType]!!.publicAccountRoot
+                    .serialize(_network, derivationType))
+        }.toMap()
+        return ExportableAccount.Data(null, publicDataMap)
     }
 }

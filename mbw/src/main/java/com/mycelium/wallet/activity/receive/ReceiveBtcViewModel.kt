@@ -6,6 +6,7 @@ import android.os.Bundle
 import com.mrd.bitlib.model.AddressType
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
+import com.mycelium.wapi.wallet.AbstractAccount
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
@@ -23,11 +24,12 @@ class ReceiveBtcViewModel(application: Application) : ReceiveCoinsViewModel(appl
 
     fun setAddressType(addressType: AddressType) {
         this.addressType.value = addressType
-        receivingAddress.value = when (account) {
+        model.receivingAddress.value = when (account) {
             is HDAccount -> (account as HDAccount).getReceivingAddress(addressType)!!
             is SingleAddressAccount -> (account as SingleAddressAccount).getAddress(addressType)
             else -> throw IllegalStateException()
         }
+        model.updateObservingAddress()
     }
 
     fun getAccountDefaultAddressType(): AddressType {
@@ -39,11 +41,7 @@ class ReceiveBtcViewModel(application: Application) : ReceiveCoinsViewModel(appl
     }
 
     fun setCurrentAddressTypeAsDefault() {
-        when (account) {
-            is HDAccount -> (account as HDAccount).setDefaultAddressType(addressType.value!!)
-            is SingleAddressAccount -> (account as SingleAddressAccount).setDefaultAddressType(addressType.value)
-            else -> throw IllegalStateException()
-        }
+        (account as AbstractAccount).setDefaultAddressType(addressType.value)
         this.addressType.value = addressType.value // this is required to update UI
     }
 

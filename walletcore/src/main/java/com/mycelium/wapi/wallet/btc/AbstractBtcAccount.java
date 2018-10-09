@@ -17,24 +17,12 @@
 package com.mycelium.wapi.wallet.btc;
 
 import com.google.common.collect.Lists;
-import com.mrd.bitlib.PopBuilder;
-import com.mrd.bitlib.StandardTransactionBuilder;
+import com.mrd.bitlib.*;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
-import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.crypto.*;
-import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.model.NetworkParameters;
-import com.mrd.bitlib.model.OutPoint;
-import com.mrd.bitlib.model.OutputList;
-import com.mrd.bitlib.model.Script;
-import com.mrd.bitlib.model.ScriptOutput;
-import com.mrd.bitlib.model.ScriptOutputStrange;
-import com.mrd.bitlib.model.Transaction;
+import com.mrd.bitlib.model.*;
 import com.mrd.bitlib.model.Transaction.TransactionParsingException;
-import com.mrd.bitlib.model.TransactionInput;
-import com.mrd.bitlib.model.TransactionOutput;
-import com.mrd.bitlib.model.UnspentTransactionOutput;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.HashUtils;
@@ -81,7 +69,6 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import static com.mrd.bitlib.StandardTransactionBuilder.createOutput;
-import static com.mrd.bitlib.StandardTransactionBuilder.estimateTransactionSize;
 import static com.mrd.bitlib.TransactionUtils.MINIMUM_OUTPUT_VALUE;
 import static com.mycelium.wapi.wallet.currency.ExactBitcoinValue.ZERO;
 import static java.util.Collections.singletonList;
@@ -1031,7 +1018,11 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       // we will use all of the available inputs and it will be only one output
       // but we use "2" here, because the tx-estimation in StandardTransactionBuilder always includes an
       // output into its estimate - so add one here too to arrive at the same tx fee
-      long feeToUse = StandardTransactionBuilder.estimateFee(spendableOutputs.size(), 1, StandardTransactionBuilder.getSegwitOutputsCount(spendableOutputs), minerFeePerKbToUse);
+      FeeEstimator estimator = new FeeEstimatorBuilder().setArrayOfInputs(spendableOutputs)
+              .setLegacyOutputs(1)
+              .setMinerFeePerKb(minerFeePerKbToUse)
+              .createFeeEstimator();
+      long feeToUse = estimator.estimateFee();
 
       // TODO: 25.06.17 why was there a loop from here to end of method?
       // Iteratively figure out whether we can send everything by removing the smallest input
@@ -1070,6 +1061,10 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
 
    protected abstract InMemoryPrivateKey getPrivateKeyForAddress(Address address, KeyCipher cipher)
          throws InvalidKeyCipher;
+
+   public abstract List<AddressType> getAvailableAddressTypes();
+
+   public abstract void setDefaultAddressType(AddressType addressType);
 
    protected abstract PublicKey getPublicKeyForAddress(Address address);
 
@@ -1141,7 +1136,19 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       Address changeAddress = getChangeAddress();
       long parentChildFeeSat;
       do {
-         long childSize = estimateTransactionSize(utxosToSpend.size(), 1, 0);
+         FeeEstimatorBuilder builder = new FeeEstimatorBuilder().setArrayOfInputs(utxosToSpend);
+         switch (changeAddress.getType()) {
+            case P2PKH:
+               builder.setLegacyOutputs(1);
+               break;
+            case P2WPKH:
+               builder.setBechOutputs(1);
+               break;
+            case P2SH_P2WPKH:
+               builder.setP2shOutputs(1);
+               break;
+         }
+         long childSize = builder.createFeeEstimator().estimateTransactionSize();
          long parentChildSize = parent.rawSize + childSize;
          parentChildFeeSat = parentChildSize * minerFeeToUse / 1000 - satoshisPaid;
          if(parentChildFeeSat < childSize * minerFeeToUse / 1000) {

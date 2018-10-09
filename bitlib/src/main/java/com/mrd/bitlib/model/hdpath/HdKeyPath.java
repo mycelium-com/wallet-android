@@ -106,6 +106,8 @@ public class HdKeyPath implements Serializable {
          return new Bip44Purpose(this, index, true);
       } else if (index.equals(UnsignedInteger.valueOf(49)) && hardened){
          return new Bip49Purpose(this, index, true);
+      } else if (index.equals(UnsignedInteger.valueOf(84)) && hardened){
+         return new Bip84Purpose(this, index, true);
       } else {
          return new HdKeyPath(this, index, hardened);
       }

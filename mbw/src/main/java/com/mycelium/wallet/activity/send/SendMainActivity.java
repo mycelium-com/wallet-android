@@ -61,12 +61,10 @@ import android.widget.Toast;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import com.mrd.bitlib.StandardTransactionBuilder;
+import com.mrd.bitlib.*;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
 import com.mrd.bitlib.StandardTransactionBuilder.UnableToBuildTransactionException;
-import com.mrd.bitlib.TransactionUtils;
-import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
@@ -150,8 +148,6 @@ import static android.view.View.VISIBLE;
 import static android.widget.Toast.LENGTH_LONG;
 import static android.widget.Toast.LENGTH_SHORT;
 import static android.widget.Toast.makeText;
-import static com.mrd.bitlib.StandardTransactionBuilder.estimateTransactionSize;
-import static com.mycelium.wallet.activity.util.ValueExtentionsKt.isBtc;
 
 public class SendMainActivity extends Activity {
     private static final String TAG = "SendMainActivity";
@@ -540,10 +536,18 @@ public class SendMainActivity extends Activity {
     }
 
     private int estimateTxSize() {
-        int inCount = _unsigned != null ? _unsigned.getFundingOutputs().length : 1;
-        int outCount = _unsigned != null ? _unsigned.getOutputs().length : 2;
-        int segwitInCount = _unsigned != null ? StandardTransactionBuilder.getSegwitOutputsCount(Arrays.asList(_unsigned.getFundingOutputs())) : 1;
-        return estimateTransactionSize(inCount, outCount, segwitInCount);
+        FeeEstimatorBuilder estimatorBuilder = new FeeEstimatorBuilder();
+        FeeEstimator estimator;
+        if (_unsigned != null) {
+            estimator = estimatorBuilder.setArrayOfInputs(_unsigned.getFundingOutputs())
+                    .setArrayOfOutputs(_unsigned.getOutputs())
+                    .createFeeEstimator();
+        } else {
+            estimator = estimatorBuilder.setLegacyInputs(1)
+                    .setLegacyOutputs(2)
+                    .createFeeEstimator();
+        }
+        return estimator.estimateTransactionSize();
     }
 
     //TODO: fee from other bitcoin account if colu
@@ -1338,7 +1342,10 @@ public class SendMainActivity extends Activity {
             int inCount = _unsigned.getFundingOutputs().length;
             int outCount = _unsigned.getOutputs().length;
 
-            int size = estimateTransactionSize(inCount, outCount, StandardTransactionBuilder.getSegwitOutputsCount(Arrays.asList(_unsigned.getFundingOutputs())));
+            FeeEstimator feeEstimator = new FeeEstimatorBuilder().setArrayOfInputs(_unsigned.getFundingOutputs())
+                    .setArrayOfOutputs(_unsigned.getOutputs())
+                    .createFeeEstimator();
+            int size = feeEstimator.estimateTransactionSize();
 
             tvSatFeeValue.setText(inCount + " In- / " + outCount + " Outputs, ~" + size + " bytes");
 
