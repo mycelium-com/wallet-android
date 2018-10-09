@@ -2,6 +2,7 @@ package com.mycelium.wapi.wallet.bip44
 
 import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.util.HexUtils
+import com.mycelium.wapi.wallet.btc.bip44.AccountIndexesContext
 import org.junit.Assert
 import org.junit.Test
 import java.io.ByteArrayInputStream

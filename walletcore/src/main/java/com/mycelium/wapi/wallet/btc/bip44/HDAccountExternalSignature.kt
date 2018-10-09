@@ -9,6 +9,7 @@ import com.mycelium.wapi.wallet.btc.Bip44AccountBacking
 import com.mycelium.wapi.wallet.ExportableAccount
 import com.mycelium.wapi.wallet.KeyCipher
 import com.mycelium.wapi.wallet.Reference
+import com.mycelium.wapi.wallet.bip44.ChangeAddressMode;
 
 class HDAccountExternalSignature(
         context: HDAccountContext,

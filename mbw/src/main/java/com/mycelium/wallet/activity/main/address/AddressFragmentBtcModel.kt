@@ -2,10 +2,10 @@ package com.mycelium.wallet.activity.main.address
 
 import android.app.Application
 import android.support.v4.app.FragmentActivity
-import com.google.common.base.Optional
 import com.mrd.bitlib.model.AddressType
 import com.mycelium.wallet.event.ReceivingAddressChanged
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
+import com.mycelium.wapi.wallet.btc.BtcAddress
 
 class AddressFragmentBtcModel(val app: Application) : AddressFragmentViewModel(app) {
     lateinit var currentType: AddressType
@@ -25,7 +25,7 @@ class AddressFragmentBtcModel(val app: Application) : AddressFragmentViewModel(a
 
         (model.account as AbstractBtcAccount).setDefaultAddressType(currentType)
 
-        mbwManager.eventBus.post(ReceivingAddressChanged(Optional.of(model.accountAddress.value!!)))
+        mbwManager.eventBus.post(ReceivingAddressChanged(model.accountAddress.value!! as BtcAddress))
         model.onAddressChange()
     }
 

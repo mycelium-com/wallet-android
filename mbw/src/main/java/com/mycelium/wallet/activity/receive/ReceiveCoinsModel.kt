@@ -21,6 +21,8 @@ import com.mycelium.wallet.event.SyncStopped
 import com.mycelium.wapi.model.TransactionSummary
 import com.mycelium.wapi.wallet.GenericAddress
 import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
+import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount
 import com.mycelium.wapi.wallet.currency.CurrencyValue
 import com.mycelium.wapi.wallet.currency.ExchangeBasedBitcoinValue
@@ -50,7 +52,7 @@ class ReceiveCoinsModel(
     init {
         mbwManager.eventBus.register(this)
         receivingAmountWrong.value = false
-        receivingAddress.value = account.receivingAddress.get()
+        receivingAddress.value = (account as AbstractBtcAccount).receivingAddress.get()
 
         if (showIncomingUtxo) {
             updateObservingAddress()
@@ -58,7 +60,7 @@ class ReceiveCoinsModel(
     }
 
     fun updateObservingAddress() {
-        mbwManager.watchAddress(receivingAddress.value)
+        mbwManager.watchAddress(receivingAddress.value as BtcAddress)
     }
 
     fun onCleared() {

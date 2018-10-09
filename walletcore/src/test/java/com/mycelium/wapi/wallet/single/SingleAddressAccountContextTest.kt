@@ -3,6 +3,7 @@ package com.mycelium.wapi.wallet.single
 import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.model.AddressType
 import com.mrd.bitlib.util.HexUtils
+import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext
 import org.junit.Assert
 import org.junit.Test
 import java.io.*

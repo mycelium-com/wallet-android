@@ -123,7 +123,7 @@ class ColuAccount(context: ColuAccountContext, val privateKey: InMemoryPrivateKe
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun getExportData(cipher: KeyCipher?): ExportableAccount.Data {
+    override fun getExportData(cipher: KeyCipher): ExportableAccount.Data {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
