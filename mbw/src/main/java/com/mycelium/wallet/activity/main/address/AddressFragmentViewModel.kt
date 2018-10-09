@@ -9,6 +9,7 @@ import android.widget.Toast
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
+import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 
 abstract class AddressFragmentViewModel(val context: Application) : AndroidViewModel(context) {
     protected val mbwManager = MbwManager.getInstance(context)!!
@@ -19,7 +20,7 @@ abstract class AddressFragmentViewModel(val context: Application) : AndroidViewM
         if (::model.isInitialized) {
             throw IllegalStateException("This method should be called only once.")
         }
-        model = AddressFragmentModel(context, mbwManager.selectedAccount, showBip44Path)
+        model = AddressFragmentModel(context, mbwManager.selectedAccount as AbstractBtcAccount, showBip44Path)
     }
 
     fun getAccountLabel() = model.accountLabel
