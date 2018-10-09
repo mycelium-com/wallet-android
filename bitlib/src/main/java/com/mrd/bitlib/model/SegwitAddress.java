@@ -54,6 +54,7 @@ public class SegwitAddress extends Address implements Serializable {
         verify(this);
     }
 
+    @Override
     public byte getVersion() {
         return version;
     }

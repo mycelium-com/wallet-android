@@ -714,6 +714,12 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
     public ExactCurrencyValue calculateMaxSpendableAmount(long minerFeeToUse) {
         return getCurrencyBasedBalance().confirmed;
     }
+
+    @Override
+    public ExactCurrencyValue calculateMaxSpendableAmount(long minerFeeToUse, Address destinationAddress) {
+        return calculateMaxSpendableAmount(minerFeeToUse);
+    }
+
     @Override
     public boolean isValidEncryptionKey(KeyCipher cipher) {
         return false;

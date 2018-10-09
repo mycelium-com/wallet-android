@@ -677,6 +677,11 @@ public class CoinapultAccount extends SynchronizeAbleWalletAccount {
    }
 
    @Override
+   public ExactCurrencyValue calculateMaxSpendableAmount(long minerFeeToUse, Address destinationAddress) {
+      return calculateMaxSpendableAmount(minerFeeToUse);
+   }
+
+   @Override
    public boolean isValidEncryptionKey(KeyCipher cipher) {
       return false;
    }
