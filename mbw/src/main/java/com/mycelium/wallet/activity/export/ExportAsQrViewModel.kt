@@ -30,7 +30,12 @@ class ExportAsQrViewModel(val context: Application) : AndroidViewModel(context) 
 
     fun hasPrivateData(): Boolean = model.hasPrivateData()
 
-    fun updateData(privateDataSelected: Boolean) = model.updateData(privateDataSelected)
+    fun updateData(privateDataSelected: Boolean) {
+        model.updateData(privateDataSelected)
+        if (isBtcHdAccount) {
+            onToggleClicked(1)
+        }
+    }
 
     fun isPrivateDataSelected() = model.privateDataSelected
 
