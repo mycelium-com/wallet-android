@@ -34,12 +34,13 @@
 
 package com.mycelium.wallet.event;
 
+import com.mrd.bitlib.model.Address;
 import com.mycelium.wapi.wallet.GenericAddress;
 
 public class ReceivingAddressChanged {
-    public final GenericAddress address;
+    public final Address address;
 
-    public ReceivingAddressChanged(GenericAddress address) {
+    public ReceivingAddressChanged(Address address) {
         this.address = address;
     }
 }

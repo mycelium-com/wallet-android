@@ -1260,7 +1260,7 @@ public class MbwManager {
         getEditor().putString(SELECTED_ACCOUNT, uuid.toString()).apply();
         getEventBus().post(new SelectedAccountChanged(uuid));
         GenericAddress receivingAddress = account.getReceiveAddress();
-        getEventBus().post(new ReceivingAddressChanged(receivingAddress));
+        getEventBus().post(new ReceivingAddressChanged((BtcAddress)receivingAddress));
         // notify the wallet manager that this is the active account now
         _walletManager.setActiveAccount(account.getId());
     }

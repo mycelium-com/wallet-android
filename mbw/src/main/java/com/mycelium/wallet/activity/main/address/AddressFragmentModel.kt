@@ -7,16 +7,18 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.event.AccountChanged
 import com.mycelium.wallet.event.ReceivingAddressChanged
+import com.mycelium.wapi.wallet.GenericAddress
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
+import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount
 import com.squareup.otto.Subscribe
 
 class AddressFragmentModel(
         val context: Application,
-        var account: WalletAccount<*,*>,
+        var account: AbstractBtcAccount,
         val showBip44Path: Boolean
 ) {
     private var mbwManager: MbwManager = MbwManager.getInstance(context)
@@ -33,8 +35,8 @@ class AddressFragmentModel(
 
     private fun updateAddressPath(showBip44Path: Boolean) {
         addressPath.value =
-                when (showBip44Path && accountAddress.value!!.bip32Path != null) {
-                    true -> accountAddress.value!!.bip32Path.toString()
+                when (showBip44Path && (accountAddress.value!! as BtcAddress).bip32Path != null) {
+                    true -> (accountAddress.value!! as BtcAddress).bip32Path.toString()
                     false -> ""
                 }
     }
@@ -49,8 +51,8 @@ class AddressFragmentModel(
                 }
     }
 
-    private fun updateAddress(account: WalletAccount<*,*>) {
-        accountAddress.value = (account as WalletBtcAccount).receivingAddress.get()
+    private fun updateAddress(account: AbstractBtcAccount) {
+        accountAddress.value = account.receivingAddress.get()
     }
 
     fun onCleared() = mbwManager.eventBus.unregister(this)
@@ -64,7 +66,7 @@ class AddressFragmentModel(
 
     @Subscribe
     fun accountChanged(event: AccountChanged) {
-        account = mbwManager.selectedAccount
+        account = (mbwManager.selectedAccount as AbstractBtcAccount)
         updateLabel()
         onAddressChange()
     }

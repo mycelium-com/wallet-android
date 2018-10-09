@@ -25,7 +25,7 @@ class AddressFragmentBtcModel(val app: Application) : AddressFragmentViewModel(a
 
         (model.account as AbstractBtcAccount).setDefaultAddressType(currentType)
 
-        mbwManager.eventBus.post(ReceivingAddressChanged(model.accountAddress.value!! as BtcAddress))
+        mbwManager.eventBus.post(ReceivingAddressChanged(model.accountAddress.value!!))
         model.onAddressChange()
     }
 
