@@ -29,21 +29,6 @@ class ColuAccount(context: ColuAccountContext, val privateKey: InMemoryPrivateKe
     override fun completeAndSignTx(request: SendRequest<ColuTransaction>) {
         completeTransaction(request)
         signTransaction(request)
-//        if (txid == null) {
-//            Log.e(TAG, "signTransaction: No transaction to sign !")
-//            return null
-//        }
-//        if (coluAccount == null) {
-//            Log.e(TAG, "signTransaction: No colu account associated to transaction to sign !")
-//            return null
-//        }
-
-        // use bitcoinj classes and two methods above to generate signatures
-        // and sign transaction
-        // then convert to mycelium wallet transaction format
-        // Step 1: map to bitcoinj classes
-
-        // DEV only 1 key
     }
 
     override fun completeTransaction(request: SendRequest<ColuTransaction>) {

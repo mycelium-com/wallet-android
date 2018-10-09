@@ -857,11 +857,6 @@ public class ColuAccount extends SynchronizeAbleWalletBtcAccount implements Expo
     }
 
     @Override
-    public String getAccountDefaultCurrency() {
-        return getColuAsset().name;
-    }
-
-    @Override
     public int getSyncTotalRetrievedTransactions() {
         return 0;
     }

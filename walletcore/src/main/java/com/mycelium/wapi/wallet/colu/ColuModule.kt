@@ -6,6 +6,7 @@ import com.mrd.bitlib.model.AddressType
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wapi.wallet.AccountListener
 import com.mycelium.wapi.wallet.AesKeyCipher
+import com.mycelium.wapi.wallet.SyncMode
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking
@@ -41,6 +42,7 @@ class ColuModule(val networkParameters: NetworkParameters
                         , backing.getAccountBacking(context.id)
                         , listener)
             }
+            account.synchronize(SyncMode.NORMAL)
             result[account.id] = account
         }
         return result
@@ -71,6 +73,7 @@ class ColuModule(val networkParameters: NetworkParameters
                         , netParams, coluApi, backing.getAccountBacking(id), listener)
             }
         }
+        result?.synchronize(SyncMode.NORMAL)
         return result
     }
 

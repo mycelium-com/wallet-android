@@ -1714,11 +1714,6 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       return false;
    }
 
-   @Override
-   public String getAccountDefaultCurrency() {
-      return CurrencyValue.BTC;
-   }
-
    public AccountBacking getAccountBacking() {
       return this._backing;
    }

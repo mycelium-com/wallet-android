@@ -27,4 +27,16 @@ abstract class ColuMain : BitcoinBasedCryptoCurrency() {
         softDustPolicy = SoftDustPolicy.AT_LEAST_BASE_FEE_IF_SOFT_DUST_TXO_PRESENT
         signedMessageHeader = CryptoCurrency.toBytes("Colu Signed Message:\n")
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || other !is ColuMain) return false
+        return id == other.id
+    }
+
+    override fun hashCode(): Int {
+        return javaClass.hashCode()
+    }
+
+
 }

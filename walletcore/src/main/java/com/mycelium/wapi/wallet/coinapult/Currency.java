@@ -1,12 +1,18 @@
 package com.mycelium.wapi.wallet.coinapult;
 
 import com.google.common.collect.ImmutableMap;
+import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.MonetaryFormat;
+import com.mycelium.wapi.wallet.coins.AbstractAsset;
+import com.mycelium.wapi.wallet.coins.CryptoCurrency;
+import com.mycelium.wapi.wallet.coins.Value;
+import com.mycelium.wapi.wallet.exceptions.AddressMalformedException;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.Map;
 
-public class Currency {
+public class Currency extends AbstractAsset {
     public static final Currency USD = new Currency("USD", BigDecimal.ONE);
     public static final Currency EUR = new Currency("EUR", BigDecimal.ONE);
     public static final Currency GBP = new Currency("GBP", BigDecimal.ONE);
@@ -48,5 +54,50 @@ public class Currency {
 
     public String getMinimumConversationString() {
         return new DecimalFormat("#0.00##").format(minimumConversationValue) + " " + name;
+    }
+
+    @Override
+    public String getId() {
+        return null;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String getSymbol() {
+        return name;
+    }
+
+    @Override
+    public int getUnitExponent() {
+        return 0;
+    }
+
+    @Override
+    public Value oneCoin() {
+        return null;
+    }
+
+    @Override
+    public Value value(long units) {
+        return null;
+    }
+
+    @Override
+    public MonetaryFormat getMonetaryFormat() {
+        return null;
+    }
+
+    @Override
+    public MonetaryFormat getPlainFormat() {
+        return null;
+    }
+
+    @Override
+    public Value value(String string) {
+        return null;
     }
 }

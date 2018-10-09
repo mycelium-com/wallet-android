@@ -882,11 +882,6 @@ public class CoinapultAccount extends SynchronizeAbleWalletBtcAccount {
    }
 
    @Override
-   public String getAccountDefaultCurrency() {
-      return getCoinapultCurrency().name;
-   }
-
-   @Override
    public int getSyncTotalRetrievedTransactions() {
       return 0;
    }

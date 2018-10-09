@@ -61,14 +61,14 @@ class ReceiveCoinsModel(
 
     fun setAmount(newAmount: CurrencyValue) {
         if (!CurrencyValue.isNullOrZero(newAmount)) {
-            if (newAmount.currency == account.accountDefaultCurrency && newAmount.currency != mbwManager.fiatCurrency) {
+            if (newAmount.currency == account.coinType.symbol && newAmount.currency != mbwManager.fiatCurrency) {
                 alternativeAmountData.value = CurrencyValue.fromValue(newAmount, mbwManager.fiatCurrency, mbwManager
                         .exchangeRateManager)
                 amountData.value = newAmount
             } else {
-                amountData.value = if (account.accountDefaultCurrency != newAmount.currency) {
+                amountData.value = if (account.coinType.symbol != newAmount.currency) {
                     // use the accounts default currency as alternative
-                     CurrencyValue.fromValue(newAmount, account.accountDefaultCurrency,
+                     CurrencyValue.fromValue(newAmount, account.coinType.symbol,
                             mbwManager.exchangeRateManager)
                 } else {
                     // special case for Coinapult
@@ -90,7 +90,7 @@ class ReceiveCoinsModel(
                 uri.append("?amountData=").append(amountData.value!!.value.toPlainString())
             } else {
                 val value = ExchangeBasedCurrencyValue.fromValue(amountData.value,
-                        account.accountDefaultCurrency, mbwManager.exchangeRateManager).value
+                        account.coinType.symbol, mbwManager.exchangeRateManager).value
                 if (value != null) {
                     uri.append("?amountData=").append(CoinUtil.valueString(value,
                             CoinUtil.Denomination.BTC, false))

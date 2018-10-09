@@ -21,16 +21,10 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext, val publicKey: Pu
                               , val backing: AccountBacking<ColuTransaction>
                               , val listener: AccountListener? = null) : WalletAccount<ColuTransaction, BtcAddress> {
 
-    override fun getAccountDefaultCurrency(): String {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
     protected var address: GenericAddress
     protected var uuid: UUID
     @Volatile
     protected var _isSynchronizing: Boolean = false
-
-    protected var _cachedBalance = BalanceSatoshis(0, 0, 0, 0
-            , 0, 0, true, true)
 
     protected var cachedBalance = Balance(Value.zeroValue(coinType), Value.zeroValue(coinType)
             , Value.zeroValue(coinType), Value.zeroValue(coinType))
@@ -39,27 +33,11 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext, val publicKey: Pu
     init {
         val address1 = publicKey.toAddress(networkParameters, AddressType.P2PKH)!!
         address = AddressUtils.from(coluCoinType, address1.toString())
-        uuid = getGuidForAsset(coluCoinType, address1.allAddressBytes)
+        uuid = ColuUtils.getGuidForAsset(coluCoinType, address1.allAddressBytes)
+        cachedBalance = calculateBalance(getTransactions(0, 2000))
     }
 
-    override fun getId(): UUID {
-        return uuid
-    }
-
-    private fun getGuidForAsset(cryptoCurrency: CryptoCurrency, addressBytes: ByteArray): UUID {
-        val byteWriter = ByteWriter(36)
-        byteWriter.putBytes(addressBytes)
-        byteWriter.putRawStringUtf8(cryptoCurrency.id)
-        val accountId = HashUtils.sha256(byteWriter.toBytes())
-        return getGuidFromByteArray(accountId.bytes)
-    }
-
-    private fun getGuidFromByteArray(bytes: ByteArray): UUID {
-        val bb = ByteBuffer.wrap(bytes)
-        val high = bb.long
-        val low = bb.long
-        return UUID(high, low)
-    }
+    override fun getId(): UUID = uuid
 
     override fun setAllowZeroConfSpending(b: Boolean) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
@@ -82,64 +60,6 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext, val publicKey: Pu
     override fun getTransactions(offset: Int, limit: Int): List<ColuTransaction> {
         return backing.getTransactions(offset, limit)
     }
-
-//    private fun convertTx(tx: Transaction, height: Int, time: Int): ColuTransaction {
-//
-//        var satoshisReceived: Long = 0
-//        val outputs = mutableListOf<GenericTransaction.GenericOutput>() //need to create list of outputs
-//        for (output in tx.outputs) {
-//            val address = output.script.getAddress(networkParameters)
-//            if (isMineAddress(BtcAddress(coluCoinType, output.script.getAddress(networkParameters).allAddressBytes))) {
-//                satoshisReceived += output.value
-//            }
-//            if (address != null && address != Address.getNullAddress(networkParameters)) {
-//                outputs.add(GenericTransaction.GenericOutput(BtcAddress(coinType, address.allAddressBytes), Value.valueOf(coinType, output.value)))
-//            }
-//        }
-//
-//        var satoshisSent: Long = 0
-//        val inputs = ArrayList<GenericTransaction.GenericInput>() //need to create list of outputs
-//        // Inputs
-//        if (!tx.isCoinbase) {
-//            for (input in tx.inputs) {
-//                // find parent output
-//                val funding = backing.getParentTransactionOutput(input.outPoint)
-//                if (funding == null) {
-////                        _logger.logError("Unable to find parent output for: " + input.outPoint)
-//                    continue
-//                }
-//                val script = ScriptOutput.fromScriptBytes(funding.script)
-//                if (isMineAddress(BtcAddress(coinType, script.getAddress(networkParameters).allAddressBytes))) {
-//                    satoshisSent += funding.value
-//                }
-//
-//                val address = ScriptOutput.fromScriptBytes(funding.script)!!.getAddress(networkParameters)
-//                val currency = if (networkParameters.isProdnet) BitcoinMain.get() else BitcoinTest.get()
-//                inputs.add(GenericTransaction.GenericInput(BtcAddress(currency, address.allAddressBytes), Value.valueOf(coinType, funding.value)))
-//            }
-//        }
-//
-//        val confirmations: Int
-//        if (height == -1) {
-//            confirmations = 0
-//        } else {
-//            confirmations = Math.max(0, blockChainHeight - height + 1)
-//        }
-//
-//        val isQueuedOutgoing = backing.isOutgoingTransaction(tx.id)
-//
-//
-//        return ColuTransaction(tx.id, coinType
-//                , Value.valueOf(coinType, satoshisSent)
-//                , Value.valueOf(coinType, satoshisReceived)
-//                , time
-//                , tx, confirmations, isQueuedOutgoing
-//                , inputs, outputs)
-////            , satoshisSent, satoshisReceived, tex.time,
-////                    confirmations, isQueuedOutgoing, inputs, outputs, riskAssessmentForUnconfirmedTx.get(tx.id),
-////                    tex.binary.size, Value.valueOf(BitcoinMain.get(), Math.abs(satoshisReceived - satoshisSent)))
-//
-//    }
 
     override fun getBlockChainHeight(): Int = context.blockHeight
 
@@ -234,7 +154,6 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext, val publicKey: Pu
             }
 
         }
-//            storeColuBalance(account.getUuid(), assetConfirmedBalance.toString())
         return Balance(confirmed, receiving, sending, Value.zeroValue(coinType))
     }
 
@@ -263,7 +182,6 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext, val publicKey: Pu
     override fun getSyncTotalRetrievedTransactions(): Int {
         return 0;
     }
-
 
     override fun completeAndSignTx(request: SendRequest<ColuTransaction>) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.

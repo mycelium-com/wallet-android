@@ -6,6 +6,7 @@ import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal
 import com.mycelium.wapi.wallet.GenericTransaction
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
+import com.mycelium.wapi.wallet.coins.GenericAssetInfo
 import com.mycelium.wapi.wallet.coins.Value
 import java.io.Serializable
 
@@ -16,7 +17,7 @@ class ColuTransaction(val id: Sha256Hash, val _type: CryptoCurrency, val _sent: 
                       , fee: Value? = null)
     : GenericTransaction, Serializable {
 
-    override fun getType(): CryptoCurrency = _type
+    override fun getType(): GenericAssetInfo = _type
 
     override fun getHash(): Sha256Hash {
         return id
