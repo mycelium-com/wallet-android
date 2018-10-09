@@ -182,6 +182,11 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking<SingleAd
    }
 
    @Override
+   public void deleteAccountContext(UUID uuid) {
+      deleteSingleAddressAccountContext(uuid);
+   }
+
+   @Override
    public AccountBacking getAccountBacking(UUID accountId) {
       return getSingleAddressAccountBacking(accountId);
    }

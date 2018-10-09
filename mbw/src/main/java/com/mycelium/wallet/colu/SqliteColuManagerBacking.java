@@ -235,6 +235,11 @@ public class SqliteColuManagerBacking implements WalletManagerBacking<ColuAccoun
    }
 
    @Override
+   public void deleteAccountContext(UUID uuid) {
+      deleteSingleAddressAccountContext(uuid);
+   }
+
+   @Override
    public AccountBacking getAccountBacking(UUID accountId) {
       return checkNotNull(_backings.get(accountId));
    }

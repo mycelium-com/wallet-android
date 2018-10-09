@@ -12,7 +12,7 @@ class AddressFragmentBtcModel(val app: Application) : AddressFragmentViewModel(a
 
     override fun init() {
         super.init()
-        currentType = model.accountAddress.value!!.type
+        currentType = model.type.value!!
     }
 
     override fun qrClickReaction(activity: FragmentActivity) {
@@ -25,7 +25,7 @@ class AddressFragmentBtcModel(val app: Application) : AddressFragmentViewModel(a
 
         (model.account as AbstractBtcAccount).setDefaultAddressType(currentType)
 
-        mbwManager.eventBus.post(ReceivingAddressChanged(model.accountAddress.value!!))
+        mbwManager.eventBus.post(ReceivingAddressChanged(model.accountAddress.value!! as BtcAddress))
         model.onAddressChange()
     }
 
