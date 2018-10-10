@@ -287,9 +287,8 @@ public class LtMainActivity extends AppCompatActivity {
          }
       };
 
-      boolean btcMultiAddress = account instanceof HDAccount && ((HDAccount) account).getAvailableAddressTypes().size() > 1;
       ExportAsQrActivity.callMe(this, exportableAccount.getExportData(AesKeyCipher.defaultKeyCipher()),
-              btcMultiAddress);
+              account);
    }
 
    private void deleteTraderAccount() {

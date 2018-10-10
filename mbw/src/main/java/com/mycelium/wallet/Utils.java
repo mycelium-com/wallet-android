@@ -734,9 +734,8 @@ public class Utils {
             .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                public void onClick(DialogInterface dialog, int id) {
                   dialog.dismiss();
-                  boolean btcMultiAddress = account instanceof HDAccount && ((HDAccount) account).getAvailableAddressTypes().size() > 1;
                   ExportAsQrActivity.callMe(parent, ((ExportableAccount) account).getExportData(AesKeyCipher.defaultKeyCipher()),
-                          btcMultiAddress);
+                          account);
 
                }
             }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
