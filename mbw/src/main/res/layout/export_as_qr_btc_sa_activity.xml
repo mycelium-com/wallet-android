@@ -4,15 +4,20 @@
 
     <data>
 
+        <import type="android.arch.lifecycle.AndroidViewModel" />
+
+        <import type="android.support.v7.app.AppCompatActivity" />
+
+        <import type="android.view.View" />
+
         <variable
             name="activity"
             type="android.support.v7.app.AppCompatActivity" />
 
         <variable
             name="viewModel"
-            type="com.mycelium.wallet.activity.export.ExportAsQrViewModel" />
+            type="com.mycelium.wallet.activity.export.ExportAsQrMultiKeysViewModel" />
     </data>
-
 
     <ScrollView
         android:layout_width="fill_parent"
@@ -31,6 +36,10 @@
 
             <include
                 layout="@layout/export_as_qr_activity_type_switch"
+                bind:viewModel="@{viewModel}" />
+
+            <include
+                layout="@layout/export_as_qr_btc_sa_activity_key_type_toggle"
                 bind:viewModel="@{viewModel}" />
 
             <include

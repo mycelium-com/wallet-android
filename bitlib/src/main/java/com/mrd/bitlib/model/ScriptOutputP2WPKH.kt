@@ -3,7 +3,7 @@ package com.mrd.bitlib.model
 import java.io.Serializable
 
 /**
- * TODO implemet with segwit, don't merge with current state, bech
+ * Native SegWit pay-to-witness-public-key-hash script output
  */
 class ScriptOutputP2WPKH : ScriptOutput, Serializable {
     private val addressBytes: ByteArray

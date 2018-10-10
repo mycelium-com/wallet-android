@@ -153,9 +153,6 @@ class HDAccountContext @JvmOverloads constructor(
         isDirty = false
     }
 
-    class AccountIndexesContext(var lastExternalIndexWithActivity: Int, var lastInternalIndexWithActivity: Int,
-                                var firstMonitoredInternalIndex: Int) : Serializable
-
     companion object {
         const val ACCOUNT_TYPE_FROM_MASTERSEED = 0
         const val ACCOUNT_TYPE_UNRELATED_X_PRIV = 1
@@ -166,5 +163,12 @@ class HDAccountContext @JvmOverloads constructor(
 
         private fun createNewIndexesContexts(derivationTypes: Iterable<BipDerivationType>) =
                 derivationTypes.map { it to AccountIndexesContext(-1, -1, 0) }.toMap()
+    }
+}
+
+data class AccountIndexesContext(var lastExternalIndexWithActivity: Int, var lastInternalIndexWithActivity: Int,
+                            var firstMonitoredInternalIndex: Int) : Serializable {
+    companion object {
+        private const val serialVersionUid = 1L
     }
 }

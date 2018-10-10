@@ -315,7 +315,7 @@ public class SendMainActivity extends Activity {
     }
 
     private boolean isCoinapult() {
-        return _account != null && _account instanceof CoinapultAccount;
+        return _account instanceof CoinapultAccount;
     }
 
     private boolean isColu() {
@@ -717,7 +717,7 @@ public class SendMainActivity extends Activity {
          presetAmount = ExactCurrencyValue.from(null, _account.getAccountDefaultCurrency());
       }
       GetAmountActivity.callMeToSend(this, GET_AMOUNT_RESULT_CODE, _account.getId(), presetAmount, feePerKbValue,
-              AccountDisplayType.getAccountType(_account), _isColdStorage);
+              AccountDisplayType.getAccountType(_account), _isColdStorage, _receivingAddress);
    }
 
    @OnClick(R.id.btSend)

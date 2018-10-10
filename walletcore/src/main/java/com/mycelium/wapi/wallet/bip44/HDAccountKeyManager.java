@@ -284,10 +284,10 @@ public class HDAccountKeyManager {
       return _publicAccountRoot;
    }
 
-   public HdKeyNode getPrivateAccountRoot(KeyCipher cipher) throws KeyCipher.InvalidKeyCipher {
+   public HdKeyNode getPrivateAccountRoot(KeyCipher cipher, BipDerivationType derivationType) throws KeyCipher.InvalidKeyCipher {
       try {
          return HdKeyNode.fromCustomByteformat(_secureKeyValueStore.getDecryptedValue(getAccountNodeId(_network,
-                 _accountIndex, BipDerivationType.BIP44), cipher)); //TODO FIX SEGWIT EXPORT SCREEN
+                 _accountIndex, derivationType), cipher));
       } catch (ByteReader.InsufficientBytesException e) {
          throw new RuntimeException(e);
       }

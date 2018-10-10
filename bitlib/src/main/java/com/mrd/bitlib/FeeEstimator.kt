@@ -48,14 +48,14 @@ class FeeEstimator(private val legacyInputs: Int, private val p2shSegwitInputs: 
         // also see https://github.com/bitcoin/bitcoin/blob/master/src/primitives/transaction.h#L190
         private const val MAX_INPUT_SIZE = 32 + 4 + 1 + 107 + 4
         // BECH32 utxos does not contain scriptSig and scriptPubKey is 3 bytes smaller
-        private const val MAX_BECH32_INPUT_SIZE = 32 + 4 + 1 + 107 + 4 - 23 - 3
+        private const val MAX_BECH32_INPUT_SIZE = 32 + 4 + 1 + 107 + 4 - 23
         // output value 8B + script length 1B + script 25B (always)
         private const val OUTPUT_SIZE = 8 + 1 + 25
 
         // This input value is used to count core value without witness
-        private const val MAX_SEGWIT_COMPAT_INPUT_SIZE = 32 + 4 + 1 + 61 + 4
+        private const val MAX_SEGWIT_COMPAT_INPUT_SIZE = 32 + 4 + 1 + 46 + 4
         // This input value is used to count core value without witness
-        private const val MAX_SEGWIT_NATIVE_INPUT_SIZE = 32 + 4 + 1 + (61 - 23 - 3) / 4 + 4
+        private const val MAX_SEGWIT_NATIVE_INPUT_SIZE = 32 + 4 + 1 + 10 + 4
         private const val SEGWIT_COMPAT_OUTPUT_SIZE = 32
         private const val SEGWIT_NATIVE_OUTPUT_SIZE = 31
     }

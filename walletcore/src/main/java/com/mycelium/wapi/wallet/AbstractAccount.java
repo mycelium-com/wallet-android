@@ -998,6 +998,11 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
 
    @Override
    public synchronized ExactCurrencyValue calculateMaxSpendableAmount(long minerFeePerKbToUse) {
+      return calculateMaxSpendableAmount(minerFeePerKbToUse, null);
+   }
+
+   @Override
+   public synchronized ExactCurrencyValue calculateMaxSpendableAmount(long minerFeePerKbToUse, Address destinationAddress) {
       checkNotArchived();
       Collection<UnspentTransactionOutput> spendableOutputs = transform(getSpendableOutputs(minerFeePerKbToUse));
       long satoshis = 0;
@@ -1011,15 +1016,12 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       // we will use all of the available inputs and it will be only one output
       // but we use "2" here, because the tx-estimation in StandardTransactionBuilder always includes an
       // output into its estimate - so add one here too to arrive at the same tx fee
-      FeeEstimator estimator = new FeeEstimatorBuilder().setArrayOfInputs(spendableOutputs)
-              .setLegacyOutputs(1)
-              .setMinerFeePerKb(minerFeePerKbToUse)
-              .createFeeEstimator();
+      FeeEstimatorBuilder estimatorBuilder = new FeeEstimatorBuilder().setArrayOfInputs(spendableOutputs)
+              .setMinerFeePerKb(minerFeePerKbToUse);
+      addOutputToEstimation(destinationAddress, estimatorBuilder);
+      FeeEstimator estimator = estimatorBuilder.createFeeEstimator();
       long feeToUse = estimator.estimateFee();
 
-      // TODO: 25.06.17 why was there a loop from here to end of method?
-      // Iteratively figure out whether we can send everything by removing the smallest input
-      // or every iteration and thus reduce the suggested max amount
       satoshis -= feeToUse;
       if (satoshis <= 0) {
          return ZERO;
@@ -1028,10 +1030,16 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       // Create transaction builder
       StandardTransactionBuilder stb = new StandardTransactionBuilder(_network);
 
+      AddressType destinationAddressType;
+      if (destinationAddress != null) {
+         destinationAddressType = destinationAddress.getType();
+      } else {
+         destinationAddressType = AddressType.P2PKH;
+      }
       // Try and add the output
       try {
          // Note, null address used here, we just use it for measuring the transaction size
-         stb.addOutput(Address.getNullAddress(_network), satoshis);
+         stb.addOutput(Address.getNullAddress(_network, destinationAddressType), satoshis);
       } catch (OutputTooSmallException e1) {
          // The amount we try to send is lower than what the network allows
          return ZERO;
@@ -1039,13 +1047,30 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
 
       // Try to create an unsigned transaction
       try {
-         stb.createUnsignedTransaction(spendableOutputs, getChangeAddress(Address.getNullAddress(_network)), new PublicKeyRing(), _network, minerFeePerKbToUse); // TODO FIX SEGWIT this should be calculated including risk of segwit tx
+         stb.createUnsignedTransaction(spendableOutputs, getChangeAddress(Address.getNullAddress(_network, destinationAddressType)),
+                 new PublicKeyRing(), _network, minerFeePerKbToUse);
          // We have enough to pay the fees, return the amount as the maximum
          return ExactBitcoinValue.from(satoshis);
       } catch (InsufficientFundsException | StandardTransactionBuilder.UnableToBuildTransactionException e) {
-         // TODO: 25.06.17 here is where the loop was triggered, what I don't understand how another round could help in any case. Neither is there any tests. :(
-         // We cannot send this amount, try again with a little higher fee continue
          return ZERO;
+      }
+   }
+
+   private void addOutputToEstimation(Address outputAddress, FeeEstimatorBuilder estimatorBuilder) {
+      if (outputAddress != null) {
+         switch (outputAddress.getType()) {
+            case P2PKH:
+               estimatorBuilder.setLegacyOutputs(1);
+               break;
+            case P2WPKH:
+               estimatorBuilder.setBechOutputs(1);
+               break;
+            case P2SH_P2WPKH:
+               estimatorBuilder.setP2shOutputs(1);
+               break;
+         }
+      } else {
+         estimatorBuilder.setLegacyOutputs(1);
       }
    }
 
@@ -1130,17 +1155,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       long parentChildFeeSat;
       do {
          FeeEstimatorBuilder builder = new FeeEstimatorBuilder().setArrayOfInputs(utxosToSpend);
-         switch (changeAddress.getType()) {
-            case P2PKH:
-               builder.setLegacyOutputs(1);
-               break;
-            case P2WPKH:
-               builder.setBechOutputs(1);
-               break;
-            case P2SH_P2WPKH:
-               builder.setP2shOutputs(1);
-               break;
-         }
+         addOutputToEstimation(changeAddress, builder);
          long childSize = builder.createFeeEstimator().estimateTransactionSize();
          long parentChildSize = parent.rawSize + childSize;
          parentChildFeeSat = parentChildSize * minerFeeToUse / 1000 - satoshisPaid;

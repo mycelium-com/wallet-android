@@ -66,6 +66,9 @@ open class Bip44BCHAccount(
         }
     }
 
+    override fun calculateMaxSpendableAmount(minerFeePerKbToUse: Long, destinationAddress: Address?) =
+        calculateMaxSpendableAmount(minerFeePerKbToUse)
+
     override fun getId(): UUID {
         return UUID.nameUUIDFromBytes(("BCH" + super.getId().toString()).toByteArray())
     }

@@ -44,9 +44,7 @@ class SingleAddressAccountContext @JvmOverloads constructor(
     /**
      * Is this account archived?
      */
-    fun isArchived(): Boolean {
-        return isArchived
-    }
+    fun isArchived() = isArchived
 
     /**
      * Mark this account as archived
@@ -61,9 +59,7 @@ class SingleAddressAccountContext @JvmOverloads constructor(
     /**
      * Get the block chain height recorded for this context
      */
-    fun getBlockHeight(): Int {
-        return blockHeight
-    }
+    fun getBlockHeight() = blockHeight
 
     /**
      * Set the block chain height for this context
