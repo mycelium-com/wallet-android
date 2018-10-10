@@ -16,27 +16,14 @@ class ExportAsQrBtcHDViewModel(context: Application) : ExportAsQrMultiKeysViewMo
         val privateData = model.privateDataSelected.value!!
         val privateDataMap = model.accountData.privateDataMap
         val publicDataMap = model.accountData.publicDataMap
+        val dataMap = if (privateData) privateDataMap else publicDataMap
 
-        val data = when (toggleNum) {
-            1 -> if (privateData) {
-                privateDataMap?.get(BipDerivationType.BIP44)
-            } else {
-                publicDataMap?.get(BipDerivationType.BIP44)
-            }
-
-            2 -> if (privateData) {
-                privateDataMap?.get(BipDerivationType.BIP49)
-            } else {
-                publicDataMap?.get(BipDerivationType.BIP49)
-            }
-
-            3 -> if (privateData) {
-                privateDataMap?.get(BipDerivationType.BIP84)
-            } else {
-                publicDataMap?.get(BipDerivationType.BIP84)
-            }
+        val data = dataMap?.get(when (toggleNum) {
+            1 -> BipDerivationType.BIP44
+            2 -> BipDerivationType.BIP49
+            3 -> BipDerivationType.BIP84
             else -> throw  java.lang.IllegalStateException("Unexpected toggle position")
-        }
+        })
         model.accountDataString.value = data
     }
 }

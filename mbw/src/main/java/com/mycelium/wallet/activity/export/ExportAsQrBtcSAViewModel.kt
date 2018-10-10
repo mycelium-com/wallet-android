@@ -4,6 +4,7 @@ import android.app.Application
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.model.AddressType
 import com.mycelium.wallet.MbwManager
+import java.lang.IllegalStateException
 
 class ExportAsQrBtcSAViewModel(context: Application) : ExportAsQrMultiKeysViewModel(context) {
     override fun updateData(privateDataSelected: Boolean) {
@@ -15,24 +16,25 @@ class ExportAsQrBtcSAViewModel(context: Application) : ExportAsQrMultiKeysViewMo
      * Updates account data based on extra toggles
      */
     override fun onToggleClicked(toggleNum: Int) {
-        val privateData = model.accountData.privateData.get()
+        val privateData = model.accountData.privateData.get()!!
+
+        model.accountDataString.value = if (model.privateDataSelected.value!!) {
+            privateData
+        } else {
+            publicData(privateData, toggleNum)
+        }
+    }
+
+    private fun publicData(privateData: String, toggleNum: Int): String {
         val network = MbwManager.getInstance(context).network
         val privateKey = InMemoryPrivateKey.fromBase58String(privateData, network).get()
         val publicKey = privateKey.publicKey
-
-        val data = when (toggleNum) {
-            1 -> publicKey.toAddress(network, AddressType.P2PKH).toString()
-
-            2 -> publicKey.toAddress(network, AddressType.P2SH_P2WPKH).toString()
-
-            3 -> publicKey.toAddress(network, AddressType.P2WPKH).toString()
-
-            else -> throw  java.lang.IllegalStateException("Unexpected toggle position")
+        val addressType = when (toggleNum) {
+            1 -> AddressType.P2PKH
+            2 -> AddressType.P2SH_P2WPKH
+            3 -> AddressType.P2WPKH
+            else -> throw  IllegalStateException("Unexpected toggle position")
         }
-        if (model.privateDataSelected.value!!) {
-            model.accountDataString.value = privateData
-        } else {
-            model.accountDataString.value = data
-        }
+        return publicKey.toAddress(network, addressType).toString()
     }
 }
