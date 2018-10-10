@@ -189,7 +189,7 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
       if (getSignatureDevice().connect(getContext())) {
          TrezorMessage.Initialize req = TrezorMessage.Initialize.newBuilder().build();
          Message resp = getSignatureDevice().send(req);
-         if (resp != null && resp instanceof TrezorMessage.Features) {
+         if (resp instanceof TrezorMessage.Features) {
             final TrezorMessage.Features f = (TrezorMessage.Features) resp;
 
             // remember the features
@@ -234,7 +234,7 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
          return null;
       }
 
-      SigningRequest[] signatureInfo = unsigned.getSigningRequests();
+      SigningRequest[] signingRequests = unsigned.getSigningRequests();
 
       ByteWriter signedTx = new ByteWriter(1024);
 
@@ -285,22 +285,16 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
          }
 
          // Lets see, what trezor wants to know
+         TrezorType.TransactionType txType = null;
          if (txRequest.getRequestType() == TrezorType.RequestType.TXMETA) {
             // Send transaction metadata
 
-            TrezorType.TransactionType txType = TrezorType.TransactionType.newBuilder()
+            txType = TrezorType.TransactionType.newBuilder()
                   .setInputsCnt(currentTx.inputs.length)
                   .setOutputsCnt(currentTx.outputs.length)
                   .setVersion(currentTx.version)
                   .setLockTime(currentTx.lockTime)
                   .build();
-
-            TrezorMessage.TxAck txAck = TrezorMessage.TxAck.newBuilder()
-                  .setTx(txType)
-                  .build();
-
-            response = getSignatureDevice().send(txAck);
-
          } else if (txRequest.getRequestType() == TrezorType.RequestType.TXINPUT) {
             TransactionInput ak_input = currentTx.inputs[txRequestDetailsType.getRequestIndex()];
 
@@ -344,20 +338,11 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
 
             TrezorType.TxInputType txInput = txInputBuilder.build();
 
-            TrezorType.TransactionType txType = TrezorType.TransactionType.newBuilder()
+            txType = TrezorType.TransactionType.newBuilder()
                   .addInputs(txInput)
                   .build();
-
-            TrezorMessage.TxAck txAck = TrezorMessage.TxAck.newBuilder()
-                  .setTx(txType)
-                  .build();
-
-            response = getSignatureDevice().send(txAck);
-
          } else if (txRequest.getRequestType() == TrezorType.RequestType.TXOUTPUT) {
             TransactionOutput ak_output = currentTx.outputs[txRequestDetailsType.getRequestIndex()];
-
-            TrezorType.TransactionType txType;
 
             if (txRequestDetailsType.hasTxHash()) {
                // request has an hash -> requests data for an existing output
@@ -372,8 +357,7 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
                      .build();
 
             } else {
-               // request has no hash -> trezor wants informations about the
-               // outputs of the new tx
+               // request has no hash -> trezor wants informations about the outputs of the new tx
                Address address = ak_output.script.getAddress(getNetwork());
                TrezorType.TxOutputType.Builder txOutput = TrezorType.TxOutputType.newBuilder()
                      .setAmount(ak_output.value)
@@ -394,11 +378,11 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
                      .addOutputs(txOutput.build())
                      .build();
             }
-
+         }
+         if (txType != null) {
             TrezorMessage.TxAck txAck = TrezorMessage.TxAck.newBuilder()
-                  .setTx(txType)
-                  .build();
-
+                    .setTx(txType)
+                    .build();
             response = getSignatureDevice().send(txAck);
             Log.w(TAG, "getSignedTransaction: C " + HexUtils.toHex(txAck.toByteArray()) + " -> " + response);
          }
