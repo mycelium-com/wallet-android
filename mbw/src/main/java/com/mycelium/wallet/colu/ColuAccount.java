@@ -267,12 +267,6 @@ public class ColuAccount extends SynchronizeAbleWalletBtcAccount implements Expo
         return new ArrayList<>(list.subList(offset, endIndex));
     }
 
-    // TODO - added temporary for backward compartibility. Should be removed again
-    @Override
-    public Type getType() {
-        return null;
-    }
-
     @Override
     public NetworkParameters getNetwork() {
         return manager.getNetwork();
