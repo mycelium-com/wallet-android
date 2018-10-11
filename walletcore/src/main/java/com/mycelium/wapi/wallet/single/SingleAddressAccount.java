@@ -176,6 +176,11 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
    }
 
    @Override
+   public Address getReceivingAddress(AddressType addressType) {
+      return getAddress(addressType);
+   }
+
+   @Override
    public void setDefaultAddressType(AddressType addressType) {
       _context.setDefaultAddressType(addressType);
       _context.persistIfNecessary(_backing);
