@@ -73,56 +73,6 @@ public final class TrezorType {
     Failure_FirmwareError(11, 99),
     ;
 
-    /**
-     * <code>Failure_UnexpectedMessage = 1;</code>
-     */
-    public static final int Failure_UnexpectedMessage_VALUE = 1;
-    /**
-     * <code>Failure_ButtonExpected = 2;</code>
-     */
-    public static final int Failure_ButtonExpected_VALUE = 2;
-    /**
-     * <code>Failure_SyntaxError = 3;</code>
-     */
-    public static final int Failure_SyntaxError_VALUE = 3;
-    /**
-     * <code>Failure_ActionCancelled = 4;</code>
-     */
-    public static final int Failure_ActionCancelled_VALUE = 4;
-    /**
-     * <code>Failure_PinExpected = 5;</code>
-     */
-    public static final int Failure_PinExpected_VALUE = 5;
-    /**
-     * <code>Failure_PinCancelled = 6;</code>
-     */
-    public static final int Failure_PinCancelled_VALUE = 6;
-    /**
-     * <code>Failure_PinInvalid = 7;</code>
-     */
-    public static final int Failure_PinInvalid_VALUE = 7;
-    /**
-     * <code>Failure_InvalidSignature = 8;</code>
-     */
-    public static final int Failure_InvalidSignature_VALUE = 8;
-    /**
-     * <code>Failure_Other = 9;</code>
-     */
-    public static final int Failure_Other_VALUE = 9;
-    /**
-     * <code>Failure_NotEnoughFunds = 10;</code>
-     */
-    public static final int Failure_NotEnoughFunds_VALUE = 10;
-    /**
-     * <code>Failure_NotInitialized = 11;</code>
-     */
-    public static final int Failure_NotInitialized_VALUE = 11;
-    /**
-     * <code>Failure_FirmwareError = 99;</code>
-     */
-    public static final int Failure_FirmwareError_VALUE = 99;
-
-
     public final int getNumber() { return value; }
 
     public static FailureType valueOf(int value) {
@@ -209,17 +159,15 @@ public final class TrezorType {
      * <code>PAYTOSCRIPTHASH = 1;</code>
      */
     PAYTOSCRIPTHASH(1, 1),
+    /**
+     * <code>PAYTOWITNESS = 4;</code>
+     */
+    PAYTOWITNESS(4, 4),
+    /**
+     * <code>PAYTOP2SHWITNESS = 5;</code>
+     */
+    PAYTOP2SHWITNESS(5, 5),
     ;
-
-    /**
-     * <code>PAYTOADDRESS = 0;</code>
-     */
-    public static final int PAYTOADDRESS_VALUE = 0;
-    /**
-     * <code>PAYTOSCRIPTHASH = 1;</code>
-     */
-    public static final int PAYTOSCRIPTHASH_VALUE = 1;
-
 
     public final int getNumber() { return value; }
 
@@ -227,6 +175,8 @@ public final class TrezorType {
       switch (value) {
         case 0: return PAYTOADDRESS;
         case 1: return PAYTOSCRIPTHASH;
+        case 4: return PAYTOWITNESS;
+        case 5: return PAYTOP2SHWITNESS;
         default: return null;
       }
     }
@@ -297,16 +247,15 @@ public final class TrezorType {
      * <code>SPENDMULTISIG = 1;</code>
      */
     SPENDMULTISIG(1, 1),
+    /**
+     * <code>SPENDWITNESS = 3;</code>
+     */
+    SPENDWITNESS(3, 3),
+    /**
+     * <code>SPENDP2SHWITNESS = 4;</code>
+     */
+    SPENDP2SHWITNESS(4, 4),
     ;
-
-    /**
-     * <code>SPENDADDRESS = 0;</code>
-     */
-    public static final int SPENDADDRESS_VALUE = 0;
-    /**
-     * <code>SPENDMULTISIG = 1;</code>
-     */
-    public static final int SPENDMULTISIG_VALUE = 1;
 
 
     public final int getNumber() { return value; }
@@ -315,6 +264,8 @@ public final class TrezorType {
       switch (value) {
         case 0: return SPENDADDRESS;
         case 1: return SPENDMULTISIG;
+        case 3: return SPENDWITNESS;
+        case 4: return SPENDP2SHWITNESS;
         default: return null;
       }
     }
@@ -394,24 +345,6 @@ public final class TrezorType {
      */
     TXFINISHED(3, 3),
     ;
-
-    /**
-     * <code>TXINPUT = 0;</code>
-     */
-    public static final int TXINPUT_VALUE = 0;
-    /**
-     * <code>TXOUTPUT = 1;</code>
-     */
-    public static final int TXOUTPUT_VALUE = 1;
-    /**
-     * <code>TXMETA = 2;</code>
-     */
-    public static final int TXMETA_VALUE = 2;
-    /**
-     * <code>TXFINISHED = 3;</code>
-     */
-    public static final int TXFINISHED_VALUE = 3;
-
 
     public final int getNumber() { return value; }
 
@@ -525,47 +458,6 @@ public final class TrezorType {
     ButtonRequest_Address(9, 10),
     ;
 
-    /**
-     * <code>ButtonRequest_Other = 1;</code>
-     */
-    public static final int ButtonRequest_Other_VALUE = 1;
-    /**
-     * <code>ButtonRequest_FeeOverThreshold = 2;</code>
-     */
-    public static final int ButtonRequest_FeeOverThreshold_VALUE = 2;
-    /**
-     * <code>ButtonRequest_ConfirmOutput = 3;</code>
-     */
-    public static final int ButtonRequest_ConfirmOutput_VALUE = 3;
-    /**
-     * <code>ButtonRequest_ResetDevice = 4;</code>
-     */
-    public static final int ButtonRequest_ResetDevice_VALUE = 4;
-    /**
-     * <code>ButtonRequest_ConfirmWord = 5;</code>
-     */
-    public static final int ButtonRequest_ConfirmWord_VALUE = 5;
-    /**
-     * <code>ButtonRequest_WipeDevice = 6;</code>
-     */
-    public static final int ButtonRequest_WipeDevice_VALUE = 6;
-    /**
-     * <code>ButtonRequest_ProtectCall = 7;</code>
-     */
-    public static final int ButtonRequest_ProtectCall_VALUE = 7;
-    /**
-     * <code>ButtonRequest_SignTx = 8;</code>
-     */
-    public static final int ButtonRequest_SignTx_VALUE = 8;
-    /**
-     * <code>ButtonRequest_FirmwareCheck = 9;</code>
-     */
-    public static final int ButtonRequest_FirmwareCheck_VALUE = 9;
-    /**
-     * <code>ButtonRequest_Address = 10;</code>
-     */
-    public static final int ButtonRequest_Address_VALUE = 10;
-
 
     public final int getNumber() { return value; }
 
@@ -656,20 +548,6 @@ public final class TrezorType {
      */
     PinMatrixRequestType_NewSecond(2, 3),
     ;
-
-    /**
-     * <code>PinMatrixRequestType_Current = 1;</code>
-     */
-    public static final int PinMatrixRequestType_Current_VALUE = 1;
-    /**
-     * <code>PinMatrixRequestType_NewFirst = 2;</code>
-     */
-    public static final int PinMatrixRequestType_NewFirst_VALUE = 2;
-    /**
-     * <code>PinMatrixRequestType_NewSecond = 3;</code>
-     */
-    public static final int PinMatrixRequestType_NewSecond_VALUE = 3;
-
 
     public final int getNumber() { return value; }
 

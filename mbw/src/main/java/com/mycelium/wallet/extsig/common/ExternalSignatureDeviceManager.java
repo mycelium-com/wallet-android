@@ -316,10 +316,13 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
                   BipDerivationType derivationType;
                   if (fundingUtxoScript instanceof ScriptOutputP2SH) {
                      derivationType = BipDerivationType.BIP49;
+                     txInputBuilder.setScriptType(TrezorType.InputScriptType.SPENDP2SHWITNESS);
                   } else if (fundingUtxoScript instanceof ScriptOutputP2WPKH) {
                      derivationType = BipDerivationType.BIP84;
+                     txInputBuilder.setScriptType(TrezorType.InputScriptType.SPENDWITNESS);
                   } else if (fundingUtxoScript instanceof ScriptOutputStandard) {
                      derivationType = BipDerivationType.BIP44;
+                     txInputBuilder.setScriptType(TrezorType.InputScriptType.SPENDADDRESS);
                   } else {
                      postErrorMessage("Unhandled funding " + fundingUtxoScript);
                      return null;
@@ -433,7 +436,9 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
       if (script instanceof ScriptOutputStandard) {
          return TrezorType.OutputScriptType.PAYTOADDRESS;
       } else if (script instanceof ScriptOutputP2SH) {
-         return TrezorType.OutputScriptType.PAYTOSCRIPTHASH;
+         return TrezorType.OutputScriptType.PAYTOP2SHWITNESS;
+      }  else if (script instanceof ScriptOutputP2WPKH) {
+         return TrezorType.OutputScriptType.PAYTOWITNESS;
       } else {
          throw new RuntimeException("unknown script type");
       }
