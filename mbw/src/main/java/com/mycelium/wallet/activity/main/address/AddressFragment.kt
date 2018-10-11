@@ -90,6 +90,6 @@ class AddressFragment : Fragment() {
         if (drawableForAccount != null) {
             ivAccountType.setImageDrawable(drawableForAccount)
         }
-        viewModel.getAccountAddress().observe(this, Observer { newAddress -> ivQR.qrCode = newAddress?.toString() })
+        viewModel.getAccountAddress().observe(this, Observer { newAddress -> if(newAddress != null){ivQR.qrCode = newAddress.toString()} })
     }
 }

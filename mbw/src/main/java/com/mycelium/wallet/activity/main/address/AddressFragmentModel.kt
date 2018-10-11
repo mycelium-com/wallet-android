@@ -9,6 +9,7 @@ import com.mycelium.wallet.event.AccountChanged
 import com.mycelium.wallet.event.ReceivingAddressChanged
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.bip44.Bip44BCHAccount
+import com.mycelium.wapi.wallet.bip44.HDAccount
 import com.mycelium.wapi.wallet.single.SingleAddressBCHAccount
 import com.squareup.otto.Subscribe
 
@@ -48,7 +49,11 @@ class AddressFragmentModel(
     }
 
     private fun updateAddress(account: WalletAccount) {
-        accountAddress.value = account.receivingAddress.get()
+        if(account.receivingAddress.isPresent) {
+            accountAddress.value = account.receivingAddress.get()
+        } else {
+            accountAddress.value = null
+        }
     }
 
     fun onCleared() = mbwManager.eventBus.unregister(this)
