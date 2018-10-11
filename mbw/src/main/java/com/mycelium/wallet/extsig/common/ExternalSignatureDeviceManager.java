@@ -213,6 +213,7 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
    // based on https://github.com/trezor/python-trezor/blob/a2a5b6a4601c6912166ef7f85f04fa1101c2afd4/trezorlib/client.py
    @Override
    public Transaction getSignedTransaction(UnsignedTransaction unsigned, HDAccountExternalSignature forAccount) {
+      Log.d("trezor", "getting this transaction signed: " + unsigned);
       if (!initialize()) {
          return null;
       }
@@ -284,107 +285,115 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
             currentTx = Transaction.fromUnsignedTransaction(unsigned);
          }
 
-         // Lets see, what trezor wants to know
          TrezorType.TransactionType txType = null;
-         if (txRequest.getRequestType() == TrezorType.RequestType.TXMETA) {
-            // Send transaction metadata
+         // Lets see, what trezor wants to know (request type)
+         Log.d(TAG, "getSignedTransaction: " + txRequest);
+         switch (txRequest.getRequestType()) {
+            case TXMETA:
+               // Send transaction metadata
+               txType = TrezorType.TransactionType.newBuilder()
+                       .setInputsCnt(currentTx.inputs.length)
+                       .setOutputsCnt(currentTx.outputs.length)
+                       .setVersion(currentTx.version)
+                       .setLockTime(currentTx.lockTime)
+                       .build();
+               break;
+            case TXINPUT:
+               TransactionInput ak_input = currentTx.inputs[txRequestDetailsType.getRequestIndex()];
+               ByteString prevHash = ByteString.copyFrom(ak_input.outPoint.txid.getBytes());
+               ByteString scriptSig = ByteString.copyFrom(ak_input.script.getScriptBytes());
+               TrezorType.TxInputType.Builder txInputBuilder = TrezorType.TxInputType.newBuilder()
+                       .setPrevHash(prevHash)
+                       .setPrevIndex(ak_input.outPoint.index)
+                       .setSequence(ak_input.sequence)
+                       .setScriptSig(scriptSig);
 
-            txType = TrezorType.TransactionType.newBuilder()
-                  .setInputsCnt(currentTx.inputs.length)
-                  .setOutputsCnt(currentTx.outputs.length)
-                  .setVersion(currentTx.version)
-                  .setLockTime(currentTx.lockTime)
-                  .build();
-         } else if (txRequest.getRequestType() == TrezorType.RequestType.TXINPUT) {
-            TransactionInput ak_input = currentTx.inputs[txRequestDetailsType.getRequestIndex()];
-
-
-            ByteString prevHash = ByteString.copyFrom(ak_input.outPoint.txid.getBytes());
-            ByteString scriptSig = ByteString.copyFrom(ak_input.script.getScriptBytes());
-            TrezorType.TxInputType.Builder txInputBuilder = TrezorType.TxInputType.newBuilder()
-                  .setPrevHash(prevHash)
-                  .setPrevIndex(ak_input.outPoint.index)
-                  .setSequence(ak_input.sequence)
-                  .setScriptSig(scriptSig);
-
-            // get the bip32 path for the address, so that trezor knows with what key to sign it
-            // only for the unsigned txin
-            if (!txRequestDetailsType.hasTxHash()) {
-               SigningRequest signingRequest = signatureInfo[txRequestDetailsType.getRequestIndex()];
-               boolean foundKey = false;
-               for (BipDerivationType derivationType : new BipDerivationType[]{
-                       BipDerivationType.BIP44,
-                       BipDerivationType.BIP49,
-                       BipDerivationType.BIP84
-               }) {
+               // get the bip32 path for the address, so that trezor knows with what key to sign it
+               // only for the unsigned txin
+               if (!txRequestDetailsType.hasTxHash()) {
+                  SigningRequest signingRequest = signingRequests[txRequestDetailsType.getRequestIndex()];
+                  ScriptOutput fundingUtxoScript = unsigned.getFundingOutputs()[txRequestDetailsType.getRequestIndex()].script;
+                  BipDerivationType derivationType;
+                  if (fundingUtxoScript instanceof ScriptOutputP2SH) {
+                     derivationType = BipDerivationType.BIP49;
+                  } else if (fundingUtxoScript instanceof ScriptOutputP2WPKH) {
+                     derivationType = BipDerivationType.BIP84;
+                  } else if (fundingUtxoScript instanceof ScriptOutputStandard) {
+                     derivationType = BipDerivationType.BIP44;
+                  } else {
+                     postErrorMessage("Unhandled funding " + fundingUtxoScript);
+                     return null;
+                  }
                   Address toSignWith = signingRequest.getPublicKey().toAddress(getNetwork(), derivationType.getAddressType());
-                  if (toSignWith != null) {
-                     Optional<Integer[]> addId = forAccount.getAddressId(toSignWith);
-                     if (addId.isPresent()) {
-                        new InputAddressSetter(txInputBuilder)
-                                .setAddressN(
-                                        (int) derivationType.getPurpose(),
-                                        forAccount.getAccountIndex(),
-                                        addId.get());
-                        foundKey = true;
-                        break;
-                     }
+                  if (toSignWith == null) {
+                     postErrorMessage("No address found for signing InputIDX " + txRequestDetailsType.getRequestIndex());
+                     return null;
+                  }
+                  Optional<Integer[]> addId = forAccount.getAddressId(toSignWith);
+                  if (addId.isPresent()) {
+                     new InputAddressSetter(txInputBuilder)
+                             .setAddressN(
+                                     (int) derivationType.getPurpose(),
+                                     forAccount.getAccountIndex(),
+                                     addId.get());
                   }
                }
-               if (!foundKey) {
-                  Log.w("trezor", "no address found for signing InputIDX " + txRequestDetailsType.getRequestIndex());
-               }
-            }
 
-            TrezorType.TxInputType txInput = txInputBuilder.build();
-
-            txType = TrezorType.TransactionType.newBuilder()
-                  .addInputs(txInput)
-                  .build();
-         } else if (txRequest.getRequestType() == TrezorType.RequestType.TXOUTPUT) {
-            TransactionOutput ak_output = currentTx.outputs[txRequestDetailsType.getRequestIndex()];
-
-            if (txRequestDetailsType.hasTxHash()) {
-               // request has an hash -> requests data for an existing output
-               ByteString scriptPubKey = ByteString.copyFrom(ak_output.script.getScriptBytes());
-               TrezorType.TxOutputBinType txOutput = TrezorType.TxOutputBinType.newBuilder()
-                     .setScriptPubkey(scriptPubKey)
-                     .setAmount(ak_output.value)
-                     .build();
+               TrezorType.TxInputType txInput = txInputBuilder.build();
 
                txType = TrezorType.TransactionType.newBuilder()
-                     .addBinOutputs(txOutput)
-                     .build();
+                       .addInputs(txInput)
+                       .build();
+               break;
+            case TXOUTPUT:
+               TransactionOutput ak_output = currentTx.outputs[txRequestDetailsType.getRequestIndex()];
 
-            } else {
-               // request has no hash -> trezor wants informations about the outputs of the new tx
-               Address address = ak_output.script.getAddress(getNetwork());
-               TrezorType.TxOutputType.Builder txOutput = TrezorType.TxOutputType.newBuilder()
-                     .setAmount(ak_output.value)
-                     .setScriptType(mapScriptType(ak_output.script));
+               if (txRequestDetailsType.hasTxHash()) {
+                  // request has an hash -> requests data for an existing output
+                  ByteString scriptPubKey = ByteString.copyFrom(ak_output.script.getScriptBytes());
+                  TrezorType.TxOutputBinType txOutput = TrezorType.TxOutputBinType.newBuilder()
+                          .setScriptPubkey(scriptPubKey)
+                          .setAmount(ak_output.value)
+                          .build();
 
-               Optional<Integer[]> addId = forAccount.getAddressId(address);
-               BipDerivationType derivationType = BipDerivationType.Companion.getDerivationTypeByAddress(address);
-               if (addId.isPresent() && addId.get()[0] == 1) {
-                  // If it is one of our internal change addresses, add the HD-PathID
-                  // so that trezor knows, this is the change txout and can calculate the value of the tx correctly
-                  new OutputAddressSetter(txOutput).setAddressN((int) derivationType.getPurpose(), forAccount.getAccountIndex(), addId.get());
+                  txType = TrezorType.TransactionType.newBuilder()
+                          .addBinOutputs(txOutput)
+                          .build();
+
                } else {
-                  // If it is regular address (non-change), set address instead of address_n
-                  txOutput.setAddress(address.toString());
-               }
+                  // request has no hash -> trezor wants informations about the outputs of the new tx
+                  Address address = ak_output.script.getAddress(getNetwork());
+                  TrezorType.TxOutputType.Builder txOutput = TrezorType.TxOutputType.newBuilder()
+                          .setAmount(ak_output.value)
+                          .setScriptType(mapScriptType(ak_output.script));
 
-               txType = TrezorType.TransactionType.newBuilder()
-                     .addOutputs(txOutput.build())
-                     .build();
-            }
+                  Optional<Integer[]> addId = forAccount.getAddressId(address);
+                  BipDerivationType derivationType = BipDerivationType.Companion.getDerivationTypeByAddress(address);
+                  if (addId.isPresent() && addId.get()[0] == 1) {
+                     // If it is one of our internal change addresses, add the HD-PathID
+                     // so that trezor knows, this is the change txout and can calculate the value of the tx correctly
+                     new OutputAddressSetter(txOutput).setAddressN((int) derivationType.getPurpose(), forAccount.getAccountIndex(), addId.get());
+                  } else {
+                     // If it is regular address (non-change), set address instead of address_n
+                     txOutput.setAddress(address.toString());
+                  }
+
+                  txType = TrezorType.TransactionType.newBuilder()
+                          .addOutputs(txOutput.build())
+                          .build();
+               }
+               break;
+            case TXFINISHED:
+               Log.d(TAG, "getSignedTransaction: trezor finished");
+               break;
+            default:
+               Log.e(TAG, "getSignedTransaction: We don't understand what trezor wants. Type is " + txRequest.getRequestType());
          }
          if (txType != null) {
             TrezorMessage.TxAck txAck = TrezorMessage.TxAck.newBuilder()
                     .setTx(txType)
                     .build();
             response = getSignatureDevice().send(txAck);
-            Log.w(TAG, "getSignedTransaction: C " + HexUtils.toHex(txAck.toByteArray()) + " -> " + response);
          }
       }
 
@@ -555,6 +564,7 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
 
       public void setAddressN(Integer purposeNumber, Integer accountNumber, Integer[] addId) {
          // build the full bip32 path
+         Log.d(TAG, "setAddressN: m/" + purposeNumber + "'/" + getNetwork().getBip44CoinType() + "'/" + accountNumber + "'/" + addId[0] + "/" + addId[1]);
          Integer[] addressPath = new Integer[]{
                  purposeNumber | PRIME_DERIVATION_FLAG,
                  getNetwork().getBip44CoinType() | PRIME_DERIVATION_FLAG,
