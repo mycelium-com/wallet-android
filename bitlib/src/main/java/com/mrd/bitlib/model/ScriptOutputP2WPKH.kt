@@ -13,7 +13,7 @@ class ScriptOutputP2WPKH : ScriptOutput, Serializable {
     }
 
     constructor(scriptBytes: ByteArray) : super(scriptBytes) {
-        addressBytes = scriptBytes
+        addressBytes = scriptBytes.copyOfRange(2, scriptBytes.size)
     }
 
     override fun getAddressBytes() = addressBytes
@@ -36,3 +36,4 @@ class ScriptOutputP2WPKH : ScriptOutput, Serializable {
         }
     }
 }
+

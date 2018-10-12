@@ -368,7 +368,7 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
                   Address address = ak_output.script.getAddress(getNetwork());
                   TrezorType.TxOutputType.Builder txOutput = TrezorType.TxOutputType.newBuilder()
                           .setAmount(ak_output.value)
-                          .setScriptType(mapScriptType(ak_output.script));
+                          .setScriptType(mapScriptType(ak_output.script, forAccount.isOwnInternalAddress(address)));
 
                   Optional<Integer[]> addId = forAccount.getAddressId(address);
                   BipDerivationType derivationType = BipDerivationType.Companion.getDerivationTypeByAddress(address);
@@ -432,16 +432,15 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
       }
    }
 
-   private TrezorType.OutputScriptType mapScriptType(ScriptOutput script) {
-      if (script instanceof ScriptOutputStandard) {
-         return TrezorType.OutputScriptType.PAYTOADDRESS;
-      } else if (script instanceof ScriptOutputP2SH) {
-         return TrezorType.OutputScriptType.PAYTOP2SHWITNESS;
-      }  else if (script instanceof ScriptOutputP2WPKH) {
-         return TrezorType.OutputScriptType.PAYTOWITNESS;
-      } else {
-         throw new RuntimeException("unknown script type");
+   private TrezorType.OutputScriptType mapScriptType(ScriptOutput script, boolean isChange) {
+      if (isChange) {
+         if (script instanceof ScriptOutputP2SH) {
+            return TrezorType.OutputScriptType.PAYTOP2SHWITNESS;
+         } else if (script instanceof ScriptOutputP2WPKH) {
+            return TrezorType.OutputScriptType.PAYTOWITNESS;
+         }
       }
+      return TrezorType.OutputScriptType.PAYTOADDRESS;
    }
 
    @Override
