@@ -114,8 +114,7 @@ open class UnsignedTransaction constructor(
         for (i in 0 until max) {
             val `in` = if (i < fundingOutputs.size) fundingOutputs[i] else null
             val out = if (i < outputs.size) outputs[i] else null
-            val line: String
-            line = if (`in` != null && out != null) {
+            val line = if (`in` != null && out != null) {
                 String.format("%36s %13s -> %36s %13s", `in`.script.getAddress(network), getValue(`in`.value),
                         out.script.getAddress(network), getValue(out.value))
             } else if (`in` != null) {
@@ -132,13 +131,10 @@ open class UnsignedTransaction constructor(
         return sb.toString()
     }
 
-    fun getSignatureInfo(): Array<SigningRequest?> {
-        return signingRequests
-    }
+    fun getSignatureInfo() = signingRequests
 
-    private fun getValue(value: Long?): String {
-        return String.format("(%s)", CoinUtil.valueString(value!!, false))
-    }
+    private fun getValue(value: Long?) =
+            String.format("(%s)", CoinUtil.valueString(value!!, false))
 
     companion object {
         private const val serialVersionUID = 1L

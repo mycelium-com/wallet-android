@@ -8,7 +8,6 @@ import java.io.Serializable
 class ScriptOutputP2WPKH : ScriptOutput, Serializable {
     private val addressBytes: ByteArray
 
-
     constructor(chunks: Array<ByteArray>, scriptBytes: ByteArray) : super(scriptBytes) {
         addressBytes = chunks[1]
     }
@@ -17,13 +16,10 @@ class ScriptOutputP2WPKH : ScriptOutput, Serializable {
         addressBytes = scriptBytes
     }
 
-    override fun getAddressBytes(): ByteArray {
-        return addressBytes
-    }
+    override fun getAddressBytes() = addressBytes
 
-    override fun getAddress(network: NetworkParameters): Address {
-        return SegwitAddress(network, 0x00, addressBytes)
-    }
+    override fun getAddress(network: NetworkParameters): Address =
+            SegwitAddress(network, 0x00, addressBytes)
 
     companion object {
         private const val serialVersionUID = 1L
