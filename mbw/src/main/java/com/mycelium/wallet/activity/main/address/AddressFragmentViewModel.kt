@@ -20,7 +20,7 @@ abstract class AddressFragmentViewModel(val context: Application) : AndroidViewM
         if (::model.isInitialized) {
             throw IllegalStateException("This method should be called only once.")
         }
-        model = AddressFragmentModel(context, mbwManager.selectedAccount as AbstractBtcAccount, showBip44Path)
+        model = AddressFragmentModel(context, mbwManager.selectedAccount, showBip44Path)
     }
 
     fun getAccountLabel() = model.accountLabel

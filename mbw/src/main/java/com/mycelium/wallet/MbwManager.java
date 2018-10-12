@@ -52,6 +52,12 @@ import android.util.Log;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import com.coinapult.api.httpclient.AndroidKeyConverter;
+import com.coinapult.api.httpclient.CoinapultClient;
+import com.coinapult.api.httpclient.CoinapultConfig;
+import com.coinapult.api.httpclient.CoinapultPlaygroundConfig;
+import com.coinapult.api.httpclient.CoinapultProdConfig;
+import com.coinapult.api.httpclient.ECC_SC;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
@@ -87,6 +93,7 @@ import com.mycelium.wallet.activity.util.BlockExplorerManager;
 import com.mycelium.wallet.activity.util.Pin;
 import com.mycelium.wallet.api.AndroidAsyncApi;
 import com.mycelium.wallet.bitid.ExternalService;
+import com.mycelium.wallet.coinapult.CoinapultApiImpl;
 import com.mycelium.wallet.coinapult.CoinapultManager;
 import com.mycelium.wallet.coinapult.SQLiteCoinapultBacking;
 import com.mycelium.wallet.colu.ColuApiImpl;
@@ -355,9 +362,9 @@ public class MbwManager {
 
         _walletManager.addObserver(_eventTranslator);
         _coinapultManager = createCoinapultManager();
-        if (_coinapultManager.isPresent()) {
-            addExtraAccounts(_coinapultManager.get());
-        }
+//        if (_coinapultManager.isPresent()) {
+//            addExtraAccounts(_coinapultManager.get());
+//        }
 
         new InitColuManagerTask().execute();
         // set the currency-list after we added all extra accounts, they may provide
@@ -725,9 +732,8 @@ public class MbwManager {
             netParams = RegTestParams.get();
         }
 
-        result.add(new ColuModule(networkParameters, netParams, publicPrivateKeyStore
-                , new ColuApiImpl(coluClient), coluBacking
-                , new AccountListener() {
+        AccountListener accountListener = new AccountListener() {
+
             @Override
             public void balanceUpdated(final WalletAccount<?, ?> walletAccount) {
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
@@ -737,21 +743,24 @@ public class MbwManager {
                     }
                 });
             }
-        }));
+        };
 
-        try {
-            Bip39.MasterSeed masterSeed = _walletManager.getMasterSeed(AesKeyCipher.defaultKeyCipher());
-            InMemoryPrivateKey inMemoryPrivateKey = createBip32WebsitePrivateKey(masterSeed.getBip32Seed(), 0, "coinapult.com");
-            SQLiteCoinapultBacking coinapultBacking = new SQLiteCoinapultBacking(context
-                    , getMetadataStorage(), inMemoryPrivateKey.getPublicKey().getPublicKeyBytes());
-            result.add(new CoinapultModule(inMemoryPrivateKey, networkParameters, null
-                    , coinapultBacking));
-        } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
-            invalidKeyCipher.printStackTrace();
+        result.add(new ColuModule(networkParameters, netParams, publicPrivateKeyStore
+                , new ColuApiImpl(coluClient), coluBacking, accountListener));
+        if (_walletManager.hasBip32MasterSeed()) {
+            try {
+                Bip39.MasterSeed masterSeed = _walletManager.getMasterSeed(AesKeyCipher.defaultKeyCipher());
+                InMemoryPrivateKey inMemoryPrivateKey = createBip32WebsitePrivateKey(masterSeed.getBip32Seed(), 0, "coinapult.com");
+                SQLiteCoinapultBacking coinapultBacking = new SQLiteCoinapultBacking(context
+                        , getMetadataStorage(), inMemoryPrivateKey.getPublicKey().getPublicKeyBytes());
+                result.add(new CoinapultModule(inMemoryPrivateKey, networkParameters
+                        , new CoinapultApiImpl(createClient(environment, inMemoryPrivateKey, retainingWapiLogger))
+                        , coinapultBacking, accountListener));
+            } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
+                invalidKeyCipher.printStackTrace();
+            }
         }
-
         result.init();
-
         // notify the walletManager about the current selected account
 //        UUID lastSelectedAccountId = getLastSelectedAccountId();
 //        if (lastSelectedAccountId != null) {
@@ -760,6 +769,20 @@ public class MbwManager {
 
 
         return result;
+    }
+
+    private CoinapultClient createClient(MbwEnvironment env, InMemoryPrivateKey accountKey, WapiLogger logger) {
+        CoinapultConfig cc;
+        NetworkParameters network = env.getNetwork();
+        if (network.equals(NetworkParameters.testNetwork)) {
+            cc = new CoinapultPlaygroundConfig();
+        } else if (network.equals(NetworkParameters.productionNetwork)) {
+            cc = new CoinapultProdConfig();
+        } else {
+            throw new IllegalStateException("unknown network: " + network);
+        }
+
+        return new CoinapultClient(AndroidKeyConverter.convertKeyFormat(accountKey), new ECC_SC(), cc, logger);
     }
 
     public void importLabelsToBch(WalletManager walletManager) {

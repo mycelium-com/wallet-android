@@ -6,14 +6,14 @@ import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal
 import com.mycelium.wapi.wallet.GenericTransaction
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo
 import com.mycelium.wapi.wallet.coins.Value
+import java.io.Serializable
 
 
-class CoinapultTransaction(val value: Value, val incoming: Boolean) : GenericTransaction {
+class CoinapultTransaction(val _hash: Sha256Hash, val value: Value, val incoming: Boolean, val completeTime: Long
+                           , val state: String, val time: Long) : GenericTransaction, Serializable {
     override fun getType(): GenericAssetInfo = value.getType()
 
-    override fun getHash(): Sha256Hash {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun getHash(): Sha256Hash = _hash
 
     override fun getHashAsString(): String {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
@@ -31,29 +31,21 @@ class CoinapultTransaction(val value: Value, val incoming: Boolean) : GenericTra
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun getAppearedAtChainHeight(): Int {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun getAppearedAtChainHeight(): Int = 0
 
     override fun setAppearedAtChainHeight(appearedAtChainHeight: Int) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun getTimestamp(): Long {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun getTimestamp(): Long = time
 
     override fun setTimestamp(timestamp: Int) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun isQueuedOutgoing(): Boolean {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun isQueuedOutgoing(): Boolean = false
 
-    override fun getConfirmationRiskProfile(): Optional<ConfirmationRiskProfileLocal> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun getConfirmationRiskProfile(): Optional<ConfirmationRiskProfileLocal> = Optional.absent()
 
     override fun getFee(): Value {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
@@ -67,13 +59,9 @@ class CoinapultTransaction(val value: Value, val incoming: Boolean) : GenericTra
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun getSent(): Value {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun getSent(): Value = if (!isIncoming) value else Value.zeroValue(value.getType())
 
-    override fun getReceived(): Value {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun getReceived(): Value = if (isIncoming) value else Value.zeroValue(value.getType())
 
     override fun isIncoming(): Boolean = incoming
 

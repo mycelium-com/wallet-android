@@ -1,5 +1,6 @@
 package com.mycelium.wallet.colu
 
+import android.util.Log
 import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.model.Transaction
 import com.mrd.bitlib.util.Sha256Hash
@@ -21,10 +22,11 @@ class ColuApiImpl(val coluClient: ColuClient) : ColuApi {
         return result.txid
     }
 
-    override fun getAddressTransactions(address: GenericAddress): List<ColuTransaction> {
-        val result = mutableListOf<ColuTransaction>()
+    override fun getAddressTransactions(address: GenericAddress): List<ColuTransaction>? {
+        var result: MutableList<ColuTransaction>? = null
         try {
             val json = coluClient.getAddressTransactions(address.toString())
+            result = mutableListOf()
             for (transaction in json.transactions) {
                 var sent = Value.zeroValue(address.coinType)
                 var receive = Value.zeroValue(address.coinType)
@@ -64,7 +66,7 @@ class ColuApiImpl(val coluClient: ColuClient) : ColuApi {
                 }
             }
         } catch (e: IOException) {
-            e.printStackTrace()
+            Log.e("ColuApiImpl", "", e)
         }
         return result
     }

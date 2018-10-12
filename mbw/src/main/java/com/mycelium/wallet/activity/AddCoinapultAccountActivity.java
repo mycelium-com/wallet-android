@@ -49,10 +49,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
-import com.coinapult.api.httpclient.CoinapultClient;
+
 import com.google.common.base.Optional;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -61,9 +58,17 @@ import com.mycelium.wallet.coinapult.CoinapultManager;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.api.response.Feature;
+import com.mycelium.wapi.wallet.coinapult.CoinapultConfig;
+import com.mycelium.wapi.wallet.coinapult.Currency;
+import com.mycelium.wapi.wallet.manager.WalletManagerkt;
 import com.squareup.otto.Bus;
 
+import java.util.List;
 import java.util.UUID;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class AddCoinapultAccountActivity extends Activity {
    public static final int RESULT_COINAPULT = 2;
@@ -114,21 +119,21 @@ public class AddCoinapultAccountActivity extends Activity {
 
    @OnClick(R.id.btCoinapultAddUSD)
    void onUsdClick() {
-      createCoinapultAccountProtected(CoinapultAccount.Currency.USD);
+      createCoinapultAccountProtected(Currency.USD);
    }
 
    @OnClick(R.id.btCoinapultAddEUR)
    void onEurClick() {
-      createCoinapultAccountProtected(CoinapultAccount.Currency.EUR);
+      createCoinapultAccountProtected(Currency.EUR);
    }
 
    @OnClick(R.id.btCoinapultAddGBP)
    void onGbpClick() {
-      createCoinapultAccountProtected(CoinapultAccount.Currency.GBP);
+      createCoinapultAccountProtected(Currency.GBP);
    }
 
 
-   private void createCoinapultAccountProtected(final CoinapultAccount.Currency currency) {
+   private void createCoinapultAccountProtected(final Currency currency) {
       _mbwManager.getVersionManager().showFeatureWarningIfNeeded(
             AddCoinapultAccountActivity.this, Feature.COINAPULT_NEW_ACCOUNT, true, new Runnable() {
                @Override
@@ -144,7 +149,7 @@ public class AddCoinapultAccountActivity extends Activity {
       );
    }
 
-   private void createCoinapultAccount(final CoinapultAccount.Currency currency) {
+   private void createCoinapultAccount(final Currency currency) {
       AlertDialog.Builder b = new AlertDialog.Builder(this);
       b.setTitle(getString(R.string.coinapult));
       View diaView = getLayoutInflater().inflate(R.layout.ext_coinapult_tos, null);
@@ -181,11 +186,11 @@ public class AddCoinapultAccountActivity extends Activity {
       private final boolean alreadyHadCoinapultAccount;
       private Bus bus;
       private Optional<String> mail;
-      private final CoinapultAccount.Currency currency;
+      private final Currency currency;
       private CoinapultManager coinapultManager;
       private final ProgressDialog progressDialog;
 
-      public AddCoinapultAsyncTask(Bus bus, Optional<String> mail, CoinapultAccount.Currency currency) {
+      public AddCoinapultAsyncTask(Bus bus, Optional<String> mail, Currency currency) {
          this.bus = bus;
          this.mail = mail;
          this.currency = currency;
@@ -199,25 +204,28 @@ public class AddCoinapultAccountActivity extends Activity {
       @Override
       protected UUID doInBackground(Void... params) {
          _mbwManager.getMetadataStorage().setPairedService(MetadataStorage.PAIRED_SERVICE_COINAPULT, true);
-         coinapultManager = _mbwManager.getCoinapultManager();
-         try {
-            coinapultManager.activateAccount(mail);
-            // save the mail address locally for later verification
-            if (mail.isPresent()) {
-               _mbwManager.getMetadataStorage().setCoinapultMail(mail.get());
-            }
-            UUID uuid = coinapultManager.enableCurrency(currency);
-            coinapultManager.scanForAccounts();
-            return uuid;
-         } catch (CoinapultClient.CoinapultBackendException e) {
-            return null;
-         }
+         WalletManagerkt.INSTANCE.createAccounts(new CoinapultConfig(Currency.BTC));
+         List<UUID> accounts = WalletManagerkt.INSTANCE.createAccounts(new CoinapultConfig(currency));
+         return accounts.size() > 0 ? accounts.get(0) : null;
+//         coinapultManager = _mbwManager.getCoinapultManager();
+//         try {
+//            coinapultManager.activateAccount(mail);
+//            // save the mail address locally for later verification
+//            if (mail.isPresent()) {
+//               _mbwManager.getMetadataStorage().setCoinapultMail(mail.get());
+//            }
+//            UUID uuid = coinapultManager.enableCurrency(currency);
+//            coinapultManager.scanForAccounts();
+//            return uuid;
+//         } catch (CoinapultClient.CoinapultBackendException e) {
+//            return null;
+//         }
       }
 
       @Override
       protected void onPostExecute(UUID account) {
          if (account != null) {
-            _mbwManager.addExtraAccounts(coinapultManager);
+//            _mbwManager.addExtraAccounts(coinapultManager);
             bus.post(new AccountChanged(account));
             Intent result = new Intent();
             result.putExtra(RESULT_KEY, account);

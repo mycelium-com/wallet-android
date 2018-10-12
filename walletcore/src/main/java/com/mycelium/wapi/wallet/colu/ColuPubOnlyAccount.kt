@@ -1,15 +1,14 @@
 package com.mycelium.wapi.wallet.colu
 
 import com.mrd.bitlib.crypto.PublicKey
-import com.mrd.bitlib.model.*
-import com.mrd.bitlib.util.ByteWriter
-import com.mrd.bitlib.util.HashUtils
+import com.mrd.bitlib.model.AddressType
+import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.util.Sha256Hash
-import com.mycelium.wapi.model.BalanceSatoshis
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.BtcAddress
-import com.mycelium.wapi.wallet.coins.*
-import java.nio.ByteBuffer
+import com.mycelium.wapi.wallet.coins.Balance
+import com.mycelium.wapi.wallet.coins.CryptoCurrency
+import com.mycelium.wapi.wallet.coins.Value
 import java.util.*
 
 
@@ -34,7 +33,7 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext, val publicKey: Pu
         val address1 = publicKey.toAddress(networkParameters, AddressType.P2PKH)!!
         address = AddressUtils.from(coluCoinType, address1.toString())
         uuid = ColuUtils.getGuidForAsset(coluCoinType, address1.allAddressBytes)
-        cachedBalance = calculateBalance(getTransactions(0, 2000))
+        cachedBalance = calculateBalance(backing.getTransactions(0, 2000))
     }
 
     override fun getId(): UUID = uuid
@@ -88,10 +87,11 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext, val publicKey: Pu
 
         // retrieve history from colu server
         val transactions = coluClient.getAddressTransactions(receiveAddress)
-        backing.putTransactions(transactions)
-
-        cachedBalance = calculateBalance(transactions)
-        listener?.balanceUpdated(this)
+        transactions?.let {
+            backing.putTransactions(transactions)
+            cachedBalance = calculateBalance(transactions)
+            listener?.balanceUpdated(this)
+        }
 
 
 //        if (addressInfoWithTransactions.transactions != null && addressInfoWithTransactions!!.transactions.size > 0) {

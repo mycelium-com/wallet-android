@@ -913,7 +913,8 @@ public class Utils {
       if (walletAccount instanceof HDAccount) {
          return resources.getDrawable(R.drawable.multikeys_grey);
       }
-      if (walletAccount instanceof CoinapultAccount) {
+      if (walletAccount instanceof CoinapultAccount
+              || walletAccount instanceof com.mycelium.wapi.wallet.coinapult.CoinapultAccount) {
          if (isSelectedAccount) {
             return resources.getDrawable(R.drawable.coinapult);
          } else {

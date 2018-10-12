@@ -4,6 +4,8 @@ import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteStatement
+import com.google.common.base.Splitter
+import com.mrd.bitlib.util.HexUtils
 import com.mycelium.wallet.persistence.MetadataStorage
 import com.mycelium.wallet.persistence.SQLiteQueryWithBlobs
 import com.mycelium.wallet.persistence.SQLiteQueryWithBlobs.uuidToBytes
@@ -12,6 +14,7 @@ import com.mycelium.wapi.wallet.WalletBacking
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.coinapult.CoinapultAccountContext
 import com.mycelium.wapi.wallet.coinapult.CoinapultTransaction
+import com.mycelium.wapi.wallet.coinapult.CoinapultUtils
 import com.mycelium.wapi.wallet.coinapult.Currency
 import java.util.*
 
@@ -22,10 +25,24 @@ class SQLiteCoinapultBacking(val context: Context
     : WalletBacking<CoinapultAccountContext, CoinapultTransaction> {
     val database: SQLiteDatabase
 
-    val insertOrReplaceSingleAddressAccount: SQLiteStatement
+    private val insertOrReplaceSingleAddressAccount: SQLiteStatement
+
+    private var backings = mutableMapOf<UUID, SQLiteCoinapultAccountBacking>()
 
     init {
-        val helper = CoinapultSQLiteHelper(context, metadataStorage, addressByteArray)
+        val helper = CoinapultSQLiteHelper(context) {
+            /**
+             * import accounts from old place
+             */
+            val currencies = Splitter.on(",").split(metadataStorage.coinapultCurrencies)
+            currencies.forEach {
+                Currency.all[it]?.let { currency ->
+                    val id = CoinapultUtils.getGuidForAsset(currency, addressByteArray)
+                    val address = BtcAddress(currency, metadataStorage.getCoinapultAddress(currency.name).get().allAddressBytes)
+                    createAccountContext(CoinapultAccountContext(id, address, metadataStorage.getArchived(id), currency))
+                }
+            }
+        }
         database = helper.writableDatabase
 
         insertOrReplaceSingleAddressAccount = database.compileStatement("INSERT OR REPLACE INTO coinapultcontext VALUES (?,?,?,?)")
@@ -35,12 +52,12 @@ class SQLiteCoinapultBacking(val context: Context
         database.beginTransaction()
         try {
             // Create backing tables
-//            var backing: SqliteColuAccountBacking? = _backings.get(context.id)
-//            if (backing == null) {
-//                createAccountBackingTables(context.id, _database)
-//                backing = SqliteColuAccountBacking(context.id, _database)
-//                _backings.put(context.id, backing)
-//            }
+            var backing = backings[context.id]
+            if (backing == null) {
+                createAccountBackingTables(context.id, database)
+                backing = SQLiteCoinapultAccountBacking(context.id, database)
+                backings[context.id] = backing
+            }
 
             // Create context
             insertOrReplaceSingleAddressAccount.bindBlob(1, uuidToBytes(context.id))
@@ -52,6 +69,21 @@ class SQLiteCoinapultBacking(val context: Context
         } finally {
             database.endTransaction()
         }
+    }
+
+    private fun createAccountBackingTables(id: UUID, db: SQLiteDatabase) {
+        val tableSuffix = HexUtils.toHex(uuidToBytes(id))
+//        db.execSQL("CREATE TABLE IF NOT EXISTS " + getUtxoTableName(tableSuffix)
+//                + " (outpoint BLOB PRIMARY KEY, height INTEGER, value INTEGER, isCoinbase INTEGER, script BLOB);")
+//        db.execSQL("CREATE TABLE IF NOT EXISTS " + getPtxoTableName(tableSuffix)
+//                + " (outpoint BLOB PRIMARY KEY, height INTEGER, value INTEGER, isCoinbase INTEGER, script BLOB);")
+        db.execSQL("CREATE TABLE IF NOT EXISTS tx$tableSuffix"
+                + " (id BLOB PRIMARY KEY, hash BLOB, height INTEGER, time INTEGER, binary BLOB);")
+//        db.execSQL("CREATE INDEX IF NOT EXISTS heightIndex ON " + getTxTableName(tableSuffix) + " (height);")
+//        db.execSQL("CREATE TABLE IF NOT EXISTS " + getOutgoingTxTableName(tableSuffix)
+//                + " (id BLOB PRIMARY KEY, raw BLOB);")
+//        db.execSQL("CREATE TABLE IF NOT EXISTS " + getTxRefersPtxoTableName(tableSuffix)
+//                + " (txid BLOB, input BLOB, PRIMARY KEY (txid, input) );")
     }
 
     override fun loadAccountContexts(): List<CoinapultAccountContext> {
@@ -68,19 +100,16 @@ class SQLiteCoinapultBacking(val context: Context
                 val addressBytes = cursor.getBlob(1)
                 val isArchived = cursor.getInt(2) == 1
                 val currency = Currency.all[cursor.getString(3)]!!
+                backings[id] = SQLiteCoinapultAccountBacking(id, database)
                 result.add(CoinapultAccountContext(id, BtcAddress(currency, addressBytes), isArchived, currency))
             }
         } finally {
             cursor?.close()
         }
         return result
-
-
     }
 
-    override fun getAccountBacking(accountId: UUID?): AccountBacking<CoinapultTransaction> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun getAccountBacking(accountId: UUID?): AccountBacking<CoinapultTransaction>? = backings[accountId]
 
     override fun deleteAccountContext(uuid: UUID?) {
 

@@ -10,5 +10,5 @@ interface ColuApi {
     @Throws(IOException::class)
     fun broadcastTx(coluSignedTransaction: Transaction): String?
 
-    fun getAddressTransactions(address: GenericAddress): List<ColuTransaction>
+    fun getAddressTransactions(address: GenericAddress): List<ColuTransaction>?
 }

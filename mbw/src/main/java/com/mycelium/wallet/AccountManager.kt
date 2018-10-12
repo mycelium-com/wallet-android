@@ -141,3 +141,5 @@ fun WalletManagerkt.getActiveAccounts(): List<WalletAccount<*, *>> = getAccounts
 fun WalletManagerkt.getArchivedAccounts(): List<WalletAccount<*, *>> = getAccounts().filter { !it.isActive }
 
 fun WalletManagerkt.getColuAccounts(): List<WalletAccount<*, *>> = getAccounts().filter { it is ColuPubOnlyAccount && it.isVisible }
+
+fun WalletManagerkt.getCoinapultAccounts(): List<WalletAccount<*, *>> = getAccounts().filter { it is com.mycelium.wapi.wallet.coinapult.CoinapultAccount && it.isVisible }

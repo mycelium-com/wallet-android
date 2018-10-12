@@ -404,9 +404,9 @@ public class ColuManager implements AccountProvider {
         try {
             SingleAddressAccountContext singleAccountContext = new SingleAddressAccountContext(createdAccountInfo.id, ImmutableMap.of(address.getType(), address), false, 0);
             _backing.createSingleAddressAccountContext(singleAccountContext);
-            SingleAddressAccountBacking accountBacking = checkNotNull(_backing.getSingleAddressAccountBacking(singleAccountContext.getId()));
-            singleAccountContext.persist(accountBacking);
-            createdAccountInfo.accountBacking = accountBacking;
+//            SingleAddressAccountBacking accountBacking = checkNotNull(_backing.getSingleAddressAccountBacking(singleAccountContext.getId()));
+//            singleAccountContext.persist(accountBacking);
+//            createdAccountInfo.accountBacking = accountBacking;
             _backing.setTransactionSuccessful();
         } finally {
             _backing.endTransaction();
@@ -613,18 +613,18 @@ public class ColuManager implements AccountProvider {
         List<SingleAddressAccountContext> contexts = _backing.loadSingleAddressAccountContexts();
         for (SingleAddressAccountContext context : contexts) {
             PublicPrivateKeyStore store = new PublicPrivateKeyStore(_secureKeyValueStore);
-            SingleAddressAccountBacking accountBacking = checkNotNull(_backing.getSingleAddressAccountBacking(context.getId()));
-            SingleAddressAccount account = new SingleAddressAccount(context, store, _network, accountBacking, getWapi(), new Reference(ChangeAddressMode.P2WPKH));
-            addAccount(account);
+//            SingleAddressAccountBacking accountBacking = checkNotNull(_backing.getSingleAddressAccountBacking(context.getId()));
+//            SingleAddressAccount account = new SingleAddressAccount(context, store, _network, accountBacking, getWapi(), new Reference(ChangeAddressMode.P2WPKH));
+//            addAccount(account);
 
-            for (com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount coluAccount : coluAccounts.values()) {
-                if (coluAccount.isMineAddress(account.getReceiveAddress())) {
-//                    coluAccount.setLinkedAccount(account);
-                    String accountLabel = metadataStorage.getLabelByAccount(coluAccount.getId());
-                    metadataStorage.storeAccountLabel(account.getId(), accountLabel + " Bitcoin");
-                    break;
-                }
-            }
+//            for (com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount coluAccount : coluAccounts.values()) {
+//                if (coluAccount.isMineAddress(account.getReceiveAddress())) {
+////                    coluAccount.setLinkedAccount(account);
+//                    String accountLabel = metadataStorage.getLabelByAccount(coluAccount.getId());
+//                    metadataStorage.storeAccountLabel(account.getId(), accountLabel + " Bitcoin");
+//                    break;
+//                }
+//            }
         }
     }
 

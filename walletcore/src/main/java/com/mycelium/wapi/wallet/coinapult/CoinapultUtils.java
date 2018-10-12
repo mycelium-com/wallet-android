@@ -11,7 +11,7 @@ public class CoinapultUtils {
     public static UUID getGuidForAsset(Currency currency, byte[] addressBytes) {
         ByteWriter byteWriter = new ByteWriter(36);
         byteWriter.putBytes(addressBytes);
-        byteWriter.putRawStringUtf8(currency.name);
+        byteWriter.putRawStringUtf8(currency.getName());
         Sha256Hash accountId = HashUtils.sha256(byteWriter.toBytes());
         return CoinapultUtils.getGuidFromByteArray(accountId.getBytes());
     }

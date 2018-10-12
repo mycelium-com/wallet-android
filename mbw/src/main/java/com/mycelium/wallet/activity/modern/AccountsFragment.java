@@ -226,7 +226,7 @@ public class AccountsFragment extends Fragment {
       ActivityCompat.invalidateOptionsMenu(getActivity());
       if (requestCode == ADD_RECORD_RESULT_CODE && resultCode == AddCoinapultAccountActivity.RESULT_COINAPULT) {
          UUID accountId = (UUID) intent.getSerializableExtra(AddAccountActivity.RESULT_KEY);
-         CoinapultAccount account = (CoinapultAccount) _mbwManager.getWalletManager(false).getAccount(accountId);
+         WalletAccount account  = WalletManagerkt.INSTANCE.getAccount(accountId);
          _mbwManager.setSelectedAccount(accountId);
          accountListAdapter.setFocusedAccountId(account.getId());
          updateIncludingMenus();
@@ -237,7 +237,7 @@ public class AccountsFragment extends Fragment {
             //check whether the account is active - we might have scanned the priv key for an archived watchonly
             WalletManager walletManager = _mbwManager.getWalletManager(false);
             WalletAccount account = walletManager.getAccount(accountid);
-            if(account != null) {
+            if(account == null) {
                account = WalletManagerkt.INSTANCE.getAccount(accountid);
             }
             if (account.isActive()) {

@@ -12,20 +12,21 @@ import java.util.*
 
 
 class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InMemoryPrivateKey
-                       , val coinapultApi: CoinapultApi
+                       , val api: CoinapultApi
                        , val backing: AccountBacking<CoinapultTransaction>
                        , val _network: NetworkParameters
-                       , val coinapultCurrency: Currency)
+                       , val currency: Currency
+                       , val listener: AccountListener?)
     : WalletAccount<CoinapultTransaction, BtcAddress> {
 
 
-    val uuid: UUID = CoinapultUtils.getGuidForAsset(coinapultCurrency, accountKey.publicKey.publicKeyBytes)
+    val uuid: UUID = CoinapultUtils.getGuidForAsset(currency, accountKey.publicKey.publicKeyBytes)
     protected var cachedBalance = Balance(Value.zeroValue(coinType), Value.zeroValue(coinType)
             , Value.zeroValue(coinType), Value.zeroValue(coinType))
     @Volatile
     protected var _isSynchronizing: Boolean = false
 
-    val address: GenericAddress? = null
+    var address: GenericAddress? = context.address
 
     override fun getId() = uuid
 
@@ -64,9 +65,7 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
 
     override fun isSynchronizing(): Boolean = _isSynchronizing
 
-    override fun getCoinType(): CryptoCurrency {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun getCoinType(): CryptoCurrency = currency
 
     override fun getBlockChainHeight(): Int = 0
 
@@ -108,9 +107,34 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
     }
 
     override fun synchronize(mode: SyncMode?): Boolean {
-        val transactions = coinapultApi.getTransactions()
-        transactions.forEach {
+        _isSynchronizing = true
+        try {
+            address = api.getAddress(currency, address);
+        } catch (e: Exception) {
         }
+        val balance = api.getBalance(currency);
+        if (balance != null && balance != cachedBalance) {
+            cachedBalance = balance
+            listener?.balanceUpdated(this)
+        }
+        val transactions = api.getTransactions(currency)
+        backing.putTransactions(transactions)
+//        transactions?.forEach {
+//            if (it.state == "processing" || it.completeTime * 1000 > oneMinuteAgo) {
+//                if (!it.incoming) {
+//                    sendingFiatNotIncludedInBalance = sendingFiatNotIncludedInBalance.add(json.`in`.expected)
+//                } else {
+//                    receivingFiat = receivingFiat.add(json.out.amount)
+//                }
+//            } else if (it.state == "confirming") {
+//                if (!it.incoming) {
+//                    sendingFiatNotIncludedInBalance = sendingFiatNotIncludedInBalance.add(json.`in`.expected)
+//                } else {
+//                    receivingFiatNotIncludedInBalance = receivingFiatNotIncludedInBalance.add(json.out.expected)
+//                }
+//            }
+//        }
+        _isSynchronizing = false
         return true
     }
 }
