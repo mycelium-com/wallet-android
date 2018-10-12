@@ -43,7 +43,6 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 import com.google.common.base.Optional;
 import com.google.protobuf.ByteString;
-import com.google.protobuf.GeneratedMessage;
 import com.google.protobuf.GeneratedMessageV3;
 import com.google.protobuf.Message;
 import com.mrd.bitlib.SigningRequest;
