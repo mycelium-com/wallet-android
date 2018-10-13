@@ -403,7 +403,8 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
       Transaction ret;
       try {
          ret = Transaction.fromByteReader(new ByteReader(signedTx.toBytes()));
-         checkSignedTransaction(unsigned, signedTx);
+         // TODO: 13.10.18 add this check back in and make it work with segwit.
+         //checkSignedTransaction(unsigned, signedTx);
       } catch (Transaction.TransactionParsingException e) {
          postErrorMessage("Trezor TX not valid.");
          Log.e("trezor", "Trezor TX not valid " + e.getMessage(), e);

@@ -660,9 +660,7 @@ open class HDAccount(
         return addressId.isPresent && addressId.get()[0] == 0
     }
 
-    override fun canSpend(): Boolean {
-        return true
-    }
+    override fun canSpend() = true
 
 
     override fun getBlockChainHeight(): Int {
