@@ -45,6 +45,7 @@ class AddressViewAdapter(private val dataSet: List<AddressItem>, private val pad
             val item = dataSet[position]
             holder.addressTextView?.text = item.address?.toMultiLineString() ?: ""
             holder.addressTypeTextView?.text = item.addressType
+            holder.addressTypeLabelTextView?.text = item.addressTypeLabel
         } else {
             val layoutParams = holder.itemView.layoutParams as RecyclerView.LayoutParams
             layoutParams.width = paddingWidth
@@ -64,5 +65,6 @@ class AddressViewAdapter(private val dataSet: List<AddressItem>, private val pad
         // each data item is just a string in this case
         val addressTextView: TextView? = v.findViewById(R.id.address)
         var addressTypeTextView: TextView? = v.findViewById(R.id.addressType)
+        var addressTypeLabelTextView: TextView? = v.findViewById(R.id.addressTypeLabel)
     }
 }

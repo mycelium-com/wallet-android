@@ -61,10 +61,13 @@ import android.widget.Toast;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import com.mrd.bitlib.*;
+import com.mrd.bitlib.FeeEstimator;
+import com.mrd.bitlib.FeeEstimatorBuilder;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
 import com.mrd.bitlib.StandardTransactionBuilder.UnableToBuildTransactionException;
+import com.mrd.bitlib.TransactionUtils;
+import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.PublicKey;
@@ -131,9 +134,10 @@ import org.bitcoin.protocols.payments.PaymentACK;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import butterknife.BindView;
@@ -460,12 +464,21 @@ public class SendMainActivity extends Activity {
         receiversAddressesList.setHasFixedSize(true);
         receiversAddressesList.setItemWidth(getResources().getDimensionPixelSize(R.dimen.item_addr_width));
 
+        Map<String, String> addressLabels = new LinkedHashMap<>();
+        addressLabels.put("Legacy", "P2PKH");
+        addressLabels.put("SegWit native", "Bech32");
+        addressLabels.put("SegWit compat.", "P2SH");
+
         List<AddressItem> addressesList = new ArrayList<>();
-        addressesList.add(new AddressItem(null, null, SelectableRecyclerView.Adapter.VIEW_TYPE_PADDING));
+        addressesList.add(new AddressItem(null, null, null, SelectableRecyclerView.Adapter.VIEW_TYPE_PADDING));
         for (Address address : receivingAddressesList) {
-            addressesList.add(new AddressItem(address, address.getType().name(), SelectableRecyclerView.Adapter.VIEW_TYPE_ITEM));
+            addressesList.add(new AddressItem(address,
+                    addressLabels.values().toArray()[addressesList.size() - 1].toString(),
+                    addressLabels.keySet().toArray()[addressesList.size() - 1].toString(),
+                    SelectableRecyclerView.Adapter.VIEW_TYPE_ITEM));
         }
-        addressesList.add(new AddressItem(null, null, SelectableRecyclerView.Adapter.VIEW_TYPE_PADDING));
+        addressesList.add(new AddressItem(null, null, null, SelectableRecyclerView.Adapter.VIEW_TYPE_PADDING));
+
         AddressViewAdapter adapter  = new AddressViewAdapter(addressesList, addressFirstItemWidth);
         receiversAddressesList.setAdapter(adapter);
         receiversAddressesList.setSelectListener(new SelectListener() {
