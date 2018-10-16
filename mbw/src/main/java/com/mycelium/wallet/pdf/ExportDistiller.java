@@ -44,14 +44,10 @@ import android.util.Log;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Preconditions;
-import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
-import com.mrd.bitlib.model.Transaction;
 import com.mycelium.wallet.R;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
-
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -78,16 +74,15 @@ public class ExportDistiller {
         public String encryptedKey;
         public String encryptedMasterSeed;
         public String label;
-        public WalletBtcAccount.Type accountType;
+        public boolean isBch;
         public Map<AddressType, Address> addresses;
 
-        public ExportEntry(Map<AddressType, Address> addresses, String encryptedKey, String encryptedMasterSeed, String label,
-                           WalletBtcAccount.Type accountType) {
+        public ExportEntry(Map<AddressType, Address> addresses, String encryptedKey, String encryptedMasterSeed, String label, boolean isBch){
             this.encryptedKey = encryptedKey;
             this.encryptedMasterSeed = encryptedMasterSeed;
             this.label = label;
-            this.accountType = accountType;
             this.addresses = addresses;
+            this.isBch = isBch;
         }
     }
 
@@ -430,15 +425,13 @@ public class ExportDistiller {
 
         // Titles
         writer.setTextColor(0, 0, 0);
-        switch (entry.accountType) {
-            case BCHSINGLEADDRESS:
-                writer.addText(2.05F, fromTop, 13, "Bitcoin");
-                writer.setTextColor(0.9411, 0.5490, 0.09411);
-                writer.addText(3.60F, fromTop, 13, "Cash");
-                writer.setTextColor(0, 0, 0);
-                writer.addText(4.72F, fromTop, 13, "Addresses");
-                break;
-            default:
+        if (entry.isBch) {
+            writer.addText(2.05F, fromTop, 13, "Bitcoin");
+            writer.setTextColor(0.9411, 0.5490, 0.09411);
+            writer.addText(3.60F, fromTop, 13, "Cash");
+            writer.setTextColor(0, 0, 0);
+            writer.addText(4.72F, fromTop, 13, "Addresses");
+        } else {
                 writer.addText(2.05F, fromTop, 13, "Bitcoin Addresses");
         }
 

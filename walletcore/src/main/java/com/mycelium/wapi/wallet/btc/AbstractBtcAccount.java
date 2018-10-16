@@ -102,11 +102,6 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    }
 
    @Override
-   public Type getType() {
-      return null;
-   }
-
-   @Override
    public void setAllowZeroConfSpending(boolean allowZeroConfSpending) {
       _allowZeroConfSpending = allowZeroConfSpending;
    }
