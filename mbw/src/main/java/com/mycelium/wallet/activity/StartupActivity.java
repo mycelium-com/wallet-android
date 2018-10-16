@@ -45,6 +45,7 @@ import android.nfc.NfcAdapter;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.Menu;
 import android.view.View;
 import android.view.Window;
 import android.widget.Toast;
@@ -76,6 +77,7 @@ import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
+import com.squareup.otto.Bus;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -100,6 +102,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
    private AlertDialog _alertDialog;
    private PinDialog _pinDialog;
    private ProgressDialog _progress;
+   private Bus eventBus;
 
    @Override
    protected void onCreate(Bundle savedInstanceState) {
@@ -114,12 +117,20 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
    }
 
    @Override
-   public void onPause() {
+   protected void onStart() {
+      super.onStart();
+      eventBus = MbwManager.getEventBus();
+      eventBus.register(this);
+   }
+
+   @Override
+   public void onStop() {
       _progress.dismiss();
       if (_pinDialog != null) {
          _pinDialog.dismiss();
       }
-      super.onPause();
+      eventBus.unregister(this);
+      super.onStop();
    }
 
    @Override

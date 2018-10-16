@@ -34,8 +34,8 @@ class ReceiveCoinsActivity : AppCompatActivity() {
     private lateinit var viewModel: ReceiveCoinsViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
         requestWindowFeature(Window.FEATURE_NO_TITLE)
+        super.onCreate(savedInstanceState)
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
         val mbwManager = MbwManager.getInstance(application)
         val isColdStorage = intent.getBooleanExtra(IS_COLD_STORAGE, false)

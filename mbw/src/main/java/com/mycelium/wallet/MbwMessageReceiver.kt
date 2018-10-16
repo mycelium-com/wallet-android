@@ -42,7 +42,7 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
-    private val eventBus by lazy { MbwManager.getInstance(context).eventBus }
+    private val eventBus by lazy { MbwManager.getEventBus() }
 
     override fun onMessage(callingPackageName: String, intent: Intent) {
         when (callingPackageName) {

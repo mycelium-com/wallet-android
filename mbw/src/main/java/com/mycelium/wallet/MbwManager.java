@@ -163,7 +163,7 @@ public class MbwManager {
         return _instance;
     }
 
-    private final Bus _eventBus;
+    private static final Bus _eventBus = new Bus();
     private final ExternalSignatureDeviceManager _trezorManager;
     private final KeepKeyManager _keepkeyManager;
     private final LedgerManager _ledgerManager;
@@ -216,7 +216,6 @@ public class MbwManager {
 
         configuration = new WalletConfiguration(preferences, getNetwork());
 
-        _eventBus = new Bus();
         _eventBus.register(this);
 
         // init tor - if needed
@@ -1033,7 +1032,7 @@ public class MbwManager {
         _cachedEncryptionParameters = null;
     }
 
-    public Bus getEventBus() {
+    public static Bus getEventBus() {
         return _eventBus;
     }
 
