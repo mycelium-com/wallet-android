@@ -315,7 +315,7 @@ public class SendMainActivity extends Activity {
     }
 
     private boolean isCoinapult() {
-        return _account != null && _account instanceof CoinapultAccount;
+        return _account instanceof CoinapultAccount;
     }
 
     private boolean isColu() {

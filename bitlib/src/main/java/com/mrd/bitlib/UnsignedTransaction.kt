@@ -2,9 +2,8 @@ package com.mrd.bitlib
 
 import com.mrd.bitlib.crypto.IPublicKeyRing
 import com.mrd.bitlib.model.*
-import com.mrd.bitlib.util.*
-import sun.reflect.generics.reflectiveObjects.NotImplementedException
-
+import com.mrd.bitlib.util.BitUtils
+import com.mrd.bitlib.util.CoinUtil
 import java.io.Serializable
 
 open class UnsignedTransaction constructor(
@@ -42,8 +41,8 @@ open class UnsignedTransaction constructor(
 
             // Find the key to sign with
             val publicKey = keyRing.findPublicKeyByAddress(address)
-                    ?: // This should not happen as we only work on outputs that we have
-                    // keys for
+                    ?:
+                    // This should not happen as we only work on outputs that we have keys for
                     throw RuntimeException("Public key not found")
 
             when (utxo.script) {
@@ -150,5 +149,4 @@ open class UnsignedTransaction constructor(
                 ScriptOutputP2WPKH::class.java
         )
     }
-
 }

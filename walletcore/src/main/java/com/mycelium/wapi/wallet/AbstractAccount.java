@@ -1019,13 +1019,9 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       FeeEstimatorBuilder estimatorBuilder = new FeeEstimatorBuilder().setArrayOfInputs(spendableOutputs)
               .setMinerFeePerKb(minerFeePerKbToUse);
       addOutputToEstimation(destinationAddress, estimatorBuilder);
-      FeeEstimator estimator = estimatorBuilder
-              .createFeeEstimator();
+      FeeEstimator estimator = estimatorBuilder.createFeeEstimator();
       long feeToUse = estimator.estimateFee();
 
-      // TODO: 25.06.17 why was there a loop from here to end of method?
-      // Iteratively figure out whether we can send everything by removing the smallest input
-      // or every iteration and thus reduce the suggested max amount
       satoshis -= feeToUse;
       if (satoshis <= 0) {
          return ZERO;
@@ -1056,8 +1052,6 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
          // We have enough to pay the fees, return the amount as the maximum
          return ExactBitcoinValue.from(satoshis);
       } catch (InsufficientFundsException | StandardTransactionBuilder.UnableToBuildTransactionException e) {
-         // TODO: 25.06.17 here is where the loop was triggered, what I don't understand how another round could help in any case. Neither is there any tests. :(
-         // We cannot send this amount, try again with a little higher fee continue
          return ZERO;
       }
    }

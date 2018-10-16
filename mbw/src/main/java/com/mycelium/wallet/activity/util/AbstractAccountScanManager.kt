@@ -43,6 +43,7 @@ import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.HdKeyNode
 import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.model.hdpath.HdKeyPath
+import com.mycelium.wallet.BuildConfig
 import com.mycelium.wapi.wallet.AccountScanManager
 import com.mycelium.wapi.wallet.WalletManager
 import com.satoshilabs.trezor.protobuf.TrezorType
@@ -64,7 +65,6 @@ abstract class AbstractAccountScanManager(protected val context: Context, protec
     private var nextUnusedAccounts = listOf<HdKeyNode>()
 
     init {
-
         mainThreadHandler = Handler(Looper.getMainLooper())
     }
 
@@ -227,25 +227,27 @@ abstract class AbstractAccountScanManager(protected val context: Context, protec
 
     // returns the next Bip44 account based on the last scanned account
     override fun getAccountPathsToScan(lastPath: HdKeyPath?, wasUsed: Boolean): Map<BipDerivationType, HdKeyPath> {
-        val bip44CoinType = HdKeyPath.BIP44.getBip44CoinType(network)
-        val bip49CoinType = HdKeyPath.BIP49.getBip44CoinType(network)
-        val bip84CoinType = HdKeyPath.BIP84.getBip44CoinType(network)
-
         // this is the first call - no lastPath given
         if (lastPath == null) {
-            return mapOf(BipDerivationType.BIP44 to bip44CoinType.getAccount(0),
-                    BipDerivationType.BIP49 to bip49CoinType.getAccount(0),
-                    BipDerivationType.BIP84 to bip84CoinType.getAccount(0))
+            return mapOf(BipDerivationType.BIP44 to BIP44COIN_TYPE.getAccount(0),
+                    BipDerivationType.BIP49 to BIP49COIN_TYPE.getAccount(0),
+                    BipDerivationType.BIP84 to BIP84COIN_TYPE.getAccount(0))
         }
 
         // otherwise use the next bip44 account, as long as the last one had activity on it
         return if (wasUsed) {
-            mapOf(BipDerivationType.BIP44 to bip44CoinType.getAccount(lastPath.lastIndex + 1),
-                    BipDerivationType.BIP49 to bip49CoinType.getAccount(lastPath.lastIndex + 1),
-                    BipDerivationType.BIP84 to bip84CoinType.getAccount(lastPath.lastIndex + 1))
+            mapOf(BipDerivationType.BIP44 to BIP44COIN_TYPE.getAccount(lastPath.lastIndex + 1),
+                    BipDerivationType.BIP49 to BIP49COIN_TYPE.getAccount(lastPath.lastIndex + 1),
+                    BipDerivationType.BIP84 to BIP84COIN_TYPE.getAccount(lastPath.lastIndex + 1))
         } else {
             emptyMap()
         }
         // if we are already at the bip44 branch and the last account had no activity, then we are done
+    }
+
+    companion object {
+        val BIP44COIN_TYPE = HdKeyPath.BIP44.getCoinTypeBitcoin(BuildConfig.FLAVOR == "btctestnet")
+        val BIP49COIN_TYPE = HdKeyPath.BIP49.getCoinTypeBitcoin(BuildConfig.FLAVOR == "btctestnet")
+        val BIP84COIN_TYPE = HdKeyPath.BIP84.getCoinTypeBitcoin(BuildConfig.FLAVOR == "btctestnet")
     }
 }

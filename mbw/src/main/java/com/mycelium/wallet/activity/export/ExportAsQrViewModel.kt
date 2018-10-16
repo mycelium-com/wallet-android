@@ -12,29 +12,23 @@ import com.mycelium.wallet.Utils
 import com.mycelium.wapi.wallet.ExportableAccount
 
 
-class ExportAsQrViewModel(val context: Application) : AndroidViewModel(context) {
-    private lateinit var model: ExportAsQrModel
-    var isBtcHdAccount = false
-        private set
+open class ExportAsQrViewModel(val context: Application) : AndroidViewModel(context) {
+    protected lateinit var model: ExportAsQrModel
 
-    fun init(accountData: ExportableAccount.Data, isBtcHdAccount: Boolean) {
+    fun init(accountData: ExportableAccount.Data) {
         if (::model.isInitialized) {
             throw IllegalStateException("This method should be called only once.")
         }
         model = ExportAsQrModel(context, accountData)
-        this.isBtcHdAccount = isBtcHdAccount
         model.accountDataString.value = accountData.publicData.get()
 
-        updateData(false)
+        model.updateData(false)
     }
 
     fun hasPrivateData(): Boolean = model.hasPrivateData()
 
-    fun updateData(privateDataSelected: Boolean) {
+    open fun updateData(privateDataSelected: Boolean) {
         model.updateData(privateDataSelected)
-        if (isBtcHdAccount) {
-            onToggleClicked(1)
-        }
     }
 
     fun isPrivateDataSelected() = model.privateDataSelected
@@ -47,37 +41,6 @@ class ExportAsQrViewModel(val context: Application) : AndroidViewModel(context) 
     fun acceptWarning(): Boolean {
         model.acceptWaring()
         return false
-    }
-
-    /**
-     * Updates account data based on extra toggles
-     */
-    fun onToggleClicked(toggleNum: Int) {
-        val privateData = model.privateDataSelected.value!!
-        val privateDataMap = model.accountData.privateDataMap
-        val publicDataMap = model.accountData.publicDataMap
-
-        val data = when (toggleNum) {
-            1 -> if (privateData) {
-                privateDataMap?.get(BipDerivationType.BIP44)
-            } else {
-                publicDataMap?.get(BipDerivationType.BIP44)
-            }
-
-            2 -> if (privateData) {
-                privateDataMap?.get(BipDerivationType.BIP49)
-            } else {
-                publicDataMap?.get(BipDerivationType.BIP49)
-            }
-
-            3 -> if (privateData) {
-                privateDataMap?.get(BipDerivationType.BIP84)
-            } else {
-                publicDataMap?.get(BipDerivationType.BIP84)
-            }
-            else -> throw  java.lang.IllegalStateException("Unexpected toggle position")
-        }
-        model.accountDataString.value = data
     }
 
     /**

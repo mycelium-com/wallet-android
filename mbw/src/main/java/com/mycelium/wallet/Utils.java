@@ -734,9 +734,8 @@ public class Utils {
             .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                public void onClick(DialogInterface dialog, int id) {
                   dialog.dismiss();
-                  boolean btcMultiAddress = account instanceof HDAccount && ((HDAccount) account).getAvailableAddressTypes().size() > 1;
                   ExportAsQrActivity.callMe(parent, ((ExportableAccount) account).getExportData(AesKeyCipher.defaultKeyCipher()),
-                          btcMultiAddress);
+                          account);
 
                }
             }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
@@ -776,7 +775,7 @@ public class Utils {
       return null;
    }
 
-   public static List<WalletAccount> sortAccounts(final List<WalletAccount> accounts, final MetadataStorage storage) {
+   public static List<WalletAccount> sortAccounts(final Collection<WalletAccount> accounts, final MetadataStorage storage) {
       Ordering<WalletAccount> type = Ordering.natural().onResultOf(new Function<WalletAccount, Integer>() {
          @Override
          public Integer apply(@Nullable WalletAccount input) {

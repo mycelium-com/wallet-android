@@ -56,6 +56,9 @@
     <string name="export_toggle_ypub">ypub</string>
     <string name="export_toggle_zpub">zpub</string>
     <string name="export_toggle_xprv">xprv</string>
+    <string name="export_toggle_p2sh">P2SH</string>
+    <string name="export_toggle_legacy">Legacy (P2PKH)</string>
+    <string name="export_toggle_p2wpkh">P2WPKH</string>
     <string name="export_toggle_yprv">yprv</string>
     <string name="export_toggle_zprv">zprv</string>
     <string name="backup_private_key">Backup</string>
