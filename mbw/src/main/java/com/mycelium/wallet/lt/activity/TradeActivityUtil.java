@@ -102,11 +102,25 @@ public class TradeActivityUtil {
       Preconditions.checkArgument(satoshisFromSeller >= satoshisForBuyer);
       long localTraderFee = satoshisFromSeller - satoshisForBuyer;
       List<WalletAccount.Receiver> receiver = new ArrayList<>();
-      receiver.add(new WalletAccount.Receiver(new BtcAddress(buyerAddress.getNetwork().isProdnet() ?
-              BitcoinMain.get() : BitcoinTest.get(), buyerAddress.getAllAddressBytes()), satoshisForBuyer));
+      try {
+         receiver.add(new WalletAccount.Receiver(buyerAddress.isP2SH(buyerAddress.getNetwork()) ?
+                 new SegwitAddress(new com.mrd.bitlib.model.SegwitAddress(buyerAddress.getNetwork(),
+                 0x00, buyerAddress.getAllAddressBytes())) :
+                 new BtcAddress(buyerAddress.getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get(),
+                 buyerAddress.getAllAddressBytes()), satoshisForBuyer));
+      } catch (com.mrd.bitlib.model.SegwitAddress.SegwitAddressException e) {
+         e.printStackTrace();
+      }
       if (localTraderFee >= MINIMUM_OUTPUT_VALUE) {
-         receiver.add(new WalletAccount.Receiver(new BtcAddress(feeAddress.getNetwork().isProdnet() ?
-                 BitcoinMain.get() : BitcoinTest.get(), feeAddress.getAllAddressBytes()), localTraderFee));
+         try {
+            receiver.add(new WalletAccount.Receiver(feeAddress.isP2SH(feeAddress.getNetwork()) ?
+                    new SegwitAddress(new com.mrd.bitlib.model.SegwitAddress(feeAddress.getNetwork(),
+                            0x00, feeAddress.getAllAddressBytes())) :
+                    new BtcAddress(feeAddress.getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get(),
+                            feeAddress.getAllAddressBytes()), localTraderFee));
+         } catch (com.mrd.bitlib.model.SegwitAddress.SegwitAddressException e) {
+            e.printStackTrace();
+         }
       }
       try {
          return ((WalletBtcAccount)acc).createUnsignedTransaction(receiver, minerFeeToUse);

@@ -32,8 +32,8 @@ class AddressFragmentModel(
 
     private fun updateAddressPath(showBip44Path: Boolean) {
         addressPath.value =
-                when (showBip44Path && (accountAddress.value!! as BtcAddress).bip32Path != null) {
-                    true -> (accountAddress.value!! as BtcAddress).bip32Path.toString()
+                when (showBip44Path && accountAddress.value!!.bip32Path != null) {
+                    true -> accountAddress.value!!.bip32Path.toString()
                     false -> ""
                 }
     }

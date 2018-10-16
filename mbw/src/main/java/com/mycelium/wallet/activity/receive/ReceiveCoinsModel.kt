@@ -24,14 +24,17 @@ import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount
+import com.mycelium.wapi.wallet.coins.BitcoinMain
+import com.mycelium.wapi.wallet.coins.BitcoinTest
 import com.mycelium.wapi.wallet.currency.CurrencyValue
 import com.mycelium.wapi.wallet.currency.ExchangeBasedBitcoinValue
 import com.mycelium.wapi.wallet.currency.ExchangeBasedCurrencyValue
+import com.mycelium.wapi.wallet.segwit.SegwitAddress
 import com.squareup.otto.Subscribe
 
 class ReceiveCoinsModel(
         val context: Application,
-        val account: WalletAccount<*,*>,
+        val account: WalletAccount<*, *>,
         private val accountLabel: String,
         val havePrivateKey: Boolean,
         showIncomingUtxo: Boolean = false
@@ -60,7 +63,16 @@ class ReceiveCoinsModel(
     }
 
     fun updateObservingAddress() {
-        mbwManager.watchAddress(receivingAddress.value as BtcAddress)
+        val address = receivingAddress.value
+        mbwManager.watchAddress(if (address!!.isP2SH(address!!.network)) {
+            SegwitAddress(com.mrd.bitlib.model.SegwitAddress(address.network, 0x00, address.allAddressBytes))
+        } else {
+            BtcAddress(if (address.network.isProdnet) {
+                BitcoinMain.get()
+            } else {
+                BitcoinTest.get()
+            }, address.allAddressBytes)
+        })
     }
 
     fun onCleared() {

@@ -21,6 +21,9 @@ package com.mrd.bitlib.model;
  * THE SOFTWARE.
  */
 
+import com.mrd.bitlib.util.HashUtils;
+import com.mrd.bitlib.util.Sha256Hash;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
@@ -121,6 +124,7 @@ public class SegwitAddress extends Address implements Serializable {
         return new SegwitAddress(network, dec.values[0], conv);
     }
 
+    @Override
     public boolean isValidAddress(NetworkParameters network) {
         try {
             verify(this);
@@ -148,6 +152,7 @@ public class SegwitAddress extends Address implements Serializable {
         return ret;
     }
 
+    @Override
     public AddressType getType() {
         return AddressType.P2WPKH;
     }
@@ -162,6 +167,11 @@ public class SegwitAddress extends Address implements Serializable {
         pubkey.write(v);
         pubkey.write(program, 0, program.length);
         return pubkey.toByteArray();
+    }
+
+    @Override
+    public byte[] getTypeSpecificBytes() {
+        return getScriptBytes(this);
     }
 
     public String toMultiLineString() {
@@ -196,6 +206,11 @@ public class SegwitAddress extends Address implements Serializable {
         } catch (SegwitAddressException e) {
             throw new IllegalStateException(e.getMessage());
         }
+    }
+
+    @Override
+    public Sha256Hash getScriptHash() {
+        return HashUtils.sha256(getScriptBytes(this)).reverse();
     }
 
     public static byte[] getScriptBytes(SegwitAddress data) {

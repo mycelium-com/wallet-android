@@ -440,7 +440,8 @@ public class AddressBookFragment extends Fragment {
    private class SelectItemListener implements OnItemClickListener {
       @Override
       public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-         Address address = (Address) view.getTag();
+         Address address = view.getTag() instanceof SegwitAddress ? ((SegwitAddress) view.getTag()).getAddress() :
+                 ((BtcAddress) view.getTag()).getAddress();
          Intent result = new Intent();
          result.putExtra(ADDRESS_RESULT_NAME, address.toString());
 
