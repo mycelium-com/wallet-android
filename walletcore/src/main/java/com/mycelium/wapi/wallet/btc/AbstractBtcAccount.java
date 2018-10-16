@@ -51,6 +51,7 @@ import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
+import com.mycelium.wapi.wallet.segwit.SegwitAddress;
 
 import java.nio.ByteBuffer;
 import java.text.ParseException;
@@ -188,12 +189,12 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       return isMine(address);
    }
 
+   //only for BtcAddress?
    public boolean isMineAddress(GenericAddress address) {
       if (!(address instanceof BtcAddress)) {
          return false;
       }
-
-      return isMine((BtcAddress)address);
+      return isMine(((BtcAddress) address).getAddress());
    }
 
 
@@ -1078,13 +1079,18 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
 
       // Create the unsigned transaction
       StandardTransactionBuilder stb = new StandardTransactionBuilder(_network);
-      List<GenericAddress> addressList = new ArrayList<>();
+      List<Address> addressList = new ArrayList<>();
       for (Receiver receiver : receivers) {
-         stb.addOutput((BtcAddress)receiver.address, receiver.amount);
-         addressList.add(receiver.address);
+         if(receiver.address.getType() == AddressType.P2SH_P2WPKH){
+            stb.addOutput(((SegwitAddress) receiver.address).getAddress(), receiver.amount);
+            addressList.add(((SegwitAddress) receiver.address).getAddress());
+         } else {
+            stb.addOutput(((BtcAddress) receiver.address).getAddress(), receiver.amount);
+            addressList.add(((BtcAddress) receiver.address).getAddress());
+         }
       }
-      Address changeAddress = getChangeAddress((BtcAddress)addressList);
-      return stb.createUnsignedTransaction(spendable, (BtcAddress)changeAddress, new PublicKeyRing(),
+      Address changeAddress = getChangeAddress(addressList);
+      return stb.createUnsignedTransaction(spendable, changeAddress, new PublicKeyRing(),
             _network, minerFeeToUse);
    }
 

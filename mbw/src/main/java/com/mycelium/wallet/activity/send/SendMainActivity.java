@@ -109,15 +109,12 @@ import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.paymentrequest.PaymentRequestHandler;
 import com.mycelium.wapi.api.lib.FeeEstimation;
 import com.mycelium.wapi.api.response.Feature;
-import com.mycelium.wapi.wallet.GenericAddress;
-import com.mycelium.wapi.wallet.SendRequest;
-import com.mycelium.wapi.wallet.SyncMode;
-import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.WalletManager;
+import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
+import com.mycelium.wapi.wallet.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
@@ -128,6 +125,8 @@ import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
 import static com.mycelium.wallet.activity.util.ValueExtentionsKt.isBtc;
+
+import com.mycelium.wapi.wallet.segwit.SegwitAddress;
 import com.squareup.otto.Subscribe;
 
 import org.bitcoin.protocols.payments.PaymentACK;
@@ -313,7 +312,7 @@ public class SendMainActivity extends Activity {
    }
 
     public static Intent getIntent(Activity currentActivity, UUID account, BitcoinUri uri, boolean isColdStorage) {
-        return getIntent(currentActivity, account, uri.amount, (BtcAddress) uri.address, isColdStorage)
+        return getIntent(currentActivity, account, uri.amount, uri.address, isColdStorage)
                 .putExtra(TRANSACTION_LABEL, uri.label)
                 .putExtra(BITCOIN_URI, uri);
     }
@@ -377,7 +376,16 @@ public class SendMainActivity extends Activity {
         // Load saved state, overwriting amount and address
         if (savedInstanceState != null) {
             _amountToSend = (Value) getIntent().getSerializableExtra(AMOUNT); // todo
-            _receivingAddress = (BtcAddress) savedInstanceState.getSerializable(RECEIVING_ADDRESS);
+            Address address = (Address) savedInstanceState.getSerializable(RECEIVING_ADDRESS);
+            try {
+                _receivingAddress = address.getType() == AddressType.P2SH_P2WPKH ?
+                        new SegwitAddress(new com.mrd.bitlib.model.SegwitAddress(address.getNetwork(),
+                        0x00,address.getAllAddressBytes())) :
+                        new BtcAddress(address.getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get(),
+                                address.getAllAddressBytes());
+            } catch (com.mrd.bitlib.model.SegwitAddress.SegwitAddressException e) {
+                e.printStackTrace();
+            }
             _transactionLabel = savedInstanceState.getString(TRANSACTION_LABEL);
             feeLvl = (MinerFee) savedInstanceState.getSerializable(FEE_LVL);
             feePerKbValue = savedInstanceState.getLong(FEE_PER_KB);
@@ -412,7 +420,9 @@ public class SendMainActivity extends Activity {
             //we need the user to pick a spending account - the activity will then init sendmain correctly
             BitcoinUri uri;
             if (_bitcoinUri == null) {
-                uri = BitcoinUri.from((BtcAddress)_receivingAddress, getValueToSend() == null ? null : getValueToSend().getValue(), _transactionLabel, null);
+                uri = BitcoinUri.from(_receivingAddress.getType() == AddressType.P2SH_P2WPKH ?
+                        ((SegwitAddress)_receivingAddress).getAddress() : ((BtcAddress)_receivingAddress).getAddress(),
+                        getValueToSend() == null ? null : getValueToSend().getValue(), _transactionLabel, null);
             } else {
                 uri = _bitcoinUri;
             }
@@ -1136,7 +1146,7 @@ public class SendMainActivity extends Activity {
 
       // Set Address
       if (!hasPaymentRequest) {
-         String choppedAddress = _receivingAddress.toMultiLineString();
+         String choppedAddress = AddressUtils.toMultiLineString(_receivingAddress.toString());
          tvReceiver.setText(choppedAddress);
       }
 
@@ -1151,7 +1161,7 @@ public class SendMainActivity extends Activity {
 
       // show address (if available - some PRs might have more than one address or a not decodeable input)
       if (hasPaymentRequest && _receivingAddress != null) {
-         tvReceiverAddress.setText(_receivingAddress.toDoubleLineString());
+         tvReceiverAddress.setText(AddressUtils.toDoubleLineString(_receivingAddress.toString()));
          tvReceiverAddress.setVisibility(VISIBLE);
       } else {
          tvReceiverAddress.setVisibility(GONE);
@@ -1191,7 +1201,8 @@ public class SendMainActivity extends Activity {
       Optional<UUID> accountId = _mbwManager.getAccountId(address, isColu() ? ColuAccount.class : null);
       if (!accountId.isPresent()) {
          // We don't have it in our accounts, look in address book, returns empty string by default
-         return _mbwManager.getMetadataStorage().getLabelByAddress((BtcAddress)address);
+         return _mbwManager.getMetadataStorage().getLabelByAddress(address.getType() == AddressType.P2SH_P2WPKH ?
+                 ((SegwitAddress)address).getAddress() : ((BtcAddress)address).getAddress());
       }
       // Get the name of the account
       return _mbwManager.getMetadataStorage().getLabelByAccount(accountId.get());
@@ -1443,9 +1454,27 @@ public class SendMainActivity extends Activity {
                 StringHandlerActivity.ResultType type = (StringHandlerActivity.ResultType) intent.getSerializableExtra(StringHandlerActivity.RESULT_TYPE_KEY);
                 if (type == StringHandlerActivity.ResultType.PRIVATE_KEY) {
                     InMemoryPrivateKey key = StringHandlerActivity.getPrivateKey(intent);
-                    _receivingAddress = (BtcAddress)key.getPublicKey().toAddress(_mbwManager.getNetwork(), AddressType.P2SH_P2WPKH);    //TODO SegWit fix
+                    Address address = key.getPublicKey().toAddress(_mbwManager.getNetwork(), AddressType.P2SH_P2WPKH);
+                    try {
+                        _receivingAddress = address.isP2SH(address.getNetwork()) ?
+                                new SegwitAddress(new com.mrd.bitlib.model.SegwitAddress(address.getNetwork(),
+                                        0x00,address.getAllAddressBytes())) :
+                                new BtcAddress(address.getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get(),
+                                        address.getAllAddressBytes());    //TODO SegWit fix
+                    } catch (com.mrd.bitlib.model.SegwitAddress.SegwitAddressException e) {
+                        e.printStackTrace();
+                    }
                 } else if (type == StringHandlerActivity.ResultType.ADDRESS) {
-                    _receivingAddress = (BtcAddress)StringHandlerActivity.getAddress(intent);
+                    Address address = StringHandlerActivity.getAddress(intent);
+                    try {
+                        _receivingAddress = address.isP2SH(address.getNetwork()) ?
+                                new SegwitAddress(new com.mrd.bitlib.model.SegwitAddress(address.getNetwork(),
+                                        0x00,address.getAllAddressBytes())) :
+                                new BtcAddress(address.getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get(),
+                                        address.getAllAddressBytes());
+                    } catch (com.mrd.bitlib.model.SegwitAddress.SegwitAddressException e) {
+                        e.printStackTrace();
+                    }
                 } else if (type == StringHandlerActivity.ResultType.URI_WITH_ADDRESS) {
                     BitcoinUriWithAddress uri = StringHandlerActivity.getUriWithAddress(intent);
                     if (uri.callbackURL != null) {
@@ -1494,7 +1523,7 @@ public class SendMainActivity extends Activity {
             if (address == null) {
                 return;
             }
-            _receivingAddress = (BtcAddress)address;
+            _receivingAddress = address;
             if (intent.getExtras().containsKey(AddressBookFragment.ADDRESS_RESULT_LABEL)) {
                 _receivingLabel = intent.getStringExtra(AddressBookFragment.ADDRESS_RESULT_LABEL);
             }

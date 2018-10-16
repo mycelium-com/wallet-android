@@ -3,21 +3,22 @@ package com.mycelium.wapi.wallet.btc;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
+import com.mrd.bitlib.model.hdpath.HdKeyPath;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 
-public class BtcAddress extends Address implements GenericAddress {
+public class BtcAddress implements GenericAddress {
 
-    CryptoCurrency currencyType;
+    private Address address;
+    private CryptoCurrency currencyType;
 
     public BtcAddress(CryptoCurrency currencyType, byte[] bytes) {
-        super(bytes);
+        address = new Address(bytes);
         this.currencyType = currencyType;
     }
 
-    @Override
     public AddressType getType() {
         NetworkParameters networkParameters;
         if(currencyType instanceof BitcoinTest)
@@ -27,11 +28,20 @@ public class BtcAddress extends Address implements GenericAddress {
         else
             networkParameters = NetworkParameters.regtestNetwork;
 
-        if (isP2SH(networkParameters)) {
+        if (address.isP2SH(networkParameters)) {
             return AddressType.P2SH_P2WPKH;
         } else {
             return AddressType.P2PKH;
         }
+    }
+
+    public Address getAddress() {
+        return address;
+    }
+
+    @Override
+    public String toString(){
+        return address.toString();
     }
 
     @Override
@@ -44,27 +54,9 @@ public class BtcAddress extends Address implements GenericAddress {
         return 0;
     }
 
-
     @Override
-    public String toDoubleLineString() {
-        String address = toString();
-        int splitIndex = address.length() / 2;
-        return address.substring(0, splitIndex) + "\r\n" +
-                address.substring(splitIndex);
+    public HdKeyPath getBip32Path() {
+        return address.getBip32Path();
     }
 
-    @Override
-    public String toShortString() {
-        int showChars = 3;
-        String addressString = toString();
-        return addressString.substring(0, showChars) + "..." + addressString.substring(addressString.length() - showChars);
-    }
-
-    @Override
-    public String toMultiLineString() {
-        String address = toString();
-        return address.substring(0, 12) + "\r\n" +
-                address.substring(12, 24) + "\r\n" +
-                address.substring(24);
-    }
 }

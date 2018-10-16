@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.google.common.base.Optional;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.SegwitAddress;
 import com.mycelium.wallet.AddressBookManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -60,7 +61,11 @@ public class GetBtcAccountForFeeActivity extends AppCompatActivity {
                     && isBtc(account.getAccountBalance().confirmed.type)) {
                 String name = _mbwManager.getMetadataStorage().getLabelByAccount(account.getId());
                 Drawable drawableForAccount = Utils.getDrawableForAccount(account, true, getResources());
-                entries.add(new AccountForFee(receivingAddress.get(), name, drawableForAccount, account.getId(), account.getAccountBalance().confirmed));
+                try {
+                    entries.add(new AccountForFee(receivingAddress.get(), name, drawableForAccount, account.getId(), account.getAccountBalance().confirmed));
+                } catch (SegwitAddress.SegwitAddressException e) {
+                    e.printStackTrace();
+                }
             }
         }
 

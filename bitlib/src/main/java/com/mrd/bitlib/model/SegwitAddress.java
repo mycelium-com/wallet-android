@@ -21,9 +21,6 @@ package com.mrd.bitlib.model;
  * THE SOFTWARE.
  */
 
-import com.mrd.bitlib.util.HashUtils;
-import com.mrd.bitlib.util.Sha256Hash;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
@@ -34,6 +31,7 @@ public class SegwitAddress extends Address implements Serializable {
     private final byte version;
     private final byte[] program;
     private final String hrp;
+    private final boolean isProdnet;
 
     public static class SegwitAddressException extends Exception {
         SegwitAddressException(Exception e) {
@@ -48,10 +46,15 @@ public class SegwitAddress extends Address implements Serializable {
     public SegwitAddress(NetworkParameters networkParameters, final int version, final byte[] program)
             throws SegwitAddressException {
         super(program);
-        hrp = networkParameters.isProdnet() ? "BC" : "TB";
+        isProdnet = networkParameters.isProdnet();
+        hrp = isProdnet() ? "BC" : "TB";
         this.version = (byte) (version & 0xff);
         this.program = program;
         verify(this);
+    }
+
+    public boolean isProdnet(){
+        return isProdnet;
     }
 
     public byte getVersion() {
@@ -118,7 +121,6 @@ public class SegwitAddress extends Address implements Serializable {
         return new SegwitAddress(network, dec.values[0], conv);
     }
 
-    @Override
     public boolean isValidAddress(NetworkParameters network) {
         try {
             verify(this);
@@ -146,13 +148,10 @@ public class SegwitAddress extends Address implements Serializable {
         return ret;
     }
 
-    @Override
     public AddressType getType() {
         return AddressType.P2WPKH;
     }
 
-
-    @Override
     public byte[] getAllAddressBytes() {
         ByteArrayOutputStream pubkey = new ByteArrayOutputStream(40 + 1);
         int v = version;
@@ -165,12 +164,6 @@ public class SegwitAddress extends Address implements Serializable {
         return pubkey.toByteArray();
     }
 
-    @Override
-    public byte[] getTypeSpecificBytes() {
-        return getScriptBytes(this);
-    }
-
-    @Override
     public String toMultiLineString() {
         String address = toString();
         return address.substring(0, 14) + "\r\n" +
@@ -203,11 +196,6 @@ public class SegwitAddress extends Address implements Serializable {
         } catch (SegwitAddressException e) {
             throw new IllegalStateException(e.getMessage());
         }
-    }
-
-    @Override
-    public Sha256Hash getScriptHash() {
-        return HashUtils.sha256(getScriptBytes(this)).reverse();
     }
 
     public static byte[] getScriptBytes(SegwitAddress data) {

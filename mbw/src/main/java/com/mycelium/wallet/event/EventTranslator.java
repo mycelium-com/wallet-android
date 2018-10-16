@@ -98,7 +98,7 @@ public class EventTranslator implements WalletManager.Observer, ExchangeRateMana
             break;
          case RECEIVING_ADDRESS_CHANGED:
             GenericAddress receivingAddress = wallet.getAccount(accountId).getReceiveAddress();
-            postEvent(new ReceivingAddressChanged((BtcAddress)receivingAddress));
+            postEvent(new ReceivingAddressChanged(receivingAddress));
             break;
          case SYNC_PROGRESS_UPDATED:
             postEvent(new SyncProgressUpdated(accountId));

@@ -58,6 +58,8 @@ import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext;
+import com.mycelium.wapi.wallet.coins.BitcoinMain;
+import com.mycelium.wapi.wallet.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.colu.ColuAccountContext;
 import com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount;
@@ -71,6 +73,7 @@ import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoinTest;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
+import com.mycelium.wapi.wallet.segwit.SegwitAddress;
 import com.squareup.otto.Bus;
 
 import org.apache.commons.codec.binary.Hex;
@@ -497,7 +500,16 @@ public class ColuManager implements AccountProvider {
     }
 
     private boolean isAddressInUse(Address address) {
-        Optional<UUID> accountId = mgr.getAccountId((BtcAddress)address, null);
+        Optional<UUID> accountId = null;
+        try {
+            accountId = mgr.getAccountId(address.isP2SH(address.getNetwork()) ?
+                    new SegwitAddress(new com.mrd.bitlib.model.SegwitAddress(address.getNetwork(),
+                            0x00,address.getAllAddressBytes())) :
+                    new BtcAddress(address.getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get(),
+                            address.getAllAddressBytes()), null);
+        } catch (com.mrd.bitlib.model.SegwitAddress.SegwitAddressException e) {
+            e.printStackTrace();
+        }
         return accountId.isPresent();
     }
 

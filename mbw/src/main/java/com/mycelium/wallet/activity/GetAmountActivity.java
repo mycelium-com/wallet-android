@@ -67,10 +67,12 @@ import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
+import com.mycelium.wapi.wallet.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.fiat.FiatType;
 import com.mycelium.wapi.wallet.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
+import com.mycelium.wapi.wallet.segwit.SegwitAddress;
 import com.squareup.otto.Subscribe;
 
 import java.math.BigDecimal;
@@ -526,7 +528,12 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          return AmountValidation.Ok; //entering a fiat value + exchange is not availible
       }
       try {
-         WalletAccount.Receiver receiver = new WalletAccount.Receiver((BtcAddress)Address.getNullAddress(_mbwManager.getNetwork()), satoshis);
+         Address address = Address.getNullAddress(_mbwManager.getNetwork());
+         WalletAccount.Receiver receiver = new WalletAccount.Receiver(address.isP2SH(address.getNetwork()) ?
+                 new SegwitAddress(new com.mrd.bitlib.model.SegwitAddress(address.getNetwork(),
+                         0x00,address.getAllAddressBytes())) :
+                 new BtcAddress(address.getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get(),
+                         address.getAllAddressBytes()), satoshis);
          _account.checkAmount(receiver, _kbMinerFee, _amount);
       } catch (OutputTooSmallException e1) {
          return AmountValidation.ValueTooSmall;
@@ -537,6 +544,8 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          // debug it
          _mbwManager.reportIgnoredException("MinerFeeException", e);
          return AmountValidation.Invalid;
+      } catch (com.mrd.bitlib.model.SegwitAddress.SegwitAddressException e) {
+         e.printStackTrace();
       }
       return AmountValidation.Ok;
    }
