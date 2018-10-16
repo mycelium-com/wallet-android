@@ -112,8 +112,10 @@ import com.mycelium.wapi.wallet.bip44.ExternalSignatureProviderProxy;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
+import kotlin.jvm.Synchronized;
 
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Executable;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -150,14 +152,25 @@ public class MbwManager {
     private boolean randomizePinPad;
     private Timer _addressWatchTimer;
 
-    public static synchronized MbwManager getInstance(Context context) {
+    public static synchronized MbwManager getInstance(final Context context) {
         if (_instance == null) {
-            if(BuildConfig.DEBUG) {
-                StrictMode.ThreadPolicy threadPolicy = StrictMode.allowThreadDiskReads();
-                _instance = new MbwManager(context.getApplicationContext());
-                StrictMode.setThreadPolicy(threadPolicy);
-            } else {
-                _instance = new MbwManager(context.getApplicationContext());
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    if (BuildConfig.DEBUG) {
+                        StrictMode.ThreadPolicy threadPolicy = StrictMode.allowThreadDiskReads();
+                        _instance = new MbwManager(context.getApplicationContext());
+                        StrictMode.setThreadPolicy(threadPolicy);
+                    } else {
+                        _instance = new MbwManager(context.getApplicationContext());
+                    }
+                }
+            });
+            thread.start();
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
         return _instance;
@@ -168,6 +181,7 @@ public class MbwManager {
     private final KeepKeyManager _keepkeyManager;
     private final LedgerManager _ledgerManager;
     private final WapiClientElectrumX _wapi;
+    private volatile MigrationProgressTracker migrationProgressTracker;
 
     private final LtApiClient _ltApi;
     private Handler _torHandler;
@@ -216,7 +230,14 @@ public class MbwManager {
 
         configuration = new WalletConfiguration(preferences, getNetwork());
 
-        _eventBus.register(this);
+        Handler handler = new Handler(_applicationContext.getMainLooper());
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                _eventBus.register(this);
+            }
+        });
+
 
         // init tor - if needed
         try {
@@ -224,6 +245,8 @@ public class MbwManager {
         } catch (IllegalArgumentException ex) {
             setTorMode(ServerEndpointType.Types.ONLY_HTTPS);
         }
+
+        migrationProgressTracker = getMigrationProgressTracker();
 
         _wapi = initWapi();
         configuration.setServerListChangedListener(_wapi);
@@ -257,7 +280,8 @@ public class MbwManager {
 
         _storage = new MetadataStorage(_applicationContext);
         _language = preferences.getString(Constants.LANGUAGE_SETTING, Locale.getDefault().getLanguage());
-        _versionManager = new VersionManager(_applicationContext, _language, new AndroidAsyncApi(_wapi, _eventBus), _eventBus);
+        _versionManager = new VersionManager(_applicationContext, _language,
+                new AndroidAsyncApi(_wapi, _eventBus, handler), _eventBus);
 
         Set<String> currencyList = getPreferences().getStringSet(Constants.SELECTED_CURRENCIES, null);
         //TODO: get it through coluManager instead ?
@@ -294,7 +318,7 @@ public class MbwManager {
         _walletManager = createWalletManager(_applicationContext, _environment);
         _gebHelper = new GEBHelper(_applicationContext);
 
-        _eventTranslator = new EventTranslator(new Handler(), _eventBus);
+        _eventTranslator = new EventTranslator(handler, _eventBus);
         _exchangeRateManager.subscribe(_eventTranslator);
 
         _walletManager.addObserver(_eventTranslator);
@@ -614,7 +638,7 @@ public class MbwManager {
         SpvBalanceFetcher spvBchFetcher = getSpvBchFetcher();
         // Create and return wallet manager
         WalletManager walletManager = new WalletManager(secureKeyValueStore, backing, environment.getNetwork(), _wapi,
-                externalSignatureProviderProxy, spvBchFetcher, Utils.isConnected(context), currenciesSettingsMap);
+                externalSignatureProviderProxy, spvBchFetcher, Utils.isConnected(context), currenciesSettingsMap, migrationProgressTracker);
 
         // notify the walletManager about the current selected account
         UUID lastSelectedAccountId = getLastSelectedAccountId();
@@ -665,7 +689,8 @@ public class MbwManager {
 
         // Create and return wallet manager
         WalletManager walletManager = new WalletManager(secureKeyValueStore, backing, environment.getNetwork(), _wapi,
-                null, getSpvBchFetcher(), Utils.isConnected(_applicationContext), currenciesSettingsMap);
+                null, getSpvBchFetcher(), Utils.isConnected(_applicationContext), currenciesSettingsMap,
+                migrationProgressTracker);
 
         walletManager.disableTransactionHistorySynchronization();
         return walletManager;
@@ -679,6 +704,15 @@ public class MbwManager {
         }
         return result;
     }
+
+    @Synchronized
+    private MigrationProgressTracker getMigrationProgressTracker() {
+        if (migrationProgressTracker == null) {
+            migrationProgressTracker =  new MigrationProgressTracker(_applicationContext);
+        }
+        return migrationProgressTracker;
+    }
+
 
     public String getFiatCurrency() {
         return _currencySwitcher.getCurrentFiatCurrency();

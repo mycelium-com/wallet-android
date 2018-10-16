@@ -73,6 +73,7 @@ public class WalletManager {
     private Wapi _wapi;
     private WapiLogger _logger;
     private final ExternalSignatureProviderProxy _signatureProviders;
+    private final MigrationProgressUpdater migrationProgressUpdater;
     private IdentityAccountKeyManager _identityAccountKeyManager;
     private volatile UUID _activeAccountId;
     private FeeEstimation _lastFeeEstimations;
@@ -89,12 +90,14 @@ public class WalletManager {
      */
     public WalletManager(SecureKeyValueStore secureKeyValueStore, WalletManagerBacking backing,
                          NetworkParameters network, Wapi wapi, ExternalSignatureProviderProxy signatureProviders,
-                         SpvBalanceFetcher spvBalanceFetcher, boolean isNetworkConnected, Map<Currency, CurrencySettings> currenciesSettingsMap) {
+                         SpvBalanceFetcher spvBalanceFetcher, boolean isNetworkConnected, Map<Currency, CurrencySettings> currenciesSettingsMap,
+                         MigrationProgressUpdater migrationProgressUpdater) {
         _secureKeyValueStore = secureKeyValueStore;
         _backing = backing;
         _network = network;
         _wapi = wapi;
         _signatureProviders = signatureProviders;
+        this.migrationProgressUpdater = migrationProgressUpdater;
         _logger = _wapi.getLogger();
         _walletAccounts = Maps.newHashMap();
         HDAccounts = new ArrayList<>();
@@ -747,6 +750,8 @@ public class WalletManager {
     private void loadBip44Accounts() {
         _logger.logInfo("Loading BIP44 accounts");
         List<HDAccountContext> contexts = _backing.loadBip44AccountContexts();
+        migrationProgressUpdater.setComment("Loading Bip 44 accounts");
+        int counter = 0;
         for (HDAccountContext context : contexts) {
             Map<BipDerivationType, HDAccountKeyManager> keyManagerMap = new HashMap<>();
             HDAccount account;
@@ -796,6 +801,7 @@ public class WalletManager {
                     _spvBalanceFetcher.requestTransactionsFromUnrelatedAccountAsync(bchAccount.getId().toString(), /* IntentContract.UNRELATED_ACCOUNT_TYPE_HD */ 1);
                 }
             }
+            migrationProgressUpdater.setPercent((counter++ * 100 / contexts.size()));
         }
     }
 

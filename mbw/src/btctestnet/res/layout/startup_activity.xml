@@ -16,24 +16,6 @@
             android:layout_weight="10"
             android:paddingBottom="200dp" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/tips"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/green"
-                android:text="To increase loading speede" />
-
-            <ProgressBar
-                android:id="@+id/progressBar"
-                style="@style/AccountProgressBar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-        </LinearLayout>
+        <include layout="@layout/startup_activity_progress" />
     </LinearLayout>
 </layout>

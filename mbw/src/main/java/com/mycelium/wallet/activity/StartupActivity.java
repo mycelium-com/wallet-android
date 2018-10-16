@@ -45,11 +45,14 @@ import android.nfc.NfcAdapter;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.view.Menu;
 import android.view.View;
 import android.view.Window;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -71,6 +74,8 @@ import com.mycelium.wallet.activity.send.GetSpendingRecordActivity;
 import com.mycelium.wallet.activity.send.SendInitializationActivity;
 import com.mycelium.wallet.bitid.BitIDAuthenticationActivity;
 import com.mycelium.wallet.bitid.BitIDSignRequest;
+import com.mycelium.wallet.event.MigrationCommentChanged;
+import com.mycelium.wallet.event.MigrationPercentChanged;
 import com.mycelium.wallet.external.glidera.activities.GlideraSendToNextStep;
 import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.wallet.AesKeyCipher;
@@ -78,6 +83,7 @@ import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.squareup.otto.Bus;
+import com.squareup.otto.Subscribe;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -103,6 +109,10 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
    private PinDialog _pinDialog;
    private ProgressDialog _progress;
    private Bus eventBus;
+   @BindView(R.id.progressBar)
+   ProgressBar progressBar;
+   @BindView(R.id.comment)
+   TextView comment;
 
    @Override
    protected void onCreate(Bundle savedInstanceState) {
@@ -110,10 +120,9 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
       super.onCreate(savedInstanceState);
       _progress = new ProgressDialog(this);
       setContentView(R.layout.startup_activity);
+      ButterKnife.bind(this);
+
       setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
-      // Do slightly delayed initialization so we get a chance of displaying the
-      // splash before doing heavy initialization
-      new Handler().postDelayed(delayedInitialization, 200);
    }
 
    @Override
@@ -121,6 +130,8 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
       super.onStart();
       eventBus = MbwManager.getEventBus();
       eventBus.register(this);
+      new Thread(delayedInitialization).start();
+
    }
 
    @Override
@@ -141,6 +152,16 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
       super.onDestroy();
    }
 
+   @Subscribe
+   public void onMigrationProgressChanged(MigrationPercentChanged migrationPercent) {
+      progressBar.setProgress(migrationPercent.getPercent());
+   }
+
+   @Subscribe
+   public void onMigrationCommentChanged(MigrationCommentChanged migrationComment) {
+      comment.setText(migrationComment.getNewComment());
+   }
+
    private Runnable delayedInitialization = new Runnable() {
       @Override
       public void run() {
@@ -159,11 +180,6 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
             return;
          }
 
-         // Check if we have lingering exported private keys, we want to warn
-         // the user if that is the case
-         _hasClipboardExportedPrivateKeys = hasPrivateKeyOnClipboard(_mbwManager.getNetwork());
-         hasClipboardExportedPublicKeys = hasPublicKeyOnClipboard(_mbwManager.getNetwork());
-
          // Calculate how much time we spent initializing, and do a delayed
          // finish so we display the splash a minimum amount of time
          long timeSpent = System.currentTimeMillis() - startTime;
@@ -171,36 +187,8 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
          if (remainingTime < 0) {
             remainingTime = 0;
          }
-         new Handler().postDelayed(delayedFinish, remainingTime);
+         new Handler(getMainLooper()).postDelayed(delayedFinish, remainingTime);
       }
-
-      private boolean hasPrivateKeyOnClipboard(NetworkParameters network) {
-         // do we have a private key on the clipboard?
-         try {
-            Optional<InMemoryPrivateKey> key = getPrivateKey(network, Utils.getClipboardString(StartupActivity.this));
-            if (key.isPresent()) {
-               return true;
-            }
-            HdKeyNode.parse(Utils.getClipboardString(StartupActivity.this), network);
-            return true;
-         } catch (HdKeyNode.KeyGenerationException ex) {
-            return false;
-         }
-      }
-
-      private boolean hasPublicKeyOnClipboard(NetworkParameters network) {
-         // do we have a public key on the clipboard?
-         try {
-            if (isKeyNode(network, Utils.getClipboardString(StartupActivity.this))) {
-               return true;
-            }
-            HdKeyNode.parse(Utils.getClipboardString(StartupActivity.this), network);
-            return true;
-         } catch (HdKeyNode.KeyGenerationException ex) {
-            return false;
-         }
-      }
-
    };
 
    private void initMasterSeed() {
@@ -312,6 +300,12 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
             return;
          }
 
+
+         // Check if we have lingering exported private keys, we want to warn
+         // the user if that is the case
+         _hasClipboardExportedPrivateKeys = hasPrivateKeyOnClipboard(_mbwManager.getNetwork());
+         hasClipboardExportedPublicKeys = hasPublicKeyOnClipboard(_mbwManager.getNetwork());
+
          if(hasClipboardExportedPublicKeys){
             warnUserOnClipboardKeys(false);
          }
@@ -320,6 +314,33 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
          }
          else {
             normalStartup();
+         }
+      }
+
+      private boolean hasPrivateKeyOnClipboard(NetworkParameters network) {
+         // do we have a private key on the clipboard?
+         try {
+            Optional<InMemoryPrivateKey> key = getPrivateKey(network, Utils.getClipboardString(StartupActivity.this));
+            if (key.isPresent()) {
+               return true;
+            }
+            HdKeyNode.parse(Utils.getClipboardString(StartupActivity.this), network);
+            return true;
+         } catch (HdKeyNode.KeyGenerationException ex) {
+            return false;
+         }
+      }
+
+      private boolean hasPublicKeyOnClipboard(NetworkParameters network) {
+         // do we have a public key on the clipboard?
+         try {
+            if (isKeyNode(network, Utils.getClipboardString(StartupActivity.this))) {
+               return true;
+            }
+            HdKeyNode.parse(Utils.getClipboardString(StartupActivity.this), network);
+            return true;
+         } catch (HdKeyNode.KeyGenerationException ex) {
+            return false;
          }
       }
    };
