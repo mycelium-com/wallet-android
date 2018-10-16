@@ -135,7 +135,7 @@ import org.bitcoin.protocols.payments.PaymentACK;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -465,7 +465,7 @@ public class SendMainActivity extends Activity {
         receiversAddressesList.setItemWidth(getResources().getDimensionPixelSize(R.dimen.item_addr_width));
 
         // these labels needed for readability
-        Map<AddressType, String[]> addressLabels = new LinkedHashMap<>();
+        Map<AddressType, String[]> addressLabels = new HashMap<>();
         addressLabels.put(AddressType.P2PKH, new String[]{"Legacy", "P2PKH"});
         addressLabels.put(AddressType.P2WPKH, new String[]{"SegWit native", "Bech32"});
         addressLabels.put(AddressType.P2SH_P2WPKH, new String[]{"SegWit compat.", "P2SH"});

@@ -2,6 +2,6 @@
 <View xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="@dimen/item_addr_width"
-    android:layout_height="110dp"
+    android:layout_height="120dp"
     android:background="@drawable/sender_recyclerview_item_background_selector">
 </View>

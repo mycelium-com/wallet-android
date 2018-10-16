@@ -20,10 +20,8 @@ class AddressViewAdapter(private val dataSet: List<AddressItem>, private val pad
             val v = LayoutInflater.from(parent.context)
                     .inflate(R.layout.recyclerview_address, parent, false)
             val imageView = v.findViewById<View>(R.id.rectangle) as ImageView
-            imageView.setImageResource(R.drawable.recyclerview_item_bottom_rectangle_selector)
             val layoutParams = imageView.layoutParams as FrameLayout.LayoutParams
-            layoutParams.gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
-            layoutParams.height = parent.resources.getDimensionPixelSize(R.dimen.recycler_item_rectangle_height)
+            layoutParams.gravity = Gravity.TOP or Gravity.CENTER_HORIZONTAL
             imageView.layoutParams = layoutParams
             return ViewHolder(v, this)
         } else {
@@ -46,6 +44,19 @@ class AddressViewAdapter(private val dataSet: List<AddressItem>, private val pad
             holder.addressTextView?.text = item.address?.toMultiLineString() ?: ""
             holder.addressTypeTextView?.text = item.addressType
             holder.addressTypeLabelTextView?.text = item.addressTypeLabel
+
+            // setting root background color and arrow
+            holder.rootFrameLayout?.setBackgroundColor(when (selectedItem) {
+                position -> {
+                    holder.triangleImageView?.setImageResource(R.drawable.recyclerview_item_triangle_selected)
+                    holder.itemView.context?.resources?.getColor(R.color.fee_recycler_item_selected)!!
+                }
+                else -> {
+                    holder.triangleImageView?.setImageResource(0)
+                    holder.itemView.context?.resources?.getColor(R.color.fee_recycler_item)!!
+                }
+            })
+
         } else {
             val layoutParams = holder.itemView.layoutParams as RecyclerView.LayoutParams
             layoutParams.width = paddingWidth
@@ -66,5 +77,7 @@ class AddressViewAdapter(private val dataSet: List<AddressItem>, private val pad
         val addressTextView: TextView? = v.findViewById(R.id.address)
         var addressTypeTextView: TextView? = v.findViewById(R.id.addressType)
         var addressTypeLabelTextView: TextView? = v.findViewById(R.id.addressTypeLabel)
+        var triangleImageView: ImageView? = v.findViewById(R.id.rectangle)
+        var rootFrameLayout: FrameLayout? = v.findViewById(R.id.frameLayout)
     }
 }
