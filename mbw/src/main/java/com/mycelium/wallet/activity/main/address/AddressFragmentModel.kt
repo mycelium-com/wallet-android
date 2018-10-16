@@ -49,10 +49,8 @@ class AddressFragmentModel(
     }
 
     private fun updateAddress(account: WalletAccount) {
-        if(account.receivingAddress.isPresent) {
+        if (account.receivingAddress.isPresent) {
             accountAddress.value = account.receivingAddress.get()
-        } else {
-            accountAddress.value = null
         }
     }
 
