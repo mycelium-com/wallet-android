@@ -464,17 +464,18 @@ public class SendMainActivity extends Activity {
         receiversAddressesList.setHasFixedSize(true);
         receiversAddressesList.setItemWidth(getResources().getDimensionPixelSize(R.dimen.item_addr_width));
 
-        Map<String, String> addressLabels = new LinkedHashMap<>();
-        addressLabels.put("Legacy", "P2PKH");
-        addressLabels.put("SegWit native", "Bech32");
-        addressLabels.put("SegWit compat.", "P2SH");
+        // these labels needed for readability
+        Map<AddressType, String[]> addressLabels = new LinkedHashMap<>();
+        addressLabels.put(AddressType.P2PKH, new String[]{"Legacy", "P2PKH"});
+        addressLabels.put(AddressType.P2WPKH, new String[]{"SegWit native", "Bech32"});
+        addressLabels.put(AddressType.P2SH_P2WPKH, new String[]{"SegWit compat.", "P2SH"});
 
         List<AddressItem> addressesList = new ArrayList<>();
         addressesList.add(new AddressItem(null, null, null, SelectableRecyclerView.Adapter.VIEW_TYPE_PADDING));
         for (Address address : receivingAddressesList) {
             addressesList.add(new AddressItem(address,
-                    addressLabels.values().toArray()[addressesList.size() - 1].toString(),
-                    addressLabels.keySet().toArray()[addressesList.size() - 1].toString(),
+                    addressLabels.get(address.getType())[1],
+                    addressLabels.get(address.getType())[0],
                     SelectableRecyclerView.Adapter.VIEW_TYPE_ITEM));
         }
         addressesList.add(new AddressItem(null, null, null, SelectableRecyclerView.Adapter.VIEW_TYPE_PADDING));
