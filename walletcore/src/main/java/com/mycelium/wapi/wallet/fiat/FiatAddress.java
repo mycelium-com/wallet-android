@@ -1,20 +1,14 @@
 package com.mycelium.wapi.wallet.fiat;
 
 import com.mrd.bitlib.model.AddressType;
-import com.mrd.bitlib.model.NetworkParameters;
-import com.mrd.bitlib.model.hdpath.HdKeyPath;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
+import org.jetbrains.annotations.NotNull;
 
 public class FiatAddress implements GenericAddress {
 
     @Override
     public CryptoCurrency getCoinType() {
-        return null;
-    }
-
-    @Override
-    public AddressType getType() {
         return null;
     }
 
@@ -28,12 +22,13 @@ public class FiatAddress implements GenericAddress {
         return 0;
     }
 
-    @Override
-    public HdKeyPath getBip32Path() {
+    public static FiatAddress from(CryptoCurrency currencyType, String address) {
         return null;
     }
 
-    public static FiatAddress from(CryptoCurrency currencyType, String address) {
+    @NotNull
+    @Override
+    public AddressType getType() {
         return null;
     }
 }

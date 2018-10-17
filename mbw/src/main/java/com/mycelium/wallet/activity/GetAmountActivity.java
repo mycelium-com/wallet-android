@@ -66,7 +66,7 @@ import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.btc.BtcAddress;
+import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
 import com.mycelium.wapi.wallet.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.fiat.FiatType;
 import com.mycelium.wapi.wallet.coins.BitcoinTest;
@@ -532,7 +532,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          WalletAccount.Receiver receiver = new WalletAccount.Receiver(address.isP2SH(address.getNetwork()) ?
                  new SegwitAddress(new com.mrd.bitlib.model.SegwitAddress(address.getNetwork(),
                          0x00,address.getAllAddressBytes())) :
-                 new BtcAddress(address.getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get(),
+                 new BtcLegacyAddress(address.getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get(),
                          address.getAllAddressBytes()), satoshis);
          _account.checkAmount(receiver, _kbMinerFee, _amount);
       } catch (OutputTooSmallException e1) {

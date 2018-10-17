@@ -3,9 +3,8 @@ package com.mycelium.wapi.wallet.colu
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.model.Transaction
-import com.mycelium.wapi.model.TransactionOutputSummary
 import com.mycelium.wapi.wallet.*
-import com.mycelium.wapi.wallet.btc.BtcAddress
+import com.mycelium.wapi.wallet.btc.BtcLegacyAddress
 import com.mycelium.wapi.wallet.btc.BtcSendRequest
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
@@ -112,7 +111,7 @@ class ColuAccount(context: ColuAccountContext, val privateKey: InMemoryPrivateKe
     }
 
     override fun getSendToRequest(destination: GenericAddress?, amount: Value?): SendRequest<*> {
-        return BtcSendRequest.to(destination as BtcAddress, amount) //TODO change to Colu Send Request
+        return BtcSendRequest.to(destination as BtcLegacyAddress, amount) //TODO change to Colu Send Request
     }
 
     override fun getSyncTotalRetrievedTransactions(): Int = 0

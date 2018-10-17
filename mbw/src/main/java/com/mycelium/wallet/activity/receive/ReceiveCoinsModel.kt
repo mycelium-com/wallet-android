@@ -14,20 +14,17 @@ import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.util.CoinUtil
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
-import com.mycelium.wallet.R.id.tvAmountFiat
 import com.mycelium.wallet.activity.util.AccountDisplayType
 import com.mycelium.wallet.event.SyncFailed
 import com.mycelium.wallet.event.SyncStopped
 import com.mycelium.wapi.model.TransactionSummary
-import com.mycelium.wapi.wallet.GenericAddress
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
-import com.mycelium.wapi.wallet.btc.BtcAddress
+import com.mycelium.wapi.wallet.btc.BtcLegacyAddress
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount
 import com.mycelium.wapi.wallet.coins.BitcoinMain
 import com.mycelium.wapi.wallet.coins.BitcoinTest
 import com.mycelium.wapi.wallet.currency.CurrencyValue
-import com.mycelium.wapi.wallet.currency.ExchangeBasedBitcoinValue
 import com.mycelium.wapi.wallet.currency.ExchangeBasedCurrencyValue
 import com.mycelium.wapi.wallet.segwit.SegwitAddress
 import com.squareup.otto.Subscribe
@@ -65,9 +62,9 @@ class ReceiveCoinsModel(
     fun updateObservingAddress() {
         val address = receivingAddress.value
         mbwManager.watchAddress(if (address!!.isP2SH(address!!.network)) {
-            SegwitAddress(com.mrd.bitlib.model.SegwitAddress(address.network, 0x00, address.allAddressBytes))
+            SegwitAddress(com.mrd.bitlib.model.SegwitAddress(address.network, 0x01, address.allAddressBytes))
         } else {
-            BtcAddress(if (address.network.isProdnet) {
+            BtcLegacyAddress(if (address.network.isProdnet) {
                 BitcoinMain.get()
             } else {
                 BitcoinTest.get()

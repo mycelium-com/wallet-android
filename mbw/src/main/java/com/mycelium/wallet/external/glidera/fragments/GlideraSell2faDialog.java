@@ -36,7 +36,7 @@ import com.mycelium.wallet.external.glidera.api.response.SellResponse;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.btc.BtcAddress;
+import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 import com.mycelium.wapi.wallet.coins.BitcoinMain;
@@ -181,7 +181,7 @@ public class GlideraSell2faDialog extends DialogFragment {
                   receivers.add(new WalletAccount.Receiver(address.isP2SH(address.getNetwork()) ?
                           new SegwitAddress(new com.mrd.bitlib.model.SegwitAddress(address.getNetwork(),
                                   0x00,address.getAllAddressBytes())) :
-                          new BtcAddress(address.getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get(),
+                          new BtcLegacyAddress(address.getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get(),
                                   address.getAllAddressBytes()), Bitcoins.nearestValue
                           (_sellPriceResponse.getQty())));
                } catch (com.mrd.bitlib.model.SegwitAddress.SegwitAddressException e) {

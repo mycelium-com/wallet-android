@@ -109,7 +109,7 @@ import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.Currency;
 import com.mycelium.wapi.wallet.bch.single.BitcoinCashSingleAddressModule;
 import com.mycelium.wapi.wallet.bip44.ChangeAddressMode;
-import com.mycelium.wapi.wallet.btc.BtcAddress;
+import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
 import com.mycelium.wapi.wallet.btc.InMemoryWalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
@@ -1445,8 +1445,8 @@ public class MbwManager {
         _addressWatchTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                getWalletManager(false).startSynchronization(new SyncMode(address.getType() == AddressType.P2SH_P2WPKH ?
-                        ((SegwitAddress)address).getAddress() : ((BtcAddress)address).getAddress()));
+                getWalletManager(false).startSynchronization(new SyncMode(address instanceof SegwitAddress?
+                        ((SegwitAddress)address).getAddress() : ((BtcLegacyAddress)address).getAddress()));
             }
         }, 1000, 5 * 1000);
     }

@@ -55,7 +55,7 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.btc.BtcAddress;
+import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.coins.BitcoinTest;
@@ -79,7 +79,7 @@ public class TradeActivityUtil {
          receiver = new WalletAccount.Receiver(address.isP2SH(address.getNetwork()) ?
                  new SegwitAddress(new com.mrd.bitlib.model.SegwitAddress(address.getNetwork(),
                          0x00,address.getAllAddressBytes())) :
-                 new BtcAddress(address.getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get(),
+                 new BtcLegacyAddress(address.getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get(),
                          address.getAllAddressBytes()), ts.satoshisFromSeller);
       } catch (com.mrd.bitlib.model.SegwitAddress.SegwitAddressException e) {
          e.printStackTrace();
@@ -106,7 +106,7 @@ public class TradeActivityUtil {
          receiver.add(new WalletAccount.Receiver(buyerAddress.isP2SH(buyerAddress.getNetwork()) ?
                  new SegwitAddress(new com.mrd.bitlib.model.SegwitAddress(buyerAddress.getNetwork(),
                  0x00, buyerAddress.getAllAddressBytes())) :
-                 new BtcAddress(buyerAddress.getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get(),
+                 new BtcLegacyAddress(buyerAddress.getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get(),
                  buyerAddress.getAllAddressBytes()), satoshisForBuyer));
       } catch (com.mrd.bitlib.model.SegwitAddress.SegwitAddressException e) {
          e.printStackTrace();
@@ -116,7 +116,7 @@ public class TradeActivityUtil {
             receiver.add(new WalletAccount.Receiver(feeAddress.isP2SH(feeAddress.getNetwork()) ?
                     new SegwitAddress(new com.mrd.bitlib.model.SegwitAddress(feeAddress.getNetwork(),
                             0x00, feeAddress.getAllAddressBytes())) :
-                    new BtcAddress(feeAddress.getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get(),
+                    new BtcLegacyAddress(feeAddress.getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get(),
                             feeAddress.getAllAddressBytes()), localTraderFee));
          } catch (com.mrd.bitlib.model.SegwitAddress.SegwitAddressException e) {
             e.printStackTrace();

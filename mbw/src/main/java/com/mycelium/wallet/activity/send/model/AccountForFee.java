@@ -4,14 +4,12 @@ import android.graphics.drawable.Drawable;
 
 import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.AddressBookManager;
-import com.mycelium.wapi.wallet.GenericAddress;
-import com.mycelium.wapi.wallet.btc.BtcAddress;
+import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
 import com.mycelium.wapi.wallet.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.segwit.SegwitAddress;
 
-import java.lang.reflect.Proxy;
 import java.util.UUID;
 
 public class AccountForFee extends AddressBookManager.IconEntry {
@@ -21,7 +19,7 @@ public class AccountForFee extends AddressBookManager.IconEntry {
         super(address.isP2SH(address.getNetwork()) ?
                 new SegwitAddress(new com.mrd.bitlib.model.SegwitAddress(address.getNetwork(),
                         0x00,address.getAllAddressBytes())) :
-                new BtcAddress(address.getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get(),
+                new BtcLegacyAddress(address.getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get(),
                         address.getAllAddressBytes()), name, icon, id);
 
         this.balance = balance;

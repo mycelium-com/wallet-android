@@ -54,7 +54,7 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bip44.ChangeAddressMode;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
-import com.mycelium.wapi.wallet.btc.BtcAddress;
+import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
 import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext;
@@ -505,7 +505,7 @@ public class ColuManager implements AccountProvider {
             accountId = mgr.getAccountId(address.isP2SH(address.getNetwork()) ?
                     new SegwitAddress(new com.mrd.bitlib.model.SegwitAddress(address.getNetwork(),
                             0x00,address.getAllAddressBytes())) :
-                    new BtcAddress(address.getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get(),
+                    new BtcLegacyAddress(address.getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get(),
                             address.getAllAddressBytes()), null);
         } catch (com.mrd.bitlib.model.SegwitAddress.SegwitAddressException e) {
             e.printStackTrace();
@@ -513,7 +513,7 @@ public class ColuManager implements AccountProvider {
         return accountId.isPresent();
     }
 
-    private WalletAccount<ColuTransaction, BtcAddress> createReadOnlyColuAccount(ColuAccount.ColuAsset coluAsset, Address address) {
+    private WalletAccount<ColuTransaction, BtcLegacyAddress> createReadOnlyColuAccount(ColuAccount.ColuAsset coluAsset, Address address) {
         CreatedAccountInfo createdAccountInfo = createSingleAddressAccount(address);
         addAssetAccountUUID(coluAsset, createdAccountInfo.id);
 
@@ -580,7 +580,7 @@ public class ColuManager implements AccountProvider {
         }
     }
 
-    private WalletAccount<ColuTransaction, BtcAddress> createAccount(ColuAccount.ColuAsset coluAsset, InMemoryPrivateKey importKey) {
+    private WalletAccount<ColuTransaction, BtcLegacyAddress> createAccount(ColuAccount.ColuAsset coluAsset, InMemoryPrivateKey importKey) {
         if (coluAsset == null) {
             Log.e(TAG, "createAccount called without asset !");
             return null;
@@ -723,7 +723,7 @@ public class ColuManager implements AccountProvider {
     }
 
     @Override
-    public WalletAccount<ColuTransaction, BtcAddress> getAccount(UUID id) {
+    public WalletAccount<ColuTransaction, BtcLegacyAddress> getAccount(UUID id) {
         return coluAccounts.get(id);
     }
 
