@@ -753,8 +753,8 @@ public class WalletManager {
         migrationProgressUpdater.setComment("Loading Bip 44 accounts");
         int counter = 0;
         for (HDAccountContext context : contexts) {
+            Bip44AccountBacking accountBacking = getBip44AccountBacking(context.getId());
             Map<BipDerivationType, HDAccountKeyManager> keyManagerMap = new HashMap<>();
-            HDAccount account;
             if (context.getAccountType() == ACCOUNT_TYPE_FROM_MASTERSEED
                     && context.getIndexesMap().size() < BipDerivationType.values().length) {
                 try {
@@ -771,11 +771,12 @@ public class WalletManager {
                 } catch (InvalidKeyCipher invalidKeyCipher) {
                     _logger.logError(invalidKeyCipher.getMessage());
                 }
+                context.persist(accountBacking);
             }
-            Bip44AccountBacking accountBacking = getBip44AccountBacking(context.getId());
 
             loadKeyManagers(context, keyManagerMap);
 
+            HDAccount account;
             account = getBip44Account(context, keyManagerMap, accountBacking);
 
             addAccount(account);
