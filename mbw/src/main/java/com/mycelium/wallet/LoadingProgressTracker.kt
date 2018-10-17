@@ -4,10 +4,12 @@ import android.content.Context
 import android.os.Handler
 import com.mycelium.wallet.event.MigrationCommentChanged
 import com.mycelium.wallet.event.MigrationPercentChanged
-import com.mycelium.wapi.wallet.MigrationProgressUpdater
+import com.mycelium.wallet.persistence.MetadataStorage
+import com.mycelium.wapi.wallet.LoadingProgressUpdater
 
-class MigrationProgressTracker(val context: Context) : MigrationProgressUpdater {
+class LoadingProgressTracker(val context: Context) : LoadingProgressUpdater {
     val eventBus = MbwManager.getEventBus()!!
+
     override var comment = ""
         set(value) {
             Handler(context.mainLooper).post {
@@ -22,4 +24,9 @@ class MigrationProgressTracker(val context: Context) : MigrationProgressUpdater 
             }
             field = value
         }
+
+
+    override fun clearLastFullUpdateTime() {
+        MetadataStorage(context).setLastFullSync(0)
+    }
 }

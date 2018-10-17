@@ -1,6 +1,8 @@
 package com.mycelium.wapi.wallet
 
-interface MigrationProgressUpdater {
+interface LoadingProgressUpdater {
     var comment: String
     var percent: Int
+
+    fun clearLastFullUpdateTime()
 }

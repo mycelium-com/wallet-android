@@ -169,12 +169,12 @@ public class MbwManager {
     private final KeepKeyManager _keepkeyManager;
     private final LedgerManager _ledgerManager;
     private final WapiClientElectrumX _wapi;
-    private volatile MigrationProgressTracker migrationProgressTracker;
+    private volatile LoadingProgressTracker migrationProgressTracker;
 
     private final LtApiClient _ltApi;
     private Handler _torHandler;
     private Context _applicationContext;
-    private MetadataStorage _storage;
+    private final MetadataStorage _storage;
     private LocalTraderManager _localTraderManager;
     private Pin _pin;
     private boolean _pinRequiredOnStartup;
@@ -694,9 +694,9 @@ public class MbwManager {
     }
 
     @Synchronized
-    private MigrationProgressTracker getMigrationProgressTracker() {
+    private LoadingProgressTracker getMigrationProgressTracker() {
         if (migrationProgressTracker == null) {
-            migrationProgressTracker =  new MigrationProgressTracker(_applicationContext);
+            migrationProgressTracker =  new LoadingProgressTracker(_applicationContext);
         }
         return migrationProgressTracker;
     }

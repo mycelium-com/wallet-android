@@ -32,7 +32,6 @@ import com.mycelium.wapi.api.lib.FeeEstimation;
 import com.mycelium.wapi.api.response.MinerFeeEstimationResponse;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
 import com.mycelium.wapi.wallet.bip44.*;
-import com.mycelium.wapi.wallet.bip44.HDAccountContext.*;
 import com.mycelium.wapi.wallet.single.PublicPrivateKeyStore;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.single.SingleAddressAccountContext;
@@ -73,7 +72,7 @@ public class WalletManager {
     private Wapi _wapi;
     private WapiLogger _logger;
     private final ExternalSignatureProviderProxy _signatureProviders;
-    private final MigrationProgressUpdater migrationProgressUpdater;
+    private final LoadingProgressUpdater loadingProgressUpdater;
     private IdentityAccountKeyManager _identityAccountKeyManager;
     private volatile UUID _activeAccountId;
     private FeeEstimation _lastFeeEstimations;
@@ -91,13 +90,13 @@ public class WalletManager {
     public WalletManager(SecureKeyValueStore secureKeyValueStore, WalletManagerBacking backing,
                          NetworkParameters network, Wapi wapi, ExternalSignatureProviderProxy signatureProviders,
                          SpvBalanceFetcher spvBalanceFetcher, boolean isNetworkConnected, Map<Currency, CurrencySettings> currenciesSettingsMap,
-                         MigrationProgressUpdater migrationProgressUpdater) {
+                         LoadingProgressUpdater loadingProgressUpdater) {
         _secureKeyValueStore = secureKeyValueStore;
         _backing = backing;
         _network = network;
         _wapi = wapi;
         _signatureProviders = signatureProviders;
-        this.migrationProgressUpdater = migrationProgressUpdater;
+        this.loadingProgressUpdater = loadingProgressUpdater;
         _logger = _wapi.getLogger();
         _walletAccounts = Maps.newHashMap();
         HDAccounts = new ArrayList<>();
@@ -750,7 +749,7 @@ public class WalletManager {
     private void loadBip44Accounts() {
         _logger.logInfo("Loading BIP44 accounts");
         List<HDAccountContext> contexts = _backing.loadBip44AccountContexts();
-        migrationProgressUpdater.setComment("Loading Bip 44 accounts");
+        loadingProgressUpdater.setComment("Loading Bip 44 accounts");
         int counter = 0;
         for (HDAccountContext context : contexts) {
             Bip44AccountBacking accountBacking = getBip44AccountBacking(context.getId());
@@ -771,6 +770,7 @@ public class WalletManager {
                 } catch (InvalidKeyCipher invalidKeyCipher) {
                     _logger.logError(invalidKeyCipher.getMessage());
                 }
+                loadingProgressUpdater.clearLastFullUpdateTime();
                 context.persist(accountBacking);
             }
 
@@ -802,7 +802,7 @@ public class WalletManager {
                     _spvBalanceFetcher.requestTransactionsFromUnrelatedAccountAsync(bchAccount.getId().toString(), /* IntentContract.UNRELATED_ACCOUNT_TYPE_HD */ 1);
                 }
             }
-            migrationProgressUpdater.setPercent((counter++ * 100 / contexts.size()));
+            loadingProgressUpdater.setPercent((counter++ * 100 / contexts.size()));
         }
     }
 
