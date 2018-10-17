@@ -154,23 +154,12 @@ public class MbwManager {
 
     public static synchronized MbwManager getInstance(final Context context) {
         if (_instance == null) {
-            Thread thread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    if (BuildConfig.DEBUG) {
-                        StrictMode.ThreadPolicy threadPolicy = StrictMode.allowThreadDiskReads();
-                        _instance = new MbwManager(context.getApplicationContext());
-                        StrictMode.setThreadPolicy(threadPolicy);
-                    } else {
-                        _instance = new MbwManager(context.getApplicationContext());
-                    }
-                }
-            });
-            thread.start();
-            try {
-                thread.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            if (BuildConfig.DEBUG) {
+                StrictMode.ThreadPolicy threadPolicy = StrictMode.allowThreadDiskReads();
+                _instance = new MbwManager(context.getApplicationContext());
+                StrictMode.setThreadPolicy(threadPolicy);
+            } else {
+                _instance = new MbwManager(context.getApplicationContext());
             }
         }
         return _instance;
