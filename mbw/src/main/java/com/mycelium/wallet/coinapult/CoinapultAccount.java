@@ -388,12 +388,6 @@ public class CoinapultAccount extends SynchronizeAbleWalletBtcAccount {
       return new ArrayList<T>(list.subList(offset, endIndex));
    }
 
-   // TODO - added temporary for back compartibility. Should be removed again
-   @Override
-   public Type getType() {
-      return null;
-   }
-
    @Override
    public NetworkParameters getNetwork() {
       return NetworkParameters.productionNetwork;
