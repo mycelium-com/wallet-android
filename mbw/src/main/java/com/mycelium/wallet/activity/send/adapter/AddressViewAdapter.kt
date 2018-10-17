@@ -46,7 +46,7 @@ class AddressViewAdapter(private val dataSet: List<AddressItem>, private val pad
             holder.addressTypeLabelTextView?.text = item.addressTypeLabel
 
             // setting root background color and arrow
-            holder.rootFrameLayout?.setBackgroundColor(when (selectedItem) {
+            val backgroundColor = when (selectedItem) {
                 position -> {
                     holder.triangleImageView?.setImageResource(R.drawable.recyclerview_item_triangle_selected)
                     holder.itemView.context?.resources?.getColor(R.color.fee_recycler_item_selected)!!
@@ -55,7 +55,9 @@ class AddressViewAdapter(private val dataSet: List<AddressItem>, private val pad
                     holder.triangleImageView?.setImageResource(0)
                     holder.itemView.context?.resources?.getColor(R.color.fee_recycler_item)!!
                 }
-            })
+            }
+
+            holder.rootFrameLayout?.setBackgroundColor(backgroundColor)
 
         } else {
             val layoutParams = holder.itemView.layoutParams as RecyclerView.LayoutParams
