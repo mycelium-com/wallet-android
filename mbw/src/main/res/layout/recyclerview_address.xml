@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="@dimen/item_addr_width"
+    android:layout_height="120dp"
+    android:id="@+id/frameLayout"
+    android:background="@color/fee_recycler_item">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginEnd="4dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="4dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/addressTypeLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:ellipsize="end"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center_horizontal"
+            android:singleLine="true"
+            android:textColor="@color/horizontalpicker_text_color"
+            android:textSize="18sp"
+            tools:text="Legacy" />
+
+        <TextView
+            android:id="@+id/addressType"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:ellipsize="end"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center_horizontal"
+            android:singleLine="true"
+            android:textColor="@color/horizontalpicker_text_color"
+            android:textSize="14sp"
+            tools:text="P2PKH" />
+
+        <TextView
+            android:id="@+id/address"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:textColor="@color/horizontalpicker_text_color"
+            android:textSize="14sp"
+            android:typeface="monospace"
+            tools:text="bc1q6s8n723dztd7ch2uy8xa76ux766gfwg05ydlt6" />
+    </LinearLayout>
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|center_horizontal"
+        android:duplicateParentState="true"
+        android:scaleType="center"
+        android:src="@drawable/recyclerview_item_rectangle_selected"/>
+
+    <ImageView
+        android:visibility="visible"
+        android:id="@+id/rectangle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|center_horizontal"
+        android:layout_marginTop="8dp"
+        android:duplicateParentState="true"
+        android:scaleType="center" />
+</FrameLayout>

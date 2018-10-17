@@ -1082,6 +1082,8 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
 
    public abstract List<AddressType> getAvailableAddressTypes();
 
+   public abstract Address getReceivingAddress(AddressType addressType);
+
    public abstract void setDefaultAddressType(AddressType addressType);
 
    protected abstract PublicKey getPublicKeyForAddress(Address address);

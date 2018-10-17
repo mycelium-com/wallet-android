@@ -47,10 +47,12 @@ import android.widget.TextView;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.AddressType;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wapi.model.Balance;
+import com.mycelium.wapi.wallet.AbstractAccount;
 import com.mycelium.wapi.wallet.WalletAccount;
 
 import java.util.UUID;
@@ -103,9 +105,24 @@ public class ColdStorageSummaryActivity extends Activity {
          ((TextView) findViewById(R.id.tvDescription)).setText(R.string.cs_address_description);
       }
 
-      // Address
-      Optional<Address> receivingAddress = _account.getReceivingAddress();
-      ((TextView) findViewById(R.id.tvAddress)).setText(receivingAddress.isPresent() ? receivingAddress.get().toMultiLineString() : "");
+      if (!(_account instanceof AbstractAccount)) {
+         // Address
+         Optional<Address> receivingAddress = _account.getReceivingAddress();
+         ((TextView) findViewById(R.id.tvAddress)).setText(receivingAddress.isPresent() ? receivingAddress.get().toMultiLineString() : "");
+      } else {
+         findViewById(R.id.tvAddress).setVisibility(View.GONE);
+         final TextView P2PKH = findViewById(R.id.tvAddressP2PKH);
+         P2PKH.setVisibility(View.VISIBLE);
+         final TextView P2SH = findViewById(R.id.tvAddressP2SH);
+         P2SH.setVisibility(View.VISIBLE);
+         final TextView P2WPKH = findViewById(R.id.tvAddressP2WPKH);
+         P2WPKH.setVisibility(View.VISIBLE);
+
+         AbstractAccount account = (AbstractAccount) _account;
+         P2PKH.setText(account.getReceivingAddress(AddressType.P2PKH).toMultiLineString());
+         P2SH.setText(account.getReceivingAddress(AddressType.P2SH_P2WPKH).toMultiLineString());
+         P2WPKH.setText(account.getReceivingAddress(AddressType.P2WPKH).toMultiLineString());
+      }
 
       // Balance
       ((TextView) findViewById(R.id.tvBalance)).setText(_mbwManager.getBtcValueString(balance.getSpendableBalance()));

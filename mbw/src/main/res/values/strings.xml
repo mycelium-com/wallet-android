@@ -542,7 +542,6 @@
     <string name="showing_word_number">Word %1$s:</string>
     <string name="start_word_list_verification">Start Verification</string>
     <string name="delete_last_entered_word">Delete Last Word</string>
-    <string name="stale_fee_warning">The fee rates are older than 2h! Proceed with caution!</string>
     <string name="account">Account</string>
     <string name="verify_backup_seed_des">Verify master seed backup by scanning the QR code.</string>
     <string name="show_outputs_menu_item">Show Unspent Outputs</string>
