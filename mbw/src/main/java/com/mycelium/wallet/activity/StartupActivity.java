@@ -46,6 +46,7 @@ import android.nfc.NfcAdapter;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.view.View;
 import android.view.Window;
 import android.widget.ProgressBar;
@@ -75,14 +76,11 @@ import com.mycelium.wallet.activity.send.GetSpendingRecordActivity;
 import com.mycelium.wallet.activity.send.SendInitializationActivity;
 import com.mycelium.wallet.bitid.BitIDAuthenticationActivity;
 import com.mycelium.wallet.bitid.BitIDSignRequest;
-import com.mycelium.wallet.event.MigrationCommentChanged;
+import com.mycelium.wallet.event.MigrationStatusChanged;
 import com.mycelium.wallet.event.MigrationPercentChanged;
 import com.mycelium.wallet.external.glidera.activities.GlideraSendToNextStep;
 import com.mycelium.wallet.pop.PopRequest;
-import com.mycelium.wapi.wallet.AesKeyCipher;
-import com.mycelium.wapi.wallet.KeyCipher;
-import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.WalletManager;
+import com.mycelium.wapi.wallet.*;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -114,16 +112,19 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
    private Bus eventBus;
    @BindView(R.id.progressBar)
    ProgressBar progressBar;
-   @BindView(R.id.comment)
-   TextView comment;
+   @BindView(R.id.status)
+   TextView status;
    private SharedPreferences sharedPreferences;
    private long lastStartupTime;
+   private boolean isFirstRun;
 
    @Override
    protected void onCreate(Bundle savedInstanceState) {
       requestWindowFeature(Window.FEATURE_NO_TITLE);
       super.onCreate(savedInstanceState);
       sharedPreferences = getApplicationContext().getSharedPreferences(Constants.SETTINGS_NAME, Activity.MODE_PRIVATE);
+      isFirstRun = (PreferenceManager.getDefaultSharedPreferences(
+              getApplicationContext()).getInt("ckChangeLog_last_version_code", -1) == -1);
       lastStartupTime = sharedPreferences.getLong(LAST_STARTUP_TIME, TimeUnit.SECONDS.toMillis(10));
       _progress = new ProgressDialog(this);
       setContentView(R.layout.startup_activity);
@@ -163,19 +164,19 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
    }
 
    @Subscribe
-   public void onMigrationCommentChanged(MigrationCommentChanged migrationComment) {
-      comment.setText(migrationComment.getNewComment());
+   public void onMigrationCommentChanged(MigrationStatusChanged migrationStatusChanged) {
+      status.setText(StartupActivityHelperKt.format(migrationStatusChanged.getNewStatus(), getApplicationContext()));
    }
 
    private Runnable delayedInitialization = new Runnable() {
       @Override
       public void run() {
-         if (lastStartupTime > TimeUnit.SECONDS.toMillis(5)) {
+         if (lastStartupTime > TimeUnit.SECONDS.toMillis(5) && !isFirstRun) {
             new Handler(getMainLooper()).post(new Runnable() {
                @Override
                public void run() {
                   progressBar.setVisibility(View.VISIBLE);
-                  comment.setVisibility(View.VISIBLE);
+                  status.setVisibility(View.VISIBLE);
                }
             });
          }

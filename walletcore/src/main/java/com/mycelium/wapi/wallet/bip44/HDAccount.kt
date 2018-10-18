@@ -168,7 +168,6 @@ open class HDAccount(
      * Ensure that all addresses in the look ahead window have been created
      */
     private fun ensureAddressIndexes() {
-        LoadingProgressTracker.setComment("Loading account ${accountIndex + 1}")
         derivePaths.forEachIndexed { index, derivationType ->
             ensureAddressIndexes(true, true, derivationType)
             ensureAddressIndexes(false, true, derivationType)

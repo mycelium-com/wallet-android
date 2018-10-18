@@ -3,7 +3,7 @@ package com.mycelium.wapi.wallet
 object LoadingProgressTracker {
     val subscribers: MutableList<LoadingProgressUpdater> = ArrayList()
 
-    fun setComment(comment: String) = subscribers.forEach { it.comment = comment }
+    fun setStatus(status: LoadingProgressStatus) = subscribers.forEach { it.status = status }
 
     fun setPercent(percent: Int) = subscribers.forEach { it.percent = percent }
 

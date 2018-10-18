@@ -72,6 +72,7 @@ public class WalletManager {
     private Wapi _wapi;
     private WapiLogger _logger;
     private final ExternalSignatureProviderProxy _signatureProviders;
+    private LoadingProgressUpdater loadingProgressUpdater;
     private IdentityAccountKeyManager _identityAccountKeyManager;
     private volatile UUID _activeAccountId;
     private FeeEstimation _lastFeeEstimations;
@@ -95,6 +96,7 @@ public class WalletManager {
         _network = network;
         _wapi = wapi;
         _signatureProviders = signatureProviders;
+        this.loadingProgressUpdater = loadingProgressUpdater;
         LoadingProgressTracker.INSTANCE.subscribe(loadingProgressUpdater);
         _logger = _wapi.getLogger();
         _walletAccounts = Maps.newHashMap();
@@ -748,13 +750,17 @@ public class WalletManager {
     private void loadBip44Accounts() {
         _logger.logInfo("Loading BIP44 accounts");
         List<HDAccountContext> contexts = _backing.loadBip44AccountContexts();
-        LoadingProgressTracker.INSTANCE.setComment("Loading HD accounts");
+        LoadingProgressTracker.INSTANCE.setStatus(new LoadingProgressStatus.Loading());
         int counter = 1;
         for (HDAccountContext context : contexts) {
             Bip44AccountBacking accountBacking = getBip44AccountBacking(context.getId());
             Map<BipDerivationType, HDAccountKeyManager> keyManagerMap = new HashMap<>();
             if (context.getAccountType() == ACCOUNT_TYPE_FROM_MASTERSEED
                     && context.getIndexesMap().size() < BipDerivationType.values().length) {
+                // Only show for the first time
+                if (loadingProgressUpdater.getStatus() instanceof LoadingProgressStatus.Loading) {
+                    LoadingProgressTracker.INSTANCE.setStatus(new LoadingProgressStatus.Migrating());
+                }
                 try {
                     AesKeyCipher cipher = AesKeyCipher.defaultKeyCipher();
                     Bip39.MasterSeed masterSeed = getMasterSeed(cipher);
@@ -771,6 +777,15 @@ public class WalletManager {
                 }
                 LoadingProgressTracker.INSTANCE.clearLastFullUpdateTime();
                 context.persist(accountBacking);
+            }
+
+            if (loadingProgressUpdater.getStatus() instanceof LoadingProgressStatus.Migrating ||
+                    loadingProgressUpdater.getStatus() instanceof LoadingProgressStatus.MigratingNOfMHD) {
+                LoadingProgressTracker.INSTANCE.setStatus(new LoadingProgressStatus
+                        .MigratingNOfMHD(Integer.toString(counter++), Integer.toString(contexts.size())));
+            } else {
+                LoadingProgressTracker.INSTANCE.setStatus(new LoadingProgressStatus
+                        .LoadingNOfMHD(Integer.toString(counter++), Integer.toString(contexts.size())));
             }
 
             loadKeyManagers(context, keyManagerMap);
@@ -887,7 +902,18 @@ public class WalletManager {
     private void loadSingleAddressAccounts() {
         _logger.logInfo("Loading single address accounts");
         List<SingleAddressAccountContext> contexts = _backing.loadSingleAddressAccountContexts();
+        int counter = 1;
         for (SingleAddressAccountContext context : contexts) {
+            LoadingProgressTracker.INSTANCE.setPercent(counter * 100 / contexts.size());
+            // The only way to know if we are migrating now
+            if (loadingProgressUpdater.getStatus() instanceof LoadingProgressStatus.MigratingNOfMHD
+                || loadingProgressUpdater.getStatus() instanceof LoadingProgressStatus.MigratingNOfMSA) {
+                LoadingProgressTracker.INSTANCE.setStatus(new LoadingProgressStatus
+                        .MigratingNOfMSA(Integer.toString(counter++), Integer.toString(contexts.size())));
+            } else {
+                LoadingProgressTracker.INSTANCE.setStatus(new LoadingProgressStatus
+                        .LoadingNOfMSA(Integer.toString(counter++), Integer.toString(contexts.size())));
+            }
             PublicPrivateKeyStore store = new PublicPrivateKeyStore(_secureKeyValueStore);
             BTCSettings btcSettings = (BTCSettings) currenciesSettingsMap.get(Currency.BTC);
             SingleAddressAccountBacking accountBacking = checkNotNull(_backing.getSingleAddressAccountBacking(context.getId()));
