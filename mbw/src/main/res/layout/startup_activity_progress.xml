@@ -12,11 +12,13 @@
         android:id="@+id/comment"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/green" />
+        android:textColor="@color/green"
+        android:visibility="gone"/>
 
     <ProgressBar
         android:id="@+id/progressBar"
         style="@style/AccountProgressBar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:visibility="gone"/>
 </LinearLayout>

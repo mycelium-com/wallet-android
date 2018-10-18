@@ -39,6 +39,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.nfc.NfcAdapter;
@@ -91,6 +92,7 @@ import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import static com.mycelium.wallet.StringHandleConfig.HdNodeAction.isKeyNode;
 import static com.mycelium.wallet.StringHandleConfig.PrivateKeyAction.getPrivateKey;
@@ -101,6 +103,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
    private static final int IMPORT_WORDLIST = 0;
 
    private static final String URI_HOST_GLIDERA_REGISTRATION = "glideraRegistration";
+   private static final String LAST_STARTUP_TIME = "startupTme";
 
    private boolean _hasClipboardExportedPrivateKeys;
    private boolean hasClipboardExportedPublicKeys;
@@ -113,15 +116,18 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
    ProgressBar progressBar;
    @BindView(R.id.comment)
    TextView comment;
+   private SharedPreferences sharedPreferences;
+   private long lastStartupTime;
 
    @Override
    protected void onCreate(Bundle savedInstanceState) {
       requestWindowFeature(Window.FEATURE_NO_TITLE);
       super.onCreate(savedInstanceState);
+      sharedPreferences = getApplicationContext().getSharedPreferences(Constants.SETTINGS_NAME, Activity.MODE_PRIVATE);
+      lastStartupTime = sharedPreferences.getLong(LAST_STARTUP_TIME, TimeUnit.SECONDS.toMillis(10));
       _progress = new ProgressDialog(this);
       setContentView(R.layout.startup_activity);
       ButterKnife.bind(this);
-
       setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
    }
 
@@ -131,7 +137,6 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
       eventBus = MbwManager.getEventBus();
       eventBus.register(this);
       new Thread(delayedInitialization).start();
-
    }
 
    @Override
@@ -165,6 +170,15 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
    private Runnable delayedInitialization = new Runnable() {
       @Override
       public void run() {
+         if (lastStartupTime > TimeUnit.SECONDS.toMillis(5)) {
+            new Handler(getMainLooper()).post(new Runnable() {
+               @Override
+               public void run() {
+                  progressBar.setVisibility(View.VISIBLE);
+                  comment.setVisibility(View.VISIBLE);
+               }
+            });
+         }
          long startTime = System.currentTimeMillis();
          _mbwManager = MbwManager.getInstance(StartupActivity.this.getApplication());
 
@@ -188,6 +202,9 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
             remainingTime = 0;
          }
          new Handler(getMainLooper()).postDelayed(delayedFinish, remainingTime);
+         sharedPreferences.edit()
+                 .putLong(LAST_STARTUP_TIME, timeSpent)
+                 .apply();
       }
    };
 
