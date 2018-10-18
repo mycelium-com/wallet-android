@@ -72,7 +72,6 @@ public class WalletManager {
     private Wapi _wapi;
     private WapiLogger _logger;
     private final ExternalSignatureProviderProxy _signatureProviders;
-    private final LoadingProgressUpdater loadingProgressUpdater;
     private IdentityAccountKeyManager _identityAccountKeyManager;
     private volatile UUID _activeAccountId;
     private FeeEstimation _lastFeeEstimations;
@@ -96,7 +95,7 @@ public class WalletManager {
         _network = network;
         _wapi = wapi;
         _signatureProviders = signatureProviders;
-        this.loadingProgressUpdater = loadingProgressUpdater;
+        LoadingProgressTracker.INSTANCE.subscribe(loadingProgressUpdater);
         _logger = _wapi.getLogger();
         _walletAccounts = Maps.newHashMap();
         HDAccounts = new ArrayList<>();
@@ -749,7 +748,7 @@ public class WalletManager {
     private void loadBip44Accounts() {
         _logger.logInfo("Loading BIP44 accounts");
         List<HDAccountContext> contexts = _backing.loadBip44AccountContexts();
-        loadingProgressUpdater.setComment("Loading HD accounts");
+        LoadingProgressTracker.INSTANCE.setComment("Loading HD accounts");
         int counter = 1;
         for (HDAccountContext context : contexts) {
             Bip44AccountBacking accountBacking = getBip44AccountBacking(context.getId());
@@ -770,7 +769,7 @@ public class WalletManager {
                 } catch (InvalidKeyCipher invalidKeyCipher) {
                     _logger.logError(invalidKeyCipher.getMessage());
                 }
-                loadingProgressUpdater.clearLastFullUpdateTime();
+                LoadingProgressTracker.INSTANCE.clearLastFullUpdateTime();
                 context.persist(accountBacking);
             }
 
@@ -802,7 +801,6 @@ public class WalletManager {
                     _spvBalanceFetcher.requestTransactionsFromUnrelatedAccountAsync(bchAccount.getId().toString(), /* IntentContract.UNRELATED_ACCOUNT_TYPE_HD */ 1);
                 }
             }
-            loadingProgressUpdater.setPercent((counter++ * 100 / contexts.size()));
         }
     }
 
