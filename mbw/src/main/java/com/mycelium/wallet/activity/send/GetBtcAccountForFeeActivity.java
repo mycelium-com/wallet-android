@@ -61,11 +61,7 @@ public class GetBtcAccountForFeeActivity extends AppCompatActivity {
                     && isBtc(account.getAccountBalance().confirmed.type)) {
                 String name = _mbwManager.getMetadataStorage().getLabelByAccount(account.getId());
                 Drawable drawableForAccount = Utils.getDrawableForAccount(account, true, getResources());
-                try {
-                    entries.add(new AccountForFee(receivingAddress.get(), name, drawableForAccount, account.getId(), account.getAccountBalance().confirmed));
-                } catch (SegwitAddress.SegwitAddressException e) {
-                    e.printStackTrace();
-                }
+                entries.add(new AccountForFee(receivingAddress.get(), name, drawableForAccount, account.getId(), account.getAccountBalance().confirmed));
             }
         }
 

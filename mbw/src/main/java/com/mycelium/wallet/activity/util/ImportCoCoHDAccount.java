@@ -13,6 +13,7 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.colu.ColuManager;
+import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
@@ -110,15 +111,7 @@ public class ImportCoCoHDAccount extends AsyncTask<Void, Integer, UUID> {
             HdKeyNode currentNode = hdKeyNode.createChildNode(HdKeyPath.valueOf(String.format(coCoDerivationPath, accountIndex, addressIndex)));
             Address address = currentNode.getPublicKey().toAddress(mbwManager.getNetwork(), AddressType.P2PKH);
             Optional<UUID> accountId = null;
-            try {
-                accountId = mbwManager.getAccountId(address.isP2SH(address.getNetwork()) ?
-                        new SegwitAddress(new com.mrd.bitlib.model.SegwitAddress(address.getNetwork(),
-                                0x00,address.getAllAddressBytes())) :
-                        new BtcLegacyAddress(address.getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get(),
-                                address.getAllAddressBytes()), null);
-            } catch (com.mrd.bitlib.model.SegwitAddress.SegwitAddressException e) {
-                e.printStackTrace();
-            }
+            accountId = mbwManager.getAccountId(AddressUtils.fromAddress(address), null);
             if (accountId.isPresent()) {
                 existingAccountsFound++;
                 addressIndex++;

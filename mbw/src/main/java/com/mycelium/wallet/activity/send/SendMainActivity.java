@@ -378,15 +378,8 @@ public class SendMainActivity extends Activity {
         if (savedInstanceState != null) {
             _amountToSend = (Value) getIntent().getSerializableExtra(AMOUNT); // todo
             Address address = (Address) savedInstanceState.getSerializable(RECEIVING_ADDRESS);
-            try {
-                _receivingAddress = address.getType() == AddressType.P2SH_P2WPKH ?
-                        new SegwitAddress(new com.mrd.bitlib.model.SegwitAddress(address.getNetwork(),
-                        0x00,address.getAllAddressBytes())) :
-                        new BtcLegacyAddress(address.getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get(),
-                                address.getAllAddressBytes());
-            } catch (com.mrd.bitlib.model.SegwitAddress.SegwitAddressException e) {
-                e.printStackTrace();
-            }
+            _receivingAddress = AddressUtils.fromAddress(address);
+
             _transactionLabel = savedInstanceState.getString(TRANSACTION_LABEL);
             feeLvl = (MinerFee) savedInstanceState.getSerializable(FEE_LVL);
             feePerKbValue = savedInstanceState.getLong(FEE_PER_KB);
@@ -1456,26 +1449,10 @@ public class SendMainActivity extends Activity {
                 if (type == StringHandlerActivity.ResultType.PRIVATE_KEY) {
                     InMemoryPrivateKey key = StringHandlerActivity.getPrivateKey(intent);
                     Address address = key.getPublicKey().toAddress(_mbwManager.getNetwork(), AddressType.P2SH_P2WPKH);
-                    try {
-                        _receivingAddress = address.isP2SH(address.getNetwork()) ?
-                                new SegwitAddress(new com.mrd.bitlib.model.SegwitAddress(address.getNetwork(),
-                                        0x00,address.getAllAddressBytes())) :
-                                new BtcLegacyAddress(address.getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get(),
-                                        address.getAllAddressBytes());    //TODO SegWit fix
-                    } catch (com.mrd.bitlib.model.SegwitAddress.SegwitAddressException e) {
-                        e.printStackTrace();
-                    }
+                    _receivingAddress = AddressUtils.fromAddress(address);   //TODO SegWit fix
                 } else if (type == StringHandlerActivity.ResultType.ADDRESS) {
                     Address address = StringHandlerActivity.getAddress(intent);
-                    try {
-                        _receivingAddress = address.isP2SH(address.getNetwork()) ?
-                                new SegwitAddress(new com.mrd.bitlib.model.SegwitAddress(address.getNetwork(),
-                                        0x00,address.getAllAddressBytes())) :
-                                new BtcLegacyAddress(address.getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get(),
-                                        address.getAllAddressBytes());
-                    } catch (com.mrd.bitlib.model.SegwitAddress.SegwitAddressException e) {
-                        e.printStackTrace();
-                    }
+                    _receivingAddress = AddressUtils.fromAddress(address);
                 } else if (type == StringHandlerActivity.ResultType.URI_WITH_ADDRESS) {
                     BitcoinUriWithAddress uri = StringHandlerActivity.getUriWithAddress(intent);
                     if (uri.callbackURL != null) {

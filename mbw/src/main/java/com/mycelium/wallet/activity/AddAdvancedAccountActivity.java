@@ -69,10 +69,7 @@ import com.mycelium.wallet.extsig.ledger.activity.LedgerAccountImportActivity;
 import com.mycelium.wallet.extsig.trezor.activity.TrezorAccountImportActivity;
 import com.mycelium.wallet.modularisation.BCHHelper;
 import com.mycelium.wallet.persistence.MetadataStorage;
-import com.mycelium.wapi.wallet.AesKeyCipher;
-import com.mycelium.wapi.wallet.GenericAddress;
-import com.mycelium.wapi.wallet.KeyCipher;
-import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
@@ -224,15 +221,7 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
     */
    private void returnAccount(Address address) {
       //UUID acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(address);
-      try {
-         new ImportReadOnlySingleAddressAccountAsyncTask(address.isP2SH(address.getNetwork()) ?
-                 new SegwitAddress(new com.mrd.bitlib.model.SegwitAddress(address.getNetwork(),
-                         0x00,address.getAllAddressBytes())) :
-                 new BtcLegacyAddress(address.getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get(),
-                         address.getAllAddressBytes()), AccountType.Unknown).execute();
-      } catch (com.mrd.bitlib.model.SegwitAddress.SegwitAddressException e) {
-         e.printStackTrace();
-      }
+      new ImportReadOnlySingleAddressAccountAsyncTask(AddressUtils.fromAddress(address), AccountType.Unknown).execute();
    }
 
    /**
@@ -429,11 +418,7 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
             //Check whether this address is already used in any account
             for (AddressType addressType : AddressType.values()) {
                Address addr = key.getPublicKey().toAddress(_mbwManager.getNetwork(), addressType);
-               address = addr.isP2SH(addr.getNetwork()) ?
-                       new SegwitAddress(new com.mrd.bitlib.model.SegwitAddress(addr.getNetwork(),
-                               0x00,addr.getAllAddressBytes())) :
-                       new BtcLegacyAddress(addr.getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get(),
-                               addr.getAllAddressBytes());
+               address = AddressUtils.fromAddress(addr);
                Optional<UUID> accountId = _mbwManager.getAccountId(address, null);
                if (accountId.isPresent()) {
                   return null;
@@ -453,8 +438,6 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
          } catch (IOException e) {
             askUserForColorize = true;
             return null;
-         } catch (com.mrd.bitlib.model.SegwitAddress.SegwitAddressException e) {
-            e.printStackTrace();
          }
          return acc;
       }

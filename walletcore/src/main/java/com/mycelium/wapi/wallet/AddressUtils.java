@@ -6,6 +6,7 @@ import com.mycelium.wapi.wallet.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
+import com.mycelium.wapi.wallet.segwit.SegwitAddress;
 
 public class AddressUtils {
 
@@ -18,6 +19,21 @@ public class AddressUtils {
             return new BtcLegacyAddress(currencyType, addr.getAllAddressBytes());
         } else {
             return null;
+        }
+    }
+
+    public static GenericAddress fromAddress(Address address){
+        GenericAddress result = null;
+        try {
+            result = (address instanceof com.mrd.bitlib.model.SegwitAddress) ?
+                    new SegwitAddress(new com.mrd.bitlib.model.SegwitAddress(address.getNetwork(),0x00,
+                            address.getAllAddressBytes())) :
+                    new BtcLegacyAddress(address.getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get(),
+                            address.getAllAddressBytes());
+        } catch (com.mrd.bitlib.model.SegwitAddress.SegwitAddressException e) {
+            e.printStackTrace();
+        } finally {
+            return result;
         }
     }
 

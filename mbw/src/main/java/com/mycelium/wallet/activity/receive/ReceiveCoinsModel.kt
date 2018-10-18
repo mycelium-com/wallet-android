@@ -18,6 +18,7 @@ import com.mycelium.wallet.activity.util.AccountDisplayType
 import com.mycelium.wallet.event.SyncFailed
 import com.mycelium.wallet.event.SyncStopped
 import com.mycelium.wapi.model.TransactionSummary
+import com.mycelium.wapi.wallet.AddressUtils
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import com.mycelium.wapi.wallet.btc.BtcLegacyAddress
@@ -61,15 +62,7 @@ class ReceiveCoinsModel(
 
     fun updateObservingAddress() {
         val address = receivingAddress.value
-        mbwManager.watchAddress(if (address!!.isP2SH(address!!.network)) {
-            SegwitAddress(com.mrd.bitlib.model.SegwitAddress(address.network, 0x01, address.allAddressBytes))
-        } else {
-            BtcLegacyAddress(if (address.network.isProdnet) {
-                BitcoinMain.get()
-            } else {
-                BitcoinTest.get()
-            }, address.allAddressBytes)
-        })
+        mbwManager.watchAddress(AddressUtils.fromAddress(address))
     }
 
     fun onCleared() {

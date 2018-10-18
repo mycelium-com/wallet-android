@@ -74,6 +74,7 @@ import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil.AddressLabelChangedHandler;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.AddressBookChanged;
+import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
@@ -209,15 +210,7 @@ public class AddressBookFragment extends Fragment {
       Map<Address, String> rawentries = _mbwManager.getMetadataStorage().getAllAddressLabels();
       List<Entry> entries = new ArrayList<Entry>();
       for (Map.Entry<Address, String> e : rawentries.entrySet()) {
-         try {
-            entries.add(new Entry(e.getKey().isP2SH(e.getKey().getNetwork()) ?
-                    new SegwitAddress(new com.mrd.bitlib.model.SegwitAddress(e.getKey().getNetwork(),
-                            0x00,e.getKey().getAllAddressBytes())) :
-                    new BtcLegacyAddress(e.getKey().getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get(),
-                            e.getKey().getAllAddressBytes()), e.getValue()));
-         } catch (com.mrd.bitlib.model.SegwitAddress.SegwitAddressException ex) {
-            ex.printStackTrace();
-         }
+         entries.add(new Entry(AddressUtils.fromAddress(e.getKey()), e.getValue()));
       }
       entries = Utils.sortAddressbookEntries(entries);
       if (entries.isEmpty()) {

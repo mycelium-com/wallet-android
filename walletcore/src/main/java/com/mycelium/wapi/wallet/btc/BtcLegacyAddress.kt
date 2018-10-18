@@ -3,13 +3,14 @@ package com.mycelium.wapi.wallet.btc
 import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.model.AddressType
 import com.mrd.bitlib.model.NetworkParameters
+import com.mycelium.wapi.wallet.AddressUtils
 import com.mycelium.wapi.wallet.coins.BitcoinMain
 import com.mycelium.wapi.wallet.coins.BitcoinTest
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 
 class BtcLegacyAddress(override val coinType: CryptoCurrency, bytes: ByteArray) : BtcAddress {
 
-    val address: Address = Address(bytes)
+    override val address = Address(bytes)
 
     override val id = 0L
 
