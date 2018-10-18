@@ -356,7 +356,7 @@ public class SendMainActivity extends Activity {
         _amountToSend = (Value) getIntent().getSerializableExtra(AMOUNT);
         _amountToSend = Value.valueOf(BitcoinTest.get(), 123456); // todo delete test (since we can't use GetAmountActivity)
         // May be null
-        _receivingAddress = (BtcLegacyAddress) getIntent().getSerializableExtra(RECEIVING_ADDRESS);
+        _receivingAddress = (BtcAddress) getIntent().getSerializableExtra(RECEIVING_ADDRESS);
         //May be null
         _transactionLabel = getIntent().getStringExtra(TRANSACTION_LABEL);
         //May be null
@@ -414,8 +414,7 @@ public class SendMainActivity extends Activity {
             //we need the user to pick a spending account - the activity will then init sendmain correctly
             BitcoinUri uri;
             if (_bitcoinUri == null) {
-                uri = BitcoinUri.from(((BtcAddress)_receivingAddress).getType() == AddressType.P2SH_P2WPKH ?
-                        ((SegwitAddress)_receivingAddress).getAddress() : ((BtcLegacyAddress)_receivingAddress).getAddress(),
+                uri = BitcoinUri.from(((BtcAddress)_receivingAddress).getAddress(),
                         getValueToSend() == null ? null : getValueToSend().getValue(), _transactionLabel, null);
             } else {
                 uri = _bitcoinUri;
@@ -715,7 +714,7 @@ public class SendMainActivity extends Activity {
         BitcoinUriWithAddress uri = getUriFromClipboard();
         if (uri != null) {
             makeText(this, getResources().getString(R.string.using_address_from_clipboard), LENGTH_SHORT).show();
-            _receivingAddress = new BtcLegacyAddress(BitcoinTest.get(), uri.address.getAllAddressBytes());
+            _receivingAddress = AddressUtils.fromAddress(uri.address);
             if (uri.amount != null && uri.amount >= 0) {
                 _amountToSend = Value.valueOf(BitcoinTest.get(), uri.amount);
             }
@@ -1462,7 +1461,7 @@ public class SendMainActivity extends Activity {
                         verifyPaymentRequest(_bitcoinUri);
                         return;
                     }
-                    _receivingAddress = new BtcLegacyAddress(BitcoinTest.get(), uri.address.getAllAddressBytes()); // todo not only btc
+                    _receivingAddress = AddressUtils.fromAddress(uri.address);
                     _transactionLabel = uri.label;
                     if (uri.amount != null && uri.amount > 0) {
                         //we set the amount to the one contained in the qr code, even if another one was entered previously
@@ -1496,8 +1495,7 @@ public class SendMainActivity extends Activity {
             String s = Preconditions.checkNotNull(intent.getStringExtra(AddressBookFragment.ADDRESS_RESULT_NAME));
             String result = s.trim();
             // Is it really an address?
-            GenericAddress address = new BtcLegacyAddress(BitcoinTest.get(), result.getBytes()); // todo bitcoin
-//            Address.fromString(result, _mbwManager.getNetwork());
+            GenericAddress address = AddressUtils.fromAddress(Address.fromString(result, _mbwManager.getNetwork()));
             if (address == null) {
                 return;
             }

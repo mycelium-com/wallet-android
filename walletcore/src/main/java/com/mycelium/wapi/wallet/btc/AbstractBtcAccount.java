@@ -185,10 +185,8 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
 
    //only for BtcLegacyAddress?
    public boolean isMineAddress(GenericAddress address) {
-      if(((BtcAddress)address).getType() == AddressType.P2SH_P2WPKH){
-         return isMine(((SegwitAddress)address).getAddress());
-      }
-      return isMine(((BtcLegacyAddress) address).getAddress());
+
+      return isMine(((BtcAddress) address).getAddress());
    }
 
 
@@ -1075,13 +1073,8 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       StandardTransactionBuilder stb = new StandardTransactionBuilder(_network);
       List<Address> addressList = new ArrayList<>();
       for (Receiver receiver : receivers) {
-         if(((BtcAddress)receiver.address).getType() == AddressType.P2SH_P2WPKH){
-            stb.addOutput(((SegwitAddress) receiver.address).getAddress(), receiver.amount);
-            addressList.add(((SegwitAddress) receiver.address).getAddress());
-         } else {
-            stb.addOutput(((BtcLegacyAddress) receiver.address).getAddress(), receiver.amount);
-            addressList.add(((BtcLegacyAddress) receiver.address).getAddress());
-         }
+         stb.addOutput(((BtcAddress)receiver.address).getAddress(), receiver.amount);
+         addressList.add(((BtcAddress)receiver.address).getAddress());
       }
       Address changeAddress = getChangeAddress(addressList);
       return stb.createUnsignedTransaction(spendable, changeAddress, new PublicKeyRing(),
@@ -1741,7 +1734,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    @Override
    public GenericAddress getReceiveAddress(){
       CryptoCurrency currency = getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get();
-      return AddressUtils.from(currency, getReceivingAddress().get().toString());
+      return AddressUtils.fromAddress(getReceivingAddress().get());
    }
 }
 

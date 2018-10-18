@@ -1,6 +1,7 @@
 package com.mycelium.wapi.wallet;
 
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.AddressType;
 import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
 import com.mycelium.wapi.wallet.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.coins.BitcoinTest;
@@ -23,11 +24,12 @@ public class AddressUtils {
     }
 
     public static GenericAddress fromAddress(Address address){
-        return  (address instanceof com.mrd.bitlib.model.SegwitAddress) ?
-                    new SegwitAddress((com.mrd.bitlib.model.SegwitAddress) address) :
-                    new BtcLegacyAddress(address.getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get(),
-                            address.getAllAddressBytes());
-
+        GenericAddress res = null;
+            res = (address.getType() == AddressType.P2WPKH) ?
+                        new SegwitAddress((com.mrd.bitlib.model.SegwitAddress) address) :
+                        new BtcLegacyAddress(address.getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get(),
+                                address.getAllAddressBytes());
+        return res;
     }
 
     public static String toMultiLineString(String address){
