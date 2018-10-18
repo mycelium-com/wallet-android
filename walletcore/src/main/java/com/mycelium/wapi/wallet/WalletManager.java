@@ -750,7 +750,7 @@ public class WalletManager {
         _logger.logInfo("Loading BIP44 accounts");
         List<HDAccountContext> contexts = _backing.loadBip44AccountContexts();
         loadingProgressUpdater.setComment("Loading HD accounts");
-        int counter = 0;
+        int counter = 1;
         for (HDAccountContext context : contexts) {
             Bip44AccountBacking accountBacking = getBip44AccountBacking(context.getId());
             Map<BipDerivationType, HDAccountKeyManager> keyManagerMap = new HashMap<>();
