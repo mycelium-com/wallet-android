@@ -23,18 +23,11 @@ public class AddressUtils {
     }
 
     public static GenericAddress fromAddress(Address address){
-        GenericAddress result = null;
-        try {
-            result = (address instanceof com.mrd.bitlib.model.SegwitAddress) ?
-                    new SegwitAddress(new com.mrd.bitlib.model.SegwitAddress(address.getNetwork(),0x00,
-                            address.getAllAddressBytes())) :
+        return  (address instanceof com.mrd.bitlib.model.SegwitAddress) ?
+                    new SegwitAddress((com.mrd.bitlib.model.SegwitAddress) address) :
                     new BtcLegacyAddress(address.getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get(),
                             address.getAllAddressBytes());
-        } catch (com.mrd.bitlib.model.SegwitAddress.SegwitAddressException e) {
-            e.printStackTrace();
-        } finally {
-            return result;
-        }
+
     }
 
     public static String toMultiLineString(String address){
