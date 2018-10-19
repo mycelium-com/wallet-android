@@ -26,7 +26,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginBottom="8dp"
-            android:text="@string/account_mode" />
+            android:text="@string/address_type" />
 
         <LinearLayout
             android:layout_width="match_parent"

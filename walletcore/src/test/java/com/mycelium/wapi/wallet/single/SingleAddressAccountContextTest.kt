@@ -9,30 +9,30 @@ import org.junit.Test
 import java.io.*
 import java.util.*
 
-
 class SingleAddressAccountContextTest {
     @Test
     fun testAddressMapSerialization() {
         val byteStream = ByteArrayOutputStream()
-        ObjectOutputStream(byteStream).use { objectOutputStream ->
-            objectOutputStream.writeObject(context.addresses)
-            Assert.assertEquals(serializedAddressMap, HexUtils.toHex(byteStream.toByteArray()))
+        ObjectOutputStream(byteStream).use {
+            it.writeObject(context.addresses)
         }
+        Assert.assertEquals(serializedAddressMap, HexUtils.toHex(byteStream.toByteArray()))
     }
 
     @Test
     fun testAddressMapDeserialization() {
         val byteStream = ByteArrayInputStream(serializedAddressMapBytes)
-        var addresses: Map<AddressType, Address>? = null
-        ObjectInputStream(byteStream).use { objectInputStream -> addresses = objectInputStream.readObject() as Map<AddressType, Address> }
+        val addresses = ObjectInputStream(byteStream).use {
+            it.readObject()
+        }
         Assert.assertEquals(addressMap, addresses)
     }
-
 
     companion object {
         private val uuid = UUID.fromString("123e4567-e89b-12d3-a456-426655440000")
 
-        private val addressMap = mapOf(AddressType.P2PKH to Address.fromString("1AKDDsfTh8uY4X3ppy1m7jw1fVMBSMkzjP"),
+        private val addressMap = mapOf(
+                AddressType.P2PKH to Address.fromString("1AKDDsfTh8uY4X3ppy1m7jw1fVMBSMkzjP"),
                 AddressType.P2SH_P2WPKH to Address.fromString("34nSkinWC9rDDJiUY438qQN1JHmGqBHGW7"),
                 AddressType.P2WPKH to Address.fromString("bc1q6s8n723dztd7ch2uy8xa76ux766gfwg05ydlt6"))
 

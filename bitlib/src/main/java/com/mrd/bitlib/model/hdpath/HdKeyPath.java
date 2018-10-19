@@ -1,7 +1,6 @@
 package com.mrd.bitlib.model.hdpath;
 
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.primitives.UnsignedInteger;
@@ -12,18 +11,15 @@ import java.util.Iterator;
 import java.util.List;
 
 public class HdKeyPath implements Serializable {
-   public static final String HARDENED_MARKER = "'";
+   private static final String HARDENED_MARKER = "'";
    public static final HdKeyPath ROOT = new HdKeyPath();
-   public static final Bip44Purpose BIP44 = ROOT.getBip44Purpose();
-   public static final Bip49Purpose BIP49 = ROOT.getBip49Purpose();
-   public static final Bip84Purpose BIP84 = ROOT.getBip84Purpose();
+   public static final HdKeyPath BIP44 = ROOT.getHardenedChild(44);
+   public static final HdKeyPath BIP49 = ROOT.getHardenedChild(49);
+   public static final HdKeyPath BIP84 = ROOT.getHardenedChild(84);
    public static final HdKeyPath BIP32_ROOT = ROOT.getHardenedChild(0);
-   public static final Bip44CoinType BIP44_TESTNET = BIP44.getCoinTypeBitcoinTestnet();
-   public static final Bip44CoinType BIP44_PRODNET = BIP44.getCoinTypeBitcoin();
 
    private final HdKeyPath parent;
-
-   protected final UnsignedInteger index;
+   private final UnsignedInteger index;
    private final boolean hardened;
 
    public static HdKeyPath valueOf(String path) {
@@ -34,11 +30,6 @@ public class HdKeyPath implements Serializable {
 
    public HdKeyPath getParent() {
       return parent;
-   }
-
-   public HdKeyPath getChild(String path){
-      Iterator<String> iterator = Splitter.on("/").split(path).iterator();
-      return this.getChild(iterator);
    }
 
    private HdKeyPath getChild(Iterator<String> path){
@@ -56,21 +47,7 @@ public class HdKeyPath implements Serializable {
       }
    }
 
-   @SuppressWarnings("unchecked")
-   public <T extends HdKeyPath> Optional<T> findPartOf(Class<T> ofClass){
-      HdKeyPath ak = this;
-      while (ak.parent != null && !ak.getClass().equals(ofClass)){
-         ak = ak.parent;
-      }
-
-      if (ak.getClass().equals(ofClass)) {
-         return Optional.of((T)ak);
-      }else{
-         return Optional.absent();
-      }
-   }
-
-   public HdKeyPath(HdKeyPath parent, UnsignedInteger index,boolean hardened) {
+   public HdKeyPath(HdKeyPath parent, UnsignedInteger index, boolean hardened) {
       this.parent = parent;
       this.hardened = hardened;
       this.index = index;
@@ -92,45 +69,20 @@ public class HdKeyPath implements Serializable {
 
    public HdKeyPath getNonHardenedChild(int index) {
       Preconditions.checkArgument(index >= 0);
-      return knownChildFactory(UnsignedInteger.valueOf(index), false);
+      return new HdKeyPath(this, UnsignedInteger.valueOf(index), false);
    }
 
    public HdKeyPath getHardenedChild(int index){
       Preconditions.checkArgument(index >= 0);
-      //Preconditions.checkState(this.parent.isHardened());  --> maybe in bip44
-      return knownChildFactory(UnsignedInteger.valueOf(index), true);
-   }
-
-   protected HdKeyPath knownChildFactory(UnsignedInteger index, boolean hardened){
-      if (index.equals(UnsignedInteger.valueOf(44)) && hardened){
-         return new Bip44Purpose(this, index, true);
-      } else if (index.equals(UnsignedInteger.valueOf(49)) && hardened){
-         return new Bip49Purpose(this, index, true);
-      } else if (index.equals(UnsignedInteger.valueOf(84)) && hardened){
-         return new Bip84Purpose(this, index, true);
-      } else {
-         return new HdKeyPath(this, index, hardened);
-      }
-   }
-
-   public Bip44Purpose getBip44Purpose() {
-      return new Bip44Purpose(this, UnsignedInteger.valueOf(44), true);
-   }
-
-   public Bip49Purpose getBip49Purpose() {
-      return new Bip49Purpose(this, UnsignedInteger.valueOf(49), true);
-   }
-
-   public Bip84Purpose getBip84Purpose() {
-      return new Bip84Purpose(this, UnsignedInteger.valueOf(84), true);
+      return new HdKeyPath(this, UnsignedInteger.valueOf(index), true);
    }
 
    private int getValue() {
-      return index.intValue() | (isHardened() ? 1<<31 : 0);
+      return index.intValue() | (isHardened() ? 1<<31 : 0); // 0x80000000 ?= 1<<31
    }
 
    public List<Integer> getAddressN(){
-      ArrayList<Integer> ret = new ArrayList<Integer>(10);
+      ArrayList<Integer> ret = new ArrayList<>(10);
       HdKeyPath ak = this;
       while (ak.parent != null){
          ret.add(0, ak.getValue());
@@ -169,13 +121,25 @@ public class HdKeyPath implements Serializable {
       return result;
    }
 
-   // returns the raw index (including the hardened bit, if set) of the last path element
-   public int getLastRawIndex() {
-      return getValue();
-   }
-
    // returns the index of the last path element
    public int getLastIndex() {
       return index.intValue();
+   }
+
+   // some helper methods to get hardening and ordering right. mainnet is 0, testnet is 1, external is 0, change chain is 1, ...
+   public HdKeyPath getCoinTypeBitcoin(boolean isTestnet) {
+      return getHardenedChild(isTestnet ? 1 : 0);
+   }
+
+   public HdKeyPath getAccount(int accountIndex) {
+      return getHardenedChild(accountIndex);
+   }
+
+   public HdKeyPath getChain(boolean isExternal) {
+      return getNonHardenedChild(isExternal ? 0 : 1);
+   }
+
+   public HdKeyPath getAddress(int index) {
+      return getNonHardenedChild(index);
    }
 }

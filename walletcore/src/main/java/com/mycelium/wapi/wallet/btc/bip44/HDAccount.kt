@@ -489,7 +489,7 @@ open class HDAccount(
         }
     }
 
-    fun getReceivingAddress(addressType: AddressType): Address? {
+    override fun getReceivingAddress(addressType: AddressType): Address? {
         return receivingAddressMap[addressType]
     }
 

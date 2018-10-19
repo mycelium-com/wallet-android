@@ -35,9 +35,7 @@ class HDAccountExternalSignature(
         return sigProvider.getSignedTransaction(unsigned, this)
     }
 
-    override fun canSpend(): Boolean {
-        return true
-    }
+    override fun canSpend() = true
 
     override fun getExportData(cipher: KeyCipher): ExportableAccount.Data {
         // we dont have a private key we can export, always set it as absent
