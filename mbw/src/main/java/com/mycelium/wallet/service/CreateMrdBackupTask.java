@@ -221,5 +221,4 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
          return new ServiceTaskStatus(_stretchStatusMessage, _kdfParameters.getProgress());
       }
    }
-
 }

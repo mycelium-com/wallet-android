@@ -286,7 +286,7 @@ public class MbwManager {
             fiatCurrencies.addAll(currencyList);
         }
 
-        _exchangeRateManager = new ExchangeRateManager(_applicationContext, _wapi, getNetwork(), getMetadataStorage());
+        _exchangeRateManager = new ExchangeRateManager(_applicationContext, _wapi, getMetadataStorage());
         _currencySwitcher = new CurrencySwitcher(
             _exchangeRateManager,
             fiatCurrencies,

@@ -40,12 +40,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
-import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.exchange.CoinmarketcapApi;
 import com.mycelium.wallet.exchange.model.CoinmarketcapRate;
 import com.mycelium.wallet.external.changelly.ChangellyService;
@@ -76,9 +76,9 @@ public class ExchangeRateManager implements ExchangeRateProvider {
     public static final String BTC = "BTC";
 
     private static final Pattern EXCHANGE_RATE_PATTERN;
-    public static final String CHANGELLY_MARKET = "Changelly";
-    public static final String RMC_MARKET = "Coinmarketcap";
-    public static final String DEFAULT_EXCHANGE = "Bitstamp";
+    private static final String CHANGELLY_MARKET = "Changelly";
+    private static final String RMC_MARKET = "Coinmarketcap";
+    private static final String DEFAULT_EXCHANGE = "Bitstamp";
 
     static {
         String regexKeyExchangeRate = "(.*)_(.*)_(.*)";
@@ -107,12 +107,9 @@ public class ExchangeRateManager implements ExchangeRateProvider {
     // value hardcoded for now, but in future we need get from somewhere
     private static final float MSS_RATE = 3125f;
 
-    private NetworkParameters networkParameters;
     private MetadataStorage storage;
-    private Receiver changellyReceiver;
 
-    ExchangeRateManager(Context applicationContext, Wapi api, NetworkParameters networkParameters, MetadataStorage storage) {
-        this.networkParameters = networkParameters;
+    ExchangeRateManager(Context applicationContext, Wapi api, MetadataStorage storage) {
         _applicationContext = applicationContext;
         _api = api;
         _latestRates = null;
@@ -122,13 +119,18 @@ public class ExchangeRateManager implements ExchangeRateProvider {
         _subscribers = new LinkedList<>();
         _latestRates = new HashMap<>();
         this.storage = storage;
-        applicationContext.startService(new Intent(applicationContext, ChangellyService.class)
-                                        .setAction(ChangellyService.ACTION_GET_EXCHANGE_AMOUNT)
-                                        .putExtra(ChangellyService.FROM, ChangellyService.BCH)
-                                        .putExtra(ChangellyService.TO, ChangellyService.BTC)
-                                        .putExtra(ChangellyService.AMOUNT, 1.0));
-        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(changellyReceiver = new Receiver()
-        , new IntentFilter(ChangellyService.INFO_EXCH_AMOUNT));
+        Intent serviceIntent = new Intent(applicationContext, ChangellyService.class)
+                .setAction(ChangellyService.ACTION_GET_EXCHANGE_AMOUNT)
+                .putExtra(ChangellyService.FROM, ChangellyService.BCH)
+                .putExtra(ChangellyService.TO, ChangellyService.BTC)
+                .putExtra(ChangellyService.AMOUNT, 1.0);
+        if (Build.VERSION.SDK_INT >= 26) {
+            applicationContext.startForegroundService(serviceIntent);
+        } else {
+            applicationContext.startService(serviceIntent);
+        }
+        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(
+                new Receiver(), new IntentFilter(ChangellyService.INFO_EXCH_AMOUNT));
     }
 
     public synchronized void subscribe(Observer subscriber) {
@@ -149,7 +151,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
             }
 
             try {
-                List<QueryExchangeRatesResponse> responses = new ArrayList<QueryExchangeRatesResponse>();
+                List<QueryExchangeRatesResponse> responses = new ArrayList<>();
 
                 for (String currency : selectedCurrencies) {
                     responses.add(_api.queryExchangeRates(new QueryExchangeRatesRequest(Wapi.VERSION, currency)).getResult());
@@ -226,7 +228,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
                 }
             }
 
-            responses.add(new QueryExchangeRatesResponse(currency, exchangeRates.toArray(new ExchangeRate[exchangeRates.size()])));
+            responses.add(new QueryExchangeRatesResponse(currency, exchangeRates.toArray(new ExchangeRate[0])));
         }
 
         return responses;
@@ -270,7 +272,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
     }
 
     private synchronized void setLatestRates(List<QueryExchangeRatesResponse> latestRates) {
-        _latestRates = new HashMap<String, QueryExchangeRatesResponse>();
+        _latestRates = new HashMap<>();
         for (QueryExchangeRatesResponse response : latestRates) {
             _latestRates.put(response.currency, response);
 
@@ -302,7 +304,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
      * first time the app is running
      */
     public synchronized List<String> getExchangeSourceNames() {
-        List<String> result = new LinkedList<String>();
+        List<String> result = new LinkedList<>();
         //check whether we have any rates
         if (_latestRates.isEmpty()) return result;
         QueryExchangeRatesResponse latestRates = _latestRates.values().iterator().next();

@@ -146,10 +146,8 @@ public class ExchangeFragment extends Fragment {
         }
         sharedPreferences = getActivity().getSharedPreferences(BCH_EXCHANGE, Context.MODE_PRIVATE);
         minAmount = (double) sharedPreferences.getFloat(BCH_MIN_EXCHANGE_VALUE, NOT_LOADED);
-        getActivity().startService(new Intent(getActivity(), ChangellyService.class)
-                .setAction(ChangellyService.ACTION_GET_MIN_EXCHANGE)
-                .putExtra(ChangellyService.FROM, ChangellyService.BCH)
-                .putExtra(ChangellyService.TO, ChangellyService.BTC));
+        ChangellyService.start(getActivity(), ChangellyService.ACTION_GET_MIN_EXCHANGE,
+                ChangellyService.BCH, ChangellyService.BTC, null, null);
         requestExchangeRate("1", ChangellyService.BCH, ChangellyService.BTC);
     }
 
@@ -434,13 +432,8 @@ public class ExchangeFragment extends Fragment {
             Toast.makeText(getActivity(), "Error parsing double values", Toast.LENGTH_SHORT).show();
             return;
         }
-        Intent changellyServiceIntent = new Intent(getActivity(), ChangellyService.class)
-                .setAction(ChangellyService.ACTION_GET_EXCHANGE_AMOUNT)
-                .putExtra(ChangellyService.FROM, fromCurrency)
-                .putExtra(ChangellyService.TO, toCurrency)
-                .putExtra(ChangellyService.AMOUNT, dblAmount);
-        getActivity().startService(changellyServiceIntent);
-
+        ChangellyService.start(getActivity(), ChangellyService.ACTION_GET_EXCHANGE_AMOUNT,
+                fromCurrency, toCurrency, dblAmount, null);
     }
 
     private double calculateBTCtoBHC(String amount) {

@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
@@ -16,6 +17,7 @@ import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.external.changelly.ChangellyAPIService.ChangellyTransactionOffer;
@@ -58,7 +60,7 @@ public class ChangellyOfferActivity extends AppCompatActivity {
     private Double amount;
     private String receivingAddress;
 
-
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.changelly_offer_activity);
@@ -115,13 +117,8 @@ public class ChangellyOfferActivity extends AppCompatActivity {
         amount = getIntent().getDoubleExtra(ChangellyService.AMOUNT, 0);
         currency = getIntent().getStringExtra(ChangellyService.FROM);
         receivingAddress = getIntent().getStringExtra(ChangellyService.DESTADDRESS);
-        Intent changellyServiceIntent = new Intent(this, ChangellyService.class)
-                .setAction(ChangellyService.ACTION_CREATE_TRANSACTION)
-                .putExtra(ChangellyService.FROM, currency)
-                .putExtra(ChangellyService.TO, ChangellyService.BTC)
-                .putExtra(ChangellyService.AMOUNT, amount)
-                .putExtra(ChangellyService.DESTADDRESS, receivingAddress);
-        startService(changellyServiceIntent);
+        ChangellyService.start(this, ChangellyService.ACTION_CREATE_TRANSACTION, currency,
+                ChangellyService.BTC, amount, Address.fromString(receivingAddress));
         progressDialog = new ProgressDialog(this);
         progressDialog.setIndeterminate(true);
         progressDialog.setMessage("Waiting offer...");

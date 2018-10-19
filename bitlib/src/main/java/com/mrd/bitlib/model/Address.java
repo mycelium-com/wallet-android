@@ -42,7 +42,7 @@ public class Address implements Serializable, Comparable<Address> {
    private String _address;
 
    public static Collection<Address> fromStrings(Collection<String> addresses, NetworkParameters network) {
-      List<Address> list = new LinkedList<Address>();
+      List<Address> list = new LinkedList<>();
       for (String address : addresses) {
          Address a = Address.fromString(address, network);
          if (a == null) {
@@ -248,8 +248,8 @@ public class Address implements Serializable, Comparable<Address> {
    public String toMultiLineString() {
       StringBuilder sb = new StringBuilder();
       String address = toString();
-      sb.append(address.substring(0, 12)).append("\r\n");
-      sb.append(address.substring(12, 24)).append("\r\n");
+      sb.append(address, 0, 12).append("\r\n");
+      sb.append(address, 12, 24).append("\r\n");
       sb.append(address.substring(24));
       return sb.toString();
    }
@@ -258,7 +258,7 @@ public class Address implements Serializable, Comparable<Address> {
       StringBuilder sb = new StringBuilder();
       String address = toString();
       int splitIndex = address.length() / 2;
-      sb.append(address.substring(0, splitIndex)).append("\r\n");
+      sb.append(address, 0, splitIndex).append("\r\n");
       sb.append(address.substring(splitIndex));
       return sb.toString();
    }

@@ -131,12 +131,12 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 2110202
-        versionName '2.11.2.2'
+        versionCode 2110300
+        versionName '2.11.3.0'
         multiDexEnabled true
 
         minSdkVersion 19
-        targetSdkVersion 23
+        targetSdkVersion 28
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary true
     }
