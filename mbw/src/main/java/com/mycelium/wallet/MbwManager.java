@@ -1054,6 +1054,7 @@ public class MbwManager {
         _cachedEncryptionParameters = null;
     }
 
+    @Nonnull
     public static Bus getEventBus() {
         return _eventBus;
     }
