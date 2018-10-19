@@ -65,12 +65,15 @@ import com.mycelium.wallet.activity.util.ValueExtentionsKt;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
+import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.btc.BtcAddress;
+import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
+import com.mycelium.wapi.wallet.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.fiat.FiatType;
 import com.mycelium.wapi.wallet.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
+import com.mycelium.wapi.wallet.segwit.SegwitAddress;
 import com.squareup.otto.Subscribe;
 
 import java.math.BigDecimal;
@@ -526,17 +529,18 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          return AmountValidation.Ok; //entering a fiat value + exchange is not availible
       }
       try {
-         WalletAccount.Receiver receiver = new WalletAccount.Receiver((BtcAddress)Address.getNullAddress(_mbwManager.getNetwork()), satoshis);
+         Address address = Address.getNullAddress(_mbwManager.getNetwork());
+         WalletAccount.Receiver receiver = new WalletAccount.Receiver(AddressUtils.fromAddress(address), satoshis);
          _account.checkAmount(receiver, _kbMinerFee, _amount);
       } catch (OutputTooSmallException e1) {
          return AmountValidation.ValueTooSmall;
       } catch (InsufficientFundsException e) {
          return AmountValidation.NotEnoughFunds;
       } catch (StandardTransactionBuilder.UnableToBuildTransactionException e) {
-         // under certain conditions the max-miner-fee check fails - report it back to the server, so we can better
-         // debug it
-         _mbwManager.reportIgnoredException("MinerFeeException", e);
-         return AmountValidation.Invalid;
+          // under certain conditions the max-miner-fee check fails - report it back to the server, so we can better
+          // debug it
+          _mbwManager.reportIgnoredException("MinerFeeException", e);
+          return AmountValidation.Invalid;
       }
       return AmountValidation.Ok;
    }

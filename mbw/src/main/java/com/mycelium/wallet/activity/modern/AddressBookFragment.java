@@ -58,6 +58,7 @@ import android.widget.Toast;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.AddressType;
 import com.mycelium.wallet.AccountManager;
 import com.mycelium.wallet.AddressBookManager;
 import com.mycelium.wallet.AddressBookManager.Entry;
@@ -73,20 +74,20 @@ import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil.AddressLabelChangedHandler;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.AddressBookChanged;
+import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
-import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
+import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
+import com.mycelium.wapi.wallet.coins.BitcoinMain;
+import com.mycelium.wapi.wallet.coins.BitcoinTest;
+import com.mycelium.wapi.wallet.segwit.SegwitAddress;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
-import static com.mycelium.wallet.activity.util.ValueExtentionsKt.isBtc;
 
 public class AddressBookFragment extends Fragment {
 
@@ -209,7 +210,7 @@ public class AddressBookFragment extends Fragment {
       Map<Address, String> rawentries = _mbwManager.getMetadataStorage().getAllAddressLabels();
       List<Entry> entries = new ArrayList<Entry>();
       for (Map.Entry<Address, String> e : rawentries.entrySet()) {
-         entries.add(new Entry((BtcAddress)e.getKey(), e.getValue()));
+         entries.add(new Entry(AddressUtils.fromAddress(e.getKey()), e.getValue()));
       }
       entries = Utils.sortAddressbookEntries(entries);
       if (entries.isEmpty()) {
@@ -293,7 +294,10 @@ public class AddressBookFragment extends Fragment {
    };
 
    private void doEditEntry() {
-      EnterAddressLabelUtil.enterAddressLabel(getActivity(), _mbwManager.getMetadataStorage(),(BtcAddress) mSelectedAddress, "", addressLabelChanged);
+      EnterAddressLabelUtil.enterAddressLabel(getActivity(), _mbwManager.getMetadataStorage(),
+              ((BtcAddress)mSelectedAddress).getType() == AddressType.P2SH_P2WPKH ?
+                      ((SegwitAddress)mSelectedAddress).getAddress() : ((BtcLegacyAddress)mSelectedAddress).getAddress(),
+              "", addressLabelChanged);
    }
 
    private void doShowQrCode() {
@@ -323,7 +327,8 @@ public class AddressBookFragment extends Fragment {
             .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                public void onClick(DialogInterface dialog, int id) {
                   dialog.cancel();
-                  _mbwManager.getMetadataStorage().deleteAddressMetadata((BtcAddress)mSelectedAddress);
+                  _mbwManager.getMetadataStorage().deleteAddressMetadata(((BtcAddress)mSelectedAddress).getType() == AddressType.P2SH_P2WPKH ?
+                          ((SegwitAddress)mSelectedAddress).getAddress() : ((BtcLegacyAddress)mSelectedAddress).getAddress());
                   finishActionMode();
                   _mbwManager.getEventBus().post(new AddressBookChanged());
                }
@@ -424,7 +429,8 @@ public class AddressBookFragment extends Fragment {
    private class SelectItemListener implements OnItemClickListener {
       @Override
       public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-         Address address = (Address) view.getTag();
+         Address address = view.getTag() instanceof SegwitAddress ? ((SegwitAddress) view.getTag()).getAddress() :
+                 ((BtcLegacyAddress) view.getTag()).getAddress();
          Intent result = new Intent();
          result.putExtra(ADDRESS_RESULT_NAME, address.toString());
 

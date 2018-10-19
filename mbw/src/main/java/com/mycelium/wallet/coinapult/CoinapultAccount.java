@@ -57,6 +57,7 @@ import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.OutputList;
 import com.mrd.bitlib.util.ByteWriter;
@@ -76,21 +77,20 @@ import com.mycelium.wapi.model.TransactionOutputSummary;
 import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.BroadcastResult;
 import com.mycelium.wapi.wallet.GenericAddress;
-import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.btc.BtcAddress;
+import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
 import com.mycelium.wapi.wallet.btc.BtcTransaction;
 import com.mycelium.wapi.wallet.btc.SynchronizeAbleWalletBtcAccount;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
+import com.mycelium.wapi.wallet.segwit.SegwitAddress;
 import com.squareup.otto.Bus;
 
 import java.io.IOException;
@@ -810,7 +810,8 @@ public class CoinapultAccount extends SynchronizeAbleWalletBtcAccount {
       }
 
       public PreparedCoinapult(WalletAccount.Receiver receiver) {
-         address = (BtcAddress)receiver.address;
+         address = receiver.address.getType() == AddressType.P2SH_P2WPKH ?((SegwitAddress)receiver.address).getAddress() :
+                 ((BtcLegacyAddress)receiver.address).getAddress();
          satoshis = receiver.amount;
       }
 
@@ -818,7 +819,7 @@ public class CoinapultAccount extends SynchronizeAbleWalletBtcAccount {
       public String toString() {
          String sat = satoshis != null ? ", satoshis=" + satoshis : "";
          String fiat = amount != null ? ", amount=" + amount : "";
-         return "address=" + address + sat + fiat;
+         return "address=" + address.toString() + sat + fiat;
       }
    }
 

@@ -13,6 +13,7 @@ import android.widget.TextView;
 import com.google.common.base.Preconditions;
 import com.mycelium.wallet.AddressBookManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wapi.wallet.AddressUtils;
 
 import java.util.List;
 
@@ -41,7 +42,7 @@ public class AddressBookAdapter extends ArrayAdapter<AddressBookManager.Entry> {
         TextView tvAddress = (TextView) v.findViewById(R.id.tvAddress);
         AddressBookManager.Entry e = getItem(position);
         tvName.setText(e.getName());
-        String text = e.getAddress().toMultiLineString();
+        String text = AddressUtils.toMultiLineString(e.getAddress().toString());
         tvAddress.setText(text);
         v.setTag(e.getAddress());
 

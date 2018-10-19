@@ -5,7 +5,6 @@ import android.support.v4.app.FragmentActivity
 import com.mrd.bitlib.model.AddressType
 import com.mycelium.wallet.event.ReceivingAddressChanged
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
-import com.mycelium.wapi.wallet.btc.BtcAddress
 
 class AddressFragmentBtcModel(val app: Application) : AddressFragmentViewModel(app) {
     lateinit var currentType: AddressType

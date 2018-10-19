@@ -110,6 +110,7 @@ import com.mycelium.wapi.wallet.Currency;
 import com.mycelium.wapi.wallet.bch.single.BitcoinCashSingleAddressModule;
 import com.mycelium.wapi.wallet.bip44.ChangeAddressMode;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
+import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
 import com.mycelium.wapi.wallet.btc.InMemoryWalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
@@ -122,6 +123,7 @@ import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext;
 import com.mycelium.wapi.wallet.colu.ColuModule;
 import com.mycelium.wapi.wallet.manager.WalletManagerkt;
+import com.mycelium.wapi.wallet.segwit.SegwitAddress;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -1260,7 +1262,7 @@ public class MbwManager {
         getEditor().putString(SELECTED_ACCOUNT, uuid.toString()).apply();
         getEventBus().post(new SelectedAccountChanged(uuid));
         GenericAddress receivingAddress = account.getReceiveAddress();
-        getEventBus().post(new ReceivingAddressChanged((BtcAddress)receivingAddress));
+        getEventBus().post(new ReceivingAddressChanged(receivingAddress));
         // notify the wallet manager that this is the active account now
         _walletManager.setActiveAccount(account.getId());
     }
@@ -1444,7 +1446,7 @@ public class MbwManager {
         _addressWatchTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                getWalletManager(false).startSynchronization(new SyncMode((BtcAddress)address));
+                getWalletManager(false).startSynchronization(new SyncMode(((BtcAddress) address).getAddress()));
             }
         }, 1000, 5 * 1000);
     }

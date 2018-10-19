@@ -41,23 +41,16 @@ import com.mycelium.wapi.api.request.GetTransactionsRequest;
 import com.mycelium.wapi.api.request.QueryUnspentOutputsRequest;
 import com.mycelium.wapi.api.response.GetTransactionsResponse;
 import com.mycelium.wapi.api.response.QueryUnspentOutputsResponse;
-import com.mycelium.wapi.wallet.Reference;
-import com.mycelium.wapi.wallet.AccountBacking;
-import com.mycelium.wapi.wallet.AccountProvider;
-import com.mycelium.wapi.wallet.AesKeyCipher;
-import com.mycelium.wapi.wallet.KeyCipher;
+import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
-import com.mycelium.wapi.wallet.SecureKeyValueStore;
-import com.mycelium.wapi.wallet.SingleAddressAccountBacking;
-import com.mycelium.wapi.wallet.SyncMode;
-import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bip44.ChangeAddressMode;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
-import com.mycelium.wapi.wallet.btc.BtcAddress;
+import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
 import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext;
+import com.mycelium.wapi.wallet.coins.BitcoinMain;
+import com.mycelium.wapi.wallet.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.colu.ColuAccountContext;
 import com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount;
@@ -71,6 +64,7 @@ import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoinTest;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
+import com.mycelium.wapi.wallet.segwit.SegwitAddress;
 import com.squareup.otto.Bus;
 
 import org.apache.commons.codec.binary.Hex;
@@ -497,11 +491,12 @@ public class ColuManager implements AccountProvider {
     }
 
     private boolean isAddressInUse(Address address) {
-        Optional<UUID> accountId = mgr.getAccountId((BtcAddress)address, null);
+        Optional<UUID> accountId = null;
+        accountId = mgr.getAccountId(AddressUtils.fromAddress(address), null);
         return accountId.isPresent();
     }
 
-    private WalletAccount<ColuTransaction, BtcAddress> createReadOnlyColuAccount(ColuAccount.ColuAsset coluAsset, Address address) {
+    private WalletAccount<ColuTransaction, BtcLegacyAddress> createReadOnlyColuAccount(ColuAccount.ColuAsset coluAsset, Address address) {
         CreatedAccountInfo createdAccountInfo = createSingleAddressAccount(address);
         addAssetAccountUUID(coluAsset, createdAccountInfo.id);
 
@@ -568,7 +563,7 @@ public class ColuManager implements AccountProvider {
         }
     }
 
-    private WalletAccount<ColuTransaction, BtcAddress> createAccount(ColuAccount.ColuAsset coluAsset, InMemoryPrivateKey importKey) {
+    private WalletAccount<ColuTransaction, BtcLegacyAddress> createAccount(ColuAccount.ColuAsset coluAsset, InMemoryPrivateKey importKey) {
         if (coluAsset == null) {
             Log.e(TAG, "createAccount called without asset !");
             return null;
@@ -711,7 +706,7 @@ public class ColuManager implements AccountProvider {
     }
 
     @Override
-    public WalletAccount<ColuTransaction, BtcAddress> getAccount(UUID id) {
+    public WalletAccount<ColuTransaction, BtcLegacyAddress> getAccount(UUID id) {
         return coluAccounts.get(id);
     }
 

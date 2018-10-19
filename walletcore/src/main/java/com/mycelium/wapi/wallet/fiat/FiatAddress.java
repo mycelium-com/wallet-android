@@ -1,8 +1,9 @@
 package com.mycelium.wapi.wallet.fiat;
 
-import com.mrd.bitlib.model.NetworkParameters;
+import com.mrd.bitlib.model.AddressType;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
+import org.jetbrains.annotations.NotNull;
 
 public class FiatAddress implements GenericAddress {
 
@@ -21,22 +22,13 @@ public class FiatAddress implements GenericAddress {
         return 0;
     }
 
-    @Override
-    public String toDoubleLineString() {
-        return null;
-    }
-
-    @Override
-    public String toShortString() {
-        return null;
-    }
-
-    @Override
-    public String toMultiLineString() {
-        return null;
-    }
-
     public static FiatAddress from(CryptoCurrency currencyType, String address) {
+        return null;
+    }
+
+    @NotNull
+    @Override
+    public AddressType getType() {
         return null;
     }
 }

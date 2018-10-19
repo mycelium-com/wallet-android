@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.google.common.base.Optional;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.SegwitAddress;
 import com.mycelium.wallet.AddressBookManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;

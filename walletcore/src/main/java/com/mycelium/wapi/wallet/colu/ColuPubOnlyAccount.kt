@@ -7,9 +7,8 @@ import com.mrd.bitlib.util.HashUtils
 import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.wapi.model.BalanceSatoshis
 import com.mycelium.wapi.model.TransactionEx
-import com.mycelium.wapi.model.TransactionOutputSummary
 import com.mycelium.wapi.wallet.*
-import com.mycelium.wapi.wallet.btc.BtcAddress
+import com.mycelium.wapi.wallet.btc.BtcLegacyAddress
 import com.mycelium.wapi.wallet.coins.*
 import java.nio.ByteBuffer
 import java.util.*
@@ -20,7 +19,7 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext, val publicKey: Pu
                               , val networkParameters: NetworkParameters
                               , val coluNetworkParameters: org.bitcoinj.core.NetworkParameters
                               , val coluClient: ColuApi
-                              , val backing: AccountBacking) : WalletAccount<ColuTransaction, BtcAddress> {
+                              , val backing: AccountBacking) : WalletAccount<ColuTransaction, BtcLegacyAddress> {
 
     override fun getAccountDefaultCurrency(): String {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
@@ -101,11 +100,11 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext, val publicKey: Pu
         val outputs = mutableListOf<GenericTransaction.GenericOutput>() //need to create list of outputs
         for (output in tx.outputs) {
             val address = output.script.getAddress(networkParameters)
-            if (isMineAddress(BtcAddress(coluCoinType, output.script.getAddress(networkParameters).allAddressBytes))) {
+            if (isMineAddress(BtcLegacyAddress(coluCoinType, output.script.getAddress(networkParameters).allAddressBytes))) {
                 satoshisReceived += output.value
             }
             if (address != null && address != Address.getNullAddress(networkParameters)) {
-                outputs.add(GenericTransaction.GenericOutput(BtcAddress(coinType, address.allAddressBytes), Value.valueOf(coinType, output.value)))
+                outputs.add(GenericTransaction.GenericOutput(BtcLegacyAddress(coinType, address.allAddressBytes), Value.valueOf(coinType, output.value)))
             }
         }
 
@@ -121,13 +120,13 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext, val publicKey: Pu
                     continue
                 }
                 val script = ScriptOutput.fromScriptBytes(funding.script)
-                if (isMineAddress(BtcAddress(coinType, script.getAddress(networkParameters).allAddressBytes))) {
+                if (isMineAddress(BtcLegacyAddress(coinType, script.getAddress(networkParameters).allAddressBytes))) {
                     satoshisSent += funding.value
                 }
 
                 val address = ScriptOutput.fromScriptBytes(funding.script)!!.getAddress(networkParameters)
                 val currency = if (networkParameters.isProdnet) BitcoinMain.get() else BitcoinTest.get()
-                inputs.add(GenericTransaction.GenericInput(BtcAddress(currency, address.allAddressBytes), Value.valueOf(coinType, funding.value)))
+                inputs.add(GenericTransaction.GenericInput(BtcLegacyAddress(currency, address.allAddressBytes), Value.valueOf(coinType, funding.value)))
             }
         }
 
