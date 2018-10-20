@@ -97,7 +97,7 @@ public class VersionManager {
       new Handler(context.getMainLooper()).post(new Runnable() {
          @Override
          public void run() {
-            eventBus.register(this);
+            eventBus.register(VersionManager.this);
          }
       });
 
@@ -109,7 +109,7 @@ public class VersionManager {
       new Handler(context.getMainLooper()).post(new Runnable() {
          @Override
          public void run() {
-            eventBus.unregister(this);
+            eventBus.unregister(VersionManager.this);
          }
       });
       super.finalize();

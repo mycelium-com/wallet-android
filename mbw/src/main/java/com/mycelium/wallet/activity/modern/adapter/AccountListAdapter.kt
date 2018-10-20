@@ -133,7 +133,6 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
     private fun createGroupViewHolder(parent: ViewGroup): GroupTitleViewHolder {
         val view = layoutInflater.inflate(R.layout.accounts_title_view, parent, false)
         val res = GroupTitleViewHolder(view)
-        res.tvBalance.setEventBus(MbwManager.getEventBus())
         res.tvBalance.setCurrencySwitcher(mbwManager.currencySwitcher)
         return res
     }
@@ -152,7 +151,6 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
         val view = layoutInflater.inflate(R.layout.record_row_total, parent, false)
         val res = TotalViewHolder(view)
         res.tcdBalance.setCurrencySwitcher(mbwManager.currencySwitcher)
-        res.tcdBalance.setEventBus(MbwManager.getEventBus())
         return res
     }
 

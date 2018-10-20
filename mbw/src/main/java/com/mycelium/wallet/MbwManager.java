@@ -222,7 +222,7 @@ public class MbwManager {
         handler.post(new Runnable() {
             @Override
             public void run() {
-                _eventBus.register(this);
+                _eventBus.register(MbwManager.this);
             }
         });
 
