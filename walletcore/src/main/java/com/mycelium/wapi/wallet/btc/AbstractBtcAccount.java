@@ -1001,7 +1001,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       return calculateMaxSpendableAmount(minerFeePerKbToUse, null);
    }
 
-   @Override
+
    public synchronized ExactCurrencyValue calculateMaxSpendableAmount(long minerFeePerKbToUse, Address destinationAddress) {
       checkNotArchived();
       Collection<UnspentTransactionOutput> spendableOutputs = transform(getSpendableOutputs(minerFeePerKbToUse));

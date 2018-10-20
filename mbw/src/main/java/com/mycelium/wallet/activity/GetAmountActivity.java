@@ -184,8 +184,8 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       if (destinationAddress == null) {
          destinationAddress = Address.getNullAddress(_mbwManager.getNetwork());
       }
-      _maxSpendableAmount = _account.calculateMaxSpendableAmount(_kbMinerFee, destinationAddress);
-      showMaxAmount();
+      //_maxSpendableAmount = _account.calculateMaxSpendableAmount(_kbMinerFee, destinationAddress);
+      //showMaxAmount();
 
       // if no amount is set, create an null amount with the correct currency
       if (_amount == null) {
@@ -538,8 +538,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       }
       try {
          Address address = Address.getNullAddress(_mbwManager.getNetwork());
-         WalletAccount.Receiver receiver = new WalletAccount.Receiver(Address.getNullAddress(_mbwManager.getNetwork(),
-                 destinationAddress.getType()), satoshis);
+         WalletAccount.Receiver receiver = new WalletAccount.Receiver(AddressUtils.fromAddress(address), satoshis);
          _account.checkAmount(receiver, _kbMinerFee, _amount);
       } catch (OutputTooSmallException e1) {
          return AmountValidation.ValueTooSmall;

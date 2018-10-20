@@ -1,5 +1,5 @@
 package com.mycelium.wallet.activity.send.model
 
-import com.mrd.bitlib.model.Address
+import com.mycelium.wapi.wallet.GenericAddress
 
-data class AddressItem(val address: Address?, val addressType: String?, val addressTypeLabel: String?,  val type: Int)
+data class AddressItem(val address: GenericAddress?, val addressType: String?, val addressTypeLabel: String?, val type: Int)
