@@ -46,6 +46,7 @@ import android.os.Looper;
 import android.os.StrictMode;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -1054,7 +1055,7 @@ public class MbwManager {
         _cachedEncryptionParameters = null;
     }
 
-    @Nonnull
+    @NonNull
     public static Bus getEventBus() {
         return _eventBus;
     }
