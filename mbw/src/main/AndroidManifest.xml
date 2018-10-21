@@ -217,7 +217,8 @@
         <activity android:name=".activity.send.ManualAddressEntry" />
         <activity android:name=".activity.send.SignTransactionActivity" />
         <activity android:name=".activity.send.BroadcastTransactionActivity" />
-        <activity android:name=".activity.receive.ReceiveCoinsActivity" />
+        <activity android:name=".activity.receive.ReceiveCoinsActivity"
+            android:theme="@style/MyceliumNoActionBarFullScreen"/>
         <activity android:name=".simplex.SimplexMainActivity" />
         <activity android:name=".external.changelly.ChangellyActivity"
             android:screenOrientation="portrait"/>
@@ -282,7 +283,7 @@
         <activity android:name=".activity.MessageVerifyActivity"/>
         <activity android:name=".external.changelly.bch.ExchangeActivity"
             android:theme="@style/MyceliumExchange"/>
-        <activity android:name=".activity.receive.ReceiveCoinsActivity"/>
+        <!--<activity android:name=".activity.receive.ReceiveCoinsActivity"/>-->
     </application>
 
 </manifest>
