@@ -61,14 +61,6 @@ class ReceiveBtcViewModel(application: Application) : ReceiveCoinsViewModel(appl
         super.saveInstance(outState)
     }
 
-    override fun getTitle(): String {
-        return if (CurrencyValue.isNullOrZero(model.amountData.value)) {
-            context.getString(R.string.address_title, context.getString(R.string.bitcoin_name))
-        } else {
-            context.getString(R.string.payment_request)
-        }
-    }
-
     companion object {
         private const val ACCOUNT_LABEL = "bitcoin"
         private const val ADDRESS_TYPE = "addressType"
