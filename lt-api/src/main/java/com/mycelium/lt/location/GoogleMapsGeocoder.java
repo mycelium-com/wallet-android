@@ -32,15 +32,17 @@ public class GoogleMapsGeocoder extends Geocoder {
 
    final String language;
    private final boolean forceHttps;
+   private String apiKey = "";
 
    public GoogleMapsGeocoder(String language) {
       this.language = language;
       forceHttps = false;
    }
 
-   public GoogleMapsGeocoder(String language, boolean forceHttps) {
+   public GoogleMapsGeocoder(String language, boolean forceHttps, String apiKey) {
       this.language = language;
       this.forceHttps = forceHttps;
+      this.apiKey = apiKey;
    }
 
    @Override
@@ -53,7 +55,8 @@ public class GoogleMapsGeocoder extends Geocoder {
          throw new RuntimeException(e);
       }
 
-      String transportAgnosticUrl = "maps.googleapis.com/maps/api/geocode/json?address=" + encodedAddress
+      String transportAgnosticUrl = "maps.googleapis.com/maps/api/geocode/json?" +
+            "key=" + apiKey + "&address=" + encodedAddress
             + "&sensor=true&language=" + language;
 
       InputStream inputData = openStream(transportAgnosticUrl);
