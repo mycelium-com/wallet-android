@@ -27,7 +27,6 @@ import com.mycelium.wapi.wallet.bip44.HDAccount
 import com.mycelium.wapi.wallet.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.currency.CurrencyValue
 import com.mycelium.wapi.wallet.single.SingleAddressAccount
-import com.squareup.otto.Bus
 import com.subgraph.orchid.encoders.Hex
 import org.bitcoinj.core.*
 import org.bitcoinj.crypto.ChildNumber
@@ -43,7 +42,7 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
-    private val eventBus: Bus = MbwManager.getInstance(context).eventBus
+    private val eventBus by lazy { MbwManager.getEventBus() }
 
     override fun onMessage(callingPackageName: String, intent: Intent) {
         when (callingPackageName) {

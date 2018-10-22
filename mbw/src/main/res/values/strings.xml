@@ -1301,6 +1301,13 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="p2sh_next">Tap for P2SH</string>
     <string name="p2sh">P2SH</string>
     <string name="bech">Bech32</string>
+    <string name="starting_application">Starting application</string>
+    <string name="migrating_accounts">Migrating accounts</string>
+    <string name="loading_accounts">Loading accounts</string>
+    <string name="migrating_n_of_m_hd">Migrating %1$s account of total %2$s HD accounts</string>
+    <string name="loading_n_of_m_hd">Loading %1$s account of total %2$s HD accounts</string>
+    <string name="migrating_n_of_m_sa">Migrating %1$s account of total %2$s Single Address accounts</string>
+    <string name="loading_n_of_m_sa">Loading %1$s account of total %2$s Single Address accounts</string>
     <plurals name="account_label">
         <item quantity="one">Account label:\n%s</item>
         <item quantity="other">Accounts labels:\n%s</item>

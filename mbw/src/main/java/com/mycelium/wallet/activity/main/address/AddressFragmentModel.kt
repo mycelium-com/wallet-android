@@ -27,7 +27,7 @@ class AddressFragmentModel(
         updateLabel()
         onAddressChange()
 
-        mbwManager.eventBus.register(this)
+        MbwManager.getEventBus().register(this)
     }
 
     private fun updateAddressPath(showBip44Path: Boolean) {
@@ -54,14 +54,14 @@ class AddressFragmentModel(
         }
     }
 
-    fun onCleared() = mbwManager.eventBus.unregister(this)
+    fun onCleared() = MbwManager.getEventBus().unregister(this)
 
     /**
      * We got a new Receiving Address, either because the selected Account changed,
      * or because our HD Account received Coins and changed the Address
      */
     @Subscribe
-    fun receivingAddressChanged(event: ReceivingAddressChanged) = onAddressChange()
+    fun receivingAddressChanged(event: ReceivingAddressChanged) = ::onAddressChange
 
     @Subscribe
     fun accountChanged(event: AccountChanged) {

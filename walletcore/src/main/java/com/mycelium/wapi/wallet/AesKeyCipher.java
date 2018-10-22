@@ -31,6 +31,8 @@ import java.io.UnsupportedEncodingException;
 public class AesKeyCipher implements KeyCipher {
 
    public static final int AES_KEY_BYTE_LENGTH = 16;
+   private static final AesKeyCipher defaultKeyCipher =
+           new AesKeyCipher(HexUtils.toBytes("a8105c3c8b75556a9099b8dcab9cc133"), -3564501270110218910L);
    private final byte[] _keyBytes;
    private final Rijndael _aes;
    private final long _thumbprint;
@@ -41,7 +43,7 @@ public class AesKeyCipher implements KeyCipher {
     * @return the default key cipher, which gives no kind of protection at all.
     */
    public static AesKeyCipher defaultKeyCipher() {
-      return new AesKeyCipher(HexUtils.toBytes("a8105c3c8b75556a9099b8dcab9cc133"), -3564501270110218910L);
+      return defaultKeyCipher;
    }
 
    public AesKeyCipher(String password) {

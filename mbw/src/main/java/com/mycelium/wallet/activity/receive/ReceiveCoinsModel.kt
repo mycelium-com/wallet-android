@@ -46,7 +46,7 @@ class ReceiveCoinsModel(
     private var accountDisplayType: AccountDisplayType? = null
 
     init {
-        mbwManager.eventBus.register(this)
+        MbwManager.getEventBus().register(this)
         receivingAmountWrong.value = false
         receivingAddress.value = account.receivingAddress.get()
 
@@ -61,7 +61,7 @@ class ReceiveCoinsModel(
 
     fun onCleared() {
         mbwManager.stopWatchingAddress()
-        mbwManager.eventBus.unregister(this)
+        MbwManager.getEventBus().unregister(this)
     }
 
     fun setAmount(newAmount: CurrencyValue) {

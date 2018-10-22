@@ -42,7 +42,8 @@ public class HDAccountTest {
         Map<Currency, CurrencySettings> currenciesSettingsMap = new HashMap<>();
         currenciesSettingsMap.put(Currency.BTC, new BTCSettings(AddressType.P2SH_P2WPKH, new Reference<>(ChangeAddressMode.PRIVACY)));
 
-        WalletManager walletManager = new WalletManager(store, backing, NetworkParameters.productionNetwork, fakeWapi, null, null, false, currenciesSettingsMap);
+        WalletManager walletManager = new WalletManager(store, backing, NetworkParameters.productionNetwork, fakeWapi,
+                null, null, false, currenciesSettingsMap, null);
 
         walletManager.configureBip32MasterSeed(masterSeed, cipher);
 
