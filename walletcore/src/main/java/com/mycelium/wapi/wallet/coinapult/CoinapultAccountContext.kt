@@ -4,7 +4,7 @@ import com.mycelium.wapi.wallet.GenericAddress
 import java.util.*
 
 
-class CoinapultAccountContext(val id: UUID, val address: GenericAddress
+class CoinapultAccountContext(val id: UUID, var address: GenericAddress
                               , private var isArchived: Boolean, val currency: Currency) {
 
     /**

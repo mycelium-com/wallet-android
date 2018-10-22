@@ -157,7 +157,7 @@ public class FiatAccount implements WalletAccount<FiatTransaction, FiatAddress> 
     }
 
     @Override
-    public SendRequest getSendToRequest(GenericAddress destination, Value amount) {
+    public SendRequest getSendToRequest(FiatAddress destination, Value amount) {
         return null;
     }
 }

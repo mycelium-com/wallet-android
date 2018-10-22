@@ -1,5 +1,6 @@
 package com.mycelium.wapi.wallet.colu
 
+import com.google.common.base.Optional
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.model.Transaction
@@ -80,16 +81,16 @@ class ColuAccount(context: ColuAccountContext, val privateKey: InMemoryPrivateKe
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun broadcastTx(transaction: ColuTransaction): BroadcastResult {
-        if (transaction.tx != null && coluClient.broadcastTx(transaction.tx) != null) {
-            return BroadcastResult.SUCCESS
+    override fun broadcastTx(tx: ColuTransaction): BroadcastResult {
+        return if (tx.tx != null && coluClient.broadcastTx(tx.tx) != null) {
+            BroadcastResult.SUCCESS
         } else {
-            return BroadcastResult.REJECTED
+            BroadcastResult.REJECTED
         }
     }
 
-    override fun getSendToRequest(destination: GenericAddress, amount: Value): SendRequest<*> {
-        return ColuSendRequest(coinType, destination as BtcAddress, amount)
+    override fun getSendToRequest(destination: BtcAddress, amount: Value): SendRequest<*> {
+        return ColuSendRequest(coinType, destination, amount)
     }
 
     override fun getSyncTotalRetrievedTransactions(): Int = 0
@@ -101,7 +102,12 @@ class ColuAccount(context: ColuAccountContext, val privateKey: InMemoryPrivateKe
     }
 
     override fun getExportData(cipher: KeyCipher): ExportableAccount.Data {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        var key = Optional.absent<String>()
+        if (canSpend()) {
+            key = Optional.of(this.privateKey.getBase58EncodedPrivateKey(networkParameters))
+        }
+        val pubKey = Optional.of(address.toString())
+        return ExportableAccount.Data(key, pubKey)
     }
 
 }

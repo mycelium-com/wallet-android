@@ -63,7 +63,7 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
             StandardTransactionBuilder.UnableToBuildTransactionException;
 
 
-    SendRequest getSendToRequest(GenericAddress destination, Value amount);
+    SendRequest getSendToRequest(A destination, Value amount);
 
     /**
      * Synchronize this account
