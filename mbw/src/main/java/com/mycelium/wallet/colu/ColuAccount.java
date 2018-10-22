@@ -700,7 +700,6 @@ public class ColuAccount extends SynchronizeAbleWalletBtcAccount implements Expo
         return getCurrencyBasedBalance().confirmed;
     }
 
-    @Override
     public ExactCurrencyValue calculateMaxSpendableAmount(long minerFeeToUse, Address destinationAddress) {
         return calculateMaxSpendableAmount(minerFeeToUse);
     }

@@ -11,6 +11,7 @@ import android.widget.TextView
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.send.model.AddressItem
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView
+import com.mycelium.wapi.wallet.AddressUtils
 
 class AddressViewAdapter(private val dataSet: List<AddressItem>, private val paddingWidth: Int)
     : SelectableRecyclerView.Adapter<AddressViewAdapter.ViewHolder>() {
@@ -41,7 +42,7 @@ class AddressViewAdapter(private val dataSet: List<AddressItem>, private val pad
             // - get element from your dataSet at this position
             // - replace the contents of the view with that element
             val item = dataSet[position]
-            holder.addressTextView?.text = item.address?.toMultiLineString() ?: ""
+            holder.addressTextView?.text = AddressUtils.toMultiLineString(item.address?.toString()) ?: ""
             holder.addressTypeTextView?.text = item.addressType
             holder.addressTypeLabelTextView?.text = item.addressTypeLabel
 

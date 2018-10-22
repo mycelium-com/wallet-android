@@ -15,8 +15,8 @@ import com.mycelium.wallet.databinding.ExportAsQrBtcHdActivityBinding
 import com.mycelium.wallet.databinding.ExportAsQrBtcSaActivityBinding
 import com.mycelium.wapi.wallet.ExportableAccount
 import com.mycelium.wapi.wallet.WalletAccount
-import com.mycelium.wapi.wallet.bip44.HDAccount
-import com.mycelium.wapi.wallet.single.SingleAddressAccount
+import com.mycelium.wapi.wallet.btc.bip44.HDAccount
+import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
 import kotlinx.android.synthetic.main.export_as_qr_activity_qr.*
 import java.util.*
 
@@ -98,7 +98,7 @@ class ExportAsQrActivity : AppCompatActivity() {
         private const val ACCOUNT_UUID = "accountUUID"
 
         @JvmStatic
-        fun callMe(currentActivity: Activity, accountData: ExportableAccount.Data, account: WalletAccount) {
+        fun callMe(currentActivity: Activity, accountData: ExportableAccount.Data, account: WalletAccount<*,*>) {
             val intent = Intent(currentActivity, ExportAsQrActivity::class.java)
             intent.putExtra(ACCOUNT_DATA, accountData)
             intent.putExtra(ACCOUNT_UUID, account.id)

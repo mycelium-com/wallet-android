@@ -754,7 +754,6 @@ public class CoinapultAccount extends SynchronizeAbleWalletBtcAccount {
       return getCurrencyBasedBalance().confirmed;
    }
 
-   @Override
    public ExactCurrencyValue calculateMaxSpendableAmount(long minerFeeToUse, Address destinationAddress) {
       return calculateMaxSpendableAmount(minerFeeToUse);
    }
