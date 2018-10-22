@@ -218,7 +218,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
       Transaction unsignedtx;
       BTChipDongle.BTChipInput inputs[];
       Vector<byte[]> signatures;
-      String outputAddress = null, amount, fees, commonPath, changePath = "";
+      String outputAddress = null, amount, fees, commonPath = null, changePath = "";
       long totalSending = 0;
       SigningRequest[] signatureInfo;
       String txpin = "";
@@ -275,18 +275,19 @@ public class LedgerManager extends AbstractAccountScanManager implements
 
       rawOutputsWriter.putCompactInt(unsigned.getOutputs().length);
       // Format destination
-      commonPath = "44'/" + getNetwork().getBip44CoinType() + "'/" + forAccount.getAccountIndex() + "'/"; // TODO segwit fix
       for (TransactionOutput o : unsigned.getOutputs()) {
          Address toAddress;
          o.toByteWriter(rawOutputsWriter);
          toAddress = o.script.getAddress(getNetwork());
+         String purpose = ((Byte) BipDerivationType.Companion.getDerivationTypeByAddress(toAddress).getPurpose()).toString();
+         commonPath = "%s" + "'/" + getNetwork().getBip44CoinType() + "'/" + forAccount.getAccountIndex() + "'/"; // TODO segwit fix
          Optional<Integer[]> addressId = forAccount.getAddressId(toAddress);
          if (!(addressId.isPresent() && addressId.get()[0] == 1)) {
             // this output goes to a foreign address (addressId[0]==1 means its internal change)
             totalSending += o.value;
             outputAddress = toAddress.toString();
          } else {
-            changePath = commonPath + addressId.get()[0] + "/" + addressId.get()[1];
+            changePath = String.format(commonPath + addressId.get()[0] + "/" + addressId.get()[1], purpose);
          }
       }
       rawOutputs = rawOutputsWriter.toBytes();
@@ -390,9 +391,21 @@ public class LedgerManager extends AbstractAccountScanManager implements
 
          // Sign
          SigningRequest signingRequest = signatureInfo[i];
-         Address toSignWith = signingRequest.getPublicKey().toAddress(getNetwork(), AddressType.P2PKH);     //TODO segwit fix
+         ScriptOutput fundingUtxoScript = unsigned.getFundingOutputs()[i].script;
+         BipDerivationType derivationType;
+         if (fundingUtxoScript instanceof ScriptOutputP2SH) {
+            derivationType = BipDerivationType.BIP49;
+         } else if (fundingUtxoScript instanceof ScriptOutputP2WPKH) {
+            derivationType = BipDerivationType.BIP84;
+         } else if (fundingUtxoScript instanceof ScriptOutputStandard) {
+            derivationType = BipDerivationType.BIP44;
+         } else {
+            postErrorMessage("Unhandled funding " + fundingUtxoScript);
+            return null;
+         }
+         Address toSignWith = signingRequest.getPublicKey().toAddress(getNetwork(), derivationType.getAddressType());
          Optional<Integer[]> addressId = forAccount.getAddressId(toSignWith);
-         String keyPath = commonPath + addressId.get()[0] + "/" + addressId.get()[1];
+         String keyPath = String.format(commonPath + addressId.get()[0] + "/" + addressId.get()[1], ((Byte) derivationType.getPurpose()).toString());
          byte[] signature = dongle.untrustedHashSign(keyPath, txpin);
          // Java Card does not canonicalize, could be enforced per platform
          signatures.add(SignatureUtils.canonicalize(signature, true, 0x01));
@@ -517,10 +530,11 @@ public class LedgerManager extends AbstractAccountScanManager implements
             }
          }
       }
+      byte addressByte = getAddressByte(derivationType);
       try {
          BTChipDongle.BTChipPublicKey publicKey;
          try {
-            publicKey = dongle.getWalletPublicKey(keyPathString);
+            publicKey = dongle.getWalletPublicKey(keyPathString, addressByte);
          } catch (BTChipException e) {
             if (isTEE && (e.getSW() == SW_CONDITIONS_NOT_SATISFIED)) {
                LedgerTransportTEEProxy proxy = (LedgerTransportTEEProxy) getTransport().getTransport();
@@ -553,7 +567,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
                   } catch (Exception ignore) {
                   }
                }
-               publicKey = dongle.getWalletPublicKey(keyPathString);
+               publicKey = dongle.getWalletPublicKey(keyPathString, addressByte);
             } else if (e.getSW() == SW_PIN_NEEDED) {
                //if (dongle.hasScreenSupport()) {
                if (isTEE) {
@@ -575,7 +589,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
                      } catch (Exception ignore) {
                      }
                   }
-                  publicKey = dongle.getWalletPublicKey(keyPathString);
+                  publicKey = dongle.getWalletPublicKey(keyPathString, addressByte);
                } else {
                   getMainThreadHandler().post(new Runnable() {
                      @Override
@@ -595,7 +609,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
                      initialize();
                      Log.d(LOG_TAG, "Reinitialize transport done");
                      dongle.verifyPin(pin.getBytes());
-                     publicKey = dongle.getWalletPublicKey(keyPathString);
+                     publicKey = dongle.getWalletPublicKey(keyPathString, addressByte);
                   } catch (BTChipException e1) {
                      if ((e1.getSW() & 0xfff0) == SW_INVALID_PIN) {
                         postErrorMessage("Invalid PIN - " + (e1.getSW() - SW_INVALID_PIN) + " attempts remaining");
@@ -620,6 +634,22 @@ public class LedgerManager extends AbstractAccountScanManager implements
          postErrorMessage(e.getMessage());
          return Optional.absent();
       }
+   }
+
+   private byte getAddressByte(BipDerivationType derivationType) {
+      byte addressByte = 0x00;
+      switch (derivationType.getPurpose()) {
+         case 44:
+            addressByte = 0x00;
+            break;
+         case 49:
+            addressByte = 0x01;
+            break;
+         case 84:
+            addressByte = 0x02;
+            break;
+      }
+      return addressByte;
    }
 
    @Override
