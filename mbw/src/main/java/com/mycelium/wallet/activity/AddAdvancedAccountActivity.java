@@ -69,28 +69,26 @@ import com.mycelium.wallet.extsig.ledger.activity.LedgerAccountImportActivity;
 import com.mycelium.wallet.extsig.trezor.activity.TrezorAccountImportActivity;
 import com.mycelium.wallet.modularisation.BCHHelper;
 import com.mycelium.wallet.persistence.MetadataStorage;
-import com.mycelium.wapi.wallet.AesKeyCipher;
-import com.mycelium.wapi.wallet.GenericAddress;
-import com.mycelium.wapi.wallet.KeyCipher;
-import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
+import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coins.BitcoinMain;
+import com.mycelium.wapi.wallet.coins.BitcoinMain;
+import com.mycelium.wapi.wallet.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.PrivateColuConfig;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
 import com.mycelium.wapi.wallet.manager.WalletManagerkt;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import com.mycelium.wapi.wallet.segwit.SegwitAddress;
 
 public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHDAccount.FinishListener {
    public static final String BUY_TREZOR_LINK = "https://buytrezor.com?a=mycelium.com";
@@ -228,7 +226,7 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
     */
    private void returnAccount(Address address) {
       //UUID acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(address);
-      new ImportReadOnlySingleAddressAccountAsyncTask((BtcAddress)address, AccountType.Unknown).execute();
+      new ImportReadOnlySingleAddressAccountAsyncTask(AddressUtils.fromAddress(address), AccountType.Unknown).execute();
    }
 
    /**
@@ -365,7 +363,7 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
                           .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                              @Override
                              public void onClick(DialogInterface dialogInterface, int i) {
-                                finishAlreadyExist((BtcAddress)existingAccount.getReceiveAddress());
+                                finishAlreadyExist(existingAccount.getReceiveAddress());
                              }
                           })
                           .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
@@ -424,7 +422,9 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
          try {
             //Check whether this address is already used in any account
             for (AddressType addressType : AddressType.values()) {
-               address = new BtcAddress(BitcoinMain.get(), key.getPublicKey().toAddress(_mbwManager.getNetwork(), addressType).getAllAddressBytes());
+               Address addr = key.getPublicKey().toAddress(_mbwManager.getNetwork(), addressType);
+               address = AddressUtils.fromAddress(addr);
+               address = new BtcAddress(BitcoinMain.get(), address.getAllAddressBytes());
                Optional<UUID> accountId = _mbwManager.getAccountId(address, null);
                if (accountId.isPresent()) {
                   return null;
@@ -591,24 +591,29 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
             switch(addressType) {
                case Unknown: {
                   ColuManager coluManager = _mbwManager.getColuManager();
-                  List<ColuAccount.ColuAsset> asset = new ArrayList<>(coluManager.getColuAddressAssets((BtcAddress)this.address));
+                  List<ColuAccount.ColuAsset> asset = new ArrayList<>(coluManager.getColuAddressAssets(address.getType() == AddressType.P2SH_P2WPKH ?
+                          ((SegwitAddress)address).getAddress() : ((BtcLegacyAddress)address).getAddress()));
 
                   if (asset.size() > 0) {
-                     acc = _mbwManager.getColuManager().enableReadOnlyAsset(asset.get(0), (BtcAddress)address);
+                     acc = _mbwManager.getColuManager().enableReadOnlyAsset(asset.get(0), address.getType() == AddressType.P2SH_P2WPKH ?
+                             ((SegwitAddress)address).getAddress() : ((BtcLegacyAddress)address).getAddress());
                   } else {
                      askUserForColorize = true;
                   }
                }
                break;
                case SA:
-                  acc = _mbwManager.getWalletManager(false).createSingleAddressAccount((BtcAddress)address);
+                  acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(address.getType() == AddressType.P2SH_P2WPKH ?
+                          ((SegwitAddress)address).getAddress() : ((BtcLegacyAddress)address).getAddress());
                   break;
                case Colu:
                   ColuManager coluManager = _mbwManager.getColuManager();
-                  List<ColuAccount.ColuAsset> asset = new ArrayList<>(coluManager.getColuAddressAssets((BtcAddress)this.address));
+                  List<ColuAccount.ColuAsset> asset = new ArrayList<>(coluManager.getColuAddressAssets(address.getType() == AddressType.P2SH_P2WPKH ?
+                          ((SegwitAddress)address).getAddress() : ((BtcLegacyAddress)address).getAddress()));
 
                   if (!asset.isEmpty()) {
-                     acc = _mbwManager.getColuManager().enableReadOnlyAsset(asset.get(0), (BtcAddress)address);
+                     acc = _mbwManager.getColuManager().enableReadOnlyAsset(asset.get(0), address.getType() == AddressType.P2SH_P2WPKH ?
+                             ((SegwitAddress)address).getAddress() : ((BtcLegacyAddress)address).getAddress());
                   }
                   break;
             }
@@ -640,10 +645,12 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
                        public void onClick(DialogInterface dialogInterface, int i) {
                           UUID account;
                           if (selectedItem == 0) {
-                             account = _mbwManager.getWalletManager(false).createSingleAddressAccount((BtcAddress)address);
+                             account = _mbwManager.getWalletManager(false).createSingleAddressAccount(address.getType() == AddressType.P2SH_P2WPKH ?
+                                     ((SegwitAddress)address).getAddress() : ((BtcLegacyAddress)address).getAddress());
                           } else {
                              ColuAccount.ColuAsset coluAsset = ColuAccount.ColuAsset.getByType(ColuAccount.ColuAssetType.parse(list.get(selectedItem)));
-                             account = _mbwManager.getColuManager().enableReadOnlyAsset(coluAsset, (BtcAddress)address);
+                             account = _mbwManager.getColuManager().enableReadOnlyAsset(coluAsset, address.getType() == AddressType.P2SH_P2WPKH ?
+                                     ((SegwitAddress)address).getAddress() : ((BtcLegacyAddress)address).getAddress());
                           }
                           finishOk(account, false);
                        }
@@ -721,7 +728,8 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
          accountType = "BTC Single Address";
       }
       for (ColuAccount.ColuAssetType type : ColuAccount.ColuAssetType.values()) {
-         if (_mbwManager.getColuManager().hasAccountWithType((BtcAddress)address, type)) {
+         if (_mbwManager.getColuManager().hasAccountWithType(address.getType() == AddressType.P2SH_P2WPKH ?
+                 ((SegwitAddress)address).getAddress() : ((BtcLegacyAddress)address).getAddress(), type)) {
             accountType = ColuAccount.ColuAsset.getByType(type).name;
             break;
          }

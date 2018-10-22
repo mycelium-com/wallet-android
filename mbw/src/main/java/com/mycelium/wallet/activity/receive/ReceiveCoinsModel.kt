@@ -14,24 +14,25 @@ import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.util.CoinUtil
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
-import com.mycelium.wallet.R.id.tvAmountFiat
 import com.mycelium.wallet.activity.util.AccountDisplayType
 import com.mycelium.wallet.event.SyncFailed
 import com.mycelium.wallet.event.SyncStopped
 import com.mycelium.wapi.model.TransactionSummary
-import com.mycelium.wapi.wallet.GenericAddress
+import com.mycelium.wapi.wallet.AddressUtils
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
-import com.mycelium.wapi.wallet.btc.BtcAddress
+import com.mycelium.wapi.wallet.btc.BtcLegacyAddress
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount
+import com.mycelium.wapi.wallet.coins.BitcoinMain
+import com.mycelium.wapi.wallet.coins.BitcoinTest
 import com.mycelium.wapi.wallet.currency.CurrencyValue
-import com.mycelium.wapi.wallet.currency.ExchangeBasedBitcoinValue
 import com.mycelium.wapi.wallet.currency.ExchangeBasedCurrencyValue
+import com.mycelium.wapi.wallet.segwit.SegwitAddress
 import com.squareup.otto.Subscribe
 
 class ReceiveCoinsModel(
         val context: Application,
-        val account: WalletAccount<*,*>,
+        val account: WalletAccount<*, *>,
         private val accountLabel: String,
         val havePrivateKey: Boolean,
         showIncomingUtxo: Boolean = false
@@ -60,7 +61,8 @@ class ReceiveCoinsModel(
     }
 
     fun updateObservingAddress() {
-        mbwManager.watchAddress(receivingAddress.value as BtcAddress)
+        val address = receivingAddress.value
+        mbwManager.watchAddress(AddressUtils.fromAddress(address))
     }
 
     fun onCleared() {

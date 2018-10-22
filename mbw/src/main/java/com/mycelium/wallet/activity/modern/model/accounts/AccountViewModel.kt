@@ -4,6 +4,7 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.colu.ColuAccount
 import com.mycelium.wallet.persistence.MetadataStorage
+import com.mycelium.wapi.wallet.AddressUtils
 import com.mycelium.wapi.wallet.GenericAddress
 import com.mycelium.wapi.wallet.GenericTransaction
 import com.mycelium.wapi.wallet.WalletAccount
@@ -30,10 +31,10 @@ class AccountViewModel(account: WalletAccount<out GenericTransaction, out Generi
         displayAddress = if (receivingAddress != null) {
             if (label.isEmpty()) {
                 // Display address in it's full glory, chopping it into three
-                receivingAddress.toMultiLineString()
+                AddressUtils.toMultiLineString(receivingAddress.toString())
             } else {
                 // Display address in short form
-                receivingAddress.toShortString()
+                AddressUtils.toShortString(receivingAddress.toString())
             }
         } else {
             ""

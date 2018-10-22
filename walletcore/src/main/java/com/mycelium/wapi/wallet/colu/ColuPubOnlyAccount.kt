@@ -4,8 +4,10 @@ import com.mrd.bitlib.crypto.PublicKey
 import com.mrd.bitlib.model.AddressType
 import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.util.Sha256Hash
+import com.mycelium.wapi.model.BalanceSatoshis
+import com.mycelium.wapi.model.TransactionEx
 import com.mycelium.wapi.wallet.*
-import com.mycelium.wapi.wallet.btc.BtcAddress
+import com.mycelium.wapi.wallet.btc.BtcLegacyAddress
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
@@ -18,7 +20,7 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext, val publicKey: Pu
                               , val coluNetworkParameters: org.bitcoinj.core.NetworkParameters
                               , val coluClient: ColuApi
                               , val backing: AccountBacking<ColuTransaction>
-                              , val listener: AccountListener? = null) : WalletAccount<ColuTransaction, BtcAddress> {
+                              , val listener: AccountListener? = null) : WalletAccount<ColuTransaction, BtcLegacyAddress> {
 
     protected var address: GenericAddress
     protected var uuid: UUID

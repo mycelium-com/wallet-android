@@ -33,12 +33,16 @@ import com.mycelium.wallet.external.glidera.api.request.SellRequest;
 import com.mycelium.wallet.external.glidera.api.response.GlideraError;
 import com.mycelium.wallet.external.glidera.api.response.SellPriceResponse;
 import com.mycelium.wallet.external.glidera.api.response.SellResponse;
+import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.btc.BtcAddress;
+import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
+import com.mycelium.wapi.wallet.coins.BitcoinMain;
+import com.mycelium.wapi.wallet.coins.BitcoinTest;
+import com.mycelium.wapi.wallet.segwit.SegwitAddress;
 import org.spongycastle.util.encoders.Hex;
 
 import java.io.ByteArrayOutputStream;
@@ -173,8 +177,9 @@ public class GlideraSell2faDialog extends DialogFragment {
                UUID uuid = _sellPriceResponse.getPriceUuid();
 
                List<WalletAccount.Receiver> receivers = new ArrayList<>();
-               receivers.add(new WalletAccount.Receiver((BtcAddress)Address.fromString(sellAddress), Bitcoins.nearestValue(_sellPriceResponse
-                       .getQty())));
+               Address address = Address.fromString(sellAddress);
+               receivers.add(new WalletAccount.Receiver(AddressUtils.fromAddress(address), Bitcoins.nearestValue
+                          (_sellPriceResponse.getQty())));
 
                WalletAccount selectedAccount = mbwManager.getSelectedAccount();
                final UnsignedTransaction unsignedTransaction;

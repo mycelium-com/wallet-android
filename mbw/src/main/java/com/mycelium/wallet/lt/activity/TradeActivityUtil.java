@@ -54,9 +54,13 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.lt.LocalTraderManager;
+import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.btc.BtcAddress;
+import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+import com.mycelium.wapi.wallet.coins.BitcoinMain;
+import com.mycelium.wapi.wallet.coins.BitcoinTest;
+import com.mycelium.wapi.wallet.segwit.SegwitAddress;
 
 import static com.mrd.bitlib.TransactionUtils.MINIMUM_OUTPUT_VALUE;
 
@@ -70,8 +74,9 @@ public class TradeActivityUtil {
          // this is a watch-only account
          return false;
       }
-      BtcAddress nullAddress = (BtcAddress) Address.getNullAddress(mbwManager.getNetwork());
-      WalletAccount.Receiver receiver = new WalletAccount.Receiver(nullAddress, ts.satoshisFromSeller);
+      Address address = Address.getNullAddress(mbwManager.getNetwork());
+      WalletAccount.Receiver receiver = null;
+      receiver = new WalletAccount.Receiver(AddressUtils.fromAddress(address), ts.satoshisFromSeller);
       try {
          ((WalletBtcAccount)account).createUnsignedTransaction(Collections.singletonList(receiver), lt.getMinerFeeEstimation().getLongValue());
       } catch (OutputTooSmallException e) {
@@ -90,9 +95,9 @@ public class TradeActivityUtil {
       Preconditions.checkArgument(satoshisFromSeller >= satoshisForBuyer);
       long localTraderFee = satoshisFromSeller - satoshisForBuyer;
       List<WalletAccount.Receiver> receiver = new ArrayList<>();
-      receiver.add(new WalletAccount.Receiver((BtcAddress)buyerAddress, satoshisForBuyer));
+      receiver.add(new WalletAccount.Receiver(AddressUtils.fromAddress(buyerAddress), satoshisForBuyer));
       if (localTraderFee >= MINIMUM_OUTPUT_VALUE) {
-         receiver.add(new WalletAccount.Receiver((BtcAddress)feeAddress, localTraderFee));
+         receiver.add(new WalletAccount.Receiver(AddressUtils.fromAddress(feeAddress), localTraderFee));
       }
       try {
          return ((WalletBtcAccount)acc).createUnsignedTransaction(receiver, minerFeeToUse);

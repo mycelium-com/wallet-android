@@ -5,6 +5,8 @@ import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.model.Transaction
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.BtcAddress
+import com.mycelium.wapi.wallet.btc.BtcLegacyAddress
+import com.mycelium.wapi.wallet.btc.BtcSendRequest
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import org.apache.commons.codec.binary.Hex
@@ -89,7 +91,7 @@ class ColuAccount(context: ColuAccountContext, val privateKey: InMemoryPrivateKe
     }
 
     override fun getSendToRequest(destination: GenericAddress, amount: Value): SendRequest<*> {
-        return ColuSendRequest(coinType, destination as BtcAddress, amount)
+        return ColuSendRequest(coinType, destination as BtcLegacyAddress, amount)
     }
 
     override fun getSyncTotalRetrievedTransactions(): Int = 0

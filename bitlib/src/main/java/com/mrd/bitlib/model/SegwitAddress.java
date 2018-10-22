@@ -34,6 +34,7 @@ public class SegwitAddress extends Address implements Serializable {
     private final byte version;
     private final byte[] program;
     private final String hrp;
+    private final boolean isProdnet;
 
     public static class SegwitAddressException extends Exception {
         SegwitAddressException(Exception e) {
@@ -48,10 +49,15 @@ public class SegwitAddress extends Address implements Serializable {
     public SegwitAddress(NetworkParameters networkParameters, final int version, final byte[] program)
             throws SegwitAddressException {
         super(program);
-        hrp = networkParameters.isProdnet() ? "BC" : "TB";
+        isProdnet = networkParameters.isProdnet();
+        hrp = isProdnet() ? "BC" : "TB";
         this.version = (byte) (version & 0xff);
         this.program = program;
         verify(this);
+    }
+
+    public boolean isProdnet(){
+        return isProdnet;
     }
 
     public byte getVersion() {
@@ -151,8 +157,6 @@ public class SegwitAddress extends Address implements Serializable {
         return AddressType.P2WPKH;
     }
 
-
-    @Override
     public byte[] getAllAddressBytes() {
         ByteArrayOutputStream pubkey = new ByteArrayOutputStream(40 + 1);
         int v = version;
@@ -170,7 +174,6 @@ public class SegwitAddress extends Address implements Serializable {
         return getScriptBytes(this);
     }
 
-    @Override
     public String toMultiLineString() {
         String address = toString();
         return address.substring(0, 14) + "\r\n" +

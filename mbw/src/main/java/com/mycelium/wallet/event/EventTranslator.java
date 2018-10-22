@@ -35,13 +35,9 @@
 package com.mycelium.wallet.event;
 
 import android.os.Handler;
-import com.google.common.base.Optional;
-import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.exchange.ExchangeRateManager;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.btc.BtcAddress;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.squareup.otto.Bus;
 
 import java.util.UUID;
@@ -98,7 +94,7 @@ public class EventTranslator implements WalletManager.Observer, ExchangeRateMana
             break;
          case RECEIVING_ADDRESS_CHANGED:
             GenericAddress receivingAddress = wallet.getAccount(accountId).getReceiveAddress();
-            postEvent(new ReceivingAddressChanged((BtcAddress)receivingAddress));
+            postEvent(new ReceivingAddressChanged(receivingAddress));
             break;
          case SYNC_PROGRESS_UPDATED:
             postEvent(new SyncProgressUpdated(accountId));
