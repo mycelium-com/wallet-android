@@ -73,8 +73,8 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun getSendToRequest(destination: GenericAddress?, amount: Value?): SendRequest<*> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun getSendToRequest(destination: BtcAddress, amount: Value): SendRequest<*> {
+        return CoinapultSendRequest(currency, destination, amount)
     }
 
 
@@ -109,7 +109,11 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
     override fun synchronize(mode: SyncMode?): Boolean {
         _isSynchronizing = true
         try {
-            address = api.getAddress(currency, address);
+            val newAddress = api.getAddress(currency, address)
+            newAddress?.let {
+                address = it
+                context.address = it
+            }
         } catch (e: Exception) {
         }
         val balance = api.getBalance(currency);

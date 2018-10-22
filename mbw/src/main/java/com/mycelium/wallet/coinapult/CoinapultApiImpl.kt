@@ -3,6 +3,7 @@ package com.mycelium.wallet.coinapult
 import android.util.Log
 import com.coinapult.api.httpclient.CoinapultClient
 import com.coinapult.api.httpclient.SearchMany
+import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.wapi.wallet.GenericAddress
 import com.mycelium.wapi.wallet.btc.BtcAddress
@@ -19,7 +20,7 @@ class CoinapultApiImpl(val client: CoinapultClient) : CoinapultApi {
     override fun getAddress(currency: Currency, currenctAddress: GenericAddress?): GenericAddress? {
         var address: GenericAddress? = null
         if (currenctAddress == null) {
-            address = BtcAddress(currency, client.bitcoinAddress.address.toByteArray())
+            address = BtcAddress(currency, Address.fromString(client.bitcoinAddress.address).allAddressBytes)
         } else {
             val criteria = HashMap<String, String>(1)
             criteria["to"] = address.toString()
@@ -27,7 +28,7 @@ class CoinapultApiImpl(val client: CoinapultClient) : CoinapultApi {
             val alreadyUsed = search.containsKey("transaction_id")
             if (alreadyUsed) {
                 // get a new one
-                address = BtcAddress(currency, client.bitcoinAddress.address.toByteArray())
+                address = BtcAddress(currency, Address.fromString(client.bitcoinAddress.address).allAddressBytes)
             } else {
                 address = currenctAddress
             }

@@ -34,11 +34,14 @@ class CoinapultModule(val accountKey: InMemoryPrivateKey
         var result: WalletAccount<*, *>? = null
         if (config is CoinapultConfig) {
             val id = CoinapultUtils.getGuidForAsset(config.currency, accountKey.publicKey.publicKeyBytes)
-            val context = CoinapultAccountContext(id, BtcAddress(config.currency, accountKey.publicKey.publicKeyBytes)
+            val address = coinapultApi.getAddress(config.currency, null)
+            val context = CoinapultAccountContext(id
+                    , address!!
                     , false, config.currency)
             backing.createAccountContext(context)
             result = CoinapultAccount(context, accountKey
                     , coinapultApi, backing.getAccountBacking(id), networkParameters, config.currency, listener)
+
 
         }
         result?.synchronize(SyncMode.NORMAL)
