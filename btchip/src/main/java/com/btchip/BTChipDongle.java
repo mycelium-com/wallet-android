@@ -25,6 +25,10 @@ import com.btchip.utils.*;
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 
+import com.google.common.base.Joiner;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+
 public class BTChipDongle implements BTChipConstants {
 
    public enum OperationMode {
@@ -105,14 +109,8 @@ public class BTChipDongle implements BTChipConstants {
 
       @Override
       public String toString() {
-         StringBuffer buffer = new StringBuffer();
-         buffer.append("Address ");
-         buffer.append(address);
-         buffer.append(" public key ");
-         buffer.append(Dump.dump(publicKey));
-         buffer.append(" chaincode ");
-         buffer.append(Dump.dump(chainCode));
-         return buffer.toString();
+         return "Address " + address + " public key " + Dump.dump(publicKey) + " chaincode " +
+                 Dump.dump(chainCode);
       }
    }
 
@@ -147,11 +145,8 @@ public class BTChipDongle implements BTChipConstants {
 
       @Override
       public String toString() {
-         StringBuffer buffer = new StringBuffer();
-         buffer.append(major).append('.').append(minor).append('.').append(patch);
-         buffer.append(" compressed keys ");
-         buffer.append(compressedKeys);
-         return buffer.toString();
+         return String.valueOf(major) + '.' + minor + '.' + patch + " compressed keys " +
+                 compressedKeys;
       }
    }
 
@@ -180,11 +175,7 @@ public class BTChipDongle implements BTChipConstants {
 
       @Override
       public String toString() {
-         StringBuffer buffer = new StringBuffer();
-         buffer.append("Value ").append(Dump.dump(value));
-         buffer.append(" trusted ").append(trusted);
-         buffer.append(" witness ").append(witness);
-         return buffer.toString();
+         return "Value " + Dump.dump(value) + " trusted " + trusted + " witness " + witness;
       }
    }
 
@@ -211,10 +202,7 @@ public class BTChipDongle implements BTChipConstants {
 
       @Override
       public String toString() {
-         StringBuffer buffer = new StringBuffer();
-         buffer.append("Value ").append(Dump.dump(value));
-         buffer.append(" confirmation type ").append(userConfirmation.toString());
-         return buffer.toString();
+         return "Value " + Dump.dump(value) + " confirmation type " + userConfirmation.toString();
       }
    }
 
@@ -232,13 +220,8 @@ public class BTChipDongle implements BTChipConstants {
 
       @Override
       public String toString() {
-         StringBuffer buffer = new StringBuffer();
-         buffer.append(super.toString());
-         buffer.append(" address indexes ");
-         for (int i = 0; i < keycardIndexes.length; i++) {
-            buffer.append(i).append(" ");
-         }
-         return buffer.toString();
+         return super.toString() + " address indexes " +
+                 Joiner.on(" ").join(Arrays.asList(keycardIndexes));
       }
    }
 
@@ -256,10 +239,7 @@ public class BTChipDongle implements BTChipConstants {
 
       @Override
       public String toString() {
-         StringBuffer buffer = new StringBuffer();
-         buffer.append(super.toString());
-         buffer.append(" screen data ").append(Dump.dump(screenInfo));
-         return buffer.toString();
+         return super.toString() + " screen data " + Dump.dump(screenInfo);
       }
    }
 
@@ -288,11 +268,8 @@ public class BTChipDongle implements BTChipConstants {
 
       @Override
       public String toString() {
-         StringBuilder buffer = new StringBuilder();
-         buffer.append("Message hash ").append(Dump.dump(hashData));
-         buffer.append(" key X ").append(Dump.dump(keyX));
-         buffer.append(" signature ").append(Dump.dump(signature));
-         return buffer.toString();
+         return "Message hash " + Dump.dump(hashData) + " key X " + Dump.dump(keyX) +
+                 " signature " + Dump.dump(signature);
       }
    }
 
@@ -491,16 +468,14 @@ public class BTChipDongle implements BTChipConstants {
       ByteArrayOutputStream data = new ByteArrayOutputStream();
       BufferUtils.writeBuffer(data, BitcoinTransaction.DEFAULT_VERSION);
       VarintUtils.write(data, usedInputList.length);
-      boolean isSegwit = false;
-      for (BTChipInput input: usedInputList) {
-         isSegwit = input.isWitness();
-         if (isSegwit) {
-            break;
-         }
-      }
       byte addressTypeByte;
       if (newTransaction) {
-         if (isSegwit) {
+         if(Iterables.any(Arrays.asList(usedInputList), new Predicate<BTChipInput>() {
+            @Override
+            public boolean apply(BTChipInput input) {
+               return input.isWitness();
+            }
+         })) {
             addressTypeByte = 0x02;
          } else {
             addressTypeByte = 0x00;
@@ -836,5 +811,4 @@ public class BTChipDongle implements BTChipConstants {
          extStorePublicKey(path, publicKey);
       }
    }
-
 }
