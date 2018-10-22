@@ -17,7 +17,7 @@ class ReceiveCoCoViewModel(application: Application) : ReceiveCoinsViewModel(app
         model = ReceiveCoinsModel(getApplication(), account, accountLabel, hasPrivateKey, showIncomingUtxo)
     }
 
-    override fun getHint() = context.getString(R.string.amount_hint_denomination, (account as WalletBtcAccount).accountDefaultCurrency)
+    override fun getHint() = context.getString(R.string.amount_hint_denomination, account.coinType.symbol)
 
     override fun getFormattedValue(sum: CurrencyValue) = Utils.getColuFormattedValueWithUnit(sum)
 

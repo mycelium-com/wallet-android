@@ -92,6 +92,7 @@ import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletManager;
+import com.mycelium.wapi.wallet.manager.WalletManagerkt;
 import com.squareup.otto.Subscribe;
 
 import java.util.Date;
@@ -295,8 +296,10 @@ public class ModernMain extends AppCompatActivity {
             if (lastFullSync.isPresent()
                     && (new Date().getTime() - lastFullSync.get()< MIN_FULLSYNC_INTERVAL) ) {
                _mbwManager.getWalletManager(false).startSynchronization();
+               WalletManagerkt.INSTANCE.startSynchronization();
             } else {
                _mbwManager.getWalletManager(false).startSynchronization(SyncMode.FULL_SYNC_ALL_ACCOUNTS);
+               WalletManagerkt.INSTANCE.startSynchronization(SyncMode.FULL_SYNC_ALL_ACCOUNTS);
                _mbwManager.getMetadataStorage().setLastFullSync(new Date().getTime());
             }
 
@@ -433,8 +436,9 @@ public class ModernMain extends AppCompatActivity {
                syncMode = SyncMode.NORMAL_ALL_ACCOUNTS_FORCED;
                counter++;
             }
+            WalletManagerkt.INSTANCE.startSynchronization(syncMode);
             _mbwManager.getWalletManager(false).startSynchronization(syncMode);
-            _mbwManager.getColuManager().startSynchronization(syncMode);
+//            _mbwManager.getColuManager().startSynchronization(syncMode);
 
             // also fetch a new exchange rate, if necessary
             _mbwManager.getExchangeRateManager().requestOptionalRefresh();
@@ -451,7 +455,7 @@ public class ModernMain extends AppCompatActivity {
          case R.id.miRescanTransactions:
             _mbwManager.getSelectedAccount().dropCachedData();
             _mbwManager.getWalletManager(false).startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
-            _mbwManager.getColuManager().startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
+//            _mbwManager.getColuManager().startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
 
             break;
 
@@ -493,7 +497,7 @@ public class ModernMain extends AppCompatActivity {
    public void setRefreshAnimation() {
       if (refreshItem != null) {
          if (_mbwManager.getWalletManager(false).getState() == WalletManager.State.SYNCHRONIZING
-                 || _mbwManager.getColuManager().getState() == WalletManager.State.SYNCHRONIZING) {
+                 /*|| _mbwManager.getColuManager().getState() == WalletManager.State.SYNCHRONIZING*/) {
             showRefresh();
          } else {
             refreshItem.setActionView(null);

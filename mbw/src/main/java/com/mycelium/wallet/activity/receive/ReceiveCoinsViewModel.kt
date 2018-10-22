@@ -128,7 +128,7 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
         val amount = model.amountData
         if (CurrencyValue.isNullOrZero(amount.value)) {
             GetAmountActivity.callMeToReceive(activity, ExactCurrencyValue.from(null,
-                    mbwManager.selectedAccount.accountDefaultCurrency),
+                    mbwManager.selectedAccount.coinType.symbol),
                     GET_AMOUNT_RESULT_CODE, AccountDisplayType.getAccountType(model.account))
         } else {
             // call the amountData activity with the exact amountData, so that the user sees the same amountData he had entered

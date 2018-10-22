@@ -43,10 +43,14 @@ import android.view.View;
 import android.view.Window;
 
 import com.google.common.base.Preconditions;
-import com.mycelium.wallet.*;
+import com.mycelium.wallet.BitcoinUri;
+import com.mycelium.wallet.MbwManager;
+import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.event.SyncFailed;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.manager.WalletManagerkt;
 import com.squareup.otto.Subscribe;
 
 import java.util.UUID;
@@ -120,7 +124,12 @@ public class SendInitializationActivity extends Activity {
       _rawPr =  getIntent().getByteArrayExtra("rawPr");
       _isColdStorage = getIntent().getBooleanExtra("isColdStorage", false);
       String crashHint = TextUtils.join(", ", getIntent().getExtras().keySet()) + " (account id was " + accountId + ")";
-      _account = Preconditions.checkNotNull(_mbwManager.getWalletManager(_isColdStorage).getAccount(accountId), crashHint);
+      WalletAccount account;
+      account = _mbwManager.getWalletManager(_isColdStorage).getAccount(accountId);
+      if (account == null) {
+         account = WalletManagerkt.INSTANCE.getAccount(accountId);
+      }
+      _account = Preconditions.checkNotNull(account, crashHint);
    }
 
    @Override

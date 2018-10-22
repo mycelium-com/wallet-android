@@ -15,6 +15,7 @@ import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
+import com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount
 import com.mycelium.wapi.wallet.manager.WalletManagerkt
 import com.squareup.otto.Subscribe
 import java.util.*
@@ -59,8 +60,7 @@ object AccountManager : AccountProvider {
         }
     }
 
-    override fun getAccounts(): ImmutableMap<UUID, WalletAccount<out GenericTransaction, out GenericAddress>>
-            = ImmutableMap.copyOf<UUID, WalletAccount<out GenericTransaction, out GenericAddress>>(accounts)
+    override fun getAccounts(): ImmutableMap<UUID, WalletAccount<out GenericTransaction, out GenericAddress>> = ImmutableMap.copyOf<UUID, WalletAccount<out GenericTransaction, out GenericAddress>>(accounts)
 
     fun getBTCSingleAddressAccounts(): ImmutableMap<UUID, WalletAccount<out GenericTransaction, out GenericAddress>> =
             getFilteredAccounts(accountsSemaphore, accounts) {
@@ -101,8 +101,7 @@ object AccountManager : AccountProvider {
 
     override fun hasAccount(uuid: UUID?): Boolean = accounts.containsKey(uuid)
 
-    private fun HashMap<UUID, WalletAccount<out GenericTransaction, out GenericAddress>>.putAll
-            (from: List<WalletAccount<out GenericTransaction, out GenericAddress>>) {
+    private fun HashMap<UUID, WalletAccount<out GenericTransaction, out GenericAddress>>.putAll(from: List<WalletAccount<out GenericTransaction, out GenericAddress>>) {
         val result: MutableMap<UUID, WalletAccount<out GenericTransaction, out GenericAddress>> = mutableMapOf()
         for (walletAccount in from) {
             result[walletAccount.id] = walletAccount
@@ -140,3 +139,7 @@ fun WalletManagerkt.getBTCSingleAddressAccounts() = getAccounts().filter { it is
 fun WalletManagerkt.getActiveAccounts(): List<WalletAccount<*, *>> = getAccounts().filter { it.isActive }
 
 fun WalletManagerkt.getArchivedAccounts(): List<WalletAccount<*, *>> = getAccounts().filter { !it.isActive }
+
+fun WalletManagerkt.getColuAccounts(): List<WalletAccount<*, *>> = getAccounts().filter { it is ColuPubOnlyAccount && it.isVisible }
+
+fun WalletManagerkt.getCoinapultAccounts(): List<WalletAccount<*, *>> = getAccounts().filter { it is com.mycelium.wapi.wallet.coinapult.CoinapultAccount && it.isVisible }

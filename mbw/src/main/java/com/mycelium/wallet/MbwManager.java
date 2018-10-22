@@ -52,6 +52,12 @@ import android.util.Log;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import com.coinapult.api.httpclient.AndroidKeyConverter;
+import com.coinapult.api.httpclient.CoinapultClient;
+import com.coinapult.api.httpclient.CoinapultConfig;
+import com.coinapult.api.httpclient.CoinapultPlaygroundConfig;
+import com.coinapult.api.httpclient.CoinapultProdConfig;
+import com.coinapult.api.httpclient.ECC_SC;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
@@ -62,7 +68,13 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Queues;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Ints;
-import com.mrd.bitlib.crypto.*;
+import com.mrd.bitlib.crypto.Bip39;
+import com.mrd.bitlib.crypto.HdKeyNode;
+import com.mrd.bitlib.crypto.InMemoryPrivateKey;
+import com.mrd.bitlib.crypto.MrdExport;
+import com.mrd.bitlib.crypto.PrivateKey;
+import com.mrd.bitlib.crypto.RandomSource;
+import com.mrd.bitlib.crypto.SignedMessage;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
@@ -81,10 +93,14 @@ import com.mycelium.wallet.activity.util.BlockExplorerManager;
 import com.mycelium.wallet.activity.util.Pin;
 import com.mycelium.wallet.api.AndroidAsyncApi;
 import com.mycelium.wallet.bitid.ExternalService;
+import com.mycelium.wallet.coinapult.CoinapultApiImpl;
 import com.mycelium.wallet.coinapult.CoinapultManager;
+import com.mycelium.wallet.coinapult.SQLiteCoinapultBacking;
+import com.mycelium.wallet.colu.ColuApiImpl;
 import com.mycelium.wallet.colu.ColuClient;
 import com.mycelium.wallet.colu.ColuManager;
 import com.mycelium.wallet.colu.SqliteColuManagerBacking;
+import com.mycelium.wallet.event.BalanceChanged;
 import com.mycelium.wallet.event.EventTranslator;
 import com.mycelium.wallet.event.ExtraAccountsChanged;
 import com.mycelium.wallet.event.ReceivingAddressChanged;
@@ -97,20 +113,34 @@ import com.mycelium.wallet.extsig.keepkey.KeepKeyManager;
 import com.mycelium.wallet.extsig.ledger.LedgerManager;
 import com.mycelium.wallet.extsig.trezor.TrezorManager;
 import com.mycelium.wallet.lt.LocalTraderManager;
+import com.mycelium.wallet.modularisation.GEBHelper;
 import com.mycelium.wallet.modularisation.GooglePlayModuleCollection;
 import com.mycelium.wallet.modularisation.SpvBchFetcher;
-import com.mycelium.wallet.modularisation.GEBHelper;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.persistence.TradeSessionDb;
 import com.mycelium.wallet.wapi.SqliteWalletManagerBackingWrapper;
 import com.mycelium.wapi.api.WapiClientElectrumX;
 import com.mycelium.wapi.api.jsonrpc.TcpEndpoint;
-import com.mycelium.wapi.wallet.*;
+import com.mycelium.wapi.wallet.AccountListener;
+import com.mycelium.wapi.wallet.AccountProvider;
+import com.mycelium.wapi.wallet.AesKeyCipher;
+import com.mycelium.wapi.wallet.BTCSettings;
 import com.mycelium.wapi.wallet.Currency;
+import com.mycelium.wapi.wallet.CurrencySettings;
+import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.IdentityAccountKeyManager;
+import com.mycelium.wapi.wallet.KeyCipher;
+import com.mycelium.wapi.wallet.Reference;
+import com.mycelium.wapi.wallet.SecureKeyValueStore;
+import com.mycelium.wapi.wallet.SpvBalanceFetcher;
+import com.mycelium.wapi.wallet.SyncMode;
+import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bch.single.BitcoinCashSingleAddressModule;
 import com.mycelium.wapi.wallet.bip44.ChangeAddressMode;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
+import com.mycelium.wapi.wallet.btc.BtcTransaction;
 import com.mycelium.wapi.wallet.btc.InMemoryWalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
@@ -121,6 +151,7 @@ import com.mycelium.wapi.wallet.btc.single.BitcoinSingleAddressModule;
 import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext;
+import com.mycelium.wapi.wallet.coinapult.CoinapultModule;
 import com.mycelium.wapi.wallet.colu.ColuModule;
 import com.mycelium.wapi.wallet.manager.WalletManagerkt;
 import com.mycelium.wapi.wallet.segwit.SegwitAddress;
@@ -132,7 +163,20 @@ import org.bitcoinj.params.RegTestParams;
 import org.bitcoinj.params.TestNet3Params;
 
 import java.io.UnsupportedEncodingException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -320,9 +364,9 @@ public class MbwManager {
 
         _walletManager.addObserver(_eventTranslator);
         _coinapultManager = createCoinapultManager();
-        if (_coinapultManager.isPresent()) {
-            addExtraAccounts(_coinapultManager.get());
-        }
+//        if (_coinapultManager.isPresent()) {
+//            addExtraAccounts(_coinapultManager.get());
+//        }
 
         new InitColuManagerTask().execute();
         // set the currency-list after we added all extra accounts, they may provide
@@ -652,7 +696,7 @@ public class MbwManager {
 
     private WalletManagerkt createWalletManagerkt(final Context context, MbwEnvironment environment) {
         // Create persisted account backing
-        WalletManagerBacking<SingleAddressAccountContext> backing = new SqliteWalletManagerBackingWrapper(context);
+        WalletManagerBacking<SingleAddressAccountContext, BtcTransaction> backing = new SqliteWalletManagerBackingWrapper(context);
 
         // Create persisted secure storage instance
         SecureKeyValueStore secureKeyValueStore = new SecureKeyValueStore(backing,
@@ -689,9 +733,36 @@ public class MbwManager {
         } else {
             netParams = RegTestParams.get();
         }
-        result.add(new ColuModule(networkParameters, netParams, publicPrivateKeyStore, coluClient, coluBacking));
-        result.init();
 
+        AccountListener accountListener = new AccountListener() {
+
+            @Override
+            public void balanceUpdated(final WalletAccount<?, ?> walletAccount) {
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        _eventBus.post(new BalanceChanged(walletAccount.getId()));
+                    }
+                });
+            }
+        };
+
+        result.add(new ColuModule(networkParameters, netParams, publicPrivateKeyStore
+                , new ColuApiImpl(coluClient), coluBacking, accountListener));
+        if (_walletManager.hasBip32MasterSeed()) {
+            try {
+                Bip39.MasterSeed masterSeed = _walletManager.getMasterSeed(AesKeyCipher.defaultKeyCipher());
+                InMemoryPrivateKey inMemoryPrivateKey = createBip32WebsitePrivateKey(masterSeed.getBip32Seed(), 0, "coinapult.com");
+                SQLiteCoinapultBacking coinapultBacking = new SQLiteCoinapultBacking(context
+                        , getMetadataStorage(), inMemoryPrivateKey.getPublicKey().getPublicKeyBytes());
+                result.add(new CoinapultModule(inMemoryPrivateKey, networkParameters
+                        , new CoinapultApiImpl(createClient(environment, inMemoryPrivateKey, retainingWapiLogger))
+                        , coinapultBacking, accountListener));
+            } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
+                invalidKeyCipher.printStackTrace();
+            }
+        }
+        result.init();
         // notify the walletManager about the current selected account
 //        UUID lastSelectedAccountId = getLastSelectedAccountId();
 //        if (lastSelectedAccountId != null) {
@@ -700,6 +771,20 @@ public class MbwManager {
 
 
         return result;
+    }
+
+    private CoinapultClient createClient(MbwEnvironment env, InMemoryPrivateKey accountKey, WapiLogger logger) {
+        CoinapultConfig cc;
+        NetworkParameters network = env.getNetwork();
+        if (network.equals(NetworkParameters.testNetwork)) {
+            cc = new CoinapultPlaygroundConfig();
+        } else if (network.equals(NetworkParameters.productionNetwork)) {
+            cc = new CoinapultProdConfig();
+        } else {
+            throw new IllegalStateException("unknown network: " + network);
+        }
+
+        return new CoinapultClient(AndroidKeyConverter.convertKeyFormat(accountKey), new ECC_SC(), cc, logger);
     }
 
     public void importLabelsToBch(WalletManager walletManager) {
@@ -1212,7 +1297,9 @@ public class MbwManager {
         UUID uuid = getLastSelectedAccountId();
 
         // If nothing is selected, or selected is archived, pick the first one
-        if (uuid == null || !_walletManager.hasAccount(uuid) || _walletManager.getAccount(uuid).isArchived()) {
+       if (uuid != null && WalletManagerkt.INSTANCE.hasAccount(uuid) && WalletManagerkt.INSTANCE.getAccount(uuid).isActive()) {
+           return WalletManagerkt.INSTANCE.getAccount(uuid);
+       } else if (uuid == null || !_walletManager.hasAccount(uuid) || _walletManager.getAccount(uuid).isArchived()) {
             if (_walletManager.getActiveAccounts().isEmpty()) {
                 // That case should never happen, because we prevent users from archiving all of their
                 // accounts.
@@ -1256,8 +1343,10 @@ public class MbwManager {
     }
 
     public void setSelectedAccount(UUID uuid) {
-        final WalletAccount account;
-        account = _walletManager.getAccount(uuid);
+        WalletAccount account = _walletManager.getAccount(uuid);
+        if(account == null) {
+            account = WalletManagerkt.INSTANCE.getAccount(uuid);
+        }
         Preconditions.checkState(account.isActive());
         getEditor().putString(SELECTED_ACCOUNT, uuid.toString()).apply();
         getEventBus().post(new SelectedAccountChanged(uuid));

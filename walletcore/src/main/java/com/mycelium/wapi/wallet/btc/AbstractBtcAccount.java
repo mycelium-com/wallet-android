@@ -89,7 +89,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    protected BalanceSatoshis _cachedBalance;
 
    private EventHandler _eventHandler;
-   private final AccountBacking _backing;
+   private final AccountBacking<BtcTransaction> _backing;
    protected int syncTotalRetrievedTransactions = 0;
 
    protected AbstractBtcAccount(AccountBacking backing, NetworkParameters network, Wapi wapi) {
@@ -1620,8 +1620,8 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    }
 
    @Override
-   public SendRequest getSendToRequest(GenericAddress destination, Value amount) {
-      return BtcSendRequest.to((BtcLegacyAddress) destination, amount);
+   public SendRequest getSendToRequest(BtcLegacyAddress destination, Value amount) {
+      return BtcSendRequest.to(destination, amount);
    }
 
    @Override
@@ -1712,11 +1712,6 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    @Override
    public boolean onlySyncWhenActive() {
       return false;
-   }
-
-   @Override
-   public String getAccountDefaultCurrency() {
-      return CurrencyValue.BTC;
    }
 
    public AccountBacking getAccountBacking() {

@@ -1,7 +1,11 @@
 package com.mycelium.wapi.wallet.coinapult
 
+import com.mycelium.wapi.wallet.GenericAddress
+import java.util.*
 
-class CoinapultAccountContext(private var isArchived: Boolean) {
+
+class CoinapultAccountContext(val id: UUID, var address: GenericAddress
+                              , private var isArchived: Boolean, val currency: Currency) {
 
     /**
      * Is this account archived?

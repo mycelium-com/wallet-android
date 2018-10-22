@@ -128,6 +128,8 @@ import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
 import static com.mycelium.wallet.activity.util.ValueExtentionsKt.isBtc;
 
 import com.mycelium.wapi.wallet.segwit.SegwitAddress;
+
+import com.mycelium.wapi.wallet.manager.WalletManagerkt;
 import com.squareup.otto.Subscribe;
 
 import org.bitcoin.protocols.payments.PaymentACK;
@@ -369,7 +371,11 @@ public class SendMainActivity extends Activity {
 
         _isColdStorage = getIntent().getBooleanExtra(IS_COLD_STORAGE, false);
         String crashHint = TextUtils.join(", ", getIntent().getExtras().keySet()) + " (account id was " + accountId + ")";
-        _account = Preconditions.checkNotNull(_mbwManager.getWalletManager(_isColdStorage).getAccount(accountId), crashHint);
+        WalletAccount account = _mbwManager.getWalletManager(_isColdStorage).getAccount(accountId);
+        if (account == null) {
+            account = WalletManagerkt.INSTANCE.getAccount(accountId);
+        }
+        _account = Preconditions.checkNotNull(account, crashHint);
         feeLvl = _mbwManager.getMinerFee();
         feeEstimation = _mbwManager.getWalletManager(false).getLastFeeEstimations();
         feePerKbValue = _mbwManager.getMinerFee().getFeePerKb(feeEstimation).getLongValue();

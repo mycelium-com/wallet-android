@@ -118,6 +118,7 @@ import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.Value;
+import com.mycelium.wapi.wallet.manager.WalletManagerkt;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -225,7 +226,7 @@ public class AccountsFragment extends Fragment {
       ActivityCompat.invalidateOptionsMenu(getActivity());
       if (requestCode == ADD_RECORD_RESULT_CODE && resultCode == AddCoinapultAccountActivity.RESULT_COINAPULT) {
          UUID accountId = (UUID) intent.getSerializableExtra(AddAccountActivity.RESULT_KEY);
-         CoinapultAccount account = (CoinapultAccount) _mbwManager.getWalletManager(false).getAccount(accountId);
+         WalletAccount account  = WalletManagerkt.INSTANCE.getAccount(accountId);
          _mbwManager.setSelectedAccount(accountId);
          accountListAdapter.setFocusedAccountId(account.getId());
          updateIncludingMenus();
@@ -236,6 +237,9 @@ public class AccountsFragment extends Fragment {
             //check whether the account is active - we might have scanned the priv key for an archived watchonly
             WalletManager walletManager = _mbwManager.getWalletManager(false);
             WalletAccount account = walletManager.getAccount(accountid);
+            if(account == null) {
+               account = WalletManagerkt.INSTANCE.getAccount(accountid);
+            }
             if (account.isActive()) {
                _mbwManager.setSelectedAccount(accountid);
             }
@@ -1035,7 +1039,7 @@ public class AccountsFragment extends Fragment {
       }
       accountListAdapter.getFocusedAccount().dropCachedData();
       _mbwManager.getWalletManager(false).startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
-      _mbwManager.getColuManager().startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
+//      _mbwManager.getColuManager().startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
    }
 
    private void exportSelectedPrivateKey() {
@@ -1173,7 +1177,7 @@ public class AccountsFragment extends Fragment {
     */
    private boolean accountProtected(WalletAccount toRemove) {
       if (toRemove instanceof HDAccount
-              || ((HDAccount) toRemove).getAccountType() != HDAccountContext.ACCOUNT_TYPE_FROM_MASTERSEED) {
+              && ((HDAccount) toRemove).getAccountType() != HDAccountContext.ACCOUNT_TYPE_FROM_MASTERSEED) {
          // unprotected account type
          return false;
       }

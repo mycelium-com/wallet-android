@@ -35,7 +35,7 @@ import java.util.logging.Logger;
 /**
  * Client for the Colu HTTP API.
  */
-public class ColuClient implements ColuApi{
+public class ColuClient{
     private static final String TAG = "ColuClient";
 
     private static final boolean coluAutoSelectUtxo = true;
@@ -73,6 +73,11 @@ public class ColuClient implements ColuApi{
 
     AddressTransactionsInfo.Json getAddressTransactions(Address address) throws IOException {
         String endpoint = "getaddressinfowithtransactions?address=" + address.toString();
+        return blockExplorerClient.sendGetRequest(AddressTransactionsInfo.Json.class, endpoint);
+    }
+
+    AddressTransactionsInfo.Json getAddressTransactions(String address) throws IOException {
+        String endpoint = "getaddressinfowithtransactions?address=" + address;
         return blockExplorerClient.sendGetRequest(AddressTransactionsInfo.Json.class, endpoint);
     }
 
@@ -160,9 +165,4 @@ public class ColuClient implements ColuApi{
         return coloredCoinsClient.sendPostRequest(ColuBroadcastTxId.Json.class, "broadcast", null, tx);
     }
 
-    @Override
-    public String broadcastTx(Transaction coluSignedTransaction) throws IOException{
-        ColuBroadcastTxId.Json result = broadcastTransaction(coluSignedTransaction);
-        return result.txid;
-    }
 }

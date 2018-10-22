@@ -30,10 +30,6 @@ class SingleAddressBCHAccount(context: SingleAddressAccountContext,
     : SingleAddressAccount(context, keyStore, network, backing, wapi, Reference(ChangeAddressMode.NONE)) {
     private var visible: Boolean = false
 
-    override fun getAccountDefaultCurrency(): String {
-        return CurrencyValue.BCH
-    }
-
     override fun getCurrencyBasedBalance(): CurrencyBasedBalance {
         return spvBalanceFetcher.retrieveByUnrelatedAccountId(id.toString())
     }

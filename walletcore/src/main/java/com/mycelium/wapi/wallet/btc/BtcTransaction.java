@@ -6,6 +6,7 @@ import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal;
 import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
+import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
 
 import java.io.Serializable;
@@ -75,7 +76,7 @@ public class BtcTransaction implements GenericTransaction, Serializable {
     }
 
     @Override
-    public CryptoCurrency getType() {
+    public GenericAssetInfo getType() {
         return type;
     }
 
