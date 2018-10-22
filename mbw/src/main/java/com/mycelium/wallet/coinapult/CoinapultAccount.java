@@ -882,7 +882,7 @@ public class CoinapultAccount extends SynchronizeAbleWalletBtcAccount {
    }
 
    @Override
-   public SendRequest getSendToRequest(BtcAddress destination, Value amount) {
+   public SendRequest getSendToRequest(BtcLegacyAddress destination, Value amount) {
       return null;
    }
 }

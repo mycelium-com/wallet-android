@@ -13,4 +13,6 @@ class SegwitAddress(override val address: com.mrd.bitlib.model.SegwitAddress): B
     override fun toString(): String {
         return address.toString()
     }
+
+    override fun getBytes(): ByteArray = address.allAddressBytes
 }

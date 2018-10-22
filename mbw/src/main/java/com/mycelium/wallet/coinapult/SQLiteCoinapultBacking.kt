@@ -12,6 +12,7 @@ import com.mycelium.wallet.persistence.SQLiteQueryWithBlobs.uuidToBytes
 import com.mycelium.wapi.wallet.AccountBacking
 import com.mycelium.wapi.wallet.WalletBacking
 import com.mycelium.wapi.wallet.btc.BtcAddress
+import com.mycelium.wapi.wallet.btc.BtcLegacyAddress
 import com.mycelium.wapi.wallet.coinapult.CoinapultAccountContext
 import com.mycelium.wapi.wallet.coinapult.CoinapultTransaction
 import com.mycelium.wapi.wallet.coinapult.CoinapultUtils
@@ -38,7 +39,7 @@ class SQLiteCoinapultBacking(val context: Context
             currencies.forEach {
                 Currency.all[it]?.let { currency ->
                     val id = CoinapultUtils.getGuidForAsset(currency, addressByteArray)
-                    val address = BtcAddress(currency, metadataStorage.getCoinapultAddress(currency.name).get().allAddressBytes)
+                    val address = BtcLegacyAddress(currency, metadataStorage.getCoinapultAddress(currency.name).get().allAddressBytes)
                     createAccountContext(CoinapultAccountContext(id, address, metadataStorage.getArchived(id), currency))
                 }
             }
@@ -61,7 +62,7 @@ class SQLiteCoinapultBacking(val context: Context
 
             // Create context
             insertOrReplaceSingleAddressAccount.bindBlob(1, uuidToBytes(context.id))
-            insertOrReplaceSingleAddressAccount.bindBlob(2, context.address.allAddressBytes)
+            insertOrReplaceSingleAddressAccount.bindBlob(2, context.address.getBytes())
             insertOrReplaceSingleAddressAccount.bindLong(3, (if (context.isArchived()) 1 else 0).toLong())
             insertOrReplaceSingleAddressAccount.bindString(4, context.currency.name)
             insertOrReplaceSingleAddressAccount.executeInsert()
@@ -101,7 +102,7 @@ class SQLiteCoinapultBacking(val context: Context
                 val isArchived = cursor.getInt(2) == 1
                 val currency = Currency.all[cursor.getString(3)]!!
                 backings[id] = SQLiteCoinapultAccountBacking(id, database)
-                result.add(CoinapultAccountContext(id, BtcAddress(currency, addressBytes), isArchived, currency))
+                result.add(CoinapultAccountContext(id, BtcLegacyAddress(currency, addressBytes), isArchived, currency))
             }
         } finally {
             cursor?.close()

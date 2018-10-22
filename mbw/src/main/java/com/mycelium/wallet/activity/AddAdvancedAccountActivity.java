@@ -424,7 +424,7 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
             for (AddressType addressType : AddressType.values()) {
                Address addr = key.getPublicKey().toAddress(_mbwManager.getNetwork(), addressType);
                address = AddressUtils.fromAddress(addr);
-               address = new BtcAddress(BitcoinMain.get(), address.getAllAddressBytes());
+               address = new BtcLegacyAddress(BitcoinMain.get(), address.getBytes());
                Optional<UUID> accountId = _mbwManager.getAccountId(address, null);
                if (accountId.isPresent()) {
                   return null;

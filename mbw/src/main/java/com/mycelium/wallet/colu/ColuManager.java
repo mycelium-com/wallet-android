@@ -506,7 +506,7 @@ public class ColuManager implements AccountProvider {
 //        );
         ColuPubOnlyAccount account = new ColuPubOnlyAccount(
                 new ColuAccountContext(createdAccountInfo.id, coinMap.get(coluAsset.id)
-                        , new BtcAddress(coinMap.get(coluAsset.id), address.getAllAddressBytes()), false, 0)
+                        , new BtcLegacyAddress(coinMap.get(coluAsset.id), address.getAllAddressBytes()), false, 0)
                 , new PublicKey(address.getAllAddressBytes()), coinMap.get(coluAsset.id)
                 , _network, netParams, new ColuApiImpl(coluClient), createdAccountInfo.accountBacking, null);
 
@@ -591,7 +591,7 @@ public class ColuManager implements AccountProvider {
         UUID id = ColuUtils.getGuidForAsset(coinMap.get(coluAsset.id), importKey.getPublicKey().getPublicKeyBytes());
         com.mycelium.wapi.wallet.colu.ColuAccount account = new com.mycelium.wapi.wallet.colu.ColuAccount(
                 new ColuAccountContext(id, coinMap.get(coluAsset.id)
-                        , new BtcAddress(coinMap.get(coluAsset.id), importKey.getPublicKey().getPublicKeyBytes())
+                        , new BtcLegacyAddress(coinMap.get(coluAsset.id), importKey.getPublicKey().getPublicKeyBytes())
                         , false, 0)
                 , accountKey, coinMap.get(coluAsset.id)
                 , _network, netParams, new ColuApiImpl(coluClient), createdAccountInfo.accountBacking, null);

@@ -64,4 +64,10 @@ public class BtcLegacyAddress implements BtcAddress {
     public long getId() {
         return 0;
     }
+
+    @NotNull
+    @Override
+    public byte[] getBytes() {
+        return address.getAllAddressBytes();
+    }
 }

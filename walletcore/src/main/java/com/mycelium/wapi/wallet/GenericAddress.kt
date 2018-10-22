@@ -9,4 +9,6 @@ interface GenericAddress : Serializable {
     val coinType: CryptoCurrency
     val type: AddressType
     val id: Long
+
+    fun getBytes():ByteArray
 }

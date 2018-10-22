@@ -65,6 +65,7 @@ import com.mycelium.wapi.wallet.SingleAddressAccountBacking;
 import com.mycelium.wapi.wallet.WalletBacking;
 import com.mycelium.wapi.wallet.btc.Bip44AccountBacking;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
+import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.bip44.AccountIndexesContext;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
@@ -185,7 +186,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
             } else if(RMCCoin.INSTANCE.getId().equals(coinId)) {
                coinType = RMCCoin.INSTANCE;
             }
-            list.add(new ColuAccountContext(id, coinType, new BtcAddress(coinType, addressBytes)
+            list.add(new ColuAccountContext(id, coinType, new BtcLegacyAddress(coinType, addressBytes)
                     , isArchived, blockHeight));
          }
          return list;
@@ -210,7 +211,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
 
          // Create context
          _insertOrReplaceSingleAddressAccount.bindBlob(1, uuidToBytes(context.getId()));
-         _insertOrReplaceSingleAddressAccount.bindBlob(2, context.getAddress().getAllAddressBytes());
+         _insertOrReplaceSingleAddressAccount.bindBlob(2, context.getAddress().getBytes());
 //         final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
 //         try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteStream)) {
 //            objectOutputStream.write(context.getAddress().getAllAddressBytes());

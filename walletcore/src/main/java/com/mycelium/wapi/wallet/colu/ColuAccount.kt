@@ -91,7 +91,7 @@ class ColuAccount(context: ColuAccountContext, val privateKey: InMemoryPrivateKe
         }
     }
 
-    override fun getSendToRequest(destination: BtcAddress, amount: Value): SendRequest<*> {
+    override fun getSendToRequest(destination: BtcLegacyAddress, amount: Value): SendRequest<*> {
         return ColuSendRequest(coinType, destination, amount)
     }
 
