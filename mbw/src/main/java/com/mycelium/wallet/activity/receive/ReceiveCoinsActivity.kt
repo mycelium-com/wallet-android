@@ -63,8 +63,7 @@ class ReceiveCoinsActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
 
-        ivQrCode.qrCode = viewModel.getPaymentUri()
-        viewModel.getReceivingAddress().observe(this, Observer { address -> ivQrCode.qrCode = address.toString() })
+        viewModel.getReceivingAddress().observe(this, Observer { ivQrCode.qrCode = viewModel.getPaymentUri() })
     }
 
     private fun initDatabinding(account: WalletAccount) {

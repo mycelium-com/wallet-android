@@ -14,14 +14,12 @@ import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.util.CoinUtil
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
-import com.mycelium.wallet.R.id.tvAmountFiat
 import com.mycelium.wallet.activity.util.AccountDisplayType
 import com.mycelium.wallet.event.SyncFailed
 import com.mycelium.wallet.event.SyncStopped
 import com.mycelium.wapi.model.TransactionSummary
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.currency.CurrencyValue
-import com.mycelium.wapi.wallet.currency.ExchangeBasedBitcoinValue
 import com.mycelium.wapi.wallet.currency.ExchangeBasedCurrencyValue
 import com.squareup.otto.Subscribe
 
@@ -95,12 +93,12 @@ class ReceiveCoinsModel(
         uri.append(receivingAddress.value)
         if (!CurrencyValue.isNullOrZero(amountData.value)) {
             if (accountDisplayType == AccountDisplayType.COLU_ACCOUNT) {
-                uri.append("?amountData=").append(amountData.value!!.value.toPlainString())
+                uri.append("?amount=").append(amountData.value!!.value.toPlainString())
             } else {
                 val value = ExchangeBasedCurrencyValue.fromValue(amountData.value,
                         account.accountDefaultCurrency, mbwManager.exchangeRateManager).value
                 if (value != null) {
-                    uri.append("?amountData=").append(CoinUtil.valueString(value,
+                    uri.append("?amount=").append(CoinUtil.valueString(value,
                             CoinUtil.Denomination.BTC, false))
                 } else {
                     Toast.makeText(context, R.string.value_conversion_error, Toast.LENGTH_LONG).show()
