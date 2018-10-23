@@ -18,12 +18,17 @@ import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext
 import com.mycelium.wapi.wallet.manager.Config
 import com.mycelium.wapi.wallet.manager.WalletModule
 import java.util.*
+import com.mrd.bitlib.crypto.Bip39
+import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher
+import com.mrd.bitlib.crypto.HdKeyNode
+import com.mycelium.wapi.wallet.Currency
 
 
-class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAccountContext, BtcTransaction>
-                      , internal val secureStore: SecureKeyValueStore
-                      , internal val networkParameters: NetworkParameters
-                      , internal var _wapi: Wapi) : WalletModule {
+class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAccountContext, BtcTransaction>,
+                      internal val secureStore: SecureKeyValueStore,
+                      internal val networkParameters: NetworkParameters,
+                      internal var _wapi: Wapi,
+                      internal val currenciesSettingsMap: MutableMap<Currency, CurrencySettings>) : WalletModule {
 
     private val MASTER_SEED_ID = HexUtils.toBytes("D64CA2B680D8C8909A367F28EB47F990")
 
@@ -108,10 +113,62 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
             } finally {
                 backing.endTransaction()
             }
+        } else if (config is AdditionalHDAccountConfig) {
+            backing.beginTransaction()
+
+            // Get the master seed
+            val masterSeed = getMasterSeed(AesKeyCipher.defaultKeyCipher())
+
+            val accountIndex = getNextBip44Index()
+
+            // Create the base keys for the account
+            val keyManagerMap = HashMap<BipDerivationType, HDAccountKeyManager>()
+            for (derivationType in BipDerivationType.values()) {
+                // Generate the root private key
+                val root = HdKeyNode.fromSeed(masterSeed.bip32Seed, derivationType)
+                keyManagerMap.put(derivationType, HDAccountKeyManager.createNew(root, networkParameters, accountIndex,
+                        secureStore, AesKeyCipher.defaultKeyCipher(), derivationType))
+            }
+            val btcSettings = currenciesSettingsMap.get(Currency.BTC) as BTCSettings
+            val defaultAddressType = btcSettings.defaultAddressType
+
+            // Generate the context for the account
+            val context = HDAccountContext(
+                    keyManagerMap.get(BipDerivationType.BIP44)!!.getAccountId(), accountIndex, false, defaultAddressType)
+
+            backing.createBip44AccountContext(context)
+
+            // Get the backing for the new account
+            val accountBacking = backing.getBip44AccountBacking(context.id)
+
+            // Create actual account
+            result = HDAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi,
+                    btcSettings.changeAddressModeReference)
+
+            // Finally persist context and add account
+            context.persist(accountBacking)
+            backing.setTransactionSuccessful()
         }
 
         accounts.put(result!!.id, result as HDAccount)
         return result
+    }
+
+    /**
+     * Get the master seed in plain text
+     *
+     * @param cipher the cipher used to decrypt the master seed
+     * @return the master seed in plain text
+     * @throws InvalidKeyCipher if the cipher is invalid
+     */
+    @Throws(InvalidKeyCipher::class)
+    fun getMasterSeed(cipher: KeyCipher): Bip39.MasterSeed {
+        val binaryMasterSeed = secureStore.getDecryptedValue(MASTER_SEED_ID, cipher)
+        val masterSeed = Bip39.MasterSeed.fromBytes(binaryMasterSeed, false)
+        if (!masterSeed.isPresent) {
+            throw RuntimeException()
+        }
+        return masterSeed.get()
     }
 
     fun getAccountByIndex(index: Int): HDAccount? {
@@ -151,7 +208,10 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
         val last = accounts.values.last()
         return last.hasHadActivity()
     }
-    override fun canCreateAccount(config: Config): Boolean = config is HDConfig
+    override fun canCreateAccount(config: Config): Boolean =
+            config is HDConfig ||
+            config is AdditionalHDAccountConfig ||
+            config is ExternalSignaturesAccountConfig
 
 
     override fun deleteAccount(walletAccount: WalletAccount<*, *>): Boolean {

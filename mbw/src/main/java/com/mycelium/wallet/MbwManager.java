@@ -672,8 +672,7 @@ public class MbwManager {
 
         SpvBalanceFetcher spvBchFetcher = getSpvBchFetcher();
         // Create and return wallet manager
-        WalletManager walletManager = new WalletManager(secureKeyValueStore, backing, environment.getNetwork(), _wapi,
-                externalSignatureProviderProxy, spvBchFetcher, Utils.isConnected(context), currenciesSettingsMap);
+        WalletManager walletManager = new WalletManager(secureKeyValueStore, backing, environment.getNetwork(), _wapi, Utils.isConnected(context), currenciesSettingsMap);
 
         // notify the walletManager about the current selected account
         UUID lastSelectedAccountId = getLastSelectedAccountId();
@@ -690,7 +689,7 @@ public class MbwManager {
         if (spvBchFetcher != null) {
             walletManager.add(new BitcoinCashSingleAddressModule(backing, publicPrivateKeyStore, networkParameters, spvBchFetcher, _wapi));
         }
-        walletManager.add(new BitcoinHDModule(backing, secureKeyValueStore, networkParameters, _wapi));
+        walletManager.add(new BitcoinHDModule(backing, secureKeyValueStore, networkParameters, _wapi, currenciesSettingsMap));
 
         SqliteColuManagerBacking coluBacking = new SqliteColuManagerBacking(context);
         ColuClient coluClient = new ColuClient(networkParameters);
@@ -718,9 +717,11 @@ public class MbwManager {
 
         walletManager.add(new ColuModule(networkParameters, netParams, publicPrivateKeyStore
                 , new ColuApiImpl(coluClient), coluBacking, accountListener));
-        if (walletManager.hasBip32MasterSeed()) {
+
+        /* TODO - fix when updating coinapult support
+        if (_walletManager.hasBip32MasterSeed()) {
             try {
-                Bip39.MasterSeed masterSeed = walletManager.getMasterSeed(AesKeyCipher.defaultKeyCipher());
+                Bip39.MasterSeed masterSeed = _walletManager.getMasterSeed(AesKeyCipher.defaultKeyCipher());
                 InMemoryPrivateKey inMemoryPrivateKey = createBip32WebsitePrivateKey(masterSeed.getBip32Seed(), 0, "coinapult.com");
                 SQLiteCoinapultBacking coinapultBacking = new SQLiteCoinapultBacking(context
                         , getMetadataStorage(), inMemoryPrivateKey.getPublicKey().getPublicKeyBytes());
@@ -730,7 +731,8 @@ public class MbwManager {
             } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
                 invalidKeyCipher.printStackTrace();
             }
-        }
+        }*/
+
         walletManager.init();
 
         return walletManager;
@@ -788,7 +790,7 @@ public class MbwManager {
 
         // Create and return wallet manager
         WalletManager walletManager = new WalletManager(secureKeyValueStore, backing, environment.getNetwork(), _wapi,
-                null, getSpvBchFetcher(), Utils.isConnected(_applicationContext), currenciesSettingsMap);
+                Utils.isConnected(_applicationContext), currenciesSettingsMap);
 
         walletManager.disableTransactionHistorySynchronization();
         return walletManager;

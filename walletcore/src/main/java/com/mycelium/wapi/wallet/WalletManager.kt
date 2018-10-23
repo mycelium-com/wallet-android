@@ -27,8 +27,6 @@ class WalletManager(val _secureKeyValueStore: SecureKeyValueStore,
                     val backing: WalletManagerBacking<*,*>,
                     val network: NetworkParameters,
                     val wapi: Wapi,
-                    val signatureProviders: ExternalSignatureProviderProxy?,
-                    val spvBalanceFetcher: SpvBalanceFetcher?,
                     var isNetworkConnected: Boolean,
                     val currenciesSettingsMap: MutableMap<Currency, CurrencySettings>
                     ) {
