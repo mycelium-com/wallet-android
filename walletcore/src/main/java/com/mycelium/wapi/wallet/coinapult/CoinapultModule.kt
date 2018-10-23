@@ -49,7 +49,7 @@ class CoinapultModule(val accountKey: InMemoryPrivateKey
     }
 
     override fun canCreateAccount(config: Config): Boolean {
-        return config.getType() == "coinapult"
+        return config is CoinapultConfig
     }
 
     override fun deleteAccount(walletAccount: WalletAccount<*, *>): Boolean {

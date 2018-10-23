@@ -2,14 +2,15 @@ package com.mycelium.wapi.wallet.manager
 
 import com.mycelium.wapi.wallet.SyncMode
 import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.WalletManager
 
-class Synchronizer(val syncMode: SyncMode, val account: WalletAccount<*, *>? = null) : Runnable {
+class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode, val account: WalletAccount<*, *>? = null) : Runnable {
 
     override fun run() {
 //        setStateAndNotify(State.SYNCHRONIZING)
         try {
-            synchronized(WalletManagerkt.getAccounts()) {
-                if (WalletManagerkt.isNetworkConnected) {
+            synchronized(walletManager.getAccounts()) {
+                if (walletManager.isNetworkConnected) {
 //                    if (!syncMode.ignoreMinerFeeFetch && (_lastFeeEstimations == null || _lastFeeEstimations.isExpired(MIN_AGE_FEE_ESTIMATION))) {
 //                        // only fetch the fee estimations if the latest available fee is older than MIN_AGE_FEE_ESTIMATION
 //                        fetchFeeEstimation()
@@ -23,7 +24,7 @@ class Synchronizer(val syncMode: SyncMode, val account: WalletAccount<*, *>? = n
 //                    }
 
                     // Synchronize selected accounts with the blockchain
-                    WalletManagerkt.getAccounts().forEach { it.synchronize(syncMode) }
+                    walletManager.getAccounts().forEach { it.synchronize(syncMode) }
                 }
 
             }

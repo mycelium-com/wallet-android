@@ -69,6 +69,7 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.util.AbstractAccountScanManager;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.wallet.WalletManager;
+import com.mycelium.wapi.wallet.btc.bip44.ExternalSignaturesAccountConfig;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
 import com.mycelium.wapi.wallet.btc.bip44.ExternalSignatureProvider;
@@ -490,7 +491,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
          }
       }
       if (account == null) {
-         account = walletManager.createExternalSignatureAccount(accountRoots, this, accountIndex);
+         account = walletManager.createAccounts(new ExternalSignaturesAccountConfig(accountRoots, this, accountIndex)).get(0);
       }
       return account;
    }

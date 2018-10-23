@@ -9,9 +9,7 @@ import com.mycelium.wapi.wallet.colu.coins.ColuMain
 
 
 class PublicColuConfig(publicKey: PublicKey, val coinType: ColuMain) : PublicSingleConfig(publicKey) {
-    override fun getType(): String = "colu_public"
 }
 
 class PrivateColuConfig(privateKey: InMemoryPrivateKey, val coinType: ColuMain, cipher: KeyCipher) : PrivateSingleConfig(privateKey, cipher) {
-    override fun getType(): String = "colu_private"
 }

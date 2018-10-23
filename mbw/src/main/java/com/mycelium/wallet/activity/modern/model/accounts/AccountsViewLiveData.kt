@@ -11,7 +11,6 @@ import com.mycelium.wallet.event.AccountListChanged
 import com.mycelium.wapi.wallet.GenericAddress
 import com.mycelium.wapi.wallet.GenericTransaction
 import com.mycelium.wapi.wallet.WalletAccount
-import com.mycelium.wapi.wallet.manager.WalletManagerkt
 import com.squareup.otto.Subscribe
 import java.util.*
 import java.util.concurrent.ExecutorService
@@ -75,7 +74,7 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
             }
 
             val coluAccounts = ArrayList<WalletAccount<out GenericTransaction, out GenericAddress>>()
-            coluAccounts.addAll(WalletManagerkt.getColuAccounts())
+            coluAccounts.addAll(am.getColuAccounts().values)
             for (walletAccount in am.getColuAccounts().values) {
 //                coluAccounts.add(walletAccount)
                 coluAccounts.add((walletAccount as ColuAccount).linkedAccount)
@@ -87,7 +86,7 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
 
 //            val accounts = am.getActiveAccounts().values.asList()
             val other = ArrayList<WalletAccount<out GenericTransaction, out GenericAddress>>()
-            WalletManagerkt.getCoinapultAccounts().forEach {
+            am.getCoinapultAccounts().values.forEach {
                 other.add(it)
             }
 //            for (account in accounts) {

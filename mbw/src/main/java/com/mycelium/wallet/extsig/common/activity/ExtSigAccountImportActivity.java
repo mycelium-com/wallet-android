@@ -46,6 +46,7 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AccountScanManager;
+import com.mycelium.wapi.wallet.btc.bip44.ExternalSignaturesAccountConfig;
 import com.squareup.otto.Subscribe;
 
 import java.util.List;
@@ -64,11 +65,11 @@ public abstract class ExtSigAccountImportActivity extends ExtSigAccountSelectorA
             MbwManager mbwManager = MbwManager.getInstance(ExtSigAccountImportActivity.this);
 
             UUID acc = mbwManager.getWalletManager(false)
-                  .createExternalSignatureAccount(
+                  .createAccounts(new ExternalSignaturesAccountConfig(
                         item.xPub,
                         (ExternalSignatureDeviceManager) masterseedScanManager,
                         item.accountHdKeysPaths.iterator().next().getLastIndex()
-                  );
+                  )).get(0);
 
             // Mark this account as backup warning ignored
             mbwManager.getMetadataStorage().setOtherAccountBackupState(acc, MetadataStorage.BackupState.IGNORED);
@@ -110,11 +111,11 @@ public abstract class ExtSigAccountImportActivity extends ExtSigAccountSelectorA
 
                   if (!nextAccount.isEmpty()) {
                      UUID acc = mbwManager.getWalletManager(false)
-                           .createExternalSignatureAccount(
+                           .createAccounts(new ExternalSignaturesAccountConfig(
                                  nextAccount,
                                  (ExternalSignatureDeviceManager) masterseedScanManager,
                                  nextAccount.get(0).getIndex()
-                           );
+                           )).get(0);
 
                      mbwManager.getMetadataStorage().setOtherAccountBackupState(acc, MetadataStorage.BackupState.IGNORED);
 
