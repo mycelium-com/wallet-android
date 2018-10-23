@@ -45,6 +45,7 @@ import android.widget.TextView;
 
 import com.google.common.base.Preconditions;
 import com.mycelium.wallet.CurrencySwitcher;
+import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
@@ -55,7 +56,7 @@ import com.squareup.otto.Subscribe;
 
 
 public class ToggleableCurrencyDisplay extends LinearLayout {
-   protected Bus eventBus = null;
+   protected Bus eventBus = MbwManager.getEventBus();
    protected CurrencySwitcher currencySwitcher;
 
    protected TextView tvCurrency;
@@ -180,10 +181,6 @@ public class ToggleableCurrencyDisplay extends LinearLayout {
 
    protected CurrencyValue getValueToShow() {
       return currencySwitcher.getAsFiatValue(currentValue);
-   }
-
-   public void setEventBus(Bus eventBus) {
-      this.eventBus = eventBus;
    }
 
    private boolean isAddedToBus = false;

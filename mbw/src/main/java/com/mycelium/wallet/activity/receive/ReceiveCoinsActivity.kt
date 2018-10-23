@@ -33,7 +33,7 @@ class ReceiveCoinsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+      
         val mbwManager = MbwManager.getInstance(application)
         val isColdStorage = intent.getBooleanExtra(IS_COLD_STORAGE, false)
         val walletManager = mbwManager.getWalletManager(isColdStorage)
