@@ -16,8 +16,9 @@
 
 package com.mycelium.wapi.wallet;
 
+import com.mycelium.wapi.wallet.btc.BtcTransaction;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext;
 
-public interface SingleAddressAccountBacking extends AccountBacking {
+public interface SingleAddressAccountBacking extends AccountBacking<BtcTransaction> {
    void updateAccountContext(SingleAddressAccountContext context);
 }

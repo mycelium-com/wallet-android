@@ -2,6 +2,9 @@ package com.mycelium.wallet.activity.main.address
 
 import android.app.Application
 import android.arch.lifecycle.MutableLiveData
+import com.mrd.bitlib.model.Address
+import com.mrd.bitlib.model.AddressType
+import com.mrd.bitlib.model.hdpath.HdKeyPath
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.event.AccountChanged
@@ -11,6 +14,7 @@ import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount
 import com.mycelium.wapi.wallet.btc.BtcAddress
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount
 import com.squareup.otto.Subscribe
 
 class AddressFragmentModel(
@@ -22,6 +26,8 @@ class AddressFragmentModel(
     val accountLabel: MutableLiveData<String> = MutableLiveData()
     val accountAddress: MutableLiveData<GenericAddress> = MutableLiveData()
     val addressPath: MutableLiveData<String> = MutableLiveData()
+    val type: MutableLiveData<AddressType> = MutableLiveData()
+    val bip32Path: MutableLiveData<HdKeyPath> = MutableLiveData()
 
     init {
         updateLabel()
@@ -32,8 +38,8 @@ class AddressFragmentModel(
 
     private fun updateAddressPath(showBip44Path: Boolean) {
         addressPath.value =
-                when (showBip44Path && (accountAddress.value!! as BtcAddress).bip32Path != null) {
-                    true -> (accountAddress.value!! as BtcAddress).bip32Path.toString()
+                when (showBip44Path && bip32Path.value != null) {
+                    true -> bip32Path.value.toString()
                     false -> ""
                 }
     }
@@ -49,6 +55,10 @@ class AddressFragmentModel(
     }
 
     private fun updateAddress(account: WalletAccount<*,*>) {
+        if(account is WalletBtcAccount) {
+            bip32Path.value = account.receivingAddress.get().bip32Path
+            type.value = account.receivingAddress.get().type
+        }
         accountAddress.value = account.receiveAddress
     }
 

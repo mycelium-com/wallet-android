@@ -25,6 +25,7 @@ abstract class AddressFragmentViewModel(val context: Application) : AndroidViewM
     fun getAccountLabel() = model.accountLabel
     fun getAccountAddress() = model.accountAddress
     fun getAddressPath() = model.addressPath
+    fun getType() = model.type
 
     fun getDrawableForAccount(resources: Resources): Drawable? {
         return Utils.getDrawableForAccount(model.account, true, resources)

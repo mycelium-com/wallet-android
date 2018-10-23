@@ -16,7 +16,6 @@ import com.mycelium.wallet.activity.rmc.view.ProfitMeterView;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.colu.json.AssetMetadata;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
@@ -208,7 +207,7 @@ public class AddressWidgetAdapter extends PagerAdapter {
             ButterKnife.bind(this, view);
             String name = mbwManager.getMetadataStorage().getLabelByAccount(mbwManager.getSelectedAccount().getId());
             tvLabel.setText(name);
-            tvAddress.setText(((WalletBtcAccount)(mbwManager.getSelectedAccount())).getReceivingAddress().get().toString());
+            tvAddress.setText(mbwManager.getSelectedAccount().getReceiveAddress().toString());
             AssetMetadata assetMetadata = mbwManager.getColuManager().getAssetMetadata(ColuAccount.ColuAssetType.RMC);
             tvTotalIssued.setText(assetMetadata != null ?
                     assetMetadata.getTotalSupply().stripTrailingZeros().toPlainString()

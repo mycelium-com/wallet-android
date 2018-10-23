@@ -5,5 +5,14 @@ import com.mycelium.wapi.wallet.manager.Config
 
 
 data class HDConfig(val hdKeyNodes: List<HdKeyNode>) : Config {
-    override fun getType(): String = "bitcoin_hd"
+}
+
+class AdditionalHDAccountConfig : Config {
+
+}
+
+data class ExternalSignaturesAccountConfig(val hdKeyNodes: List<HdKeyNode>,
+                                            val provider: ExternalSignatureProvider,
+                                           val accountIndex: Int) : Config {
+
 }

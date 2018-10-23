@@ -33,10 +33,6 @@ open class Bip44BCHAccount(
     private var blockChainHeight = 0
     private var visible = false
 
-    override fun getAccountDefaultCurrency(): String {
-        return CurrencyValue.BCH
-    }
-
     override fun getCurrencyBasedBalance(): CurrencyBasedBalance {
         return if (accountType == ACCOUNT_TYPE_FROM_MASTERSEED) {
             spvBalanceFetcher.retrieveByHdAccountIndex(id.toString(), accountIndex)

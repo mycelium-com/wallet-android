@@ -15,7 +15,7 @@ import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
-import com.mycelium.wapi.wallet.manager.WalletManagerkt
+import com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount
 import com.squareup.otto.Subscribe
 import java.util.*
 import java.util.concurrent.Semaphore
@@ -41,15 +41,15 @@ object AccountManager : AccountProvider {
             val walletManager: WalletManager = mbwManager.getWalletManager(false)
             accountsSemaphore.acquire(100)
             accounts.clear()
-            accounts.putAll(walletManager.activeAccounts)
+            accounts.putAll(walletManager.getActiveAccounts())
             accountsSemaphore.release(100)
             archivedAccountsSemaphore.acquire(100)
             archivedAccounts.clear()
-            archivedAccounts.putAll(walletManager.archivedAccounts)
+            archivedAccounts.putAll(walletManager.getArchivedAccounts())
             archivedAccountsSemaphore.release(100)
             masterSeedAccountsSemaphore.acquire(100)
             masterSeedAccounts.clear()
-            masterSeedAccounts.putAll(walletManager.activeMasterseedAccounts)
+            masterSeedAccounts.putAll(walletManager.getActiveMasterseedAccounts())
             masterSeedAccountsSemaphore.release(100)
             return null
         }
@@ -59,8 +59,7 @@ object AccountManager : AccountProvider {
         }
     }
 
-    override fun getAccounts(): ImmutableMap<UUID, WalletAccount<out GenericTransaction, out GenericAddress>>
-            = ImmutableMap.copyOf<UUID, WalletAccount<out GenericTransaction, out GenericAddress>>(accounts)
+    override fun getAccounts(): ImmutableMap<UUID, WalletAccount<out GenericTransaction, out GenericAddress>> = ImmutableMap.copyOf<UUID, WalletAccount<out GenericTransaction, out GenericAddress>>(accounts)
 
     fun getBTCSingleAddressAccounts(): ImmutableMap<UUID, WalletAccount<out GenericTransaction, out GenericAddress>> =
             getFilteredAccounts(accountsSemaphore, accounts) {
@@ -101,8 +100,7 @@ object AccountManager : AccountProvider {
 
     override fun hasAccount(uuid: UUID?): Boolean = accounts.containsKey(uuid)
 
-    private fun HashMap<UUID, WalletAccount<out GenericTransaction, out GenericAddress>>.putAll
-            (from: List<WalletAccount<out GenericTransaction, out GenericAddress>>) {
+    private fun HashMap<UUID, WalletAccount<out GenericTransaction, out GenericAddress>>.putAll(from: List<WalletAccount<out GenericTransaction, out GenericAddress>>) {
         val result: MutableMap<UUID, WalletAccount<out GenericTransaction, out GenericAddress>> = mutableMapOf()
         for (walletAccount in from) {
             result[walletAccount.id] = walletAccount
@@ -135,8 +133,8 @@ object AccountManager : AccountProvider {
     }
 }
 
-fun WalletManagerkt.getBTCSingleAddressAccounts() = getAccounts().filter { it is SingleAddressAccount }
+fun WalletManager.getBTCSingleAddressAccounts() = getAccounts().filter { it is SingleAddressAccount }
 
-fun WalletManagerkt.getActiveAccounts(): List<WalletAccount<*, *>> = getAccounts().filter { it.isActive }
+fun WalletManager.getColuAccounts(): List<WalletAccount<*, *>> = getAccounts().filter { it is ColuPubOnlyAccount && it.isVisible }
 
-fun WalletManagerkt.getArchivedAccounts(): List<WalletAccount<*, *>> = getAccounts().filter { !it.isActive }
+fun WalletManager.getCoinapultAccounts(): List<WalletAccount<*, *>> = getAccounts().filter { it is com.mycelium.wapi.wallet.coinapult.CoinapultAccount && it.isVisible }

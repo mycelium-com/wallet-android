@@ -71,11 +71,19 @@ import com.mycelium.wallet.modularisation.BCHHelper;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
+import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
+import com.mycelium.wapi.wallet.btc.bip44.HDConfig;
+import com.mycelium.wapi.wallet.btc.single.AddressSingleConfig;
+import com.mycelium.wapi.wallet.btc.single.PrivateSingleConfig;
+import com.mycelium.wapi.wallet.btc.single.PublicSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
+import com.mycelium.wapi.wallet.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.Value;
+import com.mycelium.wapi.wallet.colu.PrivateColuConfig;
+import com.mycelium.wapi.wallet.colu.coins.ColuMain;
 
 import java.io.IOException;
 import java.util.*;
@@ -230,7 +238,7 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
     */
    private void returnAccount(HdKeyNode hdKeyNode) {
       UUID acc = _mbwManager.getWalletManager(false)
-              .createUnrelatedBip44Account(Collections.singletonList(hdKeyNode));
+              .createAccounts(new HDConfig(Collections.singletonList(hdKeyNode))).get(0);
       // set BackupState as ignored - we currently have no option to backup xPrivs after all
       _mbwManager.getMetadataStorage().setOtherAccountBackupState(acc, MetadataStorage.BackupState.IGNORED);
       finishOk(acc, false);
@@ -419,6 +427,7 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
             for (AddressType addressType : AddressType.values()) {
                Address addr = key.getPublicKey().toAddress(_mbwManager.getNetwork(), addressType);
                address = AddressUtils.fromAddress(addr);
+               address = new BtcLegacyAddress(BitcoinMain.get(), address.getBytes());
                Optional<UUID> accountId = _mbwManager.getAccountId(address, null);
                if (accountId.isPresent()) {
                   return null;
@@ -431,7 +440,9 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
             List<ColuAccount.ColuAsset> asset = new ArrayList<>(coluManager.getColuAddressAssets(key.getPublicKey().toAddress(_mbwManager.getNetwork(), AddressType.P2PKH)));
 
             if (asset.size() > 0) {
-               acc = _mbwManager.getColuManager().enableAsset(asset.get(0), key);
+               ColuMain coinType = coluManager.coinMap.get(asset.get(0).id);
+//               acc = _mbwManager.getColuManager().enableAsset(, key);
+               _mbwManager.getWalletManager(false).createAccounts(new PrivateColuConfig(key, coinType, AesKeyCipher.defaultKeyCipher()));
             } else {
                askUserForColorize = true;
             }
@@ -467,7 +478,10 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
                              account = returnSAAccount(key, backupState);
                           } else {
                              ColuAccount.ColuAsset coluAsset = ColuAccount.ColuAsset.getByType(ColuAccount.ColuAssetType.parse(list.get(selectedItem)));
-                             account = _mbwManager.getColuManager().enableAsset(coluAsset, key);
+//                             account = _mbwManager.getColuManager().enableAsset(coluAsset, key);
+                             ColuMain coinType = _mbwManager.getColuManager().coinMap.get(coluAsset.id);
+                             List<UUID> accounts = _mbwManager.getWalletManager(false).createAccounts(new PrivateColuConfig(key, coinType, AesKeyCipher.defaultKeyCipher()));
+                             account = accounts.get(0);
                           }
                           finishOk(account, false);
                        }
@@ -516,15 +530,12 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
 
    private UUID returnSAAccount(InMemoryPrivateKey key, MetadataStorage.BackupState backupState) {
       UUID acc;
-      try {
-         acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(key,
-                 AesKeyCipher.defaultKeyCipher());
 
-         _mbwManager.getMetadataStorage().setOtherAccountBackupState(acc, backupState);
-         return acc;
-      } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
-         throw new RuntimeException(invalidKeyCipher);
-      }
+      acc = _mbwManager.getWalletManager(false).createAccounts(new PrivateSingleConfig(key,
+                 AesKeyCipher.defaultKeyCipher())).get(0);
+
+      _mbwManager.getMetadataStorage().setOtherAccountBackupState(acc, backupState);
+      return acc;
    }
 
    /**
@@ -540,7 +551,7 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
 
    private void returnAccount(HdKeyNode hdKeyNode, boolean isUpgrade) {
       UUID acc = _mbwManager.getWalletManager(false)
-              .createUnrelatedBip44Account(Collections.singletonList(hdKeyNode));
+              .createAccounts(new HDConfig(Collections.singletonList(hdKeyNode))).get(0);
       // set BackupState as ignored - we currently have no option to backup xPrivs after all
       _mbwManager.getMetadataStorage().setOtherAccountBackupState(acc, MetadataStorage.BackupState.IGNORED);
       finishOk(acc, isUpgrade);
@@ -592,8 +603,8 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
                }
                break;
                case SA:
-                  acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(address.getType() == AddressType.P2SH_P2WPKH ?
-                          ((SegwitAddress)address).getAddress() : ((BtcLegacyAddress)address).getAddress());
+                  acc = _mbwManager.getWalletManager(false).createAccounts(new AddressSingleConfig(address.getType() == AddressType.P2SH_P2WPKH ?
+                          ((SegwitAddress)address).getAddress() : ((BtcLegacyAddress)address).getAddress())).get(0);
                   break;
                case Colu:
                   ColuManager coluManager = _mbwManager.getColuManager();
@@ -634,8 +645,8 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
                        public void onClick(DialogInterface dialogInterface, int i) {
                           UUID account;
                           if (selectedItem == 0) {
-                             account = _mbwManager.getWalletManager(false).createSingleAddressAccount(address.getType() == AddressType.P2SH_P2WPKH ?
-                                     ((SegwitAddress)address).getAddress() : ((BtcLegacyAddress)address).getAddress());
+                             account = _mbwManager.getWalletManager(false).createAccounts(new AddressSingleConfig(address.getType() == AddressType.P2SH_P2WPKH ?
+                                     ((SegwitAddress)address).getAddress() : ((BtcLegacyAddress)address).getAddress())).get(0);
                           } else {
                              ColuAccount.ColuAsset coluAsset = ColuAccount.ColuAsset.getByType(ColuAccount.ColuAssetType.parse(list.get(selectedItem)));
                              account = _mbwManager.getColuManager().enableReadOnlyAsset(coluAsset, address.getType() == AddressType.P2SH_P2WPKH ?

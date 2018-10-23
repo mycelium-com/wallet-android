@@ -2,9 +2,15 @@ package com.mycelium.wapi.wallet.btc.bip44
 
 import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.model.NetworkParameters
+import com.mrd.bitlib.util.HexUtils
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.bip44.ChangeAddressMode
+import com.mycelium.wapi.wallet.AesKeyCipher
+import com.mycelium.wapi.wallet.KeyCipher
+import com.mycelium.wapi.wallet.SecureKeyValueStore
+import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.btc.BtcTransaction
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.Companion.ACCOUNT_TYPE_UNRELATED_X_PRIV
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.Companion.ACCOUNT_TYPE_UNRELATED_X_PUB
@@ -14,11 +20,16 @@ import com.mycelium.wapi.wallet.manager.WalletModule
 import java.util.*
 
 
-class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAccountContext>
+class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAccountContext, BtcTransaction>
                       , internal val secureStore: SecureKeyValueStore
                       , internal val networkParameters: NetworkParameters
                       , internal var _wapi: Wapi) : WalletModule {
-    override fun getId(): String = "bitcoin hd"
+
+    private val MASTER_SEED_ID = HexUtils.toBytes("D64CA2B680D8C8909A367F28EB47F990")
+
+    private val accounts = mutableMapOf<UUID, HDAccount>()
+
+    override fun getId(): String = "BitcoinHD"
 
     override fun loadAccounts(): Map<UUID, WalletAccount<*, *>> {
         return mapOf()
@@ -26,8 +37,8 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
 
     override fun createAccount(config: Config): WalletAccount<*, *>? {
         var result: WalletAccount<*, *>? = null
-        if (config.getType() == "bitcoin_hd") {
-            val cfg = config as HDConfig
+        if (config is HDConfig) {
+            var cfg = config
             val accountIndex = 0  // use any index for this account, as we don't know and we don't care
             val keyManagerMap = HashMap<BipDerivationType, HDAccountKeyManager>()
             val derivationTypes = ArrayList<BipDerivationType>()
@@ -98,10 +109,49 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
                 backing.endTransaction()
             }
         }
+
+        accounts.put(result!!.id, result as HDAccount)
         return result
     }
 
-    override fun canCreateAccount(config: Config): Boolean = config.getType() == "bitcoin_hd"
+    fun getAccountByIndex(index: Int): HDAccount? {
+        return accounts.values.firstOrNull { it.accountIndex == index }
+    }
+
+    fun getCurrentBip44Index(): Int {
+        var maxIndex = -1
+        for (walletAccount in accounts.values) {
+            maxIndex = Math.max(walletAccount.accountIndex, maxIndex)
+        }
+        return maxIndex
+    }
+
+    private fun getNextBip44Index(): Int {
+        var maxIndex = -1
+        for (walletAccount in accounts.values) {
+            maxIndex = Math.max(walletAccount.accountIndex, maxIndex)
+        }
+        return maxIndex + 1
+    }
+
+    fun hasBip32MasterSeed(): Boolean {
+        return secureStore.hasCiphertextValue(MASTER_SEED_ID)
+    }
+
+    fun canCreateAdditionalBip44Account(): Boolean {
+        if (!hasBip32MasterSeed()) {
+            // No master seed
+            return false
+        }
+        if (getNextBip44Index() === 0) {
+            // First account not created
+            return true
+        }
+        // We can add an additional account if the last account had activity
+        val last = accounts.values.last()
+        return last.hasHadActivity()
+    }
+    override fun canCreateAccount(config: Config): Boolean = config is HDConfig
 
 
     override fun deleteAccount(walletAccount: WalletAccount<*, *>): Boolean {

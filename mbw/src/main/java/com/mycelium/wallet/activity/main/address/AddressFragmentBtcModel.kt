@@ -11,7 +11,7 @@ class AddressFragmentBtcModel(val app: Application) : AddressFragmentViewModel(a
 
     override fun init() {
         super.init()
-        currentType = model.accountAddress.value!!.type
+        currentType = model.type.value!!
     }
 
     override fun qrClickReaction(activity: FragmentActivity) {

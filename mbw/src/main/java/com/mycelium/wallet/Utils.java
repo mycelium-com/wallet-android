@@ -102,11 +102,14 @@ import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
+import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
 import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
-import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coins.Value;
+import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
+import com.mycelium.wapi.wallet.colu.coins.MTCoin;
+import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
 import com.mycelium.wapi.wallet.currency.BitcoinValue;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
@@ -780,7 +783,7 @@ public class Utils {
       return null;
    }
 
-   public static List<WalletAccount> sortAccounts(final Collection<WalletAccount> accounts, final MetadataStorage storage) {
+   public static List<WalletAccount<?,?>> sortAccounts(final Collection<WalletAccount<?,?>> accounts, final MetadataStorage storage) {
       Ordering<WalletAccount> type = Ordering.natural().onResultOf(new Function<WalletAccount, Integer>() {
          //maybe need to add new method in WalletAccount and use polymorphism
          //but I think it's unnecessary
@@ -875,6 +878,18 @@ public class Utils {
                        : resources.getDrawable(R.drawable.rmc_icon_no_priv_key);
          }
       }
+      if (walletAccount instanceof com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount) {
+         com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount account = (com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount) walletAccount;
+         if (account.getCoinType() == MTCoin.INSTANCE) {
+            return account.canSpend() ? resources.getDrawable(R.drawable.mt_icon) :
+                    resources.getDrawable(R.drawable.mt_icon_no_priv_key);
+         } else if (account.getCoinType() == MASSCoin.INSTANCE) {
+            return account.canSpend() ? resources.getDrawable(R.drawable.mass_icon)
+                    : resources.getDrawable(R.drawable.mass_icon_no_priv_key);
+         } else if (account.getCoinType() == RMCCoin.INSTANCE)
+            return account.canSpend() ? resources.getDrawable(R.drawable.rmc_icon)
+                    : resources.getDrawable(R.drawable.rmc_icon_no_priv_key);
+      }
 
       // Watch only
       if (!walletAccount.canSpend()) {
@@ -897,7 +912,8 @@ public class Utils {
       if (walletAccount instanceof HDAccount) {
          return resources.getDrawable(R.drawable.multikeys_grey);
       }
-      if (walletAccount instanceof CoinapultAccount) {
+      if (walletAccount instanceof CoinapultAccount
+              || walletAccount instanceof com.mycelium.wapi.wallet.coinapult.CoinapultAccount) {
          if (isSelectedAccount) {
             return resources.getDrawable(R.drawable.coinapult);
          } else {

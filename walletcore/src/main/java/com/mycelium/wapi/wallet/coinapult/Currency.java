@@ -1,29 +1,34 @@
 package com.mycelium.wapi.wallet.coinapult;
 
 import com.google.common.collect.ImmutableMap;
+import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.MonetaryFormat;
+import com.mycelium.wapi.wallet.coins.CryptoCurrency;
+import com.mycelium.wapi.wallet.coins.Value;
+import com.mycelium.wapi.wallet.exceptions.AddressMalformedException;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.Map;
 
-public class Currency {
-    public static final Currency USD = new Currency("USD", BigDecimal.ONE);
-    public static final Currency EUR = new Currency("EUR", BigDecimal.ONE);
-    public static final Currency GBP = new Currency("GBP", BigDecimal.ONE);
-    public static final Currency BTC = new Currency("BTC", BigDecimal.ZERO);
+public class Currency extends CryptoCurrency {
+    public static final Currency USD = new Currency("USD", BigDecimal.ONE, 2);
+    public static final Currency EUR = new Currency("EUR", BigDecimal.ONE, 2);
+    public static final Currency GBP = new Currency("GBP", BigDecimal.ONE, 2);
+    public static final Currency BTC = new Currency("BTC", BigDecimal.ZERO, 8);
     public static final Map<String, Currency> all = ImmutableMap.of(
             USD.name, USD,
             EUR.name, EUR,
             GBP.name, GBP,
             BTC.name, BTC
     );
-
-    final public String name;
     final public BigDecimal minimumConversationValue;
 
-    private Currency(String name, BigDecimal minimumConversationValue) {
+    private Currency(String name, BigDecimal minimumConversationValue, int unitExponent) {
         this.name = name;
+        this.symbol = name;
         this.minimumConversationValue = minimumConversationValue;
+        this.unitExponent = unitExponent;
     }
 
     @Override
@@ -48,5 +53,40 @@ public class Currency {
 
     public String getMinimumConversationString() {
         return new DecimalFormat("#0.00##").format(minimumConversationValue) + " " + name;
+    }
+
+    @Override
+    public String getId() {
+        return null;
+    }
+
+    @Override
+    public GenericAddress newAddress(String addressStr) throws AddressMalformedException {
+        return null;
+    }
+
+    @Override
+    public Value oneCoin() {
+        return null;
+    }
+
+    @Override
+    public Value value(long units) {
+        return null;
+    }
+
+    @Override
+    public MonetaryFormat getMonetaryFormat() {
+        return null;
+    }
+
+    @Override
+    public MonetaryFormat getPlainFormat() {
+        return null;
+    }
+
+    @Override
+    public Value value(String string) {
+        return null;
     }
 }

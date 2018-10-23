@@ -55,6 +55,7 @@ import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletManager;
+import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -163,7 +164,9 @@ public class AddAccountActivity extends Activity {
       final WalletManager wallet = _mbwManager.getWalletManager(false);
       // at this point, we have to have a master seed, since we created one on startup
       Preconditions.checkState(wallet.hasBip32MasterSeed());
-      if (!wallet.canCreateAdditionalBip44Account()) {
+
+      boolean canCreateAccount= wallet.getModuleById("BitcoinHD").canCreateAccount(new AdditionalHDAccountConfig());
+      if (!canCreateAccount) {
          _toaster.toast(R.string.use_acc_first, false);
          return;
       }
@@ -183,12 +186,7 @@ public class AddAccountActivity extends Activity {
 
       @Override
       protected UUID doInBackground(Void... params) {
-         try {
-            return _mbwManager.getWalletManager(false).createAdditionalBip44Account(AesKeyCipher.defaultKeyCipher());
-         } catch (KeyCipher.InvalidKeyCipher e) {
-            throw new RuntimeException(e);
-         }
-
+         return _mbwManager.getWalletManager(false).createAccounts(new AdditionalHDAccountConfig()).get(0);
       }
 
 

@@ -17,7 +17,6 @@
 package com.mycelium.wapi.wallet;
 
 import com.mrd.bitlib.model.OutPoint;
-import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputEx;
@@ -26,7 +25,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-public interface AccountBacking {
+public interface AccountBacking<T extends GenericTransaction> {
 
    void beginTransaction();
 
@@ -83,4 +82,11 @@ public interface AccountBacking {
    Collection<Sha256Hash> getTransactionsReferencingOutPoint(OutPoint outPoint);
 
    void putTxRefersParentTransaction(Sha256Hash txId, List<OutPoint> refersOutputs);
+
+
+   T getTx(Sha256Hash hash);
+
+   List<T> getTransactions(int offset, int limit);
+
+   void putTransactions(List<T> txList);
 }

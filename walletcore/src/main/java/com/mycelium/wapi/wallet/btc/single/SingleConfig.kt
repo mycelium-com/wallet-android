@@ -2,14 +2,17 @@ package com.mycelium.wapi.wallet.btc.single
 
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.crypto.PublicKey
+import com.mrd.bitlib.model.Address
 import com.mycelium.wapi.wallet.KeyCipher
 import com.mycelium.wapi.wallet.manager.Config
 
-data class PublicSingleConfig(val publicKey: PublicKey) : Config {
-    override fun getType(): String = "public_bitcoin_single"
+open class PublicSingleConfig(val publicKey: PublicKey) : Config {
 }
 
-data class PrivateSingleConfig(val privateKey: InMemoryPrivateKey, val cipher: KeyCipher) : Config {
-    override fun getType(): String = "private_bitcoin_single"
+open class PrivateSingleConfig(val privateKey: InMemoryPrivateKey, val cipher: KeyCipher) : Config {
+}
+
+open class AddressSingleConfig(val address: Address) : Config {
+
 }
 

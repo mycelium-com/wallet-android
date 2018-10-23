@@ -1,9 +1,11 @@
 package com.mycelium.wapi.wallet.colu
 
+import com.google.common.base.Optional
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.model.Transaction
 import com.mycelium.wapi.wallet.*
+import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.BtcLegacyAddress
 import com.mycelium.wapi.wallet.btc.BtcSendRequest
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
@@ -18,9 +20,10 @@ class ColuAccount(context: ColuAccountContext, val privateKey: InMemoryPrivateKe
                   , networkParameters: NetworkParameters
                   , coluNetworkParameters: org.bitcoinj.core.NetworkParameters
                   , coluClient: ColuApi
-                  , backing: AccountBacking)
+                  , backing: AccountBacking<ColuTransaction>
+                  , listener: AccountListener? = null)
     : ColuPubOnlyAccount(context, privateKey.publicKey, coluCoinType, networkParameters
-        , coluNetworkParameters, coluClient, backing), ExportableAccount {
+        , coluNetworkParameters, coluClient, backing, listener), ExportableAccount {
 
     override fun broadcastOutgoingTransactions(): Boolean {
         return false
@@ -29,21 +32,6 @@ class ColuAccount(context: ColuAccountContext, val privateKey: InMemoryPrivateKe
     override fun completeAndSignTx(request: SendRequest<ColuTransaction>) {
         completeTransaction(request)
         signTransaction(request)
-//        if (txid == null) {
-//            Log.e(TAG, "signTransaction: No transaction to sign !")
-//            return null
-//        }
-//        if (coluAccount == null) {
-//            Log.e(TAG, "signTransaction: No colu account associated to transaction to sign !")
-//            return null
-//        }
-
-        // use bitcoinj classes and two methods above to generate signatures
-        // and sign transaction
-        // then convert to mycelium wallet transaction format
-        // Step 1: map to bitcoinj classes
-
-        // DEV only 1 key
     }
 
     override fun completeTransaction(request: SendRequest<ColuTransaction>) {
@@ -91,27 +79,20 @@ class ColuAccount(context: ColuAccountContext, val privateKey: InMemoryPrivateKe
         }
     }
 
-
-    override fun isDerivedFromInternalMasterseed(): Boolean = true
-
-    override fun dropCachedData() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
     override fun setAllowZeroConfSpending(allowZeroConfSpending: Boolean) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun broadcastTx(transaction: ColuTransaction): BroadcastResult {
-        if (coluClient.broadcastTx(transaction.tx) != null) {
-            return BroadcastResult.SUCCESS
+    override fun broadcastTx(tx: ColuTransaction): BroadcastResult {
+        return if (tx.tx != null && coluClient.broadcastTx(tx.tx) != null) {
+            BroadcastResult.SUCCESS
         } else {
-            return BroadcastResult.REJECTED
+            BroadcastResult.REJECTED
         }
     }
 
-    override fun getSendToRequest(destination: GenericAddress?, amount: Value?): SendRequest<*> {
-        return BtcSendRequest.to(destination as BtcLegacyAddress, amount) //TODO change to Colu Send Request
+    override fun getSendToRequest(destination: BtcLegacyAddress, amount: Value): SendRequest<*> {
+        return ColuSendRequest(coinType, destination, amount)
     }
 
     override fun getSyncTotalRetrievedTransactions(): Int = 0
@@ -123,7 +104,12 @@ class ColuAccount(context: ColuAccountContext, val privateKey: InMemoryPrivateKe
     }
 
     override fun getExportData(cipher: KeyCipher): ExportableAccount.Data {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        var key = Optional.absent<String>()
+        if (canSpend()) {
+            key = Optional.of(this.privateKey.getBase58EncodedPrivateKey(networkParameters))
+        }
+        val pubKey = Optional.of(address.toString())
+        return ExportableAccount.Data(key, pubKey)
     }
 
 }

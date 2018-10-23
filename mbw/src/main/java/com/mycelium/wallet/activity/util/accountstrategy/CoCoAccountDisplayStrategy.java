@@ -28,7 +28,7 @@ public class CoCoAccountDisplayStrategy implements AccountDisplayStrategy {
 
     @Override
     public String getHint() {
-        return context.getString(R.string.amount_hint_denomination, account.getAccountDefaultCurrency());
+        return context.getString(R.string.amount_hint_denomination, account.getCoinType().getSymbol());
     }
 
     @Override

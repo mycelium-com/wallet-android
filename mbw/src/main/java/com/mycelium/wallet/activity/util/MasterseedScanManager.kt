@@ -42,6 +42,7 @@ import com.mrd.bitlib.crypto.HdKeyNode
 import com.mrd.bitlib.model.*
 import com.mrd.bitlib.model.hdpath.HdKeyPath
 import com.mycelium.wapi.wallet.WalletManager
+import com.mycelium.wapi.wallet.btc.bip44.HDConfig
 import com.squareup.otto.Bus
 import java.util.UUID
 
@@ -91,7 +92,8 @@ class MasterseedScanManager : AbstractAccountScanManager {
             // Account already exists
             uuids[0].uuid
         } else {
-            walletManager.createUnrelatedBip44Account(accountRoots)
+            //TODO - check this method
+            walletManager.createAccounts(HDConfig(accountRoots)).get(0)
         }
     }
 
