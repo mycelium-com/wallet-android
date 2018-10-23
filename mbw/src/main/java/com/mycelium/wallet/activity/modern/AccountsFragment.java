@@ -112,13 +112,14 @@ import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
 import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.Value;
-import com.mycelium.wapi.wallet.manager.WalletManagerkt;
+import com.mycelium.wapi.wallet.manager.State;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -226,7 +227,7 @@ public class AccountsFragment extends Fragment {
       ActivityCompat.invalidateOptionsMenu(getActivity());
       if (requestCode == ADD_RECORD_RESULT_CODE && resultCode == AddCoinapultAccountActivity.RESULT_COINAPULT) {
          UUID accountId = (UUID) intent.getSerializableExtra(AddAccountActivity.RESULT_KEY);
-         WalletAccount account  = WalletManagerkt.INSTANCE.getAccount(accountId);
+         WalletAccount account  = _mbwManager.getWalletManager(false).getAccount(accountId);
          _mbwManager.setSelectedAccount(accountId);
          accountListAdapter.setFocusedAccountId(account.getId());
          updateIncludingMenus();
@@ -237,9 +238,6 @@ public class AccountsFragment extends Fragment {
             //check whether the account is active - we might have scanned the priv key for an archived watchonly
             WalletManager walletManager = _mbwManager.getWalletManager(false);
             WalletAccount account = walletManager.getAccount(accountid);
-            if(account == null) {
-               account = WalletManagerkt.INSTANCE.getAccount(accountid);
-            }
             if (account.isActive()) {
                _mbwManager.setSelectedAccount(accountid);
             }
@@ -393,11 +391,7 @@ public class AccountsFragment extends Fragment {
                               ColuManager coluManager = _mbwManager.getColuManager();
                               coluManager.deleteAccount((ColuAccount) linkedColuAccount);
                            } else {
-                              try {
-                                 walletManager.deleteUnrelatedAccount(accountToDelete.getId(), AesKeyCipher.defaultKeyCipher());
-                              } catch (KeyCipher.InvalidKeyCipher e) {
-                                 throw new RuntimeException(e);
-                              }
+                              walletManager.deleteAccount(accountToDelete.getId());
                            }
                            _storage.deleteAccountMetadata(accountToDelete.getId());
                            _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
@@ -428,11 +422,7 @@ public class AccountsFragment extends Fragment {
                      coluManager.deleteAccount((ColuAccount) linkedColuAccount);
                      _storage.deleteAccountMetadata(linkedColuAccount.getId());
                   } else {
-                     try {
-                        walletManager.deleteUnrelatedAccount(accountToDelete.getId(), AesKeyCipher.defaultKeyCipher());
-                     } catch (KeyCipher.InvalidKeyCipher e) {
-                        throw new RuntimeException(e);
-                     }
+                     walletManager.deleteAccount(accountToDelete.getId());
                   }
                }
                _storage.deleteAccountMetadata(accountToDelete.getId());
@@ -651,7 +641,8 @@ public class AccountsFragment extends Fragment {
               && AccountManager.INSTANCE.getBTCMasterSeedAccounts().size() > 1 && !isBch) {
 
          final HDAccount HDAccount = (HDAccount) account;
-         if (!HDAccount.hasHadActivity() && HDAccount.getAccountIndex() == walletManager.getCurrentBip44Index()) {
+         BitcoinHDModule bitcoinHDModule = (BitcoinHDModule)walletManager.getModuleById("BitcoinHD");
+         if (!HDAccount.hasHadActivity() && HDAccount.getAccountIndex() == bitcoinHDModule.getCurrentBip44Index()) {
             //only allow to remove unused HD acounts from the view
             menus.add(R.menu.record_options_menu_hide_unused);
          }
@@ -680,8 +671,8 @@ public class AccountsFragment extends Fragment {
          @Override
          public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
             // If we are synchronizing, show "Synchronizing, please wait..." to avoid blocking behavior
-            if (_mbwManager.getWalletManager(false).getState() == WalletManager.State.SYNCHRONIZING
-                    || _mbwManager.getColuManager().getState() == WalletManager.State.SYNCHRONIZING) {
+            if (_mbwManager.getWalletManager(false).getState() == State.SYNCHRONIZING
+                    || _mbwManager.getColuManager().getState() == State.SYNCHRONIZING) {
                _toaster.toast(R.string.synchronizing_please_wait, false);
                return true;
             }
@@ -1216,7 +1207,7 @@ public class AccountsFragment extends Fragment {
          _mbwManager.runPinProtectedFunction(getActivity(), new Runnable() {
             @Override
             public void run() {
-               _mbwManager.getWalletManager(false).removeUnusedBip44Account(account);
+               _mbwManager.getWalletManager(false).deleteAccount(account.getId());
                //in case user had labeled the account, delete the stored name
                _storage.deleteAccountMetadata(account.getId());
                eventBus.post(new AccountChanged(account.getId()));

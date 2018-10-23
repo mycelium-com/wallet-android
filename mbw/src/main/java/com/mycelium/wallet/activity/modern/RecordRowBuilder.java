@@ -224,7 +224,7 @@ public class RecordRowBuilder {
     }
 
     @NonNull
-    public List<ViewAccountModel> convertList(List<WalletAccount> accounts) {
+    public List<ViewAccountModel> convertList(List<WalletAccount<?,?>> accounts) {
         List<ViewAccountModel> viewAccountList = new ArrayList<>();
         for (WalletAccount account : accounts) {
             viewAccountList.add(convert(account));

@@ -50,7 +50,6 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.event.SyncFailed;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.manager.WalletManagerkt;
 import com.squareup.otto.Subscribe;
 
 import java.util.UUID;
@@ -126,9 +125,6 @@ public class SendInitializationActivity extends Activity {
       String crashHint = TextUtils.join(", ", getIntent().getExtras().keySet()) + " (account id was " + accountId + ")";
       WalletAccount account;
       account = _mbwManager.getWalletManager(_isColdStorage).getAccount(accountId);
-      if (account == null) {
-         account = WalletManagerkt.INSTANCE.getAccount(accountId);
-      }
       _account = Preconditions.checkNotNull(account, crashHint);
    }
 

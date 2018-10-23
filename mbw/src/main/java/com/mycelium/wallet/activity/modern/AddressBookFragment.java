@@ -170,7 +170,7 @@ public class AddressBookFragment extends Fragment {
 
    private void updateUiMine() {
       List<Entry> entries = new ArrayList<>();
-      List<WalletAccount> activeAccountsGeneric = new ArrayList<>();
+      List<WalletAccount<?,?>> activeAccountsGeneric = new ArrayList<>();
 
       for(WalletAccount account : AccountManager.INSTANCE.getActiveAccounts().values().asList()){
          activeAccountsGeneric.add(account);
@@ -307,7 +307,7 @@ public class AddressBookFragment extends Fragment {
       if (mSelectedAddress == null) {
          return;
       }
-      boolean hasPrivateKey = _mbwManager.getWalletManager(false).hasPrivateKeyForAddress(mSelectedAddress);
+      boolean hasPrivateKey = _mbwManager.getWalletManager(false).hasPrivateKey(mSelectedAddress);
       UUID tempAccount = _mbwManager.createOnTheFlyAccount((Address)mSelectedAddress);
       ReceiveCoinsActivity.callMe(getActivity(), _mbwManager.getWalletManager(true).getAccount(tempAccount),
               hasPrivateKey, false, true);

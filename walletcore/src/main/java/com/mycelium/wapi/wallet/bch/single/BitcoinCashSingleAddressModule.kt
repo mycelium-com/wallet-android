@@ -25,7 +25,7 @@ class BitcoinCashSingleAddressModule(internal val backing: WalletManagerBacking<
                                      , internal val networkParameters: NetworkParameters
                                      , internal val spvBalanceFetcher: SpvBalanceFetcher
                                      , internal var _wapi: Wapi) : WalletModule {
-    override fun getId(): String = "Bitcoin Cash Single Address Accounts"
+    override fun getId(): String = "BCHSA"
 
     override fun loadAccounts(): Map<UUID, WalletAccount<*, *>> {
         val result = mutableMapOf<UUID, WalletAccount<*, *>>()
@@ -41,21 +41,19 @@ class BitcoinCashSingleAddressModule(internal val backing: WalletManagerBacking<
     }
 
     override fun canCreateAccount(config: Config): Boolean {
-        return config.getType() == "public_bitcoin_single"
-                || config.getType() == "private_bitcoin_single"
+        return config is PrivateSingleConfig
+                || config is PublicSingleConfig
     }
 
     override fun createAccount(config: Config): WalletAccount<*, *>? {
         var result: WalletAccount<*, *>? = null
-        when (config.getType()) {
-            "public_bitcoin_single" -> {
-                val cfg = config as PublicSingleConfig
-                result = createAccount(cfg.publicKey)
-            }
-            "private_bitcoin_single" -> {
-                val cfg = config as PrivateSingleConfig
-                result = createAccount(cfg.privateKey, cfg.cipher)
-            }
+
+        if (config is PrivateSingleConfig) {
+            val cfg = config
+            result = createAccount(cfg.privateKey, cfg.cipher)
+        } else if (config is PublicSingleConfig) {
+            val cfg = config
+            result = createAccount(cfg.publicKey)
         }
         return result
     }

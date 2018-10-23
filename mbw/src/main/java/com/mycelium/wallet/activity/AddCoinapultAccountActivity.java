@@ -60,7 +60,6 @@ import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.api.response.Feature;
 import com.mycelium.wapi.wallet.coinapult.CoinapultConfig;
 import com.mycelium.wapi.wallet.coinapult.Currency;
-import com.mycelium.wapi.wallet.manager.WalletManagerkt;
 import com.squareup.otto.Bus;
 
 import java.util.List;
@@ -204,8 +203,8 @@ public class AddCoinapultAccountActivity extends Activity {
       @Override
       protected UUID doInBackground(Void... params) {
          _mbwManager.getMetadataStorage().setPairedService(MetadataStorage.PAIRED_SERVICE_COINAPULT, true);
-         WalletManagerkt.INSTANCE.createAccounts(new CoinapultConfig(Currency.BTC));
-         List<UUID> accounts = WalletManagerkt.INSTANCE.createAccounts(new CoinapultConfig(currency));
+         _mbwManager.getWalletManager(false).createAccounts(new CoinapultConfig(Currency.BTC));
+         List<UUID> accounts = _mbwManager.getWalletManager(false).createAccounts(new CoinapultConfig(currency));
          return accounts.size() > 0 ? accounts.get(0) : null;
 //         coinapultManager = _mbwManager.getCoinapultManager();
 //         try {

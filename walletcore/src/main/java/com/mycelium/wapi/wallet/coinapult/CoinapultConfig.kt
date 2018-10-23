@@ -4,5 +4,4 @@ import com.mycelium.wapi.wallet.manager.Config
 
 
 class CoinapultConfig(val currency: Currency) : Config {
-    override fun getType(): String = "coinapult"
 }

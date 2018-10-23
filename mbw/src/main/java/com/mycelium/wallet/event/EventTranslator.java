@@ -38,6 +38,7 @@ import android.os.Handler;
 import com.mycelium.wallet.exchange.ExchangeRateManager;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.WalletManager;
+import com.mycelium.wapi.wallet.manager.State;
 import com.squareup.otto.Bus;
 
 import java.util.UUID;
@@ -65,11 +66,11 @@ public class EventTranslator implements WalletManager.Observer, ExchangeRateMana
    }
 
    @Override
-   public void onWalletStateChanged(WalletManager wallet, WalletManager.State state) {
+   public void onWalletStateChanged(WalletManager wallet, State state) {
       //based on state fire sync started and sync stopped?
-      if (state == WalletManager.State.READY) {
+      if (state == State.READY) {
          postEvent(new SyncStopped());
-      } else if (state == WalletManager.State.SYNCHRONIZING) {
+      } else if (state == State.SYNCHRONIZING) {
          postEvent(new SyncStarted());
       }
    }

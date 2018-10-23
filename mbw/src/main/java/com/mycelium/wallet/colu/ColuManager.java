@@ -64,6 +64,7 @@ import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoinTest;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
+import com.mycelium.wapi.wallet.manager.State;
 import com.mycelium.wapi.wallet.segwit.SegwitAddress;
 import com.squareup.otto.Bus;
 
@@ -105,7 +106,7 @@ public class ColuManager implements AccountProvider {
     private final HashMap<UUID, com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount> coluAccounts;
     private NetworkParameters _network;
     private final SecureKeyValueStore _secureKeyValueStore;
-    private WalletManager.State state;
+    private State state;
     private volatile boolean isNetworkConnected;
     private Map<CryptoCurrency, AssetMetadata> assetsMetadata = new HashMap<>();
 
@@ -196,7 +197,7 @@ public class ColuManager implements AccountProvider {
         metadataStorage.storeColuAssetIds(all);
     }
 
-    public WalletManager.State getState() {
+    public State getState() {
         return state;
     }
 
@@ -968,7 +969,7 @@ public class ColuManager implements AccountProvider {
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected void onPreExecute() {
-                eventTranslator.onWalletStateChanged(null, state = WalletManager.State.SYNCHRONIZING);
+                eventTranslator.onWalletStateChanged(null, state = State.SYNCHRONIZING);
             }
 
             @Override
@@ -980,7 +981,7 @@ public class ColuManager implements AccountProvider {
             @Override
             protected void onPostExecute(Void aVoid) {
                 eventBus.post(new BalanceChanged(null));
-                eventTranslator.onWalletStateChanged(null, state = WalletManager.State.READY);
+                eventTranslator.onWalletStateChanged(null, state = State.READY);
             }
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }

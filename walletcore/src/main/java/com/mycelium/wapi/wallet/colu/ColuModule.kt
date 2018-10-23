@@ -48,36 +48,34 @@ class ColuModule(val networkParameters: NetworkParameters
 
     override fun createAccount(config: Config): WalletAccount<*, *>? {
         var result: WalletAccount<*, *>? = null
-        when (config.getType()) {
-            "colu_private" -> {
-                val cfg = config as PrivateColuConfig
-                val id = ColuUtils.getGuidForAsset(cfg.coinType, cfg.privateKey.publicKey.publicKeyBytes)
-                val context = ColuAccountContext(id, cfg.coinType
-                        , BtcLegacyAddress(cfg.coinType, cfg.privateKey.publicKey.toAddress(networkParameters, AddressType.P2PKH)?.allAddressBytes)
-                        , false, 0)
-                backing.createAccountContext(context)
-                result = ColuAccount(context, cfg.privateKey, cfg.coinType, networkParameters, netParams
-                        , coluApi, backing.getAccountBacking(id), listener)
-                publicPrivateKeyStore.setPrivateKey(cfg.privateKey.publicKey.toAddress(networkParameters, AddressType.P2PKH)
-                        , cfg.privateKey, cfg.cipher)
-            }
-            "colu_public" -> {
-                val cfg = config as PublicColuConfig
-                val id = ColuUtils.getGuidForAsset(cfg.coinType, cfg.publicKey.publicKeyBytes)
-                val context = ColuAccountContext(id, cfg.coinType
-                        , BtcLegacyAddress(cfg.coinType, cfg.publicKey.publicKeyBytes)
-                        , false, 0)
-                backing.createAccountContext(context)
-                result = ColuPubOnlyAccount(context, cfg.publicKey, cfg.coinType, networkParameters
-                        , netParams, coluApi, backing.getAccountBacking(id), listener)
-            }
+
+        if (config is PrivateColuConfig) {
+            val cfg = config
+            val id = ColuUtils.getGuidForAsset(cfg.coinType, cfg.privateKey.publicKey.publicKeyBytes)
+            val context = ColuAccountContext(id, cfg.coinType
+                    , BtcLegacyAddress(cfg.coinType, cfg.privateKey.publicKey.toAddress(networkParameters, AddressType.P2PKH)?.allAddressBytes)
+                    , false, 0)
+            backing.createAccountContext(context)
+            result = ColuAccount(context, cfg.privateKey, cfg.coinType, networkParameters, netParams
+                    , coluApi, backing.getAccountBacking(id), listener)
+            publicPrivateKeyStore.setPrivateKey(cfg.privateKey.publicKey.toAddress(networkParameters, AddressType.P2PKH)
+                    , cfg.privateKey, cfg.cipher)
+        } else if (config is PublicColuConfig) {
+            val cfg = config as PublicColuConfig
+            val id = ColuUtils.getGuidForAsset(cfg.coinType, cfg.publicKey.publicKeyBytes)
+            val context = ColuAccountContext(id, cfg.coinType
+                    , BtcLegacyAddress(cfg.coinType, cfg.publicKey.publicKeyBytes)
+                    , false, 0)
+            backing.createAccountContext(context)
+            result = ColuPubOnlyAccount(context, cfg.publicKey, cfg.coinType, networkParameters
+                    , netParams, coluApi, backing.getAccountBacking(id), listener)
         }
         result?.synchronize(SyncMode.NORMAL)
         return result
     }
 
-    override fun canCreateAccount(config: Config): Boolean = config.getType() == "colu_private"
-            || config.getType() == "colu_public"
+    override fun canCreateAccount(config: Config): Boolean = config is PrivateColuConfig
+            || config is PublicColuConfig
 
     override fun deleteAccount(walletAccount: WalletAccount<*, *>): Boolean {
         backing.deleteAccountContext(walletAccount.id)

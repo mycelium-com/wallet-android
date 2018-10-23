@@ -115,6 +115,7 @@ import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
+import com.mycelium.wapi.wallet.btc.bip44.HDConfig;
 import com.mycelium.wapi.wallet.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
@@ -129,7 +130,6 @@ import static com.mycelium.wallet.activity.util.ValueExtentionsKt.isBtc;
 
 import com.mycelium.wapi.wallet.segwit.SegwitAddress;
 
-import com.mycelium.wapi.wallet.manager.WalletManagerkt;
 import com.squareup.otto.Subscribe;
 
 import org.bitcoin.protocols.payments.PaymentACK;
@@ -372,9 +372,6 @@ public class SendMainActivity extends Activity {
         _isColdStorage = getIntent().getBooleanExtra(IS_COLD_STORAGE, false);
         String crashHint = TextUtils.join(", ", getIntent().getExtras().keySet()) + " (account id was " + accountId + ")";
         WalletAccount account = _mbwManager.getWalletManager(_isColdStorage).getAccount(accountId);
-        if (account == null) {
-            account = WalletManagerkt.INSTANCE.getAccount(accountId);
-        }
         _account = Preconditions.checkNotNull(account, crashHint);
         feeLvl = _mbwManager.getMinerFee();
         feeEstimation = _mbwManager.getWalletManager(false).getLastFeeEstimations();
@@ -599,7 +596,7 @@ public class SendMainActivity extends Activity {
 
     private WalletAccount getFundAccount() {
         WalletAccount fundColuAccount = null;
-        List<WalletAccount> walletAccountList = _mbwManager.getWalletManager(false).getActiveAccounts();
+        List<WalletAccount<?,?>> walletAccountList = _mbwManager.getWalletManager(false).getActiveAccounts();
         walletAccountList = Utils.sortAccounts(walletAccountList, _mbwManager.getMetadataStorage());
         for (WalletAccount walletAccount : walletAccountList) {
             if (canFundColuFrom(walletAccount)) {
@@ -1169,7 +1166,7 @@ public class SendMainActivity extends Activity {
       //Check the wallet manager to see whether its our own address, and whether we can spend from it
       WalletManager walletManager = _mbwManager.getWalletManager(false);
       if (_receivingAddress != null && walletManager.isMyAddress(_receivingAddress)) {
-         if (walletManager.hasPrivateKeyForAddress(_receivingAddress)) {
+         if (walletManager.hasPrivateKey(_receivingAddress)) {
             // Show a warning as we are sending to one of our own addresses
             tvWarning.setVisibility(VISIBLE);
             tvWarning.setText(R.string.my_own_address_warning);
@@ -1594,7 +1591,7 @@ public class SendMainActivity extends Activity {
     private void setReceivingAddressFromKeynode(HdKeyNode hdKeyNode) {
       _progress = ProgressDialog.show(this, "", getString(R.string.retrieving_pubkey_address), true);
       _receivingAcc = _mbwManager.getWalletManager(true)
-              .createUnrelatedBip44Account(Collections.singletonList(hdKeyNode));
+              .createAccounts(new HDConfig(Collections.singletonList(hdKeyNode))).get(0);
       _xpubSyncing = true;
       if (!_mbwManager.getWalletManager(true).startSynchronization(_receivingAcc)) {
           _mbwManager.getEventBus().post(new SyncFailed());
