@@ -21,14 +21,4 @@ class ReceiveCoCoViewModel(application: Application) : ReceiveCoinsViewModel(app
     override fun getFormattedValue(sum: CurrencyValue) = Utils.getColuFormattedValueWithUnit(sum)
 
     override fun getCurrencyName() = (account as ColuAccount).coluAsset.name!!
-
-    override fun getTitle(): String {
-        return if (CurrencyValue.isNullOrZero(model.amountData.value)) {
-            context.getString(R.string.address_title, accountLabel)
-        } else {
-            context.getString(R.string.payment_request)
-        }
-    }
-
-
 }

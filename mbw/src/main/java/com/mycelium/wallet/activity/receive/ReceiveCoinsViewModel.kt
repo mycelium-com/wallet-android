@@ -2,14 +2,12 @@ package com.mycelium.wallet.activity.receive
 
 import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
-import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.Transformations
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
-import com.mrd.bitlib.model.Address
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
@@ -45,8 +43,6 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
     abstract fun getHint(): String
 
     abstract fun getFormattedValue(sum: CurrencyValue): String
-
-    abstract fun getTitle(): String
 
     abstract fun getCurrencyName(): String
 

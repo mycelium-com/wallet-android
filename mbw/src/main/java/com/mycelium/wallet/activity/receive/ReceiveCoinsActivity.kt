@@ -10,8 +10,6 @@ import android.nfc.NdefRecord
 import android.nfc.NfcAdapter
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import android.view.Window
-import android.view.WindowManager
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.GetAmountActivity
@@ -34,9 +32,8 @@ class ReceiveCoinsActivity : AppCompatActivity() {
     private lateinit var viewModel: ReceiveCoinsViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        requestWindowFeature(Window.FEATURE_NO_TITLE)
         super.onCreate(savedInstanceState)
-        window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
+      
         val mbwManager = MbwManager.getInstance(application)
         val isColdStorage = intent.getBooleanExtra(IS_COLD_STORAGE, false)
         val walletManager = mbwManager.getWalletManager(isColdStorage)
@@ -66,8 +63,7 @@ class ReceiveCoinsActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
 
-        ivQrCode.qrCode = viewModel.getPaymentUri()
-        viewModel.getReceivingAddress().observe(this, Observer { address -> ivQrCode.qrCode = address.toString() })
+        viewModel.getReceivingAddress().observe(this, Observer { ivQrCode.qrCode = viewModel.getPaymentUri() })
     }
 
     private fun initDatabinding(account: WalletAccount) {

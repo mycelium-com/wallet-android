@@ -17,7 +17,7 @@
             android:id="@+id/tvTitle"
             android:layout_marginTop="10dp"
             android:layout_width="wrap_content"
-            android:text="@{viewModel.title}"
+            android:text="@{CurrencyValue.isNullOrZero(viewModel.requestedAmount) ? @string/address_title(viewModel.currencyName) : @string/payment_request}"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:textSize="30sp" />
