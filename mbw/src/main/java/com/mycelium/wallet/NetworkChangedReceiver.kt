@@ -11,7 +11,7 @@ class NetworkChangedReceiver : BroadcastReceiver() {
         if (intent.action == "android.net.conn.CONNECTIVITY_CHANGE") {
             val mbwManager = MbwManager.getInstance(context)
             val connected = Utils.isConnected(context)
-            mbwManager.getWalletManager(false).isNetworkConnected = true
+            mbwManager.getWalletManager(false).isNetworkConnected = connected
             if (mbwManager.hasColoredAccounts()) {
                 launch{
                     mbwManager.coluManager.setNetworkConnected(connected)
