@@ -13,7 +13,7 @@ RUN dpkg --add-architecture i386 && \
 ENV ANDROID_SDK_FILENAME android-sdk_r24.4.1-linux.tgz
 ENV ANDROID_SDK_URL https://dl.google.com/android/${ANDROID_SDK_FILENAME}
 ENV ANDROID_API_LEVELS android-19,android-24,android-28
-ENV ANDROID_BUILD_TOOLS_VERSION 28.0.2
+ENV ANDROID_BUILD_TOOLS_VERSION 28.0.3
 ENV ANDROID_HOME /usr/local/android-sdk-linux
 ENV PATH ${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools
 RUN cd /usr/local/ && \
@@ -24,8 +24,6 @@ RUN echo y | android update sdk --no-ui -a --filter ${ANDROID_API_LEVELS}
 RUN echo y | android update sdk --no-ui -a --filter extra-android-m2repository,extra-android-support,extra-google-google_play_services,extra-google-m2repository
 RUN echo y | android update sdk --no-ui -a --filter tools,platform-tools,build-tools-${ANDROID_BUILD_TOOLS_VERSION}
 RUN rm -rf ${ANDROID_HOME}/tools
-
-
 
 ENV ANDROID_NDK_HOME /opt/android-ndk
 ENV ANDROID_NDK_VERSION r17b

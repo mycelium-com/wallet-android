@@ -163,7 +163,6 @@ public abstract class ExternalSignatureDevice {
         }
     }
 
-
     private boolean initConnection(UsbDevice device) {
         // try to open the device
         UsbDeviceConnection conn = usbManager.openDevice(device);
@@ -388,7 +387,6 @@ public abstract class ExternalSignatureDevice {
             return false;
         }
     }
-
 
     public static class VersionNumber {
         public final int major;

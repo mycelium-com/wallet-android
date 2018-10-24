@@ -60,6 +60,7 @@ public class SegwitAddress extends Address implements Serializable {
         return isProdnet;
     }
 
+    @Override
     public byte getVersion() {
         return version;
     }
@@ -157,6 +158,8 @@ public class SegwitAddress extends Address implements Serializable {
         return AddressType.P2WPKH;
     }
 
+
+    @Override
     public byte[] getAllAddressBytes() {
         ByteArrayOutputStream pubkey = new ByteArrayOutputStream(40 + 1);
         int v = version;
@@ -174,6 +177,7 @@ public class SegwitAddress extends Address implements Serializable {
         return getScriptBytes(this);
     }
 
+    @Override
     public String toMultiLineString() {
         String address = toString();
         return address.substring(0, 14) + "\r\n" +

@@ -276,7 +276,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
 
       rawOutputsWriter.putCompactInt(unsigned.getOutputs().length);
       // Format destination
-      commonPath = "44'/" + getNetwork().getBip44CoinType().getLastIndex() + "'/" + forAccount.getAccountIndex() + "'/"; // TODO segwit fix
+      commonPath = "44'/" + getNetwork().getBip44CoinType() + "'/" + forAccount.getAccountIndex() + "'/"; // TODO segwit fix
       for (TransactionOutput o : unsigned.getOutputs()) {
          Address toAddress;
          o.toByteWriter(rawOutputsWriter);

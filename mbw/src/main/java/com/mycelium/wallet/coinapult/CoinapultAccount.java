@@ -754,6 +754,10 @@ public class CoinapultAccount extends SynchronizeAbleWalletBtcAccount {
       return getCurrencyBasedBalance().confirmed;
    }
 
+   public ExactCurrencyValue calculateMaxSpendableAmount(long minerFeeToUse, Address destinationAddress) {
+      return calculateMaxSpendableAmount(minerFeeToUse);
+   }
+
    @Override
    public boolean isValidEncryptionKey(KeyCipher cipher) {
       return false;

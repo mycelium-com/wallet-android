@@ -41,6 +41,9 @@ class SingleAddressBCHAccount(context: SingleAddressAccountContext,
         return ExactBitcoinCashValue.from(spvBalanceFetcher.calculateMaxSpendableAmountUnrelatedAccount(id.toString(), txFee, txFeeFactor))
     }
 
+    override fun calculateMaxSpendableAmount(minerFeeToUse: Long, destinationAddress: Address?) =
+            calculateMaxSpendableAmount(minerFeeToUse)
+
     override fun getId(): UUID {
         return UUID.nameUUIDFromBytes(("BCH" + super.getId().toString()).toByteArray())
     }

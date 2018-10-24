@@ -159,17 +159,11 @@ public class StandardTransactionBuilder {
 
       // Make a copy so we can mutate the list
       List<UnspentTransactionOutput> unspent = new LinkedList<>(inventory);
-      CoinSelector coinSelector = new FifoCoinSelector(minerFeeToUse, unspent);
+      CoinSelector coinSelector = new FifoCoinSelector(minerFeeToUse, unspent, changeAddress.getType());
       long fee = coinSelector.getFee();
       long outputSum = coinSelector.getOutputSum();
       List<UnspentTransactionOutput> funding = pruneRedundantOutputs(coinSelector.getFundings(), fee + outputSum);
       boolean needChangeOutputInEstimation = needChangeOutputInEstimation(funding, outputSum, minerFeeToUse);
-
-      if (changeAddress == null) {
-         // If no change address is specified, get the richest address from the
-         // funding set
-         changeAddress = getRichest(funding, network);
-      }
 
       FeeEstimatorBuilder feeEstimatorBuilder = new FeeEstimatorBuilder().setArrayOfInputs(funding)
               .setArrayOfOutputs(_outputs)
@@ -406,7 +400,7 @@ public class StandardTransactionBuilder {
       private long feeSat;
       private long outputSum;
 
-      FifoCoinSelector(long feeSatPerKb, List<UnspentTransactionOutput> unspent)
+      FifoCoinSelector(long feeSatPerKb, List<UnspentTransactionOutput> unspent, AddressType changeType)
           throws InsufficientFundsException {
          // Find the funding for this transaction
          allFunding = new LinkedList<>();
@@ -431,7 +425,7 @@ public class StandardTransactionBuilder {
                     .setArrayOfOutputs(_outputs)
                     .setMinerFeePerKb(feeSatPerKb);
             if (needChangeOutputInEstimation(allFunding, outputSum, feeSatPerKb)) {
-               estimatorBuilder.addChangeOutput(Address.getNullAddress(_network));
+               estimatorBuilder.addChangeOutput(Address.getNullAddress(_network, changeType));
             }
             feeSat = estimatorBuilder.createFeeEstimator().estimateFee();
          }
