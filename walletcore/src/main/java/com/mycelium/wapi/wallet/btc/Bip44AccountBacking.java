@@ -19,6 +19,6 @@ package com.mycelium.wapi.wallet.btc;
 import com.mycelium.wapi.wallet.AccountBacking;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
 
-public interface Bip44AccountBacking extends AccountBacking {
+public interface Bip44AccountBacking extends AccountBacking<BtcTransaction> {
    void updateAccountContext(HDAccountContext context);
 }

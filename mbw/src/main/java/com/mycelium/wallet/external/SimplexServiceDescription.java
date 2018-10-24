@@ -13,7 +13,6 @@ import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 
 public class SimplexServiceDescription extends BuySellServiceDescriptor {
-
    public SimplexServiceDescription() {
       super(R.string.si_buy_sell, R.string.si_buy_sell_description, R.string.si_setting_show_button_summary, R.drawable.credit_card_buy);
    }
@@ -34,7 +33,6 @@ public class SimplexServiceDescription extends BuySellServiceDescriptor {
       } else {
          Toast.makeText(context, "Simplex cannot start - no available address.", Toast.LENGTH_LONG).show();
       }
-
    }
 
    @Override

@@ -17,24 +17,12 @@
 package com.mycelium.wapi.wallet.btc;
 
 import com.google.common.collect.Lists;
-import com.mrd.bitlib.PopBuilder;
-import com.mrd.bitlib.StandardTransactionBuilder;
+import com.mrd.bitlib.*;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
-import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.crypto.*;
-import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.model.NetworkParameters;
-import com.mrd.bitlib.model.OutPoint;
-import com.mrd.bitlib.model.OutputList;
-import com.mrd.bitlib.model.Script;
-import com.mrd.bitlib.model.ScriptOutput;
-import com.mrd.bitlib.model.ScriptOutputStrange;
-import com.mrd.bitlib.model.Transaction;
+import com.mrd.bitlib.model.*;
 import com.mrd.bitlib.model.Transaction.TransactionParsingException;
-import com.mrd.bitlib.model.TransactionInput;
-import com.mrd.bitlib.model.TransactionOutput;
-import com.mrd.bitlib.model.UnspentTransactionOutput;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.HashUtils;
@@ -64,6 +52,7 @@ import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
+import com.mycelium.wapi.wallet.segwit.SegwitAddress;
 
 import java.nio.ByteBuffer;
 import java.text.ParseException;
@@ -82,7 +71,6 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import static com.mrd.bitlib.StandardTransactionBuilder.createOutput;
-import static com.mrd.bitlib.StandardTransactionBuilder.estimateTransactionSize;
 import static com.mrd.bitlib.TransactionUtils.MINIMUM_OUTPUT_VALUE;
 import static com.mycelium.wapi.wallet.currency.ExactBitcoinValue.ZERO;
 import static java.util.Collections.singletonList;
@@ -103,7 +91,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    protected BalanceSatoshis _cachedBalance;
 
    private EventHandler _eventHandler;
-   private final AccountBacking _backing;
+   private final AccountBacking<BtcTransaction> _backing;
    protected int syncTotalRetrievedTransactions = 0;
 
    protected AbstractBtcAccount(AccountBacking backing, NetworkParameters network, Wapi wapi) {
@@ -112,11 +100,6 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       _wapi = wapi;
       _backing = backing;
       coluTransferInstructionsParser = new ColuTransferInstructionsParser(_logger);
-   }
-
-   @Override
-   public Type getType() {
-      return null;
    }
 
    @Override
@@ -202,12 +185,10 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       return isMine(address);
    }
 
+   //only for BtcLegacyAddress?
    public boolean isMineAddress(GenericAddress address) {
-      if (!(address instanceof BtcAddress)) {
-         return false;
-      }
 
-      return isMine((BtcAddress)address);
+      return isMine(((BtcAddress) address).getAddress());
    }
 
 
@@ -1019,6 +1000,11 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
 
    @Override
    public synchronized ExactCurrencyValue calculateMaxSpendableAmount(long minerFeePerKbToUse) {
+      return calculateMaxSpendableAmount(minerFeePerKbToUse, null);
+   }
+
+
+   public synchronized ExactCurrencyValue calculateMaxSpendableAmount(long minerFeePerKbToUse, Address destinationAddress) {
       checkNotArchived();
       Collection<UnspentTransactionOutput> spendableOutputs = transform(getSpendableOutputs(minerFeePerKbToUse));
       long satoshis = 0;
@@ -1032,11 +1018,12 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       // we will use all of the available inputs and it will be only one output
       // but we use "2" here, because the tx-estimation in StandardTransactionBuilder always includes an
       // output into its estimate - so add one here too to arrive at the same tx fee
-      long feeToUse = StandardTransactionBuilder.estimateFee(spendableOutputs.size(), 1, StandardTransactionBuilder.getSegwitOutputsCount(spendableOutputs), minerFeePerKbToUse);
+      FeeEstimatorBuilder estimatorBuilder = new FeeEstimatorBuilder().setArrayOfInputs(spendableOutputs)
+              .setMinerFeePerKb(minerFeePerKbToUse);
+      addOutputToEstimation(destinationAddress, estimatorBuilder);
+      FeeEstimator estimator = estimatorBuilder.createFeeEstimator();
+      long feeToUse = estimator.estimateFee();
 
-      // TODO: 25.06.17 why was there a loop from here to end of method?
-      // Iteratively figure out whether we can send everything by removing the smallest input
-      // or every iteration and thus reduce the suggested max amount
       satoshis -= feeToUse;
       if (satoshis <= 0) {
          return ZERO;
@@ -1045,10 +1032,16 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       // Create transaction builder
       StandardTransactionBuilder stb = new StandardTransactionBuilder(_network);
 
+      AddressType destinationAddressType;
+      if (destinationAddress != null) {
+         destinationAddressType = destinationAddress.getType();
+      } else {
+         destinationAddressType = AddressType.P2PKH;
+      }
       // Try and add the output
       try {
          // Note, null address used here, we just use it for measuring the transaction size
-         stb.addOutput(Address.getNullAddress(_network), satoshis);
+         stb.addOutput(Address.getNullAddress(_network, destinationAddressType), satoshis);
       } catch (OutputTooSmallException e1) {
          // The amount we try to send is lower than what the network allows
          return ZERO;
@@ -1056,13 +1049,30 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
 
       // Try to create an unsigned transaction
       try {
-         stb.createUnsignedTransaction(spendableOutputs, getChangeAddress(Address.getNullAddress(_network)), new PublicKeyRing(), _network, minerFeePerKbToUse); // TODO FIX SEGWIT this should be calculated including risk of segwit tx
+         stb.createUnsignedTransaction(spendableOutputs, getChangeAddress(Address.getNullAddress(_network, destinationAddressType)),
+                 new PublicKeyRing(), _network, minerFeePerKbToUse);
          // We have enough to pay the fees, return the amount as the maximum
          return ExactBitcoinValue.from(satoshis);
       } catch (InsufficientFundsException | StandardTransactionBuilder.UnableToBuildTransactionException e) {
-         // TODO: 25.06.17 here is where the loop was triggered, what I don't understand how another round could help in any case. Neither is there any tests. :(
-         // We cannot send this amount, try again with a little higher fee continue
          return ZERO;
+      }
+   }
+
+   private void addOutputToEstimation(Address outputAddress, FeeEstimatorBuilder estimatorBuilder) {
+      if (outputAddress != null) {
+         switch (outputAddress.getType()) {
+            case P2PKH:
+               estimatorBuilder.setLegacyOutputs(1);
+               break;
+            case P2WPKH:
+               estimatorBuilder.setBechOutputs(1);
+               break;
+            case P2SH_P2WPKH:
+               estimatorBuilder.setP2shOutputs(1);
+               break;
+         }
+      } else {
+         estimatorBuilder.setLegacyOutputs(1);
       }
    }
 
@@ -1071,6 +1081,12 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
 
    protected abstract InMemoryPrivateKey getPrivateKeyForAddress(Address address, KeyCipher cipher)
          throws InvalidKeyCipher;
+
+   public abstract List<AddressType> getAvailableAddressTypes();
+
+   public abstract Address getReceivingAddress(AddressType addressType);
+
+   public abstract void setDefaultAddressType(AddressType addressType);
 
    protected abstract PublicKey getPublicKeyForAddress(Address address);
 
@@ -1084,13 +1100,13 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
 
       // Create the unsigned transaction
       StandardTransactionBuilder stb = new StandardTransactionBuilder(_network);
-      List<GenericAddress> addressList = new ArrayList<>();
+      List<Address> addressList = new ArrayList<>();
       for (Receiver receiver : receivers) {
-         stb.addOutput((BtcAddress)receiver.address, receiver.amount);
-         addressList.add(receiver.address);
+         stb.addOutput(((BtcAddress)receiver.address).getAddress(), receiver.amount);
+         addressList.add(((BtcAddress)receiver.address).getAddress());
       }
-      Address changeAddress = getChangeAddress((BtcAddress)addressList);
-      return stb.createUnsignedTransaction(spendable, (BtcAddress)changeAddress, new PublicKeyRing(),
+      Address changeAddress = getChangeAddress(addressList);
+      return stb.createUnsignedTransaction(spendable, changeAddress, new PublicKeyRing(),
             _network, minerFeeToUse);
    }
 
@@ -1142,7 +1158,9 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       Address changeAddress = getChangeAddress();
       long parentChildFeeSat;
       do {
-         long childSize = estimateTransactionSize(utxosToSpend.size(), 1, 0);
+         FeeEstimatorBuilder builder = new FeeEstimatorBuilder().setArrayOfInputs(utxosToSpend);
+         addOutputToEstimation(changeAddress, builder);
+         long childSize = builder.createFeeEstimator().estimateTransactionSize();
          long parentChildSize = parent.rawSize + childSize;
          parentChildFeeSat = parentChildSize * minerFeeToUse / 1000 - satoshisPaid;
          if(parentChildFeeSat < childSize * minerFeeToUse / 1000) {
@@ -1575,7 +1593,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
             }
             if (address != null && address != Address.getNullAddress(_network)) {
                CryptoCurrency currency = getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get();
-               outputs.add(new GenericTransaction.GenericOutput(new BtcAddress(currency, address.getAllAddressBytes()), Value.valueOf(getCoinType(), output.value)));
+               outputs.add(new GenericTransaction.GenericOutput(new BtcLegacyAddress(currency, address.getAllAddressBytes()), Value.valueOf(getCoinType(), output.value)));
             }
          }
 
@@ -1596,7 +1614,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
 
                Address address = ScriptOutput.fromScriptBytes(funding.script).getAddress(_network);
                CryptoCurrency currency = getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get();
-               inputs.add(new GenericTransaction.GenericInput(new BtcAddress(currency, address.getAllAddressBytes()), Value.valueOf(getCoinType(), funding.value)));
+               inputs.add(new GenericTransaction.GenericInput(new BtcLegacyAddress(currency, address.getAllAddressBytes()), Value.valueOf(getCoinType(), funding.value)));
             }
          }
 
@@ -1621,8 +1639,8 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    }
 
    @Override
-   public SendRequest getSendToRequest(GenericAddress destination, Value amount) {
-      return BtcSendRequest.to((BtcAddress) destination, amount);
+   public SendRequest getSendToRequest(BtcLegacyAddress destination, Value amount) {
+      return BtcSendRequest.to(destination, amount);
    }
 
    @Override
@@ -1644,7 +1662,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
          }
          if (address != null && address != Address.getNullAddress(_network)) {
             CryptoCurrency currency = getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get();
-            outputs.add(new GenericTransaction.GenericOutput(new BtcAddress(currency, address.getAllAddressBytes()), Value.valueOf(getCoinType(), output.value)));
+            outputs.add(new GenericTransaction.GenericOutput(new BtcLegacyAddress(currency, address.getAllAddressBytes()), Value.valueOf(getCoinType(), output.value)));
          }
       }
       ArrayList<GenericTransaction.GenericInput> inputs = new ArrayList<>(); //need to create list of outputs
@@ -1663,7 +1681,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
             }
             Address address = ScriptOutput.fromScriptBytes(funding.script).getAddress(_network);
             CryptoCurrency currency = getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get();
-            inputs.add(new GenericTransaction.GenericInput(new BtcAddress(currency, address.getAllAddressBytes()), Value.valueOf(getCoinType(), funding.value)));
+            inputs.add(new GenericTransaction.GenericInput(new BtcLegacyAddress(currency, address.getAllAddressBytes()), Value.valueOf(getCoinType(), funding.value)));
          }
       }
 
@@ -1715,11 +1733,6 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       return false;
    }
 
-   @Override
-   public String getAccountDefaultCurrency() {
-      return CurrencyValue.BTC;
-   }
-
    public AccountBacking getAccountBacking() {
       return this._backing;
    }
@@ -1735,7 +1748,11 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    @Override
    public GenericAddress getReceiveAddress(){
       CryptoCurrency currency = getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get();
-      return AddressUtils.from(currency, getReceivingAddress().get().toString());
+      if(getReceivingAddress().isPresent()) {
+         return AddressUtils.fromAddress(getReceivingAddress().get());
+      } else {
+         return null;
+      }
    }
 }
 

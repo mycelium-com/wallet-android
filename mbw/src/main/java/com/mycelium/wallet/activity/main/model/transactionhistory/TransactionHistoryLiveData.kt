@@ -16,12 +16,12 @@ import kotlin.collections.ArrayList
 /**
  * This class is intended to manage transaction history for current selected account.
  */
-class TransactionHistoryLiveData(val mbwManager: MbwManager) : LiveData<List<GenericTransaction>>() {
+class TransactionHistoryLiveData(val mbwManager: MbwManager) : LiveData<Set<GenericTransaction>>() {
     private var account = mbwManager.selectedAccount!!
-    private var historyList: MutableList<GenericTransaction> = ArrayList()
+    private var historyList = mutableSetOf<GenericTransaction>()
     // Used to store reference for task from syncProgressUpdated().
     // Using weak reference as as soon as task completed it's irrelevant.
-    private var syncProgressTaskWR: WeakReference<AsyncTask<Void, MutableList<GenericTransaction>, MutableList<GenericTransaction>>>? = null
+    private var syncProgressTaskWR: WeakReference<AsyncTask<Void, List<GenericTransaction>, List<GenericTransaction>>>? = null
     @Volatile
     private var executorService: ExecutorService
 
@@ -50,7 +50,7 @@ class TransactionHistoryLiveData(val mbwManager: MbwManager) : LiveData<List<Gen
         mbwManager.eventBus.unregister(this)
     }
 
-    private fun startHistoryUpdate(): AsyncTask<Void, MutableList<GenericTransaction>, MutableList<GenericTransaction>> =
+    private fun startHistoryUpdate(): AsyncTask<Void, List<GenericTransaction>, List<GenericTransaction>> =
             UpdateTxHistoryTask().executeOnExecutor(executorService)
 
 
@@ -58,7 +58,7 @@ class TransactionHistoryLiveData(val mbwManager: MbwManager) : LiveData<List<Gen
      * Leak might not occur, as only application context passed and whole class don't contains any Activity related contexts
      */
     @SuppressLint("StaticFieldLeak")
-    private inner class UpdateTxHistoryTask : AsyncTask<Void, MutableList<GenericTransaction>, MutableList<GenericTransaction>>() {
+    private inner class UpdateTxHistoryTask : AsyncTask<Void, List<GenericTransaction>, List<GenericTransaction>>() {
         var account = mbwManager.selectedAccount!!
         override fun onPreExecute() {
             if (account.isArchived) {
@@ -66,18 +66,18 @@ class TransactionHistoryLiveData(val mbwManager: MbwManager) : LiveData<List<Gen
             }
         }
 
-        override fun doInBackground(vararg voids: Void): MutableList<GenericTransaction>  =
-                account.getTransactions(0, Math.max(20, value!!.size)) as MutableList<GenericTransaction>
+        override fun doInBackground(vararg voids: Void): List<GenericTransaction>  =
+                account.getTransactions(0, Math.max(20, value!!.size)) as List<GenericTransaction>
 
-        override fun onPostExecute(transactions: MutableList<GenericTransaction>) {
+        override fun onPostExecute(transactions: List<GenericTransaction>) {
             if (account === mbwManager.selectedAccount) {
                 updateValue(transactions)
             }
         }
     }
 
-    private fun updateValue(newValue: MutableList<GenericTransaction>) {
-        historyList = newValue
+    private fun updateValue(newValue: List<GenericTransaction>) {
+        historyList = newValue.toMutableSet()
         value = historyList
     }
 

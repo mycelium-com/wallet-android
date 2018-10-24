@@ -45,7 +45,6 @@ import java.util.Map;
 import java.util.UUID;
 
 public interface AccountScanManager {
-
    void startBackgroundAccountScan(AccountCallback scanningCallback);
 
    void stopBackgroundAccountScan();

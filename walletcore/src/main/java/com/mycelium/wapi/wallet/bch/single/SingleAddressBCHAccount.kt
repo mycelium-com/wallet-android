@@ -32,10 +32,6 @@ class SingleAddressBCHAccount(context: SingleAddressAccountContext,
     : SingleAddressAccount(context, keyStore, network, backing, wapi, Reference(ChangeAddressMode.NONE)) {
     private var visible: Boolean = false
 
-    override fun getAccountDefaultCurrency(): String {
-        return CurrencyValue.BCH
-    }
-
     override fun getCurrencyBasedBalance(): CurrencyBasedBalance {
         return spvBalanceFetcher.retrieveByUnrelatedAccountId(id.toString())
     }
@@ -47,10 +43,8 @@ class SingleAddressBCHAccount(context: SingleAddressAccountContext,
         return ExactBitcoinCashValue.from(spvBalanceFetcher.calculateMaxSpendableAmountUnrelatedAccount(id.toString(), txFee, txFeeFactor))
     }
 
-    override fun getCoinType(): CryptoCurrency {
-        return BchTest.get()
-    }
-
+    override fun calculateMaxSpendableAmount(minerFeeToUse: Long, destinationAddress: Address?) =
+            calculateMaxSpendableAmount(minerFeeToUse)
 
     override fun getId(): UUID {
         return UUID.nameUUIDFromBytes(("BCH" + super.getId().toString()).toByteArray())

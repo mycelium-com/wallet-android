@@ -163,7 +163,6 @@ public abstract class ExternalSignatureDevice {
         }
     }
 
-
     private boolean initConnection(UsbDevice device) {
         // try to open the device
         UsbDeviceConnection conn = usbManager.openDevice(device);
@@ -193,16 +192,16 @@ public abstract class ExternalSignatureDevice {
         String msg_name = msg.getClass().getSimpleName();
         int msg_id = MessageType.valueOf("MessageType_" + msg_name).getNumber();
         Log.d(TAG, String.format("Got message: %s", msg_name));
-        ByteBuffer data = ByteBuffer.allocate(32768);
-        data.put((byte) '#');
-        data.put((byte) '#');
-        data.put((byte) ((msg_id >> 8) & 0xFF));
-        data.put((byte) (msg_id & 0xFF));
-        data.put((byte) ((msg_size >> 24) & 0xFF));
-        data.put((byte) ((msg_size >> 16) & 0xFF));
-        data.put((byte) ((msg_size >> 8) & 0xFF));
-        data.put((byte) (msg_size & 0xFF));
-        data.put(msg.toByteArray());
+        ByteBuffer data = ByteBuffer.allocate(32768)
+                .put((byte) '#')
+                .put((byte) '#')
+                .put((byte) ((msg_id >> 8) & 0xFF))
+                .put((byte) (msg_id & 0xFF))
+                .put((byte) ((msg_size >> 24) & 0xFF))
+                .put((byte) ((msg_size >> 16) & 0xFF))
+                .put((byte) ((msg_size >> 8) & 0xFF))
+                .put((byte) (msg_size & 0xFF))
+                .put(msg.toByteArray());
         while (data.position() % 63 > 0) {
             data.put((byte) 0);
         }
@@ -388,7 +387,6 @@ public abstract class ExternalSignatureDevice {
             return false;
         }
     }
-
 
     public static class VersionNumber {
         public final int major;

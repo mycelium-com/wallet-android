@@ -69,6 +69,8 @@ import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.SyncMode;
+import com.mycelium.wapi.wallet.btc.BtcAddress;
+import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
 import com.mycelium.wapi.wallet.btc.BtcTransaction;
 import com.mycelium.wapi.wallet.btc.SynchronizeAbleWalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
@@ -265,12 +267,6 @@ public class ColuAccount extends SynchronizeAbleWalletBtcAccount implements Expo
         }
         int endIndex = Math.min(offset + limit, list.size());
         return new ArrayList<>(list.subList(offset, endIndex));
-    }
-
-    // TODO - added temporary for backward compartibility. Should be removed again
-    @Override
-    public Type getType() {
-        return null;
     }
 
     @Override
@@ -705,6 +701,11 @@ public class ColuAccount extends SynchronizeAbleWalletBtcAccount implements Expo
     public ExactCurrencyValue calculateMaxSpendableAmount(long minerFeeToUse) {
         return getCurrencyBasedBalance().confirmed;
     }
+
+    public ExactCurrencyValue calculateMaxSpendableAmount(long minerFeeToUse, Address destinationAddress) {
+        return calculateMaxSpendableAmount(minerFeeToUse);
+    }
+
     @Override
     public boolean isValidEncryptionKey(KeyCipher cipher) {
         return false;
@@ -857,11 +858,6 @@ public class ColuAccount extends SynchronizeAbleWalletBtcAccount implements Expo
     }
 
     @Override
-    public String getAccountDefaultCurrency() {
-        return getColuAsset().name;
-    }
-
-    @Override
     public int getSyncTotalRetrievedTransactions() {
         return 0;
     }
@@ -891,7 +887,7 @@ public class ColuAccount extends SynchronizeAbleWalletBtcAccount implements Expo
     }
 
     @Override
-    public SendRequest getSendToRequest(GenericAddress destination, Value amount) {
+    public SendRequest getSendToRequest(BtcLegacyAddress destination, Value amount) {
         return null;
     }
 }

@@ -88,18 +88,14 @@ import com.mycelium.wallet.event.TransactionBroadcasted;
 import com.mycelium.wallet.modularisation.BCHHelper;
 import com.mycelium.wallet.modularisation.ModularisationVersionHelper;
 import com.mycelium.wapi.api.response.Feature;
-import com.mycelium.wapi.wallet.AesKeyCipher;
-import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SyncMode;
-import com.mycelium.wapi.wallet.WalletManager;
+import com.mycelium.wapi.wallet.manager.State;
 import com.squareup.otto.Subscribe;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.UUID;
 
 import de.cketti.library.changelog.ChangeLog;
 import info.guardianproject.onionkit.ui.OrbotHelper;
@@ -188,7 +184,8 @@ public class ModernMain extends AppCompatActivity {
    }
 
    private void checkGapBug() {
-      final WalletManager walletManager = _mbwManager.getWalletManager(false);
+      //TODO - Review and rewrite
+/*      final WalletManager walletManager = _mbwManager.getWalletManager(false);
       final List<Integer> gaps = walletManager.getGapsBug();
       if (!gaps.isEmpty()){
          try {
@@ -226,11 +223,12 @@ public class ModernMain extends AppCompatActivity {
          } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
             throw new RuntimeException(invalidKeyCipher);
          }
-      }
+      }*/
    }
 
    private void createPlaceHolderAccounts(List<Integer> gapIndex){
-      final WalletManager walletManager = _mbwManager.getWalletManager(false);
+      // TODO - review and rewrite
+/*      final WalletManager walletManager = _mbwManager.getWalletManager(false);
       for (Integer index: gapIndex) {
          try {
             final UUID newAccount = walletManager.createArchivedGapFiller(AesKeyCipher.defaultKeyCipher(), index,
@@ -239,7 +237,7 @@ public class ModernMain extends AppCompatActivity {
          } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
             throw new RuntimeException(invalidKeyCipher);
          }
-      }
+      }*/
    }
 
    @Override
@@ -433,8 +431,9 @@ public class ModernMain extends AppCompatActivity {
                syncMode = SyncMode.NORMAL_ALL_ACCOUNTS_FORCED;
                counter++;
             }
+
             _mbwManager.getWalletManager(false).startSynchronization(syncMode);
-            _mbwManager.getColuManager().startSynchronization(syncMode);
+//            _mbwManager.getColuManager().startSynchronization(syncMode);
 
             // also fetch a new exchange rate, if necessary
             _mbwManager.getExchangeRateManager().requestOptionalRefresh();
@@ -451,7 +450,7 @@ public class ModernMain extends AppCompatActivity {
          case R.id.miRescanTransactions:
             _mbwManager.getSelectedAccount().dropCachedData();
             _mbwManager.getWalletManager(false).startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
-            _mbwManager.getColuManager().startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
+//            _mbwManager.getColuManager().startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
 
             break;
 
@@ -492,8 +491,8 @@ public class ModernMain extends AppCompatActivity {
 
    public void setRefreshAnimation() {
       if (refreshItem != null) {
-         if (_mbwManager.getWalletManager(false).getState() == WalletManager.State.SYNCHRONIZING
-                 || _mbwManager.getColuManager().getState() == WalletManager.State.SYNCHRONIZING) {
+         if (_mbwManager.getWalletManager(false).getState() == State.SYNCHRONIZING
+                 /*|| _mbwManager.getColuManager().getState() == WalletManager.State.SYNCHRONIZING*/) {
             showRefresh();
          } else {
             refreshItem.setActionView(null);

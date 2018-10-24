@@ -189,8 +189,8 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         CommunicationManager.getInstance().send(getSpvModuleName(type), intent);
     }
 
-    public static void sendToMeb(Intent intent) {
-        CommunicationManager.getInstance().send(BuildConfig.appIdMeb, intent);
+    public static void sendToGeb(Intent intent) {
+        CommunicationManager.getInstance().send(BuildConfig.appIdGeb, intent);
     }
 
     private class ApplicationLifecycleHandler implements ActivityLifecycleCallbacks {

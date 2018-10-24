@@ -105,8 +105,7 @@ class WapiClientElectrumX(
             val transactionHistoryArray = connectionManager.write(requestsList).responses
 
             val outputs = transactionHistoryArray.flatMap { it.getResult(Array<TransactionHistoryInfo>::class.java)!!.asIterable() }
-            val txIds = outputs.slice(IntRange(0, Math.min(request.limit, outputs.size) - 1))
-                    .map { Sha256Hash.fromString(it.tx_hash) }
+            val txIds = outputs.map { Sha256Hash.fromString(it.tx_hash) }
 
             return WapiResponse(QueryTransactionInventoryResponse(bestChainHeight, txIds))
         } catch (ex: CancellationException) {
@@ -267,6 +266,10 @@ class WapiClientElectrumX(
             val feeEstimationMap = FeeEstimationMap()
 
             estimatesArray.forEachIndexed { index, response ->
+                // This might happened if server haven't got enough info.
+                if (response.getResult(Double::class.java)!! == -1.0) {
+                    return WapiResponse<MinerFeeEstimationResponse>(Wapi.ERROR_CODE_INTERNAL_SERVER_ERROR, null)
+                }
                 feeEstimationMap[blocks[index]] = Bitcoins.valueOf(response.getResult(Double::class.java)!!)
             }
             return WapiResponse(MinerFeeEstimationResponse(FeeEstimation(feeEstimationMap, Date())))

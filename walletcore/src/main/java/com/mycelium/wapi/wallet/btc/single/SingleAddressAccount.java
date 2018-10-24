@@ -176,6 +176,17 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
 
    }
 
+   @Override
+   public List<AddressType> getAvailableAddressTypes() {
+      return new ArrayList<>(_context.getAddresses().keySet());
+   }
+
+   @Override
+   public Address getReceivingAddress(AddressType addressType) {
+      return getAddress(addressType);
+   }
+
+   @Override
    public void setDefaultAddressType(AddressType addressType) {
       _context.setDefaultAddressType(addressType);
       _context.persistIfNecessary(_backing);
@@ -185,7 +196,7 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
       // Get the latest transactions
       List<Sha256Hash> discovered;
       try {
-         final QueryTransactionInventoryResponse result = _wapi.queryTransactionInventory(new QueryTransactionInventoryRequest(Wapi.VERSION, _addressList, 30))
+         final QueryTransactionInventoryResponse result = _wapi.queryTransactionInventory(new QueryTransactionInventoryRequest(Wapi.VERSION, _addressList))
                  .getResult();
          setBlockChainHeight(result.height);
          discovered = result.txIds;

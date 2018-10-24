@@ -194,18 +194,10 @@ public class RecordRowBuilder {
         if (walletAccount.isActive()) {
             if (walletAccount instanceof HDPubOnlyAccount) {
                 int numKeys = ((HDAccount) walletAccount).getPrivateKeyCount();
-                if (numKeys > 1) {
-                    result.displayAddress = resources.getString(R.string.contains_addresses, Integer.toString(numKeys));
-                } else {
-                    result.displayAddress = resources.getString(R.string.account_contains_one_address_info);
-                }
+                result.displayAddress = resources.getQuantityString(R.plurals.contains_addresses, numKeys, numKeys);
             } else if (walletAccount instanceof HDAccount) {
                 int numKeys = ((HDAccount) walletAccount).getPrivateKeyCount();
-                if (numKeys > 1) {
-                    result.displayAddress = resources.getString(R.string.contains_keys, Integer.toString(numKeys));
-                } else {
-                    result.displayAddress = resources.getString(R.string.account_contains_one_key_info);
-                }
+                result.displayAddress = resources.getQuantityString(R.plurals.contains_keys, numKeys, numKeys);
             } else {
                 Optional<Address> receivingAddress = ((WalletBtcAccount)(walletAccount)).getReceivingAddress();
                 if (receivingAddress.isPresent()) {
@@ -232,7 +224,7 @@ public class RecordRowBuilder {
     }
 
     @NonNull
-    public List<ViewAccountModel> convertList(List<WalletAccount> accounts) {
+    public List<ViewAccountModel> convertList(List<WalletAccount<?,?>> accounts) {
         List<ViewAccountModel> viewAccountList = new ArrayList<>();
         for (WalletAccount account : accounts) {
             viewAccountList.add(convert(account));

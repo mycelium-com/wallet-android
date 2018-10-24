@@ -56,6 +56,9 @@
     <string name="export_toggle_ypub">ypub</string>
     <string name="export_toggle_zpub">zpub</string>
     <string name="export_toggle_xprv">xprv</string>
+    <string name="export_toggle_p2sh">P2SH</string>
+    <string name="export_toggle_legacy">Legacy (P2PKH)</string>
+    <string name="export_toggle_p2wpkh">P2WPKH</string>
     <string name="export_toggle_yprv">yprv</string>
     <string name="export_toggle_zprv">zprv</string>
     <string name="backup_private_key">Backup</string>
@@ -475,8 +478,14 @@
 
     <string name="cs_private_key_description">You are using a private key with the following Bitcoin address:</string>
     <string name="cs_address_description">You have scanned a Bitcoin address. You can view the balance but not spend from it.</string>
-    <string name="contains_keys">Contains %1$d private keys.</string>
-    <string name="contains_addresses">Contains %1$d addresses.</string>
+    <plurals name="contains_keys">
+        <item quantity="one">Contains one private key.</item>
+        <item quantity="other">Contains %1$d private keys.</item>
+    </plurals>
+    <plurals name="contains_addresses">
+        <item quantity="one">Contains one address.</item>
+        <item quantity="other">Contains %1$d addresses.</item>
+    </plurals>
     <string name="sync_total_retrieved_transactions">Syncing in progress: %1$s transactions retrieved</string>
     <string name="archiving_account_title">Archiving Account</string>
     <string name="new_version_exists">A new Version is available</string>
@@ -533,15 +542,12 @@
     <string name="showing_word_number">Word %1$s:</string>
     <string name="start_word_list_verification">Start Verification</string>
     <string name="delete_last_entered_word">Delete Last Word</string>
-    <string name="stale_fee_warning">The fee rates are older than 2h! Proceed with caution!</string>
     <string name="account">Account</string>
     <string name="verify_backup_seed_des">Verify master seed backup by scanning the QR code.</string>
     <string name="show_outputs_menu_item">Show Unspent Outputs</string>
     <string name="unspent_outputs_title">Unspent Outputs</string>
     <string name="no_unspent_outputs_description">This page shows on which addresses the funds in the selected account are located. There are currently no funds to display.</string>
     <string name="warning_words_import">Warning: Do not put your words into the clipboard, other apps could read them and obtain your money.</string>
-    <string name="account_contains_one_key_info">Contains one private key.</string>
-    <string name="account_contains_one_address_info">Contains one address.</string>
     <string name="verify_backup_ok_message">The backup was successfully verified.</string>
     <string name="wordlist_import_invalid_checksum">The checksum of your word list is invalid, please make sure you entered all words correctly.</string>
     <string name="checkbox_wordlist_passphrase">I have a passphrase</string>
@@ -639,7 +645,7 @@
     <string name="add_advanced_account_warning">Warning:\n These keys won\'t be included in your Master-Seed-Backup. You have to ensure that you have a separate backup of them.</string>
     <string name="new_random_key_desc">Generate new random key pair to use as BTC or BCH SA account.</string>
     <string name="generate_new_key">Generate BTC SA Account</string>
-    <string name="new_bitcoin_address_created">A new random private key has been generated with the following Bitcoin address:</string>
+    <string name="new_bitcoin_address_created">A new random private key has been generated with the following Bitcoin addresses:</string>
     <string name="shuffle">Shuffle</string>
     <string name="toast_warning_low_fee">might take longer to confirm</string>
     <string name="account_number">Account %d</string>
@@ -1023,12 +1029,12 @@ You can either add miner\'s fee from any account with bitcoins every time you ma
     <string name="partner_header_title">New to crypto?</string>
     <string name="partner_header_text">Please find here a selection of partner businesses.</string>
 
-    <string name="make_extra_btc_url">https://play.google.com/store/apps/details?id=com.modules.tradingbots.makeextrabtc</string>
-    <string name="make_extra_btc">Make extra BTC</string>
-    <string name="make_extra_btc_module"><![CDATA[<font color="#663aee82">Make Extra BTC</font> Module]]></string>
-    <string name="make_extra_btc_module_short">MEB</string>
-    <string name="make_extra_btc_module_desc">Make extra BTC with top trading strategies</string>
-    <string name="meb_module_change"><![CDATA[Mycelium <font color="#663aee82">Make Extra BTC</font> module has been %s!]]></string>
+    <string name="get_extra_btc_url">https://play.google.com/store/apps/details?id=com.modules.tradingbots.getextrabtc</string>
+    <string name="get_extra_btc">Get extra BTC</string>
+    <string name="get_extra_btc_module"><![CDATA[<font color="#663aee82">Get Extra BTC</font> Module]]></string>
+    <string name="get_extra_btc_module_short">GEB</string>
+    <string name="get_extra_btc_module_desc">Get extra BTC with top trading strategies</string>
+    <string name="geb_module_change"><![CDATA[Mycelium <font color="#663aee82">Get Extra BTC</font> module has been %s!]]></string>
 
     <string name="partner_ledger">Ledger</string>
     <string name="partner_ledger_short">Security solutions for cryptocurrencies</string>
@@ -1283,14 +1289,19 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="button_done">Done</string>
     <string name="button_cancel">Cancel</string>
     <string name="transactions_loading_from_module_error">Error loading transactions from module</string>
-    <string name="account_mode">Account mode:</string>
+    <string name="address_type">Address type:</string>
     <string name="normal_p2sh">Normal (P2SH)</string>
     <string name="native_segwit_bech_32">Native Segwit (Bech 32)</string>
     <string name="change_address_type">Transaction change address type</string>
     <string name="block_explorer">Block explorer</string>
     <string name="p2sh_receive_mode">P2SH mode</string>
     <string name="bech32_receive_mode">SegWit native (Bech32).</string>
-    <string name="set_default">Set default</string>
+    <string name="set_default">Set as default</string>
+    <string name="bech_next">Tap for Bech32</string>
+    <string name="p2sh_next">Tap for P2SH</string>
+    <string name="p2sh">P2SH</string>
+    <string name="bech">Bech32</string>
+    <string name="stale_fee_warning">The fee rates are older than 2h! Proceed with caution!</string>
     <plurals name="account_label">
         <item quantity="one">Account label:\n%s</item>
         <item quantity="other">Accounts labels:\n%s</item>

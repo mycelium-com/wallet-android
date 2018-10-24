@@ -36,10 +36,6 @@ open class Bip44BCHAccount(
     private var blockChainHeight = 0
     private var visible = false
 
-    override fun getAccountDefaultCurrency(): String {
-        return CurrencyValue.BCH
-    }
-
     override fun getCurrencyBasedBalance(): CurrencyBasedBalance {
         return if (accountType == ACCOUNT_TYPE_FROM_MASTERSEED) {
             spvBalanceFetcher.retrieveByHdAccountIndex(id.toString(), accountIndex)
@@ -68,6 +64,9 @@ open class Bip44BCHAccount(
             ExactBitcoinCashValue.from(spvBalanceFetcher.calculateMaxSpendableAmountUnrelatedAccount(id.toString(), txFee, txFeeFactor))
         }
     }
+
+    override fun calculateMaxSpendableAmount(minerFeePerKbToUse: Long, destinationAddress: Address?) =
+        calculateMaxSpendableAmount(minerFeePerKbToUse)
 
     override fun getId(): UUID {
         return UUID.nameUUIDFromBytes(("BCH" + super.getId().toString()).toByteArray())

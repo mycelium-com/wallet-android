@@ -35,5 +35,4 @@ public class QueryTransactionInventoryResponse implements Serializable {
       this.height = height;
       this.txIds = txIds;
    }
-
 }

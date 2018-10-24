@@ -19,6 +19,7 @@ import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher
 import com.mycelium.wapi.wallet.WalletManager.Event
 import com.mrd.bitlib.crypto.BipDerivationType.Companion.getDerivationTypeByAddress
 import com.mycelium.wapi.wallet.bip44.ChangeAddressMode
+import com.mycelium.wapi.model.TransactionOutputEx
 import com.mycelium.wapi.wallet.btc.*
 
 import java.util.ArrayList
@@ -133,7 +134,11 @@ open class HDAccount(
         }
     }
 
-    fun setDefaultAddressType(addressType: AddressType) {
+    override fun getAvailableAddressTypes(): List<AddressType> =
+        derivePaths.asSequence().map { it.addressType }.toList()
+
+
+    override fun setDefaultAddressType(addressType: AddressType) {
         context.defaultAddressType = addressType
         context.persistIfNecessary(backing)
     }
@@ -341,10 +346,10 @@ open class HDAccount(
     }
 
     @Throws(WapiException::class)
-    override fun doDiscoveryForAddresses(lookAhead: List<Address>): Map<BipDerivationType, Boolean> {
+    override fun doDiscoveryForAddresses(addresses: List<Address>): Map<BipDerivationType, Boolean> {
         // Do look ahead query
         val result = _wapi.queryTransactionInventory(
-                QueryTransactionInventoryRequest(Wapi.VERSION, lookAhead, Wapi.MAX_TRANSACTION_INVENTORY_LIMIT)).result
+                QueryTransactionInventoryRequest(Wapi.VERSION, addresses)).result
         blockChainHeight = result.height
         val ids = result.txIds
         if (ids.isEmpty()) {
@@ -485,7 +490,7 @@ open class HDAccount(
         }
     }
 
-    fun getReceivingAddress(addressType: AddressType): Address? {
+    override fun getReceivingAddress(addressType: AddressType): Address? {
         return receivingAddressMap[addressType]
     }
 
@@ -515,7 +520,7 @@ open class HDAccount(
             val out = t.outputs[i]
             val receivingAddress = out.script.getAddress(_network)
             val derivationType = getDerivationTypeByAddress(receivingAddress)
-            val externalIndex = externalAddresses[derivationType]!![receivingAddress]
+            val externalIndex = externalAddresses[derivationType]?.get(receivingAddress)
             if (externalIndex != null) {
                 updateLastExternalIndex(externalIndex, derivationType)
             } else {
@@ -544,7 +549,7 @@ open class HDAccount(
      */
     protected fun updateLastInternalIndex(receivingAddress: Address) {
         val derivationType = getDerivationTypeByAddress(receivingAddress)
-        val internalIndex = internalAddresses[derivationType]!![receivingAddress]
+        val internalIndex = internalAddresses[derivationType]?.get(receivingAddress)
         if (internalIndex != null) {
             // Sends coins to an internal address, update internal max index
             // if necessary
@@ -679,8 +684,8 @@ open class HDAccount(
     override fun getExportData(cipher: KeyCipher): ExportableAccount.Data {
         val privateDataMap = if (canSpend()) {
             try {
-                BipDerivationType.values().map { derivationType ->
-                    derivationType to (keyManagerMap[derivationType]!!.getPrivateAccountRoot(cipher)
+                keyManagerMap.keys.map { derivationType ->
+                    derivationType to (keyManagerMap[derivationType]!!.getPrivateAccountRoot(cipher, derivationType)
                             .serialize(_network, derivationType))
                 }.toMap()
             } catch (ignore: InvalidKeyCipher) {
@@ -689,7 +694,7 @@ open class HDAccount(
         } else {
             null
         }
-        val publicDataMap = BipDerivationType.values().map { derivationType ->
+        val publicDataMap = keyManagerMap.keys.map { derivationType ->
             derivationType to (keyManagerMap[derivationType]!!.publicAccountRoot
                     .serialize(_network, derivationType))
         }.toMap()

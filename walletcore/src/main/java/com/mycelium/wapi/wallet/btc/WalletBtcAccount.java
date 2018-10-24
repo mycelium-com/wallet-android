@@ -17,7 +17,6 @@
 package com.mycelium.wapi.wallet.btc;
 
 import com.google.common.base.Optional;
-import com.megiontechnologies.Bitcoins;
 import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
@@ -36,26 +35,13 @@ import com.mycelium.wapi.wallet.BroadcastResult;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
-public interface WalletBtcAccount extends WalletAccount<BtcTransaction, BtcAddress> {
-
-   // TODO - added temporary for backward compartibility. Should be removed again
-   enum Type {
-      BTCSINGLEADDRESS, BTCBIP44,
-      BCHSINGLEADDRESS, BCHBIP44,
-      COINAPULT, COLU, UNKNOWN,
-      DASH,
-   }
-
-   // TODO - added temporary for backward compartibility. Should be removed again
-   Type getType();
+public interface WalletBtcAccount extends WalletAccount<BtcTransaction, BtcLegacyAddress> {
 
    /**
     * Get the network that this account is for.

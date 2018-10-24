@@ -397,8 +397,14 @@
   <!-- LT end -->
   <string name="cs_private_key_description">Du använder en privat nyckel med följande bitcoin-adress:</string>
   <string name="cs_address_description">Du har läst in en bitcoin-adress. Du kan se saldot men inte spendera från den.</string>
-  <string name="contains_keys">Innehåller %1$s privata nycklar.</string>
-  <string name="contains_addresses">Innehåller %1$s adresser.</string>
+  <plurals name="contains_keys">
+    <item quantity="one">Innehåller en privat nyckel.</item>
+    <item quantity="other">Innehåller %1$d privata nycklar.</item>
+  </plurals>
+  <plurals name="contains_addresses">
+    <item quantity="one">Innehåller en adress.</item>
+    <item quantity="other">Innehåller %1$d adresser.</item>
+  </plurals>
   <string name="archiving_account_title">Arkiverar konto</string>
   <string name="new_version_exists">En ny version finns tillgänglig</string>
   <string name="check_update">Leta efter uppdatering</string>
@@ -453,8 +459,6 @@
   <string name="unspent_outputs_title">Outnyttjade utgångar</string>
   <string name="no_unspent_outputs_description">Denna sida visar på vilka adresser tillgångarna för det valda kontot befinner sig. Det finns för närvarande inga tillgångar att visa.</string>
   <string name="warning_words_import">Varning: Placera inte orden i urklipp, andra appar skulle kunna läsa dem och får tillgång till dina pengar.</string>
-  <string name="account_contains_one_key_info">Innehåller en privat nyckel.</string>
-  <string name="account_contains_one_address_info">Innehåller en adress.</string>
   <string name="verify_backup_ok_message">Verifiering av säkerhetskopian lyckades.</string>
   <string name="wordlist_import_invalid_checksum">Checksumman för din lista av ord är ogiltig, säkerställ att du har matat in alla ord korrekt.</string>
   <string name="wordlist_length_12">12 ord</string>

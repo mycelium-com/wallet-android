@@ -71,10 +71,7 @@ import com.mycelium.wallet.lt.activity.buy.AdSearchFragment;
 import com.mycelium.wallet.lt.activity.sell.AdsFragment;
 import com.mycelium.wallet.lt.api.DeleteTrader;
 import com.mycelium.wallet.lt.api.GetTraderInfo;
-import com.mycelium.wapi.wallet.AesKeyCipher;
-import com.mycelium.wapi.wallet.ExportableAccount;
-import com.mycelium.wapi.wallet.KeyCipher;
-import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 
 public class LtMainActivity extends AppCompatActivity {
@@ -285,13 +282,13 @@ public class LtMainActivity extends AppCompatActivity {
          public Data getExportData(KeyCipher cipher) {
             return new Data(
                   Optional.of(privateKey.getBase58EncodedPrivateKey(_mbwManager.getNetwork())),
-                  Optional.of(privateKey.getPublicKey().toAddress(_mbwManager.getNetwork(), AddressType.P2PKH).toString()) // TODO fix
+                  Optional.of(privateKey.getPublicKey().toAddress(_mbwManager.getNetwork(), AddressType.P2PKH).toString())
             );
          }
       };
 
       ExportAsQrActivity.callMe(this, exportableAccount.getExportData(AesKeyCipher.defaultKeyCipher()),
-              account instanceof HDAccount);
+              account);
    }
 
    private void deleteTraderAccount() {

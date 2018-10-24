@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:bind="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <import type="android.arch.lifecycle.AndroidViewModel" />
+
+        <import type="android.support.v7.app.AppCompatActivity" />
+
+        <import type="android.view.View" />
+
+        <variable
+            name="activity"
+            type="android.support.v7.app.AppCompatActivity" />
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.wallet.activity.export.ExportAsQrMultiKeysViewModel" />
+    </data>
+
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:id="@+id/llRoot"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:padding="0dp">
+
+            <include layout="@layout/export_as_qr_activity_header" />
+
+            <include
+                layout="@layout/export_as_qr_activity_type_switch"
+                bind:viewModel="@{viewModel}" />
+
+            <include
+                layout="@layout/export_as_qr_btc_hd_activity_key_type_toggle"
+                bind:viewModel="@{viewModel}" />
+
+            <include
+                layout="@layout/export_as_qr_activity_qr"
+                bind:viewModel="@{viewModel}" />
+
+            <include
+                layout="@layout/export_as_qr_activity_data"
+                bind:viewModel="@{viewModel}" />
+
+            <include
+                layout="@layout/export_as_qr_activity_share"
+                bind:viewModel="@{viewModel}"
+                bind:activity="@{activity}" />
+        </LinearLayout>
+
+    </ScrollView>
+
+</layout>

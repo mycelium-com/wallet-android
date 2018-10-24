@@ -400,8 +400,18 @@
   <!-- LT end -->
   <string name="cs_private_key_description">Вы используете приватный ключ со следующим  Bitcoin адресом:</string>
   <string name="cs_address_description">Вы отсканировали биткой адрес. Вы можете видеть баланс адреса, но не можете тратить с него.</string>
-  <string name="contains_keys">Содержит %1$s закрытых ключей.</string>
-  <string name="contains_addresses">Содержит %1$s адресов.</string>
+  <plurals name="contains_keys">
+    <item quantity="one">Содержит %1$d приватный ключ.</item>
+    <item quantity="few">Содержит %1$d закрытых ключей.</item>
+    <item quantity="many">Содержит %1$d закрытых ключей.</item>
+    <item quantity="other">Содержит %1$d закрытых ключей.</item>
+  </plurals>
+  <plurals name="contains_addresses">
+    <item quantity="one">Содержит %1$d адрес.</item>
+    <item quantity="few">Содержит %1$d адресов.</item>
+    <item quantity="many">Содержит %1$d адресов.</item>
+    <item quantity="other">Содержит %1$d адресов.</item>
+  </plurals>
   <string name="archiving_account_title">Архивирование счёта</string>
   <string name="new_version_exists">Доступна новая версия</string>
   <string name="check_update">Проверить обновления</string>
@@ -458,8 +468,6 @@
   <string name="unspent_outputs_title">Неизрасходованные выходы</string>
   <string name="no_unspent_outputs_description">Эта страница показывает, на каких адресах размещены средства в выбранном аккаунте. На данный момент средств для отображения нет.</string>
   <string name="warning_words_import">Предупреждение: не копируйте ваши слова в буфер обмена - другие приложения могут их считать и забрать ваши деньги.</string>
-  <string name="account_contains_one_key_info">Содержит один приватный ключ.</string>
-  <string name="account_contains_one_address_info">Содержит один адрес.</string>
   <string name="verify_backup_ok_message">Резервная Копия успешно проверена.</string>
   <string name="wordlist_import_invalid_checksum">Контрольная сумма вашего списка слов является недействительной, пожалуйста, убедитесь, что вы правильно ввели все слова.</string>
   <string name="checkbox_wordlist_passphrase">У меня есть парольная фраза</string>

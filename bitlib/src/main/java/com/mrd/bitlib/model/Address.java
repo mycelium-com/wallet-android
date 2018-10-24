@@ -216,6 +216,32 @@ public class Address implements Serializable, Comparable<Address> {
       return new Address(bytes);
    }
 
+   public static Address getNullAddress(NetworkParameters network, AddressType addressType) {
+      byte[] bytes = new byte[NUM_ADDRESS_BYTES];
+
+      if (addressType == null) {
+         return getNullAddress(network);
+      }
+
+      switch (addressType) {
+         case P2PKH:
+            bytes[0] = (byte) (network.getStandardAddressHeader() & 0xFF);
+            break;
+         case P2WPKH:
+            try {
+               return new SegwitAddress(network, 0x00, BitUtils.copyOf(bytes, 20));
+            } catch (SegwitAddress.SegwitAddressException ignore) {
+
+            }
+            break;
+         case P2SH_P2WPKH:
+            bytes[0] = (byte) (network.getMultisigAddressHeader() & 0xFF);
+            break;
+      }
+
+      return new Address(bytes);
+   }
+
    @Override
    public int compareTo(Address other) {
       // We sort on the actual address bytes.

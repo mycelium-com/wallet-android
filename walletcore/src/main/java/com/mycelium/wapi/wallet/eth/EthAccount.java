@@ -159,12 +159,7 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
     }
 
     @Override
-    public String getAccountDefaultCurrency() {
-        return null;
-    }
-
-    @Override
-    public SendRequest getSendToRequest(GenericAddress destination, Value amount) {
+    public SendRequest getSendToRequest(EthAddress destination, Value amount) {
         return null;
     }
 

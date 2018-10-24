@@ -76,6 +76,8 @@ import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
+import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
+import com.mycelium.wapi.wallet.btc.bip44.HDConfig;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -238,7 +240,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
          try {
             WalletManager walletManager = activity._mbwManager.getWalletManager(false);
             walletManager.configureBip32MasterSeed(masterSeed, AesKeyCipher.defaultKeyCipher());
-            return walletManager.createAdditionalBip44Account(AesKeyCipher.defaultKeyCipher());
+            return walletManager.createAccounts(new AdditionalHDAccountConfig()).get(0);
          } catch (KeyCipher.InvalidKeyCipher e) {
             throw new RuntimeException(e);
          }
@@ -277,12 +279,10 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
          StartupActivity activity = this.startupActivity.get();
          if(activity == null) {
             return null;
-         }try {
-            WalletManager walletManager = activity._mbwManager.getWalletManager(false);
-            return walletManager.createAdditionalBip44Account(AesKeyCipher.defaultKeyCipher());
-         } catch (KeyCipher.InvalidKeyCipher e) {
-            throw new RuntimeException(e);
          }
+
+         WalletManager walletManager = activity._mbwManager.getWalletManager(false);
+         return walletManager.createAccounts(new AdditionalHDAccountConfig()).get(0);
       }
 
       @Override
@@ -427,7 +427,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
 
          MbwManager mbwManager = MbwManager.getInstance(StartupActivity.this.getApplication());
 
-         List<WalletAccount> spendingAccounts = mbwManager.getWalletManager(false).getSpendingAccountsWithBalance();
+         List<WalletAccount<?,?>> spendingAccounts = mbwManager.getWalletManager(false).getSpendingAccountsWithBalance();
          if (spendingAccounts.isEmpty()) {
             //if we dont have an account which can spend and has a balance, we fetch all accounts with priv keys
             spendingAccounts = mbwManager.getWalletManager(false).getSpendingAccounts();
@@ -509,7 +509,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
             return;
          }
 
-         List<WalletAccount> spendingAccounts = mbwManager.getWalletManager(false).getSpendingAccountsWithBalance();
+         List<WalletAccount<?,?>> spendingAccounts = mbwManager.getWalletManager(false).getSpendingAccountsWithBalance();
          if (spendingAccounts.isEmpty()) {
             //if we dont have an account which can spend and has a balance, we fetch all accounts with priv keys
             spendingAccounts = mbwManager.getWalletManager(false).getSpendingAccounts();

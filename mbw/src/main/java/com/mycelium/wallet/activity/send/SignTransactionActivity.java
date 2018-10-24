@@ -52,6 +52,8 @@ import com.mycelium.wallet.extsig.trezor.activity.TrezorSignTransactionActivity;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.btc.BtcAddress;
+import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
@@ -157,7 +159,7 @@ public class SignTransactionActivity extends Activity {
          @Override
          protected SendRequest doInBackground(Void... args) {
             try {
-               SendRequest sendRequest = _account.getSendToRequest(receivingAddress, amountToSend);
+               SendRequest sendRequest = _account.getSendToRequest((BtcLegacyAddress) receivingAddress, amountToSend);
                _account.completeAndSignTx(sendRequest);
                return sendRequest; //_account.signTransaction(_unsigned, AesKeyCipher.defaultKeyCipher());
             }

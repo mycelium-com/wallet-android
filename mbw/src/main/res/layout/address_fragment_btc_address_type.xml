@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="com.mrd.bitlib.model.AddressType" />
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.wallet.activity.main.address.AddressFragmentViewModel" />
+    </data>
+
+    <merge>
+
+        <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/green"
+            android:text="@{viewModel.type == AddressType.P2SH_P2WPKH ? @string/p2sh : @string/bech}"
+            tools:showIn="@layout/address_fragment_btc" />
+    </merge>
+
+</layout>

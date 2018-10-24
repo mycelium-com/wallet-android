@@ -65,12 +65,12 @@ import com.mycelium.wallet.activity.util.ValueExtentionsKt;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
+import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.btc.BtcAddress;
-import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
+import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 import com.squareup.otto.Subscribe;
 
 import java.math.BigDecimal;
@@ -87,6 +87,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
    public static final String ACCOUNT = "account";
    public static final String KB_MINER_FEE = "kbMinerFee";
    public static final String IS_COLD_STORAGE = "isColdStorage";
+   public static final String DESTINATION_ADDRESS = "destinationAddress";
    public static final String SEND_MODE = "sendmode";
    public static final String BASIC_CURRENCY = "basiccurrency";
 
@@ -106,6 +107,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
    private Value _amount;
    private MbwManager _mbwManager;
    private Value _maxSpendableAmount;
+   private Address destinationAddress;
    private long _kbMinerFee;
 
    private boolean isColu;
@@ -115,7 +117,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
     * Get Amount for spending
     */
    public static void callMeToSend(Activity currentActivity, int requestCode, UUID account, Value amountToSend, Long kbMinerFee,
-                                   AccountDisplayType currencyType, boolean isColdStorage)
+                                   AccountDisplayType currencyType, boolean isColdStorage, Address destinationAddress)
    {
       Intent intent = new Intent(currentActivity, GetAmountActivity.class)
               .putExtra(ACCOUNT, account)
@@ -124,6 +126,9 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
               .putExtra(IS_COLD_STORAGE, isColdStorage)
               .putExtra(SEND_MODE, true)
               .putExtra(BASIC_CURRENCY, currencyType);
+      if (destinationAddress != null) {
+         intent.putExtra(DESTINATION_ADDRESS, destinationAddress);
+      }
       currentActivity.startActivityForResult(intent, requestCode);
    }
 
@@ -172,9 +177,12 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
    private void initSendMode() {
       // Calculate the maximum amount that can be spent where we send everything we got to another address
       _kbMinerFee = Preconditions.checkNotNull((Long) getIntent().getSerializableExtra(KB_MINER_FEE));
-      // todo max
-//      _maxSpendableAmount = _account.calculateMaxSpendableAmount(_kbMinerFee);
-//      showMaxAmount();
+      destinationAddress = (Address) getIntent().getSerializableExtra(DESTINATION_ADDRESS);
+      if (destinationAddress == null) {
+         destinationAddress = Address.getNullAddress(_mbwManager.getNetwork());
+      }
+      //_maxSpendableAmount = _account.calculateMaxSpendableAmount(_kbMinerFee, destinationAddress);
+      //showMaxAmount();
 
       // if no amount is set, create an null amount with the correct currency
       if (_amount == null) {
@@ -526,17 +534,18 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          return AmountValidation.Ok; //entering a fiat value + exchange is not availible
       }
       try {
-         WalletAccount.Receiver receiver = new WalletAccount.Receiver((BtcAddress)Address.getNullAddress(_mbwManager.getNetwork()), satoshis);
+         Address address = Address.getNullAddress(_mbwManager.getNetwork());
+         WalletAccount.Receiver receiver = new WalletAccount.Receiver(AddressUtils.fromAddress(address), satoshis);
          _account.checkAmount(receiver, _kbMinerFee, _amount);
       } catch (OutputTooSmallException e1) {
          return AmountValidation.ValueTooSmall;
       } catch (InsufficientFundsException e) {
          return AmountValidation.NotEnoughFunds;
       } catch (StandardTransactionBuilder.UnableToBuildTransactionException e) {
-         // under certain conditions the max-miner-fee check fails - report it back to the server, so we can better
-         // debug it
-         _mbwManager.reportIgnoredException("MinerFeeException", e);
-         return AmountValidation.Invalid;
+          // under certain conditions the max-miner-fee check fails - report it back to the server, so we can better
+          // debug it
+          _mbwManager.reportIgnoredException("MinerFeeException", e);
+          return AmountValidation.Invalid;
       }
       return AmountValidation.Ok;
    }

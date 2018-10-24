@@ -71,10 +71,8 @@ public class AboutActivity extends Activity {
 
       final MbwManager mbwManager = MbwManager.getInstance(this);
       final VersionManager versionManager = mbwManager.getVersionManager();
-      String version = versionManager.getVersion();
-      int versionCode = versionManager.getVersionCode();
-      ((TextView) findViewById(R.id.tvVersionNumber)).setText(version);
-      ((TextView) findViewById(R.id.tvVersionCode)).setText(String.format("(%d)", versionCode));
+      ((TextView) findViewById(R.id.tvVersionNumber)).setText(BuildConfig.VERSION_NAME);
+      ((TextView) findViewById(R.id.tvVersionCode)).setText(String.format("(%d)", BuildConfig.VERSION_CODE));
       findViewById(R.id.bt_tou_mycelium).setOnClickListener(new ShowLicenseListener(R.raw.tou_mycelium));
       findViewById(R.id.bt_license_mycelium).setOnClickListener(new ShowLicenseListener(R.raw.license_mycelium));
       findViewById(R.id.bt_license_zxing).setOnClickListener(new ShowLicenseListener(R.raw.license_zxing));
@@ -154,7 +152,7 @@ public class AboutActivity extends Activity {
 
    private void showVersionInfo(VersionManager versionManager, VersionInfoExResponse response) {
       if (response==null || versionManager.isSameVersion(response.versionNumber)) {
-         new AlertDialog.Builder(this).setMessage(getString(R.string.version_uptodate, versionManager.getVersion()))
+         new AlertDialog.Builder(this).setMessage(getString(R.string.version_uptodate, BuildConfig.VERSION_NAME))
                .setTitle(getString(R.string.update_check))
                .setNeutralButton(R.string.ok, new DialogInterface.OnClickListener() {
                   @Override

@@ -21,6 +21,7 @@ import com.mycelium.wallet.event.SpvSyncChanged
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount
+import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHHDModule
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
 import com.mycelium.wapi.wallet.coins.Value
@@ -44,7 +45,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
     override fun onMessage(callingPackageName: String, intent: Intent) {
         when (callingPackageName) {
             getSpvModuleName(Bip44BCHAccount::class.java) -> onMessageFromSpvModuleBch(intent, getModule(callingPackageName))
-            BuildConfig.appIdMeb -> onMessageFromTsmModule(intent)
+            BuildConfig.appIdGeb -> onMessageFromGebModule(intent)
             else -> Log.e(TAG, "Ignoring unexpected package $callingPackageName calling with intent $intent.")
         }
     }
@@ -52,19 +53,18 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
     private fun getModule(packageName: String): Module? =
             CommunicationManager.getInstance().pairedModules.find { it.modulePackage == packageName }
 
-    private fun onMessageFromTsmModule(intent: Intent) {
+    private fun onMessageFromGebModule(intent: Intent) {
+        val mbwManager = MbwManager.getInstance(context)
         when (intent.action) {
             "com.mycelium.wallet.getMyceliumId" -> {
-                val mbwManager = MbwManager.getInstance(context)
                 val service = IntentContract.MyceliumIdTransfer.createIntent(mbwManager.myceliumId)
-                WalletApplication.sendToMeb(service)
+                WalletApplication.sendToGeb(service)
             }
             "com.mycelium.wallet.signData" -> {
-                val mbwManager = MbwManager.getInstance(context)
                 val message = intent.getStringExtra(IntentContract.MESSAGE)
                 val signature = mbwManager.signMessage(message)
                 val service = IntentContract.TransferSignedData.createIntent(message, signature)
-                WalletApplication.sendToMeb(service)
+                WalletApplication.sendToGeb(service)
             }
         }
     }
@@ -77,7 +77,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 val accountsIndex = intent.getIntArrayExtra(IntentContract.ACCOUNTS_INDEX)
                 val walletAccounts = mutableListOf<WalletAccount<*,*>>()
                 for(accountIndex in accountsIndex) {
-                    walletManager.activeAccounts.filterTo(walletAccounts) {
+                    walletManager.getActiveAccounts().filterTo(walletAccounts) {
                         it is Bip44BCHAccount && it.accountIndex == accountIndex
                     }
                 }
@@ -111,7 +111,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 val chainDownloadPercentDone = intent.getFloatExtra("chain_download_percent_done", 0f)
                 // val replaying = intent.getBooleanExtra("replaying", true)
                 // val impediments = intent.getStringArrayExtra("impediment")
-                walletManager.activeAccounts
+                walletManager.getActiveAccounts()
                         .filterIsInstance<Bip44BCHAccount?>()
                         .forEach {
                             it!!.blockChainHeight = bestChainHeight
@@ -176,13 +176,10 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
 
                 when(accountType) {
                     IntentContract.UNRELATED_ACCOUNT_TYPE_HD -> {
-                        val account: WalletAccount<out GenericTransaction, out GenericAddress> =_mbwManager.getWalletManager(false).getAccount(UUID.fromString(accountGuid))
-                            //This is a way to not to pass information that this is a cold storage to BCH module and back
-                            ?: _mbwManager.getWalletManager(true).getAccount(UUID.fromString(accountGuid))
-
+                        val account =_mbwManager.getWalletManager(false).getAccount(UUID.fromString(accountGuid))
                         //Unrelated HD key
                         if(account !is ExportableAccount) {
-                            Log.e(TAG, "Can't handle account ${_mbwManager.metadataStorage.getLabelByAccount(account.id)}")
+                            Log.e(TAG, "Can't handle account ${_mbwManager.metadataStorage.getLabelByAccount(account?.id)}")
                             return
                         }
                         try {
@@ -227,7 +224,8 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 val txUTXOsHexList = intent.getStringArrayExtra(IntentContract.CONNECTED_OUTPUTS)
                 val accountIndex = intent.getIntExtra(IntentContract.ACCOUNT_INDEX_EXTRA, -1)
                 val mbwManager = MbwManager.getInstance(context)
-                val account = mbwManager.getWalletManager(false).getBip44BCHAccount(accountIndex) as Bip44BCHAccount
+                val module = mbwManager.getWalletManager(false).getModuleById("BCHHD") as Bip44BCHHDModule
+                val account = module.getAccountByIndex(accountIndex) as Bip44BCHAccount
                 val networkParameters = NetworkParameters.fromID(if (mbwManager.network.isTestnet) {
                     NetworkParameters.ID_TESTNET
                 } else {

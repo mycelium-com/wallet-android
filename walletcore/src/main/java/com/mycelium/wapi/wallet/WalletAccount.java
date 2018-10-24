@@ -8,6 +8,7 @@ import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
 import java.util.List;
@@ -63,7 +64,7 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
             StandardTransactionBuilder.UnableToBuildTransactionException;
 
 
-    SendRequest getSendToRequest(GenericAddress destination, Value amount);
+    SendRequest getSendToRequest(A destination, Value amount);
 
     /**
      * Synchronize this account
@@ -168,11 +169,6 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
      * Returns the number of retrieved transactions during synchronization
      */
     int getSyncTotalRetrievedTransactions();
-
-    /**
-     * Returns the account native currency as a ISO String, e.g. "BTC", "USD", ...
-     */
-    String getAccountDefaultCurrency();
 
     /**
      * Class representing a receiver of funds

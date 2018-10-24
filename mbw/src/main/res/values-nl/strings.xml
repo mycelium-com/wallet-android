@@ -399,8 +399,14 @@
   <!-- LT end -->
   <string name="cs_private_key_description">U gebruikt een persoonlijke sleutel met de volgende Bitcoin adres:</string>
   <string name="cs_address_description">U heeft een Bitcoin adres gescand. U kunt het saldo weergeven maar niet uitgeven.</string>
-  <string name="contains_keys">Bevat %1$s persoonlijke sleutels.</string>
-  <string name="contains_addresses">Bevat %1$s adressen.</string>
+  <plurals name="contains_keys">
+    <item quantity="one">Bevat een persoonlijke sleutel.</item>
+    <item quantity="other">Bevat %1$d persoonlijke sleutels.</item>
+  </plurals>
+  <plurals name="contains_addresses">
+    <item quantity="one">Bevat één adres.</item>
+    <item quantity="other">Bevat %1$d adressen.</item>
+  </plurals>
   <string name="archiving_account_title">Account Archiveren</string>
   <string name="new_version_exists">Er is een nieuwe versie beschikbaar</string>
   <string name="check_update">Zoeken naar updates</string>
@@ -457,8 +463,6 @@
   <string name="unspent_outputs_title">Niet-bestede uitgangen</string>
   <string name="no_unspent_outputs_description">Deze pagina laat zien op welke adressen de fondsen in het geselecteerde account zich bevinden. Er zijn momenteel geen tegoeden om weer te geven.</string>
   <string name="warning_words_import">Waarschuwing: Plaats uw woorden niet op het Klembord, andere apps kunnen deze lezen en toegang tot uw geld krijgen.</string>
-  <string name="account_contains_one_key_info">Bevat een persoonlijke sleutel.</string>
-  <string name="account_contains_one_address_info">Bevat één adres.</string>
   <string name="verify_backup_ok_message">De back-up is met succes geverifieerd.</string>
   <string name="wordlist_import_invalid_checksum">De checksum van uw woordenlijst is ongeldig, zorg ervoor dat u alle woorden correct hebt ingevoerd.</string>
   <string name="checkbox_wordlist_passphrase">Ik heb een wachtwoord</string>

@@ -58,6 +58,7 @@ import android.widget.Toast;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.AddressType;
 import com.mycelium.wallet.AccountManager;
 import com.mycelium.wallet.AddressBookManager;
 import com.mycelium.wallet.AddressBookManager.Entry;
@@ -71,23 +72,17 @@ import com.mycelium.wallet.activity.modern.adapter.AddressBookAdapter;
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil.AddressLabelChangedHandler;
-import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.AddressBookChanged;
+import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
-import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
-import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
-import static com.mycelium.wallet.activity.util.ValueExtentionsKt.isBtc;
 
 public class AddressBookFragment extends Fragment {
 
@@ -170,13 +165,16 @@ public class AddressBookFragment extends Fragment {
 
    private void updateUiMine() {
       List<Entry> entries = new ArrayList<>();
+      List<WalletAccount<?,?>> activeAccountsGeneric = new ArrayList<>();
 
-      List<WalletAccount> activeAccountsGeneric = new ArrayList<WalletAccount>(AccountManager.INSTANCE.getActiveAccounts().values().asList());
+      for(WalletAccount account : AccountManager.INSTANCE.getActiveAccounts().values().asList()){
+         activeAccountsGeneric.add(account);
+      }
       for (WalletAccount account : Utils.sortAccounts(activeAccountsGeneric, _mbwManager.getMetadataStorage())) {
 
          String name = _mbwManager.getMetadataStorage().getLabelByAccount(account.getId());
          Drawable drawableForAccount = Utils.getDrawableForAccount(account, true, getResources());
-
+         //TODO a lot of pr
          WalletAccount selectedAccount = _mbwManager.getSelectedAccount();
          if (account.getReceiveAddress() != null) {
             if (account.canSpend() && selectedAccount.getCoinType().equals(account.getCoinType())) {
@@ -199,7 +197,7 @@ public class AddressBookFragment extends Fragment {
       Map<Address, String> rawentries = _mbwManager.getMetadataStorage().getAllAddressLabels();
       List<Entry> entries = new ArrayList<Entry>();
       for (Map.Entry<Address, String> e : rawentries.entrySet()) {
-         entries.add(new Entry((BtcAddress)e.getKey(), e.getValue()));
+         entries.add(new Entry(AddressUtils.fromAddress(e.getKey()), e.getValue()));
       }
       entries = Utils.sortAddressbookEntries(entries);
       if (entries.isEmpty()) {
@@ -283,7 +281,9 @@ public class AddressBookFragment extends Fragment {
    };
 
    private void doEditEntry() {
-      EnterAddressLabelUtil.enterAddressLabel(getActivity(), _mbwManager.getMetadataStorage(),(BtcAddress) mSelectedAddress, "", addressLabelChanged);
+      EnterAddressLabelUtil.enterAddressLabel(getActivity(), _mbwManager.getMetadataStorage(),
+             ((BtcAddress)mSelectedAddress).getAddress(),
+              "", addressLabelChanged);
    }
 
    private void doShowQrCode() {
@@ -293,8 +293,8 @@ public class AddressBookFragment extends Fragment {
       if (mSelectedAddress == null) {
          return;
       }
-      boolean hasPrivateKey = _mbwManager.getWalletManager(false).hasPrivateKeyForAddress(mSelectedAddress);
-      UUID tempAccount = _mbwManager.createOnTheFlyAccount((Address)mSelectedAddress);
+      boolean hasPrivateKey = _mbwManager.getWalletManager(false).hasPrivateKey(mSelectedAddress);
+      UUID tempAccount = _mbwManager.createOnTheFlyAccount(((BtcAddress)mSelectedAddress).getAddress());
       ReceiveCoinsActivity.callMe(getActivity(), _mbwManager.getWalletManager(true).getAccount(tempAccount),
               hasPrivateKey, false, true);
       finishActionMode();
@@ -313,7 +313,7 @@ public class AddressBookFragment extends Fragment {
             .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                public void onClick(DialogInterface dialog, int id) {
                   dialog.cancel();
-                  _mbwManager.getMetadataStorage().deleteAddressMetadata((BtcAddress)mSelectedAddress);
+                  _mbwManager.getMetadataStorage().deleteAddressMetadata(((BtcAddress)mSelectedAddress).getAddress());
                   finishActionMode();
                   _mbwManager.getEventBus().post(new AddressBookChanged());
                }
@@ -414,7 +414,7 @@ public class AddressBookFragment extends Fragment {
    private class SelectItemListener implements OnItemClickListener {
       @Override
       public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-         Address address = (Address) view.getTag();
+         Address address = ((BtcAddress) view.getTag()).getAddress();
          Intent result = new Intent();
          result.putExtra(ADDRESS_RESULT_NAME, address.toString());
 

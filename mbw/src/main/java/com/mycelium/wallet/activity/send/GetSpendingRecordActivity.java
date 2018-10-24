@@ -162,12 +162,12 @@ public class GetSpendingRecordActivity extends Activity {
       View warningNoSpendingAccounts = findViewById(R.id.tvNoSpendingAccounts);
       MetadataStorage storage = _mbwManager.getMetadataStorage();
       //get accounts with key and positive balance
-      List<WalletAccount> spendingAccounts = _mbwManager.getWalletManager(false).getSpendingAccountsWithBalance();
+      List<WalletAccount<?,?>> spendingAccounts = _mbwManager.getWalletManager(false).getSpendingAccountsWithBalance();
       if (spendingAccounts.isEmpty()) {
          //if we dont have any account with a balance, just show all accounts with priv key
          spendingAccounts = _mbwManager.getWalletManager(false).getSpendingAccounts();
       }
-      ArrayList<WalletAccount> result = new ArrayList<>();
+      ArrayList<WalletAccount<?,?>> result = new ArrayList<>();
       for (WalletAccount spendingAccount : spendingAccounts) {
          if(isBtc(spendingAccount.getAccountBalance().confirmed.type)) {
             result.add(spendingAccount);
@@ -181,7 +181,7 @@ public class GetSpendingRecordActivity extends Activity {
          warningNoSpendingAccounts.setVisibility(View.VISIBLE);
       } else {
          //remove it later
-         List<WalletAccount> spendingAccountsBtc = new ArrayList<>();
+         List<WalletAccount<?,?>> spendingAccountsBtc = new ArrayList<>();
          for(WalletAccount account : spendingAccounts){
             spendingAccountsBtc.add(account);
          }

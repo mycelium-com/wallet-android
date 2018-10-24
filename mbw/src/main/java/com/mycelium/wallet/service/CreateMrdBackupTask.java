@@ -56,6 +56,7 @@ import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
+import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 
@@ -74,18 +75,18 @@ import java.util.UUID;
 public class CreateMrdBackupTask extends ServiceTask<Boolean> {
    private static final long serialVersionUID = 1L;
 
-   private static class EntryToExport<T> implements Serializable {
+   private static class EntryToExport implements Serializable {
       private static final long serialVersionUID = 1L;
       public String base58PrivateKey;
       public String label;
-      public final WalletBtcAccount.Type accountType;
       private final Map<AddressType, Address> addresses;
+      public boolean isBch;
 
-      public EntryToExport(Map<AddressType, Address> addresses, String base58PrivateKey, String label, WalletBtcAccount.Type accountType) {
+      public EntryToExport(Map<AddressType, Address> addresses, String base58PrivateKey, String label, boolean isBch) {
          this.base58PrivateKey = base58PrivateKey;
          this.label = label;
-         this.accountType = accountType;
          this.addresses = addresses;
+         this.isBch = isBch;
       }
    }
 
@@ -107,7 +108,7 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
       // Populate the active and archived entries to export
       _active = new LinkedList<>();
       _archived = new LinkedList<>();
-      List<WalletAccount> accounts = new ArrayList<>();
+      List<WalletAccount<?,?>> accounts = new ArrayList<>();
       for (UUID id : walletManager.getAccountIds()) {
          accounts.add(walletManager.getAccount(id));
       }
@@ -129,7 +130,7 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
                try {
                   base58EncodedPrivateKey = a.getPrivateKey(cipher).getBase58EncodedPrivateKey(network);
                   entry = new EntryToExport(a.getPublicKey().getAllSupportedAddresses(network),
-                          base58EncodedPrivateKey, label, account.getType());
+                          base58EncodedPrivateKey, label, account instanceof SingleAddressBCHAccount);
 
                } catch (KeyCipher.InvalidKeyCipher e) {
                   throw new RuntimeException(e);
@@ -138,7 +139,7 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
                Address address = a.getReceivingAddress().get();
                Map<AddressType, Address> addressMap= new HashMap<>();
                addressMap.put(address.getType(), address);
-               entry = new EntryToExport(addressMap, null, label, account.getType());
+               entry = new EntryToExport(addressMap, null, label, account instanceof SingleAddressBCHAccount);
             }
          } else if (account instanceof ColuAccount) {
             ColuAccount a = (ColuAccount) account;
@@ -147,7 +148,7 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
             if (a.canSpend()) {
                base58EncodedPrivateKey = a.getPrivateKey().getBase58EncodedPrivateKey(network);
                entry = new EntryToExport(a.getPrivateKey().getPublicKey().getAllSupportedAddresses(network),
-                       base58EncodedPrivateKey, label, account.getType());
+                       base58EncodedPrivateKey, label, false);
             }
          }
 
@@ -186,13 +187,13 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
          // Encrypt active
          List<ExportEntry> encryptedActiveKeys = new LinkedList<>();
          for (EntryToExport e : _active) {
-            encryptedActiveKeys.add(createExportEntry(e, encryptionParameters, _network, e.accountType));
+            encryptedActiveKeys.add(createExportEntry(e, encryptionParameters, _network));
             _encryptionProgress += increment;
          }
          // Encrypt archived
          List<ExportEntry> encryptedArchivedKeys = new LinkedList<>();
          for (EntryToExport e : _archived) {
-            encryptedArchivedKeys.add(createExportEntry(e, encryptionParameters, _network, e.accountType));
+            encryptedArchivedKeys.add(createExportEntry(e, encryptionParameters, _network));
             _encryptionProgress += increment;
          }
 
@@ -217,13 +218,13 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
       _kdfParameters.terminate();
    }
 
-   private static <T> ExportEntry createExportEntry(EntryToExport toExport, EncryptionParameters parameters,
-                                                NetworkParameters network, WalletBtcAccount.Type accountType) {
+   private static ExportEntry createExportEntry(EntryToExport toExport, EncryptionParameters parameters,
+                                                NetworkParameters network) {
       String encrypted = null;
       if (toExport.base58PrivateKey != null) {
          encrypted = MrdExport.V1.encryptPrivateKey(parameters, toExport.base58PrivateKey, network);
       }
-      return new ExportEntry(toExport.addresses, encrypted, null, toExport.label, accountType);
+      return new ExportEntry(toExport.addresses, encrypted, null, toExport.label, toExport.isBch);
    }
 
    @Override

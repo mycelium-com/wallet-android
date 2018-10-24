@@ -20,7 +20,7 @@ fun Value.toString(denomination: CoinUtil.Denomination = CoinUtil.Denomination.B
     CoinFormat.maximumFractionDigits = type.unitExponent
     var result = valueAsBigDecimal
     //TODO maybe need other idea for fiat type
-    if (type !is FiatType) {
+    if (type !is FiatType && denomination != CoinUtil.Denomination.BTC) {
         result = result.movePointRight(type.unitExponent - denomination.decimalPlaces)
     }
     return CoinFormat.format(result)

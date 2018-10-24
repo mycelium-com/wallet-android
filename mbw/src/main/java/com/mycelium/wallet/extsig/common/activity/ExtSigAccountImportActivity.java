@@ -46,6 +46,7 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AccountScanManager;
+import com.mycelium.wapi.wallet.btc.bip44.ExternalSignaturesAccountConfig;
 import com.squareup.otto.Subscribe;
 
 import java.util.List;
@@ -64,11 +65,11 @@ public abstract class ExtSigAccountImportActivity extends ExtSigAccountSelectorA
             MbwManager mbwManager = MbwManager.getInstance(ExtSigAccountImportActivity.this);
 
             UUID acc = mbwManager.getWalletManager(false)
-                  .createExternalSignatureAccount(
+                  .createAccounts(new ExternalSignaturesAccountConfig(
                         item.xPub,
                         (ExternalSignatureDeviceManager) masterseedScanManager,
                         item.accountHdKeysPaths.iterator().next().getLastIndex()
-                  );
+                  )).get(0);
 
             // Mark this account as backup warning ignored
             mbwManager.getMetadataStorage().setOtherAccountBackupState(acc, MetadataStorage.BackupState.IGNORED);
@@ -104,18 +105,17 @@ public abstract class ExtSigAccountImportActivity extends ExtSigAccountSelectorA
             Utils.showSimpleMessageDialog(ExtSigAccountImportActivity.this, getString(R.string.ext_sig_next_unused_account_info), new Runnable() {
                @Override
                public void run() {
-
                   List<HdKeyNode> nextAccount = masterseedScanManager.getNextUnusedAccounts();
 
                   MbwManager mbwManager = MbwManager.getInstance(ExtSigAccountImportActivity.this);
 
-                  if (nextAccount.isEmpty()) {
+                  if (!nextAccount.isEmpty()) {
                      UUID acc = mbwManager.getWalletManager(false)
-                           .createExternalSignatureAccount(
+                           .createAccounts(new ExternalSignaturesAccountConfig(
                                  nextAccount,
                                  (ExternalSignatureDeviceManager) masterseedScanManager,
                                  nextAccount.get(0).getIndex()
-                           );
+                           )).get(0);
 
                      mbwManager.getMetadataStorage().setOtherAccountBackupState(acc, MetadataStorage.BackupState.IGNORED);
 
@@ -124,13 +124,11 @@ public abstract class ExtSigAccountImportActivity extends ExtSigAccountSelectorA
                      setResult(RESULT_OK, result);
                      finish();
                   }
-
                }
             });
          }
       });
    }
-
 
    // Otto.EventBus does not traverse class hierarchy to find subscribers
    @Subscribe
@@ -157,5 +155,4 @@ public abstract class ExtSigAccountImportActivity extends ExtSigAccountSelectorA
    public void onPassphraseRequest(AccountScanManager.OnPassphraseRequest event) {
       super.onPassphraseRequest(event);
    }
-
 }

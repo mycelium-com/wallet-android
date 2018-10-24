@@ -11,12 +11,11 @@ import android.view.View
 import android.view.ViewGroup
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
-import com.mycelium.wallet.databinding.AddressFragmentBindingImpl
-import com.mycelium.wallet.databinding.AddressFragmentBtcBindingImpl
+import com.mycelium.wallet.databinding.AddressFragmentBinding
+import com.mycelium.wallet.databinding.AddressFragmentBtcBinding
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount
-import com.mycelium.wapi.wallet.btc.bip44.HDAccount
-import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
+import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import kotlinx.android.synthetic.main.address_fragment_label.*
 import kotlinx.android.synthetic.main.address_fragment_qr.*
 
@@ -24,45 +23,56 @@ class AddressFragment : Fragment() {
     private var mbwManager = MbwManager.getInstance(activity)
     private lateinit var viewModel: AddressFragmentViewModel
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val binding =
-                when (mbwManager.selectedAccount) {
-                    is Bip44BCHAccount, is SingleAddressBCHAccount -> {
-                        createDefaultBinding(inflater, container)
-                    }
-                    is SingleAddressAccount, is HDAccount -> {
-                        val contentView = DataBindingUtil.inflate<AddressFragmentBtcBindingImpl>(inflater, R.layout.address_fragment_btc,
-                                container, false)
-                        contentView.activity = activity
-                        contentView.viewModel = viewModel as AddressFragmentBtcModel
-                        contentView
-                    }
-                    else -> {
-                        createDefaultBinding(inflater, container)
-                    }
-                }
-        binding.setLifecycleOwner(this)
-        return binding.root
-    }
-
-    private fun createDefaultBinding(inflater: LayoutInflater, container: ViewGroup?): AddressFragmentBindingImpl {
-        val contentView = DataBindingUtil.inflate<AddressFragmentBindingImpl>(inflater, R.layout.address_fragment,
-                container, false)
-        contentView.activity = activity
-        contentView.viewModel = viewModel as AddressFragmentCoinsModel
-        return contentView
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         setHasOptionsMenu(true)
         val viewModelProvider = ViewModelProviders.of(this)
         val account = mbwManager.selectedAccount
         this.viewModel = when (account) {
             is SingleAddressBCHAccount, is Bip44BCHAccount -> viewModelProvider.get(AddressFragmentCoinsModel::class.java)
-            is SingleAddressAccount, is HDAccount -> viewModelProvider.get(AddressFragmentBtcModel::class.java)
+            is AbstractBtcAccount -> {
+                if (account.availableAddressTypes.size > 1) {
+                    viewModelProvider.get(AddressFragmentBtcModel::class.java)
+                } else {
+                    viewModelProvider.get(AddressFragmentCoinsModel::class.java)
+                }
+            }
             else -> viewModelProvider.get(AddressFragmentCoinsModel::class.java)
         }
         super.onCreate(savedInstanceState)
+    }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        val binding =
+                when (mbwManager.selectedAccount) {
+                    is Bip44BCHAccount, is SingleAddressBCHAccount -> {
+                        createDefaultBinding(inflater, container)
+                    }
+                    is AbstractBtcAccount -> {
+                        if ((mbwManager.selectedAccount as AbstractBtcAccount).availableAddressTypes.size > 1) {
+                            val contentView = DataBindingUtil.inflate<AddressFragmentBtcBinding>(inflater, R.layout.address_fragment_btc,
+                                    container, false)
+                            contentView.activity = activity
+                            contentView.viewModel = viewModel as AddressFragmentBtcModel
+                            contentView
+                        } else {
+                            createDefaultBinding(inflater, container)
+                        }
+                    }
+                    else -> {
+                        createDefaultBinding(inflater, container)
+                    }
+                }
+
+        binding.setLifecycleOwner(this)
+        return binding.root
+    }
+
+    private fun createDefaultBinding(inflater: LayoutInflater, container: ViewGroup?): AddressFragmentBinding {
+        val contentView = DataBindingUtil.inflate<AddressFragmentBinding>(inflater, R.layout.address_fragment,
+                container, false)
+        contentView.activity = activity
+        contentView.viewModel = viewModel as AddressFragmentCoinsModel
+        return contentView
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -79,6 +89,10 @@ class AddressFragment : Fragment() {
         if (drawableForAccount != null) {
             ivAccountType.setImageDrawable(drawableForAccount)
         }
-        viewModel.getAccountAddress().observe(this, Observer { newAddress -> ivQR.qrCode = newAddress?.toString() })
+        viewModel.getAccountAddress().observe(this, Observer { newAddress ->
+            if (newAddress != null) {
+                ivQR.qrCode = newAddress.toString()
+            }
+        })
     }
 }

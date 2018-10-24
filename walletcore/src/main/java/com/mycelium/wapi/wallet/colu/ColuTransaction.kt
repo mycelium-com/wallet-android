@@ -6,27 +6,28 @@ import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal
 import com.mycelium.wapi.wallet.GenericTransaction
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
+import com.mycelium.wapi.wallet.coins.GenericAssetInfo
 import com.mycelium.wapi.wallet.coins.Value
+import java.io.Serializable
 
 
-class ColuTransaction(val _type: CryptoCurrency, val _sent: Value, val receive: Value, var time: Int
-                      , val tx: Transaction, var confirmation: Int, val _isQueuedOutgoing: Boolean
+class ColuTransaction(val id: Sha256Hash, val _type: CryptoCurrency, val _sent: Value, val receive: Value, var time: Long,
+                      val tx: Transaction?, var confirmation: Int, val _isQueuedOutgoing: Boolean
+                      , val input: List<GenericTransaction.GenericInput>, val output: List<GenericTransaction.GenericOutput>
                       , fee: Value? = null)
-    : GenericTransaction {
+    : GenericTransaction, Serializable {
 
-    override fun getType(): CryptoCurrency = _type
+    override fun getType(): GenericAssetInfo = _type
 
     override fun getHash(): Sha256Hash {
-        return tx.id
+        return id
     }
 
     override fun getHashAsString(): String = hash.toString()
 
     override fun getHashBytes(): ByteArray = hash.bytes
 
-    override fun getDepthInBlocks(): Int {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun getDepthInBlocks(): Int = confirmation
 
     override fun setDepthInBlocks(depthInBlocks: Int) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
@@ -38,10 +39,10 @@ class ColuTransaction(val _type: CryptoCurrency, val _sent: Value, val receive: 
         confirmation = appearedAtChainHeight
     }
 
-    override fun getTimestamp(): Long = time.toLong()
+    override fun getTimestamp(): Long = time
 
     override fun setTimestamp(timestamp: Int) {
-        time = timestamp
+        time = timestamp.toLong()
     }
 
     override fun isQueuedOutgoing(): Boolean = _isQueuedOutgoing
@@ -54,12 +55,12 @@ class ColuTransaction(val _type: CryptoCurrency, val _sent: Value, val receive: 
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun getInputs(): MutableList<GenericTransaction.GenericInput> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun getInputs(): List<GenericTransaction.GenericInput> {
+        return input
     }
 
-    override fun getOutputs(): MutableList<GenericTransaction.GenericOutput> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun getOutputs(): List<GenericTransaction.GenericOutput> {
+        return output
     }
 
     override fun getSent(): Value = _sent

@@ -69,6 +69,7 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.util.AbstractAccountScanManager;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.wallet.WalletManager;
+import com.mycelium.wapi.wallet.btc.bip44.ExternalSignaturesAccountConfig;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
 import com.mycelium.wapi.wallet.btc.bip44.ExternalSignatureProvider;
@@ -275,7 +276,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
 
       rawOutputsWriter.putCompactInt(unsigned.getOutputs().length);
       // Format destination
-      commonPath = "44'/" + getNetwork().getBip44CoinType().getLastIndex() + "'/" + forAccount.getAccountIndex() + "'/";
+      commonPath = "44'/" + getNetwork().getBip44CoinType() + "'/" + forAccount.getAccountIndex() + "'/"; // TODO segwit fix
       for (TransactionOutput o : unsigned.getOutputs()) {
          Address toAddress;
          o.toByteWriter(rawOutputsWriter);
@@ -390,7 +391,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
 
          // Sign
          SigningRequest signingRequest = signatureInfo[i];
-         Address toSignWith = signingRequest.getPublicKey().toAddress(getNetwork(), AddressType.P2PKH);
+         Address toSignWith = signingRequest.getPublicKey().toAddress(getNetwork(), AddressType.P2PKH);     //TODO segwit fix
          Optional<Integer[]> addressId = forAccount.getAddressId(toSignWith);
          String keyPath = commonPath + addressId.get()[0] + "/" + addressId.get()[1];
          byte[] signature = dongle.untrustedHashSign(keyPath, txpin);
@@ -490,7 +491,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
          }
       }
       if (account == null) {
-         account = walletManager.createExternalSignatureAccount(accountRoots, this, accountIndex);
+         account = walletManager.createAccounts(new ExternalSignaturesAccountConfig(accountRoots, this, accountIndex)).get(0);
       }
       return account;
    }
