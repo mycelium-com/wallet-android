@@ -1145,7 +1145,7 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking<SingleAd
 
          // The backings tables should already exists, but try to recreate them anyhow, as the CREATE TABLE
          // uses the "IF NOT EXISTS" switch
-         for (UUID account : getAccountIds(getWritableDatabase())) {
+         for (UUID account : getAccountIds(getReadableDatabase())) {
             createAccountBackingTables(account, getWritableDatabase());
          }
       }

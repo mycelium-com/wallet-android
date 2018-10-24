@@ -1,15 +1,16 @@
 package com.mycelium.wapi.wallet.btc.bip44
 
+import com.mrd.bitlib.crypto.Bip39
 import com.mrd.bitlib.crypto.BipDerivationType
+import com.mrd.bitlib.crypto.HdKeyNode
 import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.util.HexUtils
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.wallet.*
-import com.mycelium.wapi.wallet.bip44.ChangeAddressMode
 import com.mycelium.wapi.wallet.AesKeyCipher
-import com.mycelium.wapi.wallet.KeyCipher
-import com.mycelium.wapi.wallet.SecureKeyValueStore
-import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.Currency
+import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher
+import com.mycelium.wapi.wallet.bip44.ChangeAddressMode
 import com.mycelium.wapi.wallet.btc.BtcTransaction
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.Companion.ACCOUNT_TYPE_UNRELATED_X_PRIV
@@ -18,10 +19,6 @@ import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext
 import com.mycelium.wapi.wallet.manager.Config
 import com.mycelium.wapi.wallet.manager.WalletModule
 import java.util.*
-import com.mrd.bitlib.crypto.Bip39
-import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher
-import com.mrd.bitlib.crypto.HdKeyNode
-import com.mycelium.wapi.wallet.Currency
 
 
 class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAccountContext, BtcTransaction>,
@@ -37,7 +34,26 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
     override fun getId(): String = "BitcoinHD"
 
     override fun loadAccounts(): Map<UUID, WalletAccount<*, *>> {
-        return mapOf()
+        val result = mutableMapOf<UUID, WalletAccount<*, *>>()
+        val contexts = backing.loadBip44AccountContexts()
+        for (context in contexts) {
+//            val subKeyStore = secureStore.getSubKeyStore(context.accountSubId)
+            val keyManagerMap = HashMap<BipDerivationType, HDAccountKeyManager>()
+            val accountBacking = backing.getBip44AccountBacking(context.id);
+            val account: WalletAccount<*, *>
+            if (context.accountType == ACCOUNT_TYPE_UNRELATED_X_PRIV) {
+                account = HDAccount(context, keyManagerMap, networkParameters, accountBacking
+                        , _wapi, Reference(ChangeAddressMode.P2WPKH));
+            } else if (context.accountType == ACCOUNT_TYPE_UNRELATED_X_PUB) {
+                account = HDPubOnlyAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi);
+            } else {
+                val btcSettings = currenciesSettingsMap[Currency.BTC] as BTCSettings
+                account = HDAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi,
+                        btcSettings.changeAddressModeReference)
+            }
+            result[account.id] = account
+        }
+        return result
     }
 
     override fun createAccount(config: Config): WalletAccount<*, *>? {
@@ -79,43 +95,33 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
 //                    return id
 //                }
 //            }
-            backing.beginTransaction()
-            try {
-
-                // Generate the context for the account
-                val context: HDAccountContext
-                if (cfg.hdKeyNodes.get(0).isPrivateHdKeyNode) {
-                    context = HDAccountContext(id, accountIndex, false, ACCOUNT_TYPE_UNRELATED_X_PRIV,
-                            secureStorage.subId, derivationTypes)
-                } else {
-                    context = HDAccountContext(id, accountIndex, false, ACCOUNT_TYPE_UNRELATED_X_PUB,
-                            secureStorage.subId, derivationTypes)
-                }
-                if (isUpgrade) {
-                    backing.upgradeBip44AccountContext(context)
-                } else {
-                    backing.createBip44AccountContext(context)
-                }
-                // Get the backing for the new account
-                val accountBacking = backing.getBip44AccountBacking(context.id)
-
-                // Create actual account
-                result = if (cfg.hdKeyNodes.get(0).isPrivateHdKeyNode) {
-                    HDAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi, Reference(ChangeAddressMode.P2WPKH))
-                } else {
-                    HDPubOnlyAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi)
-                }
-
-                // Finally persist context and add account
-                context.persist(accountBacking)
-                backing.setTransactionSuccessful()
-
-            } finally {
-                backing.endTransaction()
+            // Generate the context for the account
+            val context: HDAccountContext
+            if (cfg.hdKeyNodes.get(0).isPrivateHdKeyNode) {
+                context = HDAccountContext(id, accountIndex, false, ACCOUNT_TYPE_UNRELATED_X_PRIV,
+                        secureStorage.subId, derivationTypes)
+            } else {
+                context = HDAccountContext(id, accountIndex, false, ACCOUNT_TYPE_UNRELATED_X_PUB,
+                        secureStorage.subId, derivationTypes)
             }
-        } else if (config is AdditionalHDAccountConfig) {
-            backing.beginTransaction()
+            if (isUpgrade) {
+                backing.upgradeBip44AccountContext(context)
+            } else {
+                backing.createBip44AccountContext(context)
+            }
+            // Get the backing for the new account
+            val accountBacking = backing.getBip44AccountBacking(context.id)
 
+            // Create actual account
+            result = if (cfg.hdKeyNodes[0].isPrivateHdKeyNode) {
+                HDAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi, Reference(ChangeAddressMode.P2WPKH))
+            } else {
+                HDPubOnlyAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi)
+            }
+
+            // Finally persist context and add account
+            context.persist(accountBacking)
+        } else if (config is AdditionalHDAccountConfig) {
             // Get the master seed
             val masterSeed = getMasterSeed(AesKeyCipher.defaultKeyCipher())
 
@@ -129,12 +135,12 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
                 keyManagerMap.put(derivationType, HDAccountKeyManager.createNew(root, networkParameters, accountIndex,
                         secureStore, AesKeyCipher.defaultKeyCipher(), derivationType))
             }
-            val btcSettings = currenciesSettingsMap.get(Currency.BTC) as BTCSettings
+            val btcSettings = currenciesSettingsMap[Currency.BTC] as BTCSettings
             val defaultAddressType = btcSettings.defaultAddressType
 
             // Generate the context for the account
-            val context = HDAccountContext(
-                    keyManagerMap.get(BipDerivationType.BIP44)!!.getAccountId(), accountIndex, false, defaultAddressType)
+            val context = HDAccountContext(keyManagerMap[BipDerivationType.BIP44]!!.accountId
+                    , accountIndex, false, defaultAddressType)
 
             backing.createBip44AccountContext(context)
 
@@ -147,7 +153,7 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
 
             // Finally persist context and add account
             context.persist(accountBacking)
-            backing.setTransactionSuccessful()
+
         }
 
         accounts.put(result!!.id, result as HDAccount)
@@ -208,10 +214,11 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
         val last = accounts.values.last()
         return last.hasHadActivity()
     }
+
     override fun canCreateAccount(config: Config): Boolean =
             config is HDConfig ||
-            config is AdditionalHDAccountConfig ||
-            config is ExternalSignaturesAccountConfig
+                    config is AdditionalHDAccountConfig ||
+                    config is ExternalSignaturesAccountConfig
 
 
     override fun deleteAccount(walletAccount: WalletAccount<*, *>): Boolean {
