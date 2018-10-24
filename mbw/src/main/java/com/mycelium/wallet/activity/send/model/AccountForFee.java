@@ -5,11 +5,7 @@ import android.graphics.drawable.Drawable;
 import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.AddressBookManager;
 import com.mycelium.wapi.wallet.AddressUtils;
-import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
-import com.mycelium.wapi.wallet.coins.BitcoinMain;
-import com.mycelium.wapi.wallet.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.Value;
-import com.mycelium.wapi.wallet.segwit.SegwitAddress;
 
 import java.util.UUID;
 
