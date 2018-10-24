@@ -38,7 +38,11 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
         val contexts = backing.loadBip44AccountContexts()
         for (context in contexts) {
 //            val subKeyStore = secureStore.getSubKeyStore(context.accountSubId)
+
             val keyManagerMap = HashMap<BipDerivationType, HDAccountKeyManager>()
+            for (entry in context.indexesMap) {
+                keyManagerMap[entry.key] = HDAccountKeyManager(context.accountIndex, networkParameters, secureStore, entry.key)
+            }
             val accountBacking = backing.getBip44AccountBacking(context.id);
             val account: WalletAccount<*, *>
             if (context.accountType == ACCOUNT_TYPE_UNRELATED_X_PRIV) {

@@ -243,7 +243,6 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
 
    private List<UUID> getAccountIds(SQLiteDatabase db) {
       List<UUID> ids = new ArrayList<>();
-      ids.addAll(getBip44AccountIds(db));
       ids.addAll(getSingleAddressAccountIds(db));
       return ids;
    }
@@ -258,12 +257,12 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
             UUID uuid = SQLiteQueryWithBlobs.uuidFromBytes(cursor.getBlob(0));
             accounts.add(uuid);
          }
-         return accounts;
       } finally {
          if (cursor != null) {
             cursor.close();
          }
       }
+      return accounts;
    }
 
    private List<UUID> getBip44AccountIds(SQLiteDatabase db) {

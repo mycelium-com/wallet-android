@@ -94,7 +94,6 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking<SingleAd
    private static final int DEFAULT_SUB_ID = 0;
    private static final byte[] LAST_FEE_ESTIMATE = new byte[]{42, 55};
    private SQLiteDatabase _database;
-   private SQLiteDatabase databaseReadable;
    private Map<UUID, SqliteAccountBacking> _backings;
    private final SQLiteStatement _insertOrReplaceBip44Account;
    private final SQLiteStatement _updateBip44Account;
@@ -111,7 +110,6 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking<SingleAd
    SqliteWalletManagerBacking(Context context) {
       OpenHelper _openHelper = new OpenHelper(context);
       _database = _openHelper.getWritableDatabase();
-      databaseReadable = _openHelper.getReadableDatabase();
 
       _insertOrReplaceBip44Account = _database.compileStatement("INSERT OR REPLACE INTO bip44 VALUES (?,?,?,?,?,?,?,?,?)");
       _insertOrReplaceSingleAddressAccount = _database.compileStatement("INSERT OR REPLACE INTO single VALUES (?,?,?,?,?)");
@@ -526,7 +524,7 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking<SingleAd
    public byte[] getValue(byte[] id, int subId) {
       Cursor cursor = null;
       try {
-         SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(databaseReadable);
+         SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(_database);
          blobQuery.bindBlob(1, id);
          blobQuery.bindLong(2, (long) subId);
          cursor = blobQuery.query(false, TABLE_KV, new String[]{"v", "checksum"}, "k = ? and subId = ?", null, null, null,
@@ -1145,7 +1143,7 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking<SingleAd
 
          // The backings tables should already exists, but try to recreate them anyhow, as the CREATE TABLE
          // uses the "IF NOT EXISTS" switch
-         for (UUID account : getAccountIds(getReadableDatabase())) {
+         for (UUID account : getAccountIds(getWritableDatabase())) {
             createAccountBackingTables(account, getWritableDatabase());
          }
       }
