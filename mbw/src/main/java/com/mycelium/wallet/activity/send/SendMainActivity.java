@@ -125,6 +125,7 @@ import com.mycelium.wapi.wallet.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
+import com.mycelium.wapi.wallet.colu.ColuUtils;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
 import com.mycelium.wapi.wallet.colu.coins.MTCoin;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
@@ -652,7 +653,7 @@ public class SendMainActivity extends Activity {
         return walletAccount != null && walletAccount.canSpend()
                 && isBtc(walletAccount.getAccountBalance().confirmed.type)
                 && walletAccount.getAccountBalance().getSpendable().value >=
-                _mbwManager.getColuManager().getColuTransactionFee(feePerKbValue) + getAmountForColuTxOutputs();
+                /*_mbwManager.getColuManager().getColuTransactionFee(feePerKbValue) +*/ getAmountForColuTxOutputs();
     }
 
     private long getAmountForColuTxOutputs() {
@@ -661,13 +662,13 @@ public class SendMainActivity extends Activity {
     }
 
     private boolean checkFee(boolean rescan) {
-        if (rescan) {
-            ColuManager coluManager = _mbwManager.getColuManager();
-            coluManager.scanForAccounts(SyncMode.FULL_SYNC_ALL_ACCOUNTS);
-        }
+//        if (rescan) {
+//            ColuManager coluManager = _mbwManager.getColuManager();
+//            coluManager.scanForAccounts(SyncMode.FULL_SYNC_ALL_ACCOUNTS);
+//        }
         ColuAccount coluAccount = (ColuAccount) _account;
 
-        long fundingAmountShouldHave = _mbwManager.getColuManager().getColuTransactionFee(feePerKbValue) + getAmountForColuTxOutputs();
+        long fundingAmountShouldHave = /*_mbwManager.getColuManager().getColuTransactionFee(feePerKbValue) + */getAmountForColuTxOutputs();
         if (fundingAmountShouldHave < TransactionUtils.MINIMUM_OUTPUT_VALUE)
             fundingAmountShouldHave = TransactionUtils.MINIMUM_OUTPUT_VALUE;
 
@@ -1273,8 +1274,8 @@ public class SendMainActivity extends Activity {
                         Value primaryAmount = _amountToSend;
                         Value alternativeAmount = null;
                         if (primaryAmount.getCurrencySymbol().equals(_account.getCoinType().getSymbol())) {
-                            if (primaryAmount.getCurrencySymbol().equals("BTC") || _mbwManager.getColuManager().isColuAsset(primaryAmount.getCurrencySymbol())) {
-
+                            if (primaryAmount.getCurrencySymbol().equals("BTC")
+                                    || ColuUtils.allColuCoins().contains(primaryAmount.type)) {
                                 // if the accounts default currency is BTC and the user entered BTC, use the current
                                 // selected fiat as alternative currency
 //                                alternativeAmount = Value.fromValue(

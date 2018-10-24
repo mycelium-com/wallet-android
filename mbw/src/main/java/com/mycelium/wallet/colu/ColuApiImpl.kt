@@ -11,6 +11,8 @@ import com.mycelium.wapi.wallet.btc.BtcLegacyAddress
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.colu.ColuApi
 import com.mycelium.wapi.wallet.colu.ColuTransaction
+import com.mycelium.wapi.wallet.colu.ColuUtils
+import com.mycelium.wapi.wallet.colu.coins.ColuMain
 import com.mycelium.wapi.wallet.colu.coins.MTCoin
 import java.io.IOException
 
@@ -70,5 +72,26 @@ class ColuApiImpl(val coluClient: ColuClient) : ColuApi {
             Log.e("ColuApiImpl", "", e)
         }
         return result
+    }
+
+    override fun getCoinTypes(address: Address): List<ColuMain> {
+        val assetsList = mutableListOf<ColuMain>()
+        val addressInfo = coluClient.getBalance(address)
+        if (addressInfo != null) {
+            if (addressInfo.utxos != null) {
+                for (utxo in addressInfo.utxos) {
+                    // adding utxo to list of txid list request
+                    for (txidAsset in utxo.assets) {
+                        for (knownAssetId in ColuAccount.ColuAsset.getAssetMap().keys) {
+                            val coluMain = ColuUtils.getColuCoin(knownAssetId)
+                            coluMain.let {
+                                assetsList.add(coluMain)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return assetsList
     }
 }

@@ -6,7 +6,6 @@ import android.os.AsyncTask
 import com.mycelium.wallet.*
 import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem.Type.GROUP_ARCHIVED_TITLE_TYPE
 import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem.Type.GROUP_TITLE_TYPE
-import com.mycelium.wallet.colu.ColuAccount
 import com.mycelium.wallet.event.AccountListChanged
 import com.mycelium.wapi.wallet.GenericAddress
 import com.mycelium.wapi.wallet.GenericTransaction
@@ -50,6 +49,7 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
     @SuppressLint("StaticFieldLeak")
     private inner class DataUpdateAsyncTask : AsyncTask<Void, List<AccountsGroupModel>, List<AccountsGroupModel>>() {
         override fun doInBackground(vararg voids: Void): List<AccountsGroupModel> {
+            val walletManager = mbwManager.getWalletManager(false)
             val am = AccountManager
             val accountsList = mutableListOf(AccountsGroupModel(R.string.active_hd_accounts_name, GROUP_TITLE_TYPE,
                     bipAccountsToViewModel(sortAccounts(am.getBTCBip44Accounts().values))))
@@ -74,10 +74,12 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
             }
 
             val coluAccounts = ArrayList<WalletAccount<out GenericTransaction, out GenericAddress>>()
-            coluAccounts.addAll(am.getColuAccounts().values)
-            for (walletAccount in am.getColuAccounts().values) {
-//                coluAccounts.add(walletAccount)
-                coluAccounts.add((walletAccount as ColuAccount).linkedAccount)
+            coluAccounts.addAll(walletManager.getColuAccounts())
+            for (walletAccount in walletManager.getColuAccounts()) {
+                val linkedAccount = Utils.getLinkedAccount(walletAccount, walletManager.getAccounts())
+                if(linkedAccount != null) {
+                    coluAccounts.add(linkedAccount)
+                }
             }
             if (coluAccounts.isNotEmpty()) {
                 accountsList.add(AccountsGroupModel(R.string.digital_assets, GROUP_TITLE_TYPE,

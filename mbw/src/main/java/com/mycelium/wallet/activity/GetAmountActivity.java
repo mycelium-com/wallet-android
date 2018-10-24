@@ -67,6 +67,9 @@ import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
+import com.mycelium.wapi.wallet.coins.BitcoinMain;
+import com.mycelium.wapi.wallet.colu.ColuUtils;
 import com.mycelium.wapi.wallet.fiat.FiatType;
 import com.mycelium.wapi.wallet.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.Value;
@@ -281,7 +284,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       // if we have a fiat currency selected and the price is not available, switch on -> no point in showing it
       // if there is no exchange rate at all available, we will get to BTC and stay there
       // this does not apply to digital assets such as Colu for which we do not have a rate
-      if(_amount != null && !_mbwManager.getColuManager().isColuAsset(_amount.getCurrencySymbol())) {
+      if(_amount != null && !ColuUtils.allColuCoins().contains(_amount.type)) {
          String targetCurrency = _mbwManager.getNextCurrency(true);
          CurrencySwitcher currencySwitcher = _mbwManager.getCurrencySwitcher();
          while (!targetCurrency.equals(mainCurrencyType.getAccountLabel()) && !currencySwitcher.isFiatExchangeRateAvailable()) {
@@ -358,7 +361,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       }
 
       if (_amount != null) {
-         if(_mbwManager.getColuManager().isColuAsset(_amount.getCurrencySymbol())) {
+         if(ColuUtils.allColuCoins().contains(_amount.type)) {
             // always set native asset currency here ?
             btCurrency.setText(_amount.getCurrencySymbol());
          } else {
@@ -420,7 +423,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       if(!isColu) {
          btCurrency.setEnabled(_mbwManager.hasFiatCurrency()
                  && _mbwManager.getCurrencySwitcher().isFiatExchangeRateAvailable()
-                 && _amount != null && !_mbwManager.getColuManager().isColuAsset(_amount.getCurrencySymbol())
+                 && _amount != null && !ColuUtils.allColuCoins().contains(_amount.type)
          );
       }
       btPaste.setVisibility(enablePaste() ? View.VISIBLE : View.GONE);
@@ -450,7 +453,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
    private void setEnteredAmount(BigDecimal value) {
       // handle denomination
       String currentCurrency;
-      if(_amount != null && _mbwManager.getColuManager().isColuAsset(_amount.getCurrencySymbol())) {
+      if(_amount != null && ColuUtils.allColuCoins().contains(_amount.type)) {
          currentCurrency = _amount.getCurrencySymbol();
       } else {
          currentCurrency = _mbwManager.getCurrencySwitcher().getCurrentCurrency();
@@ -484,7 +487,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       tvAmount.setText(amountText);
       // Set alternate amount if we can
       if (!_mbwManager.hasFiatCurrency()
-              || _mbwManager.getColuManager().isColuAsset(_amount.getCurrencySymbol())
+              || ColuUtils.allColuCoins().contains(_amount.type)
               || !_mbwManager.getCurrencySwitcher().isFiatExchangeRateAvailable()
               || Value.isNullOrZero(_amount)) {
          tvAlternateAmount.setText("");
@@ -618,7 +621,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
    }
 
    private void updateExchangeRateDisplay() {
-      if(_amount != null && ! _mbwManager.getColuManager().isColuAsset(_amount.getCurrencySymbol())) {
+      if(_amount != null && ! ColuUtils.allColuCoins().contains(_amount.type)) {
          Double exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
          btCurrency.setEnabled(exchangeRatePrice != null);
          if (exchangeRatePrice != null) {

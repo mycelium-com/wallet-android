@@ -81,7 +81,7 @@ class AccountViewModel(account: WalletAccount<out GenericTransaction, out Generi
 
     companion object {
         private fun isRmcAccountLinked(walletAccount: WalletAccount<out GenericTransaction, out GenericAddress>, mbwManager: MbwManager): Boolean {
-            val linked = Utils.getLinkedAccount(walletAccount, mbwManager.coluManager.accounts.values)
+            val linked = Utils.getLinkedAccount(walletAccount, mbwManager.getWalletManager(false).getAccounts())
             if (linked != null && linked is ColuAccount
                     && linked.coluAsset.assetType == ColuAccount.ColuAssetType.RMC) {
                 return true

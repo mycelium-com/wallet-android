@@ -251,11 +251,10 @@ public class StringHandleConfig implements Serializable {
                account = SingleAddressAccount.calculateId(address);
                bchAccount = SingleAddressBCHAccount.Companion.calculateId(key.get().getPublicKey().toAddress(mbwManager.getNetwork(), AddressType.P2PKH));
                // Check whether regular wallet contains the account
-               success = mbwManager.getWalletManager(false).hasAccount(account)
-                       || mbwManager.getColuManager().hasAccount(account);
+               success = mbwManager.getWalletManager(false).hasAccount(account);
                for (ColuAccount.ColuAsset coluAsset : ColuAccount.ColuAsset.getAssetMap().values()) {
                   UUID coluUUID = ColuAccount.getGuidForAsset(coluAsset, key.get().getPublicKey().toAddress(mbwManager.getNetwork(), AddressType.P2PKH).getAllAddressBytes());
-                  success |= mbwManager.getColuManager().hasAccount(coluUUID);
+                  success |= mbwManager.getWalletManager(false).hasAccount(coluUUID);
                }
             }
 

@@ -12,15 +12,20 @@ import com.mrd.bitlib.model.hdpath.HdKeyPath;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.colu.ColuAccount;
-import com.mycelium.wallet.colu.ColuManager;
 import com.mycelium.wapi.wallet.AddressUtils;
+import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.WalletManager;
+import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
-import com.mycelium.wapi.wallet.coins.BitcoinMain;
-import com.mycelium.wapi.wallet.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.Value;
-import com.mycelium.wapi.wallet.segwit.SegwitAddress;
+import com.mycelium.wapi.wallet.colu.ColuModule;
+import com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount;
+import com.mycelium.wapi.wallet.colu.PrivateColuConfig;
+import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
+import com.mycelium.wapi.wallet.colu.coins.MTCoin;
+import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -32,10 +37,9 @@ public class ImportCoCoHDAccount extends AsyncTask<Void, Integer, UUID> {
     private final Context context;
     private ProgressDialog dialog;
     private MbwManager mbwManager;
-    //TODO need ZERO Value initialization
-    private Value mtFound /*= BigDecimal.ZERO*/;
-    private Value rmcFound /*= BigDecimal.ZERO*/;
-    private Value massFound /*= BigDecimal.ZERO*/;
+    private Value mtFound = Value.zeroValue(MTCoin.INSTANCE);
+    private Value rmcFound = Value.zeroValue(RMCCoin.INSTANCE);
+    private Value massFound = Value.zeroValue(MASSCoin.INSTANCE);
     private int scanned = 0;
     private List<WalletAccount> accountsCreated = new ArrayList<>();
     private FinishListener finishListener;
@@ -71,15 +75,14 @@ public class ImportCoCoHDAccount extends AsyncTask<Void, Integer, UUID> {
     protected UUID doInBackground(Void... voids) {
         final int coloredLookAheadHD = 20;
         int emptyHD = 0;
-        ColuManager coluManager = mbwManager.getColuManager();
         int accountIndex = 0;
         while (emptyHD < coloredLookAheadHD) {
-            emptyHD = processAddressLevel(emptyHD, coluManager, accountIndex);
+            emptyHD = processAddressLevel(emptyHD, accountIndex);
             ++accountIndex;
         }
 
         //Make sure that accounts are up to date
-        coluManager.scanForAccounts(SyncMode.FULL_SYNC_ALL_ACCOUNTS);
+        mbwManager.getWalletManager(false).startSynchronization(SyncMode.FULL_SYNC_ALL_ACCOUNTS);
         for (WalletAccount account : accountsCreated) {
             Value spendableBalance = account.getAccountBalance().confirmed;
             switch (((ColuAccount) account).getColuAsset().assetType) {
@@ -102,7 +105,7 @@ public class ImportCoCoHDAccount extends AsyncTask<Void, Integer, UUID> {
      *
      * @return returns new emptyHD value
      */
-    private int processAddressLevel(int emptyHD, ColuManager coluManager, int accountIndex) {
+    private int processAddressLevel(int emptyHD, int accountIndex) {
         final String coCoDerivationPath = "m/44'/0'/%d'/0/%d";
         int empty = 0;
         int addressIndex = 0;
@@ -119,17 +122,20 @@ public class ImportCoCoHDAccount extends AsyncTask<Void, Integer, UUID> {
                 emptyHD = 0;
                 continue;
             }
-            if (coluManager.isColoredAddress(address)) {
+            WalletManager walletManager = mbwManager.getWalletManager(false);
+            if (((ColuModule)walletManager.getModuleById("colored coin module")).getColuApi()
+                    .getAddressTransactions(new BtcLegacyAddress(null, address.getAllAddressBytes())).size() > 0) {
                 empty = 0;
                 emptyHD = 0;
+                try {
+                    addCoCoAccount(currentNode, walletManager);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             } else {
                 empty++;
             }
-            try {
-                addCoCoAccount(coluManager, currentNode, address);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+
             publishProgress(++scanned);
             if (empty == coloredLookAhead && empty == addressIndex + 1) {
                 emptyHD++;
@@ -139,13 +145,13 @@ public class ImportCoCoHDAccount extends AsyncTask<Void, Integer, UUID> {
         return emptyHD;
     }
 
-    private void addCoCoAccount(ColuManager coluManager, HdKeyNode currentNode, Address address) throws IOException {
-        List<ColuAccount.ColuAsset> assetList = new ArrayList<>(coluManager.getColuAddressAssets(address));
+    private void addCoCoAccount(HdKeyNode currentNode, WalletManager walletManager) throws IOException {
         //Check if there were any known assets
-        if (!assetList.isEmpty()) {
-            UUID addedAccountUUID = coluManager.enableAsset(assetList.get(0), currentNode.getPrivateKey());
-            if (addedAccountUUID != null) {
-                accountsCreated.add(coluManager.getAccount(addedAccountUUID));
+        List<UUID> ids = walletManager.createAccounts(new PrivateColuConfig(currentNode.getPrivateKey(), AesKeyCipher.defaultKeyCipher()));
+        for (UUID id : ids) {
+            WalletAccount account = walletManager.getAccount(id);
+            if (account instanceof ColuPubOnlyAccount) {
+                accountsCreated.add(account);
             }
         }
     }

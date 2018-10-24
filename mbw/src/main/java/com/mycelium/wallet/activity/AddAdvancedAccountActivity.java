@@ -44,10 +44,15 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.google.common.base.Optional;
 import com.mrd.bitlib.crypto.HdKeyNode;
@@ -63,35 +68,45 @@ import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.util.ImportCoCoHDAccount;
 import com.mycelium.wallet.activity.util.ValueExtentionsKt;
 import com.mycelium.wallet.colu.ColuAccount;
-import com.mycelium.wallet.colu.ColuManager;
 import com.mycelium.wallet.extsig.keepkey.activity.KeepKeyAccountImportActivity;
 import com.mycelium.wallet.extsig.ledger.activity.LedgerAccountImportActivity;
 import com.mycelium.wallet.extsig.trezor.activity.TrezorAccountImportActivity;
 import com.mycelium.wallet.modularisation.BCHHelper;
 import com.mycelium.wallet.persistence.MetadataStorage;
-import com.mycelium.wapi.wallet.*;
+import com.mycelium.wapi.wallet.AddressUtils;
+import com.mycelium.wapi.wallet.AesKeyCipher;
+import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.KeyCipher;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
-import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
 import com.mycelium.wapi.wallet.btc.bip44.HDConfig;
 import com.mycelium.wapi.wallet.btc.single.AddressSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.PrivateSingleConfig;
-import com.mycelium.wapi.wallet.btc.single.PublicSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coins.BitcoinMain;
-import com.mycelium.wapi.wallet.coins.BitcoinMain;
-import com.mycelium.wapi.wallet.coins.BitcoinTest;
+import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
+import com.mycelium.wapi.wallet.colu.AddressColuConfig;
+import com.mycelium.wapi.wallet.colu.ColuUtils;
 import com.mycelium.wapi.wallet.colu.PrivateColuConfig;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
+import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
+import com.mycelium.wapi.wallet.colu.coins.MTCoin;
+import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
+import com.mycelium.wapi.wallet.segwit.SegwitAddress;
 
-import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import com.mycelium.wapi.wallet.segwit.SegwitAddress;
+
+import static com.mycelium.wallet.AccountManagerKt.getBTCSingleAddressAccounts;
+import static com.mycelium.wallet.AccountManagerKt.getColuAccounts;
 
 public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHDAccount.FinishListener {
    public static final String BUY_TREZOR_LINK = "https://buytrezor.com?a=mycelium.com";
@@ -420,51 +435,39 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
 
       @Override
       protected UUID doInBackground(Void... params) {
-         UUID acc = null;
-
-         try {
-            //Check whether this address is already used in any account
-            for (AddressType addressType : AddressType.values()) {
-               Address addr = key.getPublicKey().toAddress(_mbwManager.getNetwork(), addressType);
-               address = AddressUtils.fromAddress(addr);
-               address = new BtcLegacyAddress(BitcoinMain.get(), address.getBytes());
-               Optional<UUID> accountId = _mbwManager.getAccountId(address, null);
-               if (accountId.isPresent()) {
+          UUID acc = null;
+          //Check whether this address is already used in any account
+          for (AddressType addressType : AddressType.values()) {
+              Address addr = key.getPublicKey().toAddress(_mbwManager.getNetwork(), addressType);
+              address = AddressUtils.fromAddress(addr);
+              address = new BtcLegacyAddress(BitcoinMain.get(), address.getBytes());
+              Optional<UUID> accountId = _mbwManager.getAccountId(address, null);
+              if (accountId.isPresent()) {
                   return null;
-               }
-            }
+              }
+          }
 
-            //check if address is colu
-            // do not do this in main thread
-            ColuManager coluManager = _mbwManager.getColuManager();
-            List<ColuAccount.ColuAsset> asset = new ArrayList<>(coluManager.getColuAddressAssets(key.getPublicKey().toAddress(_mbwManager.getNetwork(), AddressType.P2PKH)));
-
-            if (asset.size() > 0) {
-               ColuMain coinType = coluManager.coinMap.get(asset.get(0).id);
-//               acc = _mbwManager.getColuManager().enableAsset(, key);
-               _mbwManager.getWalletManager(false).createAccounts(new PrivateColuConfig(key, coinType, AesKeyCipher.defaultKeyCipher()));
-            } else {
-               askUserForColorize = true;
-            }
-         } catch (IOException e) {
-            askUserForColorize = true;
-            return null;
-         }
-         return acc;
+          List<UUID> ids = _mbwManager.getWalletManager(false).createAccounts(new PrivateColuConfig(key, AesKeyCipher.defaultKeyCipher()));
+          if (ids.size() < 2) {
+              askUserForColorize = true;
+          }
+          if(ids.size() > 0) {
+              acc = ids.get(0);
+          }
+          return acc;
       }
 
       @Override
       protected void onPostExecute(UUID account) {
          dialog.dismiss();
          Optional accountId = _mbwManager.getAccountId(this.address, null);
-         if (account != null) {
-            finishOk(account, false);
-         } else if(askUserForColorize) {
-            final List<String> list = ColuAccount.ColuAsset.getAllAssetNames();
-            list.add(0, "BTC");
+         if (askUserForColorize) {
+            final ColuCoinAdapter adapter = new ColuCoinAdapter(AddAdvancedAccountActivity.this);
+            adapter.add(BitcoinMain.get());
+            adapter.addAll(ColuUtils.allColuCoins());
             new AlertDialog.Builder(AddAdvancedAccountActivity.this)
                     .setTitle(R.string.restore_addres_as)
-                    .setSingleChoiceItems(list.toArray(new String[list.size()]), 0, new DialogInterface.OnClickListener() {
+                    .setSingleChoiceItems(adapter, 0, new DialogInterface.OnClickListener() {
                        @Override
                        public void onClick(DialogInterface dialogInterface, int i) {
                           selectedItem = i;
@@ -477,10 +480,9 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
                           if (selectedItem == 0) {
                              account = returnSAAccount(key, backupState);
                           } else {
-                             ColuAccount.ColuAsset coluAsset = ColuAccount.ColuAsset.getByType(ColuAccount.ColuAssetType.parse(list.get(selectedItem)));
-//                             account = _mbwManager.getColuManager().enableAsset(coluAsset, key);
-                             ColuMain coinType = _mbwManager.getColuManager().coinMap.get(coluAsset.id);
-                             List<UUID> accounts = _mbwManager.getWalletManager(false).createAccounts(new PrivateColuConfig(key, coinType, AesKeyCipher.defaultKeyCipher()));
+                             ColuMain coinType = (ColuMain) adapter.getItem(selectedItem);
+                             List<UUID> accounts = _mbwManager.getWalletManager(false)
+                                     .createAccounts(new PrivateColuConfig(key, coinType, AesKeyCipher.defaultKeyCipher()));
                              account = accounts.get(0);
                           }
                           finishOk(account, false);
@@ -488,6 +490,8 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
                     })
                     .create()
                     .show();
+         } else if (account != null) {
+             finishOk(account, false);
          } else if (accountId.isPresent()) {
             final WalletAccount existingAccount = _mbwManager.getWalletManager(false).getAccount((UUID) accountId.get());
             if(!existingAccount.canSpend() && (existingAccount instanceof SingleAddressAccount || existingAccount instanceof ColuAccount)) {
@@ -527,6 +531,20 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
          }
       }
    }
+
+    private class ColuCoinAdapter extends ArrayAdapter<CryptoCurrency> {
+       public ColuCoinAdapter(@NonNull Context context) {
+          super(context, android.R.layout.simple_list_item_single_choice);
+       }
+
+       @NonNull
+       @Override
+       public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+          View view = super.getView(position, convertView, parent);
+          ((TextView) view.findViewById(android.R.id.text1)).setText(getItem(position).getName());
+          return view;
+       }
+    }
 
    private UUID returnSAAccount(InMemoryPrivateKey key, MetadataStorage.BackupState backupState) {
       UUID acc;
@@ -587,39 +605,15 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
             return null;
          }
 
-         try {
-            switch(addressType) {
-               case Unknown: {
-                  ColuManager coluManager = _mbwManager.getColuManager();
-                  List<ColuAccount.ColuAsset> asset = new ArrayList<>(coluManager.getColuAddressAssets(address.getType() == AddressType.P2SH_P2WPKH ?
-                          ((SegwitAddress)address).getAddress() : ((BtcLegacyAddress)address).getAddress()));
+         List<UUID> ids = _mbwManager.getWalletManager(false)
+                 .createAccounts(new AddressColuConfig(address.getType() == AddressType.P2SH_P2WPKH ?
+                         ((SegwitAddress) address).getAddress() : ((BtcLegacyAddress) address).getAddress()));
 
-                  if (asset.size() > 0) {
-                     acc = _mbwManager.getColuManager().enableReadOnlyAsset(asset.get(0), address.getType() == AddressType.P2SH_P2WPKH ?
-                             ((SegwitAddress)address).getAddress() : ((BtcLegacyAddress)address).getAddress());
-                  } else {
-                     askUserForColorize = true;
-                  }
-               }
-               break;
-               case SA:
-                  acc = _mbwManager.getWalletManager(false).createAccounts(new AddressSingleConfig(address.getType() == AddressType.P2SH_P2WPKH ?
-                          ((SegwitAddress)address).getAddress() : ((BtcLegacyAddress)address).getAddress())).get(0);
-                  break;
-               case Colu:
-                  ColuManager coluManager = _mbwManager.getColuManager();
-                  List<ColuAccount.ColuAsset> asset = new ArrayList<>(coluManager.getColuAddressAssets(address.getType() == AddressType.P2SH_P2WPKH ?
-                          ((SegwitAddress)address).getAddress() : ((BtcLegacyAddress)address).getAddress()));
-
-                  if (!asset.isEmpty()) {
-                     acc = _mbwManager.getColuManager().enableReadOnlyAsset(asset.get(0), address.getType() == AddressType.P2SH_P2WPKH ?
-                             ((SegwitAddress)address).getAddress() : ((BtcLegacyAddress)address).getAddress());
-                  }
-                  break;
-            }
-         } catch (IOException e) {
+         if (ids.size() < 2) {
             askUserForColorize = true;
-            return null;
+         }
+         if (ids.size() > 0) {
+            acc = ids.get(0);
          }
          return acc;
       }
@@ -627,39 +621,39 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
       @Override
       protected void onPostExecute(UUID account) {
          dialog.dismiss();
-         if (account != null) {
-            finishOk(account, false);
-         } else if(askUserForColorize) {
-            final List<String> list = ColuAccount.ColuAsset.getAllAssetNames();
-            list.add(0, "BTC");
-            new AlertDialog.Builder(AddAdvancedAccountActivity.this)
-                    .setTitle(R.string.restore_addres_as)
-                    .setSingleChoiceItems(list.toArray(new String[list.size()]), 0, new DialogInterface.OnClickListener() {
-                       @Override
-                       public void onClick(DialogInterface dialogInterface, int i) {
-                          selectedItem = i;
-                       }
-                    })
-                    .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
-                       @Override
-                       public void onClick(DialogInterface dialogInterface, int i) {
-                          UUID account;
-                          if (selectedItem == 0) {
-                             account = _mbwManager.getWalletManager(false).createAccounts(new AddressSingleConfig(address.getType() == AddressType.P2SH_P2WPKH ?
-                                     ((SegwitAddress)address).getAddress() : ((BtcLegacyAddress)address).getAddress())).get(0);
-                          } else {
-                             ColuAccount.ColuAsset coluAsset = ColuAccount.ColuAsset.getByType(ColuAccount.ColuAssetType.parse(list.get(selectedItem)));
-                             account = _mbwManager.getColuManager().enableReadOnlyAsset(coluAsset, address.getType() == AddressType.P2SH_P2WPKH ?
-                                     ((SegwitAddress)address).getAddress() : ((BtcLegacyAddress)address).getAddress());
+          if (askUserForColorize) {
+              final ColuCoinAdapter adapter = new ColuCoinAdapter(AddAdvancedAccountActivity.this);
+              adapter.addAll(BitcoinMain.get(), MTCoin.INSTANCE, MASSCoin.INSTANCE, RMCCoin.INSTANCE);
+              new AlertDialog.Builder(AddAdvancedAccountActivity.this)
+                      .setTitle(R.string.restore_addres_as)
+                      .setSingleChoiceItems(adapter, 0, new DialogInterface.OnClickListener() {
+                          @Override
+                          public void onClick(DialogInterface dialogInterface, int i) {
+                              selectedItem = i;
                           }
-                          finishOk(account, false);
-                       }
-                    })
-                    .create()
-                    .show();
-         } else if(_mbwManager.getAccountId(this.address, null).isPresent()) {
-            finishAlreadyExist(address);
-         }
+                      })
+                      .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
+                          @Override
+                          public void onClick(DialogInterface dialogInterface, int i) {
+                              UUID account;
+                              if (selectedItem == 0) {
+                                  account = _mbwManager.getWalletManager(false).createAccounts(new AddressSingleConfig(address.getType() == AddressType.P2SH_P2WPKH ?
+                                          ((SegwitAddress) address).getAddress() : ((BtcLegacyAddress) address).getAddress())).get(0);
+                              } else {
+                                  ColuMain coinType = (ColuMain) adapter.getItem(selectedItem);
+                                  account = _mbwManager.getWalletManager(false).createAccounts(new AddressColuConfig(address.getType() == AddressType.P2SH_P2WPKH ?
+                                          ((SegwitAddress) address).getAddress() : ((BtcLegacyAddress) address).getAddress(), coinType)).get(0);
+                              }
+                              finishOk(account, false);
+                          }
+                      })
+                      .create()
+                      .show();
+          } else if (account != null) {
+              finishOk(account, false);
+          } else if (_mbwManager.getAccountId(this.address, null).isPresent()) {
+              finishAlreadyExist(address);
+          }
       }
    }
 
@@ -727,11 +721,16 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
       } else {
          accountType = "BTC Single Address";
       }
-      for (ColuAccount.ColuAssetType type : ColuAccount.ColuAssetType.values()) {
-         if (_mbwManager.getColuManager().hasAccountWithType(address.getType() == AddressType.P2SH_P2WPKH ?
-                 ((SegwitAddress)address).getAddress() : ((BtcLegacyAddress)address).getAddress(), type)) {
-            accountType = ColuAccount.ColuAsset.getByType(type).name;
-            break;
+      for (WalletAccount<?, ?> account : getColuAccounts(_mbwManager.getWalletManager(false))) {
+         if (account.isMineAddress(address)) {
+            accountType = account.getCoinType().getName();
+         }
+      }
+      if (accountType == null) {
+         for (WalletAccount<?, ?> account : getBTCSingleAddressAccounts(_mbwManager.getWalletManager(false))) {
+            if (account.isMineAddress(address)) {
+               accountType = account.getCoinType().getName();
+            }
          }
       }
       result.putExtra(AddAccountActivity.RESULT_MSG, getString(R.string.account_already_exist, accountType));
