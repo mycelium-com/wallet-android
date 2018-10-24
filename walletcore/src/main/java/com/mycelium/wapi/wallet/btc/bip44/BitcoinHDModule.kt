@@ -108,23 +108,30 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
                 context = HDAccountContext(id, accountIndex, false, ACCOUNT_TYPE_UNRELATED_X_PUB,
                         secureStorage.subId, derivationTypes)
             }
-            if (isUpgrade) {
-                backing.upgradeBip44AccountContext(context)
-            } else {
-                backing.createBip44AccountContext(context)
-            }
-            // Get the backing for the new account
-            val accountBacking = backing.getBip44AccountBacking(context.id)
+            backing.beginTransaction()
+            try {
 
-            // Create actual account
-            result = if (cfg.hdKeyNodes[0].isPrivateHdKeyNode) {
-                HDAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi, Reference(ChangeAddressMode.P2WPKH))
-            } else {
-                HDPubOnlyAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi)
-            }
+                if (isUpgrade) {
+                    backing.upgradeBip44AccountContext(context)
+                } else {
+                    backing.createBip44AccountContext(context)
+                }
+                // Get the backing for the new account
+                val accountBacking = backing.getBip44AccountBacking(context.id)
 
-            // Finally persist context and add account
-            context.persist(accountBacking)
+                // Create actual account
+                result = if (cfg.hdKeyNodes[0].isPrivateHdKeyNode) {
+                    HDAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi, Reference(ChangeAddressMode.P2WPKH))
+                } else {
+                    HDPubOnlyAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi)
+                }
+
+                // Finally persist context and add account
+                context.persist(accountBacking)
+                backing.setTransactionSuccessful()
+            } finally {
+                backing.endTransaction()
+            }
         } else if (config is AdditionalHDAccountConfig) {
             // Get the master seed
             val masterSeed = getMasterSeed(AesKeyCipher.defaultKeyCipher())
@@ -146,17 +153,23 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
             val context = HDAccountContext(keyManagerMap[BipDerivationType.BIP44]!!.accountId
                     , accountIndex, false, defaultAddressType)
 
-            backing.createBip44AccountContext(context)
+            backing.beginTransaction()
+            try {
+                backing.createBip44AccountContext(context)
 
-            // Get the backing for the new account
-            val accountBacking = backing.getBip44AccountBacking(context.id)
+                // Get the backing for the new account
+                val accountBacking = backing.getBip44AccountBacking(context.id)
 
-            // Create actual account
-            result = HDAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi,
-                    btcSettings.changeAddressModeReference)
+                // Create actual account
+                result = HDAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi,
+                        btcSettings.changeAddressModeReference)
 
-            // Finally persist context and add account
-            context.persist(accountBacking)
+                // Finally persist context and add account
+                context.persist(accountBacking)
+                backing.setTransactionSuccessful()
+            } finally {
+                backing.endTransaction()
+            }
 
         }
 
