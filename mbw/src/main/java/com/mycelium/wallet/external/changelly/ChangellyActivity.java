@@ -4,8 +4,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -161,9 +161,8 @@ public class ChangellyActivity extends AppCompatActivity {
                     toValue.setText("");
 
                     // load min amount
-                    ChangellyService.start(ChangellyActivity.this,
-                            ChangellyService.ACTION_GET_MIN_EXCHANGE, item.currency,
-                            ChangellyService.BTC, null, null);
+                    changellyAPIService.getMinAmount(item.currency, ChangellyService.BTC)
+                            .enqueue(new GetMinCallback(item.currency));
                 }
             }
         });
@@ -182,7 +181,6 @@ public class ChangellyActivity extends AppCompatActivity {
         // The filter's action is BROADCAST_ACTION
         for (String action : new String[]{
                 ChangellyService.INFO_EXCH_AMOUNT,
-                ChangellyService.INFO_MIN_AMOUNT,
                 ChangellyService.INFO_TRANSACTION,
                 ChangellyService.INFO_ERROR}) {
             IntentFilter intentFilter = new IntentFilter(action);
@@ -395,25 +393,12 @@ public class ChangellyActivity extends AppCompatActivity {
             double amount;
 
             switch (intent.getAction()) {
-                case ChangellyService.INFO_MIN_AMOUNT:
-                    from = intent.getStringExtra(ChangellyService.FROM);
-                    to = intent.getStringExtra(ChangellyService.TO);
-                    amount = intent.getDoubleExtra(ChangellyService.AMOUNT, 0);
-                    CurrencyAdapter.Item item = currencyAdapter.getItem(currencySelector.getSelectedItem());
-                    if (item != null && from != null && to != null && to.equalsIgnoreCase(ChangellyService.BTC)
-                            && from.equalsIgnoreCase(item.currency)) {
-                        Log.d(TAG, "Received minimum amount: " + amount + " " + from);
-                        minAmount = amount;
-                        tvMinAmountValue.setText(getString(R.string.exchange_minimum_amount
-                                , decimalFormat.format(minAmount), item.currency));
-                    }
-                    break;
                 case ChangellyService.INFO_EXCH_AMOUNT:
                     from = intent.getStringExtra(ChangellyService.FROM);
                     to = intent.getStringExtra(ChangellyService.TO);
                     double fromAmount = intent.getDoubleExtra(ChangellyService.FROM_AMOUNT, 0);
                     amount = intent.getDoubleExtra(ChangellyService.AMOUNT, 0);
-                    item = currencyAdapter.getItem(currencySelector.getSelectedItem());
+                    CurrencyAdapter.Item item = currencyAdapter.getItem(currencySelector.getSelectedItem());
                     if (item != null && from != null && to != null) {
                         Log.d(TAG, "Received offer: " + amount + " " + to);
                         avoidTextChangeEvent = true;
@@ -435,11 +420,44 @@ public class ChangellyActivity extends AppCompatActivity {
                     }
                     break;
                 case INFO_ERROR:
-                    Toast.makeText(ChangellyActivity.this,
-                            "Service unavailable",
-                            Toast.LENGTH_LONG).show();
+                    toast("Service unavailable");
                     break;
             }
+        }
+    }
+
+    class GetMinCallback implements Callback<ChangellyAPIService.ChangellyAnswerDouble> {
+        String from;
+
+        GetMinCallback(String from) {
+            this.from = from;
+        }
+
+        @Override
+        public void onResponse(@NonNull Call<ChangellyAPIService.ChangellyAnswerDouble> call,
+                               @NonNull Response<ChangellyAPIService.ChangellyAnswerDouble> response) {
+            ChangellyAPIService.ChangellyAnswerDouble result = response.body();
+            if(result == null || result.result == -1) {
+                Log.e("MyceliumChangelly", "Minimum amount could not be retrieved");
+                toast("Service unavailable");
+                return;
+            }
+            double min = result.result;
+            // service available
+            CurrencyAdapter.Item item = currencyAdapter.getItem(currencySelector.getSelectedItem());
+            if (item != null && from != null
+                    && from.equalsIgnoreCase(item.currency)) {
+                Log.d(TAG, "Received minimum amount: " + min + " " + from);
+                minAmount = min;
+                tvMinAmountValue.setText(getString(R.string.exchange_minimum_amount
+                        , decimalFormat.format(minAmount), item.currency));
+            }
+        }
+
+        @Override
+        public void onFailure(@NonNull Call<ChangellyAPIService.ChangellyAnswerDouble> call,
+                              @NonNull Throwable t) {
+            toast("Service unavailable");
         }
     }
 }

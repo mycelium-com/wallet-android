@@ -10,6 +10,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
@@ -36,6 +37,7 @@ import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
 import com.mycelium.wallet.activity.view.ValueKeyboard;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.external.changelly.AccountAdapter;
+import com.mycelium.wallet.external.changelly.ChangellyAPIService;
 import com.mycelium.wallet.external.changelly.ChangellyService;
 import com.mycelium.wallet.external.changelly.Constants;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -57,6 +59,9 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnTextChanged;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import static butterknife.OnTextChanged.Callback.AFTER_TEXT_CHANGED;
 import static com.mycelium.wallet.external.changelly.ChangellyService.INFO_ERROR;
@@ -74,6 +79,7 @@ public class ExchangeFragment extends Fragment {
     public static final String FROM_ACCOUNT = "fromAccount";
     public static final String FROM_VALUE = "fromValue";
     private static String TAG = "ChangellyActivity";
+    private ChangellyAPIService changellyAPIService = ChangellyAPIService.retrofit.create(ChangellyAPIService.class);
 
     @BindView(R.id.scrollView)
     ScrollView scrollView;
@@ -139,15 +145,14 @@ public class ExchangeFragment extends Fragment {
         receiver = new Receiver();
         for (String action : new String[]{
                 ChangellyService.INFO_EXCH_AMOUNT,
-                ChangellyService.INFO_MIN_AMOUNT,
                 ChangellyService.INFO_ERROR}) {
             IntentFilter intentFilter = new IntentFilter(action);
             LocalBroadcastManager.getInstance(getActivity()).registerReceiver(receiver, intentFilter);
         }
         sharedPreferences = getActivity().getSharedPreferences(BCH_EXCHANGE, Context.MODE_PRIVATE);
         minAmount = (double) sharedPreferences.getFloat(BCH_MIN_EXCHANGE_VALUE, NOT_LOADED);
-        ChangellyService.start(getActivity(), ChangellyService.ACTION_GET_MIN_EXCHANGE,
-                ChangellyService.BCH, ChangellyService.BTC, null, null);
+        changellyAPIService.getMinAmount(ChangellyService.BCH, ChangellyService.BTC)
+                .enqueue(new GetMinCallback());
         requestExchangeRate("1", ChangellyService.BCH, ChangellyService.BTC);
     }
 
@@ -557,16 +562,6 @@ public class ExchangeFragment extends Fragment {
             double amount;
 
             switch (intent.getAction()) {
-                case ChangellyService.INFO_MIN_AMOUNT:
-                    amount = intent.getDoubleExtra(ChangellyService.AMOUNT, NOT_LOADED);
-                    if (amount != NOT_LOADED) {
-                        cachedMinAmountWithFee.clear();
-                        sharedPreferences.edit()
-                                .putFloat(BCH_MIN_EXCHANGE_VALUE, (float) amount)
-                                .apply();
-                        minAmount = amount;
-                    }
-                    break;
                 case ChangellyService.INFO_EXCH_AMOUNT:
                     from = intent.getStringExtra(ChangellyService.FROM);
                     to = intent.getStringExtra(ChangellyService.TO);
@@ -618,5 +613,33 @@ public class ExchangeFragment extends Fragment {
     @Subscribe
     public void exchangeRatesRefreshed(ExchangeRatesRefreshed event) {
         updateUi();
+    }
+
+    class GetMinCallback implements Callback<ChangellyAPIService.ChangellyAnswerDouble> {
+        @Override
+        public void onResponse(@NonNull Call<ChangellyAPIService.ChangellyAnswerDouble> call, Response<ChangellyAPIService.ChangellyAnswerDouble> response) {
+            ChangellyAPIService.ChangellyAnswerDouble result = response.body();
+            if(result == null || result.result == NOT_LOADED) {
+                Log.e("MyceliumChangelly", "Minimum amount could not be retrieved");
+                Toast.makeText(getActivity(),
+                        "Service unavailable",
+                        Toast.LENGTH_LONG).show();
+                return;
+            }
+            double min = result.result;
+            Log.d(TAG, "Received minimum amount: " + min);
+            cachedMinAmountWithFee.clear();
+            sharedPreferences.edit()
+                    .putFloat(BCH_MIN_EXCHANGE_VALUE, (float) min)
+                    .apply();
+            minAmount = min;
+        }
+
+        @Override
+        public void onFailure(Call<ChangellyAPIService.ChangellyAnswerDouble> call, Throwable t) {
+            Toast.makeText(getActivity(),
+                    "Service unavailable",
+                    Toast.LENGTH_LONG).show();
+        }
     }
 }

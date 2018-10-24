@@ -10,30 +10,24 @@ import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
-import android.text.TextUtils;
 import android.util.Log;
 
 import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.external.changelly.ChangellyAPIService.ChangellyAnswerDouble;
-import com.mycelium.wallet.external.changelly.ChangellyAPIService.ChangellyAnswerListString;
 import com.mycelium.wallet.external.changelly.ChangellyAPIService.ChangellyTransaction;
 import com.mycelium.wallet.external.changelly.ChangellyAPIService.ChangellyTransactionOffer;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import retrofit2.Call;
 
 public class ChangellyService extends IntentService {
     private static final String LOG_TAG="ChangellyService";
     private static final String PACKAGE_NAME = "com.mycelium.wallet.external.changelly";
-    public static final String ACTION_GET_MIN_EXCHANGE = PACKAGE_NAME + ".GETMINEXCHANGE";
     public static final String ACTION_GET_EXCHANGE_AMOUNT = PACKAGE_NAME + ".GETEXCHANGEAMOUNT";
     public static final String ACTION_CREATE_TRANSACTION = PACKAGE_NAME + ".CREATETRANSACTION";
 
-    public static final String INFO_MIN_AMOUNT = PACKAGE_NAME + ".INFOMINAMOUNT";
     public static final String INFO_EXCH_AMOUNT = PACKAGE_NAME + ".INFOEXCHAMOUNT";
     public static final String INFO_TRANSACTION = PACKAGE_NAME + ".INFOTRANSACTION";
     public static final String INFO_ERROR       = PACKAGE_NAME + ".INFOERROR";
@@ -94,21 +88,6 @@ public class ChangellyService extends IntentService {
         }
     }
 
-    private double getMinAmount(String from, String to) {
-        // 2. ask for minimum amount to exchange
-        Call<ChangellyAnswerDouble> call2 = changellyAPIService.getMinAmount(from, to);
-        try {
-            ChangellyAnswerDouble result = call2.execute().body();
-            if(result != null) {
-                Log.d("MyceliumChangelly", "Minimum amount " + from + to + ": " + result.result);
-                return result.result;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return -1;
-    }
-
     private double getExchangeAmount(String from, String to, double amount) {
         Call<ChangellyAnswerDouble> call3 = changellyAPIService.getExchangeAmount(from, to, amount);
         try {
@@ -156,25 +135,6 @@ public class ChangellyService extends IntentService {
             String from, to, destAddress;
             double amount;
             switch(intent.getAction()) {
-                case ACTION_GET_MIN_EXCHANGE:
-                    from = intent.getStringExtra(FROM);
-                    to = intent.getStringExtra(TO);
-                    double min = getMinAmount(from, to);
-                    if(min == -1) {
-                        // service unavailable
-                        Intent errorIntent = new Intent(ChangellyService.INFO_ERROR, null,
-                                this, ChangellyService.class);
-                        LocalBroadcastManager.getInstance(this).sendBroadcast(errorIntent);
-                        return;
-                    }
-                    // service available
-                    Intent minAmountIntent = new Intent(ChangellyService.INFO_MIN_AMOUNT, null,
-                            this, ChangellyService.class)
-                            .putExtra(FROM, from)
-                            .putExtra(TO, to)
-                            .putExtra(AMOUNT, min);
-                    LocalBroadcastManager.getInstance(this).sendBroadcast(minAmountIntent);
-                    break;
                 case ACTION_GET_EXCHANGE_AMOUNT:
                     from = intent.getStringExtra(FROM);
                     to = intent.getStringExtra(TO);
