@@ -154,15 +154,22 @@ public class BTChipDongle implements BTChipConstants {
       private byte[] value;
       private boolean trusted;
       private boolean witness;
+      private byte[] sequence;
 
-      public BTChipInput(byte[] value, boolean trusted, boolean witness) {
+
+       public BTChipInput(byte[] value, byte[] sequence, boolean trusted, boolean witness) {
          this.value = value;
          this.trusted = trusted;
+           this.sequence = sequence;
          this.witness = witness;
       }
 
       public byte[] getValue() {
          return value;
+      }
+
+      public byte[] getSequence() {
+         return sequence;
       }
 
       public boolean isTrusted() {
@@ -333,6 +340,16 @@ public class BTChipDongle implements BTChipConstants {
       throw new BTChipException("Invalid status", lastSW);
    }
 
+
+   private byte[] exchangeApdu(byte cla, byte ins, byte p1, byte p2, int acceptedSW[]) throws BTChipException {
+      byte[] apdu = new byte[4];
+      apdu[0] = cla;
+      apdu[1] = ins;
+      apdu[2] = p1;
+      apdu[3] = p2;
+      return exchangeCheck(apdu, acceptedSW);
+   }
+
    private byte[] exchangeApdu(byte cla, byte ins, byte p1, byte p2, byte[] data, int acceptedSW[]) throws BTChipException {
       byte[] apdu = new byte[data.length + 5];
       apdu[0] = cla;
@@ -345,6 +362,10 @@ public class BTChipDongle implements BTChipConstants {
    }
 
    private byte[] exchangeApdu(byte cla, byte ins, byte p1, byte p2, int length, int acceptedSW[]) throws BTChipException {
+      if(length == 0) {
+         return exchangeApdu(cla, ins, p1, p2, acceptedSW);
+      }
+
       byte[] apdu = new byte[5];
       apdu[0] = cla;
       apdu[1] = ins;
@@ -426,7 +447,7 @@ public class BTChipDongle implements BTChipConstants {
       return new BTChipPublicKey(publicKey, new String(address), chainCode);
    }
 
-   public BTChipInput getTrustedInput(BitcoinTransaction transaction, long index) throws BTChipException {
+   public BTChipInput getTrustedInput(BitcoinTransaction transaction, long index, int sequence) throws BTChipException {
       ByteArrayOutputStream data = new ByteArrayOutputStream();
       // Header
       BufferUtils.writeUint32BE(data, index);
@@ -460,7 +481,9 @@ public class BTChipDongle implements BTChipConstants {
       // Locktime
       byte[] response = exchangeApdu(BTCHIP_CLA, BTCHIP_INS_GET_TRUSTED_INPUT, (byte) 0x80, (byte) 0x00, transaction.getLockTime(), OK);
       boolean isSegwit = transaction.getInputs().elementAt((int) index).isSegwit();
-      return new BTChipInput(response, true, isSegwit);
+      ByteArrayOutputStream sequenceBuf = new ByteArrayOutputStream();
+      BufferUtils.writeUint32LE(sequenceBuf, sequence);
+      return new BTChipInput(response, sequenceBuf.toByteArray(),true, isSegwit);
    }
 
    public void startUntrustedTransction(boolean newTransaction, long inputIndex, BTChipInput usedInputList[], byte[] redeemScript) throws BTChipException {
@@ -507,7 +530,7 @@ public class BTChipDongle implements BTChipConstants {
          exchangeApdu(BTCHIP_CLA, BTCHIP_INS_HASH_INPUT_START, (byte) 0x80, (byte) 0x00, data.toByteArray(), OK);
          data = new ByteArrayOutputStream();
          BufferUtils.writeBuffer(data, script);
-         BufferUtils.writeBuffer(data, BitcoinTransaction.DEFAULT_SEQUENCE);
+         BufferUtils.writeBuffer(data, input.getSequence());
          exchangeApduSplit(BTCHIP_CLA, BTCHIP_INS_HASH_INPUT_START, (byte) 0x80, (byte) 0x00, data.toByteArray(), OK);
          currentIndex++;
       }
@@ -657,7 +680,7 @@ public class BTChipDongle implements BTChipConstants {
    public void setKeymapEncoding(byte[] keymapEncoding) throws BTChipException {
       ByteArrayOutputStream data = new ByteArrayOutputStream();
       BufferUtils.writeBuffer(data, keymapEncoding);
-      exchangeApdu(BTCHIP_CLA, BTCHIP_INS_SET_KEYMAP, (byte) 0x00, (byte) 0x00, data.toByteArray(), OK);
+      exchangeApdu(BTCHIP_CLA, BTCHIP_INS_SET_KEYMAP, (byte) 0x00, (byte) 0x00, data.toByteArray(), OK_NOT_SUPPORTED);
    }
 
    public boolean setup(OperationMode supportedOperationModes[], Feature features[], int keyVersion, int keyVersionP2SH, byte[] userPin, byte[] wipePin, byte[] keymapEncoding, byte[] seed, byte[] developerKey) throws BTChipException {
