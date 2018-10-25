@@ -21,7 +21,6 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext, val publicKey: Pu
                               , val coluClient: ColuApi
                               , val backing: AccountBacking<ColuTransaction>
                               , val listener: AccountListener? = null) : WalletAccount<ColuTransaction, BtcLegacyAddress> {
-
     protected var address: GenericAddress
     protected var uuid: UUID
     @Volatile
@@ -72,6 +71,11 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext, val publicKey: Pu
     override fun getSendToRequest(destination: BtcLegacyAddress, amount: Value): SendRequest<*> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
+
+    override fun getFeeEstimations(): FeeEstimationsGeneric {
+        return FeeEstimationsGeneric(Value.zeroValue(coinType), Value.zeroValue(coinType),Value.zeroValue(coinType))
+    }
+
 
     @Synchronized
     override fun synchronize(mode: SyncMode?): Boolean {

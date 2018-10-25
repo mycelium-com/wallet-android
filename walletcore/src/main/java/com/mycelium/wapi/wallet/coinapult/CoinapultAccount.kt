@@ -77,6 +77,9 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
         return CoinapultSendRequest(currency, destination, amount)
     }
 
+    override fun getFeeEstimations(): FeeEstimationsGeneric {
+        return FeeEstimationsGeneric(Value.zeroValue(coinType), Value.zeroValue(coinType),Value.zeroValue(coinType))
+    }
 
     override fun getSyncTotalRetrievedTransactions(): Int = 0
 

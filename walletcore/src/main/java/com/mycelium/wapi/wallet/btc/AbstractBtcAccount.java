@@ -17,6 +17,7 @@
 package com.mycelium.wapi.wallet.btc;
 
 import com.google.common.collect.Lists;
+import com.megiontechnologies.Bitcoins;
 import com.mrd.bitlib.*;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
@@ -32,6 +33,7 @@ import com.mycelium.WapiLogger;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.api.WapiResponse;
+import com.mycelium.wapi.api.lib.FeeEstimation;
 import com.mycelium.wapi.api.lib.TransactionExApi;
 import com.mycelium.wapi.api.request.BroadcastTransactionRequest;
 import com.mycelium.wapi.api.request.CheckTransactionsRequest;
@@ -40,6 +42,7 @@ import com.mycelium.wapi.api.request.QueryUnspentOutputsRequest;
 import com.mycelium.wapi.api.response.BroadcastTransactionResponse;
 import com.mycelium.wapi.api.response.CheckTransactionsResponse;
 import com.mycelium.wapi.api.response.GetTransactionsResponse;
+import com.mycelium.wapi.api.response.MinerFeeEstimationResponse;
 import com.mycelium.wapi.api.response.QueryUnspentOutputsResponse;
 import com.mycelium.wapi.model.*;
 import com.mycelium.wapi.wallet.*;
@@ -1737,6 +1740,23 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
 
    public int getSyncTotalRetrievedTransactions() {
       return syncTotalRetrievedTransactions;
+   }
+
+   @Override
+   public FeeEstimationsGeneric getFeeEstimations() {
+      try {
+         WapiResponse<MinerFeeEstimationResponse> response = _wapi.getMinerFeeEstimations();
+         FeeEstimation oldStyleFeeEstimation = response.getResult().feeEstimation;
+         Bitcoins lowPriority = oldStyleFeeEstimation.getEstimation(20);
+         Bitcoins normal = oldStyleFeeEstimation.getEstimation(3);
+         Bitcoins high = oldStyleFeeEstimation.getEstimation(1);
+         FeeEstimationsGeneric result = new FeeEstimationsGeneric(Value.valueOf(getCoinType(), lowPriority.getLongValue()),
+                 Value.valueOf(getCoinType(), normal.getLongValue()),
+                 Value.valueOf(getCoinType(), high.getLongValue()));
+         return result;
+      } catch (WapiException ex) {
+         return null;
+      }
    }
 
    public void updateSyncProgress() {

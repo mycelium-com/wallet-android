@@ -64,6 +64,7 @@ import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.AccountBacking;
 import com.mycelium.wapi.wallet.BroadcastResult;
 import com.mycelium.wapi.wallet.ExportableAccount;
+import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.KeyCipher;
@@ -860,6 +861,11 @@ public class ColuAccount extends SynchronizeAbleWalletBtcAccount implements Expo
     @Override
     public int getSyncTotalRetrievedTransactions() {
         return 0;
+    }
+
+    @Override
+    public FeeEstimationsGeneric getFeeEstimations() {
+        return null;
     }
 
     public SingleAddressAccount getLinkedAccount() {

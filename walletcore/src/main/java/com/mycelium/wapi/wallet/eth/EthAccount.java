@@ -10,6 +10,7 @@ import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputSummary;
 import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.BroadcastResult;
+import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.SendRequest;
@@ -46,6 +47,7 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
     public void signTransaction(SendRequest<EthTransaction> request) throws WalletAccountException {
 
     }
+
 
     @Override
     public BroadcastResult broadcastTx(EthTransaction tx) throws TransactionBroadcastException {
@@ -155,6 +157,11 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
     @Override
     public int getSyncTotalRetrievedTransactions() {
         return 0;
+    }
+
+    @Override
+    public FeeEstimationsGeneric getFeeEstimations() {
+        return null;
     }
 
     @Override
