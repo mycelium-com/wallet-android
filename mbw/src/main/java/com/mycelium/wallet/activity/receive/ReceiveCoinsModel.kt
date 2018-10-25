@@ -21,13 +21,9 @@ import com.mycelium.wapi.model.TransactionSummary
 import com.mycelium.wapi.wallet.AddressUtils
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
-import com.mycelium.wapi.wallet.btc.BtcLegacyAddress
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount
-import com.mycelium.wapi.wallet.coins.BitcoinMain
-import com.mycelium.wapi.wallet.coins.BitcoinTest
 import com.mycelium.wapi.wallet.currency.CurrencyValue
 import com.mycelium.wapi.wallet.currency.ExchangeBasedCurrencyValue
-import com.mycelium.wapi.wallet.segwit.SegwitAddress
 import com.squareup.otto.Subscribe
 
 class ReceiveCoinsModel(

@@ -36,10 +36,8 @@ package com.mycelium.wallet.activity.pop;
 
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.pop.PopRequest;
-import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.GenericTransaction;
-import com.mycelium.wapi.wallet.coins.BitcoinMain;
-import com.mycelium.wapi.wallet.currency.BitcoinValue;
+import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
 
 class PopUtils {
    public static boolean matches(PopRequest popRequest, MetadataStorage metadataStorage, GenericTransaction transaction) {

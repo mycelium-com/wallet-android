@@ -1,4 +1,4 @@
-package com.mycelium.wapi.wallet.fiat;
+package com.mycelium.wapi.wallet.fiat.coins;
 
 import com.mycelium.wapi.wallet.MonetaryFormat;
 import com.mycelium.wapi.wallet.coins.AbstractAsset;

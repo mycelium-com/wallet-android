@@ -9,6 +9,8 @@ public enum Families {
     REDDCOIN("reddcoin"),
     VPNCOIN("vpncoin"),
     CLAMS("clams"),
+    ETHEREUM("ethereum"),
+    BITCOINCASH("bitcoin_cash")
     ;
 
     public final String family;
