@@ -100,12 +100,12 @@ public class FeeItemsBuilder {
     @NonNull
     private FeeItem createFeeItem(int txSize, long feePerKb) {
         ExactBitcoinValue bitcoinValue;
-        if (_mbwManager.getSelectedAccount() instanceof ColuAccount) {
-            long fundingAmountToSend = _mbwManager.getColuManager().getColuTransactionFee(feePerKb);
-            bitcoinValue = ExactBitcoinValue.from(fundingAmountToSend);
-        } else {
+//        if (_mbwManager.getSelectedAccount() instanceof ColuAccount) {
+//            long fundingAmountToSend = _mbwManager.getColuManager().getColuTransactionFee(feePerKb);
+//            bitcoinValue = ExactBitcoinValue.from(fundingAmountToSend);
+//        } else {
             bitcoinValue = ExactBitcoinValue.from(txSize * feePerKb / 1000);
-        }
+//        }
         CurrencyValue fiatFee = CurrencyValue.fromValue(bitcoinValue,
                 _mbwManager.getFiatCurrency(), _mbwManager.getExchangeRateManager());
         return new FeeItem(feePerKb, bitcoinValue.getAsBitcoin(), fiatFee, FeeViewAdapter.VIEW_TYPE_ITEM);

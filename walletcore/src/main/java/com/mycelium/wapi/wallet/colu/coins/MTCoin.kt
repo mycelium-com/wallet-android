@@ -4,10 +4,8 @@ package com.mycelium.wapi.wallet.colu.coins
 object MTCoin : ColuMain() {
     init {
         id = "LaA8aiRBha2BcC6PCqMuK8xzZqdA3Lb6VVv41K"
-    }
-
-    override fun getSymbol(): String {
-        return "MT"
+        name = "Mycelium Token"
+        symbol = "MT"
     }
 
     override fun getUnitExponent(): Int {
@@ -18,10 +16,8 @@ object MTCoin : ColuMain() {
 object MTCoinTest : ColuMain() {
     init {
         id = "La3JCiNMGmc74rcfYiBAyTUstFgmGDRDkGGCRM"
-    }
-
-    override fun getSymbol(): String {
-        return "MT"
+        name = "Mycelium Token"
+        symbol = "MT"
     }
 
     override fun getUnitExponent(): Int {

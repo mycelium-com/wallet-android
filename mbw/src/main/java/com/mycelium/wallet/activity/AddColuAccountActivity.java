@@ -47,6 +47,7 @@ import android.widget.RadioButton;
 import android.widget.Toast;
 
 import com.google.common.base.Optional;
+import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.colu.ColuAccount.ColuAsset;
@@ -55,7 +56,13 @@ import com.mycelium.wallet.colu.ColuManager;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.api.response.Feature;
+import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.SyncMode;
+import com.mycelium.wapi.wallet.colu.PrivateColuConfig;
+import com.mycelium.wapi.wallet.colu.coins.ColuMain;
+import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
+import com.mycelium.wapi.wallet.colu.coins.MTCoin;
+import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
 import com.squareup.otto.Bus;
 
 import java.util.UUID;
@@ -77,7 +84,7 @@ public class AddColuAccountActivity extends Activity {
    @BindView(R.id.btColuAddAccount) Button btColuAddAccount;
 //   @BindView(R.id.tvTosLink) TextView tvTosLink;
 
-   ColuAsset selectedColuAsset;
+   ColuMain selectedColuAsset;
 
    public static Intent getIntent(Context context) {
       Intent intent = new Intent(context, AddColuAccountActivity.class);
@@ -124,33 +131,33 @@ public class AddColuAccountActivity extends Activity {
    public void onRadioButtonClicked(View view) {
       // Is the button now checked?
       boolean checked = ((RadioButton) view).isChecked();
-      ColuAssetType assetType;
+      ColuMain assetType;
       String name;
       // Check which radio button was clicked
       switch (view.getId()) {
          case R.id.radio_mycelium_tokens:
-            assetType = MT;
+            assetType = MTCoin.INSTANCE;
             name = "MT";
             break;
          case R.id.radio_mass_tokens:
-            assetType = MASS;
+            assetType = MASSCoin.INSTANCE;
             name = "Mass";
             break;
          case R.id.radio_rmc_tokens:
-            assetType = RMC;
+            assetType = RMCCoin.INSTANCE;
             name = "RMC";
             break;
          default:
             return;
       }
       if (checked) {
-         selectedColuAsset = ColuAsset.getByType(assetType);
+         selectedColuAsset = assetType;
       }
       btColuAddAccount.setEnabled(true);
       Toast.makeText(this, name + " selected", Toast.LENGTH_SHORT).show();
    }
 
-   private void createColuAccountProtected(final ColuAsset coluAsset) {
+   private void createColuAccountProtected(final ColuMain coluAsset) {
       _mbwManager.getVersionManager().showFeatureWarningIfNeeded(
             AddColuAccountActivity.this, Feature.COLU_NEW_ACCOUNT, true, new Runnable() {
                @Override
@@ -158,7 +165,8 @@ public class AddColuAccountActivity extends Activity {
                   _mbwManager.runPinProtectedFunction(AddColuAccountActivity.this, new Runnable() {
                      @Override
                      public void run() {
-                        createColuAccount(coluAsset);
+                        new AddColuAsyncTask(_mbwManager.getEventBus(), coluAsset).execute();
+
                      }
                   });
                }
@@ -166,40 +174,17 @@ public class AddColuAccountActivity extends Activity {
       );
    }
 
-   private void createColuAccount(final ColuAsset coluAsset) {
-
-//      AlertDialog.Builder b = new AlertDialog.Builder(this);
-//      b.setTitle(getString(R.string.colu));
-//      View diaView = getLayoutInflater().inflate(R.layout.ext_colu_tos, null);
-//      b.setView(diaView);
-//      b.setPositiveButton(getString(R.string.agree), new DialogInterface.OnClickListener() {
-//         @Override
-//         public void onClick(DialogInterface dialog, int which) {
-//            // Create the account initially without set email address
-//            // if needed, the user can later set and verify it via account menu.
-//            // for now we hard code asset = MT
-       new AddColuAsyncTask(_mbwManager.getEventBus(), Optional.<String>absent(), coluAsset).execute();
-//         }
-//      });
-//      b.setNegativeButton(getString(R.string.dontagree), null);
-//
-//      AlertDialog dialog = b.create();
-//
-//      dialog.show();
-   }
-
    private class AddColuAsyncTask extends AsyncTask<Void, Integer, UUID> {
       private final boolean alreadyHadColuAccount;
       private Bus bus;
-      private final ColuAsset coluAsset;
-      private ColuManager coluManager;
+      private final ColuMain coluAsset;
       private final ProgressDialog progressDialog;
 
-      public AddColuAsyncTask(Bus bus, Optional<String> mail, ColuAsset coluAsset) {
+      public AddColuAsyncTask(Bus bus, ColuMain coluAsset) {
          this.bus = bus;
          this.coluAsset = coluAsset;
          this.alreadyHadColuAccount = _mbwManager.getMetadataStorage().isPairedService(MetadataStorage.PAIRED_SERVICE_COLU);
-         progressDialog = ProgressDialog.show(AddColuAccountActivity.this, getString(R.string.colu), getString(R.string.colu_creating_account, coluAsset.label));
+         progressDialog = ProgressDialog.show(AddColuAccountActivity.this, getString(R.string.colu), getString(R.string.colu_creating_account, coluAsset.getName()));
          progressDialog.setCancelable(false);
          progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
          progressDialog.show();
@@ -208,27 +193,20 @@ public class AddColuAccountActivity extends Activity {
       @Override
       protected UUID doInBackground(Void... params) {
          _mbwManager.getMetadataStorage().setPairedService(MetadataStorage.PAIRED_SERVICE_COLU, true);
-         coluManager = _mbwManager.getColuManager();
-         if(coluManager == null) {
-            Log.d(TAG, "Error could not obtain coluManager !");
+         try {
+            InMemoryPrivateKey key = new InMemoryPrivateKey(_mbwManager.getRandomSource(), true);
+            UUID uuid = _mbwManager.getWalletManager(false)
+                    .createAccounts(new PrivateColuConfig(key, coluAsset,AesKeyCipher.defaultKeyCipher())).get(0);
+            return uuid;
+         } catch (Exception e) {
+            Log.d(TAG, "Error while creating Colored Coin account for asset " + coluAsset.getName() + ": " + e.getMessage());
             return null;
-         } else {
-            try {
-               UUID uuid = coluManager.enableAsset(coluAsset, null);
-               coluManager.scanForAccounts(SyncMode.FULL_SYNC_ALL_ACCOUNTS);
-               return uuid;
-            } catch (Exception e) {
-               Log.d(TAG, "Error while creating Colored Coin account for asset " + coluAsset.name + ": " + e.getMessage());
-               return null;
-            }
          }
       }
 
       @Override
       protected void onPostExecute(UUID account) {
          if (account != null) {
-            _mbwManager.addExtraAccounts(coluManager);
-            bus.post(new AccountChanged(account));
             Intent result = new Intent();
             result.putExtra(RESULT_KEY, account);
             setResult(RESULT_OK, result);

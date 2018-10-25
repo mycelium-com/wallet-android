@@ -41,8 +41,6 @@ class CoinapultModule(val accountKey: InMemoryPrivateKey
             backing.createAccountContext(context)
             result = CoinapultAccount(context, accountKey
                     , coinapultApi, backing.getAccountBacking(id), networkParameters, config.currency, listener)
-
-
         }
         result?.synchronize(SyncMode.NORMAL)
         return result

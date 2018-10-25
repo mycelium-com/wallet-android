@@ -28,6 +28,10 @@ abstract class ColuMain : BitcoinBasedCryptoCurrency() {
         signedMessageHeader = CryptoCurrency.toBytes("Colu Signed Message:\n")
     }
 
+    override fun getName(): String = MASSCoin.name
+
+    override fun getSymbol() = symbol
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || other !is ColuMain) return false
@@ -37,6 +41,4 @@ abstract class ColuMain : BitcoinBasedCryptoCurrency() {
     override fun hashCode(): Int {
         return javaClass.hashCode()
     }
-
-
 }

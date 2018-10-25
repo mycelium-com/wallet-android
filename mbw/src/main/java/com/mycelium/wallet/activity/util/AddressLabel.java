@@ -84,11 +84,22 @@ public class AddressLabel extends GenericBlockExplorerLabel {
    public void setAddress(final Address address) {
       this.address = address;
       update_ui();
+      NetworkParameters networkParameters = MbwManager.getInstance(getContext()).getNetwork();
       if (coluMode) {
-         setHandler(MbwManager.getInstance(getContext()).getColuManager().getBlockExplorer());
+         String baseUrl;
+         if (networkParameters.isProdnet()) {
+            baseUrl = "http://coloredcoins.org/explorer/";
+         } else if (networkParameters.isTestnet()) {
+            baseUrl = "http://coloredcoins.org/explorer/testnet/";
+         } else {
+            baseUrl = "http://coloredcoins.org/explorer/testnet/";
+         }
+         setHandler(new BlockExplorer("CCO", "coloredcoins.org"
+                 , baseUrl + "address/", baseUrl + "tx/"
+                 , baseUrl + "address/", baseUrl + "tx/"));
       } else if (MbwManager.getInstance(getContext()).getSelectedAccount() instanceof SingleAddressBCHAccount
               || MbwManager.getInstance(getContext()).getSelectedAccount() instanceof Bip44BCHAccount) {
-         if (MbwManager.getInstance(getContext()).getNetwork().getNetworkType() == NetworkParameters.NetworkType.PRODNET) {
+         if (networkParameters.getNetworkType() == NetworkParameters.NetworkType.PRODNET) {
             setHandler(new BlockExplorer("BTL", "blockTrail",
                     "https://www.blocktrail.com/BCC/address/",
                     "https://www.blocktrail.com/BCC/tx/",

@@ -72,6 +72,7 @@ import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext;
 import com.mycelium.wapi.wallet.colu.ColuAccountContext;
 import com.mycelium.wapi.wallet.colu.ColuTransaction;
+import com.mycelium.wapi.wallet.colu.ColuUtils;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
 import com.mycelium.wapi.wallet.colu.coins.MTCoin;
@@ -178,14 +179,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
             boolean isArchived = cursor.getInt(2) == 1;
             int blockHeight = cursor.getInt(3);
             String coinId = cursor.getString(4);
-            ColuMain coinType = null;
-            if (MTCoin.INSTANCE.getId().equals(coinId)) {
-               coinType = MTCoin.INSTANCE;
-            } else if (MASSCoin.INSTANCE.getId().equals(coinId)) {
-               coinType = MASSCoin.INSTANCE;
-            } else if(RMCCoin.INSTANCE.getId().equals(coinId)) {
-               coinType = RMCCoin.INSTANCE;
-            }
+            ColuMain coinType = ColuUtils.getColuCoin(coinId);
             list.add(new ColuAccountContext(id, coinType, new BtcLegacyAddress(coinType, addressBytes)
                     , isArchived, blockHeight));
          }
@@ -249,7 +243,6 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
 
    private List<UUID> getAccountIds(SQLiteDatabase db) {
       List<UUID> ids = new ArrayList<>();
-      ids.addAll(getBip44AccountIds(db));
       ids.addAll(getSingleAddressAccountIds(db));
       return ids;
    }
@@ -264,12 +257,12 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
             UUID uuid = SQLiteQueryWithBlobs.uuidFromBytes(cursor.getBlob(0));
             accounts.add(uuid);
          }
-         return accounts;
       } finally {
          if (cursor != null) {
             cursor.close();
          }
       }
+      return accounts;
    }
 
    private List<UUID> getBip44AccountIds(SQLiteDatabase db) {
