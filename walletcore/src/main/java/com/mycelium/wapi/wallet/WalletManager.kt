@@ -1,28 +1,24 @@
 package com.mycelium.wapi.wallet
 
-import com.mrd.bitlib.model.NetworkParameters
-import com.mycelium.wapi.api.Wapi
-import com.mycelium.wapi.wallet.btc.WalletManagerBacking
-import com.mycelium.wapi.wallet.coins.CryptoCurrency
-import com.mycelium.wapi.wallet.manager.Config
-import com.mycelium.wapi.wallet.manager.Synchronizer
-import com.mycelium.wapi.wallet.manager.WalletModule
-import com.mycelium.wapi.wallet.manager.State
-import java.util.*
 import com.mrd.bitlib.crypto.Bip39
-import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher
-import com.mrd.bitlib.util.HexUtils
-import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mrd.bitlib.crypto.HdKeyNode
-import com.mycelium.wapi.wallet.btc.SynchronizeAbleWalletBtcAccount
+import com.mrd.bitlib.model.NetworkParameters
+import com.mrd.bitlib.util.HexUtils
+import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.api.lib.FeeEstimation
+import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher
+import com.mycelium.wapi.wallet.btc.SynchronizeAbleWalletBtcAccount
+import com.mycelium.wapi.wallet.btc.WalletManagerBacking
+import com.mycelium.wapi.wallet.btc.bip44.HDAccount
+import com.mycelium.wapi.wallet.coins.CryptoCurrency
+import com.mycelium.wapi.wallet.manager.*
+import java.util.*
 
 
 class WalletManager(val _secureKeyValueStore: SecureKeyValueStore,
                     val backing: WalletManagerBacking<*,*>,
                     val network: NetworkParameters,
                     val wapi: Wapi,
-                    var isNetworkConnected: Boolean,
                     val currenciesSettingsMap: MutableMap<Currency, CurrencySettings>
                     ) {
     private val MASTER_SEED_ID = HexUtils.toBytes("D64CA2B680D8C8909A367F28EB47F990")
@@ -35,6 +31,9 @@ class WalletManager(val _secureKeyValueStore: SecureKeyValueStore,
     private val _lastFeeEstimations = backing.loadLastFeeEstimation();
     private val _logger = wapi.getLogger()
     lateinit var _identityAccountKeyManager: IdentityAccountKeyManager
+    var isNetworkConnected: Boolean = false
+    var walletListener: WalletListener? = null
+
     lateinit var accountScanManager: AccountScanManager
 
     private var state: State = State.OFF
@@ -123,16 +122,16 @@ class WalletManager(val _secureKeyValueStore: SecureKeyValueStore,
 
     @JvmOverloads
     fun startSynchronization(mode: SyncMode = SyncMode.NORMAL_FORCED) {
-//        if (!isNetworkConnected) {
-//            return
-//        }
+        if (!isNetworkConnected) {
+            return
+        }
         Thread(Synchronizer(this, mode)).start()
     }
 
     fun startSynchronization(acc: UUID): Boolean {
         // Launch synchronizer thread
         val activeAccount = getAccount(acc) as SynchronizeAbleWalletBtcAccount
-        Thread(Synchronizer(this, SyncMode.NORMAL, activeAccount))
+        Thread(Synchronizer(this, SyncMode.NORMAL, listOf(activeAccount)))
         return isNetworkConnected
     }
 

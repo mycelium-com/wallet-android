@@ -491,8 +491,7 @@ public class ModernMain extends AppCompatActivity {
 
    public void setRefreshAnimation() {
       if (refreshItem != null) {
-         if (_mbwManager.getWalletManager(false).getState() == State.SYNCHRONIZING
-                 /*|| _mbwManager.getColuManager().getState() == WalletManager.State.SYNCHRONIZING*/) {
+         if (_mbwManager.getWalletManager(false).getState() == State.SYNCHRONIZING) {
             showRefresh();
          } else {
             refreshItem.setActionView(null);

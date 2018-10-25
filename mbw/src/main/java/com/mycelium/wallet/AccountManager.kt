@@ -5,10 +5,8 @@ import android.os.Handler
 import android.os.Looper
 import com.google.common.collect.ImmutableMap
 import com.mycelium.wallet.coinapult.CoinapultAccount
-import com.mycelium.wallet.colu.ColuAccount
 import com.mycelium.wallet.event.AccountChanged
 import com.mycelium.wallet.event.AccountListChanged
-import com.mycelium.wallet.event.ExtraAccountsChanged
 import com.mycelium.wallet.event.SelectedAccountChanged
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount
@@ -116,11 +114,6 @@ object AccountManager : AccountProvider {
 
     @Subscribe
     fun selectedAccountChanged(event: SelectedAccountChanged) {
-        FillAccountsTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
-    }
-
-    @Subscribe
-    fun extraAccountsChanged(event: ExtraAccountsChanged) {
         FillAccountsTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
     }
 

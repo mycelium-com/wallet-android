@@ -69,6 +69,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
@@ -86,12 +87,10 @@ import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
 import com.mycelium.wallet.activity.util.ValueExtentionsKt;
 import com.mycelium.wallet.activity.view.DividerItemDecoration;
 import com.mycelium.wallet.coinapult.CoinapultAccount;
-import com.mycelium.wallet.coinapult.CoinapultManager;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.AccountListChanged;
 import com.mycelium.wallet.event.BalanceChanged;
 import com.mycelium.wallet.event.ExchangeSourceChanged;
-import com.mycelium.wallet.event.ExtraAccountsChanged;
 import com.mycelium.wallet.event.ReceivingAddressChanged;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wallet.event.SyncProgressUpdated;
@@ -116,6 +115,7 @@ import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
 import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
+import com.mycelium.wapi.wallet.coinapult.CoinapultModule;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
@@ -380,7 +380,6 @@ public class AccountsFragment extends Fragment {
                                  _storage.deleteAccountMetadata(accountToDelete.getId());
                                  _toaster.toast("Deleting account.", false);
                                  _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
-                                 eventBus.post(new ExtraAccountsChanged()); // do we need to pass UUID ?
                               }
                            } catch (Exception e) {
                               // make a message !
@@ -397,7 +396,6 @@ public class AccountsFragment extends Fragment {
                            _storage.deleteAccountMetadata(accountToDelete.getId());
                            _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
                            _toaster.toast(R.string.account_deleted, false);
-                           eventBus.post(new ExtraAccountsChanged());
                         }
                      }
                      finishCurrentActionMode();
@@ -427,7 +425,6 @@ public class AccountsFragment extends Fragment {
                _storage.deleteAccountMetadata(accountToDelete.getId());
                finishCurrentActionMode();
                eventBus.post(new AccountChanged(accountToDelete.getId()));
-               eventBus.post(new ExtraAccountsChanged());
                _toaster.toast(R.string.account_deleted, false);
             }
          }
@@ -754,18 +751,14 @@ public class AccountsFragment extends Fragment {
          public void onClick(DialogInterface dialog, int which) {
             String mailText = mailField.getText().toString();
             if (Utils.isValidEmailAddress(mailText)) {
-               Optional<String> mail;
-               if (mailText.isEmpty()) {
-                  mail = Optional.absent();
-               } else {
-                  mail = Optional.of(mailText);
+               if (!mailText.isEmpty()) {
+                  _progress.setCancelable(false);
+                  _progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                  _progress.setMessage(getString(R.string.coinapult_setting_email));
+                  _progress.show();
+                  _mbwManager.getMetadataStorage().setCoinapultMail(mailText);
+                  new SetCoinapultMailAsyncTask(mailText).execute();
                }
-               _progress.setCancelable(false);
-               _progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-               _progress.setMessage(getString(R.string.coinapult_setting_email));
-               _progress.show();
-               _mbwManager.getMetadataStorage().setCoinapultMail(mailText);
-               new SetCoinapultMailAsyncTask(mail).execute();
                dialog.dismiss();
             } else {
                new Toaster(AccountsFragment.this).toast("Email address not valid", false);
@@ -821,15 +814,15 @@ public class AccountsFragment extends Fragment {
    }
 
    private class SetCoinapultMailAsyncTask extends AsyncTask<Void, Integer, Boolean> {
-      private Optional<String> mail;
+      private String mail;
 
-      public SetCoinapultMailAsyncTask(Optional<String> mail) {
+      public SetCoinapultMailAsyncTask(@NonNull String mail) {
          this.mail = mail;
       }
 
       @Override
       protected Boolean doInBackground(Void... params) {
-         return _mbwManager.getCoinapultManager().setMail(mail);
+         return ((CoinapultModule) walletManager.getModuleById("coinapult module")).setMail(mail);
       }
 
       @Override
@@ -854,7 +847,7 @@ public class AccountsFragment extends Fragment {
 
       @Override
       protected Boolean doInBackground(Void... params) {
-         return _mbwManager.getCoinapultManager().verifyMail(link, email);
+         return  ((CoinapultModule) walletManager.getModuleById("coinapult module")).verifyMail(link, email);
       }
 
       @Override
@@ -921,8 +914,8 @@ public class AccountsFragment extends Fragment {
             }
             WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
             if (_focusedAccount instanceof CoinapultAccount) {
-               CoinapultManager coinapultManager = _mbwManager.getCoinapultManager();
-               MessageSigningActivity.callMe(getActivity(), coinapultManager.getAccountKey(), AddressType.P2SH_P2WPKH);
+               InMemoryPrivateKey accountKey = ((CoinapultModule) walletManager.getModuleById("coinapult module")).getAccountKey();
+               MessageSigningActivity.callMe(getActivity(), accountKey, AddressType.P2SH_P2WPKH);
             } else if (_focusedAccount instanceof SingleAddressAccount) {
                MessageSigningActivity.callMe(getActivity(), (SingleAddressAccount) _focusedAccount,
                        ((SingleAddressAccount) _focusedAccount).getAddress().getType());

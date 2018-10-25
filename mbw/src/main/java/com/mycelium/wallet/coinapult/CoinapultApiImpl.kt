@@ -6,6 +6,7 @@ import com.coinapult.api.httpclient.SearchMany
 import com.coinapult.api.httpclient.Transaction
 import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.util.Sha256Hash
+import com.mycelium.WapiLogger
 import com.mycelium.wapi.wallet.GenericAddress
 import com.mycelium.wapi.wallet.btc.BtcLegacyAddress
 import com.mycelium.wapi.wallet.coinapult.CoinapultApi
@@ -15,12 +16,36 @@ import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.Value
 import java.io.IOException
 import java.math.BigDecimal
-import java.math.MathContext
 import java.net.SocketTimeoutException
 import java.security.NoSuchAlgorithmException
 
 
-class CoinapultApiImpl(val client: CoinapultClient) : CoinapultApi {
+class CoinapultApiImpl(val client: CoinapultClient, val logger: WapiLogger) : CoinapultApi {
+    override fun setMail(mail: String): Boolean {
+        try {
+            val result = client.setMail(mail)
+            return result.email != null && result.email == mail
+        } catch (e: IOException) {
+            return false
+        } catch (e: NoSuchAlgorithmException) {
+            throw RuntimeException(e)
+        }
+    }
+
+    override fun verifyMail(link: String, email: String): Boolean {
+        try {
+            val result = client.verifyMail(link, email)
+            if (!result.verified) {
+                logger.logError("Coinapult email error: " + result.error)
+            }
+            return result.verified
+        } catch (e: IOException) {
+            return false
+        } catch (e: NoSuchAlgorithmException) {
+            throw RuntimeException(e)
+        }
+    }
+
     override fun getAddress(currency: Currency, currentAddress: GenericAddress?): GenericAddress? {
         var address: GenericAddress? = null
         if (currentAddress == null) {
@@ -99,7 +124,7 @@ class CoinapultApiImpl(val client: CoinapultClient) : CoinapultApi {
         }
     }
 
-    override fun broadcast(amount:BigDecimal, currency:Currency, address:BtcLegacyAddress) {
+    override fun broadcast(amount: BigDecimal, currency: Currency, address: BtcLegacyAddress) {
         try {
             val send: Transaction.Json
             if (currency != Currency.BTC) {

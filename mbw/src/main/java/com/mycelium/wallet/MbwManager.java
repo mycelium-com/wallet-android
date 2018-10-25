@@ -93,19 +93,18 @@ import com.mycelium.wallet.activity.util.BlockExplorerManager;
 import com.mycelium.wallet.activity.util.Pin;
 import com.mycelium.wallet.api.AndroidAsyncApi;
 import com.mycelium.wallet.bitid.ExternalService;
-import com.mycelium.wallet.coinapult.CoinapultApiImpl;
 import com.mycelium.wallet.coinapult.CoinapultManager;
-import com.mycelium.wallet.coinapult.SQLiteCoinapultBacking;
 import com.mycelium.wallet.colu.ColuApiImpl;
 import com.mycelium.wallet.colu.ColuClient;
 import com.mycelium.wallet.colu.ColuManager;
 import com.mycelium.wallet.colu.SqliteColuManagerBacking;
 import com.mycelium.wallet.event.BalanceChanged;
 import com.mycelium.wallet.event.EventTranslator;
-import com.mycelium.wallet.event.ExtraAccountsChanged;
 import com.mycelium.wallet.event.ReceivingAddressChanged;
 import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
+import com.mycelium.wallet.event.SyncStarted;
+import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.event.TorStateChanged;
 import com.mycelium.wallet.exchange.ExchangeRateManager;
 import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager;
@@ -122,7 +121,6 @@ import com.mycelium.wallet.wapi.SqliteWalletManagerBackingWrapper;
 import com.mycelium.wapi.api.WapiClientElectrumX;
 import com.mycelium.wapi.api.jsonrpc.TcpEndpoint;
 import com.mycelium.wapi.wallet.AccountListener;
-import com.mycelium.wapi.wallet.AccountProvider;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.BTCSettings;
 import com.mycelium.wapi.wallet.Currency;
@@ -151,11 +149,11 @@ import com.mycelium.wapi.wallet.btc.single.PrivateSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore;
 import com.mycelium.wapi.wallet.btc.single.PublicSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
-import com.mycelium.wapi.wallet.coinapult.CoinapultModule;
 import com.mycelium.wapi.wallet.colu.ColuModule;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
 import com.mycelium.wapi.wallet.colu.coins.MTCoin;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
+import com.mycelium.wapi.wallet.manager.WalletListener;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -184,9 +182,6 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 
-import kotlin.jvm.functions.Function0;
-
-import static com.mycelium.wallet.AccountManagerKt.getCoinapultAccounts;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class MbwManager {
@@ -203,7 +198,6 @@ public class MbwManager {
      */
     private static final int BIP32_ROOT_AUTHENTICATION_INDEX = 0x80424944;
     private Optional<CoinapultManager> _coinapultManager;
-    private volatile Optional<ColuManager> _coluManager;
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
@@ -269,6 +263,8 @@ public class MbwManager {
     private WalletConfiguration configuration;
     private final GEBHelper _gebHelper;
 
+    private Handler mainLoopHandler;
+
     private MbwManager(Context evilContext) {
         Queue<LogEntry> unsafeWapiLogs = EvictingQueue.create(100);
         _wapiLogs  = Queues.synchronizedQueue(unsafeWapiLogs);
@@ -282,6 +278,7 @@ public class MbwManager {
 
         configuration = new WalletConfiguration(preferences, getNetwork());
 
+        mainLoopHandler = new Handler(Looper.getMainLooper());
         _eventBus = new Bus();
         _eventBus.register(this);
 
@@ -365,9 +362,7 @@ public class MbwManager {
         _exchangeRateManager.subscribe(_eventTranslator);
 
         _walletManager.addObserver(_eventTranslator);
-        _coinapultManager = createCoinapultManager();
 
-//        new InitColuManagerTask().execute();
         // set the currency-list after we added all extra accounts, they may provide
         // additional needed fiat currencies
         setCurrencyList(fiatCurrencies);
@@ -650,8 +645,30 @@ public class MbwManager {
 
         SpvBalanceFetcher spvBchFetcher = getSpvBchFetcher();
         // Create and return wallet manager
-        WalletManager walletManager = new WalletManager(secureKeyValueStore, backing, environment.getNetwork(), _wapi,
-                 Utils.isConnected(context), currenciesSettingsMap);
+        WalletManager walletManager = new WalletManager(secureKeyValueStore, backing
+                , environment.getNetwork(), _wapi, currenciesSettingsMap);
+        walletManager.setIsNetworkConnected(Utils.isConnected(context));
+        walletManager.setWalletListener(new WalletListener() {
+            @Override
+            public void syncStarted() {
+                mainLoopHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        _eventBus.post(new SyncStarted());
+                    }
+                });
+            }
+
+            @Override
+            public void syncStopped() {
+                mainLoopHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        _eventBus.post(new SyncStopped());
+                    }
+                });
+            }
+        });
 
         // notify the walletManager about the current selected account
         UUID lastSelectedAccountId = getLastSelectedAccountId();
@@ -768,8 +785,9 @@ public class MbwManager {
 
 
         // Create and return wallet manager
-        WalletManager walletManager = new WalletManager(secureKeyValueStore, backing, environment.getNetwork(), _wapi,
-                Utils.isConnected(_applicationContext), currenciesSettingsMap);
+        WalletManager walletManager = new WalletManager(secureKeyValueStore, backing
+                , environment.getNetwork(), _wapi, currenciesSettingsMap);
+        walletManager.setIsNetworkConnected(Utils.isConnected(_applicationContext));
 
         walletManager.disableTransactionHistorySynchronization();
         return walletManager;
@@ -1426,37 +1444,6 @@ public class MbwManager {
 
       this._pinRequiredOnStartup = _pinRequiredOnStartup;
    }
-
-    /**
-     * this should only be called if a coinapult account was created once.
-     */
-    public CoinapultManager getCoinapultManager() {
-        if (_coinapultManager.isPresent()) {
-            return _coinapultManager.get();
-        } else {
-            //lazily create one
-            _coinapultManager = createCoinapultManager();
-            //still not certain, if user never created one
-            if (_coinapultManager.isPresent()) {
-                return _coinapultManager.get();
-            } else {
-                throw new IllegalStateException("tried to obtain coinapult manager without having created one");
-            }
-        }
-    }
-
-//    public synchronized ColuManager getColuManager() {
-//        if(_coluManager != null && _coluManager.isPresent()) {
-//            return _coluManager.get();
-//        } else {
-//            _coluManager = createColuManager(_applicationContext);
-//            if (_coluManager.isPresent()) {
-//                return _coluManager.get();
-//            } else {
-//                throw new IllegalStateException("Tried to obtain colu manager without having created one.");
-//            }
-//        }
-//    }
 
     public Cache<String, Object> getBackgroundObjectsCache() {
         return _semiPersistingBackgroundObjects;
