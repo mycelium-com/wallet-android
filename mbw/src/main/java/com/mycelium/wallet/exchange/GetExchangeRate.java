@@ -1,8 +1,8 @@
 package com.mycelium.wallet.exchange;
 
 import com.mycelium.wapi.model.ExchangeRate;
-import com.mycelium.wapi.wallet.coins.BitcoinMain;
-import com.mycelium.wapi.wallet.coins.BitcoinTest;
+import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
+import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.currency.ExchangeRateProvider;
 
 import java.math.BigDecimal;
