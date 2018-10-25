@@ -170,6 +170,8 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
      */
     int getSyncTotalRetrievedTransactions();
 
+    FeeEstimationsGeneric getFeeEstimations();
+
     /**
      * Class representing a receiver of funds
      */
