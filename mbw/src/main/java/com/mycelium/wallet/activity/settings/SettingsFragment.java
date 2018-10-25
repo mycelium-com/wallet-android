@@ -468,7 +468,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         _minerFee.setValue(_mbwManager.getMinerFee().toString());
         CharSequence[] minerFees = new CharSequence[]{
                 MinerFee.LOWPRIO.toString(),
-                MinerFee.ECONOMIC.toString(),
                 MinerFee.NORMAL.toString(),
                 MinerFee.PRIORITY.toString()};
         CharSequence[] minerFeeNames = new CharSequence[]{

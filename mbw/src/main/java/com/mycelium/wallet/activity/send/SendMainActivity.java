@@ -276,7 +276,6 @@ public class SendMainActivity extends Activity {
     //private Transaction _signedTransaction;
     private SendRequest signedSendRequest;
     private MinerFee feeLvl;
-    private long feePerKbValue;
     private ProgressDialog _progress;
     private UUID _receivingAcc;
     private boolean _xpubSyncing = false;
@@ -285,7 +284,7 @@ public class SendMainActivity extends Activity {
     private boolean _paymentFetched = false;
     private WalletAccount fundColuAccount;
     private ProgressDialog progress;
-    private FeeEstimation feeEstimation;
+    private FeeEstimationsGeneric feeEstimation;
     private SharedPreferences transactionFiatValuePref;
     private FeeItemsBuilder feeItemsBuilder;
 
@@ -380,8 +379,7 @@ public class SendMainActivity extends Activity {
         WalletAccount account = _mbwManager.getWalletManager(_isColdStorage).getAccount(accountId);
         _account = Preconditions.checkNotNull(account, crashHint);
         feeLvl = _mbwManager.getMinerFee();
-        feeEstimation = _mbwManager.getWalletManager(false).getLastFeeEstimations();
-        feePerKbValue = _mbwManager.getMinerFee().getFeePerKb(feeEstimation).getLongValue();
+        feeEstimation = _account.getFeeEstimations();
 
         // Load saved state, overwriting amount and address
         if (savedInstanceState != null) {
@@ -389,8 +387,6 @@ public class SendMainActivity extends Activity {
             Address address = (Address) savedInstanceState.getSerializable(RECEIVING_ADDRESS);
             _receivingAddress = AddressUtils.fromAddress(address);
             _transactionLabel = savedInstanceState.getString(TRANSACTION_LABEL);
-            feeLvl = (MinerFee) savedInstanceState.getSerializable(FEE_LVL);
-            feePerKbValue = savedInstanceState.getLong(FEE_PER_KB);
             _bitcoinUri = (BitcoinUri) savedInstanceState.getSerializable(BITCOIN_URI);
             _coluAssetUri = (ColuAssetUri) savedInstanceState.getSerializable(RMC_URI);
             _paymentFetched = savedInstanceState.getBoolean(PAYMENT_FETCHED);
@@ -449,8 +445,8 @@ public class SendMainActivity extends Activity {
             verifyPaymentRequest(_bitcoinUri);
         }
 
-        //Remove Miner fee if coinapult
-        if (isCoinapult()) {
+        //Remove Miner fee if coinapult or colu
+        if (isCoinapult() || isColu()) {
             llFee.setVisibility(GONE);
         }
 
@@ -525,13 +521,12 @@ public class SendMainActivity extends Activity {
         feeValueList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         feeValueList.setHasFixedSize(true);
         feeViewAdapter = new FeeViewAdapter(feeFirstItemWidth);
-        feeItemsBuilder = new FeeItemsBuilder(_mbwManager);
+        feeItemsBuilder = new FeeItemsBuilder(feeEstimation);
         feeValueList.setAdapter(feeViewAdapter);
         feeValueList.setSelectListener(new SelectListener() {
             @Override
             public void onSelect(RecyclerView.Adapter adapter, int position) {
                 FeeItem item = ((FeeViewAdapter) adapter).getItem(position);
-                feePerKbValue = item.feePerKb;
                 updateRecipient();
                 checkHaveSpendAccount();
                 updateAmount();
@@ -555,7 +550,19 @@ public class SendMainActivity extends Activity {
         List<FeeLvlItem> feeLvlItems = new ArrayList<>();
         feeLvlItems.add(new FeeLvlItem(null, null, SelectableRecyclerView.Adapter.VIEW_TYPE_PADDING));
         for (MinerFee fee : fees) {
-            String duration = Utils.formatBlockcountAsApproxDuration(this, fee.getNBlocks());
+            int blocks = 0;
+            switch (feeLvl){
+                case LOWPRIO:
+                    blocks = 20;
+                    break;
+                case NORMAL:
+                    blocks = 3;
+                    break;
+                case PRIORITY:
+                    blocks = 1;
+                    break;
+            }
+            String duration = Utils.formatBlockcountAsApproxDuration(this, blocks);
             feeLvlItems.add(new FeeLvlItem(fee, "~" + duration, SelectableRecyclerView.Adapter.VIEW_TYPE_ITEM));
         }
         feeLvlItems.add(new FeeLvlItem(null, null, SelectableRecyclerView.Adapter.VIEW_TYPE_PADDING));
@@ -576,11 +583,10 @@ public class SendMainActivity extends Activity {
             public void onSelect(RecyclerView.Adapter adapter, int position) {
                 FeeLvlItem item = ((FeeLvlViewAdapter) adapter).getItem(position);
                 feeLvl = item.minerFee;
-                feePerKbValue = feeLvl.getFeePerKb(feeEstimation).getLongValue();
                 _transactionStatus = tryCreateUnsignedTransaction();
-                List<FeeItem> feeItems = feeItemsBuilder.getFeeItemList(feeLvl, estimateTxSize());
+                List<FeeItem> feeItems = feeItemsBuilder.getFeeItemList(feeEstimation, feeLvl, estimateTxSize());
                 feeViewAdapter.setDataset(feeItems);
-                feeValueList.setSelectedItem(new FeeItem(feePerKbValue, null, null, FeeViewAdapter.VIEW_TYPE_ITEM));
+                feeValueList.setSelectedItem(new FeeItem(getCurrentFeeEstimation(), null, null, FeeViewAdapter.VIEW_TYPE_ITEM));
             }
         });
         feeLvlList.setSelectedItem(selectedIndex);
@@ -706,7 +712,6 @@ public class SendMainActivity extends Activity {
         savedInstanceState.putSerializable(RECEIVING_ADDRESS, _receivingAddress);
         savedInstanceState.putString(TRANSACTION_LABEL, _transactionLabel);
         savedInstanceState.putSerializable(FEE_LVL, feeLvl);
-        savedInstanceState.putLong(FEE_PER_KB, feePerKbValue);
         savedInstanceState.putBoolean(PAYMENT_FETCHED, _paymentFetched);
         savedInstanceState.putSerializable(BITCOIN_URI, _bitcoinUri);
         savedInstanceState.putSerializable(RMC_URI, _coluAssetUri);
@@ -778,7 +783,7 @@ public class SendMainActivity extends Activity {
             // if no amount is set so far, use an unknown amount but in the current accounts currency
             presetAmount = Value.valueOf(BitcoinTest.get(), 0);
         }
-        GetAmountActivity.callMeToSend(this, GET_AMOUNT_RESULT_CODE, _account.getId(), presetAmount, feePerKbValue,
+        GetAmountActivity.callMeToSend(this, GET_AMOUNT_RESULT_CODE, _account.getId(), presetAmount, getCurrentFeeEstimation(),
                 AccountDisplayType.getAccountType(_account), _isColdStorage, ((BtcAddress)_receivingAddress).getAddress());
     }
 
@@ -899,13 +904,13 @@ public class SendMainActivity extends Activity {
                     // build new output list with user specified amount
                     outputs = outputs.newOutputsWithTotalAmount(toSend.getValue());
                 }
-                _unsigned = ((WalletBtcAccount)_account).createUnsignedTransaction(outputs, feePerKbValue);
+                _unsigned = ((WalletBtcAccount)_account).createUnsignedTransaction(outputs, getCurrentFeeEstimation());
                 _receivingAddress = null;
                 _transactionLabel = paymentRequestInformation.getPaymentDetails().memo;
                 return TransactionStatus.OK;
             } else if(hasAddressData) {
                 WalletAccount.Receiver receiver = new WalletAccount.Receiver(_receivingAddress, toSend.getValue());
-                _unsigned = ((WalletBtcAccount)_account).createUnsignedTransaction(Collections.singletonList(receiver), feePerKbValue);
+                _unsigned = ((WalletBtcAccount)_account).createUnsignedTransaction(Collections.singletonList(receiver), getCurrentFeeEstimation());
                 checkSpendingUnconfirmed();
                 return TransactionStatus.OK;
             } else {
@@ -1146,9 +1151,9 @@ public class SendMainActivity extends Activity {
         btSend.setEnabled(_transactionStatus == TransactionStatus.OK);
         findViewById(R.id.root).invalidate();
 
-        List<FeeItem> feeItems = feeItemsBuilder.getFeeItemList(feeLvl, estimateTxSize());
+        List<FeeItem> feeItems = feeItemsBuilder.getFeeItemList(feeEstimation, feeLvl, estimateTxSize());
         feeViewAdapter.setDataset(feeItems);
-        feeValueList.setSelectedItem(new FeeItem(feePerKbValue, null, null, FeeViewAdapter.VIEW_TYPE_ITEM));
+        feeValueList.setSelectedItem(new FeeItem(getCurrentFeeEstimation(), null, null, FeeViewAdapter.VIEW_TYPE_ITEM));
     }
 
     private void updateRecipient() {
@@ -1336,6 +1341,19 @@ public class SendMainActivity extends Activity {
         }
     }
 
+    private long getCurrentFeeEstimation(){
+        switch (feeLvl){
+            case LOWPRIO:
+                return feeEstimation.getLow().value;
+            case NORMAL:
+                return feeEstimation.getNormal().value;
+            case PRIORITY:
+                return feeEstimation.getHigh().value;
+            default:
+                return feeEstimation.getNormal().value;
+        }
+    }
+
 
     void updateError() {
         boolean tvErrorShow;
@@ -1383,7 +1401,7 @@ public class SendMainActivity extends Activity {
         _transactionStatus = tryCreateUnsignedTransaction();
         String feeWarning = null;
         tvFeeWarning.setOnClickListener(null);
-        if (feePerKbValue == 0) {
+        if (getCurrentFeeEstimation() == 0) {
             feeWarning = getString(R.string.fee_is_zero);
         }
         if (_unsigned == null) {
@@ -1400,7 +1418,7 @@ public class SendMainActivity extends Activity {
             tvSatFeeValue.setText(inCount + " In- / " + outCount + " Outputs, ~" + size + " bytes");
 
             long fee = _unsigned.calculateFee();
-            if (fee != size * feePerKbValue / 1000) {
+            if (fee != size * getCurrentFeeEstimation() / 1000) {
                 //TODO: use Value class
                 CurrencyValue value = ExactBitcoinValue.from(fee);
                 CurrencyValue fiatValue = CurrencyValue.fromValue(value, _mbwManager.getFiatCurrency(), _mbwManager.getExchangeRateManager());

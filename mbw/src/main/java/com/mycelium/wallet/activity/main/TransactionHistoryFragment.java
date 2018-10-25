@@ -558,7 +558,7 @@ public class TransactionHistoryFragment extends Fragment {
                                    .create().show();
                            break;
                         case R.id.miBumpFee:
-                           long fee = MinerFee.PRIORITY.getFeePerKb(_mbwManager.getWalletManager(false).getLastFeeEstimations()).getLongValue();
+                           long fee = 0;//MinerFee.PRIORITY.getFeePerKb(_mbwManager.getWalletManager(false).getLastFeeEstimations()).getLongValue();
                            final UnsignedTransaction unsigned = tryCreateBumpTransaction(record.getHash(), fee);
                            if(unsigned != null) {
                               long txFee = unsigned.calculateFee();
