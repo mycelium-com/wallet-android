@@ -121,8 +121,7 @@ import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
 import com.mycelium.wapi.wallet.btc.bip44.HDConfig;
-import com.mycelium.wapi.wallet.coins.BitcoinMain;
-import com.mycelium.wapi.wallet.coins.BitcoinTest;
+import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.ColuUtils;
@@ -134,8 +133,6 @@ import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
 import static com.mycelium.wallet.activity.util.ValueExtentionsKt.isBtc;
-
-import com.mycelium.wapi.wallet.segwit.SegwitAddress;
 
 import com.squareup.otto.Subscribe;
 

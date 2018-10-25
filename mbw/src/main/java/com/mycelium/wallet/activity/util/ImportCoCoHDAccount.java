@@ -17,7 +17,6 @@ import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.ColuModule;

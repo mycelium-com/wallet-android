@@ -1,9 +1,9 @@
 package com.mycelium.wallet.activity.util
 
 import com.mrd.bitlib.util.CoinUtil
-import com.mycelium.wapi.wallet.fiat.FiatType
-import com.mycelium.wapi.wallet.coins.BitcoinMain
-import com.mycelium.wapi.wallet.coins.BitcoinTest
+import com.mycelium.wapi.wallet.fiat.coins.FiatType
+import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
+import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo
 import java.text.DecimalFormat

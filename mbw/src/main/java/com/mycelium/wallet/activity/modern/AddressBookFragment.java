@@ -72,16 +72,11 @@ import com.mycelium.wallet.activity.modern.adapter.AddressBookAdapter;
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil.AddressLabelChangedHandler;
-import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.AddressBookChanged;
 import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
-import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
-import com.mycelium.wapi.wallet.coins.BitcoinMain;
-import com.mycelium.wapi.wallet.coins.BitcoinTest;
-import com.mycelium.wapi.wallet.segwit.SegwitAddress;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
@@ -182,16 +177,8 @@ public class AddressBookFragment extends Fragment {
          //TODO a lot of pr
          WalletAccount selectedAccount = _mbwManager.getSelectedAccount();
          if (account.getReceiveAddress() != null) {
-            if (!account.getCoinType().equals(_mbwManager.getSelectedAccount().getCoinType()) &&
-                    (spendableOnly && account.canSpend()
-                    && (!excudeSelected || !account.getReceiveAddress().equals(_mbwManager.getSelectedAccount().getReceiveAddress()))
-                    && !account.getAccountBalance().confirmed.isZero()) || !spendableOnly) {
-               if (selectedAccount instanceof ColuAccount && account instanceof ColuAccount
-                       && ((ColuAccount) account).getColuAsset().assetType == ((ColuAccount) selectedAccount).getColuAsset().assetType) {
-                  entries.add(new AddressBookManager.IconEntry(account.getReceiveAddress(), name, drawableForAccount, account.getId()));
-               } else if (!(_mbwManager.getSelectedAccount() instanceof ColuAccount)) {
-                  entries.add(new AddressBookManager.IconEntry(account.getReceiveAddress(), name, drawableForAccount, account.getId()));
-               }
+            if (account.canSpend() && selectedAccount.getCoinType().equals(account.getCoinType())) {
+               entries.add(new AddressBookManager.IconEntry(account.getReceiveAddress(), name, drawableForAccount, account.getId()));
             }
          }
       }
@@ -295,8 +282,7 @@ public class AddressBookFragment extends Fragment {
 
    private void doEditEntry() {
       EnterAddressLabelUtil.enterAddressLabel(getActivity(), _mbwManager.getMetadataStorage(),
-              ((BtcAddress)mSelectedAddress).getType() == AddressType.P2SH_P2WPKH ?
-                      ((SegwitAddress)mSelectedAddress).getAddress() : ((BtcLegacyAddress)mSelectedAddress).getAddress(),
+             ((BtcAddress)mSelectedAddress).getAddress(),
               "", addressLabelChanged);
    }
 
@@ -327,8 +313,7 @@ public class AddressBookFragment extends Fragment {
             .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                public void onClick(DialogInterface dialog, int id) {
                   dialog.cancel();
-                  _mbwManager.getMetadataStorage().deleteAddressMetadata(((BtcAddress)mSelectedAddress).getType() == AddressType.P2SH_P2WPKH ?
-                          ((SegwitAddress)mSelectedAddress).getAddress() : ((BtcLegacyAddress)mSelectedAddress).getAddress());
+                  _mbwManager.getMetadataStorage().deleteAddressMetadata(((BtcAddress)mSelectedAddress).getAddress());
                   finishActionMode();
                   _mbwManager.getEventBus().post(new AddressBookChanged());
                }
@@ -429,8 +414,7 @@ public class AddressBookFragment extends Fragment {
    private class SelectItemListener implements OnItemClickListener {
       @Override
       public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-         Address address = view.getTag() instanceof SegwitAddress ? ((SegwitAddress) view.getTag()).getAddress() :
-                 ((BtcLegacyAddress) view.getTag()).getAddress();
+         Address address = ((BtcAddress) view.getTag()).getAddress();
          Intent result = new Intent();
          result.putExtra(ADDRESS_RESULT_NAME, address.toString());
 

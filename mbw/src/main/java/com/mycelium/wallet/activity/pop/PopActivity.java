@@ -63,7 +63,7 @@ import com.mycelium.wapi.model.TransactionDetails;
 import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
-import com.mycelium.wapi.wallet.coins.BitcoinMain;
+import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.OkHttpClient;
