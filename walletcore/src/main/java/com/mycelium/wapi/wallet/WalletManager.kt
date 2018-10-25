@@ -37,11 +37,6 @@ class WalletManager(val _secureKeyValueStore: SecureKeyValueStore,
     lateinit var _identityAccountKeyManager: IdentityAccountKeyManager
     lateinit var accountScanManager: AccountScanManager
 
-    //TODO -replace
-    private val _extraAccountProviders = mutableSetOf<AccountProvider>()
-    private val _extraAccountsCurrencies = mutableSetOf<String>()
-    private val _extraAccounts= mutableMapOf<UUID, WalletAccount<*,*>>()
-
     private var state: State = State.OFF
     @Volatile
     private var activeAccountId: UUID? = null
@@ -63,7 +58,6 @@ class WalletManager(val _secureKeyValueStore: SecureKeyValueStore,
 
     fun getModuleById(id: String) : WalletModule? = walletModules[id]
 
-    fun isMy(address: GenericAddress) = getAccountBy(address) != null
 
     fun getAccountBy(address: GenericAddress): UUID? {
         var result: UUID? = null
@@ -271,24 +265,6 @@ class WalletManager(val _secureKeyValueStore: SecureKeyValueStore,
         return accounts.values.filter { it is HDAccount && !it.isArchived }
     }
 
-    fun addExtraAccounts(accountProvider: AccountProvider) {
-        _extraAccountProviders.add(accountProvider)
-        refreshExtraAccounts()
-    }
-
-    fun refreshExtraAccounts() {
-        _extraAccounts.clear()
-        _extraAccountsCurrencies.clear()
-        for (accounts in _extraAccountProviders) {
-            for (account in accounts.getAccounts().values) {
-                if (!_extraAccounts.containsKey(account.getId())) {
-                    _extraAccounts.put(account.getId(), account)
-                    _extraAccountsCurrencies.add(account.getCoinType().getSymbol())
-                }
-            }
-        }
-    }
-
     /**
      * Call this method to disable transaction history synchronization for single address accounts.
      * <p>
@@ -338,9 +314,6 @@ class WalletManager(val _secureKeyValueStore: SecureKeyValueStore,
         return _secureKeyValueStore.hasCiphertextValue(MASTER_SEED_ID)
     }
 
-    fun getAllActiveFiatCurrencies(): Set<String> {
-        return _extraAccountsCurrencies
-    }
     /**
      * Implement this interface to get a callback when the wallet manager changes
      * state or when some event occurs

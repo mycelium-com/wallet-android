@@ -57,6 +57,7 @@ import android.widget.TextView;
 import com.google.common.base.Optional;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
+import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
@@ -81,20 +82,19 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
 import com.mycelium.wapi.wallet.btc.bip44.HDConfig;
-import com.mycelium.wapi.wallet.btc.single.AddressSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.PrivateSingleConfig;
+import com.mycelium.wapi.wallet.btc.single.PublicSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
-import com.mycelium.wapi.wallet.colu.AddressColuConfig;
 import com.mycelium.wapi.wallet.colu.ColuUtils;
 import com.mycelium.wapi.wallet.colu.PrivateColuConfig;
+import com.mycelium.wapi.wallet.colu.PublicColuConfig;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
 import com.mycelium.wapi.wallet.colu.coins.MTCoin;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
-import com.mycelium.wapi.wallet.segwit.SegwitAddress;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -606,8 +606,7 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
          }
 
          List<UUID> ids = _mbwManager.getWalletManager(false)
-                 .createAccounts(new AddressColuConfig(address.getType() == AddressType.P2SH_P2WPKH ?
-                         ((SegwitAddress) address).getAddress() : ((BtcLegacyAddress) address).getAddress()));
+                 .createAccounts(new PublicColuConfig(new PublicKey(address.getBytes())));
 
          if (ids.size() < 2) {
             askUserForColorize = true;
@@ -637,12 +636,12 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
                           public void onClick(DialogInterface dialogInterface, int i) {
                               UUID account;
                               if (selectedItem == 0) {
-                                  account = _mbwManager.getWalletManager(false).createAccounts(new AddressSingleConfig(address.getType() == AddressType.P2SH_P2WPKH ?
-                                          ((SegwitAddress) address).getAddress() : ((BtcLegacyAddress) address).getAddress())).get(0);
+                                  account = _mbwManager.getWalletManager(false)
+                                          .createAccounts(new PublicSingleConfig(new PublicKey(address.getBytes()))).get(0);
                               } else {
                                   ColuMain coinType = (ColuMain) adapter.getItem(selectedItem);
-                                  account = _mbwManager.getWalletManager(false).createAccounts(new AddressColuConfig(address.getType() == AddressType.P2SH_P2WPKH ?
-                                          ((SegwitAddress) address).getAddress() : ((BtcLegacyAddress) address).getAddress(), coinType)).get(0);
+                                  account = _mbwManager.getWalletManager(false)
+                                          .createAccounts(new PublicColuConfig(new PublicKey(address.getBytes()), coinType)).get(0);
                               }
                               finishOk(account, false);
                           }

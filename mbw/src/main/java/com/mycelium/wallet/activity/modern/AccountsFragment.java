@@ -69,6 +69,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
 import com.mycelium.wallet.AccountManager;
@@ -86,8 +87,6 @@ import com.mycelium.wallet.activity.util.ValueExtentionsKt;
 import com.mycelium.wallet.activity.view.DividerItemDecoration;
 import com.mycelium.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wallet.coinapult.CoinapultManager;
-import com.mycelium.wallet.colu.ColuAccount;
-import com.mycelium.wallet.colu.ColuManager;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.AccountListChanged;
 import com.mycelium.wallet.event.BalanceChanged;
@@ -105,13 +104,13 @@ import com.mycelium.wallet.lt.api.DeleteTrader;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.ExportableAccount;
+import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
@@ -119,6 +118,9 @@ import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.Value;
+import com.mycelium.wapi.wallet.colu.ColuAccount;
+import com.mycelium.wapi.wallet.colu.PublicColuConfig;
+import com.mycelium.wapi.wallet.colu.coins.ColuMain;
 import com.mycelium.wapi.wallet.manager.State;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
@@ -249,7 +251,6 @@ public class AccountsFragment extends Fragment {
                     && !intent.getBooleanExtra(AddAccountActivity.IS_UPGRADE, false)) {
                setNameForNewAccount(account);
             }
-            eventBus.post(new ExtraAccountsChanged());
             eventBus.post(new AccountChanged(accountid));
          }
       } else if(requestCode == ADD_RECORD_RESULT_CODE && resultCode == AddAdvancedAccountActivity.RESULT_MSG) {
@@ -284,7 +285,7 @@ public class AccountsFragment extends Fragment {
          deleteDialog.setView(checkBoxView);
       }
 
-      if (accountToDelete instanceof ColuAccount && accountToDelete.canSpend()) {
+      if (accountToDelete instanceof com.mycelium.wapi.wallet.colu.ColuAccount && accountToDelete.canSpend()) {
          Log.d(TAG, "Preparing to delete a colu account.");
          deleteDialog.setView(checkBoxView);
       }
@@ -299,15 +300,12 @@ public class AccountsFragment extends Fragment {
 
                // Set the message. There are four combinations, with and without label, with and without BTC amount.
                String label = _mbwManager.getMetadataStorage().getLabelByAccount(accountToDelete.getId());
-               int labelCount = 1;
-               if (accountToDelete instanceof ColuAccount) {
-                  label += ", " + _mbwManager.getMetadataStorage().getLabelByAccount(((ColuAccount) accountToDelete).getLinkedAccount().getId());
-                  labelCount++;
-               } else if (linkedAccount != null) {
-                  label += ", " + _mbwManager.getMetadataStorage().getLabelByAccount(linkedAccount.getId());
-                  labelCount++;
-               }
-               String message;
+                int labelCount = 1;
+                if (linkedAccount != null) {
+                    label += ", " + _mbwManager.getMetadataStorage().getLabelByAccount(linkedAccount.getId());
+                    labelCount++;
+                }
+                String message;
 
                // For active accounts we check whether there is money on them before deleting. we don't know if there
                // is money on archived accounts
@@ -317,9 +315,9 @@ public class AccountsFragment extends Fragment {
                           getAllSupportedAddresses(_mbwManager.getNetwork());
                   address = TextUtils.join("\n\n", addressMap.values());
                } else {
-                  Optional<Address> receivingAddress = ((WalletBtcAccount)accountToDelete).getReceivingAddress();
-                  if (receivingAddress.isPresent()) {
-                     address = receivingAddress.get().toMultiLineString();
+                  GenericAddress receivingAddress = accountToDelete.getReceiveAddress();
+                  if (receivingAddress != null) {
+                     address = receivingAddress.toString(); //todo multiline string
                   } else {
                      address = "";
                   }
@@ -360,8 +358,9 @@ public class AccountsFragment extends Fragment {
                            //Check if this SingleAddress account is related with ColuAccount
                            WalletAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, walletManager.getAccounts());
                            if (linkedColuAccount != null && linkedColuAccount instanceof ColuAccount) {
-//                              ColuManager coluManager = _mbwManager.getColuManager();
-//                              coluManager.forgetPrivateKey((ColuAccount) linkedColuAccount);
+                              walletManager.deleteAccount(accountToDelete.getId());
+                              walletManager.createAccounts(new PublicColuConfig(new PublicKey(accountToDelete.getReceiveAddress().getBytes())
+                                      , (ColuMain) accountToDelete.getCoinType()));
                            } else {
                               ((SingleAddressAccount) accountToDelete).forgetPrivateKey(AesKeyCipher.defaultKeyCipher());
                            }
@@ -373,8 +372,9 @@ public class AccountsFragment extends Fragment {
                         if (accountToDelete instanceof ColuAccount) {
                            try {
                               if (keepAddrCheckbox.isChecked()) {
-//                                 ColuManager coluManager = _mbwManager.getColuManager();
-//                                 coluManager.forgetPrivateKey((ColuAccount) accountToDelete);
+                                 walletManager.deleteAccount(accountToDelete.getId());
+                                 walletManager.createAccounts(new PublicColuConfig(new PublicKey(accountToDelete.getReceiveAddress().getBytes())
+                                         , (ColuMain) accountToDelete.getCoinType()));
                               } else {
                                  walletManager.deleteAccount(accountToDelete.getId());
                                  _storage.deleteAccountMetadata(accountToDelete.getId());
@@ -512,11 +512,7 @@ public class AccountsFragment extends Fragment {
     */
    private WalletAccount getLinkedAccount(WalletAccount account) {
       WalletAccount linkedAccount;
-      if (account instanceof ColuAccount) {
-         linkedAccount = ((ColuAccount) account).getLinkedAccount();
-      } else {
-         linkedAccount = Utils.getLinkedAccount(account, getColuAccounts(walletManager));
-      }
+      linkedAccount = Utils.getLinkedAccount(account, walletManager.getAccounts());
 
       if (linkedAccount == null) {
          linkedAccount = _mbwManager.getWalletManager(false).getAccount(MbwManager.getBitcoinCashAccountId(account));
@@ -1298,11 +1294,6 @@ public class AccountsFragment extends Fragment {
          });
       }
    };
-
-   @Subscribe()
-   public void onExtraAccountsChanged(ExtraAccountsChanged event) {
-      update();
-   }
 
    @Subscribe
    public void addressChanged(ReceivingAddressChanged event) {

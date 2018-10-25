@@ -15,6 +15,7 @@ import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
+import com.mycelium.wapi.wallet.coinapult.Currency
 import com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount
 import com.squareup.otto.Subscribe
 import java.util.*
@@ -138,3 +139,5 @@ fun WalletManager.getBTCSingleAddressAccounts() = getAccounts().filter { it is S
 fun WalletManager.getColuAccounts(): List<WalletAccount<*, *>> = getAccounts().filter { it is ColuPubOnlyAccount && it.isVisible }
 
 fun WalletManager.getCoinapultAccounts(): List<WalletAccount<*, *>> = getAccounts().filter { it is com.mycelium.wapi.wallet.coinapult.CoinapultAccount && it.isVisible }
+
+fun WalletManager.getCoinapultAccount(currency: Currency):WalletAccount<*, *>? = getCoinapultAccounts().find { it.coinType == currency }

@@ -72,6 +72,7 @@ import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.MrdExport;
 import com.mrd.bitlib.crypto.PrivateKey;
+import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.crypto.RandomSource;
 import com.mrd.bitlib.crypto.SignedMessage;
 import com.mrd.bitlib.model.Address;
@@ -145,7 +146,6 @@ import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
 import com.mycelium.wapi.wallet.btc.bip44.ExternalSignatureProviderProxy;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
-import com.mycelium.wapi.wallet.btc.single.AddressSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.BitcoinSingleAddressModule;
 import com.mycelium.wapi.wallet.btc.single.PrivateSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore;
@@ -153,6 +153,9 @@ import com.mycelium.wapi.wallet.btc.single.PublicSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coinapult.CoinapultModule;
 import com.mycelium.wapi.wallet.colu.ColuModule;
+import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
+import com.mycelium.wapi.wallet.colu.coins.MTCoin;
+import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -183,6 +186,7 @@ import java.util.logging.Level;
 
 import kotlin.jvm.functions.Function0;
 
+import static com.mycelium.wallet.AccountManagerKt.getCoinapultAccounts;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class MbwManager {
@@ -362,9 +366,6 @@ public class MbwManager {
 
         _walletManager.addObserver(_eventTranslator);
         _coinapultManager = createCoinapultManager();
-//        if (_coinapultManager.isPresent()) {
-//            addExtraAccounts(_coinapultManager.get());
-//        }
 
 //        new InitColuManagerTask().execute();
         // set the currency-list after we added all extra accounts, they may provide
@@ -388,30 +389,6 @@ public class MbwManager {
     private void initBTCSettings() {
         BTCSettings btcSettings = new BTCSettings(defaultAddressType, new Reference<>(changeAddressMode));
         currenciesSettingsMap.put(Currency.BTC, btcSettings);
-    }
-
-//    private class InitColuManagerTask extends AsyncTask<Void, Void, Optional<ColuManager>> {
-//        protected Optional<ColuManager> doInBackground(Void... params) {
-//            return Optional.of(getColuManager());
-//        }
-//
-//        protected void onPostExecute(Optional<ColuManager> coluMgr) {
-//            _coluManager = coluMgr;
-//            if(_coluManager.isPresent()) {
-//                addExtraAccounts(_coluManager.get());
-//            }
-//        }
-//    }
-
-    public void addExtraAccounts(AccountProvider accounts) {
-        _walletManager.addExtraAccounts(accounts);
-        _hasCoinapultAccounts = null;  // invalidate cache
-    }
-
-    @Subscribe()
-    public void onExtraAccountsChanged(ExtraAccountsChanged event) {
-        _walletManager.refreshExtraAccounts();
-        _hasCoinapultAccounts = null;  // invalidate cache
     }
 
     private Optional<CoinapultManager> createCoinapultManager() {
@@ -824,7 +801,12 @@ public class MbwManager {
     }
 
     public void setCurrencyList(Set<String> currencies) {
-        Set<String> allActiveFiatCurrencies = _walletManager.getAllActiveFiatCurrencies();
+        Set<String> allActiveFiatCurrencies = new HashSet<>();
+
+        allActiveFiatCurrencies.add(RMCCoin.INSTANCE.getSymbol());
+        allActiveFiatCurrencies.add(MASSCoin.INSTANCE.getSymbol());
+        allActiveFiatCurrencies.add(MTCoin.INSTANCE.getSymbol());
+
         // let the exchange-rate manager fetch all currencies, that we might need
         _exchangeRateManager.setCurrencyList(Sets.union(currencies, allActiveFiatCurrencies));
 
@@ -1238,7 +1220,7 @@ public class MbwManager {
     }
 
     public UUID createOnTheFlyAccount(Address address) {
-        UUID accountId = _tempWalletManager.createAccounts(new AddressSingleConfig(address)).get(0);
+        UUID accountId = _tempWalletManager.createAccounts(new PublicSingleConfig(new PublicKey(address.getAllAddressBytes()))).get(0);
         _tempWalletManager.getAccount(accountId).setAllowZeroConfSpending(true);
         _tempWalletManager.setActiveAccount(accountId);  // this also starts a sync
         return accountId;
@@ -1497,18 +1479,7 @@ public class MbwManager {
         }, 1000, 5 * 1000);
     }
 
-    private Boolean _hasCoinapultAccounts = null;
-
-    public boolean hasCoinapultAccount() {
-        if (_hasCoinapultAccounts == null) {
-            _hasCoinapultAccounts = getMetadataStorage().isPairedService(MetadataStorage.PAIRED_SERVICE_COINAPULT);
-        }
-        return _hasCoinapultAccounts;
-    }
-
-   public boolean hasColoredAccounts() {
-      return getMetadataStorage().isPairedService(MetadataStorage.PAIRED_SERVICE_COLU);
-   }private void pinOkForOneS() {
+   private void pinOkForOneS() {
       if(pinOkTimeoutHandle != null) {
          pinOkTimeoutHandle.cancel(true);
       }
