@@ -15,4 +15,21 @@ abstract class EthCoin: CryptoCurrency(){
     override fun newAddress(addressStr: String): GenericAddress {
         return AddressUtils.from(this, addressStr)
     }
+    override fun getSymbol() = "ETH"
+    override fun getUnitExponent(): Int {
+        return 0
+    }
+}
+
+object EthMain : EthCoin() {
+    init {
+        id = "La4szjzKfJyHQ75qgDEnbzp4qY8GQeDR5Z7h2W"
+    }
+}
+
+
+object EthTest : EthCoin() {
+    init {
+        id = "La4szjzKfJyHQ75qgDEnbzp4qY8GQeDR5Z7h2W"
+    }
 }
