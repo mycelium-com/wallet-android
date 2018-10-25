@@ -342,11 +342,7 @@ public class BTChipDongle implements BTChipConstants {
 
 
    private byte[] exchangeApdu(byte cla, byte ins, byte p1, byte p2, int acceptedSW[]) throws BTChipException {
-      byte[] apdu = new byte[4];
-      apdu[0] = cla;
-      apdu[1] = ins;
-      apdu[2] = p1;
-      apdu[3] = p2;
+      byte[] apdu = {cla, ins, p1, p2};
       return exchangeCheck(apdu, acceptedSW);
    }
 
@@ -680,7 +676,7 @@ public class BTChipDongle implements BTChipConstants {
    public void setKeymapEncoding(byte[] keymapEncoding) throws BTChipException {
       ByteArrayOutputStream data = new ByteArrayOutputStream();
       BufferUtils.writeBuffer(data, keymapEncoding);
-      exchangeApdu(BTCHIP_CLA, BTCHIP_INS_SET_KEYMAP, (byte) 0x00, (byte) 0x00, data.toByteArray(), OK_NOT_SUPPORTED);
+      exchangeApdu(BTCHIP_CLA, BTCHIP_INS_SET_KEYMAP, (byte) 0x00, (byte) 0x00, data.toByteArray(), OK);
    }
 
    public boolean setup(OperationMode supportedOperationModes[], Feature features[], int keyVersion, int keyVersionP2SH, byte[] userPin, byte[] wipePin, byte[] keymapEncoding, byte[] seed, byte[] developerKey) throws BTChipException {
