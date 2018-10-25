@@ -40,7 +40,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.StrictMode;
@@ -151,7 +150,7 @@ import com.mycelium.wapi.wallet.btc.single.BitcoinSingleAddressModule;
 import com.mycelium.wapi.wallet.btc.single.PrivateSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore;
 import com.mycelium.wapi.wallet.btc.single.PublicSingleConfig;
-import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;;
+import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coinapult.CoinapultModule;
 import com.mycelium.wapi.wallet.colu.ColuModule;
 import com.squareup.otto.Bus;
@@ -181,6 +180,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
+
+import kotlin.jvm.functions.Function0;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
@@ -365,7 +366,7 @@ public class MbwManager {
 //            addExtraAccounts(_coinapultManager.get());
 //        }
 
-        new InitColuManagerTask().execute();
+//        new InitColuManagerTask().execute();
         // set the currency-list after we added all extra accounts, they may provide
         // additional needed fiat currencies
         setCurrencyList(fiatCurrencies);
@@ -389,18 +390,18 @@ public class MbwManager {
         currenciesSettingsMap.put(Currency.BTC, btcSettings);
     }
 
-    private class InitColuManagerTask extends AsyncTask<Void, Void, Optional<ColuManager>> {
-        protected Optional<ColuManager> doInBackground(Void... params) {
-            return Optional.of(getColuManager());
-        }
-
-        protected void onPostExecute(Optional<ColuManager> coluMgr) {
-            _coluManager = coluMgr;
-            if(_coluManager.isPresent()) {
-                addExtraAccounts(_coluManager.get());
-            }
-        }
-    }
+//    private class InitColuManagerTask extends AsyncTask<Void, Void, Optional<ColuManager>> {
+//        protected Optional<ColuManager> doInBackground(Void... params) {
+//            return Optional.of(getColuManager());
+//        }
+//
+//        protected void onPostExecute(Optional<ColuManager> coluMgr) {
+//            _coluManager = coluMgr;
+//            if(_coluManager.isPresent()) {
+//                addExtraAccounts(_coluManager.get());
+//            }
+//        }
+//    }
 
     public void addExtraAccounts(AccountProvider accounts) {
         _walletManager.addExtraAccounts(accounts);
@@ -672,7 +673,8 @@ public class MbwManager {
 
         SpvBalanceFetcher spvBchFetcher = getSpvBchFetcher();
         // Create and return wallet manager
-        WalletManager walletManager = new WalletManager(secureKeyValueStore, backing, environment.getNetwork(), _wapi, Utils.isConnected(context), currenciesSettingsMap);
+        WalletManager walletManager = new WalletManager(secureKeyValueStore, backing, environment.getNetwork(), _wapi,
+                 Utils.isConnected(context), currenciesSettingsMap);
 
         // notify the walletManager about the current selected account
         UUID lastSelectedAccountId = getLastSelectedAccountId();
@@ -1267,7 +1269,7 @@ public class MbwManager {
                 // We had a bug that allowed it, and the app will crash always after restart.
                 _walletManager.activateFirstAccount();
             }
-            uuid = _walletManager.getActiveHDAccounts().get(0).getId();
+            uuid = _walletManager.getAccounts().get(0).getId();
             setSelectedAccount(uuid);
         }
 
@@ -1461,18 +1463,18 @@ public class MbwManager {
         }
     }
 
-    public synchronized ColuManager getColuManager() {
-        if(_coluManager != null && _coluManager.isPresent()) {
-            return _coluManager.get();
-        } else {
-            _coluManager = createColuManager(_applicationContext);
-            if (_coluManager.isPresent()) {
-                return _coluManager.get();
-            } else {
-                throw new IllegalStateException("Tried to obtain colu manager without having created one.");
-            }
-        }
-    }
+//    public synchronized ColuManager getColuManager() {
+//        if(_coluManager != null && _coluManager.isPresent()) {
+//            return _coluManager.get();
+//        } else {
+//            _coluManager = createColuManager(_applicationContext);
+//            if (_coluManager.isPresent()) {
+//                return _coluManager.get();
+//            } else {
+//                throw new IllegalStateException("Tried to obtain colu manager without having created one.");
+//            }
+//        }
+//    }
 
     public Cache<String, Object> getBackgroundObjectsCache() {
         return _semiPersistingBackgroundObjects;

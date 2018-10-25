@@ -1,13 +1,8 @@
 package com.mycelium.wapi.wallet
 
-import com.google.common.base.Predicate
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wapi.api.Wapi
-import com.mycelium.wapi.wallet.GenericAddress
-import com.mycelium.wapi.wallet.SyncMode
-import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking
-import com.mycelium.wapi.wallet.btc.bip44.ExternalSignatureProviderProxy
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.manager.Config
 import com.mycelium.wapi.wallet.manager.Synchronizer
@@ -59,13 +54,14 @@ class WalletManager(val _secureKeyValueStore: SecureKeyValueStore,
         for (walletModule in walletModules.values) {
             accounts.putAll(walletModule.loadAccounts())
         }
+        startSynchronization(SyncMode.FULL_SYNC_ALL_ACCOUNTS)
     }
 
     fun getState() = state
 
     fun getAccountIds(): List<UUID> = accounts.keys.toList()
 
-    fun getModuleById(id: String) : WalletModule? = walletModules.get(id)
+    fun getModuleById(id: String) : WalletModule? = walletModules[id]
 
     fun isMy(address: GenericAddress) = getAccountBy(address) != null
 

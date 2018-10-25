@@ -94,7 +94,6 @@ import com.mycelium.wallet.activity.export.ExportAsQrActivity;
 import com.mycelium.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.persistence.MetadataStorage;
-import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.ExportableAccount;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -774,9 +773,7 @@ public class Utils {
 
    public static WalletAccount getLinkedAccount(WalletAccount account, final Collection<? extends WalletAccount> accounts) {
       for (WalletAccount walletAccount : accounts) {
-         if (walletAccount instanceof ColuAccount
-                 && ((ColuAccount) walletAccount).getLinkedAccount() != null
-                 && ((ColuAccount) walletAccount).getLinkedAccount().equals(account)) {
+         if (!walletAccount.getId().equals(account.getId()) && account.isMineAddress(walletAccount.getReceiveAddress())) {
             return walletAccount;
          }
       }
@@ -849,7 +846,7 @@ public class Utils {
          @Nullable
          @Override
          public String apply(@Nullable WalletAccount input) {
-            return storage.getLabelByAccount(input.getId());
+            return input != null ? storage.getLabelByAccount(input.getId()) : "";
          }
       });
       return type.compound(index).compound(linked).compound(name).sortedCopy(accounts);

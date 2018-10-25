@@ -208,10 +208,10 @@ public class AddressWidgetAdapter extends PagerAdapter {
             String name = mbwManager.getMetadataStorage().getLabelByAccount(mbwManager.getSelectedAccount().getId());
             tvLabel.setText(name);
             tvAddress.setText(mbwManager.getSelectedAccount().getReceiveAddress().toString());
-            AssetMetadata assetMetadata = mbwManager.getColuManager().getAssetMetadata(ColuAccount.ColuAssetType.RMC);
-            tvTotalIssued.setText(assetMetadata != null ?
-                    assetMetadata.getTotalSupply().stripTrailingZeros().toPlainString()
-                    : context.getString(R.string.not_available));
+//            AssetMetadata assetMetadata = mbwManager.getColuManager().getAssetMetadata(ColuAccount.ColuAssetType.RMC);
+//            tvTotalIssued.setText(assetMetadata != null ?
+//                    assetMetadata.getTotalSupply().stripTrailingZeros().toPlainString()
+//                    : context.getString(R.string.not_available));
 
             if (poolStatisticInfo != null) {
                 if (poolStatisticInfo.totalRmcHashrate != 0) {

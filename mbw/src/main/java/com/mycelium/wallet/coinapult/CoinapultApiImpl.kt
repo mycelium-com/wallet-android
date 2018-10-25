@@ -3,24 +3,27 @@ package com.mycelium.wallet.coinapult
 import android.util.Log
 import com.coinapult.api.httpclient.CoinapultClient
 import com.coinapult.api.httpclient.SearchMany
+import com.coinapult.api.httpclient.Transaction
 import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.wapi.wallet.GenericAddress
-import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.BtcLegacyAddress
 import com.mycelium.wapi.wallet.coinapult.CoinapultApi
 import com.mycelium.wapi.wallet.coinapult.CoinapultTransaction
 import com.mycelium.wapi.wallet.coinapult.Currency
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.Value
+import java.io.IOException
 import java.math.BigDecimal
+import java.math.MathContext
 import java.net.SocketTimeoutException
+import java.security.NoSuchAlgorithmException
 
 
 class CoinapultApiImpl(val client: CoinapultClient) : CoinapultApi {
-    override fun getAddress(currency: Currency, currenctAddress: GenericAddress?): GenericAddress? {
+    override fun getAddress(currency: Currency, currentAddress: GenericAddress?): GenericAddress? {
         var address: GenericAddress? = null
-        if (currenctAddress == null) {
+        if (currentAddress == null) {
             address = BtcLegacyAddress(currency, Address.fromString(client.bitcoinAddress.address).allAddressBytes)
         } else {
             val criteria = HashMap<String, String>(1)
@@ -31,7 +34,7 @@ class CoinapultApiImpl(val client: CoinapultClient) : CoinapultApi {
                 // get a new one
                 address = BtcLegacyAddress(currency, Address.fromString(client.bitcoinAddress.address).allAddressBytes)
             } else {
-                address = currenctAddress
+                address = currentAddress
             }
             client.config(address.toString(), currency.name)
         }
@@ -94,5 +97,33 @@ class CoinapultApiImpl(val client: CoinapultClient) : CoinapultApi {
                 }
             }
         }
+    }
+
+    override fun broadcast(amount:BigDecimal, currency:Currency, address:BtcLegacyAddress) {
+        try {
+            val send: Transaction.Json
+            if (currency != Currency.BTC) {
+                send = client.send(amount, currency.name, address.toString(), BigDecimal.ZERO, null, null, null)
+            } else {
+//                val fullBtc = BigDecimal(preparedCoinapult.satoshis).divide(SATOSHIS_PER_BTC, MathContext.DECIMAL32)
+                send = client.send(BigDecimal.ZERO, currency.name, address.toString(), amount, null, null, null)
+            }
+//            val error = send["error"]
+//            if (error != null) {
+//                return false
+//            }
+//            val transaction_id = send["transaction_id"]
+//            val hasId = transaction_id != null
+//            if (hasId) {
+//                extraHistory.add(send)
+//            }
+//            return hasId
+        } catch (e: IOException) {
+//            return false
+        } catch (e: NoSuchAlgorithmException) {
+            throw RuntimeException(e)
+        }
+
+
     }
 }

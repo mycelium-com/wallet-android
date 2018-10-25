@@ -127,6 +127,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static com.mycelium.wallet.AccountManagerKt.getColuAccounts;
+
 public class AccountsFragment extends Fragment {
    public static final int ADD_RECORD_RESULT_CODE = 0;
 
@@ -356,10 +358,10 @@ public class AccountsFragment extends Fragment {
                      if (keepAddrCheckbox.isChecked() && accountToDelete instanceof SingleAddressAccount) {
                         try {
                            //Check if this SingleAddress account is related with ColuAccount
-                           WalletAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, _mbwManager.getColuManager().getAccounts().values());
+                           WalletAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, walletManager.getAccounts());
                            if (linkedColuAccount != null && linkedColuAccount instanceof ColuAccount) {
-                              ColuManager coluManager = _mbwManager.getColuManager();
-                              coluManager.forgetPrivateKey((ColuAccount) linkedColuAccount);
+//                              ColuManager coluManager = _mbwManager.getColuManager();
+//                              coluManager.forgetPrivateKey((ColuAccount) linkedColuAccount);
                            } else {
                               ((SingleAddressAccount) accountToDelete).forgetPrivateKey(AesKeyCipher.defaultKeyCipher());
                            }
@@ -370,11 +372,11 @@ public class AccountsFragment extends Fragment {
                      } else {
                         if (accountToDelete instanceof ColuAccount) {
                            try {
-                              ColuManager coluManager = _mbwManager.getColuManager();
                               if (keepAddrCheckbox.isChecked()) {
-                                 coluManager.forgetPrivateKey((ColuAccount) accountToDelete);
+//                                 ColuManager coluManager = _mbwManager.getColuManager();
+//                                 coluManager.forgetPrivateKey((ColuAccount) accountToDelete);
                               } else {
-                                 coluManager.deleteAccount((ColuAccount) accountToDelete);
+                                 walletManager.deleteAccount(accountToDelete.getId());
                                  _storage.deleteAccountMetadata(accountToDelete.getId());
                                  _toaster.toast("Deleting account.", false);
                                  _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
@@ -386,10 +388,9 @@ public class AccountsFragment extends Fragment {
                            }
                         } else {
                            //Check if this SingleAddress account is related with ColuAccount
-                           WalletAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, _mbwManager.getColuManager().getAccounts().values());
+                           WalletAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, walletManager.getAccounts());
                            if (linkedColuAccount != null && linkedColuAccount instanceof ColuAccount) {
-                              ColuManager coluManager = _mbwManager.getColuManager();
-                              coluManager.deleteAccount((ColuAccount) linkedColuAccount);
+                              walletManager.deleteAccount(linkedColuAccount.getId());
                            } else {
                               walletManager.deleteAccount(accountToDelete.getId());
                            }
@@ -412,14 +413,12 @@ public class AccountsFragment extends Fragment {
             } else {
                // account has no private data - dont make a fuzz about it and just delete it
                if (accountToDelete instanceof ColuAccount) {
-                  ColuManager coluManager = _mbwManager.getColuManager();
-                  coluManager.deleteAccount((ColuAccount) accountToDelete);
+                  walletManager.deleteAccount(accountToDelete.getId());
                } else {
                   //Check if this SingleAddress account is related with ColuAccount
-                  WalletAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, _mbwManager.getColuManager().getAccounts().values());
+                  WalletAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, walletManager.getAccounts());
                   if (linkedColuAccount != null && linkedColuAccount instanceof ColuAccount) {
-                     ColuManager coluManager = _mbwManager.getColuManager();
-                     coluManager.deleteAccount((ColuAccount) linkedColuAccount);
+                     walletManager.deleteAccount(linkedColuAccount.getId());
                      _storage.deleteAccountMetadata(linkedColuAccount.getId());
                   } else {
                      walletManager.deleteAccount(accountToDelete.getId());
@@ -516,7 +515,7 @@ public class AccountsFragment extends Fragment {
       if (account instanceof ColuAccount) {
          linkedAccount = ((ColuAccount) account).getLinkedAccount();
       } else {
-         linkedAccount = Utils.getLinkedAccount(account, _mbwManager.getColuManager().getAccounts().values());
+         linkedAccount = Utils.getLinkedAccount(account, getColuAccounts(walletManager));
       }
 
       if (linkedAccount == null) {
@@ -588,7 +587,7 @@ public class AccountsFragment extends Fragment {
 
       final List<Integer> menus = Lists.newArrayList();
       if(!(account instanceof ColuAccount)
-              && !Utils.checkIsLinked(account, _mbwManager.getColuManager().getAccounts().values()) ) {
+              && !Utils.checkIsLinked(account, getColuAccounts(walletManager))) {
          menus.add(R.menu.record_options_menu);
       }
 
@@ -671,8 +670,7 @@ public class AccountsFragment extends Fragment {
          @Override
          public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
             // If we are synchronizing, show "Synchronizing, please wait..." to avoid blocking behavior
-            if (_mbwManager.getWalletManager(false).getState() == State.SYNCHRONIZING
-                    || _mbwManager.getColuManager().getState() == State.SYNCHRONIZING) {
+            if (_mbwManager.getWalletManager(false).getState() == State.SYNCHRONIZING) {
                _toaster.toast(R.string.synchronizing_please_wait, false);
                return true;
             }
@@ -1102,7 +1100,7 @@ public class AccountsFragment extends Fragment {
 
    private void activate(WalletAccount account) {
       account.activateAccount();
-      WalletAccount linkedAccount = Utils.getLinkedAccount(account, _mbwManager.getColuManager().getAccounts().values());
+      WalletAccount linkedAccount = Utils.getLinkedAccount(account, getColuAccounts(walletManager));
       if (linkedAccount != null) {
          linkedAccount.activateAccount();
       }
@@ -1229,7 +1227,7 @@ public class AccountsFragment extends Fragment {
 
                  public void onClick(DialogInterface arg0, int arg1) {
                     account.archiveAccount();
-                    WalletAccount linkedAccount = Utils.getLinkedAccount(account, _mbwManager.getColuManager().getAccounts().values());
+                    WalletAccount linkedAccount = Utils.getLinkedAccount(account, getColuAccounts(walletManager));
                     if (linkedAccount != null) {
                        linkedAccount.archiveAccount();
                     }

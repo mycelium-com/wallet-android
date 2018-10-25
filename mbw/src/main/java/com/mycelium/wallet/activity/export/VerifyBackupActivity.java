@@ -54,6 +54,7 @@ import com.mycelium.wallet.activity.StringHandlerActivity;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 
@@ -61,6 +62,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
+
+import static com.mycelium.wallet.AccountManagerKt.getColuAccounts;
 
 public class VerifyBackupActivity extends Activity {
 
@@ -146,9 +149,9 @@ public class VerifyBackupActivity extends Activity {
 
    private int countKeysToVerify() {
       int num = 0;
-      for (UUID accountid : _mbwManager.getWalletManager(false).getAccountIds()) {
-         WalletAccount account = _mbwManager.getWalletManager(false).getAccount(accountid);
-         MetadataStorage.BackupState backupState = _mbwManager.getMetadataStorage().getOtherAccountBackupState(accountid);
+      WalletManager walletManager = _mbwManager.getWalletManager(false);
+      for (WalletAccount account : walletManager.getAccounts()) {
+         MetadataStorage.BackupState backupState = _mbwManager.getMetadataStorage().getOtherAccountBackupState(account.getId());
 
          if (backupState!= MetadataStorage.BackupState.IGNORED) {
             boolean needsBackup = account instanceof SingleAddressAccount
@@ -160,13 +163,11 @@ public class VerifyBackupActivity extends Activity {
             }
          }
       }
-      for (UUID accountid : _mbwManager.getColuManager().getAccounts().keySet()) {
-         WalletAccount account = _mbwManager.getColuManager().getAccount(accountid);
-         MetadataStorage.BackupState backupState = _mbwManager.getMetadataStorage().getOtherAccountBackupState(accountid);
+      for (WalletAccount account : getColuAccounts(walletManager)) {
+         MetadataStorage.BackupState backupState = _mbwManager.getMetadataStorage().getOtherAccountBackupState(account.getId());
 
          if (backupState!= MetadataStorage.BackupState.IGNORED) {
-            boolean needsBackup =  account != null && account.canSpend()
-                    && backupState != MetadataStorage.BackupState.VERIFIED;
+            boolean needsBackup = account.canSpend() && backupState != MetadataStorage.BackupState.VERIFIED;
             if (needsBackup) {
                num++;
             }
@@ -193,8 +194,7 @@ public class VerifyBackupActivity extends Activity {
          // Figure out the account ID
          account = SingleAddressAccount.calculateId(currentAddress);
          // Check whether regular wallet contains that account
-         success = _mbwManager.getWalletManager(false).hasAccount(account)
-                 || _mbwManager.getColuManager().hasAccount(account);
+         success = _mbwManager.getWalletManager(false).hasAccount(account);
          if (success) {
             allAddresses = pk.getPublicKey().getAllSupportedAddresses(_mbwManager.getNetwork()).values();
             break;
@@ -203,7 +203,7 @@ public class VerifyBackupActivity extends Activity {
 
       for (ColuAccount.ColuAsset coluAsset : ColuAccount.ColuAsset.getAssetMap().values()) {
          UUID coluUUID = ColuAccount.getGuidForAsset(coluAsset, pk.getPublicKey().toAddress(_mbwManager.getNetwork(), AddressType.P2PKH).getAllAddressBytes());
-         success |= _mbwManager.getColuManager().hasAccount(coluUUID);
+         success |= _mbwManager.getWalletManager(false).hasAccount(coluUUID);
       }
 
       if (success) {

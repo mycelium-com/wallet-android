@@ -74,7 +74,7 @@ object AccountManager : AccountProvider {
 
     fun getCoinapultAccounts() = getAccountsByType<CoinapultAccount>()
 
-    fun getColuAccounts() = getAccountsByType<ColuAccount>()
+//    fun getColuAccounts() = getAccountsByType<ColuAccount>()
 
     fun getActiveAccounts(): ImmutableMap<UUID, WalletAccount<out GenericTransaction, out GenericAddress>> =
             getFilteredAccounts(accountsSemaphore, accounts) {
