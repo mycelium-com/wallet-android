@@ -1,10 +1,9 @@
 package com.mycelium.wapi.wallet.bch.coins
 
-import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.SoftDustPolicy
 
-class BchMain private constructor() : BchCoin() {
-    //TODO: create init
+object BchMain: BchCoin() {
+
     init {
         id = "bitcoin_cash.test"
         name = "Bitcoin Cash Test"
@@ -24,11 +23,7 @@ class BchMain private constructor() : BchCoin() {
         signedMessageHeader = toBytes("Bitcoin Cash Signed Message:\n")
     }
 
-    companion object {
-        private val instance = BchMain()
-        @Synchronized
-        fun get(): CryptoCurrency {
-            return instance
-        }
+    override fun getUnitExponent(): Int {
+        return 0
     }
 }

@@ -8,7 +8,7 @@ import com.mycelium.wapi.wallet.exceptions.AddressMalformedException
 
 abstract class BchCoin: CryptoCurrency(){
     init {
-        family = Families.BITCOINCASH
+        family = Families.BITCOIN
     }
 
     @Throws(AddressMalformedException::class)
