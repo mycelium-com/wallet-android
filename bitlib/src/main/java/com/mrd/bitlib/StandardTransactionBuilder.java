@@ -216,22 +216,6 @@ public class StandardTransactionBuilder {
       return unsignedTransaction;
    }
 
-   /**
-    * Get a number of segwit outputs from the entire list of output
-    *
-    * @param outputs A list of outputs
-    * @return A number of segwit outputs
-    */
-   public static int getSegwitOutputsCount(Collection<UnspentTransactionOutput> outputs) {
-      int segwitOutputs = 0;
-      for(UnspentTransactionOutput u : outputs) {
-         if (u.script instanceof ScriptOutputP2WPKH || u.script instanceof ScriptOutputP2SH) {
-            segwitOutputs++;
-         }
-      }
-      return segwitOutputs;
-   }
-
    private boolean needChangeOutputInEstimation(List<UnspentTransactionOutput> funding,
                                                 long outputSum, long minerFeeToUse) {
 

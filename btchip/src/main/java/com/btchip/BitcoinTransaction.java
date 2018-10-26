@@ -19,6 +19,7 @@
 
 package com.btchip;
 
+import com.btchip.utils.BufferUtils;
 import com.btchip.utils.Dump;
 import com.btchip.utils.VarintUtils;
 
@@ -115,6 +116,12 @@ public class BitcoinTransaction {
          this.script = script;
       }
 
+      public void serialize(ByteArrayOutputStream output) throws BTChipException {
+         BufferUtils.writeBuffer(output, amount);
+         VarintUtils.write(output, script.length);
+         BufferUtils.writeBuffer(output, script);
+      }
+
       public String toString() {
          StringBuffer buffer = new StringBuffer();
          buffer.append("Amount ").append(Dump.dump(amount)).append('\r').append('\n');
@@ -176,6 +183,17 @@ public class BitcoinTransaction {
       } catch (Exception e) {
          throw new BTChipException("Invalid encoding", e);
       }
+   }
+
+
+
+   public byte[] serializeOutputs() throws BTChipException {
+      ByteArrayOutputStream output = new ByteArrayOutputStream();
+      VarintUtils.write(output, outputs.size());
+      for (BitcoinOutput outputItem : outputs) {
+         outputItem.serialize(output);
+      }
+      return output.toByteArray();
    }
 
    public byte[] getVersion() {

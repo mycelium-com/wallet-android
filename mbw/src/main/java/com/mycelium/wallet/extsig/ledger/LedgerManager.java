@@ -46,9 +46,9 @@ import com.btchip.BitcoinTransaction;
 import com.btchip.comm.BTChipTransportFactory;
 import com.btchip.comm.BTChipTransportFactoryCallback;
 import com.btchip.comm.android.BTChipTransportAndroid;
+import com.btchip.utils.BufferUtils;
 import com.btchip.utils.Dump;
 import com.btchip.utils.KeyUtils;
-import com.btchip.utils.SignatureUtils;
 import com.google.common.base.Optional;
 import com.ledger.tbase.comm.LedgerTransportTEEProxy;
 import com.ledger.tbase.comm.LedgerTransportTEEProxyFactory;
@@ -69,17 +69,18 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.util.AbstractAccountScanManager;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.wallet.WalletManager;
+import com.mycelium.wapi.wallet.bip44.ExternalSignatureProvider;
 import com.mycelium.wapi.wallet.bip44.HDAccountContext;
 import com.mycelium.wapi.wallet.bip44.HDAccountExternalSignature;
-import com.mycelium.wapi.wallet.bip44.ExternalSignatureProvider;
 import com.squareup.otto.Bus;
 import nordpol.android.OnDiscoveredTagListener;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-import java.util.Vector;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -212,151 +213,82 @@ public class LedgerManager extends AbstractAccountScanManager implements
       tx2FaEntry.offer(tx2FaPin);
    }
 
-   private Transaction signInternal(UnsignedTransaction unsigned,
-                                    HDAccountExternalSignature forAccount) throws BTChipException, TransactionOutputParsingException {
-
-      Transaction unsignedtx;
-      BTChipDongle.BTChipInput inputs[];
-      Vector<byte[]> signatures;
-      String outputAddress = null, amount, fees, commonPath = null, changePath = "";
-      long totalSending = 0;
-      SigningRequest[] signatureInfo;
-      String txpin = "";
-      BTChipDongle.BTChipOutput outputData = null;
-      ByteWriter rawOutputsWriter = new ByteWriter(1024);
-      byte[] rawOutputs;
-
+   private Transaction signInternal(final UnsignedTransaction unsigned, final HDAccountExternalSignature forAccount)
+           throws BTChipException, TransactionOutputParsingException {
       if (!initialize()) {
          postErrorMessage("Failed to connect to Ledger device");
          return null;
       }
-      boolean isTEE = isTee();
-
       setState(Status.readyToScan, getCurrentAccountState());
 
-      if (isTEE) {
-         // Check that the TEE PIN is not blocked
-         try {
-            int attempts = dongle.getVerifyPinRemainingAttempts();
-            if (attempts == 0) {
-               postErrorMessage("PIN is terminated");
-               return null;
-            }
-         } catch (BTChipException e) {
-            if (e.getSW() == SW_CONDITIONS_NOT_SATISFIED) {
-               postErrorMessage("PIN is terminated");
-               return null;
-            }
-            if (e.getSW() == SW_HALTED) {
-               LedgerTransportTEEProxy proxy = (LedgerTransportTEEProxy) getTransport().getTransport();
-               try {
-                  proxy.close();
-                  proxy.init();
-                  int attempts = dongle.getVerifyPinRemainingAttempts();
-                  if (attempts == 0) {
-                     postErrorMessage("PIN is terminated");
-                     return null;
-                  }
-               } catch (BTChipException e1) {
-                  if (e1.getSW() == SW_CONDITIONS_NOT_SATISFIED) {
-                     postErrorMessage("PIN is terminated");
-                     return null;
-                  }
-               } catch (Exception ignore) {
-               }
-            }
+      if (isTeePinLocked(isTee())) {
+         return null;
+      }
+
+      ByteWriter rawOutputsWriter = new ByteWriter(1024);
+      writeOutputs(unsigned, rawOutputsWriter);
+      byte[] rawOutputs = rawOutputsWriter.toBytes();
+
+      String commonPath = "%s" + "'/" + getNetwork().getBip44CoinType() + "'/" + forAccount.getAccountIndex() + "'/";
+      String changePath = getChangePath(unsigned, forAccount, commonPath);
+
+      // Legacy firmwares only
+
+      class LegacyParams {
+         private String outputAddress;
+         private String amount;
+         private String fees;
+
+         private LegacyParams(UnsignedTransaction unsigned, HDAccountExternalSignature forAccount) {
+            outputAddress = getOutputAddressString(unsigned, forAccount);
+            amount = CoinUtil.valueString(calculateTotalSending(unsigned, forAccount), false);
+            fees = CoinUtil.valueString(unsigned.calculateFee(), false);
          }
       }
 
-      signatureInfo = unsigned.getSigningRequests();
-      unsignedtx = Transaction.fromUnsignedTransaction(unsigned);
-      inputs = new BTChipDongle.BTChipInput[unsignedtx.inputs.length];
-      signatures = new Vector<byte[]>(unsignedtx.inputs.length);
+      LegacyParams legacyParams = new LegacyParams(unsigned, forAccount);
 
-      rawOutputsWriter.putCompactInt(unsigned.getOutputs().length);
-      // Format destination
-      for (TransactionOutput o : unsigned.getOutputs()) {
-         Address toAddress;
-         o.toByteWriter(rawOutputsWriter);
-         toAddress = o.script.getAddress(getNetwork());
-         String purpose = ((Byte) BipDerivationType.Companion.getDerivationTypeByAddress(toAddress).getPurpose()).toString();
-         commonPath = "%s" + "'/" + getNetwork().getBip44CoinType() + "'/" + forAccount.getAccountIndex() + "'/"; // TODO segwit fix
-         Optional<Integer[]> addressId = forAccount.getAddressId(toAddress);
-         if (!(addressId.isPresent() && addressId.get()[0] == 1)) {
-            // this output goes to a foreign address (addressId[0]==1 means its internal change)
-            totalSending += o.value;
-            outputAddress = toAddress.toString();
-         } else {
-            changePath = String.format(commonPath + addressId.get()[0] + "/" + addressId.get()[1], purpose);
-         }
-      }
-      rawOutputs = rawOutputsWriter.toBytes();
-      amount = CoinUtil.valueString(totalSending, false);
-      fees = CoinUtil.valueString(unsigned.calculateFee(), false);
+      // Prepare for creating inputs
+      Transaction unsignedTx = Transaction.fromUnsignedTransaction(unsigned);
+      int inputsNumber = unsignedTx.inputs.length;
+      BTChipDongle.BTChipInput[] inputs = new BTChipDongle.BTChipInput[inputsNumber];
+
+      String txPin = "";
+      BTChipDongle.BTChipOutput outputData = null;
+      List<byte[]> signatures = new ArrayList<>(inputsNumber);
+
+
       // Fetch trusted inputs
-      for (int i = 0; i < unsignedtx.inputs.length; i++) {
-         TransactionInput currentInput = unsignedtx.inputs[i];
-         Transaction currentTransaction = TransactionEx.toTransaction(forAccount.getTransaction(currentInput.outPoint.txid));
-         ByteArrayInputStream bis = new ByteArrayInputStream(currentTransaction.toBytes());
-         inputs[i] = dongle.getTrustedInput(new BitcoinTransaction(bis), currentInput.outPoint.index, currentInput.sequence);
-      }
-      // Sign all inputs
-      for (int i = 0; i < unsignedtx.inputs.length; i++) {
-         TransactionInput currentInput = unsignedtx.inputs[i];
-         try {
-            dongle.startUntrustedTransction(i == 0, i, inputs, currentInput.script.getScriptBytes());
-         } catch (BTChipException e) {
-            if (e.getSW() == SW_PIN_NEEDED) {
-               if (isTEE) {
-                  //if (dongle.hasScreenSupport()) {
-                  // PIN request is prompted on screen
-                  try {
-                     dongle.verifyPin(DUMMY_PIN.getBytes());
-                  } catch (BTChipException e1) {
-                     if ((e1.getSW() & 0xfff0) == SW_INVALID_PIN) {
-                        postErrorMessage("Invalid PIN - " + (e1.getSW() - SW_INVALID_PIN) + " attempts remaining");
-                        return null;
-                     }
-                  } finally {
-                     // Poor man counter
-                     LedgerTransportTEEProxy proxy = (LedgerTransportTEEProxy) getTransport().getTransport();
-                     try {
-                        byte[] updatedNvm = proxy.requestNVM().get();
-                        proxy.writeNVM(NVM_IMAGE, updatedNvm);
-                        proxy.setNVM(updatedNvm);
-                     } catch (Exception ignore) {
-                     }
-                  }
-                  dongle.startUntrustedTransction(i == 0, i, inputs, currentInput.script.getScriptBytes());
-               } else {
-                  getMainThreadHandler().post(new Runnable() {
-                     @Override
-                     public void run() {
-                        getEventBus().post(new OnPinRequest());
-                     }
-                  });
-                  String pin;
-                  try {
-                     // wait for the user to enter the pin
-                     pin = pinRequestEntry.take();
-                  } catch (InterruptedException e1) {
-                     pin = "";
-                  }
+      boolean isSegwit = unsigned.isSegwit();
+      for (int i = 0; i < inputsNumber; i++) {
+         // In case of SegWit transaction inputs must be created manually
+         if (isSegwit) {
+            final TransactionInput currentInput = unsignedTx.inputs[i];
+            final OutPoint txOutpoint = currentInput.outPoint;
+            final byte[] inputHash = txOutpoint.txid.reverse().getBytes();
+            final UnspentTransactionOutput prevOut = unsigned.getFundingOutputs()[i];
+            final ByteArrayOutputStream inputBuf = new ByteArrayOutputStream();
+            inputBuf.write(inputHash, 0, inputHash.length);
+            final long index = txOutpoint.index;
+            BufferUtils.writeUint32LE(inputBuf, index);
+            BufferUtils.writeUint64LE(inputBuf, prevOut.value);
 
-                  try {
-                     Log.d(LOG_TAG, "Reinitialize transport");
-                     initialize();
-                     Log.d(LOG_TAG, "Reinitialize transport done");
-                     dongle.verifyPin(pin.getBytes());
-                     dongle.startUntrustedTransction(i == 0, i, inputs, currentInput.script.getScriptBytes());
-                  } catch (BTChipException e1) {
-                     Log.d(LOG_TAG, "2fa error", e1);
-                     postErrorMessage("Invalid second factor");
-                     return null;
-                  }
-               }
-            }
+            inputs[i] = dongle.createInput(inputBuf.toByteArray(), currentInput.sequence,false, true);
+         } else {
+            TransactionInput currentInput = unsignedTx.inputs[i];
+            Transaction currentTransaction = TransactionEx.toTransaction(forAccount.getTransaction(currentInput.outPoint.txid));
+            ByteArrayInputStream bis = new ByteArrayInputStream(currentTransaction.toBytes());
+            inputs[i] = dongle.getTrustedInput(new BitcoinTransaction(bis), currentInput.outPoint.index, currentInput.sequence);
          }
+      }
+
+
+
+      //dongle.enableAlternate2fa(false);
+      if (isSegwit) {
+         // Sending first input is kind of mark of p2sh/SegWit transaction
+         TransactionInput currentInput = unsignedTx.inputs[0];
+         tryStartingUntrustedTransaction(inputs, 0, currentInput);
 
          // notify the activity to show the transaction details on screen
          getMainThreadHandler().post(new Runnable() {
@@ -365,66 +297,307 @@ public class LedgerManager extends AbstractAccountScanManager implements
                getEventBus().post(new OnShowTransactionVerification());
             }
          });
+         ByteWriter byteStream = new ByteWriter(1024);
+         byteStream.putCompactInt(unsigned.getOutputs().length);
+         for (final TransactionOutput out : unsigned.getOutputs()) {
+            out.toByteWriter(byteStream);
+         }
+         outputData = dongle.finalizeInputFull(byteStream.toBytes());
 
-         outputData = dongle.finalizeInput(rawOutputs, outputAddress, amount, fees, changePath);
          final BTChipDongle.BTChipOutput output = outputData;
          // Check OTP confirmation
-         if ((i == 0) && outputData.isConfirmationNeeded()) {
-            getMainThreadHandler().post(new Runnable() {
-               @Override
-               public void run() {
-                  getEventBus().post(new On2FaRequest(output));
-               }
-            });
-            try {
-               // wait for the user to enter the pin
-               txpin = tx2FaEntry.take();
-            } catch (InterruptedException e1) {
-               txpin = "";
+         if (outputData.isConfirmationNeeded()) {
+            txPin = requestConfirmation(output);
+
+            dongle.startUntrustedTransction(true, 0, inputs, currentInput.getScriptCode());
+
+            byteStream = new ByteWriter(1024);
+            byteStream.putCompactInt(unsigned.getOutputs().length);
+            for (final TransactionOutput out : unsigned.getOutputs()) {
+               out.toByteWriter(byteStream);
             }
-            Log.d(LOG_TAG, "Reinitialize transport");
-            initialize();
-            Log.d(LOG_TAG, "Reinitialize transport done");
-            dongle.startUntrustedTransction(false, i, inputs, currentInput.script.getScriptBytes());
-            dongle.finalizeInput(rawOutputs, outputAddress, amount, fees, changePath);
+            outputData = dongle.finalizeInputFull(byteStream.toBytes());
          }
 
-         // Sign
-         SigningRequest signingRequest = signatureInfo[i];
-         ScriptOutput fundingUtxoScript = unsigned.getFundingOutputs()[i].script;
-         BipDerivationType derivationType;
-         if (fundingUtxoScript instanceof ScriptOutputP2SH) {
-            derivationType = BipDerivationType.BIP49;
-         } else if (fundingUtxoScript instanceof ScriptOutputP2WPKH) {
-            derivationType = BipDerivationType.BIP84;
-         } else if (fundingUtxoScript instanceof ScriptOutputStandard) {
-            derivationType = BipDerivationType.BIP44;
-         } else {
-            postErrorMessage("Unhandled funding " + fundingUtxoScript);
-            return null;
+         for (int i = 0; i < inputsNumber; i++) {
+            currentInput = unsignedTx.inputs[i];
+            BTChipDongle.BTChipInput[] singleInput = {inputs[i]};
+            dongle.startUntrustedTransction(false, 0, singleInput, currentInput.getScriptCode());
+
+            SigningRequest[] signatureInfo = unsigned.getSigningRequests();
+            SigningRequest signingRequest = signatureInfo[i];
+            ScriptOutput fundingUtxoScript = unsigned.getFundingOutputs()[i].script;
+            BipDerivationType derivationType = getBipDerivationType(fundingUtxoScript);
+
+            if (derivationType == null) {
+               return null;
+            }
+            Address toSignWith = signingRequest.getPublicKey().toAddress(getNetwork(), derivationType.getAddressType());
+            Optional<Integer[]> addressId = forAccount.getAddressId(toSignWith);
+            String keyPath = String.format(commonPath + addressId.get()[0] + "/" + addressId.get()[1],
+                    ((Byte) derivationType.getPurpose()).toString());
+            byte[] signature = dongle.untrustedHashSign(keyPath, txPin);
+            signature[0] = 0x30;
+            signatures.add(signature);
          }
-         Address toSignWith = signingRequest.getPublicKey().toAddress(getNetwork(), derivationType.getAddressType());
-         Optional<Integer[]> addressId = forAccount.getAddressId(toSignWith);
-         String keyPath = String.format(commonPath + addressId.get()[0] + "/" + addressId.get()[1], ((Byte) derivationType.getPurpose()).toString());
-         byte[] signature = dongle.untrustedHashSign(keyPath, txpin);
-         // Java Card does not canonicalize, could be enforced per platform
-         signatures.add(SignatureUtils.canonicalize(signature, true, 0x01));
+      } else {
+
       }
+
+      // Sign all inputs
+//      for (int i = 0; i < unsignedtx.inputs.length; i++) {
+//         TransactionInput currentInput = unsignedtx.inputs[i];
+//         if (!tryStartingUntrustedTransaction(inputs, i, currentInput)) {
+//            return null;
+//         }
+//
+//         // notify the activity to show the transaction details on screen
+//         getMainThreadHandler().post(new Runnable() {
+//            @Override
+//            public void run() {
+//               getEventBus().post(new OnShowTransactionVerification());
+//            }
+//         });
+//
+//         outputData = dongle.finalizeInput(rawOutputs, legacyParams.outputAddress, legacyParams.amount,
+//                 legacyParams.fees, changePath);
+//         final BTChipDongle.BTChipOutput output = outputData;
+//         // Check OTP confirmation
+//         if ((i == 0) && outputData.isConfirmationNeeded()) {
+//            txPin = requestConfirmation(output);
+//            dongle.startUntrustedTransction(false, i, inputs, currentInput.script.getScriptBytes());
+//            dongle.finalizeInput(rawOutputs, legacyParams.outputAddress, legacyParams.amount, legacyParams.fees, changePath);
+//         }
+//
+//         // Sign
+//         SigningRequest[] signatureInfo = unsigned.getSigningRequests();
+//         SigningRequest signingRequest = signatureInfo[i];
+//         ScriptOutput fundingUtxoScript = unsigned.getFundingOutputs()[i].script;
+//         BipDerivationType derivationType = getBipDerivationType(fundingUtxoScript);
+//
+//         if (derivationType == null) {
+//            return null;
+//         }
+//         Address toSignWith = signingRequest.getPublicKey().toAddress(getNetwork(), derivationType.getAddressType());
+//         Optional<Integer[]> addressId = forAccount.getAddressId(toSignWith);
+//         String keyPath = String.format(commonPath + addressId.get()[0] + "/" + addressId.get()[1], ((Byte) derivationType.getPurpose()).toString());
+//         byte[] signature = dongle.untrustedHashSign(keyPath, txPin);
+//         // Java Card does not canonicalize, could be enforced per platform
+//         signatures.add(SignatureUtils.canonicalize(signature, true, 0x01));
+//      }
+
+
+
       // Check if the randomized change output position was swapped compared to the one provided
       // Fully rebuilding the transaction might also be better ...
       // (kept for compatibility with the old API only)
-      if ((unsignedtx.outputs.length == 2) && (outputData.getValue() != null) && (outputData.getValue().length != 0)) {
-         TransactionOutput firstOutput = unsignedtx.outputs[0];
+      if ((unsigned.getOutputs().length == 2) && (outputData.getValue() != null) && (outputData.getValue().length != 0)) {
+         TransactionOutput firstOutput = unsigned.getOutputs()[0];
          ByteReader byteReader = new ByteReader(outputData.getValue(), 1);
          TransactionOutput dongleOutput = TransactionOutput.fromByteReader(byteReader);
          if ((firstOutput.value != dongleOutput.value) ||
                (!Arrays.equals(firstOutput.script.getScriptBytes(), dongleOutput.script.getScriptBytes()))) {
-            unsignedtx.outputs[0] = unsignedtx.outputs[1];
-            unsignedtx.outputs[1] = firstOutput;
+            unsigned.getOutputs()[0] = unsigned.getOutputs()[1];
+            unsigned.getOutputs()[1] = firstOutput;
          }
       }
       // Add signatures
       return StandardTransactionBuilder.finalizeTransaction(unsigned, signatures);
+   }
+
+   private String requestConfirmation(final BTChipDongle.BTChipOutput output) {
+      String txPin;
+      getMainThreadHandler().post(new Runnable() {
+         @Override
+         public void run() {
+            getEventBus().post(new On2FaRequest(output));
+         }
+      });
+      try {
+         // wait for the user to enter the pin
+         txPin = tx2FaEntry.take();
+      } catch (InterruptedException e1) {
+         txPin = "";
+      }
+      Log.d(LOG_TAG, "Reinitialize transport");
+      initialize();
+      Log.d(LOG_TAG, "Reinitialize transport done");
+      return txPin;
+   }
+
+   private boolean tryStartingUntrustedTransaction(BTChipDongle.BTChipInput[] inputs, int i, TransactionInput currentInput) throws BTChipException {
+      try {
+         dongle.startUntrustedTransction(i == 0, i, inputs, currentInput.getScriptCode());
+      } catch (BTChipException e) {
+         // If pin was not entered wait for pin being entered and try again.
+         if (e.getSW() == SW_PIN_NEEDED) {
+            if (isTee()) {
+               //if (dongle.hasScreenSupport()) {
+               // PIN request is prompted on screen
+               if (!waitForTeePin()){
+                  return false;
+               }
+               dongle.startUntrustedTransction(i == 0, i, inputs, currentInput.getScriptCode());
+            } else {
+               String pin = waitForPin();
+               try {
+                  Log.d(LOG_TAG, "Reinitialize transport");
+                  initialize();
+                  Log.d(LOG_TAG, "Reinitialize transport done");
+                  dongle.verifyPin(pin.getBytes());
+                  dongle.startUntrustedTransction(i == 0, i, inputs, currentInput.getScriptCode());
+               } catch (BTChipException e1) {
+                  Log.d(LOG_TAG, "2fa error", e1);
+                  postErrorMessage("Invalid second factor");
+                  return false;
+               }
+            }
+         }
+      }
+      return true;
+   }
+
+   private String waitForPin() {
+      getMainThreadHandler().post(new Runnable() {
+         @Override
+         public void run() {
+            getEventBus().post(new OnPinRequest());
+         }
+      });
+      String pin;
+      try {
+         // wait for the user to enter the pin
+         pin = pinRequestEntry.take();
+      } catch (InterruptedException e1) {
+         pin = "";
+      }
+      return pin;
+   }
+
+   private boolean waitForTeePin() {
+      try {
+         dongle.verifyPin(DUMMY_PIN.getBytes());
+      } catch (BTChipException e1) {
+         if ((e1.getSW() & 0xfff0) == SW_INVALID_PIN) {
+            postErrorMessage("Invalid PIN - " + (e1.getSW() - SW_INVALID_PIN) + " attempts remaining");
+            return false;
+         }
+      } finally {
+         // Poor man counter
+         LedgerTransportTEEProxy proxy = (LedgerTransportTEEProxy) getTransport().getTransport();
+         try {
+            byte[] updatedNvm = proxy.requestNVM().get();
+            proxy.writeNVM(NVM_IMAGE, updatedNvm);
+            proxy.setNVM(updatedNvm);
+         } catch (Exception ignore) {
+         }
+      }
+      return true;
+   }
+
+   private BipDerivationType getBipDerivationType(ScriptOutput fundingUtxoScript) {
+      BipDerivationType derivationType;
+      if (fundingUtxoScript instanceof ScriptOutputP2SH) {
+         derivationType = BipDerivationType.BIP49;
+      } else if (fundingUtxoScript instanceof ScriptOutputP2WPKH) {
+         derivationType = BipDerivationType.BIP84;
+      } else if (fundingUtxoScript instanceof ScriptOutputStandard) {
+         derivationType = BipDerivationType.BIP44;
+      } else {
+         postErrorMessage("Unhandled funding " + fundingUtxoScript);
+         return null;
+      }
+      return derivationType;
+   }
+
+   private String getChangePath(UnsignedTransaction unsigned, HDAccountExternalSignature forAccount, String commonPath) {
+      String changePath = "";
+      for (TransactionOutput o : unsigned.getOutputs()) {
+         Address toAddress = o.script.getAddress(getNetwork());
+         String purpose = ((Byte) BipDerivationType.Companion.getDerivationTypeByAddress(toAddress).getPurpose()).toString();
+         Optional<Integer[]> addressId = forAccount.getAddressId(toAddress);
+         if (addressId.isPresent() && addressId.get()[0] == 1) {
+            changePath = String.format(String.format("%s%d/%d", commonPath, addressId.get()[0], addressId.get()[1]), purpose);
+         }
+      }
+      return changePath;
+   }
+
+   private String getOutputAddressString(UnsignedTransaction unsigned, HDAccountExternalSignature forAccount) {
+      String outputAddress = null;
+      for (TransactionOutput output : unsigned.getOutputs()) {
+         Address toAddress = output.script.getAddress(getNetwork());
+         Optional<Integer[]> addressId = forAccount.getAddressId(toAddress);
+         if (!(addressId.isPresent() && addressId.get()[0] == 1)) {
+            // this output goes to a foreign address (addressId[0]==1 means its internal change)
+            outputAddress = toAddress.toString();
+         }
+      }
+      return outputAddress;
+   }
+
+   private void writeOutputs(UnsignedTransaction unsigned, ByteWriter rawOutputsWriter) {
+      rawOutputsWriter.putCompactInt(unsigned.getOutputs().length);
+      for (TransactionOutput output : unsigned.getOutputs()) {
+         output.toByteWriter(rawOutputsWriter);
+      }
+   }
+
+   private long calculateTotalSending(UnsignedTransaction unsigned, HDAccountExternalSignature forAccount) {
+      long totalSending = 0;
+      for (TransactionOutput output : unsigned.getOutputs()) {
+         Address toAddress = output.script.getAddress(getNetwork());
+         Optional<Integer[]> addressId = forAccount.getAddressId(toAddress);
+         if (!(addressId.isPresent() && addressId.get()[0] == 1)) {
+            // this output goes to a foreign address (addressId[0]==1 means its internal change)
+            totalSending += output.value;
+         }
+      }
+      return totalSending;
+   }
+
+   private boolean isTeePinLocked(boolean isTEE) {
+      if (isTEE) {
+         final String PIN_IS_TERMINATED = "PIN is terminated";
+         // Check that the TEE PIN is not blocked
+         try {
+            int attempts = dongle.getVerifyPinRemainingAttempts();
+            if (attempts == 0) {
+               postErrorMessage(PIN_IS_TERMINATED);
+               return true;
+            }
+         } catch (BTChipException e) {
+            if (!areConditionsSatisfied(e)){
+               return true;
+            }
+            if (e.getSW() == SW_HALTED) {
+               LedgerTransportTEEProxy proxy = (LedgerTransportTEEProxy) getTransport().getTransport();
+               try {
+                  proxy.close();
+                  proxy.init();
+                  int attempts = dongle.getVerifyPinRemainingAttempts();
+                  if (attempts == 0) {
+                     postErrorMessage(PIN_IS_TERMINATED);
+                     return true;
+                  }
+               } catch (BTChipException e1) {
+                  if (!areConditionsSatisfied(e1)){
+                     return true;
+                  }
+               } catch (Exception ignore) {
+               }
+            }
+         }
+      }
+      return false;
+   }
+
+   private boolean areConditionsSatisfied(BTChipException e) {
+      if (e.getSW() == SW_CONDITIONS_NOT_SATISFIED) {
+         postErrorMessage("PIN is terminated");
+         return false;
+      }
+      return true;
    }
 
    @Override
@@ -571,39 +744,12 @@ public class LedgerManager extends AbstractAccountScanManager implements
             } else if (e.getSW() == SW_PIN_NEEDED) {
                //if (dongle.hasScreenSupport()) {
                if (isTEE) {
-                  try {
-                     // PIN request is prompted on screen
-                     dongle.verifyPin(DUMMY_PIN.getBytes());
-                  } catch (BTChipException e1) {
-                     if ((e1.getSW() & 0xfff0) == SW_INVALID_PIN) {
-                        postErrorMessage("Invalid PIN - " + (e1.getSW() - SW_INVALID_PIN) + " attempts remaining");
-                        return Optional.absent();
-                     }
-                  } finally {
-                     // Poor man counter
-                     LedgerTransportTEEProxy proxy = (LedgerTransportTEEProxy) getTransport().getTransport();
-                     try {
-                        byte[] updatedNvm = proxy.requestNVM().get();
-                        proxy.writeNVM(NVM_IMAGE, updatedNvm);
-                        proxy.setNVM(updatedNvm);
-                     } catch (Exception ignore) {
-                     }
+                  if (!waitForTeePin()) {
+                     return Optional.absent();
                   }
                   publicKey = dongle.getWalletPublicKey(keyPathString, addressByte);
                } else {
-                  getMainThreadHandler().post(new Runnable() {
-                     @Override
-                     public void run() {
-                        getEventBus().post(new OnPinRequest());
-                     }
-                  });
-                  String pin;
-                  try {
-                     // wait for the user to enter the pin
-                     pin = pinRequestEntry.take();
-                  } catch (InterruptedException e1) {
-                     pin = "";
-                  }
+                  String pin = waitForPin();
                   try {
                      Log.d(LOG_TAG, "Reinitialize transport");
                      initialize();

@@ -60,11 +60,22 @@ public class Transaction implements Serializable {
     private transient int _txSize = -1;
 
     public static Transaction fromUnsignedTransaction(UnsignedTransaction unsignedTransaction) {
-        TransactionInput inputs[] = new TransactionInput[unsignedTransaction.getFundingOutputs().length];
+        TransactionInput[] inputs = new TransactionInput[unsignedTransaction.getFundingOutputs().length];
         int idx = 0;
         for (UnspentTransactionOutput u : unsignedTransaction.getFundingOutputs()) {
-            inputs[idx++] = new TransactionInput(u.outPoint, new ScriptInput(u.script.getScriptBytes()),
-                    unsignedTransaction.getDefaultSequenceNumber(), u.value);
+            if (unsignedTransaction.isSegWitOutput(idx)) {
+                byte[] segWitScriptBytes = unsignedTransaction.getInputs()[idx].script.getScriptBytes();
+                try {
+                    inputs[idx] = new TransactionInput(u.outPoint, ScriptInput.fromScriptBytes(segWitScriptBytes),
+                            unsignedTransaction.getDefaultSequenceNumber(), u.value);
+                } catch (Script.ScriptParsingException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                inputs[idx] = new TransactionInput(u.outPoint, new ScriptInput(u.script.getScriptBytes()),
+                        unsignedTransaction.getDefaultSequenceNumber(), u.value);
+            }
+            idx++;
         }
         return new Transaction(1, inputs, unsignedTransaction.getOutputs(), unsignedTransaction.getLockTime());
     }

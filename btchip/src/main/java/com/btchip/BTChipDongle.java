@@ -160,7 +160,7 @@ public class BTChipDongle implements BTChipConstants {
        public BTChipInput(byte[] value, byte[] sequence, boolean trusted, boolean witness) {
          this.value = value;
          this.trusted = trusted;
-           this.sequence = sequence;
+         this.sequence = sequence;
          this.witness = witness;
       }
 
@@ -443,6 +443,9 @@ public class BTChipDongle implements BTChipConstants {
       return new BTChipPublicKey(publicKey, new String(address), chainCode);
    }
 
+   /**
+    * Request trusted input from dongle. Only suitable for non-segwit input.
+    */
    public BTChipInput getTrustedInput(BitcoinTransaction transaction, long index, int sequence) throws BTChipException {
       ByteArrayOutputStream data = new ByteArrayOutputStream();
       // Header
@@ -476,13 +479,18 @@ public class BTChipDongle implements BTChipConstants {
       }
       // Locktime
       byte[] response = exchangeApdu(BTCHIP_CLA, BTCHIP_INS_GET_TRUSTED_INPUT, (byte) 0x80, (byte) 0x00, transaction.getLockTime(), OK);
-      boolean isSegwit = transaction.getInputs().elementAt((int) index).isSegwit();
       ByteArrayOutputStream sequenceBuf = new ByteArrayOutputStream();
       BufferUtils.writeUint32LE(sequenceBuf, sequence);
-      return new BTChipInput(response, sequenceBuf.toByteArray(),true, isSegwit);
+      return new BTChipInput(response, sequenceBuf.toByteArray(),true, false);
    }
 
-   public void startUntrustedTransction(boolean newTransaction, long inputIndex, BTChipInput usedInputList[], byte[] redeemScript) throws BTChipException {
+   public BTChipInput createInput(byte[] value, int sequence, boolean trusted, boolean segwit) {
+      ByteArrayOutputStream sequenceBuf = new ByteArrayOutputStream();
+      BufferUtils.writeUint32LE(sequenceBuf, sequence);
+      return new BTChipInput(value, sequenceBuf.toByteArray(), trusted, segwit);
+   }
+
+   public void startUntrustedTransction(boolean newTransaction, long inputIndex, BTChipInput[] usedInputList, byte[] redeemScript) throws BTChipException {
       // Start building a fake transaction with the passed inputs
       ByteArrayOutputStream data = new ByteArrayOutputStream();
       BufferUtils.writeBuffer(data, BitcoinTransaction.DEFAULT_VERSION);
@@ -523,6 +531,9 @@ public class BTChipDongle implements BTChipConstants {
          }
          BufferUtils.writeBuffer(data, input.getValue());
          VarintUtils.write(data, script.length);
+//         if (script.length == 0) {
+//            BufferUtils.writeBuffer(data, input.getSequence());
+//         }
          exchangeApdu(BTCHIP_CLA, BTCHIP_INS_HASH_INPUT_START, (byte) 0x80, (byte) 0x00, data.toByteArray(), OK);
          data = new ByteArrayOutputStream();
          BufferUtils.writeBuffer(data, script);
@@ -582,7 +593,11 @@ public class BTChipDongle implements BTChipConstants {
       return convertResponseToOutput(response);
    }
 
-   private BTChipOutput finalizeInputFull(byte[] data, String changePath, boolean skipChangeCheck) throws BTChipException {
+   public BTChipOutput finalizeInputFull(byte[] data) throws BTChipException {
+      return finalizeInputFull(data, null, false);
+   }
+
+   public BTChipOutput finalizeInputFull(byte[] data, String changePath, boolean skipChangeCheck) throws BTChipException {
       BTChipOutput result = null;
       int offset = 0;
       byte[] response = null;
@@ -623,6 +638,7 @@ public class BTChipDongle implements BTChipConstants {
       if (result == null) {
          throw new BTChipException("Unsupported user confirmation method");
       }
+      result.value = data;
       return result;
    }
 
@@ -642,7 +658,7 @@ public class BTChipDongle implements BTChipConstants {
       if (oldAPI) {
          return finalizeInput(outputAddress, amount, fees, changePath);
       } else {
-         return finalizeInputFull(outputScript, null, true);
+         return finalizeInputFull(outputScript, null, false);
       }
    }
 
@@ -767,6 +783,23 @@ public class BTChipDongle implements BTChipConstants {
       byte[] signature = new byte[response.length - offset];
       System.arraycopy(response, offset, signature, 0, signature.length);
       return new BTChipKeyRecoveryData(hashData, keyX, signature);
+   }
+
+   public void enableAlternate2fa(boolean persistent) throws BTChipException {
+      byte p1;
+      if (persistent) {
+         p1 = 0x02;
+      } else  {
+         p1 = 0x01;
+      }
+      byte[] array = new byte[6];
+      array[0] = BTCHIP_CLA;
+      array[1] = BTCHIP_INS_SET_OPERATION_MODE;
+      array[2] = p1;
+      array[3] = 0x00;
+      array[4] = 0x01;
+      array[5] = (byte) OperationMode.WALLET.getValue();
+      exchange(array);
    }
 
    public void extStorePublicKey(Long[] pathParam, byte[] publicKey) throws BTChipException {
