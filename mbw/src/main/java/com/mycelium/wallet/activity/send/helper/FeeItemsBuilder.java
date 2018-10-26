@@ -2,16 +2,14 @@ package com.mycelium.wallet.activity.send.helper;
 
 import android.support.annotation.NonNull;
 
-import com.mycelium.wallet.MbwManager;
+
 import com.mycelium.wallet.MinerFee;
 import com.mycelium.wallet.activity.send.adapter.FeeViewAdapter;
 import com.mycelium.wallet.activity.send.model.FeeItem;
-import com.mycelium.wallet.colu.ColuAccount;
-import com.mycelium.wapi.api.lib.FeeEstimation;
-import com.mycelium.wapi.wallet.currency.CurrencyValue;
+import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
+import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
+import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
-
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,40 +31,55 @@ import java.util.List;
  * upper part - PRIO..(1.5*PRIO)
  */
 public class FeeItemsBuilder {
-    private static final int MIN_NON_ZIRO_FEE_PER_KB = 3000;
+    private static final int MIN_NON_ZIRO_FEE_PER_KB = 1000;
     private static final float MIN_FEE_INCREMENT = 1.025f; // fee(n+1) > fee(n) * MIN_FEE_INCREMENT
 
-    private MbwManager _mbwManager;
-    private FeeEstimation feeEstimation;
+    private FeeEstimationsGeneric feeEstimation;
 
-    public FeeItemsBuilder(MbwManager _mbwManager) {
-        this._mbwManager = _mbwManager;
-        this.feeEstimation = _mbwManager.getWalletManager(false).getLastFeeEstimations();
+    public FeeItemsBuilder(FeeEstimationsGeneric feeEstimation) {
+        this.feeEstimation = feeEstimation;
     }
 
-    public List<FeeItem> getFeeItemList(MinerFee feeLvl, int txSize) {
+    public List<FeeItem> getFeeItemList(FeeEstimationsGeneric feeEstimation, MinerFee minerFee, int txSize) {
         long min = MIN_NON_ZIRO_FEE_PER_KB;
-        long current = feeLvl.getFeePerKb(feeEstimation).getLongValue();
-
-        if (feeLvl != MinerFee.LOWPRIO) {
-            long prevValue = feeLvl.getPrevious().getFeePerKb(feeEstimation).getLongValue();
-            min = (current + prevValue) / 2;
+        long current = 0;
+        long previous = 0;
+        long next = 0;
+        switch (minerFee){
+            case LOWPRIO:
+                current = feeEstimation.getLow().value;
+                next = feeEstimation.getNormal().value;
+                break;
+            case NORMAL:
+                current = feeEstimation.getNormal().value;
+                previous = feeEstimation.getLow().value;
+                next = feeEstimation.getHigh().value;
+                break;
+            case PRIORITY:
+                current = feeEstimation.getHigh().value;
+                previous = feeEstimation.getNormal().value;
+            break;
         }
-        long max = 3 * MinerFee.PRIORITY.getFeePerKb(feeEstimation).getLongValue() / 2;
-        if (feeLvl != MinerFee.PRIORITY) {
-            max = (feeLvl.getNext().getFeePerKb(feeEstimation).getLongValue() + current) / 2;
+
+        if (minerFee != MinerFee.LOWPRIO) {
+            min = (current + previous) / 2;
+        }
+
+        long max = 3 * feeEstimation.getHigh().value / 2;
+        if (minerFee != MinerFee.PRIORITY) {
+            max = (next + current) / 2;
         }
 
         FeeItemsAlgorithm algorithmLower = new LinearAlgorithm(min, 1, max, 10);
         FeeItemsAlgorithm algorithmUpper;
-        if (feeLvl == MinerFee.LOWPRIO) {
+        if (minerFee == MinerFee.LOWPRIO) {
             algorithmLower = new ExponentialLowPrioAlgorithm(min, current);
         }
 
         List<FeeItem> feeItems = new ArrayList<>();
         feeItems.add(new FeeItem(0, null, null, FeeViewAdapter.VIEW_TYPE_PADDING));
         addItemsInRange(feeItems, algorithmLower, txSize);
-        if (feeLvl == MinerFee.LOWPRIO) {
+        if (minerFee == MinerFee.LOWPRIO) {
             algorithmUpper = new LinearAlgorithm(current, algorithmLower.getMaxPosition()+1
                     , max, algorithmLower.getMaxPosition() + 4);
             addItemsInRange(feeItems, algorithmUpper, txSize);
@@ -82,10 +95,9 @@ public class FeeItemsBuilder {
             FeeItem prevFeeItem = feeItems.get(feeItems.size() - 1);
             boolean canAdd = prevFeeItem.feePerKb < currFeeItem.feePerKb;
 
-            if(currFeeItem.currencyValue != null && prevFeeItem.currencyValue != null
-                    && currFeeItem.currencyValue.getValue() != null && prevFeeItem.currencyValue.getValue() != null) {
-                String thisFiatFee = currFeeItem.currencyValue.getValue().setScale(2, BigDecimal.ROUND_HALF_DOWN).toString();
-                String prevFiatFee = prevFeeItem.currencyValue.getValue().setScale(2, BigDecimal.ROUND_HALF_DOWN).toString();
+            if(currFeeItem.value != null && prevFeeItem.value != null) {
+                String thisFiatFee = currFeeItem.value.toString();
+                String prevFiatFee = prevFeeItem.value.toString();
 
                 // if we reached this, then we can override canAdd
                 canAdd = (float) currFeeItem.feePerKb / prevFeeItem.feePerKb >= MIN_FEE_INCREMENT && !thisFiatFee.equals(prevFiatFee);
@@ -100,14 +112,8 @@ public class FeeItemsBuilder {
     @NonNull
     private FeeItem createFeeItem(int txSize, long feePerKb) {
         ExactBitcoinValue bitcoinValue;
-//        if (_mbwManager.getSelectedAccount() instanceof ColuAccount) {
-//            long fundingAmountToSend = _mbwManager.getColuManager().getColuTransactionFee(feePerKb);
-//            bitcoinValue = ExactBitcoinValue.from(fundingAmountToSend);
-//        } else {
-            bitcoinValue = ExactBitcoinValue.from(txSize * feePerKb / 1000);
-//        }
-        CurrencyValue fiatFee = CurrencyValue.fromValue(bitcoinValue,
-                _mbwManager.getFiatCurrency(), _mbwManager.getExchangeRateManager());
+        bitcoinValue = ExactBitcoinValue.from(txSize * feePerKb / 1000);
+        Value fiatFee = Value.valueOf(BitcoinTest.get(), txSize * feePerKb / 1000);
         return new FeeItem(feePerKb, bitcoinValue.getAsBitcoin(), fiatFee, FeeViewAdapter.VIEW_TYPE_ITEM);
     }
 }

@@ -65,6 +65,9 @@ import java.text.DecimalFormat;
 import java.util.*;
 
 import static android.app.Activity.RESULT_CANCELED;
+import static com.mycelium.wallet.MinerFee.*;
+import static com.mycelium.wallet.MinerFee.NORMAL;
+import static com.mycelium.wallet.MinerFee.PRIORITY;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
     public static final CharMatcher AMOUNT = CharMatcher.javaDigit().or(CharMatcher.anyOf(".,"));
@@ -467,13 +470,11 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         _minerFee.setSummary(getMinerFeeSummary());
         _minerFee.setValue(_mbwManager.getMinerFee().toString());
         CharSequence[] minerFees = new CharSequence[]{
-                MinerFee.LOWPRIO.toString(),
-                MinerFee.ECONOMIC.toString(),
-                MinerFee.NORMAL.toString(),
-                MinerFee.PRIORITY.toString()};
+                LOWPRIO.toString(),
+                NORMAL.toString(),
+                PRIORITY.toString()};
         CharSequence[] minerFeeNames = new CharSequence[]{
                 getString(R.string.miner_fee_lowprio_name),
-                getString(R.string.miner_fee_economic_name),
                 getString(R.string.miner_fee_normal_name),
                 getString(R.string.miner_fee_priority_name)};
         _minerFee.setEntries(minerFeeNames);
@@ -481,7 +482,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         _minerFee.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
-                _mbwManager.setMinerFee(MinerFee.fromString(newValue.toString()));
+                _mbwManager.setMinerFee(fromString(newValue.toString()));
                 _minerFee.setSummary(getMinerFeeSummary());
                 String description = _mbwManager.getMinerFee().getMinerFeeDescription(getActivity());
                 Utils.showSimpleMessageDialog(getActivity(), description);
@@ -986,8 +987,20 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     }
 
     private String getMinerFeeSummary() {
+        int blocks = 0;
+        switch (_mbwManager.getMinerFee()){
+            case LOWPRIO:
+                blocks = 20;
+                break;
+            case NORMAL:
+                blocks = 3;
+                break;
+            case PRIORITY:
+                blocks = 1;
+                break;
+        }
         return getResources().getString(R.string.pref_miner_fee_block_summary,
-                Integer.toString(_mbwManager.getMinerFee().getNBlocks()));
+                Integer.toString(blocks));
     }
 
     private class SubscribeToServerResponse extends LocalTraderEventSubscriber {

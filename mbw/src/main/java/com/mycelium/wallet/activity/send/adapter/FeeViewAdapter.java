@@ -93,9 +93,8 @@ public class FeeViewAdapter extends SelectableRecyclerView.Adapter<FeeViewAdapte
             if (item.btc != null) {
                 holder.categoryTextView.setText(CoinUtil.valueString(item.btc.getLongValue(), mBTC, true) + " " + mBTC.getUnicodeName());
             }
-            if (item.currencyValue != null && item.currencyValue.getValue() != null) {
-                holder.itemTextView.setText("~" + item.currencyValue.getValue().setScale(2, BigDecimal.ROUND_HALF_DOWN)
-                        + " " + item.currencyValue.getCurrency());
+            if (item.value != null) {
+                holder.itemTextView.setText("~" + item.value + " " + item.value.getCurrencySymbol());
             }
             holder.valueTextView.setText(String.valueOf(Math.round(item.feePerKb / 1000f)) + " sat/byte");
 

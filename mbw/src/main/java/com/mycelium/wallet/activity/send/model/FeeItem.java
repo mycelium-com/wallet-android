@@ -1,7 +1,7 @@
 package com.mycelium.wallet.activity.send.model;
 
 import com.megiontechnologies.Bitcoins;
-import com.mycelium.wapi.wallet.currency.CurrencyValue;
+import com.mycelium.wapi.wallet.coins.Value;
 
 /**
  * Created by elvis on 31.08.17.
@@ -11,13 +11,13 @@ public class FeeItem {
 
     public long feePerKb;
     public Bitcoins btc;
-    public CurrencyValue currencyValue;
+    public Value value;
     public int type;
 
-    public FeeItem(long feePerKb, Bitcoins btc, CurrencyValue currencyValue, int type) {
+    public FeeItem(long feePerKb, Bitcoins btc, Value value, int type) {
         this.feePerKb = feePerKb;
         this.btc = btc;
-        this.currencyValue = currencyValue;
+        this.value = value;
         this.type = type;
     }
 
