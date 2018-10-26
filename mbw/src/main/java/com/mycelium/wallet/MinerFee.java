@@ -40,18 +40,16 @@ import com.megiontechnologies.Bitcoins;
 import com.mycelium.wapi.api.lib.FeeEstimation;
 
 public enum MinerFee {
-   LOWPRIO("LOWPRIO", 20, R.string.miner_fee_lowprio_name, R.string.miner_fee_lowprio_desc),
-   NORMAL("NORMAL", 3, R.string.miner_fee_normal_name, R.string.miner_fee_normal_desc),
-   PRIORITY("PRIORITY", 1, R.string.miner_fee_priority_name, R.string.miner_fee_priority_desc);
+   LOWPRIO("LOWPRIO", R.string.miner_fee_lowprio_name, R.string.miner_fee_lowprio_desc),
+   NORMAL("NORMAL", R.string.miner_fee_normal_name, R.string.miner_fee_normal_desc),
+   PRIORITY("PRIORITY", R.string.miner_fee_priority_name, R.string.miner_fee_priority_desc);
 
    public final String tag;
-   private final int nBlocks;
    private final int idTag;
    private final int idLongDesc;
 
-   MinerFee(String tag, int nBlocks, int idTag, int idLongDesc) {
+   MinerFee(String tag, int idTag, int idLongDesc) {
       this.tag = tag;
-      this.nBlocks = nBlocks;
       this.idTag = idTag;
       this.idLongDesc = idLongDesc;
    }
@@ -76,10 +74,6 @@ public enum MinerFee {
 
    public String getMinerFeeDescription(Context context) {
       return context.getString(idLongDesc);
-   }
-
-   public int getNBlocks() {
-      return nBlocks;
    }
 
 }

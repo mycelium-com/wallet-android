@@ -2,19 +2,14 @@ package com.mycelium.wallet.activity.send.helper;
 
 import android.support.annotation.NonNull;
 
-import com.mycelium.wallet.MbwManager;
+
 import com.mycelium.wallet.MinerFee;
 import com.mycelium.wallet.activity.send.adapter.FeeViewAdapter;
 import com.mycelium.wallet.activity.send.model.FeeItem;
-import com.mycelium.wallet.colu.ColuAccount;
-import com.mycelium.wapi.api.lib.FeeEstimation;
 import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
-import com.mycelium.wapi.wallet.coins.BitcoinTest;
+import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.Value;
-import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
-
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,13 +48,15 @@ public class FeeItemsBuilder {
         switch (minerFee){
             case LOWPRIO:
                 current = feeEstimation.getLow().value;
-                next = current = feeEstimation.getNormal().value;
+                next = feeEstimation.getNormal().value;
                 break;
-            case NORMAL: current = feeEstimation.getNormal().value;
+            case NORMAL:
+                current = feeEstimation.getNormal().value;
                 previous = feeEstimation.getLow().value;
                 next = feeEstimation.getHigh().value;
                 break;
-            case PRIORITY: current = feeEstimation.getHigh().value;
+            case PRIORITY:
+                current = feeEstimation.getHigh().value;
                 previous = feeEstimation.getNormal().value;
             break;
         }
