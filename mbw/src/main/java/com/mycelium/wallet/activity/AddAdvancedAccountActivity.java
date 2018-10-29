@@ -81,7 +81,7 @@ import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
-import com.mycelium.wapi.wallet.btc.bip44.HDConfig;
+import com.mycelium.wapi.wallet.btc.bip44.UnrelatedHDAccountConfig;
 import com.mycelium.wapi.wallet.btc.single.PrivateSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.PublicSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
@@ -253,7 +253,7 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
     */
    private void returnAccount(HdKeyNode hdKeyNode) {
       UUID acc = _mbwManager.getWalletManager(false)
-              .createAccounts(new HDConfig(Collections.singletonList(hdKeyNode))).get(0);
+              .createAccounts(new UnrelatedHDAccountConfig(Collections.singletonList(hdKeyNode))).get(0);
       // set BackupState as ignored - we currently have no option to backup xPrivs after all
       _mbwManager.getMetadataStorage().setOtherAccountBackupState(acc, MetadataStorage.BackupState.IGNORED);
       finishOk(acc, false);
@@ -569,7 +569,7 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
 
    private void returnAccount(HdKeyNode hdKeyNode, boolean isUpgrade) {
       UUID acc = _mbwManager.getWalletManager(false)
-              .createAccounts(new HDConfig(Collections.singletonList(hdKeyNode))).get(0);
+              .createAccounts(new UnrelatedHDAccountConfig(Collections.singletonList(hdKeyNode))).get(0);
       // set BackupState as ignored - we currently have no option to backup xPrivs after all
       _mbwManager.getMetadataStorage().setOtherAccountBackupState(acc, MetadataStorage.BackupState.IGNORED);
       finishOk(acc, isUpgrade);
