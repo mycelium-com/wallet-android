@@ -56,6 +56,7 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
                         btcSettings.changeAddressModeReference)
             }
             result[account.id] = account
+            accounts.put(account.id, account as HDAccount)
         }
         return result
     }
