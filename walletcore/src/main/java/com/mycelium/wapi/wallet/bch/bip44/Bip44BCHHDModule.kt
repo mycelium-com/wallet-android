@@ -35,7 +35,7 @@ class Bip44BCHHDModule(internal val backing: WalletManagerBacking<SingleAddressA
         return accounts.values.firstOrNull { it.accountIndex == index }
     }
 
-    override fun canCreateAccount(config: Config): Boolean = config is HDConfig
+    override fun canCreateAccount(config: Config): Boolean = config is UnrelatedHDAccountConfig
 
     override fun deleteAccount(walletAccount: WalletAccount<*, *>): Boolean {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.

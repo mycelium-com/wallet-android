@@ -77,7 +77,6 @@ import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
-import com.mycelium.wapi.wallet.btc.bip44.HDConfig;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;

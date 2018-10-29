@@ -62,7 +62,7 @@ import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
-import com.mycelium.wapi.wallet.btc.bip44.HDConfig;
+import com.mycelium.wapi.wallet.btc.bip44.UnrelatedHDAccountConfig;
 import com.mycelium.wapi.wallet.btc.single.PrivateSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
@@ -318,7 +318,7 @@ public class StringHandleConfig implements Serializable {
             try {
                HdKeyNode hdKey = HdKeyNode.parse(content, handlerActivity.getNetwork());
                final WalletManager tempWalletManager = MbwManager.getInstance(handlerActivity).getWalletManager(true);
-               UUID acc = tempWalletManager.createAccounts(new HDConfig(Collections.singletonList(hdKey))).get(0);
+               UUID acc = tempWalletManager.createAccounts(new UnrelatedHDAccountConfig(Collections.singletonList(hdKey))).get(0);
                tempWalletManager.setActiveAccount(acc);
                BitcoinUri uri = new BitcoinUri(null,null,null);
                SendInitializationActivity.callMeWithResult(handlerActivity, acc, uri, true,
