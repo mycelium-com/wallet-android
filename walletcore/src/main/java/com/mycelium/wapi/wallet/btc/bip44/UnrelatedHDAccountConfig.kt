@@ -4,7 +4,7 @@ import com.mrd.bitlib.crypto.HdKeyNode
 import com.mycelium.wapi.wallet.manager.Config
 
 
-data class HDConfig(val hdKeyNodes: List<HdKeyNode>) : Config
+data class UnrelatedHDAccountConfig(val hdKeyNodes: List<HdKeyNode>) : Config
 
 class AdditionalHDAccountConfig : Config
 

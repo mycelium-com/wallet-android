@@ -113,14 +113,13 @@ import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wallet.event.SyncFailed;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.paymentrequest.PaymentRequestHandler;
-import com.mycelium.wapi.api.lib.FeeEstimation;
 import com.mycelium.wapi.api.response.Feature;
 import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
-import com.mycelium.wapi.wallet.btc.bip44.HDConfig;
+import com.mycelium.wapi.wallet.btc.bip44.UnrelatedHDAccountConfig;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
@@ -138,7 +137,6 @@ import com.squareup.otto.Subscribe;
 
 import org.bitcoin.protocols.payments.PaymentACK;
 
-import java.math.BigDecimal;
 import java.util.*;
 
 import butterknife.BindView;
@@ -150,7 +148,6 @@ import static android.view.View.VISIBLE;
 import static android.widget.Toast.LENGTH_LONG;
 import static android.widget.Toast.LENGTH_SHORT;
 import static android.widget.Toast.makeText;
-import static com.mycelium.wallet.activity.util.ValueExtentionsKt.isBtc;
 
 public class SendMainActivity extends Activity {
     private static final String TAG = "SendMainActivity";
@@ -1651,7 +1648,7 @@ public class SendMainActivity extends Activity {
     private void setReceivingAddressFromKeynode(HdKeyNode hdKeyNode) {
         _progress = ProgressDialog.show(this, "", getString(R.string.retrieving_pubkey_address), true);
         _receivingAcc = _mbwManager.getWalletManager(true)
-                .createAccounts(new HDConfig(Collections.singletonList(hdKeyNode))).get(0);
+                .createAccounts(new UnrelatedHDAccountConfig(Collections.singletonList(hdKeyNode))).get(0);
         _xpubSyncing = true;
         if (!_mbwManager.getWalletManager(true).startSynchronization(_receivingAcc)) {
             _mbwManager.getEventBus().post(new SyncFailed());
