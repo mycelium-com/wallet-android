@@ -283,8 +283,6 @@ public class LedgerManager extends AbstractAccountScanManager implements
       }
 
 
-
-      //dongle.enableAlternate2fa(false);
       if (isSegwit) {
          // Sending first input is kind of mark of p2sh/SegWit transaction
          TransactionInput currentInput = unsignedTx.inputs[0];
@@ -567,7 +565,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
                return true;
             }
          } catch (BTChipException e) {
-            if (!areConditionsSatisfied(e)){
+            if (conditionsAreNotSatisfied(e)){
                return true;
             }
             if (e.getSW() == SW_HALTED) {
@@ -581,7 +579,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
                      return true;
                   }
                } catch (BTChipException e1) {
-                  if (!areConditionsSatisfied(e1)){
+                  if (conditionsAreNotSatisfied(e1)){
                      return true;
                   }
                } catch (Exception ignore) {
@@ -592,12 +590,12 @@ public class LedgerManager extends AbstractAccountScanManager implements
       return false;
    }
 
-   private boolean areConditionsSatisfied(BTChipException e) {
+   private boolean conditionsAreNotSatisfied(BTChipException e) {
       if (e.getSW() == SW_CONDITIONS_NOT_SATISFIED) {
          postErrorMessage("PIN is terminated");
-         return false;
+         return true;
       }
-      return true;
+      return false;
    }
 
    @Override
