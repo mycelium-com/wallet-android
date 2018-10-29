@@ -45,7 +45,7 @@ open class Bip44BCHAccount(
     }
 
     override fun getCoinType(): CryptoCurrency {
-        return BchTest.get()
+        return BchTest
     }
 
     override fun getTransactionSummary(txid: Sha256Hash): TransactionSummary? {

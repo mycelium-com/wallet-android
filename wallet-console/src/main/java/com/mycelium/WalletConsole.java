@@ -3,6 +3,7 @@ package com.mycelium;
 import com.mrd.bitlib.crypto.Bip39;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.RandomSource;
+import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.net.HttpEndpoint;
 import com.mycelium.net.HttpsEndpoint;
@@ -11,19 +12,17 @@ import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiClientElectrumX;
 import com.mycelium.wapi.api.jsonrpc.TcpEndpoint;
 import com.mycelium.wapi.wallet.*;
+import com.mycelium.wapi.wallet.bip44.ChangeAddressMode;
 import com.mycelium.wapi.wallet.btc.InMemoryWalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking;
+import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
+import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
 import com.mycelium.wapi.wallet.btc.bip44.ExternalSignatureProviderProxy;
-import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
-import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
-import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
-import com.mycelium.wapi.wallet.coins.Value;
-import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
 
 import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
+import java.util.Map;
 
 class WalletConsole {
 
@@ -71,44 +70,34 @@ class WalletConsole {
         Bip39.MasterSeed masterSeed =  Bip39.generateSeedFromWordList(new String[]{"cliff", "battle","noise","aisle","inspire","total","sting","vital","marble","add","daring","mouse"}, "");
 
         NetworkParameters network = NetworkParameters.testNetwork;
+        Map<Currency, CurrencySettings> currenciesSettingsMap = new HashMap<>();
+
+        BTCSettings btcSettings = new BTCSettings(AddressType.P2SH_P2WPKH, new Reference<>(ChangeAddressMode.P2SH_P2WPKH));
+        currenciesSettingsMap.put(Currency.BTC, btcSettings);
+
         WalletManager walletManager = new WalletManager(store,
                 backing,
                 network,
                 wapiClient,
-                externalSignatureProviderProxy,
-                null,
-                true,
-                new HashMap<Currency, CurrencySettings>());
+                currenciesSettingsMap);
 
         try {
 
+            // create and add HD Module
             walletManager.configureBip32MasterSeed(masterSeed, AesKeyCipher.defaultKeyCipher());
-            walletManager.createAdditionalBip44Account(AesKeyCipher.defaultKeyCipher());
+            BitcoinHDModule bitcoinHDModule = new BitcoinHDModule(backing, store, network, wapiClient, currenciesSettingsMap);
+            walletManager.add(bitcoinHDModule);
 
+            // create account
+            walletManager.createAccounts(new AdditionalHDAccountConfig());
 
-            List<WalletAccount> accounts = walletManager.getActiveAccounts();
-
+            // display balance
+            List<WalletAccount<?,?>> accounts = walletManager.getActiveAccounts();
             WalletAccount account = accounts.get(0);
             account.synchronize(SyncMode.NORMAL);
-
             System.out.println("Account balance: " + account.getAccountBalance().getSpendable().toString());
 
-            InMemoryPrivateKey key = new InMemoryPrivateKey(new MyRandomSource());
-
-            UUID accountUUID = walletManager.createSingleAddressAccount(key, AesKeyCipher.defaultKeyCipher());
-            WalletAccount saWalletAccount = walletManager.getAccount(accountUUID);
-            GenericAddress saAddress = saWalletAccount.getReceiveAddress();
-
-            System.out.println("Generated new SA account address: " + saAddress.toString());
-
-            GenericAssetInfo currency = network.isProdnet() ? BitcoinMain.get() : BitcoinTest.get();
-            Value amountToSend = Value.valueOf(currency, 1000000);
-            SendRequest sendRequest = account.getSendToRequest(saAddress, amountToSend);
-            account.completeAndSignTx(sendRequest);
-
-            account.broadcastTx(sendRequest.tx);
-
-        } catch (KeyCipher.InvalidKeyCipher | WalletAccount.WalletAccountException | TransactionBroadcastException ex) {
+        } catch (KeyCipher.InvalidKeyCipher ex) {
             ex.printStackTrace();
         }
 
