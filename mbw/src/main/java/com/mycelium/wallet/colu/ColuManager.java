@@ -396,7 +396,7 @@ public class ColuManager implements AccountProvider {
         _backing.beginTransaction();
         try {
             SingleAddressAccountContext singleAccountContext = new SingleAddressAccountContext(createdAccountInfo.id, ImmutableMap.of(address.getType(), address), false, 0);
-            _backing.createSingleAddressAccountContext(singleAccountContext);
+//            _backing.createSingleAddressAccountContext(singleAccountContext);
 //            SingleAddressAccountBacking accountBacking = checkNotNull(_backing.getSingleAddressAccountBacking(singleAccountContext.getId()));
 //            singleAccountContext.persist(accountBacking);
 //            createdAccountInfo.accountBacking = accountBacking;
@@ -604,9 +604,9 @@ public class ColuManager implements AccountProvider {
     }
 
     private void loadSingleAddressAccounts() {
-        List<SingleAddressAccountContext> contexts = _backing.loadSingleAddressAccountContexts();
-        for (SingleAddressAccountContext context : contexts) {
-            PublicPrivateKeyStore store = new PublicPrivateKeyStore(_secureKeyValueStore);
+//        List<SingleAddressAccountContext> contexts = _backing.loadSingleAddressAccountContexts();
+//        for (SingleAddressAccountContext context : contexts) {
+//            PublicPrivateKeyStore store = new PublicPrivateKeyStore(_secureKeyValueStore);
 //            SingleAddressAccountBacking accountBacking = checkNotNull(_backing.getSingleAddressAccountBacking(context.getId()));
 //            SingleAddressAccount account = new SingleAddressAccount(context, store, _network, accountBacking, getWapi(), new Reference(ChangeAddressMode.P2WPKH));
 //            addAccount(account);
@@ -619,7 +619,7 @@ public class ColuManager implements AccountProvider {
 //                    break;
 //                }
 //            }
-        }
+//        }
     }
 
     private void addAccount(AbstractBtcAccount account) {

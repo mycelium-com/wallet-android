@@ -36,7 +36,8 @@ class WalletManager(val _secureKeyValueStore: SecureKeyValueStore,
 
     lateinit var accountScanManager: AccountScanManager
 
-    private var state: State = State.OFF
+    var state: State = State.OFF
+
     @Volatile
     private var activeAccountId: UUID? = null
 
@@ -50,8 +51,6 @@ class WalletManager(val _secureKeyValueStore: SecureKeyValueStore,
         }
         startSynchronization(SyncMode.FULL_SYNC_ALL_ACCOUNTS)
     }
-
-    fun getState() = state
 
     fun getAccountIds(): List<UUID> = accounts.keys.toList()
 
