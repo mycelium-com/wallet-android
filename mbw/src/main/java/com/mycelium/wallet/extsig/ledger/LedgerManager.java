@@ -49,6 +49,7 @@ import com.btchip.comm.android.BTChipTransportAndroid;
 import com.btchip.utils.BufferUtils;
 import com.btchip.utils.Dump;
 import com.btchip.utils.KeyUtils;
+import com.btchip.utils.SignatureUtils;
 import com.google.common.base.Optional;
 import com.ledger.tbase.comm.LedgerTransportTEEProxy;
 import com.ledger.tbase.comm.LedgerTransportTEEProxyFactory;
@@ -286,7 +287,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
       if (isSegwit) {
          // Sending first input is kind of mark of p2sh/SegWit transaction
          TransactionInput currentInput = unsignedTx.inputs[0];
-         tryStartingUntrustedTransaction(inputs, 0, currentInput);
+         tryStartingUntrustedTransaction(inputs, 0, currentInput, isSegwit);
 
          // notify the activity to show the transaction details on screen
          getMainThreadHandler().post(new Runnable() {
@@ -314,7 +315,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
             for (final TransactionOutput out : unsigned.getOutputs()) {
                out.toByteWriter(byteStream);
             }
-            outputData = dongle.finalizeInputFull(byteStream.toBytes());
+            dongle.finalizeInputFull(byteStream.toBytes());
          }
 
          for (int i = 0; i < inputsNumber; i++) {
@@ -322,69 +323,40 @@ public class LedgerManager extends AbstractAccountScanManager implements
             BTChipDongle.BTChipInput[] singleInput = {inputs[i]};
             dongle.startUntrustedTransction(false, 0, singleInput, currentInput.getScriptCode());
 
-            SigningRequest[] signatureInfo = unsigned.getSigningRequests();
-            SigningRequest signingRequest = signatureInfo[i];
-            ScriptOutput fundingUtxoScript = unsigned.getFundingOutputs()[i].script;
-            BipDerivationType derivationType = getBipDerivationType(fundingUtxoScript);
-
-            if (derivationType == null) {
-               return null;
-            }
-            Address toSignWith = signingRequest.getPublicKey().toAddress(getNetwork(), derivationType.getAddressType());
-            Optional<Integer[]> addressId = forAccount.getAddressId(toSignWith);
-            String keyPath = String.format(commonPath + addressId.get()[0] + "/" + addressId.get()[1],
-                    ((Byte) derivationType.getPurpose()).toString());
-            byte[] signature = dongle.untrustedHashSign(keyPath, txPin);
-            signature[0] = 0x30;
-            signatures.add(signature);
+            byte[] signature = signOutput(unsigned, forAccount, commonPath, txPin, i);
+            // Java Card does not canonicalize, could be enforced per platform
+            signatures.add(SignatureUtils.canonicalize(signature, true, 0x01));
          }
       } else {
+         for (int i = 0; i < unsignedTx.inputs.length; i++) {
+            TransactionInput currentInput = unsignedTx.inputs[i];
+            if (!tryStartingUntrustedTransaction(inputs, i, currentInput, isSegwit)) {
+               return null;
+            }
 
+            // notify the activity to show the transaction details on screen
+            getMainThreadHandler().post(new Runnable() {
+               @Override
+               public void run() {
+                  getEventBus().post(new OnShowTransactionVerification());
+               }
+            });
+
+            outputData = dongle.finalizeInput(rawOutputs, legacyParams.outputAddress, legacyParams.amount,
+                    legacyParams.fees, changePath);
+            final BTChipDongle.BTChipOutput output = outputData;
+            // Check OTP confirmation
+            if ((i == 0) && outputData.isConfirmationNeeded()) {
+               txPin = requestConfirmation(output);
+               dongle.startUntrustedTransction(false, i, inputs, currentInput.script.getScriptBytes());
+               dongle.finalizeInput(rawOutputs, legacyParams.outputAddress, legacyParams.amount, legacyParams.fees, changePath);
+            }
+
+            byte[] signature = signOutput(unsigned, forAccount, commonPath, txPin, i);
+            // Java Card does not canonicalize, could be enforced per platform
+            signatures.add(SignatureUtils.canonicalize(signature, true, 0x01));
+         }
       }
-
-      // Sign all inputs
-//      for (int i = 0; i < unsignedtx.inputs.length; i++) {
-//         TransactionInput currentInput = unsignedtx.inputs[i];
-//         if (!tryStartingUntrustedTransaction(inputs, i, currentInput)) {
-//            return null;
-//         }
-//
-//         // notify the activity to show the transaction details on screen
-//         getMainThreadHandler().post(new Runnable() {
-//            @Override
-//            public void run() {
-//               getEventBus().post(new OnShowTransactionVerification());
-//            }
-//         });
-//
-//         outputData = dongle.finalizeInput(rawOutputs, legacyParams.outputAddress, legacyParams.amount,
-//                 legacyParams.fees, changePath);
-//         final BTChipDongle.BTChipOutput output = outputData;
-//         // Check OTP confirmation
-//         if ((i == 0) && outputData.isConfirmationNeeded()) {
-//            txPin = requestConfirmation(output);
-//            dongle.startUntrustedTransction(false, i, inputs, currentInput.script.getScriptBytes());
-//            dongle.finalizeInput(rawOutputs, legacyParams.outputAddress, legacyParams.amount, legacyParams.fees, changePath);
-//         }
-//
-//         // Sign
-//         SigningRequest[] signatureInfo = unsigned.getSigningRequests();
-//         SigningRequest signingRequest = signatureInfo[i];
-//         ScriptOutput fundingUtxoScript = unsigned.getFundingOutputs()[i].script;
-//         BipDerivationType derivationType = getBipDerivationType(fundingUtxoScript);
-//
-//         if (derivationType == null) {
-//            return null;
-//         }
-//         Address toSignWith = signingRequest.getPublicKey().toAddress(getNetwork(), derivationType.getAddressType());
-//         Optional<Integer[]> addressId = forAccount.getAddressId(toSignWith);
-//         String keyPath = String.format(commonPath + addressId.get()[0] + "/" + addressId.get()[1], ((Byte) derivationType.getPurpose()).toString());
-//         byte[] signature = dongle.untrustedHashSign(keyPath, txPin);
-//         // Java Card does not canonicalize, could be enforced per platform
-//         signatures.add(SignatureUtils.canonicalize(signature, true, 0x01));
-//      }
-
-
 
       // Check if the randomized change output position was swapped compared to the one provided
       // Fully rebuilding the transaction might also be better ...
@@ -401,6 +373,24 @@ public class LedgerManager extends AbstractAccountScanManager implements
       }
       // Add signatures
       return StandardTransactionBuilder.finalizeTransaction(unsigned, signatures);
+   }
+
+   private byte[] signOutput(UnsignedTransaction unsigned, HDAccountExternalSignature forAccount, String commonPath,
+                             String txPin, int outputIndex) throws BTChipException {
+      // Sign
+      SigningRequest[] signatureInfo = unsigned.getSigningRequests();
+      SigningRequest signingRequest = signatureInfo[outputIndex];
+      ScriptOutput fundingUtxoScript = unsigned.getFundingOutputs()[outputIndex].script;
+      BipDerivationType derivationType = getBipDerivationType(fundingUtxoScript);
+
+      if (derivationType == null) {
+         throw new IllegalArgumentException("Can't sign one of the inputs");
+      }
+      Address toSignWith = signingRequest.getPublicKey().toAddress(getNetwork(), derivationType.getAddressType());
+      Optional<Integer[]> addressId = forAccount.getAddressId(toSignWith);
+      String keyPath = String.format(commonPath + addressId.get()[0] + "/" + addressId.get()[1],
+              ((Byte) derivationType.getPurpose()).toString());
+      return dongle.untrustedHashSign(keyPath, txPin);
    }
 
    private String requestConfirmation(final BTChipDongle.BTChipOutput output) {
@@ -423,9 +413,16 @@ public class LedgerManager extends AbstractAccountScanManager implements
       return txPin;
    }
 
-   private boolean tryStartingUntrustedTransaction(BTChipDongle.BTChipInput[] inputs, int i, TransactionInput currentInput) throws BTChipException {
+   private boolean tryStartingUntrustedTransaction(BTChipDongle.BTChipInput[] inputs, int i, TransactionInput currentInput,
+                                                   boolean isSegwit) throws BTChipException {
+      byte[] scriptBytes;
+      if (isSegwit) {
+         scriptBytes = currentInput.getScriptCode();
+      } else {
+         scriptBytes = currentInput.getScript().getScriptBytes();
+      }
       try {
-         dongle.startUntrustedTransction(i == 0, i, inputs, currentInput.getScriptCode());
+         dongle.startUntrustedTransction(i == 0, i, inputs, scriptBytes);
       } catch (BTChipException e) {
          // If pin was not entered wait for pin being entered and try again.
          if (e.getSW() == SW_PIN_NEEDED) {
@@ -435,7 +432,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
                if (!waitForTeePin()){
                   return false;
                }
-               dongle.startUntrustedTransction(i == 0, i, inputs, currentInput.getScriptCode());
+               dongle.startUntrustedTransction(i == 0, i, inputs, scriptBytes);
             } else {
                String pin = waitForPin();
                try {
@@ -443,7 +440,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
                   initialize();
                   Log.d(LOG_TAG, "Reinitialize transport done");
                   dongle.verifyPin(pin.getBytes());
-                  dongle.startUntrustedTransction(i == 0, i, inputs, currentInput.getScriptCode());
+                  dongle.startUntrustedTransction(i == 0, i, inputs, scriptBytes);
                } catch (BTChipException e1) {
                   Log.d(LOG_TAG, "2fa error", e1);
                   postErrorMessage("Invalid second factor");

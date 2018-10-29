@@ -658,7 +658,7 @@ public class BTChipDongle implements BTChipConstants {
       if (oldAPI) {
          return finalizeInput(outputAddress, amount, fees, changePath);
       } else {
-         return finalizeInputFull(outputScript, null, false);
+         return finalizeInputFull(outputScript, null, true);
       }
    }
 
