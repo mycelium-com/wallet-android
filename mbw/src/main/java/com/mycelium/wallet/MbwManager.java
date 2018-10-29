@@ -88,6 +88,7 @@ import com.mycelium.modularizationtools.CommunicationManager;
 import com.mycelium.net.ServerEndpointType;
 import com.mycelium.net.TorManager;
 import com.mycelium.net.TorManagerOrbot;
+import com.mycelium.wallet.activity.AddAccountActivity;
 import com.mycelium.wallet.activity.util.BlockExplorer;
 import com.mycelium.wallet.activity.util.BlockExplorerManager;
 import com.mycelium.wallet.activity.util.Pin;
@@ -98,14 +99,7 @@ import com.mycelium.wallet.colu.ColuApiImpl;
 import com.mycelium.wallet.colu.ColuClient;
 import com.mycelium.wallet.colu.ColuManager;
 import com.mycelium.wallet.colu.SqliteColuManagerBacking;
-import com.mycelium.wallet.event.BalanceChanged;
-import com.mycelium.wallet.event.EventTranslator;
-import com.mycelium.wallet.event.ReceivingAddressChanged;
-import com.mycelium.wallet.event.SelectedAccountChanged;
-import com.mycelium.wallet.event.SelectedCurrencyChanged;
-import com.mycelium.wallet.event.SyncStarted;
-import com.mycelium.wallet.event.SyncStopped;
-import com.mycelium.wallet.event.TorStateChanged;
+import com.mycelium.wallet.event.*;
 import com.mycelium.wallet.exchange.ExchangeRateManager;
 import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager;
 import com.mycelium.wallet.extsig.keepkey.KeepKeyManager;
@@ -1369,8 +1363,9 @@ public class MbwManager {
 
     public UUID createAdditionalBip44Account(Context context) {
         UUID accountId;
-
         accountId = _walletManager.createAccounts(new AdditionalHDAccountConfig()).get(0);
+        _eventBus.post(new HdAccountCreated(accountId));
+        _eventBus.post(new AccountChanged(accountId));
         //set default label for the created HD account
         WalletAccount account = _walletManager.getAccount(accountId);
         String defaultName = Utils.getNameForNewAccount(account, context);
