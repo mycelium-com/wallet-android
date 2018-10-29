@@ -45,13 +45,13 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
             }
             val accountBacking = backing.getBip44AccountBacking(context.id);
             val account: WalletAccount<*, *>
+            val btcSettings = currenciesSettingsMap[Currency.BTC] as BTCSettings
             if (context.accountType == ACCOUNT_TYPE_UNRELATED_X_PRIV) {
                 account = HDAccount(context, keyManagerMap, networkParameters, accountBacking
-                        , _wapi, Reference(ChangeAddressMode.P2WPKH));
+                        , _wapi, btcSettings.changeAddressModeReference);
             } else if (context.accountType == ACCOUNT_TYPE_UNRELATED_X_PUB) {
                 account = HDPubOnlyAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi);
             } else {
-                val btcSettings = currenciesSettingsMap[Currency.BTC] as BTCSettings
                 account = HDAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi,
                         btcSettings.changeAddressModeReference)
             }
@@ -239,7 +239,11 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
 
 
     override fun deleteAccount(walletAccount: WalletAccount<*, *>): Boolean {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        if(walletAccount is HDAccount || walletAccount is HDPubOnlyAccount) {
+            backing.deleteBip44AccountContext(walletAccount.id)
+            return true
+        }
+        return false
     }
 
 }

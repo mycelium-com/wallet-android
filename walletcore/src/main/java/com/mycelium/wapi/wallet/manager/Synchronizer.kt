@@ -4,10 +4,11 @@ import com.mycelium.wapi.wallet.SyncMode
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.WalletManager
 
-class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode, val account: WalletAccount<*, *>? = null) : Runnable {
+class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode
+                   , val accounts: List<WalletAccount<*, *>> = listOf()) : Runnable {
 
     override fun run() {
-//        setStateAndNotify(State.SYNCHRONIZING)
+        walletManager.walletListener?.syncStarted()
         try {
             synchronized(walletManager.getAccounts()) {
                 if (walletManager.isNetworkConnected) {
@@ -29,7 +30,7 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode, val
 
             }
         } finally {
-//            setStateAndNotify(State.READY)
+            walletManager.walletListener?.syncStopped()
         }
     }
 }

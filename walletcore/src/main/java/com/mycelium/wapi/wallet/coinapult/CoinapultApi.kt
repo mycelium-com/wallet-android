@@ -10,5 +10,7 @@ interface CoinapultApi {
     fun getTransactions(currency: Currency): List<CoinapultTransaction>?
     fun getBalance(currency: Currency): Balance?
     fun getAddress(currency: Currency, currentAddress: GenericAddress?): GenericAddress?
-    fun broadcast(amount: BigDecimal,currency:Currency, address: BtcLegacyAddress)
+    fun broadcast(amount: BigDecimal, currency: Currency, address: BtcLegacyAddress)
+    fun setMail(mail: String): Boolean
+    fun verifyMail(link: String, email: String): Boolean
 }

@@ -11,8 +11,3 @@ open class PublicSingleConfig(val publicKey: PublicKey) : Config {
 
 open class PrivateSingleConfig(val privateKey: InMemoryPrivateKey, val cipher: KeyCipher) : Config {
 }
-
-open class AddressSingleConfig(val address: Address) : Config {
-
-}
-

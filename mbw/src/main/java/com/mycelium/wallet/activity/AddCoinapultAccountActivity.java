@@ -58,6 +58,7 @@ import com.mycelium.wallet.coinapult.CoinapultManager;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.api.response.Feature;
+import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.coinapult.CoinapultConfig;
 import com.mycelium.wapi.wallet.coinapult.Currency;
 import com.squareup.otto.Bus;
@@ -68,6 +69,8 @@ import java.util.UUID;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+
+import static com.mycelium.wallet.AccountManagerKt.getCoinapultAccount;
 
 public class AddCoinapultAccountActivity extends Activity {
    public static final int RESULT_COINAPULT = 2;
@@ -103,17 +106,11 @@ public class AddCoinapultAccountActivity extends Activity {
 
    void setButtonEnabled(){
       // only enable buttons for which we dont have an account already
-      if (_mbwManager.hasCoinapultAccount()){
-         CoinapultManager coinapultManager = _mbwManager.getCoinapultManager();
-         btCoinapultAddUSD.setEnabled(!coinapultManager.hasCurrencyEnabled(CoinapultAccount.Currency.USD));
-         btCoinapultAddEUR.setEnabled(!coinapultManager.hasCurrencyEnabled(CoinapultAccount.Currency.EUR));
-         btCoinapultAddGBP.setEnabled(!coinapultManager.hasCurrencyEnabled(CoinapultAccount.Currency.GBP));
+      WalletManager walletManager = _mbwManager.getWalletManager(false);
 
-      } else {
-         btCoinapultAddUSD.setEnabled(true);
-         btCoinapultAddEUR.setEnabled(true);
-         btCoinapultAddGBP.setEnabled(true);
-      }
+      btCoinapultAddUSD.setEnabled(getCoinapultAccount(walletManager, Currency.USD) == null);
+      btCoinapultAddEUR.setEnabled(getCoinapultAccount(walletManager, Currency.EUR) == null);
+      btCoinapultAddGBP.setEnabled(getCoinapultAccount(walletManager, Currency.GBP) == null);
    }
 
    @OnClick(R.id.btCoinapultAddUSD)
@@ -186,7 +183,6 @@ public class AddCoinapultAccountActivity extends Activity {
       private Bus bus;
       private Optional<String> mail;
       private final Currency currency;
-      private CoinapultManager coinapultManager;
       private final ProgressDialog progressDialog;
 
       public AddCoinapultAsyncTask(Bus bus, Optional<String> mail, Currency currency) {
@@ -224,7 +220,6 @@ public class AddCoinapultAccountActivity extends Activity {
       @Override
       protected void onPostExecute(UUID account) {
          if (account != null) {
-//            _mbwManager.addExtraAccounts(coinapultManager);
             bus.post(new AccountChanged(account));
             Intent result = new Intent();
             result.putExtra(RESULT_KEY, account);

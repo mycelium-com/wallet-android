@@ -28,9 +28,9 @@ abstract class ColuMain : BitcoinBasedCryptoCurrency() {
         signedMessageHeader = CryptoCurrency.toBytes("Colu Signed Message:\n")
     }
 
-    override fun getName(): String = MASSCoin.name
+    override fun getName(): String = name
 
-    override fun getSymbol() = symbol
+    override fun getSymbol(): String = symbol
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

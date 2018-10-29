@@ -82,8 +82,11 @@ class BitcoinSingleAddressModule(internal val backing: WalletManagerBacking<Sing
 
 
     override fun deleteAccount(walletAccount: WalletAccount<*, *>): Boolean {
-        backing.deleteSingleAddressAccountContext(walletAccount.id)
-        return true
+        if(walletAccount is SingleAddressAccount) {
+            backing.deleteSingleAddressAccountContext(walletAccount.id)
+            return true
+        }
+        return false
     }
 
 
