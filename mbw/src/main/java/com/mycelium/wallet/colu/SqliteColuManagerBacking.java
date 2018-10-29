@@ -586,9 +586,8 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
                try {
                   in = new ObjectInputStream(bis);
                   tex = (ColuTransaction) in.readObject();
-               } catch (IOException e) {
-                  e.printStackTrace();
-               } catch (ClassNotFoundException e) {
+                  result.add(tex);
+               } catch (IOException | ClassNotFoundException e) {
                   e.printStackTrace();
                } finally {
                   try {
@@ -598,7 +597,6 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
                   } catch (IOException ignore) {
                   }
                }
-               result.add(tex);
             }
          } finally {
             if (cursor != null) {

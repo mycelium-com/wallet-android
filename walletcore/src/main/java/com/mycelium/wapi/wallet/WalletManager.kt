@@ -102,6 +102,7 @@ class WalletManager(val _secureKeyValueStore: SecureKeyValueStore,
             }
         }
         accounts.putAll(result)
+        startSynchronization(SyncMode.NORMAL, result.values.toList())
         return result.keys.toList()
     }
 
@@ -120,11 +121,11 @@ class WalletManager(val _secureKeyValueStore: SecureKeyValueStore,
     fun getAccount(id: UUID): WalletAccount<*, *>? = accounts[id]
 
     @JvmOverloads
-    fun startSynchronization(mode: SyncMode = SyncMode.NORMAL_FORCED) {
+    fun startSynchronization(mode: SyncMode = SyncMode.NORMAL_FORCED, accounts: List<WalletAccount<*, *>> = listOf()) {
         if (!isNetworkConnected) {
             return
         }
-        Thread(Synchronizer(this, mode)).start()
+        Thread(Synchronizer(this, mode, accounts)).start()
     }
 
     fun startSynchronization(acc: UUID): Boolean {

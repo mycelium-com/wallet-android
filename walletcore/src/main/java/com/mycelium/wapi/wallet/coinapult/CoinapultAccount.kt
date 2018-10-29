@@ -88,7 +88,8 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
     override fun isVisible(): Boolean = true
 
     override fun completeAndSignTx(request: SendRequest<CoinapultTransaction>?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        completeTransaction(request)
+        signTransaction(request)
     }
 
     override fun completeTransaction(request: SendRequest<CoinapultTransaction>?) {

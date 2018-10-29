@@ -9,6 +9,8 @@ import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
+
 public class BtcLegacyAddress implements BtcAddress {
 
     private Address address;
@@ -69,5 +71,18 @@ public class BtcLegacyAddress implements BtcAddress {
     @Override
     public byte[] getBytes() {
         return address.getAllAddressBytes();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        BtcLegacyAddress that = (BtcLegacyAddress) o;
+        return Objects.equals(address, that.address);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(address);
     }
 }
