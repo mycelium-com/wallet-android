@@ -502,9 +502,6 @@ public class MbwManager {
 
     public void setDefaultAddressType(AddressType addressType) {
         defaultAddressType = addressType;
-        BTCSettings currencySettings = (BTCSettings) _walletManager.getCurrencySettings(Currency.BTC);
-        currencySettings.setDefaultAddressType(addressType);
-        _walletManager.setCurrencySettings(Currency.BTC, currencySettings);
         getEditor().putString(Constants.DEFAULT_ADDRESS_MODE, addressType.name()).apply();
     }
 
@@ -518,9 +515,6 @@ public class MbwManager {
 
     public void setChangeAddressMode(ChangeAddressMode changeAddressMode) {
         this.changeAddressMode = changeAddressMode;
-        BTCSettings currencySettings = (BTCSettings) _walletManager.getCurrencySettings(Currency.BTC);
-        currencySettings.setChangeAddressMode(changeAddressMode);
-        _walletManager.setCurrencySettings(Currency.BTC, currencySettings);
     }
 
     private void migrateOldKeys() {
@@ -619,7 +613,7 @@ public class MbwManager {
         SpvBalanceFetcher spvBchFetcher = getSpvBchFetcher();
         // Create and return wallet manager
         WalletManager walletManager = new WalletManager(secureKeyValueStore, backing
-                , environment.getNetwork(), _wapi, currenciesSettingsMap);
+                , environment.getNetwork(), _wapi);
         walletManager.setIsNetworkConnected(Utils.isConnected(context));
         walletManager.setWalletListener(new WalletListener() {
             @Override
@@ -759,7 +753,7 @@ public class MbwManager {
 
         // Create and return wallet manager
         WalletManager walletManager = new WalletManager(secureKeyValueStore, backing
-                , environment.getNetwork(), _wapi, currenciesSettingsMap);
+                , environment.getNetwork(), _wapi);
         walletManager.setIsNetworkConnected(Utils.isConnected(_applicationContext));
 
         walletManager.disableTransactionHistorySynchronization();
