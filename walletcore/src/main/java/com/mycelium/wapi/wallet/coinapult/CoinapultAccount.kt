@@ -92,8 +92,12 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
         signTransaction(request)
     }
 
-    override fun completeTransaction(request: SendRequest<CoinapultTransaction>?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun completeTransaction(request: SendRequest<CoinapultTransaction>) {
+        if (request is CoinapultSendRequest) {
+
+        } else {
+            TODO("completeTransaction not implemented for ${request.javaClass.simpleName}")
+        }
     }
 
     override fun signTransaction(request: SendRequest<CoinapultTransaction>) {

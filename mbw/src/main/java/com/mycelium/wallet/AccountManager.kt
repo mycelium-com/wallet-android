@@ -4,7 +4,6 @@ import android.os.AsyncTask
 import android.os.Handler
 import android.os.Looper
 import com.google.common.collect.ImmutableMap
-import com.mycelium.wallet.coinapult.CoinapultAccount
 import com.mycelium.wallet.event.AccountChanged
 import com.mycelium.wallet.event.AccountListChanged
 import com.mycelium.wallet.event.SelectedAccountChanged
@@ -71,7 +70,7 @@ object AccountManager : AccountProvider {
 
     fun getBCHBip44Accounts() = getAccountsByType<Bip44BCHAccount>()
 
-    fun getCoinapultAccounts() = getAccountsByType<CoinapultAccount>()
+//    fun getCoinapultAccounts() = getAccountsByType<CoinapultAccount>()
 
 //    fun getColuAccounts() = getAccountsByType<ColuAccount>()
 

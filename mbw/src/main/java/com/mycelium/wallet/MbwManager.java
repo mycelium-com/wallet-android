@@ -93,7 +93,6 @@ import com.mycelium.wallet.activity.util.BlockExplorerManager;
 import com.mycelium.wallet.activity.util.Pin;
 import com.mycelium.wallet.api.AndroidAsyncApi;
 import com.mycelium.wallet.bitid.ExternalService;
-import com.mycelium.wallet.coinapult.CoinapultManager;
 import com.mycelium.wallet.colu.ColuApiImpl;
 import com.mycelium.wallet.colu.ColuClient;
 import com.mycelium.wallet.colu.ColuManager;
@@ -197,7 +196,6 @@ public class MbwManager {
      * 0x424944 = "BID"
      */
     private static final int BIP32_ROOT_AUTHENTICATION_INDEX = 0x80424944;
-    private Optional<CoinapultManager> _coinapultManager;
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
@@ -384,33 +382,6 @@ public class MbwManager {
     private void initBTCSettings() {
         BTCSettings btcSettings = new BTCSettings(defaultAddressType, new Reference<>(changeAddressMode));
         currenciesSettingsMap.put(Currency.BTC, btcSettings);
-    }
-
-    private Optional<CoinapultManager> createCoinapultManager() {
-        if (_walletManager.hasBip32MasterSeed() && _storage.isPairedService(MetadataStorage.PAIRED_SERVICE_COINAPULT)) {
-            BitIdKeyDerivation derivation = new BitIdKeyDerivation() {
-                @Override
-                public InMemoryPrivateKey deriveKey(int accountIndex, String site) {
-                    try {
-                        Bip39.MasterSeed masterSeed = _walletManager.getMasterSeed(AesKeyCipher.defaultKeyCipher());
-                        return createBip32WebsitePrivateKey(masterSeed.getBip32Seed(), accountIndex, site);
-                    } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
-                        throw new RuntimeException(invalidKeyCipher);
-                    }
-                }
-            };
-            return Optional.of(new CoinapultManager(
-                                   _environment,
-                                   derivation,
-                                   _eventBus,
-                                   new Handler(_applicationContext.getMainLooper()),
-                                   _storage,
-                                   _exchangeRateManager,
-                                   retainingWapiLogger));
-
-        } else {
-            return Optional.absent();
-        }
     }
 
     private Optional<ColuManager> createColuManager(final Context context) {

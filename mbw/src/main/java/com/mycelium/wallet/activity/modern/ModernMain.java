@@ -76,7 +76,6 @@ import com.mycelium.wallet.activity.main.TransactionHistoryFragment;
 import com.mycelium.wallet.activity.modern.adapter.TabsAdapter;
 import com.mycelium.wallet.activity.send.InstantWalletActivity;
 import com.mycelium.wallet.activity.settings.SettingsActivity;
-import com.mycelium.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wallet.event.FeatureWarningsAvailable;
 import com.mycelium.wallet.event.NewWalletVersionAvailable;
 import com.mycelium.wallet.event.SpvSyncChanged;
@@ -89,6 +88,7 @@ import com.mycelium.wallet.modularisation.BCHHelper;
 import com.mycelium.wallet.modularisation.ModularisationVersionHelper;
 import com.mycelium.wapi.api.response.Feature;
 import com.mycelium.wapi.wallet.SyncMode;
+import com.mycelium.wapi.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wapi.wallet.manager.State;
 import com.squareup.otto.Subscribe;
 

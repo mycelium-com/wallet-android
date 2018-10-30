@@ -84,7 +84,6 @@ import com.mycelium.wallet.activity.main.model.transactionhistory.TransactionHis
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.send.BroadcastTransactionActivity;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
-import com.mycelium.wallet.coinapult.CoinapultTransactionSummary;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.AddressBookChanged;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
@@ -99,6 +98,7 @@ import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+import com.mycelium.wapi.wallet.coinapult.CoinapultTransaction;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.squareup.otto.Subscribe;
@@ -448,31 +448,31 @@ public class TransactionHistoryFragment extends Fragment {
                   public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
                      final int itemId = menuItem.getItemId();
                      if (itemId == R.id.miShowCoinapultDebug) {
-                        if (record instanceof CoinapultTransactionSummary) {
-                           final CoinapultTransactionSummary summary = (CoinapultTransactionSummary) record;
-                           new AlertDialog.Builder(_context)
-                                 .setMessage(summary.input.toString())
-                                 .setNeutralButton(R.string.copy, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                       Utils.setClipboardString(
-                                             summary.input.toString(),
-                                             TransactionHistoryFragment.this.getActivity());
-                                       Toast.makeText(
-                                             TransactionHistoryFragment.this.getActivity(),
-                                             R.string.copied_to_clipboard, Toast.LENGTH_SHORT)
-                                             .show();
-
-                                       dialog.dismiss();
-                                    }
-                                 })
-                                 .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                       dialog.dismiss();
-                                    }
-                                 })
-                                 .show();
+                        if (record instanceof CoinapultTransaction) {
+                           final CoinapultTransaction summary = (CoinapultTransaction) record;
+//                           new AlertDialog.Builder(_context)
+//                                 .setMessage(summary.input.toString())
+//                                 .setNeutralButton(R.string.copy, new DialogInterface.OnClickListener() {
+//                                    @Override
+//                                    public void onClick(DialogInterface dialog, int which) {
+//                                       Utils.setClipboardString(
+//                                             summary.input.toString(),
+//                                             TransactionHistoryFragment.this.getActivity());
+//                                       Toast.makeText(
+//                                             TransactionHistoryFragment.this.getActivity(),
+//                                             R.string.copied_to_clipboard, Toast.LENGTH_SHORT)
+//                                             .show();
+//
+//                                       dialog.dismiss();
+//                                    }
+//                                 })
+//                                 .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+//                                    @Override
+//                                    public void onClick(DialogInterface dialog, int which) {
+//                                       dialog.dismiss();
+//                                    }
+//                                 })
+//                                 .show();
                         }
                         return true;
                      }

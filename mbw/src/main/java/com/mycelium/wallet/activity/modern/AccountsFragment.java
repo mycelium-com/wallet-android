@@ -85,7 +85,7 @@ import com.mycelium.wallet.activity.modern.adapter.AccountListAdapter;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
 import com.mycelium.wallet.activity.util.ValueExtentionsKt;
 import com.mycelium.wallet.activity.view.DividerItemDecoration;
-import com.mycelium.wallet.coinapult.CoinapultAccount;
+
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.AccountListChanged;
 import com.mycelium.wallet.event.BalanceChanged;
@@ -114,6 +114,7 @@ import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
 import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
+import com.mycelium.wapi.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wapi.wallet.coinapult.CoinapultModule;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.Value;

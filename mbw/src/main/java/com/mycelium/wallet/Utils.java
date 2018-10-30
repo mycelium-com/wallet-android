@@ -91,7 +91,6 @@ import com.mycelium.wallet.activity.AdditionalBackupWarningActivity;
 import com.mycelium.wallet.activity.BackupWordListActivity;
 import com.mycelium.wallet.activity.export.BackupToPdfActivity;
 import com.mycelium.wallet.activity.export.ExportAsQrActivity;
-import com.mycelium.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AesKeyCipher;
@@ -105,6 +104,7 @@ import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
 import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
+import com.mycelium.wapi.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
 import com.mycelium.wapi.wallet.colu.coins.MTCoin;
@@ -909,8 +909,7 @@ public class Utils {
       if (walletAccount instanceof HDAccount) {
          return resources.getDrawable(R.drawable.multikeys_grey);
       }
-      if (walletAccount instanceof CoinapultAccount
-              || walletAccount instanceof com.mycelium.wapi.wallet.coinapult.CoinapultAccount) {
+      if (walletAccount instanceof CoinapultAccount) {
          if (isSelectedAccount) {
             return resources.getDrawable(R.drawable.coinapult);
          } else {

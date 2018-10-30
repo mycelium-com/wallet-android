@@ -88,7 +88,7 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
 
 //            val accounts = am.getActiveAccounts().values.asList()
             val other = ArrayList<WalletAccount<out GenericTransaction, out GenericAddress>>()
-            am.getCoinapultAccounts().values.forEach {
+            walletManager.getCoinapultAccounts().forEach {
                 other.add(it)
             }
 //            for (account in accounts) {

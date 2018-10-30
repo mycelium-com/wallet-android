@@ -39,6 +39,7 @@ import com.mycelium.wallet.external.changelly.AccountAdapter;
 import com.mycelium.wallet.external.changelly.ChangellyService;
 import com.mycelium.wallet.external.changelly.Constants;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
@@ -60,6 +61,8 @@ import butterknife.OnClick;
 import butterknife.OnTextChanged;
 
 import static butterknife.OnTextChanged.Callback.AFTER_TEXT_CHANGED;
+import static com.mycelium.wallet.AccountManagerKt.getBTCSingleAddressAccounts;
+import static com.mycelium.wallet.AccountManagerKt.getCoinapultAccounts;
 import static com.mycelium.wallet.external.changelly.ChangellyService.INFO_ERROR;
 import static com.mycelium.wallet.external.changelly.Constants.ABOUT;
 import static com.mycelium.wallet.external.changelly.Constants.decimalFormat;
@@ -164,10 +167,11 @@ public class ExchangeFragment extends Fragment {
         int senderFinalWidth = getActivity().getWindowManager().getDefaultDisplay().getWidth();
         int firstItemWidth = (senderFinalWidth - getResources().getDimensionPixelSize(R.dimen.item_dob_width)) / 2;
 
+        WalletManager walletManager = mbwManager.getWalletManager(false);
         List<WalletAccount<?,?>> toAccounts = new ArrayList<>();
         toAccounts.addAll(AccountManager.INSTANCE.getBTCBip44Accounts().values());
-        toAccounts.addAll(AccountManager.INSTANCE.getBTCSingleAddressAccounts().values());
-        toAccounts.addAll(AccountManager.INSTANCE.getCoinapultAccounts().values());
+        toAccounts.addAll(getBTCSingleAddressAccounts(walletManager));
+        toAccounts.addAll(getCoinapultAccounts(walletManager));
         toAccountAdapter = new AccountAdapter(mbwManager, toAccounts, firstItemWidth);
         toAccountAdapter.setAccountUseType(AccountAdapter.AccountUseType.IN);
         toRecyclerView.setAdapter(toAccountAdapter);

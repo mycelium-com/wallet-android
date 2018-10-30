@@ -36,6 +36,7 @@ import butterknife.OnClick;
 import butterknife.OnTextChanged;
 
 import static butterknife.OnTextChanged.Callback.AFTER_TEXT_CHANGED;
+import static com.mycelium.wallet.AccountManagerKt.getCoinapultAccounts;
 import static com.mycelium.wallet.external.changelly.ChangellyService.INFO_ERROR;
 import static com.mycelium.wallet.external.changelly.Constants.decimalFormat;
 
@@ -172,7 +173,7 @@ public class ChangellyActivity extends AppCompatActivity {
         List<WalletAccount<?,?>> toAccounts = new ArrayList<>();
         toAccounts.addAll(AccountManager.INSTANCE.getBTCBip44Accounts().values());
         toAccounts.addAll(AccountManager.INSTANCE.getBTCSingleAddressAccounts().values());
-        toAccounts.addAll(AccountManager.INSTANCE.getCoinapultAccounts().values());
+        toAccounts.addAll(getCoinapultAccounts(mbwManager.getWalletManager(false)));
         accountAdapter = new AccountAdapter(mbwManager, toAccounts, firstItemWidth);
         accountSelector.setAdapter(accountAdapter);
         accountSelector.setSelectedItem(mbwManager.getSelectedAccount());
