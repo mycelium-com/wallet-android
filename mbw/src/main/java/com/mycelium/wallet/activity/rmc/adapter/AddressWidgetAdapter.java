@@ -13,9 +13,8 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.rmc.BtcPoolStatisticsManager;
 import com.mycelium.wallet.activity.rmc.view.ProfitMeterView;
-import com.mycelium.wallet.colu.ColuAccount;
-import com.mycelium.wallet.colu.json.AssetMetadata;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
@@ -39,7 +38,7 @@ public class AddressWidgetAdapter extends PagerAdapter {
     private MbwManager mbwManager;
     private BtcPoolStatisticsManager.PoolStatisticInfo poolStatisticInfo;
     private SharedPreferences sharedPreferences;
-    private ColuAccount coluAccount;
+    private ColuPubOnlyAccount coluAccount;
 
     private int angle = 0;
     private float value = 0;
@@ -51,15 +50,15 @@ public class AddressWidgetAdapter extends PagerAdapter {
         this.mbwManager = mbwManager;
         sharedPreferences = context.getSharedPreferences(PREFERENCE_RMC_PROFIT_METER, Context.MODE_PRIVATE);
         WalletAccount account = mbwManager.getSelectedAccount();
-        if(account instanceof ColuAccount) {
-            coluAccount = (ColuAccount) mbwManager.getSelectedAccount();
+        if(account instanceof ColuPubOnlyAccount) {
+            coluAccount = (ColuPubOnlyAccount) mbwManager.getSelectedAccount();
 
 
             poolStatisticInfo = new BtcPoolStatisticsManager.PoolStatisticInfo(
                     sharedPreferences.getLong(TOTAL_RMC_HASHRATE, 0)
-                    , sharedPreferences.getLong(YOUR_RMC_HASHRATE + coluAccount.getAddress().toString(), 0));
+                    , sharedPreferences.getLong(YOUR_RMC_HASHRATE + coluAccount.getReceiveAddress().toString(), 0));
             poolStatisticInfo.difficulty = sharedPreferences.getLong(DIFFICULTY, 0);
-            accrued = new BigDecimal(sharedPreferences.getString(ACCRUED_INCOME + coluAccount.getAddress().toString(), "0"));
+            accrued = new BigDecimal(sharedPreferences.getString(ACCRUED_INCOME + coluAccount.getReceiveAddress().toString(), "0"));
 
             BtcPoolStatisticsTask task = new BtcPoolStatisticsTask(coluAccount);
             task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
@@ -147,9 +146,9 @@ public class AddressWidgetAdapter extends PagerAdapter {
             if (poolStatisticInfo != null && poolStatisticInfo.yourRmcHashrate != 0 && poolStatisticInfo.difficulty != 0) {
                 satPerSec = BigDecimal.valueOf(poolStatisticInfo.yourRmcHashrate).multiply(BLOCK_REWARD)
                         .divide(BigDecimal.valueOf(poolStatisticInfo.difficulty).multiply(POW_2_32), 4, BigDecimal.ROUND_UP);
-                long adotime = sharedPreferences.getLong(ADOTIME + coluAccount.getAddress().toString(), 0);
+                long adotime = sharedPreferences.getLong(ADOTIME + coluAccount.getReceiveAddress().toString(), 0);
                 if(adotime != 0) {
-                    angle = (int) (sharedPreferences.getInt(ADOANGLE + coluAccount.getAddress().toString(), 0)
+                    angle = (int) (sharedPreferences.getInt(ADOANGLE + coluAccount.getReceiveAddress().toString(), 0)
                                                                     + 6 * (System.currentTimeMillis() - adotime) / 1000);
                     value = angle / 6 * satPerSec.floatValue();
                 }
@@ -163,14 +162,14 @@ public class AddressWidgetAdapter extends PagerAdapter {
                             SharedPreferences.Editor editor = sharedPreferences.edit();
                             if (angle == 0) {
                                 accrued = accrued.add(BigDecimal.valueOf(value).movePointLeft(8)).setScale(8, BigDecimal.ROUND_UP);
-                                editor.putString(ACCRUED_INCOME + coluAccount.getAddress().toString(), accrued.toPlainString());
+                                editor.putString(ACCRUED_INCOME + coluAccount.getReceiveAddress().toString(), accrued.toPlainString());
                                 accruedValue.setText(accrued.stripTrailingZeros().toPlainString() + " BTC");
                                 value = 0;
                             } else {
                                 value += satPerSec.floatValue();
                             }
-                            editor.putLong(ADOTIME + coluAccount.getAddress().toString(), System.currentTimeMillis());
-                            editor.putInt(ADOANGLE + coluAccount.getAddress().toString(), angle);
+                            editor.putLong(ADOTIME + coluAccount.getReceiveAddress().toString(), System.currentTimeMillis());
+                            editor.putInt(ADOANGLE + coluAccount.getReceiveAddress().toString(), angle);
                             editor.apply();
                             adometr.setText("+" + (Math.round(value) > 0 ?
                                     String.valueOf(Math.round(value)) : adoFormat.format(value)));
@@ -234,9 +233,9 @@ public class AddressWidgetAdapter extends PagerAdapter {
 
     class BtcPoolStatisticsTask extends AsyncTask<Void, Void, BtcPoolStatisticsManager.PoolStatisticInfo> {
 
-        private ColuAccount coluAccount;
+        private ColuPubOnlyAccount coluAccount;
 
-        public BtcPoolStatisticsTask(ColuAccount coluAccount) {
+        public BtcPoolStatisticsTask(ColuPubOnlyAccount coluAccount) {
             this.coluAccount = coluAccount;
         }
 
@@ -260,10 +259,10 @@ public class AddressWidgetAdapter extends PagerAdapter {
                 }
                 if (result.yourRmcHashrate != -1) {
                     poolStatisticInfo.yourRmcHashrate = result.yourRmcHashrate;
-                    editor.putLong(YOUR_RMC_HASHRATE + coluAccount.getAddress().toString(), result.yourRmcHashrate);
+                    editor.putLong(YOUR_RMC_HASHRATE + coluAccount.getReceiveAddress().toString(), result.yourRmcHashrate);
                 }
                 if (result.accruedIncome != -1) {
-                    editor.putString(ACCRUED_INCOME + coluAccount.getAddress().toString()
+                    editor.putString(ACCRUED_INCOME + coluAccount.getReceiveAddress().toString()
                             , BigDecimal.valueOf(result.accruedIncome).movePointLeft(8).setScale(8, BigDecimal.ROUND_UP).toPlainString());
                 }
                 editor.apply();

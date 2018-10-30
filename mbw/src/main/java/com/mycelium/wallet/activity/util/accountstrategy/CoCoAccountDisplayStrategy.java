@@ -4,26 +4,26 @@ import android.content.Context;
 
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.colu.ColuAccount;
+import com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 
 public class CoCoAccountDisplayStrategy implements AccountDisplayStrategy {
-    private final ColuAccount account;
+    private final ColuPubOnlyAccount account;
     private final Context context;
 
-    public CoCoAccountDisplayStrategy(ColuAccount account, Context context) {
+    public CoCoAccountDisplayStrategy(ColuPubOnlyAccount account, Context context) {
         this.account = account;
         this.context = context;
     }
 
     @Override
     public String getLabel() {
-        return account.getColuAsset().label;
+        return account.getCoinType().getName();
     }
 
     @Override
     public String getCurrencyName() {
-        return account.getColuAsset().name;
+        return account.getCoinType().getSymbol();
     }
 
     @Override

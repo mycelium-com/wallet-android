@@ -66,7 +66,6 @@ import com.mrd.bitlib.FeeEstimatorBuilder;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
 import com.mrd.bitlib.StandardTransactionBuilder.UnableToBuildTransactionException;
-import com.mrd.bitlib.TransactionUtils;
 import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
@@ -104,17 +103,19 @@ import com.mycelium.wallet.activity.util.AccountDisplayType;
 import com.mycelium.wallet.activity.util.AnimationUtils;
 import com.mycelium.wallet.activity.util.ValueExtentionsKt;
 import com.mycelium.wallet.coinapult.CoinapultAccount;
-import com.mycelium.wallet.colu.ColuAccount;
-import com.mycelium.wallet.colu.ColuCurrencyValue;
-import com.mycelium.wallet.colu.ColuManager;
-import com.mycelium.wallet.colu.json.ColuBroadcastTxHex;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wallet.event.SyncFailed;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.paymentrequest.PaymentRequestHandler;
 import com.mycelium.wapi.api.response.Feature;
-import com.mycelium.wapi.wallet.*;
+import com.mycelium.wapi.wallet.AddressUtils;
+import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
+import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.SendRequest;
+import com.mycelium.wapi.wallet.SyncMode;
+import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
@@ -123,21 +124,27 @@ import com.mycelium.wapi.wallet.btc.bip44.UnrelatedHDAccountConfig;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
+import com.mycelium.wapi.wallet.colu.ColuAccount;
 import com.mycelium.wapi.wallet.colu.ColuUtils;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
 import com.mycelium.wapi.wallet.colu.coins.MTCoin;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
+import com.mycelium.wapi.wallet.colu.json.ColuBroadcastTxHex;
 import com.mycelium.wapi.wallet.currency.BitcoinValue;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
-import static com.mycelium.wallet.activity.util.ValueExtentionsKt.isBtc;
-
 import com.squareup.otto.Subscribe;
 
 import org.bitcoin.protocols.payments.PaymentACK;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -148,6 +155,7 @@ import static android.view.View.VISIBLE;
 import static android.widget.Toast.LENGTH_LONG;
 import static android.widget.Toast.LENGTH_SHORT;
 import static android.widget.Toast.makeText;
+import static com.mycelium.wallet.activity.util.ValueExtentionsKt.isBtc;
 
 public class SendMainActivity extends Activity {
     private static final String TAG = "SendMainActivity";
@@ -321,7 +329,7 @@ public class SendMainActivity extends Activity {
 
     public static Intent getIntent(Activity currentActivity, UUID account, ColuAssetUri uri, boolean isColdStorage) {
         return getIntent(currentActivity, account, isColdStorage)
-                .putExtra(AMOUNT, new ColuCurrencyValue(uri.amount, uri.scheme))
+                .putExtra(AMOUNT, Value.parse(ColuUtils.getColuCoinBySheme(uri.scheme), uri.amount))
                 .putExtra(RECEIVING_ADDRESS, uri.address)
                 .putExtra(TRANSACTION_LABEL, uri.label)
                 .putExtra(RMC_URI, uri);
@@ -451,7 +459,7 @@ public class SendMainActivity extends Activity {
         if (_account instanceof ColuAccount) {
             ColuAccount coluAccount = (ColuAccount) _account;
             tvAmount.setHint(getResources().getString(R.string.amount_hint_denomination,
-                    coluAccount.getColuAsset().name));
+                    coluAccount.getCoinType().getSymbol()));
             tips_check_address.setVisibility(View.VISIBLE);
         } else {
             tvAmount.setHint(getResources().getString(R.string.amount_hint_denomination,
@@ -658,23 +666,19 @@ public class SendMainActivity extends Activity {
 
     private long getAmountForColuTxOutputs() {
         int coluDustOutputSize = this._mbwManager.getNetwork().isTestnet() ? AbstractBtcAccount.COLU_MAX_DUST_OUTPUT_SIZE_TESTNET : AbstractBtcAccount.COLU_MAX_DUST_OUTPUT_SIZE_MAINNET;
-        return 2 * coluDustOutputSize + ColuManager.METADATA_OUTPUT_SIZE;
+        return 2 * coluDustOutputSize + ColuUtils.METADATA_OUTPUT_SIZE;
     }
 
-    private boolean checkFee(boolean rescan) {
-//        if (rescan) {
-//            ColuManager coluManager = _mbwManager.getColuManager();
-//            coluManager.scanForAccounts(SyncMode.FULL_SYNC_ALL_ACCOUNTS);
-//        }
-        ColuAccount coluAccount = (ColuAccount) _account;
+//    private boolean checkFee(boolean rescan) {
+//        ColuAccount coluAccount = (ColuAccount) _account;
+//
+//        long fundingAmountShouldHave = /*_mbwManager.getColuManager().getColuTransactionFee(feePerKbValue) + */getAmountForColuTxOutputs();
+//        if (fundingAmountShouldHave < TransactionUtils.MINIMUM_OUTPUT_VALUE)
+//            fundingAmountShouldHave = TransactionUtils.MINIMUM_OUTPUT_VALUE;
 
-        long fundingAmountShouldHave = /*_mbwManager.getColuManager().getColuTransactionFee(feePerKbValue) + */getAmountForColuTxOutputs();
-        if (fundingAmountShouldHave < TransactionUtils.MINIMUM_OUTPUT_VALUE)
-            fundingAmountShouldHave = TransactionUtils.MINIMUM_OUTPUT_VALUE;
-
-        long spendableAmount =  coluAccount.getSatoshiBtcOnlyAmount();
-        return spendableAmount >= (fundingAmountShouldHave);
-    }
+//        long spendableAmount =  coluAccount.getSatoshiBtcOnlyAmount();
+//        return spendableAmount >= (fundingAmountShouldHave);
+//    }
 
     // returns the amcountToSend in Bitcoin - it tries to get it from the entered amount and
     // only uses the ExchangeRate-Manager if we dont have it already converted

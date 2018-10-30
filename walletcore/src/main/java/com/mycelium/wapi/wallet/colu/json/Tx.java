@@ -1,4 +1,4 @@
-package com.mycelium.wallet.colu.json;
+package com.mycelium.wapi.wallet.colu.json;
 
 import java.util.List;
 

@@ -75,7 +75,6 @@ import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wallet.DataExport;
 import com.mycelium.wallet.MbwManager;
-import com.mycelium.wallet.MinerFee;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.TransactionDetailsActivity;
@@ -85,7 +84,6 @@ import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.send.BroadcastTransactionActivity;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
 import com.mycelium.wallet.coinapult.CoinapultTransactionSummary;
-import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.AddressBookChanged;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedAccountChanged;
@@ -99,6 +97,7 @@ import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+import com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.squareup.otto.Subscribe;
@@ -487,8 +486,8 @@ public class TransactionHistoryFragment extends Fragment {
                            break;
                         case R.id.miAddToAddressBook:
                            String defaultName = "";
-                           if (_mbwManager.getSelectedAccount() instanceof ColuAccount) {
-                              defaultName = ((ColuAccount) _mbwManager.getSelectedAccount()).getColuAsset().name;
+                           if (_mbwManager.getSelectedAccount() instanceof ColuPubOnlyAccount) {
+                              defaultName = _mbwManager.getSelectedAccount().getCoinType().getName();
                            }
                            EnterAddressLabelUtil.enterAddressLabel(getActivity(), _mbwManager.getMetadataStorage(), new Address(new byte[0]), defaultName, addressLabelChanged); //record.destinationAddress.get()
                            break;

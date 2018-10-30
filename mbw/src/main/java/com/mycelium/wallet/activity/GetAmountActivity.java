@@ -62,13 +62,13 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.util.AccountDisplayType;
 import com.mycelium.wallet.activity.util.ValueExtentionsKt;
-import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.Value;
+import com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount;
 import com.mycelium.wapi.wallet.colu.ColuUtils;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
@@ -159,7 +159,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       } else {
          _account = _mbwManager.getSelectedAccount();
       }
-      isColu = _account instanceof ColuAccount;
+      isColu = _account instanceof ColuPubOnlyAccount;
       initNumberEntry(savedInstanceState);
 
       mainCurrencyType = (AccountDisplayType) getIntent().getSerializableExtra(BASIC_CURRENCY);
@@ -208,7 +208,6 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
    private void initListeners() {
       // set the text for the currency button
       if(isColu) {
-         ColuAccount coluAccount = (ColuAccount) _account;
          if (_amount == null) {
             // todo get generic value (BTC/ETH) ? using coluAccount.getAccountDefaultCurrency()
             _amount = Value.valueOf(BitcoinTest.get(), 0);;

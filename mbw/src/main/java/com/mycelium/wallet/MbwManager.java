@@ -88,16 +88,12 @@ import com.mycelium.modularizationtools.CommunicationManager;
 import com.mycelium.net.ServerEndpointType;
 import com.mycelium.net.TorManager;
 import com.mycelium.net.TorManagerOrbot;
-import com.mycelium.wallet.activity.AddAccountActivity;
 import com.mycelium.wallet.activity.util.BlockExplorer;
 import com.mycelium.wallet.activity.util.BlockExplorerManager;
 import com.mycelium.wallet.activity.util.Pin;
 import com.mycelium.wallet.api.AndroidAsyncApi;
 import com.mycelium.wallet.bitid.ExternalService;
 import com.mycelium.wallet.coinapult.CoinapultManager;
-import com.mycelium.wallet.colu.ColuApiImpl;
-import com.mycelium.wallet.colu.ColuClient;
-import com.mycelium.wallet.colu.ColuManager;
 import com.mycelium.wallet.colu.SqliteColuManagerBacking;
 import com.mycelium.wallet.event.*;
 import com.mycelium.wallet.exchange.ExchangeRateManager;
@@ -143,6 +139,8 @@ import com.mycelium.wapi.wallet.btc.single.PrivateSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore;
 import com.mycelium.wapi.wallet.btc.single.PublicSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
+import com.mycelium.wapi.wallet.colu.ColuApiImpl;
+import com.mycelium.wapi.wallet.colu.ColuClient;
 import com.mycelium.wapi.wallet.colu.ColuModule;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
 import com.mycelium.wapi.wallet.colu.coins.MTCoin;
@@ -407,25 +405,6 @@ public class MbwManager {
         }
     }
 
-    private Optional<ColuManager> createColuManager(final Context context) {
-        // Create persisted account backing
-        // we never talk directly to this class. Instead, we use SecureKeyValueStore API
-        SqliteColuManagerBacking coluBacking = new SqliteColuManagerBacking(context);
-
-        // Create persisted secure storage instance
-        SecureKeyValueStore coluSecureKeyValueStore = new SecureKeyValueStore(coluBacking,
-                new AndroidRandomSource());
-
-        return Optional.of(new ColuManager(
-                               coluSecureKeyValueStore,
-                               coluBacking,
-                               this,
-                               _environment,
-                               _eventBus,
-                               new Handler(_applicationContext.getMainLooper()),
-                               _storage, Utils.isConnected(context)));
-    }
-
     private void createTempWalletManager() {
         //for managing temp accounts created through scanning
         _tempWalletManager = createTempWalletManager(_environment);
@@ -682,7 +661,7 @@ public class MbwManager {
         walletManager.add(new BitcoinHDModule(backing, secureKeyValueStore, networkParameters, _wapi, currenciesSettingsMap));
 
         SqliteColuManagerBacking coluBacking = new SqliteColuManagerBacking(context);
-        ColuClient coluClient = new ColuClient(networkParameters);
+        ColuClient coluClient = new ColuClient(networkParameters, BuildConfig.ColoredCoinsApiURLs, BuildConfig.ColuBlockExplorerApiURLs);
         org.bitcoinj.core.NetworkParameters netParams;
         if (networkParameters.isProdnet()) {
             netParams = MainNetParams.get();
