@@ -69,7 +69,7 @@ public class Transaction implements Serializable {
                     inputs[idx] = new TransactionInput(u.outPoint, ScriptInput.fromScriptBytes(segWitScriptBytes),
                             unsignedTransaction.getDefaultSequenceNumber(), u.value);
                 } catch (Script.ScriptParsingException e) {
-                    e.printStackTrace();
+                    //Should never happen
                 }
             } else {
                 inputs[idx] = new TransactionInput(u.outPoint, new ScriptInput(u.script.getScriptBytes()),

@@ -341,6 +341,10 @@ public class BTChipDongle implements BTChipConstants {
    }
 
 
+   /**
+    * Used https://github.com/LedgerHQ/btchip-java-api/pull/2 fix
+    * APDU - Application Protocol Data Unit
+    */
    private byte[] exchangeApdu(byte cla, byte ins, byte p1, byte p2, int acceptedSW[]) throws BTChipException {
       byte[] apdu = {cla, ins, p1, p2};
       return exchangeCheck(apdu, acceptedSW);
@@ -784,23 +788,6 @@ public class BTChipDongle implements BTChipConstants {
       byte[] signature = new byte[response.length - offset];
       System.arraycopy(response, offset, signature, 0, signature.length);
       return new BTChipKeyRecoveryData(hashData, keyX, signature);
-   }
-
-   public void enableAlternate2fa(boolean persistent) throws BTChipException {
-      byte p1;
-      if (persistent) {
-         p1 = 0x02;
-      } else  {
-         p1 = 0x01;
-      }
-      byte[] array = new byte[6];
-      array[0] = BTCHIP_CLA;
-      array[1] = BTCHIP_INS_SET_OPERATION_MODE;
-      array[2] = p1;
-      array[3] = 0x00;
-      array[4] = 0x01;
-      array[5] = (byte) OperationMode.WALLET.getValue();
-      exchange(array);
    }
 
    public void extStorePublicKey(Long[] pathParam, byte[] publicKey) throws BTChipException {
