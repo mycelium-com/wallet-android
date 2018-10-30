@@ -515,8 +515,8 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
                                    ((SingleAddressAccount) existingAccount).setPrivateKey(key, AesKeyCipher.defaultKeyCipher());
                                 } else {
                                    WalletManager walletManager = _mbwManager.getWalletManager(false);
-                                   walletManager.deleteAccount(existingAccount.getId());
-                                   walletManager.deleteAccount(Utils.getLinkedAccount(existingAccount, walletManager.getAccounts()).getId());
+                                   walletManager.deleteAccount(existingAccount.getId(), AesKeyCipher.defaultKeyCipher());
+                                   walletManager.deleteAccount(Utils.getLinkedAccount(existingAccount, walletManager.getAccounts()).getId(), AesKeyCipher.defaultKeyCipher());
                                    walletManager.createAccounts(new PrivateColuConfig(key, (ColuMain) existingAccount.getCoinType(), AesKeyCipher.defaultKeyCipher()));
                                 }
                              } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
