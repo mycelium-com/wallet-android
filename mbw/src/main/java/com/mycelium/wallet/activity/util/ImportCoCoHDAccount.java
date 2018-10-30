@@ -11,7 +11,6 @@ import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.hdpath.HdKeyPath;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.SyncMode;
@@ -84,16 +83,12 @@ public class ImportCoCoHDAccount extends AsyncTask<Void, Integer, UUID> {
         mbwManager.getWalletManager(false).startSynchronization(SyncMode.FULL_SYNC_ALL_ACCOUNTS);
         for (WalletAccount account : accountsCreated) {
             Value spendableBalance = account.getAccountBalance().confirmed;
-            switch (((ColuAccount) account).getColuAsset().assetType) {
-                case MASS:
-                    massFound = massFound.add(spendableBalance);
-                    break;
-                case RMC:
-                    rmcFound = rmcFound.add(spendableBalance);
-                    break;
-                case MT:
-                    mtFound = mtFound.add(spendableBalance);
-                    break;
+            if (account.getCoinType().equals(MASSCoin.INSTANCE)) {
+                massFound = massFound.add(spendableBalance);
+            } else if (account.getCoinType().equals(RMCCoin.INSTANCE)) {
+                rmcFound = rmcFound.add(spendableBalance);
+            } else if (account.getCoinType().equals(MTCoin.INSTANCE)) {
+                mtFound = mtFound.add(spendableBalance);
             }
         }
         return accountsCreated.isEmpty() ? null : accountsCreated.get(0).getId();

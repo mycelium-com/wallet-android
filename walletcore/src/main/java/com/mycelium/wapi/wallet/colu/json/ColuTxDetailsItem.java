@@ -1,4 +1,4 @@
-package com.mycelium.wallet.colu.json;
+package com.mycelium.wapi.wallet.colu.json;
 
 import com.mrd.bitlib.model.Address;
 import com.mycelium.wapi.model.TransactionDetails;

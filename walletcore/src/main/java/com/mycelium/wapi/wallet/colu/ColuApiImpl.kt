@@ -1,17 +1,12 @@
-package com.mycelium.wallet.colu
+package com.mycelium.wapi.wallet.colu
 
-import android.util.Log
 import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.model.Transaction
 import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.wapi.wallet.GenericAddress
 import com.mycelium.wapi.wallet.GenericTransaction
-import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.BtcLegacyAddress
 import com.mycelium.wapi.wallet.coins.Value
-import com.mycelium.wapi.wallet.colu.ColuApi
-import com.mycelium.wapi.wallet.colu.ColuTransaction
-import com.mycelium.wapi.wallet.colu.ColuUtils
 import com.mycelium.wapi.wallet.colu.coins.ColuMain
 import com.mycelium.wapi.wallet.colu.coins.MTCoin
 import java.io.IOException
@@ -69,7 +64,7 @@ class ColuApiImpl(val coluClient: ColuClient) : ColuApi {
                 }
             }
         } catch (e: IOException) {
-            Log.e("ColuApiImpl", "", e)
+            //Log.e("ColuApiImpl", "", e)
         }
         return result
     }
@@ -82,10 +77,9 @@ class ColuApiImpl(val coluClient: ColuClient) : ColuApi {
                 for (utxo in addressInfo.utxos) {
                     // adding utxo to list of txid list request
                     for (txidAsset in utxo.assets) {
-                        for (knownAssetId in ColuAccount.ColuAsset.getAssetMap().keys) {
-                            val coluMain = ColuUtils.getColuCoin(knownAssetId)
-                            coluMain.let {
-                                assetsList.add(coluMain)
+                        for (coin in ColuUtils.allColuCoins()) {
+                            if (txidAsset.assetId == coin.id) {
+                                assetsList.add(coin)
                             }
                         }
                     }

@@ -97,14 +97,7 @@ import com.mycelium.wallet.colu.ColuApiImpl;
 import com.mycelium.wallet.colu.ColuClient;
 import com.mycelium.wallet.colu.ColuManager;
 import com.mycelium.wallet.colu.SqliteColuManagerBacking;
-import com.mycelium.wallet.event.BalanceChanged;
-import com.mycelium.wallet.event.EventTranslator;
-import com.mycelium.wallet.event.ReceivingAddressChanged;
-import com.mycelium.wallet.event.SelectedAccountChanged;
-import com.mycelium.wallet.event.SelectedCurrencyChanged;
-import com.mycelium.wallet.event.SyncStarted;
-import com.mycelium.wallet.event.SyncStopped;
-import com.mycelium.wallet.event.TorStateChanged;
+import com.mycelium.wallet.event.*;
 import com.mycelium.wallet.exchange.ExchangeRateManager;
 import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager;
 import com.mycelium.wallet.extsig.keepkey.KeepKeyManager;
@@ -148,6 +141,8 @@ import com.mycelium.wapi.wallet.btc.single.PrivateSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore;
 import com.mycelium.wapi.wallet.btc.single.PublicSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
+import com.mycelium.wapi.wallet.colu.ColuApiImpl;
+import com.mycelium.wapi.wallet.colu.ColuClient;
 import com.mycelium.wapi.wallet.colu.ColuModule;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
 import com.mycelium.wapi.wallet.colu.coins.MTCoin;
@@ -384,25 +379,6 @@ public class MbwManager {
         currenciesSettingsMap.put(Currency.BTC, btcSettings);
     }
 
-    private Optional<ColuManager> createColuManager(final Context context) {
-        // Create persisted account accountBacking
-        // we never talk directly to this class. Instead, we use SecureKeyValueStore API
-        SqliteColuManagerBacking coluBacking = new SqliteColuManagerBacking(context);
-
-        // Create persisted secure storage instance
-        SecureKeyValueStore coluSecureKeyValueStore = new SecureKeyValueStore(coluBacking,
-                new AndroidRandomSource());
-
-        return Optional.of(new ColuManager(
-                               coluSecureKeyValueStore,
-                               coluBacking,
-                               this,
-                               _environment,
-                               _eventBus,
-                               new Handler(_applicationContext.getMainLooper()),
-                               _storage, Utils.isConnected(context)));
-    }
-
     private void createTempWalletManager() {
         //for managing temp accounts created through scanning
         _tempWalletManager = createTempWalletManager(_environment);
@@ -500,9 +476,6 @@ public class MbwManager {
 
     public void setDefaultAddressType(AddressType addressType) {
         defaultAddressType = addressType;
-        BTCSettings currencySettings = (BTCSettings) _walletManager.getCurrencySettings(Currency.BTC);
-        currencySettings.setDefaultAddressType(addressType);
-        _walletManager.setCurrencySettings(Currency.BTC, currencySettings);
         getEditor().putString(Constants.DEFAULT_ADDRESS_MODE, addressType.name()).apply();
     }
 
@@ -516,9 +489,6 @@ public class MbwManager {
 
     public void setChangeAddressMode(ChangeAddressMode changeAddressMode) {
         this.changeAddressMode = changeAddressMode;
-        BTCSettings currencySettings = (BTCSettings) _walletManager.getCurrencySettings(Currency.BTC);
-        currencySettings.setChangeAddressMode(changeAddressMode);
-        _walletManager.setCurrencySettings(Currency.BTC, currencySettings);
     }
 
     private void migrateOldKeys() {
@@ -617,7 +587,7 @@ public class MbwManager {
         SpvBalanceFetcher spvBchFetcher = getSpvBchFetcher();
         // Create and return wallet manager
         WalletManager walletManager = new WalletManager(secureKeyValueStore, backing
-                , environment.getNetwork(), _wapi, currenciesSettingsMap);
+                , environment.getNetwork(), _wapi);
         walletManager.setIsNetworkConnected(Utils.isConnected(context));
         walletManager.setWalletListener(new WalletListener() {
             @Override
@@ -659,7 +629,7 @@ public class MbwManager {
         walletManager.add(new BitcoinHDModule(backing, secureKeyValueStore, networkParameters, _wapi, currenciesSettingsMap));
 
         SqliteColuManagerBacking coluBacking = new SqliteColuManagerBacking(context);
-        ColuClient coluClient = new ColuClient(networkParameters);
+        ColuClient coluClient = new ColuClient(networkParameters, BuildConfig.ColoredCoinsApiURLs, BuildConfig.ColuBlockExplorerApiURLs);
         org.bitcoinj.core.NetworkParameters netParams;
         if (networkParameters.isProdnet()) {
             netParams = MainNetParams.get();
@@ -757,7 +727,7 @@ public class MbwManager {
 
         // Create and return wallet manager
         WalletManager walletManager = new WalletManager(secureKeyValueStore, backing
-                , environment.getNetwork(), _wapi, currenciesSettingsMap);
+                , environment.getNetwork(), _wapi);
         walletManager.setIsNetworkConnected(Utils.isConnected(_applicationContext));
 
         walletManager.disableTransactionHistorySynchronization();
@@ -1340,7 +1310,6 @@ public class MbwManager {
 
     public UUID createAdditionalBip44Account(Context context) {
         UUID accountId;
-
         accountId = _walletManager.createAccounts(new AdditionalHDAccountConfig()).get(0);
         //set default label for the created HD account
         WalletAccount account = _walletManager.getAccount(accountId);

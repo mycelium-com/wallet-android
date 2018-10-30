@@ -55,17 +55,19 @@ import com.mycelium.wallet.activity.send.SendInitializationActivity;
 import com.mycelium.wallet.activity.send.SendMainActivity;
 import com.mycelium.wallet.bitid.BitIDAuthenticationActivity;
 import com.mycelium.wallet.bitid.BitIDSignRequest;
-import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
 import com.mycelium.wapi.wallet.btc.bip44.UnrelatedHDAccountConfig;
 import com.mycelium.wapi.wallet.btc.single.PrivateSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
+import com.mycelium.wapi.wallet.colu.ColuUtils;
+import com.mycelium.wapi.wallet.colu.coins.ColuMain;
 
 import java.io.Serializable;
 import java.util.Collections;
@@ -252,8 +254,8 @@ public class StringHandleConfig implements Serializable {
                bchAccount = SingleAddressBCHAccount.Companion.calculateId(key.get().getPublicKey().toAddress(mbwManager.getNetwork(), AddressType.P2PKH));
                // Check whether regular wallet contains the account
                success = mbwManager.getWalletManager(false).hasAccount(account);
-               for (ColuAccount.ColuAsset coluAsset : ColuAccount.ColuAsset.getAssetMap().values()) {
-                  UUID coluUUID = ColuAccount.getGuidForAsset(coluAsset, key.get().getPublicKey().toAddress(mbwManager.getNetwork(), AddressType.P2PKH).getAllAddressBytes());
+               for (ColuMain coluAsset : ColuUtils.allColuCoins()) {
+                  UUID coluUUID = ColuUtils.getGuidForAsset(coluAsset, key.get().getPublicKey().toAddress(mbwManager.getNetwork(), AddressType.P2PKH).getAllAddressBytes());
                   success |= mbwManager.getWalletManager(false).hasAccount(coluUUID);
                }
             }
@@ -262,8 +264,8 @@ public class StringHandleConfig implements Serializable {
                // Mark key as verified
                mbwManager.getMetadataStorage().setOtherAccountBackupState(account, MetadataStorage.BackupState.VERIFIED);
                mbwManager.getMetadataStorage().setOtherAccountBackupState(bchAccount, MetadataStorage.BackupState.VERIFIED);
-               for (ColuAccount.ColuAsset coluAsset : ColuAccount.ColuAsset.getAssetMap().values()) {
-                  UUID coluUUID = ColuAccount.getGuidForAsset(coluAsset, key.get().getPublicKey().toAddress(mbwManager.getNetwork(), AddressType.P2PKH).getAllAddressBytes());
+               for (ColuMain coluAsset : ColuUtils.allColuCoins()) {
+                  UUID coluUUID = ColuUtils.getGuidForAsset(coluAsset, key.get().getPublicKey().toAddress(mbwManager.getNetwork(), AddressType.P2PKH).getAllAddressBytes());
                   mbwManager.getMetadataStorage().setOtherAccountBackupState(coluUUID, MetadataStorage.BackupState.VERIFIED);
                }
                handlerActivity.finishOk();
@@ -462,12 +464,12 @@ public class StringHandleConfig implements Serializable {
          @Override
          public boolean handle(StringHandlerActivity handlerActivity, String content) {
             MbwManager manager = MbwManager.getInstance(handlerActivity);
-            ColuAccount coluAccount = (ColuAccount)manager.getSelectedAccount();
-            if (coluAccount == null) {
+            WalletAccount account = manager.getSelectedAccount();
+            if (account == null) {
                return false;
             }
 
-            if (!content.toLowerCase(Locale.US).startsWith(coluAccount.getColuAsset().name.toLowerCase()))
+            if (!content.toLowerCase(Locale.US).startsWith(account.getCoinType().getSymbol().toLowerCase()))
                return false;
 
             Optional<? extends ColuAssetUri> uri = getColuAssetUri(handlerActivity, content);
@@ -546,11 +548,11 @@ public class StringHandleConfig implements Serializable {
          @Override
          public boolean handle(StringHandlerActivity handlerActivity, String content) {
             MbwManager manager = MbwManager.getInstance(handlerActivity);
-            ColuAccount coluAccount = (ColuAccount)manager.getSelectedAccount();
-            if (coluAccount == null)
+            WalletAccount account = manager.getSelectedAccount();
+            if (account == null)
                return false;
 
-            if (!content.toLowerCase(Locale.US).startsWith(coluAccount.getColuAsset().name.toLowerCase()))
+            if (!content.toLowerCase(Locale.US).startsWith(account.getCoinType().getSymbol().toLowerCase()))
                return false;
 
             Optional<ColuAssetUriWithAddress> uri = getColuAssetUri(handlerActivity, content);

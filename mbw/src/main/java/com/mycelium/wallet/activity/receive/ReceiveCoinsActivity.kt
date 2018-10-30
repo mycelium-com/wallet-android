@@ -16,7 +16,7 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.GetAmountActivity
 import com.mycelium.wallet.activity.receive.ReceiveCoinsViewModel.Companion.GET_AMOUNT_RESULT_CODE
-import com.mycelium.wallet.colu.ColuAccount
+import com.mycelium.wallet.coinapult.CoinapultAccount
 import com.mycelium.wallet.databinding.ReceiveCoinsActivityBinding
 import com.mycelium.wallet.databinding.ReceiveCoinsActivityBtcBinding
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
@@ -26,8 +26,7 @@ import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.currency.CurrencyValue
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount
-import com.mycelium.wapi.wallet.coinapult.CoinapultAccount
+import com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount
 import kotlinx.android.synthetic.main.receive_coins_activity_qr.*
 import java.util.*
 
@@ -49,7 +48,7 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         viewModel = when (account) {
             is SingleAddressBCHAccount, is Bip44BCHAccount -> viewModelProvider.get(ReceiveBchViewModel::class.java)
             is SingleAddressAccount, is HDAccount, is CoinapultAccount -> viewModelProvider.get(ReceiveBtcViewModel::class.java)
-            is ColuAccount -> viewModelProvider.get(ReceiveCoCoViewModel::class.java)
+            is ColuPubOnlyAccount -> viewModelProvider.get(ReceiveCoCoViewModel::class.java)
             else -> throw NotImplementedError()
         }
 

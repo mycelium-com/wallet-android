@@ -50,7 +50,6 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.modern.adapter.holder.AccountViewHolder;
 import com.mycelium.wallet.activity.modern.model.ViewAccountModel;
 import com.mycelium.wallet.activity.util.ValueExtentionsKt;
-import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
@@ -59,6 +58,8 @@ import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
+import com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount;
+import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -187,9 +188,7 @@ public class RecordRowBuilder {
         result.syncTotalRetrievedTransactions = walletAccount.getSyncTotalRetrievedTransactions();
 
         WalletAccount linked = Utils.getLinkedAccount(walletAccount, getColuAccounts(mbwManager.getWalletManager(false)));
-        if (linked != null
-                && linked instanceof ColuAccount
-                && ((ColuAccount) linked).getColuAsset().assetType == ColuAccount.ColuAssetType.RMC) {
+        if (linked != null && linked.getCoinType().equals(RMCCoin.INSTANCE)) {
             result.isRMCLinkedAccount = true;
         }
         result.label = mbwManager.getMetadataStorage().getLabelByAccount(walletAccount.getId());

@@ -49,7 +49,7 @@ class ReceiveCoinsModel(
     init {
         mbwManager.eventBus.register(this)
         receivingAmountWrong.value = false
-        receivingAddress.value = (account as AbstractBtcAccount).receivingAddress.get()
+        receivingAddress.value = Address.fromString(account.receiveAddress.toString())
 
         if (showIncomingUtxo) {
             updateObservingAddress()

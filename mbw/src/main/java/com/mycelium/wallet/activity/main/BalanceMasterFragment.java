@@ -50,7 +50,6 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.main.address.AddressFragment;
 import com.mycelium.wallet.activity.rmc.RMCAddressFragment;
-import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.event.TorStateChanged;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -76,10 +75,7 @@ public class BalanceMasterFragment extends Fragment {
 
     private void defineAddressAccountView(FragmentTransaction fragmentTransaction, WalletAccount account) {
         fragmentTransaction.replace(R.id.phFragmentAddress,
-                ((account instanceof ColuAccount && ((ColuAccount) account).getColuAsset().assetType == ColuAccount.ColuAssetType.RMC) ||
-                        account.getCoinType() == RMCCoin.INSTANCE)
-                        ?
-                        new RMCAddressFragment() : new AddressFragment());
+                account.getCoinType() == RMCCoin.INSTANCE ? new RMCAddressFragment() : new AddressFragment());
     }
 
     @Override

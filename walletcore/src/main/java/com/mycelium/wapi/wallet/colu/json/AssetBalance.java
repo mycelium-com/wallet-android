@@ -1,14 +1,14 @@
-package com.mycelium.wallet.colu.json;
-
-import java.math.BigDecimal;
-import java.util.List;
+package com.mycelium.wapi.wallet.colu.json;
 
 import com.google.api.client.json.GenericJson;
 import com.google.api.client.util.Key;
 
-public class ColuBroadcastTxHex {
+public class AssetBalance {
     public static class Json extends GenericJson {
         @Key
-        public String txHex;
+        public String assetId;
+
+        @Key
+        public long balance;
     }
 }

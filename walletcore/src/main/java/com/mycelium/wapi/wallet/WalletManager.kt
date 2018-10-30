@@ -18,9 +18,7 @@ import java.util.*
 class WalletManager(val _secureKeyValueStore: SecureKeyValueStore,
                     val backing: WalletManagerBacking<*,*>,
                     val network: NetworkParameters,
-                    val wapi: Wapi,
-                    val currenciesSettingsMap: MutableMap<Currency, CurrencySettings>
-                    ) {
+                    val wapi: Wapi) {
     private val MASTER_SEED_ID = HexUtils.toBytes("D64CA2B680D8C8909A367F28EB47F990")
     private val MAX_AGE_FEE_ESTIMATION = (2 * 60 * 60 * 1000).toLong() // 2 hours
     private val MIN_AGE_FEE_ESTIMATION = (20 * 60 * 1000).toLong() // 20 minutes
@@ -187,9 +185,6 @@ class WalletManager(val _secureKeyValueStore: SecureKeyValueStore,
 //        filterAndConvert(MAIN_SEED_BTC_HD_ACCOUNT).get(0).activateAccount()
     }
 
-    fun getCurrencySettings(currency: Currency): CurrencySettings? {
-        return currenciesSettingsMap.get(currency)
-    }
     /**
      * Add an observer that gets callbacks when the wallet manager state changes
      * or account events occur.
@@ -201,11 +196,6 @@ class WalletManager(val _secureKeyValueStore: SecureKeyValueStore,
             _observers.add(observer)
         }
     }
-
-    fun setCurrencySettings(currency: Currency, settings: CurrencySettings) {
-        currenciesSettingsMap.put(currency, settings)
-    }
-
 
     fun getSpendingAccounts() : List<WalletAccount<*, *>> {
         return accounts.values.filter { it.canSpend() }

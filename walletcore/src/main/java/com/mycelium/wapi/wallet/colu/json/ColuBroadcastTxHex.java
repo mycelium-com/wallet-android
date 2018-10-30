@@ -1,11 +1,14 @@
-package com.mycelium.wallet.colu.json;
+package com.mycelium.wapi.wallet.colu.json;
+
+import java.math.BigDecimal;
+import java.util.List;
 
 import com.google.api.client.json.GenericJson;
 import com.google.api.client.util.Key;
 
-public class ColuTxFlags {
+public class ColuBroadcastTxHex {
     public static class Json extends GenericJson {
         @Key
-        public boolean splitChange;
+        public String txHex;
     }
 }

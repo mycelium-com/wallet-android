@@ -36,18 +36,15 @@ package com.mycelium.wallet.service;
 
 import android.content.Context;
 
-import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.MrdExport;
 import com.mrd.bitlib.crypto.MrdExport.V1.EncryptionParameters;
 import com.mrd.bitlib.crypto.MrdExport.V1.KdfParameters;
-import com.mrd.bitlib.crypto.PrivateKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.UserFacingException;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.pdf.ExportDistiller;
 import com.mycelium.wallet.pdf.ExportDistiller.ExportEntry;
 import com.mycelium.wallet.pdf.ExportDistiller.ExportProgressTracker;
@@ -57,20 +54,16 @@ import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
-
-import org.bitcoinj.wallet.Protos;
+import com.mycelium.wapi.wallet.colu.ColuAccount;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 public class CreateMrdBackupTask extends ServiceTask<Boolean> {
    private static final long serialVersionUID = 1L;
@@ -108,14 +101,10 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
       // Populate the active and archived entries to export
       _active = new LinkedList<>();
       _archived = new LinkedList<>();
-      List<WalletAccount<?,?>> accounts = new ArrayList<>();
-      for (UUID id : walletManager.getAccountIds()) {
-         accounts.add(walletManager.getAccount(id));
-      }
+      List<WalletAccount<?,?>> accounts = walletManager.getAccounts();
       accounts = Utils.sortAccounts(accounts, storage);
       EntryToExport entry;
-      for (WalletAccount acc : accounts) {
-         WalletBtcAccount account = (WalletBtcAccount)acc;
+      for (WalletAccount account : accounts) {
          //TODO: add check whether coluaccount is in hd or singleaddress mode
          entry = null;
          if (account instanceof SingleAddressAccount) {
@@ -144,12 +133,9 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
          } else if (account instanceof ColuAccount) {
             ColuAccount a = (ColuAccount) account;
             String label = storage.getLabelByAccount(a.getId());
-            String base58EncodedPrivateKey = null;
-            if (a.canSpend()) {
-               base58EncodedPrivateKey = a.getPrivateKey().getBase58EncodedPrivateKey(network);
-               entry = new EntryToExport(a.getPrivateKey().getPublicKey().getAllSupportedAddresses(network),
-                       base58EncodedPrivateKey, label, false);
-            }
+            String base58EncodedPrivateKey = a.getPrivateKey().getBase58EncodedPrivateKey(network);
+            entry = new EntryToExport(a.getPrivateKey().getPublicKey().getAllSupportedAddresses(network),
+                    base58EncodedPrivateKey, label, false);
          }
 
          if (entry != null) {
