@@ -1,11 +1,9 @@
 package com.mycelium.wapi.wallet.colu
 
-import com.mrd.bitlib.crypto.PublicKey
 import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.model.AddressType
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wapi.wallet.*
-import com.mycelium.wapi.wallet.btc.BtcLegacyAddress
 import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore
 import com.mycelium.wapi.wallet.colu.coins.ColuMain
 import com.mycelium.wapi.wallet.manager.Config
@@ -26,22 +24,23 @@ class ColuModule(val networkParameters: NetworkParameters
         val contexts = backing.loadAccountContexts()
         val result = mutableMapOf<UUID, WalletAccount<*, *>>()
         for (context in contexts) {
-            val accountKey = publicPrivateKeyStore.getPrivateKey(Address(context.address.getBytes()), AesKeyCipher.defaultKeyCipher())
-            val account = if (accountKey == null) {
-                ColuPubOnlyAccount(context
-                        , PublicKey(context.address.getBytes())
-                        , context.coinType, networkParameters, netParams, coluApi
-                        , backing.getAccountBacking(context.id)
-                        , backing
-                        , listener)
-            } else {
-                ColuAccount(context
-                        , accountKey, context.coinType, networkParameters, netParams, coluApi
-                        , backing.getAccountBacking(context.id)
-                        , backing
-                        , listener)
+            try {
+                val address = context.publicKey?.getAllSupportedAddresses(networkParameters)?.get(AddressType.P2PKH)
+                        ?: context.address!!.address
+                val accountKey = publicPrivateKeyStore.getPrivateKey(address, AesKeyCipher.defaultKeyCipher())
+                val account = if (accountKey == null) {
+                    ColuPubOnlyAccount(context, context.coinType, networkParameters, netParams, coluApi
+                            , backing.getAccountBacking(context.id), backing
+                            , listener)
+                } else {
+                    ColuAccount(context, accountKey, context.coinType, networkParameters, netParams, coluApi
+                            , backing.getAccountBacking(context.id), backing
+                            , listener)
+                }
+                result[account.id] = account
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
-            result[account.id] = account
         }
         return result
     }
@@ -54,8 +53,7 @@ class ColuModule(val networkParameters: NetworkParameters
             val coinType = coluMain(address, config.coinType)
             coinType?.let { type ->
                 val id = ColuUtils.getGuidForAsset(coinType, address.allAddressBytes)
-                val context = ColuAccountContext(id, type
-                        , BtcLegacyAddress(coinType, address.allAddressBytes)
+                val context = ColuAccountContext(id, type, config.privateKey.publicKey, null
                         , false, 0)
                 backing.createAccountContext(context)
                 result = ColuAccount(context, config.privateKey, type, networkParameters, netParams
@@ -67,11 +65,20 @@ class ColuModule(val networkParameters: NetworkParameters
             val coinType = coluMain(address, config.coinType)
             coinType?.let { type ->
                 val id = ColuUtils.getGuidForAsset(config.coinType, address.allAddressBytes)
-                val context = ColuAccountContext(id, type
-                        , BtcLegacyAddress(config.coinType, address.allAddressBytes)
+                val context = ColuAccountContext(id, type, config.publicKey, null
                         , false, 0)
                 backing.createAccountContext(context)
-                result = ColuPubOnlyAccount(context, config.publicKey, type, networkParameters
+                result = ColuPubOnlyAccount(context, type, networkParameters
+                        , netParams, coluApi, backing.getAccountBacking(id), backing, listener)
+            }
+        } else if(config is AddressColuConfig) {
+            val coinType = coluMain(config.address.address, config.coinType)
+            coinType?.let { type ->
+                val id = ColuUtils.getGuidForAsset(config.coinType, config.address.getBytes())
+                val context = ColuAccountContext(id, type, null, config.address
+                        , false, 0)
+                backing.createAccountContext(context)
+                result = ColuPubOnlyAccount(context, type, networkParameters
                         , netParams, coluApi, backing.getAccountBacking(id), backing, listener)
             }
         }
@@ -95,7 +102,7 @@ class ColuModule(val networkParameters: NetworkParameters
     }
 
     override fun deleteAccount(walletAccount: WalletAccount<*, *>, keyCipher: KeyCipher): Boolean {
-        if(walletAccount is ColuPubOnlyAccount) {
+        if (walletAccount is ColuPubOnlyAccount) {
             publicPrivateKeyStore.forgetPrivateKey(Address(walletAccount.receiveAddress.getBytes()), keyCipher)
             backing.deleteAccountContext(walletAccount.id)
             return true

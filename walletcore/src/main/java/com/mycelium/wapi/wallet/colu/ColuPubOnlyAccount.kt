@@ -5,34 +5,46 @@ import com.mrd.bitlib.model.AddressType
 import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.wapi.wallet.*
+import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.BtcLegacyAddress
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
+import com.mycelium.wapi.wallet.colu.coins.ColuMain
 import java.util.*
 
 
-open class ColuPubOnlyAccount(val context: ColuAccountContext, val publicKey: PublicKey
-                              , private val coluCoinType: CryptoCurrency
+open class ColuPubOnlyAccount(val context: ColuAccountContext
+                              , private val type: CryptoCurrency
                               , val networkParameters: NetworkParameters
                               , val coluNetworkParameters: org.bitcoinj.core.NetworkParameters
                               , val coluClient: ColuApi
                               , val accountBacking: AccountBacking<ColuTransaction>
                               , val backing: WalletBacking<ColuAccountContext, ColuTransaction>
                               , val listener: AccountListener? = null) : WalletAccount<ColuTransaction, BtcLegacyAddress> {
-    protected var address: GenericAddress
     protected var uuid: UUID
     @Volatile
     protected var _isSynchronizing: Boolean = false
 
     protected var cachedBalance: Balance
-
+    private val addressList: Map<AddressType, BtcAddress>
 
     init {
-        val address1 = publicKey.toAddress(networkParameters, AddressType.P2PKH)!!
-        address = AddressUtils.from(coluCoinType, address1.toString())
-        uuid = ColuUtils.getGuidForAsset(coluCoinType, address1.allAddressBytes)
+        if (context.publicKey != null) {
+            addressList = convert(context.publicKey, type as ColuMain)
+        } else {
+            addressList = mapOf(context.address!!.address.type to context.address)
+        }
+        uuid = ColuUtils.getGuidForAsset(type, addressList[AddressType.P2PKH]?.getBytes())
         cachedBalance = calculateBalance(accountBacking.getTransactions(0, 2000))
+    }
+
+    private fun convert(publicKey: PublicKey, coinType: ColuMain?): Map<AddressType, BtcAddress> {
+        val btcAddress = mutableMapOf<AddressType, BtcAddress>()
+        for (address in publicKey.getAllSupportedAddresses(networkParameters)) {
+            btcAddress[address.key] = BtcLegacyAddress(coinType, address.value.allAddressBytes)
+        }
+        return btcAddress
     }
 
     override fun getId(): UUID = uuid
@@ -41,14 +53,23 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext, val publicKey: Pu
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun getReceiveAddress(): GenericAddress = address
+    override fun getReceiveAddress(): GenericAddress {
+        return addressList[AddressType.P2PKH] ?: addressList.values.toList()[0]
+    }
 
-    override fun getCoinType(): CryptoCurrency = coluCoinType
+    override fun getCoinType(): CryptoCurrency = type
 
     override fun getAccountBalance(): Balance = cachedBalance
 
 
-    override fun isMineAddress(address: GenericAddress?) = receiveAddress == address
+    override fun isMineAddress(address: GenericAddress?): Boolean {
+        for (btcAddress in addressList) {
+            if (btcAddress.value == address) {
+                return true
+            }
+        }
+        return false
+    }
 
     override fun getTx(transactionId: Sha256Hash): ColuTransaction? {
         //        checkNotArchived()
@@ -71,7 +92,7 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext, val publicKey: Pu
     }
 
     override fun getFeeEstimations(): FeeEstimationsGeneric {
-        return FeeEstimationsGeneric(Value.zeroValue(coinType), Value.zeroValue(coinType),Value.zeroValue(coinType))
+        return FeeEstimationsGeneric(Value.zeroValue(coinType), Value.zeroValue(coinType), Value.zeroValue(coinType))
     }
 
 
@@ -168,7 +189,7 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext, val publicKey: Pu
 
     override fun isActive() = !context.isArchived()
 
-    override fun archiveAccount()  {
+    override fun archiveAccount() {
         context.setArchived(true)
         backing.updateAccountContext(context)
     }

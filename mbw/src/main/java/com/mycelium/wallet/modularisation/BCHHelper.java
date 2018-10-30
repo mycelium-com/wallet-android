@@ -21,6 +21,7 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wapi.wallet.SpvBalanceFetcher;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.WalletManager;
 
 import java.lang.ref.WeakReference;
 import java.math.BigDecimal;
@@ -28,6 +29,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static android.content.Context.MODE_PRIVATE;
+import static com.mycelium.wallet.AccountManagerKt.getBCHBip44Accounts;
+import static com.mycelium.wallet.AccountManagerKt.getBCHSingleAddressAccounts;
 
 public class BCHHelper {
     public static final String BCH_FIRST_UPDATE = "bch_first_update_page";
@@ -110,9 +113,11 @@ public class BCHHelper {
             private volatile BigDecimal sum;
             private volatile int accountsFound;
             private SharedPreferences sharedPreferences;
+            private WalletManager walletManager;
 
             public BCHSyncedAsyncTask(Context context) {
                 this.contextRefence = new WeakReference<>(context);
+                this.walletManager = MbwManager.getInstance(context).getWalletManager(false);
             }
 
             @Override
@@ -124,8 +129,8 @@ public class BCHHelper {
                 }
                 sharedPreferences = context.getSharedPreferences(BCH_PREFS, MODE_PRIVATE);
                 List<WalletAccount> accounts = new ArrayList<>();
-                accounts.addAll(AccountManager.INSTANCE.getBCHSingleAddressAccounts().values());
-                accounts.addAll(AccountManager.INSTANCE.getBCHBip44Accounts().values());
+                accounts.addAll(getBCHSingleAddressAccounts(walletManager));
+                accounts.addAll(getBCHBip44Accounts(walletManager));
                 sum = BigDecimal.ZERO;
                 accountsFound = 0;
                 for (WalletAccount account : accounts) {

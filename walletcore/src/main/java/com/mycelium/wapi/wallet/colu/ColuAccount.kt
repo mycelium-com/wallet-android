@@ -21,7 +21,7 @@ class ColuAccount(context: ColuAccountContext, val privateKey: InMemoryPrivateKe
                   , accountBacking: AccountBacking<ColuTransaction>
                   , backing: WalletBacking<ColuAccountContext, ColuTransaction>
                   , listener: AccountListener? = null)
-    : ColuPubOnlyAccount(context, privateKey.publicKey, coluCoinType, networkParameters
+    : ColuPubOnlyAccount(context, coluCoinType, networkParameters
         , coluNetworkParameters, coluClient, accountBacking, backing, listener), ExportableAccount {
 
     override fun broadcastOutgoingTransactions(): Boolean {
@@ -110,7 +110,7 @@ class ColuAccount(context: ColuAccountContext, val privateKey: InMemoryPrivateKe
         if (canSpend()) {
             key = Optional.of(this.privateKey.getBase58EncodedPrivateKey(networkParameters))
         }
-        val pubKey = Optional.of(address.toString())
+        val pubKey = Optional.of(receiveAddress.toString())
         return ExportableAccount.Data(key, pubKey)
     }
 

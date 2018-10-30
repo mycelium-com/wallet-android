@@ -43,6 +43,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.common.collect.ImmutableMap;
+import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.OutPoint;
@@ -105,7 +106,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
       OpenHelper _openHelper = new OpenHelper(context);
       _database = _openHelper.getWritableDatabase();
 
-      _insertOrReplaceSingleAddressAccount = _database.compileStatement("INSERT OR REPLACE INTO single VALUES (?,?,?,?,?,?)");
+      _insertOrReplaceSingleAddressAccount = _database.compileStatement("INSERT OR REPLACE INTO single VALUES (?,?,?,?,?,?,?)");
       _updateSingleAddressAccount = _database.compileStatement("UPDATE single SET archived=?,blockheight=?,addresses=?,addressType=? WHERE id=?");
       _deleteSingleAddressAccount = _database.compileStatement("DELETE FROM single WHERE id = ?");
       _insertOrReplaceKeyValue = _database.compileStatement("INSERT OR REPLACE INTO kv VALUES (?,?,?,?)");
@@ -124,7 +125,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
       Cursor cursor = null;
       try {
          SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(_database);
-         cursor = blobQuery.query(false, "single", new String[]{"id", "addresses", "archived", "blockheight", "coinId"}, null, null,
+         cursor = blobQuery.query(false, "single", new String[]{"id", "addresses", "archived", "blockheight", "coinId", "publicKey"}, null, null,
                  null, null, null, null);
          while (cursor.moveToNext()) {
             UUID id = SQLiteQueryWithBlobs.uuidFromBytes(cursor.getBlob(0));
@@ -142,8 +143,15 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
             int blockHeight = cursor.getInt(3);
             String coinId = cursor.getString(4);
             ColuMain coinType = ColuUtils.getColuCoin(coinId);
-            list.add(new ColuAccountContext(id, coinType, new BtcLegacyAddress(coinType, addressBytes)
-                    , isArchived, blockHeight));
+             PublicKey publicKey = null;
+             BtcLegacyAddress address = null;
+             if (cursor.getBlob(5) != null) {
+                 publicKey = new PublicKey(cursor.getBlob(5));
+             } else {
+                 address = new BtcLegacyAddress(coinType, addressBytes);
+             }
+             list.add(new ColuAccountContext(id, coinType, publicKey, address
+                     , isArchived, blockHeight));
          }
       } finally {
          if (cursor != null) {
@@ -167,7 +175,9 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
 
          // Create context
          _insertOrReplaceSingleAddressAccount.bindBlob(1, uuidToBytes(context.getId()));
-         _insertOrReplaceSingleAddressAccount.bindBlob(2, context.getAddress().getBytes());
+         if (context.getAddress() != null) {
+            _insertOrReplaceSingleAddressAccount.bindBlob(2, context.getAddress().getBytes());
+         }
 //         final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
 //         try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteStream)) {
 //            objectOutputStream.write(context.getAddress().getAllAddressBytes());
@@ -185,6 +195,9 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
             // should never happen
          }
          _insertOrReplaceSingleAddressAccount.bindString(6, context.getCoinType().getId());
+         if(context.getPublicKey()!= null) {
+            _insertOrReplaceSingleAddressAccount.bindBlob(7, context.getPublicKey().getPublicKeyBytes());
+         }
          _insertOrReplaceSingleAddressAccount.executeInsert();
          _database.setTransactionSuccessful();
       } finally {
@@ -254,7 +267,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
          // "UPDATE single SET archived=?,blockheight=? WHERE id=?"
          _updateSingleAddressAccount.bindLong(1, context.isArchived() ? 1 : 0);
          _updateSingleAddressAccount.bindLong(2, context.getBlockHeight());
-         _updateSingleAddressAccount.bindBlob(3, context.getAddress().getBytes());
+//         _updateSingleAddressAccount.bindBlob(3, context.getAddress().getBytes());
          ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
          try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteStream)) {
             objectOutputStream.writeObject(context.getDefaultAddressType());
@@ -959,7 +972,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
 
    private class OpenHelper extends SQLiteOpenHelper {
       private static final String DATABASE_NAME = "columanagerbacking.db";
-      private static final int DATABASE_VERSION = 6;
+      private static final int DATABASE_VERSION = 7;
 
       OpenHelper(Context context) {
          super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -974,7 +987,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
       @Override
       public void onCreate(SQLiteDatabase db) {
          db.execSQL("CREATE TABLE single (id TEXT PRIMARY KEY, addresses BLOB, archived INTEGER"
-                 + ", blockheight INTEGER, addressType BLOB, coinId TEXT" +
+                 + ", blockheight INTEGER, addressType BLOB, coinId TEXT, publicKey BLOB" +
                  ");");
          db.execSQL("CREATE TABLE kv (k BLOB NOT NULL, v BLOB, checksum BLOB, subId INTEGER NOT NULL, PRIMARY KEY (k, subId) );");
       }
@@ -1061,6 +1074,9 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
          }
          if(oldVersion < 6) {
             db.execSQL("ALTER TABLE single ADD COLUMN coinId TEXT");
+         }
+         if(oldVersion < 7) {
+            db.execSQL("ALTER TABLE single ADD COLUMN publicKey TEXT");
          }
       }
 
