@@ -3,8 +3,8 @@ package com.mycelium.wallet.activity.receive
 import android.app.Application
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
-import com.mycelium.wapi.wallet.colu.ColuAccount
 import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount
 import com.mycelium.wapi.wallet.currency.CurrencyValue
 
 class ReceiveCoCoViewModel(application: Application) : ReceiveCoinsViewModel(application) {
@@ -12,8 +12,7 @@ class ReceiveCoCoViewModel(application: Application) : ReceiveCoinsViewModel(app
 
     override fun init(account: WalletAccount<*,*>, hasPrivateKey: Boolean, showIncomingUtxo: Boolean) {
         super.init(account, hasPrivateKey, showIncomingUtxo)
-        //TODO: add labels
-        accountLabel = "Colu"
+        accountLabel = (account as ColuPubOnlyAccount).coinType.symbol
         model = ReceiveCoinsModel(getApplication(), account, accountLabel, hasPrivateKey, showIncomingUtxo)
     }
 
@@ -21,7 +20,7 @@ class ReceiveCoCoViewModel(application: Application) : ReceiveCoinsViewModel(app
 
     override fun getFormattedValue(sum: CurrencyValue) = Utils.getColuFormattedValueWithUnit(sum)
 
-    override fun getCurrencyName() = (account as ColuAccount).coinType.name
+    override fun getCurrencyName() = account.coinType.symbol
 
     override fun getTitle(): String {
         return if (CurrencyValue.isNullOrZero(model.amountData.value)) {

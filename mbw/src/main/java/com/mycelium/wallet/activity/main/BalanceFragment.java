@@ -72,6 +72,8 @@ import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.exchange.ExchangeRateManager;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+import com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 import com.mycelium.wallet.modularisation.BCHHelper;
@@ -145,7 +147,7 @@ public class BalanceFragment extends Fragment {
          String price = exchangeRate == null || exchangeRate.price == null ? "not available"
                  : new BigDecimal(exchangeRate.price).setScale(2, BigDecimal.ROUND_DOWN).toPlainString() + " " + _mbwManager.getFiatCurrency();
          String item;
-         if (_mbwManager.getSelectedAccount() instanceof ColuAccount) {
+         if (_mbwManager.getSelectedAccount() instanceof ColuPubOnlyAccount) {
             item = COINMARKETCAP + "/" + source;
          } else {
             item = source + " (" + price + ")";
@@ -206,7 +208,7 @@ public class BalanceFragment extends Fragment {
         }
         WalletAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
         if (account.canSpend()) {
-            if (account instanceof ColuAccount && ((ColuAccount) account).getAccountBalance().getSpendable().value == 0) {
+            if (account instanceof ColuPubOnlyAccount && ((ColuAccount) account).getAccountBalance().getSpendable().value == 0) {
                 new AlertDialog.Builder(getActivity())
                         .setMessage(getString(R.string.rmc_send_warning, account.getCoinType().getName()))
                         .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
@@ -246,7 +248,7 @@ public class BalanceFragment extends Fragment {
         //perform a generic scan, act based upon what we find in the QR code
         StringHandleConfig config = StringHandleConfig.genericScanRequest();
         WalletAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
-        if (account instanceof ColuAccount) {
+        if (account instanceof ColuPubOnlyAccount) {
             config.bitcoinUriAction = StringHandleConfig.BitcoinUriAction.SEND_COLU_ASSET;
             config.bitcoinUriWithAddressAction = StringHandleConfig.BitcoinUriWithAddressAction.SEND_COLU_ASSET;
         }

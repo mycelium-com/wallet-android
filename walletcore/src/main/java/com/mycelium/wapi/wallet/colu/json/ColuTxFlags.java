@@ -1,11 +1,11 @@
-package com.mycelium.wallet.colu.json;
+package com.mycelium.wapi.wallet.colu.json;
 
 import com.google.api.client.json.GenericJson;
 import com.google.api.client.util.Key;
 
-public class ColuBroadcastTxId {
+public class ColuTxFlags {
     public static class Json extends GenericJson {
         @Key
-        public String txid;
+        public boolean splitChange;
     }
 }

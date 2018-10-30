@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.UUID;
 
 public class ColuUtils {
+    public static final int METADATA_OUTPUT_SIZE = 1;
+
     public static UUID getGuidForAsset(CryptoCurrency coluType, byte[] addressBytes) {
         ByteWriter byteWriter = new ByteWriter(36);
         byteWriter.putBytes(addressBytes);
@@ -41,6 +43,19 @@ public class ColuUtils {
         }
         return coinType;
     }
+
+    public static ColuMain getColuCoinBySheme(String scheme) {
+        ColuMain coinType = null;
+        if (MTCoin.INSTANCE.getSymbol().equals(scheme)) {
+            coinType = MTCoin.INSTANCE;
+        } else if (MASSCoin.INSTANCE.getSymbol().equals(scheme)) {
+            coinType = MASSCoin.INSTANCE;
+        } else if (RMCCoin.INSTANCE.getSymbol().equals(scheme)) {
+            coinType = RMCCoin.INSTANCE;
+        }
+        return coinType;
+    }
+
 
     public static List<ColuMain> allColuCoins() {
         return Arrays.asList(MTCoin.INSTANCE, MASSCoin.INSTANCE, RMCCoin.INSTANCE);

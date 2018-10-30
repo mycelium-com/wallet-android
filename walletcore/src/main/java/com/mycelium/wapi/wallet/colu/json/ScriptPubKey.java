@@ -1,4 +1,4 @@
-package com.mycelium.wallet.colu.json;
+package com.mycelium.wapi.wallet.colu.json;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -6,21 +6,23 @@ import java.util.List;
 import com.google.api.client.json.GenericJson;
 import com.google.api.client.util.Key;
 
-public class Asset {
+public class ScriptPubKey {
     public static class Json extends GenericJson {
         @Key
-        public long amount;
+        public String asm;
 
         @Key
-        public String assetId;
+        public String hex;
 
         @Key
-        public String issueTxid;
+        public String type;
 
         @Key
-        public int divisibility;
+        public int reqSigs;
+
 
         @Key
-        public boolean lockStatus;
+        public List<String> addresses;
+
     }
 }
