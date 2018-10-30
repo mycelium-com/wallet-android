@@ -65,6 +65,7 @@ import com.mrd.bitlib.model.hdpath.HdKeyPath;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.ByteWriter;
 import com.mrd.bitlib.util.CoinUtil;
+import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.util.AbstractAccountScanManager;
@@ -304,7 +305,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
          for (final TransactionOutput out : unsigned.getOutputs()) {
             out.toByteWriter(byteStream);
          }
-         outputData = dongle.finalizeInputFull(byteStream.toBytes());
+         outputData = dongle.finalizeInputFull(byteStream.toBytes(), changePath, false);
 
          final BTChipDongle.BTChipOutput output = outputData;
          // Check OTP confirmation
@@ -318,7 +319,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
             for (final TransactionOutput out : unsigned.getOutputs()) {
                out.toByteWriter(byteStream);
             }
-            dongle.finalizeInputFull(byteStream.toBytes());
+            dongle.finalizeInputFull(byteStream.toBytes(), changePath, false);
          }
 
          for (int i = 0; i < inputsNumber; i++) {
@@ -686,7 +687,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
       // is with leading "m/" -> replace the "m" away
       String keyPathString = keyPath.toString().replace("m/", "");
       if (isTEE) {
-         // Verify that the TEE is set up properly - PIN cannot be locked here 
+         // Verify that the TEE is set up properly - PIN cannot be locked here
          // as this is called directly after the account creation
          try {
             int attempts = dongle.getVerifyPinRemainingAttempts();
