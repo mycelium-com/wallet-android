@@ -66,7 +66,6 @@ import com.mrd.bitlib.FeeEstimatorBuilder;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
 import com.mrd.bitlib.StandardTransactionBuilder.UnableToBuildTransactionException;
-import com.mrd.bitlib.TransactionUtils;
 import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
@@ -104,15 +103,19 @@ import com.mycelium.wallet.activity.util.AccountDisplayType;
 import com.mycelium.wallet.activity.util.AnimationUtils;
 import com.mycelium.wallet.activity.util.ValueExtentionsKt;
 import com.mycelium.wallet.coinapult.CoinapultAccount;
-import com.mycelium.wallet.colu.ColuCurrencyValue;
-import com.mycelium.wallet.colu.legacy.ColuManager;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wallet.event.SyncFailed;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.paymentrequest.PaymentRequestHandler;
 import com.mycelium.wapi.api.response.Feature;
-import com.mycelium.wapi.wallet.*;
+import com.mycelium.wapi.wallet.AddressUtils;
+import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
+import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.SendRequest;
+import com.mycelium.wapi.wallet.SyncMode;
+import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
@@ -131,13 +134,17 @@ import com.mycelium.wapi.wallet.currency.BitcoinValue;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
-import static com.mycelium.wallet.activity.util.ValueExtentionsKt.isBtc;
-
 import com.squareup.otto.Subscribe;
 
 import org.bitcoin.protocols.payments.PaymentACK;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -148,6 +155,7 @@ import static android.view.View.VISIBLE;
 import static android.widget.Toast.LENGTH_LONG;
 import static android.widget.Toast.LENGTH_SHORT;
 import static android.widget.Toast.makeText;
+import static com.mycelium.wallet.activity.util.ValueExtentionsKt.isBtc;
 
 public class SendMainActivity extends Activity {
     private static final String TAG = "SendMainActivity";
@@ -321,7 +329,7 @@ public class SendMainActivity extends Activity {
 
     public static Intent getIntent(Activity currentActivity, UUID account, ColuAssetUri uri, boolean isColdStorage) {
         return getIntent(currentActivity, account, isColdStorage)
-                .putExtra(AMOUNT, new ColuCurrencyValue(uri.amount, uri.scheme))
+                .putExtra(AMOUNT, Value.parse(ColuUtils.getColuCoinBySheme(uri.scheme), uri.amount))
                 .putExtra(RECEIVING_ADDRESS, uri.address)
                 .putExtra(TRANSACTION_LABEL, uri.label)
                 .putExtra(RMC_URI, uri);
@@ -658,7 +666,7 @@ public class SendMainActivity extends Activity {
 
     private long getAmountForColuTxOutputs() {
         int coluDustOutputSize = this._mbwManager.getNetwork().isTestnet() ? AbstractBtcAccount.COLU_MAX_DUST_OUTPUT_SIZE_TESTNET : AbstractBtcAccount.COLU_MAX_DUST_OUTPUT_SIZE_MAINNET;
-        return 2 * coluDustOutputSize + ColuManager.METADATA_OUTPUT_SIZE;
+        return 2 * coluDustOutputSize + ColuUtils.METADATA_OUTPUT_SIZE;
     }
 
 //    private boolean checkFee(boolean rescan) {
