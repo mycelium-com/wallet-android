@@ -197,7 +197,9 @@ public class AddressBookFragment extends Fragment {
       Map<Address, String> rawentries = _mbwManager.getMetadataStorage().getAllAddressLabels();
       List<Entry> entries = new ArrayList<Entry>();
       for (Map.Entry<Address, String> e : rawentries.entrySet()) {
-         entries.add(new Entry(AddressUtils.fromAddress(e.getKey()), e.getValue()));
+         if(AddressUtils.fromAddress(e.getKey()).getCoinType().equals(_mbwManager.getSelectedAccount().getCoinType())) {
+            entries.add(new Entry(AddressUtils.fromAddress(e.getKey()), e.getValue()));
+         }
       }
       entries = Utils.sortAddressbookEntries(entries);
       if (entries.isEmpty()) {

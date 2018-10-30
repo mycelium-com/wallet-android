@@ -49,7 +49,6 @@ import android.view.ViewGroup;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.MbwManager;
@@ -75,6 +74,7 @@ import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount;
+import com.mycelium.wapi.wallet.colu.ColuAccount;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 import com.mycelium.wallet.modularisation.BCHHelper;
 import com.mycelium.wapi.model.ExchangeRate;
@@ -208,7 +208,7 @@ public class BalanceFragment extends Fragment {
         }
         WalletAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
         if (account.canSpend()) {
-            if (account instanceof ColuPubOnlyAccount /*TODO uncomment && ((ColuAccount) account).getSatoshiAmount() == 0*/) {
+            if (account instanceof ColuPubOnlyAccount && ((ColuAccount) account).getAccountBalance().getSpendable().value == 0) {
                 new AlertDialog.Builder(getActivity())
                         .setMessage(getString(R.string.rmc_send_warning, account.getCoinType().getName()))
                         .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
@@ -232,10 +232,10 @@ public class BalanceFragment extends Fragment {
 
     @OnClick(R.id.btReceive)
     void onClickReceive() {
-        Optional<Address> receivingAddress = ((WalletBtcAccount)(_mbwManager.getSelectedAccount())).getReceivingAddress();
-        if (receivingAddress.isPresent()) {
+        Address receivingAddress = Address.fromString(_mbwManager.getSelectedAccount().getReceiveAddress().toString());
+        if(receivingAddress != null) {
             ReceiveCoinsActivity.callMe(getActivity(), _mbwManager.getSelectedAccount(),
-                                        _mbwManager.getSelectedAccount().canSpend(), true);
+                    _mbwManager.getSelectedAccount().canSpend(), true);
         }
     }
 
