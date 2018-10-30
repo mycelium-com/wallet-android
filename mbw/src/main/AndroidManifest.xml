@@ -78,7 +78,6 @@
             android:enabled="true"
             android:exported="false"
             android:process=":Task" />
-        <service android:name=".external.changelly.ChangellyService"/>
         <!-- hack - hardcode to be able to support froyo -->
         <meta-data
             android:name="com.google.android.gms.version"

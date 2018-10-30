@@ -35,20 +35,18 @@
 package com.mycelium.wallet;
 
 import android.app.Activity;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.os.Build;
-import android.support.v4.content.LocalBroadcastManager;
+import android.support.annotation.NonNull;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.mycelium.wallet.exchange.CoinmarketcapApi;
 import com.mycelium.wallet.exchange.model.CoinmarketcapRate;
-import com.mycelium.wallet.external.changelly.ChangellyService;
+import com.mycelium.wallet.external.changelly.ChangellyAPIService;
+import com.mycelium.wallet.external.changelly.ChangellyAPIService.ChangellyAnswerDouble;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiException;
@@ -64,14 +62,21 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import retrofit.RetrofitError;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+import static com.mycelium.wallet.external.changelly.ChangellyAPIService.BCH;
+// import static com.mycelium.wallet.external.changelly.ChangellyAPIService.BTC; gets shadowed by the local definition of the same value.
 
 public class ExchangeRateManager implements ExchangeRateProvider {
-    private static final int MAX_RATE_AGE_MS = 5 * 1000 * 60; /// 5 minutes
-    private static final int MIN_RATE_AGE_MS = 5 * 1000; /// 5 seconds
+    private static final long MAX_RATE_AGE_MS = TimeUnit.MINUTES.toMillis(5);
+    private static final long MIN_RATE_AGE_MS = TimeUnit.SECONDS.toMillis(5);
     private static final String EXCHANGE_DATA = "wapi_exchange_rates";
     public static final String BTC = "BTC";
 
@@ -119,18 +124,9 @@ public class ExchangeRateManager implements ExchangeRateProvider {
         _subscribers = new LinkedList<>();
         _latestRates = new HashMap<>();
         this.storage = storage;
-        Intent serviceIntent = new Intent(applicationContext, ChangellyService.class)
-                .setAction(ChangellyService.ACTION_GET_EXCHANGE_AMOUNT)
-                .putExtra(ChangellyService.FROM, ChangellyService.BCH)
-                .putExtra(ChangellyService.TO, ChangellyService.BTC)
-                .putExtra(ChangellyService.AMOUNT, 1.0);
-        if (Build.VERSION.SDK_INT >= 26) {
-            applicationContext.startForegroundService(serviceIntent);
-        } else {
-            applicationContext.startService(serviceIntent);
-        }
-        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(
-                new Receiver(), new IntentFilter(ChangellyService.INFO_EXCH_AMOUNT));
+        ChangellyAPIService.retrofit.create(ChangellyAPIService.class)
+                .getExchangeAmount(BCH, BTC, 1)
+                .enqueue(new GetOfferCallback());
     }
 
     public synchronized void subscribe(Observer subscriber) {
@@ -313,7 +309,6 @@ public class ExchangeRateManager implements ExchangeRateProvider {
                 result.add(r.name);
             }
         }
-
         return result;
     }
 
@@ -414,34 +409,21 @@ public class ExchangeRateManager implements ExchangeRateProvider {
 
         requestRefresh();
     }
-    class Receiver extends BroadcastReceiver {
-        private Receiver() {
-        }  // prevents instantiation
+
+    class GetOfferCallback implements Callback<ChangellyAnswerDouble> {
+        @Override
+        public void onResponse(@NonNull Call<ChangellyAnswerDouble> call,
+                               @NonNull Response<ChangellyAnswerDouble> response) {
+            ChangellyAnswerDouble result = response.body();
+            if(result != null) {
+                rateBchBtc = (float) result.result;
+                storage.storeExchangeRate("BCH", "BTC", CHANGELLY_MARKET, String.valueOf(rateBchBtc));
+            }
+        }
 
         @Override
-        public void onReceive(Context context, Intent intent) {
-            String from, to;
-            double amount;
-
-            switch (intent.getAction()) {
-                case ChangellyService.INFO_EXCH_AMOUNT:
-                    from = intent.getStringExtra(ChangellyService.FROM);
-                    to = intent.getStringExtra(ChangellyService.TO);
-                    double fromAmount = intent.getDoubleExtra(ChangellyService.FROM_AMOUNT, 0);
-                    amount = intent.getDoubleExtra(ChangellyService.AMOUNT, 0);
-                    if (from != null && to != null) {
-                        try {
-                            if (to.equalsIgnoreCase(ChangellyService.BTC)
-                                    && from.equalsIgnoreCase(ChangellyService.BCH)
-                                    && fromAmount == 1) {
-                                rateBchBtc = (float) amount;
-                                storage.storeExchangeRate("BCH", "BTC", CHANGELLY_MARKET, String.valueOf(rateBchBtc));
-                            }
-                        } catch (NumberFormatException ignore) {
-                        }
-                    }
-                    break;
-            }
+        public void onFailure(@NonNull Call<ChangellyAnswerDouble> call, @NonNull Throwable t) {
+            Toast.makeText(_applicationContext, "Service unavailable", Toast.LENGTH_SHORT).show();
         }
     }
 }

@@ -14,6 +14,12 @@ import retrofit2.http.Query;
  *  Interface to describing Changelly API for retrofit2 library and providing retrofit object intialization.
  **/
 public interface ChangellyAPIService {
+    String BCH = "BCH";
+    String BTC = "BTC";
+    String FROM = "FROM";
+    String TO = "TO";
+    String AMOUNT = "AMOUNT";
+    String DESTADDRESS = "DESTADDRESS";
     class ChangellyCurrency {
         public String currency;
         public boolean enabled;
@@ -28,7 +34,6 @@ public interface ChangellyAPIService {
         public String currencyFrom;
         public String currencyTo;
         public double amountTo;
-        public double amountFrom; // not set by changelly (!) but we set it on the way back in ChangellyService
         public String payinAddress;
         public String payoutAddress;
         public String createdAt;

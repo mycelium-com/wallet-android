@@ -1,12 +1,8 @@
 package com.mycelium.wallet.external.changelly;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -24,6 +20,7 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.send.event.SelectListener;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
 import com.mycelium.wallet.activity.view.ValueKeyboard;
+import com.mycelium.wallet.external.changelly.ChangellyAPIService.ChangellyAnswerDouble;
 import com.mycelium.wapi.wallet.WalletAccount;
 
 import java.util.ArrayList;
@@ -39,7 +36,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import static butterknife.OnTextChanged.Callback.AFTER_TEXT_CHANGED;
-import static com.mycelium.wallet.external.changelly.ChangellyService.INFO_ERROR;
+import static com.mycelium.wallet.external.changelly.ChangellyAPIService.BTC;
 import static com.mycelium.wallet.external.changelly.Constants.decimalFormat;
 
 public class ChangellyActivity extends AppCompatActivity {
@@ -103,7 +100,6 @@ public class ChangellyActivity extends AppCompatActivity {
 
     private CurrencyAdapter currencyAdapter;
     private AccountAdapter accountAdapter;
-    private Receiver receiver;
 
     private Double minAmount;
 
@@ -115,8 +111,7 @@ public class ChangellyActivity extends AppCompatActivity {
             Toast.makeText(ChangellyActivity.this, "Error parsing double values", Toast.LENGTH_SHORT).show();
             return;
         }
-        ChangellyService.start(this, ChangellyService.ACTION_GET_EXCHANGE_AMOUNT,
-                fromCurrency, toCurrency, dblAmount, null);
+        changellyAPIService.getExchangeAmount(fromCurrency, toCurrency, dblAmount).enqueue(new GetOfferCallback(fromCurrency, toCurrency, dblAmount));
     }
 
     @Override
@@ -161,7 +156,7 @@ public class ChangellyActivity extends AppCompatActivity {
                     toValue.setText("");
 
                     // load min amount
-                    changellyAPIService.getMinAmount(item.currency, ChangellyService.BTC)
+                    changellyAPIService.getMinAmount(item.currency, BTC)
                             .enqueue(new GetMinCallback(item.currency));
                 }
             }
@@ -176,16 +171,6 @@ public class ChangellyActivity extends AppCompatActivity {
 
         //display the loading spinner
         setLayout(ChangellyActivity.ChangellyUITypes.Loading);
-
-        receiver = new Receiver();
-        // The filter's action is BROADCAST_ACTION
-        for (String action : new String[]{
-                ChangellyService.INFO_EXCH_AMOUNT,
-                ChangellyService.INFO_TRANSACTION,
-                ChangellyService.INFO_ERROR}) {
-            IntentFilter intentFilter = new IntentFilter(action);
-            LocalBroadcastManager.getInstance(this).registerReceiver(receiver, intentFilter);
-        }
         changellyAPIService.getCurrencies().enqueue(new Callback<ChangellyAPIService.ChangellyAnswerListString>() {
             @Override
             public void onResponse(Call<ChangellyAPIService.ChangellyAnswerListString> call, Response<ChangellyAPIService.ChangellyAnswerListString> response) {
@@ -213,12 +198,6 @@ public class ChangellyActivity extends AppCompatActivity {
                 toast("Can't load currencies: " + t);
             }
         });
-    }
-
-    @Override
-    protected void onDestroy() {
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver);
-        super.onDestroy();
     }
 
     private void toast(String msg) {
@@ -260,7 +239,7 @@ public class ChangellyActivity extends AppCompatActivity {
         if (!avoidTextChangeEvent && isValueForOfferOk()) {
             requestOfferFunction(fromValue.getText().toString()
                     , currencyAdapter.getItem(currencySelector.getSelectedItem()).currency
-                    , ChangellyService.BTC);
+                    , BTC);
         }
         if (!avoidTextChangeEvent && fromValue.getText().toString().isEmpty()) {
             avoidTextChangeEvent = true;
@@ -273,7 +252,7 @@ public class ChangellyActivity extends AppCompatActivity {
     public void afterEditTextInputTo(Editable editable) {
         if (!avoidTextChangeEvent && !toValue.getText().toString().isEmpty()) {
             requestOfferFunction(toValue.getText().toString()
-                    , ChangellyService.BTC
+                    , BTC
                     , currencyAdapter.getItem(currencySelector.getSelectedItem()).currency);
         }
         if (!avoidTextChangeEvent && toValue.getText().toString().isEmpty()) {
@@ -329,10 +308,10 @@ public class ChangellyActivity extends AppCompatActivity {
         CurrencyAdapter.Item item = currencyAdapter.getItem(currencySelector.getSelectedItem());
         WalletAccount walletAccount = accountAdapter.getItem(accountSelector.getSelectedItem()).account;
         startActivityForResult(new Intent(ChangellyActivity.this, ChangellyOfferActivity.class)
-                .putExtra(ChangellyService.FROM, item.currency)
-                .putExtra(ChangellyService.TO, ChangellyService.BTC)
-                .putExtra(ChangellyService.AMOUNT, dblAmount)
-                .putExtra(ChangellyService.DESTADDRESS, walletAccount.getReceivingAddress().get().toString()), REQUEST_OFFER);
+                .putExtra(ChangellyAPIService.FROM, item.currency)
+                .putExtra(ChangellyAPIService.TO, BTC)
+                .putExtra(ChangellyAPIService.AMOUNT, dblAmount)
+                .putExtra(ChangellyAPIService.DESTADDRESS, walletAccount.getReceivingAddress().get().toString()), REQUEST_OFFER);
     }
 
     boolean isValueForOfferOk() {
@@ -383,50 +362,7 @@ public class ChangellyActivity extends AppCompatActivity {
         return false;
     }
 
-    class Receiver extends BroadcastReceiver {
-        private Receiver() {
-        }  // prevents instantiation
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String from, to;
-            double amount;
-
-            switch (intent.getAction()) {
-                case ChangellyService.INFO_EXCH_AMOUNT:
-                    from = intent.getStringExtra(ChangellyService.FROM);
-                    to = intent.getStringExtra(ChangellyService.TO);
-                    double fromAmount = intent.getDoubleExtra(ChangellyService.FROM_AMOUNT, 0);
-                    amount = intent.getDoubleExtra(ChangellyService.AMOUNT, 0);
-                    CurrencyAdapter.Item item = currencyAdapter.getItem(currencySelector.getSelectedItem());
-                    if (item != null && from != null && to != null) {
-                        Log.d(TAG, "Received offer: " + amount + " " + to);
-                        avoidTextChangeEvent = true;
-                        try {
-                            if (to.equalsIgnoreCase(ChangellyService.BTC)
-                                    && from.equalsIgnoreCase(item.currency)
-                                    && fromAmount == Double.parseDouble(fromValue.getText().toString())) {
-                                toValue.setText(decimalFormat.format(amount));
-                            } else if (from.equalsIgnoreCase(ChangellyService.BTC)
-                                    && to.equalsIgnoreCase(item.currency)
-                                    && fromAmount == Double.parseDouble(toValue.getText().toString())) {
-                                fromValue.setText(decimalFormat.format(amount));
-                            }
-                            isValueForOfferOk();
-
-                        } catch (NumberFormatException ignore) {
-                        }
-                        avoidTextChangeEvent = false;
-                    }
-                    break;
-                case INFO_ERROR:
-                    toast("Service unavailable");
-                    break;
-            }
-        }
-    }
-
-    class GetMinCallback implements Callback<ChangellyAPIService.ChangellyAnswerDouble> {
+    class GetMinCallback implements Callback<ChangellyAnswerDouble> {
         String from;
 
         GetMinCallback(String from) {
@@ -434,9 +370,9 @@ public class ChangellyActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onResponse(@NonNull Call<ChangellyAPIService.ChangellyAnswerDouble> call,
-                               @NonNull Response<ChangellyAPIService.ChangellyAnswerDouble> response) {
-            ChangellyAPIService.ChangellyAnswerDouble result = response.body();
+        public void onResponse(@NonNull Call<ChangellyAnswerDouble> call,
+                               @NonNull Response<ChangellyAnswerDouble> response) {
+            ChangellyAnswerDouble result = response.body();
             if(result == null || result.result == -1) {
                 Log.e("MyceliumChangelly", "Minimum amount could not be retrieved");
                 toast("Service unavailable");
@@ -455,9 +391,57 @@ public class ChangellyActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onFailure(@NonNull Call<ChangellyAPIService.ChangellyAnswerDouble> call,
+        public void onFailure(@NonNull Call<ChangellyAnswerDouble> call,
                               @NonNull Throwable t) {
             toast("Service unavailable");
+        }
+    }
+
+    class GetOfferCallback implements Callback<ChangellyAnswerDouble> {
+        final String from;
+        final String to;
+        final double fromAmount;
+
+        GetOfferCallback(@NonNull String from, @NonNull String to, double fromAmount) {
+            this.from = from;
+            this.to = to;
+            this.fromAmount = fromAmount;
+        }
+
+        @Override
+        public void onResponse(@NonNull Call<ChangellyAnswerDouble> call,
+                               @NonNull Response<ChangellyAnswerDouble> response) {
+            ChangellyAnswerDouble result = response.body();
+            if(result != null) {
+                double amount = result.result;
+                Log.d("MyceliumChangelly", "You will receive the following " + to + " amount: " + result.result);
+                CurrencyAdapter.Item item = currencyAdapter.getItem(currencySelector.getSelectedItem());
+                // check if the user still needs this reply or navigated to different amounts/currencies
+                if (item != null) {
+                    Log.d(TAG, "Received offer: " + amount + " " + to);
+                    avoidTextChangeEvent = true;
+                    try {
+                        if (to.equalsIgnoreCase(BTC)
+                                && from.equalsIgnoreCase(item.currency)
+                                && fromAmount == Double.parseDouble(fromValue.getText().toString())) {
+                            toValue.setText(decimalFormat.format(amount));
+                        } else if (from.equalsIgnoreCase(BTC)
+                                && to.equalsIgnoreCase(item.currency)
+                                && fromAmount == Double.parseDouble(toValue.getText().toString())) {
+                            fromValue.setText(decimalFormat.format(amount));
+                        }
+                        isValueForOfferOk();
+                    } catch (NumberFormatException ignore) {
+                    }
+                    avoidTextChangeEvent = false;
+                }
+            }
+        }
+
+        @Override
+        public void onFailure(@NonNull Call<ChangellyAnswerDouble> call,
+                              @NonNull Throwable t) {
+            toast("Service unavailable " + t);
         }
     }
 }
