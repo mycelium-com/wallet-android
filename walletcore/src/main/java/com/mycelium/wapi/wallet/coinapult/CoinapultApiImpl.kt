@@ -1,6 +1,5 @@
-package com.mycelium.wallet.coinapult
+package com.mycelium.wapi.wallet.coinapult
 
-import android.util.Log
 import com.coinapult.api.httpclient.CoinapultClient
 import com.coinapult.api.httpclient.SearchMany
 import com.coinapult.api.httpclient.Transaction
@@ -10,9 +9,6 @@ import com.mycelium.WapiLogger
 import com.mycelium.wapi.wallet.GenericAddress
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.BtcLegacyAddress
-import com.mycelium.wapi.wallet.coinapult.CoinapultApi
-import com.mycelium.wapi.wallet.coinapult.CoinapultTransaction
-import com.mycelium.wapi.wallet.coinapult.Currency
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.Value
 import java.io.IOException
@@ -79,9 +75,9 @@ class CoinapultApiImpl(val client: CoinapultClient, val logger: WapiLogger) : Co
                         , Value.zeroValue(currency), Value.zeroValue(currency), Value.zeroValue(currency))
             }
         } catch (e: CoinapultClient.CoinapultBackendException) {
-            Log.e("CoinapultApiImpl", "error while getting balance", e)
+            logger.logError("CoinapultApiImpl error while getting balance", e)
         } catch (e: SocketTimeoutException) {
-            Log.e("CoinapultApiImpl", "error while getting balance", e)
+            logger.logError("CoinapultApiImpl error while getting balance", e)
         }
         return null
     }
@@ -102,9 +98,9 @@ class CoinapultApiImpl(val client: CoinapultClient, val logger: WapiLogger) : Co
             }
             result = tmpResult
         } catch (e: CoinapultClient.CoinapultBackendException) {
-            Log.e("CoinapultApiImpl", "error while getting history", e)
+            logger.logError("CoinapultApiImplerror while getting history", e)
         } catch (e: SocketTimeoutException) {
-            Log.e("CoinapultApiImpl", "error while getting balance", e)
+            logger.logError("CoinapultApiImpl error while getting balance", e)
         }
         return result
     }
