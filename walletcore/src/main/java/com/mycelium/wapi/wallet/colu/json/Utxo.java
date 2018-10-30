@@ -4,8 +4,6 @@ import java.util.List;
 
 import com.google.api.client.json.GenericJson;
 import com.google.api.client.util.Key;
-import com.mycelium.wallet.colu.json.Asset;
-import com.mycelium.wallet.colu.json.ScriptPubKey;
 
 public class Utxo {
     public static class Json extends GenericJson {

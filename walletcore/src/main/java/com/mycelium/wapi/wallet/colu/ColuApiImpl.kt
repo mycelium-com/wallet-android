@@ -77,10 +77,9 @@ class ColuApiImpl(val coluClient: ColuClient) : ColuApi {
                 for (utxo in addressInfo.utxos) {
                     // adding utxo to list of txid list request
                     for (txidAsset in utxo.assets) {
-                        for (knownAssetId in ColuAccount.ColuAsset.getAssetMap().keys) {
-                            val coluMain = ColuUtils.getColuCoin(knownAssetId)
-                            coluMain.let {
-                                assetsList.add(coluMain)
+                        for (coin in ColuUtils.allColuCoins()) {
+                            if (txidAsset.assetId == coin.id) {
+                                assetsList.add(coin)
                             }
                         }
                     }

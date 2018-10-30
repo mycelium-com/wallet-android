@@ -92,7 +92,6 @@ import com.mycelium.wallet.activity.BackupWordListActivity;
 import com.mycelium.wallet.activity.export.BackupToPdfActivity;
 import com.mycelium.wallet.activity.export.ExportAsQrActivity;
 import com.mycelium.wallet.coinapult.CoinapultAccount;
-import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.ExportableAccount;
@@ -106,6 +105,8 @@ import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
 import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coins.Value;
+import com.mycelium.wapi.wallet.colu.ColuAccount;
+import com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
 import com.mycelium.wapi.wallet.colu.coins.MTCoin;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
@@ -761,12 +762,8 @@ public class Utils {
    }
 
    public static boolean checkIsLinked(WalletAccount account, final Collection<? extends WalletAccount> accounts) {
-      for (WalletAccount walletAccount : accounts) {
-         if (walletAccount instanceof ColuAccount
-                 && ((ColuAccount) walletAccount).getLinkedAccount() != null
-                 && ((ColuAccount) walletAccount).getLinkedAccount().equals(account)) {
-            return true;
-         }
+      if (getLinkedAccount(account, accounts) != null) {
+         return true;
       }
       return false;
    }
@@ -795,8 +792,11 @@ public class Utils {
             if(input instanceof ColuAccount) {
                return 5;
             }
-            if(input instanceof CoinapultAccount) {
+            if(input instanceof ColuPubOnlyAccount) {
                return 6;
+            }
+            if(input instanceof CoinapultAccount) {
+               return 7;
             }
             return 4;
          }
@@ -817,9 +817,9 @@ public class Utils {
          @Override
          public int compare(WalletAccount w1, WalletAccount w2) {
             if (w1 instanceof ColuAccount) {
-               return ((ColuAccount) w1).getLinkedAccount().getId().equals(w2.getId()) ? -1 : 0;
+               return getLinkedAccount(w1, accounts).getId().equals(w2.getId()) ? -1 : 0;
             } else if (w2 instanceof ColuAccount) {
-               return ((ColuAccount) w2).getLinkedAccount().getId().equals(w1.getId()) ? 1 : 0;
+               return getLinkedAccount(w2, accounts).getId().equals(w1.getId()) ? 1 : 0;
             } else if (w1 instanceof Bip44BCHAccount
                     && w2 instanceof HDAccount
                     && MbwManager.getBitcoinCashAccountId(w2).equals(w1.getId())) {
@@ -861,21 +861,7 @@ public class Utils {
    }
 
    public static Drawable getDrawableForAccount(WalletAccount walletAccount, boolean isSelectedAccount, Resources resources) {
-      if (walletAccount instanceof ColuAccount) {
-         ColuAccount account = (ColuAccount) walletAccount;
-         switch (account.getColuAsset().assetType) {
-            case MT:
-               return account.canSpend() ? resources.getDrawable(R.drawable.mt_icon) :
-                       resources.getDrawable(R.drawable.mt_icon_no_priv_key);
-            case MASS:
-               return account.canSpend() ? resources.getDrawable(R.drawable.mass_icon)
-                       : resources.getDrawable(R.drawable.mass_icon_no_priv_key);
-            case RMC:
-               return account.canSpend() ? resources.getDrawable(R.drawable.rmc_icon)
-                       : resources.getDrawable(R.drawable.rmc_icon_no_priv_key);
-         }
-      }
-      if (walletAccount instanceof com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount) {
+      if (walletAccount instanceof ColuPubOnlyAccount) {
          com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount account = (com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount) walletAccount;
          if (account.getCoinType() == MTCoin.INSTANCE) {
             return account.canSpend() ? resources.getDrawable(R.drawable.mt_icon) :

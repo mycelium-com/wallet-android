@@ -15,7 +15,7 @@ import java.util.*
 
 
 open class ColuPubOnlyAccount(val context: ColuAccountContext, val publicKey: PublicKey
-                              , val coluCoinType: CryptoCurrency
+                              , private val coluCoinType: CryptoCurrency
                               , val networkParameters: NetworkParameters
                               , val coluNetworkParameters: org.bitcoinj.core.NetworkParameters
                               , val coluClient: ColuApi

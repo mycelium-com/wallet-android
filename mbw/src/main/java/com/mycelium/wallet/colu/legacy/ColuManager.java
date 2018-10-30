@@ -1,4 +1,4 @@
-package com.mycelium.wallet.colu;
+package com.mycelium.wallet.colu.legacy;
 
 import android.os.AsyncTask;
 import android.os.Handler;
@@ -16,19 +16,11 @@ import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.Transaction;
+import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.MbwEnvironment;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.activity.util.BlockExplorer;
-import com.mycelium.wallet.colu.json.AddressInfo;
-import com.mycelium.wallet.colu.json.AddressTransactionsInfo;
-import com.mycelium.wallet.colu.json.Asset;
-import com.mycelium.wallet.colu.json.AssetMetadata;
-import com.mycelium.wallet.colu.json.ColuBroadcastTxHex;
-import com.mycelium.wallet.colu.json.ColuBroadcastTxId;
-import com.mycelium.wallet.colu.json.Tx;
-import com.mycelium.wallet.colu.json.Utxo;
-import com.mycelium.wallet.colu.json.Vin;
-import com.mycelium.wallet.colu.json.Vout;
+import com.mycelium.wallet.colu.SqliteColuManagerBacking;
 import com.mycelium.wallet.event.BalanceChanged;
 import com.mycelium.wallet.event.EventTranslator;
 import com.mycelium.wallet.event.ExtraAccountsChanged;
@@ -43,7 +35,6 @@ import com.mycelium.wapi.api.response.GetTransactionsResponse;
 import com.mycelium.wapi.api.response.QueryUnspentOutputsResponse;
 import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
-import com.mycelium.wapi.wallet.bip44.ChangeAddressMode;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
 import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
 import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore;
@@ -51,6 +42,8 @@ import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.colu.ColuAccountContext;
+import com.mycelium.wapi.wallet.colu.ColuApiImpl;
+import com.mycelium.wapi.wallet.colu.ColuClient;
 import com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount;
 import com.mycelium.wapi.wallet.colu.ColuTransaction;
 import com.mycelium.wapi.wallet.colu.ColuUtils;
@@ -60,10 +53,19 @@ import com.mycelium.wapi.wallet.colu.coins.MTCoin;
 import com.mycelium.wapi.wallet.colu.coins.MTCoinTest;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoinTest;
+import com.mycelium.wapi.wallet.colu.json.AddressInfo;
+import com.mycelium.wapi.wallet.colu.json.AddressTransactionsInfo;
+import com.mycelium.wapi.wallet.colu.json.Asset;
+import com.mycelium.wapi.wallet.colu.json.AssetMetadata;
+import com.mycelium.wapi.wallet.colu.json.ColuBroadcastTxHex;
+import com.mycelium.wapi.wallet.colu.json.ColuBroadcastTxId;
+import com.mycelium.wapi.wallet.colu.json.Tx;
+import com.mycelium.wapi.wallet.colu.json.Utxo;
+import com.mycelium.wapi.wallet.colu.json.Vin;
+import com.mycelium.wapi.wallet.colu.json.Vout;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 import com.mycelium.wapi.wallet.manager.State;
-import com.mycelium.wapi.wallet.segwit.SegwitAddress;
 import com.squareup.otto.Bus;
 
 import org.apache.commons.codec.binary.Hex;
@@ -278,22 +280,22 @@ public class ColuManager implements AccountProvider {
                                                  ColuAccount coluAccount,
                                                  long feePerKb) {
 
-        if (_receivingAddress != null && nativeAmount != null) {
-            List<Address> srcList = coluAccount.getSendingAddresses();
-            try {
-                ColuBroadcastTxHex.Json txid = coluClient.prepareTransaction(_receivingAddress, srcList, nativeAmount, coluAccount, getColuTransactionFee(feePerKb));
-
-                if (txid != null) {
-                    return txid;
-                } else {
-                    Log.e(TAG, "Did not receive unsigned transaction from colu server.");
-                }
-            } catch (IOException e) {
-                Log.e(TAG, "prepareColuTx interrupted with IOException. Message: " + e.getMessage());
-            }
-        } else {
-            Log.e(TAG, "prepareColuTx _receivingAddress or nativeAmount is null !");
-        }
+//        if (_receivingAddress != null && nativeAmount != null) {
+//            List<Address> srcList = coluAccount.getSendingAddresses();
+//            try {
+//                ColuBroadcastTxHex.Json txid = coluClient.prepareTransaction(_receivingAddress, srcList, nativeAmount, coluAccount, getColuTransactionFee(feePerKb));
+//
+//                if (txid != null) {
+//                    return txid;
+//                } else {
+//                    Log.e(TAG, "Did not receive unsigned transaction from colu server.");
+//                }
+//            } catch (IOException e) {
+//                Log.e(TAG, "prepareColuTx interrupted with IOException. Message: " + e.getMessage());
+//            }
+//        } else {
+//            Log.e(TAG, "prepareColuTx _receivingAddress or nativeAmount is null !");
+//        }
         return null;
     }
 
@@ -428,7 +430,7 @@ public class ColuManager implements AccountProvider {
         metadataStorage.storeColuBalance(coluAccountUuid, balance);
     }
 
-    Optional<String> getColuBalance(UUID coluAccountUuid) {
+    public Optional<String> getColuBalance(UUID coluAccountUuid) {
         return metadataStorage.getColuBalance(coluAccountUuid);
     }
 
@@ -541,7 +543,7 @@ public class ColuManager implements AccountProvider {
                         , singleAddressAccount.getReceiveAddress(), false, 0)
                         , new PublicKey(singleAddressAccount.getAddress(AddressType.P2PKH).getAllAddressBytes())
                         , coluAsset
-                        , _network, netParams, new ColuApiImpl(coluClient), createdAccountInfo.accountBacking, null);
+                        , _network, netParams, new com.mycelium.wapi.wallet.colu.ColuApiImpl(coluClient), createdAccountInfo.accountBacking, null);
             } else {
 //                account = new ColuAccount(
 //                        ColuManager.this, createdAccountInfo.accountBacking, metadataStorage, accountKey,
@@ -550,7 +552,7 @@ public class ColuManager implements AccountProvider {
                 account = new com.mycelium.wapi.wallet.colu.ColuAccount(new ColuAccountContext(uuid, coinMap.get(coluAsset.getId())
                         , singleAddressAccount.getReceiveAddress(), false, 0)
                         , accountKey, coluAsset,
-                        _network, netParams, new ColuApiImpl(coluClient), createdAccountInfo.accountBacking, null);
+                        _network, netParams, new com.mycelium.wapi.wallet.colu.ColuApiImpl(coluClient), createdAccountInfo.accountBacking, null);
             }
 
             coluAccounts.put(account.getId(), account);
@@ -593,7 +595,7 @@ public class ColuManager implements AccountProvider {
                         , new BtcLegacyAddress(coinMap.get(coluAsset.id), importKey.getPublicKey().getPublicKeyBytes())
                         , false, 0)
                 , accountKey, coinMap.get(coluAsset.id)
-                , _network, netParams, new ColuApiImpl(coluClient), createdAccountInfo.accountBacking, null);
+                , _network, netParams, new com.mycelium.wapi.wallet.colu.ColuApiImpl(coluClient), createdAccountInfo.accountBacking, null);
 
         coluAccounts.put(account.getId(), account);
         createColuAccountLabel(account);
@@ -750,7 +752,7 @@ public class ColuManager implements AccountProvider {
     }
 
     private ColuClient createClient() {
-        return new ColuClient(_network);
+        return new ColuClient(_network, BuildConfig.ColoredCoinsApiURLs, BuildConfig.ColuBlockExplorerApiURLs);
     }
 
     private void getBalances(SyncMode syncMode) throws Exception {
@@ -771,7 +773,7 @@ public class ColuManager implements AccountProvider {
         }
     }
 
-    void updateAccountBalance(ColuAccount account) throws IOException {
+    public void updateAccountBalance(ColuAccount account) throws IOException {
         Optional<Address> address = account.getReceivingAddress(); // for single address account
         if (!address.isPresent()) {
             return;

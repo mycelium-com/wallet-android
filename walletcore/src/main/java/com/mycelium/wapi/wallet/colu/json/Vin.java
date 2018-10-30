@@ -2,9 +2,6 @@ package com.mycelium.wapi.wallet.colu.json;
 
 import com.google.api.client.json.GenericJson;
 import com.google.api.client.util.Key;
-import com.mycelium.wallet.colu.json.Asset;
-import com.mycelium.wallet.colu.json.PreviousOutput;
-import com.mycelium.wallet.colu.json.ScriptSig;
 
 import java.util.List;
 

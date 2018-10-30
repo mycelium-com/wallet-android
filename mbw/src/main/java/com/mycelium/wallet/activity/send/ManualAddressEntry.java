@@ -48,11 +48,11 @@ import android.widget.TextView;
 
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
+import com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount;
 
 import java.util.UUID;
 
@@ -77,11 +77,11 @@ public class ManualAddressEntry extends Activity {
         ((EditText) findViewById(R.id.etAddress)).setInputType(InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE);
 
         WalletAccount account = _mbwManager.getWalletManager(isColdStorage).getAccount(accountUUID);
-        if (account instanceof ColuAccount) {
-            ColuAccount coluAccount = (ColuAccount) account;
-            ((TextView) findViewById(R.id.title)).setText(getString(R.string.enter_address, coluAccount.getColuAsset().name));
-            ((TextView) findViewById(R.id.tvBitcoinAddressValid)).setText(getString(R.string.address_valid, coluAccount.getColuAsset().name));
-            ((TextView) findViewById(R.id.tvBitcoinAddressInvalid)).setText(getString(R.string.address_invalid, coluAccount.getColuAsset().name));
+        if (account instanceof ColuPubOnlyAccount) {
+            ColuPubOnlyAccount coluAccount = (ColuPubOnlyAccount) account;
+            ((TextView) findViewById(R.id.title)).setText(getString(R.string.enter_address, coluAccount.getCoinType().getName()));
+            ((TextView) findViewById(R.id.tvBitcoinAddressValid)).setText(getString(R.string.address_valid, coluAccount.getCoinType().getName()));
+            ((TextView) findViewById(R.id.tvBitcoinAddressInvalid)).setText(getString(R.string.address_invalid, coluAccount.getCoinType().getName()));
         }
         // Load saved state
         if (savedInstanceState != null) {

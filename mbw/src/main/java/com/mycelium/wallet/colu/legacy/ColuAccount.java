@@ -32,7 +32,7 @@
  * fitness for a particular purpose and non-infringement.
  */
 
-package com.mycelium.wallet.colu;
+package com.mycelium.wallet.colu.legacy;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
@@ -49,11 +49,6 @@ import com.mrd.bitlib.util.ByteWriter;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wallet.BuildConfig;
-import com.mycelium.wallet.colu.json.Asset;
-import com.mycelium.wallet.colu.json.Tx;
-import com.mycelium.wallet.colu.json.Utxo;
-import com.mycelium.wallet.colu.json.Vin;
-import com.mycelium.wallet.colu.json.Vout;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.api.lib.TransactionExApi;
 import com.mycelium.wapi.model.BalanceSatoshis;
@@ -66,19 +61,21 @@ import com.mycelium.wapi.wallet.BroadcastResult;
 import com.mycelium.wapi.wallet.ExportableAccount;
 import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
 import com.mycelium.wapi.wallet.GenericAddress;
-import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.SyncMode;
-import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
 import com.mycelium.wapi.wallet.btc.BtcTransaction;
 import com.mycelium.wapi.wallet.btc.SynchronizeAbleWalletBtcAccount;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
+import com.mycelium.wapi.wallet.colu.json.Asset;
+import com.mycelium.wapi.wallet.colu.json.Tx;
+import com.mycelium.wapi.wallet.colu.json.Utxo;
+import com.mycelium.wapi.wallet.colu.json.Vin;
+import com.mycelium.wapi.wallet.colu.json.Vout;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
@@ -204,7 +201,7 @@ public class ColuAccount extends SynchronizeAbleWalletBtcAccount implements Expo
     }
 
     /// @brief return true if at least one address in the list belongs to this account
-    boolean ownAddress(List<String> addresses) {
+    public boolean ownAddress(List<String> addresses) {
         for (String otherAddress : addresses) {
             if (address.toString().compareTo(otherAddress) == 0) {
                 return true;
@@ -228,11 +225,11 @@ public class ColuAccount extends SynchronizeAbleWalletBtcAccount implements Expo
         return satoshiAmount;
     }
 
-    void setBalanceFiat(CurrencyBasedBalance newBalanceFiat) {
+    public void setBalanceFiat(CurrencyBasedBalance newBalanceFiat) {
         balanceFiat = newBalanceFiat;
     }
 
-    void setBtcOnlyAmount(long satoshiBtcOnlyAmount) {
+    public void setBtcOnlyAmount(long satoshiBtcOnlyAmount) {
         this.satoshiBtcOnlyAmount = satoshiBtcOnlyAmount;
     }
 
@@ -240,11 +237,11 @@ public class ColuAccount extends SynchronizeAbleWalletBtcAccount implements Expo
         return satoshiBtcOnlyAmount;
     }
 
-    void setBalanceSatoshi(long satoshiAmount) {
+    public void setBalanceSatoshi(long satoshiAmount) {
         this.satoshiAmount = satoshiAmount;
     }
 
-    synchronized void setUtxos(List<Utxo.Json> utxos) {
+    public synchronized void setUtxos(List<Utxo.Json> utxos) {
         utxosList = utxos;
     }
 
@@ -252,12 +249,12 @@ public class ColuAccount extends SynchronizeAbleWalletBtcAccount implements Expo
         historyTxList = history; // utxosList = utxos;
     }
 
-    synchronized void setHistoryTxInfos(Collection<TransactionExApi> txInfos) {
+    public synchronized void setHistoryTxInfos(Collection<TransactionExApi> txInfos) {
         historyTxInfosList = txInfos;
     }
 
 
-    List<Address> getSendingAddresses() {
+    public List<Address> getSendingAddresses() {
         //TODO: make this dynamic and based on utxo with asset > 0
         return Collections.singletonList(address);
     }
@@ -344,7 +341,7 @@ public class ColuAccount extends SynchronizeAbleWalletBtcAccount implements Expo
         return height;
     }
 
-    void setBlockChainHeight(int height) {
+    public void setBlockChainHeight(int height) {
         this.height = height;
     }
 
@@ -880,7 +877,7 @@ public class ColuAccount extends SynchronizeAbleWalletBtcAccount implements Expo
         return address;
     }
 
-    void forgetPrivateKey() {
+    public void forgetPrivateKey() {
         accountKey = null;
     }
 

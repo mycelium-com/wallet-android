@@ -56,7 +56,6 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.export.VerifyBackupActivity;
-import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.BalanceChanged;
 import com.mycelium.wallet.event.SelectedAccountChanged;
@@ -64,6 +63,7 @@ import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
+import com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount;
 import com.squareup.otto.Subscribe;
 
 import java.util.concurrent.TimeUnit;
@@ -169,7 +169,8 @@ public class NoticeFragment extends Fragment {
       }
 
       // Then check if there are some SingleAddressAccounts with funds on it
-      if ((account instanceof ColuAccount || account instanceof SingleAddressAccount) && account.canSpend()) {
+      if ((account instanceof ColuPubOnlyAccount || account instanceof SingleAddressAccount)
+              && account.canSpend()) {
          MetadataStorage.BackupState state = meta.getOtherAccountBackupState(account.getId());
          if(state == MetadataStorage.BackupState.NOT_VERIFIED) {
             return Notice.SINGLEKEY_VERIFY_MISSING;

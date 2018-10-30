@@ -68,7 +68,6 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.util.ImportCoCoHDAccount;
 import com.mycelium.wallet.activity.util.ValueExtentionsKt;
-import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.extsig.keepkey.activity.KeepKeyAccountImportActivity;
 import com.mycelium.wallet.extsig.ledger.activity.LedgerAccountImportActivity;
 import com.mycelium.wallet.extsig.trezor.activity.TrezorAccountImportActivity;
@@ -79,15 +78,17 @@ import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
 import com.mycelium.wapi.wallet.btc.bip44.UnrelatedHDAccountConfig;
+import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.btc.single.PrivateSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.PublicSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
-import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
+import com.mycelium.wapi.wallet.colu.ColuAccount;
 import com.mycelium.wapi.wallet.colu.ColuUtils;
 import com.mycelium.wapi.wallet.colu.PrivateColuConfig;
 import com.mycelium.wapi.wallet.colu.PublicColuConfig;
@@ -513,9 +514,10 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
                                 if(existingAccount instanceof SingleAddressAccount) {
                                    ((SingleAddressAccount) existingAccount).setPrivateKey(key, AesKeyCipher.defaultKeyCipher());
                                 } else {
-                                   ColuAccount coluAccount = (ColuAccount) existingAccount;
-                                   coluAccount.setPrivateKey(new InMemoryPrivateKey(key.getPrivateKeyBytes()));
-                                   coluAccount.getLinkedAccount().setPrivateKey(key, AesKeyCipher.defaultKeyCipher());
+                                   WalletManager walletManager = _mbwManager.getWalletManager(false);
+                                   walletManager.deleteAccount(existingAccount.getId());
+                                   walletManager.deleteAccount(Utils.getLinkedAccount(existingAccount, walletManager.getAccounts()).getId());
+                                   walletManager.createAccounts(new PrivateColuConfig(key, (ColuMain) existingAccount.getCoinType(), AesKeyCipher.defaultKeyCipher()));
                                 }
                              } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
                                 invalidKeyCipher.printStackTrace();

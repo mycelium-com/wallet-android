@@ -46,18 +46,12 @@ import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.Toast;
 
-import com.google.common.base.Optional;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.colu.ColuAccount.ColuAsset;
-import com.mycelium.wallet.colu.ColuAccount.ColuAssetType;
-import com.mycelium.wallet.colu.ColuManager;
-import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.api.response.Feature;
 import com.mycelium.wapi.wallet.AesKeyCipher;
-import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.colu.PrivateColuConfig;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
@@ -72,9 +66,6 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 import static android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN;
-import static com.mycelium.wallet.colu.ColuAccount.ColuAssetType.MASS;
-import static com.mycelium.wallet.colu.ColuAccount.ColuAssetType.MT;
-import static com.mycelium.wallet.colu.ColuAccount.ColuAssetType.RMC;
 
 public class AddColuAccountActivity extends Activity {
    public static final int RESULT_COLU = 3;
