@@ -287,7 +287,9 @@ public class LedgerManager extends AbstractAccountScanManager implements
       if (isSegwit) {
          // Sending first input is kind of mark of p2sh/SegWit transaction
          TransactionInput currentInput = unsignedTx.inputs[0];
-         tryStartingUntrustedTransaction(inputs, 0, currentInput, isSegwit);
+         if (!tryStartingUntrustedTransaction(inputs, 0, currentInput, isSegwit)) {
+            return null;
+         }
 
          // notify the activity to show the transaction details on screen
          getMainThreadHandler().post(new Runnable() {
@@ -296,6 +298,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
                getEventBus().post(new OnShowTransactionVerification());
             }
          });
+
          ByteWriter byteStream = new ByteWriter(1024);
          byteStream.putCompactInt(unsigned.getOutputs().length);
          for (final TransactionOutput out : unsigned.getOutputs()) {
