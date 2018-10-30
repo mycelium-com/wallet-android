@@ -10,8 +10,10 @@ import com.mycelium.WapiLogger;
 import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.btc.InMemoryWalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking;
+import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 
+import com.mycelium.wapi.wallet.btc.bip44.UnrelatedHDAccountConfig;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -24,7 +26,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class HDAccountTest {
-    private static final String MASTER_SEED_WORDS = "degree rain vendor coffee push math onion inside pyramid blush stick treat";
+    private static final String MASTER_SEED_WORDS = "oil oil oil oil oil oil oil oil oil oil oil oil";
     private static final String MASTER_SEED_ACCOUNT_0_EXTERNAL_0_ADDRESS = "32LRQQsZt2dAzZq5HADLDEw5Fn8NzLhT35";
     private static final String MASTER_SEED_ACCOUNT_0_INTERNAL_0_ADDRESS = "38irRg7yBNjrpiAFxK2ac6GX1EHhYyjCLy";
     private HDAccount account;
@@ -46,11 +48,11 @@ public class HDAccountTest {
         Map<Currency, CurrencySettings> currenciesSettingsMap = new HashMap<>();
         currenciesSettingsMap.put(Currency.BTC, new BTCSettings(AddressType.P2SH_P2WPKH, new Reference<>(ChangeAddressMode.PRIVACY)));
 
-        WalletManager walletManager = new WalletManager(store, backing, NetworkParameters.productionNetwork, fakeWapi, null, null, false, currenciesSettingsMap);
+        WalletManager walletManager = new WalletManager(store, backing, NetworkParameters.productionNetwork, fakeWapi, currenciesSettingsMap);
 
         walletManager.configureBip32MasterSeed(masterSeed, cipher);
 
-        UUID account1Id = walletManager.createAdditionalBip44Account(cipher);
+        UUID account1Id = walletManager.createAccounts(new AdditionalHDAccountConfig()).get(0);
 
         account = (HDAccount) walletManager.getAccount(account1Id);
     }
