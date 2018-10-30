@@ -784,7 +784,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
                _backing.deleteUnspentOutput(outPoint);
             }
          }
-         // remove it from the backing
+         // remove it from the accountBacking
          _backing.deleteTransaction(transactionId);
          _backing.setTransactionSuccessful();
       } finally {
@@ -824,7 +824,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
          // Remove a queued transaction from our outgoing buffer
          _backing.removeOutgoingTransaction(transaction);
 
-         // remove it from the backing
+         // remove it from the accountBacking
          _backing.deleteTransaction(transaction);
          _backing.setTransactionSuccessful();
       } finally {

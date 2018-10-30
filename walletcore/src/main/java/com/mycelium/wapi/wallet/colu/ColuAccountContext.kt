@@ -1,7 +1,10 @@
 package com.mycelium.wapi.wallet.colu
 
 import com.mrd.bitlib.model.AddressType
+import com.mycelium.wapi.wallet.AccountBacking
 import com.mycelium.wapi.wallet.GenericAddress
+import com.mycelium.wapi.wallet.SingleAddressAccountBacking
+import com.mycelium.wapi.wallet.WalletBacking
 import com.mycelium.wapi.wallet.colu.coins.ColuMain
 import java.util.*
 

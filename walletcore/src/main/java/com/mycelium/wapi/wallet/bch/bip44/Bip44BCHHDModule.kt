@@ -37,7 +37,7 @@ class Bip44BCHHDModule(internal val backing: WalletManagerBacking<SingleAddressA
 
     override fun canCreateAccount(config: Config): Boolean = config is UnrelatedHDAccountConfig
 
-    override fun deleteAccount(walletAccount: WalletAccount<*, *>): Boolean {
+    override fun deleteAccount(walletAccount: WalletAccount<*, *>, keyCipher: KeyCipher): Boolean {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 

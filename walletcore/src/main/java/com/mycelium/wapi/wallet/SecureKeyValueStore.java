@@ -179,13 +179,13 @@ public class SecureKeyValueStore {
    }
 
    private byte[] getEncryptedKeyEncryptionKey() {
-      // access the backing directly, so that we always get the same root KEK (even if we call this function
+      // access the accountBacking directly, so that we always get the same root KEK (even if we call this function
       // from a SecureSubKeyValueStore
       return _backing.getValue(KEK_ID);
    }
 
    private void storeEncryptedKeyEncryptionKey(byte[] encryptedKek) {
-      // access the backing directly, so that we always set the same root KEK (even if we call this function
+      // access the accountBacking directly, so that we always set the same root KEK (even if we call this function
       // from a SecureSubKeyValueStore
       _backing.setValue(KEK_ID, encryptedKek);
    }

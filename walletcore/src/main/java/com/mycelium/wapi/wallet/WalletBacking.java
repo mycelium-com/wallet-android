@@ -10,5 +10,7 @@ public interface WalletBacking<AccountContext, T extends GenericTransaction> {
 
     void createAccountContext(AccountContext context);
 
+    void updateAccountContext(AccountContext context);
+
     void deleteAccountContext(UUID uuid);
 }

@@ -44,12 +44,10 @@ class BitcoinSingleAddressModule(internal val backing: WalletManagerBacking<Sing
         var result: WalletAccount<*, *>? = null
 
         if (config is PublicSingleConfig) {
-            val cfg = config
-            result = createAccount(cfg.publicKey)
+            result = createAccount(config.publicKey)
         }
         else if (config is PrivateSingleConfig) {
-            val cfg = config
-            result = createAccount(cfg.privateKey, cfg.cipher)
+            result = createAccount(config.privateKey, config.cipher)
         }
 
         return result
@@ -81,7 +79,7 @@ class BitcoinSingleAddressModule(internal val backing: WalletManagerBacking<Sing
     }
 
 
-    override fun deleteAccount(walletAccount: WalletAccount<*, *>): Boolean {
+    override fun deleteAccount(walletAccount: WalletAccount<*, *>, keyCipher: KeyCipher): Boolean {
         if(walletAccount is SingleAddressAccount) {
             backing.deleteSingleAddressAccountContext(walletAccount.id)
             return true

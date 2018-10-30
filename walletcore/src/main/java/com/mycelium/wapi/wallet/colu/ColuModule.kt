@@ -32,11 +32,13 @@ class ColuModule(val networkParameters: NetworkParameters
                         , PublicKey(context.address.getBytes())
                         , context.coinType, networkParameters, netParams, coluApi
                         , backing.getAccountBacking(context.id)
+                        , backing
                         , listener)
             } else {
                 ColuAccount(context
                         , accountKey, context.coinType, networkParameters, netParams, coluApi
                         , backing.getAccountBacking(context.id)
+                        , backing
                         , listener)
             }
             result[account.id] = account
@@ -57,7 +59,7 @@ class ColuModule(val networkParameters: NetworkParameters
                         , false, 0)
                 backing.createAccountContext(context)
                 result = ColuAccount(context, config.privateKey, type, networkParameters, netParams
-                        , coluApi, backing.getAccountBacking(id), listener)
+                        , coluApi, backing.getAccountBacking(id), backing, listener)
                 publicPrivateKeyStore.setPrivateKey(address, config.privateKey, config.cipher)
             }
         } else if (config is PublicColuConfig) {
@@ -70,10 +72,9 @@ class ColuModule(val networkParameters: NetworkParameters
                         , false, 0)
                 backing.createAccountContext(context)
                 result = ColuPubOnlyAccount(context, config.publicKey, type, networkParameters
-                        , netParams, coluApi, backing.getAccountBacking(id), listener)
+                        , netParams, coluApi, backing.getAccountBacking(id), backing, listener)
             }
         }
-        result?.synchronize(SyncMode.NORMAL)
         return result
     }
 
@@ -93,8 +94,9 @@ class ColuModule(val networkParameters: NetworkParameters
         return false
     }
 
-    override fun deleteAccount(walletAccount: WalletAccount<*, *>): Boolean {
-        if(walletAccount is ColuPubOnlyAccount || walletAccount is ColuAccount) {
+    override fun deleteAccount(walletAccount: WalletAccount<*, *>, keyCipher: KeyCipher): Boolean {
+        if(walletAccount is ColuPubOnlyAccount) {
+            publicPrivateKeyStore.forgetPrivateKey(Address(walletAccount.receiveAddress.getBytes()), keyCipher)
             backing.deleteAccountContext(walletAccount.id)
             return true
         }

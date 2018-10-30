@@ -78,7 +78,7 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
     }
 
     override fun getFeeEstimations(): FeeEstimationsGeneric {
-        return FeeEstimationsGeneric(Value.zeroValue(coinType), Value.zeroValue(coinType),Value.zeroValue(coinType))
+        return FeeEstimationsGeneric(Value.zeroValue(coinType), Value.zeroValue(coinType), Value.zeroValue(coinType))
     }
 
     override fun getSyncTotalRetrievedTransactions(): Int = 0
@@ -87,7 +87,7 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
 
     override fun isVisible(): Boolean = true
 
-    override fun completeAndSignTx(request: SendRequest<CoinapultTransaction>?) {
+    override fun completeAndSignTx(request: SendRequest<CoinapultTransaction>) {
         completeTransaction(request)
         signTransaction(request)
     }
@@ -96,12 +96,24 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun signTransaction(request: SendRequest<CoinapultTransaction>?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun signTransaction(request: SendRequest<CoinapultTransaction>) {
+        if (!request.isCompleted) {
+            return
+        }
+        if (request is CoinapultSendRequest) {
+
+        } else {
+            TODO("signTransaction not implemented for ${request.javaClass.simpleName}")
+        }
     }
 
-    override fun broadcastTx(tx: CoinapultTransaction?): BroadcastResult {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun broadcastTx(tx: CoinapultTransaction): BroadcastResult {
+        return try {
+            api.broadcast(tx.value.valueAsBigDecimal, tx.value.getType() as Currency, tx.address!!)
+            BroadcastResult.SUCCESS
+        } catch (e: Exception) {
+            BroadcastResult.REJECTED
+        }
     }
 
     override fun getAccountBalance(): Balance = cachedBalance

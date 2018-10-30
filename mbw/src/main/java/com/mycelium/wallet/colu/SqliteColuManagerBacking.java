@@ -157,7 +157,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
    public void createAccountContext(ColuAccountContext context) {
       _database.beginTransaction();
       try {
-         // Create backing tables
+         // Create accountBacking tables
          SqliteColuAccountBacking backing = _backings.get(context.getId());
          if (backing == null) {
             createAccountBackingTables(context.getId(), _database);
@@ -210,21 +210,14 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
       } finally {
          endTransaction();
       }
-
    }
 
    @Override
-   public AccountBacking getAccountBacking(UUID accountId) {
+   public AccountBacking<ColuTransaction> getAccountBacking(UUID accountId) {
       return checkNotNull(_backings.get(accountId));
    }
 
    private List<UUID> getAccountIds(SQLiteDatabase db) {
-      List<UUID> ids = new ArrayList<>();
-      ids.addAll(getSingleAddressAccountIds(db));
-      return ids;
-   }
-
-   private List<UUID> getSingleAddressAccountIds(SQLiteDatabase db) {
       Cursor cursor = null;
       List<UUID> accounts = new ArrayList<>();
       try {
@@ -254,18 +247,15 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
       _database.endTransaction();
    }
 
-   private void updateSingleAddressAccountContext(SingleAddressAccountContext context) {
+   @Override
+   public void updateAccountContext(ColuAccountContext context) {
       _database.beginTransaction();
       try {
          // "UPDATE single SET archived=?,blockheight=? WHERE id=?"
          _updateSingleAddressAccount.bindLong(1, context.isArchived() ? 1 : 0);
          _updateSingleAddressAccount.bindLong(2, context.getBlockHeight());
+         _updateSingleAddressAccount.bindBlob(3, context.getAddress().getBytes());
          ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-         try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteStream)) {
-            objectOutputStream.writeObject(context.getAddresses());
-         }
-         _updateSingleAddressAccount.bindBlob(3, byteStream.toByteArray());
-         byteStream = new ByteArrayOutputStream();
          try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteStream)) {
             objectOutputStream.writeObject(context.getDefaultAddressType());
          }
@@ -633,7 +623,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
                   out.flush();
                   txData = bos.toByteArray();
                } catch (IOException e) {
-                  Log.e("colu backing", "", e);
+                  Log.e("colu accountBacking", "", e);
                } finally {
                   try {
                      bos.close();
@@ -965,11 +955,6 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
             }
          }
       }
-
-//      @Override
-//      public void updateAccountContext(SingleAddressAccountContext context) {
-//         updateSingleAddressAccountContext(context);
-//      }
    }
 
    private class OpenHelper extends SQLiteOpenHelper {

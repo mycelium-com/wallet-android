@@ -106,12 +106,12 @@ class WalletManager(val _secureKeyValueStore: SecureKeyValueStore,
         return result.keys.toList()
     }
 
-    fun deleteAccount(id: UUID) {
+    fun deleteAccount(id: UUID, keyCipher: KeyCipher) {
         val account = accounts[id]
         account?.let {
             accounts.remove(id)
             walletModules.values.forEach {
-                it.deleteAccount(account)
+                it.deleteAccount(account, keyCipher)
             }
         }
     }

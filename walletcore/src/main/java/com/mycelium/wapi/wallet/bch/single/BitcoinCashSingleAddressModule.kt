@@ -64,7 +64,7 @@ class BitcoinCashSingleAddressModule(internal val backing: WalletManagerBacking<
         backing.beginTransaction()
         try {
             val context = SingleAddressAccountContext(id, publicKey.getAllSupportedAddresses(networkParameters), false, 0)
-//            backing.createSingleAddressAccountContext(context)
+//            accountBacking.createSingleAddressAccountContext(context)
             val accountBacking = backing.getSingleAddressAccountBacking(context.id)
 //            result = SingleAddressAccount(context, publicPrivateKeyStore, networkParameters, accountBacking, _wapi)
 //            context.persist(accountBacking)
@@ -87,7 +87,7 @@ class BitcoinCashSingleAddressModule(internal val backing: WalletManagerBacking<
         return createAccount(publicKey)
     }
 
-    override fun deleteAccount(walletAccount: WalletAccount<*, *>): Boolean {
+    override fun deleteAccount(walletAccount: WalletAccount<*, *>, keyCipher: KeyCipher): Boolean {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 

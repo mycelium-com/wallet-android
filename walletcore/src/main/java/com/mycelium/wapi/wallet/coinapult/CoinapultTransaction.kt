@@ -3,14 +3,16 @@ package com.mycelium.wapi.wallet.coinapult
 import com.google.common.base.Optional
 import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal
+import com.mycelium.wapi.wallet.GenericAddress
 import com.mycelium.wapi.wallet.GenericTransaction
+import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo
 import com.mycelium.wapi.wallet.coins.Value
 import java.io.Serializable
 
 
 class CoinapultTransaction(val _hash: Sha256Hash, val value: Value, val incoming: Boolean, val completeTime: Long
-                           , val state: String, val time: Long) : GenericTransaction, Serializable {
+                           , val state: String, val time: Long, val address: BtcAddress? = null) : GenericTransaction, Serializable {
     override fun getType(): GenericAssetInfo = value.getType()
 
     override fun getHash(): Sha256Hash = _hash

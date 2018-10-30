@@ -5,9 +5,7 @@ import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.model.Transaction
 import com.mycelium.wapi.wallet.*
-import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.BtcLegacyAddress
-import com.mycelium.wapi.wallet.btc.BtcSendRequest
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import org.apache.commons.codec.binary.Hex
@@ -20,10 +18,11 @@ class ColuAccount(context: ColuAccountContext, val privateKey: InMemoryPrivateKe
                   , networkParameters: NetworkParameters
                   , coluNetworkParameters: org.bitcoinj.core.NetworkParameters
                   , coluClient: ColuApi
-                  , backing: AccountBacking<ColuTransaction>
+                  , accountBacking: AccountBacking<ColuTransaction>
+                  , backing: WalletBacking<ColuAccountContext, ColuTransaction>
                   , listener: AccountListener? = null)
     : ColuPubOnlyAccount(context, privateKey.publicKey, coluCoinType, networkParameters
-        , coluNetworkParameters, coluClient, backing, listener), ExportableAccount {
+        , coluNetworkParameters, coluClient, accountBacking, backing, listener), ExportableAccount {
 
     override fun broadcastOutgoingTransactions(): Boolean {
         return false
@@ -45,37 +44,40 @@ class ColuAccount(context: ColuAccountContext, val privateKey: InMemoryPrivateKe
         if (!request.isCompleted) {
             return
         }
+        if (request is ColuSendRequest) {
+            val txBytes: ByteArray?
+            try {
+                txBytes = Hex.decodeHex(request.txHex?.toCharArray())
+            } catch (e: org.apache.commons.codec.DecoderException) {
+                return
+            }
+            if (txBytes == null) {
+                return
+            }
 
-        val coluSendRequest = request as ColuSendRequest
-        val txBytes: ByteArray?
-        try {
-            txBytes = Hex.decodeHex(coluSendRequest.txHex?.toCharArray())
-        } catch (e: org.apache.commons.codec.DecoderException) {
-            return
-        }
-        if (txBytes == null) {
-            return
-        }
+            val signTx = org.bitcoinj.core.Transaction(coluNetworkParameters, Hex.decodeHex(request.txHex?.toCharArray()))
 
-        val signTx = org.bitcoinj.core.Transaction(coluNetworkParameters, Hex.decodeHex(request.txHex?.toCharArray()))
+            val privateKeyBytes = privateKey.privateKeyBytes
+            val publicKeyBytes = privateKey.publicKey.publicKeyBytes
+            val ecKey = ECKey.fromPrivateAndPrecalculatedPublic(privateKeyBytes, publicKeyBytes)
 
-        val privateKeyBytes = privateKey.privateKeyBytes
-        val publicKeyBytes = privateKey.publicKey.publicKeyBytes
-        val ecKey = ECKey.fromPrivateAndPrecalculatedPublic(privateKeyBytes, publicKeyBytes)
+            val inputScript = ScriptBuilder.createOutputScript(ecKey.toAddress(coluNetworkParameters))
 
-        val inputScript = ScriptBuilder.createOutputScript(ecKey.toAddress(coluNetworkParameters))
+            for (i in 0 until signTx.inputs.size) {
+                val signature = signTx.calculateSignature(i, ecKey, inputScript, org.bitcoinj.core.Transaction.SigHash.ALL, false)
+                val scriptSig = ScriptBuilder.createInputScript(signature, ecKey)
+                signTx.getInput(i.toLong()).scriptSig = scriptSig
+            }
 
-        for (i in 0 until signTx.inputs.size) {
-            val signature = signTx.calculateSignature(i, ecKey, inputScript, org.bitcoinj.core.Transaction.SigHash.ALL, false)
-            val scriptSig = ScriptBuilder.createInputScript(signature, ecKey)
-            signTx.getInput(i.toLong()).scriptSig = scriptSig
-        }
+            val signedTransactionBytes = signTx.bitcoinSerialize()
+            try {
+                request.setTransaction(Transaction.fromBytes(signedTransactionBytes))
+            } catch (e: Transaction.TransactionParsingException) {
+                return
+            }
 
-        val signedTransactionBytes = signTx.bitcoinSerialize()
-        try {
-            coluSendRequest.setTransaction(Transaction.fromBytes(signedTransactionBytes))
-        } catch (e: Transaction.TransactionParsingException) {
-            return
+        } else {
+            TODO("signTransaction not implemented for ${request.javaClass.simpleName}")
         }
     }
 

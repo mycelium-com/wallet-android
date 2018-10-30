@@ -414,7 +414,7 @@ public class MbwManager {
     }
 
     private Optional<ColuManager> createColuManager(final Context context) {
-        // Create persisted account backing
+        // Create persisted account accountBacking
         // we never talk directly to this class. Instead, we use SecureKeyValueStore API
         SqliteColuManagerBacking coluBacking = new SqliteColuManagerBacking(context);
 
@@ -630,7 +630,7 @@ public class MbwManager {
      * @return a new wallet manager instance
      */
     private WalletManager createWalletManager(final Context context, MbwEnvironment environment) {
-        // Create persisted account backing
+        // Create persisted account accountBacking
         WalletManagerBacking backing = new SqliteWalletManagerBackingWrapper(context);
 
         // Create persisted secure storage instance
@@ -777,7 +777,7 @@ public class MbwManager {
      * @return a new in memory backed wallet manager instance
      */
     private WalletManager createTempWalletManager(MbwEnvironment environment) {
-        // Create in-memory account backing
+        // Create in-memory account accountBacking
         WalletManagerBacking backing = new InMemoryWalletManagerBacking();
 
         // Create secure storage instance

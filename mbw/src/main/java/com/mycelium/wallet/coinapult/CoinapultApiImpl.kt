@@ -8,6 +8,7 @@ import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.WapiLogger
 import com.mycelium.wapi.wallet.GenericAddress
+import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.BtcLegacyAddress
 import com.mycelium.wapi.wallet.coinapult.CoinapultApi
 import com.mycelium.wapi.wallet.coinapult.CoinapultTransaction
@@ -117,14 +118,14 @@ class CoinapultApiImpl(val client: CoinapultClient, val logger: WapiLogger) : Co
                 if (currency == txCurrency) {
                     val data = it.tid.toByteArray().plus(ByteArray(Sha256Hash.HASH_LENGTH - it.tid.toByteArray().size))
                     tmpResult.add(CoinapultTransaction(Sha256Hash.of(data)
-                            , Value.valueOf(currency, half.amount.multiply(BigDecimal.TEN.pow(currency.getUnitExponent())).toLong())
+                            , Value.valueOf(currency, half.amount.multiply(BigDecimal.TEN.pow(currency.unitExponent)).toLong())
                             , isIncoming, it.completeTime, it.state, it.timestamp))
                 }
             }
         }
     }
 
-    override fun broadcast(amount: BigDecimal, currency: Currency, address: BtcLegacyAddress) {
+    override fun broadcast(amount: BigDecimal, currency: Currency, address: BtcAddress) {
         try {
             val send: Transaction.Json
             if (currency != Currency.BTC) {

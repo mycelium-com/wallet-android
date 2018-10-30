@@ -4,8 +4,6 @@ import com.mrd.bitlib.crypto.PublicKey
 import com.mrd.bitlib.model.AddressType
 import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.util.Sha256Hash
-import com.mycelium.wapi.model.BalanceSatoshis
-import com.mycelium.wapi.model.TransactionEx
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.BtcLegacyAddress
 import com.mycelium.wapi.wallet.coins.Balance
@@ -19,22 +17,22 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext, val publicKey: Pu
                               , val networkParameters: NetworkParameters
                               , val coluNetworkParameters: org.bitcoinj.core.NetworkParameters
                               , val coluClient: ColuApi
-                              , val backing: AccountBacking<ColuTransaction>
+                              , val accountBacking: AccountBacking<ColuTransaction>
+                              , val backing: WalletBacking<ColuAccountContext, ColuTransaction>
                               , val listener: AccountListener? = null) : WalletAccount<ColuTransaction, BtcLegacyAddress> {
     protected var address: GenericAddress
     protected var uuid: UUID
     @Volatile
     protected var _isSynchronizing: Boolean = false
 
-    protected var cachedBalance = Balance(Value.zeroValue(coinType), Value.zeroValue(coinType)
-            , Value.zeroValue(coinType), Value.zeroValue(coinType))
+    protected var cachedBalance: Balance
 
 
     init {
         val address1 = publicKey.toAddress(networkParameters, AddressType.P2PKH)!!
         address = AddressUtils.from(coluCoinType, address1.toString())
         uuid = ColuUtils.getGuidForAsset(coluCoinType, address1.allAddressBytes)
-        cachedBalance = calculateBalance(backing.getTransactions(0, 2000))
+        cachedBalance = calculateBalance(accountBacking.getTransactions(0, 2000))
     }
 
     override fun getId(): UUID = uuid
@@ -54,11 +52,11 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext, val publicKey: Pu
 
     override fun getTx(transactionId: Sha256Hash): ColuTransaction? {
         //        checkNotArchived()
-        return backing.getTx(transactionId)
+        return accountBacking.getTx(transactionId)
     }
 
     override fun getTransactions(offset: Int, limit: Int): List<ColuTransaction> {
-        return backing.getTransactions(offset, limit)
+        return accountBacking.getTransactions(offset, limit)
     }
 
     override fun getBlockChainHeight(): Int = context.blockHeight
@@ -94,7 +92,7 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext, val publicKey: Pu
         // retrieve history from colu server
         val transactions = coluClient.getAddressTransactions(receiveAddress)
         transactions?.let {
-            backing.putTransactions(transactions)
+            accountBacking.putTransactions(transactions)
             cachedBalance = calculateBalance(transactions)
             listener?.balanceUpdated(this)
         }
@@ -170,9 +168,15 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext, val publicKey: Pu
 
     override fun isActive() = !context.isArchived()
 
-    override fun archiveAccount() = context.setArchived(true)
+    override fun archiveAccount()  {
+        context.setArchived(true)
+        backing.updateAccountContext(context)
+    }
 
-    override fun activateAccount() = context.setArchived(false)
+    override fun activateAccount() {
+        context.setArchived(false)
+        backing.updateAccountContext(context)
+    }
 
     override fun dropCachedData() {
     }

@@ -126,6 +126,11 @@ public class InMemoryWalletManagerBacking implements WalletManagerBacking<Single
    }
 
    @Override
+   public void updateAccountContext(SingleAddressAccountContext singleAddressAccountContext) {
+
+   }
+
+   @Override
    public void deleteAccountContext(UUID uuid) {
       deleteSingleAddressAccountContext(uuid);
    }

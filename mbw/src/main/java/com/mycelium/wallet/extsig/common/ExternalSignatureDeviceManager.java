@@ -278,7 +278,7 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
 
          Transaction currentTx;
          if (txRequestDetailsType.hasTxHash()) {
-            // trezor requested information about a related tx - get it from the account backing
+            // trezor requested information about a related tx - get it from the account accountBacking
             Sha256Hash requestHash = Sha256Hash.of(txRequestDetailsType.getTxHash().toByteArray());
             currentTx = TransactionEx.toTransaction(forAccount.getTransaction(requestHash));
          } else {
