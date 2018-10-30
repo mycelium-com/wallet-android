@@ -8,10 +8,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.TextView;
+import android.widget.*;
 
 import com.google.api.client.util.Lists;
 import com.google.common.base.Preconditions;
@@ -20,6 +17,7 @@ import com.google.common.collect.Iterables;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.modern.ModernMain;
+import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 import java.util.List;
@@ -117,7 +115,11 @@ public class BuySellSelectActivity extends FragmentActivity {
          v.findViewById(R.id.llServiceRow).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               service.launchService(BuySellSelectActivity.this, mbwManager, ((WalletBtcAccount)(mbwManager.getSelectedAccount())).getReceivingAddress());
+               if(mbwManager.getSelectedAccount() instanceof WalletBtcAccount) {
+                  service.launchService(BuySellSelectActivity.this, mbwManager, ((WalletBtcAccount) (mbwManager.getSelectedAccount())).getReceivingAddress());
+               } else {
+                  Toast.makeText(context,"It's only for btc accounts",Toast.LENGTH_SHORT).show();
+               }
             }
          });
 

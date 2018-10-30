@@ -17,7 +17,7 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.GetAmountActivity
 import com.mycelium.wallet.activity.receive.ReceiveCoinsViewModel.Companion.GET_AMOUNT_RESULT_CODE
 import com.mycelium.wallet.coinapult.CoinapultAccount
-import com.mycelium.wallet.colu.ColuAccount
+import com.mycelium.wapi.wallet.colu.ColuAccount
 import com.mycelium.wallet.databinding.ReceiveCoinsActivityBinding
 import com.mycelium.wallet.databinding.ReceiveCoinsActivityBtcBinding
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
@@ -27,7 +27,6 @@ import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.currency.CurrencyValue
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount
 import kotlinx.android.synthetic.main.receive_coins_activity_qr.*
 import java.util.*
 
