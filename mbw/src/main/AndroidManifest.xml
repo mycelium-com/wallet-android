@@ -60,14 +60,6 @@
                 <category android:name="${applicationId}" />
             </intent-filter>
         </receiver>
-        <receiver android:name=".PackageRemovedReceiver">
-            <intent-filter>
-                <action android:name="android.intent.action.PACKAGE_ADDED"/>
-                <action android:name="android.intent.action.PACKAGE_REPLACED"/>
-                <action android:name="android.intent.action.PACKAGE_REMOVED"/>
-                <data android:scheme="package"/>
-            </intent-filter>
-        </receiver>
         <!-- file provider to enable secure intent sharing for encrypted backups -->
         <provider
             android:name="android.support.v4.content.FileProvider"

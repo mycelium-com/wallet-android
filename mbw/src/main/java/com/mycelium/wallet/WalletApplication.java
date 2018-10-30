@@ -107,6 +107,7 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         IntentFilter connectivityChangeFilter = new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE");
         initNetworkStateHandler(connectivityChangeFilter);
         registerActivityLifecycleCallbacks(new ApplicationLifecycleHandler());
+        PackageRemovedReceiver.register(getApplicationContext());
     }
 
     private void initNetworkStateHandler(IntentFilter connectivityChangeFilter) {
