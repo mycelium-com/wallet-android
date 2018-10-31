@@ -204,7 +204,7 @@ public class MbwManager {
     private Cache<String, Object> _semiPersistingBackgroundObjects = CacheBuilder.newBuilder().maximumSize(10).build();
 
     private WalletConfiguration configuration;
-    private final GEBHelper _gebHelper;
+    private final GEBHelper _gebHelper = null;
 
     private MbwManager(Context evilContext) {
         Queue<LogEntry> unsafeWapiLogs = EvictingQueue.create(100);
@@ -283,7 +283,7 @@ public class MbwManager {
             fiatCurrencies.addAll(currencyList);
         }
 
-        _exchangeRateManager = new ExchangeRateManager(_applicationContext, _wapi, getNetwork(), getMetadataStorage());
+        _exchangeRateManager = new ExchangeRateManager(_applicationContext, _wapi, getMetadataStorage());
         _currencySwitcher = new CurrencySwitcher(
             _exchangeRateManager,
             fiatCurrencies,
@@ -305,7 +305,7 @@ public class MbwManager {
         _keepkeyManager = new KeepKeyManager(_applicationContext, getNetwork(), getEventBus());
         _ledgerManager = new LedgerManager(_applicationContext, getNetwork(), getEventBus());
         _walletManager = createWalletManager(_applicationContext, _environment);
-        _gebHelper = new GEBHelper(_applicationContext);
+        //_gebHelper = new GEBHelper(_applicationContext);
 
         _eventTranslator = new EventTranslator(handler, _eventBus);
         _exchangeRateManager.subscribe(_eventTranslator);

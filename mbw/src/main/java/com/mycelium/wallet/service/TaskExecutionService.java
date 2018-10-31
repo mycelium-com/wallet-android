@@ -50,7 +50,6 @@ import com.mycelium.wallet.HttpErrorCollector;
 import com.mycelium.wallet.MbwManager;
 
 public class TaskExecutionService extends Service {
-
    private HttpErrorCollector _httpErrorCollector;
 
    public static final int MSG_START = 1;

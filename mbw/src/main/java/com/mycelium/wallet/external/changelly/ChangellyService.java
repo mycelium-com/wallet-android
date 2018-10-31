@@ -1,34 +1,33 @@
 package com.mycelium.wallet.external.changelly;
 
 import android.app.IntentService;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.support.annotation.Nullable;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
-import android.text.TextUtils;
 import android.util.Log;
 
+import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.external.changelly.ChangellyAPIService.ChangellyAnswerDouble;
-import com.mycelium.wallet.external.changelly.ChangellyAPIService.ChangellyAnswerListString;
 import com.mycelium.wallet.external.changelly.ChangellyAPIService.ChangellyTransaction;
 import com.mycelium.wallet.external.changelly.ChangellyAPIService.ChangellyTransactionOffer;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import retrofit2.Call;
 
 public class ChangellyService extends IntentService {
     private static final String LOG_TAG="ChangellyService";
     private static final String PACKAGE_NAME = "com.mycelium.wallet.external.changelly";
-    public static final String ACTION_GET_CURRENCIES = PACKAGE_NAME + ".GETCURRENCIES";
-    public static final String ACTION_GET_MIN_EXCHANGE = PACKAGE_NAME + ".GETMINEXCHANGE";
     public static final String ACTION_GET_EXCHANGE_AMOUNT = PACKAGE_NAME + ".GETEXCHANGEAMOUNT";
     public static final String ACTION_CREATE_TRANSACTION = PACKAGE_NAME + ".CREATETRANSACTION";
 
-    public static final String INFO_CURRENCIES = PACKAGE_NAME + ".INFOCURRENCIES";
-    public static final String INFO_MIN_AMOUNT = PACKAGE_NAME + ".INFOMINAMOUNT";
     public static final String INFO_EXCH_AMOUNT = PACKAGE_NAME + ".INFOEXCHAMOUNT";
     public static final String INFO_TRANSACTION = PACKAGE_NAME + ".INFOTRANSACTION";
     public static final String INFO_ERROR       = PACKAGE_NAME + ".INFOERROR";
@@ -36,7 +35,6 @@ public class ChangellyService extends IntentService {
     public static final String BCH = "BCH";
     public static final String BTC = "BTC";
 
-    public static final String CURRENCIES = "CURRENCIES";
     public static final String FROM = "FROM";
     public static final String TO = "TO";
     public static final String AMOUNT = "AMOUNT";
@@ -46,40 +44,48 @@ public class ChangellyService extends IntentService {
 
     private ChangellyAPIService changellyAPIService = ChangellyAPIService.retrofit.create(ChangellyAPIService.class);
 
-    private List<String> currencies;
-
     public ChangellyService() {
         super("ChangellyService");
     }
 
-    private void loadCurrencies() {
-        // 1. request list of supported currencies
-        try {
-            ChangellyAnswerListString result = changellyAPIService.getCurrencies().execute().body();
-            String currs = "";
-            if(result != null && result.result != null) {
-                currencies = result.result;
-                currs = TextUtils.join(" ", currencies);
-            }
-            Log.d(LOG_TAG, "Active currencies: " + currs);
-        } catch (IOException e) {
-            e.printStackTrace();
+    public static void start(Context context, String action, String fromCurrency, String toCurrency, Double amount, Address destinationAddress) {
+        Intent intent = new Intent(context, ChangellyService.class).setAction(action);
+        if (fromCurrency != null) {
+            intent.putExtra(ChangellyService.FROM, fromCurrency);
+        }
+        if (toCurrency != null) {
+            intent.putExtra(ChangellyService.TO, toCurrency);
+        }
+        if (amount != null) {
+            intent.putExtra(ChangellyService.AMOUNT, amount);
+        }
+        if (destinationAddress != null) {
+            intent.putExtra(ChangellyService.DESTADDRESS, destinationAddress.toString());
+        }
+        if (Build.VERSION.SDK_INT >= 26) {
+            context.startForegroundService(intent);
+        } else {
+            context.startService(intent);
         }
     }
 
-    private double getMinAmount(String from, String to) {
-        // 2. ask for minimum amount to exchange
-        Call<ChangellyAnswerDouble> call2 = changellyAPIService.getMinAmount(from, to);
-        try {
-            ChangellyAnswerDouble result = call2.execute().body();
-            if(result != null) {
-                Log.d("MyceliumChangelly", "Minimum amount " + from + to + ": " + result.result);
-                return result.result;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        if (Build.VERSION.SDK_INT >= 26) {
+            String CHANNEL_ID = "some channel name 1";
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID,
+                    "Channel human readable title",
+                    NotificationManager.IMPORTANCE_DEFAULT);
+
+            ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).createNotificationChannel(channel);
+
+            Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
+                    .setContentTitle("ContentTitle")
+                    .setContentText("ContentText").build();
+
+            startForeground(1, notification);
         }
-        return -1;
     }
 
     private double getExchangeAmount(String from, String to, double amount) {
@@ -129,43 +135,6 @@ public class ChangellyService extends IntentService {
             String from, to, destAddress;
             double amount;
             switch(intent.getAction()) {
-                case ACTION_GET_CURRENCIES:
-                    if(currencies == null) { // TODO: check freshness || dateCurrencies.before(new Date())) {
-                        loadCurrencies();
-                    }
-                    // if failed to load, return error
-                    if(currencies == null || currencies.size() == 0) {
-
-                        Intent errorIntent = new Intent(ChangellyService.INFO_ERROR, null,
-                                this, ChangellyService.class);
-                        LocalBroadcastManager.getInstance(this).sendBroadcast(errorIntent);
-                        break;
-                    }
-                    Intent currenciesIntent = new Intent(ChangellyService.INFO_CURRENCIES, null, this,
-                            ChangellyService.class);
-                    currenciesIntent.putExtra(CURRENCIES, currencies.toArray());
-                    currenciesIntent.putStringArrayListExtra(CURRENCIES, new ArrayList<>(currencies));
-                    LocalBroadcastManager.getInstance(this).sendBroadcast(currenciesIntent);
-                    break;
-                case ACTION_GET_MIN_EXCHANGE:
-                    from = intent.getStringExtra(FROM);
-                    to = intent.getStringExtra(TO);
-                    double min = getMinAmount(from, to);
-                    if(min == -1) {
-                        // service unavailable
-                        Intent errorIntent = new Intent(ChangellyService.INFO_ERROR, null,
-                                this, ChangellyService.class);
-                        LocalBroadcastManager.getInstance(this).sendBroadcast(errorIntent);
-                        return;
-                    }
-                    // service available
-                    Intent minAmountIntent = new Intent(ChangellyService.INFO_MIN_AMOUNT, null,
-                            this, ChangellyService.class);
-                        minAmountIntent.putExtra(FROM, from);
-                        minAmountIntent.putExtra(TO, to);
-                        minAmountIntent.putExtra(AMOUNT, min);
-                    LocalBroadcastManager.getInstance(this).sendBroadcast(minAmountIntent);
-                    break;
                 case ACTION_GET_EXCHANGE_AMOUNT:
                     from = intent.getStringExtra(FROM);
                     to = intent.getStringExtra(TO);
@@ -180,11 +149,11 @@ public class ChangellyService extends IntentService {
                     }
                     // service available
                     Intent exchangeAmountIntent = new Intent(ChangellyService.INFO_EXCH_AMOUNT, null,
-                            this, ChangellyService.class);
-                    exchangeAmountIntent.putExtra(FROM, from);
-                    exchangeAmountIntent.putExtra(TO, to);
-                    exchangeAmountIntent.putExtra(FROM_AMOUNT, amount);
-                    exchangeAmountIntent.putExtra(AMOUNT, offer);
+                            this, ChangellyService.class)
+                            .putExtra(FROM, from)
+                            .putExtra(TO, to)
+                            .putExtra(FROM_AMOUNT, amount)
+                            .putExtra(AMOUNT, offer);
                     LocalBroadcastManager.getInstance(this).sendBroadcast(exchangeAmountIntent);
                     break;
                 case ACTION_CREATE_TRANSACTION:

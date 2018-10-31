@@ -255,23 +255,13 @@ public class ConfirmExchangeFragment extends Fragment {
 
 
     private void createOffer() {
-        Intent changellyServiceIntent = new Intent(getActivity(), ChangellyService.class)
-                .setAction(ChangellyService.ACTION_CREATE_TRANSACTION)
-                .putExtra(ChangellyService.FROM, ChangellyService.BCH)
-                .putExtra(ChangellyService.TO, ChangellyService.BTC)
-                .putExtra(ChangellyService.AMOUNT, sentAmount)
-                .putExtra(ChangellyService.DESTADDRESS, toAccount.getReceivingAddress().get().toString());
-        getActivity().startService(changellyServiceIntent);
-
+        ChangellyService.start(getActivity(), ChangellyService.ACTION_CREATE_TRANSACTION,
+                ChangellyService.BCH, ChangellyService.BTC, sentAmount, toAccount.getReceivingAddress().get());
     }
 
     private void getRate() {
-        Intent changellyServiceIntent = new Intent(getActivity(), ChangellyService.class)
-                .setAction(ChangellyService.ACTION_GET_EXCHANGE_AMOUNT)
-                .putExtra(ChangellyService.FROM, ChangellyService.BCH)
-                .putExtra(ChangellyService.TO, ChangellyService.BTC)
-                .putExtra(ChangellyService.AMOUNT, sentAmount);
-        getActivity().startService(changellyServiceIntent);
+        ChangellyService.start(getActivity(), ChangellyService.ACTION_GET_EXCHANGE_AMOUNT,
+                ChangellyService.BCH, ChangellyService.BTC, sentAmount, null);
     }
 
     private void updateUI() {

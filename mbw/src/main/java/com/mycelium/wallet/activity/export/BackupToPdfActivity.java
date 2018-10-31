@@ -206,7 +206,6 @@ public class BackupToPdfActivity extends Activity implements TaskExecutionServic
        */
       @Override
       public void run() {
-
          if (_oomDetected) {
             ((TextView) findViewById(R.id.tvProgress)).setText("");
             ((TextView) findViewById(R.id.tvStatus)).setText(R.string.out_of_memory_error);
@@ -260,9 +259,18 @@ public class BackupToPdfActivity extends Activity implements TaskExecutionServic
    }
 
    private static String replaceInvalidFileNameChars(String name) {
-      return name.replace(':', '.').replace(' ', '-').replace('\\', '-').replace('/', '-').replace('*', '-')
-            .replace('?', '-').replace('"', '-').replace('\'', '-').replace('<', '-').replace('>', '-')
-            .replace('|', '-');
+      return name
+              .replace(':', '.')
+              .replace(' ', '-')
+              .replace('\\', '-')
+              .replace('/', '-')
+              .replace('*', '-')
+              .replace('?', '-')
+              .replace('"', '-')
+              .replace('\'', '-')
+              .replace('<', '-')
+              .replace('>', '-')
+              .replace('|', '-');
    }
 
    private String getFullExportFilePath() {

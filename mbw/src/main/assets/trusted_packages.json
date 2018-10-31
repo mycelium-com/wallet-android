@@ -15,7 +15,7 @@
     {
       "name": "com.mycelium.module.spvbch.testnet.debug",
       "signature": "gz35r0bqdqhXMguVc8UR2+QRbboJFKgr/FzEKO5OoW8="
-    },
+/*    },
     {
       "name": "com.modules.tradingbots.getextrabtc",
       "signature": "ac9IWNw15F1Uv1S+EDhNPD7ASe44h9JJYK+S+B3jqh4="
@@ -30,7 +30,7 @@
     },
     {
       "name": "com.modules.tradingbots.getextrabtc.testnet.debug",
-      "signature": "JCkJWbAgt5ZfIoYsoZRGDeVDR3qqJ3xGODirYUVY1TA="
+      "signature": "JCkJWbAgt5ZfIoYsoZRGDeVDR3qqJ3xGODirYUVY1TA="*/
     }
   ]
 }
