@@ -66,6 +66,7 @@ import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount;
@@ -182,13 +183,14 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       if (destinationAddress == null) {
          destinationAddress = Address.getNullAddress(_mbwManager.getNetwork());
       }
-      //_maxSpendableAmount = _account.calculateMaxSpendableAmount(_kbMinerFee, destinationAddress);
-      //showMaxAmount();
+      //todo: get units from account
+      _maxSpendableAmount = Value.valueOf(_account.getCoinType(), _account.getAccountBalance().getSpendable().value); //_account.calculateMaxSpendableAmount(_kbMinerFee, destinationAddress);
+      showMaxAmount();
 
       // if no amount is set, create an null amount with the correct currency
       if (_amount == null) {
          // todo get generic value (BTC/ETH) ? using _account.getAccountDefaultCurrency()
-         _amount = Value.valueOf(BitcoinTest.get(), 0);
+         _amount = Value.valueOf(_mbwManager.getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get(), 0);
          updateUI();
       }
 
@@ -393,7 +395,8 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
    }
 
    private void showMaxAmount() {
-      Value maxSpendable = Value.valueOf(BitcoinTest.get(), _maxSpendableAmount.value);
+      Value maxSpendable = Value.valueOf(_mbwManager.getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get(),
+              _account.getAccountBalance().getSpendable().value);
       // todo was Value.fromValue(_maxSpendableAmount, _amount.getCurrencySymbol(), _mbwManager.getExchangeRateManager());
 
       String maxBalanceString = "";

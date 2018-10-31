@@ -72,6 +72,10 @@ public class UnspentOutputsActivity extends Activity {
    private void updateUi() {
       LinearLayout outputView = findViewById(R.id.listUnspentOutputs);
       WalletAccount account = _mbwManager.getWalletManager(false).getAccount(_accountid);
+      if(!(account instanceof WalletBtcAccount)){
+         findViewById(R.id.tvNoOutputs).setVisibility(View.VISIBLE);
+         return;
+      }
       List<TransactionOutputSummary> outputs = ((WalletBtcAccount)account).getUnspentTransactionOutputSummary();
 
       if (outputs.isEmpty()) {
