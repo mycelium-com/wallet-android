@@ -2,18 +2,12 @@ package com.mycelium.wallet.external.changelly.bch;
 
 
 import android.app.Fragment;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -38,7 +32,7 @@ import com.mycelium.wallet.activity.view.ValueKeyboard;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.external.changelly.AccountAdapter;
 import com.mycelium.wallet.external.changelly.ChangellyAPIService;
-import com.mycelium.wallet.external.changelly.ChangellyService;
+import com.mycelium.wallet.external.changelly.ChangellyAPIService.ChangellyAnswerDouble;
 import com.mycelium.wallet.external.changelly.Constants;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bip44.Bip44BCHAccount;
@@ -64,7 +58,8 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import static butterknife.OnTextChanged.Callback.AFTER_TEXT_CHANGED;
-import static com.mycelium.wallet.external.changelly.ChangellyService.INFO_ERROR;
+import static com.mycelium.wallet.external.changelly.ChangellyAPIService.BCH;
+import static com.mycelium.wallet.external.changelly.ChangellyAPIService.BTC;
 import static com.mycelium.wallet.external.changelly.Constants.ABOUT;
 import static com.mycelium.wallet.external.changelly.Constants.decimalFormat;
 import static com.mycelium.wapi.wallet.bip44.HDAccountContext.ACCOUNT_TYPE_FROM_MASTERSEED;
@@ -132,7 +127,6 @@ public class ExchangeFragment extends Fragment {
 
     private double minAmount = NOT_LOADED;
     private boolean avoidTextChangeEvent = false;
-    private Receiver receiver;
     private SharedPreferences sharedPreferences;
 
     private double bchToBtcRate = 0;
@@ -142,18 +136,10 @@ public class ExchangeFragment extends Fragment {
         super.onCreate(savedInstanceState);
         mbwManager = MbwManager.getInstance(getActivity());
         setRetainInstance(true);
-        receiver = new Receiver();
-        for (String action : new String[]{
-                ChangellyService.INFO_EXCH_AMOUNT,
-                ChangellyService.INFO_ERROR}) {
-            IntentFilter intentFilter = new IntentFilter(action);
-            LocalBroadcastManager.getInstance(getActivity()).registerReceiver(receiver, intentFilter);
-        }
         sharedPreferences = getActivity().getSharedPreferences(BCH_EXCHANGE, Context.MODE_PRIVATE);
         minAmount = (double) sharedPreferences.getFloat(BCH_MIN_EXCHANGE_VALUE, NOT_LOADED);
-        changellyAPIService.getMinAmount(ChangellyService.BCH, ChangellyService.BTC)
-                .enqueue(new GetMinCallback());
-        requestExchangeRate("1", ChangellyService.BCH, ChangellyService.BTC);
+        changellyAPIService.getMinAmount(BCH, BTC).enqueue(new GetMinCallback());
+        requestExchangeRate("1");
     }
 
     @Nullable
@@ -298,7 +284,7 @@ public class ExchangeFragment extends Fragment {
                     .getAccount((UUID) savedInstanceState.getSerializable(FROM_ACCOUNT)));
             toRecyclerView.setSelectedItem(mbwManager.getWalletManager(false)
                     .getAccount((UUID) savedInstanceState.getSerializable(TO_ACCOUNT)));
-            requestExchangeRate(getFromExcludeFee().toPlainString(), ChangellyService.BCH, ChangellyService.BTC);
+            requestExchangeRate(getFromExcludeFee().toPlainString());
         }
     }
 
@@ -377,7 +363,7 @@ public class ExchangeFragment extends Fragment {
         isValueForOfferOk(true);
         if (!avoidTextChangeEvent && !fromValue.getText().toString().isEmpty()) {
             try {
-                requestExchangeRate(getFromExcludeFee().toPlainString(), ChangellyService.BCH, ChangellyService.BTC);
+                requestExchangeRate(getFromExcludeFee().toPlainString());
             } catch (IllegalArgumentException e) {
                 Log.e(TAG, e.getMessage(), e);
             }
@@ -429,7 +415,7 @@ public class ExchangeFragment extends Fragment {
         updateUi();
     }
 
-    private void requestExchangeRate(String amount, String fromCurrency, String toCurrency) {
+    private void requestExchangeRate(String amount) {
         Double dblAmount;
         try {
             dblAmount = Double.parseDouble(amount);
@@ -437,8 +423,7 @@ public class ExchangeFragment extends Fragment {
             Toast.makeText(getActivity(), "Error parsing double values", Toast.LENGTH_SHORT).show();
             return;
         }
-        ChangellyService.start(getActivity(), ChangellyService.ACTION_GET_EXCHANGE_AMOUNT,
-                fromCurrency, toCurrency, dblAmount, null);
+        changellyAPIService.getExchangeAmount(BCH, BTC, dblAmount).enqueue(new GetOfferCallback(dblAmount));
     }
 
     private double calculateBTCtoBHC(String amount) {
@@ -546,79 +531,15 @@ public class ExchangeFragment extends Fragment {
         Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT).show();
     }
 
-    @Override
-    public void onDestroy() {
-        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(receiver);
-        super.onDestroy();
-    }
-
-    class Receiver extends BroadcastReceiver {
-        private Receiver() {
-        }  // prevents instantiation
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String from, to;
-            double amount;
-
-            switch (intent.getAction()) {
-                case ChangellyService.INFO_EXCH_AMOUNT:
-                    from = intent.getStringExtra(ChangellyService.FROM);
-                    to = intent.getStringExtra(ChangellyService.TO);
-                    double fromAmount = intent.getDoubleExtra(ChangellyService.FROM_AMOUNT, 0);
-                    amount = intent.getDoubleExtra(ChangellyService.AMOUNT, 0);
-
-                    if (from != null && to != null) {
-                        Log.d(TAG, "Received offer: " + amount + " " + to);
-                        avoidTextChangeEvent = true;
-                        if (to.equalsIgnoreCase(ChangellyService.BTC)
-                                && from.equalsIgnoreCase(ChangellyService.BCH)) {
-                            try {
-                                if (fromAmount == getFromExcludeFee().doubleValue()) {
-                                    toValue.setText(decimalFormat.format(amount));
-                                }
-                            } catch (NumberFormatException ignore) {
-                            }
-                            if (fromAmount != 0 && amount != 0) {
-                                bchToBtcRate = amount / fromAmount;
-                                exchangeRate.setText("1 BCH ~ " + decimalFormat.format(bchToBtcRate) + " BTC");
-                                exchangeRate.setVisibility(View.VISIBLE);
-                            }
-                        }
-                        isValueForOfferOk(true);
-
-                        avoidTextChangeEvent = false;
-                        updateUi();
-                    }
-                    break;
-                case INFO_ERROR:
-                    new AlertDialog.Builder(getActivity(), R.style.MyceliumModern_Dialog)
-                            .setMessage(getString(R.string.exchange_rate_unavailable_msg))
-                            .setNegativeButton(R.string.button_cancel, null)
-                            .setPositiveButton(R.string.try_again, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    try {
-                                        requestExchangeRate(getFromExcludeFee().toPlainString(), ChangellyService.BCH, ChangellyService.BTC);
-                                    } catch (IllegalArgumentException e) {
-                                        Log.e(TAG, e.getMessage(), e);
-                                    }
-                                }
-                            }).show();
-                    break;
-            }
-        }
-    }
-
     @Subscribe
     public void exchangeRatesRefreshed(ExchangeRatesRefreshed event) {
         updateUi();
     }
 
-    class GetMinCallback implements Callback<ChangellyAPIService.ChangellyAnswerDouble> {
+    class GetMinCallback implements Callback<ChangellyAnswerDouble> {
         @Override
-        public void onResponse(@NonNull Call<ChangellyAPIService.ChangellyAnswerDouble> call, Response<ChangellyAPIService.ChangellyAnswerDouble> response) {
-            ChangellyAPIService.ChangellyAnswerDouble result = response.body();
+        public void onResponse(@NonNull Call<ChangellyAnswerDouble> call, @NonNull Response<ChangellyAnswerDouble> response) {
+            ChangellyAnswerDouble result = response.body();
             if(result == null || result.result == NOT_LOADED) {
                 Log.e("MyceliumChangelly", "Minimum amount could not be retrieved");
                 Toast.makeText(getActivity(),
@@ -636,10 +557,47 @@ public class ExchangeFragment extends Fragment {
         }
 
         @Override
-        public void onFailure(Call<ChangellyAPIService.ChangellyAnswerDouble> call, Throwable t) {
-            Toast.makeText(getActivity(),
-                    "Service unavailable",
-                    Toast.LENGTH_LONG).show();
+        public void onFailure(@NonNull Call<ChangellyAnswerDouble> call, @NonNull Throwable t) {
+            toast("Service unavailable");
+        }
+    }
+
+    class GetOfferCallback implements Callback<ChangellyAnswerDouble> {
+        double fromAmount;
+
+        GetOfferCallback(double fromAmount) {
+            this.fromAmount = fromAmount;
+        }
+
+        @Override
+        public void onResponse(@NonNull Call<ChangellyAnswerDouble> call,
+                               @NonNull Response<ChangellyAnswerDouble> response) {
+            ChangellyAnswerDouble result = response.body();
+            if(result != null) {
+                double amount = result.result;
+                avoidTextChangeEvent = true;
+                try {
+                    if (fromAmount == getFromExcludeFee().doubleValue()) {
+                        toValue.setText(decimalFormat.format(amount));
+                    }
+                } catch (NumberFormatException ignore) {
+                }
+                if (fromAmount != 0 && amount != 0) {
+                    bchToBtcRate = amount / fromAmount;
+                    exchangeRate.setText("1 BCH ~ " + decimalFormat.format(bchToBtcRate) + " BTC");
+                    exchangeRate.setVisibility(View.VISIBLE);
+                }
+                isValueForOfferOk(true);
+
+                avoidTextChangeEvent = false;
+                updateUi();
+            }
+        }
+
+        @Override
+        public void onFailure(@NonNull Call<ChangellyAnswerDouble> call,
+                              @NonNull Throwable t) {
+            toast("Service unavailable");
         }
     }
 }
