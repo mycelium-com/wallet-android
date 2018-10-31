@@ -151,8 +151,8 @@
   <string name="my_accounts">我的帳戶</string>
   <string name="foreign_addresses">通訊錄</string>
   <string name="confirm_delete_pk_title">您確定嗎？</string>
-  <string name="confirm_delete_pk_with_balance">这不能被撤销!\n\n當前地址:\n%1$s\n\n它包含 %2$s\n\n您想要删除它吗?</string>
-  <string name="confirm_delete_pk_without_balance">此操作不能被撤销!\n\n當前地址:\n%1$s\n\n您想要删除它吗?</string>
+  <!-- string name="confirm_delete_pk_with_balance">这不能被撤销!\n\n當前地址:\n%1$s\n\n它包含 %2$s\n\n您想要删除它吗?</string>
+  <string name="confirm_delete_pk_without_balance">此操作不能被撤销!\n\n當前地址:\n%1$s\n\n您想要删除它吗?</string -->
   <string name="verify_private_key_backup">驗證備份</string>
   <string name="verify_backup_dialog_title">驗證密鑰備份</string>
   <string name="verify_backup_scan_desc">通過掃描私鑰或主種子的QR代碼來驗證您的備份。 \n接受多種格式，包括Mycelium的紙質備份。</string>
