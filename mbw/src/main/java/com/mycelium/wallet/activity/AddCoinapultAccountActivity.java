@@ -53,8 +53,6 @@ import android.widget.Toast;
 import com.google.common.base.Optional;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.coinapult.CoinapultAccount;
-import com.mycelium.wallet.coinapult.CoinapultManager;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.api.response.Feature;
@@ -97,9 +95,9 @@ public class AddCoinapultAccountActivity extends Activity {
       _mbwManager = MbwManager.getInstance(this);
       ButterKnife.bind(this);
 
-      btCoinapultAddUSD.setText(getString(R.string.coinapult_currency_account, CoinapultAccount.Currency.USD.name));
-      btCoinapultAddEUR.setText(getString(R.string.coinapult_currency_account, CoinapultAccount.Currency.EUR.name));
-      btCoinapultAddGBP.setText(getString(R.string.coinapult_currency_account, CoinapultAccount.Currency.GBP.name));
+      btCoinapultAddUSD.setText(getString(R.string.coinapult_currency_account, Currency.USD.getName()));
+      btCoinapultAddEUR.setText(getString(R.string.coinapult_currency_account, Currency.EUR.getName()));
+      btCoinapultAddGBP.setText(getString(R.string.coinapult_currency_account, Currency.GBP.getName()));
 
       setTosLink(tvTosLink);
    }

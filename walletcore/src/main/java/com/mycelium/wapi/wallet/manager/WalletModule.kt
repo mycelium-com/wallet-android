@@ -1,5 +1,6 @@
 package com.mycelium.wapi.wallet.manager
 
+import com.mycelium.wapi.wallet.KeyCipher
 import com.mycelium.wapi.wallet.WalletAccount
 import java.util.*
 
@@ -12,5 +13,5 @@ interface WalletModule {
 
     fun canCreateAccount(config: Config): Boolean
 
-    fun deleteAccount(walletAccount: WalletAccount<*, *>): Boolean
+    fun deleteAccount(walletAccount: WalletAccount<*, *>, keyCipher: KeyCipher): Boolean
 }

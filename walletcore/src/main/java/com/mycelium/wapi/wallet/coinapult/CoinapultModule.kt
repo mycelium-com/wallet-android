@@ -2,10 +2,7 @@ package com.mycelium.wapi.wallet.coinapult
 
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.model.NetworkParameters
-import com.mycelium.wapi.wallet.AccountListener
-import com.mycelium.wapi.wallet.SyncMode
-import com.mycelium.wapi.wallet.WalletAccount
-import com.mycelium.wapi.wallet.WalletBacking
+import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.manager.Config
 import com.mycelium.wapi.wallet.manager.WalletModule
 import java.util.*
@@ -41,7 +38,6 @@ class CoinapultModule(val accountKey: InMemoryPrivateKey
             result = CoinapultAccount(context, accountKey
                     , api, backing.getAccountBacking(id), networkParameters, config.currency, listener)
         }
-        result?.synchronize(SyncMode.NORMAL)
         return result
     }
 
@@ -49,7 +45,7 @@ class CoinapultModule(val accountKey: InMemoryPrivateKey
         return config is CoinapultConfig
     }
 
-    override fun deleteAccount(walletAccount: WalletAccount<*, *>): Boolean {
+    override fun deleteAccount(walletAccount: WalletAccount<*, *>, keyCipher: KeyCipher): Boolean {
         backing.deleteAccountContext(walletAccount.id)
         return true
     }

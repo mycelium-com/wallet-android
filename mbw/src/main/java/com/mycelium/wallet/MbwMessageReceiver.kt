@@ -325,14 +325,16 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
 
     private fun notifySatoshisReceived() {
         val mds = MbwManager.getInstance(context).metadataStorage
+        val walletManager = MbwManager.getInstance(context).getWalletManager(false)
+
         @SuppressWarnings("deprecation") // the non-deprecated alternative requires min API level 26
         val builder = Notification.Builder(context)
                 // TODO: bitcoin icon
                 .setSmallIcon(R.drawable.holo_dark_ic_action_new_usd_account)
                 .setContentTitle(context.getString(R.string.app_name))
         var contentText = ""
-        for (account in AccountManager.getBCHBip44Accounts().values +
-                AccountManager.getBCHSingleAddressAccounts().values) {
+        for (account in walletManager.getBCHBip44Accounts() +
+                walletManager.getBCHSingleAddressAccounts()) {
             if (account.accountBalance.pendingReceiving.isPositive) {
                 contentText += buildLine(R.string.receiving, account.accountBalance.pendingReceiving
                         , mds.getLabelByAccount(account.id))

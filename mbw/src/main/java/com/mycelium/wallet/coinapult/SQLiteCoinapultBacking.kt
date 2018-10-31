@@ -11,12 +11,14 @@ import com.mycelium.wallet.persistence.SQLiteQueryWithBlobs
 import com.mycelium.wallet.persistence.SQLiteQueryWithBlobs.uuidToBytes
 import com.mycelium.wapi.wallet.AccountBacking
 import com.mycelium.wapi.wallet.WalletBacking
-import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.BtcLegacyAddress
 import com.mycelium.wapi.wallet.coinapult.CoinapultAccountContext
 import com.mycelium.wapi.wallet.coinapult.CoinapultTransaction
 import com.mycelium.wapi.wallet.coinapult.CoinapultUtils
 import com.mycelium.wapi.wallet.coinapult.Currency
+import java.io.ByteArrayOutputStream
+import java.io.IOException
+import java.io.ObjectOutputStream
 import java.util.*
 
 
@@ -26,7 +28,8 @@ class SQLiteCoinapultBacking(val context: Context
     : WalletBacking<CoinapultAccountContext, CoinapultTransaction> {
     val database: SQLiteDatabase
 
-    private val insertOrReplaceSingleAddressAccount: SQLiteStatement
+    private val insertOrReplaceAccount: SQLiteStatement
+    private val updateAccount: SQLiteStatement
 
     private var backings = mutableMapOf<UUID, SQLiteCoinapultAccountBacking>()
 
@@ -46,13 +49,14 @@ class SQLiteCoinapultBacking(val context: Context
         }
         database = helper.writableDatabase
 
-        insertOrReplaceSingleAddressAccount = database.compileStatement("INSERT OR REPLACE INTO coinapultcontext VALUES (?,?,?,?)")
+        insertOrReplaceAccount = database.compileStatement("INSERT OR REPLACE INTO coinapultcontext VALUES (?,?,?,?)")
+        updateAccount = database.compileStatement("UPDATE coinapultcontext SET archived=?,address=? WHERE id=?")
     }
 
     override fun createAccountContext(context: CoinapultAccountContext) {
         database.beginTransaction()
         try {
-            // Create backing tables
+            // Create accountBacking tables
             var backing = backings[context.id]
             if (backing == null) {
                 createAccountBackingTables(context.id, database)
@@ -61,16 +65,33 @@ class SQLiteCoinapultBacking(val context: Context
             }
 
             // Create context
-            insertOrReplaceSingleAddressAccount.bindBlob(1, uuidToBytes(context.id))
-            insertOrReplaceSingleAddressAccount.bindBlob(2, context.address.getBytes())
-            insertOrReplaceSingleAddressAccount.bindLong(3, (if (context.isArchived()) 1 else 0).toLong())
-            insertOrReplaceSingleAddressAccount.bindString(4, context.currency.name)
-            insertOrReplaceSingleAddressAccount.executeInsert()
+            insertOrReplaceAccount.bindBlob(1, uuidToBytes(context.id))
+            insertOrReplaceAccount.bindBlob(2, context.address.getBytes())
+            insertOrReplaceAccount.bindLong(3, (if (context.isArchived()) 1 else 0).toLong())
+            insertOrReplaceAccount.bindString(4, context.currency.name)
+            insertOrReplaceAccount.executeInsert()
             database.setTransactionSuccessful()
         } finally {
             database.endTransaction()
         }
     }
+
+    override fun updateAccountContext(context: CoinapultAccountContext) {
+        database.beginTransaction()
+        try {
+            // "UPDATE single SET archived=?,blockheight=? WHERE id=?"
+            updateAccount.bindLong(1, (if (context.isArchived()) 1 else 0).toLong())
+            updateAccount.bindBlob(2, context.address.getBytes())
+            updateAccount.bindBlob(3, uuidToBytes(context.id))
+            updateAccount.execute()
+            database.setTransactionSuccessful()
+        } catch (ignore: IOException) {
+            // ignore
+        } finally {
+            database.endTransaction()
+        }
+    }
+
 
     private fun createAccountBackingTables(id: UUID, db: SQLiteDatabase) {
         val tableSuffix = HexUtils.toHex(uuidToBytes(id))

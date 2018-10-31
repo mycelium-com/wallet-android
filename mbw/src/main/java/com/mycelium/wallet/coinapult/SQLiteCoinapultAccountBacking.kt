@@ -50,7 +50,7 @@ class SQLiteCoinapultAccountBacking(id: UUID, val database: SQLiteDatabase) : Ac
                         out.flush()
                         txData = bos.toByteArray()
                     } catch (e: IOException) {
-                        Log.e("colu backing", "", e)
+                        Log.e("colu accountBacking", "", e)
                     } finally {
                         try {
                             bos.close()

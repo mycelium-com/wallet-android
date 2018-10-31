@@ -50,10 +50,9 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
     private inner class DataUpdateAsyncTask : AsyncTask<Void, List<AccountsGroupModel>, List<AccountsGroupModel>>() {
         override fun doInBackground(vararg voids: Void): List<AccountsGroupModel> {
             val walletManager = mbwManager.getWalletManager(false)
-            val am = AccountManager
             val accountsList = mutableListOf(AccountsGroupModel(R.string.active_hd_accounts_name, GROUP_TITLE_TYPE,
-                    bipAccountsToViewModel(sortAccounts(am.getBTCBip44Accounts().values))))
-            val singleAddressList = accountsToViewModel(sortAccounts(am.getBTCSingleAddressAccounts().values))
+                    bipAccountsToViewModel(sortAccounts(walletManager.getBTCBip44Accounts()))))
+            val singleAddressList =  accountsToViewModel(sortAccounts(walletManager.getBTCSingleAddressAccounts()))
             if (singleAddressList.isNotEmpty()) {
                 accountsList.add(AccountsGroupModel((R.string.active_bitcoin_sa_group_name), GROUP_TITLE_TYPE,
                         singleAddressList))
@@ -62,12 +61,12 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
                 publishProgress(accountsList)
             }
 
-            val bchBipList = bipAccountsToViewModel(sortAccounts(am.getBCHBip44Accounts().values))
+            val bchBipList = bipAccountsToViewModel(sortAccounts(walletManager.getBCHBip44Accounts()))
             if (bchBipList.isNotEmpty()) {
                 accountsList.add(AccountsGroupModel(R.string.bitcoin_cash_hd, GROUP_TITLE_TYPE,
                         bchBipList))
             }
-            val bchSAList = accountsToViewModel(sortAccounts(am.getBCHSingleAddressAccounts().values))
+            val bchSAList = accountsToViewModel(sortAccounts(walletManager.getBCHSingleAddressAccounts()))
             if (bchSAList.isNotEmpty()) {
                 accountsList.add(AccountsGroupModel(R.string.bitcoin_cash_sa, GROUP_TITLE_TYPE,
                         bchSAList))
@@ -88,7 +87,7 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
 
 //            val accounts = am.getActiveAccounts().values.asList()
             val other = ArrayList<WalletAccount<out GenericTransaction, out GenericAddress>>()
-            am.getCoinapultAccounts().values.forEach {
+            walletManager.getCoinapultAccounts().forEach {
                 other.add(it)
             }
 //            for (account in accounts) {
@@ -105,7 +104,7 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
                         accountsToViewModel(sortAccounts(other))))
             }
 
-            val archivedList = accountsToViewModel(am.getArchivedAccounts().values)
+            val archivedList = accountsToViewModel(walletManager.getArchivedAccounts())
             if (archivedList.isNotEmpty()) {
                 accountsList.add(AccountsGroupModel(R.string.archive_name, GROUP_ARCHIVED_TITLE_TYPE,
                         archivedList))

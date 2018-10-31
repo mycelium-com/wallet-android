@@ -80,14 +80,17 @@ import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
+import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
 import com.mycelium.wapi.wallet.btc.bip44.UnrelatedHDAccountConfig;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
+import com.mycelium.wapi.wallet.btc.single.AddressSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.PrivateSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.PublicSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
+import com.mycelium.wapi.wallet.colu.AddressColuConfig;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
 import com.mycelium.wapi.wallet.colu.ColuUtils;
 import com.mycelium.wapi.wallet.colu.PrivateColuConfig;
@@ -515,8 +518,8 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
                                    ((SingleAddressAccount) existingAccount).setPrivateKey(key, AesKeyCipher.defaultKeyCipher());
                                 } else {
                                    WalletManager walletManager = _mbwManager.getWalletManager(false);
-                                   walletManager.deleteAccount(existingAccount.getId());
-                                   walletManager.deleteAccount(Utils.getLinkedAccount(existingAccount, walletManager.getAccounts()).getId());
+                                   walletManager.deleteAccount(existingAccount.getId(), AesKeyCipher.defaultKeyCipher());
+                                   walletManager.deleteAccount(Utils.getLinkedAccount(existingAccount, walletManager.getAccounts()).getId(), AesKeyCipher.defaultKeyCipher());
                                    walletManager.createAccounts(new PrivateColuConfig(key, (ColuMain) existingAccount.getCoinType(), AesKeyCipher.defaultKeyCipher()));
                                 }
                              } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
@@ -608,7 +611,7 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
          }
 
          List<UUID> ids = _mbwManager.getWalletManager(false)
-                 .createAccounts(new PublicColuConfig(new PublicKey(address.getBytes())));
+                 .createAccounts(new AddressColuConfig((BtcAddress) address));
 
          if (ids.size() < 2) {
             askUserForColorize = true;
@@ -639,11 +642,11 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
                               UUID account;
                               if (selectedItem == 0) {
                                   account = _mbwManager.getWalletManager(false)
-                                          .createAccounts(new PublicSingleConfig(new PublicKey(address.getBytes()))).get(0);
+                                          .createAccounts(new AddressSingleConfig((BtcAddress) address)).get(0);
                               } else {
                                   ColuMain coinType = (ColuMain) adapter.getItem(selectedItem);
                                   account = _mbwManager.getWalletManager(false)
-                                          .createAccounts(new PublicColuConfig(new PublicKey(address.getBytes()), coinType)).get(0);
+                                          .createAccounts(new AddressColuConfig((BtcAddress) address, coinType)).get(0);
                               }
                               finishOk(account, false);
                           }

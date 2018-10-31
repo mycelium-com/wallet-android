@@ -18,12 +18,32 @@ package com.mycelium.wapi.wallet.btc;
 
 import com.google.common.collect.Lists;
 import com.megiontechnologies.Bitcoins;
-import com.mrd.bitlib.*;
+import com.mrd.bitlib.FeeEstimator;
+import com.mrd.bitlib.FeeEstimatorBuilder;
+import com.mrd.bitlib.PopBuilder;
+import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
-import com.mrd.bitlib.crypto.*;
-import com.mrd.bitlib.model.*;
+import com.mrd.bitlib.UnsignedTransaction;
+import com.mrd.bitlib.crypto.BipDerivationType;
+import com.mrd.bitlib.crypto.BitcoinSigner;
+import com.mrd.bitlib.crypto.IPrivateKeyRing;
+import com.mrd.bitlib.crypto.IPublicKeyRing;
+import com.mrd.bitlib.crypto.InMemoryPrivateKey;
+import com.mrd.bitlib.crypto.PublicKey;
+import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.AddressType;
+import com.mrd.bitlib.model.NetworkParameters;
+import com.mrd.bitlib.model.OutPoint;
+import com.mrd.bitlib.model.OutputList;
+import com.mrd.bitlib.model.Script;
+import com.mrd.bitlib.model.ScriptOutput;
+import com.mrd.bitlib.model.ScriptOutputStrange;
+import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.model.Transaction.TransactionParsingException;
+import com.mrd.bitlib.model.TransactionInput;
+import com.mrd.bitlib.model.TransactionOutput;
+import com.mrd.bitlib.model.UnspentTransactionOutput;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.HashUtils;
@@ -44,18 +64,33 @@ import com.mycelium.wapi.api.response.CheckTransactionsResponse;
 import com.mycelium.wapi.api.response.GetTransactionsResponse;
 import com.mycelium.wapi.api.response.MinerFeeEstimationResponse;
 import com.mycelium.wapi.api.response.QueryUnspentOutputsResponse;
-import com.mycelium.wapi.model.*;
-import com.mycelium.wapi.wallet.*;
+import com.mycelium.wapi.model.BalanceSatoshis;
+import com.mycelium.wapi.model.TransactionDetails;
+import com.mycelium.wapi.model.TransactionEx;
+import com.mycelium.wapi.model.TransactionOutputEx;
+import com.mycelium.wapi.model.TransactionOutputSummary;
+import com.mycelium.wapi.model.TransactionStatus;
+import com.mycelium.wapi.model.TransactionSummary;
+import com.mycelium.wapi.wallet.AccountBacking;
+import com.mycelium.wapi.wallet.AddressUtils;
+import com.mycelium.wapi.wallet.BroadcastResult;
+import com.mycelium.wapi.wallet.ColuTransferInstructionsParser;
+import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal;
+import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
+import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.GenericTransaction;
+import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
+import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.WalletManager.Event;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
-import com.mycelium.wapi.wallet.coins.*;
+import com.mycelium.wapi.wallet.coins.Balance;
+import com.mycelium.wapi.wallet.coins.CryptoCurrency;
+import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
-import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
-import com.mycelium.wapi.wallet.segwit.SegwitAddress;
 
 import java.nio.ByteBuffer;
 import java.text.ParseException;
@@ -190,8 +225,12 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
 
    //only for BtcLegacyAddress?
    public boolean isMineAddress(GenericAddress address) {
-
-      return isMine(((BtcAddress) address).getAddress());
+      try {
+         return isMine(((BtcAddress) address).getAddress());
+      } catch (IllegalStateException e) {
+         e.printStackTrace();
+         return false;
+      }
    }
 
 
@@ -784,7 +823,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
                _backing.deleteUnspentOutput(outPoint);
             }
          }
-         // remove it from the backing
+         // remove it from the accountBacking
          _backing.deleteTransaction(transactionId);
          _backing.setTransactionSuccessful();
       } finally {
@@ -824,7 +863,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
          // Remove a queued transaction from our outgoing buffer
          _backing.removeOutgoingTransaction(transaction);
 
-         // remove it from the backing
+         // remove it from the accountBacking
          _backing.deleteTransaction(transaction);
          _backing.setTransactionSuccessful();
       } finally {

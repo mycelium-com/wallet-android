@@ -8,8 +8,8 @@ import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.wallet.KeyCipher
 import com.mycelium.wapi.wallet.Reference
 import com.mycelium.wapi.wallet.WalletAccount
-import com.mycelium.wapi.wallet.btc.BtcTransaction
 import com.mycelium.wapi.wallet.bip44.ChangeAddressMode
+import com.mycelium.wapi.wallet.btc.BtcTransaction
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking
 import com.mycelium.wapi.wallet.manager.Config
 import com.mycelium.wapi.wallet.manager.WalletModule
@@ -38,18 +38,31 @@ class BitcoinSingleAddressModule(internal val backing: WalletManagerBacking<Sing
     override fun canCreateAccount(config: Config): Boolean {
         return config is PublicSingleConfig
                 || config is PrivateSingleConfig
+                || config is AddressSingleConfig
     }
 
     override fun createAccount(config: Config): WalletAccount<*, *>? {
         var result: WalletAccount<*, *>? = null
 
         if (config is PublicSingleConfig) {
-            val cfg = config
-            result = createAccount(cfg.publicKey)
-        }
-        else if (config is PrivateSingleConfig) {
-            val cfg = config
-            result = createAccount(cfg.privateKey, cfg.cipher)
+            result = createAccount(config.publicKey)
+        } else if (config is PrivateSingleConfig) {
+            result = createAccount(config.privateKey, config.cipher)
+        } else if (config is AddressSingleConfig) {
+            val id = SingleAddressAccount.calculateId(config.address.address)
+            backing.beginTransaction()
+            try {
+                val context = SingleAddressAccountContext(id, mapOf(config.address.address.type to config.address.address), false, 0)
+                backing.createSingleAddressAccountContext(context)
+                val accountBacking = backing.getSingleAddressAccountBacking(context.id)
+                result = SingleAddressAccount(context, publicPrivateKeyStore, networkParameters, accountBacking, _wapi, Reference(ChangeAddressMode.P2WPKH))
+                context.persist(accountBacking)
+                backing.setTransactionSuccessful()
+            } finally {
+                backing.endTransaction()
+            }
+            return result
+
         }
 
         return result
@@ -63,7 +76,7 @@ class BitcoinSingleAddressModule(internal val backing: WalletManagerBacking<Sing
             val context = SingleAddressAccountContext(id, publicKey.getAllSupportedAddresses(networkParameters), false, 0)
             backing.createSingleAddressAccountContext(context)
             val accountBacking = backing.getSingleAddressAccountBacking(context.id)
-            result = SingleAddressAccount(context, publicPrivateKeyStore, networkParameters, accountBacking, _wapi,  Reference(ChangeAddressMode.P2WPKH))
+            result = SingleAddressAccount(context, publicPrivateKeyStore, networkParameters, accountBacking, _wapi, Reference(ChangeAddressMode.P2WPKH))
             context.persist(accountBacking)
             backing.setTransactionSuccessful()
         } finally {
@@ -81,8 +94,9 @@ class BitcoinSingleAddressModule(internal val backing: WalletManagerBacking<Sing
     }
 
 
-    override fun deleteAccount(walletAccount: WalletAccount<*, *>): Boolean {
-        if(walletAccount is SingleAddressAccount) {
+    override fun deleteAccount(walletAccount: WalletAccount<*, *>, keyCipher: KeyCipher): Boolean {
+        if (walletAccount is SingleAddressAccount) {
+            publicPrivateKeyStore.forgetPrivateKey(walletAccount.address, keyCipher);
             backing.deleteSingleAddressAccountContext(walletAccount.id)
             return true
         }

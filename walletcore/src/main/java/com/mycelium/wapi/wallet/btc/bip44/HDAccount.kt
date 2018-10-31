@@ -701,7 +701,7 @@ open class HDAccount(
         return ExportableAccount.Data(privateDataMap, publicDataMap)
     }
 
-    // deletes everything account related from the backing
+    // deletes everything account related from the accountBacking
     // this method is only allowed for accounts that use a SubValueKeystore
     fun clearBacking() = keyManagerMap.values.forEach(HDAccountKeyManager::deleteSubKeyStore)
 

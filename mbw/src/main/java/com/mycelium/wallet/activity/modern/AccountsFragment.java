@@ -65,12 +65,10 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.EditText;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
-import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
 import com.mycelium.wallet.AccountManager;
@@ -86,7 +84,6 @@ import com.mycelium.wallet.activity.modern.adapter.AccountListAdapter;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
 import com.mycelium.wallet.activity.util.ValueExtentionsKt;
 import com.mycelium.wallet.activity.view.DividerItemDecoration;
-import com.mycelium.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.AccountListChanged;
 import com.mycelium.wallet.event.BalanceChanged;
@@ -115,10 +112,14 @@ import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
 import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
+import com.mycelium.wapi.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wapi.wallet.coinapult.CoinapultModule;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.Value;
+import com.mycelium.wapi.wallet.colu.AddressColuConfig;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
+import com.mycelium.wapi.wallet.colu.ColuAccountContext;
+import com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount;
 import com.mycelium.wapi.wallet.colu.PublicColuConfig;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
 import com.mycelium.wapi.wallet.manager.State;
@@ -357,10 +358,17 @@ public class AccountsFragment extends Fragment {
                         try {
                            //Check if this SingleAddress account is related with ColuAccount
                            WalletAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, walletManager.getAccounts());
-                           if (linkedColuAccount != null && linkedColuAccount instanceof ColuAccount) {
-                              walletManager.deleteAccount(accountToDelete.getId());
-                              walletManager.createAccounts(new PublicColuConfig(new PublicKey(accountToDelete.getReceiveAddress().getBytes())
-                                      , (ColuMain) accountToDelete.getCoinType()));
+                           if (linkedColuAccount != null && linkedColuAccount instanceof ColuPubOnlyAccount) {
+                              walletManager.deleteAccount(linkedColuAccount.getId(), AesKeyCipher.defaultKeyCipher());
+                              walletManager.deleteAccount(accountToDelete.getId(), AesKeyCipher.defaultKeyCipher());
+                              ColuAccountContext context = ((ColuPubOnlyAccount) linkedColuAccount).getContext();
+                              if (context.getPublicKey() != null) {
+                                 walletManager.createAccounts(new PublicColuConfig(context.getPublicKey()
+                                         , (ColuMain) linkedColuAccount.getCoinType()));
+                              } else {
+                                 walletManager.createAccounts(new AddressColuConfig(context.getAddress()
+                                         , (ColuMain) linkedColuAccount.getCoinType()));
+                              }
                            } else {
                               ((SingleAddressAccount) accountToDelete).forgetPrivateKey(AesKeyCipher.defaultKeyCipher());
                            }
@@ -369,30 +377,40 @@ public class AccountsFragment extends Fragment {
                            throw new RuntimeException(e);
                         }
                      } else {
-                        if (accountToDelete instanceof ColuAccount) {
+                        if (accountToDelete instanceof ColuPubOnlyAccount) {
                            try {
-                              if (keepAddrCheckbox.isChecked()) {
-                                 walletManager.deleteAccount(accountToDelete.getId());
-                                 walletManager.createAccounts(new PublicColuConfig(new PublicKey(accountToDelete.getReceiveAddress().getBytes())
-                                         , (ColuMain) accountToDelete.getCoinType()));
-                              } else {
-                                 walletManager.deleteAccount(accountToDelete.getId());
-                                 _storage.deleteAccountMetadata(accountToDelete.getId());
-                                 _toaster.toast("Deleting account.", false);
-                                 _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
-                              }
+                               walletManager.deleteAccount(accountToDelete.getId(), AesKeyCipher.defaultKeyCipher());
+                               WalletAccount linkedAccount = Utils.getLinkedAccount(accountToDelete, walletManager.getAccounts());
+                               if (linkedAccount != null) {
+                                   walletManager.deleteAccount(linkedAccount.getId(), AesKeyCipher.defaultKeyCipher());
+                               }
+                               if (keepAddrCheckbox.isChecked()) {
+                                   ColuAccountContext context = ((ColuPubOnlyAccount) accountToDelete).getContext();
+                                   if (context.getPublicKey() != null) {
+                                       walletManager.createAccounts(new PublicColuConfig(context.getPublicKey()
+                                               , (ColuMain) accountToDelete.getCoinType()));
+                                   } else {
+                                       walletManager.createAccounts(new AddressColuConfig(context.getAddress()
+                                               , (ColuMain) accountToDelete.getCoinType()));
+                                   }
+                               } else {
+                                   _storage.deleteAccountMetadata(accountToDelete.getId());
+                                   _toaster.toast("Deleting account.", false);
+                                   _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
+                               }
                            } catch (Exception e) {
                               // make a message !
+                              Log.e(TAG, getString(R.string.colu_error_deleting), e);
                               _toaster.toast(getString(R.string.colu_error_deleting), false);
                            }
                         } else {
                            //Check if this SingleAddress account is related with ColuAccount
                            WalletAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, walletManager.getAccounts());
                            if (linkedColuAccount != null && linkedColuAccount instanceof ColuAccount) {
-                              walletManager.deleteAccount(linkedColuAccount.getId());
-                           } else {
-                              walletManager.deleteAccount(accountToDelete.getId());
+                              walletManager.deleteAccount(linkedColuAccount.getId(), AesKeyCipher.defaultKeyCipher());
                            }
+                           walletManager.deleteAccount(accountToDelete.getId(), AesKeyCipher.defaultKeyCipher());
+
                            _storage.deleteAccountMetadata(accountToDelete.getId());
                            _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
                            _toaster.toast(R.string.account_deleted, false);
@@ -410,19 +428,14 @@ public class AccountsFragment extends Fragment {
                confirmDeleteDialog.show();
             } else {
                // account has no private data - dont make a fuzz about it and just delete it
-               if (accountToDelete instanceof ColuAccount) {
-                  walletManager.deleteAccount(accountToDelete.getId());
-               } else {
-                  //Check if this SingleAddress account is related with ColuAccount
-                  WalletAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, walletManager.getAccounts());
-                  if (linkedColuAccount != null && linkedColuAccount instanceof ColuAccount) {
-                     walletManager.deleteAccount(linkedColuAccount.getId());
-                     _storage.deleteAccountMetadata(linkedColuAccount.getId());
-                  } else {
-                     walletManager.deleteAccount(accountToDelete.getId());
-                  }
-               }
+               walletManager.deleteAccount(accountToDelete.getId(), AesKeyCipher.defaultKeyCipher());
                _storage.deleteAccountMetadata(accountToDelete.getId());
+               //Check if this SingleAddress account is related with ColuAccount
+               WalletAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, walletManager.getAccounts());
+               if (linkedColuAccount != null) {
+                  walletManager.deleteAccount(linkedColuAccount.getId(), AesKeyCipher.defaultKeyCipher());
+                  _storage.deleteAccountMetadata(linkedColuAccount.getId());
+               }
                finishCurrentActionMode();
                eventBus.post(new AccountChanged(accountToDelete.getId()));
                _toaster.toast(R.string.account_deleted, false);
@@ -1194,7 +1207,7 @@ public class AccountsFragment extends Fragment {
          _mbwManager.runPinProtectedFunction(getActivity(), new Runnable() {
             @Override
             public void run() {
-               _mbwManager.getWalletManager(false).deleteAccount(account.getId());
+               _mbwManager.getWalletManager(false).deleteAccount(account.getId(), AesKeyCipher.defaultKeyCipher());
                //in case user had labeled the account, delete the stored name
                _storage.deleteAccountMetadata(account.getId());
                eventBus.post(new AccountChanged(account.getId()));

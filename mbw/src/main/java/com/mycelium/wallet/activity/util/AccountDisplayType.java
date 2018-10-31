@@ -1,11 +1,11 @@
 package com.mycelium.wallet.activity.util;
 
-import com.mycelium.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
+import com.mycelium.wapi.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount;
 
 public enum AccountDisplayType {

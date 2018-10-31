@@ -102,7 +102,6 @@ import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
 import com.mycelium.wallet.activity.util.AccountDisplayType;
 import com.mycelium.wallet.activity.util.AnimationUtils;
 import com.mycelium.wallet.activity.util.ValueExtentionsKt;
-import com.mycelium.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wallet.event.SyncFailed;
@@ -110,6 +109,7 @@ import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.paymentrequest.PaymentRequestHandler;
 import com.mycelium.wapi.api.response.Feature;
 import com.mycelium.wapi.wallet.AddressUtils;
+import com.mycelium.wapi.wallet.coinapult.Currency;
 import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.SendRequest;
@@ -124,6 +124,7 @@ import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
 import com.mycelium.wapi.wallet.btc.bip44.UnrelatedHDAccountConfig;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
+import com.mycelium.wapi.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
@@ -140,13 +141,7 @@ import com.squareup.otto.Subscribe;
 
 import org.bitcoin.protocols.payments.PaymentACK;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -275,7 +270,7 @@ public class SendMainActivity extends Activity {
     protected boolean _isColdStorage;
     private TransactionStatus _transactionStatus;
     protected UnsignedTransaction _unsigned;
-    protected CoinapultAccount.PreparedCoinapult _preparedCoinapult;
+//    protected CoinapultAccount.PreparedCoinapult _preparedCoinapult;
     //protected ColuBroadcastTxHex.Json _preparedColuTx;
     //private Transaction _signedTransaction;
     private SendRequest signedSendRequest;
@@ -952,7 +947,7 @@ public class SendMainActivity extends Activity {
         } else {
             final ColuAccount coluAccount = (ColuAccount) _account;
             _unsigned = null;
-            _preparedCoinapult = null;
+//            _preparedCoinapult = null;
 
             if (Value.isNullOrZero(_amountToSend) || _receivingAddress == null) {
                 Log.d(TAG, "tryCreateUnsignedColuTX Missing argument: amountToSend or receiving address is null.");
@@ -1362,11 +1357,9 @@ public class SendMainActivity extends Activity {
                 // Amount too small
                 if (isCoinapult()) {
                     CoinapultAccount coinapultAccount = (CoinapultAccount) _account;
-                    tvError.setText(
-                            getString(
-                                    R.string.coinapult_amount_too_small,
-                                    coinapultAccount.getCoinapultCurrency().minimumConversationValue,
-                                    coinapultAccount.getCoinapultCurrency().name)
+                    tvError.setText(getString(R.string.coinapult_amount_too_small,
+                            ((Currency) coinapultAccount.getCoinType()).minimumConversationValue,
+                            coinapultAccount.getCoinType().getSymbol())
                     );
                 } else {
                     tvError.setText(R.string.amount_too_small_short);

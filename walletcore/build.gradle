@@ -12,6 +12,7 @@ dependencies {
     implementation project(includePrefix +':walletmodel')
     implementation project(includePrefix +':wapi')
     implementation project(includePrefix + ':bitcoincashj:core')
+    implementation project(includePrefix + ':coinapult')
 
     implementation guavaArtifact
     implementation 'com.fasterxml.jackson.core:jackson-core:2.8.4'

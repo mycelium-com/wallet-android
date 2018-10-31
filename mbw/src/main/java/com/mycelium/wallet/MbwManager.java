@@ -93,7 +93,6 @@ import com.mycelium.wallet.activity.util.BlockExplorerManager;
 import com.mycelium.wallet.activity.util.Pin;
 import com.mycelium.wallet.api.AndroidAsyncApi;
 import com.mycelium.wallet.bitid.ExternalService;
-import com.mycelium.wallet.coinapult.CoinapultManager;
 import com.mycelium.wallet.colu.SqliteColuManagerBacking;
 import com.mycelium.wallet.event.*;
 import com.mycelium.wallet.exchange.ExchangeRateManager;
@@ -127,6 +126,7 @@ import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bch.single.BitcoinCashSingleAddressModule;
 import com.mycelium.wapi.wallet.bip44.ChangeAddressMode;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
+import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
 import com.mycelium.wapi.wallet.btc.InMemoryWalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
@@ -134,6 +134,8 @@ import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
 import com.mycelium.wapi.wallet.btc.bip44.ExternalSignatureProviderProxy;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
+import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
+import com.mycelium.wapi.wallet.btc.single.AddressSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.BitcoinSingleAddressModule;
 import com.mycelium.wapi.wallet.btc.single.PrivateSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore;
@@ -189,7 +191,6 @@ public class MbwManager {
      * 0x424944 = "BID"
      */
     private static final int BIP32_ROOT_AUTHENTICATION_INDEX = 0x80424944;
-    private Optional<CoinapultManager> _coinapultManager;
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
@@ -376,33 +377,6 @@ public class MbwManager {
     private void initBTCSettings() {
         BTCSettings btcSettings = new BTCSettings(defaultAddressType, new Reference<>(changeAddressMode));
         currenciesSettingsMap.put(Currency.BTC, btcSettings);
-    }
-
-    private Optional<CoinapultManager> createCoinapultManager() {
-        if (_walletManager.hasBip32MasterSeed() && _storage.isPairedService(MetadataStorage.PAIRED_SERVICE_COINAPULT)) {
-            BitIdKeyDerivation derivation = new BitIdKeyDerivation() {
-                @Override
-                public InMemoryPrivateKey deriveKey(int accountIndex, String site) {
-                    try {
-                        Bip39.MasterSeed masterSeed = _walletManager.getMasterSeed(AesKeyCipher.defaultKeyCipher());
-                        return createBip32WebsitePrivateKey(masterSeed.getBip32Seed(), accountIndex, site);
-                    } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
-                        throw new RuntimeException(invalidKeyCipher);
-                    }
-                }
-            };
-            return Optional.of(new CoinapultManager(
-                                   _environment,
-                                   derivation,
-                                   _eventBus,
-                                   new Handler(_applicationContext.getMainLooper()),
-                                   _storage,
-                                   _exchangeRateManager,
-                                   retainingWapiLogger));
-
-        } else {
-            return Optional.absent();
-        }
     }
 
     private void createTempWalletManager() {
@@ -597,7 +571,7 @@ public class MbwManager {
      * @return a new wallet manager instance
      */
     private WalletManager createWalletManager(final Context context, MbwEnvironment environment) {
-        // Create persisted account backing
+        // Create persisted account accountBacking
         WalletManagerBacking backing = new SqliteWalletManagerBackingWrapper(context);
 
         // Create persisted secure storage instance
@@ -744,7 +718,7 @@ public class MbwManager {
      * @return a new in memory backed wallet manager instance
      */
     private WalletManager createTempWalletManager(MbwEnvironment environment) {
-        // Create in-memory account backing
+        // Create in-memory account accountBacking
         WalletManagerBacking backing = new InMemoryWalletManagerBacking();
 
         // Create secure storage instance
@@ -1205,7 +1179,8 @@ public class MbwManager {
     }
 
     public UUID createOnTheFlyAccount(Address address) {
-        UUID accountId = _tempWalletManager.createAccounts(new PublicSingleConfig(new PublicKey(address.getAllAddressBytes()))).get(0);
+        UUID accountId = _tempWalletManager.createAccounts(new AddressSingleConfig(
+                new BtcLegacyAddress(BitcoinMain.get(), address.getAllAddressBytes()))).get(0);
         _tempWalletManager.getAccount(accountId).setAllowZeroConfSpending(true);
         _tempWalletManager.setActiveAccount(accountId);  // this also starts a sync
         return accountId;
@@ -1336,7 +1311,7 @@ public class MbwManager {
 
     public UUID createAdditionalBip44Account(Context context) {
         UUID accountId;
-        accountId = _walletManager.createAccounts(new AdditionalHDAccountConfig()).get(0); 
+        accountId = _walletManager.createAccounts(new AdditionalHDAccountConfig()).get(0);
         //set default label for the created HD account
         WalletAccount account = _walletManager.getAccount(accountId);
         String defaultName = Utils.getNameForNewAccount(account, context);

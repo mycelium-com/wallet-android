@@ -117,7 +117,7 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
                 } else {
                     backing.createBip44AccountContext(context)
                 }
-                // Get the backing for the new account
+                // Get the accountBacking for the new account
                 val accountBacking = backing.getBip44AccountBacking(context.id)
 
                 // Create actual account
@@ -158,7 +158,7 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
             try {
                 backing.createBip44AccountContext(context)
 
-                // Get the backing for the new account
+                // Get the accountBacking for the new account
                 val accountBacking = backing.getBip44AccountBacking(context.id)
 
                 // Create actual account
@@ -239,7 +239,7 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
                     config is ExternalSignaturesAccountConfig
 
 
-    override fun deleteAccount(walletAccount: WalletAccount<*, *>): Boolean {
+    override fun deleteAccount(walletAccount: WalletAccount<*, *>, keyCipher: KeyCipher): Boolean {
         if(walletAccount is HDAccount || walletAccount is HDPubOnlyAccount) {
             backing.deleteBip44AccountContext(walletAccount.id)
             return true

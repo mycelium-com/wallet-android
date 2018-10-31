@@ -7,6 +7,6 @@ import com.mycelium.wapi.wallet.colu.ColuTransaction
 
 
 class CoinapultSendRequest(currency: Currency, val destination: BtcAddress, val amount: Value)
-    : SendRequest<ColuTransaction>(currency) {
+    : SendRequest<CoinapultTransaction>(currency) {
 
 }

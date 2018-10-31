@@ -129,7 +129,7 @@ public abstract class CryptoCurrency extends AbstractAsset {
         return "Coin{" +
                 "name='" + name + '\'' +
                 ", symbol='" + symbol + '\'' +
-                ", bip44Index=" + bip44Index +
+                ", bip44Index=" + (bip44Index != null ?  bip44Index : "null") +
                 '}';
     }
 

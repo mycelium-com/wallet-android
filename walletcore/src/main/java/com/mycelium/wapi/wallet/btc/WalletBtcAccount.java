@@ -176,7 +176,7 @@ public interface WalletBtcAccount extends WalletAccount<BtcTransaction, BtcLegac
    boolean broadcastOutgoingTransactions();
 
    /**
-    * returns the transactionex for the hash from the backing, if available
+    * returns the transactionex for the hash from the accountBacking, if available
     * @param txid transaction hash
     * @return the corresponding transaction or null
     */
@@ -227,7 +227,7 @@ public interface WalletBtcAccount extends WalletAccount<BtcTransaction, BtcLegac
    boolean cancelQueuedTransaction(Sha256Hash transactionId);
 
    /**
-    * Delete a transaction from the backing
+    * Delete a transaction from the accountBacking
     * Snyc is needed afterwards
     */
    boolean deleteTransaction(Sha256Hash transactionId);

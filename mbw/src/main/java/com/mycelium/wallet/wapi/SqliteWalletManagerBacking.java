@@ -182,6 +182,11 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking<SingleAd
    }
 
    @Override
+   public void updateAccountContext(SingleAddressAccountContext singleAddressAccountContext) {
+      updateSingleAddressAccountContext(singleAddressAccountContext);
+   }
+
+   @Override
    public void deleteAccountContext(UUID uuid) {
       deleteSingleAddressAccountContext(uuid);
    }
@@ -283,7 +288,7 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking<SingleAd
       _database.beginTransaction();
       try {
 
-         // Create backing tables
+         // Create accountBacking tables
          SqliteAccountBacking backing = _backings.get(context.getId());
          if (backing == null) {
             createAccountBackingTables(context.getId(), _database);
@@ -402,7 +407,7 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking<SingleAd
       _database.beginTransaction();
       try {
 
-         // Create backing tables
+         // Create accountBacking tables
          SqliteAccountBacking backing = _backings.get(context.getId());
          if (backing == null) {
             createAccountBackingTables(context.getId(), _database);

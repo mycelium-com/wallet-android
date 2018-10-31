@@ -4,7 +4,6 @@ import android.os.AsyncTask
 import android.os.Handler
 import android.os.Looper
 import com.google.common.collect.ImmutableMap
-import com.mycelium.wallet.coinapult.CoinapultAccount
 import com.mycelium.wallet.event.AccountChanged
 import com.mycelium.wallet.event.AccountListChanged
 import com.mycelium.wallet.event.SelectedAccountChanged
@@ -60,21 +59,6 @@ object AccountManager : AccountProvider {
 
     override fun getAccounts(): ImmutableMap<UUID, WalletAccount<out GenericTransaction, out GenericAddress>> = ImmutableMap.copyOf<UUID, WalletAccount<out GenericTransaction, out GenericAddress>>(accounts)
 
-    fun getBTCSingleAddressAccounts(): ImmutableMap<UUID, WalletAccount<out GenericTransaction, out GenericAddress>> =
-            getFilteredAccounts(accountsSemaphore, accounts) {
-                it.value is SingleAddressAccount && !Utils.checkIsLinked(it.value, accounts.values)
-            }
-
-    fun getBTCBip44Accounts() = getAccountsByType<HDAccount>()
-
-    fun getBCHSingleAddressAccounts() = getAccountsByType<SingleAddressBCHAccount>()
-
-    fun getBCHBip44Accounts() = getAccountsByType<Bip44BCHAccount>()
-
-    fun getCoinapultAccounts() = getAccountsByType<CoinapultAccount>()
-
-//    fun getColuAccounts() = getAccountsByType<ColuAccount>()
-
     fun getActiveAccounts(): ImmutableMap<UUID, WalletAccount<out GenericTransaction, out GenericAddress>> =
             getFilteredAccounts(accountsSemaphore, accounts) {
                 it.value.isVisible
@@ -127,10 +111,16 @@ object AccountManager : AccountProvider {
     }
 }
 
-fun WalletManager.getBTCSingleAddressAccounts() = getAccounts().filter { it is SingleAddressAccount }
+fun WalletManager.getBTCBip44Accounts() = getAccounts().filter { it is HDAccount && it.isVisible }
+
+fun WalletManager.getBCHBip44Accounts() = getAccounts().filter { it is Bip44BCHAccount && it.isVisible }
+
+fun WalletManager.getBTCSingleAddressAccounts() = getAccounts().filter { it is SingleAddressAccount && !Utils.checkIsLinked(it, getAccounts()) }
+
+fun WalletManager.getBCHSingleAddressAccounts() = getAccounts().filter { it is SingleAddressBCHAccount && it.isVisible }
 
 fun WalletManager.getColuAccounts(): List<WalletAccount<*, *>> = getAccounts().filter { it is ColuPubOnlyAccount && it.isVisible }
 
 fun WalletManager.getCoinapultAccounts(): List<WalletAccount<*, *>> = getAccounts().filter { it is com.mycelium.wapi.wallet.coinapult.CoinapultAccount && it.isVisible }
 
-fun WalletManager.getCoinapultAccount(currency: Currency):WalletAccount<*, *>? = getCoinapultAccounts().find { it.coinType == currency }
+fun WalletManager.getCoinapultAccount(currency: Currency): WalletAccount<*, *>? = getCoinapultAccounts().find { it.coinType == currency }
