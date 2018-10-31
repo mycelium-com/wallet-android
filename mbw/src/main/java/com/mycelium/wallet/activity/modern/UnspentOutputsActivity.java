@@ -41,13 +41,16 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.util.AddressLabel;
 import com.mycelium.wapi.model.TransactionOutputSummary;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+import com.mycelium.wapi.wallet.colu.ColuAccount;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -72,11 +75,14 @@ public class UnspentOutputsActivity extends Activity {
    private void updateUi() {
       LinearLayout outputView = findViewById(R.id.listUnspentOutputs);
       WalletAccount account = _mbwManager.getWalletManager(false).getAccount(_accountid);
-      if(!(account instanceof WalletBtcAccount)){
-         findViewById(R.id.tvNoOutputs).setVisibility(View.VISIBLE);
-         return;
+
+      List<TransactionOutputSummary> outputs = new ArrayList<>();
+      if(account instanceof  WalletBtcAccount) {
+         outputs = ((WalletBtcAccount) account).getUnspentTransactionOutputSummary();
       }
-      List<TransactionOutputSummary> outputs = ((WalletBtcAccount)account).getUnspentTransactionOutputSummary();
+      else if (account instanceof ColuAccount) {
+         outputs = ((ColuAccount) account).getUnspentTransactionOutputSummary();
+      }
 
       if (outputs.isEmpty()) {
          findViewById(R.id.tvNoOutputs).setVisibility(View.VISIBLE);
