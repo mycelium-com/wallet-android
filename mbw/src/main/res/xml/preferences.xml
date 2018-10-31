@@ -152,12 +152,14 @@
 
         <ListPreference
             android:dialogTitle="@string/change_address_type"
+            android:icon="@drawable/ic_bitcoin_tx_change"
             android:key="change_type"
             android:defaultValue="PRIVACY"
             android:entries="@array/change_settings_names"
             android:entryValues="@array/change_settings_values"
-            android:layout="@layout/preference_layout_no_icon"
+            android:layout="@layout/preference_layout"
             android:summary="Setup change address preferences."
+            android:widgetLayout="@layout/preference_arrow"
             android:title="@string/change_address_type"/>
 
         <ListPreference
