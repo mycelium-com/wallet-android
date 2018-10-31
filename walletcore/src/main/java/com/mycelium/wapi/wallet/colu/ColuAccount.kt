@@ -2,8 +2,11 @@ package com.mycelium.wapi.wallet.colu
 
 import com.google.common.base.Optional
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
+import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.model.NetworkParameters
+import com.mrd.bitlib.model.ScriptOutput
 import com.mrd.bitlib.model.Transaction
+import com.mycelium.wapi.model.TransactionOutputSummary
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.BtcLegacyAddress
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
@@ -11,6 +14,7 @@ import com.mycelium.wapi.wallet.coins.Value
 import org.apache.commons.codec.binary.Hex
 import org.bitcoinj.core.ECKey
 import org.bitcoinj.script.ScriptBuilder
+import java.util.*
 
 
 class ColuAccount(context: ColuAccountContext, val privateKey: InMemoryPrivateKey
@@ -112,6 +116,37 @@ class ColuAccount(context: ColuAccountContext, val privateKey: InMemoryPrivateKe
         }
         val pubKey = Optional.of(receiveAddress.toString())
         return ExportableAccount.Data(key, pubKey)
+    }
+
+    fun getUnspentTransactionOutputSummary(): List<TransactionOutputSummary> {
+        // Get all unspent outputs for this account
+        val outputs = accountBacking.allUnspentOutputs
+
+        // Transform it to a list of summaries
+        val list = ArrayList<TransactionOutputSummary>()
+        val blockChainHeight = blockChainHeight
+        for (output in outputs) {
+
+            val script = ScriptOutput.fromScriptBytes(output.script)
+            val address: Address
+            address = if (script == null) {
+                Address.getNullAddress(networkParameters)
+                // This never happens as we have parsed this script before
+            } else {
+                script.getAddress(networkParameters)
+            }
+            val confirmations: Int = if (output.height == -1) {
+                0
+            } else {
+                Math.max(0, blockChainHeight - output.height + 1)
+            }
+
+            val summary = TransactionOutputSummary(output.outPoint, output.value, output.height, confirmations, address)
+            list.add(summary)
+        }
+        // Sort & return
+        list.sort()
+        return list
     }
 
 }
