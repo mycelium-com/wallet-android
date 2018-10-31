@@ -85,10 +85,14 @@ open class UnsignedTransaction constructor(
         }
     }
 
+    fun isSegwit() = fundingOutputs.asSequence()
+            .map(UnspentTransactionOutput::script)
+            .any(this::isSegwitOutputScript)
+
     private fun isSegwitOutputScript(script: ScriptOutput) =
         script is ScriptOutputP2WPKH || script is ScriptOutputP2SH
 
-    private fun isSegWitOutput(i: Int) =
+    fun isSegWitOutput(i: Int) =
             isSegwitOutputScript(fundingOutputs[i].script)
 
     /**
