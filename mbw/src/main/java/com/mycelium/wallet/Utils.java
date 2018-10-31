@@ -37,8 +37,8 @@ package com.mycelium.wallet;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.ClipboardManager;
 import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -90,17 +90,18 @@ import com.mrd.bitlib.util.CoinUtil;
 import com.mycelium.wallet.activity.AdditionalBackupWarningActivity;
 import com.mycelium.wallet.activity.BackupWordListActivity;
 import com.mycelium.wallet.activity.export.BackupToPdfActivity;
-import com.mycelium.wallet.activity.export.ExportAsQrCodeActivity;
+import com.mycelium.wallet.activity.export.ExportAsQrActivity;
 import com.mycelium.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.persistence.MetadataStorage;
+import com.mycelium.wapi.wallet.AbstractAccount;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.ExportableAccount;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.bip44.Bip44Account;
-import com.mycelium.wapi.wallet.bip44.Bip44AccountContext;
-import com.mycelium.wapi.wallet.bip44.Bip44AccountExternalSignature;
-import com.mycelium.wapi.wallet.bip44.Bip44PubOnlyAccount;
+import com.mycelium.wapi.wallet.bip44.HDAccount;
+import com.mycelium.wapi.wallet.bip44.HDAccountContext;
+import com.mycelium.wapi.wallet.bip44.HDAccountExternalSignature;
+import com.mycelium.wapi.wallet.bip44.HDPubOnlyAccount;
 import com.mycelium.wapi.wallet.currency.BitcoinValue;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
@@ -111,7 +112,6 @@ import org.ocpsoft.prettytime.PrettyTime;
 import org.ocpsoft.prettytime.TimeUnit;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Calendar;
@@ -734,10 +734,9 @@ public class Utils {
             .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                public void onClick(DialogInterface dialog, int id) {
                   dialog.dismiss();
-                  Intent intent = ExportAsQrCodeActivity.getIntent(parent,
-                        ((ExportableAccount) account).getExportData(AesKeyCipher.defaultKeyCipher())
-                  );
-                  parent.startActivity(intent);
+                  ExportAsQrActivity.callMe(parent, ((ExportableAccount) account).getExportData(AesKeyCipher.defaultKeyCipher()),
+                          account);
+
                }
             }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
          public void onClick(DialogInterface dialog, int id) {
@@ -800,9 +799,9 @@ public class Utils {
          @Nullable
          @Override
          public Integer apply(@Nullable WalletAccount input) {
-            if (input instanceof Bip44Account) {
-               Bip44Account bip44Account = (Bip44Account) input;
-               return bip44Account.getAccountIndex();
+            if (input instanceof HDAccount) {
+               HDAccount HDAccount = (HDAccount) input;
+               return HDAccount.getAccountIndex();
             }
             return Integer.MAX_VALUE;
          }
@@ -877,11 +876,11 @@ public class Utils {
       }
 
       //trezor account
-      if (walletAccount instanceof Bip44AccountExternalSignature) {
-         int accountType = ((Bip44AccountExternalSignature) walletAccount).getAccountType();
-         if (accountType == Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER) {
+      if (walletAccount instanceof HDAccountExternalSignature) {
+         int accountType = ((HDAccountExternalSignature) walletAccount).getAccountType();
+         if (accountType == HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER) {
             return resources.getDrawable(R.drawable.ledger_icon);
-		 } else if (accountType == Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY) {
+		 } else if (accountType == HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY) {
             return resources.getDrawable(R.drawable.keepkey_icon);
          } else {
             return resources.getDrawable(R.drawable.trezor_icon_only);
@@ -889,7 +888,7 @@ public class Utils {
 
       }
       //regular HD account
-      if (walletAccount instanceof Bip44Account) {
+      if (walletAccount instanceof HDAccount) {
          return resources.getDrawable(R.drawable.multikeys_grey);
       }
       if (walletAccount instanceof CoinapultAccount) {
@@ -905,21 +904,21 @@ public class Utils {
    }
 
    public static String getNameForNewAccount(WalletAccount account, Context context) {
-      if (account instanceof Bip44AccountExternalSignature) {
+      if (account instanceof HDAccountExternalSignature) {
          String baseName;
-         int accountType = ((Bip44AccountExternalSignature) account).getAccountType();
-         if (accountType == Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER) {
+         int accountType = ((HDAccountExternalSignature) account).getAccountType();
+         if (accountType == HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER) {
             baseName = MbwManager.getInstance(context).getLedgerManager().getLabelOrDefault();
-		 } else if (accountType == Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY) {
+		 } else if (accountType == HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY) {
             baseName = MbwManager.getInstance(context).getKeepKeyManager().getLabelOrDefault();
          } else {
             baseName = MbwManager.getInstance(context).getTrezorManager().getLabelOrDefault();
          }
-         return baseName + " #" + (((Bip44AccountExternalSignature) account).getAccountIndex() + 1);
-      } else if (account instanceof Bip44PubOnlyAccount) {
+         return baseName + " #" + (((HDAccountExternalSignature) account).getAccountIndex() + 1);
+      } else if (account instanceof HDPubOnlyAccount) {
          return context.getString(R.string.account_prefix_imported);
-      } else if (account instanceof Bip44Account) {
-         return context.getString(R.string.account) + " " + (((Bip44Account) account).getAccountIndex() + 1);
+      } else if (account instanceof HDAccount) {
+         return context.getString(R.string.account) + " " + (((HDAccount) account).getAccountIndex() + 1);
       } else {
          return DateFormat.getMediumDateFormat(context).format(new Date());
       }

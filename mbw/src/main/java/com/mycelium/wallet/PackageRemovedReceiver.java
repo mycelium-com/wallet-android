@@ -40,6 +40,7 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 
 import com.mycelium.wallet.activity.RestartPopupActivity;
 import com.mycelium.wallet.activity.StartupActivity;
@@ -48,6 +49,15 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import java.util.List;
 
 public class PackageRemovedReceiver extends BroadcastReceiver {
+    public static void register(Context context) {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_PACKAGE_ADDED);
+        filter.addAction(Intent.ACTION_PACKAGE_REPLACED);
+        filter.addAction(Intent.ACTION_PACKAGE_REMOVED);
+        filter.addDataScheme("package");
+        context.registerReceiver(new PackageRemovedReceiver(), filter);
+    }
+
     @Override
     public void onReceive(Context context, Intent intent) {
         if (intent.getData() != null) {

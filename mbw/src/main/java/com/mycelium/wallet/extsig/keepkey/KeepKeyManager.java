@@ -37,9 +37,9 @@ package com.mycelium.wallet.extsig.keepkey;
 import android.content.Context;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager;
-import com.mycelium.wapi.wallet.bip44.Bip44AccountContext;
-import com.satoshilabs.trezor.ExternalSignatureDevice;
-import com.satoshilabs.trezor.KeepKey;
+import com.mycelium.wapi.wallet.bip44.HDAccountContext;
+import com.satoshilabs.trezor.lib.ExternalSignatureDevice;
+import com.satoshilabs.trezor.lib.KeepKey;
 import com.squareup.otto.Bus;
 
 public class KeepKeyManager extends ExternalSignatureDeviceManager {
@@ -50,12 +50,12 @@ public class KeepKeyManager extends ExternalSignatureDeviceManager {
 
    @Override
    protected ExternalSignatureDevice createDevice() {
-      return new KeepKey(context);
+      return new KeepKey(getContext());
    }
 
    @Override
    public int getBIP44AccountType() {
-      return Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY;
+      return HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY;
    }
 
 }

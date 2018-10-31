@@ -21,6 +21,6 @@ public interface IPrivateKeyRing {
    /**
     * Find a Bitcoin signer by public key
     */
-   public BitcoinSigner findSignerByPublicKey(PublicKey publicKey);
+   BitcoinSigner findSignerByPublicKey(PublicKey publicKey);
 
 }

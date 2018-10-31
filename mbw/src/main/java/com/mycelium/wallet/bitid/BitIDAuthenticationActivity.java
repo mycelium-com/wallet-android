@@ -48,6 +48,7 @@ import android.widget.Toast;
 import com.google.common.base.Strings;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.AddressType;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.persistence.MetadataStorage;
@@ -235,7 +236,7 @@ public class BitIDAuthenticationActivity extends AppCompatActivity {
    private void signAndSend(boolean enforceSslCorrectness) {
       MbwManager manager = MbwManager.getInstance(this);
       InMemoryPrivateKey key = manager.getBitIdKeyForWebsite(request.getIdUri());
-      Address address = key.getPublicKey().toAddress(manager.getNetwork());
+      Address address = key.getPublicKey().toAddress(manager.getNetwork(), AddressType.P2PKH);
       progress.setCancelable(false);
       progress.setMessage(getString(R.string.bitid_processing));
       progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);

@@ -16,8 +16,8 @@
 
 package com.mycelium.wapi.wallet;
 
-import com.mycelium.wapi.wallet.bip44.Bip44AccountContext;
+import com.mycelium.wapi.wallet.bip44.HDAccountContext;
 
 public interface Bip44AccountBacking extends AccountBacking {
-   void updateAccountContext(Bip44AccountContext context);
+   void updateAccountContext(HDAccountContext context);
 }

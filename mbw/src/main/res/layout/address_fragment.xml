@@ -1,0 +1,60 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:bind="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="activity"
+            type="android.support.v4.app.FragmentActivity" />
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.wallet.activity.main.address.AddressFragmentViewModel" />
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="20dp"
+        android:paddingBottom="20dp">
+
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@+id/ivQR"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="20dp"
+            android:layout_centerVertical="true">
+
+            <LinearLayout
+                android:id="@+id/llAddress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/btn_transparent_slim"
+                android:clickable="true"
+                android:layout_gravity="center"
+                android:orientation="vertical">
+
+
+                <include
+                    layout="@layout/address_fragment_label"
+                    bind:viewModel="@{viewModel}" />
+
+                <include
+                    layout="@layout/address_fragment_addr"
+                    bind:viewModel="@{viewModel}" />
+
+
+                <include
+                    layout="@layout/address_fragment_path"
+                    bind:viewModel="@{viewModel}" />
+
+            </LinearLayout>
+        </FrameLayout>
+
+        <include
+            layout="@layout/address_fragment_qr"
+            bind:viewModel="@{viewModel}"
+            bind:activity="@{activity}" />
+    </RelativeLayout>
+</layout>

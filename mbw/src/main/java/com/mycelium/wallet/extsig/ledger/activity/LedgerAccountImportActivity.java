@@ -52,6 +52,7 @@ import com.mycelium.wapi.wallet.AccountScanManager;
 import com.squareup.otto.Subscribe;
 import nordpol.android.TagDispatcher;
 
+import java.util.List;
 import java.util.UUID;
 
 
@@ -107,7 +108,7 @@ public class LedgerAccountImportActivity extends LedgerAccountSelectorActivity {
                   .createExternalSignatureAccount(
                         item.xPub,
                         (LedgerManager) masterseedScanManager,
-                        item.accountHdKeyPath.getLastIndex());
+                        item.accountHdKeysPaths.iterator().next().getLastIndex());
 
             // Mark this account as backup warning ignored
             mbwManager.getMetadataStorage().setOtherAccountBackupState(acc, MetadataStorage.BackupState.IGNORED);
@@ -123,7 +124,7 @@ public class LedgerAccountImportActivity extends LedgerAccountSelectorActivity {
    @Override
    protected void updateUi() {
       super.updateUi();
-      if (masterseedScanManager.currentAccountState == AccountScanManager.AccountStatus.done) {
+      if (masterseedScanManager.getCurrentAccountState() == AccountScanManager.AccountStatus.done) {
          findViewById(R.id.btNextAccount).setEnabled(true);
       } else {
          findViewById(R.id.btNextAccount).setEnabled(false);
@@ -149,16 +150,16 @@ public class LedgerAccountImportActivity extends LedgerAccountSelectorActivity {
 
                   new Thread() {
                      public void run() {
-                        Optional<HdKeyNode> nextAccount = masterseedScanManager.getNextUnusedAccount();
+                        List<HdKeyNode> nextAccounts = masterseedScanManager.getNextUnusedAccounts();
 
                         MbwManager mbwManager = MbwManager.getInstance(LedgerAccountImportActivity.this);
 
-                        if (nextAccount.isPresent()) {
+                        if (!nextAccounts.isEmpty()) {
                            final UUID acc = mbwManager.getWalletManager(false)
                                  .createExternalSignatureAccount(
-                                       nextAccount.get(),
+                                       nextAccounts,
                                        (LedgerManager) masterseedScanManager,
-                                       nextAccount.get().getIndex()
+                                       nextAccounts.get(0).getIndex()
                                  );
 
                            mbwManager.getMetadataStorage().setOtherAccountBackupState(acc, MetadataStorage.BackupState.IGNORED);

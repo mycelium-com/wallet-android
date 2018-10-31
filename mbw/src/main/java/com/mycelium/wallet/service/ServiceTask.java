@@ -58,9 +58,7 @@ public abstract class ServiceTask<T2 extends Serializable> implements Serializab
    public void run(Context context) {
       try {
          _result = doTask(context);
-      } catch (UserFacingException e) {
-         _e = e;
-      } catch (RuntimeException e) {
+      } catch (UserFacingException | RuntimeException e) {
          _e = e;
       }
    }

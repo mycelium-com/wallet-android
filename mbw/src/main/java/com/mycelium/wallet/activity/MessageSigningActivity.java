@@ -45,6 +45,7 @@ import android.widget.TextView;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.SignedMessage;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
@@ -66,6 +67,7 @@ public class MessageSigningActivity extends Activity {
 
 
     public static final String PRIVATE_KEY = "privateKey";
+    public static final String ADDRESS_TYPE = "addressType";
     private String base64Signature;
     private String messageText;
     private NetworkParameters network;
@@ -79,20 +81,21 @@ public class MessageSigningActivity extends Activity {
            /**/"%s\n" +
            /**/"-----END BITCOIN SIGNATURE-----";
 
-    public static void callMe(Context currentActivity, SingleAddressAccount account) {
+    public static void callMe(Context currentActivity, SingleAddressAccount account, AddressType addressType) {
        InMemoryPrivateKey privateKey;
        try {
           privateKey = account.getPrivateKey(AesKeyCipher.defaultKeyCipher());
        } catch (KeyCipher.InvalidKeyCipher e) {
           throw new RuntimeException(e);
        }
-       callMe(currentActivity, privateKey);
+       callMe(currentActivity, privateKey, addressType);
     }
 
-   public static void callMe(Context currentActivity, InMemoryPrivateKey key) {
+   public static void callMe(Context currentActivity, InMemoryPrivateKey key, AddressType addressType) {
       Intent intent = new Intent(currentActivity, MessageSigningActivity.class);
       String privKey = key.getBase58EncodedPrivateKey(MbwManager.getInstance(currentActivity).getNetwork());
       intent.putExtra(PRIVATE_KEY, privKey);
+      intent.putExtra(ADDRESS_TYPE, addressType);
       currentActivity.startActivity(intent);
    }
 
@@ -101,6 +104,7 @@ public class MessageSigningActivity extends Activity {
         super.onCreate(savedInstanceState);
         setTitle(R.string.sign_message);
         String encoded = getIntent().getStringExtra(PRIVATE_KEY);
+        final AddressType addressType = (AddressType) getIntent().getSerializableExtra(ADDRESS_TYPE);
         network = MbwManager.getInstance(this).getNetwork();
         final InMemoryPrivateKey privateKey = new InMemoryPrivateKey(encoded, network);
 
@@ -108,9 +112,9 @@ public class MessageSigningActivity extends Activity {
         final View signButton = findViewById(R.id.btSign);
         final View copyButton = findViewById(R.id.btCopyToClipboard);
         final View shareButton = findViewById(R.id.btShare);
-        final TextView signature = (TextView) findViewById(R.id.signature);
+        final TextView signature = findViewById(R.id.signature);
 
-        final EditText messageToSign = (EditText) findViewById(R.id.etMessageToSign);
+        final EditText messageToSign = findViewById(R.id.etMessageToSign);
         copyButton.setVisibility(View.GONE);
         shareButton.setVisibility(View.GONE);
 
@@ -160,7 +164,7 @@ public class MessageSigningActivity extends Activity {
 
                 Intent sharingIntent = new Intent(Intent.ACTION_SEND);
                 sharingIntent.setType("text/plain");
-                Address address = privateKey.getPublicKey().toAddress(network);
+                Address address = privateKey.getPublicKey().toAddress(network, addressType);
                 String body = String.format(TEMPLATE, messageText, address, base64Signature);
 
                 sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, body);

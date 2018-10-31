@@ -186,7 +186,6 @@ public class BalanceFragment extends Fragment {
         }
 
         _tcdFiatDisplay.setCurrencySwitcher(_mbwManager.getCurrencySwitcher());
-        _tcdFiatDisplay.setEventBus(_mbwManager.getEventBus());
 
         updateUi();
         super.onStart();
@@ -232,7 +231,7 @@ public class BalanceFragment extends Fragment {
     void onClickReceive() {
         Optional<Address> receivingAddress = _mbwManager.getSelectedAccount().getReceivingAddress();
         if (receivingAddress.isPresent()) {
-            ReceiveCoinsActivity.callMe(getActivity(), receivingAddress.get(),
+            ReceiveCoinsActivity.callMe(getActivity(), _mbwManager.getSelectedAccount(),
                                         _mbwManager.getSelectedAccount().canSpend(), true);
         }
     }

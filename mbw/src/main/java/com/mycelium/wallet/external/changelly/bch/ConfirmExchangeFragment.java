@@ -4,16 +4,14 @@ package com.mycelium.wallet.external.changelly.bch;
 import android.app.DownloadManager;
 import android.app.Fragment;
 import android.app.ProgressDialog;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Paint;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.text.Html;
 import android.util.Log;
@@ -23,6 +21,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.megiontechnologies.BitcoinCash;
 import com.mycelium.spvmodule.IntentContract;
@@ -34,7 +33,7 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.WalletApplication;
 import com.mycelium.wallet.event.SpvSendFundsResult;
 import com.mycelium.wallet.external.changelly.ChangellyAPIService;
-import com.mycelium.wallet.external.changelly.ChangellyService;
+import com.mycelium.wallet.external.changelly.ChangellyAPIService.ChangellyTransaction;
 import com.mycelium.wallet.external.changelly.Constants;
 import com.mycelium.wallet.external.changelly.ExchangeLoggingService;
 import com.mycelium.wallet.external.changelly.model.Order;
@@ -71,17 +70,19 @@ import retrofit2.Response;
 
 import static android.content.Context.DOWNLOAD_SERVICE;
 import static android.os.Environment.DIRECTORY_DOWNLOADS;
-import static com.mycelium.wallet.external.changelly.ChangellyService.INFO_ERROR;
+import static com.mycelium.wallet.external.changelly.ChangellyAPIService.BCH;
+import static com.mycelium.wallet.external.changelly.ChangellyAPIService.BTC;
 import static com.mycelium.wallet.external.changelly.Constants.ABOUT;
 import static com.mycelium.wallet.external.changelly.Constants.decimalFormat;
 import static com.mycelium.wallet.external.changelly.bch.ExchangeFragment.BCH_EXCHANGE;
 import static com.mycelium.wallet.external.changelly.bch.ExchangeFragment.BCH_EXCHANGE_TRANSACTIONS;
-import static com.mycelium.wapi.wallet.bip44.Bip44AccountContext.ACCOUNT_TYPE_FROM_MASTERSEED;
+import static com.mycelium.wapi.wallet.bip44.HDAccountContext.ACCOUNT_TYPE_FROM_MASTERSEED;
 
 public class ConfirmExchangeFragment extends Fragment {
     public static final String TAG = "BCHExchange";
     public static final int UPDATE_TIME = 60;
     public static final String BLOCKTRAIL_TRANSACTION = "https://www.blocktrail.com/_network_/tx/_id_";
+    private ChangellyAPIService changellyAPIService = ChangellyAPIService.retrofit.create(ChangellyAPIService.class);
 
     @BindView(R.id.fromAddress)
     TextView fromAddress;
@@ -113,7 +114,6 @@ public class ConfirmExchangeFragment extends Fragment {
     @BindView(R.id.offer_update_text)
     TextView offerUpdateText;
 
-
     MbwManager mbwManager;
     WalletAccount fromAccount;
     WalletAccount toAccount;
@@ -122,7 +122,6 @@ public class ConfirmExchangeFragment extends Fragment {
 
     private ChangellyAPIService.ChangellyTransactionOffer offer;
     private ProgressDialog progressDialog;
-    private Receiver receiver;
 
     private String lastOperationId;
     private String toValue;
@@ -141,13 +140,6 @@ public class ConfirmExchangeFragment extends Fragment {
         mbwManager.getEventBus().register(this);
         fromAccount = mbwManager.getWalletManager(false).getAccount(fromAddress);
         toAccount = mbwManager.getWalletManager(false).getAccount(toAddress);
-        receiver = new Receiver();
-        for (String action : new String[]{ChangellyService.INFO_TRANSACTION
-                , ChangellyService.INFO_ERROR
-                , ChangellyService.INFO_EXCH_AMOUNT}) {
-            IntentFilter intentFilter = new IntentFilter(action);
-            LocalBroadcastManager.getInstance(getActivity()).registerReceiver(receiver, intentFilter);
-        }
         BigDecimal txFee = UtilsKt.estimateFeeFromTransferrableAmount(
                 fromAccount, mbwManager, BitcoinCash.valueOf(amount).getLongValue());
         sentAmount = amount - txFee.doubleValue();
@@ -230,12 +222,6 @@ public class ConfirmExchangeFragment extends Fragment {
         getRate();
     }
 
-    @Override
-    public void onDestroy() {
-        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(receiver);
-        super.onDestroy();
-    }
-
     private void updateRate() {
         if (offer != null) {
             CurrencyValue currencyValueTo = null;
@@ -253,75 +239,25 @@ public class ConfirmExchangeFragment extends Fragment {
         }
     }
 
-
     private void createOffer() {
-        Intent changellyServiceIntent = new Intent(getActivity(), ChangellyService.class)
-                .setAction(ChangellyService.ACTION_CREATE_TRANSACTION)
-                .putExtra(ChangellyService.FROM, ChangellyService.BCH)
-                .putExtra(ChangellyService.TO, ChangellyService.BTC)
-                .putExtra(ChangellyService.AMOUNT, sentAmount)
-                .putExtra(ChangellyService.DESTADDRESS, toAccount.getReceivingAddress().get().toString());
-        getActivity().startService(changellyServiceIntent);
-
+        changellyAPIService.createTransaction(BCH, BTC, sentAmount, toAccount.getReceivingAddress().get().toString())
+                .enqueue(new GetOfferCallback());
     }
 
     private void getRate() {
-        Intent changellyServiceIntent = new Intent(getActivity(), ChangellyService.class)
-                .setAction(ChangellyService.ACTION_GET_EXCHANGE_AMOUNT)
-                .putExtra(ChangellyService.FROM, ChangellyService.BCH)
-                .putExtra(ChangellyService.TO, ChangellyService.BTC)
-                .putExtra(ChangellyService.AMOUNT, sentAmount);
-        getActivity().startService(changellyServiceIntent);
+        changellyAPIService.getExchangeAmount(BCH, BTC, sentAmount).enqueue(new GetAmountCallback(sentAmount));
     }
 
     private void updateUI() {
         if (isAdded()) {
-            fromAmount.setText(getString(R.string.value_currency, decimalFormat.format(amount)
-                    , ChangellyService.BCH));
-            toAmount.setText(getString(R.string.value_currency, toValue
-                    , ChangellyService.BTC));
+            fromAmount.setText(getString(R.string.value_currency, decimalFormat.format(amount), BCH));
+            toAmount.setText(getString(R.string.value_currency, toValue, BTC));
             updateRate();
-        }
-    }
-
-    class Receiver extends BroadcastReceiver {
-        private Receiver() {
-        }  // prevents instantiation
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            switch (intent.getAction()) {
-                case ChangellyService.INFO_TRANSACTION:
-                    buttonContinue.setEnabled(true);
-                    offer = (ChangellyAPIService.ChangellyTransactionOffer) intent.getSerializableExtra(ChangellyService.OFFER);
-                    updateUI();
-                    break;
-                case INFO_ERROR:
-                    progressBar.setVisibility(View.INVISIBLE);
-                    new AlertDialog.Builder(getActivity(), R.style.MyceliumModern_Dialog)
-                            .setMessage(R.string.exchange_service_unavailable)
-                            .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    getFragmentManager().popBackStack();
-                                }
-                            }).create().show();
-                    break;
-                case ChangellyService.INFO_EXCH_AMOUNT:
-                    progressBar.setVisibility(View.INVISIBLE);
-                    toValue = decimalFormat.format(intent.getDoubleExtra(ChangellyService.AMOUNT, 0));
-                    offerUpdateText.removeCallbacks(updateOffer);
-                    autoUpdateTime = 0;
-                    offerUpdateText.post(updateOffer);
-                    updateUI();
-                    break;
-            }
         }
     }
 
     int autoUpdateTime;
     private Runnable updateOffer = new Runnable() {
-
         @Override
         public void run() {
             if (!isAdded()) {
@@ -458,6 +394,52 @@ public class ConfirmExchangeFragment extends Fragment {
             });
         } catch (RetrofitError e) {
             Log.e(TAG, "Excange logging error", e);
+        }
+    }
+
+    class GetAmountCallback implements Callback<ChangellyAPIService.ChangellyAnswerDouble> {
+        double fromAmount;
+
+        GetAmountCallback(double fromAmount) {
+            this.fromAmount = fromAmount;
+        }
+
+        @Override
+        public void onResponse(@NonNull Call<ChangellyAPIService.ChangellyAnswerDouble> call,
+                               @NonNull Response<ChangellyAPIService.ChangellyAnswerDouble> response) {
+            ChangellyAPIService.ChangellyAnswerDouble result = response.body();
+            if(result != null) {
+                double amount = result.result;
+                progressBar.setVisibility(View.INVISIBLE);
+                toValue = decimalFormat.format(amount);
+                offerUpdateText.removeCallbacks(updateOffer);
+                autoUpdateTime = 0;
+                offerUpdateText.post(updateOffer);
+                updateUI();
+            }
+        }
+
+        @Override
+        public void onFailure(@NonNull Call<ChangellyAPIService.ChangellyAnswerDouble> call,
+                              @NonNull Throwable t) {
+            Toast.makeText(getActivity(), "Service unavailable", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    class GetOfferCallback implements Callback<ChangellyTransaction> {
+        @Override
+        public void onResponse(@NonNull Call<ChangellyTransaction> call,
+                               @NonNull Response<ChangellyTransaction> response) {
+            ChangellyTransaction result = response.body();
+            if(result != null) {
+                buttonContinue.setEnabled(true);
+                offer = result.result;
+                updateUI();
+            }
+        }
+
+        @Override
+        public void onFailure(@NonNull Call<ChangellyTransaction> call, @NonNull Throwable t) {
         }
     }
 }

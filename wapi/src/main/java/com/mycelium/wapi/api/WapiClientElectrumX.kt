@@ -6,7 +6,6 @@ import com.mrd.bitlib.StandardTransactionBuilder
 import com.mrd.bitlib.model.OutPoint
 import com.mrd.bitlib.model.Transaction
 import com.mrd.bitlib.model.TransactionInput
-import com.mrd.bitlib.util.ByteReader
 import com.mrd.bitlib.util.HexUtils
 import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.WapiLogger
@@ -60,7 +59,7 @@ class WapiClientElectrumX(
     }
 
     init {
-        connectionManager.subscribe(Subscription(HEADRES_SUBSCRIBE_METHOD, RpcParams.listParams(true), receiveHeaderCallback))
+        connectionManager.subscribe(Subscription(HEADRES_SUBSCRIBE_METHOD, RpcParams.listParams(), receiveHeaderCallback))
     }
 
     override fun queryUnspentOutputs(request: QueryUnspentOutputsRequest): WapiResponse<QueryUnspentOutputsResponse> {
@@ -70,8 +69,8 @@ class WapiClientElectrumX(
             val requestsIndexesMap = HashMap<String, Int>()
             val requestAddressesList = ArrayList(request.addresses)
             requestAddressesList.forEach {
-                val addrHex = it.toString()
-                requestsList.add(RpcRequestOut(LIST_UNSPENT_METHOD, RpcParams.listParams(addrHex)))
+                val addrScriptHash = it.scriptHash.toHex()
+                requestsList.add(RpcRequestOut(LIST_UNSPENT_METHOD, RpcParams.listParams(addrScriptHash)))
             }
             val unspentsArray = connectionManager.write(requestsList).responses
 
@@ -100,8 +99,8 @@ class WapiClientElectrumX(
         try {
             val requestsList = ArrayList<RpcRequestOut>(request.addresses.size)
             request.addresses.forEach {
-                val addrHex = it.toString()
-                requestsList.add(RpcRequestOut(GET_HISTORY_METHOD, RpcParams.listParams(addrHex)))
+                val addrScripthHash = it.scriptHash.toHex()
+                requestsList.add(RpcRequestOut(GET_HISTORY_METHOD, RpcParams.listParams(addrScripthHash)))
             }
             val transactionHistoryArray = connectionManager.write(requestsList).responses
 
@@ -124,7 +123,7 @@ class WapiClientElectrumX(
                         txHashString,
                         if (tx.confirmations > 0) bestChainHeight - tx.confirmations + 1 else -1,
                         if (tx.time == 0) (Date().time / 1000).toInt() else tx.time,
-                        Transaction.fromByteReader(ByteReader(HexUtils.toBytes(tx.hex)), txIdString).toBytes(), // TODO SEGWIT remove when implemeted. Decreases sync speed twice
+                        HexUtils.toBytes(tx.hex),
                         unconfirmedChainLength, // 0 or 1. we don't dig deeper. 1 == unconfirmed parent
                         rbfRisk)
             }
@@ -285,15 +284,13 @@ class WapiClientElectrumX(
     }
 
     companion object {
-        @Deprecated("Address must be replaced with script")
-        private const val LIST_UNSPENT_METHOD = "blockchain.address.listunspent"
+        private const val LIST_UNSPENT_METHOD = "blockchain.scripthash.listunspent"
         private const val ESTIMATE_FEE_METHOD = "blockchain.estimatefee"
         private const val BROADCAST_METHOD = "blockchain.transaction.broadcast"
         private const val GET_TRANSACTION_METHOD = "blockchain.transaction.get"
         private const val FEATURES_METHOD = "server.features"
         private const val HEADRES_SUBSCRIBE_METHOD = "blockchain.headers.subscribe"
-        @Deprecated("Address must be replaced with script")
-        private const val GET_HISTORY_METHOD = "blockchain.address.get_history"
+        private const val GET_HISTORY_METHOD = "blockchain.scripthash.get_history"
         private const val GET_TRANSACTION_BATCH_LIMIT = 10
     }
 }

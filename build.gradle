@@ -1,4 +1,11 @@
 apply from: 'tools.gradle'
+apply plugin: 'kotlin'
+apply plugin: 'kotlin-kapt'
+
+repositories {
+    google()
+    jcenter()
+}
 
 buildscript {
     apply from: 'ext_settings.gradle'
@@ -12,6 +19,10 @@ buildscript {
     }
 }
 
+kapt {
+    useBuildCache = true
+}
+
 allprojects {
     repositories {
         google()
@@ -20,6 +31,11 @@ allprojects {
         options.compilerArgs << "-Xlint:deprecation,unchecked"
         sourceCompatibility = 1.7
         targetCompatibility = 1.7
+    }
+
+    repositories {
+        google()
+        jcenter()
     }
 }
 

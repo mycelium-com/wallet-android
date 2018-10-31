@@ -41,7 +41,6 @@ import com.mycelium.wallet.activity.send.SendInitializationActivity;
 
 
 public abstract class InstantExtSigActivity extends ExtSigAccountSelectorActivity {
-
    @Override
    protected AdapterView.OnItemClickListener accountClickListener() {
       return new AdapterView.OnItemClickListener() {

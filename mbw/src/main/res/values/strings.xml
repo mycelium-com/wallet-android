@@ -51,6 +51,16 @@
     <string name="queue_transaction_message">Failed to broadcast transaction.\nWould you like to queue the transaction so it gets sent automatically once you get online?</string>
     <string name="transaction_sent">Transaction sent.</string>
     <string name="export">Export account keys</string>
+    <string name="export_private_key_red_warning">Only copy this key in a secure environment.\nAnyone who has access to it gains control over all current and in the future available bitcoin for this account.\n\nLong-press here to show the \nQR-Code </string>
+    <string name="export_toggle_xpub">xpub</string>
+    <string name="export_toggle_ypub">ypub</string>
+    <string name="export_toggle_zpub">zpub</string>
+    <string name="export_toggle_xprv">xprv</string>
+    <string name="export_toggle_p2sh">P2SH</string>
+    <string name="export_toggle_legacy">Legacy (P2PKH)</string>
+    <string name="export_toggle_p2wpkh">P2WPKH</string>
+    <string name="export_toggle_yprv">yprv</string>
+    <string name="export_toggle_zprv">zprv</string>
     <string name="backup_private_key">Backup</string>
     <string name="copy_to_clipboard">Copy to Clipboard</string>
     <string name="copy_address_to_clipboard">Copy address to Clipboard</string>
@@ -186,10 +196,22 @@
     <string name="delete_account_message_s"><![CDATA[Do you want to delete account <b>\"%1$s\"</b> holding <b>%2$s</b>?]]></string>
     <string name="delete_archived_account_message_s"><![CDATA[Do you want to delete account <b>\"%1$s\"</b>]]></string>
     <string name="confirm_delete_pk_title">Are You Sure?</string>
-    <string name="confirm_delete_pk_with_balance">This cannot be undone!\n\nCurrent address:\n%1$s\n\nIt contains %2$s\n\nDo you want to delete it?</string>
-    <string name="confirm_delete_pk_with_balance_with_label">This cannot be undone!\n\n%1$s\n\nCurrent address:\n%2$s\n\nIt contains %3$s\n\nDo you want to delete it?</string>
-    <string name="confirm_delete_pk_without_balance">This cannot be undone!\n\nCurrent address:\n%1$s\n\nDo you want to delete it?</string>
-    <string name="confirm_delete_pk_without_balance_with_label">This cannot be undone!\n\n%1$s\n\nCurrent address:\n%2$s\n\nDo you want to delete it?</string>
+    <plurals name="confirm_delete_pk_with_balance">
+        <item quantity="one">This cannot be undone!\n\nCurrent address:\n%1$s\n\nIt contains %2$s\n\nDo you want to delete it?</item>
+        <item quantity="other">This cannot be undone!\n\nCurrent addresses:\n%1$s\n\nIt contains %2$s\n\nDo you want to delete it?</item>
+    </plurals>
+    <plurals name="confirm_delete_pk_with_balance_with_label">
+        <item quantity="one">This cannot be undone!\n\n%1$s\n\nCurrent address:\n%2$s\n\nIt contains %3$s\n\nDo you want to delete it?</item>
+        <item quantity="other">This cannot be undone!\n\n%1$s\n\nCurrent addresses:\n%2$s\n\nIt contains %3$s\n\nDo you want to delete it?</item>
+    </plurals>
+    <plurals name="confirm_delete_pk_without_balance">
+        <item quantity="one">This cannot be undone!\n\nCurrent address:\n%1$s\n\nDo you want to delete it?</item>
+        <item quantity="other">This cannot be undone!\n\nCurrent addresses:\n%1$s\n\nDo you want to delete it?</item>
+    </plurals>
+    <plurals name="confirm_delete_pk_without_balance_with_label">
+        <item quantity="one">This cannot be undone!\n\n%1$s\n\nCurrent address:\n%2$s\n\nDo you want to delete it?</item>
+        <item quantity="other">This cannot be undone!\n\n%1$s\n\nCurrent addresses:\n%2$s\n\nDo you want to delete it?</item>
+    </plurals>
     <string name="verify_private_key_backup">Verify Backup</string>
     <string name="verify_backup_dialog_title">Verify Private Key Backup</string>
     <string name="verify_backup_desc">Having a proper backup is a cornerstone when managing your Bitcoin and digital assets funds.\n\nBy verifying your backup you make sure that your backup works and that you do not lose your funds if your Android device is lost or damaged.</string>
@@ -199,7 +221,7 @@
     <string name="verify_backup_one_key">You have 1 key that has never been verified.</string>
     <string name="verify_backup_master_seed">Your master seed has not been verified.</string>
     <string name="verify_backup_no_such_record">The private key does not match any of your Bitcoin addresses.</string>
-    <string name="verify_backup_ok">Private key backup successfully verified for the following address:\n\n%1$s</string>
+    <string name="verify_backup_ok">Private key backup successfully verified for the following account: \n\n%1$s\n\nAddresses:\n\n%2$s</string>
     <string name="wrong_seed">The scanned seed does not match your master seed.</string>
     <string name="backup_missing">Backup missing</string>
     <string name="verify_backup_title">Backup and Verify</string>
@@ -520,7 +542,6 @@
     <string name="showing_word_number">Word %1$s:</string>
     <string name="start_word_list_verification">Start Verification</string>
     <string name="delete_last_entered_word">Delete Last Word</string>
-    <string name="stale_fee_warning">The fee rates are older than 2h! Proceed with caution!</string>
     <string name="account">Account</string>
     <string name="verify_backup_seed_des">Verify master seed backup by scanning the QR code.</string>
     <string name="show_outputs_menu_item">Show Unspent Outputs</string>
@@ -624,7 +645,7 @@
     <string name="add_advanced_account_warning">Warning:\n These keys won\'t be included in your Master-Seed-Backup. You have to ensure that you have a separate backup of them.</string>
     <string name="new_random_key_desc">Generate new random key pair to use as BTC or BCH SA account.</string>
     <string name="generate_new_key">Generate BTC SA Account</string>
-    <string name="new_bitcoin_address_created">A new random private key has been generated with the following Bitcoin address:</string>
+    <string name="new_bitcoin_address_created">A new random private key has been generated with the following Bitcoin addresses:</string>
     <string name="shuffle">Shuffle</string>
     <string name="toast_warning_low_fee">might take longer to confirm</string>
     <string name="account_number">Account %d</string>
@@ -1268,6 +1289,25 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="button_done">Done</string>
     <string name="button_cancel">Cancel</string>
     <string name="transactions_loading_from_module_error">Error loading transactions from module</string>
+    <string name="address_type">Address type:</string>
+    <string name="normal_p2sh">Normal (P2SH)</string>
+    <string name="native_segwit_bech_32">Native Segwit (Bech 32)</string>
+    <string name="change_address_type">Transaction change address type</string>
+    <string name="block_explorer">Block explorer</string>
+    <string name="p2sh_receive_mode">P2SH mode</string>
+    <string name="bech32_receive_mode">SegWit native (Bech32).</string>
+    <string name="set_default">Set as default</string>
+    <string name="bech_next">Tap for Bech32</string>
+    <string name="p2sh_next">Tap for P2SH</string>
+    <string name="p2sh">P2SH</string>
+    <string name="bech">Bech32</string>
+    <string name="starting_application">Starting application</string>
+    <string name="migrating_accounts">Migrating accounts</string>
+    <string name="loading_accounts">Loading accounts</string>
+    <string name="migrating_n_of_m_hd">Migrating %1$s account of total %2$s HD accounts</string>
+    <string name="loading_n_of_m_hd">Loading %1$s account of total %2$s HD accounts</string>
+    <string name="migrating_n_of_m_sa">Migrating %1$s account of total %2$s Single Address accounts</string>
+    <string name="loading_n_of_m_sa">Loading %1$s account of total %2$s Single Address accounts</string>
     <plurals name="account_label">
         <item quantity="one">Account label:\n%s</item>
         <item quantity="other">Accounts labels:\n%s</item>

@@ -148,6 +148,12 @@
         <item name="android:backgroundDimEnabled">false</item>
     </style>
 
+    <style name="MyceliumNoActionBarFullScreen" parent="MyceliumModern">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+    </style>
+
     <style name="MyceliumModern" parent="AppBaseTheme">
         <!--<item name="android:windowFullscreen">true</item>-->
         <!--   <item name="android:windowActionBar">false</item>

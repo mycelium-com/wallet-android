@@ -37,7 +37,7 @@ class TransactionHistoryLiveData(val mbwManager: MbwManager) : LiveData<Set<Tran
 
     override fun onActive() {
         super.onActive()
-        mbwManager.eventBus.register(this)
+        MbwManager.getEventBus().register(this)
         if (account !== mbwManager.selectedAccount) {
             account = mbwManager.selectedAccount
             updateValue(ArrayList())
@@ -46,7 +46,7 @@ class TransactionHistoryLiveData(val mbwManager: MbwManager) : LiveData<Set<Tran
     }
 
     override fun onInactive() {
-        mbwManager.eventBus.unregister(this)
+        MbwManager.getEventBus().unregister(this)
     }
 
     private fun startHistoryUpdate(): AsyncTask<Void, MutableList<TransactionSummary>, MutableList<TransactionSummary>> =

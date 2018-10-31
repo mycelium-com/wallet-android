@@ -43,6 +43,7 @@ import com.mrd.bitlib.crypto.BipSss;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.wallet.activity.BipSsImportActivity;
@@ -64,6 +65,7 @@ import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.single.SingleAddressBCHAccount;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -243,14 +245,19 @@ public class StringHandleConfig implements Serializable {
 
             MbwManager mbwManager = MbwManager.getInstance(handlerActivity);
             // Calculate the account ID that this key would have
-            UUID account = SingleAddressAccount.calculateId(key.get().getPublicKey().toAddress(mbwManager.getNetwork()));
-            UUID bchAccount = SingleAddressBCHAccount.Companion.calculateId(key.get().getPublicKey().toAddress(mbwManager.getNetwork()));
-            // Check whether regular wallet contains the account
-            boolean success = mbwManager.getWalletManager(false).hasAccount(account)
-                    || mbwManager.getColuManager().hasAccount(account);
-            for (ColuAccount.ColuAsset coluAsset : ColuAccount.ColuAsset.getAssetMap().values()) {
-               UUID coluUUID = ColuAccount.getGuidForAsset(coluAsset, key.get().getPublicKey().toAddress(mbwManager.getNetwork()).getAllAddressBytes());
-               success |= mbwManager.getColuManager().hasAccount(coluUUID);
+            boolean success = false;
+            UUID account = null;
+            UUID bchAccount = null;
+            for (Address address : key.get().getPublicKey().getAllSupportedAddresses(mbwManager.getNetwork()).values()) {
+               account = SingleAddressAccount.calculateId(address);
+               bchAccount = SingleAddressBCHAccount.Companion.calculateId(key.get().getPublicKey().toAddress(mbwManager.getNetwork(), AddressType.P2PKH));
+               // Check whether regular wallet contains the account
+               success = mbwManager.getWalletManager(false).hasAccount(account)
+                       || mbwManager.getColuManager().hasAccount(account);
+               for (ColuAccount.ColuAsset coluAsset : ColuAccount.ColuAsset.getAssetMap().values()) {
+                  UUID coluUUID = ColuAccount.getGuidForAsset(coluAsset, key.get().getPublicKey().toAddress(mbwManager.getNetwork(), AddressType.P2PKH).getAllAddressBytes());
+                  success |= mbwManager.getColuManager().hasAccount(coluUUID);
+               }
             }
 
             if (success) {
@@ -258,7 +265,7 @@ public class StringHandleConfig implements Serializable {
                mbwManager.getMetadataStorage().setOtherAccountBackupState(account, MetadataStorage.BackupState.VERIFIED);
                mbwManager.getMetadataStorage().setOtherAccountBackupState(bchAccount, MetadataStorage.BackupState.VERIFIED);
                for (ColuAccount.ColuAsset coluAsset : ColuAccount.ColuAsset.getAssetMap().values()) {
-                  UUID coluUUID = ColuAccount.getGuidForAsset(coluAsset, key.get().getPublicKey().toAddress(mbwManager.getNetwork()).getAllAddressBytes());
+                  UUID coluUUID = ColuAccount.getGuidForAsset(coluAsset, key.get().getPublicKey().toAddress(mbwManager.getNetwork(), AddressType.P2PKH).getAllAddressBytes());
                   mbwManager.getMetadataStorage().setOtherAccountBackupState(coluUUID, MetadataStorage.BackupState.VERIFIED);
                }
                handlerActivity.finishOk();
@@ -313,7 +320,7 @@ public class StringHandleConfig implements Serializable {
             try {
                HdKeyNode hdKey = HdKeyNode.parse(content, handlerActivity.getNetwork());
                final WalletManager tempWalletManager = MbwManager.getInstance(handlerActivity).getWalletManager(true);
-               UUID acc = tempWalletManager.createUnrelatedBip44Account(hdKey);
+               UUID acc = tempWalletManager.createUnrelatedBip44Account(Collections.singletonList(hdKey));
                tempWalletManager.setActiveAccount(acc);
                BitcoinUri uri = new BitcoinUri(null,null,null);
                SendInitializationActivity.callMeWithResult(handlerActivity, acc, uri, true,

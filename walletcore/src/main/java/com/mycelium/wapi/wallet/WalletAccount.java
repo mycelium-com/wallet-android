@@ -21,7 +21,7 @@ import com.megiontechnologies.Bitcoins;
 import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
-import com.mrd.bitlib.StandardTransactionBuilder.UnsignedTransaction;
+import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.OutputList;
@@ -32,6 +32,7 @@ import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
 import java.util.List;
@@ -298,6 +299,11 @@ public interface WalletAccount {
     * Determine the maximum spendable amount you can send in a transaction
     */
    ExactCurrencyValue calculateMaxSpendableAmount(long minerFeeToUse);
+
+   /**
+    * Determine the maximum spendable amount you can send in a transaction, with considering destination address type.
+    */
+   ExactCurrencyValue calculateMaxSpendableAmount(long minerFeeToUse, @Nullable Address destinationAddress);
 
    /**
     * Determine whether the provided encryption key is valid for this wallet account.

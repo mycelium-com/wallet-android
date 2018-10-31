@@ -22,7 +22,7 @@ public abstract class SynchronizeAbleWalletAccount implements WalletAccount {
          SyncMode.Mode.NORMAL_SYNC, 30 * 1000,
          SyncMode.Mode.FULL_SYNC, 120 * 1000
    );
-   protected final HashMap<SyncMode.Mode, Date> _lastSync = new HashMap<SyncMode.Mode, Date>(SyncMode.Mode.values().length);
+   private final HashMap<SyncMode.Mode, Date> _lastSync = new HashMap<>(SyncMode.Mode.values().length);
 
    protected Type type = Type.UNKNOWN;
 
@@ -37,7 +37,7 @@ public abstract class SynchronizeAbleWalletAccount implements WalletAccount {
     * @param syncMode the requested sync mode
     * @return true if sync is needed
     */
-   public boolean needsSynchronization(SyncMode syncMode){
+   private boolean needsSynchronization(SyncMode syncMode){
       if (syncMode.ignoreSyncInterval) {
          return true;
       }
@@ -60,7 +60,7 @@ public abstract class SynchronizeAbleWalletAccount implements WalletAccount {
     * @param syncMode the Mode to get the interval for
     * @return the interval in milliseconds
     */
-   protected Integer getSyncInterval(SyncMode syncMode) {
+   private Integer getSyncInterval(SyncMode syncMode) {
       return MIN_SYNC_INTERVAL.get(syncMode.mode);
    }
 
@@ -101,59 +101,6 @@ public abstract class SynchronizeAbleWalletAccount implements WalletAccount {
     * @return true if sync was successful
     */
    protected abstract boolean doSynchronization(SyncMode mode);
-
-   @Override
-   public abstract boolean broadcastOutgoingTransactions();
-
-   @Override
-   public abstract TransactionEx getTransaction(Sha256Hash txid);
-
-   @Override
-   public abstract BroadcastResult broadcastTransaction(Transaction transaction);
-
-   @Override
-   public abstract Transaction signTransaction(StandardTransactionBuilder.UnsignedTransaction unsigned, KeyCipher cipher)
-         throws KeyCipher.InvalidKeyCipher;
-
-   @Override
-   public abstract void queueTransaction(TransactionEx transaction);
-
-   @Override
-   public abstract boolean deleteTransaction(Sha256Hash transactionId);
-
-   @Override
-   public abstract boolean cancelQueuedTransaction(Sha256Hash transaction);
-
-   @Override
-   public abstract void checkAmount(Receiver receiver, long kbMinerFee, CurrencyValue enteredAmount) throws StandardTransactionBuilder.InsufficientFundsException, StandardTransactionBuilder.OutputTooSmallException, StandardTransactionBuilder.UnableToBuildTransactionException;
-
-   @Override
-   public abstract NetworkParameters getNetwork();
-
-   @Override
-   public abstract ExactCurrencyValue calculateMaxSpendableAmount(long minerFeeToUse);
-
-   @Override
-   public abstract StandardTransactionBuilder.UnsignedTransaction createUnsignedTransaction(List<Receiver> receivers, long minerFeeToUse)
-         throws StandardTransactionBuilder.OutputTooSmallException, StandardTransactionBuilder.InsufficientFundsException, StandardTransactionBuilder.UnableToBuildTransactionException;
-
-   @Override
-   public abstract StandardTransactionBuilder.UnsignedTransaction createUnsignedTransaction(OutputList outputs, long minerFeeToUse) throws StandardTransactionBuilder.OutputTooSmallException, StandardTransactionBuilder.InsufficientFundsException, StandardTransactionBuilder.UnableToBuildTransactionException;
-
-   @Override
-   public abstract Balance getBalance();
-
-   @Override
-   public abstract CurrencyBasedBalance getCurrencyBasedBalance();
-
-   @Override
-   public abstract List<TransactionOutputSummary> getUnspentTransactionOutputSummary();
-
-   @Override
-   public abstract TransactionSummary getTransactionSummary(Sha256Hash txid);
-
-   @Override
-   public abstract TransactionDetails getTransactionDetails(Sha256Hash txid);
 
    @Override
    public boolean onlySyncWhenActive() {

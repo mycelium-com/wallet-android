@@ -5,7 +5,7 @@ import com.mycelium.wallet.Utils
 import com.mycelium.wallet.colu.ColuAccount
 import com.mycelium.wallet.persistence.MetadataStorage
 import com.mycelium.wapi.wallet.WalletAccount
-import com.mycelium.wapi.wallet.bip44.Bip44Account
+import com.mycelium.wapi.wallet.bip44.HDAccount
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance
 
 /**
@@ -37,8 +37,8 @@ class AccountViewModel(account: WalletAccount, mbwManager: MbwManager) : Account
         }
     }
 
-    constructor(account: Bip44Account, mbwManager: MbwManager) : this(account as WalletAccount, mbwManager) {
-        displayAddress = Integer.toString(account.privateKeyCount)
+    constructor(account: HDAccount, mbwManager: MbwManager) : this(account as WalletAccount, mbwManager) {
+        displayAddress = Integer.toString(account.getPrivateKeyCount())
     }
 
     override fun getType() = AccountListItem.Type.ACCOUNT_TYPE
