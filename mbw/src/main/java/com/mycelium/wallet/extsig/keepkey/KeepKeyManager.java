@@ -38,8 +38,8 @@ import android.content.Context;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager;
 import com.mycelium.wapi.wallet.bip44.HDAccountContext;
-import com.satoshilabs.trezor.ExternalSignatureDevice;
-import com.satoshilabs.trezor.KeepKey;
+import com.satoshilabs.trezor.lib.ExternalSignatureDevice;
+import com.satoshilabs.trezor.lib.KeepKey;
 import com.squareup.otto.Bus;
 
 public class KeepKeyManager extends ExternalSignatureDeviceManager {

@@ -43,7 +43,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 import com.google.common.base.Optional;
 import com.google.protobuf.ByteString;
-import com.google.protobuf.GeneratedMessage;
+import com.google.protobuf.GeneratedMessageV3;
 import com.google.protobuf.Message;
 import com.mrd.bitlib.SigningRequest;
 import com.mrd.bitlib.UnsignedTransaction;
@@ -59,7 +59,6 @@ import com.mrd.bitlib.model.TransactionOutput;
 import com.mrd.bitlib.model.hdpath.HdKeyPath;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.ByteWriter;
-import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.util.AbstractAccountScanManager;
@@ -67,12 +66,12 @@ import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bip44.HDAccountExternalSignature;
 import com.mycelium.wapi.wallet.bip44.ExternalSignatureProvider;
-import com.satoshilabs.trezor.ExternalSignatureDevice;
-import com.satoshilabs.trezor.ExtSigDeviceConnectionException;
-import com.satoshilabs.trezor.protobuf.TrezorMessage;
-import com.satoshilabs.trezor.protobuf.TrezorMessage.SignTx;
-import com.satoshilabs.trezor.protobuf.TrezorMessage.TxRequest;
-import com.satoshilabs.trezor.protobuf.TrezorType;
+import com.satoshilabs.trezor.lib.ExternalSignatureDevice;
+import com.satoshilabs.trezor.lib.ExtSigDeviceConnectionException;
+import com.satoshilabs.trezor.lib.protobuf.TrezorMessage;
+import com.satoshilabs.trezor.lib.protobuf.TrezorMessage.SignTx;
+import com.satoshilabs.trezor.lib.protobuf.TrezorMessage.TxRequest;
+import com.satoshilabs.trezor.lib.protobuf.TrezorType;
 import com.squareup.otto.Bus;
 
 import org.bitcoinj.core.ScriptException;
@@ -306,6 +305,7 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
                        .setPrevHash(prevHash)
                        .setPrevIndex(ak_input.outPoint.index)
                        .setSequence(ak_input.sequence)
+                       .setAmount(ak_input.getValue())
                        .setScriptSig(scriptSig);
 
                // get the bip32 path for the address, so that trezor knows with what key to sign it
@@ -316,10 +316,13 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
                   BipDerivationType derivationType;
                   if (fundingUtxoScript instanceof ScriptOutputP2SH) {
                      derivationType = BipDerivationType.BIP49;
+                     txInputBuilder.setScriptType(TrezorType.InputScriptType.SPENDP2SHWITNESS);
                   } else if (fundingUtxoScript instanceof ScriptOutputP2WPKH) {
                      derivationType = BipDerivationType.BIP84;
+                     txInputBuilder.setScriptType(TrezorType.InputScriptType.SPENDWITNESS);
                   } else if (fundingUtxoScript instanceof ScriptOutputStandard) {
                      derivationType = BipDerivationType.BIP44;
+                     txInputBuilder.setScriptType(TrezorType.InputScriptType.SPENDADDRESS);
                   } else {
                      postErrorMessage("Unhandled funding " + fundingUtxoScript);
                      return null;
@@ -365,7 +368,7 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
                   Address address = ak_output.script.getAddress(getNetwork());
                   TrezorType.TxOutputType.Builder txOutput = TrezorType.TxOutputType.newBuilder()
                           .setAmount(ak_output.value)
-                          .setScriptType(mapScriptType(ak_output.script));
+                          .setScriptType(mapScriptType(ak_output.script, forAccount.isOwnInternalAddress(address)));
 
                   Optional<Integer[]> addId = forAccount.getAddressId(address);
                   BipDerivationType derivationType = BipDerivationType.Companion.getDerivationTypeByAddress(address);
@@ -400,7 +403,8 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
       Transaction ret;
       try {
          ret = Transaction.fromByteReader(new ByteReader(signedTx.toBytes()));
-         checkSignedTransaction(unsigned, signedTx);
+         // TODO: 13.10.18 add this check back in and make it work with segwit.
+         //checkSignedTransaction(unsigned, signedTx);
       } catch (Transaction.TransactionParsingException e) {
          postErrorMessage("Trezor TX not valid.");
          Log.e("trezor", "Trezor TX not valid " + e.getMessage(), e);
@@ -429,14 +433,15 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
       }
    }
 
-   private TrezorType.OutputScriptType mapScriptType(ScriptOutput script) {
-      if (script instanceof ScriptOutputStandard) {
-         return TrezorType.OutputScriptType.PAYTOADDRESS;
-      } else if (script instanceof ScriptOutputP2SH) {
-         return TrezorType.OutputScriptType.PAYTOSCRIPTHASH;
-      } else {
-         throw new RuntimeException("unknown script type");
+   private TrezorType.OutputScriptType mapScriptType(ScriptOutput script, boolean isChange) {
+      if (isChange) {
+         if (script instanceof ScriptOutputP2SH) {
+            return TrezorType.OutputScriptType.PAYTOP2SHWITNESS;
+         } else if (script instanceof ScriptOutputP2WPKH) {
+            return TrezorType.OutputScriptType.PAYTOWITNESS;
+         }
       }
+      return TrezorType.OutputScriptType.PAYTOADDRESS;
    }
 
    @Override
@@ -528,7 +533,7 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
          // get the user to enter a passphrase
          Optional<String> passphrase = waitForPassphrase();
 
-         GeneratedMessage response;
+         GeneratedMessageV3 response;
          if (!passphrase.isPresent()) {
             // user has not provided a password - reset session on trezor and cancel
             response = TrezorMessage.ClearSession.newBuilder().build();

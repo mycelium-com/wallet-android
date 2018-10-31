@@ -254,18 +254,17 @@ open class HDAccount(
 
     protected fun getAddressRange(isChangeChain: Boolean, fromIndex: Int, toIndex: Int,
                                   derivationType: BipDerivationType): List<Address> {
-        var fromIndex = fromIndex
-        fromIndex = Math.max(0, fromIndex) // clip at zero
-        val ret = ArrayList<Address>(toIndex - fromIndex + 1)
-        for (i in fromIndex..toIndex) {
+        val clippedFromIndex = Math.max(0, fromIndex) // clip at zero
+        val ret = ArrayList<Address>(toIndex - clippedFromIndex + 1)
+        for (i in clippedFromIndex..toIndex) {
             ret.add(keyManagerMap[derivationType]!!.getAddress(isChangeChain, i))
         }
         return ret
     }
 
     @Synchronized
-    public override fun doSynchronization(mode: SyncMode): Boolean {
-        var mode = mode
+    public override fun doSynchronization(proposedMode: SyncMode): Boolean {
+        var mode = proposedMode
         checkNotArchived()
         isSynchronizing = true
         syncTotalRetrievedTransactions = 0
@@ -662,9 +661,7 @@ open class HDAccount(
         return addressId.isPresent && addressId.get()[0] == 0
     }
 
-    override fun canSpend(): Boolean {
-        return true
-    }
+    override fun canSpend() = true
 
 
     override fun getBlockChainHeight(): Int {

@@ -1,4 +1,4 @@
-package com.satoshilabs.trezor;
+package com.satoshilabs.trezor.lib;
 
 // based on https://github.com/trezor/trezor-android
 import android.app.PendingIntent;
@@ -10,7 +10,7 @@ import android.hardware.usb.*;
 import android.util.Log;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
-import com.satoshilabs.trezor.protobuf.TrezorMessage.*;
+import com.satoshilabs.trezor.lib.protobuf.TrezorMessage.*;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;

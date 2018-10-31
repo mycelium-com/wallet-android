@@ -182,7 +182,6 @@ public class LedgerSignTransactionActivity extends SignTransactionActivity {
       @Override
       public boolean handleMessage(Message message) {
          ((TextView) findViewById(R.id.tvPluginLedger)).setText(getString(R.string.ledger_please_wait));
-         showTx = false;
          updateUi();
          return true;
       }

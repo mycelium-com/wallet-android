@@ -46,7 +46,7 @@ import com.mrd.bitlib.model.hdpath.HdKeyPath
 import com.mycelium.wallet.BuildConfig
 import com.mycelium.wapi.wallet.AccountScanManager
 import com.mycelium.wapi.wallet.WalletManager
-import com.satoshilabs.trezor.protobuf.TrezorType
+import com.satoshilabs.trezor.lib.protobuf.TrezorType
 import com.squareup.otto.Bus
 import java.util.*
 import java.util.concurrent.LinkedBlockingQueue
