@@ -1041,12 +1041,12 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    }
 
    @Override
-   public synchronized ExactCurrencyValue calculateMaxSpendableAmount(long minerFeePerKbToUse) {
+   public synchronized Value calculateMaxSpendableAmount(long minerFeePerKbToUse) {
       return calculateMaxSpendableAmount(minerFeePerKbToUse, null);
    }
 
 
-   public synchronized ExactCurrencyValue calculateMaxSpendableAmount(long minerFeePerKbToUse, Address destinationAddress) {
+   public synchronized Value calculateMaxSpendableAmount(long minerFeePerKbToUse, Address destinationAddress) {
       checkNotArchived();
       Collection<UnspentTransactionOutput> spendableOutputs = transform(getSpendableOutputs(minerFeePerKbToUse));
       long satoshis = 0;
@@ -1068,7 +1068,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
 
       satoshis -= feeToUse;
       if (satoshis <= 0) {
-         return ZERO;
+         return Value.zeroValue(_network.isProdnet() ? BitcoinMain.get() : BitcoinTest.get());
       }
 
       // Create transaction builder
@@ -1086,7 +1086,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
          stb.addOutput(Address.getNullAddress(_network, destinationAddressType), satoshis);
       } catch (OutputTooSmallException e1) {
          // The amount we try to send is lower than what the network allows
-         return ZERO;
+         return Value.zeroValue(_network.isProdnet() ? BitcoinMain.get() : BitcoinTest.get());
       }
 
       // Try to create an unsigned transaction
@@ -1094,9 +1094,9 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
          stb.createUnsignedTransaction(spendableOutputs, getChangeAddress(Address.getNullAddress(_network, destinationAddressType)),
                  new PublicKeyRing(), _network, minerFeePerKbToUse);
          // We have enough to pay the fees, return the amount as the maximum
-         return ExactBitcoinValue.from(satoshis);
+         return Value.valueOf(_network.isProdnet() ? BitcoinMain.get() : BitcoinTest.get(), satoshis);
       } catch (InsufficientFundsException | StandardTransactionBuilder.UnableToBuildTransactionException e) {
-         return ZERO;
+         return Value.zeroValue(_network.isProdnet() ? BitcoinMain.get() : BitcoinTest.get());
       }
    }
 

@@ -7,6 +7,8 @@ import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.BtcLegacyAddress
+import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
+import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
@@ -81,6 +83,10 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext
     }
 
     override fun getBlockChainHeight(): Int = context.blockHeight
+
+    override fun calculateMaxSpendableAmount(minerFeeToUse: Long): Value {
+        return Value.zeroValue(if (networkParameters.isProdnet) BitcoinMain.get() else BitcoinTest.get())
+    }
 
 
     override fun checkAmount(receiver: WalletAccount.Receiver?, kbMinerFee: Long, enteredAmount: Value?) {

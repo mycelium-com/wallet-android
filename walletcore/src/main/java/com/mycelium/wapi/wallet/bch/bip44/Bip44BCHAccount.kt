@@ -20,7 +20,10 @@ import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.Companion.ACCOUNT_TYPE_FROM_MASTERSEED
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountKeyManager
+import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
+import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
+import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance
 import com.mycelium.wapi.wallet.currency.CurrencyValue
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue
@@ -54,14 +57,16 @@ open class Bip44BCHAccount(
         return transactions.firstOrNull { it.txid == txid }
     }
 
-    override fun calculateMaxSpendableAmount(minerFeePerKbToUse: Long): ExactCurrencyValue {
+    override fun calculateMaxSpendableAmount(minerFeePerKbToUse: Long): Value {
         //TODO Refactor the code and make the proper usage of minerFeePerKbToUse parameter
         val txFee = "NORMAL"
         val txFeeFactor = 1.0f
         return if (accountType == ACCOUNT_TYPE_FROM_MASTERSEED) {
-            ExactBitcoinCashValue.from(spvBalanceFetcher.calculateMaxSpendableAmount(accountIndex, txFee, txFeeFactor))
+            Value.valueOf( if(_network.isProdnet())  BitcoinMain.get() else BitcoinTest.get(),
+                    spvBalanceFetcher.calculateMaxSpendableAmount(accountIndex, txFee, txFeeFactor))
         } else {
-            ExactBitcoinCashValue.from(spvBalanceFetcher.calculateMaxSpendableAmountUnrelatedAccount(id.toString(), txFee, txFeeFactor))
+            Value.valueOf( if(_network.isProdnet())  BitcoinMain.get() else BitcoinTest.get(),
+                    spvBalanceFetcher.calculateMaxSpendableAmountUnrelatedAccount(id.toString(), txFee, txFeeFactor))
         }
     }
 

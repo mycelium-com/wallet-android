@@ -17,7 +17,10 @@ import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.bch.coins.BchTest
 import com.mycelium.wapi.wallet.bip44.ChangeAddressMode
+import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
+import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
+import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance
 import com.mycelium.wapi.wallet.currency.CurrencyValue
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue
@@ -36,11 +39,12 @@ class SingleAddressBCHAccount(context: SingleAddressAccountContext,
         return spvBalanceFetcher.retrieveByUnrelatedAccountId(id.toString())
     }
 
-    override fun calculateMaxSpendableAmount(minerFeePerKbToUse: Long): ExactCurrencyValue {
+    override fun calculateMaxSpendableAmount(minerFeePerKbToUse: Long): Value {
         //TODO Refactor the code and make the proper usage of minerFeePerKbToUse parameter
         val txFee = "NORMAL"
         val txFeeFactor = 1.0f
-        return ExactBitcoinCashValue.from(spvBalanceFetcher.calculateMaxSpendableAmountUnrelatedAccount(id.toString(), txFee, txFeeFactor))
+        return Value.valueOf( if(_network.isProdnet())  BitcoinMain.get() else BitcoinTest.get(),
+                spvBalanceFetcher.calculateMaxSpendableAmountUnrelatedAccount(id.toString(), txFee, txFeeFactor))
     }
 
     override fun calculateMaxSpendableAmount(minerFeeToUse: Long, destinationAddress: Address?) =
