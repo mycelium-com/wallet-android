@@ -146,7 +146,6 @@ public class AddAccountActivity extends Activity {
       public void onClick(View view) {
          final WalletManager wallet = _mbwManager.getWalletManager(false);
          wallet.addAccount(new EthAccount());
-         wallet.addAccount(new EthAccount());
       }
    };
 

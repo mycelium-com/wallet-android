@@ -81,7 +81,6 @@
                 android:layout_marginTop="25dp"
                 android:layout_marginBottom="@dimen/margin_medium"/>
 
-
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
