@@ -153,6 +153,11 @@ public class FiatAccount implements WalletAccount<FiatTransaction, FiatAddress> 
     }
 
     @Override
+    public Value calculateMaxSpendableAmount(long minerFeeToUse) {
+        return null;
+    }
+
+    @Override
     public int getSyncTotalRetrievedTransactions() {
         return 0;
     }

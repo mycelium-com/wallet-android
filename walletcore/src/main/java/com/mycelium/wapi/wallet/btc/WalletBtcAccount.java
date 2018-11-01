@@ -35,6 +35,7 @@ import com.mycelium.wapi.wallet.BroadcastResult;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 
@@ -250,9 +251,4 @@ public interface WalletBtcAccount extends WalletAccount<BtcTransaction, BtcLegac
     * returns true if this is one of our already used or monitored internal (="change") addresses
     */
    boolean isOwnInternalAddress(Address address);
-
-   /**
-    * Determine the maximum spendable amount you can send in a transaction
-    */
-   ExactCurrencyValue calculateMaxSpendableAmount(long minerFeeToUse);
 }

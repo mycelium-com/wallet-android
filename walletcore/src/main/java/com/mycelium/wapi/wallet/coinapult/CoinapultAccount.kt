@@ -5,6 +5,8 @@ import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.BtcAddress
+import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
+import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
@@ -18,7 +20,6 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
                        , val currency: Currency
                        , val listener: AccountListener?)
     : WalletAccount<CoinapultTransaction, BtcAddress> {
-
 
     val uuid: UUID = CoinapultUtils.getGuidForAsset(currency, accountKey.publicKey.publicKeyBytes)
     protected var cachedBalance = Balance(Value.zeroValue(coinType), Value.zeroValue(coinType)
@@ -68,6 +69,10 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
     override fun getCoinType(): CryptoCurrency = currency
 
     override fun getBlockChainHeight(): Int = 0
+
+    override fun calculateMaxSpendableAmount(minerFeeToUse: Long): Value {
+        return Value.zeroValue(if (_network.isProdnet) BitcoinMain.get() else BitcoinTest.get())
+    }
 
     override fun setAllowZeroConfSpending(allowZeroConfSpending: Boolean) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.

@@ -166,6 +166,11 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
     boolean broadcastOutgoingTransactions();
 
     /**
+     * Determine the maximum spendable amount you can send in a transaction
+     */
+    Value calculateMaxSpendableAmount(long minerFeeToUse);
+
+    /**
      * Returns the number of retrieved transactions during synchronization
      */
     int getSyncTotalRetrievedTransactions();

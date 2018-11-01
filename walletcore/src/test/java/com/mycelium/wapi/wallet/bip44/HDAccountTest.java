@@ -65,10 +65,4 @@ public class HDAccountTest {
         assertEquals(Address.fromString(MASTER_SEED_ACCOUNT_0_EXTERNAL_0_ADDRESS), account.getReceivingAddress().get());
         assertEquals(Address.fromString(MASTER_SEED_ACCOUNT_0_INTERNAL_0_ADDRESS), account.getChangeAddress());
     }
-
-    @Test
-    public void calculateMaxSpendableAmount() throws Exception {
-        // TODO: 25.06.17 add UTXOs, write tests with unconfirmed and dust UTXOs.
-        account.calculateMaxSpendableAmount(1000);
-    }
 }

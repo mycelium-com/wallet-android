@@ -56,8 +56,7 @@ public class GlideraSellFragment extends Fragment {
 
       glideraService = GlideraService.getInstance();
       MbwManager mbwManager = MbwManager.getInstance(this.getActivity());
-      btcAvailible = ((WalletBtcAccount)(mbwManager.getSelectedAccount())).calculateMaxSpendableAmount(TransactionUtils.DEFAULT_KB_FEE).getExactValue()
-              .getValue();
+      btcAvailible = BigDecimal.valueOf(mbwManager.getSelectedAccount().getAccountBalance().getSpendable().value);
 
         /*
         Update prices when fiat is changed

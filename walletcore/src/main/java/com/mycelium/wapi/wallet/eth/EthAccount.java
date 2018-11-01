@@ -154,6 +154,11 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
     }
 
     @Override
+    public Value calculateMaxSpendableAmount(long minerFeeToUse) {
+        return null;
+    }
+
+    @Override
     public int getSyncTotalRetrievedTransactions() {
         return 0;
     }

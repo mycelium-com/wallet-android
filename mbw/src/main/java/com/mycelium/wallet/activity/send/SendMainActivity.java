@@ -109,6 +109,7 @@ import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.paymentrequest.PaymentRequestHandler;
 import com.mycelium.wapi.api.response.Feature;
 import com.mycelium.wapi.wallet.AddressUtils;
+import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.coinapult.Currency;
 import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
 import com.mycelium.wapi.wallet.GenericAddress;
@@ -359,7 +360,7 @@ public class SendMainActivity extends Activity {
         UUID accountId = Preconditions.checkNotNull((UUID) getIntent().getSerializableExtra(ACCOUNT));
 
         _amountToSend = (Value) getIntent().getSerializableExtra(AMOUNT);
-        _amountToSend = Value.valueOf(BitcoinTest.get(), 123456); // todo delete test (since we can't use GetAmountActivity)
+        _amountToSend = Value.valueOf(_mbwManager.getNetwork().isProdnet()? BitcoinMain.get() : BitcoinTest.get(), 0);
 
         // May be null
         _receivingAddress = (BtcAddress) getIntent().getSerializableExtra(RECEIVING_ADDRESS);
@@ -779,7 +780,7 @@ public class SendMainActivity extends Activity {
             presetAmount = Value.valueOf(BitcoinTest.get(), 0);
         }
         GetAmountActivity.callMeToSend(this, GET_AMOUNT_RESULT_CODE, _account.getId(), presetAmount, getCurrentFeeEstimation(),
-                AccountDisplayType.getAccountType(_account), _isColdStorage, ((BtcAddress)_receivingAddress).getAddress());
+                AccountDisplayType.getAccountType(_account), _isColdStorage, ((BtcAddress)_account.getReceiveAddress()).getAddress());
     }
 
     @OnClick(R.id.btSend)
