@@ -14,6 +14,7 @@ import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
 import com.mycelium.wapi.wallet.coinapult.Currency
 import com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount
+import com.mycelium.wapi.wallet.eth.EthAccount
 import com.squareup.otto.Subscribe
 import java.util.*
 import java.util.concurrent.Semaphore
@@ -124,3 +125,5 @@ fun WalletManager.getColuAccounts(): List<WalletAccount<*, *>> = getAccounts().f
 fun WalletManager.getCoinapultAccounts(): List<WalletAccount<*, *>> = getAccounts().filter { it is com.mycelium.wapi.wallet.coinapult.CoinapultAccount && it.isVisible }
 
 fun WalletManager.getCoinapultAccount(currency: Currency): WalletAccount<*, *>? = getCoinapultAccounts().find { it.coinType == currency }
+
+fun WalletManager.getEthAccounts(): List<WalletAccount<*, *>> = getAccounts().filter { it is EthAccount && it.isVisible }

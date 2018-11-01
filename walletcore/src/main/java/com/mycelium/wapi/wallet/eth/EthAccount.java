@@ -71,7 +71,7 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
     }
 
     @Override
-    public void signTransaction(SendRequest<EthTransaction> request) throws WalletAccountException {
+    public void signTransaction(SendRequest<EthTransaction> request) {
 
     }
 
@@ -111,7 +111,7 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
 
     @Override
     public boolean isMineAddress(GenericAddress address) {
-        return false;
+        return true;
     }
 
     @Override
@@ -125,13 +125,12 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
     }
 
     @Override
-    public void checkAmount(WalletAccount.Receiver receiver, long kbMinerFee, Value enteredAmount) throws StandardTransactionBuilder.InsufficientFundsException, StandardTransactionBuilder.OutputTooSmallException, StandardTransactionBuilder.UnableToBuildTransactionException {
-
+    public void checkAmount(WalletAccount.Receiver receiver, long kbMinerFee, Value enteredAmount) {
     }
 
     @Override
     public boolean synchronize(SyncMode mode) {
-        return false;
+        return true;
     }
 
     @Override
@@ -141,7 +140,7 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
 
     @Override
     public boolean canSpend() {
-        return false;
+        return true;
     }
 
     @Override
@@ -151,7 +150,7 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
 
     @Override
     public boolean isActive() {
-        return false;
+        return true;
     }
 
     @Override
@@ -171,7 +170,7 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
 
     @Override
     public boolean isVisible() {
-        return false;
+        return true;
     }
 
     @Override
@@ -192,7 +191,7 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
 
     @Override
     public Value calculateMaxSpendableAmount(long minerFeeToUse) {
-        return null;
+        return Value.zeroValue(EthTest.INSTANCE);
     }
 
     @Override
