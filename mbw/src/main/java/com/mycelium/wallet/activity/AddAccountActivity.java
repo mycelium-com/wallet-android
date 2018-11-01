@@ -56,6 +56,7 @@ import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
+import com.mycelium.wapi.wallet.eth.EthAccount;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -95,6 +96,7 @@ public class AddAccountActivity extends Activity {
 
       findViewById(R.id.btAdvanced).setOnClickListener(advancedClickListener);
       findViewById(R.id.btHdCreate).setOnClickListener(createHdAccount);
+      findViewById(R.id.btEthCreate).setOnClickListener(createEthAccount);
       final View coinapultUSD = findViewById(R.id.btCoinapultCreate);
       coinapultUSD.setOnClickListener(createCoinapultAccount);
       //coinapultUSD.setEnabled(!_mbwManager.getMetadataStorage().isPairedService(MetadataStorage.PAIRED_SERVICE_COINAPULT));
@@ -136,6 +138,14 @@ public class AddAccountActivity extends Activity {
                createNewHdAccount();
             }
          });
+      }
+   };
+
+   View.OnClickListener createEthAccount = new View.OnClickListener() {
+      @Override
+      public void onClick(View view) {
+         final WalletManager wallet = _mbwManager.getWalletManager(false);
+         wallet.addAccount(new EthAccount());
       }
    };
 

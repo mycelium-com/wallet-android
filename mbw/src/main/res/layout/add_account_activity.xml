@@ -70,6 +70,17 @@
                 android:layout_marginTop="@dimen/margin_medium"
                 android:layout_marginBottom="@dimen/margin_medium"/>
 
+        <Button
+                android:id="@+id/btEthCreate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingLeft="30dp"
+                android:paddingRight="30dp"
+                android:text="Add Etherium Account"
+                android:layout_marginTop="25dp"
+                android:layout_marginBottom="@dimen/margin_medium"/>
+
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
