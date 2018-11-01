@@ -176,7 +176,7 @@ public class Transaction implements Serializable {
     }
 
     public byte[] toBytes() {
-        return toBytes(true);
+        return toBytes(false);
     }
 
     public byte[] toBytes(boolean asSegwit) {

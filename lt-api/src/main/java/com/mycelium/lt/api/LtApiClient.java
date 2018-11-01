@@ -37,17 +37,7 @@ import com.mrd.bitlib.util.BitlibJsonModule;
 import com.mycelium.lt.api.LtConst.Function;
 import com.mycelium.lt.api.LtConst.Param;
 import com.mycelium.lt.api.model.*;
-import com.mycelium.lt.api.params.AdParameters;
-import com.mycelium.lt.api.params.BtcSellPriceParameters;
-import com.mycelium.lt.api.params.CreateTradeParameters;
-import com.mycelium.lt.api.params.EncryptedChatMessageParameters;
-import com.mycelium.lt.api.params.InstantBuyOrderParameters;
-import com.mycelium.lt.api.params.LoginParameters;
-import com.mycelium.lt.api.params.ReleaseBtcParameters;
-import com.mycelium.lt.api.params.SearchParameters;
-import com.mycelium.lt.api.params.SetTradeReceivingAddressParameters;
-import com.mycelium.lt.api.params.TradeChangeParameters;
-import com.mycelium.lt.api.params.TraderParameters;
+import com.mycelium.lt.api.params.*;
 import com.mycelium.net.HttpEndpoint;
 import com.mycelium.net.FeedbackEndpoint;
 import com.mycelium.net.ServerEndpoints;
@@ -220,6 +210,14 @@ public class LtApiClient implements LtApi {
    }
 
    @Override
+   public LtResponse<Collection<SellOrder>> listSellOrders(UUID sessionId) {
+      LtRequest r = new LtRequest(Function.LIST_SELL_ORDERS);
+      r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
+      return sendRequest(r, new TypeReference<LtResponse<Collection<SellOrder>>>() {
+      });
+   }
+
+   @Override
    public LtResponse<Collection<Ad>> listAds(UUID sessionId) {
       LtRequest r = new LtRequest(Function.LIST_ADS);
       r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
@@ -232,6 +230,15 @@ public class LtApiClient implements LtApi {
       LtRequest r = new LtRequest(Function.GET_SUPPORTED_PRICE_FORMULAS);
       r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
       return sendRequest(r, new TypeReference<LtResponse<List<PriceFormula>>>() {
+      });
+   }
+
+   @Override
+   public LtResponse<UUID> createSellOrder(UUID sessionId, TradeParameters params) {
+      LtRequest r = new LtRequest(Function.CREATE_SELL_ORDER);
+      r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
+      r.setPostObject(_objectMapper, params);
+      return sendRequest(r, new TypeReference<LtResponse<UUID>>() {
       });
    }
 
@@ -263,11 +270,30 @@ public class LtApiClient implements LtApi {
    }
 
    @Override
+   public LtResponse<Void> editSellOrder(UUID sessionId, UUID sellOrderId, TradeParameters params) {
+      LtRequest r = new LtRequest(Function.EDIT_SELL_ORDER);
+      r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
+      r.addQueryParameter(Param.SELL_ORDER_ID, sellOrderId.toString());
+      r.setPostObject(_objectMapper, params);
+      return sendRequest(r, new TypeReference<LtResponse<Void>>() {
+      });
+   }
+
+   @Override
    public LtResponse<Void> editAd(UUID sessionId, UUID adId, AdParameters params) {
       LtRequest r = new LtRequest(Function.EDIT_AD);
       r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
       r.addQueryParameter(Param.AD_ID, adId.toString());
       r.setPostObject(_objectMapper, params);
+      return sendRequest(r, new TypeReference<LtResponse<Void>>() {
+      });
+   }
+
+   @Override
+   public LtResponse<Void> activateSellOrder(UUID sessionId, UUID sellOrderId) {
+      LtRequest r = new LtRequest(Function.ACTIVATE_SELL_ORDER);
+      r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
+      r.addQueryParameter(Param.SELL_ORDER_ID, sellOrderId.toString());
       return sendRequest(r, new TypeReference<LtResponse<Void>>() {
       });
    }
