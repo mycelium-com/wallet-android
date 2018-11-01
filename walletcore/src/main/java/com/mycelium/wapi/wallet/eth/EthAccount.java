@@ -43,7 +43,7 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
     public EthAccount() {
         id = UUID.randomUUID();
         address = new EthAddress(RandomString.make(20));
-        accountBalancesStorage.put(address.toString(), Value.valueOf(EthMain.INSTANCE, 10000));
+        accountBalancesStorage.put(address.toString(), Value.valueOf(EthMain.INSTANCE, 1253120));
     }
 
     public UUID getId(){

@@ -18,6 +18,7 @@ import com.mycelium.wapi.wallet.btc.WalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
 import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
 import com.mycelium.wapi.wallet.btc.bip44.ExternalSignatureProviderProxy;
+import com.mycelium.wapi.wallet.eth.EthAccount;
 
 import java.security.SecureRandom;
 import java.util.HashMap;
@@ -78,8 +79,7 @@ class WalletConsole {
         WalletManager walletManager = new WalletManager(store,
                 backing,
                 network,
-                wapiClient,
-                currenciesSettingsMap);
+                wapiClient);
 
         try {
 
@@ -91,11 +91,16 @@ class WalletConsole {
             // create account
             walletManager.createAccounts(new AdditionalHDAccountConfig());
 
-            // display balance
-            List<WalletAccount<?,?>> accounts = walletManager.getActiveAccounts();
-            WalletAccount account = accounts.get(0);
-            account.synchronize(SyncMode.NORMAL);
-            System.out.println("Account balance: " + account.getAccountBalance().getSpendable().toString());
+            EthAccount ethAccount = new EthAccount();
+            walletManager.addAccount(ethAccount);
+
+            System.out.println("ETH Account balance: " + ethAccount.getAccountBalance().getSpendable().toString());
+            System.out.println("ETH Account balance: " + ethAccount.getAccountBalance().getSpendable().toFriendlyString());
+            // display HD account balance
+            //List<WalletAccount<?,?>> accounts = walletManager.getActiveAccounts();
+            //WalletAccount account = accounts.get(0);
+            //account.synchronize(SyncMode.NORMAL);
+           // System.out.println("HD Account balance: " + account.getAccountBalance().getSpendable().toString());
 
         } catch (KeyCipher.InvalidKeyCipher ex) {
             ex.printStackTrace();

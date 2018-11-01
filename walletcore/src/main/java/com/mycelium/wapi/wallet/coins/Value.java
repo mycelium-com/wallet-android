@@ -1,7 +1,6 @@
 package com.mycelium.wapi.wallet.coins;
 
 import com.google.common.math.LongMath;
-import com.mycelium.wapi.wallet.Monetary;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -14,7 +13,8 @@ import javax.annotation.Nullable;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class Value implements Monetary, Comparable<Value>, Serializable {
+public class Value implements Comparable<Value>, Serializable {
+
     /**
      * The type of this value
      */
@@ -41,10 +41,11 @@ public class Value implements Monetary, Comparable<Value>, Serializable {
         return valueOf(type, new BigInteger(unitsStr));
     }
 
-    @Override
     public int smallestUnitExponent() {
         return type.getUnitExponent();
     }
+
+    public int getFriendlyDigits() {return type.getFriendlyDigits(); }
 
     public static Value zeroValue(final GenericAssetInfo type) {
         return new Value(type, 0);
@@ -57,7 +58,6 @@ public class Value implements Monetary, Comparable<Value>, Serializable {
     /**
      * Returns the number of units of this monetary value.
      */
-    @Override
     public long getValue() {
         return value;
     }
@@ -198,7 +198,6 @@ public class Value implements Monetary, Comparable<Value>, Serializable {
         return new Value(this.type, this.value >> n);
     }
 
-    @Override
     public int signum() {
         if (this.value == 0)
             return 0;
@@ -214,7 +213,7 @@ public class Value implements Monetary, Comparable<Value>, Serializable {
      * if necessary, but two will always be present.
      */
     public String toFriendlyString() {
-        return type.getMonetaryFormat().format(this).toString();
+        return BigDecimal.valueOf(value, smallestUnitExponent()).setScale(getFriendlyDigits(), RoundingMode.HALF_UP).toString();
     }
 
     /**
@@ -225,12 +224,12 @@ public class Value implements Monetary, Comparable<Value>, Serializable {
      * </p>
      */
     public String toPlainString() {
-        return type.getPlainFormat().format(this).toString();
+        return BigDecimal.valueOf(value, smallestUnitExponent()).stripTrailingZeros().toString();
     }
 
     @Override
     public String toString() {
-        return toPlainString() + type.getSymbol();
+        return toPlainString() + " " + type.getSymbol();
     }
 
     /**

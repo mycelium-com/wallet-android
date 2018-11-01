@@ -1,7 +1,5 @@
 package com.mycelium.wapi.wallet.coins;
 
-import com.mycelium.wapi.wallet.MonetaryFormat;
-
 import java.io.Serializable;
 
 public interface GenericAssetInfo extends Serializable {
@@ -9,6 +7,7 @@ public interface GenericAssetInfo extends Serializable {
     String getName();
     String getSymbol();
     int getUnitExponent();
+    int getFriendlyDigits();
 
     /**
      * Typical 1 coin value, like 1 Bitcoin, 1 Peercoin or 1 Dollar
@@ -16,9 +15,6 @@ public interface GenericAssetInfo extends Serializable {
     Value oneCoin();
 
     Value value(long units);
-
-    MonetaryFormat getMonetaryFormat();
-    MonetaryFormat getPlainFormat();
 
     //boolean equals(GenericAssetInfo obj);
 

@@ -2,7 +2,6 @@ package com.mycelium.wapi.wallet.coinapult;
 
 import com.google.common.collect.ImmutableMap;
 import com.mycelium.wapi.wallet.GenericAddress;
-import com.mycelium.wapi.wallet.MonetaryFormat;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.exceptions.AddressMalformedException;
@@ -72,16 +71,6 @@ public class Currency extends CryptoCurrency {
 
     @Override
     public Value value(long units) {
-        return null;
-    }
-
-    @Override
-    public MonetaryFormat getMonetaryFormat() {
-        return null;
-    }
-
-    @Override
-    public MonetaryFormat getPlainFormat() {
         return null;
     }
 

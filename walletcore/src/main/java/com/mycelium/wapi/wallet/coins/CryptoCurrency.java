@@ -2,7 +2,6 @@ package com.mycelium.wapi.wallet.coins;
 
 import com.google.common.base.Charsets;
 import com.mycelium.wapi.wallet.GenericAddress;
-import com.mycelium.wapi.wallet.MonetaryFormat;
 import com.mycelium.wapi.wallet.exceptions.AddressMalformedException;
 
 import java.math.BigInteger;
@@ -23,6 +22,7 @@ public abstract class CryptoCurrency extends AbstractAsset {
     protected String uriScheme;
     protected Integer bip44Index;
     protected Integer unitExponent;
+    protected Integer friendlyDigits;
     protected String addressPrefix;
     protected Value feeValue;
     protected Value minNonDust;
@@ -54,6 +54,11 @@ public abstract class CryptoCurrency extends AbstractAsset {
     @Override
     public int getUnitExponent() {
         return checkNotNull(unitExponent, "A coin failed to set a unit exponent");
+    }
+
+    @Override
+    public int getFriendlyDigits() {
+        return friendlyDigits;
     }
 
     public Value getFeeValue() {
@@ -131,37 +136,6 @@ public abstract class CryptoCurrency extends AbstractAsset {
                 ", symbol='" + symbol + '\'' +
                 ", bip44Index=" + (bip44Index != null ?  bip44Index : "null") +
                 '}';
-    }
-
-    @Override
-    public MonetaryFormat getMonetaryFormat() {
-        if (friendlyFormat == null) {
-            friendlyFormat = new MonetaryFormat()
-                    .shift(0).minDecimals(2).code(0, symbol).postfixCode();
-            switch (unitExponent) {
-                case 8:
-                    friendlyFormat = friendlyFormat.optionalDecimals(2, 2, 2);
-                    break;
-                case 6:
-                    friendlyFormat = friendlyFormat.optionalDecimals(2, 2);
-                    break;
-                case 4:
-                    friendlyFormat = friendlyFormat.optionalDecimals(2);
-                    break;
-                default:
-                    friendlyFormat = friendlyFormat.minDecimals(unitExponent);
-            }
-        }
-        return friendlyFormat;
-    }
-
-    @Override
-    public MonetaryFormat getPlainFormat() {
-        if (plainFormat == null) {
-            plainFormat = new MonetaryFormat().shift(0)
-                    .minDecimals(0).repeatOptionalDecimals(1, unitExponent).noCode();
-        }
-        return plainFormat;
     }
 
     public static void setFeeProvider(FeeProvider feeProvider) {

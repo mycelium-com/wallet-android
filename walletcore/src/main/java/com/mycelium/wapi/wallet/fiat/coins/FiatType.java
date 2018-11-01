@@ -1,6 +1,5 @@
 package com.mycelium.wapi.wallet.fiat.coins;
 
-import com.mycelium.wapi.wallet.MonetaryFormat;
 import com.mycelium.wapi.wallet.coins.AbstractAsset;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
@@ -38,6 +37,11 @@ public class FiatType extends AbstractAsset {
     }
 
     @Override
+    public int getFriendlyDigits() {
+        return 2;
+    }
+
+    @Override
     public Value oneCoin() {
         if (oneCoin == null) {
             BigInteger units = BigInteger.TEN.pow(getUnitExponent());
@@ -49,18 +53,6 @@ public class FiatType extends AbstractAsset {
     @Override
     public Value value(long units) {
         return null;
-    }
-
-    @Override
-    public MonetaryFormat getMonetaryFormat() {
-        return new MonetaryFormat()
-                .shift(0).minDecimals(2).code(0, symbol).postfixCode();
-    }
-
-    @Override
-    public MonetaryFormat getPlainFormat() {
-        return new MonetaryFormat().shift(0)
-                .minDecimals(0).repeatOptionalDecimals(1, getUnitExponent()).noCode();
     }
 
  /* TODO - implement equals
