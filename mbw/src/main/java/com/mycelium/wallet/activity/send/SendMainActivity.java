@@ -496,9 +496,10 @@ public class SendMainActivity extends Activity {
         List<AddressItem> addressesList = new ArrayList<>();
         addressesList.add(new AddressItem(null, null, null, SelectableRecyclerView.Adapter.VIEW_TYPE_PADDING));
         for (GenericAddress address : receivingAddressesList) {
+            BtcAddress btcAddress = (BtcAddress)address;
             addressesList.add(new AddressItem(address,
-                    addressLabels.get(address.getType())[1],
-                    addressLabels.get(address.getType())[0],
+                    addressLabels.get(btcAddress.getType())[1],
+                    addressLabels.get(btcAddress.getType())[0],
                     SelectableRecyclerView.Adapter.VIEW_TYPE_ITEM));
         }
         addressesList.add(new AddressItem(null, null, null, SelectableRecyclerView.Adapter.VIEW_TYPE_PADDING));

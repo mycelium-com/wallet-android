@@ -29,13 +29,6 @@ public class EthAddress implements GenericAddress {
         return new EthAddress(address);
     }
 
-
-    @NotNull
-    @Override
-    public AddressType getType() {
-        return null;
-    }
-
     @NotNull
     @Override
     public byte[] getBytes() {
