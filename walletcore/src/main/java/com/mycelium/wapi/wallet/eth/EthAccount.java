@@ -66,7 +66,7 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
         Balance balance = getAccountBalance();
         List<GenericTransaction.GenericInput> inputs = new ArrayList<>(Arrays.asList(new GenericTransaction.GenericInput(this.address, balance.confirmed)));
         List<GenericTransaction.GenericOutput> outputs = new ArrayList<>(Arrays.asList(new GenericTransaction.GenericOutput(sendRequest.getDestination(), balance.confirmed.subtract(sendRequest.getAmount()))));
-        sendRequest.tx = new EthTransaction(inputs, outputs);
+        sendRequest.tx = new EthTransaction(sendRequest.getAmount(), inputs, outputs);
     }
 
     @Override

@@ -16,15 +16,10 @@ public class EthTransaction implements GenericTransaction {
     private List<GenericOutput> outputs;
     private Value sentValue;
 
-    EthTransaction(List<GenericInput> inputs, List<GenericOutput> outputs) {
-        this.sentValue = Value.zeroValue(EthMain.INSTANCE);
-        for (GenericInput input : inputs) {
-            this.sentValue.add(input.getValue());
-        }
-
-        for (GenericOutput output : outputs) {
-            this.sentValue.subtract(output.getValue());
-        }
+    EthTransaction(Value sentValue, List<GenericInput> inputs, List<GenericOutput> outputs) {
+        this.sentValue = sentValue;
+        this.inputs = inputs;
+        this.outputs = outputs;
     }
 
     @Override
