@@ -226,6 +226,11 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    //only for BtcLegacyAddress?
    public boolean isMineAddress(GenericAddress address) {
       try {
+         boolean isBtcAddress = (address instanceof BtcAddress);
+         if (!isBtcAddress) {
+            return false;
+         }
+
          return isMine(((BtcAddress) address).getAddress());
       } catch (IllegalStateException e) {
          e.printStackTrace();

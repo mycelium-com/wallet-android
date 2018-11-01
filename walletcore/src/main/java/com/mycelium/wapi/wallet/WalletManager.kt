@@ -104,6 +104,10 @@ class WalletManager(val _secureKeyValueStore: SecureKeyValueStore,
         return result.keys.toList()
     }
 
+    fun addAccount(account: WalletAccount<*,*>) {
+        accounts.put(account.id, account);
+    }
+
     fun deleteAccount(id: UUID, keyCipher: KeyCipher) {
         val account = accounts[id]
         account?.let {

@@ -17,19 +17,19 @@ abstract class EthCoin: CryptoCurrency(){
     }
     override fun getSymbol() = "ETH"
     override fun getUnitExponent(): Int {
-        return 0
+        return 2
     }
 }
 
 object EthMain : EthCoin() {
     init {
-        id = "La4szjzKfJyHQ75qgDEnbzp4qY8GQeDR5Z7h2W"
+        id = "ETH-Main"
     }
 }
 
 
 object EthTest : EthCoin() {
     init {
-        id = "La4szjzKfJyHQ75qgDEnbzp4qY8GQeDR5Z7h2W"
+        id = "ETH-Test"
     }
 }

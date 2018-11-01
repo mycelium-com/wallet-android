@@ -6,10 +6,27 @@ import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal;
 import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
+import com.mycelium.wapi.wallet.eth.coins.EthMain;
 
 import java.util.List;
 
 public class EthTransaction implements GenericTransaction {
+
+    private List<GenericInput> inputs;
+    private List<GenericOutput> outputs;
+    private Value sentValue;
+
+    EthTransaction(List<GenericInput> inputs, List<GenericOutput> outputs) {
+        this.sentValue = Value.zeroValue(EthMain.INSTANCE);
+        for (GenericInput input : inputs) {
+            this.sentValue.add(input.getValue());
+        }
+
+        for (GenericOutput output : outputs) {
+            this.sentValue.subtract(output.getValue());
+        }
+    }
+
     @Override
     public CryptoCurrency getType() {
         return null;
@@ -81,17 +98,17 @@ public class EthTransaction implements GenericTransaction {
 
     @Override
     public List<GenericInput> getInputs() {
-        return null;
+        return inputs;
     }
 
     @Override
     public List<GenericOutput> getOutputs() {
-        return null;
+        return outputs;
     }
 
     @Override
     public Value getSent() {
-        return null;
+        return sentValue;
     }
 
     @Override
@@ -108,4 +125,5 @@ public class EthTransaction implements GenericTransaction {
     public int getRawSize() {
         return 0;
     }
+
 }

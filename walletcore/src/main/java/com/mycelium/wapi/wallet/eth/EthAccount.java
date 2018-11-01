@@ -9,6 +9,7 @@ import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputSummary;
 import com.mycelium.wapi.model.TransactionSummary;
+import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.BroadcastResult;
 import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
 import com.mycelium.wapi.wallet.GenericAddress;
@@ -20,12 +21,34 @@ import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
-import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;;
+import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
+import com.mycelium.wapi.wallet.eth.coins.*;
 
+import net.bytebuddy.utility.RandomString;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
 public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
+
+    private static HashMap<String, Value> accountBalancesStorage = new HashMap<>();
+    private static List<EthTransaction> transactionStorage = new ArrayList<>();
+
+    private UUID id;
+    private EthAddress address;
+
+    public EthAccount() {
+        id = UUID.randomUUID();
+        address = new EthAddress(RandomString.make(20));
+        accountBalancesStorage.put(address.toString(), Value.valueOf(EthMain.INSTANCE, 10000));
+    }
+
+    public UUID getId(){
+        return id;
+    }
 
     @Override
     public void setAllowZeroConfSpending(boolean b) {
@@ -39,7 +62,11 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
 
     @Override
     public void completeTransaction(SendRequest<EthTransaction> request) throws WalletAccountException {
-
+        EthSendRequest sendRequest = (EthSendRequest)request;
+        Balance balance = getAccountBalance();
+        List<GenericTransaction.GenericInput> inputs = new ArrayList<>(Arrays.asList(new GenericTransaction.GenericInput(this.address, balance.confirmed)));
+        List<GenericTransaction.GenericOutput> outputs = new ArrayList<>(Arrays.asList(new GenericTransaction.GenericOutput(sendRequest.getDestination(), balance.confirmed.subtract(sendRequest.getAmount()))));
+        sendRequest.tx = new EthTransaction(inputs, outputs);
     }
 
     @Override
@@ -50,22 +77,35 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
 
     @Override
     public BroadcastResult broadcastTx(EthTransaction tx) throws TransactionBroadcastException {
+        EthAddress from = (EthAddress)tx.getInputs().get(0).getAddress();
+        EthAddress to = (EthAddress)tx.getOutputs().get(0).getAddress();
+        tx.getSent();
+
+        Value fromAccountInitialBalance = accountBalancesStorage.get(from.toString());
+        Value toAccountInitialBalance = accountBalancesStorage.get(to.toString());
+
+        accountBalancesStorage.put(from.toString(),fromAccountInitialBalance.subtract(tx.getSent()));
+        accountBalancesStorage.put(to.toString(), toAccountInitialBalance.add(tx.getSent()));
+
+        transactionStorage.add(tx);
+
         return null;
     }
 
     @Override
     public GenericAddress getReceiveAddress() {
-        return null;
+        return address;
     }
 
     @Override
     public CryptoCurrency getCoinType() {
-        return null;
+        return EthMain.INSTANCE;
     }
 
     @Override
     public Balance getAccountBalance() {
-        return null;
+        Value balance = accountBalancesStorage.get(address.toString());
+        return new Balance(balance, Value.zeroValue(getCoinType()),Value.zeroValue(getCoinType()),Value.zeroValue(getCoinType()));
     }
 
     @Override
@@ -80,7 +120,7 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
 
     @Override
     public List<EthTransaction> getTransactions(int offset, int limit) {
-        return null;
+        return transactionStorage;
     }
 
     @Override
@@ -138,10 +178,6 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
         return false;
     }
 
-    @Override
-    public UUID getId() {
-        return null;
-    }
 
     @Override
     public boolean isSynchronizing() {
@@ -170,7 +206,7 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
 
     @Override
     public SendRequest getSendToRequest(EthAddress destination, Value amount) {
-        return null;
+        return EthSendRequest.to(destination, amount);
     }
 
 }

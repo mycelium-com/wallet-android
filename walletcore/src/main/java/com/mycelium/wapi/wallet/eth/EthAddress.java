@@ -3,13 +3,21 @@ package com.mycelium.wapi.wallet.eth;
 import com.mrd.bitlib.model.AddressType;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
+import com.mycelium.wapi.wallet.eth.coins.EthMain;
+
 import org.jetbrains.annotations.NotNull;
 
 public class EthAddress implements GenericAddress {
 
+    private String address;
+
+    EthAddress(String address) {
+        this.address = address;
+    }
+
     @Override
     public CryptoCurrency getCoinType() {
-        return null;
+        return EthMain.INSTANCE;
     }
 
     @Override
@@ -18,7 +26,7 @@ public class EthAddress implements GenericAddress {
     }
 
     public static EthAddress from(CryptoCurrency currencyType, String address) {
-        return null;
+        return new EthAddress(address);
     }
 
 
