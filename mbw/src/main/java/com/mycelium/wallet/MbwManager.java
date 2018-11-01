@@ -674,6 +674,7 @@ public class MbwManager {
         walletManager.init();
 
         walletManager.addAccount(new EthAccount());
+        walletManager.addAccount(new EthAccount());
 
         return walletManager;
     }
