@@ -57,7 +57,8 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
 
     @Override
     public void completeAndSignTx(SendRequest<EthTransaction> request) throws WalletAccountException {
-
+        completeTransaction(request);
+        signTransaction(request);
     }
 
     @Override

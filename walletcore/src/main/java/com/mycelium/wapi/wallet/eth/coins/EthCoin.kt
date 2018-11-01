@@ -11,6 +11,7 @@ abstract class EthCoin: CryptoCurrency(){
         family = Families.ETHEREUM
         unitExponent = 8
         friendlyDigits = 2
+        feeValue = value(1000)
     }
 
     @Throws(AddressMalformedException::class)

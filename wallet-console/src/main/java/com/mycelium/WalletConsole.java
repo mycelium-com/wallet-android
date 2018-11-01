@@ -18,7 +18,13 @@ import com.mycelium.wapi.wallet.btc.WalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
 import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
 import com.mycelium.wapi.wallet.btc.bip44.ExternalSignatureProviderProxy;
+import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.eth.EthAccount;
+import com.mycelium.wapi.wallet.eth.EthAddress;
+import com.mycelium.wapi.wallet.eth.EthSendRequest;
+import com.mycelium.wapi.wallet.eth.EthTransaction;
+import com.mycelium.wapi.wallet.eth.coins.EthMain;
+import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
 
 import java.security.SecureRandom;
 import java.util.HashMap;
@@ -91,18 +97,33 @@ class WalletConsole {
             // create account
             walletManager.createAccounts(new AdditionalHDAccountConfig());
 
-            EthAccount ethAccount = new EthAccount();
-            walletManager.addAccount(ethAccount);
+            EthAccount ethAccount1 = new EthAccount();
+            walletManager.addAccount(ethAccount1);
 
-            System.out.println("ETH Account balance: " + ethAccount.getAccountBalance().getSpendable().toString());
-            System.out.println("ETH Account balance: " + ethAccount.getAccountBalance().getSpendable().toFriendlyString());
+            EthAccount ethAccount2 = new EthAccount();
+            walletManager.addAccount(ethAccount2);
+
+            System.out.println("ETH Account 1 balance: " + ethAccount1.getAccountBalance().getSpendable().toString());
+            System.out.println("ETH Account 2 balance: " + ethAccount2.getAccountBalance().getSpendable().toString());
+
+            SendRequest<EthTransaction> sendRequest = ethAccount1.getSendToRequest((EthAddress) ethAccount2.getReceiveAddress(), Value.valueOf(EthMain.INSTANCE, 10000));
+
+            ethAccount1.completeAndSignTx(sendRequest);
+            ethAccount1.broadcastTx(sendRequest.tx);
+
+            System.out.println("ETH Account 1 balance: " + ethAccount1.getAccountBalance().getSpendable().toString());
+            System.out.println("ETH Account 2 balance: " + ethAccount2.getAccountBalance().getSpendable().toString());
+            
             // display HD account balance
             //List<WalletAccount<?,?>> accounts = walletManager.getActiveAccounts();
             //WalletAccount account = accounts.get(0);
             //account.synchronize(SyncMode.NORMAL);
            // System.out.println("HD Account balance: " + account.getAccountBalance().getSpendable().toString());
-
-        } catch (KeyCipher.InvalidKeyCipher ex) {
+        } catch (TransactionBroadcastException ex) {
+            ex.printStackTrace();
+        } catch (WalletAccount.WalletAccountException ex) {
+            ex.printStackTrace();
+        } catch (KeyCipher.InvalidKeyCipher  ex) {
             ex.printStackTrace();
         }
 
