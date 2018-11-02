@@ -122,7 +122,7 @@ public class EnterWordListActivity extends AppCompatActivity implements WordAuto
       }
 
       // we don't want to proceed to enter the wordlist, we already have the master seed.
-      if (!_seedOnly && _mbwManager.getWalletManager(false).hasBip32MasterSeed()) {
+      if (!_seedOnly && _mbwManager.getMasterSeedManager().hasBip32MasterSeed()) {
          new AccountCreatorHelper.CreateAccountAsyncTask(EnterWordListActivity.this, EnterWordListActivity.this).execute();
       }
    }
@@ -288,7 +288,7 @@ public class EnterWordListActivity extends AppCompatActivity implements WordAuto
       protected UUID doInBackground(Void... params) {
          try {
             Bip39.MasterSeed masterSeed = Bip39.generateSeedFromWordList(wordList, password);
-            _mbwManager.getWalletManager(false).configureBip32MasterSeed(masterSeed, AesKeyCipher.defaultKeyCipher());
+            _mbwManager.getMasterSeedManager().configureBip32MasterSeed(masterSeed, AesKeyCipher.defaultKeyCipher());
             _mbwManager.getMetadataStorage().setMasterSeedBackupState(MetadataStorage.BackupState.VERIFIED);
             return _mbwManager.getWalletManager(false).createAccounts(new AdditionalHDAccountConfig()).get(0);
          } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {

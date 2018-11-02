@@ -99,7 +99,7 @@ public class AddAccountActivity extends Activity {
       findViewById(R.id.btEthCreate).setOnClickListener(createEthAccount);
       final View coinapultUSD = findViewById(R.id.btCoinapultCreate);
       coinapultUSD.setOnClickListener(createCoinapultAccount);
-      //coinapultUSD.setEnabled(!_mbwManager.getMetadataStorage().isPairedService(MetadataStorage.PAIRED_SERVICE_COINAPULT));
+      coinapultUSD.setEnabled(_mbwManager.getWalletManager(false).getModuleById("coinapult module") != null);
       if (_mbwManager.getMetadataStorage().getMasterSeedBackupState() == MetadataStorage.BackupState.VERIFIED) {
          findViewById(R.id.tvWarningNoBackup).setVisibility(View.GONE);
       } else {
@@ -173,7 +173,7 @@ public class AddAccountActivity extends Activity {
    private void createNewHdAccount() {
       final WalletManager wallet = _mbwManager.getWalletManager(false);
       // at this point, we have to have a master seed, since we created one on startup
-      Preconditions.checkState(wallet.hasBip32MasterSeed());
+      Preconditions.checkState(_mbwManager.getMasterSeedManager().hasBip32MasterSeed());
 
       boolean canCreateAccount= wallet.getModuleById("BitcoinHD").canCreateAccount(new AdditionalHDAccountConfig());
       if (!canCreateAccount) {

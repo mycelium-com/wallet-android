@@ -66,6 +66,7 @@ import com.mycelium.wapi.wallet.btc.bip44.UnrelatedHDAccountConfig;
 import com.mycelium.wapi.wallet.btc.single.PrivateSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
+import com.mycelium.wapi.wallet.btcmasterseed.MasterSeedManager;
 import com.mycelium.wapi.wallet.colu.ColuUtils;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
 
@@ -815,8 +816,8 @@ public class StringHandleConfig implements Serializable {
       VERIFY {
          @Override
          public boolean handle(StringHandlerActivity handlerActivity, String content) {
-            WalletManager walletManager = MbwManager.getInstance(handlerActivity).getWalletManager(false);
-            if (!walletManager.hasBip32MasterSeed()) {
+            MasterSeedManager masterSeedManager = MbwManager.getInstance(handlerActivity).getMasterSeedManager();
+            if (!masterSeedManager.hasBip32MasterSeed()) {
                return false;
             }
             if (content.length() % 2 != 0) {
@@ -831,7 +832,7 @@ public class StringHandleConfig implements Serializable {
             Optional<Bip39.MasterSeed> masterSeed = Bip39.MasterSeed.fromBytes(bytes, false);
             if (masterSeed.isPresent()) {
                try {
-                  Bip39.MasterSeed ourSeed = walletManager.getMasterSeed(AesKeyCipher.defaultKeyCipher());
+                  Bip39.MasterSeed ourSeed = masterSeedManager.getMasterSeed(AesKeyCipher.defaultKeyCipher());
                   if (masterSeed.get().equals(ourSeed)) {
                      MbwManager.getInstance(handlerActivity).getMetadataStorage().setMasterSeedBackupState(MetadataStorage.BackupState.VERIFIED);
                      handlerActivity.finishOk();
@@ -861,13 +862,14 @@ public class StringHandleConfig implements Serializable {
             if (masterSeed.isPresent()) {
                UUID acc;
                try {
-                  WalletManager walletManager = MbwManager.getInstance(handlerActivity).getWalletManager(false);
-                  if (walletManager.hasBip32MasterSeed()) {
+                  MbwManager mbwManager = MbwManager.getInstance(handlerActivity);
+                  MasterSeedManager masterSeedManager = mbwManager.getMasterSeedManager();
+                  if (masterSeedManager.hasBip32MasterSeed()) {
                      handlerActivity.finishError(R.string.seed_already_configured);
                      return true;
                   }
-                  walletManager.configureBip32MasterSeed(masterSeed.get(), AesKeyCipher.defaultKeyCipher());
-                  acc = walletManager.createAccounts(new AdditionalHDAccountConfig()).get(0);
+                  masterSeedManager.configureBip32MasterSeed(masterSeed.get(), AesKeyCipher.defaultKeyCipher());
+                  acc = mbwManager.getWalletManager(false).createAccounts(new AdditionalHDAccountConfig()).get(0);
                   MbwManager.getInstance(handlerActivity).getMetadataStorage().setMasterSeedBackupState(MetadataStorage.BackupState.VERIFIED);
                } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
                   throw new RuntimeException(invalidKeyCipher);

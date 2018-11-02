@@ -130,6 +130,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static com.mycelium.wallet.AccountManagerKt.getActiveHDAccounts;
 import static com.mycelium.wallet.AccountManagerKt.getColuAccounts;
 
 public class AccountsFragment extends Fragment {
@@ -1173,8 +1174,7 @@ public class AccountsFragment extends Fragment {
          return false;
       }
       int count = 0;
-      for (WalletAccount account : _mbwManager.getWalletManager(false).
-              getActiveHDAccounts()) {
+      for (WalletAccount account : getActiveHDAccounts(_mbwManager.getWalletManager(false))) {
          if (((HDAccount) account).getAccountType() == HDAccountContext.ACCOUNT_TYPE_FROM_MASTERSEED) {
             count++;
          }

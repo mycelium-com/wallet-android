@@ -136,7 +136,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 val accountIndexesIterator = accountIndexes.iterator()
                 while (accountIndexesIterator.hasNext()) {
                     val accountIndex = accountIndexesIterator.nextInt()
-                    val masterSeed = mbwManager.getWalletManager(false)
+                    val masterSeed = mbwManager.masterSeedManager
                             .getMasterSeed(AesKeyCipher.defaultKeyCipher())
                     val masterDeterministicKey : DeterministicKey = HDKeyDerivation.createMasterPrivateKey(masterSeed.bip32Seed)
                     masterDeterministicKey.creationTimeSeconds

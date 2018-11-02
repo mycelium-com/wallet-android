@@ -138,7 +138,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
          _mbwManager = MbwManager.getInstance(StartupActivity.this.getApplication());
 
          //in case this is a fresh startup, import backup or create new seed
-         if (!_mbwManager.getWalletManager(false).hasBip32MasterSeed()) {
+         if (!_mbwManager.getMasterSeedManager().hasBip32MasterSeed()) {
             initMasterSeed();
             return;
          }
@@ -238,7 +238,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
          Bip39.MasterSeed masterSeed = Bip39.createRandomMasterSeed(activity._mbwManager.getRandomSource());
          try {
             WalletManager walletManager = activity._mbwManager.getWalletManager(false);
-            walletManager.configureBip32MasterSeed(masterSeed, AesKeyCipher.defaultKeyCipher());
+            activity._mbwManager.getMasterSeedManager().configureBip32MasterSeed(masterSeed, AesKeyCipher.defaultKeyCipher());
             return walletManager.createAccounts(new AdditionalHDAccountConfig()).get(0);
          } catch (KeyCipher.InvalidKeyCipher e) {
             throw new RuntimeException(e);
