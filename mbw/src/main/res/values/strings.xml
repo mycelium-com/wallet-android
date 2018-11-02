@@ -179,6 +179,7 @@
     <string name="slow_network">Your network connection seems to be slow.\nWith a little patience we might get there…</string>
     <string name="receiver_address_hint">1Address1234\n567890abcdef\nghijklmnop</string>
     <string name="signing_transaction">Signing Transaction</string>
+    <string name="signing_transaction_instruction">Signing Transaction instruction</string>
     <string name="broadcasting_transaction">Broadcasting Transaction</string>
     <string name="transaction_rejected_message">The transaction was rejected by the network. This indicates that your wallet is out of sync</string>
     <string name="transaction_rejected_double_spending_message">Failed to broadcast transaction due to a double spend or malleability issue.</string>
@@ -666,7 +667,9 @@
     <string name="ext_sig_verify_transaction_on_device">Verify and confirm the\ntransaction on your device</string>
     <string name="ext_sig_amount">Amount:</string>
     <string name="ext_sig_to">To:</string>
+    <string name="ext_sig_change_to">Change to:</string>
     <string name="ext_sig_fee">Fee:</string>
+    <string name="ext_sig_sending">You are sending:</string>
     <string name="ext_sig_total">Total:</string>
     <string name="ext_sig_please_plug_in">Please plugin your device</string>
     <string name="ext_sig_next_unused_account_info">This option will import the next unused account from this device. It will only show up in other wallets if you send funds to it.</string>
@@ -1308,6 +1311,13 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="loading_n_of_m_hd">Loading %1$s account of total %2$s HD accounts</string>
     <string name="migrating_n_of_m_sa">Migrating %1$s account of total %2$s Single Address accounts</string>
     <string name="loading_n_of_m_sa">Loading %1$s account of total %2$s Single Address accounts</string>
+    <string name="trezor_one_mixed_mode"><![CDATA[Unfortunately %1$s firmware do not support our mixed mode.<br>Because of this signing process becomes a bit harder for user.<br>Usually when you sign transaction on your hardware device from Mycelium Wallet it shows you just one output - destination address.<br>In case of this transaction you would have to sign two outputs - one destination address and other - change address.<br>You still control everything as your hardware wallet would show that this output goes to your account. For more information please check our Github issue: <a href="url">https://github.com/mycelium-com/wallet-android/issues/483</a>]]></string>
+    <string name="transferToAccountN">Transfer to Account #%d</string>
+    <string name="check_change_address"><![CDATA[Unfortunately Trezor model T does not support checking if address is part of your account, but it allows to generate address from masterseed and show it on screen.<br>Please check address on Trezor screen and compare it with the one in summary. Later it would be used to send you your change and you would have to confirm it as a separate output. This is Trezor bug, which hopefully would be fixed soon, for more info please refer to <a href="url">https://github.com/trezor/trezor-core/issues/380</a>]]></string>
+    <string name="confirm_output_on_device"><![CDATA[Please confirm output on device.<br><b>Value:</b><br>%s<br><b>Destination Address:</b><br>%s<br>]]></string>
+    <string name="confirm_change_on_device"><![CDATA[Please confirm <b>change</b> output on device<br><br><b>Value:</b><br>%s<br><b>Change Address:</b><br>%s]]></string>
+    <string name="ext_sig_you_sending_title">What all these numbers are about?</string>
+    <string name="ext_sig_you_sending_message">Amount - value, which would be sent to destination address.\nYou are sending - value, which really would be sent from your wallet.\nIt\'s\n(Amount %1$s)\n+\n(Fee %2$s)=\n%3$s\nTotal - this value would be shown on your hardware device screen.\nIt\'s\n(You are sending %3$s)\n+\n(Change %4$s, which is sent back to your account)=\n%5$s</string>
     <plurals name="account_label">
         <item quantity="one">Account label:\n%s</item>
         <item quantity="other">Accounts labels:\n%s</item>

@@ -33,6 +33,16 @@
                 android:layout_centerHorizontal="true"
                 android:paddingTop="10dp"
                 android:layout_height="wrap_content"/>
+        <TextView
+            android:id="@+id/status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/pbProgress"
+            android:paddingTop="15dp"
+            android:textSize="18sp"
+            android:paddingRight="30dp"
+            android:paddingLeft="30dp"
+            android:autoLink="web"/>
 
         <LinearLayout
                 android:id="@+id/llShowTx"
@@ -88,6 +98,21 @@
 
                 <!-- Row 3 -->
                 <TextView
+                        android:id="@+id/changeToAddressLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:visibility="gone"
+                        android:paddingRight="10dp"
+                        android:text="@string/ext_sig_change_to"/>
+                <TextView
+                        android:id="@+id/changeToAddress"
+                        android:layout_width="wrap_content"
+                        android:visibility="gone"
+                        android:layout_height="wrap_content"
+                        tools:text="1A1zP1eP5QGefi2DM\nPTfTL5SLmv7DivfNa"/>
+
+                <!-- Row 4 -->
+                <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingRight="10dp"
@@ -98,7 +123,23 @@
                         android:layout_height="wrap_content"
                         tools:text="0.1 BTC"/>
 
-                <!-- Row 4 -->
+                <!-- Row 5 -->
+                <TextView
+                        android:id="@+id/sendingValueLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingRight="10dp"
+                        android:visibility="gone"
+                        android:text="@string/ext_sig_sending"
+                        android:textColor="#4583de"/>
+                <TextView
+                        android:id="@+id/sendingValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:visibility="gone"
+                        tools:text="8.1 BTC"/>
+
+                <!-- Row 6 -->
                 <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
