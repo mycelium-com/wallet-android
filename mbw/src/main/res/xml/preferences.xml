@@ -131,15 +131,14 @@
 
     <PreferenceCategory
         android:layout="@layout/preference_category_layout"
-        android:title="@string/transactions">
-        <ListPreference
-            android:dialogTitle="@string/block_explorer"
-            android:icon="@drawable/ic_exchange_coin"
-            android:key="block_explorer"
-            android:title="@string/block_explorer_title"
-            android:summary="@string/block_explorer_summary_2"
-            android:layout="@layout/preference_layout"
-            android:widgetLayout="@layout/preference_arrow" />
+        android:title="@string/tab_accounts">
+
+        <CheckBoxPreference
+            android:key="showBip44Path"
+            android:layout="@layout/preference_layout_no_icon"
+            android:summary="@string/show_bip_description"
+            android:title="@string/show_address_path"
+            android:widgetLayout="@layout/preference_switch" />
 
         <CheckBoxPreference
             android:icon="@drawable/ic_exchange_coin"
@@ -149,6 +148,20 @@
             android:summaryOn="@string/bech32_receive_mode"
             android:title="Default address type"
             android:widgetLayout="@layout/preference_switch" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:layout="@layout/preference_category_layout"
+        android:title="@string/transactions">
+        <ListPreference
+            android:dialogTitle="@string/block_explorer"
+            android:icon="@drawable/ic_exchange_coin"
+            android:key="block_explorer"
+            android:title="@string/block_explorer_title"
+            android:summary="@string/block_explorer_summary_2"
+            android:layout="@layout/preference_layout"
+            android:widgetLayout="@layout/preference_arrow" />
 
         <ListPreference
             android:dialogTitle="@string/change_address_type"
@@ -201,22 +214,6 @@
             android:summary="@string/email_notification_setting_explanation"
             android:title="@string/lt_use_email_for_notifications" />
     </PreferenceCategory>
-
-
-    <!-- Advanced Settings -->
-    <PreferenceCategory
-        android:key="advancedSettings"
-        android:layout="@layout/preference_category_layout"
-        android:title="@string/pref_advanced_settings">
-
-        <CheckBoxPreference
-            android:key="showBip44Path"
-            android:layout="@layout/preference_layout_no_icon"
-            android:summary="@string/show_bip_description"
-            android:title="@string/show_address_path"
-            android:widgetLayout="@layout/preference_switch" />
-    </PreferenceCategory>
-
 
     <!-- Ledger -->
     <PreferenceCategory
