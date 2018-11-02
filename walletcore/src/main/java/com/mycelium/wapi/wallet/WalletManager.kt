@@ -15,11 +15,9 @@ import com.mycelium.wapi.wallet.manager.*
 import java.util.*
 
 
-class WalletManager(val _secureKeyValueStore: SecureKeyValueStore,
-                    val backing: WalletManagerBacking<*,*>,
+class WalletManager(val backing: WalletManagerBacking<*,*>,
                     val network: NetworkParameters,
                     val wapi: Wapi) {
-    private val MASTER_SEED_ID = HexUtils.toBytes("D64CA2B680D8C8909A367F28EB47F990")
     private val MAX_AGE_FEE_ESTIMATION = (2 * 60 * 60 * 1000).toLong() // 2 hours
     private val MIN_AGE_FEE_ESTIMATION = (20 * 60 * 1000).toLong() // 20 minutes
 
@@ -27,8 +25,8 @@ class WalletManager(val _secureKeyValueStore: SecureKeyValueStore,
     private val walletModules = mutableMapOf<String, WalletModule>()
     private val _observers = LinkedList<Observer>()
     private val _lastFeeEstimations = backing.loadLastFeeEstimation();
-    private val _logger = wapi.getLogger()
-    lateinit var _identityAccountKeyManager: IdentityAccountKeyManager
+    private val _logger = wapi.logger
+
     var isNetworkConnected: Boolean = false
     var walletListener: WalletListener? = null
 
@@ -105,7 +103,7 @@ class WalletManager(val _secureKeyValueStore: SecureKeyValueStore,
     }
 
     fun addAccount(account: WalletAccount<*,*>) {
-        accounts.put(account.id, account);
+        accounts[account.id] = account;
     }
 
     fun deleteAccount(id: UUID, keyCipher: KeyCipher) {
@@ -178,13 +176,6 @@ class WalletManager(val _secureKeyValueStore: SecureKeyValueStore,
         return null
     }
 
-    //TODO what about not bitcoin network
-    fun getBlockHeight(coinType: CryptoCurrency): Int {
-        //TODO: should we iterate over all accounts and find max blockheight ?
-        val account = accounts.values.elementAt(0)
-        return account.blockChainHeight
-    }
-
     fun activateFirstAccount() {
 //        filterAndConvert(MAIN_SEED_BTC_HD_ACCOUNT).get(0).activateAccount()
     }
@@ -209,21 +200,6 @@ class WalletManager(val _secureKeyValueStore: SecureKeyValueStore,
         return accounts.values.filter { it.canSpend() && it.accountBalance.spendable.isPositive }
     }
 
-    /**
-     * Configure the BIP32 master seed of this wallet manager
-     *
-     * @param masterSeed the master seed to use.
-     * @param cipher     the cipher used to encrypt the master seed. Must be the same
-     * cipher as the one used by the secure storage instance
-     * @throws InvalidKeyCipher if the cipher is invalid
-     */
-    @Throws(InvalidKeyCipher::class)
-    fun configureBip32MasterSeed(masterSeed: Bip39.MasterSeed, cipher: KeyCipher) {
-        if (hasBip32MasterSeed()) {
-            throw RuntimeException("HD key store already loaded")
-        }
-        _secureKeyValueStore.encryptAndStoreValue(MASTER_SEED_ID, masterSeed.toBytes(false), cipher)
-    }
 
     fun getArchivedAccounts(): List<WalletAccount<*, *>> {
         return accounts.values.filter { it.isArchived && it.canSpend() }
@@ -240,25 +216,6 @@ class WalletManager(val _secureKeyValueStore: SecureKeyValueStore,
     }
 
     /**
-     * Get the active HD-accounts managed by the wallet manager, excluding on-the-fly-accounts and single-key accounts
-     *
-     * @return the list of accounts
-     */
-
-    fun getActiveMasterseedAccounts(): List<WalletAccount<*, *>> {
-        return accounts.values.filter { it is HDAccount && it.isDerivedFromInternalMasterseed }
-    }
-
-    /**
-     * Get the active BTC HD-accounts managed by the wallet manager, excluding on-the-fly-accounts and single-key accounts
-     *
-     * @return the list of accounts
-     */
-    fun getActiveHDAccounts(): List<WalletAccount<*, *>> {
-        return accounts.values.filter { it is HDAccount && !it.isArchived }
-    }
-
-    /**
      * Call this method to disable transaction history synchronization for single address accounts.
      * <p>
      * This is useful if the wallet manager is used for cold storage spending where the transaction history is
@@ -267,44 +224,6 @@ class WalletManager(val _secureKeyValueStore: SecureKeyValueStore,
      */
     fun disableTransactionHistorySynchronization() {
 
-    }
-    /**
-     * Get the master seed in plain text
-     *
-     * @param cipher the cipher used to decrypt the master seed
-     * @return the master seed in plain text
-     * @throws InvalidKeyCipher if the cipher is invalid
-     */
-    @Throws(InvalidKeyCipher::class)
-    fun getMasterSeed(cipher: KeyCipher): Bip39.MasterSeed {
-        val binaryMasterSeed = _secureKeyValueStore.getDecryptedValue(MASTER_SEED_ID, cipher)
-        val masterSeed = Bip39.MasterSeed.fromBytes(binaryMasterSeed, false)
-        if (!masterSeed.isPresent) {
-            throw RuntimeException()
-        }
-        return masterSeed.get()
-    }
-
-    @Throws(InvalidKeyCipher::class)
-    fun getIdentityAccountKeyManager(cipher: KeyCipher): IdentityAccountKeyManager {
-        if (null != _identityAccountKeyManager) {
-            return _identityAccountKeyManager
-        }
-        if (!hasBip32MasterSeed()) {
-            throw RuntimeException("accessed identity account with no master seed configured")
-        }
-        val rootNode = HdKeyNode.fromSeed(getMasterSeed(cipher).bip32Seed, null)
-        _identityAccountKeyManager = IdentityAccountKeyManager.createNew(rootNode, _secureKeyValueStore, cipher)
-        return _identityAccountKeyManager
-    }
-
-    /**
-     * Determine whether the wallet manager has a master seed configured
-     *
-     * @return true if a master seed has been configured for this wallet manager
-     */
-    fun hasBip32MasterSeed(): Boolean {
-        return _secureKeyValueStore.hasCiphertextValue(MASTER_SEED_ID)
     }
 
     /**
@@ -365,6 +284,4 @@ class WalletManager(val _secureKeyValueStore: SecureKeyValueStore,
          */
         SYNC_PROGRESS_UPDATED
     }
-
-
 }

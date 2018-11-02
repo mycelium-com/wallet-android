@@ -72,7 +72,6 @@ import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.MrdExport;
 import com.mrd.bitlib.crypto.PrivateKey;
-import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.crypto.RandomSource;
 import com.mrd.bitlib.crypto.SignedMessage;
 import com.mrd.bitlib.model.Address;
@@ -93,8 +92,16 @@ import com.mycelium.wallet.activity.util.BlockExplorerManager;
 import com.mycelium.wallet.activity.util.Pin;
 import com.mycelium.wallet.api.AndroidAsyncApi;
 import com.mycelium.wallet.bitid.ExternalService;
+import com.mycelium.wallet.coinapult.SQLiteCoinapultBacking;
 import com.mycelium.wallet.colu.SqliteColuManagerBacking;
-import com.mycelium.wallet.event.*;
+import com.mycelium.wallet.event.BalanceChanged;
+import com.mycelium.wallet.event.EventTranslator;
+import com.mycelium.wallet.event.ReceivingAddressChanged;
+import com.mycelium.wallet.event.SelectedAccountChanged;
+import com.mycelium.wallet.event.SelectedCurrencyChanged;
+import com.mycelium.wallet.event.SyncStarted;
+import com.mycelium.wallet.event.SyncStopped;
+import com.mycelium.wallet.event.TorStateChanged;
 import com.mycelium.wallet.exchange.ExchangeRateManager;
 import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager;
 import com.mycelium.wallet.extsig.keepkey.KeepKeyManager;
@@ -141,6 +148,10 @@ import com.mycelium.wapi.wallet.btc.single.PrivateSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore;
 import com.mycelium.wapi.wallet.btc.single.PublicSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
+import com.mycelium.wapi.wallet.btcmasterseed.Listener;
+import com.mycelium.wapi.wallet.btcmasterseed.MasterSeedManager;
+import com.mycelium.wapi.wallet.coinapult.CoinapultApiImpl;
+import com.mycelium.wapi.wallet.coinapult.CoinapultModule;
 import com.mycelium.wapi.wallet.colu.ColuApiImpl;
 import com.mycelium.wapi.wallet.colu.ColuClient;
 import com.mycelium.wapi.wallet.colu.ColuModule;
@@ -244,6 +255,7 @@ public class MbwManager {
     private final ExchangeRateManager _exchangeRateManager;
     private final WalletManager _walletManager;
     private WalletManager _tempWalletManager;
+    private MasterSeedManager masterSeedManager;
     private final RandomSource _randomSource;
     private final EventTranslator _eventTranslator;
     private ServerEndpointType.Types _torMode;
@@ -564,6 +576,19 @@ public class MbwManager {
         return recordList;
     }
 
+    private AccountListener accountListener = new AccountListener() {
+        @Override
+        public void balanceUpdated(final WalletAccount<?, ?> walletAccount) {
+            mainLoopHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    _eventBus.post(new BalanceChanged(walletAccount.getId()));
+                }
+            });
+        }
+    };
+
+
     /**
      * Create a Wallet Manager instance
      *
@@ -571,13 +596,21 @@ public class MbwManager {
      * @param environment the Mycelium environment
      * @return a new wallet manager instance
      */
-    private WalletManager createWalletManager(final Context context, MbwEnvironment environment) {
+    private WalletManager createWalletManager(final Context context, final MbwEnvironment environment) {
         // Create persisted account accountBacking
         WalletManagerBacking backing = new SqliteWalletManagerBackingWrapper(context);
 
         // Create persisted secure storage instance
         SecureKeyValueStore secureKeyValueStore = new SecureKeyValueStore(backing,
                 new AndroidRandomSource());
+
+        masterSeedManager = new MasterSeedManager(secureKeyValueStore);
+        masterSeedManager.setListener(new Listener() {
+            @Override
+            public void masterSeedConfigured() {
+                addCoinapultModule(context, environment, accountListener);
+            }
+        });
 
         ExternalSignatureProviderProxy externalSignatureProviderProxy = new ExternalSignatureProviderProxy(
             getTrezorManager(),
@@ -587,8 +620,7 @@ public class MbwManager {
 
         SpvBalanceFetcher spvBchFetcher = getSpvBchFetcher();
         // Create and return wallet manager
-        WalletManager walletManager = new WalletManager(secureKeyValueStore, backing
-                , environment.getNetwork(), _wapi);
+        WalletManager walletManager = new WalletManager(backing, environment.getNetwork(), _wapi);
         walletManager.setIsNetworkConnected(Utils.isConnected(context));
         walletManager.setWalletListener(new WalletListener() {
             @Override
@@ -640,36 +672,13 @@ public class MbwManager {
             netParams = RegTestParams.get();
         }
 
-        AccountListener accountListener = new AccountListener() {
-
-            @Override
-            public void balanceUpdated(final WalletAccount<?, ?> walletAccount) {
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        _eventBus.post(new BalanceChanged(walletAccount.getId()));
-                    }
-                });
-            }
-        };
 
         walletManager.add(new ColuModule(networkParameters, netParams, publicPrivateKeyStore
                 , new ColuApiImpl(coluClient), coluBacking, accountListener));
 
-        /* TODO - fix when updating coinapult support
-        if (_walletManager.hasBip32MasterSeed()) {
-            try {
-                Bip39.MasterSeed masterSeed = _walletManager.getMasterSeed(AesKeyCipher.defaultKeyCipher());
-                InMemoryPrivateKey inMemoryPrivateKey = createBip32WebsitePrivateKey(masterSeed.getBip32Seed(), 0, "coinapult.com");
-                SQLiteCoinapultBacking coinapultBacking = new SQLiteCoinapultBacking(context
-                        , getMetadataStorage(), inMemoryPrivateKey.getPublicKey().getPublicKeyBytes());
-                walletManager.add(new CoinapultModule(inMemoryPrivateKey, networkParameters
-                        , new CoinapultApiImpl(createClient(environment, inMemoryPrivateKey, retainingWapiLogger))
-                        , coinapultBacking, accountListener));
-            } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
-                invalidKeyCipher.printStackTrace();
-            }
-        }*/
+        if (masterSeedManager.hasBip32MasterSeed()) {
+            addCoinapultModule(context, environment, accountListener);
+        }
 
         walletManager.init();
 
@@ -677,6 +686,21 @@ public class MbwManager {
         walletManager.addAccount(new EthAccount());
 
         return walletManager;
+    }
+
+    private void addCoinapultModule(Context context, MbwEnvironment environment, AccountListener accountListener) {
+        NetworkParameters networkParameters = environment.getNetwork();
+        try {
+            Bip39.MasterSeed masterSeed = masterSeedManager.getMasterSeed(AesKeyCipher.defaultKeyCipher());
+            InMemoryPrivateKey inMemoryPrivateKey = createBip32WebsitePrivateKey(masterSeed.getBip32Seed(), 0, "coinapult.com");
+            SQLiteCoinapultBacking coinapultBacking = new SQLiteCoinapultBacking(context
+                    , getMetadataStorage(), inMemoryPrivateKey.getPublicKey().getPublicKeyBytes());
+            _walletManager.add(new CoinapultModule(inMemoryPrivateKey, networkParameters
+                    , new CoinapultApiImpl(createClient(environment, inMemoryPrivateKey, retainingWapiLogger), retainingWapiLogger)
+                    , coinapultBacking, accountListener));
+        } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
+            invalidKeyCipher.printStackTrace();
+        }
     }
 
     private CoinapultClient createClient(MbwEnvironment env, InMemoryPrivateKey accountKey, WapiLogger logger) {
@@ -730,8 +754,7 @@ public class MbwManager {
 
 
         // Create and return wallet manager
-        WalletManager walletManager = new WalletManager(secureKeyValueStore, backing
-                , environment.getNetwork(), _wapi);
+        WalletManager walletManager = new WalletManager(backing, environment.getNetwork(), _wapi);
         walletManager.setIsNetworkConnected(Utils.isConnected(_applicationContext));
 
         walletManager.disableTransactionHistorySynchronization();
@@ -1182,6 +1205,10 @@ public class MbwManager {
         return _walletManager;
     }
 
+    public MasterSeedManager getMasterSeedManager() {
+        return masterSeedManager;
+    }
+
     public UUID createOnTheFlyAccount(Address address) {
         UUID accountId = _tempWalletManager.createAccounts(new AddressSingleConfig(
                 new BtcLegacyAddress(BitcoinMain.get(), address.getAllAddressBytes()))).get(0);
@@ -1273,7 +1300,7 @@ public class MbwManager {
         } else if (account instanceof HDAccount && ((HDAccount) account).getAccountType() == HDAccountContext.ACCOUNT_TYPE_FROM_MASTERSEED) {
             // For BIP44 accounts we derive a private key from the BIP32 hierarchy
             try {
-                Bip39.MasterSeed masterSeed = _walletManager.getMasterSeed(cipher);
+                Bip39.MasterSeed masterSeed = masterSeedManager.getMasterSeed(cipher);
                 int accountIndex = ((HDAccount) account).getAccountIndex();
                 return createBip32WebsitePrivateKey(masterSeed.getBip32Seed(), accountIndex, website);
             } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
@@ -1286,7 +1313,7 @@ public class MbwManager {
 
     public InMemoryPrivateKey getBitIdKeyForWebsite(String website) {
         try {
-            IdentityAccountKeyManager identity = _walletManager.getIdentityAccountKeyManager(AesKeyCipher.defaultKeyCipher());
+            IdentityAccountKeyManager identity = masterSeedManager.getIdentityAccountKeyManager(AesKeyCipher.defaultKeyCipher());
             return identity.getPrivateKeyForWebsite(website, AesKeyCipher.defaultKeyCipher());
         } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
             throw new RuntimeException(invalidKeyCipher);
@@ -1439,7 +1466,7 @@ public class MbwManager {
 
     // Derives a key for signing messages (messages signing key) from the master seed
     private PrivateKey getMessagesSigningKey() throws KeyCipher.InvalidKeyCipher {
-        Bip39.MasterSeed seed = getWalletManager(false).getMasterSeed(AesKeyCipher.defaultKeyCipher());
+        Bip39.MasterSeed seed = masterSeedManager.getMasterSeed(AesKeyCipher.defaultKeyCipher());
         return HdKeyNode.fromSeed(seed.getBip32Seed(), null).createChildNode(DERIVATION_NUMBER_LEVEL_ONE).createChildNode(DERIVATION_NUMBER_LEVEL_TWO).getPrivateKey();
     }
 

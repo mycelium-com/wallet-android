@@ -128,7 +128,7 @@ public class VerifyBackupActivity extends Activity {
    private void updateUi() {
       TextView tvNumKeys = (TextView) findViewById(R.id.tvNumKeys);
       String infotext = "";
-      if (_mbwManager.getWalletManager(false).hasBip32MasterSeed()
+      if (_mbwManager.getMasterSeedManager().hasBip32MasterSeed()
             && _mbwManager.getMetadataStorage().getMasterSeedBackupState().equals(MetadataStorage.BackupState.UNKNOWN)) {
          infotext = getString(R.string.verify_backup_master_seed) + "\n";
       }

@@ -127,3 +127,17 @@ fun WalletManager.getCoinapultAccounts(): List<WalletAccount<*, *>> = getAccount
 fun WalletManager.getCoinapultAccount(currency: Currency): WalletAccount<*, *>? = getCoinapultAccounts().find { it.coinType == currency }
 
 fun WalletManager.getEthAccounts(): List<WalletAccount<*, *>> = getAccounts().filter { it is EthAccount && it.isVisible }
+
+/**
+ * Get the active BTC HD-accounts managed by the wallet manager, excluding on-the-fly-accounts and single-key accounts
+ *
+ * @return the list of accounts
+ */
+fun WalletManager.getActiveHDAccounts(): List<WalletAccount<*, *>> = getAccounts().filter { it is HDAccount && !it.isArchived }
+
+/**
+ * Get the active HD-accounts managed by the wallet manager, excluding on-the-fly-accounts and single-key accounts
+ *
+ * @return the list of accounts
+ */
+fun WalletManager.getActiveMasterseedAccounts(): List<WalletAccount<*, *>> = getAccounts().filter { it is HDAccount && it.isDerivedFromInternalMasterseed }
