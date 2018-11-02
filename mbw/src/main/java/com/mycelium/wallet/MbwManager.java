@@ -605,10 +605,11 @@ public class MbwManager {
                 new AndroidRandomSource());
 
         masterSeedManager = new MasterSeedManager(secureKeyValueStore);
+        final WalletManager walletManager = new WalletManager(backing, environment.getNetwork(), _wapi);
         masterSeedManager.setListener(new Listener() {
             @Override
             public void masterSeedConfigured() {
-                addCoinapultModule(context, environment, accountListener);
+                addCoinapultModule(context, environment, walletManager, accountListener);
             }
         });
 
@@ -620,7 +621,7 @@ public class MbwManager {
 
         SpvBalanceFetcher spvBchFetcher = getSpvBchFetcher();
         // Create and return wallet manager
-        WalletManager walletManager = new WalletManager(backing, environment.getNetwork(), _wapi);
+
         walletManager.setIsNetworkConnected(Utils.isConnected(context));
         walletManager.setWalletListener(new WalletListener() {
             @Override
@@ -677,7 +678,7 @@ public class MbwManager {
                 , new ColuApiImpl(coluClient), coluBacking, accountListener));
 
         if (masterSeedManager.hasBip32MasterSeed()) {
-            addCoinapultModule(context, environment, accountListener);
+            addCoinapultModule(context, environment,walletManager, accountListener);
         }
 
         walletManager.init();
@@ -685,14 +686,15 @@ public class MbwManager {
         return walletManager;
     }
 
-    private void addCoinapultModule(Context context, MbwEnvironment environment, AccountListener accountListener) {
+    private void addCoinapultModule(Context context, MbwEnvironment environment
+            , WalletManager walletManager, AccountListener accountListener) {
         NetworkParameters networkParameters = environment.getNetwork();
         try {
             Bip39.MasterSeed masterSeed = masterSeedManager.getMasterSeed(AesKeyCipher.defaultKeyCipher());
             InMemoryPrivateKey inMemoryPrivateKey = createBip32WebsitePrivateKey(masterSeed.getBip32Seed(), 0, "coinapult.com");
             SQLiteCoinapultBacking coinapultBacking = new SQLiteCoinapultBacking(context
                     , getMetadataStorage(), inMemoryPrivateKey.getPublicKey().getPublicKeyBytes());
-            _walletManager.add(new CoinapultModule(inMemoryPrivateKey, networkParameters
+            walletManager.add(new CoinapultModule(inMemoryPrivateKey, networkParameters
                     , new CoinapultApiImpl(createClient(environment, inMemoryPrivateKey, retainingWapiLogger), retainingWapiLogger)
                     , coinapultBacking, accountListener));
         } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {

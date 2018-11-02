@@ -1,16 +1,10 @@
 package com.mycelium.wapi.wallet
 
-import com.mrd.bitlib.crypto.Bip39
-import com.mrd.bitlib.crypto.HdKeyNode
 import com.mrd.bitlib.model.NetworkParameters
-import com.mrd.bitlib.util.HexUtils
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.api.lib.FeeEstimation
-import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher
 import com.mycelium.wapi.wallet.btc.SynchronizeAbleWalletBtcAccount
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking
-import com.mycelium.wapi.wallet.btc.bip44.HDAccount
-import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.manager.*
 import java.util.*
 
