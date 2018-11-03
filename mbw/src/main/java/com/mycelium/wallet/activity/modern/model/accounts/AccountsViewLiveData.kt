@@ -76,6 +76,11 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
                 accountsList.add(AccountsGroupModel(R.string.bitcoin_cash_sa, GROUP_TITLE_TYPE,
                         bchSAList))
             }
+            val ethList = accountsToViewModel(sortAccounts(walletManager.getEthAccounts()))
+            if (ethList.isNotEmpty()) {
+                accountsList.add(AccountsGroupModel(R.string.eth_accounts_name, GROUP_TITLE_TYPE,
+                        ethList))
+            }
 
             val coluAccounts = ArrayList<WalletAccount<out GenericTransaction, out GenericAddress>>()
             coluAccounts.addAll(walletManager.getColuAccounts())
@@ -92,9 +97,6 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
 
             val other = ArrayList<WalletAccount<out GenericTransaction, out GenericAddress>>()
             walletManager.getCoinapultAccounts().forEach {
-                other.add(it)
-            }
-            walletManager.getEthAccounts().forEach {
                 other.add(it)
             }
 
