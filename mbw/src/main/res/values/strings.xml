@@ -1260,7 +1260,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="exchange_sending">SENDING\nADDRESS</string>
     <string name="exchange_receiving">RECEIVING\nADDRESS</string>
     <string name="what_is_sync">What is sync?</string>
-    <string name="what_is_sync_description" >Sync is a process of retrieving your account\'s transactions from a blockchain. A number of retrieved transaction is shown upon every successful sync attempt.\n\nSync speed depends on your network connection and number of transactions. If you have thousands of transactions this process might take a couple of hours or more.</string>
+    <string name="what_is_sync_description">Sync is a process of retrieving your account\'s transactions from a blockchain. A number of retrieved transaction is shown upon every successful sync attempt.\n\nSync speed depends on your network connection and number of transactions. If you have thousands of transactions this process might take a couple of hours or more.</string>
     <string name="pref_language">Language</string>
     <string name="version">version</string>
     <string name="updates">Updates</string>
@@ -1293,6 +1293,8 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="normal_p2sh">Normal (P2SH)</string>
     <string name="native_segwit_bech_32">Native Segwit (Bech 32)</string>
     <string name="change_address_type">Transaction change address type</string>
+    <string name="segwit_change_mode_title">SegWit change mode</string>
+    <string name="segwit_change_mode_description">Select the way SegWit transactions change will be handled</string>
     <string name="block_explorer">Block explorer</string>
     <string name="p2sh_receive_mode">P2SH mode</string>
     <string name="bech32_receive_mode">SegWit native (Bech32).</string>
@@ -1301,6 +1303,11 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="p2sh_next">Tap for P2SH</string>
     <string name="p2sh">P2SH</string>
     <string name="bech">Bech32</string>
+    <string name="bech_description">Native SegWit address will be used for change. Latest Bitcoin standard, always the smallest fee possible, might affect privacy due to Bech32 addresses still haven\'t been used widely.</string>
+    <string name="p2sh_p2wpkh">P2SH-P2WPKH</string>
+    <string name="p2sh_p2wpkh_description">Legacy compatible SegWit address will be used for change. Has no privacy issues.</string>
+    <string name="privacy_guard">Privacy guard (default)</string>
+    <string name="privacy_guard_description">With "mixed mode" accounts hiding change address will be even more effective. As most of the transactions have only one output we mask your output type according to destination address type. Transaction fee might be a bit higher.</string>
     <string name="starting_application">Starting application</string>
     <string name="migrating_accounts">Migrating accounts</string>
     <string name="loading_accounts">Loading accounts</string>
