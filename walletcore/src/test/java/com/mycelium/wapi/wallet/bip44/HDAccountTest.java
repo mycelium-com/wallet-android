@@ -31,6 +31,7 @@ public class HDAccountTest {
         Wapi fakeWapi = mock(Wapi.class);
         WapiLogger fakeLogger = mock(WapiLogger.class);
         when(fakeWapi.getLogger()).thenReturn(fakeLogger);
+        LoadingProgressUpdater fakeLoadingProgressUpdater = mock(LoadingProgressUpdater.class);
 
         WalletManagerBacking backing = new InMemoryWalletManagerBacking();
         SecureKeyValueStore store = new SecureKeyValueStore(backing, fakeRandomSource);
@@ -43,7 +44,7 @@ public class HDAccountTest {
         currenciesSettingsMap.put(Currency.BTC, new BTCSettings(AddressType.P2SH_P2WPKH, new Reference<>(ChangeAddressMode.PRIVACY)));
 
         WalletManager walletManager = new WalletManager(store, backing, NetworkParameters.productionNetwork, fakeWapi,
-                null, null, false, currenciesSettingsMap, null);
+                null, null, false, currenciesSettingsMap, fakeLoadingProgressUpdater);
 
         walletManager.configureBip32MasterSeed(masterSeed, cipher);
 

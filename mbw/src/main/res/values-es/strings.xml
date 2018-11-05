@@ -151,8 +151,8 @@
   <string name="my_accounts">Mis cuentas</string>
   <string name="foreign_addresses">Libreta de direcciones</string>
   <string name="confirm_delete_pk_title">¿Estás seguro?</string>
-  <string name="confirm_delete_pk_with_balance">¡Esto no se puede desahacer!\n\nLa dirección actual:\n%1$s\n\n contiene %2$s\n\n¿Quieres eliminarla?</string>
-  <string name="confirm_delete_pk_without_balance">¡Esto no se puede deshacer!\n\nDirección actual:\n%1$s\n\n¿Quieres eliminarla?</string>
+  <!-- string name="confirm_delete_pk_with_balance">¡Esto no se puede desahacer!\n\nLa dirección actual:\n%1$s\n\n contiene %2$s\n\n¿Quieres eliminarla?</string>
+  <string name="confirm_delete_pk_without_balance">¡Esto no se puede deshacer!\n\nDirección actual:\n%1$s\n\n¿Quieres eliminarla?</string -->
   <string name="verify_private_key_backup">Verificar copia de seguridad</string>
   <string name="verify_backup_dialog_title">Verificar copia de seguridad de la clave privada</string>
   <string name="verify_backup_scan_desc">Verifica tu copia de seguridad escaneando el código QR de la clave privada o la semilla.\nSe aceptan varios formatos, incluido la copia de seguridad cifrada en papel de Mycelium.</string>
