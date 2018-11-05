@@ -38,7 +38,6 @@ import android.content.Intent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.TextView;
-import com.google.common.base.Optional;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -65,7 +64,7 @@ public abstract class ExtSigAccountImportActivity extends ExtSigAccountSelectorA
 
             UUID acc = mbwManager.getWalletManager(false)
                   .createExternalSignatureAccount(
-                        item.xPub,
+                        item.publicKeyNodes,
                         (ExternalSignatureDeviceManager) masterseedScanManager,
                         item.accountHdKeysPaths.iterator().next().getLastIndex()
                   );

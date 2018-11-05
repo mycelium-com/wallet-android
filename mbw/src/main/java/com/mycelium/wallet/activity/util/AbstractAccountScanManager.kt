@@ -223,6 +223,8 @@ abstract class AbstractAccountScanManager(protected val context: Context, protec
         passphraseSyncQueue.add(Optional.fromNullable(passphrase))
     }
 
+    abstract fun upgradeAccount(accountRoots: List<HdKeyNode>, walletManager: WalletManager, uuid: UUID): Boolean
+
     abstract fun createOnTheFlyAccount(accountRoots: List<HdKeyNode>, walletManager: WalletManager, accountIndex: Int): UUID
 
     // returns the next Bip44 account based on the last scanned account

@@ -349,7 +349,7 @@ public class WalletManager {
     public UUID createExternalSignatureAccount(List<? extends HdKeyNode> hdKeyNodes,
                                                ExternalSignatureProvider externalSignatureProvider, int accountIndex) {
         SecureSubKeyValueStore newSubKeyStore = getSecureStorage().createNewSubKeyStore();
-        final Map<BipDerivationType, HDPubOnlyAccountKeyManager> keyManagerMap = new HashMap<>();
+        final Map<BipDerivationType, HDAccountKeyManager> keyManagerMap = new HashMap<>();
         final List<BipDerivationType> derivationTypes = new ArrayList<>();
         for (HdKeyNode hdKeyNode : hdKeyNodes) {
             BipDerivationType derivationType = hdKeyNode.getDerivationType();
@@ -1183,6 +1183,10 @@ public class WalletManager {
             return input.getBalance().getSpendableBalance() > 0;
         }
     };
+
+    public boolean upgradeExtSigAccount(List<? extends HdKeyNode> accountRoots, HDAccountExternalSignature account) {
+        return account.upgradeAccount(accountRoots, getSecureStorage());
+    }
 
     public boolean canCreateAdditionalBip44Account() {
         if (!hasBip32MasterSeed()) {

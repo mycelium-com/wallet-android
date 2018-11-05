@@ -202,7 +202,7 @@ public abstract class HdAccountSelectorActivity extends Activity implements Mast
    protected class HdAccountWrapper implements Serializable {
       public UUID id;
       public Collection<HdKeyPath> accountHdKeysPaths;
-      public List<HdKeyNode> xPub;
+      public List<HdKeyNode> publicKeyNodes;
       public String name;
 
       @Override
@@ -286,7 +286,7 @@ public abstract class HdAccountSelectorActivity extends Activity implements Mast
       } else {
          acc.name = String.format(getString(R.string.account_number), path.getLastIndex() + 1);
       }
-      acc.xPub = event.account.accountsRoots;
+      acc.publicKeyNodes = event.account.accountsRoots;
       if (!accounts.contains(acc)) {
          accountsAdapter.add(acc);
          updateUi();

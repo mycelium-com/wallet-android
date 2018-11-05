@@ -69,18 +69,21 @@ public class ToggleableCurrencyDisplay extends LinearLayout {
 
    public ToggleableCurrencyDisplay(Context context, AttributeSet attrs) {
       super(context, attrs);
+      currencySwitcher = MbwManager.getInstance(context).getCurrencySwitcher();
       init(context);
       parseXML(context, attrs);
    }
 
    public ToggleableCurrencyDisplay(Context context, AttributeSet attrs, int defStyle) {
       super(context, attrs, defStyle);
+      currencySwitcher = MbwManager.getInstance(context).getCurrencySwitcher();
       init(context);
       parseXML(context, attrs);
    }
 
    public ToggleableCurrencyDisplay(Context context) {
       super(context);
+      currencySwitcher = MbwManager.getInstance(context).getCurrencySwitcher();
       init(context);
    }
 
@@ -205,11 +208,6 @@ public class ToggleableCurrencyDisplay extends LinearLayout {
          eventBus.unregister(this);
          isAddedToBus = false;
       }
-   }
-
-   public void setCurrencySwitcher(CurrencySwitcher currencySwitcher) {
-      this.currencySwitcher = currencySwitcher;
-      updateUi();
    }
 
    public void setValue(CurrencyValue value) {
