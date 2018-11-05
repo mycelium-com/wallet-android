@@ -187,7 +187,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
     private final Preference.OnPreferenceClickListener segwitChangeAddressClickListener = new Preference.OnPreferenceClickListener() {
         public boolean onPreferenceClick(Preference preference) {
-            SetSegwitChangeActivity.Companion.callMe(getActivity());
+            SetSegwitChangeActivity.callMe(getActivity());
             return true;
         }
     };

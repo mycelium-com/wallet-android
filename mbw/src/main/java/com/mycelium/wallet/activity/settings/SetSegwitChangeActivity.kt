@@ -19,10 +19,13 @@ class SetSegwitChangeActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_set_segwit_change)
-        supportActionBar!!.setDisplayShowTitleEnabled(true)
-        supportActionBar!!.setTitle(R.string.segwit_change_mode_title)
-        supportActionBar!!.setHomeAsUpIndicator(R.drawable.ic_back_arrow)
-        supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+
+        supportActionBar?.apply {
+            setDisplayShowTitleEnabled(true)
+            setTitle(R.string.segwit_change_mode_title)
+            setHomeAsUpIndicator(R.drawable.ic_back_arrow)
+            setDisplayHomeAsUpEnabled(true)
+        }
 
         val mbwManager = MbwManager.getInstance(this)
         val radioGroup = findViewById<RadioGroup>(R.id.radio_group)
@@ -33,8 +36,8 @@ class SetSegwitChangeActivity : AppCompatActivity() {
 
         // click listener. Also works on text views
         for (i in 0 until radioGroup.childCount) {
-            radioGroup.getChildAt(i).setOnClickListener { v ->
-                val clickedTag = v.tag.toString()
+            radioGroup.getChildAt(i).setOnClickListener { view ->
+                val clickedTag = view.tag.toString()
                 mbwManager.changeAddressMode = ChangeAddressMode.valueOf(clickedTag)
                 (radioGroup.findViewWithTag<View>(clickedTag) as RadioButton).isChecked = true
             }
@@ -50,6 +53,8 @@ class SetSegwitChangeActivity : AppCompatActivity() {
     }
 
     companion object {
+
+        @JvmStatic
         fun callMe(currentActivity: Activity) {
             val intent = Intent(currentActivity, SetSegwitChangeActivity::class.java)
             val options = ActivityOptions.makeCustomAnimation(currentActivity, R.anim.slide_right_in, R.anim.slide_left_out)
