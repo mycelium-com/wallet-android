@@ -16,7 +16,5 @@ public interface GenericAssetInfo extends Serializable {
 
     Value value(long units);
 
-    //boolean equals(GenericAssetInfo obj);
-
     Value value(String string);
 }

@@ -10,7 +10,7 @@ import com.mycelium.wapi.wallet.coins.Value;
 import java.io.Serializable;
 import java.util.List;
 
-public interface GenericTransaction {
+public interface GenericTransaction extends Serializable {
     class GenericOutput implements Serializable {
         final GenericAddress genericAddress;
         final Value value;

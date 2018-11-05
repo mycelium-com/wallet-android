@@ -42,8 +42,8 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
 
     public EthAccount() {
         id = UUID.randomUUID();
-        address = new EthAddress(RandomString.make(20));
-        accountBalancesStorage.put(address.toString(), Value.valueOf(EthMain.INSTANCE, 1253120));
+        address = new EthAddress(RandomString.make(24));
+        accountBalancesStorage.put(address.toString(), Value.valueOf(EthMain.INSTANCE, 1000000));
     }
 
     public UUID getId(){
@@ -90,7 +90,7 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
 
         transactionStorage.add(tx);
 
-        return null;
+        return BroadcastResult.SUCCESS;
     }
 
     @Override
@@ -191,7 +191,7 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
 
     @Override
     public Value calculateMaxSpendableAmount(long minerFeeToUse) {
-        return Value.zeroValue(EthTest.INSTANCE);
+        return Value.zeroValue(EthMain.INSTANCE);
     }
 
     @Override

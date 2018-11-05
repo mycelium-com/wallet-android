@@ -34,4 +34,9 @@ public class EthAddress implements GenericAddress {
     public byte[] getBytes() {
         return new byte[0];
     }
+
+    @Override
+    public String toString() {
+        return address;
+    }
 }
