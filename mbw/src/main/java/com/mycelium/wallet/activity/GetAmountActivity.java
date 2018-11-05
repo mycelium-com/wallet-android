@@ -65,6 +65,7 @@ import com.mycelium.wallet.activity.util.ValueExtentionsKt;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wapi.wallet.AddressUtils;
+import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
@@ -109,7 +110,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
    private Value _amount;
    private MbwManager _mbwManager;
    private Value _maxSpendableAmount;
-   private Address destinationAddress;
+   private GenericAddress destinationAddress;
    private long _kbMinerFee;
 
    private boolean isColu;
@@ -119,7 +120,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
     * Get Amount for spending
     */
    public static void callMeToSend(Activity currentActivity, int requestCode, UUID account, Value amountToSend, Long kbMinerFee,
-                                   AccountDisplayType currencyType, boolean isColdStorage, Address destinationAddress)
+                                   AccountDisplayType currencyType, boolean isColdStorage, GenericAddress destinationAddress)
    {
       Intent intent = new Intent(currentActivity, GetAmountActivity.class)
               .putExtra(ACCOUNT, account)
@@ -179,10 +180,12 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
    private void initSendMode() {
       // Calculate the maximum amount that can be spent where we send everything we got to another address
       _kbMinerFee = Preconditions.checkNotNull((Long) getIntent().getSerializableExtra(KB_MINER_FEE));
-      destinationAddress = (Address) getIntent().getSerializableExtra(DESTINATION_ADDRESS);
-      if (destinationAddress == null) {
-         destinationAddress = Address.getNullAddress(_mbwManager.getNetwork());
-      }
+      destinationAddress = (GenericAddress) getIntent().getSerializableExtra(DESTINATION_ADDRESS);
+
+      // TODO - why do we need null address here?
+      // if (destinationAddress == null) {
+      //   destinationAddress = Address.getNullAddress(_mbwManager.getNetwork());
+      //}
       //todo: get units from account
       _maxSpendableAmount = Value.valueOf(_account.getCoinType(), _account.getAccountBalance().getSpendable().value); //_account.calculateMaxSpendableAmount(_kbMinerFee, destinationAddress);
       showMaxAmount();

@@ -781,7 +781,7 @@ public class SendMainActivity extends Activity {
             presetAmount = Value.valueOf(BitcoinTest.get(), 0);
         }
         GetAmountActivity.callMeToSend(this, GET_AMOUNT_RESULT_CODE, _account.getId(), presetAmount, getCurrentFeeEstimation(),
-                AccountDisplayType.getAccountType(_account), _isColdStorage, ((BtcAddress)_account.getReceiveAddress()).getAddress());
+                AccountDisplayType.getAccountType(_account), _isColdStorage, _account.getReceiveAddress());
     }
 
     @OnClick(R.id.btSend)
