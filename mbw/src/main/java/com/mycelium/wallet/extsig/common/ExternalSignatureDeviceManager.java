@@ -196,7 +196,7 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
       }
    }
 
-   public synchronized String getModelName() {
+   public String getModelName() {
       switch (features.getModel()) {
          case "K1-14AM":
             return "Keep Key";
@@ -213,7 +213,7 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
       return initialize();
    }
 
-   public synchronized boolean initialize() {
+   public boolean initialize() {
       // check if a trezor is attached and connect to it, otherwise loop and check periodically
 
       // wait until a device is connected
