@@ -43,6 +43,9 @@ import android.support.v7.app.AppCompatActivity;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.modern.adapter.TabsAdapter;
+import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
+import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
+import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 
 public class GetFromAddressBookActivity extends AppCompatActivity {
    ViewPager mViewPager;
@@ -68,7 +71,9 @@ public class GetFromAddressBookActivity extends AppCompatActivity {
       Tab contactsTab = bar.newTab();
       mTabsAdapter.addTab(contactsTab.setText(getResources().getString(R.string.foreign_addresses)), AddressBookFragment.class, addressBookBundle(false));
 
-      int countContactsEntries = _mbwManager.getMetadataStorage().getAllAddressLabels().size();
+      CryptoCurrency coinType = _mbwManager.getSelectedAccount().getCoinType();
+      int countContactsEntries = coinType == BitcoinMain.get() || coinType == BitcoinTest.get() ?
+              _mbwManager.getMetadataStorage().getAllAddressLabels().size() : 0;
 
       if (countContactsEntries > 0) {
          bar.selectTab(contactsTab);
