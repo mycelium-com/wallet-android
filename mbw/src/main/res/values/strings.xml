@@ -1318,6 +1318,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="confirm_change_on_device"><![CDATA[Please confirm <b>change</b> output on device<br><br><b>Value:</b><br>%s<br><b>Change Address:</b><br>%s]]></string>
     <string name="ext_sig_you_sending_title">What all these numbers are about?</string>
     <string name="ext_sig_you_sending_message">Amount - value, which would be sent to destination address.\nYou are sending - value, which really would be sent from your wallet.\nIt\'s\n(Amount %1$s)\n+\n(Fee %2$s)=\n%3$s\nTotal - this value would be shown on your hardware device screen.\nIt\'s\n(You are sending %3$s)\n+\n(Change %4$s, which is sent back to your account)=\n%5$s</string>
+    <string name="extsig_confrim_on_hardware">Please confirm transaction on your device.</string>
     <plurals name="account_label">
         <item quantity="one">Account label:\n%s</item>
         <item quantity="other">Accounts labels:\n%s</item>

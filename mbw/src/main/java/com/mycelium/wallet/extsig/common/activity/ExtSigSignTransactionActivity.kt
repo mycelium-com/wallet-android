@@ -217,21 +217,22 @@ abstract class ExtSigSignTransactionActivity : SignTransactionActivity(), Master
 
         val statusText = when (event.status) {
             SHOW_CHANGE_ADDRESS -> {
-                changeToAddressLabel.setTypeface(null, BOLD)
-                changeToAddress.setTypeface(null, BOLD)
+                setChangeTypeface(BOLD)
                 getString(R.string.check_change_address)
             }
             CONFIRM_OUTPUT -> {
-                changeToAddressLabel.setTypeface(null, NORMAL)
-                changeToAddress.setTypeface(null, NORMAL)
+                setChangeTypeface(NORMAL)
                 getString(R.string.confirm_output_on_device,
                         "${CoinUtil.valueString(output.value, false)} BTC", address.toDoubleLineString().replace("\n", "<br>"))
             }
             CONFIRM_CHANGE -> {
-                changeToAddressLabel.setTypeface(null, BOLD)
-                changeToAddress.setTypeface(null, BOLD)
+                setChangeTypeface(BOLD)
                 getString(R.string.confirm_change_on_device,
                         "${CoinUtil.valueString(output.value, false)} BTC", address.toDoubleLineString().replace("\n", "<br>"))
+            }
+            SIGN_TRANSACTION -> {
+                setChangeTypeface(NORMAL)
+                getString(R.string.extsig_confrim_on_hardware)
             }
             WARNING -> {
                 val mixedModeWarning = SpannableString(Html.fromHtml(getString(R.string.trezor_one_mixed_mode, extSigManager.modelName)))
@@ -251,6 +252,11 @@ abstract class ExtSigSignTransactionActivity : SignTransactionActivity(), Master
         pbProgress.visibility = View.GONE
         showTx = true
         updateUi()
+    }
+
+    private fun setChangeTypeface(typeface: Int) {
+        changeToAddressLabel.setTypeface(null, typeface)
+        changeToAddress.setTypeface(null, typeface)
     }
 
     @Subscribe

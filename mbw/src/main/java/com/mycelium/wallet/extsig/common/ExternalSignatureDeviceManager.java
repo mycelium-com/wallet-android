@@ -114,6 +114,7 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
          SHOW_CHANGE_ADDRESS,
          CONFIRM_OUTPUT,
          CONFIRM_CHANGE,
+         SIGN_TRANSACTION,
          WARNING
       }
 
@@ -586,7 +587,7 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
 
    private Message filterMessages(final Message msg, UnsignedTransaction transaction, HDAccount forAccount) {
       if (msg instanceof TrezorMessage.ButtonRequest) {
-         return processButtonRequest(transaction, forAccount);
+         return processButtonRequest(msg, transaction, forAccount);
       } else if (msg instanceof TrezorMessage.PinMatrixRequest) {
          return processPinMatrixRequest(transaction, forAccount);
       } else if (msg instanceof TrezorMessage.PassphraseRequest) {
@@ -666,13 +667,23 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
       return filterMessages(getSignatureDevice().send(txPinAck), transaction, account);
    }
 
-   private Message processButtonRequest(UnsignedTransaction transaction, HDAccount account) {
+   private Message processButtonRequest(Message message, UnsignedTransaction transaction, HDAccount account) {
+
       getMainThreadHandler().post(new Runnable() {
          @Override
          public void run() {
             getEventBus().post(new OnButtonRequest());
          }
       });
+
+      if (TrezorType.ButtonRequestType.ButtonRequest_SignTx == ((TrezorMessage.ButtonRequest) message).getCode()) {
+         getMainThreadHandler().post(new Runnable() {
+            @Override
+            public void run() {
+               getEventBus().post(new OnStatusUpdate(0, OnStatusUpdate.CurrentStatus.SIGN_TRANSACTION));
+            }
+         });
+      }
 
       TrezorMessage.ButtonAck txButtonAck = TrezorMessage.ButtonAck.newBuilder()
             .build();
