@@ -473,7 +473,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
             _amount = Value.valueOf(_account.getCoinType(), satoshis); // todo BitcoinCashValue
          }
       } else {
-         _amount = Value.valueOf(_account.getCoinType(), 567); // todo was ExactCurrencyValue.from(value, currentCurrency);
+         _amount = Value.valueOf(_account.getCoinType(), 100000); // todo was ExactCurrencyValue.from(value, currentCurrency);
       }
 
       if (isSendMode) {

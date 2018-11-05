@@ -29,7 +29,7 @@ public class EthTransaction implements GenericTransaction {
 
     @Override
     public Sha256Hash getHash() {
-        return null;
+        return Sha256Hash.ZERO_HASH;
     }
 
     @Override
@@ -79,7 +79,7 @@ public class EthTransaction implements GenericTransaction {
 
     @Override
     public Optional<ConfirmationRiskProfileLocal> getConfirmationRiskProfile() {
-        return null;
+        return Optional.absent();
     }
 
     public void setTimestamp(long timestamp) {

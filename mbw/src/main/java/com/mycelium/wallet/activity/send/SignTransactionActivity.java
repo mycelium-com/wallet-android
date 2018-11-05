@@ -63,21 +63,22 @@ import java.util.UUID;
 
 public class SignTransactionActivity extends Activity {
    protected MbwManager _mbwManager;
-   protected WalletBtcAccount _account;
+   protected WalletAccount _account;
    protected boolean _isColdStorage;
-   protected UnsignedTransaction _unsigned;
+   protected SendRequest _sendRequest;
+   protected UnsignedTransaction _unsigned;// TODO -remove
    private Transaction _transaction;
    private AsyncTask<Void, Integer, SendRequest> signingTask;
    private Value amountToSend;
    private GenericAddress receivingAddress;
 
-   public static void callMe(Activity currentActivity, UUID account, boolean isColdStorage, UnsignedTransaction unsigned, int requestCode,
+   public static void callMe(Activity currentActivity, UUID account, boolean isColdStorage, SendRequest sendRequest, int requestCode,
                              Value amountToSend, GenericAddress receivingAddress) {
-      currentActivity.startActivityForResult(getIntent(currentActivity, account, isColdStorage, unsigned,
+      currentActivity.startActivityForResult(getIntent(currentActivity, account, isColdStorage, sendRequest,
               amountToSend, receivingAddress), requestCode);
    }
 
-   public static Intent getIntent(Activity currentActivity, UUID account, boolean isColdStorage, UnsignedTransaction unsigned,
+   public static Intent getIntent(Activity currentActivity, UUID account, boolean isColdStorage, SendRequest sendRequest,
                                   Value amountToSend, GenericAddress receivingAddress) {
       WalletAccount walletAccount = MbwManager.getInstance(currentActivity).getWalletManager(isColdStorage).getAccount(account);
 
@@ -105,7 +106,7 @@ public class SignTransactionActivity extends Activity {
       return new Intent(currentActivity, targetClass)
               .putExtra("account", account)
               .putExtra("isColdStorage", isColdStorage)
-              .putExtra("unsigned", unsigned)
+              .putExtra("sendRequest", sendRequest)
               .putExtra("amountToSend", amountToSend)
               .putExtra("receivingAddress", receivingAddress);
    }
@@ -119,8 +120,8 @@ public class SignTransactionActivity extends Activity {
       // Get intent parameters
       UUID accountId = Preconditions.checkNotNull((UUID) getIntent().getSerializableExtra("account"));
       _isColdStorage = getIntent().getBooleanExtra("isColdStorage", false);
-      _account = (WalletBtcAccount) Preconditions.checkNotNull(_mbwManager.getWalletManager(_isColdStorage).getAccount(accountId));
-      _unsigned = Preconditions.checkNotNull((UnsignedTransaction) getIntent().getSerializableExtra("unsigned"));
+      _account = (WalletAccount) Preconditions.checkNotNull(_mbwManager.getWalletManager(_isColdStorage).getAccount(accountId));
+      _sendRequest = Preconditions.checkNotNull((SendRequest) getIntent().getSerializableExtra("sendRequest"));
       amountToSend = Preconditions.checkNotNull((Value) getIntent().getSerializableExtra("amountToSend"));
       receivingAddress = (GenericAddress) Preconditions.checkNotNull(getIntent().getSerializableExtra("receivingAddress"));
 
@@ -159,9 +160,8 @@ public class SignTransactionActivity extends Activity {
          @Override
          protected SendRequest doInBackground(Void... args) {
             try {
-               SendRequest sendRequest = _account.getSendToRequest((BtcLegacyAddress) receivingAddress, amountToSend);
-               _account.completeAndSignTx(sendRequest);
-               return sendRequest; //_account.signTransaction(_unsigned, AesKeyCipher.defaultKeyCipher());
+               _account.signTransaction(_sendRequest);
+               return _sendRequest; //_account.signTransaction(_unsigned, AesKeyCipher.defaultKeyCipher());
             }
             catch (WalletAccount.WalletAccountException e) {
                throw new RuntimeException("doInBackground" + e.getMessage());
@@ -172,7 +172,7 @@ public class SignTransactionActivity extends Activity {
          protected void onPostExecute(SendRequest transactionRequest) {
             if (transactionRequest != null) {
                Intent ret = new Intent();
-               ret.putExtra("transactionRequest", transactionRequest);
+               //ret.putExtra("transactionRequest", transactionRequest);
                setResult(RESULT_OK, ret);
                SignTransactionActivity.this.finish();
             } else {
