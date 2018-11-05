@@ -416,9 +416,9 @@ public class AddressBookFragment extends Fragment {
    private class SelectItemListener implements OnItemClickListener {
       @Override
       public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-         Address address = ((BtcAddress) view.getTag()).getAddress();
+         GenericAddress address = (GenericAddress) view.getTag();
          Intent result = new Intent();
-         result.putExtra(ADDRESS_RESULT_NAME, address.toString());
+         result.putExtra(ADDRESS_RESULT_NAME, address);
 
          if( parent.getItemAtPosition(position) instanceof AddressBookManager.IconEntry) {
             AddressBookManager.IconEntry item  = (AddressBookManager.IconEntry)parent.getItemAtPosition(position);

@@ -1555,10 +1555,7 @@ public class SendMainActivity extends Activity {
             updateUi();
         } else if (requestCode == ADDRESS_BOOK_RESULT_CODE && resultCode == RESULT_OK) {
             // Get result from address chooser
-            String s = Preconditions.checkNotNull(intent.getStringExtra(AddressBookFragment.ADDRESS_RESULT_NAME));
-            String result = s.trim();
-            // Is it really an address?
-            GenericAddress address = AddressUtils.fromAddress(Address.fromString(result, _mbwManager.getNetwork()));
+            GenericAddress address =  (GenericAddress) intent.getSerializableExtra(AddressBookFragment.ADDRESS_RESULT_NAME); /*AddressUtils.fromAddress(Address.fromString(result, _mbwManager.getNetwork()));*/
             if (address == null) {
                 return;
             }
