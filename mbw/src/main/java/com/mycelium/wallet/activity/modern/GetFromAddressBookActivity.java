@@ -43,9 +43,6 @@ import android.support.v7.app.AppCompatActivity;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.modern.adapter.TabsAdapter;
-import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
-import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
-import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 
 public class GetFromAddressBookActivity extends AppCompatActivity {
    ViewPager mViewPager;
