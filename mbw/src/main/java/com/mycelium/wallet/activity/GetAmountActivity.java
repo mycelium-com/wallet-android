@@ -67,8 +67,6 @@ import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
-import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount;
 import com.mycelium.wapi.wallet.colu.ColuUtils;
@@ -193,7 +191,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       // if no amount is set, create an null amount with the correct currency
       if (_amount == null) {
          // todo get generic value (BTC/ETH) ? using _account.getAccountDefaultCurrency()
-         _amount = Value.valueOf(_mbwManager.getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get(), 0);
+         _amount = Value.valueOf(_account.getCoinType(), 0);
          updateUI();
       }
 
@@ -215,7 +213,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       if(isColu) {
          if (_amount == null) {
             // todo get generic value (BTC/ETH) ? using coluAccount.getAccountDefaultCurrency()
-            _amount = Value.valueOf(BitcoinTest.get(), 0);;
+            _amount = Value.valueOf(_account.getCoinType(), 0);;
          }
       } else {
 //         btCurrency.setText(_mbwManager.getBitcoinDenomination().getUnicodeName());
@@ -398,7 +396,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
    }
 
    private void showMaxAmount() {
-      Value maxSpendable = Value.valueOf(_mbwManager.getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get(),
+      Value maxSpendable = Value.valueOf(_account.getCoinType(),
               _account.getAccountBalance().getSpendable().value);
       // todo was Value.fromValue(_maxSpendableAmount, _amount.getCurrencySymbol(), _mbwManager.getExchangeRateManager());
 
@@ -470,12 +468,12 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
             return;
          }
          if (mainCurrencyType == AccountDisplayType.BTC_ACCOUNT) {
-            _amount = Value.valueOf(BitcoinTest.get(), satoshis); // todo
+            _amount = Value.valueOf(_account.getCoinType(), satoshis); // todo
          } else if (mainCurrencyType == AccountDisplayType.BCH_ACCOUNT) {
-            _amount = Value.valueOf(BitcoinTest.get(), satoshis); // todo BitcoinCashValue
+            _amount = Value.valueOf(_account.getCoinType(), satoshis); // todo BitcoinCashValue
          }
       } else {
-         _amount = Value.valueOf(BitcoinTest.get(), 567); // todo was ExactCurrencyValue.from(value, currentCurrency);
+         _amount = Value.valueOf(_account.getCoinType(), 567); // todo was ExactCurrencyValue.from(value, currentCurrency);
       }
 
       if (isSendMode) {
@@ -499,16 +497,16 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          if (mainCurrencyType.getAccountLabel().equals(_mbwManager.getCurrencySwitcher().getCurrentCurrency())) {
             // Show Fiat as alternate amount
             String currency = _mbwManager.getFiatCurrency();
-            convertedAmount = Value.valueOf(BitcoinTest.get(), _amount.getValue()); // todo use fiat!
+            convertedAmount = Value.valueOf(_account.getCoinType(), _amount.getValue()); // todo use fiat!
 //                    ExchangeBasedCurrencyValue.fromValue(_amount, currency, _mbwManager.getExchangeRateManager());
          } else {
             // Show BTC as alternate amount
             try {
-               convertedAmount = Value.valueOf(BitcoinTest.get(), _amount.getValue());
+               convertedAmount = Value.valueOf(_account.getCoinType(), _amount.getValue());
                // ExchangeBasedCurrencyValue.fromValue(_amount, mainCurrencyType.getAccountLabel(), _mbwManager.getExchangeRateManager());
             } catch (IllegalArgumentException ex){
                // something failed while calculating the bitcoin amount
-               convertedAmount = Value.valueOf(BitcoinTest.get(), 0);// todo not bitcoin
+               convertedAmount = Value.valueOf(_account.getCoinType(), 0);// todo not bitcoin
             }
          }
          tvAlternateAmount.setText(ValueExtentionsKt.toStringWithUnit(convertedAmount, _mbwManager.getBitcoinDenomination()));
