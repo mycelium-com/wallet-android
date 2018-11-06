@@ -80,11 +80,10 @@ open class ToggleableCurrencyDisplay : LinearLayout {
         init(context)
     }
 
-    internal fun parseXML(context: Context, attrs: AttributeSet) {
+    private fun parseXML(context: Context, attrs: AttributeSet) {
         val a = context.obtainStyledAttributes(attrs, R.styleable.ToggleableCurrencyButton)
 
-        val N = a.indexCount
-        for (i in 0 until N) {
+        for (i in 0 until a.indexCount) {
             val attr = a.getIndex(i)
             when (attr) {
                 R.styleable.ToggleableCurrencyButton_fiatOnly -> fiatOnly = a.getBoolean(attr, false)
@@ -131,11 +130,10 @@ open class ToggleableCurrencyDisplay : LinearLayout {
             }
 
             visibility = View.VISIBLE
-            val formattedValue: String
-            if (precision >= 0) {
-                formattedValue = currencySwitcher.getFormattedValue(currentValue, false, precision)
+            val formattedValue = if (precision >= 0) {
+                currencySwitcher.getFormattedValue(currentValue, false, precision)
             } else {
-                formattedValue = currencySwitcher.getFormattedValue(currentValue, false)
+                currencySwitcher.getFormattedValue(currentValue, false)
             }
 
             tvDisplayValue.text = formattedValue
@@ -144,7 +142,7 @@ open class ToggleableCurrencyDisplay : LinearLayout {
         }
     }
 
-    protected fun showFiat() {
+    private fun showFiat() {
         if (hideOnNoExchangeRate && !currencySwitcher.isFiatExchangeRateAvailable) {
             // hide everything
             visibility = View.GONE
