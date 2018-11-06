@@ -37,10 +37,9 @@ package com.mycelium.wallet.extsig.common.activity
 import android.app.Activity
 import android.graphics.Typeface.BOLD
 import android.graphics.Typeface.NORMAL
+import android.os.Bundle
 import android.support.v7.app.AlertDialog
 import android.text.Html
-import android.text.SpannableString
-import android.text.util.Linkify
 import android.view.View
 import com.google.common.base.Joiner
 import com.mrd.bitlib.util.CoinUtil
@@ -59,8 +58,6 @@ import java.lang.IllegalStateException
 import android.text.method.LinkMovementMethod
 import android.widget.TextView
 
-
-
 abstract class ExtSigSignTransactionActivity : SignTransactionActivity(), MasterseedPasswordSetter {
     protected abstract val extSigManager: ExternalSignatureDeviceManager
 
@@ -71,19 +68,25 @@ abstract class ExtSigSignTransactionActivity : SignTransactionActivity(), Master
     private var changeString = ""
     private var amountSendingString = ""   // Sent from our wallet
 
-    override fun onStart() {
-        super.onStart()
-        MbwManager.getEventBus().register(this)
-        sendingValueLabel.setOnClickListener {
-            val message = getString(R.string.ext_sig_you_sending_message, amountString, feeString, amountSendingString,
-                    changeString, totalString)
-            AlertDialog.Builder(this)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        status.movementMethod = LinkMovementMethod.getInstance()
+        summaryHeader.movementMethod = LinkMovementMethod.getInstance()
+        summaryTransactionValues.setOnClickListener {
+            val message = Html.fromHtml(getString(R.string.ext_sig_you_sending_message, amountString, feeString,
+                    amountSendingString, changeString, totalString, extSigManager.modelName))
+            AlertDialog.Builder(this@ExtSigSignTransactionActivity)
                     .setTitle(R.string.ext_sig_you_sending_title)
                     .setMessage(message)
-                    .setPositiveButton(R.string.accept) { _, _ -> }
+                    .setPositiveButton(R.string.accept) { _, _ ->  }
                     .create()
                     .show()
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        MbwManager.getEventBus().register(this)
         updateUi()
     }
 
@@ -146,7 +149,7 @@ abstract class ExtSigSignTransactionActivity : SignTransactionActivity(), Master
             amountString = "${CoinUtil.valueString(amountSending, false)} BTC"
             val fee = _unsigned.calculateFee()
             totalString = "${CoinUtil.valueString(amountSending + fee + changeValue, false)} BTC"
-            changeString= "${CoinUtil.valueString(changeValue, false)} BTC"
+            changeString = "${CoinUtil.valueString(changeValue, false)} BTC"
             feeString = "${CoinUtil.valueString(fee, false)} BTC"
 
             if ((changeAddress != "") && showChange(_unsigned, _mbwManager.network, _account as HDAccount)) {
@@ -232,11 +235,10 @@ abstract class ExtSigSignTransactionActivity : SignTransactionActivity(), Master
             }
             SIGN_TRANSACTION -> {
                 setChangeTypeface(NORMAL)
-                getString(R.string.extsig_confrim_on_hardware)
+                getString(R.string.extsig_confrim_on_hardware, extSigManager.modelName)
             }
             WARNING -> {
-                val mixedModeWarning = SpannableString(Html.fromHtml(getString(R.string.trezor_one_mixed_mode, extSigManager.modelName)))
-                Linkify.addLinks(mixedModeWarning, Linkify.WEB_URLS)
+                val mixedModeWarning = Html.fromHtml(getString(R.string.mixed_mode_explanation, extSigManager.modelName))
                 val alertDialog: AlertDialog = AlertDialog.Builder(this)
                         .setTitle(R.string.signing_transaction_instruction)
                         .setMessage(mixedModeWarning)

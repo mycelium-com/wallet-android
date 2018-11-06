@@ -41,9 +41,7 @@
             android:paddingTop="15dp"
             android:textSize="18sp"
             android:paddingRight="30dp"
-            android:paddingLeft="30dp"
-            android:autoLink="web"/>
-
+            android:paddingLeft="30dp"/>
         <LinearLayout
                 android:id="@+id/llShowTx"
                 android:layout_width="wrap_content"
@@ -56,10 +54,18 @@
                 tools:visibility="visible"
                 >
             <TextView
+                    android:id="@+id/summaryHeader"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/ext_sig_verify_transaction_on_device"
                     android:textColor="@color/lightgrey"
+                    android:paddingBottom="5dp"/>
+            <TextView
+                    android:id="@+id/summaryTransactionValues"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/ext_sig_verify_transaction_values"
+                    android:textColor="#4583de"
                     android:paddingBottom="5dp"/>
 
             <GridLayout
@@ -130,8 +136,7 @@
                         android:layout_height="wrap_content"
                         android:paddingRight="10dp"
                         android:visibility="gone"
-                        android:text="@string/ext_sig_sending"
-                        android:textColor="#4583de"/>
+                        android:text="@string/ext_sig_sending"/>
                 <TextView
                         android:id="@+id/sendingValue"
                         android:layout_width="wrap_content"
