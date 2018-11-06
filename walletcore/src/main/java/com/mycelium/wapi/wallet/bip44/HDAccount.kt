@@ -639,19 +639,16 @@ open class HDAccount(
     }
 
     fun getAddressId(address: Address): Optional<Array<Int>> {
-        val derivationType = getDerivationTypeByAddress(address)
-
-        if (!availableAddressTypes.contains(address.type)) {
+        if (address.type !in availableAddressTypes) {
             return Optional.absent()
         }
-
-        return when {
-            externalAddresses[derivationType]!!.containsKey(address) -> Optional.of(arrayOf(0,
-                    externalAddresses[derivationType]!![address]!!))
-            internalAddresses[derivationType]!!.containsKey(address) -> Optional.of(arrayOf(1,
-                    internalAddresses[derivationType]!![address]!!))
-            else -> Optional.absent()
+        val derivationType = getDerivationTypeByAddress(address)
+        val (changeIndex, addressMap) =  when (address) {
+            in externalAddresses[derivationType]!!.keys -> Pair(0, externalAddresses)
+            in internalAddresses[derivationType]!!.keys -> Pair(1, internalAddresses)
+            else -> return Optional.absent()
         }
+        return Optional.of(arrayOf(changeIndex, addressMap[derivationType]!![address]!!))
     }
 
     // returns true if this is one of our already used or monitored internal (="change") addresses
