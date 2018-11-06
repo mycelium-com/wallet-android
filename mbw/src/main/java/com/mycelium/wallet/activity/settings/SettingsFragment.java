@@ -58,6 +58,7 @@ import com.mycelium.wallet.modularisation.ModularisationVersionHelper;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bip44.ChangeAddressMode;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
+import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.squareup.otto.Subscribe;
 import info.guardianproject.onionkit.ui.OrbotHelper;
 
@@ -968,12 +969,12 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
     private String localCurrencySummary() {
         if (_mbwManager.hasFiatCurrency()) {
-            String currency = _mbwManager.getFiatCurrency();
-            List<String> currencyList = _mbwManager.getCurrencyList();
+            String currency = _mbwManager.getFiatCurrency() != null ? _mbwManager.getFiatCurrency().getSymbol() : "";
+            List<GenericAssetInfo> currencyList = _mbwManager.getCurrencyList();
             currencyList.remove(currency);
             for (int i = 0; i < Math.min(currencyList.size(), 2); i++) {
                 //noinspection StringConcatenationInLoop
-                currency += ", " + currencyList.get(i);
+                currency += ", " + currencyList.get(i).getSymbol();
             }
             if (_mbwManager.getCurrencyList().size() > 3) {
                 //multiple selected, add ...

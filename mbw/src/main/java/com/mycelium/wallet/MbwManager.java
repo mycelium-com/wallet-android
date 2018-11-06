@@ -152,13 +152,14 @@ import com.mycelium.wapi.wallet.btcmasterseed.Listener;
 import com.mycelium.wapi.wallet.btcmasterseed.MasterSeedManager;
 import com.mycelium.wapi.wallet.coinapult.CoinapultApiImpl;
 import com.mycelium.wapi.wallet.coinapult.CoinapultModule;
+import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.colu.ColuApiImpl;
 import com.mycelium.wapi.wallet.colu.ColuClient;
 import com.mycelium.wapi.wallet.colu.ColuModule;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
 import com.mycelium.wapi.wallet.colu.coins.MTCoin;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
-import com.mycelium.wapi.wallet.eth.EthAccount;
+import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 import com.mycelium.wapi.wallet.manager.WalletListener;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
@@ -331,20 +332,22 @@ public class MbwManager {
 
         Set<String> currencyList = getPreferences().getStringSet(Constants.SELECTED_CURRENCIES, null);
         //TODO: get it through coluManager instead ?
-        Set<String> fiatCurrencies = new HashSet<>();
+        Set<GenericAssetInfo> fiatCurrencies = new HashSet<>();
         if (currencyList == null || currencyList.isEmpty()) {
             //if there is no list take the default currency
-            fiatCurrencies.add(Constants.DEFAULT_CURRENCY);
+            fiatCurrencies.add(new FiatType(Constants.DEFAULT_CURRENCY));
         } else {
             //else take all dem currencies, yeah
-            fiatCurrencies.addAll(currencyList);
+            for (String currency : currencyList) {
+                fiatCurrencies.add(new FiatType(currency));
+            }
         }
 
         _exchangeRateManager = new ExchangeRateManager(_applicationContext, _wapi, getNetwork(), getMetadataStorage());
         _currencySwitcher = new CurrencySwitcher(
             _exchangeRateManager,
             fiatCurrencies,
-            preferences.getString(Constants.FIAT_CURRENCY_SETTING, Constants.DEFAULT_CURRENCY),
+            new FiatType(preferences.getString(Constants.FIAT_CURRENCY_SETTING, Constants.DEFAULT_CURRENCY)),
             Denomination.fromString(preferences.getString(Constants.BITCOIN_DENOMINATION_SETTING, Denomination.BTC.toString()))
         );
 
@@ -769,7 +772,7 @@ public class MbwManager {
         return result;
     }
 
-    public String getFiatCurrency() {
+    public GenericAssetInfo getFiatCurrency() {
         return _currencySwitcher.getCurrentFiatCurrency();
     }
 
@@ -781,27 +784,30 @@ public class MbwManager {
         return _applicationContext.getSharedPreferences(Constants.SETTINGS_NAME, Activity.MODE_PRIVATE);
     }
 
-    public List<String> getCurrencyList() {
+    public List<GenericAssetInfo> getCurrencyList() {
         return _currencySwitcher.getCurrencyList();
     }
 
-    public void setCurrencyList(Set<String> currencies) {
-        Set<String> allActiveFiatCurrencies = new HashSet<>();
+    public void setCurrencyList(Set<GenericAssetInfo> currencies) {
+        Set<GenericAssetInfo> allActiveFiatCurrencies = new HashSet<>();
 
-        allActiveFiatCurrencies.add(RMCCoin.INSTANCE.getSymbol());
-        allActiveFiatCurrencies.add(MASSCoin.INSTANCE.getSymbol());
-        allActiveFiatCurrencies.add(MTCoin.INSTANCE.getSymbol());
+        allActiveFiatCurrencies.add(RMCCoin.INSTANCE);
+        allActiveFiatCurrencies.add(MASSCoin.INSTANCE);
+        allActiveFiatCurrencies.add(MTCoin.INSTANCE);
 
         // let the exchange-rate manager fetch all currencies, that we might need
         _exchangeRateManager.setCurrencyList(Sets.union(currencies, allActiveFiatCurrencies));
 
         // but tell the currency-switcher only to switch over the user selected currencies
         _currencySwitcher.setCurrencyList(currencies);
-
-       getEditor().putStringSet(Constants.SELECTED_CURRENCIES, new HashSet<>(currencies)).apply();
+        Set<String> data = new HashSet<>();
+        for (GenericAssetInfo currency : currencies) {
+            data.add(currency.getSymbol());
+        }
+       getEditor().putStringSet(Constants.SELECTED_CURRENCIES, data).apply();
    }
 
-    public String getNextCurrency(boolean includeBitcoin) {
+    public GenericAssetInfo getNextCurrency(boolean includeBitcoin) {
         return _currencySwitcher.getNextCurrency(includeBitcoin);
     }
 
@@ -1395,7 +1401,7 @@ public class MbwManager {
 
    @Subscribe
    public void onSelectedCurrencyChanged(SelectedCurrencyChanged event) {
-       getEditor().putString(Constants.FIAT_CURRENCY_SETTING, _currencySwitcher.getCurrentFiatCurrency()).apply();
+       getEditor().putString(Constants.FIAT_CURRENCY_SETTING, _currencySwitcher.getCurrentFiatCurrency().getSymbol()).apply();
    }
 
     public boolean getPinRequiredOnStartup() {

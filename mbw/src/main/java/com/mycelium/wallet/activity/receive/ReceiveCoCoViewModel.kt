@@ -4,8 +4,8 @@ import android.app.Application
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount
-import com.mycelium.wapi.wallet.currency.CurrencyValue
 
 class ReceiveCoCoViewModel(application: Application) : ReceiveCoinsViewModel(application) {
     private lateinit var accountLabel: String
@@ -18,17 +18,15 @@ class ReceiveCoCoViewModel(application: Application) : ReceiveCoinsViewModel(app
 
     override fun getHint() = context.getString(R.string.amount_hint_denomination, account.coinType.symbol)
 
-    override fun getFormattedValue(sum: CurrencyValue) = Utils.getColuFormattedValueWithUnit(sum)
+    override fun getFormattedValue(sum: Value) = Utils.getFormattedValueWithUnit(sum)
 
     override fun getCurrencyName() = account.coinType.symbol
 
     override fun getTitle(): String {
-        return if (CurrencyValue.isNullOrZero(model.amountData.value)) {
+        return if (Value.isNullOrZero(model.amountData.value)) {
             context.getString(R.string.address_title, accountLabel)
         } else {
             context.getString(R.string.payment_request)
         }
     }
-
-
 }

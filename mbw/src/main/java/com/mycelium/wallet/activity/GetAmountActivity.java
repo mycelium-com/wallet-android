@@ -48,7 +48,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
-import com.megiontechnologies.Bitcoins;
 import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
@@ -60,19 +59,17 @@ import com.mycelium.wallet.NumberEntry;
 import com.mycelium.wallet.NumberEntry.NumberEntryListener;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.activity.util.AccountDisplayType;
 import com.mycelium.wallet.activity.util.ValueExtentionsKt;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.coins.CryptoCurrency;
+import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount;
 import com.mycelium.wapi.wallet.colu.ColuUtils;
-import com.mycelium.wapi.wallet.currency.CurrencyValue;
-import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
-import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 import com.squareup.otto.Subscribe;
 
 import java.math.BigDecimal;
@@ -113,13 +110,13 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
    private long _kbMinerFee;
 
    private boolean isColu;
-   private AccountDisplayType mainCurrencyType;
+   private CryptoCurrency mainCurrencyType;
 
    /**
     * Get Amount for spending
     */
    public static void callMeToSend(Activity currentActivity, int requestCode, UUID account, Value amountToSend, Long kbMinerFee,
-                                   AccountDisplayType currencyType, boolean isColdStorage, GenericAddress destinationAddress)
+                                   CryptoCurrency currencyType, boolean isColdStorage, GenericAddress destinationAddress)
    {
       Intent intent = new Intent(currentActivity, GetAmountActivity.class)
               .putExtra(ACCOUNT, account)
@@ -137,7 +134,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
    /**
     * Get Amount for receiving
     */
-   public static void callMeToReceive(Activity currentActivity, CurrencyValue amountToReceive, int requestCode, AccountDisplayType currencyType) {
+   public static void callMeToReceive(Activity currentActivity, Value amountToReceive, int requestCode, CryptoCurrency currencyType) {
       Intent intent = new Intent(currentActivity, GetAmountActivity.class)
               .putExtra(ENTERED_AMOUNT, amountToReceive)
               .putExtra(SEND_MODE, false)
@@ -163,9 +160,10 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       isColu = _account instanceof ColuPubOnlyAccount;
       initNumberEntry(savedInstanceState);
 
-      mainCurrencyType = (AccountDisplayType) getIntent().getSerializableExtra(BASIC_CURRENCY);
+      mainCurrencyType = (CryptoCurrency) getIntent().getSerializableExtra(BASIC_CURRENCY);
 
-      _mbwManager.getCurrencySwitcher().setDefaultCurrency(mainCurrencyType.getAccountLabel());
+      _mbwManager.getCurrencySwitcher().setDefaultCurrency(mainCurrencyType);
+      _mbwManager.getCurrencySwitcher().setCurrency(mainCurrencyType);
 
       if (isSendMode) {
          initSendMode();
@@ -237,12 +235,12 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          }else {
             amountString = Utils.getFormattedValue(_amount, _mbwManager.getBitcoinDenomination());
          }
-         _mbwManager.getCurrencySwitcher().setCurrency(_amount.getCurrencySymbol());
+         _mbwManager.getCurrencySwitcher().setCurrency(_amount.type);
       } else {
          if (_amount != null && _amount.getCurrencySymbol() != null) {
-            _mbwManager.getCurrencySwitcher().setCurrency(_amount.getCurrencySymbol());
+            _mbwManager.getCurrencySwitcher().setCurrency(_amount.type);
          } else {
-            _mbwManager.getCurrencySwitcher().setCurrency(_account.getCoinType().getSymbol());
+            _mbwManager.getCurrencySwitcher().setCurrency(_account.getCoinType());
          }
          amountString = "";
       }
@@ -274,7 +272,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       } else {
          _amount = _maxSpendableAmount;
          // set the current shown currency to the amounts currency
-         _mbwManager.getCurrencySwitcher().setCurrency(_amount.getCurrencySymbol());
+         _mbwManager.getCurrencySwitcher().setCurrency(_amount.getType());
          updateUI();
          checkEntry();
       }
@@ -286,13 +284,13 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       // if there is no exchange rate at all available, we will get to BTC and stay there
       // this does not apply to digital assets such as Colu for which we do not have a rate
       if(_amount != null && !ColuUtils.allColuCoins().contains(_amount.type)) {
-         String targetCurrency = _mbwManager.getNextCurrency(true);
+         GenericAssetInfo targetCurrency = _mbwManager.getNextCurrency(true);
          CurrencySwitcher currencySwitcher = _mbwManager.getCurrencySwitcher();
-         while (!targetCurrency.equals(mainCurrencyType.getAccountLabel()) && !currencySwitcher.isFiatExchangeRateAvailable()) {
+         while (!targetCurrency.equals(mainCurrencyType) && !currencySwitcher.isFiatExchangeRateAvailable()) {
             targetCurrency = _mbwManager.getNextCurrency(true);
          }
 //         _amount = CurrencyValue.fromValue(_amount, targetCurrency, _mbwManager.getExchangeRateManager());
-         _amount = Value.valueOf(new FiatType(targetCurrency), _amount.getValue()); // todo use exchange rate manager?
+         _amount = Value.valueOf(targetCurrency, _amount.getValue()); // todo use exchange rate manager?
          // todo create a FiatValue for _amount?
       }
 
@@ -329,7 +327,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          return null;
       }
       String number = content.trim();
-      if (mainCurrencyType.getAccountLabel().equals(_mbwManager.getCurrencySwitcher().getCurrentCurrency())) {
+      if (mainCurrencyType.equals(_mbwManager.getCurrencySwitcher().getCurrentCurrency())) {
          number = Utils
                  .truncateAndConvertDecimalString(number, _mbwManager.getBitcoinDenomination().getDecimalPlaces());
          if (number == null) {
@@ -364,7 +362,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       if (_amount != null) {
          if(ColuUtils.allColuCoins().contains(_amount.type)) {
             // always set native asset currency here ?
-            btCurrency.setText(_amount.getCurrencySymbol());
+            btCurrency.setText(_amount.type.getSymbol());
          } else {
             // Set current currency name button
             btCurrency.setText(_mbwManager.getCurrencySwitcher().getCurrentCurrencyIncludingDenomination());
@@ -372,7 +370,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          //update amount
          int showDecimalPlaces;
          BigDecimal newAmount = null;
-         if ( _mbwManager.getCurrencySwitcher().getCurrentCurrency().equals(mainCurrencyType.getAccountLabel())) {
+         if ( _mbwManager.getCurrencySwitcher().getCurrentCurrency().equals(mainCurrencyType)) {
             //just good ol bitcoins
             showDecimalPlaces = _mbwManager.getBitcoinDenomination().getDecimalPlaces();
             if (_amount.getValueAsBigDecimal() != null) {
@@ -402,13 +400,8 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       // todo was Value.fromValue(_maxSpendableAmount, _amount.getCurrencySymbol(), _mbwManager.getExchangeRateManager());
 
       String maxBalanceString = "";
-      if (isColu) {
-         maxBalanceString = getResources().getString(R.string.max_btc,
-                 Utils.getColuFormattedValueWithUnit(maxSpendable));
-      } else {
-         maxBalanceString = getResources().getString(R.string.max_btc
-                 , ValueExtentionsKt.toStringWithUnit(maxSpendable, _mbwManager.getBitcoinDenomination()));
-      }
+      maxBalanceString = getResources().getString(R.string.max_btc
+               , ValueExtentionsKt.toStringWithUnit(maxSpendable, _mbwManager.getBitcoinDenomination()));
       tvMaxAmount.setText(maxBalanceString);
    }
 
@@ -454,9 +447,9 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
 
    private void setEnteredAmount(BigDecimal value) {
       // handle denomination
-      String currentCurrency;
+      GenericAssetInfo currentCurrency;
       if(_amount != null && ColuUtils.allColuCoins().contains(_amount.type)) {
-         currentCurrency = _amount.getCurrencySymbol();
+         currentCurrency = _amount.type;
       } else {
          currentCurrency = _mbwManager.getCurrencySwitcher().getCurrentCurrency();
       }
@@ -483,11 +476,10 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          tvAlternateAmount.setText("");
       } else {
          Value convertedAmount;
-         if (mainCurrencyType.getAccountLabel().equals(_mbwManager.getCurrencySwitcher().getCurrentCurrency())) {
+         if (mainCurrencyType.equals(_mbwManager.getCurrencySwitcher().getCurrentCurrency())) {
             // Show Fiat as alternate amount
-            String currency = _mbwManager.getFiatCurrency();
-            convertedAmount = Value.valueOf(_account.getCoinType(), _amount.getValue()); // todo use fiat!
-//                    ExchangeBasedCurrencyValue.fromValue(_amount, currency, _mbwManager.getExchangeRateManager());
+            GenericAssetInfo currency = _mbwManager.getFiatCurrency();
+            convertedAmount = _mbwManager.getExchangeRateManager().get(_amount, currency);
          } else {
             // Show BTC as alternate amount
             try {
@@ -498,7 +490,9 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
                convertedAmount = Value.valueOf(_account.getCoinType(), 0);// todo not bitcoin
             }
          }
-         tvAlternateAmount.setText(ValueExtentionsKt.toStringWithUnit(convertedAmount, _mbwManager.getBitcoinDenomination()));
+         if(convertedAmount != null) {
+            tvAlternateAmount.setText(ValueExtentionsKt.toStringWithUnit(convertedAmount, _mbwManager.getBitcoinDenomination()));
+         }
       }
    }
 
