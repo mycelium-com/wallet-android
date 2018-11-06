@@ -120,8 +120,8 @@ public class MbwProdEnvironment extends MbwEnvironment {
     * The first is the default block explorer if the requested one is not available
     */
    private static final ArrayList<BlockExplorer> prodnetExplorerClearEndpoints = new ArrayList<BlockExplorer>() {{
-      add(new BlockExplorer("BCI", "blockchain.info", "https://blockchain.info/address/", "https://blockchain.info/tx/", "https://blockchainbdgpzk.onion/address/", "https://blockchainbdgpzk.onion/tx/"));
       add(new BlockExplorer("SBT", "smartbit", "https://www.smartbit.com.au/address/", "https://www.smartbit.com.au/tx/", null, null));
+      add(new BlockExplorer("BCI", "blockchain.info", "https://blockchain.info/address/", "https://blockchain.info/tx/", "https://blockchainbdgpzk.onion/address/", "https://blockchainbdgpzk.onion/tx/"));
       add(new BlockExplorer("BTL", "blockTrail", "https://www.blocktrail.com/BTC/address/", "https://www.blocktrail.com/BTC/tx/", null, null));
       add(new BlockExplorer("BPY", "BitPay", "https://insight.bitpay.com/address/", "https://insight.bitpay.com/tx/", null, null));
       add(new BlockExplorer("BEX", "blockExplorer", "http://blockexplorer.com/address/", "http://blockexplorer.com/tx/", null, null));
