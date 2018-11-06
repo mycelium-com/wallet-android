@@ -67,7 +67,7 @@ public class ToggleableCurrencyButton extends ToggleableCurrencyDisplay {
    protected void updateUi(){
       super.updateUi();
 
-      final List<String> currencies = fiatOnly ? currencySwitcher.getCurrencyList() : currencySwitcher.getCurrencyList(CurrencyValue.BTC);
+      final List<String> currencies = getFiatOnly() ? getCurrencySwitcher().getCurrencyList() : getCurrencySwitcher().getCurrencyList(CurrencyValue.BTC);
       // there are more than one fiat-currency
       // there is only one currency to show - don't show a triangle hinting that the user can toggle
       findViewById(R.id.ivSwitchable).setVisibility(currencies.size() > 1 ? VISIBLE : INVISIBLE);
@@ -90,10 +90,10 @@ public class ToggleableCurrencyButton extends ToggleableCurrencyDisplay {
          menu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-               currencySwitcher.setCurrency(item.getTitle().toString());
-               if (eventBus != null) {
+               getCurrencySwitcher().setCurrency(item.getTitle().toString());
+               if (getEventBus() != null) {
                   // update UI via event bus, also inform other parts of the app about the change
-                  eventBus.post(new SelectedCurrencyChanged());
+                  getEventBus().post(new SelectedCurrencyChanged());
                } else {
                   updateUi();
                }

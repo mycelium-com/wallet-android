@@ -15,14 +15,12 @@ import com.mycelium.wallet.databinding.AddressFragmentBindingImpl
 import com.mycelium.wallet.databinding.AddressFragmentBtcBindingImpl
 import com.mycelium.wapi.wallet.AbstractAccount
 import com.mycelium.wapi.wallet.bip44.Bip44BCHAccount
-import com.mycelium.wapi.wallet.bip44.HDAccount
-import com.mycelium.wapi.wallet.single.SingleAddressAccount
 import com.mycelium.wapi.wallet.single.SingleAddressBCHAccount
 import kotlinx.android.synthetic.main.address_fragment_label.*
 import kotlinx.android.synthetic.main.address_fragment_qr.*
 
 class AddressFragment : Fragment() {
-    private var mbwManager = MbwManager.getInstance(activity)
+    private val mbwManager by lazy {  MbwManager.getInstance(context) }
     private lateinit var viewModel: AddressFragmentViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {

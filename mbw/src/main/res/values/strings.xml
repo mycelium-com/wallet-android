@@ -1320,6 +1320,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="ext_sig_you_sending_message"><![CDATA[<b>Amount</b> - the value selected to be sent to the destination address.<br><b>Fee</b> - selected miner fee value.<br><b>You are sending</b> - the value, which will be really sent from your wallet.<br>You are sending:<br>  Amount %1$s<br>  + Fee %2$s<br>  = %3$s<br><b>Change</b> - the change value which will be sent back to your change address.<br><b>Total</b> - the value to be shown on your <b>%6$s</b> screen.<br>Total:<br>  You are sending %3$s<br>  + Change %4$s<br>  = %5$s]]></string>
     <string name="extsig_confrim_on_hardware"><![CDATA[Please confirm this transaction on your %1$s]]></string>
     <string name="signing_transaction_instruction">Mixed-spending compatibility mode</string>
+    <string name="account_upgraded">Account %d just received SegWit support</string>
     <plurals name="account_label">
         <item quantity="one">Account label:\n%s</item>
         <item quantity="other">Accounts labels:\n%s</item>

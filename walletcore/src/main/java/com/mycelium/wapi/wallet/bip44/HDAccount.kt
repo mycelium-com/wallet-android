@@ -24,7 +24,7 @@ import java.util.ArrayList
 
 open class HDAccount(
         protected var context: HDAccountContext,
-        protected val keyManagerMap: Map<BipDerivationType, HDAccountKeyManager>,
+        protected val keyManagerMap: MutableMap<BipDerivationType, HDAccountKeyManager>,
         network: NetworkParameters,
         protected val backing: Bip44AccountBacking,
         wapi: Wapi,
@@ -34,8 +34,8 @@ open class HDAccount(
     // Used to determine which bips this account support
     private val derivePaths = context.indexesMap.keys
 
-    private var externalAddresses: MutableMap<BipDerivationType, BiMap<Address, Int>> = initAddressesMap()
-    private var internalAddresses: MutableMap<BipDerivationType, BiMap<Address, Int>> = initAddressesMap()
+    protected var externalAddresses: MutableMap<BipDerivationType, BiMap<Address, Int>> = initAddressesMap()
+    protected var internalAddresses: MutableMap<BipDerivationType, BiMap<Address, Int>> = initAddressesMap()
 
     private var receivingAddressMap: MutableMap<AddressType, Address> = mutableMapOf()
     @Volatile
@@ -167,7 +167,7 @@ open class HDAccount(
     /**
      * Ensure that all addresses in the look ahead window have been created
      */
-    private fun ensureAddressIndexes() {
+    protected fun ensureAddressIndexes() {
         derivePaths.forEachIndexed { index, derivationType ->
             ensureAddressIndexes(true, true, derivationType)
             ensureAddressIndexes(false, true, derivationType)
@@ -639,14 +639,16 @@ open class HDAccount(
     }
 
     fun getAddressId(address: Address): Optional<Array<Int>> {
-        val derivationType = getDerivationTypeByAddress(address)
-        return when {
-            externalAddresses[derivationType]!!.containsKey(address) -> Optional.of(arrayOf(0,
-                    externalAddresses[derivationType]!![address]!!))
-            internalAddresses[derivationType]!!.containsKey(address) -> Optional.of(arrayOf(1,
-                    internalAddresses[derivationType]!![address]!!))
-            else -> Optional.absent()
+        if (address.type !in availableAddressTypes) {
+            return Optional.absent()
         }
+        val derivationType = getDerivationTypeByAddress(address)
+        val (changeIndex, addressMap) =  when (address) {
+            in externalAddresses[derivationType]!!.keys -> Pair(0, externalAddresses)
+            in internalAddresses[derivationType]!!.keys -> Pair(1, internalAddresses)
+            else -> return Optional.absent()
+        }
+        return Optional.of(arrayOf(changeIndex, addressMap[derivationType]!![address]!!))
     }
 
     // returns true if this is one of our already used or monitored internal (="change") addresses
@@ -725,7 +727,7 @@ open class HDAccount(
         }
     }
 
-    private fun initAddressesMap(): MutableMap<BipDerivationType, BiMap<Address, Int>> = derivePaths
+    protected fun initAddressesMap(): MutableMap<BipDerivationType, BiMap<Address, Int>> = derivePaths
             .map { it to HashBiMap.create<Address, Int>() }.toMap().toMutableMap()
 
     companion object {

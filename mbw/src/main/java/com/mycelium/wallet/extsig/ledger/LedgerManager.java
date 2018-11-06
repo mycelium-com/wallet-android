@@ -39,6 +39,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.nfc.Tag;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import com.btchip.BTChipDongle;
 import com.btchip.BTChipException;
@@ -65,11 +66,11 @@ import com.mrd.bitlib.model.hdpath.HdKeyPath;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.ByteWriter;
 import com.mrd.bitlib.util.CoinUtil;
-import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.util.AbstractAccountScanManager;
 import com.mycelium.wapi.model.TransactionEx;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bip44.ExternalSignatureProvider;
 import com.mycelium.wapi.wallet.bip44.HDAccountContext;
@@ -662,6 +663,16 @@ public class LedgerManager extends AbstractAccountScanManager implements
 
    public boolean isPluggedIn() {
       return getTransport().isPluggedIn();
+   }
+
+   @Override
+   public boolean upgradeAccount(@NonNull List<? extends HdKeyNode> accountRoots, @NonNull WalletManager walletManager,
+                                 @NonNull UUID uuid) {
+      WalletAccount account = walletManager.getAccount(uuid);
+      if (account instanceof HDAccountExternalSignature) {
+         return walletManager.upgradeExtSigAccount(accountRoots, (HDAccountExternalSignature) account);
+      }
+      return false;
    }
 
    @Override
