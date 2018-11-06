@@ -226,13 +226,13 @@ abstract class ExtSigSignTransactionActivity : SignTransactionActivity(), Master
             }
             CONFIRM_OUTPUT -> {
                 setChangeTypeface(NORMAL)
-                getString(R.string.confirm_output_on_device,
-                        "${CoinUtil.valueString(output.value, false)} BTC", address.toDoubleLineString().replace("\n", "<br>"))
+                getString(R.string.confirm_output_on_device,"${CoinUtil.valueString(output.value, false)} BTC",
+                        address.toDoubleLineString().replace("\n", "<br>"), extSigManager.modelName)
             }
             CONFIRM_CHANGE -> {
                 setChangeTypeface(BOLD)
-                getString(R.string.confirm_change_on_device,
-                        "${CoinUtil.valueString(output.value, false)} BTC", address.toDoubleLineString().replace("\n", "<br>"))
+                getString(R.string.confirm_change_on_device,"${CoinUtil.valueString(output.value, false)} BTC",
+                        address.toDoubleLineString().replace("\n", "<br>"), extSigManager.modelName)
             }
             SIGN_TRANSACTION -> {
                 setChangeTypeface(NORMAL)
@@ -243,7 +243,7 @@ abstract class ExtSigSignTransactionActivity : SignTransactionActivity(), Master
                 val alertDialog: AlertDialog = AlertDialog.Builder(this)
                         .setTitle(R.string.signing_transaction_instruction)
                         .setMessage(mixedModeWarning)
-                        .setPositiveButton(R.string.accept) { _, _ -> }
+                        .setPositiveButton(R.string.button_continue) { _, _ -> }
                         .create()
                 alertDialog.show()
                 ((alertDialog.findViewById<TextView>(android.R.id.message)))?.movementMethod = LinkMovementMethod.getInstance()
