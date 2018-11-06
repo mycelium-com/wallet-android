@@ -12,6 +12,9 @@ import com.mycelium.wapi.wallet.segwit.SegwitAddress;
 public class AddressUtils {
 
     public static GenericAddress from(CryptoCurrency currencyType, String address) {
+        if (address.length() == 0)
+            return null;
+
         if(currencyType instanceof BitcoinMain || currencyType instanceof BitcoinTest) {
             Address addr = Address.fromString(address);
             return new BtcLegacyAddress(currencyType, addr.getAllAddressBytes());
