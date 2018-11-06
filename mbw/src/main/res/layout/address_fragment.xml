@@ -54,7 +54,6 @@
 
         <include
             layout="@layout/address_fragment_qr"
-            android:id="@+id/frgmntQr"
             bind:viewModel="@{viewModel}"
             bind:activity="@{activity}" />
     </RelativeLayout>
