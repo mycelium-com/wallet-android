@@ -197,7 +197,7 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
    public String getModelName() {
       switch (features.getModel()) {
          case "K1-14AM":
-            return "Keep Key";
+            return "KeepKey";
          case "1":
             return "Trezor One";
          case "T":
