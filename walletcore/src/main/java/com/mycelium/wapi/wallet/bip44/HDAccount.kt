@@ -640,6 +640,11 @@ open class HDAccount(
 
     fun getAddressId(address: Address): Optional<Array<Int>> {
         val derivationType = getDerivationTypeByAddress(address)
+
+        if (!availableAddressTypes.contains(address.type)) {
+            return Optional.absent()
+        }
+
         return when {
             externalAddresses[derivationType]!!.containsKey(address) -> Optional.of(arrayOf(0,
                     externalAddresses[derivationType]!![address]!!))
