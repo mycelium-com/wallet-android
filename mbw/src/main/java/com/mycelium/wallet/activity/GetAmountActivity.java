@@ -164,7 +164,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
 
       mainCurrencyType = (AccountDisplayType) getIntent().getSerializableExtra(BASIC_CURRENCY);
 
-      _mbwManager.getCurrencySwitcher().setDefaultCurrency(mainCurrencyType.getAccountLabel());
+      _mbwManager.getCurrencySwitcher().setDefaultCurrency(_account.getCoinType().getSymbol());
 
       if (isSendMode) {
          initSendMode();
@@ -236,10 +236,10 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          }else {
             amountString = Utils.getFormattedValue(_amount, _mbwManager.getBitcoinDenomination());
          }
-         _mbwManager.getCurrencySwitcher().setCurrency(_amount.getCurrencySymbol());
+         _mbwManager.getCurrencySwitcher().setCurrency(_amount.type.getSymbol());
       } else {
          if (_amount != null && _amount.getCurrencySymbol() != null) {
-            _mbwManager.getCurrencySwitcher().setCurrency(_amount.getCurrencySymbol());
+            _mbwManager.getCurrencySwitcher().setCurrency(_amount.type.getSymbol());
          } else {
             _mbwManager.getCurrencySwitcher().setCurrency(_account.getCoinType().getSymbol());
          }
@@ -363,7 +363,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       if (_amount != null) {
          if(ColuUtils.allColuCoins().contains(_amount.type)) {
             // always set native asset currency here ?
-            btCurrency.setText(_amount.getCurrencySymbol());
+            btCurrency.setText(_amount.type.getSymbol());
          } else {
             // Set current currency name button
             btCurrency.setText(_mbwManager.getCurrencySwitcher().getCurrentCurrencyIncludingDenomination());

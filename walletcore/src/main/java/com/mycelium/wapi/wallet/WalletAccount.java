@@ -3,12 +3,10 @@ package com.mycelium.wapi.wallet;
 import com.megiontechnologies.Bitcoins;
 import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.util.Sha256Hash;
-import com.mycelium.wapi.model.TransactionOutputSummary;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
 import java.util.List;
@@ -64,7 +62,7 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
             StandardTransactionBuilder.UnableToBuildTransactionException;
 
 
-    SendRequest getSendToRequest(A destination, Value amount);
+    SendRequest<T> getSendToRequest(A destination, Value amount);
 
     /**
      * Synchronize this account

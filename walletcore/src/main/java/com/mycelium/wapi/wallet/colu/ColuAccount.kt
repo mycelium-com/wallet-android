@@ -8,6 +8,7 @@ import com.mrd.bitlib.model.ScriptOutput
 import com.mrd.bitlib.model.Transaction
 import com.mycelium.wapi.model.TransactionOutputSummary
 import com.mycelium.wapi.wallet.*
+import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.BtcLegacyAddress
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
@@ -49,6 +50,18 @@ class ColuAccount(context: ColuAccountContext, val privateKey: InMemoryPrivateKe
 //        val receivers = ArrayList<WalletAccount.Receiver>()
 //        receivers.add(WalletAccount.Receiver(coluSendRequest.destination, coluSendRequest.amount.value))
 ////        btcSendRequest.unsignedTx = createUnsignedTransaction(receivers, request.fee.value)
+        if (request is ColuSendRequest) {
+            val fromAddresses = mutableListOf(receiveAddress as BtcAddress)
+            fromAddresses.addAll(request.fundingAddress)
+            val hexString = coluClient.prepareTransaction(request.destination, fromAddresses, request.amount, request.fee)
+            request.txHex = hexString
+            if (request.txHex == null) {
+                throw Exception("transaction not complete")
+            }
+            request.isCompleted = true
+        } else {
+            TODO("completeTransaction not implemented for ${request.javaClass.simpleName}")
+        }
     }
 
     override fun signTransaction(request: SendRequest<ColuTransaction>) {
@@ -104,7 +117,7 @@ class ColuAccount(context: ColuAccountContext, val privateKey: InMemoryPrivateKe
         }
     }
 
-    override fun getSendToRequest(destination: BtcLegacyAddress, amount: Value): SendRequest<*> {
+    override fun getSendToRequest(destination: BtcLegacyAddress, amount: Value): SendRequest<ColuTransaction> {
         return ColuSendRequest(coinType, destination, amount)
     }
 

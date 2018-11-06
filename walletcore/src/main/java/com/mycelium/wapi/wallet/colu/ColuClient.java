@@ -5,18 +5,22 @@ import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.HexUtils;
+import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.json.AddressInfo;
 import com.mycelium.wapi.wallet.colu.json.AddressTransactionsInfo;
 import com.mycelium.wapi.wallet.colu.json.AssetMetadata;
 import com.mycelium.wapi.wallet.colu.json.ColuBroadcastTxHex;
 import com.mycelium.wapi.wallet.colu.json.ColuBroadcastTxId;
 import com.mycelium.wapi.wallet.colu.json.ColuTransactionRequest;
-import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
+import com.mycelium.wapi.wallet.colu.json.ColuTxDest;
+import com.mycelium.wapi.wallet.colu.json.ColuTxFlags;
 
 import org.spongycastle.jce.provider.BouncyCastleProvider;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.security.Security;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -72,7 +76,7 @@ public class ColuClient {
 
     //TODO: move most of the logic to ColuManager
     public ColuBroadcastTxHex.Json prepareTransaction(Address destAddress, List<Address> src,
-                                                      ExactCurrencyValue nativeAmount, ColuAccount coluAccount,
+                                                      Value nativeAmount,
                                                       long txFee)
             throws IOException {
         if (destAddress == null) {
@@ -88,31 +92,31 @@ public class ColuClient {
             return null;
         }
         ColuTransactionRequest.Json request = new ColuTransactionRequest.Json();
-//        List<ColuTxDest.Json> to = new LinkedList<>();
-//        ColuTxDest.Json dest = new ColuTxDest.Json();
-//        dest.address = destAddress.toString();
-//        BigDecimal amountAssetSatoshi = (nativeAmount.getValue().multiply(new BigDecimal(10).pow(coluAccount.getColuAsset().scale)));
-//        dest.amount = amountAssetSatoshi.longValue();
-//        dest.assetId = coluAccount.getColuAsset().id;
-//        to.add(dest);
-//
-//        request.to = to;
-//        request.fee = txFee;
-//
-//        ColuTxFlags.Json flags = new ColuTxFlags.Json();
-//        flags.splitChange = true;
-//        request.flags = flags;
-//
-//        // v1: let colu chose source tx
-//        if (ColuClient.coluAutoSelectUtxo) {
-//            LinkedList<String> from = new LinkedList<>();
-//            for (Address addr : src) {
-//                from.add(addr.toString());
-//            }
-//            request.from = from;
-//            request.financeOutputTxid = "";
-//        } else {
-//            // v2: chose utxo ourselves
+        List<ColuTxDest.Json> to = new LinkedList<>();
+        ColuTxDest.Json dest = new ColuTxDest.Json();
+        dest.address = destAddress.toString();
+        BigDecimal amountAssetSatoshi = new BigDecimal(nativeAmount.getValue()).multiply(new BigDecimal(10).pow(nativeAmount.type.getUnitExponent()));
+        dest.amount = amountAssetSatoshi.longValue();
+        dest.assetId = nativeAmount.type.getId();
+        to.add(dest);
+
+        request.to = to;
+        request.fee = txFee;
+
+        ColuTxFlags.Json flags = new ColuTxFlags.Json();
+        flags.splitChange = true;
+        request.flags = flags;
+
+        // v1: let colu chose source tx
+        if (ColuClient.coluAutoSelectUtxo) {
+            LinkedList<String> from = new LinkedList<>();
+            for (Address addr : src) {
+                from.add(addr.toString());
+            }
+            request.from = from;
+            request.financeOutputTxid = "";
+        } else {
+            // v2: chose utxo ourselves
 //            LinkedList<String> sendutxo = new LinkedList<>();
 //            double selectedAmount = 0;
 //            double selectedSatoshiAmount = 0;
@@ -128,7 +132,7 @@ public class ColuClient {
 //                    }
 //                    // case 2: asset utxo. If it is of the type we care, and we need more, select it.
 //                    for (Asset.Json asset : utxo.assets) {
-//                        if (asset.assetId.compareTo(coluAccount.getColuAsset().id) == 0) {
+//                        if (asset.assetId.compareTo(nativeAmount.type.getId()) == 0) {
 //                            if (selectedAmount < dest.amount) {
 //                                sendutxo.add(utxo.txid + ":" + utxo.index);
 //                                selectedAmount = selectedAmount + asset.amount;
@@ -143,7 +147,7 @@ public class ColuClient {
 //            request.sendutxo = sendutxo;
 //            // do we need to set this one as well ?
 //            request.financeOutputTxid = "";
-//        }
+        }
         return coloredCoinsClient.sendPostRequest(ColuBroadcastTxHex.Json.class, "sendasset", null, request);
     }
 

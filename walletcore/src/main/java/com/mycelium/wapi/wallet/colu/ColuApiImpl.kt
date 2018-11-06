@@ -5,6 +5,7 @@ import com.mrd.bitlib.model.Transaction
 import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.wapi.wallet.GenericAddress
 import com.mycelium.wapi.wallet.GenericTransaction
+import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.BtcLegacyAddress
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.colu.coins.ColuMain
@@ -13,6 +14,14 @@ import java.io.IOException
 
 
 class ColuApiImpl(val coluClient: ColuClient) : ColuApi {
+    override fun prepareTransaction(toAddress: BtcAddress, fromBtcAddress: List<BtcAddress>, amount: Value, txFee: Value): String? {
+        val fromAddress = mutableListOf<Address>()
+        fromBtcAddress.forEach {
+            fromAddress.add(it.address)
+        }
+        val result = coluClient.prepareTransaction(toAddress.address, fromAddress, amount, txFee.getValue())
+        return result?.txHex
+    }
 
     @Throws(IOException::class)
     override fun broadcastTx(coluSignedTransaction: Transaction): String? {

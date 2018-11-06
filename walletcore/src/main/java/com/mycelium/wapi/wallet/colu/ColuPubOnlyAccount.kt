@@ -93,7 +93,7 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun getSendToRequest(destination: BtcLegacyAddress, amount: Value): SendRequest<*> {
+    override fun getSendToRequest(destination: BtcLegacyAddress, amount: Value): SendRequest<ColuTransaction> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 

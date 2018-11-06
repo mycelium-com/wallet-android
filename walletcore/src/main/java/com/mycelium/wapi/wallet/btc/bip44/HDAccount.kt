@@ -560,7 +560,7 @@ open class HDAccount(
     }
 
     @Throws(InvalidKeyCipher::class)
-    override fun getPrivateKey(publicKey: PublicKey, cipher: KeyCipher): InMemoryPrivateKey? {
+    public override fun getPrivateKey(publicKey: PublicKey, cipher: KeyCipher): InMemoryPrivateKey? {
         for (address in publicKey.getAllSupportedAddresses(_network).values) {
             val key = getPrivateKeyForAddress(address, cipher)
             if (key != null) {
