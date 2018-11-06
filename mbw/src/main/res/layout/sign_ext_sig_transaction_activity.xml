@@ -64,6 +64,7 @@
                     android:id="@+id/summaryTransactionValues"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:visibility="gone"
                     android:text="@string/ext_sig_verify_transaction_values"
                     android:textColor="#4583de"
                     android:paddingBottom="5dp"/>

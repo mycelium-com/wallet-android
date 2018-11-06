@@ -180,6 +180,7 @@ abstract class ExtSigSignTransactionActivity : SignTransactionActivity(), Master
         amountSendingString = "${CoinUtil.valueString(amountSending + fee, false)} BTC"
         sendingValue.text = amountSendingString
         changeToAddressLabel.visibility = View.VISIBLE
+        summaryTransactionValues.visibility = View.VISIBLE
     }
 
     @Subscribe
