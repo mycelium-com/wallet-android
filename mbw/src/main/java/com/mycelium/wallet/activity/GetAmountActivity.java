@@ -48,7 +48,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
-import com.megiontechnologies.Bitcoins;
 import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
@@ -70,8 +69,6 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount;
 import com.mycelium.wapi.wallet.colu.ColuUtils;
-import com.mycelium.wapi.wallet.currency.CurrencyValue;
-import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 import com.squareup.otto.Subscribe;
 
@@ -137,7 +134,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
    /**
     * Get Amount for receiving
     */
-   public static void callMeToReceive(Activity currentActivity, CurrencyValue amountToReceive, int requestCode, AccountDisplayType currencyType) {
+   public static void callMeToReceive(Activity currentActivity, Value amountToReceive, int requestCode, AccountDisplayType currencyType) {
       Intent intent = new Intent(currentActivity, GetAmountActivity.class)
               .putExtra(ENTERED_AMOUNT, amountToReceive)
               .putExtra(SEND_MODE, false)

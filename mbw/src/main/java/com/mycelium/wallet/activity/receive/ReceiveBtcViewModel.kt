@@ -11,7 +11,7 @@ import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
-import com.mycelium.wapi.wallet.currency.CurrencyValue
+import com.mycelium.wapi.wallet.coins.Value
 
 class ReceiveBtcViewModel(application: Application) : ReceiveCoinsViewModel(application) {
     val addressType: MutableLiveData<AddressType> = MutableLiveData()
@@ -50,7 +50,7 @@ class ReceiveBtcViewModel(application: Application) : ReceiveCoinsViewModel(appl
 
     override fun getCurrencyName() = context.getString(R.string.bitcoin_name)
 
-    override fun getFormattedValue(sum: CurrencyValue) = Utils.getFormattedValueWithUnit(sum, mbwManager.bitcoinDenomination)
+    override fun getFormattedValue(sum: Value) = Utils.getFormattedValue(sum, mbwManager.bitcoinDenomination)
 
     override fun loadInstance(savedInstanceState: Bundle) {
         setAddressType(savedInstanceState.getSerializable(ADDRESS_TYPE) as AddressType)
@@ -63,7 +63,7 @@ class ReceiveBtcViewModel(application: Application) : ReceiveCoinsViewModel(appl
     }
 
     override fun getTitle(): String {
-        return if (CurrencyValue.isNullOrZero(model.amountData.value)) {
+        return if (Value.isNullOrZero(model.amountData.value)) {
             context.getString(R.string.address_title, context.getString(R.string.bitcoin_name))
         } else {
             context.getString(R.string.payment_request)

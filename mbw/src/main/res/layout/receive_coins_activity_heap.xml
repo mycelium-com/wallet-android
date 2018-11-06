@@ -5,7 +5,7 @@
 
     <data>
         <import type="android.view.View" />
-        <import type="com.mycelium.wapi.wallet.currency.CurrencyValue" />
+        <import type="com.mycelium.wapi.wallet.coins.Value" />
         <variable
             name="viewModel"
             type="com.mycelium.wallet.activity.receive.ReceiveCoinsViewModel" />
@@ -35,7 +35,7 @@
             android:textStyle="bold"
             android:text="@{@string/incoming_payment(viewModel.currentlyReceivingFormatted)}"
             android:textSize="20sp"
-            android:visibility="@{CurrencyValue.isNullOrZero(viewModel.currentlyReceivingAmount) ? View.GONE : View.VISIBLE}"
+            android:visibility="@{Value.isNullOrZero(viewModel.currentlyReceivingAmount) ? View.GONE : View.VISIBLE}"
             tools:visibility="visible" />
 
         <View
