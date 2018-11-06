@@ -124,11 +124,11 @@ public class ManualAddressEntry extends Activity {
         public void beforeTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
         }
 
-      @Override
-      public void afterTextChanged(Editable editable) {
-         _entered = editable.toString();
-         CryptoCurrency currencyType = (CryptoCurrency) getIntent().getSerializableExtra(SendMainActivity.CURRENCY_TYPE);
-         _address = AddressUtils.from(currencyType, _entered.trim());
+        @Override
+        public void afterTextChanged(Editable editable) {
+            _entered = editable.toString();
+            CryptoCurrency currencyType = (CryptoCurrency) getIntent().getSerializableExtra(SendMainActivity.CURRENCY_TYPE);
+            _address = AddressUtils.from(currencyType, _entered.trim());
 
             findViewById(R.id.btOk).setEnabled(_address != null);
             boolean addressValid = _address != null;
