@@ -120,13 +120,16 @@ public class MetadataStorage extends GenericMetadataStorage {
       deleteAllByKey(account.toString());
    }
 
+   //todo: check only available addresses (need rewrite it with GenericAddress)
    public Map<Address, String> getAllAddressLabels() {
       Map<String, String> entries = getKeysAndValuesByCategory(ADDRESSLABEL_CATEGORY);
       Map<Address, String> addresses = new HashMap<Address, String>();
       for (Map.Entry<String, String> e : entries.entrySet()) {
          String val = e.getValue();
          String key = e.getKey();
-         addresses.put(Address.fromString(key), val);
+         if (Address.fromString(key) != null) {
+            addresses.put(Address.fromString(key), val);
+         }
       }
       return addresses;
    }
