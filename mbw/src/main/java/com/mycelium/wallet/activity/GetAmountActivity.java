@@ -139,7 +139,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
     */
    public static void callMeToReceive(Activity currentActivity, CurrencyValue amountToReceive, int requestCode, AccountDisplayType currencyType) {
       Intent intent = new Intent(currentActivity, GetAmountActivity.class)
-              .putExtra(AMOUNT, amountToReceive)
+              .putExtra(ENTERED_AMOUNT, amountToReceive)
               .putExtra(SEND_MODE, false)
               .putExtra(BASIC_CURRENCY, currencyType);
       currentActivity.startActivityForResult(intent, requestCode);
