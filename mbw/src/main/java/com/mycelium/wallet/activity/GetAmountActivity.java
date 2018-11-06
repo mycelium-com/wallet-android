@@ -71,6 +71,7 @@ import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount;
 import com.mycelium.wapi.wallet.colu.ColuUtils;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
+import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 import com.squareup.otto.Subscribe;
 
@@ -138,7 +139,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
     */
    public static void callMeToReceive(Activity currentActivity, CurrencyValue amountToReceive, int requestCode, AccountDisplayType currencyType) {
       Intent intent = new Intent(currentActivity, GetAmountActivity.class)
-              .putExtra(ENTERED_AMOUNT, amountToReceive)
+              .putExtra(AMOUNT, amountToReceive)
               .putExtra(SEND_MODE, false)
               .putExtra(BASIC_CURRENCY, currencyType);
       currentActivity.startActivityForResult(intent, requestCode);
@@ -185,7 +186,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       //   destinationAddress = Address.getNullAddress(_mbwManager.getNetwork());
       //}
       //todo: get units from account
-      _maxSpendableAmount = Value.valueOf(_account.getCoinType(), _account.getAccountBalance().getSpendable().value); //_account.calculateMaxSpendableAmount(_kbMinerFee, destinationAddress);
+      _maxSpendableAmount = _account.calculateMaxSpendableAmount(_kbMinerFee);
       showMaxAmount();
 
       // if no amount is set, create an null amount with the correct currency
@@ -383,7 +384,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
             newAmount = _amount.getValueAsBigDecimal();
          } else {
             //take what was typed in
-            showDecimalPlaces = 2;
+            showDecimalPlaces = 8;
             newAmount = _amount.getValueAsBigDecimal();
          }
          _numberEntry.setEntry(newAmount, isColu ? 4 : showDecimalPlaces);
@@ -459,22 +460,10 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       } else {
          currentCurrency = _mbwManager.getCurrencySwitcher().getCurrentCurrency();
       }
-      if (currentCurrency.equals(mainCurrencyType.getAccountLabel())) {
-         Long satoshis;
-         int decimals = _mbwManager.getBitcoinDenomination().getDecimalPlaces();
-         satoshis = value.movePointRight(decimals).longValue();
-         if (satoshis >= Bitcoins.MAX_VALUE) {
-            // entered value is equal or larger then total amount of bitcoins ever existing
-            return;
-         }
-         if (mainCurrencyType == AccountDisplayType.BTC_ACCOUNT) {
-            _amount = Value.valueOf(_account.getCoinType(), satoshis); // todo
-         } else if (mainCurrencyType == AccountDisplayType.BCH_ACCOUNT) {
-            _amount = Value.valueOf(_account.getCoinType(), satoshis); // todo BitcoinCashValue
-         }
-      } else {
-         _amount = Value.valueOf(_account.getCoinType(), 100000); // todo was ExactCurrencyValue.from(value, currentCurrency);
-      }
+      Long satoshis;
+      int decimals = _mbwManager.getBitcoinDenomination().getDecimalPlaces();
+      satoshis = value.movePointRight(decimals).longValue();
+      _amount = Value.valueOf(_account.getCoinType(), satoshis);
 
       if (isSendMode) {
          // enable/disable Max button
