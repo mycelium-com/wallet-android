@@ -663,10 +663,13 @@
     <string name="trezor_name">Trezor:</string>
     <string name="ext_sig_import_account_caption">Import Account</string>
     <string name="ext_sig_select_account_to_import">Select account to import</string>
-    <string name="ext_sig_verify_transaction_on_device">Verify and confirm the\ntransaction on your device</string>
+    <string name="ext_sig_verify_transaction_on_device">Verify and confirm the transaction on your device.</string>
+    <string name="ext_sig_verify_transaction_values">Check values calculation explanation here.</string>
     <string name="ext_sig_amount">Amount:</string>
     <string name="ext_sig_to">To:</string>
+    <string name="ext_sig_change_to">Change to:</string>
     <string name="ext_sig_fee">Fee:</string>
+    <string name="ext_sig_sending">You are sending:</string>
     <string name="ext_sig_total">Total:</string>
     <string name="ext_sig_please_plug_in">Please plugin your device</string>
     <string name="ext_sig_next_unused_account_info">This option will import the next unused account from this device. It will only show up in other wallets if you send funds to it.</string>
@@ -1308,6 +1311,15 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="loading_n_of_m_hd">Loading %1$s account of total %2$s HD accounts</string>
     <string name="migrating_n_of_m_sa">Migrating %1$s account of total %2$s Single Address accounts</string>
     <string name="loading_n_of_m_sa">Loading %1$s account of total %2$s Single Address accounts</string>
+    <string name="mixed_mode_explanation"><![CDATA[Unfortunately %1$s firmware does not support Mycelium mixed-spending mode.<br><br>Usually when you sign transaction on your hardware device it shows you just one output - destination address. In case of mixed-spending mode you will have to sign two outputs: one destination address and the other - change address.<br><br>You are still in control of the process and hardware wallet will show that the change goes to your account.<br><br>For more information please check this <a href=\"https://github.com/mycelium-com/wallet-android/issues/483\">Github issue</a>]]></string>
+    <string name="transferToAccountN">Transfer to Account #%d</string>
+    <string name="check_change_address"><![CDATA[Unfortunately, <b>Trezor model T</b> does not support checking if address belongs to your wallet, but it can generate a new address from your master seed and show it on the screen. For more information about this Trezor issue please check <a href=\"https://github.com/trezor/trezor-core/issues/380\">Trezor\'s GitHub</a>.<br><br>Please verify your address on the Trezor screen and compare it with the one in the summary section. It will be used as the change address which you have to confirm as a separate output later on.]]></string>
+    <string name="confirm_output_on_device"><![CDATA[Please confirm output on your %3$s.<br><br><b>Value:</b><br>%1$s<br><b>Destination Address:</b><br>%2$s<br>]]></string>
+    <string name="confirm_change_on_device"><![CDATA[Please confirm <b>change</b> output on your %3$s.<br><br><b>Value:</b><br>%1$s<br><b>Change Address:</b><br>%2$s]]></string>
+    <string name="ext_sig_you_sending_title">Summary explanation</string>
+    <string name="ext_sig_you_sending_message"><![CDATA[<b>Amount</b> - the value selected to be sent to the destination address.<br><b>Fee</b> - selected miner fee value.<br><b>You are sending</b> - the value, which will be really sent from your wallet.<br>You are sending:<br>  Amount %1$s<br>  + Fee %2$s<br>  = %3$s<br><b>Change</b> - the change value which will be sent back to your change address.<br><b>Total</b> - the value to be shown on your <b>%6$s</b> screen.<br>Total:<br>  You are sending %3$s<br>  + Change %4$s<br>  = %5$s]]></string>
+    <string name="extsig_confrim_on_hardware"><![CDATA[Please confirm this transaction on your %1$s]]></string>
+    <string name="signing_transaction_instruction">Mixed-spending compatibility mode</string>
     <string name="account_upgraded">Account %d just received SegWit support</string>
     <plurals name="account_label">
         <item quantity="one">Account label:\n%s</item>

@@ -68,6 +68,12 @@ public class TrezorSignTransactionActivity
       super.onScanError(event);
    }
 
+   @Override
+   @Subscribe
+   public void onStatusUpdate(ExternalSignatureDeviceManager.OnStatusUpdate event) {
+       super.onStatusUpdate(event);
+   }
+
    @Subscribe
    public void onPinMatrixRequest(ExternalSignatureDeviceManager.OnPinMatrixRequest event) {
       super.onPinMatrixRequest(event);
