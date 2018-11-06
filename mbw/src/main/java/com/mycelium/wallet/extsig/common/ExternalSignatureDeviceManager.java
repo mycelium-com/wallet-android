@@ -51,31 +51,27 @@ import com.mrd.bitlib.crypto.BipDerivationType;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.*;
-import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.model.NetworkParameters;
-import com.mrd.bitlib.model.Transaction;
-import com.mrd.bitlib.model.TransactionInput;
-import com.mrd.bitlib.model.TransactionOutput;
 import com.mrd.bitlib.model.hdpath.HdKeyPath;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.ByteWriter;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.util.AbstractAccountScanManager;
 import com.mycelium.wapi.model.TransactionEx;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.bip44.HDAccountExternalSignature;
 import com.mycelium.wapi.wallet.bip44.ExternalSignatureProvider;
-import com.satoshilabs.trezor.lib.ExternalSignatureDevice;
+import com.mycelium.wapi.wallet.bip44.HDAccountExternalSignature;
 import com.satoshilabs.trezor.lib.ExtSigDeviceConnectionException;
+import com.satoshilabs.trezor.lib.ExternalSignatureDevice;
 import com.satoshilabs.trezor.lib.protobuf.TrezorMessage;
 import com.satoshilabs.trezor.lib.protobuf.TrezorMessage.SignTx;
 import com.satoshilabs.trezor.lib.protobuf.TrezorMessage.TxRequest;
 import com.satoshilabs.trezor.lib.protobuf.TrezorType;
 import com.squareup.otto.Bus;
-
 import org.bitcoinj.core.ScriptException;
-import org.bitcoinj.script.*;
+import org.bitcoinj.script.ScriptBuilder;
 
 import java.util.List;
 import java.util.UUID;
@@ -470,6 +466,17 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
          postErrorMessage(ex.getMessage());
          return Optional.absent();
       }
+   }
+
+   @Override
+   public boolean upgradeAccount(@NonNull List<? extends HdKeyNode> accountRoots, @NonNull WalletManager walletManager,
+                                 @NonNull UUID uuid) {
+      WalletAccount account = walletManager.getAccount(uuid);
+      if (account instanceof HDAccountExternalSignature) {
+         HDAccountExternalSignature hdAccount = (HDAccountExternalSignature) account;
+         return walletManager.upgradeExtSigAccount(accountRoots, hdAccount);
+      }
+      return false;
    }
 
    @NonNull

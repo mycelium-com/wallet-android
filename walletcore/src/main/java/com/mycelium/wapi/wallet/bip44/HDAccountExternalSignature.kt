@@ -2,17 +2,15 @@ package com.mycelium.wapi.wallet.bip44
 
 import com.mrd.bitlib.UnsignedTransaction
 import com.mrd.bitlib.crypto.BipDerivationType
+import com.mrd.bitlib.crypto.HdKeyNode
 import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.model.Transaction
 import com.mycelium.wapi.api.Wapi
-import com.mycelium.wapi.wallet.Bip44AccountBacking
-import com.mycelium.wapi.wallet.ExportableAccount
-import com.mycelium.wapi.wallet.KeyCipher
-import com.mycelium.wapi.wallet.Reference
+import com.mycelium.wapi.wallet.*
 
 class HDAccountExternalSignature(
         context: HDAccountContext,
-        keyManagerMap: Map<BipDerivationType, HDAccountKeyManager>,
+        keyManagerMap: MutableMap<BipDerivationType, HDAccountKeyManager>,
         network: NetworkParameters,
         backing: Bip44AccountBacking,
         wapi: Wapi,
@@ -43,5 +41,25 @@ class HDAccountExternalSignature(
                     .serialize(_network, derivationType))
         }.toMap()
         return ExportableAccount.Data(null, publicDataMap)
+    }
+
+    fun upgradeAccount(accountRoots: List<HdKeyNode>, secureKeyValueStore: SecureKeyValueStore): Boolean {
+        if (context.indexesMap.size < accountRoots.size) {
+            for (root in accountRoots) {
+                if (context.indexesMap[root.derivationType] == null) {
+                    keyManagerMap[root.derivationType] = HDPubOnlyAccountKeyManager.createFromPublicAccountRoot(root, _network,
+                            context.accountIndex, secureKeyValueStore.getSubKeyStore(context.accountSubId), root.derivationType)
+                    context.indexesMap[root.derivationType] = AccountIndexesContext(-1, -1, 0)
+                }
+            }
+            externalAddresses = initAddressesMap()
+            internalAddresses = initAddressesMap()
+            ensureAddressIndexes()
+
+            LoadingProgressTracker.clearLastFullUpdateTime()
+            context.persist(backing)
+            return true
+        }
+        return false
     }
 }

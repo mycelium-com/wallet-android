@@ -85,6 +85,11 @@ class MasterseedScanManager : AbstractAccountScanManager {
         return Optional.of(root.createChildNode(keyPath))
     }
 
+    override fun upgradeAccount(accountRoots: List<HdKeyNode>, walletManager: WalletManager, uuid: UUID): Boolean {
+        // This is not needed for in-wallet accounts
+        return false
+    }
+
     override fun createOnTheFlyAccount(accountRoots: List<HdKeyNode>, walletManager: WalletManager, accountIndex: Int): UUID {
         val uuids = accountRoots.filter { walletManager.hasAccount(it.uuid) }
         return if (uuids.isNotEmpty()) {
