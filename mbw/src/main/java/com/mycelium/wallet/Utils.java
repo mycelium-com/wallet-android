@@ -1066,6 +1066,15 @@ public class Utils {
       return String.format("%s %s", CoinUtil.valueString(val, denomination, false), denomination.getUnicodeName().replace("BTC", "BCH"));
    }
 
+   public static String getFormattedValueWithUnit(Value value, CoinUtil.Denomination denomination) {
+      return String.format("%s %s", getFormattedValue(value, denomination), denomination.getUnicodeName().replace("BTC", "BCH"));
+   }
+
+   public static String getFormattedValueWithUnit(Value value) {
+      CoinUtil.Denomination denomination = CoinUtil.Denomination.BTC;
+      return String.format("%s %s", getFormattedValue(value, denomination), denomination.getUnicodeName().replace("BTC", "BCH"));
+   }
+
 
       public static String getFormattedValueWithUnit(CurrencyValue value, CoinUtil.Denomination denomination, int precision) {
       if (value == null) {

@@ -44,10 +44,12 @@ import android.widget.LinearLayout;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
-import com.mycelium.wapi.wallet.currency.CurrencyValue;
+import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.squareup.otto.Subscribe;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class ToggleableCurrencyButton extends ToggleableCurrencyDisplay {
@@ -67,7 +69,8 @@ public class ToggleableCurrencyButton extends ToggleableCurrencyDisplay {
    protected void updateUi(){
       super.updateUi();
 
-      final List<String> currencies = fiatOnly ? currencySwitcher.getCurrencyList() : currencySwitcher.getCurrencyList(CurrencyValue.BTC);
+      final List<GenericAssetInfo> currencies = fiatOnly ? currencySwitcher.getCurrencyList()
+              : currencySwitcher.getCurrencyList(currencySwitcher.getDefaultCurrency());
       // there are more than one fiat-currency
       // there is only one currency to show - don't show a triangle hinting that the user can toggle
       findViewById(R.id.ivSwitchable).setVisibility(currencies.size() > 1 ? VISIBLE : INVISIBLE);
@@ -82,15 +85,17 @@ public class ToggleableCurrencyButton extends ToggleableCurrencyDisplay {
       });
 
       if (currencies.size() > 1) {
+         final Map<MenuItem, GenericAssetInfo> itemMap = new HashMap<>();
          for (int i = 0; i < currencies.size(); i++) {
-            String currency = currencies.get(i);
-            menu.getMenu().add(currency);
+            String currency = currencies.get(i).getSymbol();
+            MenuItem item = menu.getMenu().add(currency);
+            itemMap.put(item, currencies.get(i));
          }
 
          menu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-               currencySwitcher.setCurrency(item.getTitle().toString());
+               currencySwitcher.setCurrency(itemMap.get(item));
                if (eventBus != null) {
                   // update UI via event bus, also inform other parts of the app about the change
                   eventBus.post(new SelectedCurrencyChanged());

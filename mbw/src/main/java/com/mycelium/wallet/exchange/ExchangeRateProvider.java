@@ -39,6 +39,10 @@ import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
 
 public interface ExchangeRateProvider {
+    ExchangeRate getExchangeRate(GenericAssetInfo currency, String source);
+
+    ExchangeRate getExchangeRate(GenericAssetInfo currency);
+
     ExchangeRate getExchangeRate(String currency);
 
     Value get(Value value, GenericAssetInfo toCurrency);

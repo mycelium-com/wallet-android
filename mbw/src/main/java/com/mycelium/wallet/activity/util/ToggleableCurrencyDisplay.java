@@ -49,6 +49,7 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wallet.exchange.ValueSum;
+import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.squareup.otto.Bus;
@@ -141,7 +142,7 @@ public class ToggleableCurrencyDisplay extends LinearLayout {
          if (!currencySwitcher.isFiatExchangeRateAvailable()
                  && currencySwitcher.isFiatCurrency(currencySwitcher.getCurrentCurrency())
                  && !currencySwitcher.isFiatCurrency(currencySwitcher.getDefaultCurrency())) {
-            currencySwitcher.setCurrency(CurrencyValue.BTC);
+            currencySwitcher.setCurrency(BitcoinMain.get());
          }
 
          setVisibility(VISIBLE);
@@ -162,7 +163,7 @@ public class ToggleableCurrencyDisplay extends LinearLayout {
          // convert to the target fiat currency, if needed
          Value value = currencySwitcher.getAsFiatValue(currentValue);
 
-         tvCurrency.setText(currencySwitcher.getCurrentFiatCurrency());
+         tvCurrency.setText(currencySwitcher.getCurrentFiatCurrency().getSymbol());
          tvValue.setText(value != null ? ValueExtentionsKt.toString(value) : null);
       }
    }
