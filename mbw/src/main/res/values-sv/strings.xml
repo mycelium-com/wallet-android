@@ -149,8 +149,8 @@
   <string name="my_accounts">Mina konton</string>
   <string name="foreign_addresses">Adressbok</string>
   <string name="confirm_delete_pk_title">Är du säker?</string>
-  <string name="confirm_delete_pk_with_balance">Detta kan inte ångras!\n\nNuvarande adress:\n%1$s\n\nDet innehåller %2$s\n\nVill du ta bort det?</string>
-  <string name="confirm_delete_pk_without_balance">Detta kan inte ångras!\n\nNuvarande adress:\n%1$s\n\nVill du ta bort det?</string>
+  <!-- string name="confirm_delete_pk_with_balance">Detta kan inte ångras!\n\nNuvarande adress:\n%1$s\n\nDet innehåller %2$s\n\nVill du ta bort det?</string>
+  <string name="confirm_delete_pk_without_balance">Detta kan inte ångras!\n\nNuvarande adress:\n%1$s\n\nVill du ta bort det?</string -->
   <string name="verify_private_key_backup">Verifiera säkerhetskopia</string>
   <string name="verify_backup_dialog_title">Verifiera säkerhetskopia av privat nyckel</string>
   <string name="verify_backup_scan_desc">Verifiera din säkerhetskopia genom att läsa in den privata nyckelns eller huvudfröets QR-kod.\nFlera format accepteras, inklusive Myceliums krypterade pappersbackup.</string>

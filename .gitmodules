@@ -10,3 +10,6 @@
 [submodule "wallet-android-modularization-tools"]
 	path = wallet-android-modularization-tools
 	url = git@github.com:mycelium-com/wallet-android-modularization-tools
+[submodule "trezor-common"]
+	path = trezor-common
+	url = git@github.com:trezor/trezor-common

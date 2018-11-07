@@ -1,15 +1,8 @@
 package com.mycelium.wallet.external.changelly;
 
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
 import android.util.Log;
@@ -18,6 +11,7 @@ import android.widget.Toast;
 
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.external.changelly.ChangellyAPIService.ChangellyTransaction;
 import com.mycelium.wallet.external.changelly.ChangellyAPIService.ChangellyTransactionOffer;
 import com.mycelium.wallet.external.changelly.model.Order;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
@@ -34,7 +28,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import static com.mycelium.wallet.external.changelly.ChangellyService.INFO_ERROR;
+import static com.mycelium.wallet.external.changelly.ChangellyAPIService.BCH;
+import static com.mycelium.wallet.external.changelly.ChangellyAPIService.BTC;
 import static com.mycelium.wallet.external.changelly.Constants.decimalFormat;
 
 public class ChangellyOfferActivity extends AppCompatActivity {
@@ -53,34 +48,22 @@ public class ChangellyOfferActivity extends AppCompatActivity {
 
     private ChangellyTransactionOffer offer;
     private ProgressDialog progressDialog;
-    private Receiver receiver;
     private String currency;
     private Double amount;
     private String receivingAddress;
 
-
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.changelly_offer_activity);
         setTitle(getString(R.string.exchange_altcoins_to_btc));
         ButterKnife.bind(this);
-        receiver = new Receiver();
-        for (String action : new String[]{ChangellyService.INFO_TRANSACTION, ChangellyService.INFO_ERROR}) {
-            IntentFilter intentFilter = new IntentFilter(action);
-            LocalBroadcastManager.getInstance(this).registerReceiver(receiver, intentFilter);
-        }
         createOffer();
-    }
-
-    @Override
-    protected void onDestroy() {
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver);
-        super.onDestroy();
     }
 
     private void updateUI() {
         tvFromAmount.setText(getString(R.string.value_currency, offer.currencyFrom
-                , Constants.decimalFormat.format(offer.amountFrom)));
+                , Constants.decimalFormat.format(amount)));
         tvSendToAddress.setText(offer.payinAddress);
     }
 
@@ -92,7 +75,7 @@ public class ChangellyOfferActivity extends AppCompatActivity {
 
     @OnClick(R.id.tvFromAmount)
     void clickAmount() {
-        Utils.setClipboardString(String.valueOf(offer.amountFrom), this);
+        Utils.setClipboardString(String.valueOf(amount), this);
         toast("Amount copied to clipboard");
     }
 
@@ -112,53 +95,16 @@ public class ChangellyOfferActivity extends AppCompatActivity {
     }
 
     private void createOffer() {
-        amount = getIntent().getDoubleExtra(ChangellyService.AMOUNT, 0);
-        currency = getIntent().getStringExtra(ChangellyService.FROM);
-        receivingAddress = getIntent().getStringExtra(ChangellyService.DESTADDRESS);
-        Intent changellyServiceIntent = new Intent(this, ChangellyService.class)
-                .setAction(ChangellyService.ACTION_CREATE_TRANSACTION)
-                .putExtra(ChangellyService.FROM, currency)
-                .putExtra(ChangellyService.TO, ChangellyService.BTC)
-                .putExtra(ChangellyService.AMOUNT, amount)
-                .putExtra(ChangellyService.DESTADDRESS, receivingAddress);
-        startService(changellyServiceIntent);
+        amount = getIntent().getDoubleExtra(ChangellyAPIService.AMOUNT, 0);
+        currency = getIntent().getStringExtra(ChangellyAPIService.FROM);
+        receivingAddress = getIntent().getStringExtra(ChangellyAPIService.DESTADDRESS);
+        ChangellyAPIService.retrofit.create(ChangellyAPIService.class)
+                .createTransaction(BCH, BTC, amount, receivingAddress)
+                .enqueue(new GetOfferCallback(amount));
         progressDialog = new ProgressDialog(this);
         progressDialog.setIndeterminate(true);
         progressDialog.setMessage("Waiting offer...");
         progressDialog.show();
-    }
-
-    class Receiver extends BroadcastReceiver {
-        private Receiver() {
-        }  // prevents instantiation
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            switch (intent.getAction()) {
-                case ChangellyService.INFO_TRANSACTION:
-                    progressDialog.dismiss();
-                    offer = (ChangellyTransactionOffer) intent.getSerializableExtra(ChangellyService.OFFER);
-                    logExchange();
-                    updateUI();
-                    break;
-                case INFO_ERROR:
-                    progressDialog.dismiss();
-                    new AlertDialog.Builder(ChangellyOfferActivity.this)
-                            .setMessage(R.string.exchange_service_unavailable)
-                            .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    finish();
-                                }
-                            }).create().show();
-                    break;
-            }
-        }
-    }
-
-    private void logExchange() {
-        final Order order = getOrder();
-        sendOrderToService(order);
     }
 
     @NonNull
@@ -178,19 +124,43 @@ public class ChangellyOfferActivity extends AppCompatActivity {
 
     private void sendOrderToService(Order order) {
         try {
-            ExchangeLoggingService.exchangeLoggingService.saveOrder(order).enqueue(new Callback<Void>() {
-                @Override
-                public void onResponse(Call<Void> call, Response<Void> response) {
-                    Log.d(TAG, "logging success ");
-                }
-
-                @Override
-                public void onFailure(Call<Void> call, Throwable t) {
-                    Log.d(TAG, "logging failure", t);
-                }
-            });
+            ExchangeLoggingService.exchangeLoggingService.saveOrder(order).enqueue(null);
         } catch (RetrofitError e) {
             Log.e(TAG, "Excange logging error", e);
+        }
+    }
+
+    class GetOfferCallback implements Callback<ChangellyTransaction> {
+        private double amountFrom;
+
+        public GetOfferCallback(double amountFrom) {
+            this.amountFrom = amountFrom;
+        }
+
+        @Override
+        public void onResponse(@NonNull Call<ChangellyTransaction> call,
+                               @NonNull Response<ChangellyTransaction> response) {
+            ChangellyTransaction result = response.body();
+            if(result != null && result.result != null) {
+                progressDialog.dismiss();
+                // if the amount changed after the offer was requested but before the offer was
+                // received, we reset the amount to the requested amount instead of ignoring the
+                // offer.
+                // If the user requested a new offer meanwhile, the new amount will return with
+                // the new offer, too.
+                amount = amountFrom;
+                offer = result.result;
+                sendOrderToService(getOrder());
+                updateUI();
+            } else {
+                toast("Something went wrong.");
+            }
+        }
+
+        @Override
+        public void onFailure(@NonNull Call<ChangellyTransaction> call,
+                              @NonNull Throwable t) {
+            toast("Service unavailable");
         }
     }
 }

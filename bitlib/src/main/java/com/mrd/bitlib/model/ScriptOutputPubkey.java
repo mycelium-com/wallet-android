@@ -50,8 +50,13 @@ public class ScriptOutputPubkey extends ScriptOutput implements Serializable {
    }
 
    @Override
+   public byte[] getAddressBytes() {
+      return HashUtils.addressHash(getPublicKeyBytes());
+   }
+
+   @Override
    public Address getAddress(NetworkParameters network) {
-      byte[] addressBytes = HashUtils.addressHash(getPublicKeyBytes());
+      final byte[] addressBytes = getAddressBytes();
       return Address.fromStandardBytes(addressBytes, network);
    }
 }

@@ -19,7 +19,6 @@ package com.mrd.bitlib.model;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
 import com.mrd.bitlib.util.ByteWriter;
-import com.mrd.bitlib.util.HexUtils;
 
 import java.io.Serializable;
 
@@ -67,11 +66,7 @@ public class TransactionOutput implements Serializable {
    public static class TransactionOutputParsingException extends Exception {
       private static final long serialVersionUID = 1L;
 
-      public TransactionOutputParsingException(byte[] script) {
-         super("Unable to parse transaction output: " + HexUtils.toHex(script));
-      }
-
-      public TransactionOutputParsingException(String message) {
+      TransactionOutputParsingException(String message) {
          super(message);
       }
    }

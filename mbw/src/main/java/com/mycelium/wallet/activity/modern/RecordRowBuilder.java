@@ -51,8 +51,8 @@ import com.mycelium.wallet.activity.modern.model.ViewAccountModel;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.bip44.Bip44Account;
-import com.mycelium.wapi.wallet.bip44.Bip44PubOnlyAccount;
+import com.mycelium.wapi.wallet.bip44.HDAccount;
+import com.mycelium.wapi.wallet.bip44.HDPubOnlyAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 
 import java.util.ArrayList;
@@ -189,11 +189,11 @@ public class RecordRowBuilder {
         }
         result.label = mbwManager.getMetadataStorage().getLabelByAccount(walletAccount.getId());
         if (walletAccount.isActive()) {
-            if (walletAccount instanceof Bip44PubOnlyAccount) {
-                int numKeys = ((Bip44Account) walletAccount).getPrivateKeyCount();
+            if (walletAccount instanceof HDPubOnlyAccount) {
+                int numKeys = ((HDAccount) walletAccount).getPrivateKeyCount();
                 result.displayAddress = resources.getQuantityString(R.plurals.contains_addresses, numKeys, numKeys);
-            } else if (walletAccount instanceof Bip44Account) {
-                int numKeys = ((Bip44Account) walletAccount).getPrivateKeyCount();
+            } else if (walletAccount instanceof HDAccount) {
+                int numKeys = ((HDAccount) walletAccount).getPrivateKeyCount();
                 result.displayAddress = resources.getQuantityString(R.plurals.contains_keys, numKeys, numKeys);
             } else {
                 Optional<Address> receivingAddress = walletAccount.getReceivingAddress();

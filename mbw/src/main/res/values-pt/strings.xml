@@ -150,8 +150,8 @@
   <string name="my_accounts">Minhas Contas</string>
   <string name="foreign_addresses">Livro de Endereços</string>
   <string name="confirm_delete_pk_title">Você tem certeza?</string>
-  <string name="confirm_delete_pk_with_balance">Essa ação é irreversível!\n\nEndereço atual:\n%1$s\n\nContém %2$s\n\nVocê quer deletá-lo?</string>
-  <string name="confirm_delete_pk_without_balance">Essa ação é irreversível!\n\nEndereço atual:\n%1$s\n\nVocê quer deletá-lo?</string>
+  <!-- string name="confirm_delete_pk_with_balance">Essa ação é irreversível!\n\nEndereço atual:\n%1$s\n\nContém %2$s\n\nVocê quer deletá-lo?</string>
+  <string name="confirm_delete_pk_without_balance">Essa ação é irreversível!\n\nEndereço atual:\n%1$s\n\nVocê quer deletá-lo?</string -->
   <string name="verify_private_key_backup">Verificar Backup</string>
   <string name="verify_backup_dialog_title">Verificar Backup da Chave Privada</string>
   <string name="verify_backup_scan_desc">Verifique o seu backup escaneando o código QR da chave privada ou da semente mestre.\nVários formatos são aceitos, incluindo o backup em papel criptografado da Mycelium.</string>

@@ -38,7 +38,6 @@ import android.content.Intent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.TextView;
-import com.google.common.base.Optional;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -48,6 +47,7 @@ import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AccountScanManager;
 import com.squareup.otto.Subscribe;
 
+import java.util.List;
 import java.util.UUID;
 
 
@@ -64,9 +64,9 @@ public abstract class ExtSigAccountImportActivity extends ExtSigAccountSelectorA
 
             UUID acc = mbwManager.getWalletManager(false)
                   .createExternalSignatureAccount(
-                        item.xPub,
+                        item.publicKeyNodes,
                         (ExternalSignatureDeviceManager) masterseedScanManager,
-                        item.accountHdKeyPath.getLastIndex()
+                        item.accountHdKeysPaths.iterator().next().getLastIndex()
                   );
 
             // Mark this account as backup warning ignored
@@ -83,7 +83,7 @@ public abstract class ExtSigAccountImportActivity extends ExtSigAccountSelectorA
    @Override
    protected void updateUi() {
       super.updateUi();
-      if (masterseedScanManager.currentAccountState == AccountScanManager.AccountStatus.done) {
+      if (masterseedScanManager.getCurrentAccountState() == AccountScanManager.AccountStatus.done) {
          findViewById(R.id.btNextAccount).setEnabled(true);
       } else {
          findViewById(R.id.btNextAccount).setEnabled(false);
@@ -103,17 +103,16 @@ public abstract class ExtSigAccountImportActivity extends ExtSigAccountSelectorA
             Utils.showSimpleMessageDialog(ExtSigAccountImportActivity.this, getString(R.string.ext_sig_next_unused_account_info), new Runnable() {
                @Override
                public void run() {
-
-                  Optional<HdKeyNode> nextAccount = masterseedScanManager.getNextUnusedAccount();
+                  List<HdKeyNode> nextAccount = masterseedScanManager.getNextUnusedAccounts();
 
                   MbwManager mbwManager = MbwManager.getInstance(ExtSigAccountImportActivity.this);
 
-                  if (nextAccount.isPresent()) {
+                  if (!nextAccount.isEmpty()) {
                      UUID acc = mbwManager.getWalletManager(false)
                            .createExternalSignatureAccount(
-                                 nextAccount.get(),
+                                 nextAccount,
                                  (ExternalSignatureDeviceManager) masterseedScanManager,
-                                 nextAccount.get().getIndex()
+                                 nextAccount.get(0).getIndex()
                            );
 
                      mbwManager.getMetadataStorage().setOtherAccountBackupState(acc, MetadataStorage.BackupState.IGNORED);
@@ -123,13 +122,11 @@ public abstract class ExtSigAccountImportActivity extends ExtSigAccountSelectorA
                      setResult(RESULT_OK, result);
                      finish();
                   }
-
                }
             });
          }
       });
    }
-
 
    // Otto.EventBus does not traverse class hierarchy to find subscribers
    @Subscribe
@@ -156,5 +153,4 @@ public abstract class ExtSigAccountImportActivity extends ExtSigAccountSelectorA
    public void onPassphraseRequest(AccountScanManager.OnPassphraseRequest event) {
       super.onPassphraseRequest(event);
    }
-
 }

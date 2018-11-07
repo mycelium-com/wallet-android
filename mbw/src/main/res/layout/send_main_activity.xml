@@ -98,7 +98,7 @@
 
                 <LinearLayout
                         android:id="@+id/llRecipientAddress"
-                        android:layout_width="fill_parent"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:gravity="center"
@@ -115,13 +115,12 @@
                             android:visibility="gone"/>
 
                     <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:gravity="center"
-                            android:layout_marginLeft="10dp"
-                            android:layout_marginRight="10dp"
-                            android:orientation="vertical">
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="8dp"
+                        android:gravity="center"
+                        android:orientation="vertical">
 
                         <!-- Receiver Address -->
 
@@ -145,21 +144,18 @@
                                 android:textSize="12sp"
                                 android:visibility="gone"
                                 android:typeface="monospace"/>
+                        <com.mycelium.wallet.activity.send.view.SelectableRecyclerView
+                            android:id="@+id/receiversAddressList"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:scrollbars="none"
+                            android:textColor="@color/horizontalpicker_text_color"
+                            android:textSize="14sp" />
                     </LinearLayout>
                 </LinearLayout>
             </FrameLayout>
         </LinearLayout>
-        <!-- Warning Message -->
-        <TextView
-            android:id="@+id/tvStaleWarning"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginBottom="4dp"
-            android:gravity="center"
-            android:text="@string/stale_fee_warning"
-            android:textColor="@color/red"
-            android:textSize="18sp"/>
         <TextView
                 android:id="@+id/tvWarning"
                 android:layout_width="wrap_content"

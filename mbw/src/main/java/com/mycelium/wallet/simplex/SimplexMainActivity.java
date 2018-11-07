@@ -24,10 +24,6 @@ import com.squareup.otto.ThreadEnforcer;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 
-/**
- * Created by tomb on 11/17/16.
- */
-
 public class SimplexMainActivity extends Activity {
     private static final int ERROR_CONTACTING_SERVER = 0x101;
     private static final int ERROR_INVALID_PACKAGE_NAME = 0x102;
@@ -62,7 +58,7 @@ public class SimplexMainActivity extends Activity {
         setLayout(SimplexUITypes.Loading);
 
 
-        Button retryButton = (Button) findViewById(R.id.btSimplexRetry);
+        Button retryButton = findViewById(R.id.btSimplexRetry);
         retryButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -136,7 +132,13 @@ public class SimplexMainActivity extends Activity {
     }
 
     private void redirectWebView(String siteUrl, int responseCode, String signedData, String signature) {
-        if (responseCode != ERROR_CONTACTING_SERVER && responseCode != ERROR_INVALID_PACKAGE_NAME && responseCode != ERROR_NON_MATCHING_UID) {
+        boolean isReadyToTrade =
+                responseCode != ERROR_CONTACTING_SERVER &&
+                responseCode != ERROR_INVALID_PACKAGE_NAME &&
+                responseCode != ERROR_NON_MATCHING_UID &&
+                signedData != null &&
+                signature != null;
+        if (isReadyToTrade) {
             Log.d("Simplex", "RedirectWebView...");
             String fullSiteUrl = String.format("%s?nonce=%s&wallet_address=%s&lvlcode=%s&lvlsignedData=%s&signature=%s", siteUrl, _simplexNonce.simplexNonce, _walletAddress, responseCode, signedData, signature);
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(fullSiteUrl));
@@ -209,7 +211,7 @@ public class SimplexMainActivity extends Activity {
         error.activityHandler.post(new Runnable() {
             public void run() {
                 //update the UI
-                TextView errorTextView = (TextView) findViewById(R.id.tvSimplexError);
+                TextView errorTextView = findViewById(R.id.tvSimplexError);
                 String errorMessage;
                 if (error.message != null && !error.message.isEmpty())
                     errorMessage = generateDisplayErrorMessage(error.message);

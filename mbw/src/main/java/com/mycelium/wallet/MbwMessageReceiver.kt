@@ -23,12 +23,10 @@ import com.mycelium.wapi.wallet.ExportableAccount
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.WalletAccount.Type.BCHBIP44
 import com.mycelium.wapi.wallet.WalletAccount.Type.BCHSINGLEADDRESS
-import com.mycelium.wapi.wallet.WalletManager
-import com.mycelium.wapi.wallet.bip44.Bip44Account
+import com.mycelium.wapi.wallet.bip44.HDAccount
 import com.mycelium.wapi.wallet.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.currency.CurrencyValue
 import com.mycelium.wapi.wallet.single.SingleAddressAccount
-import com.squareup.otto.Bus
 import com.subgraph.orchid.encoders.Hex
 import org.bitcoinj.core.*
 import org.bitcoinj.crypto.ChildNumber
@@ -44,7 +42,7 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
-    private val eventBus: Bus = MbwManager.getInstance(context).eventBus
+    private val eventBus by lazy { MbwManager.getEventBus() }
 
     override fun onMessage(callingPackageName: String, intent: Intent) {
         when (callingPackageName) {
@@ -298,7 +296,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 val signedTransaction = signAndSerialize(networkParameters, keyList, txUTXOsHexList, transaction)
                 val service = IntentContract.SendSignedTransactionUnrelatedToSPV.createIntent(operationId, accountGuid,
                         signedTransaction)
-                WalletApplication.sendToSpv(service, if (account is Bip44Account) BCHBIP44 else BCHSINGLEADDRESS)
+                WalletApplication.sendToSpv(service, if (account is HDAccount) BCHBIP44 else BCHSINGLEADDRESS)
             }
             null -> Log.w(TAG, "onMessage failed. No action defined.")
             else -> Log.e(TAG, "onMessage failed. Unknown action ${intent.action}")
@@ -326,18 +324,6 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
         val signer = LocalTransactionSigner()
         check(signer.signInputs(proposedTransaction, group))
         return proposedTransaction.partialTx.bitcoinSerialize()
-    }
-
-    private fun createNextAccount(account: Bip44Account, walletManager: WalletManager,
-                                  archived: Boolean) {
-        if(account.hasHadActivity()
-                && !walletManager.doesBip44AccountExists(account.accountIndex + 1)) {
-            val newAccountUUID = walletManager.createArchivedGapFiller(AesKeyCipher.defaultKeyCipher(),
-                    account.accountIndex + 1, archived)
-            MbwManager.getInstance(context).metadataStorage
-                    .storeAccountLabel(newAccountUUID, "Account " + (account.accountIndex + 2 /** account index is zero based */))
-            walletManager.startSynchronization()
-        }
     }
 
     private fun notifySatoshisReceived() {

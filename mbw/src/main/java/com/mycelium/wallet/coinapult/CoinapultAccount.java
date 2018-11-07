@@ -48,7 +48,7 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.*;
 import com.mrd.bitlib.StandardTransactionBuilder;
-import com.mrd.bitlib.StandardTransactionBuilder.UnsignedTransaction;
+import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
@@ -674,6 +674,11 @@ public class CoinapultAccount extends SynchronizeAbleWalletAccount {
    @Override
    public ExactCurrencyValue calculateMaxSpendableAmount(long minerFeeToUse) {
       return getCurrencyBasedBalance().confirmed;
+   }
+
+   @Override
+   public ExactCurrencyValue calculateMaxSpendableAmount(long minerFeeToUse, Address destinationAddress) {
+      return calculateMaxSpendableAmount(minerFeeToUse);
    }
 
    @Override

@@ -92,7 +92,6 @@ public class ExampleTest {
 
       try {
          InMemoryPrivateKey priv = new InMemoryPrivateKey(new TestRandom());
-         System.out.println("creating account bound to address " + priv.getPublicKey().toAddress(NetworkParameters.productionNetwork));
 
          CoinapultClient cli = new CoinapultClient(SpongyKeyConverter.convertKeyFormat(priv), new ECC_SC(), new CoinapultProdConfig(), WapiLogger.NULL_LOGGER);
          /* Create a new account. */

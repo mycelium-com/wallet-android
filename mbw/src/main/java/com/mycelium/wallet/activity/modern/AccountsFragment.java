@@ -54,6 +54,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.text.InputType;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -69,6 +70,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.AddressType;
 import com.mycelium.wallet.AccountManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -85,15 +87,7 @@ import com.mycelium.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wallet.coinapult.CoinapultManager;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.colu.ColuManager;
-import com.mycelium.wallet.event.AccountChanged;
-import com.mycelium.wallet.event.AccountListChanged;
-import com.mycelium.wallet.event.BalanceChanged;
-import com.mycelium.wallet.event.ExchangeSourceChanged;
-import com.mycelium.wallet.event.ExtraAccountsChanged;
-import com.mycelium.wallet.event.ReceivingAddressChanged;
-import com.mycelium.wallet.event.SyncProgressUpdated;
-import com.mycelium.wallet.event.SyncStarted;
-import com.mycelium.wallet.event.SyncStopped;
+import com.mycelium.wallet.event.*;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.api.CreateTrader;
@@ -106,9 +100,9 @@ import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.bip44.Bip44Account;
-import com.mycelium.wapi.wallet.bip44.Bip44AccountContext;
-import com.mycelium.wapi.wallet.bip44.Bip44PubOnlyAccount;
+import com.mycelium.wapi.wallet.bip44.HDAccount;
+import com.mycelium.wapi.wallet.bip44.HDAccountContext;
+import com.mycelium.wapi.wallet.bip44.HDPubOnlyAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
@@ -116,6 +110,7 @@ import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public class AccountsFragment extends Fragment {
@@ -266,7 +261,7 @@ public class AccountsFragment extends Fragment {
 
       // add checkbox only for SingleAddressAccounts and only if a private key is present
       final boolean hasPrivateData = (accountToDelete instanceof ExportableAccount
-              && ((ExportableAccount) accountToDelete).getExportData(AesKeyCipher.defaultKeyCipher()).privateData.isPresent());
+              && ((ExportableAccount) accountToDelete).getExportData(AesKeyCipher.defaultKeyCipher()).getPrivateData().isPresent());
 
       if (accountToDelete instanceof SingleAddressAccount && hasPrivateData) {
          deleteDialog.setView(checkBoxView);
@@ -299,42 +294,43 @@ public class AccountsFragment extends Fragment {
 
                // For active accounts we check whether there is money on them before deleting. we don't know if there
                // is money on archived accounts
-               Optional<Address> receivingAddress = accountToDelete.getReceivingAddress();
+               String address;
+               if (accountToDelete instanceof SingleAddressAccount) {
+                  Map<AddressType, Address> addressMap = ((SingleAddressAccount) accountToDelete).getPublicKey().
+                          getAllSupportedAddresses(_mbwManager.getNetwork());
+                  address = TextUtils.join("\n\n", addressMap.values());
+               } else {
+                  Optional<Address> receivingAddress = accountToDelete.getReceivingAddress();
+                  if (receivingAddress.isPresent()) {
+                     address = receivingAddress.get().toMultiLineString();
+                  } else {
+                     address = "";
+                  }
+               }
                if (accountToDelete.isActive() && satoshis != null && satoshis > 0) {
                   if (label != null && label.length() != 0) {
-                     String address;
-                     if (receivingAddress.isPresent()) {
-                        address = receivingAddress.get().toMultiLineString();
-                     } else {
-                        address = "";
-                     }
-                     message = getString(R.string.confirm_delete_pk_with_balance_with_label,
+
+                     message = getResources().getQuantityString(R.plurals.confirm_delete_pk_with_balance_with_label,
+                             !(accountToDelete instanceof SingleAddressAccount) ? 1 : 0,
                              getResources().getQuantityString(R.plurals.account_label, labelCount, label),
                              address, accountToDelete instanceof ColuAccount ?
                                      Utils.getColuFormattedValueWithUnit(getPotentialBalanceColu(accountToDelete))
-                                     : _mbwManager.getBtcValueString(satoshis)
-                     );
+                                     : _mbwManager.getBtcValueString(satoshis));
                   } else {
-                     message = getString(
-                             R.string.confirm_delete_pk_with_balance,
-                             receivingAddress.isPresent() ? receivingAddress.get().toMultiLineString() : "",
-                             accountToDelete instanceof ColuAccount ?
+                     message = getResources().getQuantityString(R.plurals.confirm_delete_pk_with_balance,
+                             !(accountToDelete instanceof SingleAddressAccount) ? 1 : 0,
+                             address, accountToDelete instanceof ColuAccount ?
                                      Utils.getColuFormattedValueWithUnit(getPotentialBalanceColu(accountToDelete))
-                                     : _mbwManager.getBtcValueString(satoshis)
-
-                     );
+                                     : _mbwManager.getBtcValueString(satoshis));
                   }
                } else {
                   if (label != null && label.length() != 0) {
-                     message = getString(R.string.confirm_delete_pk_without_balance_with_label,
-                             getResources().getQuantityString(R.plurals.account_label, labelCount, label),
-                             receivingAddress.isPresent() ? receivingAddress.get().toMultiLineString() : ""
-                     );
+                     message = getResources().getQuantityString(R.plurals.confirm_delete_pk_without_balance_with_label,
+                             !(accountToDelete instanceof SingleAddressAccount) ? 1 : 0,
+                             getResources().getQuantityString(R.plurals.account_label, labelCount, label), address);
                   } else {
-                     message = getString(
-                             R.string.confirm_delete_pk_without_balance,
-                             receivingAddress.isPresent() ? receivingAddress.get().toMultiLineString() : ""
-                     );
+                     message = getResources().getQuantityString(R.plurals.confirm_delete_pk_without_balance,
+                             !(accountToDelete instanceof SingleAddressAccount) ? 1 : 0, address);
                   }
                }
                confirmDeleteDialog.setMessage(message);
@@ -612,7 +608,7 @@ public class AccountsFragment extends Fragment {
          menus.add(R.menu.record_options_menu_delete);
       }
 
-      if (account.isActive() && account.canSpend() && !(account instanceof Bip44PubOnlyAccount)
+      if (account.isActive() && account.canSpend() && !(account instanceof HDPubOnlyAccount)
               && !isBch) {
          menus.add(R.menu.record_options_menu_sign);
       }
@@ -639,10 +635,11 @@ public class AccountsFragment extends Fragment {
          menus.add(R.menu.record_options_menu_export);
       }
 
-      if (account.isActive() && account instanceof Bip44Account && !(account instanceof Bip44PubOnlyAccount)
+      if (account.isActive() && account instanceof HDAccount && !(account instanceof HDPubOnlyAccount)
               && AccountManager.INSTANCE.getBTCMasterSeedAccounts().size() > 1 && !isBch) {
 
-         if (!((Bip44Account) account).hasHadActivity()) {
+         final HDAccount HDAccount = (HDAccount) account;
+         if (!HDAccount.hasHadActivity() && HDAccount.getAccountIndex() == walletManager.getCurrentBip44Index()) {
             //only allow to remove unused HD acounts from the view
             menus.add(R.menu.record_options_menu_hide_unused);
          }
@@ -928,11 +925,13 @@ public class AccountsFragment extends Fragment {
             WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
             if (_focusedAccount instanceof CoinapultAccount) {
                CoinapultManager coinapultManager = _mbwManager.getCoinapultManager();
-               MessageSigningActivity.callMe(getActivity(), coinapultManager.getAccountKey());
+               MessageSigningActivity.callMe(getActivity(), coinapultManager.getAccountKey(), AddressType.P2SH_P2WPKH);
             } else if (_focusedAccount instanceof SingleAddressAccount) {
-               MessageSigningActivity.callMe(getActivity(), (SingleAddressAccount) _focusedAccount);
+               MessageSigningActivity.callMe(getActivity(), (SingleAddressAccount) _focusedAccount,
+                       ((SingleAddressAccount) _focusedAccount).getAddress().getType());
             } else if(_focusedAccount instanceof ColuAccount){
-               MessageSigningActivity.callMe(getActivity(), ((ColuAccount) _focusedAccount).getPrivateKey());
+               MessageSigningActivity.callMe(getActivity(), ((ColuAccount) _focusedAccount).getPrivateKey(),
+                       AddressType.P2PKH);
             } else {
                Intent intent = new Intent(getActivity(), HDSigningActivity.class);
                intent.putExtra("account", _focusedAccount.getId());
@@ -949,7 +948,7 @@ public class AccountsFragment extends Fragment {
    private void toastSelectedAccountChanged(WalletAccount account) {
       if (account.isArchived()) {
          _toaster.toast(getString(R.string.selected_archived_warning), true);
-      } else if (account instanceof Bip44Account) {
+      } else if (account instanceof HDAccount) {
          _toaster.toast(getString(R.string.selected_hd_info), true);
       } else if (account instanceof SingleAddressAccount) {
          _toaster.toast(getString(R.string.selected_single_info), true);
@@ -1140,7 +1139,7 @@ public class AccountsFragment extends Fragment {
          });
          return;
       } else if (_focusedAccount.getType() == WalletAccount.Type.BTCBIP44) {
-         Bip44Account account = (Bip44Account) _focusedAccount;
+         HDAccount account = (HDAccount) _focusedAccount;
          if (!account.hasHadActivity()) {
             //this account is unused, we dont allow archiving it
             _toaster.toast(R.string.dont_allow_archiving_unused_notification, false);
@@ -1166,14 +1165,14 @@ public class AccountsFragment extends Fragment {
     */
    private boolean accountProtected(WalletAccount toRemove) {
       if (toRemove.getType() != WalletAccount.Type.BTCBIP44
-              || ((Bip44Account) toRemove).getTypeFromContext() != Bip44AccountContext.ACCOUNT_TYPE_FROM_MASTERSEED) {
+              || ((HDAccount) toRemove).getAccountType() != HDAccountContext.ACCOUNT_TYPE_FROM_MASTERSEED) {
          // unprotected account type
          return false;
       }
       int count = 0;
       for (WalletAccount account : _mbwManager.getWalletManager(false).
               getActiveAccounts(WalletAccount.Type.BTCBIP44)) {
-         if (((Bip44Account) account).getAccountType() == Bip44AccountContext.ACCOUNT_TYPE_FROM_MASTERSEED) {
+         if (((HDAccount) account).getAccountType() == HDAccountContext.ACCOUNT_TYPE_FROM_MASTERSEED) {
             count++;
          }
          if (count > 1) {
@@ -1194,8 +1193,8 @@ public class AccountsFragment extends Fragment {
          _toaster.toast(R.string.keep_one_active, false);
          return;
       }
-      if (_focusedAccount instanceof Bip44Account) {
-         final Bip44Account account = (Bip44Account) _focusedAccount;
+      if (_focusedAccount instanceof HDAccount) {
+         final HDAccount account = (HDAccount) _focusedAccount;
          if (account.hasHadActivity()) {
             //this account is used, we don't allow hiding it
             _toaster.toast(R.string.dont_allow_hiding_used_notification, false);
@@ -1208,7 +1207,7 @@ public class AccountsFragment extends Fragment {
                _mbwManager.getWalletManager(false).removeUnusedBip44Account(account);
                //in case user had labeled the account, delete the stored name
                _storage.deleteAccountMetadata(account.getId());
-               //setselected also broadcasts AccountChanged event, which will cause an ui update
+               eventBus.post(new AccountChanged(account.getId()));
                _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
                //we dont want to show the context menu for the automatically selected account
                accountListAdapter.setFocusedAccountId(null);

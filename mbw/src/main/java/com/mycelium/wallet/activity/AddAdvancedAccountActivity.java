@@ -53,6 +53,7 @@ import com.google.common.base.Optional;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -75,9 +76,7 @@ import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -227,7 +226,8 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
     * @param hdKeyNode node of depth 3.
     */
    private void returnAccount(HdKeyNode hdKeyNode) {
-      UUID acc = _mbwManager.getWalletManager(false).createUnrelatedBip44Account(hdKeyNode);
+      UUID acc = _mbwManager.getWalletManager(false)
+              .createUnrelatedBip44Account(Collections.singletonList(hdKeyNode));
       // set BackupState as ignored - we currently have no option to backup xPrivs after all
       _mbwManager.getMetadataStorage().setOtherAccountBackupState(acc, MetadataStorage.BackupState.IGNORED);
       finishOk(acc, false);
@@ -413,16 +413,18 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
 
          try {
             //Check whether this address is already used in any account
-            address = key.getPublicKey().toAddress(_mbwManager.getNetwork());
-            Optional<UUID> accountId = _mbwManager.getAccountId(address, null);
-            if (accountId.isPresent()) {
-               return null;
+            for (AddressType addressType : AddressType.values()) {
+               address = key.getPublicKey().toAddress(_mbwManager.getNetwork(), addressType);
+               Optional<UUID> accountId = _mbwManager.getAccountId(address, null);
+               if (accountId.isPresent()) {
+                  return null;
+               }
             }
 
             //check if address is colu
             // do not do this in main thread
             ColuManager coluManager = _mbwManager.getColuManager();
-            List<ColuAccount.ColuAsset> asset = new ArrayList<>(coluManager.getColuAddressAssets(address));
+            List<ColuAccount.ColuAsset> asset = new ArrayList<>(coluManager.getColuAddressAssets(key.getPublicKey().toAddress(_mbwManager.getNetwork(), AddressType.P2PKH)));
 
             if (asset.size() > 0) {
                acc = _mbwManager.getColuManager().enableAsset(asset.get(0), key);
@@ -511,7 +513,8 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
    private UUID returnSAAccount(InMemoryPrivateKey key, MetadataStorage.BackupState backupState) {
       UUID acc;
       try {
-         acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(key, AesKeyCipher.defaultKeyCipher());
+         acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(key,
+                 AesKeyCipher.defaultKeyCipher());
 
          _mbwManager.getMetadataStorage().setOtherAccountBackupState(acc, backupState);
          return acc;
@@ -532,7 +535,8 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
    }
 
    private void returnAccount(HdKeyNode hdKeyNode, boolean isUpgrade) {
-      UUID acc = _mbwManager.getWalletManager(false).createUnrelatedBip44Account(hdKeyNode);
+      UUID acc = _mbwManager.getWalletManager(false)
+              .createUnrelatedBip44Account(Collections.singletonList(hdKeyNode));
       // set BackupState as ignored - we currently have no option to backup xPrivs after all
       _mbwManager.getMetadataStorage().setOtherAccountBackupState(acc, MetadataStorage.BackupState.IGNORED);
       finishOk(acc, isUpgrade);
@@ -588,7 +592,7 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
                   ColuManager coluManager = _mbwManager.getColuManager();
                   List<ColuAccount.ColuAsset> asset = new ArrayList<>(coluManager.getColuAddressAssets(this.address));
 
-                  if (asset.size() > 0) {
+                  if (!asset.isEmpty()) {
                      acc = _mbwManager.getColuManager().enableReadOnlyAsset(asset.get(0), address);
                   }
                   break;

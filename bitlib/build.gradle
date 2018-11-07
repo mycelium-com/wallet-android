@@ -1,4 +1,5 @@
 apply plugin: 'java'
+apply plugin: 'kotlin'
 
 def defaultEncoding = 'UTF-8'
 compileJava {
@@ -21,4 +22,27 @@ dependencies {
     implementation guavaArtifact
     implementation project(includePrefix +':bitcoincashj:core')
     implementation 'com.madgag.spongycastle:core:1.58.0.0'
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+}
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+compileTestKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+
+kapt {
+    useBuildCache = true
 }

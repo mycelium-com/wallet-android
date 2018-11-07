@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:bind="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/qrView"
+    bind:showIn="@layout/address_fragment_btc"
+    android:layout_alignParentEnd="true">
+
+    <data>
+
+        <import type="com.mrd.bitlib.model.AddressType"/>
+
+        <variable
+            name="activity"
+            type="android.support.v4.app.FragmentActivity" />
+        <variable
+            name="viewModel"
+            type="com.mycelium.wallet.activity.main.address.AddressFragmentBtcModel" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <include
+            layout="@layout/address_fragment_qr"
+            bind:viewModel="@{viewModel}"
+            bind:activity="@{activity}" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:textAlignment="center"
+            android:text="@{ viewModel.accountAddress.type == AddressType.P2SH_P2WPKH ? @string/bech_next : @string/p2sh_next}" />
+    </LinearLayout>
+</layout>

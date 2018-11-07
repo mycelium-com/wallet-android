@@ -26,6 +26,7 @@ configurations {
 }
 
 kapt {
+    useBuildCache = true
     javacOptions {
         option("-Xmaxerrs", 500)
     }
@@ -104,6 +105,10 @@ dependencies {
 }
 
 android {
+    dataBinding {
+        enabled = true
+    }
+
     configurations {
         all*.exclude module: 'jcip-annotations'
         all*.exclude module: 'jsr305'
@@ -131,8 +136,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 2110200
-        versionName '2.11.2.0'
+        versionCode 2120000
+        versionName '2.12.0.0'
         multiDexEnabled true
 
         minSdkVersion 19

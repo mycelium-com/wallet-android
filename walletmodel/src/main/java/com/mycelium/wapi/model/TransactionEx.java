@@ -79,12 +79,6 @@ public class TransactionEx implements Serializable, Comparable<TransactionEx> {
       return new TransactionEx(t.getId(), t.getHash(), -1, now, t.toBytes());
    }
 
-   public static TransactionEx fromUnconfirmedTransaction(byte[] rawTransaction) {
-      int now = (int) (System.currentTimeMillis() / 1000);
-      Sha256Hash txid = HashUtils.doubleSha256(rawTransaction).reverse();
-      return new TransactionEx(txid, txid, -1, now, rawTransaction); //TODO Segwit change
-   }
-
    public static Transaction toTransaction(TransactionEx tex) {
       if (tex == null) {
          return null;

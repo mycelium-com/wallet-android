@@ -22,8 +22,10 @@ import com.mrd.bitlib.model.Script.ScriptParsingException;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
 import com.mrd.bitlib.util.ByteWriter;
-import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
+
+import kotlin.NotImplementedError;
+
 
 public class TransactionInput implements Serializable {
    private static final long serialVersionUID = 1L;
@@ -32,8 +34,9 @@ public class TransactionInput implements Serializable {
 
    public OutPoint outPoint;
    public ScriptInput script;
-   private TransactionWitness witness = TransactionWitness.EMPTY;
+   private InputWitness witness = InputWitness.EMPTY;
    public int sequence;
+   private final long value;
 
    public static TransactionInput fromByteReader(ByteReader reader) throws TransactionInputParsingException {
       try {
@@ -41,7 +44,7 @@ public class TransactionInput implements Serializable {
          int outPointIndex = reader.getIntLE();
          int scriptSize = (int) reader.getCompactInt();
          byte[] script = reader.getBytes(scriptSize);
-         int sequence = (int) reader.getIntLE();
+         int sequence = reader.getIntLE();
          OutPoint outPoint = new OutPoint(outPointHash, outPointIndex);
          ScriptInput inscript;
          if (outPointHash.equals(Sha256Hash.ZERO_HASH)) {
@@ -55,24 +58,44 @@ public class TransactionInput implements Serializable {
                throw new TransactionInputParsingException(e.getMessage(), e);
             }
          }
-         return new TransactionInput(outPoint, inscript, sequence);
+         return new TransactionInput(outPoint, inscript, sequence, 0);
       } catch (InsufficientBytesException e) {
          throw new TransactionInputParsingException("Unable to parse transaction input: " + e.getMessage());
       }
    }
 
-   public TransactionInput(OutPoint outPoint, ScriptInput script, int sequence) {
+   public TransactionInput(OutPoint outPoint, ScriptInput script, int sequence, long value) {
       this.outPoint = outPoint;
       this.script = script;
       this.sequence = sequence;
+      this.value = value;
    }
 
    public TransactionInput(OutPoint outPoint, ScriptInput script) {
-      this(outPoint, script, NO_SEQUENCE);
+      this(outPoint, script, NO_SEQUENCE, 0);
+   }
+
+   public byte[] getScriptCode()  {
+      ByteWriter byteWriter = new ByteWriter(1024);
+      if (script instanceof ScriptInputP2WSH) {
+         throw new NotImplementedError();
+      } else if (script instanceof ScriptInputP2WPKH) {
+         byteWriter.put((byte) Script.OP_DUP);
+         byteWriter.put((byte) Script.OP_HASH160);
+         byte[] witnessProgram;
+         witnessProgram = ScriptInput.getWitnessProgram(ScriptInput.depush(script.getScriptBytes()));
+         byteWriter.put((byte) (0xFF & witnessProgram.length));
+         byteWriter.putBytes(witnessProgram);
+         byteWriter.put((byte) Script.OP_EQUALVERIFY);
+         byteWriter.put((byte) Script.OP_CHECKSIG);
+      } else {
+         throw new IllegalArgumentException("No scriptcode for " + script.getClass().getCanonicalName());
+      }
+      return byteWriter.toBytes();
    }
 
    public boolean hasWitness() {
-      return witness != null && witness.getStackSize() != 0;
+      return witness != null && witness.getPushCount() != 0;
    }
 
    public ScriptInput getScript() {
@@ -128,30 +151,26 @@ public class TransactionInput implements Serializable {
       return outPoint.equals(otherInput.outPoint);
    }
 
-   public TransactionWitness getWitness() {
+   public InputWitness getWitness() {
       return witness;
    }
 
-   public void setWitness(TransactionWitness witness) {
+   public void setWitness(InputWitness witness) {
       this.witness = witness;
    }
 
-   public static class TransactionInputParsingException extends Exception {
+    public long getValue() {
+        return value;
+    }
+
+    static class TransactionInputParsingException extends Exception {
       private static final long serialVersionUID = 1L;
 
-      public TransactionInputParsingException(byte[] script) {
-         this(script, null);
-      }
-
-      public TransactionInputParsingException(byte[] script, Exception e) {
-         super("Unable to parse transaction input: " + HexUtils.toHex(script), e);
-      }
-
-      public TransactionInputParsingException(String message) {
+      TransactionInputParsingException(String message) {
          this(message, null);
       }
 
-      public TransactionInputParsingException(String message, Exception e) {
+      TransactionInputParsingException(String message, Exception e) {
          super(message, e );
       }
    }

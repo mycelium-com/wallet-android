@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="@layout/export_as_qr_btc_hd_activity">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.wallet.activity.export.ExportAsQrMultiKeysViewModel" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:gravity="center">
+
+        <RadioGroup
+            android:id="@+id/rg_key_types"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checkedButton="@{viewModel.privateDataSelected ? @id/rb_key_x : @id/rb_key_x}"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/rb_key_x"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="20dp"
+                android:onClick="@{_ -> viewModel.onToggleClicked(1)}"
+                android:text="@{viewModel.privateDataSelected ? @string/export_toggle_xprv : @string/export_toggle_xpub}" />
+
+            <RadioButton
+                android:id="@+id/rb_key_y"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="20dp"
+                android:onClick="@{_ -> viewModel.onToggleClicked(2)}"
+                android:text="@{viewModel.privateDataSelected ? @string/export_toggle_yprv : @string/export_toggle_ypub}" />
+
+            <RadioButton
+                android:id="@+id/rb_key_z"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="@{_ -> viewModel.onToggleClicked(3)}"
+                android:text="@{viewModel.privateDataSelected ? @string/export_toggle_zprv : @string/export_toggle_zpub}" />
+
+        </RadioGroup>
+    </LinearLayout>
+</layout>

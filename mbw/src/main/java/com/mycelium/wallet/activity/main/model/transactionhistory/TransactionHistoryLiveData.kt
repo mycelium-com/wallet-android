@@ -15,9 +15,9 @@ import kotlin.collections.ArrayList
 /**
  * This class is intended to manage transaction history for current selected account.
  */
-class TransactionHistoryLiveData(val mbwManager: MbwManager) : LiveData<List<TransactionSummary>>() {
+class TransactionHistoryLiveData(val mbwManager: MbwManager) : LiveData<Set<TransactionSummary>>() {
     private var account = mbwManager.selectedAccount!!
-    private var historyList: MutableList<TransactionSummary> = ArrayList()
+    private var historyList = mutableSetOf<TransactionSummary>()
     // Used to store reference for task from syncProgressUpdated().
     // Using weak reference as as soon as task completed it's irrelevant.
     private var syncProgressTaskWR: WeakReference<AsyncTask<Void, MutableList<TransactionSummary>, MutableList<TransactionSummary>>>? = null
@@ -37,7 +37,7 @@ class TransactionHistoryLiveData(val mbwManager: MbwManager) : LiveData<List<Tra
 
     override fun onActive() {
         super.onActive()
-        mbwManager.eventBus.register(this)
+        MbwManager.getEventBus().register(this)
         if (account !== mbwManager.selectedAccount) {
             account = mbwManager.selectedAccount
             updateValue(ArrayList())
@@ -46,7 +46,7 @@ class TransactionHistoryLiveData(val mbwManager: MbwManager) : LiveData<List<Tra
     }
 
     override fun onInactive() {
-        mbwManager.eventBus.unregister(this)
+        MbwManager.getEventBus().unregister(this)
     }
 
     private fun startHistoryUpdate(): AsyncTask<Void, MutableList<TransactionSummary>, MutableList<TransactionSummary>> =
@@ -76,7 +76,7 @@ class TransactionHistoryLiveData(val mbwManager: MbwManager) : LiveData<List<Tra
     }
 
     private fun updateValue(newValue: MutableList<TransactionSummary>) {
-        historyList = newValue
+        historyList = newValue.toMutableSet()
         value = historyList
     }
 

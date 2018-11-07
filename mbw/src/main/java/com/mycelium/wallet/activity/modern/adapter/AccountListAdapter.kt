@@ -31,20 +31,24 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
     private val context = fragment.context!!
 
     private var focusedAccountId: UUID? = null
-    private var selectedAccountId: UUID? = null
+    private var selectedAccountId: UUID? = mbwManager.selectedAccount.id
 
     private var itemClickListener: ItemClickListener? = null
     private val layoutInflater: LayoutInflater
     private val pagePrefs = context.getSharedPreferences("account_list", Context.MODE_PRIVATE)
     private val listModel: AccountsListModel = ViewModelProviders.of(fragment).get(AccountsListModel::class.java)
 
-    val focusedAccount: WalletAccount
+    val focusedAccount: WalletAccount?
         get() = mbwManager.getWalletManager(false).getAccount(focusedAccountId)
 
     init {
         layoutInflater = LayoutInflater.from(context)
         listModel.accountsData.observe(fragment, Observer { accountsGroupModels ->
             accountsGroupModels!!
+            val selectedAccountExists = accountsGroupModels.any { it.accountsList.any { it.accountId == selectedAccountId } }
+            if (!selectedAccountExists) {
+                setFocusedAccountId(null)
+            }
             refreshList(accountsGroupModels)
         })
         val accountsGroupsList = listModel.accountsData.value!!
@@ -87,6 +91,8 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
             this.focusedAccountId = mbwManager.selectedAccount.id
         }
         val oldFocusedPosition = findPosition(this.focusedAccountId)
+        // If old account was removed we don't want to notify removed element. It would be updated itself.
+        val updateOld = mbwManager.getWalletManager(false).getAccount(this.focusedAccountId) != null
         val oldSelectedPosition = findPosition(this.selectedAccountId)
         this.focusedAccountId = focusedAccountId
         if (focusedAccountId != null && mbwManager.getWalletManager(false).getAccount(focusedAccountId).isActive) {
@@ -94,7 +100,9 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
             this.selectedAccountId = focusedAccountId
             notifyItemChanged(oldSelectedPosition)
         }
-        notifyItemChanged(oldFocusedPosition)
+        if (updateOld) {
+            notifyItemChanged(oldFocusedPosition)
+        }
         notifyItemChanged(findPosition(this.focusedAccountId))
     }
 
@@ -124,10 +132,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
 
     private fun createGroupViewHolder(parent: ViewGroup): GroupTitleViewHolder {
         val view = layoutInflater.inflate(R.layout.accounts_title_view, parent, false)
-        val res = GroupTitleViewHolder(view)
-        res.tvBalance.setEventBus(mbwManager.eventBus)
-        res.tvBalance.setCurrencySwitcher(mbwManager.currencySwitcher)
-        return res
+        return GroupTitleViewHolder(view)
     }
 
     private fun createArchivedTitleViewHolder(parent: ViewGroup): ArchivedGroupTitleViewHolder {
@@ -142,10 +147,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
 
     private fun createTotalBalanceViewHolder(parent: ViewGroup): TotalViewHolder {
         val view = layoutInflater.inflate(R.layout.record_row_total, parent, false)
-        val res = TotalViewHolder(view)
-        res.tcdBalance.setCurrencySwitcher(mbwManager.currencySwitcher)
-        res.tcdBalance.setEventBus(mbwManager.eventBus)
-        return res
+        return TotalViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {

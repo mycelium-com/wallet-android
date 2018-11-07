@@ -25,7 +25,7 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/phFragmentAddress"
                     android:paddingBottom="5dp"
-                    tools:layout="@layout/address_view"/>
+                    tools:layout="@layout/address_fragment"/>
 
             <FrameLayout
                     android:id="@+id/phFragmentBalance"
