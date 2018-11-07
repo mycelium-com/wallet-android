@@ -28,6 +28,7 @@ public abstract class SynchronizeAbleWalletBtcAccount implements WalletBtcAccoun
          SyncMode.Mode.NORMAL_SYNC, 30 * 1000,
          SyncMode.Mode.FULL_SYNC, 120 * 1000
    );
+
    private final HashMap<SyncMode.Mode, Date> _lastSync = new HashMap<>(SyncMode.Mode.values().length);
 
    @Override
@@ -127,6 +128,15 @@ public abstract class SynchronizeAbleWalletBtcAccount implements WalletBtcAccoun
 
    @Override
    public abstract void checkAmount(Receiver receiver, long kbMinerFee, Value enteredAmount) throws StandardTransactionBuilder.InsufficientFundsException, StandardTransactionBuilder.OutputTooSmallException, StandardTransactionBuilder.UnableToBuildTransactionException;
+
+   @Override
+   public String getLabel() {
+      return null;
+   }
+
+   @Override
+   public void setLabel(String label) {
+   }
 
    @Override
    public abstract NetworkParameters getNetwork();
