@@ -63,7 +63,6 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
@@ -96,7 +95,9 @@ import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.coinapult.CoinapultTransaction;
+import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
@@ -561,10 +562,10 @@ public class TransactionHistoryFragment extends Fragment {
                            final UnsignedTransaction unsigned = tryCreateBumpTransaction(record.getHash(), fee);
                            if(unsigned != null) {
                               long txFee = unsigned.calculateFee();
-                              ExactBitcoinValue txFeeBitcoinValue = ExactBitcoinValue.from(txFee);
+                              Value txFeeBitcoinValue = Value.valueOf(BitcoinMain.get(), txFee);
                               String txFeeString = Utils.getFormattedValueWithUnit(txFeeBitcoinValue, _mbwManager.getBitcoinDenomination());
-                              CurrencyValue txFeeCurrencyValue = CurrencyValue.fromValue(txFeeBitcoinValue, _mbwManager.getFiatCurrency(), _mbwManager.getExchangeRateManager());
-                              if(!CurrencyValue.isNullOrZero(txFeeCurrencyValue)) {
+                              Value txFeeCurrencyValue = _mbwManager.getExchangeRateManager().get(txFeeBitcoinValue, _mbwManager.getFiatCurrency());
+                              if(!Value.isNullOrZero(txFeeCurrencyValue)) {
                                  txFeeString += " (" + Utils.getFormattedValueWithUnit(txFeeCurrencyValue, _mbwManager.getBitcoinDenomination()) + ")";
                               }
                               new AlertDialog.Builder(getActivity())

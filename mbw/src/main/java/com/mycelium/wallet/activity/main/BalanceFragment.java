@@ -322,8 +322,7 @@ public class BalanceFragment extends Fragment {
          try {
             tv.setVisibility(View.VISIBLE);
 
-            String currency = _mbwManager.getFiatCurrency();
-            Value converted = _mbwManager.getExchangeRateManager().get(value, new FiatType(currency));
+            Value converted = _mbwManager.getExchangeRateManager().get(value, _mbwManager.getFiatCurrency());
             tv.setText(converted != null ? ValueExtentionsKt.toStringWithUnit(converted, _mbwManager.getBitcoinDenomination()) : null);
          } catch (Exception ex) {
             // something failed while calculating the bitcoin amount

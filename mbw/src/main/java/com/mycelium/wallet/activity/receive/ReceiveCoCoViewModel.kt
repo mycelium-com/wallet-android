@@ -18,7 +18,7 @@ class ReceiveCoCoViewModel(application: Application) : ReceiveCoinsViewModel(app
 
     override fun getHint() = context.getString(R.string.amount_hint_denomination, account.coinType.symbol)
 
-    override fun getFormattedValue(sum: Value) = Utils.getColuFormattedValueWithUnit(sum)
+    override fun getFormattedValue(sum: Value) = Utils.getFormattedValueWithUnit(sum)
 
     override fun getCurrencyName() = account.coinType.symbol
 
@@ -29,6 +29,4 @@ class ReceiveCoCoViewModel(application: Application) : ReceiveCoinsViewModel(app
             context.getString(R.string.payment_request)
         }
     }
-
-
 }

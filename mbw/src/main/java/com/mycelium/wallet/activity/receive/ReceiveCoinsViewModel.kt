@@ -12,7 +12,6 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.GetAmountActivity
-import com.mycelium.wallet.activity.util.AccountDisplayType
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.coins.Value
 
@@ -124,12 +123,12 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
         val amount = model.amountData
         if (Value.isNullOrZero(amount.value)) {
             GetAmountActivity.callMeToReceive(activity, Value.zeroValue(mbwManager.selectedAccount.coinType),
-                    GET_AMOUNT_RESULT_CODE, AccountDisplayType.getAccountType(model.account))
+                    GET_AMOUNT_RESULT_CODE, model.account.coinType)
         } else {
             // call the amountData activity with the exact amountData, so that the user sees the same amountData he had entered
             // it in non-BTC
             GetAmountActivity.callMeToReceive(activity, amount.value,
-                    GET_AMOUNT_RESULT_CODE, AccountDisplayType.getAccountType(model.account))
+                    GET_AMOUNT_RESULT_CODE, model.account.coinType)
         }
     }
 

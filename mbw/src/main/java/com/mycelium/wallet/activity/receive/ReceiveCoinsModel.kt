@@ -80,11 +80,11 @@ class ReceiveCoinsModel(
         uri.append(receivingAddress.value)
         if (!Value.isNullOrZero(amountData.value)) {
             if (accountDisplayType == AccountDisplayType.COLU_ACCOUNT) {
-                uri.append("?amountData=").append(amountData.value!!.value)
+                uri.append("?amountData=").append(amountData.value!!.valueAsBigDecimal.toPlainString())
             } else {
-                val value = amountData.value
+                val value = mbwManager.exchangeRateManager.get(amountData.value, account.coinType)
                 if (value != null) {
-                    uri.append("?amountData=").append(value)
+                    uri.append("?amountData=").append(value.valueAsBigDecimal.toPlainString())
                 } else {
                     Toast.makeText(context, R.string.value_conversion_error, Toast.LENGTH_LONG).show()
                 }
@@ -127,7 +127,8 @@ class ReceiveCoinsModel(
             interesting.first().value
         }
         interesting.drop(1).forEach { sum = sum!!.add(it.value, mbwManager.exchangeRateManager) }
-        receivingAmount.value = null //todo make sum Value
+        receivingAmount.value = if (sum != null) Value.valueOf(account.coinType, sum!!.longValue)
+        else Value.zeroValue(account.coinType)
 
         if (!Value.isNullOrZero(amountData.value) && sum != null) {
             // if the user specified an amountData, check it if it matches up...
