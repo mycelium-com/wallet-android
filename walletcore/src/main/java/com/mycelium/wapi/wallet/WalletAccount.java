@@ -66,6 +66,10 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
 
     SendRequest getSendToRequest(A destination, Value amount);
 
+    String getLabel();
+
+    void setLabel(String label);
+
     /**
      * Synchronize this account
      * <p/>

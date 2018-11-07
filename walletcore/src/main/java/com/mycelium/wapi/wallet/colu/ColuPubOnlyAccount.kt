@@ -51,6 +51,14 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext
 
     override fun getId(): UUID = uuid
 
+    override fun getLabel(): String {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun setLabel(label: String?) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
     override fun setAllowZeroConfSpending(b: Boolean) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }

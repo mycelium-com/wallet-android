@@ -21,6 +21,14 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
                        , val listener: AccountListener?)
     : WalletAccount<CoinapultTransaction, BtcAddress> {
 
+    override fun getLabel(): String {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun setLabel(label: String?) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
     val uuid: UUID = CoinapultUtils.getGuidForAsset(currency, accountKey.publicKey.publicKeyBytes)
     protected var cachedBalance = Balance(Value.zeroValue(coinType), Value.zeroValue(coinType)
             , Value.zeroValue(coinType), Value.zeroValue(coinType))
