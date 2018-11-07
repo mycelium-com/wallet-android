@@ -19,9 +19,9 @@
         <item>XRP</item>
     </string-array>
     <string-array name="change_settings_names">
-        <item>P2SH_P2WPKH (legacy compatible)</item>
-        <item>Bech32 (native SegWit)</item>
-        <item>Privacy guard mode (default)</item>
+        <item>@string/change_settings_p2sh_p2wpkh</item>
+        <item>@string/change_settings_bech32</item>
+        <item>@string/change_settings_privacy_guard_mode</item>
     </string-array>
     <string-array name="change_settings_values">
         <item>P2SH_P2WPKH</item>
