@@ -747,27 +747,4 @@
   <!-- Simplex start -->
   <!-- Simplex end -->
   <string name="create_backup">Создать резервную копию</string>
-  <string name="export_toggle_legacy">Прежний (P2PKH)</string>
-  <string name="account_upgraded">Аккаунт %d получил поддержку SegWit</string>
-  <string name="default_address_type">Тип адреса по умолчанию</string>
-  <string name="default_address_type_desc">Настройки типа адреса для сдачи</string>
-  <string name="address_type">Тип адреса:</string>
-  <string name="normal_p2sh">Обычный (P2SH)</string>
-  <string name="native_segwit_bech_32">Собственный SegWit (Bech 32)</string>
-  <string name="change_address_type">Тип адреса для сдачи</string>
-  <string name="change_settings_p2sh_p2wpkh">P2SH_P2WPKH (обратная совместимость)</string>
-  <string name="change_settings_bech32">Bech32 (собственный SegWit)</string>
-  <string name="change_settings_privacy_guard_mode">Конфиденциальный режим (по умолчанию)</string>
-  <string name="p2sh_receive_mode">Режим P2SH</string>
-  <string name="bech32_receive_mode">Собственный SegWit (Bech32)</string>
-  <string name="set_default">Установить по умолчанию</string>
-  <string name="bech_next">Нажмите\nдля Bech32</string>
-  <string name="p2sh_next">Нажмите\nдля P2SH</string>
-  <string name="starting_application">Запуск приложения</string>
-  <string name="migrating_accounts">Миграция аккаунтов</string>
-  <string name="loading_accounts">Загрузка аккаунтов</string>
-  <string name="migrating_n_of_m_hd">Миграция аккаунта %1$s из %2$s HD аккаунтов</string>
-  <string name="loading_n_of_m_hd">Загрузка аккаунта %1$s из %2$s HD аккаунтов</string>
-  <string name="migrating_n_of_m_sa">Миграция аккаунта %1$s из %2$s Single Address аккаунтов</string>
-  <string name="loading_n_of_m_sa">Загрузка аккаунта %1$s из %2$s Single Address аккаунтов</string>
 </resources>
