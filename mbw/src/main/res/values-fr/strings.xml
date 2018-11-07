@@ -78,7 +78,6 @@
   <string name="pref_category_pin">Paramètres de code d\'accès</string>
   <string name="pref_clear_pin">Désactiver le code d\'accès</string>
   <string name="pref_clear_pin_summary">Désactiver le code d\'accès actuel</string>
-  <string name="pref_set_pin">Activer le code d\'accès</string>
   <string name="pref_set_pin_summary">Définir un code d\'accès limitant l\'accès aux envois de fond, à l\'expédition de clés privées et la modification du code d\'accès</string>
   <string name="pref_local_currency_summary">Sélectionner la monnaie courante</string>
   <string name="pref_exchange_source_with_value">Bourse (%1$s)</string>
@@ -409,14 +408,8 @@
   <!-- LT end -->
   <string name="cs_private_key_description">Vous utilisez une clé privée avec l\'adresse Bitcoin suivante :</string>
   <string name="cs_address_description">Vous avez numérisé une adresse Bitcoin. Vous pouvez consulter le solde mais pas le dépenser.</string>
-  <plurals name="contains_keys">
-    <item quantity="one">Contient %d clé privée.</item>
-    <item quantity="other">Contient %1$d clés privées.</item>
-  </plurals>
-  <plurals name="contains_addresses">
-    <item quantity="one">Contient %d adresse.</item>
-    <item quantity="other">Contient %1$d adresses.</item>
-  </plurals>
+  <string name="contains_keys">Contient %1$s clés privées.</string>
+  <string name="contains_addresses">Contient %1$s adresses.</string>
   <string name="archiving_account_title">Archivage de compte</string>
   <string name="new_version_exists">Une nouvelle version est disponible</string>
   <string name="check_update">Rechercher une mise à jour</string>
@@ -474,6 +467,8 @@
   <string name="unspent_outputs_title">Sorties non dépensées</string>
   <string name="no_unspent_outputs_description">Cette page montre sur quelles adresses se trouvent les fonds dans le compte sélectionné. Actuellement, il n\'y a pas de fonds à afficher.</string>
   <string name="warning_words_import">ATTENTION : Ne copiez pas vos mots dans le presse-papier, d\'autres applications pourraient les lire et obtenir vos fonds.</string>
+  <string name="account_contains_one_key_info">Contient une clé privée.</string>
+  <string name="account_contains_one_address_info">Contient une adresse.</string>
   <string name="verify_backup_ok_message">La sauvegarde a été vérifiée avec succès.</string>
   <string name="wordlist_import_invalid_checksum">Le checksum de votre liste de mots a échoué, veuillez vérifier que vous avez entré tous les mots correctement.</string>
   <string name="checkbox_wordlist_passphrase">J\'ai un mot de passe</string>
@@ -617,7 +612,6 @@
   <string name="ledger_enter_pin">Entrez le PIN de portefeuille Ledger</string>
   <string name="ledger_enter_transaction_pin">Entrez le 2FA de portefeuille Ledger</string>
   <string name="ledger_enter_2fa_pin">Confirmez l\'adresse de sortie à l\'aide de votre carte de sécurité</string>
-  <string name="ledger_please_wait">Veuillez patienter...</string>
   <string name="ledger_unplugged_aid">Aide au ledger débranché</string>
   <string name="ledger_set_unplugged_aid_title">Paramétrer aide au ledger débranché</string>
   <string name="ledger_check_unplugged_aid">AID invalide, veuillez revérifier</string>
@@ -659,7 +653,6 @@
   <string name="dontagree">Je ne suis pas d\'accord</string>
   <string name="agree">J\'accepte</string>
   <string name="lt_warning_watch_only_account">Le compte actuel est en mode lecture - sélectionnez un compte différent.</string>
-  <string name="refresh">actualiser</string>
   <string name="xpriv_title">Clé privée étendue</string>
   <string name="share_xpriv">Partager la clé privée étendue</string>
   <string name="export_share_warning">Attention : Vous êtes sur le point de partager vos données de compte qui sont privées. Toute personne qui met la main sur elles peut accéder à tous les fonds actuels et futurs dans votre compte. Voulez-vous continuer ?</string>

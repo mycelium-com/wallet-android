@@ -78,7 +78,6 @@
   <string name="pref_category_pin">PIN Einstellungen</string>
   <string name="pref_clear_pin">PIN Code löschen</string>
   <string name="pref_clear_pin_summary">Aktuellen PIN-Code löschen</string>
-  <string name="pref_set_pin">PIN-Code setzen</string>
   <string name="pref_set_pin_summary">Einen PIN-Code setzen der das Senden von Bitcoins, Exportieren von privaten
 Schlüsseln und das Ändern des PIN-Codes verbietet
     </string>
@@ -411,14 +410,8 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <!-- LT end -->
   <string name="cs_private_key_description">Sie verwenden einen privaten Schlüssel dieser Bitcoin-Adresse:</string>
   <string name="cs_address_description">Sie haben eine Bitcoin-Adresse gescannt. Sie können den Saldo sehen, aber keine Bitcoins ausgeben.</string>
-  <plurals name="contains_keys">
-    <item quantity="one">Enthält einen privaten Schlüssel.</item>
-    <item quantity="other">Enthält %1$d private Schlüssel.</item>
-  </plurals>
-  <plurals name="contains_addresses">
-    <item quantity="one">Enthält eine Adresse.</item>
-    <item quantity="other">Enthält %1$d Adressen.</item>
-  </plurals>
+  <string name="contains_keys">Enthält %1$s private Schlüssel.</string>
+  <string name="contains_addresses">Enthält %1$s Adressen.</string>
   <string name="archiving_account_title">Konto archivieren</string>
   <string name="new_version_exists">Ein Update ist verfügbar</string>
   <string name="check_update">Nach Updates suchen</string>
@@ -476,6 +469,8 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="unspent_outputs_title">Nicht ausgegebene Outputs</string>
   <string name="no_unspent_outputs_description">Diese Seite zeigt, auf welchen Adressen des ausgewählten Kontos Bitcoins verfügbar sind. Derzeit gibt es keine Bitcoins anzuzeigen.</string>
   <string name="warning_words_import">Warnung: Kopieren Sie Ihre Worte nicht in die Zwischenablage, andere Applikationen könnten sie mitlesen und so Ihre Bitcoins entwenden.</string>
+  <string name="account_contains_one_key_info">Enthält einen privaten Schlüssel.</string>
+  <string name="account_contains_one_address_info">Enthält eine Adresse.</string>
   <string name="verify_backup_ok_message">Das Backup wurde erfolgreich überprüft.</string>
   <string name="wordlist_import_invalid_checksum">Die Prüfsumme Ihrer Wortliste ist ungültig, bitte stellen Sie sicher, dass Sie alle Wörter korrekt eingegeben haben.</string>
   <string name="checkbox_wordlist_passphrase">Ich habe eine Passphrase</string>
@@ -618,7 +613,6 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="ledger_enter_pin">Ledger Wallet PIN eingeben</string>
   <string name="ledger_enter_transaction_pin">Ledger Wallet 2FA eingeben</string>
   <string name="ledger_enter_2fa_pin">Bestätigen Sie Ausgangs-Adresse mit Ihrer Sicherheitskarte</string>
-  <string name="ledger_please_wait">Bitte warten ...</string>
   <string name="ledger_unplugged_aid">Ledger Unplugged AID</string>
   <string name="ledger_set_unplugged_aid_title">Setze Ledger Unplugged AID</string>
   <string name="ledger_check_unplugged_aid">Ungültige AID, bitte überprüfen</string>
@@ -660,7 +654,6 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="dontagree">Ich stimme nicht zu</string>
   <string name="agree">Ich stimme zu</string>
   <string name="lt_warning_watch_only_account">Aktueller Account nur im Lesemodus verfügbar - bitte wählen Sie einen anderen Account.</string>
-  <string name="refresh">Aktualisieren</string>
   <string name="xpriv_title">Erweiterter privater Schlüssel</string>
   <string name="share_xpriv">Erweiterten privaten Schlüssel teilen</string>
   <string name="export_share_warning">Hinweis: Sie sind dabei, die Daten Ihres privaten Kontos zu teilen. Sollte jemand diese Daten auffangen, hat er Zugriff auf alle aktuellen und zukünftigen Beträge auf Ihrem Konto. Möchten Sie fortfahren?</string>

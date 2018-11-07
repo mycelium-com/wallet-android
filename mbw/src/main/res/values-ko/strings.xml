@@ -62,7 +62,6 @@
   <string name="pref_category_pin">핀 설정</string>
   <string name="pref_clear_pin">핀 코드 삭제</string>
   <string name="pref_clear_pin_summary">현재의 핀 코드 삭제</string>
-  <string name="pref_set_pin">핀 코드 설정</string>
   <string name="pref_set_pin_summary">코인의 전송, 개인 키의 인출, 핀 코드 변경등  좀 더 엄격한 보안을 위해 핀 코드 설정 합니다</string>
   <string name="pref_local_currency_summary">로컬 명목 통화 선택</string>
   <string name="pref_exchange_source_with_value">익스체인지 소스 (%1$s)</string>

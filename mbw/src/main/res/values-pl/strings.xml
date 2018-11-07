@@ -74,7 +74,6 @@
   <string name="pref_category_pin">Ustawienia PIN</string>
   <string name="pref_clear_pin">Wyczysc PIN</string>
   <string name="pref_clear_pin_summary">Usuń bieżący PIN</string>
-  <string name="pref_set_pin">Ustaw kod PIN</string>
   <string name="pref_set_pin_summary">Ustaw kod PIN, który ogranicza dostęp do wysyłania monet, eksportowania kluczy prywatnych i zmiany kodu PIN</string>
   <string name="pref_local_currency_summary">Wybierz lokalna walutę fiduracyjną ($, PLN, £)</string>
   <string name="pref_exchange_source_with_value">Kantor źródłowy (%1$s)</string>

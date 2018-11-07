@@ -78,7 +78,6 @@
   <string name="pref_category_pin">Impostazioni PIN</string>
   <string name="pref_clear_pin">Rimuovi codice PIN</string>
   <string name="pref_clear_pin_summary">Rimuovi il codice PIN attuale</string>
-  <string name="pref_set_pin">Imposta codice PIN</string>
   <string name="pref_set_pin_summary">Imposta un PIN per bloccare l\'invio di bitcoin, l\'esportazione di chiavi private e la modifica del codice PIN stesso</string>
   <string name="pref_local_currency_summary">Seleziona una o più valute fiat locali</string>
   <string name="pref_exchange_source_with_value">Exchange (%1$s)</string>
@@ -407,14 +406,8 @@
   <!-- LT end -->
   <string name="cs_private_key_description">Stai usando una chiave privata con il seguente indirizzo Bitcoin:</string>
   <string name="cs_address_description">Hai scansionato un indirizzo Bitcoin. Puoi vedere il saldo ma non puoi prelevare da li.</string>
-  <plurals name="contains_keys">
-    <item quantity="one">Contiene una chiave privata.</item>
-    <item quantity="other">Contiene %1$d chiavi private.</item>
-  </plurals>
-  <plurals name="contains_addresses">
-    <item quantity="one">Contiene un indirizzo.</item>
-    <item quantity="other">Contiene %1$d indirizzi.</item>
-  </plurals>
+  <string name="contains_keys">Contiene %1$s chiavi private.</string>
+  <string name="contains_addresses">Contiene %1$s indirizzi.</string>
   <string name="archiving_account_title">Archiviazione account</string>
   <string name="new_version_exists">È disponibile una nuova versione</string>
   <string name="check_update">Ricerca aggiornamenti</string>
@@ -472,6 +465,8 @@
   <string name="unspent_outputs_title">Output non spesi</string>
   <string name="no_unspent_outputs_description">Questa pagina mostra su quali indirizzi si trovano i fondi dell\'account selezionato. Non ci sono attualmente fondi da visualizzare.</string>
   <string name="warning_words_import">Attenzione: Non copiare le tue parole negli appunti, altre applicazioni potrebbero leggerli e sottrarre i tuoi fondi.</string>
+  <string name="account_contains_one_key_info">Contiene una chiave privata.</string>
+  <string name="account_contains_one_address_info">Contiene un indirizzo.</string>
   <string name="verify_backup_ok_message">Backup verificato con successo.</string>
   <string name="wordlist_import_invalid_checksum">Il checksum della tua wordlist non è valido, assicurati di aver inserito correttamente tutte le parole.</string>
   <string name="checkbox_wordlist_passphrase">Ho una passphrase</string>
@@ -610,7 +605,6 @@
   <string name="ledger_enter_pin">Inserisci il PIN del Ledger Wallet</string>
   <string name="ledger_enter_transaction_pin">Inserisci la 2FA del Ledger Wallet</string>
   <string name="ledger_enter_2fa_pin">Conferma l\'indirizzo di uscita (output) tramite la Security Card</string>
-  <string name="ledger_please_wait">Attendere prego ...</string>
   <string name="ledger_unplugged_aid">AID di Ledger Unplugged</string>
   <string name="ledger_set_unplugged_aid_title">Imposta AID di Ledger Unplugged</string>
   <string name="ledger_check_unplugged_aid">AID errato, ricontrollare</string>
@@ -651,7 +645,6 @@
   <string name="dontagree">Rifiuto</string>
   <string name="agree">Accetto</string>
   <string name="lt_warning_watch_only_account">L\'account attuale è in sola lettura - seleziona un altro account.</string>
-  <string name="refresh">aggiorna</string>
   <string name="xpriv_title">Chiave privata estesa</string>
   <string name="share_xpriv">Condividi chiave privata estesa</string>
   <string name="export_share_warning">Attenzione: Stai per condividere i dati privati del tuo account. Chiunque ne entri in possesso potrà accedere a tutti i fondi attuali e futuri del tuo account. Desideri continuare?</string>
