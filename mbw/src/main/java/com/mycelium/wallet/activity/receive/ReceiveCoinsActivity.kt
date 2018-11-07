@@ -27,6 +27,7 @@ import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount
 import com.mycelium.wapi.wallet.coinapult.CoinapultAccount
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount
+import com.mycelium.wapi.wallet.eth.EthAccount
 import kotlinx.android.synthetic.main.receive_coins_activity_qr.*
 import java.util.*
 
@@ -49,6 +50,7 @@ class ReceiveCoinsActivity : AppCompatActivity() {
             is SingleAddressBCHAccount, is Bip44BCHAccount -> viewModelProvider.get(ReceiveBchViewModel::class.java)
             is SingleAddressAccount, is HDAccount, is CoinapultAccount -> viewModelProvider.get(ReceiveBtcViewModel::class.java)
             is ColuPubOnlyAccount -> viewModelProvider.get(ReceiveCoCoViewModel::class.java)
+            is EthAccount -> viewModelProvider.get(ReceiveEthViewModel::class.java)
             else -> throw NotImplementedError()
         }
 
