@@ -7,6 +7,7 @@ import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
+import com.mycelium.wapi.wallet.eth.EthAddress;
 import com.mycelium.wapi.wallet.segwit.SegwitAddress;
 
 public class AddressUtils {
@@ -22,7 +23,7 @@ public class AddressUtils {
             Address addr = Address.fromString(address);
             return new BtcLegacyAddress(currencyType, addr.getAllAddressBytes());
         } else {
-            return null;
+            return new EthAddress(address);
         }
     }
 

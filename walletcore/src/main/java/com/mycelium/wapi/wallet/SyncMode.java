@@ -35,7 +35,7 @@ public class SyncMode {
    public final boolean ignoreMinerFeeFetch;
 
    // if mode is ONE_ADDRESS, only care about that address
-   public final Address addressToSync;
+   public final String addressToSync;
 
    // Ignores timeouts
    // If true, for each SyncMode the last time is noted, and this sync is only
@@ -52,7 +52,7 @@ public class SyncMode {
       this.addressToSync = null;
    }
 
-   public SyncMode(Address onlyAddress) {
+   public SyncMode(String onlyAddress) {
       this.mode = Mode.ONE_ADDRESS;
       this.ignoreTransactionHistory = true;
       this.onlyActiveAccount = true;

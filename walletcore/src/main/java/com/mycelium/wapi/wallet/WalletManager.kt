@@ -3,7 +3,6 @@ package com.mycelium.wapi.wallet
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.api.lib.FeeEstimation
-import com.mycelium.wapi.wallet.btc.SynchronizeAbleWalletBtcAccount
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking
 import com.mycelium.wapi.wallet.manager.*
 import java.util.*
@@ -124,7 +123,7 @@ class WalletManager(val backing: WalletManagerBacking<*,*>,
 
     fun startSynchronization(acc: UUID): Boolean {
         // Launch synchronizer thread
-        val activeAccount = getAccount(acc) as SynchronizeAbleWalletBtcAccount
+        val activeAccount = getAccount(acc)
         Thread(Synchronizer(this, SyncMode.NORMAL, listOf(activeAccount)))
         return isNetworkConnected
     }

@@ -1438,7 +1438,7 @@ public class MbwManager {
         _addressWatchTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                getWalletManager(false).startSynchronization(new SyncMode(((BtcAddress) address).getAddress()));
+                getWalletManager(false).startSynchronization(new SyncMode(address.toString()));
             }
         }, 1000, 5 * 1000);
     }

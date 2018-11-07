@@ -21,7 +21,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="0dp"
             android:gravity="left"
-            android:text="@{AddressUtils.toMultiLineString(AddressUtils.fromAddress(viewModel.receivingAddress).toString())}"
+            android:text="@{AddressUtils.toMultiLineString(viewModel.receivingAddress.toString())}"
             android:textSize="18sp"
             android:typeface="monospace" />
     </LinearLayout>

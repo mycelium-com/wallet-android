@@ -18,6 +18,7 @@ import com.mycelium.wallet.event.SyncFailed
 import com.mycelium.wallet.event.SyncStopped
 import com.mycelium.wapi.model.TransactionSummary
 import com.mycelium.wapi.wallet.AddressUtils
+import com.mycelium.wapi.wallet.GenericAddress
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount
 import com.mycelium.wapi.wallet.coins.Value
@@ -35,7 +36,7 @@ class ReceiveCoinsModel(
     val nfc: NfcAdapter? = NfcAdapter.getDefaultAdapter(context)
     val receivingAmount: MutableLiveData<Value?> = MutableLiveData()
     val receivingAmountWrong: MutableLiveData<Boolean> = MutableLiveData()
-    val receivingAddress: MutableLiveData<Address> = MutableLiveData()
+    val receivingAddress: MutableLiveData<GenericAddress> = MutableLiveData()
 
     private var syncErrors = 0
     private val mbwManager = MbwManager.getInstance(context)
@@ -46,7 +47,7 @@ class ReceiveCoinsModel(
     init {
         mbwManager.eventBus.register(this)
         receivingAmountWrong.value = false
-        receivingAddress.value = Address.fromString(account.receiveAddress.toString())
+        receivingAddress.value = account.receiveAddress
 
         if (showIncomingUtxo) {
             updateObservingAddress()
@@ -55,7 +56,7 @@ class ReceiveCoinsModel(
 
     fun updateObservingAddress() {
         val address = receivingAddress.value
-        mbwManager.watchAddress(AddressUtils.fromAddress(address))
+        mbwManager.watchAddress(address)
     }
 
     fun onCleared() {
@@ -150,7 +151,7 @@ class ReceiveCoinsModel(
     }
 
     private fun getTransactionsToCurrentAddress(transactionsSince: MutableList<TransactionSummary>) =
-            transactionsSince.filter { it.toAddresses.contains(receivingAddress.value) }
+            transactionsSince.filter { it.toAddresses.contains(Address.fromString(receivingAddress.value.toString())) }
 
     companion object {
         private const val MAX_SYNC_ERRORS = 8
