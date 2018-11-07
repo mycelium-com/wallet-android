@@ -239,8 +239,8 @@ open class HDAccount(
                         currentExternalAddressId + 2, derivationType))
             } else if (mode.mode == SyncMode.Mode.ONE_ADDRESS && mode.addressToSync != null) {
                 // only check for the supplied address
-                addresses = if ( Address.fromString(mode.addressToSync) != null && isMine(Address.fromString(mode.addressToSync))) {
-                    Lists.newArrayList(Address.fromString(mode.addressToSync))
+                addresses = if (isMineAddress(mode.addressToSync)) {
+                    Lists.newArrayList(Address.fromString(mode.addressToSync.toString()))
                 } else {
                     throw IllegalArgumentException("Address " + mode.addressToSync + " is not part of my account addresses")
                 }
