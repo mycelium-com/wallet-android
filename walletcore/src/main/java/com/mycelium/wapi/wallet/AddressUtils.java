@@ -8,6 +8,7 @@ import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
 import com.mycelium.wapi.wallet.eth.EthAddress;
+import com.mycelium.wapi.wallet.eth.coins.EthMain;
 import com.mycelium.wapi.wallet.segwit.SegwitAddress;
 
 public class AddressUtils {
@@ -22,8 +23,10 @@ public class AddressUtils {
         } else if (currencyType instanceof ColuMain) {
             Address addr = Address.fromString(address);
             return new BtcLegacyAddress(currencyType, addr.getAllAddressBytes());
-        } else {
+        } else if (currencyType instanceof EthMain){
             return new EthAddress(address);
+        } else {
+            return null;
         }
     }
 
