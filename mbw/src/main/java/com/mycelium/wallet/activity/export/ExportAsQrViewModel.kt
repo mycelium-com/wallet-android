@@ -97,7 +97,7 @@ open class ExportAsQrViewModel(val context: Application) : AndroidViewModel(cont
             sendIntent.type = "text/plain"
             sendIntent.putExtra(Intent.EXTRA_SUBJECT, context.resources.getString(R.string.xpub_title))
             sendIntent.putExtra(Intent.EXTRA_TEXT, sharedData)
-            context.startActivity(Intent.createChooser(sendIntent, context.resources.getString(R.string.share_xpub)))
+            activity.startActivity(Intent.createChooser(sendIntent, context.resources.getString(R.string.share_xpub)))
         }
     }
 
