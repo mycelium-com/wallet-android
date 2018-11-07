@@ -150,8 +150,8 @@
   <string name="my_accounts">Mes comptes</string>
   <string name="foreign_addresses">Carnet d\'adresses</string>
   <string name="confirm_delete_pk_title">Êtes-vous sûr ?</string>
-  <!-- string name="confirm_delete_pk_with_balance">Cette action ne peut pas être annulée !\n\nAdresse actuelle :\n%1$s\n\nContient %2$s\n\nDésirez-vous la supprimer ?</string>
-  <string name="confirm_delete_pk_without_balance">Cette action ne peut pas être annulée !\n\nAdresse actuelle :\n%1$s\n\nDésirez-vous la supprimer ?</string -->
+  <string name="confirm_delete_pk_with_balance">Cette action ne peut pas être annulée !\n\nAdresse actuelle :\n%1$s\n\nContient %2$s\n\nDésirez-vous la supprimer ?</string>
+  <string name="confirm_delete_pk_without_balance">Cette action ne peut pas être annulée !\n\nAdresse actuelle :\n%1$s\n\nDésirez-vous la supprimer ?</string>
   <string name="verify_private_key_backup">Vérifier la sauvegarde</string>
   <string name="verify_backup_dialog_title">Vérifier la sauvegarde de la clé privée</string>
   <string name="verify_backup_scan_desc">Vérifiez votre sauvegarde en scannant le code QR de la clé privée ou de la master seed.\nPlusieurs formats sont acceptés, y compris les sauvegardes papiers chiffrées de Mycelium.</string>
@@ -857,7 +857,7 @@
   <string name="partner_trezor_short">Le portefeuille matériel original.</string>
   <string name="partner_trezor_url">https://shop.trezor.io/?a=mycelium.com</string>
   <string name="partner_purse">Purse</string>
-  <string name="partner_purse_short">Économisez 15% sur Amazon.com en payant avec Bitcoin sur Purse.io</string>
+  <string name="partner_purse_short">Économisez 15 % sur Amazon.com en payant avec Bitcoin sur Purse.io</string>
   <string name="partner_purse_url">https://purse.io/?_a=MYCELIUM</string>
   <string name="tab_partners">Partenariat</string>
   <string name="partner_more_info"><u>Vos informations privées sont de notre première priorité</u></string>

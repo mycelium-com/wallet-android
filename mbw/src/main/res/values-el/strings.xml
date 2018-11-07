@@ -149,8 +149,8 @@
   <string name="my_accounts">Οι Λογαριασμοί μου</string>
   <string name="foreign_addresses">Βιβλίο Διευθύνσεων</string>
   <string name="confirm_delete_pk_title">Είστε Σίγουρος /η ;</string>
-  <!-- string name="confirm_delete_pk_with_balance">Η ενέργεια αυτή δεν μπορεί να αναιρεθεί!\n\nΤρέχουσα διεύθυνση:\n%1$s\n\nΠεριέχει %2$s\n\nΘέλετε να διαγραφεί;</string>
-  <string name="confirm_delete_pk_without_balance">Η ενέργεια αυτή δεν μπορεί να αναιρεθεί!\n\nΤρέχουσα διεύθυνση:\n%1$s\n\nΘέλετε να διαγραφεί;</string -->
+  <string name="confirm_delete_pk_with_balance">Η ενέργεια αυτή δεν μπορεί να αναιρεθεί!\n\nΤρέχουσα διεύθυνση:\n%1$s\n\nΠεριέχει %2$s\n\nΘέλετε να διαγραφεί;</string>
+  <string name="confirm_delete_pk_without_balance">Η ενέργεια αυτή δεν μπορεί να αναιρεθεί!\n\nΤρέχουσα διεύθυνση:\n%1$s\n\nΘέλετε να διαγραφεί;</string>
   <string name="verify_private_key_backup">Επιβεβαίωση Αντίγραφου Ασφαλείας</string>
   <string name="verify_backup_dialog_title">Επιβεβαίωση Αντίγραφου Ασφαλείας Μυστικού Κλειδιού</string>
   <string name="verify_backup_scan_desc">Επιβεβαιώστε το αντίγραφο ασφαλείας σας σαρώνοντας τον κωδικό QR του μυστικού κλειδιού ή του κεντρικού κωδικού (σπόρου).\nΕίναι συμβατές πολλαπλές μορφές, περιλαμβανομένου του κρυπτογραφημένου χάρτινου αντίγραφου Mycelium.</string>

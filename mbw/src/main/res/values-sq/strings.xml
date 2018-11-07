@@ -149,8 +149,8 @@
   <string name="my_accounts">Llogaritë e mia</string>
   <string name="foreign_addresses">Libri i adresave</string>
   <string name="confirm_delete_pk_title">A jeni i sigurtë?</string>
-  <!-- string name="confirm_delete_pk_with_balance">Ky veprim nuk kthehet prapa!\n\nKjo adresë:\n%1$s\n\nPërmban %2$s\n\nDoni ta fshini atë?</string>
-  <string name="confirm_delete_pk_without_balance">Ky veprim nuk kthehet prapa!\n\nKjo adresë:\n%1$s\n\nDoni ta fshini atë?</string -->
+  <string name="confirm_delete_pk_with_balance">Ky veprim nuk kthehet prapa!\n\nKjo adresë:\n%1$s\n\nPërmban %2$s\n\nDoni ta fshini atë?</string>
+  <string name="confirm_delete_pk_without_balance">Ky veprim nuk kthehet prapa!\n\nKjo adresë:\n%1$s\n\nDoni ta fshini atë?</string>
   <string name="verify_private_key_backup">Verifiko kopjen rezervë</string>
   <string name="verify_backup_dialog_title">Verifiko kopjen rezervë të çelësit privat</string>
   <string name="verify_backup_scan_desc">Verifikoni kopjen e juaj rezerë duke skanuar QR kodin e çelësit privat ose master seed.\nDisa formate pranohen, duke përfshirë edhe kopjen rezervë të enkriptuar të Mycelium.</string>

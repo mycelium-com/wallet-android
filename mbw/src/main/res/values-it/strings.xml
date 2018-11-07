@@ -150,8 +150,8 @@
   <string name="my_accounts">Miei Conti</string>
   <string name="foreign_addresses">Rubrica</string>
   <string name="confirm_delete_pk_title">Confermi?</string>
-  <!-- string name="confirm_delete_pk_with_balance">Questa azione non potrà essere annullata!\n\nL\'indirizzo attuale:\n%1$s\n\nIt contiene %2$s\n\nDesideri eliminarla?</string>
-  <string name="confirm_delete_pk_without_balance">Questa azione non potrà essere annullata!\n\nIndirizzo attuale:\n%1$s\n\nDesideri eliminarlo?</string -->
+  <string name="confirm_delete_pk_with_balance">Questa azione non potrà essere annullata!\n\nL\'indirizzo attuale:\n%1$s\n\nIt contiene %2$s\n\nDesideri eliminarla?</string>
+  <string name="confirm_delete_pk_without_balance">Questa azione non potrà essere annullata!\n\nIndirizzo attuale:\n%1$s\n\nDesideri eliminarlo?</string>
   <string name="verify_private_key_backup">Verifica del backup</string>
   <string name="verify_backup_dialog_title">Verifica backup della chiave privata</string>
   <string name="verify_backup_scan_desc">Verifica il backup scandendo il codice QR della tua chiave privata o del master seed.\nSono supportati vari formati, compreso il backup crittografato e stampato su carta di Mycelium.</string>

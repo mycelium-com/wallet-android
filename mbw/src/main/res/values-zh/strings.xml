@@ -150,8 +150,8 @@
   <string name="my_accounts">我的账户</string>
   <string name="foreign_addresses">地址列表</string>
   <string name="confirm_delete_pk_title">您确定吗？</string>
-  <!-- string name="confirm_delete_pk_with_balance">此操作不能被撤销!\n\n当前地址:\n%1$s\n\n它包含 %2$s\n\n您想要删除它吗?</string>
-  <string name="confirm_delete_pk_without_balance">此操作不能够被撤消 ！ \n\n 当前地址:\n%1$s\n\n 您想要删除它吗？</string -->
+  <string name="confirm_delete_pk_with_balance">此操作不能被撤销!\n\n当前地址:\n%1$s\n\n它包含 %2$s\n\n您想要删除它吗?</string>
+  <string name="confirm_delete_pk_without_balance">此操作不能够被撤消 ！ \n\n 当前地址:\n%1$s\n\n 您想要删除它吗？</string>
   <string name="verify_private_key_backup">验证备份</string>
   <string name="verify_backup_dialog_title">验证密钥备份</string>
   <string name="verify_backup_scan_desc">通过扫描私钥或主种子的QR代码来验证您的备份。\n接受多种格式，包括Mycelium的纸质备份。</string>

@@ -150,8 +150,8 @@
   <string name="my_accounts">Moji računi</string>
   <string name="foreign_addresses">Imenik</string>
   <string name="confirm_delete_pk_title">Ste prepričani?</string>
-  <!-- string name="confirm_delete_pk_with_balance">Brisanje je dokončno in ga ne boste mogli razveljaviti!\n\nTrenutni naslov:\n%1$s\n\nVsebuje %2$s\n\nSte prepričani, da ga želite izbrisati?</string>
-  <string name="confirm_delete_pk_without_balance">Brisanje je dokončno in ga ne boste mogli razveljaviti!\n\nTrenutni naslov:\n%1$s\n\nSte prepričani, da ga želite izbrisati?</string -->
+  <string name="confirm_delete_pk_with_balance">Brisanje je dokončno in ga ne boste mogli razveljaviti!\n\nTrenutni naslov:\n%1$s\n\nVsebuje %2$s\n\nSte prepričani, da ga želite izbrisati?</string>
+  <string name="confirm_delete_pk_without_balance">Brisanje je dokončno in ga ne boste mogli razveljaviti!\n\nTrenutni naslov:\n%1$s\n\nSte prepričani, da ga želite izbrisati?</string>
   <string name="verify_private_key_backup">Preveri rezervno kopijo</string>
   <string name="verify_backup_dialog_title">Preveri rezervno kopijo zasebnih ključev</string>
   <string name="verify_backup_scan_desc">Preverite rezervno kopijo z odčitanjem QR-kode zasebnega ključa ali glavnega semena.\nPodprtih je več formatov, med drugim Myceliumova šifrirana papirna rezervna kopija.</string>

@@ -167,8 +167,8 @@
   <string name="delete_account_message_s"><![CDATA[Вы хотите удалить аккаунт <b>\"%1$s\"</b> содержащий <b>%2$s</b>?]]></string>
   <string name="delete_archived_account_message_s"><![CDATA[Вы хотите удалить аккаунт <b>\"%1$s\"</b>?]]></string>
   <string name="confirm_delete_pk_title">Вы уверены?</string>
-  <!-- string name="confirm_delete_pk_with_balance">Это не может быть отменено!\n\nТекущий адрес:\n%1$s\n\nОн содержит %2$s\n\nВы хотите удалить его?</string>
-  <string name="confirm_delete_pk_without_balance">Это не может быть отменено!\n\nТекущий адрес:\n%1$s\n\nВы хотите удалить его?</string -->
+  <string name="confirm_delete_pk_with_balance">Это не может быть отменено!\n\nТекущий адрес:\n%1$s\n\nОн содержит %2$s\n\nВы хотите удалить его?</string>
+  <string name="confirm_delete_pk_without_balance">Это не может быть отменено!\n\nТекущий адрес:\n%1$s\n\nВы хотите удалить его?</string>
   <string name="verify_private_key_backup">Проверить резервную копию</string>
   <string name="verify_backup_dialog_title">Проверить резервную копию приватного ключа</string>
   <string name="verify_backup_scan_desc">Проверьте вашу резервную копию сканированием QR-кода закрытого ключа или мастер-ключа (seed).\nРаботают разные форматы, включая шифрованную резервную копию Mycelium.</string>

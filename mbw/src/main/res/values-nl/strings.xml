@@ -149,8 +149,8 @@
   <string name="my_accounts">Mijn Rekeningen</string>
   <string name="foreign_addresses">Adresboek</string>
   <string name="confirm_delete_pk_title">Weet u het zeker?</string>
-  <!-- string name="confirm_delete_pk_with_balance">Dit kan niet ongedaan gemaakt worden!\n\nHuidig adres:\n%1$s\n\nHet bevat %2$s\n\nWilt u het verwijderen?</string>
-  <string name="confirm_delete_pk_without_balance">Dit kan niet ongedaan gemaakt worden!\n\nHuidige adres:\n%1$s\n\nWilt u het verwijderen?</string -->
+  <string name="confirm_delete_pk_with_balance">Dit kan niet ongedaan gemaakt worden!\n\nHuidig adres:\n%1$s\n\nHet bevat %2$s\n\nWilt u het verwijderen?</string>
+  <string name="confirm_delete_pk_without_balance">Dit kan niet ongedaan gemaakt worden!\n\nHuidige adres:\n%1$s\n\nWilt u het verwijderen?</string>
   <string name="verify_private_key_backup">Back-up verifiëren</string>
   <string name="verify_backup_dialog_title">Private key back-up verifiëren</string>
   <string name="verify_backup_scan_desc">Verifieer uw back-up door de QR code van de private key of de masterseed te scannen.\nDiverse formaten worden geaccepteerd, inclusief de Mycelium encrypted paper backup.</string>
