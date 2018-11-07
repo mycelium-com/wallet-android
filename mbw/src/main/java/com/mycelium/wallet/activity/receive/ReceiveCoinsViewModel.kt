@@ -55,7 +55,7 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
         if (it != null) {
             getFormattedValue(it)
         } else {
-            ""
+            getFormattedValue(Value.zeroValue(mbwManager.selectedAccount.coinType))
         }
     }
 

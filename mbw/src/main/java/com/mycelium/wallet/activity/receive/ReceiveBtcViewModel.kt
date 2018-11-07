@@ -50,7 +50,7 @@ class ReceiveBtcViewModel(application: Application) : ReceiveCoinsViewModel(appl
 
     override fun getCurrencyName() = context.getString(R.string.bitcoin_name)
 
-    override fun getFormattedValue(sum: Value) = Utils.getFormattedValueWithUnit(sum, mbwManager.bitcoinDenomination)
+    override fun getFormattedValue(sum: Value) = Utils.getFormattedValue(sum, mbwManager.bitcoinDenomination)
 
     override fun loadInstance(savedInstanceState: Bundle) {
         setAddressType(savedInstanceState.getSerializable(ADDRESS_TYPE) as AddressType)

@@ -67,9 +67,11 @@ import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
+import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount;
 import com.mycelium.wapi.wallet.colu.ColuUtils;
+import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 import com.squareup.otto.Subscribe;
 
 import java.math.BigDecimal;

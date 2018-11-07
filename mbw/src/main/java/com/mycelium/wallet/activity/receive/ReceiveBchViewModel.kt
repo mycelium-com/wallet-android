@@ -16,7 +16,7 @@ class ReceiveBchViewModel(application: Application) : ReceiveCoinsViewModel(appl
     override fun getHint() = context.getString(R.string.amount_hint_denomination,
             CoinUtil.Denomination.BCH)
 
-    override fun getFormattedValue(sum: Value) = Utils.getFormattedValueWithUnit(sum, mbwManager.bitcoinDenomination)
+    override fun getFormattedValue(sum: Value) = Utils.getFormattedValue(sum, mbwManager.bitcoinDenomination)
 
     override fun getTitle(): String {
         return if (Value.isNullOrZero(model.amountData.value)) {

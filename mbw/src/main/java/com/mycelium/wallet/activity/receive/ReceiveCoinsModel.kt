@@ -20,9 +20,7 @@ import com.mycelium.wapi.model.TransactionSummary
 import com.mycelium.wapi.wallet.AddressUtils
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount
-import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import com.mycelium.wapi.wallet.coins.Value
-import com.mycelium.wapi.wallet.currency.CurrencyValue
 import com.squareup.otto.Subscribe
 
 class ReceiveCoinsModel(
@@ -42,7 +40,7 @@ class ReceiveCoinsModel(
     private var syncErrors = 0
     private val mbwManager = MbwManager.getInstance(context)
     private var receivingSince = System.currentTimeMillis()
-    private var lastAddressBalance: CurrencyValue? = null
+    private var lastAddressBalance: Value? = null
     private var accountDisplayType: AccountDisplayType? = null
 
     init {
@@ -66,20 +64,9 @@ class ReceiveCoinsModel(
     }
 
     fun setAmount(newAmount: Value) {
-        if (!newAmount.isZero) {
-            if (newAmount.type == account.coinType && !newAmount.type.equals(mbwManager.fiatCurrency)) {
-                alternativeAmountData.value = mbwManager.exchangeRateManager.get(newAmount, mbwManager.fiatCurrency)
-                amountData.value = newAmount
-            } else {
-                amountData.value =
-                        // use the accounts default currency as alternative
-                        mbwManager.exchangeRateManager.get(newAmount, if (account.coinType != newAmount.type)
-                            account.coinType
-                        // special case for Coinapult
-                        else BitcoinMain.get());
-
-                alternativeAmountData.value = newAmount
-            }
+        if (!Value.isNullOrZero(newAmount)) {
+            alternativeAmountData.value = newAmount
+            amountData.value = newAmount
         } else {
             amountData.value = null
             alternativeAmountData.value = null
@@ -110,7 +97,7 @@ class ReceiveCoinsModel(
         amountData.value = savedInstanceState.getSerializable(AMOUNT) as Value?
         receivingSince = savedInstanceState.getLong(RECEIVING_SINCE)
         syncErrors = savedInstanceState.getInt(SYNC_ERRORS)
-        lastAddressBalance = savedInstanceState.getSerializable(LAST_ADDRESS_BALANCE) as CurrencyValue?
+        lastAddressBalance = savedInstanceState.getSerializable(LAST_ADDRESS_BALANCE) as Value?
     }
 
     fun saveInstance(outState: Bundle) {
@@ -147,12 +134,12 @@ class ReceiveCoinsModel(
             // if the user specified an amountData, check it if it matches up...
             receivingAmountWrong.value = sum!! != amountData.value
             if (sum != lastAddressBalance) {
-                makeNotification(sum)
+                //makeNotification(sum)
             }
         }
     }
 
-    private fun makeNotification(sum: CurrencyValue?) {
+    private fun makeNotification(sum: Value?) {
         val soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager?
         val mBuilder = NotificationCompat.Builder(context) //TODO api 28 change, broken.
