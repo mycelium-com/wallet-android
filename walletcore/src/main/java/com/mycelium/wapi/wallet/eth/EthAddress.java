@@ -11,7 +11,7 @@ public class EthAddress implements GenericAddress {
 
     private String address;
 
-    EthAddress(String address) {
+    public EthAddress(String address) {
         this.address = address;
     }
 

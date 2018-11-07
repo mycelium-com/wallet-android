@@ -29,7 +29,6 @@ import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount
 import com.mycelium.wapi.wallet.eth.EthAccount
 import kotlinx.android.synthetic.main.receive_coins_activity_qr.*
-import java.util.*
 
 class ReceiveCoinsActivity : AppCompatActivity() {
     private lateinit var viewModel: ReceiveCoinsViewModel
@@ -39,9 +38,7 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
         val mbwManager = MbwManager.getInstance(application)
-        val isColdStorage = intent.getBooleanExtra(IS_COLD_STORAGE, false)
-        val walletManager = mbwManager.getWalletManager(isColdStorage)
-        val account = walletManager.getAccount(intent.getSerializableExtra(UUID) as UUID)
+        val account = mbwManager.selectedAccount
         val havePrivateKey = intent.getBooleanExtra(PRIVATE_KEY, false)
         val showIncomingUtxo = intent.getBooleanExtra(SHOW_UTXO, false)
         val viewModelProvider = ViewModelProviders.of(this)
