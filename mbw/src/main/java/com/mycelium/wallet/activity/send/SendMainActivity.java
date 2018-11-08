@@ -757,7 +757,6 @@ public class SendMainActivity extends Activity {
         Intent intent = new Intent(this, ManualAddressEntry.class);
         intent.putExtra(ACCOUNT, _account.getId());
         intent.putExtra(IS_COLD_STORAGE, _isColdStorage);
-        intent.putExtra(CURRENCY_TYPE, _account.getCoinType());
         startActivityForResult(intent, MANUAL_ENTRY_RESULT_CODE);
     }
 

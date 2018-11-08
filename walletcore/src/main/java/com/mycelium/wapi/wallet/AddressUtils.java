@@ -14,15 +14,16 @@ import com.mycelium.wapi.wallet.segwit.SegwitAddress;
 public class AddressUtils {
 
     public static GenericAddress from(CryptoCurrency currencyType, String address) {
-        if (address.length() == 0)
+        if (address.length() == 0) {
             return null;
-
-        if(currencyType instanceof BitcoinMain || currencyType instanceof BitcoinTest) {
+        }
+        if(currencyType instanceof BitcoinMain || currencyType instanceof BitcoinTest || currencyType instanceof ColuMain) {
             Address addr = Address.fromString(address);
-            return new BtcLegacyAddress(currencyType, addr.getAllAddressBytes());
-        } else if (currencyType instanceof ColuMain) {
-            Address addr = Address.fromString(address);
-            return new BtcLegacyAddress(currencyType, addr.getAllAddressBytes());
+            if(addr != null){
+                return fromAddress(addr);
+            } else {
+                return null;
+            }
         } else if (currencyType instanceof EthMain){
             return new EthAddress(address);
         } else {
@@ -39,10 +40,24 @@ public class AddressUtils {
         return res;
     }
 
+    public static boolean addressValidation(GenericAddress address){
+        if(Address.fromString(address.toString()) != null){
+            return true;
+        }
+        return address.getCoinType() == EthMain.INSTANCE;
+    }
+
     public static String toMultiLineString(String address){
-        return address.substring(0, 12) + "\r\n" +
-                address.substring(12, 24) + "\r\n" +
-                address.substring(24);
+        int length = address.length();
+        if(length <= 12){
+            return address;
+        } else if(length <= 24){
+            return toDoubleLineString(address);
+        } else {
+            return address.substring(0, 12) + "\r\n" +
+                    address.substring(12, 24) + "\r\n" +
+                    address.substring(24);
+        }
     }
 
     public static String toDoubleLineString(String address){
