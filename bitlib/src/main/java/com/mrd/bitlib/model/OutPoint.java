@@ -78,7 +78,7 @@ public class OutPoint implements Serializable {
     * Required for BIP143 tx digest.
     */
    void hashPrev(ByteWriter writer) {
-      writer.putBytes(BitUtils.reverseBytes(txid.getBytes()));
+      writer.putSha256Hash(txid, true);
       writer.putIntLE(index);
    }
 
