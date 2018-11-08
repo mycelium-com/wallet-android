@@ -75,12 +75,12 @@ public class ManualAddressEntry extends Activity {
         ((EditText) findViewById(R.id.etAddress)).setInputType(InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE);
 
         WalletAccount account = _mbwManager.getSelectedAccount();
-        if (account instanceof ColuPubOnlyAccount) {
-            ColuPubOnlyAccount coluAccount = (ColuPubOnlyAccount) account;
-            ((TextView) findViewById(R.id.title)).setText(getString(R.string.enter_address, coluAccount.getCoinType().getName()));
-            ((TextView) findViewById(R.id.tvBitcoinAddressValid)).setText(getString(R.string.address_valid, coluAccount.getCoinType().getName()));
-            ((TextView) findViewById(R.id.tvBitcoinAddressInvalid)).setText(getString(R.string.address_invalid, coluAccount.getCoinType().getName()));
-        }
+
+        ((TextView) findViewById(R.id.title)).setText(getString(R.string.enter_address, account.getCoinType().getName()));
+        ((TextView) findViewById(R.id.tvBitcoinAddressValid)).setText(getString(R.string.address_valid, account.getCoinType().getName()));
+        ((TextView) findViewById(R.id.tvBitcoinAddressInvalid)).setText(getString(R.string.address_invalid, account.getCoinType().getName()));
+
+
         // Load saved state
         if (savedInstanceState != null) {
             _entered = savedInstanceState.getString("entered");
