@@ -15,4 +15,8 @@ abstract class BchCoin: CryptoCurrency(){
     override fun newAddress(addressStr: String): GenericAddress {
         return AddressUtils.from(this, addressStr)
     }
+
+    override fun getName(): String {
+        return "Bitcoin Cash"
+    }
 }
