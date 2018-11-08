@@ -39,9 +39,10 @@ import android.text.TextUtils;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
-import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.Sha256Hash;
+import com.mycelium.wapi.wallet.metadata.MetadataCategory;
+import com.mycelium.wapi.wallet.metadata.MetadataKeyCategory;
 
 import java.math.BigDecimal;
 import java.util.*;
