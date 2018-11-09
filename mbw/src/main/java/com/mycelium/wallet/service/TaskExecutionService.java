@@ -177,7 +177,7 @@ public class TaskExecutionService extends Service {
       _applicationContext = this.getApplicationContext();
 
       // todo!!!!!!!!!!!
-      _httpErrorCollector = HttpErrorCollector.registerInVM(getApplicationContext(), MbwManager.getInstance(null).getWapi());
+      _httpErrorCollector = HttpErrorCollector.registerInVM(getApplicationContext(), MbwManager.getInstance(_applicationContext).getWapi());
 
       _serviceMessenger = new Messenger(new IncomingHandler());
    }
