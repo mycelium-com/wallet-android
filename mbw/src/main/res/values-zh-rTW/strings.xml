@@ -78,7 +78,6 @@
   <string name="pref_category_pin">PIN碼設置</string>
   <string name="pref_clear_pin">清除PIN碼</string>
   <string name="pref_clear_pin_summary">清除當前的PIN碼</string>
-  <string name="pref_set_pin">設置PIN碼</string>
   <string name="pref_set_pin_summary">设置一個PIN用来限制发送比特币，导出密钥, 以及更改PIN</string>
   <string name="pref_local_currency_summary">請選擇當地的貨幣</string>
   <string name="pref_exchange_source_with_value">交換源（%1$s）</string>
@@ -151,8 +150,8 @@
   <string name="my_accounts">我的帳戶</string>
   <string name="foreign_addresses">通訊錄</string>
   <string name="confirm_delete_pk_title">您確定嗎？</string>
-  <!-- string name="confirm_delete_pk_with_balance">这不能被撤销!\n\n當前地址:\n%1$s\n\n它包含 %2$s\n\n您想要删除它吗?</string>
-  <string name="confirm_delete_pk_without_balance">此操作不能被撤销!\n\n當前地址:\n%1$s\n\n您想要删除它吗?</string -->
+  <string name="confirm_delete_pk_with_balance">这不能被撤销!\n\n當前地址:\n%1$s\n\n它包含 %2$s\n\n您想要删除它吗?</string>
+  <string name="confirm_delete_pk_without_balance">此操作不能被撤销!\n\n當前地址:\n%1$s\n\n您想要删除它吗?</string>
   <string name="verify_private_key_backup">驗證備份</string>
   <string name="verify_backup_dialog_title">驗證密鑰備份</string>
   <string name="verify_backup_scan_desc">通過掃描私鑰或主種子的QR代碼來驗證您的備份。 \n接受多種格式，包括Mycelium的紙質備份。</string>
@@ -404,12 +403,8 @@
   <!-- LT end -->
   <string name="cs_private_key_description">您正在使用基於下面比特幣地址的私鑰：</string>
   <string name="cs_address_description">你已經掃描一個比特的地址。你可以查看餘額，但是不能用它進行消費。</string>
-  <plurals name="contains_keys">
-    <item quantity="other">包含 %1$d 私鑰。</item>
-  </plurals>
-  <plurals name="contains_addresses">
-    <item quantity="other">包含 %1$d 地址。</item>
-  </plurals>
+  <string name="contains_keys">包含 %1$s 私鑰。</string>
+  <string name="contains_addresses">包含 %1$s 地址。</string>
   <string name="archiving_account_title">存檔帳戶</string>
   <string name="new_version_exists">新版本可供升級</string>
   <string name="check_update">檢測更新</string>
@@ -465,6 +460,8 @@
   <string name="unspent_outputs_title">未消費的產出</string>
   <string name="no_unspent_outputs_description">此頁顯示所選帳戶中的資金在哪些地址上。目前沒有資金可以顯示。</string>
   <string name="warning_words_import">警告： 不要把你的單詞放在剪貼板中，其他應用程序可以訪問它們並獲得你的錢。</string>
+  <string name="account_contains_one_key_info">包含一個私鑰。</string>
+  <string name="account_contains_one_address_info">包含一個位址。</string>
   <string name="verify_backup_ok_message">備份驗證成功。</string>
   <string name="wordlist_import_invalid_checksum">單詞列表校驗碼無效，請確保您正確地輸入了所有單詞。</string>
   <string name="checkbox_wordlist_passphrase">我有一個密碼</string>
@@ -602,7 +599,6 @@
   <string name="ledger_enter_pin">輸入Ledger錢包 PIN</string>
   <string name="ledger_enter_transaction_pin">輸入Ledger錢包 2FA</string>
   <string name="ledger_enter_2fa_pin">確認使用您的安全卡輸出地址</string>
-  <string name="ledger_please_wait">請稍後...</string>
   <string name="ledger_unplugged_aid">Ledge　Unplugged　應用標識符</string>
   <string name="ledger_set_unplugged_aid_title">設置Ledge　Unplugged　應用標識符</string>
   <string name="ledger_check_unplugged_aid">應用標識符無效，請重新檢查</string>
@@ -644,7 +640,6 @@
   <string name="dontagree">我不同意</string>
   <string name="agree">我同意</string>
   <string name="lt_warning_watch_only_account">當前賬戶為只讀賬戶 — — 請選擇其他賬戶。</string>
-  <string name="refresh">刷新</string>
   <string name="xpriv_title">擴展私鑰</string>
   <string name="share_xpriv">共享擴展私鑰</string>
   <string name="export_share_warning">警告 ︰ 您將要共享你的私人賬戶數據。無論誰得到它, 都可以訪問您帳戶中當前以及未來基金。你想要繼續嗎?</string>

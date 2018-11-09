@@ -77,7 +77,6 @@
   <string name="pref_category_pin">PIN-inställningar</string>
   <string name="pref_clear_pin">Töm PIN-kod</string>
   <string name="pref_clear_pin_summary">Töm den nuvarande PIN-koden</string>
-  <string name="pref_set_pin">Ange PIN-kod</string>
   <string name="pref_set_pin_summary">Ange en PIN-kod som begränsar åtkomst för att skicka pengar, exportera privata nycklar och ändra PIN-koden</string>
   <string name="pref_local_currency_summary">Välj den lokala fiat-valutan</string>
   <string name="pref_exchange_source_with_value">Växlingskälla (%1$s)</string>
@@ -150,8 +149,8 @@
   <string name="my_accounts">Mina konton</string>
   <string name="foreign_addresses">Adressbok</string>
   <string name="confirm_delete_pk_title">Är du säker?</string>
-  <!-- string name="confirm_delete_pk_with_balance">Detta kan inte ångras!\n\nNuvarande adress:\n%1$s\n\nDet innehåller %2$s\n\nVill du ta bort det?</string>
-  <string name="confirm_delete_pk_without_balance">Detta kan inte ångras!\n\nNuvarande adress:\n%1$s\n\nVill du ta bort det?</string -->
+  <string name="confirm_delete_pk_with_balance">Detta kan inte ångras!\n\nNuvarande adress:\n%1$s\n\nDet innehåller %2$s\n\nVill du ta bort det?</string>
+  <string name="confirm_delete_pk_without_balance">Detta kan inte ångras!\n\nNuvarande adress:\n%1$s\n\nVill du ta bort det?</string>
   <string name="verify_private_key_backup">Verifiera säkerhetskopia</string>
   <string name="verify_backup_dialog_title">Verifiera säkerhetskopia av privat nyckel</string>
   <string name="verify_backup_scan_desc">Verifiera din säkerhetskopia genom att läsa in den privata nyckelns eller huvudfröets QR-kod.\nFlera format accepteras, inklusive Myceliums krypterade pappersbackup.</string>
@@ -397,14 +396,8 @@
   <!-- LT end -->
   <string name="cs_private_key_description">Du använder en privat nyckel med följande bitcoin-adress:</string>
   <string name="cs_address_description">Du har läst in en bitcoin-adress. Du kan se saldot men inte spendera från den.</string>
-  <plurals name="contains_keys">
-    <item quantity="one">Innehåller en privat nyckel.</item>
-    <item quantity="other">Innehåller %1$d privata nycklar.</item>
-  </plurals>
-  <plurals name="contains_addresses">
-    <item quantity="one">Innehåller en adress.</item>
-    <item quantity="other">Innehåller %1$d adresser.</item>
-  </plurals>
+  <string name="contains_keys">Innehåller %1$s privata nycklar.</string>
+  <string name="contains_addresses">Innehåller %1$s adresser.</string>
   <string name="archiving_account_title">Arkiverar konto</string>
   <string name="new_version_exists">En ny version finns tillgänglig</string>
   <string name="check_update">Leta efter uppdatering</string>
@@ -459,6 +452,8 @@
   <string name="unspent_outputs_title">Outnyttjade utgångar</string>
   <string name="no_unspent_outputs_description">Denna sida visar på vilka adresser tillgångarna för det valda kontot befinner sig. Det finns för närvarande inga tillgångar att visa.</string>
   <string name="warning_words_import">Varning: Placera inte orden i urklipp, andra appar skulle kunna läsa dem och får tillgång till dina pengar.</string>
+  <string name="account_contains_one_key_info">Innehåller en privat nyckel.</string>
+  <string name="account_contains_one_address_info">Innehåller en adress.</string>
   <string name="verify_backup_ok_message">Verifiering av säkerhetskopian lyckades.</string>
   <string name="wordlist_import_invalid_checksum">Checksumman för din lista av ord är ogiltig, säkerställ att du har matat in alla ord korrekt.</string>
   <string name="wordlist_length_12">12 ord</string>
@@ -571,7 +566,6 @@
   <string name="ledger_enter_pin">Ange PIN-kod för Ledger Wallet</string>
   <string name="ledger_enter_transaction_pin">Ange 2-faktor autentisering för Ledger Wallet</string>
   <string name="ledger_enter_2fa_pin">Bekräfta utmatningsadress genom att använda ditt säkerhetskort</string>
-  <string name="ledger_please_wait">Vänta ...</string>
   <string name="pref_ledger_title">Ledger hårdvaruplånbok</string>
   <string name="select_local_currencies">Välj dina valutor</string>
   <string name="show_public_or_private_data">Visa</string>
@@ -607,7 +601,6 @@
   <string name="tx_details_num_confirmations">Bekräftelser</string>
   <string name="dontagree">Jag accepterar inte</string>
   <string name="lt_warning_watch_only_account">Nuvarande konto är endast läsbart - välj ett annat konto.</string>
-  <string name="refresh">uppdatera</string>
   <string name="xpriv_title">Utökad privat nyckel</string>
   <string name="share_xpriv">Dela utökad privat nyckel</string>
   <string name="export_share_warning">Varning: Du håller på att dela din privata kontoinformation. Den som får tag på den kan komma åt alla nuvarande och framtida tillgångar på kontot. Vill du fortsätta?</string>

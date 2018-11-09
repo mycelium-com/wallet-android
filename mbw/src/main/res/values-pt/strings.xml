@@ -78,7 +78,6 @@
   <string name="pref_category_pin">Configurações do PIN</string>
   <string name="pref_clear_pin">Limpar Código PIN</string>
   <string name="pref_clear_pin_summary">Limpar o código PIN atual</string>
-  <string name="pref_set_pin">Definir Código PIN</string>
   <string name="pref_set_pin_summary">Definir um código PIN que restringe o acesso para envio de moedas, exportação de chaves privadas e modificação do código PIN</string>
   <string name="pref_local_currency_summary">Selecione a moeda local do seu país</string>
   <string name="pref_exchange_source_with_value">Corretora Fonte (%1$s)</string>
@@ -151,8 +150,8 @@
   <string name="my_accounts">Minhas Contas</string>
   <string name="foreign_addresses">Livro de Endereços</string>
   <string name="confirm_delete_pk_title">Você tem certeza?</string>
-  <!-- string name="confirm_delete_pk_with_balance">Essa ação é irreversível!\n\nEndereço atual:\n%1$s\n\nContém %2$s\n\nVocê quer deletá-lo?</string>
-  <string name="confirm_delete_pk_without_balance">Essa ação é irreversível!\n\nEndereço atual:\n%1$s\n\nVocê quer deletá-lo?</string -->
+  <string name="confirm_delete_pk_with_balance">Essa ação é irreversível!\n\nEndereço atual:\n%1$s\n\nContém %2$s\n\nVocê quer deletá-lo?</string>
+  <string name="confirm_delete_pk_without_balance">Essa ação é irreversível!\n\nEndereço atual:\n%1$s\n\nVocê quer deletá-lo?</string>
   <string name="verify_private_key_backup">Verificar Backup</string>
   <string name="verify_backup_dialog_title">Verificar Backup da Chave Privada</string>
   <string name="verify_backup_scan_desc">Verifique o seu backup escaneando o código QR da chave privada ou da semente mestre.\nVários formatos são aceitos, incluindo o backup em papel criptografado da Mycelium.</string>
@@ -405,14 +404,8 @@
   <!-- LT end -->
   <string name="cs_private_key_description">Você está usando uma chave privada com o seguinte endereço Bitcoin:</string>
   <string name="cs_address_description">Você escaneou um endereço Bitcoin. Você pode ver o seu saldo, mas não pode gastar dele.</string>
-  <plurals name="contains_keys">
-    <item quantity="one">Contém %d chave privada.</item>
-    <item quantity="other">Contém %1$d chaves privadas.</item>
-  </plurals>
-  <plurals name="contains_addresses">
-    <item quantity="one">Contém %d endereço.</item>
-    <item quantity="other">Contém %1$d endereços.</item>
-  </plurals>
+  <string name="contains_keys">Contém %1$s chaves privadas.</string>
+  <string name="contains_addresses">Contém %1$s endereços.</string>
   <string name="archiving_account_title">Arquivando Conta</string>
   <string name="new_version_exists">Uma nova Versão está disponível</string>
   <string name="check_update">Procurar Atualizações</string>
@@ -468,6 +461,8 @@
   <string name="unspent_outputs_title">Saídas (outputs) Não-gastas</string>
   <string name="no_unspent_outputs_description">Essa página exibe em quais endereços estão os fundos da conta selecionada. Atualmente não existem fundos para serem exibidos.</string>
   <string name="warning_words_import">Aviso: Não coloque suas palavras na área de transferência, outro apps podem ter acesso a ela e obter o seu dinheiro.</string>
+  <string name="account_contains_one_key_info">Contém uma chave privada.</string>
+  <string name="account_contains_one_address_info">Contém um endereço.</string>
   <string name="verify_backup_ok_message">O backup foi verificado com sucesso.</string>
   <string name="wordlist_import_invalid_checksum">A soma de verificação (checksum) da sua lista de palavras é inválida, por favor certifique-se que você inseriu todas as palavras corretamente.</string>
   <string name="checkbox_wordlist_passphrase">Eu tenho uma frase secreta</string>
@@ -604,7 +599,6 @@
   <string name="ledger_enter_pin">Insira o PIN da Carteira Ledger</string>
   <string name="ledger_enter_transaction_pin">Insira o segundo fator de autenticação (2FA) da Carteira Ledger</string>
   <string name="ledger_enter_2fa_pin">Confirme o endereço de saída (output) usando seu Cartão de Segurança</string>
-  <string name="ledger_please_wait">Por favor, aguarde...</string>
   <string name="ledger_unplugged_aid">Identificador de aplicação (AID) do Ledger Unplugged</string>
   <string name="ledger_set_unplugged_aid_title">Definir AID do Ledger Unplugged</string>
   <string name="ledger_check_unplugged_aid">AID inválido, por favor verifique</string>
@@ -646,7 +640,6 @@
   <string name="dontagree">Não concordo</string>
   <string name="agree">Concordo</string>
   <string name="lt_warning_watch_only_account">A conta atual é somente-visualização - escolha uma conta diferente.</string>
-  <string name="refresh">atualizar</string>
   <string name="xpriv_title">Chave privada estendida</string>
   <string name="share_xpriv">Compartilhar a chave privada estendida</string>
   <string name="export_share_warning">Aviso: Você está prestes a compartilhar dados de conta privados. Quem tiver acesso a eles poderá acessar todos seus fundos atuais e futuros da sua conta. Você quer continuar?</string>

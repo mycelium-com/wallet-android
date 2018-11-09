@@ -77,7 +77,6 @@
   <string name="pref_category_pin">Ρυθμίσεις κωδικού PIN</string>
   <string name="pref_clear_pin">Διαγραφή κωδικού PIN</string>
   <string name="pref_clear_pin_summary">Διαγραφή τρέχοντος κωδικού PIN</string>
-  <string name="pref_set_pin">Ορισμός κωδικού PIN</string>
   <string name="pref_set_pin_summary">Ορίστε κωδικό PIN που περιορίζει την πρόσβαση για αποστολή bitcoins, εξαγωγή μυστικών κλειδιών και αλλαγή του PIN</string>
   <string name="pref_local_currency_summary">Επιλογή του τοπικού κυβερνητικού συναλλάγματος</string>
   <string name="pref_exchange_source_with_value">Πηγή Ισοτιμίας (%1$s)</string>
@@ -150,8 +149,8 @@
   <string name="my_accounts">Οι Λογαριασμοί μου</string>
   <string name="foreign_addresses">Βιβλίο Διευθύνσεων</string>
   <string name="confirm_delete_pk_title">Είστε Σίγουρος /η ;</string>
-  <!-- string name="confirm_delete_pk_with_balance">Η ενέργεια αυτή δεν μπορεί να αναιρεθεί!\n\nΤρέχουσα διεύθυνση:\n%1$s\n\nΠεριέχει %2$s\n\nΘέλετε να διαγραφεί;</string>
-  <string name="confirm_delete_pk_without_balance">Η ενέργεια αυτή δεν μπορεί να αναιρεθεί!\n\nΤρέχουσα διεύθυνση:\n%1$s\n\nΘέλετε να διαγραφεί;</string -->
+  <string name="confirm_delete_pk_with_balance">Η ενέργεια αυτή δεν μπορεί να αναιρεθεί!\n\nΤρέχουσα διεύθυνση:\n%1$s\n\nΠεριέχει %2$s\n\nΘέλετε να διαγραφεί;</string>
+  <string name="confirm_delete_pk_without_balance">Η ενέργεια αυτή δεν μπορεί να αναιρεθεί!\n\nΤρέχουσα διεύθυνση:\n%1$s\n\nΘέλετε να διαγραφεί;</string>
   <string name="verify_private_key_backup">Επιβεβαίωση Αντίγραφου Ασφαλείας</string>
   <string name="verify_backup_dialog_title">Επιβεβαίωση Αντίγραφου Ασφαλείας Μυστικού Κλειδιού</string>
   <string name="verify_backup_scan_desc">Επιβεβαιώστε το αντίγραφο ασφαλείας σας σαρώνοντας τον κωδικό QR του μυστικού κλειδιού ή του κεντρικού κωδικού (σπόρου).\nΕίναι συμβατές πολλαπλές μορφές, περιλαμβανομένου του κρυπτογραφημένου χάρτινου αντίγραφου Mycelium.</string>
@@ -396,14 +395,8 @@
   <!-- LT end -->
   <string name="cs_private_key_description">Χρησιμοποιείτε ένα μυστικό κλειδί με την παρακάτω διεύθυνση Bitcoin:</string>
   <string name="cs_address_description">Σαρώσατε μια διεύθυνση Bitcoin. Μπορείτε να παρακολουθείτε το ισοζύγιο συναλλαγών, αλλά όχι να ξοδέψετε από αυτήν.</string>
-  <plurals name="contains_keys">
-    <item quantity="one">Περιέχει ένα μυστικό κλειδί.</item>
-    <item quantity="other">Περιέχει %1$d μυστικά κλειδιά.</item>
-  </plurals>
-  <plurals name="contains_addresses">
-    <item quantity="one">Περιέχει μια διεύθυνση.</item>
-    <item quantity="other">Περιέχει %1$d διευθύνσεις.</item>
-  </plurals>
+  <string name="contains_keys">Περιέχει %1$s μυστικά κλειδιά.</string>
+  <string name="contains_addresses">Περιέχει %1$s διευθύνσεις.</string>
   <string name="archiving_account_title">Ο Λογαριασμός Αρχειοθετείται</string>
   <string name="new_version_exists">Μια νέα Έκδοση είναι διαθέσιμη</string>
   <string name="check_update">Έλεγχος για Ενημερώσεις</string>
@@ -457,6 +450,8 @@
   <string name="unspent_outputs_title">Αξόδευτες Εκροές</string>
   <string name="no_unspent_outputs_description">Η σελίδα αυτή εμφανίζει τις διευθύνσεις στις οποίες βρίσκονται τα κεφάλαια του επιλεγμένου λογαριασμού. Προς το παρόν δεν υπάρχουν κεφάλαια για εμφάνιση.</string>
   <string name="warning_words_import">Προειδοποίηση: Μην αντιγράφετε τις λέξεις σας στο πρόχειρο, άλλες εφαρμογές μπορούν να το διαβάσουν και να αποκτήσουν πρόσβαση στα χρήματά σας.</string>
+  <string name="account_contains_one_key_info">Περιέχει ένα μυστικό κλειδί.</string>
+  <string name="account_contains_one_address_info">Περιέχει μια διεύθυνση.</string>
   <string name="verify_backup_ok_message">Το αντίγραφο ασφαλείας επιβεβαιώθηκε επιτυχώς.</string>
   <string name="wordlist_import_invalid_checksum">Το ψηφίο επιβεβαίωσης της λίστας λέξεών σας είναι μη έγκυρο, παρακαλώ σιγουρευτείτε ότι εισαγάγατε όλες τις λέξεις σωστά.</string>
   <string name="wordlist_length_12">12 λέξεις</string>
@@ -569,7 +564,6 @@
   <string name="ledger_enter_pin">Εισαγάγετε το PIN του Ledger</string>
   <string name="ledger_enter_transaction_pin">Εισαγάγετε τοn κωδικό 2FA του Ledger</string>
   <string name="ledger_enter_2fa_pin">Επιβεβαιώστε τη διεύθυνση εξαγωγής με χρήση Κάρτας Ασφαλείας</string>
-  <string name="ledger_please_wait">Παρακαλώ περιμένετε ...</string>
   <string name="pref_ledger_title">Hardware Πορτοφόλι Ledger</string>
   <string name="ledger_disable_tee_preference">Απενεργοποιήστε την υποστήριξη TEE</string>
   <string name="ledger_disable_tee_preference_summary">Απενεργοποίηση υποστήριξης Έμπιστου Περιβάλλοντος Εκτέλεσης (TEE), εάν αυτό υπάρχει, για χρήση διαφορετικού Hardware Πορτοφολιού Ledger</string>
@@ -608,7 +602,6 @@
   <string name="dontagree">Διαφωνώ</string>
   <string name="agree">Συμφωνώ</string>
   <string name="lt_warning_watch_only_account">Ο τρέχων λογαριασμός είναι μόνο για παρακολούθηση - επιλέξτε άλλον λογαριασμό.</string>
-  <string name="refresh">ανανέωση</string>
   <string name="xpriv_title">Εκτεταμένο μυστικό κλειδί</string>
   <string name="share_xpriv">Αποστολή εκτεταμένου μυστικού κλειδιού</string>
   <string name="export_share_warning">Προειδοποίηση: Πρόκειται να μοιραστείτε τα μυστικά δεδομένα του λογαριασμού σας. Όποιος έχει πρόσβαση σε αυτά, έχει πρόσβαση σε όλα τα τρέχοντα και μελλοντικά κεφάλαια αυτού του λογαριασμού. Θέλετε να συνεχίσετε;</string>
