@@ -1441,7 +1441,9 @@ public class MbwManager {
         _addressWatchTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                getWalletManager(false).startSynchronization(new SyncMode(address));
+                List<WalletAccount<?,?>> list = new ArrayList<>();
+                list.add(getSelectedAccount());
+                getWalletManager(false).startSynchronization(new SyncMode(address), list);
             }
         }, 1000, 5 * 1000);
     }
