@@ -41,6 +41,9 @@ import android.database.sqlite.SQLiteDoneException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
 import com.google.common.base.Optional;
+import com.mycelium.wapi.wallet.metadata.IMetaDataStorage;
+import com.mycelium.wapi.wallet.metadata.MetadataCategory;
+import com.mycelium.wapi.wallet.metadata.MetadataKeyCategory;
 
 
 import java.util.*;
@@ -48,7 +51,7 @@ import java.util.*;
 /**
  * Most of Mycelium's meta data is stored this way.
  */
-class GenericMetadataStorage {
+abstract class GenericMetadataStorage implements IMetaDataStorage {
    // legacy table names, only to be deleted
    private static final String TABLE_ACCOUNT_LABELS = "accountlabels";
    private static final String TABLE_BACKUP_STATUS = "backupstatus";
@@ -91,7 +94,7 @@ class GenericMetadataStorage {
       getKeyCategoryQuery = _db.compileStatement("SELECT value FROM " + TABLE_KEY_VALUE_STORE + " WHERE (key = ? and category = ?) LIMIT 1");
    }
 
-   void storeKeyCategoryValueEntry(final MetadataKeyCategory keyCategory, final String value){
+   public void storeKeyCategoryValueEntry(final MetadataKeyCategory keyCategory, final String value){
       storeKeyCategoryValueEntry(keyCategory.key, keyCategory.category, value);
    }
 
@@ -106,7 +109,7 @@ class GenericMetadataStorage {
       return getKeyCategoryValueEntry(key, "", defaultValue);
    }
 
-   private String getKeyCategoryValueEntry(final String key, final String category, final String defaultValue){
+   public String getKeyCategoryValueEntry(final String key, final String category, final String defaultValue){
       Optional<String> ret = getKeyCategoryValueEntry(key, category);
       if (ret.isPresent()) {
          return ret.get();

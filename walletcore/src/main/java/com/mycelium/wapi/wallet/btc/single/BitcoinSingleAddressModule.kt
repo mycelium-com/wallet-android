@@ -13,13 +13,15 @@ import com.mycelium.wapi.wallet.btc.BtcTransaction
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking
 import com.mycelium.wapi.wallet.manager.Config
 import com.mycelium.wapi.wallet.manager.WalletModule
+import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
 import java.util.*
 
 
 class BitcoinSingleAddressModule(internal val backing: WalletManagerBacking<SingleAddressAccountContext, BtcTransaction>
                                  , internal val publicPrivateKeyStore: PublicPrivateKeyStore
                                  , internal val networkParameters: NetworkParameters
-                                 , internal var _wapi: Wapi) : WalletModule {
+                                 , internal var _wapi: Wapi
+                                 , internal val metaDataStorage: IMetaDataStorage) : WalletModule {
 
     override fun getId(): String = "BitcoinSA"
 

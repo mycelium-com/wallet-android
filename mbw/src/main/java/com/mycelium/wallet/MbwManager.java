@@ -159,8 +159,10 @@ import com.mycelium.wapi.wallet.colu.ColuModule;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
 import com.mycelium.wapi.wallet.colu.coins.MTCoin;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
+import com.mycelium.wapi.wallet.eth.EthModule;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 import com.mycelium.wapi.wallet.manager.WalletListener;
+import com.mycelium.wapi.wallet.metadata.IMetaDataStorage;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -659,11 +661,11 @@ public class MbwManager {
         NetworkParameters networkParameters = environment.getNetwork();
         PublicPrivateKeyStore publicPrivateKeyStore = new PublicPrivateKeyStore(secureKeyValueStore);
 
-        walletManager.add(new BitcoinSingleAddressModule(backing, publicPrivateKeyStore, networkParameters, _wapi));
+        walletManager.add(new BitcoinSingleAddressModule(backing, publicPrivateKeyStore, networkParameters, _wapi, getMetadataStorage()));
         if (spvBchFetcher != null) {
             walletManager.add(new BitcoinCashSingleAddressModule(backing, publicPrivateKeyStore, networkParameters, spvBchFetcher, _wapi));
         }
-        walletManager.add(new BitcoinHDModule(backing, secureKeyValueStore, networkParameters, _wapi, currenciesSettingsMap));
+        walletManager.add(new BitcoinHDModule(backing, secureKeyValueStore, networkParameters, _wapi, currenciesSettingsMap, getMetadataStorage()));
 
         SqliteColuManagerBacking coluBacking = new SqliteColuManagerBacking(context);
         ColuClient coluClient = new ColuClient(networkParameters, BuildConfig.ColoredCoinsApiURLs, BuildConfig.ColuBlockExplorerApiURLs);
@@ -684,6 +686,7 @@ public class MbwManager {
             addCoinapultModule(context, environment,walletManager, accountListener);
         }
 
+        walletManager.add(new EthModule(getMetadataStorage()));
         walletManager.init();
 
         return walletManager;

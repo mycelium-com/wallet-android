@@ -57,6 +57,7 @@ import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
 import com.mycelium.wapi.wallet.eth.EthAccount;
+import com.mycelium.wapi.wallet.eth.EthConfig;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -145,7 +146,7 @@ public class AddAccountActivity extends Activity {
       @Override
       public void onClick(View view) {
          final WalletManager wallet = _mbwManager.getWalletManager(false);
-         wallet.addAccount(new EthAccount());
+         wallet.createAccounts(new EthConfig());
       }
    };
 
