@@ -92,9 +92,9 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
 
     override fun isVisible(): Boolean = true
 
-    override fun completeAndSignTx(request: SendRequest<CoinapultTransaction>) {
+    override fun completeAndSignTx(request: SendRequest<CoinapultTransaction>, keyCipher: KeyCipher) {
         completeTransaction(request)
-        signTransaction(request)
+        signTransaction(request, keyCipher)
     }
 
     override fun completeTransaction(request: SendRequest<CoinapultTransaction>) {
@@ -105,7 +105,7 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
         }
     }
 
-    override fun signTransaction(request: SendRequest<CoinapultTransaction>) {
+    override fun signTransaction(request: SendRequest<CoinapultTransaction>, keyCipher: KeyCipher) {
         if (!request.isCompleted) {
             return
         }

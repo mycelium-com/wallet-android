@@ -26,11 +26,11 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
         }
     }
 
-    void completeAndSignTx(SendRequest<T> request) throws WalletAccountException;
+    void completeAndSignTx(SendRequest<T> request, KeyCipher keyCipher) throws WalletAccountException;
 
     void completeTransaction(SendRequest<T> request) throws WalletAccountException;
 
-    void signTransaction(SendRequest<T> request) throws WalletAccountException;
+    void signTransaction(SendRequest<T> request, KeyCipher keyCipher) throws WalletAccountException;
 
     BroadcastResult broadcastTx(T tx) throws TransactionBroadcastException;
 

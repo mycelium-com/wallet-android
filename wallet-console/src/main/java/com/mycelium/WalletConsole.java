@@ -12,8 +12,10 @@ import com.mrd.bitlib.crypto.RandomSource;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
+import com.mrd.bitlib.model.ScriptInputStandard;
 import com.mrd.bitlib.model.ScriptOutput;
 import com.mrd.bitlib.model.Transaction;
+import com.mrd.bitlib.model.TransactionInput;
 import com.mrd.bitlib.model.UnspentTransactionOutput;
 import com.mycelium.net.HttpEndpoint;
 import com.mycelium.net.HttpsEndpoint;
@@ -21,6 +23,7 @@ import com.mycelium.net.ServerEndpoints;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiClientElectrumX;
 import com.mycelium.wapi.api.jsonrpc.TcpEndpoint;
+import com.mycelium.wapi.model.TransactionDetails;
 import com.mycelium.wapi.model.TransactionOutputEx;
 import com.mycelium.wapi.model.TransactionOutputSummary;
 import com.mycelium.wapi.wallet.AccountListener;
@@ -64,6 +67,8 @@ import com.mycelium.wapi.wallet.eth.coins.EthMain;
 import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
 import com.mycelium.wapi.wallet.manager.Synchronizer;
 
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
 import org.bitcoinj.params.MainNetParams;
 import org.bitcoinj.params.RegTestParams;
 import org.bitcoinj.params.TestNet3Params;
@@ -203,11 +208,20 @@ class WalletConsole {
 
 
             new Synchronizer(walletManager, SyncMode.NORMAL
-                    , Arrays.asList(hdAccount1, hdAccount2, hdAccount3, coluAccount, coluSAAccount)).run();
+                    , Arrays.asList(/*hdAccount1, hdAccount2, hdAccount3,*/ coluAccount, coluSAAccount)).run();
+
+            coluParseAndSign("010000000310d7fc7204151a520798363c6cc239c12d807b6e49f0ae51979faea17c58bf" +
+                            "280100000000ffffffff4e193a5a9c123cd896bf2ca368b82f0f336bf9ab1d74ad7acdf" +
+                            "4b05189aed8920000000000ffffffff56827cfa76e22baa3186b7a61aad57d22d7fafd2" +
+                            "952c91f15ecbae9eae090b4f0100000000ffffffff0470170000000000001976a914e3d" +
+                            "60320db38011d6b36d1a62382bc679e444f7688ac0000000000000000086a0643430215" +
+                            "00015bfa6501000000001976a914ac1e4e536ebb4403ad8fac14686ae4812a76c6e388a" +
+                            "c70170000000000001976a914ac1e4e536ebb4403ad8fac14686ae4812a76c6e388ac00000000"
+                    ,coluAccount, coluSAAccount);
 
 //            sendBtcFrom2Account(network, hdAccount1, hdAccount2, hdAccount3);
 
-            sendColuWithFundingAccount(coluAccount, coluSAAccount, hdAccount2);
+//            sendColuWithFundingAccount(coluAccount, coluSAAccount, hdAccount2);
 
 
             EthAccount ethAccount1 = new EthAccount();
@@ -221,7 +235,7 @@ class WalletConsole {
 
             SendRequest<EthTransaction> sendRequest = ethAccount1.getSendToRequest((EthAddress) ethAccount2.getReceiveAddress(), Value.valueOf(EthMain.INSTANCE, 10000));
 
-            ethAccount1.completeAndSignTx(sendRequest);
+            ethAccount1.completeAndSignTx(sendRequest, AesKeyCipher.defaultKeyCipher());
             ethAccount1.broadcastTx(sendRequest.tx);
 
             System.out.println("ETH Account 1 balance: " + ethAccount1.getAccountBalance().getSpendable().toString());
@@ -242,6 +256,25 @@ class WalletConsole {
 
     }
 
+    private static void coluParseAndSign(String data, ColuAccount coluAccount, SingleAddressAccount singleAddressAccount) {
+        try {
+            byte[] txBytes = Hex.decodeHex(data.toCharArray());
+            Transaction transaction = Transaction.fromBytes(txBytes);
+            InMemoryPrivateKey key = singleAddressAccount.getPrivateKey(AesKeyCipher.defaultKeyCipher());
+            TransactionInput[] inputs = transaction.inputs;
+            for (int i = 0; i < inputs.length; i++) {
+                TransactionInput input = inputs[i];
+                TransactionDetails.Item transactionDetails = singleAddressAccount.getTransactionDetails(input.outPoint.txid).outputs[input.outPoint.index];
+                if(singleAddressAccount.isMine(transactionDetails.address)) {
+                    input.script = new ScriptInputStandard(key.makeStandardBitcoinSignature(transaction.getTxDigestHash(i))
+                            , key.getPublicKey().getPublicKeyBytes());
+                }
+            }
+        } catch (DecoderException | Transaction.TransactionParsingException | KeyCipher.InvalidKeyCipher e) {
+            e.printStackTrace();
+        }
+    }
+
     private static void sendColuWithFundingAccount(ColuAccount coluAccount, SingleAddressAccount coluSAAccount, HDAccount hdAccount1) {
         SendRequest<ColuTransaction> sendRequest = coluAccount.getSendToRequest(
                 new BtcLegacyAddress(RMCCoin.INSTANCE
@@ -256,7 +289,7 @@ class WalletConsole {
             ((ColuSendRequest) sendRequest).setFundingAddress(funding);
         }
         coluAccount.completeTransaction(sendRequest);
-        coluAccount.signTransaction(sendRequest);
+        coluAccount.signTransaction(sendRequest, AesKeyCipher.defaultKeyCipher());
     }
 
     private static void sendBtcFrom2Account(final NetworkParameters network, final HDAccount hdAccount1, final HDAccount hdAccount2, HDAccount hdAccount3) throws KeyCipher.InvalidKeyCipher {

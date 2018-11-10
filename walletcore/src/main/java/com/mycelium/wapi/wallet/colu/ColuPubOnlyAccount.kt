@@ -220,7 +220,7 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext
         return 0;
     }
 
-    override fun completeAndSignTx(request: SendRequest<ColuTransaction>) {
+    override fun completeAndSignTx(request: SendRequest<ColuTransaction>, keyCipher: KeyCipher) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
@@ -228,7 +228,7 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun signTransaction(request: SendRequest<ColuTransaction>) {
+    override fun signTransaction(request: SendRequest<ColuTransaction>, keyCipher: KeyCipher) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 

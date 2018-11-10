@@ -7,6 +7,7 @@ import com.google.common.collect.HashBiMap
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.Lists
 import com.mrd.bitlib.crypto.BipDerivationType
+import com.mrd.bitlib.crypto.BipDerivationType.Companion.getDerivationTypeByAddress
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.crypto.PublicKey
 import com.mrd.bitlib.model.*
@@ -17,12 +18,9 @@ import com.mycelium.wapi.api.request.QueryTransactionInventoryRequest
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher
 import com.mycelium.wapi.wallet.WalletManager.Event
-import com.mrd.bitlib.crypto.BipDerivationType.Companion.getDerivationTypeByAddress
 import com.mycelium.wapi.wallet.bip44.ChangeAddressMode
-import com.mycelium.wapi.model.TransactionOutputEx
 import com.mycelium.wapi.wallet.btc.*
-
-import java.util.ArrayList
+import java.util.*
 
 open class HDAccount(
         protected var context: HDAccountContext,
@@ -31,7 +29,7 @@ open class HDAccount(
         protected val backing: Bip44AccountBacking,
         wapi: Wapi,
         protected val changeAddressModeReference: Reference<ChangeAddressMode>
-) : AbstractBtcAccount(backing, network, wapi), ExportableAccount {
+) : AbstractBtcAccount(backing, network, wapi), ExportableAccount, InputSigner{
 
     // Used to determine which bips this account support
     private val derivePaths = context.indexesMap.keys
@@ -738,9 +736,9 @@ open class HDAccount(
         private const val FORCED_DISCOVERY_INTERVAL_MS = (1000 * 60 * 60 * 24).toLong()
     }
 
-    override fun completeAndSignTx(request: SendRequest<BtcTransaction>) {
+    override fun completeAndSignTx(request: SendRequest<BtcTransaction>, keyCipher: KeyCipher) {
         completeTransaction(request)
-        signTransaction(request)
+        signTransaction(request, keyCipher)
     }
 
     override fun completeTransaction(request: SendRequest<BtcTransaction>) {
@@ -750,12 +748,32 @@ open class HDAccount(
         btcSendRequest.unsignedTx = createUnsignedTransaction(receivers, request.fee.value)
     }
 
-    override fun signTransaction(request: SendRequest<BtcTransaction>) {
+    override fun signTransaction(request: SendRequest<BtcTransaction>, keyCipher: KeyCipher) {
         val btcSendRequest = request as BtcSendRequest
         btcSendRequest.setTransaction(signTransaction(btcSendRequest.unsignedTx, AesKeyCipher.defaultKeyCipher()))
     }
 
     override fun broadcastTx(tx: BtcTransaction) :BroadcastResult {
         return broadcastTransaction(tx.rawTransaction)
+    }
+
+    override fun signInput(genericInput: GenericInput, keyCipher: KeyCipher) {
+        if (canSpend()) {
+            try {
+                genericInput.transactionInput
+                val output = getTx(genericInput.transactionInput.outPoint.txid).outputs[genericInput.transactionInput.outPoint.index]
+                val publicKey = getPublicKeyForAddress((output.address as BtcAddress).address)
+
+                publicKey?.let {
+                    getPrivateKey(it, keyCipher)?.let { key ->
+                        genericInput.transactionInput.script = ScriptInputStandard(
+                                key.makeStandardBitcoinSignature(genericInput.transaction.getTxDigestHash(genericInput.index))
+                                , key.publicKey.publicKeyBytes)
+                    }
+                }
+            } catch (invalidKeyCipher: InvalidKeyCipher) {
+                invalidKeyCipher.printStackTrace()
+            }
+        }
     }
 }

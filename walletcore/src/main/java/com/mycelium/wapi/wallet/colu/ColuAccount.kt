@@ -1,11 +1,11 @@
 package com.mycelium.wapi.wallet.colu
 
 import com.google.common.base.Optional
-import com.mrd.bitlib.StandardTransactionBuilder
-import com.mrd.bitlib.crypto.IPublicKeyRing
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
-import com.mrd.bitlib.crypto.PublicKey
-import com.mrd.bitlib.model.*
+import com.mrd.bitlib.model.Address
+import com.mrd.bitlib.model.NetworkParameters
+import com.mrd.bitlib.model.ScriptOutput
+import com.mrd.bitlib.model.Transaction
 import com.mycelium.wapi.model.TransactionOutputSummary
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.BtcAddress
@@ -38,16 +38,12 @@ class ColuAccount(context: ColuAccountContext, val privateKey: InMemoryPrivateKe
         return false
     }
 
-    override fun completeAndSignTx(request: SendRequest<ColuTransaction>) {
+    override fun completeAndSignTx(request: SendRequest<ColuTransaction>, keyCipher:KeyCipher) {
         completeTransaction(request)
-        signTransaction(request)
+        signTransaction(request, keyCipher)
     }
 
     override fun completeTransaction(request: SendRequest<ColuTransaction>) {
-//        val coluSendRequest = request as ColuSendRequest
-//        val receivers = ArrayList<WalletAccount.Receiver>()
-//        receivers.add(WalletAccount.Receiver(coluSendRequest.destination, coluSendRequest.amount.value))
-////        btcSendRequest.unsignedTx = createUnsignedTransaction(receivers, request.fee.value)
         if (request is ColuSendRequest) {
             val fromAddresses = mutableListOf(receiveAddress as BtcAddress)
             fromAddresses.addAll(request.fundingAddress)
@@ -73,42 +69,24 @@ class ColuAccount(context: ColuAccountContext, val privateKey: InMemoryPrivateKe
         }
     }
 
-    override fun signTransaction(request: SendRequest<ColuTransaction>) {
+    override fun signTransaction(request: SendRequest<ColuTransaction>, keyCipher: KeyCipher) {
         if (!request.isCompleted) {
             return
         }
         if (request is ColuSendRequest) {
             request.baseTransaction?.let {
                 for ((index, input) in it.inputs.withIndex()) {
-                    val key = privateKey
-//                    for (fundingAccount in request.fundingAccounts) {
-//                        input.script.
-//
-//                    }
-                    input.script = ScriptInputStandard(key.makeStandardBitcoinSignature(it.getTxDigestHash(index)), key.publicKey.publicKeyBytes)
+                    for (fundingAccount in request.fundingAccounts) {
+                        val output = fundingAccount.getTx(input.outPoint.txid).outputs[input.outPoint.index]
+                        if (fundingAccount is InputSigner && fundingAccount.isMineAddress(output.address)) {
+                            fundingAccount.signInput(GenericInput(it, input, index), keyCipher)
+                        }
+                    }
+                    if (input.script.scriptBytes.isEmpty()) {
+                        throw WalletAccount.WalletAccountException("input ${input.outPoint} not signed")
+                    }
                 }
             }
-//
-//            val signTx = org.bitcoinj.core.Transaction(coluNetworkParameters, Hex.decodeHex(request.txHex?.toCharArray()))
-//
-//            val privateKeyBytes = privateKey.privateKeyBytes
-//            val publicKeyBytes = privateKey.publicKey.publicKeyBytes
-//            val ecKey = ECKey.fromPrivateAndPrecalculatedPublic(privateKeyBytes, publicKeyBytes)
-//
-//            val inputScript = ScriptBuilder.createOutputScript(ecKey.toAddress(coluNetworkParameters))
-//
-//            for (i in 0 until signTx.inputs.size) {
-//                val signature = signTx.calculateSignature(i, ecKey, inputScript, org.bitcoinj.core.Transaction.SigHash.ALL, false)
-//                val scriptSig = ScriptBuilder.createInputScript(signature, ecKey)
-//                signTx.getInput(i.toLong()).scriptSig = scriptSig
-//            }
-//
-//            val signedTransactionBytes = signTx.bitcoinSerialize()
-//            try {
-//                request.setTransaction(Transaction.fromBytes(signedTransactionBytes))
-//            } catch (e: Transaction.TransactionParsingException) {
-//                return
-//            }
         } else {
             TODO("signTransaction not implemented for ${request.javaClass.simpleName}")
         }
