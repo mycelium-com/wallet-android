@@ -22,13 +22,13 @@ import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
-import com.mycelium.wapi.wallet.currency.CurrencyValue
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount
 import com.mycelium.wapi.wallet.coinapult.CoinapultAccount
+import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount
+import com.mycelium.wapi.wallet.eth.EthAccount
 import kotlinx.android.synthetic.main.receive_coins_activity_qr.*
-import java.util.*
 
 class ReceiveCoinsActivity : AppCompatActivity() {
     private lateinit var viewModel: ReceiveCoinsViewModel
@@ -38,9 +38,7 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
         val mbwManager = MbwManager.getInstance(application)
-        val isColdStorage = intent.getBooleanExtra(IS_COLD_STORAGE, false)
-        val walletManager = mbwManager.getWalletManager(isColdStorage)
-        val account = walletManager.getAccount(intent.getSerializableExtra(UUID) as UUID)
+        val account = mbwManager.selectedAccount
         val havePrivateKey = intent.getBooleanExtra(PRIVATE_KEY, false)
         val showIncomingUtxo = intent.getBooleanExtra(SHOW_UTXO, false)
         val viewModelProvider = ViewModelProviders.of(this)
@@ -48,8 +46,7 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         viewModel = when (account) {
             is SingleAddressBCHAccount, is Bip44BCHAccount -> viewModelProvider.get(ReceiveBchViewModel::class.java)
             is SingleAddressAccount, is HDAccount, is CoinapultAccount -> viewModelProvider.get(ReceiveBtcViewModel::class.java)
-            is ColuPubOnlyAccount -> viewModelProvider.get(ReceiveCoCoViewModel::class.java)
-            else -> throw NotImplementedError()
+            else -> viewModelProvider.get(ReceiveGenericCoinsViewModel::class.java)
         }
 
         if (!viewModel.isInitialized()) {
@@ -116,7 +113,7 @@ class ReceiveCoinsActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == GET_AMOUNT_RESULT_CODE && resultCode == Activity.RESULT_OK) {
             // Get result from address chooser (may be null)
-            val amount = data?.getSerializableExtra(GetAmountActivity.AMOUNT) as CurrencyValue
+            val amount = data?.getSerializableExtra(GetAmountActivity.AMOUNT) as Value
             viewModel.setAmount(amount)
         } else {
             super.onActivityResult(requestCode, resultCode, data)

@@ -19,6 +19,10 @@ abstract class EthCoin: CryptoCurrency(){
         return AddressUtils.from(this, addressStr)
     }
     override fun getSymbol() = "ETH"
+
+    override fun getName(): String {
+        return "Ethereum"
+    }
 }
 
 object EthMain : EthCoin() {

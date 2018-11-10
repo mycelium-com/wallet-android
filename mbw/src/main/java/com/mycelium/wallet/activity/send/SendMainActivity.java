@@ -99,7 +99,6 @@ import com.mycelium.wallet.activity.send.model.AddressItem;
 import com.mycelium.wallet.activity.send.model.FeeItem;
 import com.mycelium.wallet.activity.send.model.FeeLvlItem;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
-import com.mycelium.wallet.activity.util.AccountDisplayType;
 import com.mycelium.wallet.activity.util.AnimationUtils;
 import com.mycelium.wallet.activity.util.ValueExtentionsKt;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
@@ -109,8 +108,6 @@ import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.paymentrequest.PaymentRequestHandler;
 import com.mycelium.wapi.api.response.Feature;
 import com.mycelium.wapi.wallet.AddressUtils;
-import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
-import com.mycelium.wapi.wallet.coinapult.Currency;
 import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.SendRequest;
@@ -123,13 +120,16 @@ import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
 import com.mycelium.wapi.wallet.btc.bip44.UnrelatedHDAccountConfig;
+import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coinapult.CoinapultAccount;
+import com.mycelium.wapi.wallet.coinapult.Currency;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
 import com.mycelium.wapi.wallet.colu.ColuUtils;
+import com.mycelium.wapi.wallet.colu.coins.ColuMain;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
 import com.mycelium.wapi.wallet.colu.coins.MTCoin;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
@@ -142,7 +142,13 @@ import com.squareup.otto.Subscribe;
 
 import org.bitcoin.protocols.payments.PaymentACK;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -455,16 +461,11 @@ public class SendMainActivity extends Activity {
         checkHaveSpendAccount();
 
         // Amount Hint
-        if (_account instanceof ColuAccount) {
-            ColuAccount coluAccount = (ColuAccount) _account;
-            tvAmount.setHint(getResources().getString(R.string.amount_hint_denomination,
-                    coluAccount.getCoinType().getSymbol()));
-            tips_check_address.setVisibility(View.VISIBLE);
-        } else {
-            tvAmount.setHint(getResources().getString(R.string.amount_hint_denomination,
-                    _mbwManager.getBitcoinDenomination().toString()));
-            tips_check_address.setVisibility(View.GONE);
-        }
+
+        tvAmount.setHint(getResources().getString(R.string.amount_hint_denomination,
+                _account.getCoinType() == BitcoinMain.get() || _account.getCoinType() == BitcoinTest.get() ?
+                        _mbwManager.getBitcoinDenomination().toString() : _account.getCoinType().getSymbol()));
+        tips_check_address.setVisibility(_account.getCoinType() instanceof ColuMain ? View.VISIBLE : View.GONE);
 
         int senderFinalWidth = getWindowManager().getDefaultDisplay().getWidth();
         feeFirstItemWidth = (senderFinalWidth - getResources().getDimensionPixelSize(R.dimen.item_dob_width)) / 2;
@@ -756,7 +757,6 @@ public class SendMainActivity extends Activity {
         Intent intent = new Intent(this, ManualAddressEntry.class);
         intent.putExtra(ACCOUNT, _account.getId());
         intent.putExtra(IS_COLD_STORAGE, _isColdStorage);
-        intent.putExtra(CURRENCY_TYPE, _account.getCoinType());
         startActivityForResult(intent, MANUAL_ENTRY_RESULT_CODE);
     }
 
@@ -782,7 +782,7 @@ public class SendMainActivity extends Activity {
             presetAmount = Value.valueOf(BitcoinTest.get(), 0);
         }
         GetAmountActivity.callMeToSend(this, GET_AMOUNT_RESULT_CODE, _account.getId(), presetAmount, getCurrentFeeEstimation(),
-                AccountDisplayType.getAccountType(_account), _isColdStorage, _account.getReceiveAddress());
+                _account.getCoinType(), _isColdStorage, _account.getReceiveAddress());
     }
 
     @OnClick(R.id.btSend)
@@ -1434,8 +1434,8 @@ public class SendMainActivity extends Activity {
             long fee = _unsigned.calculateFee();
             if (fee != size * getCurrentFeeEstimation() / 1000) {
                 //TODO: use Value class
-                CurrencyValue value = ExactBitcoinValue.from(fee);
-                CurrencyValue fiatValue = CurrencyValue.fromValue(value, _mbwManager.getFiatCurrency(), _mbwManager.getExchangeRateManager());
+                Value value = Value.valueOf(BitcoinMain.get(), fee);
+                Value fiatValue = _mbwManager.getExchangeRateManager().get(value, _mbwManager.getFiatCurrency());
                 String fiat = Utils.getFormattedValueWithUnit(fiatValue, _mbwManager.getBitcoinDenomination());
                 fiat = fiat.isEmpty() ? "" : "(" + fiat + ")";
                 feeWarning = getString(R.string.fee_change_warning

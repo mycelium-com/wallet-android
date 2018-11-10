@@ -171,4 +171,14 @@ public class FiatAccount implements WalletAccount<FiatTransaction, FiatAddress> 
     public SendRequest getSendToRequest(FiatAddress destination, Value amount) {
         return null;
     }
+
+    @Override
+    public String getLabel() {
+        return null;
+    }
+
+    @Override
+    public void setLabel(String label) {
+
+    }
 }

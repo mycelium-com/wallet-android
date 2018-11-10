@@ -50,6 +50,8 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.settings.adapter.LocalCurrencyAdapter;
 import com.mycelium.wapi.api.lib.CurrencyCode;
+import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
+import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -78,8 +80,8 @@ public class SetLocalCurrencyActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         final List<CurrencyCode> selected = new ArrayList<>();
-        for (String currency : MbwManager.getInstance(this).getCurrencyList()) {
-            selected.add(CurrencyCode.valueOf(currency));
+        for (GenericAssetInfo currency : MbwManager.getInstance(this).getCurrencyList()) {
+            selected.add(CurrencyCode.valueOf(currency.getSymbol()));
         }
 
         List<CurrencyCode> codes = new ArrayList<>(Arrays.asList(CurrencyCode.values()));
@@ -159,12 +161,10 @@ public class SetLocalCurrencyActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        Set<String> currencyList = new HashSet<>();
+        Set<GenericAssetInfo> currencyList = new HashSet<>();
+        currencyList.add(new FiatType(CurrencyCode.USD.getShortString()));
         for (CurrencyCode currencyCode : _adapter.getSelected()) {
-            currencyList.add(currencyCode.getShortString());
-        }
-        if (currencyList.isEmpty()) {
-            currencyList.add(CurrencyCode.USD.getShortString());
+            currencyList.add(new FiatType(currencyCode.getShortString()));
         }
         MbwManager.getInstance(this).setCurrencyList(currencyList);
     }

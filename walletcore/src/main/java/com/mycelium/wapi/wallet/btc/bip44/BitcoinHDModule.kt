@@ -18,6 +18,7 @@ import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.Companion.ACCOUNT_TYP
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext
 import com.mycelium.wapi.wallet.manager.Config
 import com.mycelium.wapi.wallet.manager.WalletModule
+import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
 import java.util.*
 
 
@@ -25,7 +26,8 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
                       internal val secureStore: SecureKeyValueStore,
                       internal val networkParameters: NetworkParameters,
                       internal var _wapi: Wapi,
-                      internal val currenciesSettingsMap: MutableMap<Currency, CurrencySettings>) : WalletModule {
+                      internal val currenciesSettingsMap: MutableMap<Currency, CurrencySettings>,
+                      internal val metadataStorage: IMetaDataStorage) : WalletModule {
 
     private val MASTER_SEED_ID = HexUtils.toBytes("D64CA2B680D8C8909A367F28EB47F990")
 

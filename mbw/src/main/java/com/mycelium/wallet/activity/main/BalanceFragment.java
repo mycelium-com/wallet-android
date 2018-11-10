@@ -232,11 +232,12 @@ public class BalanceFragment extends Fragment {
 
     @OnClick(R.id.btReceive)
     void onClickReceive() {
-        Address receivingAddress = Address.fromString(_mbwManager.getSelectedAccount().getReceiveAddress().toString());
-        if(receivingAddress != null) {
-            ReceiveCoinsActivity.callMe(getActivity(), _mbwManager.getSelectedAccount(),
+        //todo: generic address check
+        //Address receivingAddress = Address.fromString(_mbwManager.getSelectedAccount().getReceiveAddress().toString());
+        //if(receivingAddress != null) {
+        ReceiveCoinsActivity.callMe(getActivity(), _mbwManager.getSelectedAccount(),
                     _mbwManager.getSelectedAccount().canSpend(), true);
-        }
+        //}
     }
 
     @OnClick(R.id.btScan)
@@ -322,8 +323,7 @@ public class BalanceFragment extends Fragment {
          try {
             tv.setVisibility(View.VISIBLE);
 
-            String currency = _mbwManager.getFiatCurrency();
-            Value converted = _mbwManager.getExchangeRateManager().get(value, new FiatType(currency));
+            Value converted = _mbwManager.getExchangeRateManager().get(value, _mbwManager.getFiatCurrency());
             tv.setText(converted != null ? ValueExtentionsKt.toStringWithUnit(converted, _mbwManager.getBitcoinDenomination()) : null);
          } catch (Exception ex) {
             // something failed while calculating the bitcoin amount

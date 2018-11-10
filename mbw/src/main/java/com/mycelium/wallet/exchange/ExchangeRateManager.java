@@ -376,6 +376,16 @@ public class ExchangeRateManager implements ExchangeRateProvider, com.mycelium.w
         return getExchangeRate(currency, _currentExchangeSourceName);
     }
 
+    @Override
+    public ExchangeRate getExchangeRate(GenericAssetInfo currency, String source){
+        return getExchangeRate(currency.getSymbol(), source);
+    }
+
+    @Override
+    public ExchangeRate getExchangeRate(GenericAssetInfo currency) {
+        return getExchangeRate(currency.getSymbol(), _currentExchangeSourceName);
+    }
+
     private ExchangeRate getOtherExchangeRate(String injectCurrency, ExchangeRate r) {
         double rate = r.price;
         if ("RMC".equals(injectCurrency)) {
@@ -407,10 +417,13 @@ public class ExchangeRateManager implements ExchangeRateProvider, com.mycelium.w
     }
 
     // set for which fiat currencies we should get fx rates for
-    public void setCurrencyList(Set<String> currencies) {
+    public void setCurrencyList(Set<GenericAssetInfo> currencies) {
         synchronized (_requestLock) {
             // copy list to prevent changes from outside
-            ImmutableList.Builder<String> listBuilder = new ImmutableList.Builder<String>().addAll(currencies);
+            ImmutableList.Builder<String> listBuilder = new ImmutableList.Builder<String>();
+            for (GenericAssetInfo currency : currencies) {
+                listBuilder.add(currency.getSymbol());
+            }
             _fiatCurrencies = listBuilder.build();
         }
 

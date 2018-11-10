@@ -2,23 +2,18 @@ package com.mycelium.wallet.activity.receive
 
 import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
-import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.Transformations
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
-import com.mrd.bitlib.model.Address
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.GetAmountActivity
-import com.mycelium.wallet.activity.util.AccountDisplayType
 import com.mycelium.wapi.wallet.WalletAccount
-import com.mycelium.wapi.wallet.currency.CurrencyValue
-import com.mycelium.wapi.wallet.currency.ExactBitcoinValue
-import com.mycelium.wapi.wallet.currency.ExactCurrencyValue
+import com.mycelium.wapi.wallet.coins.Value
 
 abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewModel(context) {
     protected val mbwManager = MbwManager.getInstance(context)!!
@@ -44,7 +39,7 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
 
     abstract fun getHint(): String
 
-    abstract fun getFormattedValue(sum: CurrencyValue): String
+    abstract fun getFormattedValue(sum: Value): String
 
     abstract fun getTitle(): String
 
@@ -60,7 +55,7 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
         if (it != null) {
             getFormattedValue(it)
         } else {
-            getFormattedValue(ExactBitcoinValue.ZERO)
+            getFormattedValue(Value.zeroValue(mbwManager.selectedAccount.coinType))
         }
     }
 
@@ -71,7 +66,7 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
     fun getReceivingAddress() = model.receivingAddress
 
     fun getRequestedAmountFormatted() = Transformations.map(model.amountData) {
-        if (!CurrencyValue.isNullOrZero(it)) {
+        if (!Value.isNullOrZero(it)) {
             getFormattedValue(it!!)
         } else {
             ""
@@ -81,7 +76,7 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
     fun getRequestedAmountAlternative() = model.alternativeAmountData
 
     fun getRequestedAmountAlternativeFormatted() = Transformations.map(model.alternativeAmountData) {
-        if (!CurrencyValue.isNullOrZero(it)) {
+        if (!Value.isNullOrZero(it)) {
             "~ " + getFormattedValue(it!!)
         } else {
             ""
@@ -97,7 +92,7 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
     fun shareRequest() {
         val s = Intent(Intent.ACTION_SEND)
         s.type = "text/plain"
-        if (CurrencyValue.isNullOrZero(model.amountData.value)) {
+        if (Value.isNullOrZero(model.amountData.value)) {
             s.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.bitcoin_address_title))
             s.putExtra(Intent.EXTRA_TEXT, model.receivingAddress.value.toString())
             context.startActivity(Intent.createChooser(s, context.getString(R.string.share_bitcoin_address))
@@ -111,7 +106,7 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
     }
 
     fun copyToClipboard() {
-        val text = if (CurrencyValue.isNullOrZero(model.amountData.value)) {
+        val text = if (Value.isNullOrZero(model.amountData.value)) {
             model.receivingAddress.value.toString()
         } else {
             getPaymentUri()
@@ -120,21 +115,20 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
         Toast.makeText(context, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show()
     }
 
-    fun setAmount(amount: CurrencyValue) {
+    fun setAmount(amount: Value) {
         model.setAmount(amount)
     }
 
     fun onEnterClick(activity: AppCompatActivity) {
         val amount = model.amountData
-        if (CurrencyValue.isNullOrZero(amount.value)) {
-            GetAmountActivity.callMeToReceive(activity, ExactCurrencyValue.from(null,
-                    mbwManager.selectedAccount.coinType.symbol),
-                    GET_AMOUNT_RESULT_CODE, AccountDisplayType.getAccountType(model.account))
+        if (Value.isNullOrZero(amount.value)) {
+            GetAmountActivity.callMeToReceive(activity, Value.zeroValue(mbwManager.selectedAccount.coinType),
+                    GET_AMOUNT_RESULT_CODE, model.account.coinType)
         } else {
             // call the amountData activity with the exact amountData, so that the user sees the same amountData he had entered
             // it in non-BTC
-            GetAmountActivity.callMeToReceive(activity, amount.value!!.exactValueIfPossible,
-                    GET_AMOUNT_RESULT_CODE, AccountDisplayType.getAccountType(model.account))
+            GetAmountActivity.callMeToReceive(activity, amount.value,
+                    GET_AMOUNT_RESULT_CODE, model.account.coinType)
         }
     }
 

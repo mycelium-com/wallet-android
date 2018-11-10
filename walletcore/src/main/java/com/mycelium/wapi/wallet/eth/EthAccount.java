@@ -200,4 +200,14 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
         return EthSendRequest.to(destination, amount);
     }
 
+    @Override
+    public String getLabel() {
+        return null;
+    }
+
+    @Override
+    public void setLabel(String label) {
+
+    }
+
 }

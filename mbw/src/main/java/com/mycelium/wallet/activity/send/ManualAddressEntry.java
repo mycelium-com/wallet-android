@@ -68,21 +68,19 @@ public class ManualAddressEntry extends Activity {
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.manual_entry);
-        boolean isColdStorage = getIntent().getBooleanExtra(SendMainActivity.IS_COLD_STORAGE, false);
-        UUID accountUUID = (UUID) getIntent().getSerializableExtra(SendMainActivity.ACCOUNT);
 
         _mbwManager = MbwManager.getInstance(this);
         ((EditText) findViewById(R.id.etAddress)).addTextChangedListener(textWatcher);
         findViewById(R.id.btOk).setOnClickListener(okClickListener);
         ((EditText) findViewById(R.id.etAddress)).setInputType(InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE);
 
-        WalletAccount account = _mbwManager.getWalletManager(isColdStorage).getAccount(accountUUID);
-        if (account instanceof ColuPubOnlyAccount) {
-            ColuPubOnlyAccount coluAccount = (ColuPubOnlyAccount) account;
-            ((TextView) findViewById(R.id.title)).setText(getString(R.string.enter_address, coluAccount.getCoinType().getName()));
-            ((TextView) findViewById(R.id.tvBitcoinAddressValid)).setText(getString(R.string.address_valid, coluAccount.getCoinType().getName()));
-            ((TextView) findViewById(R.id.tvBitcoinAddressInvalid)).setText(getString(R.string.address_invalid, coluAccount.getCoinType().getName()));
-        }
+        WalletAccount account = _mbwManager.getSelectedAccount();
+
+        ((TextView) findViewById(R.id.title)).setText(getString(R.string.enter_address, account.getCoinType().getName()));
+        ((TextView) findViewById(R.id.tvBitcoinAddressValid)).setText(getString(R.string.address_valid, account.getCoinType().getName()));
+        ((TextView) findViewById(R.id.tvBitcoinAddressInvalid)).setText(getString(R.string.address_invalid, account.getCoinType().getName()));
+
+
         // Load saved state
         if (savedInstanceState != null) {
             _entered = savedInstanceState.getString("entered");
@@ -127,11 +125,10 @@ public class ManualAddressEntry extends Activity {
         @Override
         public void afterTextChanged(Editable editable) {
             _entered = editable.toString();
-            CryptoCurrency currencyType = (CryptoCurrency) getIntent().getSerializableExtra(SendMainActivity.CURRENCY_TYPE);
+            CryptoCurrency currencyType = _mbwManager.getSelectedAccount().getCoinType();
             _address = AddressUtils.from(currencyType, _entered.trim());
+            boolean addressValid = _address != null && AddressUtils.addressValidation(_address);
 
-            findViewById(R.id.btOk).setEnabled(_address != null);
-            boolean addressValid = _address != null;
             findViewById(R.id.tvBitcoinAddressInvalid).setVisibility(!addressValid ? View.VISIBLE : View.GONE);
             findViewById(R.id.tvBitcoinAddressValid).setVisibility(addressValid ? View.VISIBLE : View.GONE);
             findViewById(R.id.btOk).setEnabled(addressValid);

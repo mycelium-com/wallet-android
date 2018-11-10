@@ -5,8 +5,7 @@ import com.mrd.bitlib.util.CoinUtil
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wapi.wallet.WalletAccount
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount
-import com.mycelium.wapi.wallet.currency.CurrencyValue
+import com.mycelium.wapi.wallet.coins.Value
 
 class ReceiveBchViewModel(application: Application) : ReceiveCoinsViewModel(application) {
     override fun init(account: WalletAccount<*,*>, hasPrivateKey: Boolean, showIncomingUtxo: Boolean) {
@@ -17,11 +16,10 @@ class ReceiveBchViewModel(application: Application) : ReceiveCoinsViewModel(appl
     override fun getHint() = context.getString(R.string.amount_hint_denomination,
             CoinUtil.Denomination.BCH)
 
-    override fun getFormattedValue(sum: CurrencyValue) = Utils.getFormattedValueWithUnit(sum, mbwManager.bitcoinDenomination)
-            .replace("BTC", "BCH")
+    override fun getFormattedValue(sum: Value) = Utils.getFormattedValue(sum, mbwManager.bitcoinDenomination)
 
     override fun getTitle(): String {
-        return if (CurrencyValue.isNullOrZero(model.amountData.value)) {
+        return if (Value.isNullOrZero(model.amountData.value)) {
             context.getString(R.string.address_title, context.getString(R.string.bitcoin_cash_name))
         } else {
             context.getString(R.string.payment_request)

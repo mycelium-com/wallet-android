@@ -32,16 +32,14 @@
  * fitness for a particular purpose and non-infringement.
  */
 
-package com.mycelium.wallet.persistence;
+package com.mycelium.wapi.wallet.metadata;
 
-class MetadataCategory {
-   final String category;
+public class MetadataKeyCategory {
+   public final String key;
+   public final String category;
 
-   MetadataCategory(String category) {
-      this.category = category;
-   }
-
-   public MetadataKeyCategory of(String key){
-      return new MetadataKeyCategory(key, category);
+   public MetadataKeyCategory(String Key, String Category) {
+      key = Key;
+      category = Category;
    }
 }
