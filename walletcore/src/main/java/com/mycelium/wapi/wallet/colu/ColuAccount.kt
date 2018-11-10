@@ -21,13 +21,12 @@ import java.util.*
 class ColuAccount(context: ColuAccountContext, val privateKey: InMemoryPrivateKey
                   , coluCoinType: CryptoCurrency
                   , networkParameters: NetworkParameters
-                  , coluNetworkParameters: org.bitcoinj.core.NetworkParameters
                   , coluClient: ColuApi
                   , accountBacking: AccountBacking<ColuTransaction>
                   , backing: WalletBacking<ColuAccountContext, ColuTransaction>
                   , listener: AccountListener? = null)
     : ColuPubOnlyAccount(context, coluCoinType, networkParameters
-        , coluNetworkParameters, coluClient, accountBacking, backing, listener), ExportableAccount {
+        , coluClient, accountBacking, backing, listener), ExportableAccount {
 
     override fun calculateMaxSpendableAmount(minerFeeToUse: Long): Value {
         return Value.valueOf(if (networkParameters.isProdnet) BitcoinMain.get() else BitcoinTest.get(), accountBalance.spendable.value)

@@ -19,7 +19,6 @@ import java.util.*
 open class ColuPubOnlyAccount(val context: ColuAccountContext
                               , private val type: CryptoCurrency
                               , val networkParameters: NetworkParameters
-                              , val coluNetworkParameters: org.bitcoinj.core.NetworkParameters
                               , val coluClient: ColuApi
                               , val accountBacking: AccountBacking<ColuTransaction>
                               , val backing: WalletBacking<ColuAccountContext, ColuTransaction>

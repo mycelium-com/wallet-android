@@ -12,7 +12,6 @@ import java.util.*
 
 
 class ColuModule(val networkParameters: NetworkParameters
-                 , val netParams: org.bitcoinj.core.NetworkParameters
                  , internal val publicPrivateKeyStore: PublicPrivateKeyStore
                  , val coluApi: ColuApi
                  , val backing: WalletBacking<ColuAccountContext, ColuTransaction>
@@ -29,11 +28,11 @@ class ColuModule(val networkParameters: NetworkParameters
                         ?: context.address!!.address
                 val accountKey = publicPrivateKeyStore.getPrivateKey(address, AesKeyCipher.defaultKeyCipher())
                 val account = if (accountKey == null) {
-                    ColuPubOnlyAccount(context, context.coinType, networkParameters, netParams, coluApi
+                    ColuPubOnlyAccount(context, context.coinType, networkParameters, coluApi
                             , backing.getAccountBacking(context.id), backing
                             , listener)
                 } else {
-                    ColuAccount(context, accountKey, context.coinType, networkParameters, netParams, coluApi
+                    ColuAccount(context, accountKey, context.coinType, networkParameters, coluApi
                             , backing.getAccountBacking(context.id), backing
                             , listener)
                 }
@@ -56,7 +55,7 @@ class ColuModule(val networkParameters: NetworkParameters
                 val context = ColuAccountContext(id, type, config.privateKey.publicKey, null
                         , false, 0)
                 backing.createAccountContext(context)
-                result = ColuAccount(context, config.privateKey, type, networkParameters, netParams
+                result = ColuAccount(context, config.privateKey, type, networkParameters
                         , coluApi, backing.getAccountBacking(id), backing, listener)
                 publicPrivateKeyStore.setPrivateKey(address, config.privateKey, config.cipher)
             }
@@ -69,7 +68,7 @@ class ColuModule(val networkParameters: NetworkParameters
                         , false, 0)
                 backing.createAccountContext(context)
                 result = ColuPubOnlyAccount(context, type, networkParameters
-                        , netParams, coluApi, backing.getAccountBacking(id), backing, listener)
+                        , coluApi, backing.getAccountBacking(id), backing, listener)
             }
         } else if(config is AddressColuConfig) {
             val coinType = coluMain(config.address.address, config.coinType)
@@ -79,7 +78,7 @@ class ColuModule(val networkParameters: NetworkParameters
                         , false, 0)
                 backing.createAccountContext(context)
                 result = ColuPubOnlyAccount(context, type, networkParameters
-                        , netParams, coluApi, backing.getAccountBacking(id), backing, listener)
+                        , coluApi, backing.getAccountBacking(id), backing, listener)
             }
         }
         return result

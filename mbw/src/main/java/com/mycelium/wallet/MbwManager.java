@@ -669,17 +669,8 @@ public class MbwManager {
 
         SqliteColuManagerBacking coluBacking = new SqliteColuManagerBacking(context);
         ColuClient coluClient = new ColuClient(networkParameters, BuildConfig.ColoredCoinsApiURLs, BuildConfig.ColuBlockExplorerApiURLs);
-        org.bitcoinj.core.NetworkParameters netParams;
-        if (networkParameters.isProdnet()) {
-            netParams = MainNetParams.get();
-        } else if (networkParameters.isTestnet()) {
-            netParams = TestNet3Params.get();
-        } else {
-            netParams = RegTestParams.get();
-        }
 
-
-        walletManager.add(new ColuModule(networkParameters, netParams, publicPrivateKeyStore
+        walletManager.add(new ColuModule(networkParameters, publicPrivateKeyStore
                 , new ColuApiImpl(coluClient), coluBacking, accountListener));
 
         if (masterSeedManager.hasBip32MasterSeed()) {

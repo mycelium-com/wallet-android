@@ -155,7 +155,7 @@ class WalletConsole {
 
             // create and add HD Module
             masterSeedManager.configureBip32MasterSeed(masterSeed, AesKeyCipher.defaultKeyCipher());
-            BitcoinHDModule bitcoinHDModule = new BitcoinHDModule(backing, store, network, wapiClient, currenciesSettingsMap);
+            BitcoinHDModule bitcoinHDModule = new BitcoinHDModule(backing, store, network, wapiClient, currenciesSettingsMap, null);
             walletManager.add(bitcoinHDModule);
 
             // create account
@@ -166,21 +166,14 @@ class WalletConsole {
 
             PublicPrivateKeyStore publicPrivateKeyStore = new PublicPrivateKeyStore(store);
 
-            BitcoinSingleAddressModule bitcoinSingleAddressModule = new BitcoinSingleAddressModule(backing, publicPrivateKeyStore, network, wapiClient);
+            BitcoinSingleAddressModule bitcoinSingleAddressModule = new BitcoinSingleAddressModule(backing, publicPrivateKeyStore
+                    , network, wapiClient, null);
             walletManager.add(bitcoinSingleAddressModule);
 
 
-            org.bitcoinj.core.NetworkParameters netParams;
-            if (network.isProdnet()) {
-                netParams = MainNetParams.get();
-            } else if (network.isTestnet()) {
-                netParams = TestNet3Params.get();
-            } else {
-                netParams = RegTestParams.get();
-            }
 
             ColuClient coluClient = new ColuClient(network, ColoredCoinsApiURLs, ColuBlockExplorerApiURLs);
-            ColuModule coluModule = new ColuModule(network, netParams, publicPrivateKeyStore,
+            ColuModule coluModule = new ColuModule(network, publicPrivateKeyStore,
                     new ColuApiImpl(coluClient), new ColuWalletBacking(), new AccountListener() {
                 @Override
                 public void balanceUpdated(@NotNull WalletAccount<?, ?> walletAccount) {
