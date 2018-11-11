@@ -170,7 +170,7 @@ public class StandardTransactionBuilder {
               .setArrayOfOutputs(_outputs)
               .setMinerFeePerKb(minerFeeToUse);
       if (needChangeOutputInEstimation) {
-         feeEstimatorBuilder.addChangeOutput(changeAddress);
+         feeEstimatorBuilder.addOutput(changeAddress.getType());
       }
       fee = feeEstimatorBuilder.createFeeEstimator()
               .estimateFee();
@@ -390,7 +390,7 @@ public class StandardTransactionBuilder {
          // Find the funding for this transaction
          allFunding = new LinkedList<>();
          FeeEstimatorBuilder feeEstimatorBuilder = new FeeEstimatorBuilder().setArrayOfInputs(unspent)
-                 .setLegacyOutputs(1)
+                 .addOutput(changeType)
                  .setMinerFeePerKb(feeSatPerKb);
          FeeEstimator feeEstimator = feeEstimatorBuilder
                  .createFeeEstimator();
@@ -410,7 +410,7 @@ public class StandardTransactionBuilder {
                     .setArrayOfOutputs(_outputs)
                     .setMinerFeePerKb(feeSatPerKb);
             if (needChangeOutputInEstimation(allFunding, outputSum, feeSatPerKb)) {
-               estimatorBuilder.addChangeOutput(Address.getNullAddress(_network, changeType));
+               estimatorBuilder.addOutput(Address.getNullAddress(_network, changeType).getType());
             }
             feeSat = estimatorBuilder.createFeeEstimator().estimateFee();
          }
