@@ -297,7 +297,7 @@ public class Transaction implements Serializable {
         ByteWriter writer = new ByteWriter(1024);
         if (inputs[i].script instanceof ScriptInputP2WSH || inputs[i].script instanceof  ScriptInputP2WPKH) {
             writer.putIntLE(version);
-            writer.putBytes(getPrevOutsHash().getBytes());
+            writer.putSha256Hash(getPrevOutsHash());
             writer.putBytes(getSequenceHash().getBytes());
             inputs[i].outPoint.hashPrev(writer);
             byte[] scriptCode = inputs[i].getScriptCode();
