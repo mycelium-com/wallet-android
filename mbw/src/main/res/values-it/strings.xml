@@ -160,8 +160,7 @@
   <string name="verify_backup_one_key">Hai una chiave che non è mai stata verificata.</string>
   <string name="verify_backup_master_seed">Il master seed non è stato verificato.</string>
   <string name="verify_backup_no_such_record">La chiave privata non corrisponde a nessuno dei tuoi indirizzi bitcoin.</string>
-  <string name="verify_backup_ok">Backup della chiave privata verificato con successo per il seguente indirizzo:\n\n%1$s</string>
-  <string name="wrong_seed">Il numero scandito non corrisponde al tuo master seed.</string>
+    <string name="wrong_seed">Il numero scandito non corrisponde al tuo master seed.</string>
   <string name="backup_missing">Backup assente</string>
   <string name="verify_backup_title">Eseguire il backup e la verifica</string>
   <string name="verify_backup_message_text_1">Un corretto backup è basilare per la gestione dei tuoi fondi in Bitcoin.\nPossiedi una o più chiavi private Bitcoin o un master seed il cui backup non è stato verificato.\n\nSi consiglia di selezionare l\'opzione di backup.</string>

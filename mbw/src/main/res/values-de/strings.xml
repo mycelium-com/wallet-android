@@ -162,8 +162,7 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="verify_backup_one_key">Sie haben einen Schlüssel, der nie überprüft wurde.</string>
   <string name="verify_backup_master_seed">Ihr Master Seed wurde nicht überprüft.</string>
   <string name="verify_backup_no_such_record">Dieser private Schlüssel stimmt mit keiner Ihrer Bitcoin-Adressen überein.</string>
-  <string name="verify_backup_ok">Backup der privaten Schlüssel erfolgreich überprüft für die folgende Adresse:\n\n%1$s</string>
-  <string name="wrong_seed">Das gescannte Master Seed entspricht nicht Ihrem Master Seed.</string>
+    <string name="wrong_seed">Das gescannte Master Seed entspricht nicht Ihrem Master Seed.</string>
   <string name="backup_missing">Fehlendes Backup</string>
   <string name="verify_backup_title">Backup und überprüfen</string>
   <string name="verify_backup_message_text_1">Ein korrektes Backup ist eine wichtige Grundlage beim Umgang mit Ihren Bitcoins. \nSIe haben eine oder mehrere Bitcoin private Schlüssel oder ein Master Seed, deren Backup noch nicht verifiziert wurde.\n\nBitte wählen Sie die Backup-Option, um eine Sicherungskopie zu erstellen.</string>

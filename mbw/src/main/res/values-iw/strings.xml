@@ -143,8 +143,7 @@
   <string name="verify_backup_num_keys">ברשותך %1$s מפתחות שמעולם לא עברו ווידוא.</string>
   <string name="verify_backup_one_key">ברשותך מפתח אחד שמעולם לא עבר ווידוא.</string>
   <string name="verify_backup_no_such_record">המפתח הפרטי אינו תואם לאף אחד מכתובות הביטקוין שלך.</string>
-  <string name="verify_backup_ok">גיבוי מפתח פרטי עבר ווידוא בהצלחה עבור הכתובת הבאה:\n\n%1$s</string>
-  <string name="backup_missing">חסר גיבוי</string>
+    <string name="backup_missing">חסר גיבוי</string>
   <string name="verify_backup_title">ווידוא גיבוי</string>
   <string name="verify_backup_message_text_2">אחר הגיבוי בחר/י באפשרות ווידוא גיבוי וודא/י את הגיבוי שלך.</string>
   <string name="encrypted_pdf_backup_title">גיבוי PDF מוצפן</string>

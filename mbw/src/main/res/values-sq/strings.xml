@@ -159,8 +159,7 @@
   <string name="verify_backup_one_key">Keni 1 çelës që nuk është verifikuar kurrë.</string>
   <string name="verify_backup_master_seed">Master seed i juaj nuk është verifikuar.</string>
   <string name="verify_backup_no_such_record">Ky çelës privat nuk përputhet me asnjë Bitcoin adresë.</string>
-  <string name="verify_backup_ok">Kopja rezervë e çelësit privat është verifikuar me sukses për këtë adresë:\n\n%1$s</string>
-  <string name="wrong_seed">Seed i skanuar nuk përputhet me master seed.</string>
+    <string name="wrong_seed">Seed i skanuar nuk përputhet me master seed.</string>
   <string name="backup_missing">Mungon kopja rezervë</string>
   <string name="verify_backup_title">Verifiko dhe bëj një kopje rezervë</string>
   <string name="verify_backup_message_text_1">Të keni një kopje të duhur rezervë është shumë e rëndësishme në menaxhimin e fondeve të juaja te Bitcoin-ave.\nKeni një apo më shumë çelësa privat ose një master seed ku kopja rezervë nuk është verifikuar.\n\nJu lutem zgjedhni opsionin për të krijuar një kopje rezervë.</string>

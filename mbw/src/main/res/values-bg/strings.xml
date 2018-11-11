@@ -160,7 +160,6 @@
   <string name="verify_backup_one_key">Имате 1 ключ, който не е проверяван.</string>
   <string name="verify_backup_master_seed">Вашият master seed не е проверен.</string>
   <string name="verify_backup_no_such_record">Частният ключ не съответства на никой от вашите биткоин адреси.</string>
-  <string name="verify_backup_ok">Копието на частния ключ е успешно проверено за следния адрес:\n\n%1$s</string>
   <string name="wrong_seed">Сканираният seed не съответства на вашия master seed.</string>
   <string name="backup_missing">Резервно копие липсва</string>
   <string name="verify_backup_title">Резервно копие и проверка</string>

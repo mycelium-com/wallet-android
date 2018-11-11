@@ -118,8 +118,7 @@
   <string name="verify_backup_num_keys">고객께서 결코 승인 될 수 없는 %1$s 키 들을  가지고 있습니다. </string>
   <string name="verify_backup_one_key">고객께서는 결코 승인 될 수 없는 하나의 키를 가지고 있습니다. </string>
   <string name="verify_backup_no_such_record">이 개인 키는 고객의 지갑에 있는 어떠한 비트코인 주소와도 일치하지 않습니다. </string>
-  <string name="verify_backup_ok">아래의 비트코인 주소의 개인 키가 성공적으로 백업되었습니다:\n\n%1$s</string>
-  <string name="backup_missing">백업 누락</string>
+    <string name="backup_missing">백업 누락</string>
   <string name="verify_backup_title">백업 및 승인</string>
   <string name="verify_backup_message_text_2"> 백업 확인 옵션을 선택한 다음에 백업을 확인 합니다.</string>
   <string name="encrypted_pdf_backup_title">암호화된 pdf 파일 백업</string>

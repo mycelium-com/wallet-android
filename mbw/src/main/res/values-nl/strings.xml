@@ -159,8 +159,7 @@
   <string name="verify_backup_one_key">U heeft 1 key die nog nooit is geverifieerd.</string>
   <string name="verify_backup_master_seed">Uw master seed is niet geverifieerd.</string>
   <string name="verify_backup_no_such_record">De private key komt niet overeen met een van uw Bitcoin adressen.</string>
-  <string name="verify_backup_ok">Private key back-up geverifieerd voor het volgende address:\n\n%1$s</string>
-  <string name="wrong_seed">De gescande Seed komt niet overeen met uw Master Seed.</string>
+    <string name="wrong_seed">De gescande Seed komt niet overeen met uw Master Seed.</string>
   <string name="backup_missing">Back-up ontbreekt</string>
   <string name="verify_backup_title">Back-up en verifieer</string>
   <string name="verify_backup_message_text_1">Het maken van een goede back-up is een essentieel onderdeel bij het beheren van bitcoins.\nU heeft één of meerdere Bitcoin private keys of een master seed waarvan de back-up niet is geverifieerd.\n\nSelecteer de Back-up optie voor het maken van een back-up.</string>

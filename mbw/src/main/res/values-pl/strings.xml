@@ -134,8 +134,7 @@
   <string name="verify_backup_num_keys">Istnieje %1$s kluczy nigdy nie zweryfikowanych.</string>
   <string name="verify_backup_one_key">Masz 1 klucz, który nigdy nie został zweryfikowany.</string>
   <string name="verify_backup_no_such_record">Klucz prywatny nie pasuje do żadnego adresu Bitcoin.</string>
-  <string name="verify_backup_ok">Klucz prywatny kopii zapasowej pomyślnie zweryfikowany dla adresu:\n\n%1$s</string>
-  <string name="backup_missing">Brakuje kopii zapasowej</string>
+    <string name="backup_missing">Brakuje kopii zapasowej</string>
   <string name="verify_backup_title">Utwórz kopię zapasową  i zweryfikuj</string>
   <string name="verify_backup_message_text_2">Następnie wybierz opcje Zweryfikuj Kopię Zapasową by potwierdzić ją. </string>
   <string name="encrypted_pdf_backup_title">Zaszyfrowana Kopia Zapasowa PDF</string>

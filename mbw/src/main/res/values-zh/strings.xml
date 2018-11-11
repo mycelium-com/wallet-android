@@ -160,8 +160,7 @@
   <string name="verify_backup_one_key">您有一个未验证的密钥</string>
   <string name="verify_backup_master_seed">您的主种子尚未被验证。</string>
   <string name="verify_backup_no_such_record">此私钥不匹配任何您的比特币地址</string>
-  <string name="verify_backup_ok">成功验证一下地址备份:\n\n%1$s</string>
-  <string name="wrong_seed">扫描的种子与您的主种子不匹配。</string>
+    <string name="wrong_seed">扫描的种子与您的主种子不匹配。</string>
   <string name="backup_missing">备份丢失</string>
   <string name="verify_backup_title">备份和验证</string>
   <string name="verify_backup_message_text_1">拥有一份正确备份是你保护您的比特币资金重要手段。 \n您有一个或多个比特币私钥或一个主种子的备份尚未验证.\n\n请选择备份选项来做一个备份。</string>

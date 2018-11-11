@@ -160,8 +160,7 @@
   <string name="verify_backup_one_key">Vous avez 1 clé qui n\'a jamais été vérifiée.</string>
   <string name="verify_backup_master_seed">Votre master seed n\'a pas été vérifiée.</string>
   <string name="verify_backup_no_such_record">La clé privée ne correspond à aucune de vos adresses Bitcoin.</string>
-  <string name="verify_backup_ok">Sauvegarde de la clé privée vérifiée avec succès pour l\'adresse suivante :\n\n%1$s</string>
-  <string name="wrong_seed">La numérisation ne correspond pas à votre master seed.</string>
+    <string name="wrong_seed">La numérisation ne correspond pas à votre master seed.</string>
   <string name="backup_missing">Sauvegarde manquante</string>
   <string name="verify_backup_title">Sauvegarde et vérification</string>
   <string name="verify_backup_message_text_1">Sans sauvegarde, si votre téléphone est perdu, volé ou détruit, vous perdrez tout votre argent !\n Au moins une de vos master seeds ou de vos clés Bitcoin n\'a pas été correctement sauvegardée.\n\n Veuillez sélectionner l\'option Sauvegarde.</string>

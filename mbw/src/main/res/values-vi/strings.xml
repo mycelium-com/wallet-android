@@ -141,8 +141,7 @@
   <string name="verify_backup_num_keys">Bạn có %1$s khóa chưa bao giờ được xác minh.</string>
   <string name="verify_backup_one_key">Bạn có 1 khóa chưa được xác nhận.</string>
   <string name="verify_backup_no_such_record">Private Key không khớp với bất kỳ địa chỉ Bitcoin nào của bạn.</string>
-  <string name="verify_backup_ok">Sao lưu Private Key đã thành công cho cho địa chỉ sau:\n\n%1$s</string>
-  <string name="backup_missing">Sao lưu bị mất</string>
+    <string name="backup_missing">Sao lưu bị mất</string>
   <string name="verify_backup_title">Sao lưu và Xác nhận</string>
   <string name="verify_backup_message_text_2">Sau đó chọn tùy chỉnh Xác Nhận Sao Lưu và xác nhận sao lưu của bạn.</string>
   <string name="encrypted_pdf_backup_title">Bản sao lưu PDF đã mã hoá</string>

@@ -160,8 +160,7 @@
   <string name="verify_backup_one_key">您有一個未驗證的密鑰</string>
   <string name="verify_backup_master_seed">您的主種子尚未被驗證。</string>
   <string name="verify_backup_no_such_record">此私鑰不匹配任何您的比特幣地址</string>
-  <string name="verify_backup_ok">完成驗證一下地址備份：\n\n%1$s</string>
-  <string name="wrong_seed">掃描的種子與您的主種子不匹配。</string>
+    <string name="wrong_seed">掃描的種子與您的主種子不匹配。</string>
   <string name="backup_missing">備份丟失</string>
   <string name="verify_backup_title">備份和驗證</string>
   <string name="verify_backup_message_text_1">擁有一份正確備份是你保護您的比特幣資金重要手段。 \n您有一個或多個比特幣私鑰或一個主種子的備份尚未驗證.\n\n請選擇備份選項來做一個備份。</string>

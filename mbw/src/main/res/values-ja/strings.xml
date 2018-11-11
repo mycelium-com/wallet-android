@@ -159,8 +159,7 @@
   <string name="verify_backup_one_key">確認されていないキーが1つあります。 </string>
   <string name="verify_backup_master_seed">あなたのマスターシードは確認されていません。</string>
   <string name="verify_backup_no_such_record">この秘密キーはいずれのビットコインアドレスとも一致しません。</string>
-  <string name="verify_backup_ok">次のアドレスについて秘密キーのバックアップが正常に確認されました：\n\n%1$s</string>
-  <string name="wrong_seed">スキャンされたシードはあなたのマスターシードに一致しません。</string>
+    <string name="wrong_seed">スキャンされたシードはあなたのマスターシードに一致しません。</string>
   <string name="backup_missing">バックアップが見つかりません。</string>
   <string name="verify_backup_title">バックアップと確認</string>
   <string name="verify_backup_message_text_1">ビットコインを管理する際、正しくバックアップを行うことは不可欠です。\nバックアップが確認されていない一つまたは複数のビットコインの秘密鍵またはマスターシードがあります。\n\nバックアップを行うために、バックアップオプションを選択してください。</string>

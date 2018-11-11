@@ -160,8 +160,7 @@
   <string name="verify_backup_one_key">Dispones de una clave que no se ha comprobado nunca.</string>
   <string name="verify_backup_master_seed">Tu semilla no ha sido comprobada.</string>
   <string name="verify_backup_no_such_record">La clave privada no coincide con ninguna de tus direcciones de Bitcoins.</string>
-  <string name="verify_backup_ok">Se ha comprobado con éxito la copia de seguridad de la clave privada para la dirección:\n\n%1$s</string>
-  <string name="wrong_seed">La semilla escaneada no coincide con la tuya.</string>
+    <string name="wrong_seed">La semilla escaneada no coincide con la tuya.</string>
   <string name="backup_missing">Copia de seguridad inexistente</string>
   <string name="verify_backup_title">Realizar copia de seguridad y comprobar</string>
   <string name="verify_backup_message_text_1">Realizar una copia de seguridad correcta de la clave privada es primordial cuando se gestionan fondos en Bitcoins.\nTú tiene una o más claves privadas de Bitcoin o una semilla donde la copia de seguridad no ha sido verificada.\n\nPor favor, selecciona la opción de Backup para hacer una copia de seguridad.</string>

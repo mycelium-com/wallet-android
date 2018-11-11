@@ -149,8 +149,7 @@
   <string name="verify_backup_one_key">Du har 1 nøgle, der er aldrig er blevet bekræftet.</string>
   <string name="verify_backup_master_seed">Din master seed er ikke verificeret.</string>
   <string name="verify_backup_no_such_record">Den private nøgle svarer ikke til nogen af dine Bitcoinadresser.</string>
-  <string name="verify_backup_ok">Sikkerhedskopien af privat nøglen er bekræftet for denne adresse:\n\n%1$s</string>
-  <string name="backup_missing">Sikkerhedskopi mangler</string>
+    <string name="backup_missing">Sikkerhedskopi mangler</string>
   <string name="verify_backup_title">Backup og kontroller</string>
   <string name="verify_backup_message_text_1">En funktionsdygtig sikkerhedskopi er grundstenen i administrationen af dine Bitcoins.\n\nDu har en eller flere Bitcoin privat nøgler eller et master seed, hvor sikkerhedskopien ikke er blevet verificeret.\n\nVælg venligst en mulighed for at tage en sikkerhedskopi.</string>
   <string name="verify_backup_message_text_2">Derefter skal du vælge bekræft sikkerhedskopi og kontrollere den.</string>

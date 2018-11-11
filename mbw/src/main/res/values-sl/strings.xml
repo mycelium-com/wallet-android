@@ -160,8 +160,7 @@
   <string name="verify_backup_one_key">Imate en ključ, ki nikoli ni bil preverjen.</string>
   <string name="verify_backup_master_seed">Vaše glavno seme ni preverjeno.</string>
   <string name="verify_backup_no_such_record">Zasebni ključ ne ujema z nobenim od vaših Bitcoin naslovov.</string>
-  <string name="verify_backup_ok">Rezervna kopija zasebnih ključev je bila uspešno preverjena za naslednje naslove:\n\n%1$s</string>
-  <string name="wrong_seed">Prečitano seme se ne ujema z vašim glavnim semenom.</string>
+    <string name="wrong_seed">Prečitano seme se ne ujema z vašim glavnim semenom.</string>
   <string name="backup_missing">Rezervna kopija manjka</string>
   <string name="verify_backup_title">Rezervna kopija, preverba</string>
   <string name="verify_backup_message_text_1">Dobra rezervna kopija je eden od temeljev varnega ravnanja z bitcoini.\nV denarnici imate vsaj en zasebni ključ ali glavno seme brez preverjene rezervne kopije.\n\nProsimo, napravite in preverite rezervno kopijo.</string>

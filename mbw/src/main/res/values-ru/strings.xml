@@ -177,8 +177,7 @@
   <string name="verify_backup_one_key">У вас есть 1 ключ, который никогда не был проверен.</string>
   <string name="verify_backup_master_seed">Ваш мастер-ключ (seed) не был проверен.</string>
   <string name="verify_backup_no_such_record">Закрытый ключ не соответствует ни одному из ваших  биткойн адресов.</string>
-  <string name="verify_backup_ok">Резервная копия приватных ключей успешно проверена для следующих адресов:\n\n%1$s</string>
-  <string name="wrong_seed">Отсканированный seed-ключ не совпадает с вашим мастер-ключом seed.</string>
+    <string name="wrong_seed">Отсканированный seed-ключ не совпадает с вашим мастер-ключом seed.</string>
   <string name="backup_missing">Отсутствует резервная  копия</string>
   <string name="verify_backup_title">ВАЖНО !</string>
   <string name="verify_backup_message_text_1">Наличие надлежащего резервного копирования является краеугольным камнем при управлении вашими биткойнами.\nУ вас есть один или более закрытый ключ или мастер-ключ (seed), который не был проверен.\n\nПожалуйста, выберете опцию резервирования для создания резервной копии.</string>
