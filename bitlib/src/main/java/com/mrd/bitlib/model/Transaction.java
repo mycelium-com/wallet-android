@@ -266,6 +266,8 @@ public class Transaction implements Serializable {
         this.lockTime = copyFrom.lockTime;
         this._txSize = copyFrom._txSize;
         this._hash = copyFrom._hash;
+        this.id = copyFrom.id;
+        this._unmalleableHash = copyFrom._unmalleableHash;
     }
 
     // we already know the hash of this transaction, dont recompute it
@@ -298,14 +300,14 @@ public class Transaction implements Serializable {
         if (inputs[i].script instanceof ScriptInputP2WSH || inputs[i].script instanceof  ScriptInputP2WPKH) {
             writer.putIntLE(version);
             writer.putSha256Hash(getPrevOutsHash());
-            writer.putBytes(getSequenceHash().getBytes());
+            writer.putSha256Hash(getSequenceHash());
             inputs[i].outPoint.hashPrev(writer);
             byte[] scriptCode = inputs[i].getScriptCode();
             writer.put((byte) (scriptCode.length & 0xFF));
             writer.putBytes(scriptCode);
             writer.putLongLE(inputs[i].getValue());
             writer.putIntLE(inputs[i].sequence);
-            writer.putBytes(getOutputsHash().getBytes());
+            writer.putSha256Hash(getOutputsHash());
             writer.putIntLE(lockTime);
             int hashType = 1;
             writer.putIntLE(hashType);
