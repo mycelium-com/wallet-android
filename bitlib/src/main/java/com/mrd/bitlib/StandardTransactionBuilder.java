@@ -28,6 +28,7 @@ import com.mrd.bitlib.crypto.IPublicKeyRing;
 import com.mrd.bitlib.model.*;
 import kotlin.NotImplementedError;
 
+import javax.annotation.Nonnull;
 import java.util.*;
 
 import static com.mrd.bitlib.TransactionUtils.MINIMUM_OUTPUT_VALUE;
@@ -146,14 +147,14 @@ public class StandardTransactionBuilder {
     *
     * @param inventory     The list of unspent transaction outputs that can be used as
     *                      funding
-    * @param changeAddress The address to send any change to, can be null
+    * @param changeAddress The address to send any change to, can not be null
     * @param keyRing       The public key ring matching the unspent outputs
     * @param network       The network we are working on
     * @param minerFeeToUse The miner fee in sat to pay for every kilobytes of transaction size
     * @return An unsigned transaction or null if not enough funds were available
     */
    public UnsignedTransaction createUnsignedTransaction(Collection<UnspentTransactionOutput> inventory,
-                                                        Address changeAddress, IPublicKeyRing keyRing,
+                                                        @Nonnull Address changeAddress, IPublicKeyRing keyRing,
                                                         NetworkParameters network, long minerFeeToUse)
        throws InsufficientFundsException, UnableToBuildTransactionException {
 
