@@ -37,10 +37,10 @@ package com.mycelium.wallet.event;
 
 import java.util.UUID;
 
-public class HdAccountCreated {
+public class AccountCreated {
    public final UUID account;
 
-   public HdAccountCreated(UUID account) {
+   public AccountCreated(UUID account) {
       this.account = account;
    }
 }

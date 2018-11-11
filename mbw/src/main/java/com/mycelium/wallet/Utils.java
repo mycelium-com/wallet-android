@@ -114,6 +114,7 @@ import com.mycelium.wapi.wallet.currency.BitcoinValue;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
+import com.mycelium.wapi.wallet.eth.EthAccount;
 
 import org.ocpsoft.prettytime.Duration;
 import org.ocpsoft.prettytime.PrettyTime;
@@ -923,6 +924,8 @@ public class Utils {
          return context.getString(R.string.account_prefix_imported);
       } else if (account instanceof HDAccount) {
          return context.getString(R.string.account) + " " + (((HDAccount) account).getAccountIndex() + 1);
+      } else if (account instanceof EthAccount) {
+         return context.getString(R.string.eth_accounts_name);
       } else {
          return DateFormat.getMediumDateFormat(context).format(new Date());
       }
