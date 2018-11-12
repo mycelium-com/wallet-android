@@ -2,6 +2,8 @@ package com.mycelium.wapi.wallet.colu
 
 import com.mrd.bitlib.model.Transaction
 import com.mycelium.wapi.wallet.SendRequest
+import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.BtcLegacyAddress
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
@@ -11,7 +13,14 @@ class ColuSendRequest(type: CryptoCurrency?, val destination: BtcLegacyAddress, 
     : SendRequest<ColuTransaction>(type) {
     var txHex: String? = null
 
+    var fundingAddress: List<BtcAddress> = listOf()
+
+    var baseTransaction: Transaction? = null
+
+    val fundingAccounts = mutableListOf<WalletAccount<*, BtcAddress>>()
+
     fun setTransaction(tx: Transaction) {
+        baseTransaction = tx
         this.tx = ColuTransaction(tx.id, this.type, Value.zeroValue(type), Value.zeroValue(type)
                 , 0, tx, 0, false
                 , listOf(), listOf())

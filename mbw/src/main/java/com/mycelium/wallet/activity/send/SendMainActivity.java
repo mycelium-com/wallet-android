@@ -108,6 +108,7 @@ import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.paymentrequest.PaymentRequestHandler;
 import com.mycelium.wapi.api.response.Feature;
 import com.mycelium.wapi.wallet.AddressUtils;
+import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.SendRequest;
@@ -817,7 +818,7 @@ public class SendMainActivity extends Activity {
                                     protected Boolean doInBackground(Void... voids) {
                                         SendRequest sendRequest = _account.getSendToRequest(_receivingAddress, _amountToSend);
                                         try {
-                                            _account.completeAndSignTx(sendRequest);
+                                            _account.completeAndSignTx(sendRequest, AesKeyCipher.defaultKeyCipher());
                                             _account.broadcastTx(sendRequest.tx);
                                             return true;
                                         } catch (WalletAccount.WalletAccountException e) {

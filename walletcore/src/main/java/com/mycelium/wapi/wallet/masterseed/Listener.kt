@@ -1,4 +1,4 @@
-package com.mycelium.wapi.wallet.btcmasterseed
+package com.mycelium.wapi.wallet.masterseed
 
 
 interface Listener {

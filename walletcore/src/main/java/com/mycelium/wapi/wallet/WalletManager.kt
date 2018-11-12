@@ -5,6 +5,7 @@ import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.api.lib.FeeEstimation
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking
 import com.mycelium.wapi.wallet.manager.*
+import org.jetbrains.annotations.TestOnly
 import java.util.*
 
 
@@ -95,6 +96,7 @@ class WalletManager(val backing: WalletManagerBacking<*,*>,
         return result.keys.toList()
     }
 
+    @TestOnly
     fun addAccount(account: WalletAccount<*,*>) {
         accounts[account.id] = account;
     }

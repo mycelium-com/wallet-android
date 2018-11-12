@@ -86,7 +86,7 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun getSendToRequest(destination: BtcAddress, amount: Value): SendRequest<*> {
+    override fun getSendToRequest(destination: BtcAddress, amount: Value): SendRequest<CoinapultTransaction> {
         return CoinapultSendRequest(currency, destination, amount)
     }
 
@@ -100,9 +100,9 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
 
     override fun isVisible(): Boolean = true
 
-    override fun completeAndSignTx(request: SendRequest<CoinapultTransaction>) {
+    override fun completeAndSignTx(request: SendRequest<CoinapultTransaction>, keyCipher: KeyCipher) {
         completeTransaction(request)
-        signTransaction(request)
+        signTransaction(request, keyCipher)
     }
 
     override fun completeTransaction(request: SendRequest<CoinapultTransaction>) {
@@ -113,7 +113,7 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
         }
     }
 
-    override fun signTransaction(request: SendRequest<CoinapultTransaction>) {
+    override fun signTransaction(request: SendRequest<CoinapultTransaction>, keyCipher: KeyCipher) {
         if (!request.isCompleted) {
             return
         }
