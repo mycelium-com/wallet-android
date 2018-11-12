@@ -76,15 +76,7 @@ import com.mrd.bitlib.model.OutputList;
 import com.mrd.bitlib.model.UnspentTransactionOutput;
 import com.mycelium.paymentrequest.PaymentRequestException;
 import com.mycelium.paymentrequest.PaymentRequestInformation;
-import com.mycelium.wallet.BitcoinUri;
-import com.mycelium.wallet.BitcoinUriWithAddress;
-import com.mycelium.wallet.ColuAssetUri;
-import com.mycelium.wallet.Constants;
-import com.mycelium.wallet.MbwManager;
-import com.mycelium.wallet.MinerFee;
-import com.mycelium.wallet.R;
-import com.mycelium.wallet.StringHandleConfig;
-import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.GetAmountActivity;
 import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.StringHandlerActivity;
@@ -135,7 +127,6 @@ import com.mycelium.wapi.wallet.colu.coins.MTCoin;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
 import com.mycelium.wapi.wallet.colu.json.ColuBroadcastTxHex;
 import com.mycelium.wapi.wallet.currency.BitcoinValue;
-import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
 import com.squareup.otto.Subscribe;
@@ -748,8 +739,12 @@ public class SendMainActivity extends Activity {
 
     @OnClick(R.id.btAddressBook)
     void onClickAddressBook() {
-        Intent intent = new Intent(this, GetFromAddressBookActivity.class);
-        startActivityForResult(intent, ADDRESS_BOOK_RESULT_CODE);
+        if(AccountManager.INSTANCE.getCountDownLatchStatus()) {
+            Intent intent = new Intent(this, GetFromAddressBookActivity.class);
+            startActivityForResult(intent, ADDRESS_BOOK_RESULT_CODE);
+        } else {
+            Toast.makeText(this,"Synchonizing...", LENGTH_SHORT).show();
+        }
     }
 
     @OnClick(R.id.btManualEntry)

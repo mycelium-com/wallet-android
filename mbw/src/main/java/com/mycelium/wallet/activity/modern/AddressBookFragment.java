@@ -58,7 +58,6 @@ import android.widget.Toast;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.model.AddressType;
 import com.mycelium.wallet.AccountManager;
 import com.mycelium.wallet.AddressBookManager;
 import com.mycelium.wallet.AddressBookManager.Entry;
@@ -77,6 +76,8 @@ import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
+import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
+import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
@@ -165,11 +166,7 @@ public class AddressBookFragment extends Fragment {
 
    private void updateUiMine() {
       List<Entry> entries = new ArrayList<>();
-      List<WalletAccount<?,?>> activeAccountsGeneric = new ArrayList<>();
-
-      for(WalletAccount account : AccountManager.INSTANCE.getActiveAccounts().values().asList()){
-         activeAccountsGeneric.add(account);
-      }
+      List<WalletAccount<?,?>> activeAccountsGeneric =  AccountManager.INSTANCE.getActiveAccounts().values().asList();
       for (WalletAccount account : Utils.sortAccounts(activeAccountsGeneric, _mbwManager.getMetadataStorage())) {
 
          String name = _mbwManager.getMetadataStorage().getLabelByAccount(account.getId());
@@ -197,12 +194,11 @@ public class AddressBookFragment extends Fragment {
       Map<Address, String> rawentries = _mbwManager.getMetadataStorage().getAllAddressLabels();
       List<Entry> entries = new ArrayList<Entry>();
       for (Map.Entry<Address, String> e : rawentries.entrySet()) {
-         if(AddressUtils.fromAddress(e.getKey()).getCoinType().equals(_mbwManager.getSelectedAccount().getCoinType())) {
-            entries.add(new Entry(AddressUtils.fromAddress(e.getKey()), e.getValue()));
-         }
+         entries.add(new Entry(AddressUtils.fromAddress(e.getKey()), e.getValue()));
       }
       entries = Utils.sortAddressbookEntries(entries);
-      if (entries.isEmpty()) {
+      if (entries.isEmpty() || !(_mbwManager.getSelectedAccount().getCoinType() == BitcoinMain.get() ||
+              _mbwManager.getSelectedAccount().getCoinType() == BitcoinTest.get())) {
          findViewById(R.id.tvNoRecords).setVisibility(View.VISIBLE);
          findViewById(R.id.lvForeignAddresses).setVisibility(View.GONE);
       } else {

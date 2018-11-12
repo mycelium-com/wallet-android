@@ -17,6 +17,7 @@ import com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.squareup.otto.Subscribe
 import java.util.*
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Semaphore
 
 object AccountManager : AccountProvider {
@@ -26,12 +27,17 @@ object AccountManager : AccountProvider {
     private val archivedAccountsSemaphore = Semaphore(100)
     private val masterSeedAccounts: HashMap<UUID, WalletAccount<out GenericTransaction, out GenericAddress>> = hashMapOf()
     private val masterSeedAccountsSemaphore = Semaphore(100)
+    private val countDownLatch = CountDownLatch(1)
 
     init {
         Handler(Looper.getMainLooper()).post {
             MbwManager.getInstance(WalletApplication.getInstance()).eventBus.register(this)
         }
         FillAccountsTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
+    }
+
+    fun getCountDownLatchStatus(): Boolean {
+        return countDownLatch.count == 0L
     }
 
     class FillAccountsTask : AsyncTask<Void, Void, Void>() {
@@ -55,15 +61,18 @@ object AccountManager : AccountProvider {
 
         override fun onPostExecute(result: Void?) {
             mbwManager.eventBus.post(AccountListChanged())
+            countDownLatch.countDown()
         }
     }
 
     override fun getAccounts(): ImmutableMap<UUID, WalletAccount<out GenericTransaction, out GenericAddress>> = ImmutableMap.copyOf<UUID, WalletAccount<out GenericTransaction, out GenericAddress>>(accounts)
 
-    fun getActiveAccounts(): ImmutableMap<UUID, WalletAccount<out GenericTransaction, out GenericAddress>> =
-            getFilteredAccounts(accountsSemaphore, accounts) {
-                it.value.isVisible
-            }
+    fun getActiveAccounts(): ImmutableMap<UUID, WalletAccount<out GenericTransaction, out GenericAddress>>{
+       return getFilteredAccounts(accountsSemaphore, accounts) {
+            it.value.isVisible
+        }
+    }
+
 
     private inline fun <reified T> getAccountsByType(): ImmutableMap<UUID, WalletAccount<out GenericTransaction, out GenericAddress>> =
             getFilteredAccounts(accountsSemaphore, accounts) {
