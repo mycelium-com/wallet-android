@@ -70,7 +70,7 @@ class MasterseedScanManager : AbstractAccountScanManager {
                 passphrase = waitForPassphrase()
             }
             if (passphrase.isPresent) {
-                this.masterSeed = Bip39.generateSeedFromWordList(words, passphrase.get())
+                masterSeed = Bip39.generateSeedFromWordList(words, passphrase.get())
             } else {
                 return false
             }
