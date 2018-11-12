@@ -77,7 +77,6 @@
   <string name="pref_category_pin">PIN-instellingen</string>
   <string name="pref_clear_pin">Wis PIN-Code</string>
   <string name="pref_clear_pin_summary">Wis de huidige PIN-code</string>
-  <string name="pref_set_pin">Stel PIN-Code in</string>
   <string name="pref_set_pin_summary">Stel een PIN-code in die de toegang beperkt tot verzenden van munten, export van private keys en het wijzigen van de PIN-code</string>
   <string name="pref_local_currency_summary">Selecteer de lokale valuta</string>
   <string name="pref_exchange_source_with_value">Wisselkoers bron (%1$s)</string>
@@ -150,8 +149,6 @@
   <string name="my_accounts">Mijn Rekeningen</string>
   <string name="foreign_addresses">Adresboek</string>
   <string name="confirm_delete_pk_title">Weet u het zeker?</string>
-  <!-- string name="confirm_delete_pk_with_balance">Dit kan niet ongedaan gemaakt worden!\n\nHuidig adres:\n%1$s\n\nHet bevat %2$s\n\nWilt u het verwijderen?</string>
-  <string name="confirm_delete_pk_without_balance">Dit kan niet ongedaan gemaakt worden!\n\nHuidige adres:\n%1$s\n\nWilt u het verwijderen?</string -->
   <string name="verify_private_key_backup">Back-up verifiëren</string>
   <string name="verify_backup_dialog_title">Private key back-up verifiëren</string>
   <string name="verify_backup_scan_desc">Verifieer uw back-up door de QR code van de private key of de masterseed te scannen.\nDiverse formaten worden geaccepteerd, inclusief de Mycelium encrypted paper backup.</string>
@@ -160,8 +157,7 @@
   <string name="verify_backup_one_key">U heeft 1 key die nog nooit is geverifieerd.</string>
   <string name="verify_backup_master_seed">Uw master seed is niet geverifieerd.</string>
   <string name="verify_backup_no_such_record">De private key komt niet overeen met een van uw Bitcoin adressen.</string>
-  <string name="verify_backup_ok">Private key back-up geverifieerd voor het volgende address:\n\n%1$s</string>
-  <string name="wrong_seed">De gescande Seed komt niet overeen met uw Master Seed.</string>
+    <string name="wrong_seed">De gescande Seed komt niet overeen met uw Master Seed.</string>
   <string name="backup_missing">Back-up ontbreekt</string>
   <string name="verify_backup_title">Back-up en verifieer</string>
   <string name="verify_backup_message_text_1">Het maken van een goede back-up is een essentieel onderdeel bij het beheren van bitcoins.\nU heeft één of meerdere Bitcoin private keys of een master seed waarvan de back-up niet is geverifieerd.\n\nSelecteer de Back-up optie voor het maken van een back-up.</string>
@@ -399,14 +395,6 @@
   <!-- LT end -->
   <string name="cs_private_key_description">U gebruikt een persoonlijke sleutel met de volgende Bitcoin adres:</string>
   <string name="cs_address_description">U heeft een Bitcoin adres gescand. U kunt het saldo weergeven maar niet uitgeven.</string>
-  <plurals name="contains_keys">
-    <item quantity="one">Bevat een persoonlijke sleutel.</item>
-    <item quantity="other">Bevat %1$d persoonlijke sleutels.</item>
-  </plurals>
-  <plurals name="contains_addresses">
-    <item quantity="one">Bevat één adres.</item>
-    <item quantity="other">Bevat %1$d adressen.</item>
-  </plurals>
   <string name="archiving_account_title">Account Archiveren</string>
   <string name="new_version_exists">Er is een nieuwe versie beschikbaar</string>
   <string name="check_update">Zoeken naar updates</string>
@@ -541,7 +529,6 @@
   <string name="trezor_name">Trezor:</string>
   <string name="ledger_next_unused_account_button">Volgende ongebruikte account importeren&#8230;</string>
   <string name="ledger_enter_pin">Ledger Wallet PIN invoeren</string>
-  <string name="ledger_please_wait">Een ogenblik geduld...</string>
   <string name="pref_ledger_title">Ledger Hardware Wallet</string>
   <string name="ledger_disable_tee_preference">TEE-ondersteuning uitschakelen</string>
   <string name="select_local_currencies">Selecteer uw valutas</string>

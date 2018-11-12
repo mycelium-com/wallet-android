@@ -78,7 +78,6 @@
   <string name="pref_category_pin">Configuración PIN</string>
   <string name="pref_clear_pin">Borrar Código PIN</string>
   <string name="pref_clear_pin_summary">Borrar el código PIN actual</string>
-  <string name="pref_set_pin">Establecer Código PIN</string>
   <string name="pref_set_pin_summary">Establecer un código PIN que restringe el acceso a enviar monedas, exportar las claves privadas y cambiar el código PIN</string>
   <string name="pref_local_currency_summary">Selecciona la moneda fiduciaria local</string>
   <string name="pref_exchange_source_with_value">Fuente de intercambio (%1$s)</string>
@@ -151,8 +150,6 @@
   <string name="my_accounts">Mis cuentas</string>
   <string name="foreign_addresses">Libreta de direcciones</string>
   <string name="confirm_delete_pk_title">¿Estás seguro?</string>
-  <!-- string name="confirm_delete_pk_with_balance">¡Esto no se puede desahacer!\n\nLa dirección actual:\n%1$s\n\n contiene %2$s\n\n¿Quieres eliminarla?</string>
-  <string name="confirm_delete_pk_without_balance">¡Esto no se puede deshacer!\n\nDirección actual:\n%1$s\n\n¿Quieres eliminarla?</string -->
   <string name="verify_private_key_backup">Verificar copia de seguridad</string>
   <string name="verify_backup_dialog_title">Verificar copia de seguridad de la clave privada</string>
   <string name="verify_backup_scan_desc">Verifica tu copia de seguridad escaneando el código QR de la clave privada o la semilla.\nSe aceptan varios formatos, incluido la copia de seguridad cifrada en papel de Mycelium.</string>
@@ -161,8 +158,7 @@
   <string name="verify_backup_one_key">Dispones de una clave que no se ha comprobado nunca.</string>
   <string name="verify_backup_master_seed">Tu semilla no ha sido comprobada.</string>
   <string name="verify_backup_no_such_record">La clave privada no coincide con ninguna de tus direcciones de Bitcoins.</string>
-  <string name="verify_backup_ok">Se ha comprobado con éxito la copia de seguridad de la clave privada para la dirección:\n\n%1$s</string>
-  <string name="wrong_seed">La semilla escaneada no coincide con la tuya.</string>
+    <string name="wrong_seed">La semilla escaneada no coincide con la tuya.</string>
   <string name="backup_missing">Copia de seguridad inexistente</string>
   <string name="verify_backup_title">Realizar copia de seguridad y comprobar</string>
   <string name="verify_backup_message_text_1">Realizar una copia de seguridad correcta de la clave privada es primordial cuando se gestionan fondos en Bitcoins.\nTú tiene una o más claves privadas de Bitcoin o una semilla donde la copia de seguridad no ha sido verificada.\n\nPor favor, selecciona la opción de Backup para hacer una copia de seguridad.</string>
@@ -402,14 +398,6 @@
   <!-- LT end -->
   <string name="cs_private_key_description">Estás usando una clave privada con la siguiente dirección Bitcoin:</string>
   <string name="cs_address_description">Has escaneado una dirección Bitcoin. Puedes ver el saldo pero no gastar desde ella.</string>
-  <plurals name="contains_keys">
-    <item quantity="one">Contiene una clave privada.</item>
-    <item quantity="other">Contiene %1$d claves privadas.</item>
-  </plurals>
-  <plurals name="contains_addresses">
-    <item quantity="one">Contiene una dirección.</item>
-    <item quantity="other">Contiene %1$d direcciones.</item>
-  </plurals>
   <string name="archiving_account_title">Archivando Cuenta</string>
   <string name="new_version_exists">Nueva versión disponible</string>
   <string name="check_update">Buscar actualizaciones</string>
@@ -587,7 +575,6 @@
   <string name="ledger_enter_pin">Introduce el PIN de tu monedero Ledger</string>
   <string name="ledger_enter_transaction_pin">Introduce el 2FA de tu monedero Ledger</string>
   <string name="ledger_enter_2fa_pin">Confirmar dirección de salida usando tu Tarjeta de Seguridad</string>
-  <string name="ledger_please_wait">Por favor espera ...</string>
   <string name="ledger_unplugged_aid">ID de aplicación (AID) de Ledger Unplugged</string>
   <string name="ledger_set_unplugged_aid_title">Establecer ID de aplicación (AID) de Ledger Unplugged</string>
   <string name="ledger_check_unplugged_aid">ID de aplicación (AID) inválido, por favor compruébalo</string>
@@ -629,7 +616,6 @@
   <string name="dontagree">No acepto</string>
   <string name="agree">De acuerdo</string>
   <string name="lt_warning_watch_only_account">La cuenta actual es de sólo lectura - selecciona una cuenta diferente.</string>
-  <string name="refresh">actualizar</string>
   <string name="xpriv_title">Clave privada extendida</string>
   <string name="share_xpriv">Dividir la clave privada extendida</string>
   <string name="export_share_warning">Advertencia: Estás a punto de compartir los datos de tu cuenta privada. Cualquiera que los tenga podrá acceder a los fondos actuales y futuros de tu cuenta. ¿Quieres continuar?</string>

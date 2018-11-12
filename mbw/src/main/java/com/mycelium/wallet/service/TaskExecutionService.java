@@ -176,7 +176,6 @@ public class TaskExecutionService extends Service {
       _state = ServiceTaskStatusEx.State.NOTRUNNING;
       _applicationContext = this.getApplicationContext();
 
-      // todo!!!!!!!!!!!
       _httpErrorCollector = HttpErrorCollector.registerInVM(getApplicationContext(), MbwManager.getInstance(_applicationContext).getWapi());
 
       _serviceMessenger = new Messenger(new IncomingHandler());
