@@ -150,8 +150,6 @@
   <string name="my_accounts">Mes comptes</string>
   <string name="foreign_addresses">Carnet d\'adresses</string>
   <string name="confirm_delete_pk_title">Êtes-vous sûr ?</string>
-  <string name="confirm_delete_pk_with_balance">Cette action ne peut pas être annulée !\n\nAdresse actuelle :\n%1$s\n\nContient %2$s\n\nDésirez-vous la supprimer ?</string>
-  <string name="confirm_delete_pk_without_balance">Cette action ne peut pas être annulée !\n\nAdresse actuelle :\n%1$s\n\nDésirez-vous la supprimer ?</string>
   <string name="verify_private_key_backup">Vérifier la sauvegarde</string>
   <string name="verify_backup_dialog_title">Vérifier la sauvegarde de la clé privée</string>
   <string name="verify_backup_scan_desc">Vérifiez votre sauvegarde en scannant le code QR de la clé privée ou de la master seed.\nPlusieurs formats sont acceptés, y compris les sauvegardes papiers chiffrées de Mycelium.</string>
@@ -407,8 +405,6 @@
   <!-- LT end -->
   <string name="cs_private_key_description">Vous utilisez une clé privée avec l\'adresse Bitcoin suivante :</string>
   <string name="cs_address_description">Vous avez numérisé une adresse Bitcoin. Vous pouvez consulter le solde mais pas le dépenser.</string>
-  <string name="contains_keys">Contient %1$s clés privées.</string>
-  <string name="contains_addresses">Contient %1$s adresses.</string>
   <string name="archiving_account_title">Archivage de compte</string>
   <string name="new_version_exists">Une nouvelle version est disponible</string>
   <string name="check_update">Rechercher une mise à jour</string>
@@ -466,8 +462,6 @@
   <string name="unspent_outputs_title">Sorties non dépensées</string>
   <string name="no_unspent_outputs_description">Cette page montre sur quelles adresses se trouvent les fonds dans le compte sélectionné. Actuellement, il n\'y a pas de fonds à afficher.</string>
   <string name="warning_words_import">ATTENTION : Ne copiez pas vos mots dans le presse-papier, d\'autres applications pourraient les lire et obtenir vos fonds.</string>
-  <string name="account_contains_one_key_info">Contient une clé privée.</string>
-  <string name="account_contains_one_address_info">Contient une adresse.</string>
   <string name="verify_backup_ok_message">La sauvegarde a été vérifiée avec succès.</string>
   <string name="wordlist_import_invalid_checksum">Le checksum de votre liste de mots a échoué, veuillez vérifier que vous avez entré tous les mots correctement.</string>
   <string name="checkbox_wordlist_passphrase">J\'ai un mot de passe</string>

@@ -150,8 +150,6 @@
   <string name="my_accounts">Moji računi</string>
   <string name="foreign_addresses">Imenik</string>
   <string name="confirm_delete_pk_title">Ste prepričani?</string>
-  <string name="confirm_delete_pk_with_balance">Brisanje je dokončno in ga ne boste mogli razveljaviti!\n\nTrenutni naslov:\n%1$s\n\nVsebuje %2$s\n\nSte prepričani, da ga želite izbrisati?</string>
-  <string name="confirm_delete_pk_without_balance">Brisanje je dokončno in ga ne boste mogli razveljaviti!\n\nTrenutni naslov:\n%1$s\n\nSte prepričani, da ga želite izbrisati?</string>
   <string name="verify_private_key_backup">Preveri rezervno kopijo</string>
   <string name="verify_backup_dialog_title">Preveri rezervno kopijo zasebnih ključev</string>
   <string name="verify_backup_scan_desc">Preverite rezervno kopijo z odčitanjem QR-kode zasebnega ključa ali glavnega semena.\nPodprtih je več formatov, med drugim Myceliumova šifrirana papirna rezervna kopija.</string>
@@ -398,8 +396,6 @@
   <!-- LT end -->
   <string name="cs_private_key_description">Uporabljate zasebni ključ tega bitcoin naslova:</string>
   <string name="cs_address_description">Prečitali ste bitcoin naslov. Lahko si ogledate stanje na njem, ne morete pa porabljati teh sredstev.</string>
-  <string name="contains_keys">Vsebuje %1$s zasebnih ključev.</string>
-  <string name="contains_addresses">Vsebuje %1$s naslovov.</string>
   <string name="archiving_account_title">Arhiviranje računa</string>
   <string name="new_version_exists">Na voljo je nova verzija</string>
   <string name="check_update">Preveri posodobitve</string>
@@ -454,8 +450,6 @@
   <string name="unspent_outputs_title">Nepotrošeni izhodi</string>
   <string name="no_unspent_outputs_description">Ta stran prikazuje, na katerih naslovih so sredstva v izbranem računu. Trenutno ni nobenih sredstev.</string>
   <string name="warning_words_import">Opozorilo: ne kopirajte besed na odložišče. Do odložišča imajo dostop druge aplikacije, ki bi lahko tako pridobile dostop do vašega denarja.</string>
-  <string name="account_contains_one_key_info">Vsebuje en zasebni ključ.</string>
-  <string name="account_contains_one_address_info">Vsebuje en naslov.</string>
   <string name="verify_backup_ok_message">Rezervna kopija je bila uspešno preverjena.</string>
   <string name="wordlist_import_invalid_checksum">Kontrolna vsota vnesenega niza besed je neveljavna. Prosimo, preverite, da ste pravilno vnesli besede.</string>
   <string name="checkbox_wordlist_passphrase">Imam geslo</string>

@@ -272,8 +272,6 @@
   <string name="delete_last_entered_word">Hapus Kata Terakhir</string>
   <string name="account">Akun</string>
   <string name="verify_backup_seed_des">Verifikasi cadangan master seed dengan memindai kode QR.</string>
-  <string name="account_contains_one_key_info">Mengandung satu private key.</string>
-  <string name="account_contains_one_address_info">Mengandung satu alamat.</string>
   <string name="verify_backup_ok_message">Cadangan telah sukses di verifikasi.</string>
   <string name="wordlist_length_12">12 kata</string>
   <string name="wordlist_length_18">18 kata</string>
