@@ -17,7 +17,7 @@ class ReceiveBtcViewModel(application: Application) : ReceiveCoinsViewModel(appl
 
     override fun init(account: WalletAccount, hasPrivateKey: Boolean, showIncomingUtxo: Boolean) {
         super.init(account, hasPrivateKey, showIncomingUtxo)
-        model = ReceiveCoinsModel(getApplication(), account, ACCOUNT_LABEL, hasPrivateKey, showIncomingUtxo)
+        model = ReceiveCoinsModel(getApplication(), account, ACCOUNT_LABEL, showIncomingUtxo)
         addressType.value = account.receivingAddress.get().type
     }
 
@@ -31,12 +31,10 @@ class ReceiveBtcViewModel(application: Application) : ReceiveCoinsViewModel(appl
         model.updateObservingAddress()
     }
 
-    fun getAccountDefaultAddressType(): AddressType {
-        return when (account) {
-            is HDAccount -> (account as HDAccount).receivingAddress.get().type
-            is SingleAddressAccount -> (account as SingleAddressAccount).address.type
-            else -> throw IllegalStateException()
-        }
+    fun getAccountDefaultAddressType(): AddressType = when (account) {
+        is HDAccount -> (account as HDAccount).receivingAddress.get().type
+        is SingleAddressAccount -> (account as SingleAddressAccount).address.type
+        else -> throw IllegalStateException()
     }
 
     fun setCurrentAddressTypeAsDefault() {
