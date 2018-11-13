@@ -85,6 +85,7 @@ import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.CoinUtil;
 import com.mycelium.wallet.activity.AdditionalBackupWarningActivity;
@@ -933,6 +934,11 @@ public class Utils {
       }
       if (!account.getReceivingAddress().isPresent()) {
          return false;  // the account has no valid receiving address (should not happen) - dont use it
+      }
+      if(account instanceof AbstractAccount){
+         if(!((AbstractAccount) account).getAvailableAddressTypes().contains(AddressType.P2PKH)){
+            return false;
+         }
       }
       return true; //all other account types including trezor accs are fine
    }
