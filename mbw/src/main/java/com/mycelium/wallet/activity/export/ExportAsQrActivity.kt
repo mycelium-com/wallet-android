@@ -52,8 +52,6 @@ class ExportAsQrActivity : AppCompatActivity() {
             viewModel.init(accountData)
         }
 
-        viewModel.updateData(false)
-
         // Inflate view and obtain an instance of the binding class.
 
         val binding = when {
