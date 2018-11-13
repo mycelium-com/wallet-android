@@ -43,6 +43,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
@@ -93,6 +94,7 @@ import com.mycelium.wallet.activity.modern.GetFromAddressBookActivity;
 import com.mycelium.wallet.activity.send.adapter.AddressViewAdapter;
 import com.mycelium.wallet.activity.send.adapter.FeeLvlViewAdapter;
 import com.mycelium.wallet.activity.send.adapter.FeeViewAdapter;
+import com.mycelium.wallet.activity.send.event.BroadcastResultListener;
 import com.mycelium.wallet.activity.send.event.SelectListener;
 import com.mycelium.wallet.activity.send.helper.FeeItemsBuilder;
 import com.mycelium.wallet.activity.send.model.AddressItem;
@@ -109,6 +111,7 @@ import com.mycelium.wallet.paymentrequest.PaymentRequestHandler;
 import com.mycelium.wapi.api.response.Feature;
 import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.AesKeyCipher;
+import com.mycelium.wapi.wallet.BroadcastResult;
 import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.SendRequest;
@@ -136,7 +139,6 @@ import com.mycelium.wapi.wallet.colu.coins.MTCoin;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
 import com.mycelium.wapi.wallet.colu.json.ColuBroadcastTxHex;
 import com.mycelium.wapi.wallet.currency.BitcoinValue;
-import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
 import com.squareup.otto.Subscribe;
@@ -162,7 +164,7 @@ import static android.widget.Toast.LENGTH_SHORT;
 import static android.widget.Toast.makeText;
 import static com.mycelium.wallet.activity.util.ValueExtentionsKt.isBtc;
 
-public class SendMainActivity extends Activity {
+public class SendMainActivity extends FragmentActivity implements BroadcastResultListener {
     private static final String TAG = "SendMainActivity";
     private static final String TAG_MCS = "mulicurrencyslplog";
 
@@ -1621,17 +1623,11 @@ public class SendMainActivity extends Activity {
 
                     }
                 } else {
-                    BroadcastTransactionActivity.callMe(this, _account.getId(), _isColdStorage, sendRequest, _transactionLabel, ""/*getFiatValue()*/, BROADCAST_REQUEST_CODE);
+                    BroadcastDialog broadcastDialog = BroadcastDialog.Companion.create(_account, _isColdStorage, sendRequest.tx);
+                    broadcastDialog.show(getSupportFragmentManager(), "broadcast");
+//                    BroadcastTransactionActivity.create(this, _account.getId(), _isColdStorage, sendRequest, _transactionLabel, ""/*getFiatValue()*/, BROADCAST_REQUEST_CODE);
                 }
             }
-        } else if (requestCode == BROADCAST_REQUEST_CODE) {
-            // return result from broadcast
-            if (resultCode == RESULT_OK) {
-                transactionFiatValuePref.edit().putString(intent.getStringExtra(Constants.TRANSACTION_ID_INTENT_KEY)
-                        , intent.getStringExtra(Constants.TRANSACTION_FIAT_VALUE_KEY)).apply();
-            }
-            this.setResult(resultCode, intent);
-            finish();
         } else if (requestCode == REQUEST_PAYMENT_HANDLER) {
             if (resultCode == RESULT_OK) {
                 _paymentRequestHandlerUuid = Preconditions.checkNotNull(intent.getStringExtra("REQUEST_PAYMENT_HANDLER_ID"));
@@ -1658,10 +1654,30 @@ public class SendMainActivity extends Activity {
         }
     }
 
+    @Override
+    public void broadcastResult(BroadcastResult broadcastResult) {
+        Intent result = new Intent();
+        if (broadcastResult == BroadcastResult.SUCCESS) {
+            if (_transactionLabel != null) {
+                _mbwManager.getMetadataStorage().storeTransactionLabel(sendRequest.tx.getHash(), _transactionLabel);
+            }
+            String hash = sendRequest.tx.getHash().toString();
+            String fiat = getFiatValue();
+            transactionFiatValuePref.edit().putString(hash, fiat).apply();
+
+            result.putExtra(Constants.TRANSACTION_FIAT_VALUE_KEY, fiat)
+                    .putExtra(Constants.TRANSACTION_ID_INTENT_KEY, hash);
+        }
+
+        setResult(broadcastResult == BroadcastResult.SUCCESS ? RESULT_OK : RESULT_CANCELED, result);
+        finish();
+    }
+
     private String getFiatValue() {
 //        long value = _amountToSend.getAsBitcoin(_mbwManager.getExchangeRateManager()).getLongValue() + _unsigned.calculateFee();
         long value = 1000 + _unsigned.calculateFee();
-        return _mbwManager.getCurrencySwitcher().getFormattedFiatValue(ExactBitcoinValue.from(value), true);}
+        return _mbwManager.getCurrencySwitcher().getFormattedFiatValue(ExactBitcoinValue.from(value), true);
+    }
 
     private void setReceivingAddressFromKeynode(HdKeyNode hdKeyNode) {
         _progress = ProgressDialog.show(this, "", getString(R.string.retrieving_pubkey_address), true);
