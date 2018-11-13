@@ -77,7 +77,6 @@
   <string name="pref_category_pin">Konfigurimi i PIN-it</string>
   <string name="pref_clear_pin">Fshij PIN kodin</string>
   <string name="pref_clear_pin_summary">Fshij PIN kodin aktual</string>
-  <string name="pref_set_pin">Cakto PIN kodin</string>
   <string name="pref_set_pin_summary">Cakto nje PIN kod që ndalon qasjen për të dërguar monedha, eskportuar çelësat privat, dhe ndryshimin e PIN kodit</string>
   <string name="pref_local_currency_summary">Zgjedh valutën lokale</string>
   <string name="pref_exchange_source_with_value">Burimi i këmbimores (%1$s)</string>
@@ -150,8 +149,6 @@
   <string name="my_accounts">Llogaritë e mia</string>
   <string name="foreign_addresses">Libri i adresave</string>
   <string name="confirm_delete_pk_title">A jeni i sigurtë?</string>
-  <!-- string name="confirm_delete_pk_with_balance">Ky veprim nuk kthehet prapa!\n\nKjo adresë:\n%1$s\n\nPërmban %2$s\n\nDoni ta fshini atë?</string>
-  <string name="confirm_delete_pk_without_balance">Ky veprim nuk kthehet prapa!\n\nKjo adresë:\n%1$s\n\nDoni ta fshini atë?</string -->
   <string name="verify_private_key_backup">Verifiko kopjen rezervë</string>
   <string name="verify_backup_dialog_title">Verifiko kopjen rezervë të çelësit privat</string>
   <string name="verify_backup_scan_desc">Verifikoni kopjen e juaj rezerë duke skanuar QR kodin e çelësit privat ose master seed.\nDisa formate pranohen, duke përfshirë edhe kopjen rezervë të enkriptuar të Mycelium.</string>
@@ -160,8 +157,7 @@
   <string name="verify_backup_one_key">Keni 1 çelës që nuk është verifikuar kurrë.</string>
   <string name="verify_backup_master_seed">Master seed i juaj nuk është verifikuar.</string>
   <string name="verify_backup_no_such_record">Ky çelës privat nuk përputhet me asnjë Bitcoin adresë.</string>
-  <string name="verify_backup_ok">Kopja rezervë e çelësit privat është verifikuar me sukses për këtë adresë:\n\n%1$s</string>
-  <string name="wrong_seed">Seed i skanuar nuk përputhet me master seed.</string>
+    <string name="wrong_seed">Seed i skanuar nuk përputhet me master seed.</string>
   <string name="backup_missing">Mungon kopja rezervë</string>
   <string name="verify_backup_title">Verifiko dhe bëj një kopje rezervë</string>
   <string name="verify_backup_message_text_1">Të keni një kopje të duhur rezervë është shumë e rëndësishme në menaxhimin e fondeve të juaja te Bitcoin-ave.\nKeni një apo më shumë çelësa privat ose një master seed ku kopja rezervë nuk është verifikuar.\n\nJu lutem zgjedhni opsionin për të krijuar një kopje rezervë.</string>
@@ -396,14 +392,6 @@
   <!-- LT end -->
   <string name="cs_private_key_description">Jeni duke përdorur një çelës privat me këtë Bitcoin adresë:</string>
   <string name="cs_address_description">Keni skanuar një Bitcoin adresë. Ju mund të shikoni bilancin por jo të shpenzoni nga kjo adresë.</string>
-  <plurals name="contains_keys">
-    <item quantity="one">Përmban një çelës privat.</item>
-    <item quantity="other">Përmban %1$d çelësa privat.</item>
-  </plurals>
-  <plurals name="contains_addresses">
-    <item quantity="one">Përmban një adresë.</item>
-    <item quantity="other">Përmban %1$d adresa.</item>
-  </plurals>
   <string name="archiving_account_title">Duke arkivuar llogarin</string>
   <string name="new_version_exists">Një version i ri është në dispozicion</string>
   <string name="check_update">Kontrollo për përditësim</string>
@@ -568,7 +556,6 @@
   <string name="ledger_enter_pin">Shëno Ledger Wallet PIN</string>
   <string name="ledger_enter_transaction_pin">Shëno Ledger Wallet 2FA</string>
   <string name="ledger_enter_2fa_pin">Konfirmo adresën dalëse duke përdorur \"Security Card\"</string>
-  <string name="ledger_please_wait">Ju lutem prisni ...</string>
   <string name="pref_ledger_title">Ledger Hardware Wallet</string>
   <string name="select_local_currencies">Zgjedhni monedhat e juaja</string>
   <string name="show_public_or_private_data">Shfaq</string>
@@ -605,7 +592,6 @@
   <string name="dontagree">Nuk pajtohem</string>
   <string name="agree">Pajtohem</string>
   <string name="lt_warning_watch_only_account">Llogaria aktuale është vetëm-vëzhgo - zgjedhni tjetër llogari.</string>
-  <string name="refresh">rifresko</string>
   <string name="xpriv_title">Çelësi privat i zgjëruar</string>
   <string name="share_xpriv">Ndaje çelësin privat të zgjeruar</string>
   <string name="export_share_warning">Paralajmërim: Jeni duke ndarë të dhëna private. Kushdo që merr këto të dhëna mund të ketë qasje në të gjitha fondet e tanishme dhe të ardhshme në llogarin tuaj. Doni të vazhdoni?</string>

@@ -97,7 +97,6 @@ open class ToggleableCurrencyDisplay : LinearLayout {
             }
         }
         a.recycle()
-
     }
 
     protected fun init(context: Context) {

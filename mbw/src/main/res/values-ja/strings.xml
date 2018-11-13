@@ -77,7 +77,6 @@
   <string name="pref_category_pin">暗証番号の設定</string>
   <string name="pref_clear_pin">暗証番号を削除</string>
   <string name="pref_clear_pin_summary">現在設定された暗証番号を削除します。</string>
-  <string name="pref_set_pin">暗証番号の設定</string>
   <string name="pref_set_pin_summary">暗証番号を設定すると、送金、秘密鍵のエクスポート、暗証番号の設定がロックされます。</string>
   <string name="pref_local_currency_summary">表示通貨を選択して下さい。</string>
   <string name="pref_exchange_source_with_value">価格の情報源 (%1$s)</string>
@@ -150,8 +149,6 @@
   <string name="my_accounts">私のアカウント</string>
   <string name="foreign_addresses">アドレス帳</string>
   <string name="confirm_delete_pk_title">一度削除されたものはバックアップされてなければ復元できませんが、本当に宜しいですか？</string>
-  <!-- string name="confirm_delete_pk_with_balance">これは取り消しができません！\n\n現在のアドレス：\n%1$s\n\n含まれているのは %2$s\n\n削除しますか？</string>
-  <string name="confirm_delete_pk_without_balance">これは取り消しができません！\n\n\現在のアドレス：\n%1$s\n\n削除しますか？</string -->
   <string name="verify_private_key_backup">バックアップの確認</string>
   <string name="verify_backup_dialog_title">秘密キーのバックアップを確認します</string>
   <string name="verify_backup_scan_desc">秘密鍵またはマスターシードQRコードをスキャンし、バックアップをご確認下さい。\nMyceliumの暗号化された紙のバックアップを含むいくつかのフォーマットが利用可能です。</string>
@@ -160,8 +157,7 @@
   <string name="verify_backup_one_key">確認されていないキーが1つあります。 </string>
   <string name="verify_backup_master_seed">あなたのマスターシードは確認されていません。</string>
   <string name="verify_backup_no_such_record">この秘密キーはいずれのビットコインアドレスとも一致しません。</string>
-  <string name="verify_backup_ok">次のアドレスについて秘密キーのバックアップが正常に確認されました：\n\n%1$s</string>
-  <string name="wrong_seed">スキャンされたシードはあなたのマスターシードに一致しません。</string>
+    <string name="wrong_seed">スキャンされたシードはあなたのマスターシードに一致しません。</string>
   <string name="backup_missing">バックアップが見つかりません。</string>
   <string name="verify_backup_title">バックアップと確認</string>
   <string name="verify_backup_message_text_1">ビットコインを管理する際、正しくバックアップを行うことは不可欠です。\nバックアップが確認されていない一つまたは複数のビットコインの秘密鍵またはマスターシードがあります。\n\nバックアップを行うために、バックアップオプションを選択してください。</string>
@@ -392,12 +388,6 @@
   <!-- LT end -->
   <string name="cs_private_key_description">次のビットコインアドレスを秘密キーを使用しています：</string>
   <string name="cs_address_description">ビットコインアドレスが完了しました。残高を閲覧できますが、そこから支出することはできません。</string>
-  <plurals name="contains_keys">
-    <item quantity="other">%1$dの秘密鍵が入っています。</item>
-  </plurals>
-  <plurals name="contains_addresses">
-    <item quantity="other">%1$d 個のアドレスを含みます。</item>
-  </plurals>
   <string name="archiving_account_title">アカウントをアーカイブ中</string>
   <string name="new_version_exists">新しいバージョンが利用可能</string>
   <string name="check_update">アップデートを確認</string>
@@ -554,7 +544,6 @@
   <string name="ledger_fee">採掘者への手数料：</string>
   <string name="ledger_total">合計：</string>
   <string name="ledger">Ledger</string>
-  <string name="ledger_please_wait">お待ちください ...</string>
   <string name="pref_ledger_title">Ledger Hardware Wallet</string>
   <string name="select_local_currencies">通貨を選択して下さい</string>
   <string name="show_public_or_private_data">表示</string>
@@ -589,7 +578,6 @@
   <string name="masterseed_optional_passphrase_hint">この暗証フレーズは同じマスター・シードから違うアカウントの抽出ができます。\nもし意味がわからなければ、空欄のままにしておいて下さい。</string>
   <string name="tx_details_num_confirmations">承認</string>
   <string name="lt_warning_watch_only_account">このアカウントは監視限定です。別のアカウントを選択して下さい。</string>
-  <string name="refresh">再読込みして</string>
   <string name="xpriv_title">拡張秘密鍵</string>
   <string name="share_xpriv">拡張秘密鍵を共有</string>
   <string name="export_share_warning">警告： アカウントデータの重要な情報を共有しようとしています。この情報を手に入れた人は今までとこれからの当アカウントの全てのビットコインを操作することができます。続行しますか？</string>

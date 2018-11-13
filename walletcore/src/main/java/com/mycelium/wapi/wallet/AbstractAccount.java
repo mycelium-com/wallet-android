@@ -1058,17 +1058,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
 
    private void addOutputToEstimation(Address outputAddress, FeeEstimatorBuilder estimatorBuilder) {
       if (outputAddress != null) {
-         switch (outputAddress.getType()) {
-            case P2PKH:
-               estimatorBuilder.setLegacyOutputs(1);
-               break;
-            case P2WPKH:
-               estimatorBuilder.setBechOutputs(1);
-               break;
-            case P2SH_P2WPKH:
-               estimatorBuilder.setP2shOutputs(1);
-               break;
-         }
+         estimatorBuilder.addOutput(outputAddress.getType());
       } else {
          estimatorBuilder.setLegacyOutputs(1);
       }

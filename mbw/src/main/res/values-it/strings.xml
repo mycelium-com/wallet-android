@@ -78,7 +78,6 @@
   <string name="pref_category_pin">Impostazioni PIN</string>
   <string name="pref_clear_pin">Rimuovi codice PIN</string>
   <string name="pref_clear_pin_summary">Rimuovi il codice PIN attuale</string>
-  <string name="pref_set_pin">Imposta codice PIN</string>
   <string name="pref_set_pin_summary">Imposta un PIN per bloccare l\'invio di bitcoin, l\'esportazione di chiavi private e la modifica del codice PIN stesso</string>
   <string name="pref_local_currency_summary">Seleziona una o più valute fiat locali</string>
   <string name="pref_exchange_source_with_value">Exchange (%1$s)</string>
@@ -151,8 +150,6 @@
   <string name="my_accounts">Miei Conti</string>
   <string name="foreign_addresses">Rubrica</string>
   <string name="confirm_delete_pk_title">Confermi?</string>
-  <!-- string name="confirm_delete_pk_with_balance">Questa azione non potrà essere annullata!\n\nL\'indirizzo attuale:\n%1$s\n\nIt contiene %2$s\n\nDesideri eliminarla?</string>
-  <string name="confirm_delete_pk_without_balance">Questa azione non potrà essere annullata!\n\nIndirizzo attuale:\n%1$s\n\nDesideri eliminarlo?</string -->
   <string name="verify_private_key_backup">Verifica del backup</string>
   <string name="verify_backup_dialog_title">Verifica backup della chiave privata</string>
   <string name="verify_backup_scan_desc">Verifica il backup scandendo il codice QR della tua chiave privata o del master seed.\nSono supportati vari formati, compreso il backup crittografato e stampato su carta di Mycelium.</string>
@@ -161,8 +158,7 @@
   <string name="verify_backup_one_key">Hai una chiave che non è mai stata verificata.</string>
   <string name="verify_backup_master_seed">Il master seed non è stato verificato.</string>
   <string name="verify_backup_no_such_record">La chiave privata non corrisponde a nessuno dei tuoi indirizzi bitcoin.</string>
-  <string name="verify_backup_ok">Backup della chiave privata verificato con successo per il seguente indirizzo:\n\n%1$s</string>
-  <string name="wrong_seed">Il numero scandito non corrisponde al tuo master seed.</string>
+    <string name="wrong_seed">Il numero scandito non corrisponde al tuo master seed.</string>
   <string name="backup_missing">Backup assente</string>
   <string name="verify_backup_title">Eseguire il backup e la verifica</string>
   <string name="verify_backup_message_text_1">Un corretto backup è basilare per la gestione dei tuoi fondi in Bitcoin.\nPossiedi una o più chiavi private Bitcoin o un master seed il cui backup non è stato verificato.\n\nSi consiglia di selezionare l\'opzione di backup.</string>
@@ -407,14 +403,6 @@
   <!-- LT end -->
   <string name="cs_private_key_description">Stai usando una chiave privata con il seguente indirizzo Bitcoin:</string>
   <string name="cs_address_description">Hai scansionato un indirizzo Bitcoin. Puoi vedere il saldo ma non puoi prelevare da li.</string>
-  <plurals name="contains_keys">
-    <item quantity="one">Contiene una chiave privata.</item>
-    <item quantity="other">Contiene %1$d chiavi private.</item>
-  </plurals>
-  <plurals name="contains_addresses">
-    <item quantity="one">Contiene un indirizzo.</item>
-    <item quantity="other">Contiene %1$d indirizzi.</item>
-  </plurals>
   <string name="archiving_account_title">Archiviazione account</string>
   <string name="new_version_exists">È disponibile una nuova versione</string>
   <string name="check_update">Ricerca aggiornamenti</string>
@@ -610,7 +598,6 @@
   <string name="ledger_enter_pin">Inserisci il PIN del Ledger Wallet</string>
   <string name="ledger_enter_transaction_pin">Inserisci la 2FA del Ledger Wallet</string>
   <string name="ledger_enter_2fa_pin">Conferma l\'indirizzo di uscita (output) tramite la Security Card</string>
-  <string name="ledger_please_wait">Attendere prego ...</string>
   <string name="ledger_unplugged_aid">AID di Ledger Unplugged</string>
   <string name="ledger_set_unplugged_aid_title">Imposta AID di Ledger Unplugged</string>
   <string name="ledger_check_unplugged_aid">AID errato, ricontrollare</string>
@@ -651,7 +638,6 @@
   <string name="dontagree">Rifiuto</string>
   <string name="agree">Accetto</string>
   <string name="lt_warning_watch_only_account">L\'account attuale è in sola lettura - seleziona un altro account.</string>
-  <string name="refresh">aggiorna</string>
   <string name="xpriv_title">Chiave privata estesa</string>
   <string name="share_xpriv">Condividi chiave privata estesa</string>
   <string name="export_share_warning">Attenzione: Stai per condividere i dati privati del tuo account. Chiunque ne entri in possesso potrà accedere a tutti i fondi attuali e futuri del tuo account. Desideri continuare?</string>

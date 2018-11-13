@@ -10,7 +10,7 @@ import com.mycelium.wapi.wallet.currency.CurrencyValue
 class ReceiveBchViewModel(application: Application) : ReceiveCoinsViewModel(application) {
     override fun init(account: WalletAccount, hasPrivateKey: Boolean, showIncomingUtxo: Boolean) {
         super.init(account, hasPrivateKey, showIncomingUtxo)
-        model = ReceiveCoinsModel(getApplication(), account, ACCOUNT_LABEL, hasPrivateKey, showIncomingUtxo)
+        model = ReceiveCoinsModel(getApplication(), account, ACCOUNT_LABEL, showIncomingUtxo)
     }
 
     override fun getHint() = context.getString(R.string.amount_hint_denomination,

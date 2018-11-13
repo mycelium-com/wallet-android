@@ -1292,10 +1292,15 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="button_done">Done</string>
     <string name="button_cancel">Cancel</string>
     <string name="transactions_loading_from_module_error">Error loading transactions from module</string>
+    <string name="default_address_type">Default address type</string>
+    <string name="default_address_type_desc">Setup change address preferences</string>
     <string name="address_type">Address type:</string>
     <string name="normal_p2sh">Normal (P2SH)</string>
     <string name="native_segwit_bech_32">Native Segwit (Bech 32)</string>
     <string name="change_address_type">Transaction change address type</string>
+    <string name="change_settings_p2sh_p2wpkh">P2SH_P2WPKH (legacy compatible)</string>
+    <string name="change_settings_bech32">Bech32 (native SegWit)</string>
+    <string name="change_settings_privacy_guard_mode">Privacy guard mode (default)</string>
     <string name="block_explorer">Block explorer</string>
     <string name="p2sh_receive_mode">P2SH mode</string>
     <string name="bech32_receive_mode">SegWit native (Bech32).</string>
