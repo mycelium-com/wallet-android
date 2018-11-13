@@ -4,6 +4,7 @@ import android.app.AlertDialog
 import android.os.AsyncTask
 import android.os.Bundle
 import android.support.v4.app.DialogFragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,6 +16,7 @@ import com.mycelium.wallet.activity.send.event.BroadcastResultListener
 import com.mycelium.wapi.wallet.BroadcastResult
 import com.mycelium.wapi.wallet.GenericTransaction
 import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException
 import java.util.*
 
 
@@ -92,7 +94,12 @@ class BroadcastDialog : DialogFragment() {
         var listener: ((BroadcastResult) -> Unit)? = null
 
         override fun doInBackground(vararg args: Void): BroadcastResult {
-            return account.broadcastTx(transaction)
+            try {
+                return account.broadcastTx(transaction)
+            } catch (e: TransactionBroadcastException) {
+                Log.e("BroadcastDialog", "", e)
+                return BroadcastResult.REJECTED
+            }
         }
 
         override fun onPostExecute(result: BroadcastResult) {
