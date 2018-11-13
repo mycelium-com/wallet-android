@@ -99,7 +99,7 @@ public class ChangellyOfferActivity extends AppCompatActivity {
         currency = getIntent().getStringExtra(ChangellyAPIService.FROM);
         receivingAddress = getIntent().getStringExtra(ChangellyAPIService.DESTADDRESS);
         ChangellyAPIService.retrofit.create(ChangellyAPIService.class)
-                .createTransaction(BCH, BTC, amount, receivingAddress)
+                .createTransaction(currency, BTC, amount, receivingAddress)
                 .enqueue(new GetOfferCallback(amount));
         progressDialog = new ProgressDialog(this);
         progressDialog.setIndeterminate(true);
@@ -124,7 +124,16 @@ public class ChangellyOfferActivity extends AppCompatActivity {
 
     private void sendOrderToService(Order order) {
         try {
-            ExchangeLoggingService.exchangeLoggingService.saveOrder(order).enqueue(null);
+            ExchangeLoggingService.exchangeLoggingService.saveOrder(order).enqueue(new Callback<Void>() {
+                @Override
+                public void onResponse(Call<Void> call, Response<Void> response) {
+                    Log.d(TAG, "logging success ");
+                }
+                @Override
+                public void onFailure(Call<Void> call, Throwable t) {
+                    Log.d(TAG, "logging failure", t);
+                }
+            });
         } catch (RetrofitError e) {
             Log.e(TAG, "Excange logging error", e);
         }
