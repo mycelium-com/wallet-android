@@ -63,7 +63,7 @@ public class WalletManager {
     private WalletManagerBacking _backing;
     private final Map<UUID, WalletAccount> _walletAccounts;
     private final Map<UUID, UUID> _btcToBchAccounts;
-    private final List<HDAccount> HDAccounts;
+    private final List<HDAccount> hdAccounts;
     private final Collection<Observer> _observers;
     private State _state;
     private Thread _synchronizationThread;
@@ -100,7 +100,7 @@ public class WalletManager {
         LoadingProgressTracker.INSTANCE.subscribe(loadingProgressUpdater);
         _logger = _wapi.getLogger();
         _walletAccounts = Maps.newHashMap();
-        HDAccounts = new ArrayList<>();
+        hdAccounts = new ArrayList<>();
         _state = State.READY;
         _accountEventManager = new AccountEventManager();
         _observers = new LinkedList<>();
@@ -190,12 +190,12 @@ public class WalletManager {
                         btcSettings.getChangeAddressModeReference());
                 context.persist(accountBacking);
                 _backing.setTransactionSuccessful();
-                addAccount(account);
+                addAccount(account, Collections.singletonList(id));
 
                 if (_spvBalanceFetcher != null) {
                     SingleAddressBCHAccount singleAddressBCHAccount = new SingleAddressBCHAccount(context,
                             store, _network, accountBacking, _wapi, _spvBalanceFetcher);
-                    addAccount(singleAddressBCHAccount);
+                    addAccount(singleAddressBCHAccount, Collections.singletonList(id));
                     _btcToBchAccounts.put(account.getId(), singleAddressBCHAccount.getId());
                     _spvBalanceFetcher.requestTransactionsFromUnrelatedAccountAsync(singleAddressBCHAccount.getId().toString(), /* IntentContract.UNRELATED_ACCOUNT_TYPE_SA */2);
                 }
@@ -212,10 +212,25 @@ public class WalletManager {
      * @return the ID of the new account
      */
     public UUID createSingleAddressAccount(PublicKey publicKey) {
+        final List<UUID> uuidList = getAccountVirtualIds(publicKey);
         UUID id = SingleAddressAccount.calculateId(publicKey.toAddress(_network, AddressType.P2SH_P2WPKH));
         synchronized (_walletAccounts) {
+            boolean isUpgrade = false;
+            for (UUID uuid : uuidList) {
+                if (_walletAccounts.containsKey(uuid) ) {
+                    if (_walletAccounts.get(uuid) instanceof AbstractAccount) {
+                        AbstractAccount account = (AbstractAccount) _walletAccounts.get(uuid);
+                        isUpgrade = account.getAvailableAddressTypes().size() < BipDerivationType.values().length;
+                    }
+                }
+                if (isUpgrade) {
+                    break;
+                }
+            }
             if (_walletAccounts.containsKey(id)) {
-                return id;
+                if (!isUpgrade) {
+                    return id;
+                }
             }
             _backing.beginTransaction();
             try {
@@ -230,12 +245,16 @@ public class WalletManager {
                         btcSettings.getChangeAddressModeReference());
                 context.persist(accountBacking);
                 _backing.setTransactionSuccessful();
-                addAccount(account);
+                if (!isUpgrade) {
+                    addAccount(account, uuidList);
+                } else {
+                    upgradeAccount(uuidList, account);
+                }
 
                 if (_spvBalanceFetcher != null) {
                     SingleAddressBCHAccount singleAddressBCHAccount = new SingleAddressBCHAccount(context,
                             store, _network, accountBacking, _wapi, _spvBalanceFetcher);
-                    addAccount(singleAddressBCHAccount);
+                    addAccount(singleAddressBCHAccount, Collections.singletonList(singleAddressBCHAccount.getId()));
                     _btcToBchAccounts.put(account.getId(), singleAddressBCHAccount.getId());
                     _spvBalanceFetcher.requestTransactionsFromUnrelatedAccountAsync(singleAddressBCHAccount.getId().toString(), /* IntentContract.UNRELATED_ACCOUNT_TYPE_SA */2);
                 }
@@ -244,6 +263,13 @@ public class WalletManager {
             }
         }
         return id;
+    }
+
+    private void upgradeAccount(List<UUID> uuidList, WalletAccount account) {
+        for (UUID selectedId: uuidList) {
+            _walletAccounts.remove(selectedId);
+            _walletAccounts.put(selectedId, account);
+        }
     }
 
     /**
@@ -276,7 +302,8 @@ public class WalletManager {
                         _network, accountIndex, secureStorage, derivationType));
             }
         }
-        final UUID id = keyManagerMap.get(derivationTypes.get(0)).getAccountId();
+        final List<UUID> uuidList = getAccountVirtualIds(keyManagerMap, derivationTypes);
+        final UUID id = uuidList.get(0);
 
         synchronized (_walletAccounts) {
             // check if it already exists
@@ -322,11 +349,10 @@ public class WalletManager {
                 context.persist(accountBacking);
                 _backing.setTransactionSuccessful();
                 if (!isUpgrade) {
-                    addAccount(account);
-                    HDAccounts.add(account);
+                    addAccount(account, uuidList);
+                    hdAccounts.add(account);
                 } else {
-                    _walletAccounts.remove(id);
-                    _walletAccounts.put(id, account);
+                    upgradeAccount(uuidList, account);
                 }
                 if (_spvBalanceFetcher != null) {
                     Bip44BCHAccount bip44BCHAccount;
@@ -335,7 +361,7 @@ public class WalletManager {
                     } else {
                         bip44BCHAccount = new Bip44BCHPubOnlyAccount(context, keyManagerMap, _network, accountBacking, _wapi, _spvBalanceFetcher);
                     }
-                    addAccount(bip44BCHAccount);
+                    addAccount(bip44BCHAccount, Collections.singletonList(bip44BCHAccount.getId()));
                     _btcToBchAccounts.put(account.getId(), bip44BCHAccount.getId());
                     _spvBalanceFetcher.requestTransactionsFromUnrelatedAccountAsync(bip44BCHAccount.getId().toString(), /* IntentContract.UNRELATED_ACCOUNT_TYPE_HD */ 1);
                 }
@@ -358,7 +384,8 @@ public class WalletManager {
             keyManagerMap.put(derivationType, HDPubOnlyAccountKeyManager.createFromPublicAccountRoot(hdKeyNode,
                     _network, accountIndex, newSubKeyStore, derivationType));
         }
-        final UUID id = keyManagerMap.get(derivationTypes.get(0)).getAccountId();
+        final List<UUID> uuidList = getAccountVirtualIds(keyManagerMap, derivationTypes);
+        final UUID id = uuidList.get(0);
 
         synchronized (_walletAccounts) {
             _backing.beginTransaction();
@@ -386,8 +413,8 @@ public class WalletManager {
                 // Finally persist context and add account
                 context.persist(accountBacking);
                 _backing.setTransactionSuccessful();
-                addAccount(account);
-                HDAccounts.add(account);
+                addAccount(account, uuidList);
+                hdAccounts.add(account);
                 return account.getId();
             } finally {
                 _backing.endTransaction();
@@ -429,8 +456,15 @@ public class WalletManager {
             if (account instanceof SingleAddressAccount) {
                 SingleAddressAccount singleAddressAccount = (SingleAddressAccount) account;
                 singleAddressAccount.forgetPrivateKey(cipher);
+                PublicKey publicKey= singleAddressAccount.getPublicKey();
                 _backing.deleteSingleAddressAccountContext(id);
-                _walletAccounts.remove(id);
+                if (publicKey != null) {
+                    List<UUID> uuidList = getAccountVirtualIds(publicKey);
+                    for (UUID uuid : uuidList) {
+                        _walletAccounts.remove(uuid);
+                    }
+                }
+
                 if (_spvBalanceFetcher != null) {
                     _spvBalanceFetcher.requestUnrelatedAccountRemoval(id.toString());
                 }
@@ -440,7 +474,7 @@ public class WalletManager {
                     throw new RuntimeException("cant delete masterseed based accounts");
                 }
                 hdAccount.clearBacking();
-                HDAccounts.remove(hdAccount);
+                hdAccounts.remove(hdAccount);
                 _backing.deleteBip44AccountContext(id);
                 _walletAccounts.remove(id);
                 if (_spvBalanceFetcher != null) {
@@ -582,7 +616,7 @@ public class WalletManager {
     public HDAccount getBip44Account(int index) {
         HDAccount result = null;
         for (HDAccount HDAccount :
-                HDAccounts) {
+                hdAccounts) {
             if(HDAccount.getAccountIndex() == index) {
                 result = HDAccount;
                 break;
@@ -612,7 +646,7 @@ public class WalletManager {
      */
     public boolean doesBip44AccountExists(int index) {
         for (HDAccount HDAccount :
-                HDAccounts) {
+                hdAccounts) {
             if(HDAccount.getAccountIndex() == index) {
                 return true;
             }
@@ -793,8 +827,10 @@ public class WalletManager {
             HDAccount account;
             account = getBip44Account(context, keyManagerMap, accountBacking);
 
-            addAccount(account);
-            HDAccounts.add(account);
+            final List<UUID> uuidList = getAccountVirtualIds(keyManagerMap, account);
+
+            addAccount(account, uuidList);
+            hdAccounts.add(account);
 
             if (_spvBalanceFetcher != null) {
                 Bip44BCHAccount bchAccount;
@@ -807,7 +843,7 @@ public class WalletManager {
                         bchAccount = new Bip44BCHAccount(context, keyManagerMap, _network, accountBacking, _wapi, _spvBalanceFetcher);
                 }
 
-                addAccount(bchAccount);
+                addAccount(bchAccount, Collections.singletonList(bchAccount.getId()));
                 _btcToBchAccounts.put(account.getId(), bchAccount.getId());
 
                 if (context.getAccountType() == ACCOUNT_TYPE_FROM_MASTERSEED) {
@@ -919,21 +955,30 @@ public class WalletManager {
             SingleAddressAccountBacking accountBacking = checkNotNull(_backing.getSingleAddressAccountBacking(context.getId()));
             SingleAddressAccount account = new SingleAddressAccount(context, store, _network, accountBacking, _wapi,
                     btcSettings.getChangeAddressModeReference());
-            addAccount(account);
+            final List<UUID> uuidList = new ArrayList<>();
+            for (AddressType addressType: account.getAvailableAddressTypes()) {
+                uuidList.add(SingleAddressAccount.calculateId(account.getPublicKey().toAddress(_network, addressType)));
+            }
+            addAccount(account, uuidList);
 
             if (_spvBalanceFetcher != null) {
                 SingleAddressBCHAccount bchAccount = new SingleAddressBCHAccount(context, store, _network, accountBacking, _wapi, _spvBalanceFetcher);
-                addAccount(bchAccount);
+                addAccount(bchAccount, Collections.singletonList(bchAccount.getId()));
                 _btcToBchAccounts.put(account.getId(), bchAccount.getId());
                 _spvBalanceFetcher.requestTransactionsFromUnrelatedAccountAsync(bchAccount.getId().toString(), /* IntentContract.UNRELATED_ACCOUNT_TYPE_SA */ 2);
             }
         }
     }
 
-    public void addAccount(AbstractAccount account) {
+    /**
+     * @param accountIds - because of mixed mode account might have multiple ids, some of which might be virtual.
+     */
+    public void addAccount(AbstractAccount account, List<UUID> accountIds) {
         synchronized (_walletAccounts) {
             account.setEventHandler(_accountEventManager);
-            _walletAccounts.put(account.getId(), account);
+            for (UUID id : accountIds) {
+                _walletAccounts.put(id, account);
+            }
             _logger.logInfo("Account Added: " + account.getId());
         }
     }
@@ -1198,7 +1243,7 @@ public class WalletManager {
             return true;
         }
         // We can add an additional account if the last account had activity
-        HDAccount last = HDAccounts.get(HDAccounts.size() - 1);
+        HDAccount last = hdAccounts.get(hdAccounts.size() - 1);
         return last.hasHadActivity();
     }
 
@@ -1209,7 +1254,7 @@ public class WalletManager {
         }
         //if its unused, we can remove it from the manager
         synchronized (_walletAccounts) {
-            HDAccounts.remove(account);
+            hdAccounts.remove(account);
             _walletAccounts.remove(account.getId());
             _backing.deleteBip44AccountContext(account.getId());
 
@@ -1224,7 +1269,7 @@ public class WalletManager {
     public int getBlockheight() {
         int height = 0;
         //TODO: should we iterate over all accounts and find max blockheight ?
-        HDAccount account = HDAccounts.get(0);
+        HDAccount account = hdAccounts.get(0);
         if(account != null) {
             height = account.getBlockChainHeight();
         }
@@ -1234,7 +1279,7 @@ public class WalletManager {
     // for the not expected case, that no account is activated (i.e. all are achieved), just enable the first one
     // because the app needs at least one active account in several places.
     public void activateFirstAccount() {
-        if (HDAccounts.isEmpty()) {
+        if (hdAccounts.isEmpty()) {
             return;
         }
         filterAndConvert(MAIN_SEED_BTC_HD_ACCOUNT).get(0).activateAccount();
@@ -1242,7 +1287,7 @@ public class WalletManager {
 
     public int getCurrentBip44Index() {
         int maxIndex = -1;
-        for (HDAccount walletAccount : HDAccounts) {
+        for (HDAccount walletAccount : hdAccounts) {
             maxIndex = Math.max(walletAccount.getAccountIndex(), maxIndex);
         }
         return maxIndex;
@@ -1250,7 +1295,7 @@ public class WalletManager {
 
     private int getNextBip44Index() {
         int maxIndex = -1;
-        for (HDAccount walletAccount : HDAccounts) {
+        for (HDAccount walletAccount : hdAccounts) {
             maxIndex = Math.max(walletAccount.getAccountIndex(), maxIndex);
         }
         return maxIndex + 1;
@@ -1350,9 +1395,10 @@ public class WalletManager {
                 if (archived) {
                     account.archiveAccount();
                 }
+                final List<UUID> uuidList = getAccountVirtualIds(keyManagerMap, account);
 
-                addAccount(account);
-                HDAccounts.add(account);
+                addAccount(account, uuidList);
+                hdAccounts.add(account);
                 return account.getId();
             } finally {
                 _backing.endTransaction();
@@ -1396,17 +1442,19 @@ public class WalletManager {
                 HDAccount account = new HDAccount(context, keyManagerMap, _network, accountBacking, _wapi,
                         btcSettings.getChangeAddressModeReference());
 
+                final List<UUID> uuidList = getAccountVirtualIds(keyManagerMap, account);
+
                 // Finally persist context and add account
                 context.persist(accountBacking);
                 _backing.setTransactionSuccessful();
-                addAccount(account);
-                HDAccounts.add(account);
+                addAccount(account, uuidList);
+                hdAccounts.add(account);
 
                 if(_spvBalanceFetcher != null) {
                     Bip44BCHAccount bip44BCHAccount = new Bip44BCHAccount(context, keyManagerMap, _network,
                             accountBacking, _wapi, _spvBalanceFetcher);
                     _spvBalanceFetcher.requestTransactionsAsync(bip44BCHAccount.getAccountIndex());
-                    addAccount(bip44BCHAccount);
+                    addAccount(bip44BCHAccount, Collections.singletonList(bip44BCHAccount.getId()));
                     _btcToBchAccounts.put(account.getId(), bip44BCHAccount.getId());
                 }
 
@@ -1415,6 +1463,42 @@ public class WalletManager {
                 _backing.endTransaction();
             }
         }
+    }
+
+    /**
+     * This method is intended to get all possible ids for mixed HD account.
+     */
+    @Nonnull
+    private List<UUID> getAccountVirtualIds(Map<BipDerivationType, HDAccountKeyManager> keyManagerMap, HDAccount account) {
+        final List<UUID> uuidList = new ArrayList<>();
+        for (AddressType addressType : account.getAvailableAddressTypes()) {
+            uuidList.add(keyManagerMap.get(BipDerivationType.Companion.getDerivationTypeByAddressType(addressType)).getAccountId());
+        }
+        return uuidList;
+    }
+
+    /**
+     * This method is intended to get all possible ids for mixed HD account.
+     */
+    @Nonnull
+    private List<UUID> getAccountVirtualIds(Map<BipDerivationType, HDAccountKeyManager> keyManagerMap, List<BipDerivationType> derivationTypes) {
+        final List<UUID> uuidList = new ArrayList<>();
+        for (BipDerivationType derivationType : derivationTypes) {
+            uuidList.add(keyManagerMap.get(derivationType).getAccountId());
+        }
+        return uuidList;
+    }
+
+    /**
+     * This method is intended to get all possible ids for mixed SA account.
+     */
+    @Nonnull
+    private List<UUID> getAccountVirtualIds(PublicKey publicKey) {
+        final List<UUID> uuidList = new ArrayList<>();
+        for (AddressType addressType: AddressType.values()) {
+            uuidList.add(SingleAddressAccount.calculateId(publicKey.toAddress(_network, addressType)));
+        }
+        return uuidList;
     }
 
     @Nonnull

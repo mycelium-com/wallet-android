@@ -56,6 +56,7 @@ import com.mycelium.wallet.activity.send.SendMainActivity;
 import com.mycelium.wallet.bitid.BitIDAuthenticationActivity;
 import com.mycelium.wallet.bitid.BitIDSignRequest;
 import com.mycelium.wallet.colu.ColuAccount;
+import com.mycelium.wallet.event.AccountListChanged;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.wallet.AesKeyCipher;
@@ -190,6 +191,7 @@ public class StringHandleConfig implements Serializable {
             if (!key.isPresent()) return false;
             try {
                handlerActivity.getWalletManager().createSingleAddressAccount(key.get(), AesKeyCipher.defaultKeyCipher());
+               MbwManager.getEventBus().post(new AccountListChanged());
             } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
                throw new RuntimeException(invalidKeyCipher);
             }
