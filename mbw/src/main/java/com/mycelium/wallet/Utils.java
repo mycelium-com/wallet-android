@@ -935,8 +935,8 @@ public class Utils {
       if (!account.getReceivingAddress().isPresent()) {
          return false;  // the account has no valid receiving address (should not happen) - dont use it
       }
-      if(account instanceof AbstractAccount){
-         if(!((AbstractAccount) account).getAvailableAddressTypes().contains(AddressType.P2PKH)){
+      if (account instanceof AbstractAccount) {
+         if (!((AbstractAccount) account).getAvailableAddressTypes().contains(AddressType.P2PKH)) {
             return false;
          }
       }
