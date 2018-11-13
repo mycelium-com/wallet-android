@@ -27,7 +27,8 @@ object AccountManager : AccountProvider {
     private val archivedAccountsSemaphore = Semaphore(100)
     private val masterSeedAccounts: HashMap<UUID, WalletAccount<out GenericTransaction, out GenericAddress>> = hashMapOf()
     private val masterSeedAccountsSemaphore = Semaphore(100)
-    private val countDownLatch = CountDownLatch(1)
+    
+    private val fillAccountWaiting = CountDownLatch(1)
 
     init {
         Handler(Looper.getMainLooper()).post {
@@ -36,8 +37,8 @@ object AccountManager : AccountProvider {
         FillAccountsTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
     }
 
-    fun getCountDownLatchStatus(): Boolean {
-        return countDownLatch.count == 0L
+    fun getFillAccountStatus(): Boolean {
+        return fillAccountWaiting.count == 0L
     }
 
     class FillAccountsTask : AsyncTask<Void, Void, Void>() {
@@ -61,7 +62,7 @@ object AccountManager : AccountProvider {
 
         override fun onPostExecute(result: Void?) {
             mbwManager.eventBus.post(AccountListChanged())
-            countDownLatch.countDown()
+            fillAccountWaiting.countDown()
         }
     }
 

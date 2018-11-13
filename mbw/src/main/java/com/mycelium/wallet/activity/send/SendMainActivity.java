@@ -739,7 +739,7 @@ public class SendMainActivity extends Activity {
 
     @OnClick(R.id.btAddressBook)
     void onClickAddressBook() {
-        if(AccountManager.INSTANCE.getCountDownLatchStatus()) {
+        if(AccountManager.INSTANCE.getFillAccountStatus()) {
             Intent intent = new Intent(this, GetFromAddressBookActivity.class);
             startActivityForResult(intent, ADDRESS_BOOK_RESULT_CODE);
         } else {
