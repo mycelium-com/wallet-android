@@ -150,8 +150,6 @@
   <string name="my_accounts">Моите сметки</string>
   <string name="foreign_addresses">Адресна книга</string>
   <string name="confirm_delete_pk_title">Сигурни ли сте?</string>
-  <string name="confirm_delete_pk_with_balance">Това не може да бъде отменено!\n\nТекущ адрес:\n%1$s\n\nТой съдържа %2$s\n\nЖелаете ли да го изтриете?</string>
-  <string name="confirm_delete_pk_without_balance">Това не може да бъде отменено!\n\nТекущ адрес:\n%1$s\n\nЖелаете ли да го изтриете?</string>
   <string name="verify_private_key_backup">Проверка на резервно копие</string>
   <string name="verify_backup_dialog_title">Проверка на резервно копие на частен ключ</string>
   <string name="verify_backup_scan_desc">Проверка на резервното ви копие чрез сканиране на частния ключ или master seed QR код.\nПриемат се няколко формата, включително криптирано хартиено копие на Mycelium.</string>
@@ -407,8 +405,6 @@
   <!-- LT end -->
   <string name="cs_private_key_description">Ползвате частен ключ със следния биткоин адрес:</string>
   <string name="cs_address_description">Сканирали сте биткоин адрес. Можете да видите баланса, но не и да харчите от него.</string>
-  <string name="contains_keys">Съдържа %1$s частни ключа.</string>
-  <string name="contains_addresses">Съдържа %1$s адреса.</string>
   <string name="archiving_account_title">Архивиране на сметка</string>
   <string name="new_version_exists">Има налична нова версия</string>
   <string name="check_update">Проверка за актуализация</string>
@@ -464,8 +460,6 @@
   <string name="unspent_outputs_title">Неизхарчени приходи</string>
   <string name="no_unspent_outputs_description">Тази страница показва на кои адреси са разположени средствата в избрания акаунт. В момента няма средства за показване.</string>
   <string name="warning_words_import">Предупреждение: не поставяйте думите си в клипборда, други приложения могат да ги прочетат и да получат достъп до парите ви.</string>
-  <string name="account_contains_one_key_info">Съдържа един частен ключ.</string>
-  <string name="account_contains_one_address_info">Съдържа един адрес.</string>
   <string name="verify_backup_ok_message">Резервното копие е проверено успешно.</string>
   <string name="wordlist_import_invalid_checksum">Контролната сума на списъка ви с думи е невалидна, моля уверете се че въвеждате всички думи правилно.</string>
   <string name="checkbox_wordlist_passphrase">Имам ключова дума</string>

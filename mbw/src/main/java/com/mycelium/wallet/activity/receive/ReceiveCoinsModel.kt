@@ -27,7 +27,6 @@ class ReceiveCoinsModel(
         val context: Application,
         val account: WalletAccount,
         private val accountLabel: String,
-        val havePrivateKey: Boolean,
         showIncomingUtxo: Boolean = false
 ) {
     val amountData: MutableLiveData<CurrencyValue?> = MutableLiveData()
@@ -126,7 +125,7 @@ class ReceiveCoinsModel(
 
     @Subscribe
     fun syncError(event: SyncFailed) {
-        // stop syncing after a certain amountData of errors (no network available)
+        // stop syncing after a certain amount of errors (no network available)
         if (++syncErrors > MAX_SYNC_ERRORS) {
             mbwManager.stopWatchingAddress()
         }

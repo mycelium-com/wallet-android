@@ -6,7 +6,6 @@ import android.content.Intent
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
-import com.mrd.bitlib.crypto.BipDerivationType
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wapi.wallet.ExportableAccount
@@ -22,7 +21,7 @@ open class ExportAsQrViewModel(val context: Application) : AndroidViewModel(cont
         model = ExportAsQrModel(context, accountData)
         model.accountDataString.value = accountData.publicData.get()
 
-        model.updateData(false)
+        updateData(false)
     }
 
     fun hasPrivateData(): Boolean = model.hasPrivateData()

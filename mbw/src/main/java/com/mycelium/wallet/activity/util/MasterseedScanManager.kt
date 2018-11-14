@@ -56,7 +56,7 @@ class MasterseedScanManager : AbstractAccountScanManager {
         this.password = null
     }
 
-    constructor(context: Context, network: NetworkParameters, words: Array<String>, password: String, eventBus: Bus) : super(context, network, eventBus) {
+    constructor(context: Context, network: NetworkParameters, words: Array<String>, password: String?, eventBus: Bus) : super(context, network, eventBus) {
         this.words = words.clone()
         this.password = password
     }
@@ -70,7 +70,7 @@ class MasterseedScanManager : AbstractAccountScanManager {
                 passphrase = waitForPassphrase()
             }
             if (passphrase.isPresent) {
-                this.masterSeed = Bip39.generateSeedFromWordList(words, passphrase.get())
+                masterSeed = Bip39.generateSeedFromWordList(words, passphrase.get())
             } else {
                 return false
             }

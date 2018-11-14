@@ -149,8 +149,6 @@
   <string name="my_accounts">Mina konton</string>
   <string name="foreign_addresses">Adressbok</string>
   <string name="confirm_delete_pk_title">Är du säker?</string>
-  <string name="confirm_delete_pk_with_balance">Detta kan inte ångras!\n\nNuvarande adress:\n%1$s\n\nDet innehåller %2$s\n\nVill du ta bort det?</string>
-  <string name="confirm_delete_pk_without_balance">Detta kan inte ångras!\n\nNuvarande adress:\n%1$s\n\nVill du ta bort det?</string>
   <string name="verify_private_key_backup">Verifiera säkerhetskopia</string>
   <string name="verify_backup_dialog_title">Verifiera säkerhetskopia av privat nyckel</string>
   <string name="verify_backup_scan_desc">Verifiera din säkerhetskopia genom att läsa in den privata nyckelns eller huvudfröets QR-kod.\nFlera format accepteras, inklusive Myceliums krypterade pappersbackup.</string>
@@ -395,8 +393,6 @@
   <!-- LT end -->
   <string name="cs_private_key_description">Du använder en privat nyckel med följande bitcoin-adress:</string>
   <string name="cs_address_description">Du har läst in en bitcoin-adress. Du kan se saldot men inte spendera från den.</string>
-  <string name="contains_keys">Innehåller %1$s privata nycklar.</string>
-  <string name="contains_addresses">Innehåller %1$s adresser.</string>
   <string name="archiving_account_title">Arkiverar konto</string>
   <string name="new_version_exists">En ny version finns tillgänglig</string>
   <string name="check_update">Leta efter uppdatering</string>
@@ -451,8 +447,6 @@
   <string name="unspent_outputs_title">Outnyttjade utgångar</string>
   <string name="no_unspent_outputs_description">Denna sida visar på vilka adresser tillgångarna för det valda kontot befinner sig. Det finns för närvarande inga tillgångar att visa.</string>
   <string name="warning_words_import">Varning: Placera inte orden i urklipp, andra appar skulle kunna läsa dem och får tillgång till dina pengar.</string>
-  <string name="account_contains_one_key_info">Innehåller en privat nyckel.</string>
-  <string name="account_contains_one_address_info">Innehåller en adress.</string>
   <string name="verify_backup_ok_message">Verifiering av säkerhetskopian lyckades.</string>
   <string name="wordlist_import_invalid_checksum">Checksumman för din lista av ord är ogiltig, säkerställ att du har matat in alla ord korrekt.</string>
   <string name="wordlist_length_12">12 ord</string>

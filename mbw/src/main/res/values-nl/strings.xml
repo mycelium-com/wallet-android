@@ -149,8 +149,6 @@
   <string name="my_accounts">Mijn Rekeningen</string>
   <string name="foreign_addresses">Adresboek</string>
   <string name="confirm_delete_pk_title">Weet u het zeker?</string>
-  <string name="confirm_delete_pk_with_balance">Dit kan niet ongedaan gemaakt worden!\n\nHuidig adres:\n%1$s\n\nHet bevat %2$s\n\nWilt u het verwijderen?</string>
-  <string name="confirm_delete_pk_without_balance">Dit kan niet ongedaan gemaakt worden!\n\nHuidige adres:\n%1$s\n\nWilt u het verwijderen?</string>
   <string name="verify_private_key_backup">Back-up verifiëren</string>
   <string name="verify_backup_dialog_title">Private key back-up verifiëren</string>
   <string name="verify_backup_scan_desc">Verifieer uw back-up door de QR code van de private key of de masterseed te scannen.\nDiverse formaten worden geaccepteerd, inclusief de Mycelium encrypted paper backup.</string>
@@ -397,8 +395,6 @@
   <!-- LT end -->
   <string name="cs_private_key_description">U gebruikt een persoonlijke sleutel met de volgende Bitcoin adres:</string>
   <string name="cs_address_description">U heeft een Bitcoin adres gescand. U kunt het saldo weergeven maar niet uitgeven.</string>
-  <string name="contains_keys">Bevat %1$s persoonlijke sleutels.</string>
-  <string name="contains_addresses">Bevat %1$s adressen.</string>
   <string name="archiving_account_title">Account Archiveren</string>
   <string name="new_version_exists">Er is een nieuwe versie beschikbaar</string>
   <string name="check_update">Zoeken naar updates</string>
@@ -455,8 +451,6 @@
   <string name="unspent_outputs_title">Niet-bestede uitgangen</string>
   <string name="no_unspent_outputs_description">Deze pagina laat zien op welke adressen de fondsen in het geselecteerde account zich bevinden. Er zijn momenteel geen tegoeden om weer te geven.</string>
   <string name="warning_words_import">Waarschuwing: Plaats uw woorden niet op het Klembord, andere apps kunnen deze lezen en toegang tot uw geld krijgen.</string>
-  <string name="account_contains_one_key_info">Bevat een persoonlijke sleutel.</string>
-  <string name="account_contains_one_address_info">Bevat één adres.</string>
   <string name="verify_backup_ok_message">De back-up is met succes geverifieerd.</string>
   <string name="wordlist_import_invalid_checksum">De checksum van uw woordenlijst is ongeldig, zorg ervoor dat u alle woorden correct hebt ingevoerd.</string>
   <string name="checkbox_wordlist_passphrase">Ik heb een wachtwoord</string>

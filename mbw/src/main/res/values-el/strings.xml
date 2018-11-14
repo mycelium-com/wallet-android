@@ -149,8 +149,6 @@
   <string name="my_accounts">Οι Λογαριασμοί μου</string>
   <string name="foreign_addresses">Βιβλίο Διευθύνσεων</string>
   <string name="confirm_delete_pk_title">Είστε Σίγουρος /η ;</string>
-  <string name="confirm_delete_pk_with_balance">Η ενέργεια αυτή δεν μπορεί να αναιρεθεί!\n\nΤρέχουσα διεύθυνση:\n%1$s\n\nΠεριέχει %2$s\n\nΘέλετε να διαγραφεί;</string>
-  <string name="confirm_delete_pk_without_balance">Η ενέργεια αυτή δεν μπορεί να αναιρεθεί!\n\nΤρέχουσα διεύθυνση:\n%1$s\n\nΘέλετε να διαγραφεί;</string>
   <string name="verify_private_key_backup">Επιβεβαίωση Αντίγραφου Ασφαλείας</string>
   <string name="verify_backup_dialog_title">Επιβεβαίωση Αντίγραφου Ασφαλείας Μυστικού Κλειδιού</string>
   <string name="verify_backup_scan_desc">Επιβεβαιώστε το αντίγραφο ασφαλείας σας σαρώνοντας τον κωδικό QR του μυστικού κλειδιού ή του κεντρικού κωδικού (σπόρου).\nΕίναι συμβατές πολλαπλές μορφές, περιλαμβανομένου του κρυπτογραφημένου χάρτινου αντίγραφου Mycelium.</string>
@@ -394,8 +392,6 @@
   <!-- LT end -->
   <string name="cs_private_key_description">Χρησιμοποιείτε ένα μυστικό κλειδί με την παρακάτω διεύθυνση Bitcoin:</string>
   <string name="cs_address_description">Σαρώσατε μια διεύθυνση Bitcoin. Μπορείτε να παρακολουθείτε το ισοζύγιο συναλλαγών, αλλά όχι να ξοδέψετε από αυτήν.</string>
-  <string name="contains_keys">Περιέχει %1$s μυστικά κλειδιά.</string>
-  <string name="contains_addresses">Περιέχει %1$s διευθύνσεις.</string>
   <string name="archiving_account_title">Ο Λογαριασμός Αρχειοθετείται</string>
   <string name="new_version_exists">Μια νέα Έκδοση είναι διαθέσιμη</string>
   <string name="check_update">Έλεγχος για Ενημερώσεις</string>
@@ -449,8 +445,6 @@
   <string name="unspent_outputs_title">Αξόδευτες Εκροές</string>
   <string name="no_unspent_outputs_description">Η σελίδα αυτή εμφανίζει τις διευθύνσεις στις οποίες βρίσκονται τα κεφάλαια του επιλεγμένου λογαριασμού. Προς το παρόν δεν υπάρχουν κεφάλαια για εμφάνιση.</string>
   <string name="warning_words_import">Προειδοποίηση: Μην αντιγράφετε τις λέξεις σας στο πρόχειρο, άλλες εφαρμογές μπορούν να το διαβάσουν και να αποκτήσουν πρόσβαση στα χρήματά σας.</string>
-  <string name="account_contains_one_key_info">Περιέχει ένα μυστικό κλειδί.</string>
-  <string name="account_contains_one_address_info">Περιέχει μια διεύθυνση.</string>
   <string name="verify_backup_ok_message">Το αντίγραφο ασφαλείας επιβεβαιώθηκε επιτυχώς.</string>
   <string name="wordlist_import_invalid_checksum">Το ψηφίο επιβεβαίωσης της λίστας λέξεών σας είναι μη έγκυρο, παρακαλώ σιγουρευτείτε ότι εισαγάγατε όλες τις λέξεις σωστά.</string>
   <string name="wordlist_length_12">12 λέξεις</string>

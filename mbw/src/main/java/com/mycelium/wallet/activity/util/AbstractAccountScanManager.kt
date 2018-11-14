@@ -34,6 +34,7 @@
 
 package com.mycelium.wallet.activity.util
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.AsyncTask
 import android.os.Handler
@@ -83,6 +84,7 @@ abstract class AbstractAccountScanManager(protected val context: Context, protec
         } else {
             // start a background task which iterates over all accounts and calls the callback
             // to check if there was activity on it
+            @SuppressLint("StaticFieldLeak")
             scanAsyncTask = object : AsyncTask<Void, ScanStatus, Void>() {
                 override fun doInBackground(vararg voids: Void): Void? {
                     publishProgress(ScanStatus(AccountScanManager.Status.initializing, AccountScanManager.AccountStatus.unknown))
@@ -122,18 +124,18 @@ abstract class AbstractAccountScanManager(protected val context: Context, protec
 
                         rootNodes = accountPubKeyNodes
 
-                        // leave accountID empty for now - set it later if it is a already used account
+                        // leave accountID empty for now - set it later if it is an already used account
                         val acc = AccountScanManager.HdKeyNodeWrapper(accountPathsToScan.values, rootNodes, null)
                         val newAccount = scanningCallback.checkForTransactions(acc)
                         lastScannedPath = accountPathsToScan.values.first()
 
-                        if (newAccount != null) {
+                        wasUsed = if (newAccount != null) {
                             val foundAccount = AccountScanManager.HdKeyNodeWrapper(accountPathsToScan.values, rootNodes, newAccount)
 
                             publishProgress(FoundAccountStatus(foundAccount))
-                            wasUsed = true
+                            true
                         } else {
-                            wasUsed = false
+                            false
                         }
                     } while (!isCancelled)
                     publishProgress(ScanStatus(AccountScanManager.Status.readyToScan, AccountScanManager.AccountStatus.done))
@@ -157,9 +159,7 @@ abstract class AbstractAccountScanManager(protected val context: Context, protec
                         }
                     }
                 }
-
             }
-
             scanAsyncTask!!.execute()
         }
     }

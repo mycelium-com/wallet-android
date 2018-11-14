@@ -152,8 +152,6 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="my_accounts">Meine Konten</string>
   <string name="foreign_addresses">Adressbuch</string>
   <string name="confirm_delete_pk_title">Sind Sie sicher?</string>
-  <string name="confirm_delete_pk_with_balance">Diese Aktion kann nicht rückgängig gemacht werden!\n\nAktuelle Adresse:\n%1$s\n\nEnthält%2$s\n\nMöchten Sie löschen?</string>
-  <string name="confirm_delete_pk_without_balance">Diese Aktion kann nicht rückgängig gemacht werden!\n\nAktuelle Adresse:\n%1$s\n\n.Soll die Adresse gelöscht werden?</string>
   <string name="verify_private_key_backup">Backup prüfen</string>
   <string name="verify_backup_dialog_title">Backup der privaten Schlüssel überprüfen</string>
   <string name="verify_backup_scan_desc">Überprüfen Sie Ihr Backup mittels Scannen des privaten Schlüssels oder des Master Seed QR-Codes. \nMehrere Formate sind akzeptiert, einschließlich des verschlüsselten Mycelium Backups.</string>
@@ -409,8 +407,6 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <!-- LT end -->
   <string name="cs_private_key_description">Sie verwenden einen privaten Schlüssel dieser Bitcoin-Adresse:</string>
   <string name="cs_address_description">Sie haben eine Bitcoin-Adresse gescannt. Sie können den Saldo sehen, aber keine Bitcoins ausgeben.</string>
-  <string name="contains_keys">Enthält %1$s private Schlüssel.</string>
-  <string name="contains_addresses">Enthält %1$s Adressen.</string>
   <string name="archiving_account_title">Konto archivieren</string>
   <string name="new_version_exists">Ein Update ist verfügbar</string>
   <string name="check_update">Nach Updates suchen</string>
@@ -468,8 +464,6 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
   <string name="unspent_outputs_title">Nicht ausgegebene Outputs</string>
   <string name="no_unspent_outputs_description">Diese Seite zeigt, auf welchen Adressen des ausgewählten Kontos Bitcoins verfügbar sind. Derzeit gibt es keine Bitcoins anzuzeigen.</string>
   <string name="warning_words_import">Warnung: Kopieren Sie Ihre Worte nicht in die Zwischenablage, andere Applikationen könnten sie mitlesen und so Ihre Bitcoins entwenden.</string>
-  <string name="account_contains_one_key_info">Enthält einen privaten Schlüssel.</string>
-  <string name="account_contains_one_address_info">Enthält eine Adresse.</string>
   <string name="verify_backup_ok_message">Das Backup wurde erfolgreich überprüft.</string>
   <string name="wordlist_import_invalid_checksum">Die Prüfsumme Ihrer Wortliste ist ungültig, bitte stellen Sie sicher, dass Sie alle Wörter korrekt eingegeben haben.</string>
   <string name="checkbox_wordlist_passphrase">Ich habe eine Passphrase</string>

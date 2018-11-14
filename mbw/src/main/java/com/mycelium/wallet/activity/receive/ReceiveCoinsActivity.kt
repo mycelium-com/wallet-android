@@ -33,7 +33,7 @@ class ReceiveCoinsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-      
+
         val mbwManager = MbwManager.getInstance(application)
         val isColdStorage = intent.getBooleanExtra(IS_COLD_STORAGE, false)
         val walletManager = mbwManager.getWalletManager(isColdStorage)
@@ -129,12 +129,11 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         @JvmOverloads
         fun callMe(currentActivity: Activity, account: WalletAccount, havePrivateKey: Boolean,
                    showIncomingUtxo: Boolean = false, isColdStorage: Boolean = false) {
-            val intent = Intent(currentActivity, ReceiveCoinsActivity::class.java)
-            intent.putExtra(UUID, account.id)
-            intent.putExtra(PRIVATE_KEY, havePrivateKey)
-            intent.putExtra(SHOW_UTXO, showIncomingUtxo)
-            intent.putExtra(IS_COLD_STORAGE, isColdStorage)
-            currentActivity.startActivity(intent)
+            currentActivity.startActivity(Intent(currentActivity, ReceiveCoinsActivity::class.java)
+                    .putExtra(UUID, account.id)
+                    .putExtra(PRIVATE_KEY, havePrivateKey)
+                    .putExtra(SHOW_UTXO, showIncomingUtxo)
+                    .putExtra(IS_COLD_STORAGE, isColdStorage))
         }
     }
 }

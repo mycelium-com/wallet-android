@@ -150,8 +150,6 @@
   <string name="my_accounts">Mé účty</string>
   <string name="foreign_addresses">Adresář</string>
   <string name="confirm_delete_pk_title">Opravdu?</string>
-  <string name="confirm_delete_pk_with_balance">Tuto akci nelze vrátit!\n\nSoučasná adresa:\n%1$s\n\nObsahuje:%2$s\n\nChcete ji smazat?</string>
-  <string name="confirm_delete_pk_without_balance">Tuto akci nelze vrátit!\n\nSoučasná adresa:\n%1$s\n\nChcete ji smazat?</string>
   <string name="verify_private_key_backup">Ověřit zálohu</string>
   <string name="verify_backup_dialog_title">Ověřit zálohu soukromého klíče</string>
   <string name="verify_backup_scan_desc">Ověřte zálohu vašeho master seedu nebo soukromého klíče naskenováním QR kódu.\nJe podporováno několik formátů, včetně šifrované papírové zálohy Mycelium.</string>
@@ -407,8 +405,6 @@
   <!-- LT end -->
   <string name="cs_private_key_description">Používáte soukromý klíč s následující BTC adresou:</string>
   <string name="cs_address_description">Naskenovali jste BTC adresu. Můžete vidět její zůstatek, ale nemůžete z ní utrácet.</string>
-  <string name="contains_keys">Obsahuje %1$s privátních klíčů.</string>
-  <string name="contains_addresses">Obsahuje %1$s adres.</string>
   <string name="archiving_account_title">Archivovat účet</string>
   <string name="new_version_exists">Je k dispozici nová verze</string>
   <string name="check_update">Kontrola aktualizací</string>
@@ -464,8 +460,6 @@
   <string name="unspent_outputs_title">Neutracené výstupy</string>
   <string name="no_unspent_outputs_description">Tato karta ukazuje, na kterých adresách jsou finanční prostředky zvoleného účtu. Momentálně není co zobrazit.</string>
   <string name="warning_words_import">Varování: Nevkládejte svá slova do schránky, ostatní aplikace by je mohly přečíst a získat vaše peníze.</string>
-  <string name="account_contains_one_key_info">Obsahuje jeden soukromý klíč.</string>
-  <string name="account_contains_one_address_info">Obsahuje jednu adresu.</string>
   <string name="verify_backup_ok_message">Záloha byla úspěšně ověřena.</string>
   <string name="wordlist_import_invalid_checksum">Kontrolní součet vašeho seznamu slov je neplatný, ujistěte se, že jste slova zadali správně.</string>
   <string name="checkbox_wordlist_passphrase">Mám heslo</string>
