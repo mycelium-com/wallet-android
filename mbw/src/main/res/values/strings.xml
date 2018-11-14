@@ -1307,8 +1307,8 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="set_default">Set as default</string>
     <string name="bech_next">Tap for Bech32</string>
     <string name="p2sh_next">Tap for P2SH</string>
-    <string name="p2sh">P2SH</string>
-    <string name="bech">Bech32</string>
+    <string name="p2sh">P2SH - SegWit compatible</string>
+    <string name="bech">Bech32 - SegWit native</string>
     <string name="starting_application">Starting application</string>
     <string name="migrating_accounts">Migrating accounts</string>
     <string name="loading_accounts">Loading accounts</string>
