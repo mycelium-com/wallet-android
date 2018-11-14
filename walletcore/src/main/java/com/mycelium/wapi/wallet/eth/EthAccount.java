@@ -12,8 +12,8 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
+import com.mycelium.wapi.wallet.eth.coins.EthMain;
 import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
-import com.mycelium.wapi.wallet.eth.coins.*;
 
 import net.bytebuddy.utility.RandomString;
 
@@ -30,6 +30,7 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
 
     private UUID id;
     private EthAddress address;
+    private String label;
 
     public EthAccount() {
         id = UUID.randomUUID();
@@ -202,12 +203,12 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
 
     @Override
     public String getLabel() {
-        return null;
+        return label;
     }
 
     @Override
     public void setLabel(String label) {
-
+        this.label = label;
     }
 
 }

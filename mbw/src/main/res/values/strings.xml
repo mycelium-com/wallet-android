@@ -156,7 +156,7 @@
     <string name="manual_entry">Manual Entry</string>
     <string name="question_mark">\?</string>
     <string name="active_hd_accounts_name">Bitcoin HD</string>
-    <string name="eth_accounts_name">Etherium</string>
+    <string name="eth_accounts_name">Ethereum</string>
     <string name="active_other_accounts_name">Other</string>
     <string name="archive_name">Archived</string>
     <string name="active_accounts_empty">(Empty)</string>

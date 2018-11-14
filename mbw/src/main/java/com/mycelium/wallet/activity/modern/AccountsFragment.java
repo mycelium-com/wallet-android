@@ -122,6 +122,7 @@ import com.mycelium.wapi.wallet.colu.ColuAccountContext;
 import com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount;
 import com.mycelium.wapi.wallet.colu.PublicColuConfig;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
+import com.mycelium.wapi.wallet.eth.EthAccount;
 import com.mycelium.wapi.wallet.manager.State;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
@@ -541,19 +542,25 @@ public class AccountsFragment extends Fragment {
       if (account == null || !isAdded()) {
          return;
       }
-      String baseName = Utils.getNameForNewAccount(account, getActivity());
-      //append counter if name already in use
-      String defaultName = baseName;
-      int num = 1;
-      while (_storage.getAccountByLabel(defaultName).isPresent()) {
-         defaultName = baseName + " (" + num++ + ')';
+
+      // todo remove if. for now - the ethereum labels are generated in its module
+      if(!(account instanceof EthAccount)) {
+         String baseName = Utils.getNameForNewAccount(account, getActivity());
+         //append counter if name already in use
+         String defaultName = baseName;
+         int num = 1;
+         while (_storage.getAccountByLabel(defaultName).isPresent()) {
+            defaultName = baseName + " (" + num++ + ')';
+         }
+         //we just put the default name into storage first, if there is none
+         //if the user cancels entry or it gets somehow aborted, we at least have a valid entry
+         if (_mbwManager.getMetadataStorage().getLabelByAccount(account.getId()).length() == 0) {
+            _mbwManager.getMetadataStorage().storeAccountLabel(account.getId(), defaultName);
+         }
+
       }
-      //we just put the default name into storage first, if there is none
-      //if the user cancels entry or it gets somehow aborted, we at least have a valid entry
-      if (_mbwManager.getMetadataStorage().getLabelByAccount(account.getId()).length() == 0) {
-         _mbwManager.getMetadataStorage().storeAccountLabel(account.getId(), defaultName);
-      }
-      setLabelOnAccount(account, defaultName, false);
+
+      setLabelOnAccount(account, account.getLabel(), false);
    }
 
    private void update() {
