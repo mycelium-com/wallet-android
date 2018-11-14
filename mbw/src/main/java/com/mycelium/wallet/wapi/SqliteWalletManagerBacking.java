@@ -45,6 +45,8 @@ import android.util.Log;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.OutPoint;
@@ -72,6 +74,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -90,6 +93,7 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
    private static final int DEFAULT_SUB_ID = 0;
    private static final byte[] LAST_FEE_ESTIMATE = new byte[]{42, 55};
    private SQLiteDatabase _database;
+   private final Gson gson = new GsonBuilder().create();
    private Map<UUID, SqliteAccountBacking> _backings;
    private final SQLiteStatement _insertOrReplaceBip44Account;
    private final SQLiteStatement _updateBip44Account;
@@ -218,31 +222,15 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
             int accountIndex = cursor.getInt(1);
             boolean isArchived = cursor.getInt(2) == 1;
             int blockHeight = cursor.getInt(3);
-            byte[] contextIndexesMapBytes = cursor.getBlob(4);
-            ByteArrayInputStream byteStream = new ByteArrayInputStream(contextIndexesMapBytes);
-            Map<BipDerivationType, AccountIndexesContext> indexesContextMap = null;
-            try (ObjectInputStream objectInputStream = new ObjectInputStream(byteStream)) {
-               indexesContextMap = (Map<BipDerivationType, AccountIndexesContext> ) objectInputStream.readObject();
-            } catch (IOException ignore) {
-               // should never happen
-            } catch (ClassNotFoundException ignore) {
-               // should never happen
-            }
+            String contextIndexesMapJson = cursor.getString(4);
+            Type type = new TypeToken<Map<BipDerivationType, AccountIndexesContext>>() {}.getType();
+            Map<BipDerivationType, AccountIndexesContext> indexesContextMap = gson.fromJson(contextIndexesMapJson, type);
             long lastDiscovery = cursor.getLong(5);
             int accountType = cursor.getInt(6);
             int accountSubId = (int) cursor.getLong(7);
 
-            byte[] defaultAddressTypeBytes = cursor.getBlob(8);
-            byteStream = new ByteArrayInputStream(defaultAddressTypeBytes);
-            AddressType defaultAddressType = null;
-            try (ObjectInputStream objectInputStream = new ObjectInputStream(byteStream)) {
-               defaultAddressType = (AddressType) objectInputStream.readObject();
-            } catch (IOException ignore) {
-               // should never happen
-            } catch (ClassNotFoundException ignore) {
-               // should never happen
-            }
-
+            String defaultAddressTypeJson = cursor.getString(8);
+            AddressType defaultAddressType = gson.fromJson(defaultAddressTypeJson, AddressType.class);
             list.add(new HDAccountContext(id, accountIndex, isArchived, blockHeight, lastDiscovery, indexesContextMap,
                     accountType, accountSubId, defaultAddressType));
          }
@@ -272,23 +260,12 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
          _insertOrReplaceBip44Account.bindLong(2, context.getAccountIndex());
          _insertOrReplaceBip44Account.bindLong(3, context.isArchived() ? 1 : 0);
          _insertOrReplaceBip44Account.bindLong(4, context.getBlockHeight());
-         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-         try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteStream)) {
-            objectOutputStream.writeObject(context.getIndexesMap());
-            _insertOrReplaceBip44Account.bindBlob(5, byteStream.toByteArray());
-         } catch (IOException ignore) {
-            // should never happen
-         }
+
+         _insertOrReplaceBip44Account.bindString(5, gson.toJson(context.getIndexesMap()));
          _insertOrReplaceBip44Account.bindLong(6, context.getLastDiscovery());
          _insertOrReplaceBip44Account.bindLong(7, context.getAccountType());
          _insertOrReplaceBip44Account.bindLong(8, context.getAccountSubId());
-         byteStream = new ByteArrayOutputStream();
-         try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteStream)) {
-            objectOutputStream.writeObject(context.getDefaultAddressType());
-            _insertOrReplaceBip44Account.bindBlob(9, byteStream.toByteArray());
-         } catch (IOException ignore) {
-            // should never happen
-         }
+         _insertOrReplaceBip44Account.bindString(9, gson.toJson(context.getDefaultAddressType()));
          _insertOrReplaceBip44Account.executeInsert();
 
          _database.setTransactionSuccessful();
@@ -308,24 +285,14 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
       try {
          _updateBip44Account.bindLong(1, context.isArchived() ? 1 : 0);
          _updateBip44Account.bindLong(2, context.getBlockHeight());
-         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-         try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteStream)) {
-            objectOutputStream.writeObject(context.getIndexesMap());
-         }
-         _updateBip44Account.bindBlob(3, byteStream.toByteArray());
+         _updateBip44Account.bindString(3, gson.toJson(context.getIndexesMap()));
          _updateBip44Account.bindLong(4, context.getLastDiscovery());
          _updateBip44Account.bindLong(5, context.getAccountType());
          _updateBip44Account.bindLong(6, context.getAccountSubId());
-         byteStream = new ByteArrayOutputStream();
-         try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteStream)) {
-            objectOutputStream.writeObject(context.getDefaultAddressType());
-         }
-         _updateBip44Account.bindBlob(7, byteStream.toByteArray());
+         _updateBip44Account.bindString(7, gson.toJson(context.getDefaultAddressType()));
          _updateBip44Account.bindBlob(8, uuidToBytes(context.getId()));
          _updateBip44Account.execute();
          _database.setTransactionSuccessful();
-      } catch (IOException ignore) {
-         // should never happen
       } finally {
          _database.endTransaction();
       }
@@ -341,28 +308,13 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
                null, null, null, null);
          while (cursor.moveToNext()) {
             UUID id = SQLiteQueryWithBlobs.uuidFromBytes(cursor.getBlob(0));
-            byte[] addressMapBytes = cursor.getBlob(1);
-            ByteArrayInputStream byteStream = new ByteArrayInputStream(addressMapBytes);
-            Map<AddressType, Address> addresses  = null;
-            try (ObjectInputStream objectInputStream = new ObjectInputStream(byteStream)) {
-               addresses = (Map<AddressType, Address>) objectInputStream.readObject();
-            } catch (IOException ignore) {
-               // should never happen
-            } catch (ClassNotFoundException ignore) {
-               // should never happen
-            }
+            String addressMapJson = cursor.getString(1);
+            Type type = new TypeToken<Map<AddressType, Address>>(){}.getType();
+            Map<AddressType, Address> addresses  = gson.fromJson(addressMapJson, type);
             boolean isArchived = cursor.getInt(2) == 1;
             int blockHeight = cursor.getInt(3);
-            byte[] defaultAddressTypeBytes = cursor.getBlob(4);
-            byteStream = new ByteArrayInputStream(defaultAddressTypeBytes);
-            AddressType defaultAddressType  = null;
-            try (ObjectInputStream objectInputStream = new ObjectInputStream(byteStream)) {
-               defaultAddressType = (AddressType) objectInputStream.readObject();
-            } catch (IOException ignore) {
-               // should never happen
-            } catch (ClassNotFoundException ignore) {
-               // should never happen
-            }
+            String defaultAddressTypeJson = cursor.getString(4);
+            AddressType defaultAddressType  = gson.fromJson(defaultAddressTypeJson, AddressType.class);
             list.add(new SingleAddressAccountContext(id, addresses, isArchived, blockHeight, defaultAddressType));
          }
          return list;
@@ -388,24 +340,10 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
 
          // Create context
          _insertOrReplaceSingleAddressAccount.bindBlob(1, uuidToBytes(context.getId()));
-         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-         try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteStream)) {
-            objectOutputStream.writeObject(context.getAddresses());
-            _insertOrReplaceSingleAddressAccount.bindBlob(2, byteStream.toByteArray());
-         } catch (IOException ignore) {
-            // should never happen
-         }
+         _insertOrReplaceSingleAddressAccount.bindString(2, gson.toJson(context.getAddresses()));
          _insertOrReplaceSingleAddressAccount.bindLong(3, context.isArchived() ? 1 : 0);
          _insertOrReplaceSingleAddressAccount.bindLong(4, context.getBlockHeight());
-
-         byteStream = new ByteArrayOutputStream();
-         try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteStream)) {
-            objectOutputStream.writeObject(context.getDefaultAddressType());
-            _insertOrReplaceSingleAddressAccount.bindBlob(5, byteStream.toByteArray());
-         } catch (IOException ignore) {
-            // should never happen
-         }
-
+         _insertOrReplaceSingleAddressAccount.bindString(5, gson.toJson(context.getDefaultAddressType()));
          _insertOrReplaceSingleAddressAccount.executeInsert();
          _database.setTransactionSuccessful();
       } finally {
@@ -419,21 +357,11 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
          // "UPDATE single SET archived=?,blockheight=? WHERE id=?"
          _updateSingleAddressAccount.bindLong(1, context.isArchived() ? 1 : 0);
          _updateSingleAddressAccount.bindLong(2, context.getBlockHeight());
-         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-         try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteStream)) {
-            objectOutputStream.writeObject(context.getAddresses());
-         }
-         _updateSingleAddressAccount.bindBlob(3, byteStream.toByteArray());
-         byteStream = new ByteArrayOutputStream();
-         try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteStream)) {
-            objectOutputStream.writeObject(context.getDefaultAddressType());
-         }
-         _updateSingleAddressAccount.bindBlob(4, byteStream.toByteArray());
+         _updateSingleAddressAccount.bindString(3, gson.toJson(context.getAddresses()));
+         _updateSingleAddressAccount.bindString(4, gson.toJson(context.getDefaultAddressType()));
          _updateSingleAddressAccount.bindBlob(5, uuidToBytes(context.getId()));
          _updateSingleAddressAccount.execute();
          _database.setTransactionSuccessful();
-      } catch (IOException ignore) {
-         // ignore
       } finally {
          _database.endTransaction();
       }
@@ -1111,11 +1039,11 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
 
       @Override
       public void onCreate(SQLiteDatabase db) {
-         db.execSQL("CREATE TABLE single (id TEXT PRIMARY KEY, addresses BLOB, archived INTEGER, blockheight INTEGER " +
-                 ", addressType BLOB);");
+         db.execSQL("CREATE TABLE single (id TEXT PRIMARY KEY, addresses TEXT, archived INTEGER, blockheight INTEGER " +
+                 ", addressType TEXT);");
          db.execSQL("CREATE TABLE bip44 (id TEXT PRIMARY KEY, accountIndex INTEGER, archived INTEGER, blockheight " +
-                 "INTEGER, indexContexts BLOB, lastDiscovery INTEGER, accountType INTEGER, accountSubId " +
-                 "INTEGER, addressType BLOB);");
+                 "INTEGER, indexContexts TEXT, lastDiscovery INTEGER, accountType INTEGER, accountSubId " +
+                 "INTEGER, addressType TEXT);");
          db.execSQL("CREATE TABLE kv (k BLOB NOT NULL, v BLOB, checksum BLOB, subId INTEGER NOT NULL, PRIMARY KEY (k, subId) );");
       }
 
@@ -1174,28 +1102,15 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
                   cursor.close();
                }
             }
-            db.execSQL("CREATE TABLE single_new (id TEXT PRIMARY KEY, addresses BLOB, archived INTEGER, blockheight INTEGER, addressType BLOB);");
+            db.execSQL("CREATE TABLE single_new (id TEXT PRIMARY KEY, addresses TEXT, archived INTEGER, blockheight INTEGER, addressType TEXT);");
             SQLiteStatement statement = db.compileStatement("INSERT OR REPLACE INTO single_new VALUES (?,?,?,?,?)");
             for (SingleAddressAccountContext context : list) {
-               statement.bindBlob(1, uuidToBytes(context.getId()));
-               ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-               try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteStream)) {
-                  objectOutputStream.writeObject(context.getAddresses());
-                  statement.bindBlob(2, byteStream.toByteArray());
-               } catch (IOException ignore) {
-                  // should never happen
-               }
 
+               statement.bindBlob(1, uuidToBytes(context.getId()));
+               statement.bindString(2, gson.toJson(context.getAddresses()));
                statement.bindLong(3, context.isArchived() ? 1 : 0);
                statement.bindLong(4, context.getBlockHeight());
-
-               byteStream = new ByteArrayOutputStream();
-               try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteStream)) {
-                  objectOutputStream.writeObject(context.getDefaultAddressType());
-                  statement.bindBlob(5, byteStream.toByteArray());
-               } catch (IOException ignore) {
-                  // should never happen
-               }
+               statement.bindString(5, gson.toJson(context.getDefaultAddressType()));
 
                statement.executeInsert();
             }
@@ -1239,8 +1154,8 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
             }
             //db.execSQL("CREATE TABLE bip44 (id TEXT PRIMARY KEY, accountIndex INTEGER, archived INTEGER, blockheight INTEGER, lastExternalIndexWithActivity INTEGER, lastInternalIndexWithActivity INTEGER, firstMonitoredInternalIndex INTEGER, lastDiscovery, accountType INTEGER, accountSubId INTEGER);");
             db.execSQL("CREATE TABLE bip44_new (id TEXT PRIMARY KEY, accountIndex INTEGER, archived INTEGER, " +
-                    "blockheight INTEGER, indexContexts BLOB, lastDiscovery INTEGER, accountType INTEGER, accountSubId " +
-                    "INTEGER, addressType BLOB);");
+                    "blockheight INTEGER, indexContexts TEXT, lastDiscovery INTEGER, accountType INTEGER, accountSubId " +
+                    "INTEGER, addressType TEXT);");
             SQLiteStatement bip44Update = db.compileStatement("INSERT OR REPLACE INTO bip44_new" +
                     " VALUES (?,?,?,?,?,?,?,?,?)");
             for (HDAccountContext context : bip44List) {
@@ -1248,23 +1163,11 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
                bip44Update.bindLong(2, context.getAccountIndex());
                bip44Update.bindLong(3, context.isArchived() ? 1 : 0);
                bip44Update.bindLong(4, context.getBlockHeight());
-               ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-               try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteStream)) {
-                  objectOutputStream.writeObject(context.getIndexesMap());
-                  bip44Update.bindBlob(5, byteStream.toByteArray());
-               } catch (IOException ignore) {
-                  // should never happen
-               }
+               bip44Update.bindString(5, gson.toJson(context.getIndexesMap()));
                bip44Update.bindLong(6, context.getLastDiscovery());
                bip44Update.bindLong(7, context.getAccountType());
                bip44Update.bindLong(8, context.getAccountSubId());
-               byteStream = new ByteArrayOutputStream();
-               try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteStream)) {
-                  objectOutputStream.writeObject(context.getDefaultAddressType());
-                  bip44Update.bindBlob(9, byteStream.toByteArray());
-               } catch (IOException ignore) {
-                  // should never happen
-               }
+               bip44Update.bindString(9, gson.toJson(context.getDefaultAddressType()));
                bip44Update.executeInsert();
             }
             db.execSQL("ALTER TABLE bip44 RENAME TO bip44_old");
