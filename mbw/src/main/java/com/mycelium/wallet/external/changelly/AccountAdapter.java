@@ -10,12 +10,14 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.util.CoinUtil;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.bip44.HDAccount;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -122,8 +124,16 @@ public class AccountAdapter extends SelectableRecyclerView.Adapter<RecyclerView.
             viewHolder.categoryTextView.setText(mbwManager.getMetadataStorage().getLabelByAccount(item.account.getId()));
             CoinUtil.Denomination denomination = mbwManager.getBitcoinDenomination();
             viewHolder.itemTextView.setText(Utils.getFormattedValueWithUnit(item.account.getCurrencyBasedBalance().confirmed, denomination));
-            if (item.account.getReceivingAddress().isPresent()) {
-                viewHolder.valueTextView.setText(item.account.getReceivingAddress().get().toString());
+            if (item.account instanceof HDAccount) {
+                if (((HDAccount) item.account).getReceivingAddress(AddressType.P2SH_P2WPKH) != null) {
+                    viewHolder.valueTextView.setText(((HDAccount) item.account).getReceivingAddress(AddressType.P2SH_P2WPKH).toString());
+                } else if (((HDAccount) item.account).getReceivingAddress(AddressType.P2PKH) != null) {
+                    viewHolder.valueTextView.setText(((HDAccount) item.account).getReceivingAddress(AddressType.P2PKH).toString());
+                }
+            } else {
+                if (item.account.getReceivingAddress().isPresent()) {
+                    viewHolder.valueTextView.setText(item.account.getReceivingAddress().get().toString());
+                }
             }
         } else {
             RecyclerView.LayoutParams layoutParams = (RecyclerView.LayoutParams) holder.itemView.getLayoutParams();

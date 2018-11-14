@@ -14,6 +14,8 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.common.collect.ImmutableCollection;
+import com.mrd.bitlib.model.AddressType;
 import com.mycelium.wallet.AccountManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -22,6 +24,7 @@ import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
 import com.mycelium.wallet.activity.view.ValueKeyboard;
 import com.mycelium.wallet.external.changelly.ChangellyAPIService.ChangellyAnswerDouble;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.bip44.HDAccount;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -162,7 +165,15 @@ public class ChangellyActivity extends AppCompatActivity {
             }
         });
         List<WalletAccount> toAccounts = new ArrayList<>();
-        toAccounts.addAll(AccountManager.INSTANCE.getBTCBip44Accounts().values());
+        ImmutableCollection<WalletAccount> btcBip44Accounts = AccountManager.INSTANCE.getBTCBip44Accounts().values();
+        List<WalletAccount> supportedHDAccounts = new ArrayList<>();
+        for (WalletAccount account: btcBip44Accounts) {
+            if (((HDAccount) account).getAvailableAddressTypes().contains(AddressType.P2SH_P2WPKH) ||
+                ((HDAccount) account).getAvailableAddressTypes().contains(AddressType.P2PKH)) {
+                supportedHDAccounts.add(account);
+            }
+        }
+        toAccounts.addAll(supportedHDAccounts);
         toAccounts.addAll(AccountManager.INSTANCE.getBTCSingleAddressAccounts().values());
         toAccounts.addAll(AccountManager.INSTANCE.getCoinapultAccounts().values());
         accountAdapter = new AccountAdapter(mbwManager, toAccounts, firstItemWidth);
@@ -307,11 +318,19 @@ public class ChangellyActivity extends AppCompatActivity {
         }
         CurrencyAdapter.Item item = currencyAdapter.getItem(currencySelector.getSelectedItem());
         WalletAccount walletAccount = accountAdapter.getItem(accountSelector.getSelectedItem()).account;
+        String destAddress = walletAccount.getReceivingAddress().get().toString();
+        if (walletAccount instanceof HDAccount) {
+            if (((HDAccount) walletAccount).getReceivingAddress(AddressType.P2SH_P2WPKH) != null) {
+                destAddress = ((HDAccount) walletAccount).getReceivingAddress(AddressType.P2SH_P2WPKH).toString();
+            } else if (((HDAccount) walletAccount).getReceivingAddress(AddressType.P2PKH) != null) {
+                destAddress = ((HDAccount) walletAccount).getReceivingAddress(AddressType.P2PKH).toString();
+            }
+        }
         startActivityForResult(new Intent(ChangellyActivity.this, ChangellyOfferActivity.class)
                 .putExtra(ChangellyAPIService.FROM, item.currency)
                 .putExtra(ChangellyAPIService.TO, BTC)
                 .putExtra(ChangellyAPIService.AMOUNT, dblAmount)
-                .putExtra(ChangellyAPIService.DESTADDRESS, walletAccount.getReceivingAddress().get().toString()), REQUEST_OFFER);
+                .putExtra(ChangellyAPIService.DESTADDRESS, destAddress), REQUEST_OFFER);
     }
 
     boolean isValueForOfferOk() {
