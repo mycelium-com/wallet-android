@@ -217,14 +217,13 @@ public class WalletManager {
         synchronized (_walletAccounts) {
             boolean isUpgrade = false;
             for (UUID uuid : uuidList) {
-                if (_walletAccounts.containsKey(uuid) ) {
-                    if (_walletAccounts.get(uuid) instanceof AbstractAccount) {
-                        AbstractAccount account = (AbstractAccount) _walletAccounts.get(uuid);
-                        isUpgrade = account.getAvailableAddressTypes().size() < BipDerivationType.values().length;
+                WalletAccount walletAccount = _walletAccounts.get(uuid);
+                if (walletAccount instanceof AbstractAccount) {
+                    AbstractAccount account = (AbstractAccount) _walletAccounts.get(uuid);
+                    isUpgrade = account.getAvailableAddressTypes().size() < BipDerivationType.values().length;
+                    if (isUpgrade) {
+                        break;
                     }
-                }
-                if (isUpgrade) {
-                    break;
                 }
             }
             if (_walletAccounts.containsKey(id)) {
@@ -955,10 +954,7 @@ public class WalletManager {
             SingleAddressAccountBacking accountBacking = checkNotNull(_backing.getSingleAddressAccountBacking(context.getId()));
             SingleAddressAccount account = new SingleAddressAccount(context, store, _network, accountBacking, _wapi,
                     btcSettings.getChangeAddressModeReference());
-            final List<UUID> uuidList = new ArrayList<>();
-            for (AddressType addressType: account.getAvailableAddressTypes()) {
-                uuidList.add(SingleAddressAccount.calculateId(account.getPublicKey().toAddress(_network, addressType)));
-            }
+            final List<UUID> uuidList = getAccountVirtualIds(account);
             addAccount(account, uuidList);
 
             if (_spvBalanceFetcher != null) {
@@ -1485,6 +1481,18 @@ public class WalletManager {
         final List<UUID> uuidList = new ArrayList<>();
         for (BipDerivationType derivationType : derivationTypes) {
             uuidList.add(keyManagerMap.get(derivationType).getAccountId());
+        }
+        return uuidList;
+    }
+
+    /**
+     * This method is intended to get all possible ids for mixed SA account.
+     */
+    @Nonnull
+    private List<UUID> getAccountVirtualIds(SingleAddressAccount account) {
+        final List<UUID> uuidList = new ArrayList<>();
+        for (AddressType addressType: account.getAvailableAddressTypes()) {
+            uuidList.add(SingleAddressAccount.calculateId(account.getPublicKey().toAddress(_network, addressType)));
         }
         return uuidList;
     }
