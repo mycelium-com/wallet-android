@@ -543,8 +543,8 @@ public class AccountsFragment extends Fragment {
          return;
       }
 
-      // todo remove if. for now - the ethereum labels are generated in its module
-      if(!(account instanceof EthAccount)) {
+      // eth and hd account's labels are generated in their modules
+      if(!(account instanceof EthAccount || account instanceof HDAccount)) {
          String baseName = Utils.getNameForNewAccount(account, getActivity());
          //append counter if name already in use
          String defaultName = baseName;
