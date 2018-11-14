@@ -216,15 +216,13 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
             int accountIndex = cursor.getInt(1);
             boolean isArchived = cursor.getInt(2) == 1;
             int blockHeight = cursor.getInt(3);
-            String contextIndexesMapJson = cursor.getString(4);
             Type type = new TypeToken<Map<BipDerivationType, AccountIndexesContext>>() {}.getType();
-            Map<BipDerivationType, AccountIndexesContext> indexesContextMap = gson.fromJson(contextIndexesMapJson, type);
+            Map<BipDerivationType, AccountIndexesContext> indexesContextMap = gson.fromJson(cursor.getString(4), type);
             long lastDiscovery = cursor.getLong(5);
             int accountType = cursor.getInt(6);
             int accountSubId = (int) cursor.getLong(7);
 
-            String defaultAddressTypeJson = cursor.getString(8);
-            AddressType defaultAddressType = gson.fromJson(defaultAddressTypeJson, AddressType.class);
+            AddressType defaultAddressType = gson.fromJson(cursor.getString(8), AddressType.class);
             list.add(new HDAccountContext(id, accountIndex, isArchived, blockHeight, lastDiscovery, indexesContextMap,
                     accountType, accountSubId, defaultAddressType));
          }
@@ -302,13 +300,11 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
                null, null, null, null);
          while (cursor.moveToNext()) {
             UUID id = SQLiteQueryWithBlobs.uuidFromBytes(cursor.getBlob(0));
-            String addressMapJson = cursor.getString(1);
             Type type = new TypeToken<Map<AddressType, Address>>(){}.getType();
-            Map<AddressType, Address> addresses  = gson.fromJson(addressMapJson, type);
+            Map<AddressType, Address> addresses  = gson.fromJson(cursor.getString(1), type);
             boolean isArchived = cursor.getInt(2) == 1;
             int blockHeight = cursor.getInt(3);
-            String defaultAddressTypeJson = cursor.getString(4);
-            AddressType defaultAddressType  = gson.fromJson(defaultAddressTypeJson, AddressType.class);
+            AddressType defaultAddressType  = gson.fromJson(cursor.getString(4), AddressType.class);
             list.add(new SingleAddressAccountContext(id, addresses, isArchived, blockHeight, defaultAddressType));
          }
          return list;
