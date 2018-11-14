@@ -7,7 +7,6 @@ import android.content.Context
 import android.media.AudioManager
 import android.media.RingtoneManager
 import android.nfc.NfcAdapter
-import android.os.Build
 import android.os.Bundle
 import android.support.v4.app.NotificationCompat
 import android.widget.Toast

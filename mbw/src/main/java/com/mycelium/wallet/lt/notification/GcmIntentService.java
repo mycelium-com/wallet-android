@@ -218,7 +218,10 @@ public class GcmIntentService extends IntentService {
       NotificationCompat.Builder builder = new NotificationCompat
               .Builder(this, "LT notification channel")
               .setContentTitle(title)
-            .setContentText(message).setSmallIcon(R.drawable.ic_launcher).setContentIntent(pIntent).setAutoCancel(true);
+              .setContentText(message)
+              .setSmallIcon(R.drawable.ic_launcher)
+              .setContentIntent(pIntent)
+              .setAutoCancel(true);
 
       // Add ticker
       builder.setTicker(message);
