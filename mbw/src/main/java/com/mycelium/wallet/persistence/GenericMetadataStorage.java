@@ -172,7 +172,7 @@ abstract class GenericMetadataStorage implements IMetaDataStorage {
       return getFirstKeyForCategoryValue(category.category, value);
    }
 
-   private Optional<String> getFirstKeyForCategoryValue(final String category, final String value){
+   public Optional<String> getFirstKeyForCategoryValue(final String category, final String value){
       Cursor cursor = null;
       try {
          cursor = _db.query(false, TABLE_KEY_VALUE_STORE, new String[]{"key"}, " value = ? and category = ?", new String[]{value, category}, null, null, null, "1");

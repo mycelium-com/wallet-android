@@ -27,15 +27,15 @@ class EthModule(internal val metaDataStorage: IMetaDataStorage) : WalletModule {
         var num = 1
 
         val metadataKeyCategory = MetadataCategory("al")
-
         // while the account for this label exists, change the label (increment index)
-        while (metaDataStorage.getKeyCategoryValueEntry(metadataKeyCategory.of(defaultName).key, metadataKeyCategory.category, "").isNotEmpty()) {
+        while (metaDataStorage.getFirstKeyForCategoryValue(metadataKeyCategory.category, defaultName).isPresent) {
             defaultName = baseName + " (" + num++ + ')'.toString()
         }
 
         // we just put the default name into storage first, if there is none
         // if the user cancels entry or it gets somehow aborted, we at least have a valid entry
-        if (metaDataStorage.getKeyCategoryValueEntry(metadataKeyCategory.of(newEthAccount.id.toString()).key, metadataKeyCategory.category, "").isEmpty()) {
+        if (metaDataStorage.getKeyCategoryValueEntry(metadataKeyCategory.of(newEthAccount.id.toString()).key,
+                        metadataKeyCategory.category, "").isEmpty()) {
             metaDataStorage.storeKeyCategoryValueEntry(metadataKeyCategory.of(newEthAccount.id.toString()), defaultName)
         }
 
