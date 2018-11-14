@@ -191,8 +191,8 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
    public abstract UUID getId();
 
    protected static UUID addressToUUID(Address address) {
-      return new UUID(BitUtils.uint64ToLong(address.getAllAddressBytes(), 1), BitUtils.uint64ToLong(
-            address.getAllAddressBytes(), 9));
+      return new UUID(BitUtils.uint64ToLong(address.getAllAddressBytes(), 0), BitUtils.uint64ToLong(
+            address.getAllAddressBytes(), 8));
    }
 
    /**
