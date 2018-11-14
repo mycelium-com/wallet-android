@@ -54,7 +54,6 @@ public class MrdKeyStretchingTask extends ServiceTask<EncryptionParameters> {
 
    @Override
    protected EncryptionParameters doTask(Context context) throws UserFacingException {
-
       // Generate Encryption parameters by doing key stretching
       try {
          return EncryptionParameters.generate(_kdfParameters);
@@ -75,5 +74,4 @@ public class MrdKeyStretchingTask extends ServiceTask<EncryptionParameters> {
    protected ServiceTaskStatus getStatus() {
       return new ServiceTaskStatus(_statusMessage, _kdfParameters.getProgress());
    }
-
 }

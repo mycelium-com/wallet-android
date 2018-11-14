@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="@layout/export_as_qr_activity">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.wallet.activity.export.ExportAsQrViewModel" />
+    </data>
+
+    <merge>
+
+        <TextView
+            android:id="@+id/tvWarning"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingBottom="5dp"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:paddingTop="5dp"
+            android:text="@{viewModel.privateDataSelected ? @string/export_warning_privkey : @string/export_warning_pubkey}"
+            android:textSize="12sp" />
+
+        <LinearLayout
+            android:layout_width="260dp"
+            android:layout_height="260dp"
+            android:layout_marginTop="10dp"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/llPrivKeyWarning"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:longClickable="true"
+                android:orientation="vertical"
+                android:onLongClick="@{_ -> viewModel.acceptWarning()}"
+                android:visibility="@{viewModel.showRedWarning ? View.VISIBLE : View.GONE}">
+
+                <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:paddingBottom="10dp"
+                    android:text="@string/warning"
+                    android:textColor="@color/buttonredcolor"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="@string/export_private_key_red_warning" />
+            </LinearLayout>
+
+            <com.mycelium.wallet.activity.util.QrImageView
+                android:id="@+id/ivQrCode"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="5dp"
+                android:background="@color/white"
+                android:contentDescription="@string/qr_code"
+                android:longClickable="false"
+                android:maxHeight="@dimen/large_qrcode"
+                android:maxWidth="@dimen/large_qrcode"
+                android:minHeight="@dimen/large_qrcode"
+                android:minWidth="@dimen/large_qrcode"
+                android:visibility="@{viewModel.showRedWarning ? View.GONE : View.VISIBLE}" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvQrTapHint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/tap_qr_code_desc"
+            android:textColor="@color/grey"
+            android:textSize="12sp"
+            android:visibility="@{viewModel.showRedWarning ? View.GONE : View.VISIBLE}" />
+    </merge>
+</layout>

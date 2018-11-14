@@ -78,7 +78,6 @@
   <string name="pref_category_pin">ПИН настройки</string>
   <string name="pref_clear_pin">Премахни ПИН кода</string>
   <string name="pref_clear_pin_summary">Премахване на текущия ПИН код</string>
-  <string name="pref_set_pin">Задай ПИН код</string>
   <string name="pref_set_pin_summary">Задаване на ПИН код, който ограничава изпращането на биткоин, експортирането на лични ключове и смяната на ПИН кода</string>
   <string name="pref_local_currency_summary">Изберете местната валута</string>
   <string name="pref_exchange_source_with_value">Източник за обменния курс (%1$s)</string>
@@ -151,8 +150,6 @@
   <string name="my_accounts">Моите сметки</string>
   <string name="foreign_addresses">Адресна книга</string>
   <string name="confirm_delete_pk_title">Сигурни ли сте?</string>
-  <string name="confirm_delete_pk_with_balance">Това не може да бъде отменено!\n\nТекущ адрес:\n%1$s\n\nТой съдържа %2$s\n\nЖелаете ли да го изтриете?</string>
-  <string name="confirm_delete_pk_without_balance">Това не може да бъде отменено!\n\nТекущ адрес:\n%1$s\n\nЖелаете ли да го изтриете?</string>
   <string name="verify_private_key_backup">Проверка на резервно копие</string>
   <string name="verify_backup_dialog_title">Проверка на резервно копие на частен ключ</string>
   <string name="verify_backup_scan_desc">Проверка на резервното ви копие чрез сканиране на частния ключ или master seed QR код.\nПриемат се няколко формата, включително криптирано хартиено копие на Mycelium.</string>
@@ -161,7 +158,6 @@
   <string name="verify_backup_one_key">Имате 1 ключ, който не е проверяван.</string>
   <string name="verify_backup_master_seed">Вашият master seed не е проверен.</string>
   <string name="verify_backup_no_such_record">Частният ключ не съответства на никой от вашите биткоин адреси.</string>
-  <string name="verify_backup_ok">Копието на частния ключ е успешно проверено за следния адрес:\n\n%1$s</string>
   <string name="wrong_seed">Сканираният seed не съответства на вашия master seed.</string>
   <string name="backup_missing">Резервно копие липсва</string>
   <string name="verify_backup_title">Резервно копие и проверка</string>
@@ -409,8 +405,6 @@
   <!-- LT end -->
   <string name="cs_private_key_description">Ползвате частен ключ със следния биткоин адрес:</string>
   <string name="cs_address_description">Сканирали сте биткоин адрес. Можете да видите баланса, но не и да харчите от него.</string>
-  <string name="contains_keys">Съдържа %1$s частни ключа.</string>
-  <string name="contains_addresses">Съдържа %1$s адреса.</string>
   <string name="archiving_account_title">Архивиране на сметка</string>
   <string name="new_version_exists">Има налична нова версия</string>
   <string name="check_update">Проверка за актуализация</string>
@@ -466,8 +460,6 @@
   <string name="unspent_outputs_title">Неизхарчени приходи</string>
   <string name="no_unspent_outputs_description">Тази страница показва на кои адреси са разположени средствата в избрания акаунт. В момента няма средства за показване.</string>
   <string name="warning_words_import">Предупреждение: не поставяйте думите си в клипборда, други приложения могат да ги прочетат и да получат достъп до парите ви.</string>
-  <string name="account_contains_one_key_info">Съдържа един частен ключ.</string>
-  <string name="account_contains_one_address_info">Съдържа един адрес.</string>
   <string name="verify_backup_ok_message">Резервното копие е проверено успешно.</string>
   <string name="wordlist_import_invalid_checksum">Контролната сума на списъка ви с думи е невалидна, моля уверете се че въвеждате всички думи правилно.</string>
   <string name="checkbox_wordlist_passphrase">Имам ключова дума</string>
@@ -610,7 +602,6 @@
   <string name="ledger_enter_pin">Въведете ПИН за Ledger портфейла</string>
   <string name="ledger_enter_transaction_pin">Въведете 2FA за Ledger портфейла</string>
   <string name="ledger_enter_2fa_pin">Потвърдете изходящия адрес за ползване на вашата карта за сигурност</string>
-  <string name="ledger_please_wait">Моля изчакайте ...</string>
   <string name="ledger_unplugged_aid">Ledger Unplugged AID</string>
   <string name="ledger_set_unplugged_aid_title">Задаване на Ledger Unplugged AID</string>
   <string name="ledger_check_unplugged_aid">Невалиден AID, моля проверете отново</string>
@@ -652,7 +643,6 @@
   <string name="dontagree">Не съм съгласен</string>
   <string name="agree">Приемам</string>
   <string name="lt_warning_watch_only_account">Текуяата сметка е само за наблюдение - изберете друга сметка.</string>
-  <string name="refresh">обновяване</string>
   <string name="xpriv_title">Разширен частен ключ</string>
   <string name="share_xpriv">Споделете разширения частен ключ</string>
   <string name="export_share_warning">Предупреждение: ще споделите частни данни от сметката си. Всеки, който ги получи, ще да има достъп до текущите и бъдещите средства в сметката. Искате ли да продължите?</string>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="@layout/export_as_qr_activity">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="activity"
+            type="android.support.v7.app.AppCompatActivity" />
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.wallet.activity.export.ExportAsQrViewModel" />
+    </data>
+
+    <merge>
+
+        <Button
+            android:id="@+id/btCopyToClipboard"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="20dp"
+            android:onClick="@{() -> viewModel.exportDataToClipboard(activity)}"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:text="@string/copy_to_clipboard"
+            android:visibility="@{viewModel.showRedWarning ? View.GONE : View.VISIBLE}" />
+
+        <Button
+            android:id="@+id/btShare"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:onClick="@{() -> viewModel.shareData(activity)}"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:text="@string/share_account_data"
+            android:visibility="@{viewModel.showRedWarning ? View.GONE : View.VISIBLE}" />
+    </merge>
+</layout>

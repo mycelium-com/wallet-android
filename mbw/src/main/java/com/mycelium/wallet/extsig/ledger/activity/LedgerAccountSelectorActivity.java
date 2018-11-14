@@ -74,8 +74,8 @@ public abstract class LedgerAccountSelectorActivity extends HdAccountSelectorAct
 
    @Override
    protected void updateUi() {
-      if ((masterseedScanManager.currentState != AccountScanManager.Status.initializing) &&
-            (masterseedScanManager.currentState != AccountScanManager.Status.unableToScan)) {
+      if ((masterseedScanManager.getCurrentState() != AccountScanManager.Status.initializing) &&
+            (masterseedScanManager.getCurrentState() != AccountScanManager.Status.unableToScan)) {
          findViewById(R.id.tvWaitForLedger).setVisibility(View.GONE);
          findViewById(R.id.ivConnectLedger).setVisibility(View.GONE);
          txtStatus.setText(getString(R.string.ledger_scanning_status));
@@ -83,7 +83,7 @@ public abstract class LedgerAccountSelectorActivity extends HdAccountSelectorAct
          super.updateUi();
       }
 
-      if (masterseedScanManager.currentAccountState == AccountScanManager.AccountStatus.scanning) {
+      if (masterseedScanManager.getCurrentAccountState() == AccountScanManager.AccountStatus.scanning) {
          findViewById(R.id.llStatus).setVisibility(View.VISIBLE);
          if (accounts.size() > 0) {
             super.updateUi();
@@ -91,7 +91,7 @@ public abstract class LedgerAccountSelectorActivity extends HdAccountSelectorAct
             txtStatus.setText(getString(R.string.ledger_scanning_status));
          }
 
-      } else if (masterseedScanManager.currentAccountState == AccountScanManager.AccountStatus.done) {
+      } else if (masterseedScanManager.getCurrentAccountState() == AccountScanManager.AccountStatus.done) {
          // DONE
          findViewById(R.id.llStatus).setVisibility(View.GONE);
          findViewById(R.id.llSelectAccount).setVisibility(View.VISIBLE);

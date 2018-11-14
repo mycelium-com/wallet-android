@@ -1,6 +1,8 @@
 include ':view'
 include 'bitlib'
 include 'lt-api'
+include 'walletmodel'
+include 'walletcore'
 include 'wapi'
 include 'mbwlib'
 include 'backuputil'
@@ -13,9 +15,9 @@ include 'bitcoincashj:core'
 if (System.getenv()['MYCELIUM_BUILD_SYSTEM'] == 'server') {
     getLogger().warn('MYCELIUM_BUILD_SYSTEM==server - disabling Android projects ')
 } else {
-    include 'myceliummodularizationtools'
+    include 'wallet-android-modularization-tools:modularization-lib'
     include 'modulespvcontract'
-    include 'modulespvbch'
+//    include 'modulespvbch' // needs api upgrade to 26
     include 'mbw'
     include 'trezor'
     include 'libs:nordpol'

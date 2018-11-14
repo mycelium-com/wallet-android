@@ -37,13 +37,18 @@ package com.mycelium.wallet.activity.export;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 import com.google.common.base.Optional;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
-import com.mycelium.wallet.*;
+import com.mrd.bitlib.model.AddressType;
+import com.mycelium.wallet.MbwManager;
+import com.mycelium.wallet.R;
+import com.mycelium.wallet.StringHandleConfig;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.StringHandlerActivity;
 import com.mycelium.wallet.colu.ColuAccount;
@@ -52,6 +57,9 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.single.SingleAddressBCHAccount;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 public class VerifyBackupActivity extends Activity {
@@ -178,27 +186,41 @@ public class VerifyBackupActivity extends Activity {
    }
 
    private void verify(InMemoryPrivateKey pk) {
+      UUID account = null;
+      boolean success = false;
+      Collection<Address> allAddresses = null;
+      for (Address currentAddress : pk.getPublicKey().getAllSupportedAddresses(_mbwManager.getNetwork()).values()) {
+         // Figure out the account ID
+         account = SingleAddressAccount.calculateId(currentAddress);
+         // Check whether regular wallet contains that account
+         success = _mbwManager.getWalletManager(false).hasAccount(account)
+                 || _mbwManager.getColuManager().hasAccount(account);
+         if (success) {
+            allAddresses = pk.getPublicKey().getAllSupportedAddresses(_mbwManager.getNetwork()).values();
+            break;
+         }
+      }
 
-      // Figure out the account ID
-      Address address = pk.getPublicKey().toAddress(_mbwManager.getNetwork());
-      UUID account = SingleAddressAccount.calculateId(address);
-
-      // Check whether regular wallet contains that account
-      boolean success = _mbwManager.getWalletManager(false).hasAccount(account)
-              || _mbwManager.getColuManager().hasAccount(account);
       for (ColuAccount.ColuAsset coluAsset : ColuAccount.ColuAsset.getAssetMap().values()) {
-         UUID coluUUID = ColuAccount.getGuidForAsset(coluAsset, pk.getPublicKey().toAddress(_mbwManager.getNetwork()).getAllAddressBytes());
+         UUID coluUUID = ColuAccount.getGuidForAsset(coluAsset, pk.getPublicKey().toAddress(_mbwManager.getNetwork(), AddressType.P2PKH).getAllAddressBytes());
          success |= _mbwManager.getColuManager().hasAccount(coluUUID);
       }
 
       if (success) {
          _mbwManager.getMetadataStorage().setOtherAccountBackupState(account, MetadataStorage.BackupState.VERIFIED);
          for (ColuAccount.ColuAsset coluAsset : ColuAccount.ColuAsset.getAssetMap().values()) {
-            UUID coluUUID = ColuAccount.getGuidForAsset(coluAsset, pk.getPublicKey().toAddress(_mbwManager.getNetwork()).getAllAddressBytes());
+            UUID coluUUID = ColuAccount.getGuidForAsset(coluAsset, pk.getPublicKey().toAddress(_mbwManager.getNetwork(), AddressType.P2PKH).getAllAddressBytes());
             _mbwManager.getMetadataStorage().setOtherAccountBackupState(coluUUID, MetadataStorage.BackupState.VERIFIED);
          }
          updateUi();
-         String message = getResources().getString(R.string.verify_backup_ok, address.toMultiLineString());
+         List<String> addressList = new ArrayList<>();
+         for (Address address : allAddresses){
+              addressList.add(address.toMultiLineString());
+          }
+         String label = _mbwManager.getMetadataStorage().getLabelByAccount(account);
+
+         String addresses = TextUtils.join("\n\n", addressList);
+         String message = getResources().getString(R.string.verify_backup_ok, label, addresses);
          ShowDialogMessage(message, false);
       } else {
          ShowDialogMessage(R.string.verify_backup_no_such_record, false);

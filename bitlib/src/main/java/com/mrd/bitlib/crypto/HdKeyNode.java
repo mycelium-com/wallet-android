@@ -32,6 +32,7 @@ import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
 import com.mrd.bitlib.util.ByteWriter;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Implementation of BIP 32 HD wallet key derivation.
@@ -41,6 +42,7 @@ import com.mrd.bitlib.util.ByteWriter;
 public class HdKeyNode implements Serializable {
 
    public static final int HARDENED_MARKER = 0x80000000;
+   private BipDerivationType derivationType;
 
    public static class KeyGenerationException extends RuntimeException {
       private static final long serialVersionUID = 1L;
@@ -116,6 +118,12 @@ public class HdKeyNode implements Serializable {
       }
    }
 
+   private HdKeyNode(InMemoryPrivateKey privateKey, byte[] chainCode, int depth, int parentFingerprint,
+                     int index, BipDerivationType derivationType) {
+      this(privateKey, chainCode, depth, parentFingerprint, index);
+      this.derivationType = derivationType;
+   }
+
    HdKeyNode(InMemoryPrivateKey privateKey, byte[] chainCode, int depth, int parentFingerprint, int index) {
       _privateKey = privateKey;
       _publicKey = _privateKey.getPublicKey();
@@ -123,6 +131,12 @@ public class HdKeyNode implements Serializable {
       _depth = depth;
       _parentFingerprint = parentFingerprint;
       _index = index;
+   }
+
+   public HdKeyNode(PublicKey publicKey, byte[] chainCode, int depth, int parentFingerprint,
+                    int index, BipDerivationType derivationType) {
+      this(publicKey, chainCode, depth, parentFingerprint, index);
+      this.derivationType = derivationType;
    }
 
    public HdKeyNode(PublicKey publicKey, byte[] chainCode, int depth, int parentFingerprint, int index) {
@@ -144,7 +158,7 @@ public class HdKeyNode implements Serializable {
     *            if the seed is not suitable for seeding an HD wallet key
     *            generation. This is extremely unlikely
     */
-   public static HdKeyNode fromSeed(byte[] seed) throws KeyGenerationException {
+   public static HdKeyNode fromSeed(byte[] seed, @Nullable BipDerivationType derivationType) throws KeyGenerationException {
       Preconditions.checkArgument(seed.length * 8 >= 128, "seed must be larger than 128");
       Preconditions.checkArgument(seed.length * 8 <= 512, "seed must be smaller than 512");
       byte[] I = Hmac.hmacSha512(asciiStringToBytes(BITCOIN_SEED), seed);
@@ -163,7 +177,7 @@ public class HdKeyNode implements Serializable {
 
       // Construct chain code
       byte[] IR = BitUtils.copyOfRange(I, 32, 32 + CHAIN_CODE_SIZE);
-      return new HdKeyNode(privateKey, IR, 0, 0, 0);
+      return new HdKeyNode(privateKey, IR, 0, 0, 0, derivationType);
    }
 
    /**
@@ -300,14 +314,14 @@ public class HdKeyNode implements Serializable {
          // Make a 32 byte result where k is copied to the end
          byte[] privateKeyBytes = bigIntegerTo32Bytes(k);
          InMemoryPrivateKey key = new InMemoryPrivateKey(privateKeyBytes, true);
-         return new HdKeyNode(key, lR, _depth + 1, getFingerprint(), index);
+         return new HdKeyNode(key, lR, _depth + 1, getFingerprint(), index, derivationType);
       } else {
          Point q = Parameters.G.multiply(m).add(Parameters.curve.decodePoint(_publicKey.getPublicKeyBytes()));
          if (q.isInfinity()) {
             throw new KeyGenerationException("An unlikely thing happened: Invalid key point at infinity");
          }
          PublicKey newPublicKey = new PublicKey(new Point(Parameters.curve, q.getX(), q.getY(), true).getEncoded());
-         return new HdKeyNode(newPublicKey, lR, _depth + 1, getFingerprint(), index);
+         return new HdKeyNode(newPublicKey, lR, _depth + 1, getFingerprint(), index, derivationType);
       }
    }
 
@@ -361,20 +375,19 @@ public class HdKeyNode implements Serializable {
       return _publicKey;
    }
 
-   private static final byte[] PRODNET_PUBLIC = new byte[] { (byte) 0x04, (byte) 0x88, (byte) 0xB2, (byte) 0x1E };
-   private static final byte[] TESTNET_PUBLIC = new byte[] { (byte) 0x04, (byte) 0x35, (byte) 0x87, (byte) 0xCF };
-   private static final byte[] PRODNET_PRIVATE = new byte[] { (byte) 0x04, (byte) 0x88, (byte) 0xAD, (byte) 0xE4 };
-   private static final byte[] TESTNET_PRIVATE = new byte[] { (byte) 0x04, (byte) 0x35, (byte) 0x83, (byte) 0x94 };
-
    /**
     * Serialize this node
     */
-   public String serialize(NetworkParameters network) throws KeyGenerationException {
+   public String serialize(NetworkParameters network, BipDerivationType type) throws KeyGenerationException {
       ByteWriter writer = new ByteWriter(4 + 1 + 4 + 4 + 32 + 32);
       if (network.isProdnet()) {
-         writer.putBytes(isPrivateHdKeyNode() ? PRODNET_PRIVATE : PRODNET_PUBLIC);
+         writer.putBytes(isPrivateHdKeyNode() ?
+                 HDKeyMagic.PRODNET_PRIVATE.getTypeToMagicMap().get(type):
+                 HDKeyMagic.PRODNET_PUBLIC.getTypeToMagicMap().get(type));
       } else {
-         writer.putBytes(isPrivateHdKeyNode() ? TESTNET_PRIVATE : TESTNET_PUBLIC);
+         writer.putBytes(isPrivateHdKeyNode() ?
+                 HDKeyMagic.TESTNET_PRIVATE.getTypeToMagicMap().get(type):
+                 HDKeyMagic.TESTNET_PUBLIC.getTypeToMagicMap().get(type));
       }
       writer.put((byte) (_depth & 0xFF));
       writer.putIntBE(_parentFingerprint);
@@ -411,29 +424,23 @@ public class HdKeyNode implements Serializable {
             throw new KeyGenerationException("Invalid size");
          }
          ByteReader reader = new ByteReader(bytes);
-         boolean isPrivate;
+         boolean isPrivate = false;
          byte[] magic = reader.getBytes(4);
-         if (BitUtils.areEqual(magic, PRODNET_PRIVATE)) {
-            if (!network.isProdnet()) {
-               throw new KeyGenerationException("Invalid network");
+         boolean magicMatched = false;
+         BipDerivationType derivationType = null;
+         for (HDKeyMagic keyMagic : HDKeyMagic.values()) {
+            for (byte[] magicBytes : keyMagic.getTypeToMagicMap().values()) {
+               if (BitUtils.areEqual(magic, magicBytes)) {
+                  if (network.isProdnet() != keyMagic.isProdnet()) {
+                     throw new KeyGenerationException("Invalid network");
+                  }
+                  isPrivate = keyMagic.isPrivate();
+                  magicMatched = true;
+                  derivationType = keyMagic.getTypeToMagicMap().inverse().get(magicBytes);
+               }
             }
-            isPrivate = true;
-         } else if (BitUtils.areEqual(magic, PRODNET_PUBLIC)) {
-            if (!network.isProdnet()) {
-               throw new KeyGenerationException("Invalid network");
-            }
-            isPrivate = false;
-         } else if (BitUtils.areEqual(magic, TESTNET_PRIVATE)) {
-            if (network.isProdnet()) {
-               throw new KeyGenerationException("Invalid network");
-            }
-            isPrivate = true;
-         } else if (BitUtils.areEqual(magic, TESTNET_PUBLIC)) {
-            if (network.isProdnet()) {
-               throw new KeyGenerationException("Invalid network");
-            }
-            isPrivate = false;
-         } else {
+         }
+         if (!magicMatched) {
             throw new KeyGenerationException("Invalid magic header for HD key node");
          }
 
@@ -446,10 +453,10 @@ public class HdKeyNode implements Serializable {
                throw new KeyGenerationException("Invalid private key");
             }
             InMemoryPrivateKey privateKey = new InMemoryPrivateKey(reader.getBytes(32), true);
-            return new HdKeyNode(privateKey, chainCode, depth, parentFingerprint, index);
+            return new HdKeyNode(privateKey, chainCode, depth, parentFingerprint, index, derivationType);
          } else {
             PublicKey publicKey = new PublicKey(reader.getBytes(33));
-            return new HdKeyNode(publicKey, chainCode, depth, parentFingerprint, index);
+            return new HdKeyNode(publicKey, chainCode, depth, parentFingerprint, index, derivationType);
          }
       } catch (InsufficientBytesException e) {
          throw new KeyGenerationException("Insufficient bytes in serialization");
@@ -513,6 +520,10 @@ public class HdKeyNode implements Serializable {
       return _depth;
    }
 
+
+   public BipDerivationType getDerivationType() {
+      return derivationType != null ? derivationType : BipDerivationType.BIP44;
+   }
 
    // generate internal uuid from public key of the HdKeyNode
    public UUID getUuid() {

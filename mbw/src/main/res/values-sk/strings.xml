@@ -61,7 +61,6 @@
   <string name="pref_category_pin">Nastavenia PIN</string>
   <string name="pref_clear_pin">Vymazať PIN kód</string>
   <string name="pref_clear_pin_summary">Vymazať aktuálny PIN kód</string>
-  <string name="pref_set_pin">Nastav PIN kód</string>
   <string name="pref_set_pin_summary">Nastavenie PIN kódu obmedzuje posielanie bitcoinov, exportovanie Privátných Kľúčov, a menenie PIN kódu</string>
   <string name="pref_local_currency_summary">Vyberte Lokálnu Fiat Menu</string>
   <string name="pref_exchange_source_with_value">Burzový Zdroj (%1$s)</string>
@@ -120,8 +119,7 @@
   <string name="verify_backup_num_keys">Máte %1$s kľúčov, ktoré neboli nikdy overené.</string>
   <string name="verify_backup_one_key">Máte 1 Kľúč, ktorý nebol nikdy overený.</string>
   <string name="verify_backup_no_such_record">Privátny Klúč nepatrí k žiadnej Vašej Bitcoinovej Adrese.</string>
-  <string name="verify_backup_ok">Zálohy Privátneho Kľúču boli úspešne overené pre nasledujúce adresy:\n\n%1$s</string>
-  <string name="backup_missing">Chýba Záloha</string>
+    <string name="backup_missing">Chýba Záloha</string>
   <string name="verify_backup_title">Zálohovať a Skontrolovať</string>
   <string name="verify_backup_message_text_2">Následne si vyberte možnosť Overiť Zálohu a overte si Vašu zálohu.</string>
   <string name="encrypted_pdf_backup_title">Zašifrovaná PDF Záloha</string>

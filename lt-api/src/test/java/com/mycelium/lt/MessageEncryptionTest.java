@@ -44,7 +44,7 @@ public class MessageEncryptionTest {
       UUID tradeSessionId = UUID.randomUUID();
 
       // Create some private/public keys
-      HdKeyNode root = HdKeyNode.fromSeed(MASTER_SEED);
+      HdKeyNode root = HdKeyNode.fromSeed(MASTER_SEED, null);
       // My private key
       InMemoryPrivateKey myPrv = root.createChildPrivateKey(0);
       // Foreign public key
@@ -63,7 +63,7 @@ public class MessageEncryptionTest {
       UUID tradeSessionId = UUID.randomUUID();
 
       // Create some private/public keys
-      HdKeyNode root = HdKeyNode.fromSeed(MASTER_SEED);
+      HdKeyNode root = HdKeyNode.fromSeed(MASTER_SEED, null);
       // My private key
       InMemoryPrivateKey myPrv = root.createChildPrivateKey(0);
       // Foreign public key

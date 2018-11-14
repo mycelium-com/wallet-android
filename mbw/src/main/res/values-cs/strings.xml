@@ -78,7 +78,6 @@
   <string name="pref_category_pin">Nastavení PIN kódu</string>
   <string name="pref_clear_pin">Zrušit PIN kód</string>
   <string name="pref_clear_pin_summary">Zrušit stávající PIN kód</string>
-  <string name="pref_set_pin">Nastavit PIN kód</string>
   <string name="pref_set_pin_summary">Nastavení PIN kódu, který omezuje přístup k odesílání mincí, exportování soukromých klíčů a změnám kódu PIN</string>
   <string name="pref_local_currency_summary">Zvolte místní měnu</string>
   <string name="pref_exchange_source_with_value">Zdroj směnného kurzu (%1$s)</string>
@@ -151,8 +150,6 @@
   <string name="my_accounts">Mé účty</string>
   <string name="foreign_addresses">Adresář</string>
   <string name="confirm_delete_pk_title">Opravdu?</string>
-  <string name="confirm_delete_pk_with_balance">Tuto akci nelze vrátit!\n\nSoučasná adresa:\n%1$s\n\nObsahuje:%2$s\n\nChcete ji smazat?</string>
-  <string name="confirm_delete_pk_without_balance">Tuto akci nelze vrátit!\n\nSoučasná adresa:\n%1$s\n\nChcete ji smazat?</string>
   <string name="verify_private_key_backup">Ověřit zálohu</string>
   <string name="verify_backup_dialog_title">Ověřit zálohu soukromého klíče</string>
   <string name="verify_backup_scan_desc">Ověřte zálohu vašeho master seedu nebo soukromého klíče naskenováním QR kódu.\nJe podporováno několik formátů, včetně šifrované papírové zálohy Mycelium.</string>
@@ -161,8 +158,7 @@
   <string name="verify_backup_one_key">Máte 1 klíč, který nebyl nikdy ověřen.</string>
   <string name="verify_backup_master_seed">Váš master seed nebyl ověřen.</string>
   <string name="verify_backup_no_such_record">Soukromý klíč neodpovídá žádné z vašich Bitcoinových adres.</string>
-  <string name="verify_backup_ok">Záloha soukromého klíče úspěšně ověřena pro následující adresu:\n\n%1$s</string>
-  <string name="wrong_seed">Naskenovaný seed se neshoduje s vaším master seedem.</string>
+    <string name="wrong_seed">Naskenovaný seed se neshoduje s vaším master seedem.</string>
   <string name="backup_missing">Chybí záloha</string>
   <string name="verify_backup_title">Záloha a ověření</string>
   <string name="verify_backup_message_text_1">Mít řádnou zálohu je základním kamenem při spravování vašich BTC prostředků.\nMáte jeden nebo více soukromých klíčů či master seed, u kterých nebyl soukromý klíč ověřen.\n\nZvolte prosím možnost Záloha pro vytvoření zálohy.</string>
@@ -409,8 +405,6 @@
   <!-- LT end -->
   <string name="cs_private_key_description">Používáte soukromý klíč s následující BTC adresou:</string>
   <string name="cs_address_description">Naskenovali jste BTC adresu. Můžete vidět její zůstatek, ale nemůžete z ní utrácet.</string>
-  <string name="contains_keys">Obsahuje %1$s privátních klíčů.</string>
-  <string name="contains_addresses">Obsahuje %1$s adres.</string>
   <string name="archiving_account_title">Archivovat účet</string>
   <string name="new_version_exists">Je k dispozici nová verze</string>
   <string name="check_update">Kontrola aktualizací</string>
@@ -466,8 +460,6 @@
   <string name="unspent_outputs_title">Neutracené výstupy</string>
   <string name="no_unspent_outputs_description">Tato karta ukazuje, na kterých adresách jsou finanční prostředky zvoleného účtu. Momentálně není co zobrazit.</string>
   <string name="warning_words_import">Varování: Nevkládejte svá slova do schránky, ostatní aplikace by je mohly přečíst a získat vaše peníze.</string>
-  <string name="account_contains_one_key_info">Obsahuje jeden soukromý klíč.</string>
-  <string name="account_contains_one_address_info">Obsahuje jednu adresu.</string>
   <string name="verify_backup_ok_message">Záloha byla úspěšně ověřena.</string>
   <string name="wordlist_import_invalid_checksum">Kontrolní součet vašeho seznamu slov je neplatný, ujistěte se, že jste slova zadali správně.</string>
   <string name="checkbox_wordlist_passphrase">Mám heslo</string>
@@ -610,7 +602,6 @@
   <string name="ledger_enter_pin">Zadejte PIN kód Ledger Wallet</string>
   <string name="ledger_enter_transaction_pin">Zadejte 2FA Ledger Wallet</string>
   <string name="ledger_enter_2fa_pin">Potvrdit výstupní adresu pomocí Bezpečnostní karty</string>
-  <string name="ledger_please_wait">Čekejte prosím...</string>
   <string name="ledger_unplugged_aid">Ledger Unplugged AID</string>
   <string name="ledger_set_unplugged_aid_title">Nastavit Ledger Unplugged AID</string>
   <string name="ledger_check_unplugged_aid">Špatné AID, zkontrolujte ho prosím</string>
@@ -652,7 +643,6 @@
   <string name="dontagree">Nesouhlasím</string>
   <string name="agree">Souhlasím</string>
   <string name="lt_warning_watch_only_account">Současný účet je pouze pro sledování - zvolte jiný účet.</string>
-  <string name="refresh">obnovit</string>
   <string name="xpriv_title">Rozšířený soukromý klíč</string>
   <string name="share_xpriv">Sdílet rozšířený soukromý klíč</string>
   <string name="export_share_warning">Varování: Chystáte se sdílet soukromá data vašeho účtu. Kdokoli se k nim dostane, může mít přístup ke všem vašim současným i budoucím prostředkům. Chcete pokračovat?</string>

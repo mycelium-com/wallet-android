@@ -3,9 +3,4 @@ apply plugin: 'com.android.library'
 android {
     compileSdkVersion androidCompileSdkVersion
     buildToolsVersion androidSdkBuildVersion
-
-    defaultConfig {
-        minSdkVersion 19
-        targetSdkVersion 23
-    }
 }

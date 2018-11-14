@@ -48,6 +48,7 @@ import com.mycelium.net.ServerEndpointType;
 import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.activity.main.address.AddressFragment;
 import com.mycelium.wallet.activity.rmc.RMCAddressFragment;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.SelectedAccountChanged;
@@ -84,14 +85,14 @@ public class BalanceMasterFragment extends Fragment {
     }
 
     @Override
-    public void onResume() {
+    public void onStart() {
         Activity activity = getActivity();
-        // Set beta build
+        // Set build version
         ((TextView) activity.findViewById(R.id.tvBuildText)).setText(getResources().getString(R.string.build_text,
                 BuildConfig.VERSION_NAME));
 
         MbwManager mbwManager = MbwManager.getInstance(activity);
-        tvTor = (TextView) activity.findViewById(R.id.tvTorState);
+        tvTor = activity.findViewById(R.id.tvTorState);
         if (mbwManager.getTorMode() == ServerEndpointType.Types.ONLY_TOR && mbwManager.getTorManager() != null) {
             tvTor.setVisibility(View.VISIBLE);
             showTorState(mbwManager.getTorManager().getInitState());
@@ -100,13 +101,13 @@ public class BalanceMasterFragment extends Fragment {
         }
         updateAddressView();
         MbwManager.getInstance(this.getActivity()).getEventBus().register(this);
-        super.onResume();
+        super.onStart();
     }
 
     @Override
-    public void onPause() {
+    public void onStop() {
         MbwManager.getInstance(this.getActivity()).getEventBus().unregister(this);
-        super.onPause();
+        super.onStop();
     }
 
     @Subscribe

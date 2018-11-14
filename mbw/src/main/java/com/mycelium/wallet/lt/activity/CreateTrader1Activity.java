@@ -44,6 +44,10 @@ import android.widget.TextView;
 
 import com.mycelium.wallet.R;
 
+/**
+ * CreateTrader{1|2|3}Activity are a sort of Trader Account Creation Wizard.
+ * You start at 1, go to 2, finish at 3.
+ */
 public class CreateTrader1Activity extends Activity {
    public static void callMe(Activity currentActivity, int requestCode) {
       Intent intent = new Intent(currentActivity, CreateTrader1Activity.class);
@@ -56,9 +60,9 @@ public class CreateTrader1Activity extends Activity {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.lt_create_trader_1_activity);
 
-      TextView _tvDescription = (TextView) findViewById(R.id.tvDescription);
-      Button _btAccept = (Button) findViewById(R.id.btAccept);
-      Button _btDecline = (Button) findViewById(R.id.btDecline);
+      TextView _tvDescription = findViewById(R.id.tvDescription);
+      Button _btAccept = findViewById(R.id.btAccept);
+      Button _btDecline = findViewById(R.id.btDecline);
 
       _tvDescription.setText(
             getString(R.string.lt_tos_1)

@@ -16,48 +16,32 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.preference.CheckBoxPreference;
-import android.support.v7.preference.ListPreference;
-import android.support.v7.preference.Preference;
-import android.support.v7.preference.PreferenceCategory;
-import android.support.v7.preference.PreferenceFragmentCompat;
-import android.support.v7.preference.PreferenceScreen;
-import android.support.v7.preference.PreferenceViewHolder;
+import android.support.v7.preference.*;
 import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.text.Html;
 import android.text.InputType;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.ledger.tbase.comm.LedgerTransportTEEProxyFactory;
+import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.util.CoinUtil;
 import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.lt.api.model.TraderInfo;
 import com.mycelium.modularizationtools.CommunicationManager;
 import com.mycelium.modularizationtools.model.Module;
 import com.mycelium.net.ServerEndpointType;
-import com.mycelium.wallet.Constants;
-import com.mycelium.wallet.ExchangeRateManager;
-import com.mycelium.wallet.MbwManager;
-import com.mycelium.wallet.MinerFee;
+import com.mycelium.wallet.*;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.WalletApplication;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.settings.helper.DisplayPreferenceDialogHandler;
 import com.mycelium.wallet.activity.view.ButtonPreference;
@@ -71,17 +55,12 @@ import com.mycelium.wallet.modularisation.BCHHelper;
 import com.mycelium.wallet.modularisation.GooglePlayModuleCollection;
 import com.mycelium.wallet.modularisation.ModularisationVersionHelper;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.bip44.ChangeAddressMode;
 import com.squareup.otto.Subscribe;
+import info.guardianproject.onionkit.ui.OrbotHelper;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
-
-import info.guardianproject.onionkit.ui.OrbotHelper;
+import java.util.*;
 
 import static android.app.Activity.RESULT_CANCELED;
 
@@ -103,6 +82,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private LocalTraderManager _ltManager;
     private ListPreference _minerFee;
     private ListPreference _blockExplorer;
+    private ListPreference changeAddressType;
+    private CheckBoxPreference accountMode;
     private Preference notificationPreference;
     private CheckBoxPreference useTor;
     private PreferenceCategory modulesPrefs;
@@ -140,6 +121,13 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             CheckBoxPreference p = (CheckBoxPreference) preference;
             _ltManager.setLocalTraderEnabled(p.isChecked());
             applyLocalTraderEnablement();
+            return true;
+        }
+    };
+    private final Preference.OnPreferenceClickListener accountModeClickListener = new Preference.OnPreferenceClickListener() {
+        public boolean onPreferenceClick(Preference preference) {
+            CheckBoxPreference p = (CheckBoxPreference) preference;
+            _mbwManager.setDefaultAddressType(p.isChecked() ? AddressType.P2WPKH : AddressType.P2SH_P2WPKH);
             return true;
         }
     };
@@ -222,6 +210,10 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         _minerFee = (ListPreference) findPreference(Constants.SETTING_MINER_FEE);
         //Block Explorer
         _blockExplorer = (ListPreference) findPreference("block_explorer");
+        // Transaction change address type
+        changeAddressType = (ListPreference) findPreference("change_type");
+        // account mode (p2sh/bech)
+        accountMode = (CheckBoxPreference) findPreference("account_mode");
         //localcurrency
         _localCurrency = findPreference("local_currency");
         // Exchange Source
@@ -448,6 +440,28 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 return true;
             }
         });
+        changeAddressType.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                _mbwManager.setChangeAddressMode(ChangeAddressMode.valueOf(newValue.toString()));
+                return true;
+            }
+        });
+////        changeAddressType.setValue(_mbwManager.getChangeAddressMode());
+//        CharSequence[] blockExplorerNames = _mbwManager._blockExplorerManager.getBlockExplorerNames(_mbwManager._blockExplorerManager.getAllBlockExplorer());
+//        CharSequence[] blockExplorerValues = _mbwManager._blockExplorerManager.getBlockExplorerIds();
+//        _blockExplorer.setEntries(blockExplorerNames);
+//        _blockExplorer.setEntryValues(blockExplorerValues);
+//        _blockExplorer.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+//            public boolean onPreferenceChange(Preference preference, Object newValue) {
+//                _mbwManager.setBlockExplorer(_mbwManager._blockExplorerManager.getBlockExplorerById(newValue.toString()));
+//                return true;
+//            }
+//        });
+
+        // Account mode
+        accountMode.setChecked(_mbwManager.getDefaultAddressType() == AddressType.P2WPKH);
+        accountMode.setOnPreferenceClickListener(accountModeClickListener);
+
         _minerFee.setSummary(getMinerFeeSummary());
         _minerFee.setValue(_mbwManager.getMinerFee().toString());
         CharSequence[] minerFees = new CharSequence[]{
@@ -850,6 +864,11 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         _localCurrency.setTitle(localCurrencyTitle());
         _localCurrency.setSummary(localCurrencySummary());
         _mbwManager.getEventBus().register(this);
+        modulesPrefs.removeAll();
+        if (!CommunicationManager.getInstance().getPairedModules().isEmpty()) {
+            processPairedModules(modulesPrefs);
+        }
+        processUnpairedModules(modulesPrefs);
         super.onResume();
     }
 
@@ -860,6 +879,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     public void onPause() {
         _mbwManager.getEventBus().unregister(this);
         refreshPreferences();
+        if (pleaseWait != null) pleaseWait.dismiss();
         super.onPause();
     }
 

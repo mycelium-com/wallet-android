@@ -39,8 +39,10 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.mrd.bitlib.StandardTransactionBuilder;
+import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.OutputList;
 import com.mrd.bitlib.model.ScriptOutput;
@@ -156,10 +158,10 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
         this.satoshiAmount = 0;
 
         this.accountKey = accountKey;
-        this.address = this.accountKey.getPublicKey().toAddress(manager.getNetwork());
+        this.address = this.accountKey.getPublicKey().toAddress(manager.getNetwork(), AddressType.P2PKH);
         type = Type.COLU;
 
-        uuid = getGuidForAsset(coluAsset, accountKey.getPublicKey().toAddress(getNetwork()).getAllAddressBytes());
+        uuid = getGuidForAsset(coluAsset, accountKey.getPublicKey().toAddress(getNetwork(), AddressType.P2PKH).getAllAddressBytes());
 
         archived = metadataStorage.getArchived(uuid);
     }
@@ -619,19 +621,19 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
     }
 
     @Override
-    public StandardTransactionBuilder.UnsignedTransaction createUnsignedTransaction(List<Receiver> receivers, long minerFeeToUse) throws StandardTransactionBuilder.OutputTooSmallException, StandardTransactionBuilder.InsufficientFundsException {
+    public UnsignedTransaction createUnsignedTransaction(List<Receiver> receivers, long minerFeeToUse) throws StandardTransactionBuilder.OutputTooSmallException, StandardTransactionBuilder.InsufficientFundsException {
         throw new IllegalStateException("not supported, use prepareColuTX instead");
     }
 
     @Override
-    public StandardTransactionBuilder.UnsignedTransaction createUnsignedTransaction(OutputList outputs, long minerFeeToUse) throws StandardTransactionBuilder.OutputTooSmallException, StandardTransactionBuilder.InsufficientFundsException {
+    public UnsignedTransaction createUnsignedTransaction(OutputList outputs, long minerFeeToUse) throws StandardTransactionBuilder.OutputTooSmallException, StandardTransactionBuilder.InsufficientFundsException {
         return null;
     }
 
     @Override
     // logd("Do not use this method ");
     public com.mrd.bitlib.model.Transaction signTransaction(
-        StandardTransactionBuilder.UnsignedTransaction unsigned,
+        UnsignedTransaction unsigned,
         KeyCipher cipher) throws KeyCipher.InvalidKeyCipher {
         return null;
     }
@@ -712,6 +714,12 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
     public ExactCurrencyValue calculateMaxSpendableAmount(long minerFeeToUse) {
         return getCurrencyBasedBalance().confirmed;
     }
+
+    @Override
+    public ExactCurrencyValue calculateMaxSpendableAmount(long minerFeeToUse, Address destinationAddress) {
+        return calculateMaxSpendableAmount(minerFeeToUse);
+    }
+
     @Override
     public boolean isValidEncryptionKey(KeyCipher cipher) {
         return false;
@@ -728,7 +736,7 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
     }
 
     @Override
-    public StandardTransactionBuilder.UnsignedTransaction createUnsignedPop(Sha256Hash txid, byte[] nonce) {
+    public UnsignedTransaction createUnsignedPop(Sha256Hash txid, byte[] nonce) {
         return null;
     }
 

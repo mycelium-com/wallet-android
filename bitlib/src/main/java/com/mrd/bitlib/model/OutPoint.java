@@ -18,6 +18,7 @@ package com.mrd.bitlib.model;
 
 import java.io.Serializable;
 
+import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.ByteWriter;
 import com.mrd.bitlib.util.HexUtils;
@@ -71,6 +72,14 @@ public class OutPoint implements Serializable {
       writer.putSha256Hash(txid);
       writer.putCompactInt(index);
       return writer;
+   }
+
+   /**
+    * Required for BIP143 tx digest.
+    */
+   void hashPrev(ByteWriter writer) {
+      writer.putSha256Hash(txid, true);
+      writer.putIntLE(index);
    }
 
    public static OutPoint fromString(String string) {

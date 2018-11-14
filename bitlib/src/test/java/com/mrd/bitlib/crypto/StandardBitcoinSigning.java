@@ -3,6 +3,7 @@ package com.mrd.bitlib.crypto;
 import com.mrd.bitlib.crypto.ec.EcTools;
 import com.mrd.bitlib.crypto.ec.Point;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -23,7 +24,7 @@ public class StandardBitcoinSigning {
       NetworkParameters network = NetworkParameters.productionNetwork;
       privKey = new InMemoryPrivateKey("KxrnQTQKTZv2y75BUUVFPrFFjWyjaEy8hqYXEkvdMMfgrGoo6XHB", network);
       Assert.assertEquals(network, address.getNetwork());
-      Assert.assertEquals(privKey.getPublicKey().toAddress(network), address);
+      Assert.assertEquals(privKey.getPublicKey().toAddress(network, AddressType.P2PKH), address);
    }
 
    @Test
@@ -32,7 +33,7 @@ public class StandardBitcoinSigning {
       String signature = "H9MwYMb/ctDd6BcFvtQKUjwq990y3xSm2K6WFZpMx5+7e+G5Ffqm/imFig0VKtiPL1GDryArVJcoEemLAN4+Z9Q=";
       SignedMessage signedMessage = SignedMessage.validate(address, message, signature);
       PublicKey pubkey = signedMessage.getPublicKey();
-      Assert.assertEquals(address, pubkey.toAddress(address.getNetwork()));
+      Assert.assertEquals(address, pubkey.toAddress(address.getNetwork(), AddressType.P2PKH));
    }
 
    @Test

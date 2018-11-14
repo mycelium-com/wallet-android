@@ -73,7 +73,6 @@
   <string name="yes">Ya</string>
   <string name="pref_category_pin">Pengaturan PIN</string>
   <string name="pref_clear_pin_summary">Hapus kode PIN saat ini</string>
-  <string name="pref_set_pin">Mengatur kode PIN</string>
   <string name="pref_set_pin_summary">Setel kode PIN yang membatasi akses untuk mengirim koin, mengirim private keys, dan mengganti kode PIN</string>
   <string name="pref_local_currency_summary">Pilih mata uang lokal</string>
   <string name="pref_pin_require_on_startup_summary">Untuk meningkatkan privasi anda</string>
@@ -273,8 +272,6 @@
   <string name="delete_last_entered_word">Hapus Kata Terakhir</string>
   <string name="account">Akun</string>
   <string name="verify_backup_seed_des">Verifikasi cadangan master seed dengan memindai kode QR.</string>
-  <string name="account_contains_one_key_info">Mengandung satu private key.</string>
-  <string name="account_contains_one_address_info">Mengandung satu alamat.</string>
   <string name="verify_backup_ok_message">Cadangan telah sukses di verifikasi.</string>
   <string name="wordlist_length_12">12 kata</string>
   <string name="wordlist_length_18">18 kata</string>
@@ -314,7 +311,6 @@
   <string name="ledger_to">Ke:</string>
   <string name="ledger_fee">Biaya:</string>
   <string name="ledger_total">Jumlah:</string>
-  <string name="ledger_please_wait">Harap Tunggu ...</string>
   <string name="use_https">Gunakan https</string>
   <!-- from libNetCipher -->
   <!--/ from libNetCipher -->

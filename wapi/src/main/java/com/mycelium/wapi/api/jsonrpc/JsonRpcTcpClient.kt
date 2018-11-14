@@ -68,7 +68,7 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
                         callbacks.clear()
                         notify("server.version", RpcParams.mapParams(
                                 "client_name" to "wapi",
-                                "protocol_version" to "1.2"))
+                                "protocol_version" to "1.4"))
                         isConnected.set(true)
                         connectionAttempt = 0
 

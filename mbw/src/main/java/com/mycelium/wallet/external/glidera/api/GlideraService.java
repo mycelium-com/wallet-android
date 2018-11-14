@@ -10,6 +10,7 @@ import com.google.common.base.Charsets;
 import com.mrd.bitlib.crypto.Hmac;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.api.retrofit.JacksonConverter;
@@ -257,7 +258,7 @@ public class GlideraService {
       return Uri.parse(uri)
               .buildUpon()
               .appendQueryParameter("client_id", clientId)
-              .appendQueryParameter("bitid_address", getBitidKey().getPublicKey().toAddress(networkParameters).toString())
+              .appendQueryParameter("bitid_address", getBitidKey().getPublicKey().toAddress(networkParameters, AddressType.P2PKH).toString())
               .appendQueryParameter("bitid_uri", bitidUri)
               .appendQueryParameter("bitid_signature", signature)
               .appendQueryParameter("redirect_uri", "mycelium://glideraRegistration")
@@ -278,7 +279,7 @@ public class GlideraService {
       Uri uri = Uri.parse(baseUrl + path)
               .buildUpon()
               .appendQueryParameter("client_id", clientId)
-              .appendQueryParameter("bitid_address", getBitidKey().getPublicKey().toAddress(networkParameters).toString())
+              .appendQueryParameter("bitid_address", getBitidKey().getPublicKey().toAddress(networkParameters, AddressType.P2PKH).toString())
               .appendQueryParameter("nonce", nonce)
               .build();
 
@@ -298,7 +299,7 @@ public class GlideraService {
          final Observable<Address> addressObservable = Observable.create(new Observable.OnSubscribe<Address>() {
             @Override
             public void call(Subscriber<? super Address> subscriber) {
-               subscriber.onNext(getBitidKey().getPublicKey().toAddress(networkParameters));
+               subscriber.onNext(getBitidKey().getPublicKey().toAddress(networkParameters, AddressType.P2PKH));
                subscriber.onCompleted();
             }
          }).subscribeOn(Schedulers.computation());

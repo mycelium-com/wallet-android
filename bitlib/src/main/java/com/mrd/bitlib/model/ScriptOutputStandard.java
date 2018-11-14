@@ -18,6 +18,9 @@ package com.mrd.bitlib.model;
 
 import java.io.Serializable;
 
+/**
+ * "standard" as in "pay to public key hash"
+ */
 public class ScriptOutputStandard extends ScriptOutput implements Serializable {
    private static final long serialVersionUID = 1L;
 
@@ -66,6 +69,7 @@ public class ScriptOutputStandard extends ScriptOutput implements Serializable {
     * 
     * @return The address that this output is for.
     */
+   @Override
    public byte[] getAddressBytes() {
       return _addressBytes;
    }

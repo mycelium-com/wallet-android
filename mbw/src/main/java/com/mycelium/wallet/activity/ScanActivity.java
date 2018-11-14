@@ -210,12 +210,6 @@ public class ScanActivity extends Activity {
       //since it was not the handler, it can only be the scanner
       Preconditions.checkState(SCANNER_RESULT_CODE == requestCode);
 
-      // If the last autofocus setting got saved in an extra-field, change the app settings accordingly
-      int autoFocus = intent.getIntExtra("ENABLE_CONTINUOUS_FOCUS", -1);
-      if (autoFocus != -1) {
-         MbwManager.getInstance(this).setContinuousFocus(autoFocus == 1);
-      }
-
       if (!isQRCode(intent)) {
          finishError(R.string.unrecognized_format);
          return;
