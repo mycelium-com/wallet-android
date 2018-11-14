@@ -168,8 +168,13 @@ public class GcmIntentService extends IntentService {
       String title = getResources().getString(R.string.lt_mycelium_local_trader_title);
       String message = getResources().getString(R.string.lt_new_trading_activity_message);
 
-      NotificationCompat.Builder builder = new NotificationCompat.Builder(this).setContentTitle(title)
-            .setContentText(message).setSmallIcon(R.drawable.ic_launcher).setContentIntent(pIntent).setAutoCancel(true);
+      NotificationCompat.Builder builder = new NotificationCompat
+              .Builder(this, "LT notification channel")
+              .setContentTitle(title)
+              .setContentText(message)
+              .setSmallIcon(R.drawable.ic_launcher)
+              .setContentIntent(pIntent)
+              .setAutoCancel(true);
 
       // Add ticker
       builder.setTicker(message);
@@ -210,7 +215,9 @@ public class GcmIntentService extends IntentService {
       String title = getResources().getString(R.string.lt_mycelium_local_trader_title);
       String message = getResources().getString(R.string.lt_ad_deactivating_message);
 
-      NotificationCompat.Builder builder = new NotificationCompat.Builder(this).setContentTitle(title)
+      NotificationCompat.Builder builder = new NotificationCompat
+              .Builder(this, "LT notification channel")
+              .setContentTitle(title)
             .setContentText(message).setSmallIcon(R.drawable.ic_launcher).setContentIntent(pIntent).setAutoCancel(true);
 
       // Add ticker

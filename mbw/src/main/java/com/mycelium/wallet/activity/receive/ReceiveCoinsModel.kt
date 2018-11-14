@@ -7,6 +7,7 @@ import android.content.Context
 import android.media.AudioManager
 import android.media.RingtoneManager
 import android.nfc.NfcAdapter
+import android.os.Build
 import android.os.Bundle
 import android.support.v4.app.NotificationCompat
 import android.widget.Toast
@@ -155,7 +156,7 @@ class ReceiveCoinsModel(
     private fun makeNotification(sum: CurrencyValue?) {
         val soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager?
-        val mBuilder = NotificationCompat.Builder(context) //TODO api 28 change, broken.
+        val mBuilder = NotificationCompat.Builder(context, "coins received channel")
                 .setSmallIcon(R.drawable.ic_launcher)
                 .setSound(soundUri, AudioManager.STREAM_NOTIFICATION) //This sets the sound to play
         notificationManager!!.notify(0, mBuilder.build())
