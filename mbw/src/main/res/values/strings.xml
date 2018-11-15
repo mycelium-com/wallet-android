@@ -1310,8 +1310,8 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="set_default">Set as default</string>
     <string name="bech_next">Tap for Bech32</string>
     <string name="p2sh_next">Tap for P2SH</string>
-    <string name="p2sh">P2SH</string>
-    <string name="bech">Bech32</string>
+    <string name="p2sh">P2SH - SegWit compatible</string>
+    <string name="bech">Bech32 - SegWit native</string>
     <string name="bech_description">Native SegWit address will be used for change. Latest Bitcoin standard, always the smallest fee possible, might affect privacy due to Bech32 addresses still haven\'t been used widely.</string>
     <string name="p2sh_p2wpkh">P2SH-P2WPKH</string>
     <string name="p2sh_p2wpkh_description">Legacy compatible SegWit address will be used for change. Has no privacy issues.</string>
