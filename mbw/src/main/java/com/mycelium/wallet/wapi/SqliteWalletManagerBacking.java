@@ -1102,21 +1102,6 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
                cursor = blobQuery.query(false, "single", new String[]{"id", "address", "addressstring", "archived", "blockheight"}, null, null,
                        null, null, null, null);
                MetadataStorage metadataStorage = new MetadataStorage(context);
-               Iterable<String> assetsId = metadataStorage.getColuAssetIds();
-               Map<UUID, ColuAccount.ColuAsset> coluUUIDs = new ArrayMap<>();
-               for (String assetId : assetsId) {
-                  if (!Strings.isNullOrEmpty(assetId)) {
-                     ColuAccount.ColuAsset assetDefinition = ColuAccount.ColuAsset.getAssetMap().get(assetId);
-                     if (assetDefinition != null) {
-                        UUID[] uuids = metadataStorage.getColuAssetUUIDs(assetDefinition.id);
-                        if (uuids.length > 0) {
-                           for (UUID uuid : uuids) {
-                              coluUUIDs.put(uuid, assetDefinition);
-                           }
-                        }
-                     }
-                  }
-               }
                while (cursor.moveToNext()) {
                   UUID id = SQLiteQueryWithBlobs.uuidFromBytes(cursor.getBlob(0));
                   byte[] addressBytes = cursor.getBlob(1);
@@ -1127,15 +1112,6 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
                   metadataStorage.storeAccountLabel(newId, metadataStorage.getLabelByAccount(id));
                   metadataStorage.setOtherAccountBackupState(newId, metadataStorage.getOtherAccountBackupState(id));
                   metadataStorage.storeArchived(newId, metadataStorage.getArchived(id));
-                  if (coluUUIDs.keySet().contains(id)) {
-                     String assetId = coluUUIDs.get(id).id;
-                     metadataStorage.addColuAssetUUIDs(assetId, newId);
-                     metadataStorage.removeColuAssetUUIDs(assetId, id);
-                     Optional<String> coluBalance = metadataStorage.getColuBalance(id);
-                     if (coluBalance.isPresent()) {
-                        metadataStorage.storeColuBalance(id, coluBalance.get());
-                     }
-                  }
                   metadataStorage.deleteAccountMetadata(id);
                   metadataStorage.deleteOtherAccountBackupState(id);
 
