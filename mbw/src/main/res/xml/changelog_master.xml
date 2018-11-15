@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
-    <release version="2.12.0.0" versioncode="2120000">
+    <release version="2.12.0.2" versioncode="2120002">
         <change>Full Segregated Witness support</change>
         <change>Full bech32 support</change>
     </release>
