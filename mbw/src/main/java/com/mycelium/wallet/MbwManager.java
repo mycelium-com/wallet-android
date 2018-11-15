@@ -132,7 +132,6 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bch.single.BitcoinCashSingleAddressModule;
 import com.mycelium.wapi.wallet.bip44.ChangeAddressMode;
-import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
 import com.mycelium.wapi.wallet.btc.InMemoryWalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking;
@@ -162,7 +161,6 @@ import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
 import com.mycelium.wapi.wallet.eth.EthModule;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 import com.mycelium.wapi.wallet.manager.WalletListener;
-import com.mycelium.wapi.wallet.metadata.IMetaDataStorage;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -663,7 +661,7 @@ public class MbwManager {
 
         walletManager.add(new BitcoinSingleAddressModule(backing, publicPrivateKeyStore, networkParameters, _wapi, getMetadataStorage()));
         if (spvBchFetcher != null) {
-            walletManager.add(new BitcoinCashSingleAddressModule(backing, publicPrivateKeyStore, networkParameters, spvBchFetcher, _wapi));
+            walletManager.add(new BitcoinCashSingleAddressModule(backing, publicPrivateKeyStore, networkParameters, spvBchFetcher, _wapi, getMetadataStorage()));
         }
         walletManager.add(new BitcoinHDModule(backing, secureKeyValueStore, networkParameters, _wapi, currenciesSettingsMap, getMetadataStorage()));
 
@@ -680,7 +678,7 @@ public class MbwManager {
 
 
         walletManager.add(new ColuModule(networkParameters, netParams, publicPrivateKeyStore
-                , new ColuApiImpl(coluClient), coluBacking, accountListener));
+                , new ColuApiImpl(coluClient), coluBacking, accountListener, getMetadataStorage()));
 
         if (masterSeedManager.hasBip32MasterSeed()) {
             addCoinapultModule(context, environment,walletManager, accountListener);
@@ -702,7 +700,7 @@ public class MbwManager {
                     , getMetadataStorage(), inMemoryPrivateKey.getPublicKey().getPublicKeyBytes());
             walletManager.add(new CoinapultModule(inMemoryPrivateKey, networkParameters
                     , new CoinapultApiImpl(createClient(environment, inMemoryPrivateKey, retainingWapiLogger), retainingWapiLogger)
-                    , coinapultBacking, accountListener));
+                    , coinapultBacking, accountListener, getMetadataStorage()));
         } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
             invalidKeyCipher.printStackTrace();
         }

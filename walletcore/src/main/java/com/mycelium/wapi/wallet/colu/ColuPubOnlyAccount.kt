@@ -25,6 +25,8 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext
                               , val backing: WalletBacking<ColuAccountContext, ColuTransaction>
                               , val listener: AccountListener? = null) : WalletAccount<ColuTransaction, BtcLegacyAddress> {
     protected var uuid: UUID
+    var coluLabel: String? = null
+
     @Volatile
     protected var _isSynchronizing: Boolean = false
 
@@ -52,11 +54,11 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext
     override fun getId(): UUID = uuid
 
     override fun getLabel(): String {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return coluLabel.toString()
     }
 
     override fun setLabel(label: String?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        coluLabel = label
     }
 
     override fun setAllowZeroConfSpending(b: Boolean) {
