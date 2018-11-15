@@ -489,7 +489,8 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
                           public void onClick(DialogInterface dialogInterface, int i) {
                              try {
                                 if(existingAccount instanceof SingleAddressAccount) {
-                                   ((SingleAddressAccount) existingAccount).setPrivateKey(key, AesKeyCipher.defaultKeyCipher());
+                                   _mbwManager.getWalletManager(false).createSingleAddressAccount(key,
+                                           AesKeyCipher.defaultKeyCipher());
                                 } else {
                                    ColuAccount coluAccount = (ColuAccount) existingAccount;
                                    coluAccount.setPrivateKey(new InMemoryPrivateKey(key.getPrivateKeyBytes()));

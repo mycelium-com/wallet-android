@@ -53,8 +53,8 @@ import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.activity.LtMainActivity;
 
 public class GcmIntentService extends IntentService {
-
    private static final String TAG = "GcmIntentService";
+   private static final String LT_CHANNEL_ID = "LT notification channel";
 
    public GcmIntentService() {
       super("GcmIntentService");
@@ -168,8 +168,13 @@ public class GcmIntentService extends IntentService {
       String title = getResources().getString(R.string.lt_mycelium_local_trader_title);
       String message = getResources().getString(R.string.lt_new_trading_activity_message);
 
-      NotificationCompat.Builder builder = new NotificationCompat.Builder(this).setContentTitle(title)
-            .setContentText(message).setSmallIcon(R.drawable.ic_launcher).setContentIntent(pIntent).setAutoCancel(true);
+      NotificationCompat.Builder builder = new NotificationCompat
+              .Builder(this, LT_CHANNEL_ID)
+              .setContentTitle(title)
+              .setContentText(message)
+              .setSmallIcon(R.drawable.ic_launcher)
+              .setContentIntent(pIntent)
+              .setAutoCancel(true);
 
       // Add ticker
       builder.setTicker(message);
@@ -210,8 +215,13 @@ public class GcmIntentService extends IntentService {
       String title = getResources().getString(R.string.lt_mycelium_local_trader_title);
       String message = getResources().getString(R.string.lt_ad_deactivating_message);
 
-      NotificationCompat.Builder builder = new NotificationCompat.Builder(this).setContentTitle(title)
-            .setContentText(message).setSmallIcon(R.drawable.ic_launcher).setContentIntent(pIntent).setAutoCancel(true);
+      NotificationCompat.Builder builder = new NotificationCompat
+              .Builder(this, LT_CHANNEL_ID)
+              .setContentTitle(title)
+              .setContentText(message)
+              .setSmallIcon(R.drawable.ic_launcher)
+              .setContentIntent(pIntent)
+              .setAutoCancel(true);
 
       // Add ticker
       builder.setTicker(message);

@@ -53,11 +53,7 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
     fun isReceivingAmountWrong() = model.receivingAmountWrong
 
     fun getCurrentlyReceivingFormatted() = Transformations.map(model.receivingAmount) {
-        if (it != null) {
-            getFormattedValue(it)
-        } else {
-            getFormattedValue(ExactBitcoinValue.ZERO)
-        }
+        getFormattedValue(it ?: ExactBitcoinValue.ZERO)
     }
 
     fun getCurrentlyReceivingAmount() = model.receivingAmount
@@ -91,19 +87,19 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
     fun getPaymentUri() = model.getPaymentUri()
 
     fun shareRequest() {
-        val s = Intent(Intent.ACTION_SEND)
-        s.type = "text/plain"
-        if (CurrencyValue.isNullOrZero(model.amountData.value)) {
-            s.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.bitcoin_address_title))
-            s.putExtra(Intent.EXTRA_TEXT, model.receivingAddress.value.toString())
-            context.startActivity(Intent.createChooser(s, context.getString(R.string.share_bitcoin_address))
-                    .addFlags(FLAG_ACTIVITY_NEW_TASK))
+        val intent = Intent(Intent.ACTION_SEND)
+        intent.type = "text/plain"
+        val titleId = if (CurrencyValue.isNullOrZero(model.amountData.value)) {
+            intent.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.bitcoin_address_title))
+            intent.putExtra(Intent.EXTRA_TEXT, model.receivingAddress.value.toString())
+            R.string.share_bitcoin_address
         } else {
-            s.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.payment_request))
-            s.putExtra(Intent.EXTRA_TEXT, getPaymentUri())
-            context.startActivity(Intent.createChooser(s, context.getString(R.string.share_payment_request))
-                    .addFlags(FLAG_ACTIVITY_NEW_TASK))
+            intent.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.payment_request))
+            intent.putExtra(Intent.EXTRA_TEXT, getPaymentUri())
+            R.string.share_payment_request
         }
+        context.startActivity(Intent.createChooser(intent, context.getString(titleId))
+                .addFlags(FLAG_ACTIVITY_NEW_TASK))
     }
 
     fun copyToClipboard() {
@@ -122,16 +118,15 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
 
     fun onEnterClick(activity: AppCompatActivity) {
         val amount = model.amountData
-        if (CurrencyValue.isNullOrZero(amount.value)) {
-            GetAmountActivity.callMeToReceive(activity, ExactCurrencyValue.from(null,
-                    mbwManager.selectedAccount.accountDefaultCurrency),
-                    GET_AMOUNT_RESULT_CODE, AccountDisplayType.getAccountType(model.account))
+        val amountToReceive = if (CurrencyValue.isNullOrZero(amount.value)) {
+            ExactCurrencyValue.from(null, mbwManager.selectedAccount.accountDefaultCurrency)
         } else {
             // call the amountData activity with the exact amountData, so that the user sees the same amountData he had entered
             // it in non-BTC
-            GetAmountActivity.callMeToReceive(activity, amount.value!!.exactValueIfPossible,
-                    GET_AMOUNT_RESULT_CODE, AccountDisplayType.getAccountType(model.account))
+            amount.value!!.exactValueIfPossible
         }
+        GetAmountActivity.callMeToReceive(activity, amountToReceive,
+                GET_AMOUNT_RESULT_CODE, AccountDisplayType.getAccountType(model.account))
     }
 
     companion object {

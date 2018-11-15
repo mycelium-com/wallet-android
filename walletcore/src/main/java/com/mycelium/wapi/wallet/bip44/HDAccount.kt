@@ -7,6 +7,7 @@ import com.google.common.collect.HashBiMap
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.Lists
 import com.mrd.bitlib.crypto.BipDerivationType
+import com.mrd.bitlib.crypto.BipDerivationType.Companion.getDerivationTypeByAddress
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.crypto.PublicKey
 import com.mrd.bitlib.model.*
@@ -17,25 +18,23 @@ import com.mycelium.wapi.api.request.QueryTransactionInventoryRequest
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher
 import com.mycelium.wapi.wallet.WalletManager.Event
-import com.mrd.bitlib.crypto.BipDerivationType.Companion.getDerivationTypeByAddress
-import java.lang.IllegalStateException
-
-import java.util.ArrayList
+import java.util.*
+import java.util.concurrent.TimeUnit
 
 open class HDAccount(
         protected var context: HDAccountContext,
-        protected val keyManagerMap: Map<BipDerivationType, HDAccountKeyManager>,
+        protected val keyManagerMap: MutableMap<BipDerivationType, HDAccountKeyManager>,
         network: NetworkParameters,
         protected val backing: Bip44AccountBacking,
         wapi: Wapi,
         protected val changeAddressModeReference: Reference<ChangeAddressMode>
 ) : AbstractAccount(backing, network, wapi), ExportableAccount {
 
-    // Used to determine which bips this account support
+    // Used to determine which bips this account supports
     private val derivePaths = context.indexesMap.keys
 
-    private var externalAddresses: MutableMap<BipDerivationType, BiMap<Address, Int>> = initAddressesMap()
-    private var internalAddresses: MutableMap<BipDerivationType, BiMap<Address, Int>> = initAddressesMap()
+    protected var externalAddresses: MutableMap<BipDerivationType, BiMap<Address, Int>> = initAddressesMap()
+    protected var internalAddresses: MutableMap<BipDerivationType, BiMap<Address, Int>> = initAddressesMap()
 
     private var receivingAddressMap: MutableMap<AddressType, Address> = mutableMapOf()
     @Volatile
@@ -167,7 +166,7 @@ open class HDAccount(
     /**
      * Ensure that all addresses in the look ahead window have been created
      */
-    private fun ensureAddressIndexes() {
+    protected fun ensureAddressIndexes() {
         derivePaths.forEachIndexed { index, derivationType ->
             ensureAddressIndexes(true, true, derivationType)
             ensureAddressIndexes(false, true, derivationType)
@@ -294,6 +293,8 @@ open class HDAccount(
     @Synchronized
     private fun discovery(): Boolean {
         try {
+            // discovered as in "discovered maybe something. further exploration is needed."
+            // thus, method is done, once all are false.
             var discovered = derivePaths.map { it to true }.toMap()
             do {
                 val pathsToDiscover = discovered.filter { it.value }
@@ -335,9 +336,8 @@ open class HDAccount(
 
         for (i in 0 until EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH) {
             val externalAddress = extInverse[context.getLastExternalIndexWithActivity(derivationType) + 1 + i]
-            if (externalAddress != null) {
-                lookAhead.add(externalAddress)
-            }
+                    ?: continue
+            lookAhead.add(externalAddress)
         }
         for (i in 0 until INTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH) {
             lookAhead.add(intInverse[context.getLastInternalIndexWithActivity(derivationType) + 1 + i]!!)
@@ -409,15 +409,13 @@ open class HDAccount(
         derivePaths.associateByTo(minInternalIndexesMap, { it }, { Int.MAX_VALUE })
         for (output in unspent) {
             val outputScript = ScriptOutput.fromScriptBytes(output.script)
-                    ?: // never happens, we have parsed it before
-                    continue
+                    ?: continue // never happens, we have parsed it before
             val address = outputScript.getAddress(_network)
             val derivationType = getDerivationTypeByAddress(address)
             val index = internalAddresses[derivationType]!![address]
-            if (index != null) {
-                val minInternalIndex = minInternalIndexesMap[derivationType]!!
-                minInternalIndexesMap[derivationType] = Math.min(minInternalIndex, index)
-            }
+                    ?: continue
+            val minInternalIndex = minInternalIndexesMap[derivationType]!!
+            minInternalIndexesMap[derivationType] = Math.min(minInternalIndex, index)
         }
 
         // XXX also, from all the outgoing unconfirmed transactions we have, check
@@ -426,37 +424,32 @@ open class HDAccount(
         // the first monitored one.
 
         derivePaths.forEach { derivationType ->
-            if (minInternalIndexesMap[derivationType] == Integer.MAX_VALUE) {
-                // there are no unspent outputs in our change chain
-                context.setFirstMonitoredInternalIndex(derivationType,
-                        Math.max(0, context.getFirstMonitoredInternalIndex(derivationType)))
-            } else {
-                context.setFirstMonitoredInternalIndex(derivationType, minInternalIndexesMap[derivationType]!!)
-            }
+            context.setFirstMonitoredInternalIndex(derivationType,
+                    if (minInternalIndexesMap[derivationType] == Integer.MAX_VALUE) {
+                        // there are no unspent outputs in our change chain
+                        Math.max(0, context.getFirstMonitoredInternalIndex(derivationType))
+                    } else {
+                        minInternalIndexesMap[derivationType]!!
+                    })
         }
     }
 
     // Get the next internal address just above the last address with activity
-    public override fun getChangeAddress(destinationAddress: Address): Address {
-        return when (changeAddressModeReference.get()!!) {
-            ChangeAddressMode.P2WPKH -> getChangeAddress(BipDerivationType.BIP84)
-            ChangeAddressMode.P2SH_P2WPKH -> getChangeAddress(BipDerivationType.BIP49)
-            ChangeAddressMode.PRIVACY -> getChangeAddress(getDerivationTypeByAddress(destinationAddress))
-            ChangeAddressMode.NONE -> throw IllegalStateException()
-        }
-    }
+    public override fun getChangeAddress(destinationAddress: Address): Address =
+            getChangeAddress(listOf(destinationAddress))
 
-    public override fun getChangeAddress(destinationAddresses: List<Address>): Address {
-        val preferredForPrivacy = destinationAddresses.groupingBy { BipDerivationType.getDerivationTypeByAddress(it) }
-                .eachCount()
-                .maxBy { it.value }
-        return when (changeAddressModeReference.get()!!) {
-            ChangeAddressMode.P2WPKH -> getChangeAddress(BipDerivationType.BIP84)
-            ChangeAddressMode.P2SH_P2WPKH -> getChangeAddress(BipDerivationType.BIP49)
-            ChangeAddressMode.PRIVACY -> getChangeAddress(preferredForPrivacy!!.key)
-            ChangeAddressMode.NONE -> throw IllegalStateException()
-        }
-    }
+    public override fun getChangeAddress(destinationAddresses: List<Address>): Address =
+            when (changeAddressModeReference.get()!!) {
+                ChangeAddressMode.P2WPKH -> getChangeAddress(BipDerivationType.BIP84)
+                ChangeAddressMode.P2SH_P2WPKH -> getChangeAddress(BipDerivationType.BIP49)
+                ChangeAddressMode.PRIVACY -> {
+                    val mostCommonOutputType = destinationAddresses.groupingBy {
+                        BipDerivationType.getDerivationTypeByAddress(it)
+                    }.eachCount().maxBy { it.value }!!.key
+                    getChangeAddress(mostCommonOutputType)
+                }
+                ChangeAddressMode.NONE -> throw IllegalStateException()
+            }
 
     override fun getChangeAddress(): Address {
         return when (changeAddressModeReference.get()!!) {
@@ -482,10 +475,8 @@ open class HDAccount(
         return if (isArchived) {
             Optional.absent()
         } else {
-            var receivingAddress = getReceivingAddress(context.defaultAddressType)
-            if (receivingAddress == null) {
-                receivingAddress = receivingAddressMap.values.first()
-            }
+            val receivingAddress = getReceivingAddress(context.defaultAddressType)
+                    ?: receivingAddressMap.values.first()
             Optional.of(receivingAddress)
         }
     }
@@ -516,8 +507,7 @@ open class HDAccount(
      */
     private fun updateLastIndexWithActivity(t: Transaction) {
         // Investigate whether the transaction sends us any coins
-        for (i in t.outputs.indices) {
-            val out = t.outputs[i]
+        for (out in t.outputs) {
             val receivingAddress = out.script.getAddress(_network)
             val derivationType = getDerivationTypeByAddress(receivingAddress)
             val externalIndex = externalAddresses[derivationType]?.get(receivingAddress)
@@ -562,10 +552,8 @@ open class HDAccount(
     @Throws(InvalidKeyCipher::class)
     override fun getPrivateKey(publicKey: PublicKey, cipher: KeyCipher): InMemoryPrivateKey? {
         for (address in publicKey.getAllSupportedAddresses(_network).values) {
-            val key = getPrivateKeyForAddress(address, cipher)
-            if (key != null) {
-                return key
-            }
+            return getPrivateKeyForAddress(address, cipher)
+                    ?: continue
         }
         return null
     }
@@ -573,14 +561,7 @@ open class HDAccount(
     @Throws(InvalidKeyCipher::class)
     public override fun getPrivateKeyForAddress(address: Address, cipher: KeyCipher): InMemoryPrivateKey? {
         val derivationType = getDerivationTypeByAddress(address)
-        var indexLookUp = IndexLookUp.forAddress(address, externalAddresses[derivationType]!!,
-                internalAddresses[derivationType]!!)
-        if (indexLookUp == null) {
-            // we did not find it - to be sure, generate all addresses and search again
-            ensureAddressIndexes()
-            indexLookUp = IndexLookUp.forAddress(address, externalAddresses[derivationType]!!,
-                    internalAddresses[derivationType]!!)
-        }
+        val indexLookUp = getIndexLookup(address, derivationType)
         return if (indexLookUp == null) {
             // still not found? give up...
             null
@@ -591,14 +572,7 @@ open class HDAccount(
 
     override fun getPublicKeyForAddress(address: Address): PublicKey? {
         val derivationType = getDerivationTypeByAddress(address)
-        var indexLookUp = IndexLookUp.forAddress(address, externalAddresses[derivationType]!!,
-                internalAddresses[derivationType]!!)
-        if (indexLookUp == null) {
-            // we did not find it - to be sure, generate all addresses and search again
-            ensureAddressIndexes()
-            indexLookUp = IndexLookUp.forAddress(address, externalAddresses[derivationType]!!,
-                    internalAddresses[derivationType]!!)
-        }
+        val indexLookUp = getIndexLookup(address, derivationType)
         return if (indexLookUp == null) {
             // still not found? give up...
             null
@@ -608,10 +582,18 @@ open class HDAccount(
         }
     }
 
+    private fun getIndexLookup(address: Address, derivationType: BipDerivationType): IndexLookUp? {
+        var indexLookUp = IndexLookUp.forAddress(address, externalAddresses[derivationType]!!, internalAddresses[derivationType]!!)
+        if (indexLookUp == null) {
+            // we did not find it - to be sure, generate all addresses and search again
+            ensureAddressIndexes()
+            indexLookUp = IndexLookUp.forAddress(address, externalAddresses[derivationType]!!, internalAddresses[derivationType]!!)
+        }
+        return indexLookUp
+    }
+
     override fun toString(): String {
-        val sb = StringBuilder()
-        sb.append("HD ")
-        sb.append("ID: ").append(id)
+        val sb = StringBuilder("HD ID: ").append(id)
         if (isArchived) {
             sb.append(" Archived")
         } else {
@@ -639,14 +621,16 @@ open class HDAccount(
     }
 
     fun getAddressId(address: Address): Optional<Array<Int>> {
-        val derivationType = getDerivationTypeByAddress(address)
-        return when {
-            externalAddresses[derivationType]!!.containsKey(address) -> Optional.of(arrayOf(0,
-                    externalAddresses[derivationType]!![address]!!))
-            internalAddresses[derivationType]!!.containsKey(address) -> Optional.of(arrayOf(1,
-                    internalAddresses[derivationType]!![address]!!))
-            else -> Optional.absent()
+        if (address.type !in availableAddressTypes) {
+            return Optional.absent()
         }
+        val derivationType = getDerivationTypeByAddress(address)
+        val (changeIndex, addressMap) =  when (address) {
+            in externalAddresses[derivationType]!!.keys -> Pair(0, externalAddresses)
+            in internalAddresses[derivationType]!!.keys -> Pair(1, internalAddresses)
+            else -> return Optional.absent()
+        }
+        return Optional.of(arrayOf(changeIndex, addressMap[derivationType]!![address]!!))
     }
 
     // returns true if this is one of our already used or monitored internal (="change") addresses
@@ -662,7 +646,6 @@ open class HDAccount(
     }
 
     override fun canSpend() = true
-
 
     override fun getBlockChainHeight(): Int {
         // public method that needs no synchronization
@@ -706,7 +689,6 @@ open class HDAccount(
     // Helper class to find the mapping for a Address in the internal or external chain
     private class IndexLookUp private constructor(val isChange: Boolean, val index: Int?) {
         companion object {
-
             fun forAddress(address: Address, external: Map<Address, Int>, internal: Map<Address, Int>): IndexLookUp? {
                 var index: Int? = external[address]
                 return if (index == null) {
@@ -725,7 +707,7 @@ open class HDAccount(
         }
     }
 
-    private fun initAddressesMap(): MutableMap<BipDerivationType, BiMap<Address, Int>> = derivePaths
+    protected fun initAddressesMap(): MutableMap<BipDerivationType, BiMap<Address, Int>> = derivePaths
             .map { it to HashBiMap.create<Address, Int>() }.toMap().toMutableMap()
 
     companion object {
@@ -733,6 +715,6 @@ open class HDAccount(
         const val INTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH = 20
         private const val EXTERNAL_MINIMAL_ADDRESS_LOOK_AHEAD_LENGTH = 4
         private const val INTERNAL_MINIMAL_ADDRESS_LOOK_AHEAD_LENGTH = 1
-        private const val FORCED_DISCOVERY_INTERVAL_MS = (1000 * 60 * 60 * 24).toLong()
+        private val FORCED_DISCOVERY_INTERVAL_MS = TimeUnit.DAYS.toMillis(1)
     }
 }

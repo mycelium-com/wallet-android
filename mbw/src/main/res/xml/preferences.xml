@@ -147,7 +147,7 @@
             android:layout="@layout/preference_layout"
             android:summaryOff="@string/p2sh_receive_mode"
             android:summaryOn="@string/bech32_receive_mode"
-            android:title="Default address type"
+            android:title="@string/default_address_type"
             android:widgetLayout="@layout/preference_switch" />
 
     </PreferenceCategory>
@@ -211,6 +211,9 @@
             android:summary="@string/email_notification_setting_explanation"
             android:title="@string/lt_use_email_for_notifications" />
     </PreferenceCategory>
+
+
+
 
     <!-- Ledger -->
     <PreferenceCategory

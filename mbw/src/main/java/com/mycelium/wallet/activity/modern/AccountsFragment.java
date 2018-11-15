@@ -342,7 +342,7 @@ public class AccountsFragment extends Fragment {
                         try {
                            //Check if this SingleAddress account is related with ColuAccount
                            WalletAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, _mbwManager.getColuManager().getAccounts().values());
-                           if (linkedColuAccount != null && linkedColuAccount instanceof ColuAccount) {
+                           if (linkedColuAccount instanceof ColuAccount) {
                               ColuManager coluManager = _mbwManager.getColuManager();
                               coluManager.forgetPrivateKey((ColuAccount) linkedColuAccount);
                            } else {
@@ -372,7 +372,7 @@ public class AccountsFragment extends Fragment {
                         } else {
                            //Check if this SingleAddress account is related with ColuAccount
                            WalletAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, _mbwManager.getColuManager().getAccounts().values());
-                           if (linkedColuAccount != null && linkedColuAccount instanceof ColuAccount) {
+                           if (linkedColuAccount instanceof ColuAccount) {
                               ColuManager coluManager = _mbwManager.getColuManager();
                               coluManager.deleteAccount((ColuAccount) linkedColuAccount);
                            } else {

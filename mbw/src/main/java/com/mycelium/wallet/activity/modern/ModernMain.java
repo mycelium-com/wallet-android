@@ -435,7 +435,15 @@ public class ModernMain extends AppCompatActivity {
                syncMode = SyncMode.NORMAL_ALL_ACCOUNTS_FORCED;
                counter++;
             }
-            _mbwManager.getWalletManager(false).startSynchronization(syncMode);
+
+            final Optional<Long> lastFullSync = _mbwManager.getMetadataStorage().getLastFullSync();
+            if (lastFullSync.isPresent()
+                    && (new Date().getTime() - lastFullSync.get() < MIN_FULLSYNC_INTERVAL)) {
+               _mbwManager.getWalletManager(false).startSynchronization(syncMode);
+            } else  {
+               _mbwManager.getWalletManager(false).startSynchronization(SyncMode.FULL_SYNC_ALL_ACCOUNTS);
+               _mbwManager.getMetadataStorage().setLastFullSync(new Date().getTime());
+            }
             _mbwManager.getColuManager().startSynchronization(syncMode);
 
             // also fetch a new exchange rate, if necessary

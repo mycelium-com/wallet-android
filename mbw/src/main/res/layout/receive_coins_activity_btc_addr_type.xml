@@ -45,6 +45,14 @@
                     android:layout_gravity="center">
 
                     <RadioButton
+                        android:id="@+id/rb_address_type_legacy"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/legacy_p2pkh"
+                        android:checked="@{viewModel.addressType == AddressType.P2PKH}"
+                        android:onClick="@{_ -> viewModel.setAddressType(AddressType.P2PKH)}" />
+
+                    <RadioButton
                         android:id="@+id/rb_address_type_p2sh"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"

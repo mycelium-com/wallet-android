@@ -78,7 +78,6 @@
   <string name="pref_category_pin">Nastavitve PIN-a</string>
   <string name="pref_clear_pin">Izbriši PIN</string>
   <string name="pref_clear_pin_summary">Izbriši trenutno PIN-kodo</string>
-  <string name="pref_set_pin">Nastavi PIN-kodo</string>
   <string name="pref_set_pin_summary">Nastavi PIN-kodo, ki ščiti dostop do pošiljanja nakazil, izvažanja zasebnih ključev in spreminjanja PIN-kode.</string>
   <string name="pref_local_currency_summary">Izberi lokalno valuto (npr. EUR)</string>
   <string name="pref_exchange_source_with_value">Vir tečaja (%1$s)</string>
@@ -151,8 +150,6 @@
   <string name="my_accounts">Moji računi</string>
   <string name="foreign_addresses">Imenik</string>
   <string name="confirm_delete_pk_title">Ste prepričani?</string>
-  <string name="confirm_delete_pk_with_balance">Brisanje je dokončno in ga ne boste mogli razveljaviti!\n\nTrenutni naslov:\n%1$s\n\nVsebuje %2$s\n\nSte prepričani, da ga želite izbrisati?</string>
-  <string name="confirm_delete_pk_without_balance">Brisanje je dokončno in ga ne boste mogli razveljaviti!\n\nTrenutni naslov:\n%1$s\n\nSte prepričani, da ga želite izbrisati?</string>
   <string name="verify_private_key_backup">Preveri rezervno kopijo</string>
   <string name="verify_backup_dialog_title">Preveri rezervno kopijo zasebnih ključev</string>
   <string name="verify_backup_scan_desc">Preverite rezervno kopijo z odčitanjem QR-kode zasebnega ključa ali glavnega semena.\nPodprtih je več formatov, med drugim Myceliumova šifrirana papirna rezervna kopija.</string>
@@ -161,8 +158,7 @@
   <string name="verify_backup_one_key">Imate en ključ, ki nikoli ni bil preverjen.</string>
   <string name="verify_backup_master_seed">Vaše glavno seme ni preverjeno.</string>
   <string name="verify_backup_no_such_record">Zasebni ključ ne ujema z nobenim od vaših Bitcoin naslovov.</string>
-  <string name="verify_backup_ok">Rezervna kopija zasebnih ključev je bila uspešno preverjena za naslednje naslove:\n\n%1$s</string>
-  <string name="wrong_seed">Prečitano seme se ne ujema z vašim glavnim semenom.</string>
+    <string name="wrong_seed">Prečitano seme se ne ujema z vašim glavnim semenom.</string>
   <string name="backup_missing">Rezervna kopija manjka</string>
   <string name="verify_backup_title">Rezervna kopija, preverba</string>
   <string name="verify_backup_message_text_1">Dobra rezervna kopija je eden od temeljev varnega ravnanja z bitcoini.\nV denarnici imate vsaj en zasebni ključ ali glavno seme brez preverjene rezervne kopije.\n\nProsimo, napravite in preverite rezervno kopijo.</string>
@@ -400,18 +396,6 @@
   <!-- LT end -->
   <string name="cs_private_key_description">Uporabljate zasebni ključ tega bitcoin naslova:</string>
   <string name="cs_address_description">Prečitali ste bitcoin naslov. Lahko si ogledate stanje na njem, ne morete pa porabljati teh sredstev.</string>
-  <plurals name="contains_keys">
-    <item quantity="one">Vsebuje %1$d zasebni ključ.</item>
-    <item quantity="two">Vsebuje %1$d zasebnih ključev.</item>
-    <item quantity="few">Vsebuje %1$d zasebnih ključev.</item>
-    <item quantity="other">Vsebuje %1$d zasebnih ključev.</item>
-  </plurals>
-  <plurals name="contains_addresses">
-    <item quantity="one">Vsebuje %1$d naslov.</item>
-    <item quantity="two">Vsebuje %1$d naslovov.</item>
-    <item quantity="few">Vsebuje %1$d naslovov.</item>
-    <item quantity="other">Vsebuje %1$d naslovov.</item>
-  </plurals>
   <string name="archiving_account_title">Arhiviranje računa</string>
   <string name="new_version_exists">Na voljo je nova verzija</string>
   <string name="check_update">Preveri posodobitve</string>
@@ -579,7 +563,6 @@
   <string name="ledger_enter_pin">Vnesite Ledgerjev PIN</string>
   <string name="ledger_enter_transaction_pin">Vnesite Ledgerjevo drugostopenjsko geslo</string>
   <string name="ledger_enter_2fa_pin">Potrdite izhodni naslov s svojo varnostno kartico</string>
-  <string name="ledger_please_wait">Prosimo, počakatje...</string>
   <string name="pref_ledger_title">Strojna denarnica Ledger</string>
   <string name="select_local_currencies">Izberite valute</string>
   <string name="show_public_or_private_data">Prikaži</string>
@@ -616,7 +599,6 @@
   <string name="dontagree">Ne strinjam se</string>
   <string name="agree">Strinjam se</string>
   <string name="lt_warning_watch_only_account">Trenutno izbrani račun je le opazovan - izberite drug račun.</string>
-  <string name="refresh">osveži</string>
   <string name="xpriv_title">Razširjeni zasbni ključ</string>
   <string name="share_xpriv">Deli razširjeni zasebni ključ</string>
   <string name="export_share_warning">Opozorilo: delili boste zasebne podatke svojega računa. Kdorkoli pride do teh podatkov, bo lahko dostopal do vseh vaših trenutnih in bodočih sredstev na tem računu. Želite nadaljevati?</string>

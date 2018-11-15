@@ -85,12 +85,7 @@ import com.mycelium.wallet.bitid.ExternalService;
 import com.mycelium.wallet.coinapult.CoinapultManager;
 import com.mycelium.wallet.colu.ColuManager;
 import com.mycelium.wallet.colu.SqliteColuManagerBacking;
-import com.mycelium.wallet.event.EventTranslator;
-import com.mycelium.wallet.event.ExtraAccountsChanged;
-import com.mycelium.wallet.event.ReceivingAddressChanged;
-import com.mycelium.wallet.event.SelectedAccountChanged;
-import com.mycelium.wallet.event.SelectedCurrencyChanged;
-import com.mycelium.wallet.event.TorStateChanged;
+import com.mycelium.wallet.event.*;
 import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager;
 import com.mycelium.wallet.extsig.keepkey.KeepKeyManager;
 import com.mycelium.wallet.extsig.ledger.LedgerManager;
@@ -553,11 +548,13 @@ public class MbwManager {
             if (record.hasPrivateKey()) {
                 try {
                     account = _walletManager.createSingleAddressAccount(record.key, AesKeyCipher.defaultKeyCipher());
+                    _eventBus.post(new AccountListChanged());
                 } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
                     throw new RuntimeException(invalidKeyCipher);
                 }
             } else {
                 account = _walletManager.createSingleAddressAccount(record.key.getPublicKey());
+                _eventBus.post(new AccountListChanged());
             }
 
             //check whether this was the selected record
