@@ -197,8 +197,7 @@ public class AddressBookFragment extends Fragment {
          entries.add(new Entry(AddressUtils.fromAddress(e.getKey()), e.getValue()));
       }
       entries = Utils.sortAddressbookEntries(entries);
-      if (entries.isEmpty() || !(_mbwManager.getSelectedAccount().getCoinType() == BitcoinMain.get() ||
-              _mbwManager.getSelectedAccount().getCoinType() == BitcoinTest.get())) {
+      if (entries.isEmpty()) {
          findViewById(R.id.tvNoRecords).setVisibility(View.VISIBLE);
          findViewById(R.id.lvForeignAddresses).setVisibility(View.GONE);
       } else {
