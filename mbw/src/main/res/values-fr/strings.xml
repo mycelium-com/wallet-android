@@ -78,7 +78,6 @@
   <string name="pref_category_pin">Paramètres de code d\'accès</string>
   <string name="pref_clear_pin">Désactiver le code d\'accès</string>
   <string name="pref_clear_pin_summary">Désactiver le code d\'accès actuel</string>
-  <string name="pref_set_pin">Activer le code d\'accès</string>
   <string name="pref_set_pin_summary">Définir un code d\'accès limitant l\'accès aux envois de fond, à l\'expédition de clés privées et la modification du code d\'accès</string>
   <string name="pref_local_currency_summary">Sélectionner la monnaie courante</string>
   <string name="pref_exchange_source_with_value">Bourse (%1$s)</string>
@@ -151,8 +150,6 @@
   <string name="my_accounts">Mes comptes</string>
   <string name="foreign_addresses">Carnet d\'adresses</string>
   <string name="confirm_delete_pk_title">Êtes-vous sûr ?</string>
-  <string name="confirm_delete_pk_with_balance">Cette action ne peut pas être annulée !\n\nAdresse actuelle :\n%1$s\n\nContient %2$s\n\nDésirez-vous la supprimer ?</string>
-  <string name="confirm_delete_pk_without_balance">Cette action ne peut pas être annulée !\n\nAdresse actuelle :\n%1$s\n\nDésirez-vous la supprimer ?</string>
   <string name="verify_private_key_backup">Vérifier la sauvegarde</string>
   <string name="verify_backup_dialog_title">Vérifier la sauvegarde de la clé privée</string>
   <string name="verify_backup_scan_desc">Vérifiez votre sauvegarde en scannant le code QR de la clé privée ou de la master seed.\nPlusieurs formats sont acceptés, y compris les sauvegardes papiers chiffrées de Mycelium.</string>
@@ -161,8 +158,7 @@
   <string name="verify_backup_one_key">Vous avez 1 clé qui n\'a jamais été vérifiée.</string>
   <string name="verify_backup_master_seed">Votre master seed n\'a pas été vérifiée.</string>
   <string name="verify_backup_no_such_record">La clé privée ne correspond à aucune de vos adresses Bitcoin.</string>
-  <string name="verify_backup_ok">Sauvegarde de la clé privée vérifiée avec succès pour l\'adresse suivante :\n\n%1$s</string>
-  <string name="wrong_seed">La numérisation ne correspond pas à votre master seed.</string>
+    <string name="wrong_seed">La numérisation ne correspond pas à votre master seed.</string>
   <string name="backup_missing">Sauvegarde manquante</string>
   <string name="verify_backup_title">Sauvegarde et vérification</string>
   <string name="verify_backup_message_text_1">Sans sauvegarde, si votre téléphone est perdu, volé ou détruit, vous perdrez tout votre argent !\n Au moins une de vos master seeds ou de vos clés Bitcoin n\'a pas été correctement sauvegardée.\n\n Veuillez sélectionner l\'option Sauvegarde.</string>
@@ -409,14 +405,6 @@
   <!-- LT end -->
   <string name="cs_private_key_description">Vous utilisez une clé privée avec l\'adresse Bitcoin suivante :</string>
   <string name="cs_address_description">Vous avez numérisé une adresse Bitcoin. Vous pouvez consulter le solde mais pas le dépenser.</string>
-  <plurals name="contains_keys">
-    <item quantity="one">Contient %d clé privée.</item>
-    <item quantity="other">Contient %1$d clés privées.</item>
-  </plurals>
-  <plurals name="contains_addresses">
-    <item quantity="one">Contient %d adresse.</item>
-    <item quantity="other">Contient %1$d adresses.</item>
-  </plurals>
   <string name="archiving_account_title">Archivage de compte</string>
   <string name="new_version_exists">Une nouvelle version est disponible</string>
   <string name="check_update">Rechercher une mise à jour</string>
@@ -617,7 +605,6 @@
   <string name="ledger_enter_pin">Entrez le PIN de portefeuille Ledger</string>
   <string name="ledger_enter_transaction_pin">Entrez le 2FA de portefeuille Ledger</string>
   <string name="ledger_enter_2fa_pin">Confirmez l\'adresse de sortie à l\'aide de votre carte de sécurité</string>
-  <string name="ledger_please_wait">Veuillez patienter...</string>
   <string name="ledger_unplugged_aid">Aide au ledger débranché</string>
   <string name="ledger_set_unplugged_aid_title">Paramétrer aide au ledger débranché</string>
   <string name="ledger_check_unplugged_aid">AID invalide, veuillez revérifier</string>
@@ -659,7 +646,6 @@
   <string name="dontagree">Je ne suis pas d\'accord</string>
   <string name="agree">J\'accepte</string>
   <string name="lt_warning_watch_only_account">Le compte actuel est en mode lecture - sélectionnez un compte différent.</string>
-  <string name="refresh">actualiser</string>
   <string name="xpriv_title">Clé privée étendue</string>
   <string name="share_xpriv">Partager la clé privée étendue</string>
   <string name="export_share_warning">Attention : Vous êtes sur le point de partager vos données de compte qui sont privées. Toute personne qui met la main sur elles peut accéder à tous les fonds actuels et futurs dans votre compte. Voulez-vous continuer ?</string>

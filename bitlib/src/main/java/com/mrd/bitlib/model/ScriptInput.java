@@ -24,26 +24,27 @@ public class ScriptInput extends Script {
    public static final ScriptInput EMPTY = new ScriptInput(new byte[] {});
 
    public static ScriptInput fromScriptBytes(byte[] scriptBytes) throws ScriptParsingException {
-      byte[][] chunks = Script.chunksFromScriptBytes(scriptBytes);
-      if (ScriptInputStandard.isScriptInputStandard(chunks)) {
-         return new ScriptInputStandard(chunks, scriptBytes);
-      } else if (ScriptInputPubKey.isScriptInputPubKey(chunks)) {
-         return new ScriptInputPubKey(chunks, scriptBytes);
-      } else if (ScriptInputP2SHMultisig.isScriptInputP2SHMultisig(chunks)) {
-         return new ScriptInputP2SHMultisig(chunks, scriptBytes);
-      } else if (isWitnessProgram(depush(scriptBytes))) {
+      if (isWitnessProgram(depush(scriptBytes))) {
          byte[] witnessProgram = getWitnessProgram(depush(scriptBytes));
          if (witnessProgram.length == 20) {
             return new ScriptInputP2WPKH(scriptBytes);
-         } else if (witnessProgram.length == 32) {
-            return new ScriptInputP2WSH(scriptBytes);
-         } else {
-            // Should never happen
-            return new ScriptInput(scriptBytes);
          }
-      } else {
+         if (witnessProgram.length == 32) {
+            return new ScriptInputP2WSH(scriptBytes);
+         }
          return new ScriptInput(scriptBytes);
       }
+      byte[][] chunks = Script.chunksFromScriptBytes(scriptBytes);
+      if (ScriptInputStandard.isScriptInputStandard(chunks)) {
+         return new ScriptInputStandard(chunks, scriptBytes);
+      }
+      if (ScriptInputPubKey.isScriptInputPubKey(chunks)) {
+         return new ScriptInputPubKey(chunks, scriptBytes);
+      }
+      if (ScriptInputP2SHMultisig.isScriptInputP2SHMultisig(chunks)) {
+         return new ScriptInputP2SHMultisig(chunks, scriptBytes);
+      }
+      return new ScriptInput(scriptBytes);
    }
 
    /**
@@ -78,10 +79,10 @@ public class ScriptInput extends Script {
             return new byte[]{};
         }
         byte pushByte = script[0];
-        script = BitUtils.copyOfRange(script, 1, script.length);
         if (pushByte < 1 || pushByte > 76) {
            return new byte[]{};
         }
+        script = BitUtils.copyOfRange(script, 1, script.length);
         if (script.length != pushByte) {
            return new byte[]{};
         }

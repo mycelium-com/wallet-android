@@ -191,8 +191,8 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
    public abstract UUID getId();
 
    protected static UUID addressToUUID(Address address) {
-      return new UUID(BitUtils.uint64ToLong(address.getAllAddressBytes(), 1), BitUtils.uint64ToLong(
-            address.getAllAddressBytes(), 9));
+      return new UUID(BitUtils.uint64ToLong(address.getAllAddressBytes(), 0), BitUtils.uint64ToLong(
+            address.getAllAddressBytes(), 8));
    }
 
    /**
@@ -1058,17 +1058,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
 
    private void addOutputToEstimation(Address outputAddress, FeeEstimatorBuilder estimatorBuilder) {
       if (outputAddress != null) {
-         switch (outputAddress.getType()) {
-            case P2PKH:
-               estimatorBuilder.setLegacyOutputs(1);
-               break;
-            case P2WPKH:
-               estimatorBuilder.setBechOutputs(1);
-               break;
-            case P2SH_P2WPKH:
-               estimatorBuilder.setP2shOutputs(1);
-               break;
-         }
+         estimatorBuilder.addOutput(outputAddress.getType());
       } else {
          estimatorBuilder.setLegacyOutputs(1);
       }

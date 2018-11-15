@@ -13,7 +13,7 @@ class ReceiveCoCoViewModel(application: Application) : ReceiveCoinsViewModel(app
     override fun init(account: WalletAccount, hasPrivateKey: Boolean, showIncomingUtxo: Boolean) {
         super.init(account, hasPrivateKey, showIncomingUtxo)
         accountLabel = (account as ColuAccount).label
-        model = ReceiveCoinsModel(getApplication(), account, accountLabel, hasPrivateKey, showIncomingUtxo)
+        model = ReceiveCoinsModel(getApplication(), account, accountLabel, showIncomingUtxo)
     }
 
     override fun getHint() = context.getString(R.string.amount_hint_denomination, account.accountDefaultCurrency)
