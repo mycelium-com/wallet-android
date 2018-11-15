@@ -125,10 +125,11 @@ public class AccountAdapter extends SelectableRecyclerView.Adapter<RecyclerView.
             CoinUtil.Denomination denomination = mbwManager.getBitcoinDenomination();
             viewHolder.itemTextView.setText(Utils.getFormattedValueWithUnit(item.account.getCurrencyBasedBalance().confirmed, denomination));
             if (item.account instanceof HDAccount) {
-                if (((HDAccount) item.account).getReceivingAddress(AddressType.P2SH_P2WPKH) != null) {
-                    viewHolder.valueTextView.setText(((HDAccount) item.account).getReceivingAddress(AddressType.P2SH_P2WPKH).toString());
-                } else if (((HDAccount) item.account).getReceivingAddress(AddressType.P2PKH) != null) {
-                    viewHolder.valueTextView.setText(((HDAccount) item.account).getReceivingAddress(AddressType.P2PKH).toString());
+                HDAccount hdAccount = (HDAccount) item.account;
+                if (hdAccount.getReceivingAddress(AddressType.P2SH_P2WPKH) != null) {
+                    viewHolder.valueTextView.setText(hdAccount.getReceivingAddress(AddressType.P2SH_P2WPKH).toString());
+                } else if (hdAccount.getReceivingAddress(AddressType.P2PKH) != null) {
+                    viewHolder.valueTextView.setText(hdAccount.getReceivingAddress(AddressType.P2PKH).toString());
                 }
             } else {
                 if (item.account.getReceivingAddress().isPresent()) {
