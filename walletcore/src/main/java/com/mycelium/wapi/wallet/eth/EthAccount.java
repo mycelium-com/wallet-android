@@ -5,6 +5,7 @@ import com.mycelium.wapi.wallet.BroadcastResult;
 import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.GenericTransaction;
+import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -47,9 +48,9 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
     }
 
     @Override
-    public void completeAndSignTx(SendRequest<EthTransaction> request) throws WalletAccountException {
+    public void completeAndSignTx(SendRequest<EthTransaction> request, KeyCipher keyCipher) throws WalletAccountException {
         completeTransaction(request);
-        signTransaction(request);
+        signTransaction(request, keyCipher);
     }
 
     @Override
@@ -62,7 +63,7 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
     }
 
     @Override
-    public void signTransaction(SendRequest<EthTransaction> request) {
+    public void signTransaction(SendRequest<EthTransaction> request, KeyCipher keyCipher) {
 
     }
 

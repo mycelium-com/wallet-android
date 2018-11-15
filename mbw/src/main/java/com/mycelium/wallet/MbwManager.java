@@ -147,8 +147,8 @@ import com.mycelium.wapi.wallet.btc.single.PrivateSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore;
 import com.mycelium.wapi.wallet.btc.single.PublicSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
-import com.mycelium.wapi.wallet.btcmasterseed.Listener;
-import com.mycelium.wapi.wallet.btcmasterseed.MasterSeedManager;
+import com.mycelium.wapi.wallet.masterseed.Listener;
+import com.mycelium.wapi.wallet.masterseed.MasterSeedManager;
 import com.mycelium.wapi.wallet.coinapult.CoinapultApiImpl;
 import com.mycelium.wapi.wallet.coinapult.CoinapultModule;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
@@ -667,15 +667,6 @@ public class MbwManager {
 
         SqliteColuManagerBacking coluBacking = new SqliteColuManagerBacking(context);
         ColuClient coluClient = new ColuClient(networkParameters, BuildConfig.ColoredCoinsApiURLs, BuildConfig.ColuBlockExplorerApiURLs);
-        org.bitcoinj.core.NetworkParameters netParams;
-        if (networkParameters.isProdnet()) {
-            netParams = MainNetParams.get();
-        } else if (networkParameters.isTestnet()) {
-            netParams = TestNet3Params.get();
-        } else {
-            netParams = RegTestParams.get();
-        }
-
 
         walletManager.add(new ColuModule(networkParameters, netParams, publicPrivateKeyStore
                 , new ColuApiImpl(coluClient), coluBacking, accountListener, getMetadataStorage()));

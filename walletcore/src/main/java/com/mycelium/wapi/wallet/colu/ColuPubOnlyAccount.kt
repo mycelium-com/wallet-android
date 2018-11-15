@@ -19,7 +19,6 @@ import java.util.*
 open class ColuPubOnlyAccount(val context: ColuAccountContext
                               , private val type: CryptoCurrency
                               , val networkParameters: NetworkParameters
-                              , val coluNetworkParameters: org.bitcoinj.core.NetworkParameters
                               , val coluClient: ColuApi
                               , val accountBacking: AccountBacking<ColuTransaction>
                               , val backing: WalletBacking<ColuAccountContext, ColuTransaction>
@@ -103,7 +102,7 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun getSendToRequest(destination: BtcLegacyAddress, amount: Value): SendRequest<*> {
+    override fun getSendToRequest(destination: BtcLegacyAddress, amount: Value): SendRequest<ColuTransaction> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
@@ -230,7 +229,7 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext
         return 0;
     }
 
-    override fun completeAndSignTx(request: SendRequest<ColuTransaction>) {
+    override fun completeAndSignTx(request: SendRequest<ColuTransaction>, keyCipher: KeyCipher) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
@@ -238,7 +237,7 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun signTransaction(request: SendRequest<ColuTransaction>) {
+    override fun signTransaction(request: SendRequest<ColuTransaction>, keyCipher: KeyCipher) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
