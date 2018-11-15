@@ -1128,7 +1128,7 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
                      metadataStorage.removeColuAssetUUIDs(assetId, id);
                      Optional<String> coluBalance = metadataStorage.getColuBalance(id);
                      if (coluBalance.isPresent()) {
-                        metadataStorage.storeColuBalance(id, coluBalance.get());
+                        metadataStorage.storeColuBalance(newId, coluBalance.get());
                      }
                   }
                   metadataStorage.deleteAccountMetadata(id);

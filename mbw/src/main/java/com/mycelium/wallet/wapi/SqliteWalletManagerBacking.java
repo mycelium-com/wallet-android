@@ -310,7 +310,7 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
             UUID id = SQLiteQueryWithBlobs.uuidFromBytes(cursor.getBlob(0));
             Type type = new TypeToken<Collection<String>>(){}.getType();
             Collection<String> addressStringsList = gson.fromJson(cursor.getString(1), type);
-            ArrayMap<AddressType, Address> addresses = new ArrayMap<>(3);
+            Map<AddressType, Address> addresses = new ArrayMap<>(3);
             for (String addressString : addressStringsList) {
                Address address = Address.fromString(addressString);
                addresses.put(address.getType(), address);
