@@ -7,15 +7,19 @@ import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore
 import com.mycelium.wapi.wallet.colu.coins.ColuMain
 import com.mycelium.wapi.wallet.manager.Config
+import com.mycelium.wapi.wallet.manager.GenericModule
 import com.mycelium.wapi.wallet.manager.WalletModule
+import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
+import java.text.DateFormat
 import java.util.*
 
-
-class ColuModule(val networkParameters: NetworkParameters
-                 , internal val publicPrivateKeyStore: PublicPrivateKeyStore
-                 , val coluApi: ColuApi
-                 , val backing: WalletBacking<ColuAccountContext, ColuTransaction>
-                 , val listener: AccountListener) : WalletModule {
+class ColuModule(val networkParameters: NetworkParameters,
+                 val netParams: org.bitcoinj.core.NetworkParameters,
+                 internal val publicPrivateKeyStore: PublicPrivateKeyStore,
+                 val coluApi: ColuApi,
+                 val backing: WalletBacking<ColuAccountContext, ColuTransaction>,
+                 val listener: AccountListener,
+                 val metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStorage), WalletModule {
 
     override fun getId(): String = "colored coin module"
 
@@ -81,6 +85,9 @@ class ColuModule(val networkParameters: NetworkParameters
                         , coluApi, backing.getAccountBacking(id), backing, listener)
             }
         }
+
+        val baseName = DateFormat.getDateInstance(java.text.DateFormat.MEDIUM, Locale.getDefault()).format(Date())
+        result!!.label = createLabel(baseName, result!!.id)
         return result
     }
 

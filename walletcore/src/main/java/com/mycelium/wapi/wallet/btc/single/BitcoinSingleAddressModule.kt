@@ -12,16 +12,18 @@ import com.mycelium.wapi.wallet.bip44.ChangeAddressMode
 import com.mycelium.wapi.wallet.btc.BtcTransaction
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking
 import com.mycelium.wapi.wallet.manager.Config
+import com.mycelium.wapi.wallet.manager.GenericModule
 import com.mycelium.wapi.wallet.manager.WalletModule
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
+import java.text.DateFormat
 import java.util.*
 
 
-class BitcoinSingleAddressModule(internal val backing: WalletManagerBacking<SingleAddressAccountContext, BtcTransaction>
-                                 , internal val publicPrivateKeyStore: PublicPrivateKeyStore
-                                 , internal val networkParameters: NetworkParameters
-                                 , internal var _wapi: Wapi
-                                 , internal val metaDataStorage: IMetaDataStorage) : WalletModule {
+class BitcoinSingleAddressModule(internal val backing: WalletManagerBacking<SingleAddressAccountContext, BtcTransaction>,
+                                 internal val publicPrivateKeyStore: PublicPrivateKeyStore,
+                                 internal val networkParameters: NetworkParameters,
+                                 internal var _wapi: Wapi,
+                                 internal val metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStorage), WalletModule {
 
     override fun getId(): String = "BitcoinSA"
 
@@ -63,10 +65,13 @@ class BitcoinSingleAddressModule(internal val backing: WalletManagerBacking<Sing
             } finally {
                 backing.endTransaction()
             }
-            return result
-
         }
 
+
+        val baseLabel = DateFormat.getDateInstance(java.text.DateFormat.MEDIUM, Locale.getDefault()).format(Date())
+        if (result != null) {
+            result.label = createLabel(baseLabel, result.id)
+        }
         return result
     }
 
