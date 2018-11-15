@@ -18,14 +18,4 @@
         <item>XMR</item>
         <item>XRP</item>
     </string-array>
-    <string-array name="change_settings_names">
-        <item>@string/change_settings_p2sh_p2wpkh</item>
-        <item>@string/change_settings_bech32</item>
-        <item>@string/change_settings_privacy_guard_mode</item>
-    </string-array>
-    <string-array name="change_settings_values">
-        <item>P2SH_P2WPKH</item>
-        <item>P2WPKH</item>
-        <item>PRIVACY</item>
-    </string-array>
 </resources>
