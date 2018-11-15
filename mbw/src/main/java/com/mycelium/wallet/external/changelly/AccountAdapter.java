@@ -10,14 +10,15 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.util.CoinUtil;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
+import com.mycelium.wapi.wallet.AbstractAccount;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.bip44.HDAccount;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -124,12 +125,10 @@ public class AccountAdapter extends SelectableRecyclerView.Adapter<RecyclerView.
             viewHolder.categoryTextView.setText(mbwManager.getMetadataStorage().getLabelByAccount(item.account.getId()));
             CoinUtil.Denomination denomination = mbwManager.getBitcoinDenomination();
             viewHolder.itemTextView.setText(Utils.getFormattedValueWithUnit(item.account.getCurrencyBasedBalance().confirmed, denomination));
-            if (item.account instanceof HDAccount) {
-                HDAccount hdAccount = (HDAccount) item.account;
-                if (hdAccount.getReceivingAddress(AddressType.P2SH_P2WPKH) != null) {
-                    viewHolder.valueTextView.setText(hdAccount.getReceivingAddress(AddressType.P2SH_P2WPKH).toString());
-                } else if (hdAccount.getReceivingAddress(AddressType.P2PKH) != null) {
-                    viewHolder.valueTextView.setText(hdAccount.getReceivingAddress(AddressType.P2PKH).toString());
+            if (item.account instanceof AbstractAccount) {
+                AbstractAccount account = (AbstractAccount) item.account;
+                if (!trySettingReceivingAddress(viewHolder, account.getReceivingAddress(AddressType.P2SH_P2WPKH))) {
+                    trySettingReceivingAddress(viewHolder, account.getReceivingAddress(AddressType.P2PKH));
                 }
             } else {
                 if (item.account.getReceivingAddress().isPresent()) {
@@ -142,6 +141,14 @@ public class AccountAdapter extends SelectableRecyclerView.Adapter<RecyclerView.
             holder.itemView.setLayoutParams(layoutParams);
             holder.itemView.setVisibility(getItemCount() > 3 || position == 0 ? View.VISIBLE : View.INVISIBLE);
         }
+    }
+
+    private boolean trySettingReceivingAddress(ViewHolder viewHolder, Address receivingAddress) {
+        if (receivingAddress != null) {
+            viewHolder.valueTextView.setText(receivingAddress.toString());
+            return true;
+        }
+        return false;
     }
 
     @Override

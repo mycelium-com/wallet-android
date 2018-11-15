@@ -14,6 +14,8 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.common.base.Predicate;
+import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
 import com.mycelium.wallet.AccountManager;
 import com.mycelium.wallet.MbwManager;
@@ -22,13 +24,17 @@ import com.mycelium.wallet.activity.send.event.SelectListener;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
 import com.mycelium.wallet.activity.view.ValueKeyboard;
 import com.mycelium.wallet.external.changelly.ChangellyAPIService.ChangellyAnswerDouble;
+import com.mycelium.wapi.wallet.AbstractAccount;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bip44.HDAccount;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+
+import javax.annotation.Nullable;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -173,8 +179,16 @@ public class ChangellyActivity extends AppCompatActivity {
                 supportedHDAccounts.add(account);
             }
         }
+        Collection<WalletAccount> btcSingleAccounts = AccountManager.INSTANCE.getBTCSingleAddressAccounts().values();
+        List<WalletAccount> supportedSAAccounts = new ArrayList<>();
+        for (WalletAccount account: btcSingleAccounts) {
+            if (((AbstractAccount) account).getAvailableAddressTypes().contains(AddressType.P2SH_P2WPKH) ||
+                ((AbstractAccount) account).getAvailableAddressTypes().contains(AddressType.P2PKH)) {
+                supportedSAAccounts.add(account);
+            }
+        }
         toAccounts.addAll(supportedHDAccounts);
-        toAccounts.addAll(AccountManager.INSTANCE.getBTCSingleAddressAccounts().values());
+        toAccounts.addAll(supportedSAAccounts);
         toAccounts.addAll(AccountManager.INSTANCE.getCoinapultAccounts().values());
         accountAdapter = new AccountAdapter(mbwManager, toAccounts, firstItemWidth);
         accountSelector.setAdapter(accountAdapter);
@@ -319,13 +333,11 @@ public class ChangellyActivity extends AppCompatActivity {
         CurrencyAdapter.Item item = currencyAdapter.getItem(currencySelector.getSelectedItem());
         WalletAccount walletAccount = accountAdapter.getItem(accountSelector.getSelectedItem()).account;
         String destination = walletAccount.getReceivingAddress().get().toString();
-        if (walletAccount instanceof HDAccount) {
-            HDAccount hdAccount = (HDAccount) walletAccount;
-            if (hdAccount.getReceivingAddress(AddressType.P2SH_P2WPKH) != null) {
-                destination = hdAccount.getReceivingAddress(AddressType.P2SH_P2WPKH).toString();
-            } else if (hdAccount.getReceivingAddress(AddressType.P2PKH) != null) {
-                destination = hdAccount.getReceivingAddress(AddressType.P2PKH).toString();
-            }
+        AbstractAccount account = (AbstractAccount) walletAccount;
+        if (account.getReceivingAddress(AddressType.P2SH_P2WPKH) != null) {
+            destination = account.getReceivingAddress(AddressType.P2SH_P2WPKH).toString();
+        } else if (account.getReceivingAddress(AddressType.P2PKH) != null) {
+            destination = account.getReceivingAddress(AddressType.P2PKH).toString();
         }
         startActivityForResult(new Intent(ChangellyActivity.this, ChangellyOfferActivity.class)
                 .putExtra(ChangellyAPIService.FROM, item.currency)
