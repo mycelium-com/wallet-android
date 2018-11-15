@@ -1,9 +1,18 @@
 package com.mycelium.wapi.wallet
 
+import com.megiontechnologies.BitcoinCash
+import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.api.lib.FeeEstimation
+import com.mycelium.wapi.wallet.bch.coins.BchCoin
+import com.mycelium.wapi.wallet.bch.coins.BchMain
+import com.mycelium.wapi.wallet.bch.coins.BchTest
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking
+import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
+import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
+import com.mycelium.wapi.wallet.coins.GenericAssetInfo
+import com.mycelium.wapi.wallet.colu.coins.*
 import com.mycelium.wapi.wallet.manager.*
 import org.jetbrains.annotations.TestOnly
 import java.util.*
@@ -208,6 +217,20 @@ class WalletManager(val backing: WalletManagerBacking<*,*>,
 
     fun getActiveAccounts(): List<WalletAccount<*, *>> {
         return accounts.values.filter { it.isActive && it.canSpend() }
+    }
+
+    fun getAcceptableAssetTypes(address: String): List<GenericAssetInfo> {
+
+        val assets = ArrayList<GenericAssetInfo>()
+        val addr = Address.fromString(address)
+        if(addr != null){
+            if(network.isProdnet){
+                assets.addAll(arrayListOf(BitcoinMain.get(), BchMain, MTCoin, MASSCoin, RMCCoin))
+            } else {
+                assets.addAll(arrayListOf(BitcoinTest.get(), BchTest, MTCoinTest, MASSCoinTest, RMCCoinTest))
+            }
+        }
+        return assets
     }
 
     /**

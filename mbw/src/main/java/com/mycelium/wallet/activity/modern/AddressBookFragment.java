@@ -76,7 +76,15 @@ import com.mycelium.wallet.event.AddressBookChanged;
 import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.WalletManager;
+import com.mycelium.wapi.wallet.bch.coins.BchMain;
+import com.mycelium.wapi.wallet.bch.coins.BchTest;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
+import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
+import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
+import com.mycelium.wapi.wallet.coins.CryptoCurrency;
+import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
+import com.mycelium.wapi.wallet.colu.coins.*;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
@@ -284,7 +292,7 @@ public class AddressBookFragment extends Fragment {
 
    private void doEditEntry() {
       EnterAddressLabelUtil.enterAddressLabel(getActivity(), _mbwManager.getMetadataStorage(),
-             ((BtcAddress)mSelectedAddress).getAddress(),
+             mSelectedAddress,
               "", addressLabelChanged);
    }
 
@@ -346,15 +354,44 @@ public class AddressBookFragment extends Fragment {
 
          });
 
-         Optional<Address> address = Utils.addressFromString(Utils.getClipboardString(activity), _mbwManager.getNetwork());
-         findViewById(R.id.btClipboard).setEnabled(address.isPresent());
          findViewById(R.id.btClipboard).setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
-               Optional<Address> address = Utils.addressFromString(Utils.getClipboardString(activity), _mbwManager.getNetwork());
-               Preconditions.checkState(address.isPresent());
-               addFromAddress(address.get());
+               List<GenericAssetInfo> assets = _mbwManager.getWalletManager(false).
+                       getAcceptableAssetTypes(Utils.getClipboardString(activity));
+
+               final boolean isProdnet = _mbwManager.getNetwork().isProdnet();
+               if(!assets.isEmpty()) {
+                  AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                  builder.setTitle(String.format("The address %s may belong to different crypto currency types.\n\nPlease choose which one it belongs to:", Utils.getClipboardString(activity)))
+                          .setItems(R.array.coins, new DialogInterface.OnClickListener() {
+                             public void onClick(DialogInterface dialog, int which) {
+                                CryptoCurrency coinType = isProdnet ? BitcoinMain.get() : BitcoinTest.get();;
+                                switch (which) {
+                                   case 0:
+                                      coinType = isProdnet ? BitcoinMain.get() : BitcoinTest.get();
+                                      break;
+                                   case 1:
+                                      coinType = isProdnet ? BchMain.INSTANCE : BchTest.INSTANCE;
+                                      break;
+                                   case 2:
+                                      coinType = isProdnet ? MTCoin.INSTANCE : MTCoinTest.INSTANCE;
+                                      break;
+                                   case 3:
+                                      coinType = isProdnet ? MASSCoin.INSTANCE : MASSCoinTest.INSTANCE;
+                                      break;
+                                   case 4:
+                                      coinType = isProdnet ? RMCCoin.INSTANCE : RMCCoinTest.INSTANCE;
+                                      break;
+
+                                }
+                                addFromAddress(AddressUtils.from(coinType, Utils.getClipboardString(activity)));
+                             }
+                          }).show();
+               } else {
+                  Toast.makeText(AddDialog.super.getContext(), R.string.unrecognized_format, Toast.LENGTH_SHORT).show();
+               }
                AddDialog.this.dismiss();
             }
          });
@@ -393,11 +430,12 @@ public class AddressBookFragment extends Fragment {
       }
       Preconditions.checkState(type == StringHandlerActivity.ResultType.ADDRESS);
       Address address = StringHandlerActivity.getAddress(intent);
-      addFromAddress(address);
+
+      addFromAddress(AddressUtils.fromAddress(address));
    }
 
-   private void addFromAddress(Address address) {
-         EnterAddressLabelUtil.enterAddressLabel(getActivity(), _mbwManager.getMetadataStorage(), address, "", addressLabelChanged);
+   private void addFromAddress(GenericAddress address) {
+         EnterAddressLabelUtil.enterAddressLabel(getActivity(), _mbwManager.getMetadataStorage(), address,"", addressLabelChanged);
    }
 
    private AddressLabelChangedHandler addressLabelChanged = new AddressLabelChangedHandler() {
