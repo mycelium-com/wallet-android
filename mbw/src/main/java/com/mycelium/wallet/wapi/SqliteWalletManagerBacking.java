@@ -34,6 +34,9 @@
 
 package com.mycelium.wallet.wapi;
 
+import android.util.ArrayMap;
+import com.google.common.base.Optional;
+import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import android.content.Context;
 import android.database.Cursor;
@@ -56,6 +59,9 @@ import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
+import com.mycelium.wallet.MbwManager;
+import com.mycelium.wallet.colu.ColuAccount;
+import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.persistence.SQLiteQueryWithBlobs;
 import com.mycelium.wapi.api.exception.DbCorruptedException;
 import com.mycelium.wapi.api.lib.FeeEstimation;
@@ -67,6 +73,7 @@ import com.mycelium.wapi.wallet.WalletManagerBacking;
 import com.mrd.bitlib.crypto.BipDerivationType;
 import com.mycelium.wapi.wallet.bip44.AccountIndexesContext;
 import com.mycelium.wapi.wallet.bip44.HDAccountContext;
+import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.single.SingleAddressAccountContext;
 
 import java.lang.reflect.Type;
@@ -301,8 +308,13 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
                null, null, null, null);
          while (cursor.moveToNext()) {
             UUID id = SQLiteQueryWithBlobs.uuidFromBytes(cursor.getBlob(0));
-            Type type = new TypeToken<Map<AddressType, Address>>(){}.getType();
-            Map<AddressType, Address> addresses  = gson.fromJson(cursor.getString(1), type);
+            Type type = new TypeToken<Collection<String>>(){}.getType();
+            Collection<String> addressStringsList = gson.fromJson(cursor.getString(1), type);
+            ArrayMap<AddressType, Address> addresses = new ArrayMap<>(3);
+            for (String addressString : addressStringsList) {
+               Address address = Address.fromString(addressString);
+               addresses.put(address.getType(), address);
+            }
             boolean isArchived = cursor.getInt(2) == 1;
             int blockHeight = cursor.getInt(3);
             AddressType defaultAddressType  = gson.fromJson(cursor.getString(4), AddressType.class);
@@ -331,7 +343,11 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
 
          // Create context
          _insertOrReplaceSingleAddressAccount.bindBlob(1, uuidToBytes(context.getId()));
-         _insertOrReplaceSingleAddressAccount.bindString(2, gson.toJson(context.getAddresses()));
+         List<String> addresses = new ArrayList<>();
+         for (Address address: context.getAddresses().values()){
+            addresses.add(address.toString());
+         }
+         _insertOrReplaceSingleAddressAccount.bindString(2, gson.toJson(addresses));
          _insertOrReplaceSingleAddressAccount.bindLong(3, context.isArchived() ? 1 : 0);
          _insertOrReplaceSingleAddressAccount.bindLong(4, context.getBlockHeight());
          _insertOrReplaceSingleAddressAccount.bindString(5, gson.toJson(context.getDefaultAddressType()));
@@ -348,7 +364,11 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
          // "UPDATE single SET archived=?,blockheight=? WHERE id=?"
          _updateSingleAddressAccount.bindLong(1, context.isArchived() ? 1 : 0);
          _updateSingleAddressAccount.bindLong(2, context.getBlockHeight());
-         _updateSingleAddressAccount.bindString(3, gson.toJson(context.getAddresses()));
+         List<String> addresses = new ArrayList<>();
+         for (Address address: context.getAddresses().values()){
+            addresses.add(address.toString());
+         }
+         _updateSingleAddressAccount.bindString(3, gson.toJson(addresses));
          _updateSingleAddressAccount.bindString(4, gson.toJson(context.getDefaultAddressType()));
          _updateSingleAddressAccount.bindBlob(5, uuidToBytes(context.getId()));
          _updateSingleAddressAccount.execute();
@@ -1017,9 +1037,11 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
    private class OpenHelper extends SQLiteOpenHelper {
       private static final String DATABASE_NAME = "walletbacking.db";
       private static final int DATABASE_VERSION = 5;
+      private Context context;
 
       OpenHelper(Context context) {
          super(context, DATABASE_NAME, null, DATABASE_VERSION);
+         this.context = context;
 
          // The backings tables should already exists, but try to recreate them anyhow, as the CREATE TABLE
          // uses the "IF NOT EXISTS" switch
@@ -1079,14 +1101,47 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
                SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(db);
                cursor = blobQuery.query(false, "single", new String[]{"id", "address", "addressstring", "archived", "blockheight"}, null, null,
                        null, null, null, null);
+               MetadataStorage metadataStorage = new MetadataStorage(context);
+               Iterable<String> assetsId = metadataStorage.getColuAssetIds();
+               Map<UUID, ColuAccount.ColuAsset> coluUUIDs = new ArrayMap<>();
+               for (String assetId : assetsId) {
+                  if (!Strings.isNullOrEmpty(assetId)) {
+                     ColuAccount.ColuAsset assetDefinition = ColuAccount.ColuAsset.getAssetMap().get(assetId);
+                     if (assetDefinition != null) {
+                        UUID[] uuids = metadataStorage.getColuAssetUUIDs(assetDefinition.id);
+                        if (uuids.length > 0) {
+                           for (UUID uuid : uuids) {
+                              coluUUIDs.put(uuid, assetDefinition);
+                           }
+                        }
+                     }
+                  }
+               }
                while (cursor.moveToNext()) {
                   UUID id = SQLiteQueryWithBlobs.uuidFromBytes(cursor.getBlob(0));
                   byte[] addressBytes = cursor.getBlob(1);
                   String addressString = cursor.getString(2);
                   Address address = new Address(addressBytes, addressString);
+                  UUID newId = SingleAddressAccount.calculateId(address);
+
+                  metadataStorage.storeAccountLabel(newId, metadataStorage.getLabelByAccount(id));
+                  metadataStorage.setOtherAccountBackupState(newId, metadataStorage.getOtherAccountBackupState(id));
+                  metadataStorage.storeArchived(newId, metadataStorage.getArchived(id));
+                  if (coluUUIDs.keySet().contains(id)) {
+                     String assetId = coluUUIDs.get(id).id;
+                     metadataStorage.addColuAssetUUIDs(assetId, newId);
+                     metadataStorage.removeColuAssetUUIDs(assetId, id);
+                     Optional<String> coluBalance = metadataStorage.getColuBalance(id);
+                     if (coluBalance.isPresent()) {
+                        metadataStorage.storeColuBalance(id, coluBalance.get());
+                     }
+                  }
+                  metadataStorage.deleteAccountMetadata(id);
+                  metadataStorage.deleteOtherAccountBackupState(id);
+
                   boolean isArchived = cursor.getInt(3) == 1;
                   int blockHeight = cursor.getInt(4);
-                  list.add(new SingleAddressAccountContext(id, ImmutableMap.of(address.getType(), address), isArchived, blockHeight, AddressType.P2SH_P2WPKH));
+                  list.add(new SingleAddressAccountContext(newId, ImmutableMap.of(address.getType(), address), isArchived, blockHeight, AddressType.P2SH_P2WPKH));
                }
             } finally {
                if (cursor != null) {
@@ -1096,9 +1151,12 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
             db.execSQL("CREATE TABLE single_new (id TEXT PRIMARY KEY, addresses TEXT, archived INTEGER, blockheight INTEGER, addressType TEXT);");
             SQLiteStatement statement = db.compileStatement("INSERT OR REPLACE INTO single_new VALUES (?,?,?,?,?)");
             for (SingleAddressAccountContext context : list) {
-
                statement.bindBlob(1, uuidToBytes(context.getId()));
-               statement.bindString(2, gson.toJson(context.getAddresses()));
+               List<String> addresses = new ArrayList<>();
+               for (Address address: context.getAddresses().values()){
+                  addresses.add(address.toString());
+               }
+               statement.bindString(2, gson.toJson(addresses));
                statement.bindLong(3, context.isArchived() ? 1 : 0);
                statement.bindLong(4, context.getBlockHeight());
                statement.bindString(5, gson.toJson(context.getDefaultAddressType()));

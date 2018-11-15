@@ -1492,7 +1492,12 @@ public class WalletManager {
     private List<UUID> getAccountVirtualIds(SingleAddressAccount account) {
         final List<UUID> uuidList = new ArrayList<>();
         for (AddressType addressType: account.getAvailableAddressTypes()) {
-            uuidList.add(SingleAddressAccount.calculateId(account.getPublicKey().toAddress(_network, addressType)));
+            PublicKey publicKey = account.getPublicKey();
+            if (publicKey != null) {
+                uuidList.add(SingleAddressAccount.calculateId(publicKey.toAddress(_network, addressType)));
+            } else {
+                uuidList.add(SingleAddressAccount.calculateId(account.getAddress()));
+            }
         }
         return uuidList;
     }
