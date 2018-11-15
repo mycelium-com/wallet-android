@@ -304,7 +304,7 @@ public class ColuManager implements AccountProvider {
         //TODO: migrate assets list from metadataStorage to backing as a cache table
         //TODO: auto-discover assets at load time by querying ColoredCoins servers instead on relying on local data
         loadSingleAddressAccounts();
-        Iterable<String> assetsId = Splitter.on(",").split(metadataStorage.getColuAssetIds());
+        Iterable<String> assetsId = metadataStorage.getColuAssetIds();
         for (String assetId : assetsId) {
             if (!Strings.isNullOrEmpty(assetId)) {
                 ColuAccount.ColuAsset assetDefinition = ColuAccount.ColuAsset.getAssetMap().get(assetId);
