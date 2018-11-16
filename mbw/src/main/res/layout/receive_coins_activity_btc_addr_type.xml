@@ -97,8 +97,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:enabled="@{viewModel.addressType != AddressType.P2PKH}"
-                android:visibility="@{viewModel.addressType != viewModel.getAccountDefaultAddressType() ? View.VISIBLE : View.INVISIBLE}"
+                android:visibility="@{viewModel.addressType != viewModel.getAccountDefaultAddressType() &amp;&amp; viewModel.addressType != AddressType.P2PKH ? View.VISIBLE : View.INVISIBLE}"
                 android:onClick="@{_ -> viewModel.setCurrentAddressTypeAsDefault()}"
                 android:text="@string/set_default" />
         </LinearLayout>
