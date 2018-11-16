@@ -44,7 +44,8 @@
 
             <!-- Selecting address type to display -->
             <include layout="@layout/receive_coins_activity_btc_addr_type"
-                bind:viewModel="@{viewModel}"/>
+                bind:viewModel="@{viewModel}"
+                bind:activity="@{activity}"/>
 
             <!-- Bitcoin Address -->
             <FrameLayout
