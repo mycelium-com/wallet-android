@@ -56,7 +56,7 @@ class ReceiveBtcViewModel(application: Application) : ReceiveCoinsViewModel(appl
         val dialogMessage = if (mbwManager.network.isProdnet) {
             activity.getString(R.string.what_is_address_type_description, "1", "3", "bc1")
         } else {
-            activity.resources.getString(R.string.what_is_address_type_description, "m or n", "2", "tb1")
+            activity.getString(R.string.what_is_address_type_description, "m or n", "2", "tb1")
         }
 
         val dialog = AlertDialog.Builder(activity, R.style.MyceliumModern_Dialog)
