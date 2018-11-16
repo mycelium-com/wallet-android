@@ -2,6 +2,8 @@ package com.mycelium.wallet.activity.main.address
 
 import android.app.Application
 import android.arch.lifecycle.MutableLiveData
+import android.text.Html
+import android.text.Spanned
 import com.mrd.bitlib.model.Address
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
@@ -19,7 +21,7 @@ class AddressFragmentModel(
         val showBip44Path: Boolean
 ) {
     private var mbwManager: MbwManager = MbwManager.getInstance(context)
-    val accountLabel: MutableLiveData<String> = MutableLiveData()
+    val accountLabel: MutableLiveData<Spanned> = MutableLiveData()
     val accountAddress: MutableLiveData<Address> = MutableLiveData()
     val addressPath: MutableLiveData<String> = MutableLiveData()
 
@@ -41,11 +43,11 @@ class AddressFragmentModel(
     private fun updateLabel() {
         val label = mbwManager.metadataStorage.getLabelByAccount(account.id)
         accountLabel.value =
-                when (account) {
+                Html.fromHtml(when (account) {
                     is Bip44BCHAccount, is SingleAddressBCHAccount ->
                         context.getString(R.string.bitcoin_cash) + " - " + label
                     else -> label
-                }
+                })
     }
 
     private fun updateAddress(account: WalletAccount) {

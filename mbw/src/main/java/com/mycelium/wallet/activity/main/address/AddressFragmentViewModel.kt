@@ -39,7 +39,7 @@ abstract class AddressFragmentViewModel(val context: Application) : AndroidViewM
         Toast.makeText(context, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show()
     }
 
-    fun isLabelNullOrEmpty() = (getAccountLabel().value == null || getAccountLabel().value.equals(""))
+    fun isLabelNullOrEmpty() = (getAccountLabel().value == null || getAccountLabel().value!!.toString().equals(""))
 
     abstract fun qrClickReaction(activity: FragmentActivity)
 
