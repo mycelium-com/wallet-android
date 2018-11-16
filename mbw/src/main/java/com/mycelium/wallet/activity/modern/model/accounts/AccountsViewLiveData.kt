@@ -98,7 +98,7 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
                         accountsToViewModel(sortAccounts(other))))
             }
 
-            val archivedList = accountsToViewModel(am.getArchivedAccounts().values)
+            val archivedList = accountsToViewModel(sortAccounts(am.getArchivedAccounts().values))
             if (archivedList.isNotEmpty()) {
                 accountsList.add(AccountsGroupModel(R.string.archive_name, GROUP_ARCHIVED_TITLE_TYPE,
                         archivedList))
