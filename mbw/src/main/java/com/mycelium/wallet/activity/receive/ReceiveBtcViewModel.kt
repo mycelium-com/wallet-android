@@ -53,10 +53,10 @@ class ReceiveBtcViewModel(application: Application) : ReceiveCoinsViewModel(appl
 
     fun showAddressTypesInfo(activity: AppCompatActivity) {
         // building message based on networking preferences
-        var dialogMessage = activity.resources.getString(R.string.what_is_address_type_description)
-        when {
-            mbwManager.network.isProdnet -> dialogMessage = String.format(dialogMessage, "1", "3", "bc1")
-            mbwManager.network.isTestnet -> dialogMessage = String.format(dialogMessage, "m or n", "2", "tb1")
+        val dialogMessage = if (mbwManager.network.isProdnet) {
+            activity.getString(R.string.what_is_address_type_description, "1", "3", "bc1")
+        } else {
+            activity.resources.getString(R.string.what_is_address_type_description, "m or n", "2", "tb1")
         }
 
         val dialog = AlertDialog.Builder(activity, R.style.MyceliumModern_Dialog)

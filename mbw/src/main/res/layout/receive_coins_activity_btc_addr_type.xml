@@ -61,8 +61,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:orientation="vertical"
-                >
+                android:orientation="vertical">
 
                 <RadioGroup
                     android:layout_width="wrap_content"
@@ -72,7 +71,7 @@
                         android:id="@+id/rb_address_type_legacy"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/legacy_p2pkh"
+                        android:text="@string/receive_option_p2pkh"
                         android:checked="@{viewModel.addressType == AddressType.P2PKH}"
                         android:onClick="@{_ -> viewModel.setAddressType(AddressType.P2PKH)}" />
 
@@ -80,7 +79,7 @@
                         android:id="@+id/rb_address_type_p2sh"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/p2sh"
+                        android:text="@string/receive_option_p2sh"
                         android:checked="@{viewModel.addressType == AddressType.P2SH_P2WPKH}"
                         android:onClick="@{_ -> viewModel.setAddressType(AddressType.P2SH_P2WPKH)}" />
 
@@ -88,7 +87,7 @@
                         android:id="@+id/rb_address_type_bech"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/bech"
+                        android:text="@string/receive_option_bech"
                         android:checked="@{viewModel.addressType == AddressType.P2WPKH}"
                         android:onClick="@{_ -> viewModel.setAddressType(AddressType.P2WPKH)}" />
                 </RadioGroup>
@@ -98,6 +97,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:enabled="@{viewModel.addressType != AddressType.P2PKH}"
                 android:visibility="@{viewModel.addressType != viewModel.getAccountDefaultAddressType() ? View.VISIBLE : View.INVISIBLE}"
                 android:onClick="@{_ -> viewModel.setCurrentAddressTypeAsDefault()}"
                 android:text="@string/set_default" />
