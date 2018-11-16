@@ -39,14 +39,13 @@ class ReceiveCoinsModel(
     private var syncErrors = 0
     private val mbwManager = MbwManager.getInstance(context)
     private var receivingSince = System.currentTimeMillis()
+    private val accountDisplayType: AccountDisplayType = AccountDisplayType.getAccountType(account)
     private var lastAddressBalance: CurrencyValue? = null
-    private var accountDisplayType: AccountDisplayType? = null
 
     init {
         MbwManager.getEventBus().register(this)
         receivingAmountWrong.value = false
         receivingAddress.value = account.receivingAddress.get()
-        accountDisplayType = AccountDisplayType.getAccountType(account)
 
         if (showIncomingUtxo) {
             updateObservingAddress()
@@ -92,22 +91,24 @@ class ReceiveCoinsModel(
         val uri = StringBuilder(prefix).append(':')
         uri.append(receivingAddress.value)
         if (!CurrencyValue.isNullOrZero(amountData.value)) {
-            if (accountDisplayType == AccountDisplayType.COLU_ACCOUNT) {
-                uri.append("?amount=").append(amountData.value!!.value.toPlainString())
-            } else {
-                val value = if (accountDisplayType == AccountDisplayType.COINAPULT_ACCOUNT) {
-                    ExchangeBasedCurrencyValue.fromValue(amountData.value,
+            val value = when (accountDisplayType) {
+                AccountDisplayType.COLU_ACCOUNT -> amountData.value!!.value.toPlainString()
+                AccountDisplayType.COINAPULT_ACCOUNT -> {
+                    val value = ExchangeBasedCurrencyValue.fromValue(amountData.value,
                             CurrencyValue.BTC, mbwManager.exchangeRateManager).value
-                } else {
-                    ExchangeBasedCurrencyValue.fromValue(amountData.value,
+                    CoinUtil.valueString(value, CoinUtil.Denomination.BTC, false)
+                }
+                else -> {
+                    val value = ExchangeBasedCurrencyValue.fromValue(amountData.value,
                             account.accountDefaultCurrency, mbwManager.exchangeRateManager).value
+                    CoinUtil.valueString(value, CoinUtil.Denomination.BTC, false)
                 }
-                if (value != null) {
-                    uri.append("?amount=").append(CoinUtil.valueString(value,
-                            CoinUtil.Denomination.BTC, false))
-                } else {
-                    Toast.makeText(context, R.string.value_conversion_error, Toast.LENGTH_LONG).show()
-                }
+            }
+
+            if (value != null) {
+                uri.append("?amount=").append(value)
+            } else {
+                Toast.makeText(context, R.string.value_conversion_error, Toast.LENGTH_LONG).show()
             }
         }
         return uri.toString()
