@@ -46,6 +46,7 @@ class ReceiveCoinsModel(
         MbwManager.getEventBus().register(this)
         receivingAmountWrong.value = false
         receivingAddress.value = account.receivingAddress.get()
+        accountDisplayType = AccountDisplayType.getAccountType(account)
 
         if (showIncomingUtxo) {
             updateObservingAddress()
@@ -94,8 +95,13 @@ class ReceiveCoinsModel(
             if (accountDisplayType == AccountDisplayType.COLU_ACCOUNT) {
                 uri.append("?amount=").append(amountData.value!!.value.toPlainString())
             } else {
-                val value = ExchangeBasedCurrencyValue.fromValue(amountData.value,
-                        account.accountDefaultCurrency, mbwManager.exchangeRateManager).value
+                val value = if (accountDisplayType == AccountDisplayType.COINAPULT_ACCOUNT) {
+                    ExchangeBasedCurrencyValue.fromValue(amountData.value,
+                            CurrencyValue.BTC, mbwManager.exchangeRateManager).value
+                } else {
+                    ExchangeBasedCurrencyValue.fromValue(amountData.value,
+                            account.accountDefaultCurrency, mbwManager.exchangeRateManager).value
+                }
                 if (value != null) {
                     uri.append("?amount=").append(CoinUtil.valueString(value,
                             CoinUtil.Denomination.BTC, false))
