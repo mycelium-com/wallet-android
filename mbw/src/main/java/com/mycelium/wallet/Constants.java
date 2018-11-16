@@ -70,7 +70,6 @@ public interface Constants {
    String IGNORED_VERSIONS = "ignored_versions";
    String TOR_MODE = "tor_mode";
    String BLOCK_EXPLORER = "BlockExplorer";
-   String DEFAULT_ADDRESS_MODE = "defaultAddressMode";
    String CHANGE_ADDRESS_MODE = "change_type";
 
    // Ledger preferences

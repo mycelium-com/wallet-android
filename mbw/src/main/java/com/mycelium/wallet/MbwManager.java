@@ -175,7 +175,7 @@ public class MbwManager {
     private Pin _pin;
     private boolean _pinRequiredOnStartup;
 
-    private AddressType defaultAddressType;
+    private static final AddressType defaultAddressType = AddressType.P2SH_P2WPKH;
     private ChangeAddressMode changeAddressMode;
     private MinerFee _minerFee;
     private boolean _keyManagementLocked;
@@ -251,8 +251,6 @@ public class MbwManager {
         randomizePinPad = preferences.getBoolean(Constants.RANDOMIZE_PIN, false);
         _minerFee = MinerFee.fromString(preferences.getString(Constants.MINER_FEE_SETTING, MinerFee.NORMAL.toString()));
         _keyManagementLocked = preferences.getBoolean(Constants.KEY_MANAGEMENT_LOCKED_SETTING, false);
-        defaultAddressType = AddressType.valueOf(preferences.getString(Constants.DEFAULT_ADDRESS_MODE,
-                AddressType.P2SH_P2WPKH.name()));
         SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(_applicationContext);
         changeAddressMode = ChangeAddressMode.valueOf(defaultSharedPreferences.getString(Constants.CHANGE_ADDRESS_MODE,
                 ChangeAddressMode.PRIVACY.name()));
@@ -498,14 +496,6 @@ public class MbwManager {
 
         _environment.getWapiEndpoints().setTorManager(this._torManager);
         _environment.getLtEndpoints().setTorManager(this._torManager);
-    }
-
-    public void setDefaultAddressType(AddressType addressType) {
-        defaultAddressType = addressType;
-        BTCSettings currencySettings = (BTCSettings) _walletManager.getCurrencySettings(Currency.BTC);
-        currencySettings.setDefaultAddressType(addressType);
-        _walletManager.setCurrencySettings(Currency.BTC, currencySettings);
-        getEditor().putString(Constants.DEFAULT_ADDRESS_MODE, addressType.name()).apply();
     }
 
     public AddressType getDefaultAddressType() {
