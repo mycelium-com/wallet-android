@@ -1292,7 +1292,6 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="button_done">Done</string>
     <string name="button_cancel">Cancel</string>
     <string name="transactions_loading_from_module_error">Error loading transactions from module</string>
-    <string name="default_address_type">Default address type</string>
     <string name="default_address_type_desc">Setup change address preferences</string>
     <string name="address_type">Address type:</string>
     <string name="normal_p2sh">Normal (P2SH)</string>
