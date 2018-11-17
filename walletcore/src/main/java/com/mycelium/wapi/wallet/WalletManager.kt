@@ -1,11 +1,9 @@
 package com.mycelium.wapi.wallet
 
-import com.megiontechnologies.BitcoinCash
 import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.api.lib.FeeEstimation
-import com.mycelium.wapi.wallet.bch.coins.BchCoin
 import com.mycelium.wapi.wallet.bch.coins.BchMain
 import com.mycelium.wapi.wallet.bch.coins.BchTest
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking
@@ -13,6 +11,8 @@ import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo
 import com.mycelium.wapi.wallet.colu.coins.*
+import com.mycelium.wapi.wallet.eth.coins.EthMain
+import com.mycelium.wapi.wallet.eth.coins.EthTest
 import com.mycelium.wapi.wallet.manager.*
 import org.jetbrains.annotations.TestOnly
 import java.util.*
@@ -23,6 +23,10 @@ class WalletManager(val backing: WalletManagerBacking<*,*>,
                     val wapi: Wapi) {
     private val MAX_AGE_FEE_ESTIMATION = (2 * 60 * 60 * 1000).toLong() // 2 hours
     private val MIN_AGE_FEE_ESTIMATION = (20 * 60 * 1000).toLong() // 20 minutes
+    private val ALL_COIN_TYPES_MAINNET = arrayListOf<GenericAssetInfo>(BitcoinMain.get(), BchMain,
+            MTCoin, MASSCoin, RMCCoin, EthMain)
+    private val ALL_COIN_TYPES_TESTNET = arrayListOf<GenericAssetInfo>(BitcoinTest.get(), BchTest,
+            MTCoinTest, MASSCoinTest, RMCCoinTest, EthTest)
 
     private val accounts = mutableMapOf<UUID, WalletAccount<*, *>>()
     private val walletModules = mutableMapOf<String, WalletModule>()
@@ -225,9 +229,9 @@ class WalletManager(val backing: WalletManagerBacking<*,*>,
         val addr = Address.fromString(address)
         if(addr != null){
             if(network.isProdnet){
-                assets.addAll(arrayListOf(BitcoinMain.get(), BchMain, MTCoin, MASSCoin, RMCCoin))
+                assets.addAll(ALL_COIN_TYPES_MAINNET)
             } else {
-                assets.addAll(arrayListOf(BitcoinTest.get(), BchTest, MTCoinTest, MASSCoinTest, RMCCoinTest))
+                assets.addAll(ALL_COIN_TYPES_TESTNET)
             }
         }
         return assets

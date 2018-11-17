@@ -238,6 +238,11 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       }
    }
 
+   public boolean isMineAddress(String address){
+      GenericAddress addr = AddressUtils.from(_network.isProdnet()? BitcoinMain.get() : BitcoinTest.get(), address);
+      return isMineAddress(addr);
+   }
+
 
    protected static UUID addressToUUID(Address address) {
       return new UUID(BitUtils.uint64ToLong(address.getAllAddressBytes(), 1), BitUtils.uint64ToLong(

@@ -41,6 +41,16 @@ import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.Sha256Hash;
+import com.mycelium.wapi.wallet.AddressUtils;
+import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.bch.coins.BchMain;
+import com.mycelium.wapi.wallet.bch.coins.BchTest;
+import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
+import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
+import com.mycelium.wapi.wallet.coins.CryptoCurrency;
+import com.mycelium.wapi.wallet.colu.coins.*;
+import com.mycelium.wapi.wallet.eth.coins.EthMain;
+import com.mycelium.wapi.wallet.eth.coins.EthTest;
 import com.mycelium.wapi.wallet.metadata.MetadataCategory;
 import com.mycelium.wapi.wallet.metadata.MetadataKeyCategory;
 
@@ -50,6 +60,7 @@ import java.util.*;
 public class MetadataStorage extends GenericMetadataStorage {
    private static final MetadataCategory COINAPULT = new MetadataCategory("coinapult_adddr");
    private static final MetadataCategory ADDRESSLABEL_CATEGORY = new MetadataCategory("addresslabel");
+   private static final MetadataCategory ADDRESSCOINTYPE_CATEGORY = new MetadataCategory("addresscointype");
    private static final MetadataCategory ACCOUNTLABEL_CATEGORY = new MetadataCategory("al");
    private static final MetadataCategory IGNORE_LEGACY_WARNING_CATEGORY = new MetadataCategory("ibw");
    private static final MetadataCategory ARCHIVED = new MetadataCategory("archived");
@@ -135,6 +146,35 @@ public class MetadataStorage extends GenericMetadataStorage {
       return addresses;
    }
 
+   private CryptoCurrency coinTypeFromString(String coinType){
+      switch (coinType){
+         case "Bitcoin Cash": return BchMain.INSTANCE;
+         case "Bitcoin Cash Test": return BchTest.INSTANCE;
+         case "Bitcoin": return BitcoinMain.get();
+         case "Bitcoin Test": return BitcoinTest.get();
+         case "Mycelium Token": return MTCoin.INSTANCE;
+         case "Mycelium Token Test": return MTCoinTest.INSTANCE;
+         case "Mass Token": return MASSCoin.INSTANCE;
+         case "Mass Token Test": return MASSCoinTest.INSTANCE;
+         case "RMC": return RMCCoin.INSTANCE;
+         case "RMC Test": return RMCCoinTest.INSTANCE;
+         case "Etherium": return EthMain.INSTANCE;
+         case "Etherium Test": return EthTest.INSTANCE;
+         default: return null;
+      }
+   }
+
+   public List<GenericAddress> getAllGenericAddress(){
+      Map<String, String> entries = getKeysAndValuesByCategory(ADDRESSCOINTYPE_CATEGORY);
+      List<GenericAddress> addresses = new ArrayList<>();
+      for (Map.Entry<String, String> e : entries.entrySet()) {
+         CryptoCurrency val = coinTypeFromString(e.getValue());
+         String key = e.getKey();
+         addresses.add(AddressUtils.from(val, key));
+      }
+      return addresses;
+   }
+
    public String getLabelByAddress(Address address) {
       return getKeyCategoryValueEntry(ADDRESSLABEL_CATEGORY.of(address.toString()), "");
    }
@@ -157,6 +197,12 @@ public class MetadataStorage extends GenericMetadataStorage {
    public void storeAddressLabel(Address address, String label) {
       if (!Strings.isNullOrEmpty(label)) {
          storeKeyCategoryValueEntry(ADDRESSLABEL_CATEGORY.of(address.toString()), label);
+      }
+   }
+
+   public void storeAddressCoinType(String address, String coinType){
+      if (coinTypeFromString(coinType) != null) {
+         storeKeyCategoryValueEntry(ADDRESSCOINTYPE_CATEGORY.of(address), coinType);
       }
    }
 

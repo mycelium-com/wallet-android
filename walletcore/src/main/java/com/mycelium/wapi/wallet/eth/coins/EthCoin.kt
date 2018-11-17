@@ -28,6 +28,7 @@ abstract class EthCoin: CryptoCurrency(){
 object EthMain : EthCoin() {
     init {
         id = "ETH-Main"
+        name = "Etherium"
     }
 }
 
@@ -35,5 +36,6 @@ object EthMain : EthCoin() {
 object EthTest : EthCoin() {
     init {
         id = "ETH-Test"
+        name = "Ethereum Test"
     }
 }

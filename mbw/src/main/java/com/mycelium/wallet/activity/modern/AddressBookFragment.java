@@ -175,7 +175,7 @@ public class AddressBookFragment extends Fragment {
       List<Entry> entries = new ArrayList<>();
       List<WalletAccount<?,?>> activeAccountsGeneric = new ArrayList<>();
 
-      for(WalletAccount account : AccountManager.INSTANCE.getActiveAccounts().values().asList()){
+      for(WalletAccount account : _mbwManager.getWalletManager(false).getActiveAccounts()){
          activeAccountsGeneric.add(account);
       }
       for (WalletAccount account : Utils.sortAccounts(activeAccountsGeneric, _mbwManager.getMetadataStorage())) {
@@ -202,11 +202,12 @@ public class AddressBookFragment extends Fragment {
    }
 
    private void updateUiForeign() {
+      List<GenericAddress> addresses = _mbwManager.getMetadataStorage().getAllGenericAddress();
       Map<Address, String> rawentries = _mbwManager.getMetadataStorage().getAllAddressLabels();
       List<Entry> entries = new ArrayList<Entry>();
-      for (Map.Entry<Address, String> e : rawentries.entrySet()) {
-         if(AddressUtils.fromAddress(e.getKey()).getCoinType().equals(_mbwManager.getSelectedAccount().getCoinType())) {
-            entries.add(new Entry(AddressUtils.fromAddress(e.getKey()), e.getValue()));
+      for (GenericAddress address : addresses) {
+         if(address.getCoinType().equals(_mbwManager.getSelectedAccount().getCoinType())) {
+            entries.add(new Entry(address, rawentries.get(Address.fromString(address.toString()))));
          }
       }
       entries = Utils.sortAddressbookEntries(entries);
@@ -367,7 +368,7 @@ public class AddressBookFragment extends Fragment {
                   builder.setTitle(String.format("The address %s may belong to different crypto currency types.\n\nPlease choose which one it belongs to:", Utils.getClipboardString(activity)))
                           .setItems(R.array.coins, new DialogInterface.OnClickListener() {
                              public void onClick(DialogInterface dialog, int which) {
-                                CryptoCurrency coinType = isProdnet ? BitcoinMain.get() : BitcoinTest.get();;
+                                CryptoCurrency coinType = isProdnet ? BitcoinMain.get() : BitcoinTest.get();
                                 switch (which) {
                                    case 0:
                                       coinType = isProdnet ? BitcoinMain.get() : BitcoinTest.get();
@@ -436,6 +437,7 @@ public class AddressBookFragment extends Fragment {
 
    private void addFromAddress(GenericAddress address) {
          EnterAddressLabelUtil.enterAddressLabel(getActivity(), _mbwManager.getMetadataStorage(), address,"", addressLabelChanged);
+         _mbwManager.getMetadataStorage().storeAddressCoinType(address.toString(), address.getCoinType().getName());
    }
 
    private AddressLabelChangedHandler addressLabelChanged = new AddressLabelChangedHandler() {
