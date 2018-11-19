@@ -32,9 +32,11 @@ class TransactionHistoryLiveData(val mbwManager: MbwManager) : LiveData<Set<Tran
         startHistoryUpdate()
     }
 
-    fun appendList(list: List<TransactionSummary>) {
-        historyList.addAll(list)
-        value = historyList
+    fun appendList(list: List<TransactionSummary>, updateForAccount: WalletAccount) {
+        if (updateForAccount === account) {
+            historyList.addAll(list)
+            value = historyList
+        }
     }
 
     override fun onActive() {
@@ -42,7 +44,7 @@ class TransactionHistoryLiveData(val mbwManager: MbwManager) : LiveData<Set<Tran
         MbwManager.getEventBus().register(this)
         if (account !== mbwManager.selectedAccount) {
             account = mbwManager.selectedAccount
-            updateValue(ArrayList(), account)
+            updateValue(ArrayList())
         }
         startHistoryUpdate()
     }
@@ -71,27 +73,25 @@ class TransactionHistoryLiveData(val mbwManager: MbwManager) : LiveData<Set<Tran
             account.getTransactionHistory(0, Math.max(20, value!!.size))
 
         override fun onPostExecute(transactionSummaries: MutableList<TransactionSummary>) {
-            updateValue(transactionSummaries, account)
+            if (account === mbwManager.selectedAccount) {
+                updateValue(transactionSummaries)
+            }
         }
     }
 
-    @Synchronized
-    private fun updateValue(newValue: MutableList<TransactionSummary>, updateForAccount: WalletAccount) {
-        if (updateForAccount === account) {
-            historyList = newValue.toMutableSet()
-            value = historyList
-        }
+    private fun updateValue(newValue: MutableList<TransactionSummary>) {
+        historyList = newValue.toMutableSet()
+        value = historyList
     }
 
     @Subscribe
-    @Synchronized
     fun selectedAccountChanged(event: SelectedAccountChanged) {
         val oldExecutor = executorService
         executorService = Executors.newCachedThreadPool()
         oldExecutor.shutdownNow()
         if (event.account != account.id) {
             account = mbwManager.selectedAccount
-            updateValue(ArrayList(), account)
+            updateValue(ArrayList())
             startHistoryUpdate()
         }
     }
