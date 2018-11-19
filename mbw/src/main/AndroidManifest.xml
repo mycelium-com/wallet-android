@@ -186,7 +186,8 @@
         <activity
             android:name=".activity.settings.SetLocalCurrencyActivity"
             android:theme="@style/MyceliumSettings" />
-        <activity android:name=".activity.export.ExportAsQrActivity" />
+        <activity android:name=".activity.export.ExportAsQrActivity"
+            android:theme="@style/MyceliumNoActionBarFullScreen"/>
         <activity android:name=".activity.export.BackupToPdfActivity" />
         <activity android:name=".activity.export.MrdDecryptDataActivity" />
         <activity android:name=".activity.export.VerifyBackupActivity" />
