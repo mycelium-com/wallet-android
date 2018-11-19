@@ -1673,9 +1673,10 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         finish();
     }
 
+    //TODO refactor or get rid of this method
     private String getFiatValue() {
 //        long value = _amountToSend.getAsBitcoin(_mbwManager.getExchangeRateManager()).getLongValue() + _unsigned.calculateFee();
-        long value = 1000 + _unsigned.calculateFee();
+        long value = 1000;
         return _mbwManager.getCurrencySwitcher().getFormattedFiatValue(ExactBitcoinValue.from(value), true);
     }
 
