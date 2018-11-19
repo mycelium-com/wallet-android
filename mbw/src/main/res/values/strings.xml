@@ -1321,10 +1321,10 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="starting_application">Starting application</string>
     <string name="migrating_accounts">Migrating accounts</string>
     <string name="loading_accounts">Loading accounts</string>
-    <string name="migrating_n_of_m_hd">Migrating %1$s account of total %2$s HD accounts</string>
-    <string name="loading_n_of_m_hd">Loading %1$s account of total %2$s HD accounts</string>
-    <string name="migrating_n_of_m_sa">Migrating %1$s account of total %2$s Single Address accounts</string>
-    <string name="loading_n_of_m_sa">Loading %1$s account of total %2$s Single Address accounts</string>
+    <string name="migrating_n_of_m_hd">Migrating HD accounts: %1$s of %2$s</string>
+    <string name="loading_n_of_m_hd">Loading HD accounts: %1$s of %2$s</string>
+    <string name="migrating_n_of_m_sa">Migrating SA accounts: %1$s of %2$s</string>
+    <string name="loading_n_of_m_sa">Loading SA accounts: %1$s of %2$s</string>
     <string name="mixed_mode_explanation"><![CDATA[Unfortunately %1$s firmware does not support Mycelium mixed-spending mode.<br><br>Usually when you sign transaction on your hardware device it shows you just one output - destination address. In case of mixed-spending mode you will have to sign two outputs: one destination address and the other - change address.<br><br>You are still in control of the process and hardware wallet will show that the change goes to your account.<br><br>For more information please check this <a href=\"https://github.com/mycelium-com/wallet-android/issues/483\">Github issue</a>]]></string>
     <string name="transferToAccountN">Transfer to Account #%d</string>
     <string name="check_change_address"><![CDATA[Unfortunately, <b>Trezor model T</b> does not support checking if address belongs to your wallet, but it can generate a new address from your master seed and show it on the screen. For more information about this Trezor issue please check <a href=\"https://github.com/trezor/trezor-core/issues/380\">Trezor\'s GitHub</a>.<br><br>Please verify your address on the Trezor screen and compare it with the one in the summary section. It will be used as the change address which you have to confirm as a separate output later on.]]></string>
