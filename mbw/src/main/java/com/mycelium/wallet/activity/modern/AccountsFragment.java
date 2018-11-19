@@ -47,6 +47,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.util.ArraySet;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
 import android.support.v7.view.ActionMode.Callback;
@@ -111,6 +112,7 @@ import com.squareup.otto.Subscribe;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 public class AccountsFragment extends Fragment {
@@ -1169,13 +1171,13 @@ public class AccountsFragment extends Fragment {
          // unprotected account type
          return false;
       }
-      int count = 0;
+      Set<WalletAccount> uniqueAccountsSet = new ArraySet<>();
       for (WalletAccount account : _mbwManager.getWalletManager(false).
               getActiveAccounts(WalletAccount.Type.BTCBIP44)) {
          if (((HDAccount) account).getAccountType() == HDAccountContext.ACCOUNT_TYPE_FROM_MASTERSEED) {
-            count++;
+            uniqueAccountsSet.add(account);
          }
-         if (count > 1) {
+         if (uniqueAccountsSet.size() > 1) {
             // after deleting one, more remain
             return false;
          }
