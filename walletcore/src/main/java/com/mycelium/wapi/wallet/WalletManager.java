@@ -16,6 +16,7 @@
 
 package com.mycelium.wapi.wallet;
 
+import com.google.api.client.util.ArrayMap;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
@@ -1291,7 +1292,28 @@ public class WalletManager {
         //if its unused, we can remove it from the manager
         synchronized (_walletAccounts) {
             hdAccounts.remove(account);
-            _walletAccounts.remove(account.getId());
+            Bip39.MasterSeed masterSeed = null;
+            AesKeyCipher cipher = AesKeyCipher.defaultKeyCipher();
+            try {
+                masterSeed = getMasterSeed(cipher);
+            } catch (InvalidKeyCipher invalidKeyCipher) {
+                throw new IllegalStateException("Invalid cipher");
+            }
+            Map<BipDerivationType, HDAccountKeyManager> keyManagerMap = new ArrayMap<>();
+            for (BipDerivationType derivationType : BipDerivationType.values()) {
+                // Generate the root private key
+                HdKeyNode root = HdKeyNode.fromSeed(masterSeed.getBip32Seed(), derivationType);
+                try {
+                    keyManagerMap.put(derivationType, HDAccountKeyManager.createNew(root, _network, account.getAccountIndex(),
+                            _secureKeyValueStore, cipher, derivationType));
+                } catch (InvalidKeyCipher invalidKeyCipher) {
+                    throw new IllegalStateException("Invalid cipher");
+                }
+            }
+            final List<UUID> uuidList = getAccountVirtualIds(keyManagerMap, account);
+            for (UUID uuid : uuidList) {
+                _walletAccounts.remove(uuid);
+            }
             _backing.deleteBip44AccountContext(account.getId());
 
             if (_btcToBchAccounts.containsKey(account.getId())) {
