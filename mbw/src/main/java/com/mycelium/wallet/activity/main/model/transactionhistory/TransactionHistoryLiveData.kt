@@ -6,6 +6,7 @@ import android.os.AsyncTask
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.event.*
 import com.mycelium.wapi.model.TransactionSummary
+import com.mycelium.wapi.wallet.WalletAccount
 import com.squareup.otto.Subscribe
 import java.lang.ref.WeakReference
 import java.util.concurrent.ExecutorService
@@ -16,6 +17,7 @@ import kotlin.collections.ArrayList
  * This class is intended to manage transaction history for current selected account.
  */
 class TransactionHistoryLiveData(val mbwManager: MbwManager) : LiveData<Set<TransactionSummary>>() {
+    @Volatile
     private var account = mbwManager.selectedAccount!!
     private var historyList = mutableSetOf<TransactionSummary>()
     // Used to store reference for task from syncProgressUpdated().
@@ -30,9 +32,11 @@ class TransactionHistoryLiveData(val mbwManager: MbwManager) : LiveData<Set<Tran
         startHistoryUpdate()
     }
 
-    fun appendList(list: List<TransactionSummary>) {
-        historyList.addAll(list)
-        value = historyList
+    fun appendList(list: List<TransactionSummary>, updateForAccount: WalletAccount) {
+        if (updateForAccount === account) {
+            historyList.addAll(list)
+            value = historyList
+        }
     }
 
     override fun onActive() {
