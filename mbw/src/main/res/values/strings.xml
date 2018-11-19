@@ -479,11 +479,11 @@
     <string name="cs_private_key_description">You are using a private key with the following Bitcoin address:</string>
     <string name="cs_address_description">You have scanned a Bitcoin address. You can view the balance but not spend from it.</string>
     <plurals name="contains_keys">
-        <item quantity="one">Contains one private key.</item>
+        <item quantity="one">Contains %1$d private key.</item>
         <item quantity="other">Contains %1$d private keys.</item>
     </plurals>
     <plurals name="contains_addresses">
-        <item quantity="one">Contains one address.</item>
+        <item quantity="one">Contains %1$d address.</item>
         <item quantity="other">Contains %1$d addresses.</item>
     </plurals>
     <string name="sync_total_retrieved_transactions">Syncing in progress: %1$s transactions retrieved</string>
