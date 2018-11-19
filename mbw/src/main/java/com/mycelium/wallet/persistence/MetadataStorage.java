@@ -146,7 +146,7 @@ public class MetadataStorage extends GenericMetadataStorage {
       return addresses;
    }
 
-   private CryptoCurrency coinTypeFromString(String coinType){
+   public CryptoCurrency coinTypeFromString(String coinType){
       switch (coinType){
          case "Bitcoin Cash": return BchMain.INSTANCE;
          case "Bitcoin Cash Test": return BchTest.INSTANCE;

@@ -52,6 +52,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -359,37 +360,39 @@ public class AddressBookFragment extends Fragment {
 
             @Override
             public void onClick(View v) {
+               String mm = Utils.getClipboardString(activity);
                List<GenericAssetInfo> assets = _mbwManager.getWalletManager(false).
                        getAcceptableAssetTypes(Utils.getClipboardString(activity));
 
-               final boolean isProdnet = _mbwManager.getNetwork().isProdnet();
                if(!assets.isEmpty()) {
-                  AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                  builder.setTitle(String.format("The address %s may belong to different crypto currency types.\n\nPlease choose which one it belongs to:", Utils.getClipboardString(activity)))
-                          .setItems(R.array.coins, new DialogInterface.OnClickListener() {
-                             public void onClick(DialogInterface dialog, int which) {
-                                CryptoCurrency coinType = isProdnet ? BitcoinMain.get() : BitcoinTest.get();
-                                switch (which) {
-                                   case 0:
-                                      coinType = isProdnet ? BitcoinMain.get() : BitcoinTest.get();
-                                      break;
-                                   case 1:
-                                      coinType = isProdnet ? BchMain.INSTANCE : BchTest.INSTANCE;
-                                      break;
-                                   case 2:
-                                      coinType = isProdnet ? MTCoin.INSTANCE : MTCoinTest.INSTANCE;
-                                      break;
-                                   case 3:
-                                      coinType = isProdnet ? MASSCoin.INSTANCE : MASSCoinTest.INSTANCE;
-                                      break;
-                                   case 4:
-                                      coinType = isProdnet ? RMCCoin.INSTANCE : RMCCoinTest.INSTANCE;
-                                      break;
 
-                                }
-                                addFromAddress(AddressUtils.from(coinType, Utils.getClipboardString(activity)));
-                             }
-                          }).show();
+                  AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+
+                  builder.setIcon(R.drawable.ic_launcher);
+                  builder.setTitle(String.format("The address %s may belong to different crypto currency types.\n\nPlease choose which one it belongs to:", Utils.getClipboardString(activity)));
+
+
+                  final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(getContext(), android.R.layout.select_dialog_singlechoice);
+                  for(GenericAssetInfo asset : assets){
+                     arrayAdapter.add(asset.getName());
+                  }
+
+                  builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+                     @Override
+                     public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                     }
+                  });
+
+                  builder.setAdapter(arrayAdapter, new DialogInterface.OnClickListener() {
+                     @Override
+                     public void onClick(DialogInterface dialog, int which) {
+                        String name = arrayAdapter.getItem(which);
+                        CryptoCurrency asset = _mbwManager.getMetadataStorage().coinTypeFromString(name);
+                        addFromAddress(AddressUtils.from(asset, Utils.getClipboardString(activity)));
+                     }
+                  });
+                  builder.show();
                } else {
                   Toast.makeText(AddDialog.super.getContext(), R.string.unrecognized_format, Toast.LENGTH_SHORT).show();
                }

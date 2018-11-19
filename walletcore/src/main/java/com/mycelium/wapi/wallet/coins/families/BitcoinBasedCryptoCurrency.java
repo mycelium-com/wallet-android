@@ -26,7 +26,7 @@ public abstract class BitcoinBasedCryptoCurrency extends CryptoCurrency {
     @Override
     public boolean isMineAddress(String address) {
         try {
-            return Address.fromString(address, NetworkParameters.productionNetwork) != null;
+            return Address.fromString(address) != null;
         } catch(Exception ex) {
             return false;
         }
