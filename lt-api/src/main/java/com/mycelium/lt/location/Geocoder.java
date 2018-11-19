@@ -9,5 +9,4 @@ public abstract class Geocoder {
    protected boolean isValidStatus(String status) {
       return "OK".equals(status) || "ZERO_RESULTS".equals(status);
    }
-
 }
