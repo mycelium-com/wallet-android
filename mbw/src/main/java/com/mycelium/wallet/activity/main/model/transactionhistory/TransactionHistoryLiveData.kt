@@ -6,6 +6,7 @@ import android.os.AsyncTask
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.event.*
 import com.mycelium.wapi.model.TransactionSummary
+import com.mycelium.wapi.wallet.WalletAccount
 import com.squareup.otto.Subscribe
 import java.lang.ref.WeakReference
 import java.util.concurrent.ExecutorService
@@ -16,6 +17,7 @@ import kotlin.collections.ArrayList
  * This class is intended to manage transaction history for current selected account.
  */
 class TransactionHistoryLiveData(val mbwManager: MbwManager) : LiveData<Set<TransactionSummary>>() {
+    @Volatile
     private var account = mbwManager.selectedAccount!!
     private var historyList = mutableSetOf<TransactionSummary>()
     // Used to store reference for task from syncProgressUpdated().
@@ -40,7 +42,7 @@ class TransactionHistoryLiveData(val mbwManager: MbwManager) : LiveData<Set<Tran
         MbwManager.getEventBus().register(this)
         if (account !== mbwManager.selectedAccount) {
             account = mbwManager.selectedAccount
-            updateValue(ArrayList())
+            updateValue(ArrayList(), account)
         }
         startHistoryUpdate()
     }
@@ -69,25 +71,27 @@ class TransactionHistoryLiveData(val mbwManager: MbwManager) : LiveData<Set<Tran
             account.getTransactionHistory(0, Math.max(20, value!!.size))
 
         override fun onPostExecute(transactionSummaries: MutableList<TransactionSummary>) {
-            if (account === mbwManager.selectedAccount) {
-                updateValue(transactionSummaries)
-            }
+            updateValue(transactionSummaries, account)
         }
     }
 
-    private fun updateValue(newValue: MutableList<TransactionSummary>) {
-        historyList = newValue.toMutableSet()
-        value = historyList
+    @Synchronized
+    private fun updateValue(newValue: MutableList<TransactionSummary>, updateForAccount: WalletAccount) {
+        if (updateForAccount === account) {
+            historyList = newValue.toMutableSet()
+            value = historyList
+        }
     }
 
     @Subscribe
+    @Synchronized
     fun selectedAccountChanged(event: SelectedAccountChanged) {
         val oldExecutor = executorService
         executorService = Executors.newCachedThreadPool()
         oldExecutor.shutdownNow()
         if (event.account != account.id) {
             account = mbwManager.selectedAccount
-            updateValue(ArrayList())
+            updateValue(ArrayList(), account)
             startHistoryUpdate()
         }
     }
