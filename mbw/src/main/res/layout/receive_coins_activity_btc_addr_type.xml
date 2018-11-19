@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <import type="com.mrd.bitlib.model.AddressType" />
+
+        <variable
+            name="activity"
+            type="android.support.v7.app.AppCompatActivity" />
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.wallet.activity.receive.ReceiveBtcViewModel" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:visibility="@{viewModel.hasPrivateKey ? View.VISIBLE : View.GONE}"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textSize="18sp"
+                android:text="@string/address_type" />
+
+            <ImageView
+                android:id="@+id/ic_info_address_type"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="8dp"
+                android:tint="@color/dark_sky_blue"
+                android:onClick="@{() -> viewModel.showAddressTypesInfo(activity)}"
+                app:srcCompat="@drawable/ic_info" />
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginStart="-6dp">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <RadioGroup
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <RadioButton
+                        android:id="@+id/rb_address_type_legacy"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/receive_option_p2pkh"
+                        android:checked="@{viewModel.addressType == AddressType.P2PKH}"
+                        android:onClick="@{_ -> viewModel.setAddressType(AddressType.P2PKH)}" />
+
+                    <RadioButton
+                        android:id="@+id/rb_address_type_p2sh"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/receive_option_p2sh"
+                        android:checked="@{viewModel.addressType == AddressType.P2SH_P2WPKH}"
+                        android:onClick="@{_ -> viewModel.setAddressType(AddressType.P2SH_P2WPKH)}" />
+
+                    <RadioButton
+                        android:id="@+id/rb_address_type_bech"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/receive_option_bech"
+                        android:checked="@{viewModel.addressType == AddressType.P2WPKH}"
+                        android:onClick="@{_ -> viewModel.setAddressType(AddressType.P2WPKH)}" />
+                </RadioGroup>
+            </LinearLayout>
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:visibility="@{viewModel.addressType != viewModel.getAccountDefaultAddressType() &amp;&amp; viewModel.addressType != AddressType.P2PKH ? View.VISIBLE : View.INVISIBLE}"
+                android:onClick="@{_ -> viewModel.setCurrentAddressTypeAsDefault()}"
+                android:text="@string/set_default" />
+        </LinearLayout>
+    </LinearLayout>
+</layout>

@@ -57,20 +57,22 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
+import com.mrd.bitlib.model.AddressType;
 import com.mycelium.lt.api.LtApi;
 import com.mycelium.lt.api.model.TraderInfo;
-import com.mycelium.wallet.*;
-import com.mycelium.wallet.activity.export.ExportAsQrCodeActivity;
+import com.mycelium.wallet.Constants;
+import com.mycelium.wallet.MbwManager;
+import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.export.ExportAsQrActivity;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.activity.buy.AdSearchFragment;
 import com.mycelium.wallet.lt.activity.sell.AdsFragment;
 import com.mycelium.wallet.lt.api.DeleteTrader;
 import com.mycelium.wallet.lt.api.GetTraderInfo;
-import com.mycelium.wapi.wallet.AesKeyCipher;
-import com.mycelium.wapi.wallet.ExportableAccount;
-import com.mycelium.wapi.wallet.KeyCipher;
-import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.*;
+import com.mycelium.wapi.wallet.bip44.HDAccount;
 
 public class LtMainActivity extends AppCompatActivity {
    public static final String TAB_TO_SELECT = "tabToSelect";
@@ -280,15 +282,13 @@ public class LtMainActivity extends AppCompatActivity {
          public Data getExportData(KeyCipher cipher) {
             return new Data(
                   Optional.of(privateKey.getBase58EncodedPrivateKey(_mbwManager.getNetwork())),
-                  Optional.of(privateKey.getPublicKey().toAddress(_mbwManager.getNetwork()).toString())
+                  Optional.of(privateKey.getPublicKey().toAddress(_mbwManager.getNetwork(), AddressType.P2PKH).toString())
             );
          }
       };
 
-      Intent intent = ExportAsQrCodeActivity.getIntent(this,
-            exportableAccount.getExportData(AesKeyCipher.defaultKeyCipher())
-      );
-      startActivity(intent);
+      ExportAsQrActivity.callMe(this, exportableAccount.getExportData(AesKeyCipher.defaultKeyCipher()),
+              account);
    }
 
    private void deleteTraderAccount() {

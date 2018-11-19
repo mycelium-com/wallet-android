@@ -35,17 +35,24 @@
 package com.mrd.bitlib.crypto;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 
+import java.util.Collection;
+import java.util.List;
+
 public class SpinnerImportTest {
    @Test
    public void spinnerImprt() {
       SpinnerPrivateUri spinnerImport = SpinnerPrivateUri.fromSpinnerUri("bsb:6hm5yUxrSXRYpPkeu5HrfcQ8BXbf6e7d91AQtwa6ViUz?net=0");
-      Address addr = spinnerImport.key.getPublicKey().toAddress(NetworkParameters.productionNetwork);
-      assertEquals("1Ea3kC4swu6v6rnaEe1BDDkek85286YAiL", addr.toString());
+      Collection<Address> addressList = spinnerImport.key.getPublicKey().getAllSupportedAddresses(NetworkParameters.productionNetwork).values();
+      assertEquals(3, addressList.size());
+      assertTrue(addressList.contains(Address.fromString("1Ea3kC4swu6v6rnaEe1BDDkek85286YAiL")));
+      assertTrue(addressList.contains(Address.fromString("379csUoGP78NJEABtVB7FSUf26WDA5YZGF")));
+      assertTrue(addressList.contains(Address.fromString("bc1qtvnagjeenrdts5wvw30qna75dgz2uwkkh9xatu")));
    }
 }

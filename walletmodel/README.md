@@ -1,0 +1,1 @@
+Package *walletmodel* contains the model classes used by [walletcore](../walletcore) and [wapi](../wapi) modules.

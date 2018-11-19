@@ -18,27 +18,15 @@ package com.mrd.bitlib.model;
 
 import java.io.Serializable;
 
-import com.mrd.bitlib.model.Script.ScriptParsingException;
-import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.ByteWriter;
-import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
 
 public class UnspentTransactionOutput implements Serializable {
    private static final long serialVersionUID = 1L;
-   
+
    public OutPoint outPoint;
    public int height; // -1 means unconfirmed
    public long value;
    public ScriptOutput script;
-
-   public UnspentTransactionOutput(ByteReader reader) throws InsufficientBytesException, ScriptParsingException {
-      outPoint = new OutPoint(reader);
-      height = reader.getIntLE();
-      value = reader.getLongLE();
-      int scriptSize = (int) reader.getCompactInt();
-      byte[] scriptBytes = reader.getBytes(scriptSize);
-      script = ScriptOutput.fromScriptBytes(scriptBytes);
-   }
 
    public UnspentTransactionOutput(OutPoint outPoint, int height, long value, ScriptOutput script) {
       this.outPoint = outPoint;

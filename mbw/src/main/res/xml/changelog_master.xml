@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
-    <release version="2.11.1.22" versioncode="2110122">
-        <change>Fixed location screen functionality in local trader</change>
+    <release version="2.12.0.4" versioncode="2120004">
+        <change>Full Segregated Witness support</change>
+        <change>Full bech32 support</change>
     </release>
     <release version="2.11.1.20" versioncode="2110120">
         <change>Unconfirmed transaction in chronologic order</change>

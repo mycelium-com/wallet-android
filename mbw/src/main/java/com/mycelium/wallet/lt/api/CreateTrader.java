@@ -37,6 +37,7 @@ package com.mycelium.wallet.lt.api;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.lt.ApiUtils;
 import com.mycelium.lt.api.LtApi;
@@ -71,7 +72,7 @@ public class CreateTrader extends Request {
       // Sign session ID with private key
       String sigHashSessionId = ApiUtils.generateUuidHashSignature(_privateKey, sessionId);
       PublicKey publicKey = _privateKey.getPublicKey();
-      Address address = publicKey.toAddress(_network);
+      Address address = publicKey.toAddress(_network, AddressType.P2PKH);
 
       try {
 

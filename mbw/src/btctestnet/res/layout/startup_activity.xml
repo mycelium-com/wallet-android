@@ -1,12 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        >
+<layout>
 
-    <TextView android:layout_width="fill_parent" android:layout_height="fill_parent"
-              android:text="@string/testnet_label_startup" android:textSize="70sp"
-              android:textColor="@color/red" android:gravity="center_vertical|center_horizontal"
-              android:paddingBottom="200dp"/>
-</FrameLayout>
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/testnet_label_startup"
+            android:textSize="70sp"
+            android:textColor="@color/red"
+            android:gravity="center_vertical|center_horizontal"
+            android:layout_weight="10"
+            android:paddingBottom="200dp" />
+
+        <include layout="@layout/startup_activity_progress" />
+    </LinearLayout>
+</layout>

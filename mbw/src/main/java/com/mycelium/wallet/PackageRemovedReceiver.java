@@ -40,6 +40,7 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 
 import com.mycelium.wallet.activity.RestartPopupActivity;
 import com.mycelium.wallet.activity.StartupActivity;
@@ -48,45 +49,66 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import java.util.List;
 
 public class PackageRemovedReceiver extends BroadcastReceiver {
+    public static void register(Context context) {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_PACKAGE_ADDED);
+        filter.addAction(Intent.ACTION_PACKAGE_REPLACED);
+        filter.addAction(Intent.ACTION_PACKAGE_REMOVED);
+        filter.addDataScheme("package");
+        context.registerReceiver(new PackageRemovedReceiver(), filter);
+    }
+
     @Override
     public void onReceive(Context context, Intent intent) {
         if (intent.getData() != null) {
             String packageName = intent.getData().getEncodedSchemeSpecificPart();
             String spvModuleName = WalletApplication.getSpvModuleName(WalletAccount.Type.BCHBIP44);
+            String gebModuleName = BuildConfig.appIdGeb;
+
+            int moduleString;
+            boolean restartOnChange;
             if (packageName.equals(spvModuleName)) {
-                switch (intent.getAction()) {
-                    case Intent.ACTION_PACKAGE_ADDED:
-                        if (!intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
-                            initiateRestart(context, R.string.installed);
-                        }
-                        break;
-                    case Intent.ACTION_PACKAGE_REPLACED:
-                        initiateRestart(context, R.string.updated);
-                        break;
-                    case Intent.ACTION_PACKAGE_REMOVED:
-                        if (!intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
-                            initiateRestart(context, R.string.removed);
-                        }
-                }
+                moduleString = R.string.bch_module_change;
+                restartOnChange = true;
+            } else if (packageName.equals(gebModuleName)) {
+                moduleString = R.string.geb_module_change;
+                restartOnChange = false;
+            } else {
+                return;
+            }
+            switch (intent.getAction()) {
+                case Intent.ACTION_PACKAGE_ADDED:
+                    if (!intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
+                        handlePackageChange(context, moduleString, R.string.installed, restartOnChange);
+                    }
+                    break;
+                case Intent.ACTION_PACKAGE_REPLACED:
+                    handlePackageChange(context, moduleString, R.string.updated, restartOnChange);
+                    break;
+                case Intent.ACTION_PACKAGE_REMOVED:
+                    if (!intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
+                        handlePackageChange(context, moduleString, R.string.removed, restartOnChange);
+                    }
             }
         }
     }
 
-    private void initiateRestart(Context context, int stringId) {
+    private void handlePackageChange(Context context, int moduleChangeStringId, int statusStringId, boolean restartRequired) {
         if (isAppOnForeground(context)) {
-            showRestartWarning(context, String.format(context.getString(R.string.bch_module_change), context.getString(stringId)));
-        } else if (stringId == R.string.installed){
+            showNotification(context, String.format(context.getString(moduleChangeStringId), context.getString(statusStringId)), restartRequired);
+        } else if (statusStringId == R.string.installed){
             restart(context);
         } else {
             Runtime.getRuntime().exit(0);
         }
     }
 
-    private void showRestartWarning(Context context, String warningHeader) {
-        Intent newIntent = new Intent(context, RestartPopupActivity.class);
-        newIntent.putExtra(RestartPopupActivity.RESTART_WARNING_HEADER, warningHeader);
-        newIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.startActivity(newIntent);
+    private void showNotification(Context context, String warningHeader, boolean restartRequired) {
+        Intent intent = new Intent(context, RestartPopupActivity.class)
+                .putExtra(RestartPopupActivity.RESTART_WARNING_HEADER, warningHeader)
+                .putExtra(RestartPopupActivity.RESTART_REQUIRED, restartRequired)
+                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
     }
 
     private boolean isAppOnForeground(Context context) {
