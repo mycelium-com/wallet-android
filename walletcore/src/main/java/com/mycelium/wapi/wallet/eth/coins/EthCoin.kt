@@ -1,5 +1,7 @@
 package com.mycelium.wapi.wallet.eth.coins
 
+import com.mrd.bitlib.model.Address
+import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wapi.wallet.AddressUtils
 import com.mycelium.wapi.wallet.GenericAddress
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
@@ -22,6 +24,10 @@ abstract class EthCoin: CryptoCurrency(){
 
     override fun getName(): String {
         return "Ethereum"
+    }
+
+    override fun isMineAddress(address: String): Boolean {
+        return false
     }
 }
 

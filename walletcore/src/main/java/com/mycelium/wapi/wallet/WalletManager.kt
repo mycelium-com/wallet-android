@@ -224,17 +224,8 @@ class WalletManager(val backing: WalletManagerBacking<*,*>,
     }
 
     fun getAcceptableAssetTypes(address: String): List<GenericAssetInfo> {
-
-        val assets = ArrayList<GenericAssetInfo>()
-        val addr = Address.fromString(address)
-        if(addr != null){
-            if(network.isProdnet){
-                assets.addAll(ALL_COIN_TYPES_MAINNET)
-            } else {
-                assets.addAll(ALL_COIN_TYPES_TESTNET)
-            }
-        }
-        return assets
+        val coinTypes = accounts.values.map { acc -> acc.coinType}.distinctBy { it-> it.id }
+        return coinTypes.filter {it -> it.isMineAddress(address)}.toList()
     }
 
     /**

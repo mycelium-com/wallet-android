@@ -1,5 +1,7 @@
 package com.mycelium.wapi.wallet.fiat.coins;
 
+import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wapi.wallet.coins.AbstractAsset;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
@@ -39,6 +41,11 @@ public class FiatType extends AbstractAsset {
     @Override
     public int getFriendlyDigits() {
         return 2;
+    }
+
+    @Override
+    public boolean isMineAddress(String address) {
+        return false;
     }
 
     @Override

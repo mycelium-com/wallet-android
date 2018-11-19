@@ -17,4 +17,6 @@ public interface GenericAssetInfo extends Serializable {
     Value value(long units);
 
     Value value(String string);
+
+    boolean isMineAddress(String address);
 }
