@@ -668,7 +668,7 @@ public class MbwManager {
         SqliteColuManagerBacking coluBacking = new SqliteColuManagerBacking(context);
         ColuClient coluClient = new ColuClient(networkParameters, BuildConfig.ColoredCoinsApiURLs, BuildConfig.ColuBlockExplorerApiURLs);
 
-        walletManager.add(new ColuModule(networkParameters, netParams, publicPrivateKeyStore
+        walletManager.add(new ColuModule(networkParameters, publicPrivateKeyStore
                 , new ColuApiImpl(coluClient), coluBacking, accountListener, getMetadataStorage()));
 
         if (masterSeedManager.hasBip32MasterSeed()) {

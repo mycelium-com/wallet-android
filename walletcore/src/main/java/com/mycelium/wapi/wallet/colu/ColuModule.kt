@@ -14,7 +14,6 @@ import java.text.DateFormat
 import java.util.*
 
 class ColuModule(val networkParameters: NetworkParameters,
-                 val netParams: org.bitcoinj.core.NetworkParameters,
                  internal val publicPrivateKeyStore: PublicPrivateKeyStore,
                  val coluApi: ColuApi,
                  val backing: WalletBacking<ColuAccountContext, ColuTransaction>,
