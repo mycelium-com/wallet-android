@@ -77,7 +77,6 @@ import com.mrd.bitlib.model.OutputList;
 import com.mrd.bitlib.model.UnspentTransactionOutput;
 import com.mycelium.paymentrequest.PaymentRequestException;
 import com.mycelium.paymentrequest.PaymentRequestInformation;
-import com.mycelium.wallet.BitcoinUri;
 import com.mycelium.wallet.BitcoinUriWithAddress;
 import com.mycelium.wallet.content.ColuAssetUri;
 import com.mycelium.wallet.Constants;
@@ -112,6 +111,7 @@ import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.paymentrequest.PaymentRequestHandler;
 import com.mycelium.wapi.api.response.Feature;
 import com.mycelium.wapi.content.GenericAssetUri;
+import com.mycelium.wapi.content.btc.BitcoinUri;
 import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.BroadcastResult;
@@ -278,7 +278,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     private List<GenericAddress> receivingAddressesList = new ArrayList<>();
     private String _receivingLabel;
     protected String _transactionLabel;
-    private BitcoinUri _bitcoinUri;
+    private GenericAssetUri _bitcoinUri;
     private ColuAssetUri _coluAssetUri;
     protected boolean _isColdStorage;
     private TransactionStatus _transactionStatus;
@@ -339,11 +339,11 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 //    }
 
     public static Intent getIntent(Activity currentActivity, UUID account, GenericAssetUri uri, boolean isColdStorage) {
-        //TODO need implementation
-//        return getIntent(currentActivity, account, uri.getValue(), uri.getAddress(), isColdStorage)
-//                .putExtra(TRANSACTION_LABEL, uri.label)
-//                .putExtra(BITCOIN_URI, uri);
-        return new Intent();
+        return getIntent(currentActivity, account, isColdStorage)
+                .putExtra(AMOUNT, uri.getValue())
+                .putExtra(RECEIVING_ADDRESS, uri.getAddress())
+                .putExtra(TRANSACTION_LABEL, uri.getLabel())
+                .putExtra(BITCOIN_URI, uri);
     }
 
     public static Intent getIntent(Activity currentActivity, UUID account, ColuAssetUri uri, boolean isColdStorage) {
@@ -388,7 +388,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         //May be null
         _transactionLabel = getIntent().getStringExtra(TRANSACTION_LABEL);
         //May be null
-        _bitcoinUri = (BitcoinUri) getIntent().getSerializableExtra(BITCOIN_URI);
+        _bitcoinUri = (GenericAssetUri) getIntent().getSerializableExtra(BITCOIN_URI);
         //May be null
         _coluAssetUri = (ColuAssetUri) getIntent().getSerializableExtra(RMC_URI);
 
@@ -437,9 +437,9 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             _transactionStatus = tryCreateUnsignedTransaction();
         } else {
             //we need the user to pick a spending account - the activity will then init sendmain correctly
-            BitcoinUri uri;
+            GenericAssetUri uri;
             if (_bitcoinUri == null) {
-                uri = BitcoinUri.from(((BtcAddress)_receivingAddress).getAddress(),
+                uri = BitcoinUri.from(_receivingAddress,
                         getValueToSend() == null ? null : getValueToSend().getValue(), _transactionLabel, null);
             } else {
                 uri = _bitcoinUri;
@@ -462,8 +462,9 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         }
 
         // lets check whether we got a payment request uri and need to fetch payment data
-        if (_bitcoinUri != null && !Strings.isNullOrEmpty(_bitcoinUri.callbackURL) && _paymentRequestHandler == null) {
-            verifyPaymentRequest(_bitcoinUri);
+        if (_bitcoinUri != null && _bitcoinUri instanceof BitcoinUri
+                && !Strings.isNullOrEmpty(((BitcoinUri) _bitcoinUri).getCallbackURL()) && _paymentRequestHandler == null) {
+            verifyPaymentRequest((BitcoinUri) _bitcoinUri);
         }
 
         //Remove Miner fee if coinapult or colu
@@ -709,8 +710,8 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     }
 
     private void verifyPaymentRequest(BitcoinUri uri) {
-        Intent intent = VerifyPaymentRequestActivity.getIntent(this, uri);
-        startActivityForResult(intent, REQUEST_PAYMENT_HANDLER);
+//        Intent intent = VerifyPaymentRequestActivity.getIntent(this, uri);
+//        startActivityForResult(intent, REQUEST_PAYMENT_HANDLER);
     }
 
     private void verifyPaymentRequest(byte[] rawPr) {
@@ -1544,9 +1545,9 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                     BitcoinUriWithAddress uri = StringHandlerActivity.getUriWithAddress(intent);
                     if (uri.callbackURL != null) {
                         //we contact the merchant server instead of using the params
-                        _bitcoinUri = uri;
-                        _paymentFetched = false;
-                        verifyPaymentRequest(_bitcoinUri);
+//                        _bitcoinUri = uri;
+//                        _paymentFetched = false;
+//                        verifyPaymentRequest(_bitcoinUri);
                         return;
                     }
                     _receivingAddress = AddressUtils.fromAddress(uri.address);
@@ -1561,13 +1562,11 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                 } else if (type == ResultType.URI) {
                     //todo: maybe merge with BitcoinUriWithAddress ?
                     GenericAssetUri uri = StringHandlerActivity.getUri(intent);
-                    if (uri instanceof com.mycelium.wapi.content.btc.BitcoinUri
-                            && ((com.mycelium.wapi.content.btc.BitcoinUri) uri).getCallbackURL()!= null) {
+                    if (uri instanceof BitcoinUri && ((BitcoinUri) uri).getCallbackURL()!= null) {
                         //we contact the merchant server instead of using the params
-                        //TODO move bitcoinUri to Generic
-//                        _bitcoinUri = uri;
+                        _bitcoinUri = uri;
                         _paymentFetched = false;
-                        verifyPaymentRequest(_bitcoinUri);
+                        verifyPaymentRequest((BitcoinUri) _bitcoinUri);
                         return;
                     }
                 } else if (type == ResultType.HD_NODE) {

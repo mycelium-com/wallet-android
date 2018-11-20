@@ -43,7 +43,6 @@ import android.view.Window;
 import android.view.WindowManager;
 
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
-import com.mycelium.wallet.BitcoinUri;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
@@ -153,15 +152,13 @@ public class InstantWalletActivity extends Activity {
                InMemoryPrivateKey key = StringHandlerActivity.getPrivateKey(intent);
                UUID account = MbwManager.getInstance(this).createOnTheFlyAccount(key);
                //we dont know yet where at what to send
-               BitcoinUri uri = new BitcoinUri(null, null, null);
-               SendInitializationActivity.callMeWithResult(this, account, uri, true,
+                SendInitializationActivity.callMeWithResult(this, account, true,
                        StringHandlerActivity.SEND_INITIALIZATION_CODE);
             } else if (type == ResultType.ADDRESS) {
                GenericAddress address = StringHandlerActivity.getAddress(intent);
                UUID account = MbwManager.getInstance(this).createOnTheFlyAccount(address);
                //we dont know yet where at what to send
-               BitcoinUri uri = new BitcoinUri(null, null, null);
-               SendInitializationActivity.callMeWithResult(this, account, uri, true,
+                SendInitializationActivity.callMeWithResult(this, account, true,
                        StringHandlerActivity.SEND_INITIALIZATION_CODE);
             }
          }

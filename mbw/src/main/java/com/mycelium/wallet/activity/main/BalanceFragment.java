@@ -52,8 +52,6 @@ import android.widget.TextView;
 
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
-import com.mrd.bitlib.model.Address;
-import com.mycelium.wallet.BitcoinUri;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.ScanActivity;
@@ -352,8 +350,7 @@ public class BalanceFragment extends Fragment {
                     InMemoryPrivateKey key = StringHandlerActivity.getPrivateKey(data);
                     UUID account = _mbwManager.createOnTheFlyAccount(key);
                     //we dont know yet where at what to send
-                    BitcoinUri uri = new BitcoinUri(null, null, null);
-                    SendInitializationActivity.callMeWithResult(getActivity(), account, uri, true,
+                    SendInitializationActivity.callMeWithResult(getActivity(), account, true,
                             StringHandlerActivity.SEND_INITIALIZATION_CODE);
                 } else if (type == ResultType.ADDRESS) {
                     GenericAddress address = StringHandlerActivity.getAddress(data);

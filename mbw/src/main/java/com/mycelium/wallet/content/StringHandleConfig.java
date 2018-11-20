@@ -45,7 +45,6 @@ import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.HexUtils;
-import com.mycelium.wallet.BitcoinUri;
 import com.mycelium.wallet.BitcoinUriWithAddress;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -100,8 +99,7 @@ public class StringHandleConfig implements Serializable {
                final WalletManager tempWalletManager = MbwManager.getInstance(handlerActivity).getWalletManager(true);
                UUID acc = tempWalletManager.createAccounts(new UnrelatedHDAccountConfig(Collections.singletonList(hdKey))).get(0);
                tempWalletManager.setActiveAccount(acc);
-               BitcoinUri uri = new BitcoinUri(null,null,null);
-               SendInitializationActivity.callMeWithResult(handlerActivity, acc, uri, true,
+               SendInitializationActivity.callMeWithResult(handlerActivity, acc, true,
                        StringHandlerActivity.SEND_INITIALIZATION_CODE);
                return true;
             } catch (HdKeyNode.KeyGenerationException ex){
@@ -176,9 +174,7 @@ public class StringHandleConfig implements Serializable {
                return false;
             }
             UUID account = MbwManager.getInstance(handlerActivity).createOnTheFlyAccount(address.get());
-            //we dont know yet where at what to send
-            BitcoinUri uri = new BitcoinUri(null,null,null);
-            SendInitializationActivity.callMeWithResult(handlerActivity, account, uri, true,
+            SendInitializationActivity.callMeWithResult(handlerActivity, account, true,
                     StringHandlerActivity.SEND_INITIALIZATION_CODE);
             return true;
          }
@@ -266,9 +262,8 @@ public class StringHandleConfig implements Serializable {
             if (uri != null && uri.getAddress() != null) {
                 UUID account = MbwManager.getInstance(handlerActivity).createOnTheFlyAccount(uri.getAddress());
                 //we dont know yet where at what to send
-                BitcoinUri targeturi = new BitcoinUri(null,null,null);
-                SendInitializationActivity.callMeWithResult(handlerActivity, account, targeturi, true,
-                        StringHandlerActivity.SEND_INITIALIZATION_CODE);
+               SendInitializationActivity.callMeWithResult(handlerActivity, account, true,
+                       StringHandlerActivity.SEND_INITIALIZATION_CODE);
 
             } else {
                 handlerActivity.finishError(R.string.unrecognized_format);
