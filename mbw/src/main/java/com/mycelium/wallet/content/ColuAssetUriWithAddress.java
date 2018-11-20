@@ -1,14 +1,10 @@
-package com.mycelium.wallet;
+package com.mycelium.wallet.content;
 
 import com.google.common.base.Optional;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 
 import java.math.BigDecimal;
-
-/**
- * Created by elvis on 27.07.17.
- */
 
 class ColuAssetUriWithAddress extends ColuAssetUri {
     public ColuAssetUriWithAddress(Address address, BigDecimal amount, String label, String scheme) {

@@ -70,6 +70,7 @@ import com.mycelium.wallet.activity.send.GetSpendingRecordActivity;
 import com.mycelium.wallet.activity.send.SendInitializationActivity;
 import com.mycelium.wallet.bitid.BitIDAuthenticationActivity;
 import com.mycelium.wallet.bitid.BitIDSignRequest;
+import com.mycelium.wallet.content.PrivateKeyAction;
 import com.mycelium.wallet.external.glidera.activities.GlideraSendToNextStep;
 import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.wallet.AesKeyCipher;
@@ -85,8 +86,7 @@ import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.UUID;
 
-import static com.mycelium.wallet.StringHandleConfig.HdNodeAction.isKeyNode;
-import static com.mycelium.wallet.StringHandleConfig.PrivateKeyAction.getPrivateKey;
+import static com.mycelium.wallet.content.StringHandleConfig.HdNodeAction.isKeyNode;
 
 public class StartupActivity extends Activity implements AccountCreatorHelper.AccountCreationObserver {
    private static final int MINIMUM_SPLASH_TIME = 500;
@@ -167,7 +167,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
       private boolean hasPrivateKeyOnClipboard(NetworkParameters network) {
          // do we have a private key on the clipboard?
          try {
-            Optional<InMemoryPrivateKey> key = getPrivateKey(network, Utils.getClipboardString(StartupActivity.this));
+            Optional<InMemoryPrivateKey> key = PrivateKeyAction.Companion.getPrivateKey(network, Utils.getClipboardString(StartupActivity.this));
             if (key.isPresent()) {
                return true;
             }

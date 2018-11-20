@@ -58,13 +58,11 @@ import android.widget.Toast;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.model.AddressType;
 import com.mycelium.wallet.AccountManager;
 import com.mycelium.wallet.AddressBookManager;
 import com.mycelium.wallet.AddressBookManager.Entry;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.StringHandleConfig;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.StringHandlerActivity;
@@ -72,6 +70,9 @@ import com.mycelium.wallet.activity.modern.adapter.AddressBookAdapter;
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil.AddressLabelChangedHandler;
+import com.mycelium.wallet.content.HandleConfigFactory;
+import com.mycelium.wallet.content.ResultType;
+import com.mycelium.wallet.content.StringHandleConfig;
 import com.mycelium.wallet.event.AddressBookChanged;
 import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.GenericAddress;
@@ -284,8 +285,7 @@ public class AddressBookFragment extends Fragment {
 
    private void doEditEntry() {
       EnterAddressLabelUtil.enterAddressLabel(getActivity(), _mbwManager.getMetadataStorage(),
-             ((BtcAddress)mSelectedAddress).getAddress(),
-              "", addressLabelChanged);
+              mSelectedAddress, "", addressLabelChanged);
    }
 
    private void doShowQrCode() {
@@ -339,7 +339,7 @@ public class AddressBookFragment extends Fragment {
 
             @Override
             public void onClick(View v) {
-               StringHandleConfig request = StringHandleConfig.getAddressBookScanRequest();
+               StringHandleConfig request = HandleConfigFactory.getAddressBookScanRequest();
                ScanActivity.callMe(AddressBookFragment.this, SCAN_RESULT_CODE, request);
                AddDialog.this.dismiss();
             }
@@ -352,9 +352,10 @@ public class AddressBookFragment extends Fragment {
 
             @Override
             public void onClick(View v) {
-               Optional<Address> address = Utils.addressFromString(Utils.getClipboardString(activity), _mbwManager.getNetwork());
-               Preconditions.checkState(address.isPresent());
-               addFromAddress(address.get());
+               GenericAddress address = _mbwManager.getContentResolver().resovleAddress(Utils.getClipboardString(activity));
+               if(address != null) {
+                  addFromAddress(address);
+               }
                AddDialog.this.dismiss();
             }
          });
@@ -386,17 +387,16 @@ public class AddressBookFragment extends Fragment {
          }
          return;
       }
-      StringHandlerActivity.ResultType type = (StringHandlerActivity.ResultType) intent.getSerializableExtra(StringHandlerActivity.RESULT_TYPE_KEY);
-      if (type == StringHandlerActivity.ResultType.PRIVATE_KEY) {
+      ResultType type = (ResultType) intent.getSerializableExtra(StringHandlerActivity.RESULT_TYPE_KEY);
+      if (type == ResultType.PRIVATE_KEY) {
          Utils.showSimpleMessageDialog(getActivity(), R.string.addressbook_cannot_add_private_key);
          return;
       }
-      Preconditions.checkState(type == StringHandlerActivity.ResultType.ADDRESS);
-      Address address = StringHandlerActivity.getAddress(intent);
-      addFromAddress(address);
+      Preconditions.checkState(type == ResultType.ADDRESS);
+      addFromAddress(StringHandlerActivity.getAddress(intent));
    }
 
-   private void addFromAddress(Address address) {
+   private void addFromAddress(GenericAddress address) {
          EnterAddressLabelUtil.enterAddressLabel(getActivity(), _mbwManager.getMetadataStorage(), address, "", addressLabelChanged);
    }
 

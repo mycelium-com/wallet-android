@@ -116,6 +116,8 @@ import com.mycelium.wallet.persistence.TradeSessionDb;
 import com.mycelium.wallet.wapi.SqliteWalletManagerBackingWrapper;
 import com.mycelium.wapi.api.WapiClientElectrumX;
 import com.mycelium.wapi.api.jsonrpc.TcpEndpoint;
+import com.mycelium.wapi.content.ContentResolver;
+import com.mycelium.wapi.content.btc.BitcoinUriParser;
 import com.mycelium.wapi.wallet.AccountListener;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.BTCSettings;
@@ -257,6 +259,7 @@ public class MbwManager {
     private final WalletManager _walletManager;
     private WalletManager _tempWalletManager;
     private MasterSeedManager masterSeedManager;
+    private ContentResolver contentResolver;
     private final RandomSource _randomSource;
     private final EventTranslator _eventTranslator;
     private ServerEndpointType.Types _torMode;
@@ -365,6 +368,7 @@ public class MbwManager {
         _keepkeyManager = new KeepKeyManager(_applicationContext, getNetwork(), getEventBus());
         _ledgerManager = new LedgerManager(_applicationContext, getNetwork(), getEventBus());
         _walletManager = createWalletManager(_applicationContext, _environment);
+        contentResolver = createContentResolver(getNetwork());
         _gebHelper = new GEBHelper(_applicationContext);
 
         _eventTranslator = new EventTranslator(new Handler(), _eventBus);
@@ -384,6 +388,16 @@ public class MbwManager {
                 _environment.getBlockExplorerList(),
                 preferences.getString(Constants.BLOCK_EXPLORER,
                                       _environment.getBlockExplorerList().get(0).getIdentifier()));
+    }
+
+    private ContentResolver createContentResolver(NetworkParameters network) {
+        ContentResolver result = new ContentResolver();
+        result.add(new BitcoinUriParser(network));
+        return result;
+    }
+
+    public ContentResolver getContentResolver() {
+        return contentResolver;
     }
 
     private void initPerCurrencySettings() {
@@ -668,7 +682,7 @@ public class MbwManager {
         SqliteColuManagerBacking coluBacking = new SqliteColuManagerBacking(context);
         ColuClient coluClient = new ColuClient(networkParameters, BuildConfig.ColoredCoinsApiURLs, BuildConfig.ColuBlockExplorerApiURLs);
 
-        walletManager.add(new ColuModule(networkParameters, netParams, publicPrivateKeyStore
+        walletManager.add(new ColuModule(networkParameters, publicPrivateKeyStore
                 , new ColuApiImpl(coluClient), coluBacking, accountListener, getMetadataStorage()));
 
         if (masterSeedManager.hasBip32MasterSeed()) {
@@ -1212,6 +1226,11 @@ public class MbwManager {
         _tempWalletManager.getAccount(accountId).setAllowZeroConfSpending(true);
         _tempWalletManager.setActiveAccount(accountId);  // this also starts a sync
         return accountId;
+    }
+
+    public UUID createOnTheFlyAccount(GenericAddress address) {
+        //TODO need implementation
+        return null;
     }
 
     public UUID createOnTheFlyAccount(InMemoryPrivateKey privateKey) {

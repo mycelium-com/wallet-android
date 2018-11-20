@@ -94,6 +94,7 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
+import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.coinapult.CoinapultTransaction;
@@ -488,7 +489,8 @@ public class TransactionHistoryFragment extends Fragment {
                            if (_mbwManager.getSelectedAccount() instanceof ColuPubOnlyAccount) {
                               defaultName = _mbwManager.getSelectedAccount().getCoinType().getName();
                            }
-                           EnterAddressLabelUtil.enterAddressLabel(getActivity(), _mbwManager.getMetadataStorage(), new Address(new byte[0]), defaultName, addressLabelChanged); //record.destinationAddress.get()
+                           EnterAddressLabelUtil.enterAddressLabel(getActivity(), _mbwManager.getMetadataStorage()
+                                   , new BtcLegacyAddress(BitcoinMain.get(), new byte[0]), defaultName, addressLabelChanged); //record.destinationAddress.get()
                            break;
                         case R.id.miCancelTransaction:
                            new AlertDialog.Builder(getActivity())

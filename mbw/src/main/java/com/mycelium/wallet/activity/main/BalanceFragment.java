@@ -38,6 +38,7 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -50,17 +51,22 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import com.google.common.base.Preconditions;
+import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
+import com.mycelium.wallet.BitcoinUri;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.StringHandleConfig;
 import com.mycelium.wallet.activity.ScanActivity;
-import com.mycelium.wallet.activity.modern.ModernMain;
+import com.mycelium.wallet.activity.StringHandlerActivity;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity;
 import com.mycelium.wallet.activity.send.SendInitializationActivity;
+import com.mycelium.wallet.activity.send.SendMainActivity;
 import com.mycelium.wallet.activity.util.ToggleableCurrencyButton;
 import com.mycelium.wallet.activity.util.ValueExtentionsKt;
+import com.mycelium.wallet.content.HandleConfigFactory;
+import com.mycelium.wallet.content.ResultType;
+import com.mycelium.wallet.content.StringHandleConfig;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.BalanceChanged;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
@@ -70,17 +76,17 @@ import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.exchange.ExchangeRateManager;
+import com.mycelium.wallet.modularisation.BCHHelper;
+import com.mycelium.wapi.content.GenericAssetUri;
+import com.mycelium.wapi.model.ExchangeRate;
+import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
-import com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount;
-import com.mycelium.wapi.wallet.colu.ColuAccount;
-import com.mycelium.wapi.wallet.fiat.coins.FiatType;
-import com.mycelium.wallet.modularisation.BCHHelper;
-import com.mycelium.wapi.model.ExchangeRate;
-import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.Value;
+import com.mycelium.wapi.wallet.colu.ColuAccount;
+import com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount;
 import com.squareup.otto.Subscribe;
 
 import java.math.BigDecimal;
@@ -89,13 +95,18 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
+import static android.app.Activity.RESULT_OK;
+
 public class BalanceFragment extends Fragment {
    public static final String COINMARKETCAP = "Coinmarketcap";
+   public static final int GENERIC_SCAN_REQUEST = 4;
+
    private MbwManager _mbwManager;
    private View _root;
    private Double _exchangeRatePrice;
@@ -247,13 +258,8 @@ public class BalanceFragment extends Fragment {
             return;
         }
         //perform a generic scan, act based upon what we find in the QR code
-        StringHandleConfig config = StringHandleConfig.genericScanRequest();
-        WalletAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
-        if (account instanceof ColuPubOnlyAccount) {
-            config.bitcoinUriAction = StringHandleConfig.BitcoinUriAction.SEND_COLU_ASSET;
-            config.bitcoinUriWithAddressAction = StringHandleConfig.BitcoinUriWithAddressAction.SEND_COLU_ASSET;
-        }
-        ScanActivity.callMe(getActivity(), ModernMain.GENERIC_SCAN_REQUEST, config);
+        StringHandleConfig config = HandleConfigFactory.genericScanRequest();
+        ScanActivity.callMe(this, GENERIC_SCAN_REQUEST, config);
     }
 
     private boolean isBCH() {
@@ -331,6 +337,39 @@ public class BalanceFragment extends Fragment {
          }
       }
    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == GENERIC_SCAN_REQUEST) {
+            if (resultCode != RESULT_OK) {
+                //report to user in case of error
+                //if no scan handlers match successfully, this is the last resort to display an error msg
+                ScanActivity.toastScanError(resultCode, data, getActivity());
+            } else {
+                ResultType type = (ResultType) data.getSerializableExtra(StringHandlerActivity.RESULT_TYPE_KEY);
+                if (type == ResultType.PRIVATE_KEY) {
+                    InMemoryPrivateKey key = StringHandlerActivity.getPrivateKey(data);
+                    UUID account = _mbwManager.createOnTheFlyAccount(key);
+                    //we dont know yet where at what to send
+                    BitcoinUri uri = new BitcoinUri(null, null, null);
+                    SendInitializationActivity.callMeWithResult(getActivity(), account, uri, true,
+                            StringHandlerActivity.SEND_INITIALIZATION_CODE);
+                } else if (type == ResultType.ADDRESS) {
+                    GenericAddress address = StringHandlerActivity.getAddress(data);
+                    Intent intent = SendMainActivity.getIntent(getActivity()
+                            , _mbwManager.getSelectedAccount().getId(), null, address, false);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
+                    startActivity(intent);
+                } else if (type == ResultType.URI) {
+                    GenericAssetUri uri = StringHandlerActivity.getUri(data);
+                    Intent intent = SendMainActivity.getIntent(getActivity(), _mbwManager.getSelectedAccount().getId(), uri, false);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
+                    startActivity(intent);
+                }
+            }
+        }
+    }
 
    @Subscribe
    public void refreshingExchangeRatesFailed(RefreshingExchangeRatesFailed event){

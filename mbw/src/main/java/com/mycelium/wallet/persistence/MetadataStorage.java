@@ -41,6 +41,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.Sha256Hash;
+import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.metadata.MetadataCategory;
 import com.mycelium.wapi.wallet.metadata.MetadataKeyCategory;
 
@@ -135,7 +136,7 @@ public class MetadataStorage extends GenericMetadataStorage {
       return addresses;
    }
 
-   public String getLabelByAddress(Address address) {
+   public String getLabelByAddress(GenericAddress address) {
       return getKeyCategoryValueEntry(ADDRESSLABEL_CATEGORY.of(address.toString()), "");
    }
 

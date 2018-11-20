@@ -79,12 +79,14 @@ import com.mycelium.paymentrequest.PaymentRequestException;
 import com.mycelium.paymentrequest.PaymentRequestInformation;
 import com.mycelium.wallet.BitcoinUri;
 import com.mycelium.wallet.BitcoinUriWithAddress;
-import com.mycelium.wallet.ColuAssetUri;
+import com.mycelium.wallet.content.ColuAssetUri;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.MinerFee;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.StringHandleConfig;
+import com.mycelium.wallet.content.HandleConfigFactory;
+import com.mycelium.wallet.content.ResultType;
+import com.mycelium.wallet.content.StringHandleConfig;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.GetAmountActivity;
 import com.mycelium.wallet.activity.ScanActivity;
@@ -109,6 +111,7 @@ import com.mycelium.wallet.event.SyncFailed;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.paymentrequest.PaymentRequestHandler;
 import com.mycelium.wapi.api.response.Feature;
+import com.mycelium.wapi.content.GenericAssetUri;
 import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.BroadcastResult;
@@ -316,7 +319,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     }
 
     public static Intent getIntent(Activity currentActivity, UUID account,
-                                   Long amountToSend, Address receivingAddress, boolean isColdStorage) {
+                                   Long amountToSend, GenericAddress receivingAddress, boolean isColdStorage) {
         return getIntent(currentActivity, account, isColdStorage)
                 .putExtra(AMOUNT, Value.valueOf(
                         BitcoinTest.get(), // todo get valuetype depending on the account
@@ -329,10 +332,18 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                 .putExtra(HD_KEY, hdKey);
     }
 
-    public static Intent getIntent(Activity currentActivity, UUID account, BitcoinUri uri, boolean isColdStorage) {
-        return getIntent(currentActivity, account, uri.amount, uri.address, isColdStorage)
-                .putExtra(TRANSACTION_LABEL, uri.label)
-                .putExtra(BITCOIN_URI, uri);
+//    public static Intent getIntent(Activity currentActivity, UUID account, BitcoinUri uri, boolean isColdStorage) {
+//        return getIntent(currentActivity, account, uri.amount, uri.address, isColdStorage)
+//                .putExtra(TRANSACTION_LABEL, uri.label)
+//                .putExtra(BITCOIN_URI, uri);
+//    }
+
+    public static Intent getIntent(Activity currentActivity, UUID account, GenericAssetUri uri, boolean isColdStorage) {
+        //TODO need implementation
+//        return getIntent(currentActivity, account, uri.getValue(), uri.getAddress(), isColdStorage)
+//                .putExtra(TRANSACTION_LABEL, uri.label)
+//                .putExtra(BITCOIN_URI, uri);
+        return new Intent();
     }
 
     public static Intent getIntent(Activity currentActivity, UUID account, ColuAssetUri uri, boolean isColdStorage) {
@@ -738,14 +749,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 
     @OnClick(R.id.btScan)
     void onClickScan() {
-        StringHandleConfig config = StringHandleConfig.returnKeyOrAddressOrUriOrKeynode();
-
-        WalletAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
-        if(account instanceof ColuAccount) {
-            config.bitcoinUriAction = StringHandleConfig.BitcoinUriAction.SEND_COLU_ASSET;
-            config.bitcoinUriWithAddressAction = StringHandleConfig.BitcoinUriWithAddressAction.SEND_COLU_ASSET;
-        }
-
+        StringHandleConfig config = HandleConfigFactory.returnKeyOrAddressOrUriOrKeynode();
         ScanActivity.callMe(this, SCAN_RESULT_CODE, config);
     }
 
@@ -1263,7 +1267,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         Optional<UUID> accountId = _mbwManager.getAccountId(address, isColu() ? ColuAccount.class : null);
         if (!accountId.isPresent()) {
             // We don't have it in our accounts, look in address book, returns empty string by default
-            return _mbwManager.getMetadataStorage().getLabelByAddress(((BtcAddress)address).getAddress());
+            return _mbwManager.getMetadataStorage().getLabelByAddress(address);
         }
         // Get the name of the account
         return _mbwManager.getMetadataStorage().getLabelByAccount(accountId.get());
@@ -1525,8 +1529,8 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                     }
                 }
             } else {
-                StringHandlerActivity.ResultType type = (StringHandlerActivity.ResultType) intent.getSerializableExtra(StringHandlerActivity.RESULT_TYPE_KEY);
-                if (type == StringHandlerActivity.ResultType.PRIVATE_KEY) {
+                ResultType type = (ResultType) intent.getSerializableExtra(StringHandlerActivity.RESULT_TYPE_KEY);
+                if (type == ResultType.PRIVATE_KEY) {
                     InMemoryPrivateKey key = StringHandlerActivity.getPrivateKey(intent);
                     PublicKey publicKey = key.getPublicKey();
                     for (AddressType addressType: AddressType.values()) {
@@ -1534,10 +1538,9 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                         _receivingAddress = AddressUtils.fromAddress(address);   //TODO SegWit fix
                     }
                     setUpMultiAddressView();
-                } else if (type == StringHandlerActivity.ResultType.ADDRESS) {
-                    Address address = StringHandlerActivity.getAddress(intent);
-                    _receivingAddress = AddressUtils.fromAddress(address);
-                } else if (type == StringHandlerActivity.ResultType.URI_WITH_ADDRESS) {
+                } else if (type == ResultType.ADDRESS) {
+                    _receivingAddress = StringHandlerActivity.getAddress(intent);
+                } else if (type == ResultType.URI_WITH_ADDRESS) {
                     BitcoinUriWithAddress uri = StringHandlerActivity.getUriWithAddress(intent);
                     if (uri.callbackURL != null) {
                         //we contact the merchant server instead of using the params
@@ -1555,17 +1558,19 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                         }
                         setAmountToSend(Value.valueOf(_amountToSend.getType(), uri.amount));
                     }
-                } else if (type == StringHandlerActivity.ResultType.URI) {
+                } else if (type == ResultType.URI) {
                     //todo: maybe merge with BitcoinUriWithAddress ?
-                    BitcoinUri uri = StringHandlerActivity.getUri(intent);
-                    if (uri.callbackURL != null) {
+                    GenericAssetUri uri = StringHandlerActivity.getUri(intent);
+                    if (uri instanceof com.mycelium.wapi.content.btc.BitcoinUri
+                            && ((com.mycelium.wapi.content.btc.BitcoinUri) uri).getCallbackURL()!= null) {
                         //we contact the merchant server instead of using the params
-                        _bitcoinUri = uri;
+                        //TODO move bitcoinUri to Generic
+//                        _bitcoinUri = uri;
                         _paymentFetched = false;
                         verifyPaymentRequest(_bitcoinUri);
                         return;
                     }
-                } else if (type == StringHandlerActivity.ResultType.HD_NODE) {
+                } else if (type == ResultType.HD_NODE) {
                     setReceivingAddressFromKeynode(StringHandlerActivity.getHdKeyNode(intent));
                 } else {
                     throw new IllegalStateException("Unexpected result type from scan: " + type.toString());

@@ -41,18 +41,24 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
+
+import com.mrd.bitlib.crypto.InMemoryPrivateKey;
+import com.mycelium.wallet.BitcoinUri;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.StringHandleConfig;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.EnterWordListActivity;
 import com.mycelium.wallet.activity.InstantMasterseedActivity;
 import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.StringHandlerActivity;
+import com.mycelium.wallet.content.HandleConfigFactory;
+import com.mycelium.wallet.content.ResultType;
 import com.mycelium.wallet.extsig.keepkey.activity.InstantKeepKeyActivity;
 import com.mycelium.wallet.extsig.trezor.activity.InstantTrezorActivity;
+import com.mycelium.wapi.wallet.GenericAddress;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 public class InstantWalletActivity extends Activity {
 
@@ -96,7 +102,7 @@ public class InstantWalletActivity extends Activity {
 
          @Override
          public void onClick(View arg0) {
-            ScanActivity.callMe(InstantWalletActivity.this, REQUEST_SCAN, StringHandleConfig.spendFromColdStorage());
+            ScanActivity.callMe(InstantWalletActivity.this, REQUEST_SCAN, HandleConfigFactory.spendFromColdStorage());
          }
       });
 
@@ -117,7 +123,7 @@ public class InstantWalletActivity extends Activity {
 
    private void handleString(String str) {
       Intent intent = StringHandlerActivity.getIntent(this,
-            StringHandleConfig.spendFromColdStorage(),
+              HandleConfigFactory.spendFromColdStorage(),
             str);
       startActivityForResult(intent, REQUEST_SCAN);
    }
@@ -126,7 +132,7 @@ public class InstantWalletActivity extends Activity {
    protected void onResume() {
       super.onResume();
       StringHandlerActivity.ParseAbility canHandle = StringHandlerActivity.canHandle(
-            StringHandleConfig.spendFromColdStorage(),
+              HandleConfigFactory.spendFromColdStorage(),
             Utils.getClipboardString(this),
             MbwManager.getInstance(this).getNetwork());
 
@@ -141,6 +147,23 @@ public class InstantWalletActivity extends Activity {
       if (requestCode == REQUEST_SCAN) {
          if (resultCode != RESULT_OK) {
             ScanActivity.toastScanError(resultCode, intent, this);
+         } else {
+            ResultType type = (ResultType) intent.getSerializableExtra(StringHandlerActivity.RESULT_TYPE_KEY);
+            if (type == ResultType.PRIVATE_KEY) {
+               InMemoryPrivateKey key = StringHandlerActivity.getPrivateKey(intent);
+               UUID account = MbwManager.getInstance(this).createOnTheFlyAccount(key);
+               //we dont know yet where at what to send
+               BitcoinUri uri = new BitcoinUri(null, null, null);
+               SendInitializationActivity.callMeWithResult(this, account, uri, true,
+                       StringHandlerActivity.SEND_INITIALIZATION_CODE);
+            } else if (type == ResultType.ADDRESS) {
+               GenericAddress address = StringHandlerActivity.getAddress(intent);
+               UUID account = MbwManager.getInstance(this).createOnTheFlyAccount(address);
+               //we dont know yet where at what to send
+               BitcoinUri uri = new BitcoinUri(null, null, null);
+               SendInitializationActivity.callMeWithResult(this, account, uri, true,
+                       StringHandlerActivity.SEND_INITIALIZATION_CODE);
+            }
          }
          // else {
          // We don't call finish() here, so that this activity stays on the back stack.

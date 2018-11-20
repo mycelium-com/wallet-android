@@ -41,21 +41,26 @@ import android.text.TextUtils;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
+
 import com.google.common.base.Optional;
+import com.mrd.bitlib.crypto.Bip39;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.StringHandleConfig;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.StringHandlerActivity;
+import com.mycelium.wallet.content.ResultType;
 import com.mycelium.wallet.persistence.MetadataStorage;
+import com.mycelium.wallet.content.HandleConfigFactory;
+import com.mycelium.wapi.wallet.AesKeyCipher;
+import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
+import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.colu.ColuUtils;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
 
@@ -89,7 +94,7 @@ public class VerifyBackupActivity extends Activity {
 
          @Override
          public void onClick(View v) {
-            ScanActivity.callMe(VerifyBackupActivity.this, SCAN_RESULT_CODE, StringHandleConfig.verifySeedOrKey());
+            ScanActivity.callMe(VerifyBackupActivity.this, SCAN_RESULT_CODE, HandleConfigFactory.verifySeedOrKey());
          }
 
       });
@@ -126,7 +131,7 @@ public class VerifyBackupActivity extends Activity {
    }
 
    private void updateUi() {
-      TextView tvNumKeys = (TextView) findViewById(R.id.tvNumKeys);
+      TextView tvNumKeys = findViewById(R.id.tvNumKeys);
       String infotext = "";
       if (_mbwManager.getMasterSeedManager().hasBip32MasterSeed()
             && _mbwManager.getMetadataStorage().getMasterSeedBackupState().equals(MetadataStorage.BackupState.UNKNOWN)) {
@@ -228,6 +233,21 @@ public class VerifyBackupActivity extends Activity {
       }
    }
 
+    void verify(Bip39.MasterSeed masterSeed) {
+        try {
+            Bip39.MasterSeed ourSeed = _mbwManager.getMasterSeedManager().getMasterSeed(AesKeyCipher.defaultKeyCipher());
+            if (masterSeed.equals(ourSeed)) {
+                _mbwManager.getMetadataStorage().setMasterSeedBackupState(MetadataStorage.BackupState.VERIFIED);
+                ShowDialogMessage(R.string.verify_backup_ok_message, false);
+                updateUi();
+            } else {
+                ShowDialogMessage(R.string.wrong_seed, false);
+            }
+        } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
+            throw new RuntimeException(invalidKeyCipher);
+        }
+    }
+
    private void ShowDialogMessage(int messageResource, final boolean quit) {
       ShowDialogMessage(getResources().getString(messageResource), quit);
    }
@@ -240,9 +260,14 @@ public class VerifyBackupActivity extends Activity {
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
       if (requestCode == SCAN_RESULT_CODE) {
          if (resultCode == RESULT_OK) {
-            String message = getResources().getString(R.string.verify_backup_ok_message);
-            ShowDialogMessage(message, false);
-            updateUi();
+             ResultType type = (ResultType) intent.getSerializableExtra(StringHandlerActivity.RESULT_TYPE_KEY);
+             if (type == ResultType.PRIVATE_KEY) {
+                 verify(StringHandlerActivity.getPrivateKey(intent));
+             } else if (type == ResultType.MASTER_SEED) {
+                 verify(StringHandlerActivity.getMasterSeed(intent));
+             } else {
+                 ShowDialogMessage("Not supported backup! Please contact suport.", false);
+             }
          } else {
             String error = intent.getStringExtra(StringHandlerActivity.RESULT_ERROR);
             if (error != null) {

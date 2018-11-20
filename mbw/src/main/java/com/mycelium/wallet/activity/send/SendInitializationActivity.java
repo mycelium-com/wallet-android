@@ -49,6 +49,7 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.event.SyncFailed;
 import com.mycelium.wallet.event.SyncStopped;
+import com.mycelium.wapi.content.GenericAssetUri;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.squareup.otto.Subscribe;
 
@@ -57,7 +58,7 @@ import java.util.UUID;
 public class SendInitializationActivity extends Activity {
    private MbwManager _mbwManager;
    private WalletAccount _account;
-   private BitcoinUri _uri;
+   private GenericAssetUri _uri;
    private boolean _isColdStorage;
    private Handler _synchronizingHandler;
    private Handler _slowNetworkHandler;
@@ -119,7 +120,7 @@ public class SendInitializationActivity extends Activity {
       // Get intent parameters
       UUID accountId = Preconditions.checkNotNull((UUID) getIntent().getSerializableExtra("account"));
 
-      _uri = (BitcoinUri) getIntent().getSerializableExtra("uri");
+      _uri = (GenericAssetUri) getIntent().getSerializableExtra("uri");
       _rawPr =  getIntent().getByteArrayExtra("rawPr");
       _isColdStorage = getIntent().getBooleanExtra("isColdStorage", false);
       String crashHint = TextUtils.join(", ", getIntent().getExtras().keySet()) + " (account id was " + accountId + ")";
