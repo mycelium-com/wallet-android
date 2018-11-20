@@ -1271,8 +1271,13 @@ public class WalletManager {
     }
 
     public boolean canCreateAdditionalBip44Account() {
-        for(HDAccount account : hdAccounts){
-            if(!account.hasHadActivity()){
+        if (!hasBip32MasterSeed()) {
+            // No master seed
+            return false;
+        }
+
+        for (HDAccount account : hdAccounts) {
+            if (!account.hasHadActivity()) {
                 return false;
             }
         }
