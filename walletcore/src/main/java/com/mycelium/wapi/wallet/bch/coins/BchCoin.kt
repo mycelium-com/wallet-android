@@ -1,5 +1,7 @@
 package com.mycelium.wapi.wallet.bch.coins
 
+import com.mrd.bitlib.model.Address
+import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wapi.wallet.AddressUtils
 import com.mycelium.wapi.wallet.GenericAddress
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
@@ -18,5 +20,13 @@ abstract class BchCoin: CryptoCurrency(){
 
     override fun getName(): String {
         return "Bitcoin Cash"
+    }
+
+    override fun isMineAddress(address: String): Boolean {
+        try {
+            return Address.fromString(address, NetworkParameters.productionNetwork) != null
+        } catch (ex: Exception) {
+            return false
+        }
     }
 }

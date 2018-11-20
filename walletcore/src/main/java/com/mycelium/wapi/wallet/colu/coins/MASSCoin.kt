@@ -17,7 +17,7 @@ object MASSCoin : ColuMain() {
 object MASSCoinTest : ColuMain() {
     init {
         id = "La4szjzKfJyHQ75qgDEnbzp4qY8GQeDR5Z7h2W"
-        name = "Mass Token"
+        name = "Mass Token Test"
         symbol = "MSS"
     }
 

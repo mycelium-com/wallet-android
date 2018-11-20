@@ -118,12 +118,10 @@ public class EnterAddressLabelUtil {
          // No address exists with that name, or we are updating the
          // existing entry with the same name. If the name is blank the
          // entry will get deleted
-
-         //TODO implement for GenericAddress
-//         _storage.storeAddressLabel(_address, newText);
-//         if (_changeHandler != null) {
-//            _changeHandler.OnAddressLabelChanged(_address, newText);
-//         }
+         _storage.storeAddressLabel(Address.fromString(_address.toString()), newText);
+         if (_changeHandler != null) {
+            _changeHandler.OnAddressLabelChanged(Address.fromString(_address.toString()), newText);
+         }
       }
    }
 

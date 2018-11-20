@@ -1,5 +1,7 @@
 package com.mycelium.wapi.wallet.btc.coins;
 
+import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.SoftDustPolicy;
 import com.mycelium.wapi.wallet.coins.families.BitcoinBasedCryptoCurrency;

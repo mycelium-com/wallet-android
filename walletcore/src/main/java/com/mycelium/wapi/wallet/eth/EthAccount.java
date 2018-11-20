@@ -103,7 +103,7 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
 
     @Override
     public boolean isMineAddress(GenericAddress address) {
-        return true;
+        return false;
     }
 
     @Override

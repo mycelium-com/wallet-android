@@ -5,8 +5,8 @@ import com.mycelium.wapi.wallet.coins.SoftDustPolicy
 object BchMain: BchCoin() {
 
     init {
-        id = "bitcoin_cash.test"
-        name = "Bitcoin Cash Test"
+        id = "bitcoin_cash.main"
+        name = "Bitcoin Cash"
         symbol = "BCH"
         uriScheme = "bitcoin"
         addressHeader = 0

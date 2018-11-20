@@ -1610,7 +1610,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         } else if (requestCode == SIGN_TRANSACTION_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
                 //_signedTransaction = (Transaction) Preconditions.checkNotNull(intent.getSerializableExtra("signedTx"));
-                //signedSendRequest = (SendRequest) Preconditions.checkNotNull(intent.getSerializableExtra("transactionRequest"));
+                signedSendRequest = (SendRequest) Preconditions.checkNotNull(intent.getSerializableExtra("transactionRequest"));
                 // if we have a payment request with a payment_url, handle the send differently:
                 if (_paymentRequestHandler != null
                         && _paymentRequestHandler.getPaymentRequestInformation().hasPaymentCallbackUrl()) {
@@ -1627,7 +1627,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 
                     }
                 } else {
-                    BroadcastDialog broadcastDialog = BroadcastDialog.Companion.create(_account, _isColdStorage, sendRequest.tx);
+                    BroadcastDialog broadcastDialog = BroadcastDialog.Companion.create(_account, _isColdStorage, signedSendRequest.tx);
                     broadcastDialog.show(getSupportFragmentManager(), "broadcast");
 //                    BroadcastTransactionActivity.create(this, _account.getId(), _isColdStorage, sendRequest, _transactionLabel, ""/*getFiatValue()*/, BROADCAST_REQUEST_CODE);
                 }
@@ -1663,9 +1663,9 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         Intent result = new Intent();
         if (broadcastResult == BroadcastResult.SUCCESS) {
             if (_transactionLabel != null) {
-                _mbwManager.getMetadataStorage().storeTransactionLabel(sendRequest.tx.getHash(), _transactionLabel);
+                _mbwManager.getMetadataStorage().storeTransactionLabel(signedSendRequest.tx.getHash(), _transactionLabel);
             }
-            String hash = sendRequest.tx.getHash().toString();
+            String hash = signedSendRequest.tx.getHash().toString();
             String fiat = getFiatValue();
             transactionFiatValuePref.edit().putString(hash, fiat).apply();
 
@@ -1677,9 +1677,10 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         finish();
     }
 
+    //TODO refactor or get rid of this method
     private String getFiatValue() {
 //        long value = _amountToSend.getAsBitcoin(_mbwManager.getExchangeRateManager()).getLongValue() + _unsigned.calculateFee();
-        long value = 1000 + _unsigned.calculateFee();
+        long value = 1000;
         return _mbwManager.getCurrencySwitcher().getFormattedFiatValue(ExactBitcoinValue.from(value), true);
     }
 

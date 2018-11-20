@@ -1,5 +1,7 @@
 package com.mycelium.wapi.wallet.coins.families;
 
+import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
@@ -19,5 +21,14 @@ public abstract class BitcoinBasedCryptoCurrency extends CryptoCurrency {
     @Override
     public String getName() {
         return "Bitcoin";
+    }
+
+    @Override
+    public boolean isMineAddress(String address) {
+        try {
+            return Address.fromString(address) != null;
+        } catch(Exception ex) {
+            return false;
+        }
     }
 }

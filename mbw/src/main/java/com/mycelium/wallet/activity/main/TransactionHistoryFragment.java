@@ -489,8 +489,7 @@ public class TransactionHistoryFragment extends Fragment {
                            if (_mbwManager.getSelectedAccount() instanceof ColuPubOnlyAccount) {
                               defaultName = _mbwManager.getSelectedAccount().getCoinType().getName();
                            }
-                           EnterAddressLabelUtil.enterAddressLabel(getActivity(), _mbwManager.getMetadataStorage()
-                                   , new BtcLegacyAddress(BitcoinMain.get(), new byte[0]), defaultName, addressLabelChanged); //record.destinationAddress.get()
+                           EnterAddressLabelUtil.enterAddressLabel(getActivity(), _mbwManager.getMetadataStorage(), _mbwManager.getSelectedAccount().getReceiveAddress(), defaultName, addressLabelChanged); //record.destinationAddress.get()
                            break;
                         case R.id.miCancelTransaction:
                            new AlertDialog.Builder(getActivity())

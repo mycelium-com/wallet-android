@@ -173,7 +173,7 @@ public class SignTransactionActivity extends Activity {
          protected void onPostExecute(SendRequest transactionRequest) {
             if (transactionRequest != null) {
                Intent ret = new Intent();
-               //ret.putExtra("transactionRequest", transactionRequest);
+               ret.putExtra("transactionRequest", transactionRequest);
                setResult(RESULT_OK, ret);
                SignTransactionActivity.this.finish();
             } else {
