@@ -22,11 +22,6 @@ class WalletManager(val backing: WalletManagerBacking<*,*>,
                     val network: NetworkParameters,
                     val wapi: Wapi) {
     private val MAX_AGE_FEE_ESTIMATION = (2 * 60 * 60 * 1000).toLong() // 2 hours
-    private val MIN_AGE_FEE_ESTIMATION = (20 * 60 * 1000).toLong() // 20 minutes
-    private val ALL_COIN_TYPES_MAINNET = arrayListOf<GenericAssetInfo>(BitcoinMain.get(), BchMain,
-            MTCoin, MASSCoin, RMCCoin, EthMain)
-    private val ALL_COIN_TYPES_TESTNET = arrayListOf<GenericAssetInfo>(BitcoinTest.get(), BchTest,
-            MTCoinTest, MASSCoinTest, RMCCoinTest, EthTest)
 
     private val accounts = mutableMapOf<UUID, WalletAccount<*, *>>()
     private val walletModules = mutableMapOf<String, WalletModule>()
