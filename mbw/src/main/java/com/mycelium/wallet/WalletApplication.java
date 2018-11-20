@@ -176,6 +176,11 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
     }
 
     @Override
+    public int getIcon() {
+        return moduleMessageReceiver.getIcon();
+    }
+
+    @Override
     public void onTerminate() {
         super.onTerminate();
         unregisterReceiver(networkChangedReceiver);

@@ -17,7 +17,7 @@ if (System.getenv()['MYCELIUM_BUILD_SYSTEM'] == 'server') {
 } else {
     include 'wallet-android-modularization-tools:modularization-lib'
     include 'modulespvcontract'
-//    include 'modulespvbch' // needs api upgrade to 26
+    include 'modulespvbch'
     include 'mbw'
     include 'trezor'
     include 'libs:nordpol'
