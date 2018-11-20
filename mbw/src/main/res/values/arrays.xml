@@ -28,4 +28,11 @@
         <item>P2WPKH</item>
         <item>PRIVACY</item>
     </string-array>
+    <string-array name="coins">
+        <item>Bitcoin</item>
+        <item>Bitcoin Cash</item>
+        <item>Mycelium Tokens</item>
+        <item>MASS Tokens</item>
+        <item>RMC</item>
+    </string-array>
 </resources>
