@@ -78,14 +78,10 @@ import com.mrd.bitlib.model.UnspentTransactionOutput;
 import com.mycelium.paymentrequest.PaymentRequestException;
 import com.mycelium.paymentrequest.PaymentRequestInformation;
 import com.mycelium.wallet.BitcoinUriWithAddress;
-import com.mycelium.wallet.content.ColuAssetUri;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.MinerFee;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.content.HandleConfigFactory;
-import com.mycelium.wallet.content.ResultType;
-import com.mycelium.wallet.content.StringHandleConfig;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.GetAmountActivity;
 import com.mycelium.wallet.activity.ScanActivity;
@@ -104,6 +100,10 @@ import com.mycelium.wallet.activity.send.model.FeeLvlItem;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
 import com.mycelium.wallet.activity.util.AnimationUtils;
 import com.mycelium.wallet.activity.util.ValueExtentionsKt;
+import com.mycelium.wallet.content.ColuAssetUri;
+import com.mycelium.wallet.content.HandleConfigFactory;
+import com.mycelium.wallet.content.ResultType;
+import com.mycelium.wallet.content.StringHandleConfig;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wallet.event.SyncFailed;
@@ -1531,50 +1531,44 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                 }
             } else {
                 ResultType type = (ResultType) intent.getSerializableExtra(StringHandlerActivity.RESULT_TYPE_KEY);
-                if (type == ResultType.PRIVATE_KEY) {
-                    InMemoryPrivateKey key = StringHandlerActivity.getPrivateKey(intent);
-                    PublicKey publicKey = key.getPublicKey();
-                    for (AddressType addressType: AddressType.values()) {
-                        Address address = publicKey.toAddress(_mbwManager.getNetwork(), addressType);
-                        _receivingAddress = AddressUtils.fromAddress(address);   //TODO SegWit fix
-                    }
-                    setUpMultiAddressView();
-                } else if (type == ResultType.ADDRESS) {
-                    _receivingAddress = StringHandlerActivity.getAddress(intent);
-                } else if (type == ResultType.URI_WITH_ADDRESS) {
-                    BitcoinUriWithAddress uri = StringHandlerActivity.getUriWithAddress(intent);
-                    if (uri.callbackURL != null) {
-                        //we contact the merchant server instead of using the params
-//                        _bitcoinUri = uri;
-//                        _paymentFetched = false;
-//                        verifyPaymentRequest(_bitcoinUri);
-                        return;
-                    }
-                    _receivingAddress = AddressUtils.fromAddress(uri.address);
-                    _transactionLabel = uri.label;
-                    if (uri.amount != null && uri.amount > 0) {
-                        //we set the amount to the one contained in the qr code, even if another one was entered previously
-                        if (!Value.isNullOrZero(_amountToSend)) {
-                            makeText(this, R.string.amount_changed, LENGTH_LONG).show();
+                switch (type) {
+                    case PRIVATE_KEY:
+                        InMemoryPrivateKey key = StringHandlerActivity.getPrivateKey(intent);
+                        PublicKey publicKey = key.getPublicKey();
+                        for (AddressType addressType : AddressType.values()) {
+                            Address address = publicKey.toAddress(_mbwManager.getNetwork(), addressType);
+                            _receivingAddress = AddressUtils.fromAddress(address);   //TODO SegWit fix
                         }
-                        setAmountToSend(Value.valueOf(_amountToSend.getType(), uri.amount));
-                    }
-                } else if (type == ResultType.URI) {
-                    //todo: maybe merge with BitcoinUriWithAddress ?
-                    GenericAssetUri uri = StringHandlerActivity.getUri(intent);
-                    if (uri instanceof BitcoinUri && ((BitcoinUri) uri).getCallbackURL()!= null) {
-                        //we contact the merchant server instead of using the params
-                        _bitcoinUri = uri;
-                        _paymentFetched = false;
-                        verifyPaymentRequest((BitcoinUri) _bitcoinUri);
-                        return;
-                    }
-                } else if (type == ResultType.HD_NODE) {
-                    setReceivingAddressFromKeynode(StringHandlerActivity.getHdKeyNode(intent));
-                } else {
-                    throw new IllegalStateException("Unexpected result type from scan: " + type.toString());
+                        setUpMultiAddressView();
+                        break;
+                    case ADDRESS:
+                        _receivingAddress = StringHandlerActivity.getAddress(intent);
+                        break;
+                    case URI:
+                        GenericAssetUri uri = StringHandlerActivity.getUri(intent);
+                        if (uri instanceof BitcoinUri && ((BitcoinUri) uri).getCallbackURL() != null) {
+                            //we contact the merchant server instead of using the params
+                            _bitcoinUri = uri;
+                            _paymentFetched = false;
+                            verifyPaymentRequest((BitcoinUri) _bitcoinUri);
+                            return;
+                        }
+                        _receivingAddress = uri.getAddress();
+                        _transactionLabel = uri.getLabel();
+                        if (uri.getValue() != null && uri.getValue().isPositive()) {
+                            //we set the amount to the one contained in the qr code, even if another one was entered previously
+                            if (!Value.isNullOrZero(_amountToSend)) {
+                                makeText(this, R.string.amount_changed, LENGTH_LONG).show();
+                            }
+                            setAmountToSend(uri.getValue());
+                        }
+                        break;
+                    case HD_NODE:
+                        setReceivingAddressFromKeynode(StringHandlerActivity.getHdKeyNode(intent));
+                        break;
+                    default:
+                        throw new IllegalStateException("Unexpected result type from scan: " + type.toString());
                 }
-
             }
 
             _transactionStatus = tryCreateUnsignedTransaction();

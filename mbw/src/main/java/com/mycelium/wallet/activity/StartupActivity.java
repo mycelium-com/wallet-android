@@ -69,6 +69,7 @@ import com.mycelium.wallet.activity.send.GetSpendingRecordActivity;
 import com.mycelium.wallet.activity.send.SendInitializationActivity;
 import com.mycelium.wallet.bitid.BitIDAuthenticationActivity;
 import com.mycelium.wallet.bitid.BitIDSignRequest;
+import com.mycelium.wallet.content.HdNodeAction;
 import com.mycelium.wallet.content.PrivateKeyAction;
 import com.mycelium.wallet.external.glidera.activities.GlideraSendToNextStep;
 import com.mycelium.wallet.pop.PopRequest;
@@ -86,8 +87,6 @@ import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.UUID;
-
-import static com.mycelium.wallet.content.StringHandleConfig.HdNodeAction.isKeyNode;
 
 public class StartupActivity extends Activity implements AccountCreatorHelper.AccountCreationObserver {
    private static final int MINIMUM_SPLASH_TIME = 500;
@@ -182,7 +181,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
       private boolean hasPublicKeyOnClipboard(NetworkParameters network) {
          // do we have a public key on the clipboard?
          try {
-            if (isKeyNode(network, Utils.getClipboardString(StartupActivity.this))) {
+            if (HdNodeAction.Companion.isKeyNode(network, Utils.getClipboardString(StartupActivity.this))) {
                return true;
             }
             HdKeyNode.parse(Utils.getClipboardString(StartupActivity.this), network);

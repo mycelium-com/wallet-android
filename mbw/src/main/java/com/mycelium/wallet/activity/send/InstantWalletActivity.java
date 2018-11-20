@@ -42,6 +42,7 @@ import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
 
+import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -54,9 +55,13 @@ import com.mycelium.wallet.content.HandleConfigFactory;
 import com.mycelium.wallet.content.ResultType;
 import com.mycelium.wallet.extsig.keepkey.activity.InstantKeepKeyActivity;
 import com.mycelium.wallet.extsig.trezor.activity.InstantTrezorActivity;
+import com.mycelium.wapi.content.GenericAssetUri;
 import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.WalletManager;
+import com.mycelium.wapi.wallet.btc.bip44.UnrelatedHDAccountConfig;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.UUID;
 
 public class InstantWalletActivity extends Activity {
@@ -147,19 +152,42 @@ public class InstantWalletActivity extends Activity {
          if (resultCode != RESULT_OK) {
             ScanActivity.toastScanError(resultCode, intent, this);
          } else {
+            MbwManager mbwManager = MbwManager.getInstance(this);
             ResultType type = (ResultType) intent.getSerializableExtra(StringHandlerActivity.RESULT_TYPE_KEY);
-            if (type == ResultType.PRIVATE_KEY) {
-               InMemoryPrivateKey key = StringHandlerActivity.getPrivateKey(intent);
-               UUID account = MbwManager.getInstance(this).createOnTheFlyAccount(key);
-               //we dont know yet where at what to send
-                SendInitializationActivity.callMeWithResult(this, account, true,
-                       StringHandlerActivity.SEND_INITIALIZATION_CODE);
-            } else if (type == ResultType.ADDRESS) {
-               GenericAddress address = StringHandlerActivity.getAddress(intent);
-               UUID account = MbwManager.getInstance(this).createOnTheFlyAccount(address);
-               //we dont know yet where at what to send
-                SendInitializationActivity.callMeWithResult(this, account, true,
-                       StringHandlerActivity.SEND_INITIALIZATION_CODE);
+            switch (type) {
+               case PRIVATE_KEY: {
+                  InMemoryPrivateKey key = StringHandlerActivity.getPrivateKey(intent);
+                  UUID account = mbwManager.createOnTheFlyAccount(key);
+                  //we dont know yet where at what to send
+                  SendInitializationActivity.callMeWithResult(this, account, true,
+                          StringHandlerActivity.SEND_INITIALIZATION_CODE);
+                  break;
+               }
+               case ADDRESS: {
+                  GenericAddress address = StringHandlerActivity.getAddress(intent);
+                  UUID account = mbwManager.createOnTheFlyAccount(address);
+                  //we dont know yet where at what to send
+                  SendInitializationActivity.callMeWithResult(this, account, true,
+                          StringHandlerActivity.SEND_INITIALIZATION_CODE);
+                  break;
+               }
+               case URI: {
+                  GenericAssetUri uri = StringHandlerActivity.getUri(intent);
+                  UUID account = mbwManager.createOnTheFlyAccount(uri.getAddress());
+                  //we dont know yet where at what to send
+                  SendInitializationActivity.callMeWithResult(this, account, true,
+                          StringHandlerActivity.SEND_INITIALIZATION_CODE);
+                  break;
+               }
+               case HD_NODE: {
+                  HdKeyNode hdKeyNode = StringHandlerActivity.getHdKeyNode(intent);
+                  final WalletManager tempWalletManager = mbwManager.getWalletManager(true);
+                  UUID account = tempWalletManager.createAccounts(new UnrelatedHDAccountConfig(Collections.singletonList(hdKeyNode))).get(0);
+                  tempWalletManager.setActiveAccount(account);
+                  SendInitializationActivity.callMeWithResult(this, account, true,
+                          StringHandlerActivity.SEND_INITIALIZATION_CODE);
+                  break;
+               }
             }
          }
          // else {

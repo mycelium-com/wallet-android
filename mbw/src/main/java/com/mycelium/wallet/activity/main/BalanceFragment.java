@@ -51,6 +51,7 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import com.google.common.base.Preconditions;
+import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -79,8 +80,10 @@ import com.mycelium.wapi.content.GenericAssetUri;
 import com.mycelium.wapi.model.ExchangeRate;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
+import com.mycelium.wapi.wallet.btc.bip44.UnrelatedHDAccountConfig;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
@@ -346,23 +349,42 @@ public class BalanceFragment extends Fragment {
                 ScanActivity.toastScanError(resultCode, data, getActivity());
             } else {
                 ResultType type = (ResultType) data.getSerializableExtra(StringHandlerActivity.RESULT_TYPE_KEY);
-                if (type == ResultType.PRIVATE_KEY) {
-                    InMemoryPrivateKey key = StringHandlerActivity.getPrivateKey(data);
-                    UUID account = _mbwManager.createOnTheFlyAccount(key);
-                    //we dont know yet where at what to send
-                    SendInitializationActivity.callMeWithResult(getActivity(), account, true,
-                            StringHandlerActivity.SEND_INITIALIZATION_CODE);
-                } else if (type == ResultType.ADDRESS) {
-                    GenericAddress address = StringHandlerActivity.getAddress(data);
-                    Intent intent = SendMainActivity.getIntent(getActivity()
-                            , _mbwManager.getSelectedAccount().getId(), null, address, false);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
-                    startActivity(intent);
-                } else if (type == ResultType.URI) {
-                    GenericAssetUri uri = StringHandlerActivity.getUri(data);
-                    Intent intent = SendMainActivity.getIntent(getActivity(), _mbwManager.getSelectedAccount().getId(), uri, false);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
-                    startActivity(intent);
+                switch (type) {
+                    case PRIVATE_KEY:
+                        InMemoryPrivateKey key = StringHandlerActivity.getPrivateKey(data);
+                        UUID account = _mbwManager.createOnTheFlyAccount(key);
+                        //we dont know yet where at what to send
+                        SendInitializationActivity.callMeWithResult(getActivity(), account, true,
+                                StringHandlerActivity.SEND_INITIALIZATION_CODE);
+                        break;
+                    case ADDRESS:
+                        GenericAddress address = StringHandlerActivity.getAddress(data);
+                        startActivity(SendMainActivity.getIntent(getActivity()
+                                , _mbwManager.getSelectedAccount().getId(), null, address, false)
+                                .addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
+                        break;
+                    case URI: {
+                        GenericAssetUri uri = StringHandlerActivity.getUri(data);
+                        startActivity(SendMainActivity.getIntent(getActivity(), _mbwManager.getSelectedAccount().getId(), uri, false)
+                                .addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
+                        break;
+                    }
+                    case HD_NODE:
+                        HdKeyNode hdKeyNode = StringHandlerActivity.getHdKeyNode(data);
+                        if (hdKeyNode.isPrivateHdKeyNode()) {
+                            //its an xPriv, we want to cold-spend from it
+                            final WalletManager tempWalletManager = _mbwManager.getWalletManager(true);
+                            UUID acc = tempWalletManager.createAccounts(new UnrelatedHDAccountConfig(Collections.singletonList(hdKeyNode))).get(0);
+                            tempWalletManager.setActiveAccount(acc);
+                            SendInitializationActivity.callMeWithResult(getActivity(), acc, true,
+                                    StringHandlerActivity.SEND_INITIALIZATION_CODE);
+                        } else {
+                            //its xPub, we want to send to it
+                            Intent intent = SendMainActivity.getIntent(getActivity(), _mbwManager.getSelectedAccount().getId(), hdKeyNode);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
+                            startActivity(intent);
+                        }
+                        break;
                 }
             }
         }

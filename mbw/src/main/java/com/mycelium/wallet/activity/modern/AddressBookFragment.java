@@ -56,10 +56,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
-import com.mycelium.wallet.AccountManager;
 import com.mycelium.wallet.AddressBookManager;
 import com.mycelium.wallet.AddressBookManager.Entry;
 import com.mycelium.wallet.MbwManager;
@@ -78,15 +76,9 @@ import com.mycelium.wallet.event.AddressBookChanged;
 import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.bch.coins.BchMain;
-import com.mycelium.wapi.wallet.bch.coins.BchTest;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
-import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
-import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
-import com.mycelium.wapi.wallet.colu.coins.*;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
@@ -429,12 +421,17 @@ public class AddressBookFragment extends Fragment {
          return;
       }
       ResultType type = (ResultType) intent.getSerializableExtra(StringHandlerActivity.RESULT_TYPE_KEY);
-      if (type == ResultType.PRIVATE_KEY) {
-         Utils.showSimpleMessageDialog(getActivity(), R.string.addressbook_cannot_add_private_key);
-         return;
+      switch (type) {
+         case PRIVATE_KEY:
+            Utils.showSimpleMessageDialog(getActivity(), R.string.addressbook_cannot_add_private_key);
+            break;
+         case URI:
+            addFromAddress(StringHandlerActivity.getUri(intent).getAddress());
+            break;
+         case ADDRESS:
+            addFromAddress(StringHandlerActivity.getAddress(intent));
+            break;
       }
-      Preconditions.checkState(type == ResultType.ADDRESS);
-      addFromAddress(StringHandlerActivity.getAddress(intent));
    }
 
    private void addFromAddress(GenericAddress address) {

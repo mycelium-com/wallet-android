@@ -62,11 +62,11 @@ import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.content.HandleConfigFactory;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.util.ImportCoCoHDAccount;
 import com.mycelium.wallet.activity.util.ValueExtentionsKt;
+import com.mycelium.wallet.content.HandleConfigFactory;
 import com.mycelium.wallet.content.ResultType;
 import com.mycelium.wallet.extsig.keepkey.activity.KeepKeyAccountImportActivity;
 import com.mycelium.wallet.extsig.ledger.activity.LedgerAccountImportActivity;
@@ -324,25 +324,33 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
             boolean fromClipboard = (requestCode == CLIPBOARD_RESULT_CODE);
 
             ResultType type = (ResultType) intent.getSerializableExtra(StringHandlerActivity.RESULT_TYPE_KEY);
-            if (type == ResultType.PRIVATE_KEY) {
-               InMemoryPrivateKey key = StringHandlerActivity.getPrivateKey(intent);
-               if (fromClipboard) {
-                  Utils.clearClipboardString(AddAdvancedAccountActivity.this);
-               }
+             switch (type) {
+                 case PRIVATE_KEY:
+                     InMemoryPrivateKey key = StringHandlerActivity.getPrivateKey(intent);
+                     if (fromClipboard) {
+                         Utils.clearClipboardString(AddAdvancedAccountActivity.this);
+                     }
 
-               // We imported this key from somewhere else - so we guess, that there exists an backup
-               returnAccount(key, MetadataStorage.BackupState.IGNORED, AccountType.Unknown);
-            } else if (type == ResultType.ADDRESS) {
-               returnAccount(StringHandlerActivity.getAddress(intent));
-            } else if (type == ResultType.HD_NODE) {
-               final HdKeyNode hdKeyNode = StringHandlerActivity.getHdKeyNode(intent);
-               if (fromClipboard && hdKeyNode.isPrivateHdKeyNode()) {
-                  Utils.clearClipboardString(AddAdvancedAccountActivity.this);
-               }
-               processNode(hdKeyNode);
-            } else {
-               throw new IllegalStateException("Unexpected result type from scan: " + type.toString());
-            }
+                     // We imported this key from somewhere else - so we guess, that there exists an backup
+                     returnAccount(key, MetadataStorage.BackupState.IGNORED, AccountType.Unknown);
+                     break;
+                 case ADDRESS:
+                     returnAccount(StringHandlerActivity.getAddress(intent));
+                     break;
+                 case HD_NODE:
+                     final HdKeyNode hdKeyNode = StringHandlerActivity.getHdKeyNode(intent);
+                     if (fromClipboard && hdKeyNode.isPrivateHdKeyNode()) {
+                         Utils.clearClipboardString(AddAdvancedAccountActivity.this);
+                     }
+                     processNode(hdKeyNode);
+                     break;
+                 case URI:
+                     // uri result must be with address, can check request HandleConfigFactory.returnKeyOrAddressOrHdNode
+                     returnAccount(StringHandlerActivity.getUri(intent).getAddress());
+                     break;
+                 default:
+                     throw new IllegalStateException("Unexpected result type from scan: " + type.toString());
+             }
          } else {
             ScanActivity.toastScanError(resultCode, intent, this);
          }

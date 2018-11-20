@@ -7,11 +7,14 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.StringHandlerActivity
 
 
-class UriAction : Action {
+class UriAction @JvmOverloads constructor(private val onlyWithAddress: Boolean = false) : Action {
     override fun handle(handlerActivity: StringHandlerActivity, content: String): Boolean {
         val manager = MbwManager.getInstance(handlerActivity)
         val uri = manager.contentResolver.resolveUri(content)
         if (uri != null) {
+            if (onlyWithAddress && uri.address == null) {
+                return false
+            }
             handlerActivity.finishOk(uri)
         } else {
             handlerActivity.finishError(R.string.unrecognized_format)
