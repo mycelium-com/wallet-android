@@ -251,7 +251,8 @@ public class AccountsFragment extends Fragment {
             updateIncludingMenus();
             if (!(account instanceof ColuAccount)
                     && !intent.getBooleanExtra(AddAccountActivity.IS_UPGRADE, false)) {
-               setNameForNewAccount(account);
+
+               setLabelOnAccount(account, account.getLabel(), false);
             }
             eventBus.post(new AccountChanged(accountid));
          }
@@ -535,14 +536,6 @@ public class AccountsFragment extends Fragment {
       if (currentActionMode != null) {
          currentActionMode.finish();
       }
-   }
-
-   private void setNameForNewAccount(WalletAccount account) {
-      if (account == null || !isAdded()) {
-         return;
-      }
-
-      setLabelOnAccount(account, account.getLabel(), false);
    }
 
    private void update() {
@@ -972,7 +965,7 @@ public class AccountsFragment extends Fragment {
    }
 
    private void setLabelOnAccount(final WalletAccount account, final String defaultName, boolean askForPin) {
-      if (!AccountsFragment.this.isAdded()) {
+      if (account == null || !AccountsFragment.this.isAdded()) {
          return;
       }
       if (askForPin) {
