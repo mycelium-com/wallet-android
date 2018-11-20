@@ -1,18 +1,19 @@
-package com.mycelium.wallet.content
+package com.mycelium.wallet.content.actions
 
 import com.mrd.bitlib.crypto.HdKeyNode
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wallet.activity.StringHandlerActivity
+import com.mycelium.wallet.content.Action
 
 
 class HdNodeAction : Action {
     override fun handle(handlerActivity: StringHandlerActivity, content: String): Boolean {
-        try {
+        return try {
             val hdKey = HdKeyNode.parse(content, handlerActivity.network)
             handlerActivity.finishOk(hdKey)
-            return true
+            true
         } catch (ex: HdKeyNode.KeyGenerationException) {
-            return false
+            false
         }
     }
 

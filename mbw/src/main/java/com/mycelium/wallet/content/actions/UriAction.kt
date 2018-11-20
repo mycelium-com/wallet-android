@@ -1,10 +1,11 @@
-package com.mycelium.wallet.content
+package com.mycelium.wallet.content.actions
 
 import android.net.Uri
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.StringHandlerActivity
+import com.mycelium.wallet.content.Action
 
 
 class UriAction @JvmOverloads constructor(private val onlyWithAddress: Boolean = false) : Action {
@@ -16,11 +17,9 @@ class UriAction @JvmOverloads constructor(private val onlyWithAddress: Boolean =
                 return false
             }
             handlerActivity.finishOk(uri)
-        } else {
-            handlerActivity.finishError(R.string.unrecognized_format)
-            //started with bitcoin: but could not be parsed, was handled
+            return true
         }
-        return true
+        return false
     }
 
     override fun canHandle(network: NetworkParameters, content: String): Boolean {

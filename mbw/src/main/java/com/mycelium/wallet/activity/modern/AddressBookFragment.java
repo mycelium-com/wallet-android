@@ -425,8 +425,8 @@ public class AddressBookFragment extends Fragment {
          case PRIVATE_KEY:
             Utils.showSimpleMessageDialog(getActivity(), R.string.addressbook_cannot_add_private_key);
             break;
-         case URI:
-            addFromAddress(StringHandlerActivity.getUri(intent).getAddress());
+         case ASSET_URI:
+            addFromAddress(StringHandlerActivity.getAssetUri(intent).getAddress());
             break;
          case ADDRESS:
             addFromAddress(StringHandlerActivity.getAddress(intent));

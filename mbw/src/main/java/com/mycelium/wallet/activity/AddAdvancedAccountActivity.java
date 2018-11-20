@@ -55,6 +55,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.common.base.Optional;
+import com.mrd.bitlib.crypto.BipSss;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
@@ -324,33 +325,37 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
             boolean fromClipboard = (requestCode == CLIPBOARD_RESULT_CODE);
 
             ResultType type = (ResultType) intent.getSerializableExtra(StringHandlerActivity.RESULT_TYPE_KEY);
-             switch (type) {
-                 case PRIVATE_KEY:
-                     InMemoryPrivateKey key = StringHandlerActivity.getPrivateKey(intent);
-                     if (fromClipboard) {
-                         Utils.clearClipboardString(AddAdvancedAccountActivity.this);
-                     }
+            switch (type) {
+               case PRIVATE_KEY:
+                  InMemoryPrivateKey key = StringHandlerActivity.getPrivateKey(intent);
+                  if (fromClipboard) {
+                     Utils.clearClipboardString(AddAdvancedAccountActivity.this);
+                  }
 
-                     // We imported this key from somewhere else - so we guess, that there exists an backup
-                     returnAccount(key, MetadataStorage.BackupState.IGNORED, AccountType.Unknown);
-                     break;
-                 case ADDRESS:
-                     returnAccount(StringHandlerActivity.getAddress(intent));
-                     break;
-                 case HD_NODE:
-                     final HdKeyNode hdKeyNode = StringHandlerActivity.getHdKeyNode(intent);
-                     if (fromClipboard && hdKeyNode.isPrivateHdKeyNode()) {
-                         Utils.clearClipboardString(AddAdvancedAccountActivity.this);
-                     }
-                     processNode(hdKeyNode);
-                     break;
-                 case URI:
-                     // uri result must be with address, can check request HandleConfigFactory.returnKeyOrAddressOrHdNode
-                     returnAccount(StringHandlerActivity.getUri(intent).getAddress());
-                     break;
-                 default:
-                     throw new IllegalStateException("Unexpected result type from scan: " + type.toString());
-             }
+                  // We imported this key from somewhere else - so we guess, that there exists an backup
+                  returnAccount(key, MetadataStorage.BackupState.IGNORED, AccountType.Unknown);
+                  break;
+               case ADDRESS:
+                  returnAccount(StringHandlerActivity.getAddress(intent));
+                  break;
+               case HD_NODE:
+                  final HdKeyNode hdKeyNode = StringHandlerActivity.getHdKeyNode(intent);
+                  if (fromClipboard && hdKeyNode.isPrivateHdKeyNode()) {
+                     Utils.clearClipboardString(AddAdvancedAccountActivity.this);
+                  }
+                  processNode(hdKeyNode);
+                  break;
+               case ASSET_URI:
+                  // uri result must be with address, can check request HandleConfigFactory.returnKeyOrAddressOrHdNode
+                  returnAccount(StringHandlerActivity.getAssetUri(intent).getAddress());
+                  break;
+               case SHARE:
+                  BipSss.Share share = StringHandlerActivity.getShare(intent);
+                  BipSsImportActivity.callMe(this, share, StringHandlerActivity.IMPORT_SSS_CONTENT_CODE);
+                  break;
+               default:
+                  throw new IllegalStateException("Unexpected result type from scan: " + type.toString());
+            }
          } else {
             ScanActivity.toastScanError(resultCode, intent, this);
          }

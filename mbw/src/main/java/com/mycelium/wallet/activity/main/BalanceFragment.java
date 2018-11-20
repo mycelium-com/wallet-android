@@ -39,6 +39,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -51,18 +52,24 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import com.google.common.base.Preconditions;
+import com.mrd.bitlib.crypto.BipSss;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.activity.BipSsImportActivity;
+import com.mycelium.wallet.activity.HandleUrlActivity;
 import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.StringHandlerActivity;
 import com.mycelium.wallet.activity.modern.Toaster;
+import com.mycelium.wallet.activity.pop.PopActivity;
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity;
 import com.mycelium.wallet.activity.send.SendInitializationActivity;
 import com.mycelium.wallet.activity.send.SendMainActivity;
 import com.mycelium.wallet.activity.util.ToggleableCurrencyButton;
 import com.mycelium.wallet.activity.util.ValueExtentionsKt;
+import com.mycelium.wallet.bitid.BitIDAuthenticationActivity;
+import com.mycelium.wallet.bitid.BitIDSignRequest;
 import com.mycelium.wallet.content.HandleConfigFactory;
 import com.mycelium.wallet.content.ResultType;
 import com.mycelium.wallet.content.StringHandleConfig;
@@ -76,6 +83,7 @@ import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.exchange.ExchangeRateManager;
 import com.mycelium.wallet.modularisation.BCHHelper;
+import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.content.GenericAssetUri;
 import com.mycelium.wapi.model.ExchangeRate;
 import com.mycelium.wapi.wallet.GenericAddress;
@@ -363,8 +371,8 @@ public class BalanceFragment extends Fragment {
                                 , _mbwManager.getSelectedAccount().getId(), null, address, false)
                                 .addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
                         break;
-                    case URI: {
-                        GenericAssetUri uri = StringHandlerActivity.getUri(data);
+                    case ASSET_URI: {
+                        GenericAssetUri uri = StringHandlerActivity.getAssetUri(data);
                         startActivity(SendMainActivity.getIntent(getActivity(), _mbwManager.getSelectedAccount().getId(), uri, false)
                                 .addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
                         break;
@@ -384,6 +392,25 @@ public class BalanceFragment extends Fragment {
                             intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
                             startActivity(intent);
                         }
+                        break;
+                    case SHARE:
+                        BipSss.Share share = StringHandlerActivity.getShare(data);
+                        BipSsImportActivity.callMe(getActivity(), share, StringHandlerActivity.IMPORT_SSS_CONTENT_CODE);
+                        break;
+                    case URI:
+                        // open HandleUrlActivity and let it decide what to do with this URL (check if its a payment request)
+                        Uri uri = StringHandlerActivity.getUri(data);
+                        startActivity(HandleUrlActivity.getIntent(getActivity(), uri));
+                        break;
+                    case POP_REQUEST:
+                        PopRequest popRequest = StringHandlerActivity.getPopRequest(data);
+                        startActivity(new Intent(getActivity(), PopActivity.class)
+                                .putExtra("popRequest", popRequest)
+                                .addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
+                        break;
+                    case BIT_ID_REQUEST:
+                        BitIDSignRequest request = StringHandlerActivity.getBitIdRequest(data);
+                        BitIDAuthenticationActivity.callMe(getActivity(), request);
                         break;
                 }
             }

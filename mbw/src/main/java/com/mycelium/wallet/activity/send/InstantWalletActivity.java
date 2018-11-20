@@ -42,11 +42,13 @@ import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
 
+import com.mrd.bitlib.crypto.BipSss;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.BipSsImportActivity;
 import com.mycelium.wallet.activity.EnterWordListActivity;
 import com.mycelium.wallet.activity.InstantMasterseedActivity;
 import com.mycelium.wallet.activity.ScanActivity;
@@ -171,8 +173,8 @@ public class InstantWalletActivity extends Activity {
                           StringHandlerActivity.SEND_INITIALIZATION_CODE);
                   break;
                }
-               case URI: {
-                  GenericAssetUri uri = StringHandlerActivity.getUri(intent);
+               case ASSET_URI: {
+                  GenericAssetUri uri = StringHandlerActivity.getAssetUri(intent);
                   UUID account = mbwManager.createOnTheFlyAccount(uri.getAddress());
                   //we dont know yet where at what to send
                   SendInitializationActivity.callMeWithResult(this, account, true,
@@ -188,6 +190,10 @@ public class InstantWalletActivity extends Activity {
                           StringHandlerActivity.SEND_INITIALIZATION_CODE);
                   break;
                }
+               case SHARE:
+                  BipSss.Share share = StringHandlerActivity.getShare(intent);
+                  BipSsImportActivity.callMe(this, share, StringHandlerActivity.IMPORT_SSS_CONTENT_CODE);
+                  break;
             }
          }
          // else {

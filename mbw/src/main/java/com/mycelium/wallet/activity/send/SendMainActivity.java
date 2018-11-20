@@ -88,6 +88,7 @@ import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.StringHandlerActivity;
 import com.mycelium.wallet.activity.modern.AddressBookFragment;
 import com.mycelium.wallet.activity.modern.GetFromAddressBookActivity;
+import com.mycelium.wallet.activity.pop.PopActivity;
 import com.mycelium.wallet.activity.send.adapter.AddressViewAdapter;
 import com.mycelium.wallet.activity.send.adapter.FeeLvlViewAdapter;
 import com.mycelium.wallet.activity.send.adapter.FeeViewAdapter;
@@ -109,6 +110,7 @@ import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wallet.event.SyncFailed;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.paymentrequest.PaymentRequestHandler;
+import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.api.response.Feature;
 import com.mycelium.wapi.content.GenericAssetUri;
 import com.mycelium.wapi.content.btc.BitcoinUri;
@@ -1544,8 +1546,8 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                     case ADDRESS:
                         _receivingAddress = StringHandlerActivity.getAddress(intent);
                         break;
-                    case URI:
-                        GenericAssetUri uri = StringHandlerActivity.getUri(intent);
+                    case ASSET_URI:
+                        GenericAssetUri uri = StringHandlerActivity.getAssetUri(intent);
                         if (uri instanceof BitcoinUri && ((BitcoinUri) uri).getCallbackURL() != null) {
                             //we contact the merchant server instead of using the params
                             _bitcoinUri = uri;
@@ -1565,6 +1567,12 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                         break;
                     case HD_NODE:
                         setReceivingAddressFromKeynode(StringHandlerActivity.getHdKeyNode(intent));
+                        break;
+                    case POP_REQUEST:
+                        PopRequest popRequest = StringHandlerActivity.getPopRequest(intent);
+                        startActivity(new Intent(this, PopActivity.class)
+                                .putExtra("popRequest", popRequest)
+                                .addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
                         break;
                     default:
                         throw new IllegalStateException("Unexpected result type from scan: " + type.toString());

@@ -1,8 +1,9 @@
-package com.mycelium.wallet.content
+package com.mycelium.wallet.content.actions
 
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.activity.StringHandlerActivity
+import com.mycelium.wallet.content.Action
 
 
 class AddressAction : Action {

@@ -1,6 +1,17 @@
 package com.mycelium.wallet.content;
 
 
+import com.mycelium.wallet.content.actions.AddressAction;
+import com.mycelium.wallet.content.actions.BitIdAction;
+import com.mycelium.wallet.content.actions.HdNodeAction;
+import com.mycelium.wallet.content.actions.MasterSeedAction;
+import com.mycelium.wallet.content.actions.PopAction;
+import com.mycelium.wallet.content.actions.PrivateKeyAction;
+import com.mycelium.wallet.content.actions.SssShareAction;
+import com.mycelium.wallet.content.actions.UriAction;
+import com.mycelium.wallet.content.actions.WebsiteAction;
+import com.mycelium.wallet.content.actions.WordListAction;
+
 public class HandleConfigFactory {
     public static StringHandleConfig returnKeyOrAddressOrUriOrKeynode() {
         StringHandleConfig request = new StringHandleConfig();
@@ -8,7 +19,7 @@ public class HandleConfigFactory {
         request.addressAction = new AddressAction();
         request.bitcoinUriAction = new UriAction();
         request.hdNodeAction = new HdNodeAction();
-        request.popAction = StringHandleConfig.PopAction.SEND;
+        request.popAction = new PopAction();
         return request;
     }
 
@@ -18,7 +29,7 @@ public class HandleConfigFactory {
         request.hdNodeAction = new HdNodeAction();
         request.addressAction = new AddressAction();
         request.bitcoinUriAction = new UriAction(true);
-        request.sssShareAction = StringHandleConfig.SssShareAction.START_COMBINING;
+        request.sssShareAction = new SssShareAction();
         return request;
     }
 
@@ -28,8 +39,8 @@ public class HandleConfigFactory {
         request.addressAction = new AddressAction();
         request.bitcoinUriAction = new UriAction(true);
         request.hdNodeAction = new HdNodeAction();
-        request.sssShareAction = StringHandleConfig.SssShareAction.START_COMBINING;
-        request.wordListAction = StringHandleConfig.WordListAction.COLD_SPENDING;
+        request.sssShareAction = new SssShareAction();
+        request.wordListAction = new WordListAction();
         return request;
     }
 
@@ -45,13 +56,13 @@ public class HandleConfigFactory {
         StringHandleConfig request = new StringHandleConfig();
         request.addressAction = new AddressAction();
         request.bitcoinUriAction = new UriAction();
-        request.bitIdAction = StringHandleConfig.BitIdAction.LOGIN;
+        request.bitIdAction = new BitIdAction();
         request.privateKeyAction = new PrivateKeyAction();
-        request.websiteAction = StringHandleConfig.WebsiteAction.HANDLE_URL;
-        request.sssShareAction = StringHandleConfig.SssShareAction.START_COMBINING;
-        request.wordListAction = StringHandleConfig.WordListAction.COLD_SPENDING;
+        request.websiteAction = new WebsiteAction();
+        request.sssShareAction = new SssShareAction();
+        request.wordListAction = new WordListAction();
         request.hdNodeAction = new HdNodeAction();
-        request.popAction = StringHandleConfig.PopAction.SEND;
+        request.popAction = new PopAction();
 
         //at the moment, we just support wordlist backups
         //request.masterSeedAction = MasterSeedAction.IMPORT;
@@ -60,13 +71,13 @@ public class HandleConfigFactory {
 
     public static StringHandleConfig getShare() {
         StringHandleConfig request = new StringHandleConfig();
-        request.sssShareAction = StringHandleConfig.SssShareAction.RETURN_SHARE;
+        request.sssShareAction = new SssShareAction();
         return request;
     }
 
     public static StringHandleConfig verifySeedOrKey() {
         StringHandleConfig request = new StringHandleConfig();
-        request.masterSeedAction = StringHandleConfig.MasterSeedAction.RETURN;
+        request.masterSeedAction = new MasterSeedAction();
         request.privateKeyAction = new PrivateKeyAction();
         return request;
     }
