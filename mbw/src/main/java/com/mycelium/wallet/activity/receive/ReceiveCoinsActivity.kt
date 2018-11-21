@@ -10,6 +10,10 @@ import android.nfc.NdefRecord
 import android.nfc.NfcAdapter
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.widget.LinearLayout
+import android.widget.PopupMenu
+import android.widget.TextView
+import android.widget.Toast
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.GetAmountActivity
@@ -58,6 +62,53 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         activateNfc()
 
         initDatabinding(account)
+
+        createAddressDropdown()
+    }
+
+    private fun createAddressDropdown() {
+        val ll : LinearLayout =  findViewById(R.id.address_dropdown_layout)
+        val tv : TextView =  findViewById(R.id.tv_address_selected)
+
+        val addressTypesMenu = PopupMenu(this,ll)
+        ll.setOnClickListener {
+            addressTypesMenu.show()
+            Toast.makeText(this, "Toast", Toast.LENGTH_SHORT).show()
+        }
+
+        addressTypesMenu.menu.add("Legacy (P2PKH)")
+        addressTypesMenu.menu.add("SegWit compatible (P2SH)")
+        addressTypesMenu.menu.add("SegWit native (Bech32)")
+
+        tv.text = "SegWit compatible (P2SH)"
+
+
+
+//        val exchangeRateManager = _mbwManager.getExchangeRateManager()
+//        val sources = exchangeRateManager.getExchangeSourceNames()
+//        val sourcesAndValues = HashMap<String, String>() // Needed for popup menu
+//
+//        for (i in sources.indices) {
+//            val source = sources.get(i)
+//            val exchangeRate = exchangeRateManager.getExchangeRate(_mbwManager.getFiatCurrency(), source)
+//            val price = if (exchangeRate == null || exchangeRate!!.price == null)
+//                "not available"
+//            else
+//                BigDecimal(exchangeRate!!.price).setScale(2, BigDecimal.ROUND_DOWN).toPlainString() + " " + _mbwManager.getFiatCurrency()
+//            val item: String
+//            if (_mbwManager.getSelectedAccount().getType() == WalletAccount.Type.COLU) {
+//                item = COINMARKETCAP + "/" + source
+//            } else {
+//                item = source + " (" + price + ")"
+//            }
+//            sourcesAndValues[item] = source
+//            exchangeMenu.menu.add(item)
+//        }
+//        exchangeMenu.setOnMenuItemClickListener { item ->
+//            _mbwManager.getExchangeRateManager().setCurrentExchangeSourceName(sourcesAndValues[item.title.toString()])
+//            false
+//        }
+
     }
 
     override fun onStart() {
