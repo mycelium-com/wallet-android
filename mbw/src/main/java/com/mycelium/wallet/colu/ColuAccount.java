@@ -569,11 +569,15 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
                 }
             }
 
-            details = new TransactionDetails(
-                txid, extendedInfo.height, extendedInfo.time,
-                inputs.toArray(new TransactionDetails.Item[inputs.size()]),
-                outputs.toArray(new TransactionDetails.Item[outputs.size()]),
-                extendedInfo.binary.length);
+            try {
+                details = new TransactionDetails(
+                    txid, extendedInfo.height, extendedInfo.time,
+                    inputs.toArray(new TransactionDetails.Item[inputs.size()]),
+                    outputs.toArray(new TransactionDetails.Item[outputs.size()]),
+                    Transaction.fromBytes(extendedInfo.binary).toBytes(false).length);
+            } catch (Transaction.TransactionParsingException e) {
+                e.printStackTrace();
+            }
         }
 
         return details;
