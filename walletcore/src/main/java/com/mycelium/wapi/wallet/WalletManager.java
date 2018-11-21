@@ -557,6 +557,19 @@ public class WalletManager {
     }
 
     /**
+     * Get the IDs of the accounts managed by the wallet manager. Would return non-virtual IDs only
+     *
+     * @return the IDs of the accounts managed by the wallet manager
+     */
+    public Collection<UUID> getUniqueIds() {
+        Set<UUID> idSet = new HashSet<>();
+        for (WalletAccount account : getAllAccounts()) {
+            idSet.add(account.getId());
+        }
+        return idSet;
+    }
+
+    /**
      * Get the active accounts managed by the wallet manager, excluding on-the-fly-accounts
      *
      * @return the active accounts managed by the wallet manager
@@ -754,7 +767,7 @@ public class WalletManager {
         StringBuilder sb = new StringBuilder();
         int Bip44Accounts = 0;
         int simpleAccounts = 0;
-        for (UUID id : getAccountIds()) {
+        for (UUID id : getUniqueIds()) {
             if (_walletAccounts.get(id) instanceof HDAccount) {
                 Bip44Accounts++;
             } else if (_walletAccounts.get(id) instanceof SingleAddressAccount) {
