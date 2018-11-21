@@ -54,6 +54,7 @@ import com.mycelium.wallet.activity.StringHandlerActivity;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.single.SingleAddressBCHAccount;
 
@@ -189,11 +190,12 @@ public class VerifyBackupActivity extends Activity {
       UUID account = null;
       boolean success = false;
       Collection<Address> allAddresses = null;
+      WalletManager walletManager = _mbwManager.getWalletManager(false);
       for (Address currentAddress : pk.getPublicKey().getAllSupportedAddresses(_mbwManager.getNetwork()).values()) {
          // Figure out the account ID
          account = SingleAddressAccount.calculateId(currentAddress);
          // Check whether regular wallet contains that account
-         success = _mbwManager.getWalletManager(false).hasAccount(account)
+         success = walletManager.hasAccount(account)
                  || _mbwManager.getColuManager().hasAccount(account);
          if (success) {
             allAddresses = pk.getPublicKey().getAllSupportedAddresses(_mbwManager.getNetwork()).values();
@@ -207,16 +209,18 @@ public class VerifyBackupActivity extends Activity {
       }
 
       if (success) {
-         _mbwManager.getMetadataStorage().setOtherAccountBackupState(account, MetadataStorage.BackupState.VERIFIED);
+         for (UUID uuid : walletManager.getAccountVirtualIds((SingleAddressAccount) walletManager.getAccount(account))){
+            _mbwManager.getMetadataStorage().setOtherAccountBackupState(uuid, MetadataStorage.BackupState.VERIFIED);
+         }
          for (ColuAccount.ColuAsset coluAsset : ColuAccount.ColuAsset.getAssetMap().values()) {
             UUID coluUUID = ColuAccount.getGuidForAsset(coluAsset, pk.getPublicKey().toAddress(_mbwManager.getNetwork(), AddressType.P2PKH).getAllAddressBytes());
             _mbwManager.getMetadataStorage().setOtherAccountBackupState(coluUUID, MetadataStorage.BackupState.VERIFIED);
          }
          updateUi();
          List<String> addressList = new ArrayList<>();
-         for (Address address : allAddresses){
-              addressList.add(address.toMultiLineString());
-          }
+         for (Address address : allAddresses) {
+            addressList.add(address.toMultiLineString());
+         }
          String label = _mbwManager.getMetadataStorage().getLabelByAccount(account);
 
          String addresses = TextUtils.join("\n\n", addressList);
