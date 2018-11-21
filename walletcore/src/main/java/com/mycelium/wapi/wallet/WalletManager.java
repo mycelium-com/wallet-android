@@ -1528,7 +1528,7 @@ public class WalletManager {
      * This method is intended to get all possible ids for mixed HD account.
      */
     @Nonnull
-    private List<UUID> getAccountVirtualIds(Map<BipDerivationType, HDAccountKeyManager> keyManagerMap, HDAccount account) {
+    public List<UUID> getAccountVirtualIds(Map<BipDerivationType, HDAccountKeyManager> keyManagerMap, HDAccount account) {
         final List<UUID> uuidList = new ArrayList<>();
         for (AddressType addressType : account.getAvailableAddressTypes()) {
             uuidList.add(keyManagerMap.get(BipDerivationType.Companion.getDerivationTypeByAddressType(addressType)).getAccountId());
@@ -1540,7 +1540,7 @@ public class WalletManager {
      * This method is intended to get all possible ids for mixed HD account.
      */
     @Nonnull
-    private List<UUID> getAccountVirtualIds(Map<BipDerivationType, HDAccountKeyManager> keyManagerMap, List<BipDerivationType> derivationTypes) {
+    public List<UUID> getAccountVirtualIds(Map<BipDerivationType, HDAccountKeyManager> keyManagerMap, List<BipDerivationType> derivationTypes) {
         final List<UUID> uuidList = new ArrayList<>();
         for (BipDerivationType derivationType : derivationTypes) {
             uuidList.add(keyManagerMap.get(derivationType).getAccountId());
@@ -1552,7 +1552,7 @@ public class WalletManager {
      * This method is intended to get all possible ids for mixed SA account.
      */
     @Nonnull
-    private List<UUID> getAccountVirtualIds(SingleAddressAccount account) {
+    public List<UUID> getAccountVirtualIds(SingleAddressAccount account) {
         final List<UUID> uuidList = new ArrayList<>();
         for (AddressType addressType: account.getAvailableAddressTypes()) {
             PublicKey publicKey = account.getPublicKey();
@@ -1569,7 +1569,7 @@ public class WalletManager {
      * This method is intended to get all possible ids for mixed SA account.
      */
     @Nonnull
-    private List<UUID> getAccountVirtualIds(PublicKey publicKey) {
+    public List<UUID> getAccountVirtualIds(PublicKey publicKey) {
         final List<UUID> uuidList = new ArrayList<>();
         for (AddressType addressType: AddressType.values()) {
             uuidList.add(SingleAddressAccount.calculateId(publicKey.toAddress(_network, addressType)));
