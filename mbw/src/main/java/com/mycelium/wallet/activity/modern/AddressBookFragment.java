@@ -56,16 +56,12 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.model.AddressType;
-import com.mycelium.wallet.AccountManager;
 import com.mycelium.wallet.AddressBookManager;
 import com.mycelium.wallet.AddressBookManager.Entry;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.StringHandleConfig;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.StringHandlerActivity;
@@ -73,19 +69,16 @@ import com.mycelium.wallet.activity.modern.adapter.AddressBookAdapter;
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil.AddressLabelChangedHandler;
+import com.mycelium.wallet.content.HandleConfigFactory;
+import com.mycelium.wallet.content.ResultType;
+import com.mycelium.wallet.content.StringHandleConfig;
 import com.mycelium.wallet.event.AddressBookChanged;
 import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.bch.coins.BchMain;
-import com.mycelium.wapi.wallet.bch.coins.BchTest;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
-import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
-import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
-import com.mycelium.wapi.wallet.colu.coins.*;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
@@ -349,7 +342,7 @@ public class AddressBookFragment extends Fragment {
 
             @Override
             public void onClick(View v) {
-               StringHandleConfig request = StringHandleConfig.getAddressBookScanRequest();
+               StringHandleConfig request = HandleConfigFactory.getAddressBookScanRequest();
                ScanActivity.callMe(AddressBookFragment.this, SCAN_RESULT_CODE, request);
                AddDialog.this.dismiss();
             }
@@ -427,15 +420,18 @@ public class AddressBookFragment extends Fragment {
          }
          return;
       }
-      StringHandlerActivity.ResultType type = (StringHandlerActivity.ResultType) intent.getSerializableExtra(StringHandlerActivity.RESULT_TYPE_KEY);
-      if (type == StringHandlerActivity.ResultType.PRIVATE_KEY) {
-         Utils.showSimpleMessageDialog(getActivity(), R.string.addressbook_cannot_add_private_key);
-         return;
+      ResultType type = (ResultType) intent.getSerializableExtra(StringHandlerActivity.RESULT_TYPE_KEY);
+      switch (type) {
+         case PRIVATE_KEY:
+            Utils.showSimpleMessageDialog(getActivity(), R.string.addressbook_cannot_add_private_key);
+            break;
+         case ASSET_URI:
+            addFromAddress(StringHandlerActivity.getAssetUri(intent).getAddress());
+            break;
+         case ADDRESS:
+            addFromAddress(StringHandlerActivity.getAddress(intent));
+            break;
       }
-      Preconditions.checkState(type == StringHandlerActivity.ResultType.ADDRESS);
-      Address address = StringHandlerActivity.getAddress(intent);
-
-      addFromAddress(AddressUtils.fromAddress(address));
    }
 
    private void addFromAddress(GenericAddress address) {

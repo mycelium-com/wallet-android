@@ -175,7 +175,7 @@ public class MetadataStorage extends GenericMetadataStorage {
       return addresses;
    }
 
-   public String getLabelByAddress(Address address) {
+   public String getLabelByAddress(GenericAddress address) {
       return getKeyCategoryValueEntry(ADDRESSLABEL_CATEGORY.of(address.toString()), "");
    }
 

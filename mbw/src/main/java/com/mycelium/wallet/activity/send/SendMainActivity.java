@@ -77,20 +77,18 @@ import com.mrd.bitlib.model.OutputList;
 import com.mrd.bitlib.model.UnspentTransactionOutput;
 import com.mycelium.paymentrequest.PaymentRequestException;
 import com.mycelium.paymentrequest.PaymentRequestInformation;
-import com.mycelium.wallet.BitcoinUri;
 import com.mycelium.wallet.BitcoinUriWithAddress;
-import com.mycelium.wallet.ColuAssetUri;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.MinerFee;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.StringHandleConfig;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.GetAmountActivity;
 import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.StringHandlerActivity;
 import com.mycelium.wallet.activity.modern.AddressBookFragment;
 import com.mycelium.wallet.activity.modern.GetFromAddressBookActivity;
+import com.mycelium.wallet.activity.pop.PopActivity;
 import com.mycelium.wallet.activity.send.adapter.AddressViewAdapter;
 import com.mycelium.wallet.activity.send.adapter.FeeLvlViewAdapter;
 import com.mycelium.wallet.activity.send.adapter.FeeViewAdapter;
@@ -103,12 +101,19 @@ import com.mycelium.wallet.activity.send.model.FeeLvlItem;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
 import com.mycelium.wallet.activity.util.AnimationUtils;
 import com.mycelium.wallet.activity.util.ValueExtentionsKt;
+import com.mycelium.wallet.content.ColuAssetUri;
+import com.mycelium.wallet.content.HandleConfigFactory;
+import com.mycelium.wallet.content.ResultType;
+import com.mycelium.wallet.content.StringHandleConfig;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wallet.event.SyncFailed;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.paymentrequest.PaymentRequestHandler;
+import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.api.response.Feature;
+import com.mycelium.wapi.content.GenericAssetUri;
+import com.mycelium.wapi.content.btc.BitcoinUri;
 import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.BroadcastResult;
@@ -275,7 +280,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     private List<GenericAddress> receivingAddressesList = new ArrayList<>();
     private String _receivingLabel;
     protected String _transactionLabel;
-    private BitcoinUri _bitcoinUri;
+    private GenericAssetUri _bitcoinUri;
     private ColuAssetUri _coluAssetUri;
     protected boolean _isColdStorage;
     private TransactionStatus _transactionStatus;
@@ -316,7 +321,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     }
 
     public static Intent getIntent(Activity currentActivity, UUID account,
-                                   Long amountToSend, Address receivingAddress, boolean isColdStorage) {
+                                   Long amountToSend, GenericAddress receivingAddress, boolean isColdStorage) {
         return getIntent(currentActivity, account, isColdStorage)
                 .putExtra(AMOUNT, Value.valueOf(
                         BitcoinTest.get(), // todo get valuetype depending on the account
@@ -329,9 +334,17 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                 .putExtra(HD_KEY, hdKey);
     }
 
-    public static Intent getIntent(Activity currentActivity, UUID account, BitcoinUri uri, boolean isColdStorage) {
-        return getIntent(currentActivity, account, uri.amount, uri.address, isColdStorage)
-                .putExtra(TRANSACTION_LABEL, uri.label)
+//    public static Intent getIntent(Activity currentActivity, UUID account, BitcoinUri uri, boolean isColdStorage) {
+//        return getIntent(currentActivity, account, uri.amount, uri.address, isColdStorage)
+//                .putExtra(TRANSACTION_LABEL, uri.label)
+//                .putExtra(BITCOIN_URI, uri);
+//    }
+
+    public static Intent getIntent(Activity currentActivity, UUID account, GenericAssetUri uri, boolean isColdStorage) {
+        return getIntent(currentActivity, account, isColdStorage)
+                .putExtra(AMOUNT, uri.getValue())
+                .putExtra(RECEIVING_ADDRESS, uri.getAddress())
+                .putExtra(TRANSACTION_LABEL, uri.getLabel())
                 .putExtra(BITCOIN_URI, uri);
     }
 
@@ -377,7 +390,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         //May be null
         _transactionLabel = getIntent().getStringExtra(TRANSACTION_LABEL);
         //May be null
-        _bitcoinUri = (BitcoinUri) getIntent().getSerializableExtra(BITCOIN_URI);
+        _bitcoinUri = (GenericAssetUri) getIntent().getSerializableExtra(BITCOIN_URI);
         //May be null
         _coluAssetUri = (ColuAssetUri) getIntent().getSerializableExtra(RMC_URI);
 
@@ -426,9 +439,9 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             _transactionStatus = tryCreateUnsignedTransaction();
         } else {
             //we need the user to pick a spending account - the activity will then init sendmain correctly
-            BitcoinUri uri;
+            GenericAssetUri uri;
             if (_bitcoinUri == null) {
-                uri = BitcoinUri.from(((BtcAddress)_receivingAddress).getAddress(),
+                uri = BitcoinUri.from(_receivingAddress,
                         getValueToSend() == null ? null : getValueToSend().getValue(), _transactionLabel, null);
             } else {
                 uri = _bitcoinUri;
@@ -451,8 +464,9 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         }
 
         // lets check whether we got a payment request uri and need to fetch payment data
-        if (_bitcoinUri != null && !Strings.isNullOrEmpty(_bitcoinUri.callbackURL) && _paymentRequestHandler == null) {
-            verifyPaymentRequest(_bitcoinUri);
+        if (_bitcoinUri != null && _bitcoinUri instanceof BitcoinUri
+                && !Strings.isNullOrEmpty(((BitcoinUri) _bitcoinUri).getCallbackURL()) && _paymentRequestHandler == null) {
+            verifyPaymentRequest((BitcoinUri) _bitcoinUri);
         }
 
         //Remove Miner fee if coinapult or colu
@@ -698,8 +712,8 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     }
 
     private void verifyPaymentRequest(BitcoinUri uri) {
-        Intent intent = VerifyPaymentRequestActivity.getIntent(this, uri);
-        startActivityForResult(intent, REQUEST_PAYMENT_HANDLER);
+//        Intent intent = VerifyPaymentRequestActivity.getIntent(this, uri);
+//        startActivityForResult(intent, REQUEST_PAYMENT_HANDLER);
     }
 
     private void verifyPaymentRequest(byte[] rawPr) {
@@ -738,14 +752,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 
     @OnClick(R.id.btScan)
     void onClickScan() {
-        StringHandleConfig config = StringHandleConfig.returnKeyOrAddressOrUriOrKeynode();
-
-        WalletAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
-        if(account instanceof ColuAccount) {
-            config.bitcoinUriAction = StringHandleConfig.BitcoinUriAction.SEND_COLU_ASSET;
-            config.bitcoinUriWithAddressAction = StringHandleConfig.BitcoinUriWithAddressAction.SEND_COLU_ASSET;
-        }
-
+        StringHandleConfig config = HandleConfigFactory.returnKeyOrAddressOrUriOrKeynode();
         ScanActivity.callMe(this, SCAN_RESULT_CODE, config);
     }
 
@@ -1263,7 +1270,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         Optional<UUID> accountId = _mbwManager.getAccountId(address, isColu() ? ColuAccount.class : null);
         if (!accountId.isPresent()) {
             // We don't have it in our accounts, look in address book, returns empty string by default
-            return _mbwManager.getMetadataStorage().getLabelByAddress(((BtcAddress)address).getAddress());
+            return _mbwManager.getMetadataStorage().getLabelByAddress(address);
         }
         // Get the name of the account
         return _mbwManager.getMetadataStorage().getLabelByAccount(accountId.get());
@@ -1525,52 +1532,51 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                     }
                 }
             } else {
-                StringHandlerActivity.ResultType type = (StringHandlerActivity.ResultType) intent.getSerializableExtra(StringHandlerActivity.RESULT_TYPE_KEY);
-                if (type == StringHandlerActivity.ResultType.PRIVATE_KEY) {
-                    InMemoryPrivateKey key = StringHandlerActivity.getPrivateKey(intent);
-                    PublicKey publicKey = key.getPublicKey();
-                    for (AddressType addressType: AddressType.values()) {
-                        Address address = publicKey.toAddress(_mbwManager.getNetwork(), addressType);
-                        _receivingAddress = AddressUtils.fromAddress(address);   //TODO SegWit fix
-                    }
-                    setUpMultiAddressView();
-                } else if (type == StringHandlerActivity.ResultType.ADDRESS) {
-                    Address address = StringHandlerActivity.getAddress(intent);
-                    _receivingAddress = AddressUtils.fromAddress(address);
-                } else if (type == StringHandlerActivity.ResultType.URI_WITH_ADDRESS) {
-                    BitcoinUriWithAddress uri = StringHandlerActivity.getUriWithAddress(intent);
-                    if (uri.callbackURL != null) {
-                        //we contact the merchant server instead of using the params
-                        _bitcoinUri = uri;
-                        _paymentFetched = false;
-                        verifyPaymentRequest(_bitcoinUri);
-                        return;
-                    }
-                    _receivingAddress = AddressUtils.fromAddress(uri.address);
-                    _transactionLabel = uri.label;
-                    if (uri.amount != null && uri.amount > 0) {
-                        //we set the amount to the one contained in the qr code, even if another one was entered previously
-                        if (!Value.isNullOrZero(_amountToSend)) {
-                            makeText(this, R.string.amount_changed, LENGTH_LONG).show();
+                ResultType type = (ResultType) intent.getSerializableExtra(StringHandlerActivity.RESULT_TYPE_KEY);
+                switch (type) {
+                    case PRIVATE_KEY:
+                        InMemoryPrivateKey key = StringHandlerActivity.getPrivateKey(intent);
+                        PublicKey publicKey = key.getPublicKey();
+                        for (AddressType addressType : AddressType.values()) {
+                            Address address = publicKey.toAddress(_mbwManager.getNetwork(), addressType);
+                            _receivingAddress = AddressUtils.fromAddress(address);   //TODO SegWit fix
                         }
-                        setAmountToSend(Value.valueOf(_amountToSend.getType(), uri.amount));
-                    }
-                } else if (type == StringHandlerActivity.ResultType.URI) {
-                    //todo: maybe merge with BitcoinUriWithAddress ?
-                    BitcoinUri uri = StringHandlerActivity.getUri(intent);
-                    if (uri.callbackURL != null) {
-                        //we contact the merchant server instead of using the params
-                        _bitcoinUri = uri;
-                        _paymentFetched = false;
-                        verifyPaymentRequest(_bitcoinUri);
-                        return;
-                    }
-                } else if (type == StringHandlerActivity.ResultType.HD_NODE) {
-                    setReceivingAddressFromKeynode(StringHandlerActivity.getHdKeyNode(intent));
-                } else {
-                    throw new IllegalStateException("Unexpected result type from scan: " + type.toString());
+                        setUpMultiAddressView();
+                        break;
+                    case ADDRESS:
+                        _receivingAddress = StringHandlerActivity.getAddress(intent);
+                        break;
+                    case ASSET_URI:
+                        GenericAssetUri uri = StringHandlerActivity.getAssetUri(intent);
+                        if (uri instanceof BitcoinUri && ((BitcoinUri) uri).getCallbackURL() != null) {
+                            //we contact the merchant server instead of using the params
+                            _bitcoinUri = uri;
+                            _paymentFetched = false;
+                            verifyPaymentRequest((BitcoinUri) _bitcoinUri);
+                            return;
+                        }
+                        _receivingAddress = uri.getAddress();
+                        _transactionLabel = uri.getLabel();
+                        if (uri.getValue() != null && uri.getValue().isPositive()) {
+                            //we set the amount to the one contained in the qr code, even if another one was entered previously
+                            if (!Value.isNullOrZero(_amountToSend)) {
+                                makeText(this, R.string.amount_changed, LENGTH_LONG).show();
+                            }
+                            setAmountToSend(uri.getValue());
+                        }
+                        break;
+                    case HD_NODE:
+                        setReceivingAddressFromKeynode(StringHandlerActivity.getHdKeyNode(intent));
+                        break;
+                    case POP_REQUEST:
+                        PopRequest popRequest = StringHandlerActivity.getPopRequest(intent);
+                        startActivity(new Intent(this, PopActivity.class)
+                                .putExtra("popRequest", popRequest)
+                                .addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
+                        break;
+                    default:
+                        throw new IllegalStateException("Unexpected result type from scan: " + type.toString());
                 }
-
             }
 
             _transactionStatus = tryCreateUnsignedTransaction();

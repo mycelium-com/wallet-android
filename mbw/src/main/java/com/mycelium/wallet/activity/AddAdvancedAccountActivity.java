@@ -55,19 +55,20 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.common.base.Optional;
+import com.mrd.bitlib.crypto.BipSss;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
-import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.StringHandleConfig;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.util.ImportCoCoHDAccount;
 import com.mycelium.wallet.activity.util.ValueExtentionsKt;
+import com.mycelium.wallet.content.HandleConfigFactory;
+import com.mycelium.wallet.content.ResultType;
 import com.mycelium.wallet.extsig.keepkey.activity.KeepKeyAccountImportActivity;
 import com.mycelium.wallet.extsig.ledger.activity.LedgerAccountImportActivity;
 import com.mycelium.wallet.extsig.trezor.activity.TrezorAccountImportActivity;
@@ -86,7 +87,6 @@ import com.mycelium.wapi.wallet.btc.bip44.UnrelatedHDAccountConfig;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.btc.single.AddressSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.PrivateSingleConfig;
-import com.mycelium.wapi.wallet.btc.single.PublicSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
@@ -94,7 +94,6 @@ import com.mycelium.wapi.wallet.colu.AddressColuConfig;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
 import com.mycelium.wapi.wallet.colu.ColuUtils;
 import com.mycelium.wapi.wallet.colu.PrivateColuConfig;
-import com.mycelium.wapi.wallet.colu.PublicColuConfig;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
 import com.mycelium.wapi.wallet.colu.coins.MTCoin;
@@ -150,7 +149,7 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
 
          @Override
          public void onClick(View v) {
-            ScanActivity.callMe(activity, SCAN_RESULT_CODE, StringHandleConfig.returnKeyOrAddressOrHdNode());
+            ScanActivity.callMe(activity, SCAN_RESULT_CODE, HandleConfigFactory.returnKeyOrAddressOrHdNode());
          }
 
       });
@@ -217,7 +216,7 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
       super.onResume();
 
       StringHandlerActivity.ParseAbility canHandle = StringHandlerActivity.canHandle(
-              StringHandleConfig.returnKeyOrAddressOrHdNode(),
+              HandleConfigFactory.returnKeyOrAddressOrHdNode(),
               Utils.getClipboardString(AddAdvancedAccountActivity.this),
               MbwManager.getInstance(this).getNetwork());
 
@@ -235,7 +234,7 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
          @Override
          public void onClick(View v) {
             Intent intent = StringHandlerActivity.getIntent(AddAdvancedAccountActivity.this,
-                    StringHandleConfig.returnKeyOrAddressOrHdNode(),
+                    HandleConfigFactory.returnKeyOrAddressOrHdNode(),
                     Utils.getClipboardString(AddAdvancedAccountActivity.this));
 
             startActivityForResult(intent, CLIPBOARD_RESULT_CODE);
@@ -246,9 +245,9 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
    /**
     * SA watch only accounts import method.
     */
-   private void returnAccount(Address address) {
+   private void returnAccount(GenericAddress address) {
       //UUID acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(address);
-      new ImportReadOnlySingleAddressAccountAsyncTask(AddressUtils.fromAddress(address), AccountType.Unknown).execute();
+      new ImportReadOnlySingleAddressAccountAsyncTask(address, AccountType.Unknown).execute();
    }
 
    /**
@@ -325,26 +324,37 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
          if (resultCode == Activity.RESULT_OK) {
             boolean fromClipboard = (requestCode == CLIPBOARD_RESULT_CODE);
 
-            StringHandlerActivity.ResultType type = (StringHandlerActivity.ResultType) intent.getSerializableExtra(StringHandlerActivity.RESULT_TYPE_KEY);
-            if (type == StringHandlerActivity.ResultType.PRIVATE_KEY) {
-               InMemoryPrivateKey key = StringHandlerActivity.getPrivateKey(intent);
-               if (fromClipboard) {
-                  Utils.clearClipboardString(AddAdvancedAccountActivity.this);
-               }
+            ResultType type = (ResultType) intent.getSerializableExtra(StringHandlerActivity.RESULT_TYPE_KEY);
+            switch (type) {
+               case PRIVATE_KEY:
+                  InMemoryPrivateKey key = StringHandlerActivity.getPrivateKey(intent);
+                  if (fromClipboard) {
+                     Utils.clearClipboardString(AddAdvancedAccountActivity.this);
+                  }
 
-               // We imported this key from somewhere else - so we guess, that there exists an backup
-               returnAccount(key, MetadataStorage.BackupState.IGNORED, AccountType.Unknown);
-            } else if (type == StringHandlerActivity.ResultType.ADDRESS) {
-               Address address = StringHandlerActivity.getAddress(intent);
-               returnAccount(address);
-            } else if (type == StringHandlerActivity.ResultType.HD_NODE) {
-               final HdKeyNode hdKeyNode = StringHandlerActivity.getHdKeyNode(intent);
-               if (fromClipboard && hdKeyNode.isPrivateHdKeyNode()) {
-                  Utils.clearClipboardString(AddAdvancedAccountActivity.this);
-               }
-               processNode(hdKeyNode);
-            } else {
-               throw new IllegalStateException("Unexpected result type from scan: " + type.toString());
+                  // We imported this key from somewhere else - so we guess, that there exists an backup
+                  returnAccount(key, MetadataStorage.BackupState.IGNORED, AccountType.Unknown);
+                  break;
+               case ADDRESS:
+                  returnAccount(StringHandlerActivity.getAddress(intent));
+                  break;
+               case HD_NODE:
+                  final HdKeyNode hdKeyNode = StringHandlerActivity.getHdKeyNode(intent);
+                  if (fromClipboard && hdKeyNode.isPrivateHdKeyNode()) {
+                     Utils.clearClipboardString(AddAdvancedAccountActivity.this);
+                  }
+                  processNode(hdKeyNode);
+                  break;
+               case ASSET_URI:
+                  // uri result must be with address, can check request HandleConfigFactory.returnKeyOrAddressOrHdNode
+                  returnAccount(StringHandlerActivity.getAssetUri(intent).getAddress());
+                  break;
+               case SHARE:
+                  BipSss.Share share = StringHandlerActivity.getShare(intent);
+                  BipSsImportActivity.callMe(this, share, StringHandlerActivity.IMPORT_SSS_CONTENT_CODE);
+                  break;
+               default:
+                  throw new IllegalStateException("Unexpected result type from scan: " + type.toString());
             }
          } else {
             ScanActivity.toastScanError(resultCode, intent, this);

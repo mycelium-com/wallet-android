@@ -61,7 +61,7 @@ public class EnterAddressLabelUtil {
    public static void enterAddressLabel(Context context, MetadataStorage storage, GenericAddress address,
                                         String defaultName, AddressLabelChangedHandler changeHandler) {
       String hintText = context.getResources().getString(R.string.name);
-      String currentName = storage.getLabelByAddress(Address.fromString(address.toString()));
+      String currentName = storage.getLabelByAddress(address);
       int title_id;
       if (currentName.length() == 0) {
          title_id = R.string.enter_address_label_title;

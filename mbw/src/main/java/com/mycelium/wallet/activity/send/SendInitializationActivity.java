@@ -43,12 +43,12 @@ import android.view.View;
 import android.view.Window;
 
 import com.google.common.base.Preconditions;
-import com.mycelium.wallet.BitcoinUri;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.event.SyncFailed;
 import com.mycelium.wallet.event.SyncStopped;
+import com.mycelium.wapi.content.GenericAssetUri;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.squareup.otto.Subscribe;
 
@@ -57,7 +57,7 @@ import java.util.UUID;
 public class SendInitializationActivity extends Activity {
    private MbwManager _mbwManager;
    private WalletAccount _account;
-   private BitcoinUri _uri;
+   private GenericAssetUri _uri;
    private boolean _isColdStorage;
    private Handler _synchronizingHandler;
    private Handler _slowNetworkHandler;
@@ -65,22 +65,26 @@ public class SendInitializationActivity extends Activity {
 
    public static void callMe(Activity currentActivity, UUID account, boolean isColdStorage) {
       //we dont know anything specific yet
-      BitcoinUri uri = new BitcoinUri(null, null, null);
-      Intent intent = prepareSendingIntent(currentActivity, account, uri, isColdStorage)
+      Intent intent = prepareSendingIntent(currentActivity, account, (GenericAssetUri) null, isColdStorage)
               .addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
       currentActivity.startActivity(intent);
    }
 
    public static Intent getIntent(Activity currentActivity, UUID account, boolean isColdStorage) {
-      return prepareSendingIntent(currentActivity, account, (BitcoinUri)null, isColdStorage);
+      return prepareSendingIntent(currentActivity, account, (GenericAssetUri)null, isColdStorage);
    }
 
-   public static void callMeWithResult(Activity currentActivity, UUID account, BitcoinUri uri, boolean isColdStorage, int request) {
+   public static void callMeWithResult(Activity currentActivity, UUID account, GenericAssetUri uri, boolean isColdStorage, int request) {
       Intent intent = prepareSendingIntent(currentActivity, account, uri, isColdStorage);
       currentActivity.startActivityForResult(intent, request);
    }
 
-   public static void callMe(Activity currentActivity, UUID account, BitcoinUri uri, boolean isColdStorage) {
+   public static void callMeWithResult(Activity currentActivity, UUID account, boolean isColdStorage, int request) {
+      Intent intent = prepareSendingIntent(currentActivity, account, (GenericAssetUri)null, isColdStorage);
+      currentActivity.startActivityForResult(intent, request);
+   }
+
+   public static void callMe(Activity currentActivity, UUID account, GenericAssetUri uri, boolean isColdStorage) {
       Intent intent = prepareSendingIntent(currentActivity, account, uri, isColdStorage)
               .addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
       currentActivity.startActivity(intent);
@@ -92,7 +96,7 @@ public class SendInitializationActivity extends Activity {
       currentActivity.startActivity(intent);
    }
 
-   private static Intent prepareSendingIntent(Activity currentActivity, UUID account, BitcoinUri uri, boolean isColdStorage) {
+   private static Intent prepareSendingIntent(Activity currentActivity, UUID account, GenericAssetUri uri, boolean isColdStorage) {
       return new Intent(currentActivity, SendInitializationActivity.class)
               .putExtra("account", account)
               .putExtra("uri", uri)
@@ -119,7 +123,7 @@ public class SendInitializationActivity extends Activity {
       // Get intent parameters
       UUID accountId = Preconditions.checkNotNull((UUID) getIntent().getSerializableExtra("account"));
 
-      _uri = (BitcoinUri) getIntent().getSerializableExtra("uri");
+      _uri = (GenericAssetUri) getIntent().getSerializableExtra("uri");
       _rawPr =  getIntent().getByteArrayExtra("rawPr");
       _isColdStorage = getIntent().getBooleanExtra("isColdStorage", false);
       String crashHint = TextUtils.join(", ", getIntent().getExtras().keySet()) + " (account id was " + accountId + ")";
@@ -209,8 +213,10 @@ public class SendInitializationActivity extends Activity {
          Intent intent;
          if (_rawPr != null) {
             intent = SendMainActivity.getIntent(this, _account.getId(), _rawPr, false);
-         } else {
+         } else if (_uri != null) {
             intent = SendMainActivity.getIntent(this, _account.getId(), _uri, false);
+         } else {
+            intent = SendMainActivity.getIntent(this, _account.getId(), false);
          }
          intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
          this.startActivity(intent);
