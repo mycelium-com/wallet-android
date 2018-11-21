@@ -32,10 +32,10 @@ class SetSegwitChangeActivity : AppCompatActivity() {
 
         // set selected. *2 because we have texviews
         val curMode = mbwManager.changeAddressMode
-        (radioGroup.getChildAt(curMode.ordinal * 2) as RadioButton).isChecked = true
+        (radioGroup.getChildAt(curMode.ordinal * 2 + 1) as RadioButton).isChecked = true
 
         // click listener. Also works on text views
-        for (i in 0 until radioGroup.childCount) {
+        for (i in 1 until radioGroup.childCount) {
             radioGroup.getChildAt(i).setOnClickListener { view ->
                 val clickedTag = view.tag.toString()
                 mbwManager.changeAddressMode = ChangeAddressMode.valueOf(clickedTag)
