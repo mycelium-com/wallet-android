@@ -561,24 +561,32 @@ open class HDAccount(
     @Throws(InvalidKeyCipher::class)
     public override fun getPrivateKeyForAddress(address: Address, cipher: KeyCipher): InMemoryPrivateKey? {
         val derivationType = getDerivationTypeByAddress(address)
-        val indexLookUp = getIndexLookup(address, derivationType)
-        return if (indexLookUp == null) {
-            // still not found? give up...
-            null
-        } else {
-            keyManagerMap[derivationType]!!.getPrivateKey(indexLookUp.isChange, indexLookUp.index!!, cipher)
+        if (availableAddressTypes.contains(address.type)) {
+            val indexLookUp = getIndexLookup(address, derivationType)
+            return if (indexLookUp == null) {
+                // still not found? give up...
+                null
+            } else {
+                keyManagerMap[derivationType]!!.getPrivateKey(indexLookUp.isChange, indexLookUp.index!!, cipher)
+            }
+        } else{
+            return null
         }
     }
 
     override fun getPublicKeyForAddress(address: Address): PublicKey? {
         val derivationType = getDerivationTypeByAddress(address)
-        val indexLookUp = getIndexLookup(address, derivationType)
-        return if (indexLookUp == null) {
-            // still not found? give up...
-            null
+        if (availableAddressTypes.contains(address.type)) {
+            val indexLookUp = getIndexLookup(address, derivationType)
+            return if (indexLookUp == null) {
+                // still not found? give up...
+                null
+            } else {
+                Preconditions.checkNotNull(keyManagerMap[derivationType]!!.getPublicKey(indexLookUp.isChange, indexLookUp
+                        .index!!))
+            }
         } else {
-            Preconditions.checkNotNull(keyManagerMap[derivationType]!!.getPublicKey(indexLookUp.isChange, indexLookUp
-                    .index!!))
+            return null
         }
     }
 
