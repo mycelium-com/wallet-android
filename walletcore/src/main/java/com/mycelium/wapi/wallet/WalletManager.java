@@ -1293,13 +1293,13 @@ public class WalletManager {
             // No master seed
             return false;
         }
-        if (getNextBip44Index() == 0) {
-            // First account not created
-            return true;
+
+        for (HDAccount account : hdAccounts) {
+            if (!account.hasHadActivity()) {
+                return false;
+            }
         }
-        // We can add an additional account if the last account had activity
-        HDAccount last = hdAccounts.get(hdAccounts.size() - 1);
-        return last.hasHadActivity();
+        return true;
     }
 
     public void removeUnusedBip44Account(HDAccount account) {
