@@ -562,11 +562,11 @@ public class WalletManager {
      * @return the IDs of the accounts managed by the wallet manager
      */
     public Collection<UUID> getUniqueIds() {
-        Map<WalletAccount, UUID> map = new ArrayMap<>();
+        Set<UUID> idSet = new HashSet<>();
         for (WalletAccount account : getAllAccounts()) {
-            map.put(account, account.getId());
+            idSet.add(account.getId());
         }
-        return map.values();
+        return idSet;
     }
 
     /**
