@@ -50,7 +50,7 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/address_dropdown_layout"
+            android:id="@+id/addressDropdownLayout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -58,7 +58,7 @@
             android:gravity="center">
 
             <TextView
-                android:id="@+id/tv_address_selected"
+                android:id="@+id/selectedAddressText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"

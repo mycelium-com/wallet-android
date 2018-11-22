@@ -10,9 +10,7 @@ import android.nfc.NdefRecord
 import android.nfc.NfcAdapter
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import android.widget.LinearLayout
 import android.widget.PopupMenu
-import android.widget.TextView
 import com.mrd.bitlib.model.AddressType
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
@@ -29,6 +27,7 @@ import com.mycelium.wapi.wallet.bip44.HDAccount
 import com.mycelium.wapi.wallet.currency.CurrencyValue
 import com.mycelium.wapi.wallet.single.SingleAddressAccount
 import com.mycelium.wapi.wallet.single.SingleAddressBCHAccount
+import kotlinx.android.synthetic.main.receive_coins_activity_btc_addr_type.*
 import kotlinx.android.synthetic.main.receive_coins_activity_qr.*
 import java.util.*
 
@@ -62,53 +61,50 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         activateNfc()
 
         initDatabinding(account)
-
-        if (viewModel is ReceiveBtcViewModel)
-            createAddressDropdown()
     }
 
     private fun createAddressDropdown() {
-        val linearLayout: LinearLayout = findViewById(R.id.address_dropdown_layout)
-        val tv: TextView = findViewById(R.id.tv_address_selected)
         val btcViewModel = (viewModel as ReceiveBtcViewModel)
 
         val p2pkh = resources.getString(R.string.receive_option_p2pkh)
         val p2sh = resources.getString(R.string.receive_option_p2sh)
         val bech = resources.getString(R.string.receive_option_bech)
 
-        val addressTypesMenu = PopupMenu(this, linearLayout)
+        val addressTypesMenu = PopupMenu(this, addressDropdownLayout)
         addressTypesMenu.menu.add(p2pkh)
         addressTypesMenu.menu.add(p2sh)
         addressTypesMenu.menu.add(bech)
 
-        linearLayout.setOnClickListener {
+        addressDropdownLayout.setOnClickListener {
             addressTypesMenu.show()
         }
 
         // setting initial text based on current address type
-        when {
-            btcViewModel.getAccountDefaultAddressType() == AddressType.P2PKH -> tv.text = p2pkh
-            btcViewModel.getAccountDefaultAddressType() == AddressType.P2SH_P2WPKH -> tv.text = p2sh
-            btcViewModel.getAccountDefaultAddressType() == AddressType.P2WPKH -> tv.text = bech
+        when (btcViewModel.getAccountDefaultAddressType()) {
+            AddressType.P2PKH -> selectedAddressText.text = p2pkh
+            AddressType.P2SH_P2WPKH -> selectedAddressText.text = p2sh
+            AddressType.P2WPKH -> selectedAddressText.text = bech
         }
 
         addressTypesMenu.setOnMenuItemClickListener { item ->
-            when {
-                item.title == p2pkh -> btcViewModel.setAddressType(AddressType.P2PKH)
-                item.title == p2sh -> btcViewModel.setAddressType(AddressType.P2SH_P2WPKH)
-                item.title == bech -> btcViewModel.setAddressType(AddressType.P2WPKH)
+            when (item.title){
+                p2pkh -> btcViewModel.setAddressType(AddressType.P2PKH)
+                p2sh -> btcViewModel.setAddressType(AddressType.P2SH_P2WPKH)
+                bech -> btcViewModel.setAddressType(AddressType.P2WPKH)
             }
 
-            tv.text = item.title
+            selectedAddressText.text = item.title
             false
         }
-
     }
 
     override fun onStart() {
         super.onStart()
 
         viewModel.getReceivingAddress().observe(this, Observer { ivQrCode.qrCode = viewModel.getPaymentUri() })
+
+        if (viewModel is ReceiveBtcViewModel)
+            createAddressDropdown()
     }
 
     private fun initDatabinding(account: WalletAccount) {
