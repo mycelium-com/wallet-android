@@ -31,8 +31,8 @@ class SetSegwitChangeActivity : AppCompatActivity() {
         val radioGroup = findViewById<RadioGroup>(R.id.radio_group)
 
         // set selected. *2 because we have texviews
-        val curMode = mbwManager.changeAddressMode
-        (radioGroup.getChildAt(curMode.ordinal * 2 + 1) as RadioButton).isChecked = true
+        val currentModeTag = mbwManager.changeAddressMode.toString()
+        (radioGroup.findViewWithTag<View>(currentModeTag) as RadioButton).isChecked = true
 
         // click listener. Also works on text views
         for (i in 1 until radioGroup.childCount) {
