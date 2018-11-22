@@ -2,10 +2,12 @@ package com.mycelium.wapi.wallet.fiat.coins;
 
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
+import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.coins.AbstractAsset;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.families.Families;
+import com.mycelium.wapi.wallet.exceptions.AddressMalformedException;
 
 import java.math.BigInteger;
 import java.util.Objects;
@@ -44,8 +46,8 @@ public class FiatType extends AbstractAsset {
     }
 
     @Override
-    public boolean isMineAddress(String address) {
-        return false;
+    public GenericAddress parseAddress(String address) throws AddressMalformedException {
+        return null;
     }
 
     @Override

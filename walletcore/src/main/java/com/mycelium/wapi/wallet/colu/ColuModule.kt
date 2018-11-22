@@ -4,8 +4,17 @@ import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.model.AddressType
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wapi.wallet.*
+import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
+import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
 import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore
+import com.mycelium.wapi.wallet.coins.GenericAssetInfo
 import com.mycelium.wapi.wallet.colu.coins.ColuMain
+import com.mycelium.wapi.wallet.colu.coins.MASSCoin
+import com.mycelium.wapi.wallet.colu.coins.MTCoin
+import com.mycelium.wapi.wallet.colu.coins.RMCCoin
+import com.mycelium.wapi.wallet.colu.coins.MASSCoinTest
+import com.mycelium.wapi.wallet.colu.coins.MTCoinTest
+import com.mycelium.wapi.wallet.colu.coins.RMCCoinTest
 import com.mycelium.wapi.wallet.manager.Config
 import com.mycelium.wapi.wallet.manager.GenericModule
 import com.mycelium.wapi.wallet.manager.WalletModule
@@ -19,6 +28,14 @@ class ColuModule(val networkParameters: NetworkParameters,
                  val backing: WalletBacking<ColuAccountContext, ColuTransaction>,
                  val listener: AccountListener,
                  val metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStorage), WalletModule {
+
+    init {
+        if (networkParameters.isProdnet) {
+            assetsList.addAll(listOf(MASSCoin, MTCoin, RMCCoin))
+        } else {
+            assetsList.addAll(listOf(MASSCoinTest, MTCoinTest, RMCCoinTest))
+        }
+    }
 
     override fun getId(): String = "colored coin module"
 
