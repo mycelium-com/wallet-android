@@ -1313,8 +1313,8 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="p2sh">SegWit compatible (P2SH)</string>
     <string name="bech">SegWit native (Bech32)</string>
     <string name="bech_description">All change will be returned to a native SegWit address. These transactions will be the cheapest possible, but transactions will be more identifiable on the blockchain because Bech32 addresses are not yet widely used.</string>
-    <string name="p2sh_p2wpkh">P2SH-P2WPKH</string>
-    <string name="p2sh_p2wpkh_description">All change will be returned to a legacy compatible SegWit address. There are no additional privacy implications.</string>
+    <string name="p2sh_p2wpkh">Segwit compatible (P2SH)</string>
+    <string name="p2sh_p2wpkh_description">All change will be returned to a legacy compatible SegWit address (P2SH). There are no additional privacy implications. This option has slightly higher fees than SegWit native.</string>
     <string name="privacy_guard">Privacy Guard (default)</string>
     <string name="privacy_guard_description">All change will be returned to the address type of the receiver, making it more difficult for blockchain analytics to identify which is the receiving address and which is the change address. These transactions cost 20 to 30 percent more in fees when sending to non-Bech32 addresses.</string>
     <string name="starting_application">Starting application</string>

@@ -34,21 +34,6 @@
             android:text="@string/bech_description"
             android:textSize="14sp" />
         <RadioButton
-            android:id="@+id/PRIVACY"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:tag="PRIVACY"
-            android:text="@string/privacy_guard"
-            android:textStyle="bold" />
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="32dp"
-            android:layout_marginBottom="20dp"
-            android:tag="PRIVACY"
-            android:text="@string/privacy_guard_description"
-            android:textSize="14sp" />
-        <RadioButton
             android:id="@+id/P2SH_P2WPKH"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -62,6 +47,21 @@
             android:layout_marginBottom="20dp"
             android:tag="P2SH_P2WPKH"
             android:text="@string/p2sh_p2wpkh_description"
+            android:textSize="14sp" />
+        <RadioButton
+            android:id="@+id/PRIVACY"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:tag="PRIVACY"
+            android:text="@string/privacy_guard"
+            android:textStyle="bold" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginBottom="20dp"
+            android:tag="PRIVACY"
+            android:text="@string/privacy_guard_description"
             android:textSize="14sp" />
     </RadioGroup>
 </ScrollView>
