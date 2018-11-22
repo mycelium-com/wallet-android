@@ -33,11 +33,6 @@ public class Currency extends CryptoCurrency {
     }
 
     @Override
-    public boolean isMineAddress(String address) {
-        return false;
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -67,11 +62,6 @@ public class Currency extends CryptoCurrency {
     }
 
     @Override
-    public GenericAddress newAddress(String addressStr) throws AddressMalformedException {
-        return null;
-    }
-
-    @Override
     public Value oneCoin() {
         return null;
     }
@@ -83,6 +73,11 @@ public class Currency extends CryptoCurrency {
 
     @Override
     public Value value(String string) {
+        return null;
+    }
+
+    @Override
+    public GenericAddress parseAddress(String address) throws AddressMalformedException {
         return null;
     }
 }

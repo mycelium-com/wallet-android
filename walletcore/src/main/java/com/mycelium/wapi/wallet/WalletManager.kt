@@ -13,9 +13,11 @@ import com.mycelium.wapi.wallet.coins.GenericAssetInfo
 import com.mycelium.wapi.wallet.colu.coins.*
 import com.mycelium.wapi.wallet.eth.coins.EthMain
 import com.mycelium.wapi.wallet.eth.coins.EthTest
+import com.mycelium.wapi.wallet.exceptions.AddressMalformedException
 import com.mycelium.wapi.wallet.manager.*
 import org.jetbrains.annotations.TestOnly
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 class WalletManager(val backing: WalletManagerBacking<*,*>,
@@ -219,8 +221,20 @@ class WalletManager(val backing: WalletManagerBacking<*,*>,
     }
 
     fun getAcceptableAssetTypes(address: String): List<GenericAssetInfo> {
-        val coinTypes = accounts.values.map { acc -> acc.coinType}.distinctBy { it-> it.id }
+        val coinTypes = walletModules.values.flatMap { acc -> acc.getSupportedAssets() }.distinctBy { it -> it.id }
         return coinTypes.filter {it -> it.isMineAddress(address)}.toList()
+    }
+
+    fun parseAddress(address: String): List<GenericAddress> {
+        val coinTypes = walletModules.values.flatMap { acc -> acc.getSupportedAssets() }.distinctBy { it -> it.id}
+        val addressesList = ArrayList<GenericAddress>()
+        for(asset in coinTypes) {
+            try {
+                addressesList.add(asset.parseAddress(address)!!)
+            } catch (ex : AddressMalformedException) {
+            }
+        }
+        return addressesList
     }
 
     /**

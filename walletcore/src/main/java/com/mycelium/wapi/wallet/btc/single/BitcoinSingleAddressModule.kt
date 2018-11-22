@@ -11,6 +11,8 @@ import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.bip44.ChangeAddressMode
 import com.mycelium.wapi.wallet.btc.BtcTransaction
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking
+import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
+import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
 import com.mycelium.wapi.wallet.manager.Config
 import com.mycelium.wapi.wallet.manager.GenericModule
 import com.mycelium.wapi.wallet.manager.WalletModule
@@ -24,6 +26,10 @@ class BitcoinSingleAddressModule(internal val backing: WalletManagerBacking<Sing
                                  internal val networkParameters: NetworkParameters,
                                  internal var _wapi: Wapi,
                                  internal val metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStorage), WalletModule {
+
+    init {
+        assetsList.add(if (networkParameters.isProdnet) BitcoinMain.get() else BitcoinTest.get())
+    }
 
     override fun getId(): String = "BitcoinSA"
 

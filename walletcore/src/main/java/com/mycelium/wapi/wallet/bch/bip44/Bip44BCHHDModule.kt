@@ -23,7 +23,6 @@ class Bip44BCHHDModule(internal val backing: WalletManagerBacking<SingleAddressA
                        internal var _wapi: Wapi,
                        metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStorage), WalletModule {
 
-
     override fun getId(): String = "Bip44HD"
 
     private val accounts = mutableMapOf<UUID, Bip44BCHAccount>()
