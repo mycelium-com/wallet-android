@@ -13,7 +13,7 @@ import android.support.v7.app.AppCompatActivity
 import android.widget.LinearLayout
 import android.widget.PopupMenu
 import android.widget.TextView
-import android.widget.Toast
+import com.mrd.bitlib.model.AddressType
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.GetAmountActivity
@@ -63,51 +63,45 @@ class ReceiveCoinsActivity : AppCompatActivity() {
 
         initDatabinding(account)
 
-        createAddressDropdown()
+        if (viewModel is ReceiveBtcViewModel)
+            createAddressDropdown()
     }
 
     private fun createAddressDropdown() {
-        val ll : LinearLayout =  findViewById(R.id.address_dropdown_layout)
-        val tv : TextView =  findViewById(R.id.tv_address_selected)
+        val linearLayout: LinearLayout = findViewById(R.id.address_dropdown_layout)
+        val tv: TextView = findViewById(R.id.tv_address_selected)
+        val btcViewModel = (viewModel as ReceiveBtcViewModel)
 
-        val addressTypesMenu = PopupMenu(this,ll)
-        ll.setOnClickListener {
+        val p2pkh = resources.getString(R.string.receive_option_p2pkh)
+        val p2sh = resources.getString(R.string.receive_option_p2sh)
+        val bech = resources.getString(R.string.receive_option_bech)
+
+        val addressTypesMenu = PopupMenu(this, linearLayout)
+        addressTypesMenu.menu.add(p2pkh)
+        addressTypesMenu.menu.add(p2sh)
+        addressTypesMenu.menu.add(bech)
+
+        linearLayout.setOnClickListener {
             addressTypesMenu.show()
-            Toast.makeText(this, "Toast", Toast.LENGTH_SHORT).show()
         }
 
-        addressTypesMenu.menu.add("Legacy (P2PKH)")
-        addressTypesMenu.menu.add("SegWit compatible (P2SH)")
-        addressTypesMenu.menu.add("SegWit native (Bech32)")
+        // setting initial text based on current address type
+        when {
+            btcViewModel.getAccountDefaultAddressType() == AddressType.P2PKH -> tv.text = p2pkh
+            btcViewModel.getAccountDefaultAddressType() == AddressType.P2SH_P2WPKH -> tv.text = p2sh
+            btcViewModel.getAccountDefaultAddressType() == AddressType.P2WPKH -> tv.text = bech
+        }
 
-        tv.text = "SegWit compatible (P2SH)"
+        addressTypesMenu.setOnMenuItemClickListener { item ->
+            when {
+                item.title == p2pkh -> btcViewModel.setAddressType(AddressType.P2PKH)
+                item.title == p2sh -> btcViewModel.setAddressType(AddressType.P2SH_P2WPKH)
+                item.title == bech -> btcViewModel.setAddressType(AddressType.P2WPKH)
+            }
 
-
-
-//        val exchangeRateManager = _mbwManager.getExchangeRateManager()
-//        val sources = exchangeRateManager.getExchangeSourceNames()
-//        val sourcesAndValues = HashMap<String, String>() // Needed for popup menu
-//
-//        for (i in sources.indices) {
-//            val source = sources.get(i)
-//            val exchangeRate = exchangeRateManager.getExchangeRate(_mbwManager.getFiatCurrency(), source)
-//            val price = if (exchangeRate == null || exchangeRate!!.price == null)
-//                "not available"
-//            else
-//                BigDecimal(exchangeRate!!.price).setScale(2, BigDecimal.ROUND_DOWN).toPlainString() + " " + _mbwManager.getFiatCurrency()
-//            val item: String
-//            if (_mbwManager.getSelectedAccount().getType() == WalletAccount.Type.COLU) {
-//                item = COINMARKETCAP + "/" + source
-//            } else {
-//                item = source + " (" + price + ")"
-//            }
-//            sourcesAndValues[item] = source
-//            exchangeMenu.menu.add(item)
-//        }
-//        exchangeMenu.setOnMenuItemClickListener { item ->
-//            _mbwManager.getExchangeRateManager().setCurrentExchangeSourceName(sourcesAndValues[item.title.toString()])
-//            false
-//        }
+            tv.text = item.title
+            false
+        }
 
     }
 
