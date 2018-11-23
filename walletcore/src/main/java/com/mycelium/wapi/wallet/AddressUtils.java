@@ -40,10 +40,10 @@ public class AddressUtils {
 
         public static GenericAddress fromAddress (Address address){
             GenericAddress res = null;
+            CryptoCurrency currency = address.getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get();
             res = (address.getType() == AddressType.P2WPKH) ?
-                    new SegwitAddress((com.mrd.bitlib.model.SegwitAddress) address) :
-                    new BtcLegacyAddress(address.getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get(),
-                            address.getAllAddressBytes());
+                    new SegwitAddress(currency, (com.mrd.bitlib.model.SegwitAddress) address) :
+                    new BtcLegacyAddress(currency, address.getAllAddressBytes());
             return res;
         }
 

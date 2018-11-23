@@ -18,16 +18,4 @@ public abstract class BitcoinBasedCryptoCurrency extends CryptoCurrency {
     {
         family = Families.BITCOIN;
     }
-
-    @Override
-    public GenericAddress parseAddress(String addressString) {
-        Address address = Address.fromString(addressString);
-        if (address == null) {
-            return null;
-        }
-        return (address.getType() == AddressType.P2WPKH) ?
-                new SegwitAddress((com.mrd.bitlib.model.SegwitAddress) address) :
-                new BtcLegacyAddress(address.getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get(),
-                        address.getAllAddressBytes());
-    }
 }
