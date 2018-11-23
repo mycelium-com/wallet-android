@@ -40,6 +40,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 
+import android.support.v4.app.FragmentManager;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.crypto.Bip38;
@@ -58,6 +59,7 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Record;
 import com.mycelium.wallet.activity.export.DecryptBip38PrivateKeyActivity;
 import com.mycelium.wallet.activity.export.MrdDecryptDataActivity;
+import com.mycelium.wallet.activity.modern.adapter.SelectAssetDialog;
 import com.mycelium.wallet.bitid.BitIDSignRequest;
 import com.mycelium.wallet.content.Action;
 import com.mycelium.wallet.content.ResultType;
@@ -65,7 +67,9 @@ import com.mycelium.wallet.content.StringHandleConfig;
 import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.content.GenericAssetUri;
 import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.WalletManager;
 
+import java.util.List;
 import java.util.UUID;
 
 public class StringHandlerActivity extends Activity {
@@ -316,7 +320,7 @@ public class StringHandlerActivity extends Activity {
       finish();
    }
 
-   public void finishOk(GenericAddress address) {
+   public void finishOk(String address) {
       Intent result = new Intent();
       result.putExtra(RESULT_ADDRESS_KEY, address);
       result.putExtra(RESULT_TYPE_KEY, ResultType.ADDRESS);
@@ -385,11 +389,15 @@ public class StringHandlerActivity extends Activity {
       return hdKeyNode;
    }
 
-   public static GenericAddress getAddress(Intent intent) {
+   public static GenericAddress getAddress(Intent intent, WalletManager walletManager, FragmentManager fragmentManager) {
       StringHandlerActivity.checkType(intent, ResultType.ADDRESS);
-      GenericAddress address = (GenericAddress) intent.getSerializableExtra(RESULT_ADDRESS_KEY);
+      String address = intent.getStringExtra(RESULT_ADDRESS_KEY);
       Preconditions.checkNotNull(address);
-      return address;
+      List<GenericAddress> addresses = walletManager.parseAddress(address);
+       SelectAssetDialog dialog = SelectAssetDialog.newInstance(addresses);
+       dialog.show(fragmentManager, "dialog");
+       GenericAddress result = dialog.getResult();
+      return result;
    }
 
    public static GenericAssetUri getAssetUri(Intent intent) {

@@ -66,6 +66,7 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.StringHandlerActivity;
 import com.mycelium.wallet.activity.modern.adapter.AddressBookAdapter;
+import com.mycelium.wallet.activity.modern.adapter.SelectAssetDialog;
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil.AddressLabelChangedHandler;
@@ -343,49 +344,24 @@ public class AddressBookFragment extends Fragment {
             @Override
             public void onClick(View v) {
                StringHandleConfig request = HandleConfigFactory.getAddressBookScanRequest();
-               ScanActivity.callMe(AddressBookFragment.this, SCAN_RESULT_CODE, request);
+               ScanActivity.callMe(AddressBookFragment.super.getActivity(), SCAN_RESULT_CODE, request);
                AddDialog.this.dismiss();
             }
-
          });
 
          findViewById(R.id.btClipboard).setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
-               String mm = Utils.getClipboardString(activity);
-               List<GenericAssetInfo> assets = _mbwManager.getWalletManager(false).
-                       getAcceptableAssetTypes(Utils.getClipboardString(activity));
-
-               if(!assets.isEmpty()) {
-
-                  AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-
-                  builder.setIcon(R.drawable.ic_launcher);
-                  builder.setTitle(String.format("The address %s may belong to different crypto currency types.\n\nPlease choose which one it belongs to:", Utils.getClipboardString(activity)));
-
-
-                  final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(getContext(), android.R.layout.select_dialog_singlechoice);
-                  for(GenericAssetInfo asset : assets){
-                     arrayAdapter.add(asset.getName());
+               String address = Utils.getClipboardString(activity);
+               List<GenericAddress> addresses = _mbwManager.getWalletManager(false).parseAddress(address);
+               if (!addresses.isEmpty()) {
+                  SelectAssetDialog dialog = SelectAssetDialog.newInstance(addresses);
+                  dialog.show(getFragmentManager(), "dialog");
+                  GenericAddress result = dialog.getResult();
+                  if (result != null) {
+                     addFromAddress(result);
                   }
-
-                  builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
-                     @Override
-                     public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                     }
-                  });
-
-                  builder.setAdapter(arrayAdapter, new DialogInterface.OnClickListener() {
-                     @Override
-                     public void onClick(DialogInterface dialog, int which) {
-                        String name = arrayAdapter.getItem(which);
-                        CryptoCurrency asset = _mbwManager.getMetadataStorage().coinTypeFromString(name);
-                        addFromAddress(AddressUtils.from(asset, Utils.getClipboardString(activity)));
-                     }
-                  });
-                  builder.show();
                } else {
                   Toast.makeText(AddDialog.super.getContext(), R.string.unrecognized_format, Toast.LENGTH_SHORT).show();
                }
@@ -429,7 +405,7 @@ public class AddressBookFragment extends Fragment {
             addFromAddress(StringHandlerActivity.getAssetUri(intent).getAddress());
             break;
          case ADDRESS:
-            addFromAddress(StringHandlerActivity.getAddress(intent));
+            addFromAddress(StringHandlerActivity.getAddress(intent, _mbwManager.getWalletManager(false), getFragmentManager()));
             break;
       }
    }
