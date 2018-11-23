@@ -45,6 +45,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -52,7 +53,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -74,12 +74,9 @@ import com.mycelium.wallet.content.HandleConfigFactory;
 import com.mycelium.wallet.content.ResultType;
 import com.mycelium.wallet.content.StringHandleConfig;
 import com.mycelium.wallet.event.AddressBookChanged;
-import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
-import com.mycelium.wapi.wallet.coins.CryptoCurrency;
-import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
@@ -358,10 +355,18 @@ public class AddressBookFragment extends Fragment {
                if (!addresses.isEmpty()) {
                   SelectAssetDialog dialog = SelectAssetDialog.newInstance(addresses);
                   dialog.show(getFragmentManager(), "dialog");
+
+                  // todo listen for the result being changed from new interface from selectassetdialog
                   GenericAddress result = dialog.getResult();
+
+                  // todo these logs may help you, delete later
                   if (result != null) {
+                     Log.d("selectassetlog", "onClick: result: " + result.getCoinType().getName());
                      addFromAddress(result);
+                  } else {
+                     Log.d("selectassetlog", "onClick: result is null ");
                   }
+
                } else {
                   Toast.makeText(AddDialog.super.getContext(), R.string.unrecognized_format, Toast.LENGTH_SHORT).show();
                }

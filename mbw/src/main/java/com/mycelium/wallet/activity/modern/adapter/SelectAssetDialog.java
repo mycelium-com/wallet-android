@@ -6,7 +6,8 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.widget.ArrayAdapter;
+import android.util.Log;
+
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wapi.wallet.GenericAddress;
@@ -31,15 +32,16 @@ public class SelectAssetDialog extends DialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
         builder.setIcon(R.drawable.ic_launcher);
+        // todo fix this, title not shown fully
         builder.setTitle(String.format("The address %s may belong to different crypto currency types." +
                 "\n\nPlease choose which one it belongs to:", Utils.getClipboardString(getActivity())));
 
 
-        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(getActivity(),
-                android.R.layout.select_dialog_singlechoice);
-        for(GenericAddress addr : addressList){
-            arrayAdapter.add(addr.getCoinType().getName());
-        }
+//        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(getActivity(),
+//                android.R.layout.select_dialog_singlechoice);
+//        for(GenericAddress addr : addressList){
+//            arrayAdapter.add(addr.getCoinType().getName());
+//        }
 
         builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
             @Override
@@ -48,16 +50,29 @@ public class SelectAssetDialog extends DialogFragment {
             }
         });
 
-        builder.setAdapter(arrayAdapter, new DialogInterface.OnClickListener() {
+//        builder.setAdapter(arrayAdapter, new DialogInterface.OnClickListener() {
+//            @Override
+//            public void onClick(DialogInterface dialog, int which) {
+//                String name = arrayAdapter.getItem(which);
+//                for(GenericAddress addr : addressList){
+//                    if(addr.getCoinType().getName().equals(name)){
+//                        result.add(addr);
+//                    }
+//                }
+//                //dialog.dismiss();
+//            }
+//        });
+
+        CharSequence[] items = new CharSequence[addressList.size()];
+        for (int i = 0; i < addressList.size(); i++){
+            items[i] = addressList.get(i).getCoinType().getName();
+        }
+
+        builder.setItems(items, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                String name = arrayAdapter.getItem(which);
-                for(GenericAddress addr : addressList){
-                    if(addr.getCoinType().getName().equals(name)){
-                        result.add(addr);
-                    }
-                }
-                dialog.dismiss();
+                Log.d("selectassetlog", "setItems onClick: item selected: " + which);
+                // todo based on 'which' you should create switch(which) and assign 'result' to it
             }
         });
 
