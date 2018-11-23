@@ -37,6 +37,7 @@ package com.mycelium.wallet.activity.send;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
@@ -66,7 +67,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.UUID;
 
-public class InstantWalletActivity extends Activity {
+public class InstantWalletActivity extends FragmentActivity {
 
    public static final int REQUEST_SCAN = 0;
    private static final int REQUEST_TREZOR = 1;
@@ -167,7 +168,7 @@ public class InstantWalletActivity extends Activity {
                }
                case ADDRESS: {
                   GenericAddress address = StringHandlerActivity.getAddress(intent,
-                          mbwManager.getWalletManager(false), getFragmentManager());
+                          mbwManager.getWalletManager(false), getSupportFragmentManager());
                   UUID account = mbwManager.createOnTheFlyAccount(address);
                   //we dont know yet where at what to send
                   SendInitializationActivity.callMeWithResult(this, account, true,

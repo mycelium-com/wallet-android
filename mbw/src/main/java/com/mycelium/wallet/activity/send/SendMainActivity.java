@@ -1545,7 +1545,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                         break;
                     case ADDRESS:
                         _receivingAddress = StringHandlerActivity.getAddress(intent,
-                                _mbwManager.getWalletManager(false), getFragmentManager());
+                                _mbwManager.getWalletManager(false), getSupportFragmentManager());
                         break;
                     case ASSET_URI:
                         GenericAssetUri uri = StringHandlerActivity.getAssetUri(intent);
