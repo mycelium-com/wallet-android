@@ -779,7 +779,7 @@ public class Utils {
       return null;
    }
 
-   public static Collection<WalletAccount> getUniqueAccountsList(final Collection<WalletAccount> accounts) {
+   public static Collection<WalletAccount> getUniqueAccounts(final Collection<WalletAccount> accounts) {
       Set<WalletAccount> accountSet = new HashSet<>();
       for (WalletAccount account : accounts) {
          accountSet.add(account);
