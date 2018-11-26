@@ -63,7 +63,7 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         initDatabinding(account)
 
         val addressDropdownRequired = viewModel is ReceiveBtcViewModel &&
-                (account as? AbstractAccount)?.availableAddressTypes?.size?.compareTo(1) == 1
+               (account as? AbstractAccount)?.availableAddressTypes?.size ?: 0 > 1
 
         if (addressDropdownRequired)
             createAddressDropdown()
