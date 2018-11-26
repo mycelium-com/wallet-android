@@ -167,8 +167,7 @@ public class InstantWalletActivity extends FragmentActivity {
                   break;
                }
                case ADDRESS: {
-                  GenericAddress address = StringHandlerActivity.getAddress(intent,
-                          mbwManager.getWalletManager(false), getSupportFragmentManager());
+                  GenericAddress address = StringHandlerActivity.getAddress(intent);
                   UUID account = mbwManager.createOnTheFlyAccount(address);
                   //we dont know yet where at what to send
                   SendInitializationActivity.callMeWithResult(this, account, true,

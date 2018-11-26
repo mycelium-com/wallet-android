@@ -3,30 +3,36 @@ package com.mycelium.wallet.activity.modern.adapter;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.util.Log;
 
+import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.event.AssetSelected;
 import com.mycelium.wapi.wallet.GenericAddress;
+import com.squareup.otto.Bus;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
 public class SelectAssetDialog extends DialogFragment {
 
+    private MbwManager mbwManager = MbwManager.getInstance(getContext());
     private static List<GenericAddress> addressList;
-    private List<GenericAddress> result = new ArrayList<>();
+    private static SelectAssetDialog instance;
+    private Bus bus;
 
-    public static SelectAssetDialog newInstance(List<GenericAddress> genericAddresses) {
-        SelectAssetDialog frag = new SelectAssetDialog();
+    public static SelectAssetDialog getInstance(List<GenericAddress> genericAddresses) {
+        if(instance == null){
+            instance = new SelectAssetDialog();
+        }
         addressList = genericAddresses;
-        return frag;
+        return instance;
     }
-
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -36,32 +42,12 @@ public class SelectAssetDialog extends DialogFragment {
         builder.setTitle(String.format("The address %s may belong to different crypto currency types." +
                 "\n\nPlease choose which one it belongs to:", Utils.getClipboardString(getActivity())));
 
-
-//        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(getActivity(),
-//                android.R.layout.select_dialog_singlechoice);
-//        for(GenericAddress addr : addressList){
-//            arrayAdapter.add(addr.getCoinType().getName());
-//        }
-
         builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
             }
         });
-
-//        builder.setAdapter(arrayAdapter, new DialogInterface.OnClickListener() {
-//            @Override
-//            public void onClick(DialogInterface dialog, int which) {
-//                String name = arrayAdapter.getItem(which);
-//                for(GenericAddress addr : addressList){
-//                    if(addr.getCoinType().getName().equals(name)){
-//                        result.add(addr);
-//                    }
-//                }
-//                //dialog.dismiss();
-//            }
-//        });
 
         CharSequence[] items = new CharSequence[addressList.size()];
         for (int i = 0; i < addressList.size(); i++){
@@ -72,17 +58,29 @@ public class SelectAssetDialog extends DialogFragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 Log.d("selectassetlog", "setItems onClick: item selected: " + which);
-                // todo based on 'which' you should create switch(which) and assign 'result' to it
+                bus.post(new AssetSelected(addressList.get(which)));
             }
         });
 
         return builder.create();
     }
 
-    public GenericAddress getResult(){
-        if(result.size()!=0) {
-            return result.get(0);
-        }
-        return null;
+    @Override
+    public void onAttach(Context context) {
+        mbwManager = MbwManager.getInstance(context);
+        bus = mbwManager.getEventBus();
+        super.onAttach(context);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        bus.register(this);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        bus.unregister(this);
     }
 }

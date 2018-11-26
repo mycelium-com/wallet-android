@@ -45,7 +45,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -74,6 +73,7 @@ import com.mycelium.wallet.content.HandleConfigFactory;
 import com.mycelium.wallet.content.ResultType;
 import com.mycelium.wallet.content.StringHandleConfig;
 import com.mycelium.wallet.event.AddressBookChanged;
+import com.mycelium.wallet.event.AssetSelected;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
@@ -353,20 +353,8 @@ public class AddressBookFragment extends Fragment {
                String address = Utils.getClipboardString(activity);
                List<GenericAddress> addresses = _mbwManager.getWalletManager(false).parseAddress(address);
                if (!addresses.isEmpty()) {
-                  SelectAssetDialog dialog = SelectAssetDialog.newInstance(addresses);
+                  SelectAssetDialog dialog = SelectAssetDialog.getInstance(addresses);
                   dialog.show(getFragmentManager(), "dialog");
-
-                  // todo listen for the result being changed from new interface from selectassetdialog
-                  GenericAddress result = dialog.getResult();
-
-                  // todo these logs may help you, delete later
-                  if (result != null) {
-                     Log.d("selectassetlog", "onClick: result: " + result.getCoinType().getName());
-                     addFromAddress(result);
-                  } else {
-                     Log.d("selectassetlog", "onClick: result is null ");
-                  }
-
                } else {
                   Toast.makeText(AddDialog.super.getContext(), R.string.unrecognized_format, Toast.LENGTH_SHORT).show();
                }
@@ -410,7 +398,7 @@ public class AddressBookFragment extends Fragment {
             addFromAddress(StringHandlerActivity.getAssetUri(intent).getAddress());
             break;
          case ADDRESS:
-            addFromAddress(StringHandlerActivity.getAddress(intent, _mbwManager.getWalletManager(false), getFragmentManager()));
+            StringHandlerActivity.getAddress(intent, _mbwManager.getWalletManager(false), getFragmentManager());
             break;
       }
    }
@@ -431,6 +419,11 @@ public class AddressBookFragment extends Fragment {
    @Subscribe
    public void onAddressBookChanged(AddressBookChanged event) {
       updateUi();
+   }
+
+   @Subscribe
+   public void newAddressCreating(AssetSelected event) {
+      addFromAddress(event.address);
    }
 
    private class SelectItemListener implements OnItemClickListener {

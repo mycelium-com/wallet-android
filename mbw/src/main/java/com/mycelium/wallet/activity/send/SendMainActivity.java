@@ -1544,8 +1544,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                         setUpMultiAddressView();
                         break;
                     case ADDRESS:
-                        _receivingAddress = StringHandlerActivity.getAddress(intent,
-                                _mbwManager.getWalletManager(false), getSupportFragmentManager());
+                        _receivingAddress = StringHandlerActivity.getAddress(intent);
                         break;
                     case ASSET_URI:
                         GenericAssetUri uri = StringHandlerActivity.getAssetUri(intent);

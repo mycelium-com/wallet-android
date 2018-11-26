@@ -338,8 +338,7 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
                   returnAccount(key, MetadataStorage.BackupState.IGNORED, AccountType.Unknown);
                   break;
                case ADDRESS:
-                  returnAccount(StringHandlerActivity.getAddress(intent,
-                          _mbwManager.getWalletManager(false), getSupportFragmentManager()));
+                  returnAccount(StringHandlerActivity.getAddress(intent));
                   break;
                case HD_NODE:
                   final HdKeyNode hdKeyNode = StringHandlerActivity.getHdKeyNode(intent);

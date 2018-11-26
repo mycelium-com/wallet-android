@@ -366,7 +366,7 @@ public class BalanceFragment extends Fragment {
                                 StringHandlerActivity.SEND_INITIALIZATION_CODE);
                         break;
                     case ADDRESS:
-                        GenericAddress address = StringHandlerActivity.getAddress(data, _mbwManager.getWalletManager(false), getFragmentManager());
+                        GenericAddress address = StringHandlerActivity.getAddress(data);
                         startActivity(SendMainActivity.getIntent(getActivity()
                                 , _mbwManager.getSelectedAccount().getId(), null, address, false)
                                 .addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));

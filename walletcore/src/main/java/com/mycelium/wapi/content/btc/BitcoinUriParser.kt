@@ -3,7 +3,7 @@ package com.mycelium.wapi.content.btc
 import com.mrd.bitlib.crypto.Bip38
 import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.model.NetworkParameters
-import com.mycelium.wapi.content.ContentResolver.UriParser
+import com.mycelium.wapi.content.UriParser
 import com.mycelium.wapi.content.GenericAssetUri
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.BtcLegacyAddress
