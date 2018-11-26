@@ -780,11 +780,7 @@ public class Utils {
    }
 
    public static Collection<WalletAccount> getUniqueAccountsList(final Collection<WalletAccount> accounts) {
-      Set<WalletAccount> accountSet = new HashSet<>();
-      for (WalletAccount account : accounts) {
-         accountSet.add(account);
-      }
-      return accountSet;
+      return new HashSet<>(accounts);
    }
 
    public static List<WalletAccount> sortAccounts(final Collection<WalletAccount> accounts, final MetadataStorage storage) {
