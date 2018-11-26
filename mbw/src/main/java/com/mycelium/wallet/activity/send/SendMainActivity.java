@@ -1453,7 +1453,7 @@ public class SendMainActivity extends Activity {
 
     @Override
    protected void onResume() {
-      _mbwManager.getEventBus().register(this);
+      MbwManager.getEventBus().register(this);
 
       // If we don't have a fresh exchange rate, now is a good time to request one, as we will need it in a minute
       if (!_mbwManager.getCurrencySwitcher().isFiatExchangeRateAvailable()) {
@@ -1469,7 +1469,7 @@ public class SendMainActivity extends Activity {
 
    @Override
    protected void onPause() {
-      _mbwManager.getEventBus().unregister(this);
+      MbwManager.getEventBus().unregister(this);
       _mbwManager.getVersionManager().closeDialog();
       super.onPause();
    }

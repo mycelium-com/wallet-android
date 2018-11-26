@@ -141,15 +141,6 @@
             android:title="@string/show_address_path"
             android:widgetLayout="@layout/preference_switch" />
 
-        <CheckBoxPreference
-            android:icon="@drawable/ic_exchange_coin"
-            android:key="account_mode"
-            android:layout="@layout/preference_layout"
-            android:summaryOff="@string/p2sh_receive_mode"
-            android:summaryOn="@string/bech32_receive_mode"
-            android:title="@string/default_address_type"
-            android:widgetLayout="@layout/preference_switch" />
-
     </PreferenceCategory>
 
     <PreferenceCategory

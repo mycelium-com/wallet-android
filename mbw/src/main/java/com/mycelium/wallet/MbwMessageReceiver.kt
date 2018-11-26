@@ -42,6 +42,8 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
+    override fun getIcon() = R.drawable.ic_launcher
+
     private val eventBus by lazy { MbwManager.getEventBus() }
 
     override fun onMessage(callingPackageName: String, intent: Intent) {

@@ -561,6 +561,9 @@ open class HDAccount(
     @Throws(InvalidKeyCipher::class)
     public override fun getPrivateKeyForAddress(address: Address, cipher: KeyCipher): InMemoryPrivateKey? {
         val derivationType = getDerivationTypeByAddress(address)
+        if (!availableAddressTypes.contains(address.type)) {
+                return null
+        }
         val indexLookUp = getIndexLookup(address, derivationType)
         return if (indexLookUp == null) {
             // still not found? give up...
@@ -572,6 +575,9 @@ open class HDAccount(
 
     override fun getPublicKeyForAddress(address: Address): PublicKey? {
         val derivationType = getDerivationTypeByAddress(address)
+        if (!availableAddressTypes.contains(address.type)) {
+            return null
+        }
         val indexLookUp = getIndexLookup(address, derivationType)
         return if (indexLookUp == null) {
             // still not found? give up...
@@ -580,6 +586,7 @@ open class HDAccount(
             Preconditions.checkNotNull(keyManagerMap[derivationType]!!.getPublicKey(indexLookUp.isChange, indexLookUp
                     .index!!))
         }
+
     }
 
     private fun getIndexLookup(address: Address, derivationType: BipDerivationType): IndexLookUp? {

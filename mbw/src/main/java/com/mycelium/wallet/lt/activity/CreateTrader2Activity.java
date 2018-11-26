@@ -114,7 +114,7 @@ public class CreateTrader2Activity extends Activity {
       _accounts = new LinkedList<>();
       List<String> choices = new LinkedList<>();
       WalletManager walletManager = _mbwManager.getWalletManager(false);
-      for (UUID accountId : walletManager.getAccountIds()) {
+      for (UUID accountId : walletManager.getUniqueIds()) {
          WalletAccount account = walletManager.getAccount(accountId);
          if (!account.canSpend()) {
             continue;

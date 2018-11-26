@@ -97,7 +97,6 @@ public class SelectableRecyclerView extends RecyclerView {
         if (changed && oldWidth != getWidth()) {
             padding = (getWidth() - itemWidth) / 2;
             if(getAdapter() != null) {
-                getAdapter().notifyDataSetChanged();
                 scrollListToPosition(getSelectedItem());
             }
             oldWidth = getWidth();

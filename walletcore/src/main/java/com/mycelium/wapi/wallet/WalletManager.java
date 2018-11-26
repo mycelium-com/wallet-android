@@ -16,10 +16,20 @@
 
 package com.mycelium.wapi.wallet;
 
+import com.google.api.client.util.ArrayMap;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
-import com.google.common.collect.*;
-import com.mrd.bitlib.crypto.*;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.mrd.bitlib.crypto.Bip39;
+import com.mrd.bitlib.crypto.BipDerivationType;
+import com.mrd.bitlib.crypto.HdKeyNode;
+import com.mrd.bitlib.crypto.InMemoryPrivateKey;
+import com.mrd.bitlib.crypto.PublicKey;
+import com.mrd.bitlib.crypto.RandomSource;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
@@ -31,18 +41,47 @@ import com.mycelium.wapi.api.WapiResponse;
 import com.mycelium.wapi.api.lib.FeeEstimation;
 import com.mycelium.wapi.api.response.MinerFeeEstimationResponse;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
-import com.mycelium.wapi.wallet.bip44.*;
+import com.mycelium.wapi.wallet.bip44.AccountIndexesContext;
+import com.mycelium.wapi.wallet.bip44.Bip44BCHAccount;
+import com.mycelium.wapi.wallet.bip44.Bip44BCHPubOnlyAccount;
+import com.mycelium.wapi.wallet.bip44.ExternalSignatureProvider;
+import com.mycelium.wapi.wallet.bip44.ExternalSignatureProviderProxy;
+import com.mycelium.wapi.wallet.bip44.HDAccount;
+import com.mycelium.wapi.wallet.bip44.HDAccountContext;
+import com.mycelium.wapi.wallet.bip44.HDAccountExternalSignature;
+import com.mycelium.wapi.wallet.bip44.HDAccountKeyManager;
+import com.mycelium.wapi.wallet.bip44.HDPubOnlyAccount;
+import com.mycelium.wapi.wallet.bip44.HDPubOnlyAccountKeyManager;
 import com.mycelium.wapi.wallet.single.PublicPrivateKeyStore;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.single.SingleAddressAccountContext;
 import com.mycelium.wapi.wallet.single.SingleAddressBCHAccount;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
 import javax.annotation.Nonnull;
-import java.util.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Predicates.*;
-import static com.mycelium.wapi.wallet.bip44.HDAccountContext.*;
+import static com.google.common.base.Predicates.and;
+import static com.google.common.base.Predicates.not;
+import static com.google.common.base.Predicates.or;
+import static com.mycelium.wapi.wallet.bip44.HDAccountContext.ACCOUNT_TYPE_FROM_MASTERSEED;
+import static com.mycelium.wapi.wallet.bip44.HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PRIV;
+import static com.mycelium.wapi.wallet.bip44.HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB;
+import static com.mycelium.wapi.wallet.bip44.HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY;
+import static com.mycelium.wapi.wallet.bip44.HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER;
+import static com.mycelium.wapi.wallet.bip44.HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR;
 
 /**
  * Allows you to manage a wallet that contains multiple HD accounts and
@@ -192,12 +231,12 @@ public class WalletManager {
                 _backing.setTransactionSuccessful();
                 addAccount(account, Collections.singletonList(id));
 
-                if (_spvBalanceFetcher != null) {
-                    SingleAddressBCHAccount singleAddressBCHAccount = new SingleAddressBCHAccount(context,
+                if (_spvBalanceFetcher != null && address.getType() == AddressType.P2PKH) {
+                    SingleAddressBCHAccount bchAccount = new SingleAddressBCHAccount(context,
                             store, _network, accountBacking, _wapi, _spvBalanceFetcher);
-                    addAccount(singleAddressBCHAccount, Collections.singletonList(id));
-                    _btcToBchAccounts.put(account.getId(), singleAddressBCHAccount.getId());
-                    _spvBalanceFetcher.requestTransactionsFromUnrelatedAccountAsync(singleAddressBCHAccount.getId().toString(), /* IntentContract.UNRELATED_ACCOUNT_TYPE_SA */2);
+                    addAccount(bchAccount, Collections.singletonList(id));
+                    _btcToBchAccounts.put(account.getId(), bchAccount.getId());
+                    _spvBalanceFetcher.requestTransactionsFromUnrelatedAccountAsync(bchAccount.getId().toString(), /* IntentContract.UNRELATED_ACCOUNT_TYPE_SA */2);
                 }
             } finally {
                 _backing.endTransaction();
@@ -250,12 +289,12 @@ public class WalletManager {
                     upgradeAccount(uuidList, account);
                 }
 
-                if (_spvBalanceFetcher != null) {
-                    SingleAddressBCHAccount singleAddressBCHAccount = new SingleAddressBCHAccount(context,
+                if (_spvBalanceFetcher != null && context.getAddresses().containsKey(AddressType.P2PKH)) {
+                    SingleAddressBCHAccount bchAccount = new SingleAddressBCHAccount(context,
                             store, _network, accountBacking, _wapi, _spvBalanceFetcher);
-                    addAccount(singleAddressBCHAccount, Collections.singletonList(singleAddressBCHAccount.getId()));
-                    _btcToBchAccounts.put(account.getId(), singleAddressBCHAccount.getId());
-                    _spvBalanceFetcher.requestTransactionsFromUnrelatedAccountAsync(singleAddressBCHAccount.getId().toString(), /* IntentContract.UNRELATED_ACCOUNT_TYPE_SA */2);
+                    addAccount(bchAccount, Collections.singletonList(bchAccount.getId()));
+                    _btcToBchAccounts.put(account.getId(), bchAccount.getId());
+                    _spvBalanceFetcher.requestTransactionsFromUnrelatedAccountAsync(bchAccount.getId().toString(), /* IntentContract.UNRELATED_ACCOUNT_TYPE_SA */2);
                 }
             } finally {
                 _backing.endTransaction();
@@ -353,16 +392,17 @@ public class WalletManager {
                 } else {
                     upgradeAccount(uuidList, account);
                 }
-                if (_spvBalanceFetcher != null) {
-                    Bip44BCHAccount bip44BCHAccount;
+                if (_spvBalanceFetcher != null &&
+                        context.getIndexesMap().containsKey(BipDerivationType.BIP44)) {
+                    Bip44BCHAccount bchAccount;
                     if (hdKeyNodes.get(0).isPrivateHdKeyNode()) {
-                        bip44BCHAccount = new Bip44BCHAccount(context, keyManagerMap, _network, accountBacking, _wapi, _spvBalanceFetcher);
+                        bchAccount = new Bip44BCHAccount(context, keyManagerMap, _network, accountBacking, _wapi, _spvBalanceFetcher);
                     } else {
-                        bip44BCHAccount = new Bip44BCHPubOnlyAccount(context, keyManagerMap, _network, accountBacking, _wapi, _spvBalanceFetcher);
+                        bchAccount = new Bip44BCHPubOnlyAccount(context, keyManagerMap, _network, accountBacking, _wapi, _spvBalanceFetcher);
                     }
-                    addAccount(bip44BCHAccount, Collections.singletonList(bip44BCHAccount.getId()));
-                    _btcToBchAccounts.put(account.getId(), bip44BCHAccount.getId());
-                    _spvBalanceFetcher.requestTransactionsFromUnrelatedAccountAsync(bip44BCHAccount.getId().toString(), /* IntentContract.UNRELATED_ACCOUNT_TYPE_HD */ 1);
+                    addAccount(bchAccount, Collections.singletonList(bchAccount.getId()));
+                    _btcToBchAccounts.put(account.getId(), bchAccount.getId());
+                    _spvBalanceFetcher.requestTransactionsFromUnrelatedAccountAsync(bchAccount.getId().toString(), /* IntentContract.UNRELATED_ACCOUNT_TYPE_HD */ 1);
                 }
                 return id;
             } finally {
@@ -454,16 +494,21 @@ public class WalletManager {
             }
             if (account instanceof SingleAddressAccount) {
                 SingleAddressAccount singleAddressAccount = (SingleAddressAccount) account;
-                singleAddressAccount.forgetPrivateKey(cipher);
-                PublicKey publicKey= singleAddressAccount.getPublicKey();
-                _backing.deleteSingleAddressAccountContext(id);
-                if (publicKey != null) {
-                    List<UUID> uuidList = getAccountVirtualIds(publicKey);
-                    for (UUID uuid : uuidList) {
-                        _walletAccounts.remove(uuid);
+                if (singleAddressAccount.canSpend()) {
+                    singleAddressAccount.forgetPrivateKey(cipher);
+                    PublicKey publicKey = singleAddressAccount.getPublicKey();
+                    _backing.deleteSingleAddressAccountContext(id);
+                    if (publicKey != null) {
+                        List<UUID> uuidList = getAccountVirtualIds(publicKey);
+                        for (UUID uuid : uuidList) {
+                            _walletAccounts.remove(uuid);
+                        }
                     }
-                }
 
+                } else {
+                    _backing.deleteSingleAddressAccountContext(id);
+                    _walletAccounts.remove(id);
+                }
                 if (_spvBalanceFetcher != null) {
                     _spvBalanceFetcher.requestUnrelatedAccountRemoval(id.toString());
                 }
@@ -509,6 +554,19 @@ public class WalletManager {
             list.add(account.getId());
         }
         return list;
+    }
+
+    /**
+     * Get the IDs of the accounts managed by the wallet manager. Would return non-virtual IDs only
+     *
+     * @return the IDs of the accounts managed by the wallet manager
+     */
+    public Collection<UUID> getUniqueIds() {
+        Set<UUID> idSet = new HashSet<>();
+        for (WalletAccount account : getAllAccounts()) {
+            idSet.add(account.getId());
+        }
+        return idSet;
     }
 
     /**
@@ -709,7 +767,7 @@ public class WalletManager {
         StringBuilder sb = new StringBuilder();
         int Bip44Accounts = 0;
         int simpleAccounts = 0;
-        for (UUID id : getAccountIds()) {
+        for (UUID id : getUniqueIds()) {
             if (_walletAccounts.get(id) instanceof HDAccount) {
                 Bip44Accounts++;
             } else if (_walletAccounts.get(id) instanceof SingleAddressAccount) {
@@ -831,7 +889,9 @@ public class WalletManager {
             addAccount(account, uuidList);
             hdAccounts.add(account);
 
-            if (_spvBalanceFetcher != null) {
+            // if module is installed (in which case there is a fetcher) and we have P2PKH addresses
+            if (_spvBalanceFetcher != null &&
+                    context.getIndexesMap().containsKey(BipDerivationType.BIP44)) {
                 Bip44BCHAccount bchAccount;
 
                 switch (context.getAccountType()) {
@@ -841,7 +901,6 @@ public class WalletManager {
                     default:
                         bchAccount = new Bip44BCHAccount(context, keyManagerMap, _network, accountBacking, _wapi, _spvBalanceFetcher);
                 }
-
                 addAccount(bchAccount, Collections.singletonList(bchAccount.getId()));
                 _btcToBchAccounts.put(account.getId(), bchAccount.getId());
 
@@ -1234,13 +1293,13 @@ public class WalletManager {
             // No master seed
             return false;
         }
-        if (getNextBip44Index() == 0) {
-            // First account not created
-            return true;
+
+        for (HDAccount account : hdAccounts) {
+            if (!account.hasHadActivity()) {
+                return false;
+            }
         }
-        // We can add an additional account if the last account had activity
-        HDAccount last = hdAccounts.get(hdAccounts.size() - 1);
-        return last.hasHadActivity();
+        return true;
     }
 
     public void removeUnusedBip44Account(HDAccount account) {
@@ -1251,7 +1310,28 @@ public class WalletManager {
         //if its unused, we can remove it from the manager
         synchronized (_walletAccounts) {
             hdAccounts.remove(account);
-            _walletAccounts.remove(account.getId());
+            Bip39.MasterSeed masterSeed = null;
+            AesKeyCipher cipher = AesKeyCipher.defaultKeyCipher();
+            try {
+                masterSeed = getMasterSeed(cipher);
+            } catch (InvalidKeyCipher invalidKeyCipher) {
+                throw new IllegalStateException("Invalid cipher");
+            }
+            Map<BipDerivationType, HDAccountKeyManager> keyManagerMap = new ArrayMap<>();
+            for (BipDerivationType derivationType : BipDerivationType.values()) {
+                // Generate the root private key
+                HdKeyNode root = HdKeyNode.fromSeed(masterSeed.getBip32Seed(), derivationType);
+                try {
+                    keyManagerMap.put(derivationType, HDAccountKeyManager.createNew(root, _network, account.getAccountIndex(),
+                            _secureKeyValueStore, cipher, derivationType));
+                } catch (InvalidKeyCipher invalidKeyCipher) {
+                    throw new IllegalStateException("Invalid cipher");
+                }
+            }
+            final List<UUID> uuidList = getAccountVirtualIds(keyManagerMap, account);
+            for (UUID uuid : uuidList) {
+                _walletAccounts.remove(uuid);
+            }
             _backing.deleteBip44AccountContext(account.getId());
 
             if (_btcToBchAccounts.containsKey(account.getId())) {
@@ -1446,12 +1526,13 @@ public class WalletManager {
                 addAccount(account, uuidList);
                 hdAccounts.add(account);
 
-                if(_spvBalanceFetcher != null) {
-                    Bip44BCHAccount bip44BCHAccount = new Bip44BCHAccount(context, keyManagerMap, _network,
+                if(_spvBalanceFetcher != null &&
+                        context.getIndexesMap().containsKey(BipDerivationType.BIP44)) {
+                    Bip44BCHAccount bchAccount = new Bip44BCHAccount(context, keyManagerMap, _network,
                             accountBacking, _wapi, _spvBalanceFetcher);
-                    _spvBalanceFetcher.requestTransactionsAsync(bip44BCHAccount.getAccountIndex());
-                    addAccount(bip44BCHAccount, Collections.singletonList(bip44BCHAccount.getId()));
-                    _btcToBchAccounts.put(account.getId(), bip44BCHAccount.getId());
+                    _spvBalanceFetcher.requestTransactionsAsync(bchAccount.getAccountIndex());
+                    addAccount(bchAccount, Collections.singletonList(bchAccount.getId()));
+                    _btcToBchAccounts.put(account.getId(), bchAccount.getId());
                 }
 
                 return account.getId();
@@ -1465,7 +1546,7 @@ public class WalletManager {
      * This method is intended to get all possible ids for mixed HD account.
      */
     @Nonnull
-    private List<UUID> getAccountVirtualIds(Map<BipDerivationType, HDAccountKeyManager> keyManagerMap, HDAccount account) {
+    public List<UUID> getAccountVirtualIds(Map<BipDerivationType, HDAccountKeyManager> keyManagerMap, HDAccount account) {
         final List<UUID> uuidList = new ArrayList<>();
         for (AddressType addressType : account.getAvailableAddressTypes()) {
             uuidList.add(keyManagerMap.get(BipDerivationType.Companion.getDerivationTypeByAddressType(addressType)).getAccountId());
@@ -1477,7 +1558,7 @@ public class WalletManager {
      * This method is intended to get all possible ids for mixed HD account.
      */
     @Nonnull
-    private List<UUID> getAccountVirtualIds(Map<BipDerivationType, HDAccountKeyManager> keyManagerMap, List<BipDerivationType> derivationTypes) {
+    public List<UUID> getAccountVirtualIds(Map<BipDerivationType, HDAccountKeyManager> keyManagerMap, List<BipDerivationType> derivationTypes) {
         final List<UUID> uuidList = new ArrayList<>();
         for (BipDerivationType derivationType : derivationTypes) {
             uuidList.add(keyManagerMap.get(derivationType).getAccountId());
@@ -1489,10 +1570,15 @@ public class WalletManager {
      * This method is intended to get all possible ids for mixed SA account.
      */
     @Nonnull
-    private List<UUID> getAccountVirtualIds(SingleAddressAccount account) {
+    public List<UUID> getAccountVirtualIds(SingleAddressAccount account) {
         final List<UUID> uuidList = new ArrayList<>();
         for (AddressType addressType: account.getAvailableAddressTypes()) {
-            uuidList.add(SingleAddressAccount.calculateId(account.getPublicKey().toAddress(_network, addressType)));
+            PublicKey publicKey = account.getPublicKey();
+            if (publicKey != null) {
+                uuidList.add(SingleAddressAccount.calculateId(publicKey.toAddress(_network, addressType)));
+            } else {
+                uuidList.add(SingleAddressAccount.calculateId(account.getAddress()));
+            }
         }
         return uuidList;
     }
@@ -1501,7 +1587,7 @@ public class WalletManager {
      * This method is intended to get all possible ids for mixed SA account.
      */
     @Nonnull
-    private List<UUID> getAccountVirtualIds(PublicKey publicKey) {
+    public List<UUID> getAccountVirtualIds(PublicKey publicKey) {
         final List<UUID> uuidList = new ArrayList<>();
         for (AddressType addressType: AddressType.values()) {
             uuidList.add(SingleAddressAccount.calculateId(publicKey.toAddress(_network, addressType)));
