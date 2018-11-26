@@ -49,6 +49,12 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
    public SingleAddressAccount(SingleAddressAccountContext context, PublicPrivateKeyStore keyStore,
                                NetworkParameters network, SingleAddressAccountBacking backing, Wapi wapi,
                                Reference<ChangeAddressMode> changeAddressModeReference) {
+      this(context, keyStore, network, backing, wapi, changeAddressModeReference, true);
+   }
+
+   public SingleAddressAccount(SingleAddressAccountContext context, PublicPrivateKeyStore keyStore,
+                               NetworkParameters network, SingleAddressAccountBacking backing, Wapi wapi,
+                               Reference<ChangeAddressMode> changeAddressModeReference, boolean shouldPersistAddress) {
       super(backing, network, wapi);
       this.changeAddressModeReference = changeAddressModeReference;
       _backing = backing;
@@ -56,7 +62,9 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
       _context = context;
       _addressList = new ArrayList<>(3);
       _keyStore = keyStore;
-       persistAddresses();
+      if (shouldPersistAddress) {
+          persistAddresses();
+      }
        _addressList.addAll(context.getAddresses().values());
        _cachedBalance = _context.isArchived()
                ? new Balance(0, 0, 0, 0, 0, 0, false, _allowZeroConfSpending)
@@ -408,9 +416,11 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
       return _keyStore.getPrivateKey(getAddress(), cipher);
    }
 
+   /**
+    * This method is used for Colu account, so method should NEVER persist addresses as only P2PKH addresses are used for Colu
+    */
    public void setPrivateKey(InMemoryPrivateKey privateKey, KeyCipher cipher) throws InvalidKeyCipher {
       _keyStore.setPrivateKey(getAddress(), privateKey, cipher);
-      persistAddresses();
    }
 
    public PublicKey getPublicKey() {

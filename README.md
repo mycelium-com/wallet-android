@@ -152,10 +152,17 @@ Authors
  - Dmitry Murashchik
  - Constantin Vennekel
  - [Leo Wandersleb](https://github.com/Giszmo)
- - Daniel Krawisz
- - Jerome Rousselot
- - Elvis Kurtnebiev
+ - [Daniel Krawisz](https://github.com/DanielKrawisz)
+ - [Jerome Rousselot](https://github.com/jeromerousselot)
+ - [Nelson Melina](https://github.com/DaLN)
+ - [Elvis Kurtnebiev](https://github.com/xElvis89x)
  - [Sergey Dolgopolov](https://github.com/itserg)
+ - [Sergey Lappo](https://github.com/sergeylappo)
+ - Alexander Makarov
+ - [Nadia Poletova](https://github.com/poletova-n)
+ - [Kristina Tezieva](https://github.com/agneslovelace)
+ - [Nuru Nabiyev](https://github.com/NuruNabiyev)
+ 
 
 Credits
 =======

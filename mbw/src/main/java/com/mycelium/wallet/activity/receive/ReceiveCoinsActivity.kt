@@ -10,6 +10,8 @@ import android.nfc.NdefRecord
 import android.nfc.NfcAdapter
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.widget.PopupMenu
+import com.mrd.bitlib.model.AddressType
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.GetAmountActivity
@@ -25,6 +27,7 @@ import com.mycelium.wapi.wallet.bip44.HDAccount
 import com.mycelium.wapi.wallet.currency.CurrencyValue
 import com.mycelium.wapi.wallet.single.SingleAddressAccount
 import com.mycelium.wapi.wallet.single.SingleAddressBCHAccount
+import kotlinx.android.synthetic.main.receive_coins_activity_btc_addr_type.*
 import kotlinx.android.synthetic.main.receive_coins_activity_qr.*
 import java.util.*
 
@@ -58,6 +61,47 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         activateNfc()
 
         initDatabinding(account)
+
+        val addressDropdownRequired = viewModel is ReceiveBtcViewModel &&
+               (account as? AbstractAccount)?.availableAddressTypes?.size ?: 0 > 1
+
+        if (addressDropdownRequired)
+            createAddressDropdown()
+    }
+
+    private fun createAddressDropdown() {
+        val btcViewModel = (viewModel as ReceiveBtcViewModel)
+
+        val p2pkh = resources.getString(R.string.receive_option_p2pkh)
+        val p2sh = resources.getString(R.string.receive_option_p2sh)
+        val bech = resources.getString(R.string.receive_option_bech)
+
+        val addressTypesMenu = PopupMenu(this, addressDropdownLayout)
+        addressTypesMenu.menu.add(p2pkh)
+        addressTypesMenu.menu.add(p2sh)
+        addressTypesMenu.menu.add(bech)
+
+        addressDropdownLayout.setOnClickListener {
+            addressTypesMenu.show()
+        }
+
+        // setting initial text based on current address type
+        when (btcViewModel.getAccountDefaultAddressType()) {
+            AddressType.P2PKH -> selectedAddressText.text = p2pkh
+            AddressType.P2SH_P2WPKH -> selectedAddressText.text = p2sh
+            AddressType.P2WPKH -> selectedAddressText.text = bech
+        }
+
+        addressTypesMenu.setOnMenuItemClickListener { item ->
+            when (item.title){
+                p2pkh -> btcViewModel.setAddressType(AddressType.P2PKH)
+                p2sh -> btcViewModel.setAddressType(AddressType.P2SH_P2WPKH)
+                bech -> btcViewModel.setAddressType(AddressType.P2WPKH)
+            }
+
+            selectedAddressText.text = item.title
+            false
+        }
     }
 
     override fun onStart() {
