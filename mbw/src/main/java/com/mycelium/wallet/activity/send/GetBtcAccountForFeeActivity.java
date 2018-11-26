@@ -49,7 +49,7 @@ public class GetBtcAccountForFeeActivity extends AppCompatActivity {
 
         List<AddressBookManager.Entry> entries = new ArrayList<>();
         WalletAccount selectedAccount = _mbwManager.getSelectedAccount();
-        Collection<WalletAccount> uniqueAccountsList = Utils.getUniqueAccountsList(_mbwManager.getWalletManager(false).getActiveAccounts());
+        Collection<WalletAccount> uniqueAccountsList = Utils.getUniqueAccounts(_mbwManager.getWalletManager(false).getActiveAccounts());
         for (WalletAccount account : Utils.sortAccounts(uniqueAccountsList, _mbwManager.getMetadataStorage())) {
             Optional<Address> receivingAddress = account.getReceivingAddress();
             if (receivingAddress.isPresent() && account.canSpend()
