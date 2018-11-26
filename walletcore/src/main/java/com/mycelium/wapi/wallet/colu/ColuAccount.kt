@@ -8,27 +8,25 @@ import com.mrd.bitlib.model.ScriptOutput
 import com.mrd.bitlib.model.Transaction
 import com.mycelium.wapi.model.TransactionOutputSummary
 import com.mycelium.wapi.wallet.*
+import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.BtcLegacyAddress
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import org.apache.commons.codec.binary.Hex
-import org.bitcoinj.core.ECKey
-import org.bitcoinj.script.ScriptBuilder
 import java.util.*
 
 
 class ColuAccount(context: ColuAccountContext, val privateKey: InMemoryPrivateKey
                   , coluCoinType: CryptoCurrency
                   , networkParameters: NetworkParameters
-                  , coluNetworkParameters: org.bitcoinj.core.NetworkParameters
                   , coluClient: ColuApi
                   , accountBacking: AccountBacking<ColuTransaction>
                   , backing: WalletBacking<ColuAccountContext, ColuTransaction>
                   , listener: AccountListener? = null)
     : ColuPubOnlyAccount(context, coluCoinType, networkParameters
-        , coluNetworkParameters, coluClient, accountBacking, backing, listener), ExportableAccount {
+        , coluClient, accountBacking, backing, listener), ExportableAccount {
 
     override fun calculateMaxSpendableAmount(minerFeeToUse: Long): Value {
         return Value.valueOf(if (networkParameters.isProdnet) BitcoinMain.get() else BitcoinTest.get(), accountBalance.spendable.value)
@@ -38,23 +36,20 @@ class ColuAccount(context: ColuAccountContext, val privateKey: InMemoryPrivateKe
         return false
     }
 
-    override fun completeAndSignTx(request: SendRequest<ColuTransaction>) {
+    override fun completeAndSignTx(request: SendRequest<ColuTransaction>, keyCipher:KeyCipher) {
         completeTransaction(request)
-        signTransaction(request)
+        signTransaction(request, keyCipher)
     }
 
     override fun completeTransaction(request: SendRequest<ColuTransaction>) {
-//        val coluSendRequest = request as ColuSendRequest
-//        val receivers = ArrayList<WalletAccount.Receiver>()
-//        receivers.add(WalletAccount.Receiver(coluSendRequest.destination, coluSendRequest.amount.value))
-////        btcSendRequest.unsignedTx = createUnsignedTransaction(receivers, request.fee.value)
-    }
-
-    override fun signTransaction(request: SendRequest<ColuTransaction>) {
-        if (!request.isCompleted) {
-            return
-        }
         if (request is ColuSendRequest) {
+            val fromAddresses = mutableListOf(receiveAddress as BtcAddress)
+            fromAddresses.addAll(request.fundingAddress)
+            val hexString = coluClient.prepareTransaction(request.destination, fromAddresses, request.amount, request.fee)
+            request.txHex = hexString
+            if (request.txHex == null) {
+                throw Exception("transaction not complete")
+            }
             val txBytes: ByteArray?
             try {
                 txBytes = Hex.decodeHex(request.txHex?.toCharArray())
@@ -65,27 +60,31 @@ class ColuAccount(context: ColuAccountContext, val privateKey: InMemoryPrivateKe
                 return
             }
 
-            val signTx = org.bitcoinj.core.Transaction(coluNetworkParameters, Hex.decodeHex(request.txHex?.toCharArray()))
+            request.baseTransaction = Transaction.fromBytes(txBytes)
+            request.isCompleted = true
+        } else {
+            TODO("completeTransaction not implemented for ${request.javaClass.simpleName}")
+        }
+    }
 
-            val privateKeyBytes = privateKey.privateKeyBytes
-            val publicKeyBytes = privateKey.publicKey.publicKeyBytes
-            val ecKey = ECKey.fromPrivateAndPrecalculatedPublic(privateKeyBytes, publicKeyBytes)
-
-            val inputScript = ScriptBuilder.createOutputScript(ecKey.toAddress(coluNetworkParameters))
-
-            for (i in 0 until signTx.inputs.size) {
-                val signature = signTx.calculateSignature(i, ecKey, inputScript, org.bitcoinj.core.Transaction.SigHash.ALL, false)
-                val scriptSig = ScriptBuilder.createInputScript(signature, ecKey)
-                signTx.getInput(i.toLong()).scriptSig = scriptSig
+    override fun signTransaction(request: SendRequest<ColuTransaction>, keyCipher: KeyCipher) {
+        if (!request.isCompleted) {
+            return
+        }
+        if (request is ColuSendRequest) {
+            request.baseTransaction?.let {
+                for ((index, input) in it.inputs.withIndex()) {
+                    for (fundingAccount in request.fundingAccounts) {
+                        val output = fundingAccount.getTx(input.outPoint.txid).outputs[input.outPoint.index]
+                        if (fundingAccount is InputSigner && fundingAccount.isMineAddress(output.address)) {
+                            fundingAccount.signInput(GenericInput(it, input, index), keyCipher)
+                        }
+                    }
+                    if (input.script.scriptBytes.isEmpty()) {
+                        throw WalletAccount.WalletAccountException("input ${input.outPoint} not signed")
+                    }
+                }
             }
-
-            val signedTransactionBytes = signTx.bitcoinSerialize()
-            try {
-                request.setTransaction(Transaction.fromBytes(signedTransactionBytes))
-            } catch (e: Transaction.TransactionParsingException) {
-                return
-            }
-
         } else {
             TODO("signTransaction not implemented for ${request.javaClass.simpleName}")
         }
@@ -103,7 +102,7 @@ class ColuAccount(context: ColuAccountContext, val privateKey: InMemoryPrivateKe
         }
     }
 
-    override fun getSendToRequest(destination: BtcLegacyAddress, amount: Value): SendRequest<*> {
+    override fun getSendToRequest(destination: BtcLegacyAddress, amount: Value): SendRequest<ColuTransaction> {
         return ColuSendRequest(coinType, destination, amount)
     }
 

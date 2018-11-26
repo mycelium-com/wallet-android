@@ -37,20 +37,34 @@ package com.mycelium.wallet.activity;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.mrd.bitlib.crypto.*;
+import com.mrd.bitlib.crypto.Bip38;
+import com.mrd.bitlib.crypto.Bip39;
+import com.mrd.bitlib.crypto.BipSss;
+import com.mrd.bitlib.crypto.HdKeyNode;
+import com.mrd.bitlib.crypto.InMemoryPrivateKey;
+import com.mrd.bitlib.crypto.MrdExport;
 import com.mrd.bitlib.crypto.MrdExport.DecodingException;
 import com.mrd.bitlib.crypto.MrdExport.V1.EncryptionParameters;
 import com.mrd.bitlib.crypto.MrdExport.V1.InvalidChecksumException;
-import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.HexUtils;
-import com.mycelium.wallet.*;
+import com.mycelium.wallet.MbwManager;
+import com.mycelium.wallet.R;
+import com.mycelium.wallet.Record;
 import com.mycelium.wallet.activity.export.DecryptBip38PrivateKeyActivity;
 import com.mycelium.wallet.activity.export.MrdDecryptDataActivity;
-import com.mycelium.wapi.wallet.WalletManager;
+import com.mycelium.wallet.bitid.BitIDSignRequest;
+import com.mycelium.wallet.content.Action;
+import com.mycelium.wallet.content.ResultType;
+import com.mycelium.wallet.content.StringHandleConfig;
+import com.mycelium.wallet.pop.PopRequest;
+import com.mycelium.wapi.content.GenericAssetUri;
+import com.mycelium.wapi.wallet.GenericAddress;
 
 import java.util.UUID;
 
@@ -66,6 +80,9 @@ public class StringHandlerActivity extends Activity {
    public static final String RESULT_ADDRESS_KEY = "address";
    public static final String RESULT_TYPE_KEY = "type";
    public static final String RESULT_ACCOUNT_KEY = "account";
+   public static final String RESULT_MASTER_SEED_KEY = "master_seed";
+   private static final String RESULT_POP_REQUEST = "pop_request";
+   private static final String RESULT_BIT_ID_REQUEST = "bit_id_request";
 
    public static Intent getIntent(Context currentActivity, StringHandleConfig stringHandleConfig, String contentString) {
       Intent intent = new Intent(currentActivity, StringHandlerActivity.class);
@@ -84,7 +101,7 @@ public class StringHandlerActivity extends Activity {
       if (Bip38.isBip38PrivateKey(contentString)) {
          return ParseAbility.MAYBE;
       }
-      for (StringHandleConfig.Action action : stringHandleConfig.getAllActions()) {
+      for (Action action : stringHandleConfig.getAllActions()) {
          if (action.canHandle(network, contentString)) {
             return ParseAbility.YES;
          }
@@ -92,7 +109,6 @@ public class StringHandlerActivity extends Activity {
       return ParseAbility.NO;
    }
 
-   public enum ResultType {ADDRESS, PRIVATE_KEY, HD_NODE, ACCOUNT, NONE, URI_WITH_ADDRESS, URI, SHARE}
    public enum ParseAbility {YES, MAYBE, NO}
 
    public static final int IMPORT_ENCRYPTED_PRIVATE_KEY_CODE = 1;
@@ -173,7 +189,7 @@ public class StringHandlerActivity extends Activity {
       }
 
       boolean wasHandled = false;
-      for (StringHandleConfig.Action action : _stringHandleConfig.getAllActions()) {
+      for (Action action : _stringHandleConfig.getAllActions()) {
          if (action.canHandle(_mbwManager.getNetwork(), content) && action.handle(this, content)) {
             wasHandled = true;
             break;
@@ -268,18 +284,10 @@ public class StringHandlerActivity extends Activity {
       finish();
    }
 
-   public void finishOk(BitcoinUriWithAddress bitcoinUriWithAddress) {
+   public void finishOk(GenericAssetUri assetUri) {
       Intent result = new Intent();
-      result.putExtra(RESULT_URI_WITH_ADDRESS_KEY, bitcoinUriWithAddress);
-      result.putExtra(RESULT_TYPE_KEY, ResultType.URI_WITH_ADDRESS);
-      setResult(RESULT_OK, result);
-      finish();
-   }
-
-   public void finishOk(BitcoinUri bitcoinUri) {
-      Intent result = new Intent();
-      result.putExtra(RESULT_URI_KEY, bitcoinUri);
-      result.putExtra(RESULT_TYPE_KEY, ResultType.URI);
+      result.putExtra(RESULT_URI_KEY, assetUri);
+      result.putExtra(RESULT_TYPE_KEY, ResultType.ASSET_URI);
       setResult(RESULT_OK, result);
       finish();
    }
@@ -308,7 +316,7 @@ public class StringHandlerActivity extends Activity {
       finish();
    }
 
-   public void finishOk(Address address) {
+   public void finishOk(GenericAddress address) {
       Intent result = new Intent();
       result.putExtra(RESULT_ADDRESS_KEY, address);
       result.putExtra(RESULT_TYPE_KEY, ResultType.ADDRESS);
@@ -320,6 +328,38 @@ public class StringHandlerActivity extends Activity {
       Intent result = new Intent();
       result.putExtra(RESULT_ACCOUNT_KEY, account);
       result.putExtra(RESULT_TYPE_KEY, ResultType.ACCOUNT);
+      setResult(RESULT_OK, result);
+      finish();
+   }
+
+   public void finishOk(Bip39.MasterSeed masterSeed) {
+      Intent result = new Intent();
+      result.putExtra(RESULT_MASTER_SEED_KEY, masterSeed);
+      result.putExtra(RESULT_TYPE_KEY, ResultType.MASTER_SEED);
+      setResult(RESULT_OK, result);
+      finish();
+   }
+
+   public void finishOk(Uri uri) {
+      Intent result = new Intent();
+      result.putExtra(RESULT_TYPE_KEY, ResultType.URI);
+      result.putExtra(RESULT_URI_KEY, uri);
+      setResult(RESULT_OK, result);
+      finish();
+   }
+
+   public void finishOk(PopRequest popRequest) {
+      Intent result = new Intent();
+      result.putExtra(RESULT_TYPE_KEY, ResultType.POP_REQUEST);
+      result.putExtra(RESULT_POP_REQUEST, popRequest);
+      setResult(RESULT_OK, result);
+      finish();
+   }
+
+   public void finishOk(BitIDSignRequest request) {
+      Intent result = new Intent();
+      result.putExtra(RESULT_TYPE_KEY, ResultType.BIT_ID_REQUEST);
+      result.putExtra(RESULT_BIT_ID_REQUEST, request);
       setResult(RESULT_OK, result);
       finish();
    }
@@ -345,23 +385,23 @@ public class StringHandlerActivity extends Activity {
       return hdKeyNode;
    }
 
-   public static Address getAddress(Intent intent) {
+   public static GenericAddress getAddress(Intent intent) {
       StringHandlerActivity.checkType(intent, ResultType.ADDRESS);
-      Address address = (Address) intent.getSerializableExtra(RESULT_ADDRESS_KEY);
+      GenericAddress address = (GenericAddress) intent.getSerializableExtra(RESULT_ADDRESS_KEY);
       Preconditions.checkNotNull(address);
       return address;
    }
 
-   public static BitcoinUriWithAddress getUriWithAddress(Intent intent) {
-      StringHandlerActivity.checkType(intent, ResultType.URI_WITH_ADDRESS);
-      BitcoinUriWithAddress uri = (BitcoinUriWithAddress) intent.getSerializableExtra(RESULT_URI_WITH_ADDRESS_KEY);
+   public static GenericAssetUri getAssetUri(Intent intent) {
+      StringHandlerActivity.checkType(intent, ResultType.ASSET_URI);
+      GenericAssetUri uri = (GenericAssetUri) intent.getSerializableExtra(RESULT_URI_KEY);
       Preconditions.checkNotNull(uri);
       return uri;
    }
 
-   public static BitcoinUri getUri(Intent intent) {
+   public static Uri getUri(Intent intent) {
       StringHandlerActivity.checkType(intent, ResultType.URI);
-      BitcoinUri uri = (BitcoinUri) intent.getSerializableExtra(RESULT_URI_KEY);
+      Uri uri = (Uri) intent.getSerializableExtra(RESULT_URI_KEY);
       Preconditions.checkNotNull(uri);
       return uri;
    }
@@ -380,15 +420,32 @@ public class StringHandlerActivity extends Activity {
       return account;
    }
 
+   public static Bip39.MasterSeed getMasterSeed(Intent intent) {
+      StringHandlerActivity.checkType(intent, ResultType.MASTER_SEED);
+      Bip39.MasterSeed result = (Bip39.MasterSeed) intent.getSerializableExtra(RESULT_MASTER_SEED_KEY);
+      Preconditions.checkNotNull(result);
+      return result;
+   }
+
+   public static PopRequest getPopRequest(Intent intent) {
+      StringHandlerActivity.checkType(intent, ResultType.POP_REQUEST);
+      PopRequest result = (PopRequest) intent.getSerializableExtra(RESULT_POP_REQUEST);
+      Preconditions.checkNotNull(result);
+      return result;
+   }
+
+   public static BitIDSignRequest getBitIdRequest(Intent intent) {
+      StringHandlerActivity.checkType(intent, ResultType.BIT_ID_REQUEST);
+      BitIDSignRequest result = (BitIDSignRequest) intent.getSerializableExtra(RESULT_BIT_ID_REQUEST);
+      Preconditions.checkNotNull(result);
+      return result;
+   }
+
    public static void checkType(Intent intent, ResultType type) {
       Preconditions.checkState(type == intent.getSerializableExtra(RESULT_TYPE_KEY));
    }
 
    public NetworkParameters getNetwork() {
       return _mbwManager.getNetwork();
-   }
-
-   public WalletManager getWalletManager() {
-      return _mbwManager.getWalletManager(false);
    }
 }

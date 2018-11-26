@@ -20,10 +20,12 @@ import com.google.common.base.Optional;
 import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.crypto.BipDerivationType;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
+import com.mrd.bitlib.crypto.PrivateKey;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
+import com.mrd.bitlib.model.ScriptInputStandard;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.api.Wapi;
@@ -32,22 +34,34 @@ import com.mycelium.wapi.api.request.QueryTransactionInventoryRequest;
 import com.mycelium.wapi.api.response.GetTransactionsResponse;
 import com.mycelium.wapi.api.response.QueryTransactionInventoryResponse;
 import com.mycelium.wapi.model.BalanceSatoshis;
-import com.mycelium.wapi.wallet.*;
+import com.mycelium.wapi.wallet.AesKeyCipher;
+import com.mycelium.wapi.wallet.BroadcastResult;
+import com.mycelium.wapi.wallet.ExportableAccount;
+import com.mycelium.wapi.wallet.GenericInput;
+import com.mycelium.wapi.wallet.InputSigner;
+import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
+import com.mycelium.wapi.wallet.Reference;
 import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.SingleAddressAccountBacking;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager.Event;
+import com.mycelium.wapi.wallet.bip44.ChangeAddressMode;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
 import com.mycelium.wapi.wallet.btc.BtcSendRequest;
 import com.mycelium.wapi.wallet.btc.BtcTransaction;
 import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
-import com.mycelium.wapi.wallet.bip44.ChangeAddressMode;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
-public class SingleAddressAccount extends AbstractBtcAccount implements ExportableAccount {
+public class SingleAddressAccount extends AbstractBtcAccount implements ExportableAccount, InputSigner {
    private SingleAddressAccountContext _context;
    private List<Address> _addressList;
    private volatile boolean _isSynchronizing;
@@ -460,9 +474,9 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
    }
 
    @Override
-   public void completeAndSignTx(SendRequest<BtcTransaction> request) throws WalletAccountException {
+   public void completeAndSignTx(SendRequest<BtcTransaction> request, KeyCipher keyCipher) throws WalletAccountException {
       completeTransaction(request);
-      signTransaction(request);
+      signTransaction(request, keyCipher);
    }
 
    @Override
@@ -479,7 +493,7 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
    }
 
    @Override
-   public void signTransaction(SendRequest<BtcTransaction> request) throws WalletAccountException {
+   public void signTransaction(SendRequest<BtcTransaction> request, KeyCipher keyCipher ) throws WalletAccountException {
       BtcSendRequest btcSendRequest = (BtcSendRequest) request;
       try {
          btcSendRequest.setTransaction(signTransaction(btcSendRequest.getUnsignedTx(), AesKeyCipher.defaultKeyCipher()));
@@ -493,4 +507,17 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
       return broadcastTransaction(tx.getRawTransaction());
    }
 
+    @Override
+    public void signInput(GenericInput input, KeyCipher keyCipher) {
+        if (canSpend()) {
+            try {
+                PrivateKey key = getPrivateKey(keyCipher);
+                input.getTransactionInput().script = new ScriptInputStandard(
+                        key.makeStandardBitcoinSignature(input.getTransaction().getTxDigestHash(input.getIndex()))
+                        , key.getPublicKey().getPublicKeyBytes());
+            } catch (InvalidKeyCipher invalidKeyCipher) {
+                invalidKeyCipher.printStackTrace();
+            }
+        }
+    }
 }

@@ -1,4 +1,4 @@
-package com.mycelium.wapi.wallet.btcmasterseed
+package com.mycelium.wapi.wallet.masterseed
 
 import com.mrd.bitlib.crypto.Bip39
 import com.mrd.bitlib.crypto.HdKeyNode

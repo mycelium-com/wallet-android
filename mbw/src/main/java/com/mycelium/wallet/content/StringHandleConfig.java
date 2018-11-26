@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2013, 2014 Megion Research and Development GmbH
  *
@@ -33,14 +32,29 @@
  * fitness for a particular purpose and non-infringement.
  */
 
-package com.mycelium.wallet.event;
+package com.mycelium.wallet.content;
 
-import java.util.UUID;
+import com.google.common.collect.ImmutableList;
 
-public class HdAccountCreated {
-   public final UUID account;
+import java.io.Serializable;
+import java.util.List;
 
-   public HdAccountCreated(UUID account) {
-      this.account = account;
-   }
+public class StringHandleConfig implements Serializable {
+    private static final long serialVersionUID = 0L;
+
+    public Action privateKeyAction = NONE.INSTANCE;
+    public Action bitcoinUriAction = NONE.INSTANCE;
+    public Action addressAction = NONE.INSTANCE;
+    public Action bitIdAction = NONE.INSTANCE;
+    public Action websiteAction = NONE.INSTANCE;
+    public Action masterSeedAction = NONE.INSTANCE;
+    public Action sssShareAction = NONE.INSTANCE;
+    public Action hdNodeAction = NONE.INSTANCE;
+    public Action wordListAction = NONE.INSTANCE;
+    public Action popAction = NONE.INSTANCE;
+
+    public List<Action> getAllActions() {
+        return ImmutableList.of(popAction, privateKeyAction, bitcoinUriAction,
+                addressAction, bitIdAction, websiteAction, masterSeedAction, sssShareAction, hdNodeAction, wordListAction);
+    }
 }

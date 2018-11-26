@@ -52,18 +52,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
-import com.mycelium.wallet.AccountManager;
 import com.mycelium.wallet.AddressBookManager;
 import com.mycelium.wallet.AddressBookManager.Entry;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.StringHandleConfig;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.StringHandlerActivity;
@@ -71,13 +69,16 @@ import com.mycelium.wallet.activity.modern.adapter.AddressBookAdapter;
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil.AddressLabelChangedHandler;
+import com.mycelium.wallet.content.HandleConfigFactory;
+import com.mycelium.wallet.content.ResultType;
+import com.mycelium.wallet.content.StringHandleConfig;
 import com.mycelium.wallet.event.AddressBookChanged;
 import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
-import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
-import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
+import com.mycelium.wapi.wallet.coins.CryptoCurrency;
+import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
@@ -166,7 +167,11 @@ public class AddressBookFragment extends Fragment {
 
    private void updateUiMine() {
       List<Entry> entries = new ArrayList<>();
-      List<WalletAccount<?,?>> activeAccountsGeneric =  AccountManager.INSTANCE.getActiveAccounts().values().asList();
+      List<WalletAccount<?,?>> activeAccountsGeneric = new ArrayList<>();
+
+      for(WalletAccount account : _mbwManager.getWalletManager(false).getActiveAccounts()){
+         activeAccountsGeneric.add(account);
+      }
       for (WalletAccount account : Utils.sortAccounts(activeAccountsGeneric, _mbwManager.getMetadataStorage())) {
 
          String name = _mbwManager.getMetadataStorage().getLabelByAccount(account.getId());
@@ -191,10 +196,13 @@ public class AddressBookFragment extends Fragment {
    }
 
    private void updateUiForeign() {
+      List<GenericAddress> addresses = _mbwManager.getMetadataStorage().getAllGenericAddress();
       Map<Address, String> rawentries = _mbwManager.getMetadataStorage().getAllAddressLabels();
       List<Entry> entries = new ArrayList<Entry>();
-      for (Map.Entry<Address, String> e : rawentries.entrySet()) {
-         entries.add(new Entry(AddressUtils.fromAddress(e.getKey()), e.getValue()));
+      for (GenericAddress address : addresses) {
+         if(address.getCoinType().equals(_mbwManager.getSelectedAccount().getCoinType())) {
+            entries.add(new Entry(address, rawentries.get(Address.fromString(address.toString()))));
+         }
       }
       entries = Utils.sortAddressbookEntries(entries);
       if (entries.isEmpty()) {
@@ -279,7 +287,7 @@ public class AddressBookFragment extends Fragment {
 
    private void doEditEntry() {
       EnterAddressLabelUtil.enterAddressLabel(getActivity(), _mbwManager.getMetadataStorage(),
-             ((BtcAddress)mSelectedAddress).getAddress(),
+             mSelectedAddress,
               "", addressLabelChanged);
    }
 
@@ -334,22 +342,53 @@ public class AddressBookFragment extends Fragment {
 
             @Override
             public void onClick(View v) {
-               StringHandleConfig request = StringHandleConfig.getAddressBookScanRequest();
+               StringHandleConfig request = HandleConfigFactory.getAddressBookScanRequest();
                ScanActivity.callMe(AddressBookFragment.this, SCAN_RESULT_CODE, request);
                AddDialog.this.dismiss();
             }
 
          });
 
-         Optional<Address> address = Utils.addressFromString(Utils.getClipboardString(activity), _mbwManager.getNetwork());
-         findViewById(R.id.btClipboard).setEnabled(address.isPresent());
          findViewById(R.id.btClipboard).setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
-               Optional<Address> address = Utils.addressFromString(Utils.getClipboardString(activity), _mbwManager.getNetwork());
-               Preconditions.checkState(address.isPresent());
-               addFromAddress(address.get());
+               String mm = Utils.getClipboardString(activity);
+               List<GenericAssetInfo> assets = _mbwManager.getWalletManager(false).
+                       getAcceptableAssetTypes(Utils.getClipboardString(activity));
+
+               if(!assets.isEmpty()) {
+
+                  AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+
+                  builder.setIcon(R.drawable.ic_launcher);
+                  builder.setTitle(String.format("The address %s may belong to different crypto currency types.\n\nPlease choose which one it belongs to:", Utils.getClipboardString(activity)));
+
+
+                  final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(getContext(), android.R.layout.select_dialog_singlechoice);
+                  for(GenericAssetInfo asset : assets){
+                     arrayAdapter.add(asset.getName());
+                  }
+
+                  builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+                     @Override
+                     public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                     }
+                  });
+
+                  builder.setAdapter(arrayAdapter, new DialogInterface.OnClickListener() {
+                     @Override
+                     public void onClick(DialogInterface dialog, int which) {
+                        String name = arrayAdapter.getItem(which);
+                        CryptoCurrency asset = _mbwManager.getMetadataStorage().coinTypeFromString(name);
+                        addFromAddress(AddressUtils.from(asset, Utils.getClipboardString(activity)));
+                     }
+                  });
+                  builder.show();
+               } else {
+                  Toast.makeText(AddDialog.super.getContext(), R.string.unrecognized_format, Toast.LENGTH_SHORT).show();
+               }
                AddDialog.this.dismiss();
             }
          });
@@ -381,18 +420,23 @@ public class AddressBookFragment extends Fragment {
          }
          return;
       }
-      StringHandlerActivity.ResultType type = (StringHandlerActivity.ResultType) intent.getSerializableExtra(StringHandlerActivity.RESULT_TYPE_KEY);
-      if (type == StringHandlerActivity.ResultType.PRIVATE_KEY) {
-         Utils.showSimpleMessageDialog(getActivity(), R.string.addressbook_cannot_add_private_key);
-         return;
+      ResultType type = (ResultType) intent.getSerializableExtra(StringHandlerActivity.RESULT_TYPE_KEY);
+      switch (type) {
+         case PRIVATE_KEY:
+            Utils.showSimpleMessageDialog(getActivity(), R.string.addressbook_cannot_add_private_key);
+            break;
+         case ASSET_URI:
+            addFromAddress(StringHandlerActivity.getAssetUri(intent).getAddress());
+            break;
+         case ADDRESS:
+            addFromAddress(StringHandlerActivity.getAddress(intent));
+            break;
       }
-      Preconditions.checkState(type == StringHandlerActivity.ResultType.ADDRESS);
-      Address address = StringHandlerActivity.getAddress(intent);
-      addFromAddress(address);
    }
 
-   private void addFromAddress(Address address) {
-         EnterAddressLabelUtil.enterAddressLabel(getActivity(), _mbwManager.getMetadataStorage(), address, "", addressLabelChanged);
+   private void addFromAddress(GenericAddress address) {
+         EnterAddressLabelUtil.enterAddressLabel(getActivity(), _mbwManager.getMetadataStorage(), address,"", addressLabelChanged);
+         _mbwManager.getMetadataStorage().storeAddressCoinType(address.toString(), address.getCoinType().getName());
    }
 
    private AddressLabelChangedHandler addressLabelChanged = new AddressLabelChangedHandler() {

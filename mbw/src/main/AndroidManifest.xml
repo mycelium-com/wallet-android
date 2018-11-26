@@ -216,7 +216,6 @@
         <activity android:name=".activity.send.SendMainActivity" />
         <activity android:name=".activity.send.ManualAddressEntry" />
         <activity android:name=".activity.send.SignTransactionActivity" />
-        <activity android:name=".activity.send.BroadcastTransactionActivity" />
         <activity android:name=".activity.receive.ReceiveCoinsActivity" />
         <activity android:name=".simplex.SimplexMainActivity" />
         <activity android:name=".external.changelly.ChangellyActivity"
@@ -247,7 +246,6 @@
             android:theme="@style/MyceliumModern.Dialog.Transparent" />
         <activity android:name=".activity.PinProtectedActivity" />
         <activity android:name=".activity.MessageSigningActivity" />
-        <activity android:name=".activity.ImportSeedActivity" />
         <activity android:name=".activity.EnterWordListActivity" />
         <activity android:name=".activity.BackupWordListActivity" />
         <activity android:name=".activity.VerifyWordListActivity" />

@@ -1,18 +1,29 @@
 package com.mycelium.wapi.wallet
 
+import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.api.lib.FeeEstimation
+import com.mycelium.wapi.wallet.bch.coins.BchMain
+import com.mycelium.wapi.wallet.bch.coins.BchTest
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking
+import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
+import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
+import com.mycelium.wapi.wallet.coins.GenericAssetInfo
+import com.mycelium.wapi.wallet.colu.coins.*
+import com.mycelium.wapi.wallet.eth.coins.EthMain
+import com.mycelium.wapi.wallet.eth.coins.EthTest
+import com.mycelium.wapi.wallet.exceptions.AddressMalformedException
 import com.mycelium.wapi.wallet.manager.*
+import org.jetbrains.annotations.TestOnly
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 class WalletManager(val backing: WalletManagerBacking<*,*>,
                     val network: NetworkParameters,
                     val wapi: Wapi) {
     private val MAX_AGE_FEE_ESTIMATION = (2 * 60 * 60 * 1000).toLong() // 2 hours
-    private val MIN_AGE_FEE_ESTIMATION = (20 * 60 * 1000).toLong() // 20 minutes
 
     private val accounts = mutableMapOf<UUID, WalletAccount<*, *>>()
     private val walletModules = mutableMapOf<String, WalletModule>()
@@ -95,6 +106,7 @@ class WalletManager(val backing: WalletManagerBacking<*,*>,
         return result.keys.toList()
     }
 
+    @TestOnly
     fun addAccount(account: WalletAccount<*,*>) {
         accounts[account.id] = account;
     }
@@ -206,6 +218,23 @@ class WalletManager(val backing: WalletManagerBacking<*,*>,
 
     fun getActiveAccounts(): List<WalletAccount<*, *>> {
         return accounts.values.filter { it.isActive && it.canSpend() }
+    }
+
+    fun getAcceptableAssetTypes(address: String): List<GenericAssetInfo> {
+        val coinTypes = walletModules.values.flatMap { acc -> acc.getSupportedAssets() }.distinctBy { it -> it.id }
+        return coinTypes.filter {it -> it.isMineAddress(address)}.toList()
+    }
+
+    fun parseAddress(address: String): List<GenericAddress> {
+        val coinTypes = walletModules.values.flatMap { acc -> acc.getSupportedAssets() }.distinctBy { it -> it.id}
+        val addressesList = ArrayList<GenericAddress>()
+        for(asset in coinTypes) {
+            try {
+                addressesList.add(asset.parseAddress(address)!!)
+            } catch (ex : AddressMalformedException) {
+            }
+        }
+        return addressesList
     }
 
     /**

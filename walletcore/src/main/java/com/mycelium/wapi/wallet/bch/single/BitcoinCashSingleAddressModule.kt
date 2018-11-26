@@ -10,21 +10,20 @@ import com.mycelium.wapi.wallet.SpvBalanceFetcher
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.BtcTransaction
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking
-import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore
-import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
-import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext
+import com.mycelium.wapi.wallet.btc.single.*
 import com.mycelium.wapi.wallet.manager.Config
+import com.mycelium.wapi.wallet.manager.GenericModule
 import com.mycelium.wapi.wallet.manager.WalletModule
-import com.mycelium.wapi.wallet.btc.single.PrivateSingleConfig
-import com.mycelium.wapi.wallet.btc.single.PublicSingleConfig
+import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
 import java.util.*
 
 
-class BitcoinCashSingleAddressModule(internal val backing: WalletManagerBacking<SingleAddressAccountContext, BtcTransaction>
-                                     , internal val publicPrivateKeyStore: PublicPrivateKeyStore
-                                     , internal val networkParameters: NetworkParameters
-                                     , internal val spvBalanceFetcher: SpvBalanceFetcher
-                                     , internal var _wapi: Wapi) : WalletModule {
+class BitcoinCashSingleAddressModule(internal val backing: WalletManagerBacking<SingleAddressAccountContext, BtcTransaction>,
+                                     internal val publicPrivateKeyStore: PublicPrivateKeyStore,
+                                     internal val networkParameters: NetworkParameters,
+                                     internal val spvBalanceFetcher: SpvBalanceFetcher,
+                                     internal var _wapi: Wapi,
+                                     internal val metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStorage), WalletModule {
     override fun getId(): String = "BCHSA"
 
     override fun loadAccounts(): Map<UUID, WalletAccount<*, *>> {
@@ -54,6 +53,11 @@ class BitcoinCashSingleAddressModule(internal val backing: WalletManagerBacking<
         } else if (config is PublicSingleConfig) {
             val cfg = config
             result = createAccount(cfg.publicKey)
+        }
+
+        val baseLabel = "BCH Single Address"
+        if (result != null) {
+            result.label = createLabel(baseLabel, result.id)
         }
         return result
     }

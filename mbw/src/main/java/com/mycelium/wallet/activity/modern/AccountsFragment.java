@@ -251,7 +251,8 @@ public class AccountsFragment extends Fragment {
             updateIncludingMenus();
             if (!(account instanceof ColuAccount)
                     && !intent.getBooleanExtra(AddAccountActivity.IS_UPGRADE, false)) {
-               setNameForNewAccount(account);
+
+               setLabelOnAccount(account, account.getLabel(), false);
             }
             eventBus.post(new AccountChanged(accountid));
          }
@@ -535,25 +536,6 @@ public class AccountsFragment extends Fragment {
       if (currentActionMode != null) {
          currentActionMode.finish();
       }
-   }
-
-   private void setNameForNewAccount(WalletAccount account) {
-      if (account == null || !isAdded()) {
-         return;
-      }
-      String baseName = Utils.getNameForNewAccount(account, getActivity());
-      //append counter if name already in use
-      String defaultName = baseName;
-      int num = 1;
-      while (_storage.getAccountByLabel(defaultName).isPresent()) {
-         defaultName = baseName + " (" + num++ + ')';
-      }
-      //we just put the default name into storage first, if there is none
-      //if the user cancels entry or it gets somehow aborted, we at least have a valid entry
-      if (_mbwManager.getMetadataStorage().getLabelByAccount(account.getId()).length() == 0) {
-         _mbwManager.getMetadataStorage().storeAccountLabel(account.getId(), defaultName);
-      }
-      setLabelOnAccount(account, defaultName, false);
    }
 
    private void update() {
@@ -983,7 +965,7 @@ public class AccountsFragment extends Fragment {
    }
 
    private void setLabelOnAccount(final WalletAccount account, final String defaultName, boolean askForPin) {
-      if (!AccountsFragment.this.isAdded()) {
+      if (account == null || !AccountsFragment.this.isAdded()) {
          return;
       }
       if (askForPin) {

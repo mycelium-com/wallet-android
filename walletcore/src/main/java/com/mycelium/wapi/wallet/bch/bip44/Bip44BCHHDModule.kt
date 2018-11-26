@@ -2,21 +2,26 @@ package com.mycelium.wapi.wallet.bch.bip44
 
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wapi.api.Wapi
-import com.mycelium.wapi.wallet.*
+import com.mycelium.wapi.wallet.KeyCipher
+import com.mycelium.wapi.wallet.SecureKeyValueStore
+import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.BtcTransaction
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking
-import com.mycelium.wapi.wallet.btc.bip44.*
+import com.mycelium.wapi.wallet.btc.bip44.HDAccount
+import com.mycelium.wapi.wallet.btc.bip44.UnrelatedHDAccountConfig
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext
 import com.mycelium.wapi.wallet.manager.Config
+import com.mycelium.wapi.wallet.manager.GenericModule
 import com.mycelium.wapi.wallet.manager.WalletModule
+import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
 import java.util.*
 
 
-class Bip44BCHHDModule(internal val backing: WalletManagerBacking<SingleAddressAccountContext, BtcTransaction>
-                      , internal val secureStore: SecureKeyValueStore
-                      , internal val networkParameters: NetworkParameters
-                      , internal var _wapi: Wapi) : WalletModule {
-
+class Bip44BCHHDModule(internal val backing: WalletManagerBacking<SingleAddressAccountContext, BtcTransaction>,
+                       internal val secureStore: SecureKeyValueStore,
+                       internal val networkParameters: NetworkParameters,
+                       internal var _wapi: Wapi,
+                       metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStorage), WalletModule {
 
     override fun getId(): String = "Bip44HD"
 
@@ -28,6 +33,11 @@ class Bip44BCHHDModule(internal val backing: WalletManagerBacking<SingleAddressA
 
     override fun createAccount(config: Config): WalletAccount<*, *>? {
         var result: WalletAccount<*, *>? = null
+
+        val baseName = "BCH HD Account"
+        if (result != null) {
+            result.label = createLabel(baseName, result.id)
+        }
         return result
     }
 

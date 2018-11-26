@@ -108,8 +108,6 @@ public abstract class CryptoCurrency extends AbstractAsset {
         return checkNotNull(addressPrefix, "A coin failed to set the address prefix");
     }
 
-    public abstract GenericAddress newAddress(String addressStr) throws AddressMalformedException;
-
     @Override
     public Value oneCoin() {
         if (oneCoin == null) {

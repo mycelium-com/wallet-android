@@ -116,6 +116,8 @@ import com.mycelium.wallet.persistence.TradeSessionDb;
 import com.mycelium.wallet.wapi.SqliteWalletManagerBackingWrapper;
 import com.mycelium.wapi.api.WapiClientElectrumX;
 import com.mycelium.wapi.api.jsonrpc.TcpEndpoint;
+import com.mycelium.wapi.content.ContentResolver;
+import com.mycelium.wapi.content.btc.BitcoinUriParser;
 import com.mycelium.wapi.wallet.AccountListener;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.BTCSettings;
@@ -132,7 +134,6 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bch.single.BitcoinCashSingleAddressModule;
 import com.mycelium.wapi.wallet.bip44.ChangeAddressMode;
-import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
 import com.mycelium.wapi.wallet.btc.InMemoryWalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking;
@@ -148,8 +149,8 @@ import com.mycelium.wapi.wallet.btc.single.PrivateSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore;
 import com.mycelium.wapi.wallet.btc.single.PublicSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
-import com.mycelium.wapi.wallet.btcmasterseed.Listener;
-import com.mycelium.wapi.wallet.btcmasterseed.MasterSeedManager;
+import com.mycelium.wapi.wallet.masterseed.Listener;
+import com.mycelium.wapi.wallet.masterseed.MasterSeedManager;
 import com.mycelium.wapi.wallet.coinapult.CoinapultApiImpl;
 import com.mycelium.wapi.wallet.coinapult.CoinapultModule;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
@@ -162,7 +163,6 @@ import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
 import com.mycelium.wapi.wallet.eth.EthModule;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 import com.mycelium.wapi.wallet.manager.WalletListener;
-import com.mycelium.wapi.wallet.metadata.IMetaDataStorage;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -259,6 +259,7 @@ public class MbwManager {
     private final WalletManager _walletManager;
     private WalletManager _tempWalletManager;
     private MasterSeedManager masterSeedManager;
+    private ContentResolver contentResolver;
     private final RandomSource _randomSource;
     private final EventTranslator _eventTranslator;
     private ServerEndpointType.Types _torMode;
@@ -367,6 +368,7 @@ public class MbwManager {
         _keepkeyManager = new KeepKeyManager(_applicationContext, getNetwork(), getEventBus());
         _ledgerManager = new LedgerManager(_applicationContext, getNetwork(), getEventBus());
         _walletManager = createWalletManager(_applicationContext, _environment);
+        contentResolver = createContentResolver(getNetwork());
         _gebHelper = new GEBHelper(_applicationContext);
 
         _eventTranslator = new EventTranslator(new Handler(), _eventBus);
@@ -386,6 +388,16 @@ public class MbwManager {
                 _environment.getBlockExplorerList(),
                 preferences.getString(Constants.BLOCK_EXPLORER,
                                       _environment.getBlockExplorerList().get(0).getIdentifier()));
+    }
+
+    private ContentResolver createContentResolver(NetworkParameters network) {
+        ContentResolver result = new ContentResolver();
+        result.add(new BitcoinUriParser(network));
+        return result;
+    }
+
+    public ContentResolver getContentResolver() {
+        return contentResolver;
     }
 
     private void initPerCurrencySettings() {
@@ -663,24 +675,15 @@ public class MbwManager {
 
         walletManager.add(new BitcoinSingleAddressModule(backing, publicPrivateKeyStore, networkParameters, _wapi, getMetadataStorage()));
         if (spvBchFetcher != null) {
-            walletManager.add(new BitcoinCashSingleAddressModule(backing, publicPrivateKeyStore, networkParameters, spvBchFetcher, _wapi));
+            walletManager.add(new BitcoinCashSingleAddressModule(backing, publicPrivateKeyStore, networkParameters, spvBchFetcher, _wapi, getMetadataStorage()));
         }
         walletManager.add(new BitcoinHDModule(backing, secureKeyValueStore, networkParameters, _wapi, currenciesSettingsMap, getMetadataStorage()));
 
         SqliteColuManagerBacking coluBacking = new SqliteColuManagerBacking(context);
         ColuClient coluClient = new ColuClient(networkParameters, BuildConfig.ColoredCoinsApiURLs, BuildConfig.ColuBlockExplorerApiURLs);
-        org.bitcoinj.core.NetworkParameters netParams;
-        if (networkParameters.isProdnet()) {
-            netParams = MainNetParams.get();
-        } else if (networkParameters.isTestnet()) {
-            netParams = TestNet3Params.get();
-        } else {
-            netParams = RegTestParams.get();
-        }
 
-
-        walletManager.add(new ColuModule(networkParameters, netParams, publicPrivateKeyStore
-                , new ColuApiImpl(coluClient), coluBacking, accountListener));
+        walletManager.add(new ColuModule(networkParameters, publicPrivateKeyStore
+                , new ColuApiImpl(coluClient), coluBacking, accountListener, getMetadataStorage()));
 
         if (masterSeedManager.hasBip32MasterSeed()) {
             addCoinapultModule(context, environment,walletManager, accountListener);
@@ -702,7 +705,7 @@ public class MbwManager {
                     , getMetadataStorage(), inMemoryPrivateKey.getPublicKey().getPublicKeyBytes());
             walletManager.add(new CoinapultModule(inMemoryPrivateKey, networkParameters
                     , new CoinapultApiImpl(createClient(environment, inMemoryPrivateKey, retainingWapiLogger), retainingWapiLogger)
-                    , coinapultBacking, accountListener));
+                    , coinapultBacking, accountListener, getMetadataStorage()));
         } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
             invalidKeyCipher.printStackTrace();
         }
@@ -1223,6 +1226,11 @@ public class MbwManager {
         _tempWalletManager.getAccount(accountId).setAllowZeroConfSpending(true);
         _tempWalletManager.setActiveAccount(accountId);  // this also starts a sync
         return accountId;
+    }
+
+    public UUID createOnTheFlyAccount(GenericAddress address) {
+        //TODO need implementation
+        return null;
     }
 
     public UUID createOnTheFlyAccount(InMemoryPrivateKey privateKey) {

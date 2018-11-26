@@ -4,19 +4,38 @@ import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.model.AddressType
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wapi.wallet.*
+import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
+import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
 import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore
+import com.mycelium.wapi.wallet.coins.GenericAssetInfo
 import com.mycelium.wapi.wallet.colu.coins.ColuMain
+import com.mycelium.wapi.wallet.colu.coins.MASSCoin
+import com.mycelium.wapi.wallet.colu.coins.MTCoin
+import com.mycelium.wapi.wallet.colu.coins.RMCCoin
+import com.mycelium.wapi.wallet.colu.coins.MASSCoinTest
+import com.mycelium.wapi.wallet.colu.coins.MTCoinTest
+import com.mycelium.wapi.wallet.colu.coins.RMCCoinTest
 import com.mycelium.wapi.wallet.manager.Config
+import com.mycelium.wapi.wallet.manager.GenericModule
 import com.mycelium.wapi.wallet.manager.WalletModule
+import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
+import java.text.DateFormat
 import java.util.*
 
+class ColuModule(val networkParameters: NetworkParameters,
+                 internal val publicPrivateKeyStore: PublicPrivateKeyStore,
+                 val coluApi: ColuApi,
+                 val backing: WalletBacking<ColuAccountContext, ColuTransaction>,
+                 val listener: AccountListener,
+                 val metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStorage), WalletModule {
 
-class ColuModule(val networkParameters: NetworkParameters
-                 , val netParams: org.bitcoinj.core.NetworkParameters
-                 , internal val publicPrivateKeyStore: PublicPrivateKeyStore
-                 , val coluApi: ColuApi
-                 , val backing: WalletBacking<ColuAccountContext, ColuTransaction>
-                 , val listener: AccountListener) : WalletModule {
+    init {
+        if (networkParameters.isProdnet) {
+            assetsList.addAll(listOf(MASSCoin, MTCoin, RMCCoin))
+        } else {
+            assetsList.addAll(listOf(MASSCoinTest, MTCoinTest, RMCCoinTest))
+        }
+    }
 
     override fun getId(): String = "colored coin module"
 
@@ -29,11 +48,11 @@ class ColuModule(val networkParameters: NetworkParameters
                         ?: context.address!!.address
                 val accountKey = publicPrivateKeyStore.getPrivateKey(address, AesKeyCipher.defaultKeyCipher())
                 val account = if (accountKey == null) {
-                    ColuPubOnlyAccount(context, context.coinType, networkParameters, netParams, coluApi
+                    ColuPubOnlyAccount(context, context.coinType, networkParameters, coluApi
                             , backing.getAccountBacking(context.id), backing
                             , listener)
                 } else {
-                    ColuAccount(context, accountKey, context.coinType, networkParameters, netParams, coluApi
+                    ColuAccount(context, accountKey, context.coinType, networkParameters, coluApi
                             , backing.getAccountBacking(context.id), backing
                             , listener)
                 }
@@ -56,7 +75,7 @@ class ColuModule(val networkParameters: NetworkParameters
                 val context = ColuAccountContext(id, type, config.privateKey.publicKey, null
                         , false, 0)
                 backing.createAccountContext(context)
-                result = ColuAccount(context, config.privateKey, type, networkParameters, netParams
+                result = ColuAccount(context, config.privateKey, type, networkParameters
                         , coluApi, backing.getAccountBacking(id), backing, listener)
                 publicPrivateKeyStore.setPrivateKey(address, config.privateKey, config.cipher)
             }
@@ -69,7 +88,7 @@ class ColuModule(val networkParameters: NetworkParameters
                         , false, 0)
                 backing.createAccountContext(context)
                 result = ColuPubOnlyAccount(context, type, networkParameters
-                        , netParams, coluApi, backing.getAccountBacking(id), backing, listener)
+                        , coluApi, backing.getAccountBacking(id), backing, listener)
             }
         } else if(config is AddressColuConfig) {
             val coinType = coluMain(config.address.address, config.coinType)
@@ -79,9 +98,12 @@ class ColuModule(val networkParameters: NetworkParameters
                         , false, 0)
                 backing.createAccountContext(context)
                 result = ColuPubOnlyAccount(context, type, networkParameters
-                        , netParams, coluApi, backing.getAccountBacking(id), backing, listener)
+                        , coluApi, backing.getAccountBacking(id), backing, listener)
             }
         }
+
+        val baseName = DateFormat.getDateInstance(java.text.DateFormat.MEDIUM, Locale.getDefault()).format(Date())
+        result!!.label = createLabel(baseName, result!!.id)
         return result
     }
 

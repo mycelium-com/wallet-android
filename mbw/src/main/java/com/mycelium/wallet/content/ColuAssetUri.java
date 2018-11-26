@@ -1,4 +1,4 @@
-package com.mycelium.wallet;
+package com.mycelium.wallet.content;
 
 import android.net.Uri;
 

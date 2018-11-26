@@ -2,13 +2,21 @@ package com.mycelium.wapi.wallet.eth
 
 import com.mycelium.wapi.wallet.KeyCipher
 import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
+import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
+import com.mycelium.wapi.wallet.eth.coins.EthMain
 import com.mycelium.wapi.wallet.manager.Config
+import com.mycelium.wapi.wallet.manager.GenericModule
 import com.mycelium.wapi.wallet.manager.WalletModule
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
 import java.util.*
 import kotlin.collections.HashMap
 
-class EthModule(internal val metaDataStorage: IMetaDataStorage) : WalletModule {
+class EthModule(metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStorage), WalletModule {
+
+    init {
+        assetsList.add(EthMain)
+    }
 
     override fun getId(): String = "ETH"
 
@@ -18,7 +26,11 @@ class EthModule(internal val metaDataStorage: IMetaDataStorage) : WalletModule {
     }
 
     override fun createAccount(config: Config): WalletAccount<*, *>? {
-        return EthAccount()
+        val newEthAccount = EthAccount()
+
+        val baseName = "Ethereum"
+        newEthAccount.label = createLabel(baseName, newEthAccount.id)
+        return newEthAccount
     }
 
     override fun canCreateAccount(config: Config): Boolean {

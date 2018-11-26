@@ -1,28 +1,19 @@
 package com.mycelium.wapi.wallet.eth;
 
-import com.google.common.base.Optional;
-import com.mrd.bitlib.StandardTransactionBuilder;
-import com.mrd.bitlib.UnsignedTransaction;
-import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.Sha256Hash;
-import com.mycelium.wapi.model.TransactionEx;
-import com.mycelium.wapi.model.TransactionOutputSummary;
-import com.mycelium.wapi.model.TransactionSummary;
-import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.BroadcastResult;
 import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.GenericTransaction;
+import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
+import com.mycelium.wapi.wallet.eth.coins.EthMain;
 import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
-import com.mycelium.wapi.wallet.eth.coins.*;
 
 import net.bytebuddy.utility.RandomString;
 
@@ -39,6 +30,7 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
 
     private UUID id;
     private EthAddress address;
+    private String label;
 
     public EthAccount() {
         id = UUID.randomUUID();
@@ -56,9 +48,9 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
     }
 
     @Override
-    public void completeAndSignTx(SendRequest<EthTransaction> request) throws WalletAccountException {
+    public void completeAndSignTx(SendRequest<EthTransaction> request, KeyCipher keyCipher) throws WalletAccountException {
         completeTransaction(request);
-        signTransaction(request);
+        signTransaction(request, keyCipher);
     }
 
     @Override
@@ -71,7 +63,7 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
     }
 
     @Override
-    public void signTransaction(SendRequest<EthTransaction> request) {
+    public void signTransaction(SendRequest<EthTransaction> request, KeyCipher keyCipher) {
 
     }
 
@@ -111,7 +103,7 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
 
     @Override
     public boolean isMineAddress(GenericAddress address) {
-        return true;
+        return false;
     }
 
     @Override
@@ -211,12 +203,12 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
 
     @Override
     public String getLabel() {
-        return null;
+        return label;
     }
 
     @Override
     public void setLabel(String label) {
-
+        this.label = label;
     }
 
 }

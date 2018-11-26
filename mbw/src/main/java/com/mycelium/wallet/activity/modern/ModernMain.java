@@ -34,8 +34,6 @@
 
 package com.mycelium.wallet.activity.modern;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -45,22 +43,15 @@ import android.os.Handler;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.text.SpannableString;
-import android.text.method.LinkMovementMethod;
-import android.text.util.Linkify;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.mrd.bitlib.model.Address;
 import com.mycelium.net.ServerEndpointType;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
@@ -69,7 +60,6 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.WalletApplication;
 import com.mycelium.wallet.activity.AboutActivity;
 import com.mycelium.wallet.activity.MessageVerifyActivity;
-import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.main.BalanceMasterFragment;
 import com.mycelium.wallet.activity.main.RecommendationsFragment;
 import com.mycelium.wallet.activity.main.TransactionHistoryFragment;
@@ -106,7 +96,6 @@ public class ModernMain extends AppCompatActivity {
    private static final int TAB_ID_HISTORY = 2;
 
    private static final int REQUEST_SETTING_CHANGED = 5;
-   public static final int GENERIC_SCAN_REQUEST = 4;
    public static final int MIN_AUTOSYNC_INTERVAL = (int) Constants.MS_PR_MINUTE;
    public static final int MIN_FULLSYNC_INTERVAL = (int) (5 * Constants.MS_PR_HOUR);
    public static final String LAST_SYNC = "LAST_SYNC";
@@ -471,13 +460,7 @@ public class ModernMain extends AppCompatActivity {
          Intent running = getIntent();
          finish();
          startActivity(running);
-      } else if (requestCode == GENERIC_SCAN_REQUEST) {
-         if (resultCode != RESULT_OK) {
-            //report to user in case of error
-            //if no scan handlers match successfully, this is the last resort to display an error msg
-            ScanActivity.toastScanError(resultCode, data, this);
-         }
-      } else {
+      }  else {
          super.onActivityResult(requestCode, resultCode, data);
       }
    }

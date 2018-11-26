@@ -49,14 +49,11 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.event.AccountChanged;
-import com.mycelium.wallet.event.HdAccountCreated;
+import com.mycelium.wallet.event.AccountCreated;
 import com.mycelium.wallet.modularisation.BCHHelper;
 import com.mycelium.wallet.persistence.MetadataStorage;
-import com.mycelium.wapi.wallet.AesKeyCipher;
-import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
-import com.mycelium.wapi.wallet.eth.EthAccount;
 import com.mycelium.wapi.wallet.eth.EthConfig;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
@@ -146,7 +143,11 @@ public class AddAccountActivity extends Activity {
       @Override
       public void onClick(View view) {
          final WalletManager wallet = _mbwManager.getWalletManager(false);
-         wallet.createAccounts(new EthConfig());
+         UUID createdId = wallet.createAccounts(new EthConfig()).get(0);
+
+         Bus bus = _mbwManager.getEventBus();
+         bus.post(new AccountCreated(createdId));
+         bus.post(new AccountChanged(createdId));
       }
    };
 
@@ -203,13 +204,13 @@ public class AddAccountActivity extends Activity {
 
       @Override
       protected void onPostExecute(UUID account) {
-         bus.post(new HdAccountCreated(account));
+         bus.post(new AccountCreated(account));
          bus.post(new AccountChanged(account));
       }
    }
 
    @Subscribe
-   public void hdAccountCreated(HdAccountCreated event) {
+   public void hdAccountCreated(AccountCreated event) {
       _progress.dismiss();
       finishOk(event.account);
    }

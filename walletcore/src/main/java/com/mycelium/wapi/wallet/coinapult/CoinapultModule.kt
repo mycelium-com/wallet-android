@@ -2,17 +2,25 @@ package com.mycelium.wapi.wallet.coinapult
 
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.model.NetworkParameters
-import com.mycelium.wapi.wallet.*
+import com.mycelium.wapi.wallet.AccountListener
+import com.mycelium.wapi.wallet.KeyCipher
+import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.WalletBacking
 import com.mycelium.wapi.wallet.manager.Config
+import com.mycelium.wapi.wallet.manager.GenericModule
 import com.mycelium.wapi.wallet.manager.WalletModule
+import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
+import java.text.DateFormat
 import java.util.*
 
 
-class CoinapultModule(val accountKey: InMemoryPrivateKey
-                      , val networkParameters: NetworkParameters
-                      , val api: CoinapultApi
-                      , val backing: WalletBacking<CoinapultAccountContext, CoinapultTransaction>
-                      , val listener: AccountListener) : WalletModule {
+class CoinapultModule(val accountKey: InMemoryPrivateKey,
+                      val networkParameters: NetworkParameters,
+                      val api: CoinapultApi,
+                      val backing: WalletBacking<CoinapultAccountContext, CoinapultTransaction>,
+                      val listener: AccountListener,
+                      val metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStorage), WalletModule {
+
     override fun getId(): String = "coinapult module"
 
     override fun loadAccounts(): Map<UUID, WalletAccount<*, *>> {
@@ -37,6 +45,11 @@ class CoinapultModule(val accountKey: InMemoryPrivateKey
             backing.createAccountContext(context)
             result = CoinapultAccount(context, accountKey
                     , api, backing.getAccountBacking(id), networkParameters, config.currency, listener)
+        }
+
+        val baseLabel = DateFormat.getDateInstance(java.text.DateFormat.MEDIUM, Locale.getDefault()).format(Date())
+        if (result != null) {
+            result.label = createLabel(baseLabel, result.id)
         }
         return result
     }

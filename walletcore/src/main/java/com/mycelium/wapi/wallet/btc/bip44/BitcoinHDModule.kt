@@ -15,8 +15,11 @@ import com.mycelium.wapi.wallet.btc.BtcTransaction
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.Companion.ACCOUNT_TYPE_UNRELATED_X_PRIV
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.Companion.ACCOUNT_TYPE_UNRELATED_X_PUB
+import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
+import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext
 import com.mycelium.wapi.wallet.manager.Config
+import com.mycelium.wapi.wallet.manager.GenericModule
 import com.mycelium.wapi.wallet.manager.WalletModule
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
 import java.util.*
@@ -27,7 +30,11 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
                       internal val networkParameters: NetworkParameters,
                       internal var _wapi: Wapi,
                       internal val currenciesSettingsMap: MutableMap<Currency, CurrencySettings>,
-                      internal val metadataStorage: IMetaDataStorage) : WalletModule {
+                      internal val metadataStorage: IMetaDataStorage) : GenericModule(metadataStorage), WalletModule {
+
+    init {
+        assetsList.add(if (networkParameters.isProdnet) BitcoinMain.get() else BitcoinTest.get())
+    }
 
     private val MASTER_SEED_ID = HexUtils.toBytes("D64CA2B680D8C8909A367F28EB47F990")
 
@@ -177,6 +184,9 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
         }
 
         accounts.put(result!!.id, result as HDAccount)
+
+        val baseLabel = "Account" + " " + (result.accountIndex + 1)
+        result.label = createLabel(baseLabel, result.id)
         return result
     }
 

@@ -51,13 +51,11 @@ import android.widget.Toast;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
 import com.google.common.io.ByteStreams;
 import com.mrd.bitlib.crypto.Bip39;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.NetworkParameters;
-import com.mycelium.wallet.BitcoinUri;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.PinDialog;
@@ -70,8 +68,12 @@ import com.mycelium.wallet.activity.send.GetSpendingRecordActivity;
 import com.mycelium.wallet.activity.send.SendInitializationActivity;
 import com.mycelium.wallet.bitid.BitIDAuthenticationActivity;
 import com.mycelium.wallet.bitid.BitIDSignRequest;
+import com.mycelium.wallet.content.actions.HdNodeAction;
+import com.mycelium.wallet.content.actions.PrivateKeyAction;
 import com.mycelium.wallet.external.glidera.activities.GlideraSendToNextStep;
 import com.mycelium.wallet.pop.PopRequest;
+import com.mycelium.wapi.content.GenericAssetUri;
+import com.mycelium.wapi.content.btc.PrivateKeyUri;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -84,9 +86,6 @@ import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.UUID;
-
-import static com.mycelium.wallet.StringHandleConfig.HdNodeAction.isKeyNode;
-import static com.mycelium.wallet.StringHandleConfig.PrivateKeyAction.getPrivateKey;
 
 public class StartupActivity extends Activity implements AccountCreatorHelper.AccountCreationObserver {
    private static final int MINIMUM_SPLASH_TIME = 500;
@@ -167,7 +166,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
       private boolean hasPrivateKeyOnClipboard(NetworkParameters network) {
          // do we have a private key on the clipboard?
          try {
-            Optional<InMemoryPrivateKey> key = getPrivateKey(network, Utils.getClipboardString(StartupActivity.this));
+            Optional<InMemoryPrivateKey> key = PrivateKeyAction.Companion.getPrivateKey(network, Utils.getClipboardString(StartupActivity.this));
             if (key.isPresent()) {
                return true;
             }
@@ -181,7 +180,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
       private boolean hasPublicKeyOnClipboard(NetworkParameters network) {
          // do we have a public key on the clipboard?
          try {
-            if (isKeyNode(network, Utils.getClipboardString(StartupActivity.this))) {
+            if (HdNodeAction.Companion.isKeyNode(network, Utils.getClipboardString(StartupActivity.this))) {
                return true;
             }
             HdKeyNode.parse(Utils.getClipboardString(StartupActivity.this), network);
@@ -401,7 +400,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
          if (intentUri != null && (Intent.ACTION_VIEW.equals(action) || NfcAdapter.ACTION_NDEF_DISCOVERED.equals(action))) {
             switch (scheme) {
                case "bitcoin":
-                  handleBitcoinUri(intentUri);
+                  handleUri(intentUri);
                   break;
                case "bitid":
                   handleBitIdUri(intentUri);
@@ -485,11 +484,11 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
       finish();
    }
 
-   private void handleBitcoinUri(Uri intentUri) {
+   private void handleUri(Uri intentUri) {
       // We have been launched by a Bitcoin URI
       MbwManager mbwManager = MbwManager.getInstance(StartupActivity.this.getApplication());
-      Optional<? extends BitcoinUri> bitcoinUri = BitcoinUri.parse(intentUri.toString(), mbwManager.getNetwork());
-      if (!bitcoinUri.isPresent()) {
+      GenericAssetUri uri = mbwManager.getContentResolver().resolveUri(intentUri.toString());
+      if (uri == null) {
          // Invalid Bitcoin URI
          Toast.makeText(this, R.string.invalid_bitcoin_uri, Toast.LENGTH_LONG).show();
          finish();
@@ -497,11 +496,11 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
       }
 
       // the bitcoin uri might actually be encrypted private key, where the user wants to spend funds from
-      if (bitcoinUri.get() instanceof BitcoinUri.PrivateKeyUri) {
-         final BitcoinUri.PrivateKeyUri privateKeyUri = (BitcoinUri.PrivateKeyUri) bitcoinUri.get();
-         DecryptBip38PrivateKeyActivity.callMe(this, privateKeyUri.keyString, StringHandlerActivity.IMPORT_ENCRYPTED_BIP38_PRIVATE_KEY_CODE);
+      if (uri instanceof PrivateKeyUri) {
+         final PrivateKeyUri privateKeyUri = (PrivateKeyUri) uri;
+         DecryptBip38PrivateKeyActivity.callMe(this, privateKeyUri.getKeyString(), StringHandlerActivity.IMPORT_ENCRYPTED_BIP38_PRIVATE_KEY_CODE);
       } else {
-         if (bitcoinUri.get().address == null && Strings.isNullOrEmpty(bitcoinUri.get().callbackURL)) {
+         if (uri.getAddress() == null /*&& Strings.isNullOrEmpty(uri.callbackURL) TODO implement correct check*/) {
             // Invalid Bitcoin URI
             Toast.makeText(this, R.string.invalid_bitcoin_uri, Toast.LENGTH_LONG).show();
             finish();
@@ -514,9 +513,9 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
             spendingAccounts = mbwManager.getWalletManager(false).getSpendingAccounts();
          }
          if (spendingAccounts.size() == 1) {
-            SendInitializationActivity.callMeWithResult(this, spendingAccounts.get(0).getId(), bitcoinUri.get(), false, REQUEST_FROM_URI);
+            SendInitializationActivity.callMeWithResult(this, spendingAccounts.get(0).getId(), uri, false, REQUEST_FROM_URI);
          } else {
-            GetSpendingRecordActivity.callMeWithResult(this, bitcoinUri.get(), REQUEST_FROM_URI);
+            GetSpendingRecordActivity.callMeWithResult(this, uri, REQUEST_FROM_URI);
          }
          //don't finish just yet we want to stay on the stack and observe that we emit a txid correctly.
       }

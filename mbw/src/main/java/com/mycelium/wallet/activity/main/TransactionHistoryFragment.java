@@ -80,7 +80,7 @@ import com.mycelium.wallet.activity.TransactionDetailsActivity;
 import com.mycelium.wallet.activity.main.adapter.TransactionArrayAdapter;
 import com.mycelium.wallet.activity.main.model.transactionhistory.TransactionHistoryModel;
 import com.mycelium.wallet.activity.modern.Toaster;
-import com.mycelium.wallet.activity.send.BroadcastTransactionActivity;
+import com.mycelium.wallet.activity.send.BroadcastDialog;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
 import com.mycelium.wallet.event.AddressBookChanged;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
@@ -94,13 +94,12 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
+import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.coinapult.CoinapultTransaction;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount;
-import com.mycelium.wapi.wallet.currency.CurrencyValue;
-import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.squareup.otto.Subscribe;
 
 import java.io.File;
@@ -219,7 +218,7 @@ public class TransactionHistoryFragment extends Fragment {
          if (resultCode == RESULT_OK) {
             Transaction transaction = (Transaction) Preconditions.checkNotNull(intent.getSerializableExtra("signedTx"));
             // TODO: 9/19/18 Nuru commented this
-//            BroadcastTransactionActivity.callMe(getActivity(), _mbwManager.getSelectedAccount().getId(), false, transaction, "CPFP", null, BROADCAST_REQUEST_CODE);
+//            BroadcastTransactionActivity.create(getActivity(), _mbwManager.getSelectedAccount().getId(), false, transaction, "CPFP", null, BROADCAST_REQUEST_CODE);
          }
       } else {
          super.onActivityResult(requestCode, resultCode, intent);
@@ -490,7 +489,7 @@ public class TransactionHistoryFragment extends Fragment {
                            if (_mbwManager.getSelectedAccount() instanceof ColuPubOnlyAccount) {
                               defaultName = _mbwManager.getSelectedAccount().getCoinType().getName();
                            }
-                           EnterAddressLabelUtil.enterAddressLabel(getActivity(), _mbwManager.getMetadataStorage(), new Address(new byte[0]), defaultName, addressLabelChanged); //record.destinationAddress.get()
+                           EnterAddressLabelUtil.enterAddressLabel(getActivity(), _mbwManager.getMetadataStorage(), _mbwManager.getSelectedAccount().getReceiveAddress(), defaultName, addressLabelChanged); //record.destinationAddress.get()
                            break;
                         case R.id.miCancelTransaction:
                            new AlertDialog.Builder(getActivity())
@@ -542,10 +541,12 @@ public class TransactionHistoryFragment extends Fragment {
                                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                                       @Override
                                       public void onClick(DialogInterface dialog, int which) {
-                                         boolean success = BroadcastTransactionActivity.callMe(getActivity(), _mbwManager.getSelectedAccount(), record.getHash());
-                                         if (!success) {
-                                            Utils.showSimpleMessageDialog(getActivity(), _context.getString(R.string.message_rebroadcast_failed));
-                                         }
+                                         BroadcastDialog broadcastDialog = BroadcastDialog.Companion.create(_mbwManager.getSelectedAccount(), record);
+                                         broadcastDialog.show(getFragmentManager(), "broadcast");
+//                                         boolean success = BroadcastTransactionActivity.create(getActivity(), , );
+//                                         if (!success) {
+//                                            Utils.showSimpleMessageDialog(getActivity(), _context.getString(R.string.message_rebroadcast_failed));
+//                                         }
                                          dialog.dismiss();
                                       }
                                    })

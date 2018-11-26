@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2013, 2014 Megion Research and Development GmbH
  *
@@ -32,13 +33,14 @@
  * fitness for a particular purpose and non-infringement.
  */
 
-package com.mycelium.wallet;
+package com.mycelium.wallet.event;
 
-import com.mrd.bitlib.crypto.InMemoryPrivateKey;
+import java.util.UUID;
 
-/**
-* Created by Andreas on 20.06.2015.
-*/
-public interface BitIdKeyDerivation {
-  InMemoryPrivateKey deriveKey(int accountIndex, String site);
+public class AccountCreated {
+   public final UUID account;
+
+   public AccountCreated(UUID account) {
+      this.account = account;
+   }
 }

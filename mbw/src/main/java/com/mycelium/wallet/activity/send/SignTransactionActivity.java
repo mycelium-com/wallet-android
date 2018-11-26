@@ -49,6 +49,7 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.extsig.keepkey.activity.KeepKeySignTransactionActivity;
 import com.mycelium.wallet.extsig.ledger.activity.LedgerSignTransactionActivity;
 import com.mycelium.wallet.extsig.trezor.activity.TrezorSignTransactionActivity;
+import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -160,7 +161,7 @@ public class SignTransactionActivity extends Activity {
          @Override
          protected SendRequest doInBackground(Void... args) {
             try {
-               _account.signTransaction(_sendRequest);
+               _account.signTransaction(_sendRequest, AesKeyCipher.defaultKeyCipher());
                return _sendRequest; //_account.signTransaction(_unsigned, AesKeyCipher.defaultKeyCipher());
             }
             catch (WalletAccount.WalletAccountException e) {
@@ -172,7 +173,7 @@ public class SignTransactionActivity extends Activity {
          protected void onPostExecute(SendRequest transactionRequest) {
             if (transactionRequest != null) {
                Intent ret = new Intent();
-               //ret.putExtra("transactionRequest", transactionRequest);
+               ret.putExtra("transactionRequest", transactionRequest);
                setResult(RESULT_OK, ret);
                SignTransactionActivity.this.finish();
             } else {

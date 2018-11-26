@@ -14,7 +14,7 @@ object RMCCoinTest : ColuMain() {
     init {
         id = "La8yFVyKmHGf4KWjcPqATZeTrSxXyzB3JRPxDc"
         symbol = "RMC"
-        name = "RMC"
+        name = "RMC Test"
         unitExponent = 4
     }
 }
