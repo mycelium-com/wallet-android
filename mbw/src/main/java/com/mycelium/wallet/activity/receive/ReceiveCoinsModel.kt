@@ -148,7 +148,8 @@ class ReceiveCoinsModel(
     }
 
     private fun getTransactionsToCurrentAddress(transactionsSince: MutableList<out GenericTransaction>) =
-            transactionsSince.filter { tx -> tx.outputs.retainAll { it.address == receivingAddress.value } }
+            transactionsSince.filter { tx -> tx.outputs.contains(GenericTransaction.GenericOutput(receivingAddress.value,
+                    if (tx.isIncoming) tx.received else tx.sent)) }
 
     companion object {
         private const val MAX_SYNC_ERRORS = 8
