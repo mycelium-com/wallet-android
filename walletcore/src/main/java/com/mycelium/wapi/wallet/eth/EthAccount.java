@@ -117,6 +117,11 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
     }
 
     @Override
+    public List<EthTransaction> getTransactionsSince(long receivingSince) {
+        return new ArrayList<>();
+    }
+
+    @Override
     public void checkAmount(WalletAccount.Receiver receiver, long kbMinerFee, Value enteredAmount) {
     }
 

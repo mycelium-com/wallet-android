@@ -14,6 +14,7 @@ import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -71,6 +72,11 @@ public class FiatAccount implements WalletAccount<FiatTransaction, FiatAddress> 
     @Override
     public List<FiatTransaction> getTransactions(int offset, int limit) {
         return null;
+    }
+
+    @Override
+    public List<FiatTransaction> getTransactionsSince(long receivingSince) {
+        return new ArrayList<>();
     }
 
     @Override

@@ -16,6 +16,7 @@ import com.mycelium.wapi.wallet.SpvBalanceFetcher
 import com.mycelium.wapi.wallet.bch.coins.BchCoin
 import com.mycelium.wapi.wallet.bch.coins.BchTest
 import com.mycelium.wapi.wallet.bip44.ChangeAddressMode
+import com.mycelium.wapi.wallet.btc.BtcTransaction
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.Companion.ACCOUNT_TYPE_FROM_MASTERSEED
@@ -100,12 +101,8 @@ open class Bip44BCHAccount(
         }
     }
 
-    override fun getTransactionsSince(receivingSince: Long?): List<TransactionSummary> {
-        return if (accountType == ACCOUNT_TYPE_FROM_MASTERSEED) {
-            spvBalanceFetcher.retrieveTransactionsSummaryByHdAccountIndex(id.toString(), accountIndex, receivingSince!!)
-        } else {
-            spvBalanceFetcher.retrieveTransactionsSummaryByUnrelatedAccountId(id.toString(), receivingSince!!)
-        }
+    override fun getTransactionsSince(receivingSince: Long): MutableList<BtcTransaction> {
+        TODO("not implemented") //spvBalanceFetcher.retrieveTransactionsSummaryByUnrelatedAccountId(id.toString(), receivingSince!!)
     }
 
     override fun isVisible(): Boolean {

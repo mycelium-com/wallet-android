@@ -110,7 +110,6 @@ import java.util.concurrent.TimeUnit;
 
 import static com.mrd.bitlib.StandardTransactionBuilder.createOutput;
 import static com.mrd.bitlib.TransactionUtils.MINIMUM_OUTPUT_VALUE;
-import static com.mycelium.wapi.wallet.currency.ExactBitcoinValue.ZERO;
 import static java.util.Collections.singletonList;
 
 public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount {
@@ -761,21 +760,6 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       checkNotArchived();
       int blockChainHeight = getBlockChainHeight();
       List<TransactionEx> list = _backing.getTransactionHistory(offset, limit);
-      for (TransactionEx tex : list) {
-         TransactionSummary item = transform(tex, blockChainHeight);
-         if (item != null) {
-            history.add(item);
-         }
-      }
-      return history;
-   }
-
-   @Override
-   public List<TransactionSummary> getTransactionsSince(Long receivingSince) {
-      List<TransactionSummary> history = new ArrayList<>();
-      checkNotArchived();
-      int blockChainHeight = getBlockChainHeight();
-      List<TransactionEx> list = _backing.getTransactionsSince(receivingSince);
       for (TransactionEx tex : list) {
          TransactionSummary item = transform(tex, blockChainHeight);
          if (item != null) {
@@ -1620,6 +1604,20 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       }
    }
 
+   @Override
+   public List<BtcTransaction> getTransactionsSince(long receivingSince) {
+      List<BtcTransaction> history = new ArrayList<>();
+      checkNotArchived();
+      List<TransactionEx> list = _backing.getTransactionsSince(receivingSince);
+      for (TransactionEx tex : list) {
+         BtcTransaction tx = getTx(tex.txid);
+         if(tx != null) {
+            history.add(tx);
+         }
+      }
+      return history;
+   }
+
    public List<BtcTransaction> getTransactions(int offset, int limit) {
       // Note that this method is not synchronized, and we might fetch the transaction history while synchronizing
       // accounts. That should be ok as we write to the DB in a sane order.
@@ -1628,63 +1626,9 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       List<TransactionEx> list = _backing.getTransactionHistory(offset, limit);
       List<BtcTransaction> history = new ArrayList<>();
       for (TransactionEx tex: list) {
-         Transaction tx = TransactionEx.toTransaction(tex);
-         if (tx == null) {
-            continue;
-         }
-
-         BtcTransaction item;
-
-         long satoshisReceived = 0;
-         long satoshisSent = 0;
-         ArrayList<GenericTransaction.GenericOutput> outputs = new ArrayList<>(); //need to create list of outputs
-         for (TransactionOutput output : tx.outputs) {
-            Address address = output.script.getAddress(_network);
-            if (isMine(output.script)) {
-               satoshisReceived += output.value;
-            }
-            if (address != null && address != Address.getNullAddress(_network)) {
-               CryptoCurrency currency = getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get();
-               outputs.add(new GenericTransaction.GenericOutput(new BtcLegacyAddress(currency, address.getAllAddressBytes()), Value.valueOf(getCoinType(), output.value)));
-            }
-         }
-
-         ArrayList<GenericTransaction.GenericInput> inputs = new ArrayList<>(); //need to create list of outputs
-
-         // Inputs
-         if (!tx.isCoinbase()) {
-            for (TransactionInput input : tx.inputs) {
-               // find parent output
-               TransactionOutputEx funding = _backing.getParentTransactionOutput(input.outPoint);
-               if (funding == null) {
-                  _logger.logError("Unable to find parent output for: " + input.outPoint);
-                  continue;
-               }
-               if (isMine(funding)) {
-                  satoshisSent += funding.value;
-               }
-
-               Address address = ScriptOutput.fromScriptBytes(funding.script).getAddress(_network);
-               CryptoCurrency currency = getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get();
-               inputs.add(new GenericTransaction.GenericInput(new BtcLegacyAddress(currency, address.getAllAddressBytes()), Value.valueOf(getCoinType(), funding.value)));
-            }
-         }
-
-         int confirmations;
-         if (tex.height == -1) {
-            confirmations = 0;
-         } else {
-            confirmations = Math.max(0, getBlockChainHeight() - tex.height + 1);
-         }
-
-         boolean isQueuedOutgoing = _backing.isOutgoingTransaction(tx.getId());
-
-         item = new BtcTransaction(getCoinType(), tx, satoshisSent, satoshisReceived, tex.time,
-                 confirmations, isQueuedOutgoing, inputs, outputs, riskAssessmentForUnconfirmedTx.get(tx.getId()),
-                 tex.binary.length,  Value.valueOf(BitcoinMain.get(), Math.abs(satoshisReceived - satoshisSent)));
-
-         if (item != null) {
-            history.add(item);
+         BtcTransaction tx = getTx(tex.txid);
+         if(tx != null) {
+            history.add(tx);
          }
       }
       return history;

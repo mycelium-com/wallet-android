@@ -23,6 +23,7 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext
                               , val accountBacking: AccountBacking<ColuTransaction>
                               , val backing: WalletBacking<ColuAccountContext, ColuTransaction>
                               , val listener: AccountListener? = null) : WalletAccount<ColuTransaction, BtcLegacyAddress> {
+
     protected var uuid: UUID
     var coluLabel: String? = null
 
@@ -40,6 +41,19 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext
         }
         uuid = ColuUtils.getGuidForAsset(type, addressList[AddressType.P2PKH]?.getBytes())
         cachedBalance = calculateBalance(accountBacking.getTransactions(0, 2000))
+    }
+
+    override fun getTransactionsSince(receivingSince: Long): MutableList<ColuTransaction> {
+        val history = ArrayList<ColuTransaction>()
+        checkNotArchived()
+        val list = accountBacking.getTransactionsSince(receivingSince)
+        for (tex in list) {
+            val tx = getTx(tex.txid)
+            if (tx != null) {
+                history.add(tx)
+            }
+        }
+        return history
     }
 
     private fun convert(publicKey: PublicKey, coinType: ColuMain?): Map<AddressType, BtcAddress> {
@@ -83,7 +97,7 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext
     }
 
     override fun getTx(transactionId: Sha256Hash): ColuTransaction? {
-        //        checkNotArchived()
+        checkNotArchived()
         return accountBacking.getTx(transactionId)
     }
 
@@ -207,6 +221,13 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext
     override fun archiveAccount() {
         context.setArchived(true)
         backing.updateAccountContext(context)
+    }
+
+    protected fun checkNotArchived() {
+        val usingArchivedAccount = "Using archived account"
+        if (isArchived) {
+            throw RuntimeException(usingArchivedAccount)
+        }
     }
 
     override fun activateAccount() {
