@@ -494,16 +494,14 @@ public class WalletManager {
             }
             if (account instanceof SingleAddressAccount) {
                 SingleAddressAccount singleAddressAccount = (SingleAddressAccount) account;
-                if (singleAddressAccount.canSpend()) {
-                    singleAddressAccount.forgetPrivateKey(cipher);
-                    PublicKey publicKey = singleAddressAccount.getPublicKey();
-                    _backing.deleteSingleAddressAccountContext(id);
-                    if (publicKey != null) {
-                        List<UUID> uuidList = getAccountVirtualIds(publicKey);
-                        for (UUID uuid : uuidList) {
-                            _walletAccounts.remove(uuid);
-                        }
+                if (singleAddressAccount.getAvailableAddressTypes().size() > 1) {
+                    for (AddressType addressType: singleAddressAccount.getAvailableAddressTypes()) {
+                        Address address = singleAddressAccount.getAddress(addressType);
+                        UUID uuid = SingleAddressAccount.calculateId(address);
+                        _walletAccounts.remove(uuid);
                     }
+                    singleAddressAccount.forgetPrivateKey(cipher);
+                    _backing.deleteSingleAddressAccountContext(id);
 
                 } else {
                     _backing.deleteSingleAddressAccountContext(id);
