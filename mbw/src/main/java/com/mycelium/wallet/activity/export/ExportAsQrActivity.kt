@@ -34,7 +34,7 @@ class ExportAsQrActivity : AppCompatActivity() {
                 .getWalletManager(false)
                 .getAccount(accountUUID)
 
-        if (!accountData.publicData.isPresent && !accountData.privateData.isPresent) {
+        if (accountData.publicDataMap?.size == 0 && !accountData.privateData.isPresent) {
             finish()
             return
         }
@@ -61,7 +61,7 @@ class ExportAsQrActivity : AppCompatActivity() {
                 binding.activity = this
                 binding
             }
-            account is SingleAddressAccount && accountData.privateData.isPresent && account.availableAddressTypes.size > 1 -> {
+            account is SingleAddressAccount && accountData.publicDataMap!!.size > 1 && account.availableAddressTypes.size > 1 -> {
                 val binding = DataBindingUtil.setContentView<ExportAsQrBtcSaActivityBinding>(this, R.layout.export_as_qr_btc_sa_activity)
                 binding.viewModel = viewModel as ExportAsQrMultiKeysViewModel
                 binding.activity = this

@@ -20,7 +20,7 @@ class ExportAsQrModel(val context: Application,
             accountDataString.value = accountData.privateData.get()
         } else {
             showRedWarning.value = false
-            accountDataString.value = accountData.publicData.get()
+            accountDataString.value = accountData.publicDataMap!!.values.first()
         }
     }
 
