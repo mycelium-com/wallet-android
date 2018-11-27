@@ -77,12 +77,7 @@ import com.mrd.bitlib.model.OutputList;
 import com.mrd.bitlib.model.UnspentTransactionOutput;
 import com.mycelium.paymentrequest.PaymentRequestException;
 import com.mycelium.paymentrequest.PaymentRequestInformation;
-import com.mycelium.wallet.BitcoinUriWithAddress;
-import com.mycelium.wallet.Constants;
-import com.mycelium.wallet.MbwManager;
-import com.mycelium.wallet.MinerFee;
-import com.mycelium.wallet.R;
-import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.GetAmountActivity;
 import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.StringHandlerActivity;
@@ -758,8 +753,12 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 
     @OnClick(R.id.btAddressBook)
     void onClickAddressBook() {
-        Intent intent = new Intent(this, GetFromAddressBookActivity.class);
-        startActivityForResult(intent, ADDRESS_BOOK_RESULT_CODE);
+        if(AccountManager.INSTANCE.getFillAccountStatus()) {
+            Intent intent = new Intent(this, GetFromAddressBookActivity.class);
+            startActivityForResult(intent, ADDRESS_BOOK_RESULT_CODE);
+        } else {
+            Toast.makeText(this,"Synchonizing...", LENGTH_SHORT).show();
+        }
     }
 
     @OnClick(R.id.btManualEntry)
