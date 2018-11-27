@@ -445,16 +445,20 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
    @Override
    public Data getExportData(KeyCipher cipher) {
       Optional<String> privKey = Optional.absent();
-
+      Map<BipDerivationType, String> publicDataMap = new HashMap<>();
       if (canSpend()) {
          try {
-            privKey = Optional.of(_keyStore.getPrivateKey(getAddress(), cipher).getBase58EncodedPrivateKey(getNetwork()));
+            InMemoryPrivateKey privateKey = _keyStore.getPrivateKey(getAddress(), cipher);
+            privKey = Optional.of(privateKey.getBase58EncodedPrivateKey(getNetwork()));
          } catch (InvalidKeyCipher ignore) {
          }
       }
 
-      Optional<String> pubKey = Optional.of(getAddress().toString());
-      return new Data(privKey, pubKey);
+      for (AddressType type : getAvailableAddressTypes()) {
+         publicDataMap.put(BipDerivationType.Companion.getDerivationTypeByAddressType(type),
+                 getAddress(type).toString());
+      }
+      return new Data(privKey, publicDataMap);
    }
 
    @Override
