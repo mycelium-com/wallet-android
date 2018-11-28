@@ -86,7 +86,7 @@ open class ExportAsQrViewModel(val context: Application) : AndroidViewModel(cont
                         sendIntent.type = "text/plain"
                         sendIntent.putExtra(Intent.EXTRA_SUBJECT, context.resources.getString(R.string.xpriv_title))
                         sendIntent.putExtra(Intent.EXTRA_TEXT, sharedData)
-                        context.startActivity(Intent.createChooser(sendIntent, context.resources.getString(R.string.share_xpriv)))
+                        activity.startActivity(Intent.createChooser(sendIntent, context.resources.getString(R.string.share_xpriv)))
                         dialog.dismiss()
                     }.setNegativeButton(R.string.no) { dialog, id -> }
             val alertDialog = builder.create()

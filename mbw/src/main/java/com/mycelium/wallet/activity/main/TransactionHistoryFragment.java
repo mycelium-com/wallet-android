@@ -277,11 +277,12 @@ public class TransactionHistoryFragment extends Fragment {
       listView.setOnScrollListener(new AbsListView.OnScrollListener() {
          private static final int OFFSET = 20;
          private final List<TransactionSummary> toAdd = new ArrayList<>();
+         private WalletAccount forAccount = _mbwManager.getSelectedAccount();
          @Override
          public void onScrollStateChanged(AbsListView view, int scrollState) {
             synchronized (toAdd) {
                if (!toAdd.isEmpty() && view.getLastVisiblePosition() == history.size() - 1) {
-                  model.getTransactionHistory().appendList(toAdd);
+                  model.getTransactionHistory().appendList(toAdd, forAccount);
                   toAdd.clear();
                }
             }
@@ -297,12 +298,13 @@ public class TransactionHistoryFragment extends Fragment {
                   toAddEmpty = toAdd.isEmpty();
                }
                if (toAddEmpty && isLoadingPossible.compareAndSet(true, false)) {
-                  new Preloader(toAdd, _mbwManager.getSelectedAccount(), _mbwManager, totalItemCount,
+                  forAccount = _mbwManager.getSelectedAccount();
+                  new Preloader(toAdd, forAccount, _mbwManager, totalItemCount,
                           OFFSET, isLoadingPossible).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                }
                if (firstVisibleItem + visibleItemCount == totalItemCount && !toAddEmpty) {
                   synchronized (toAdd) {
-                     model.getTransactionHistory().appendList(toAdd);
+                     model.getTransactionHistory().appendList(toAdd, forAccount);
                      toAdd.clear();
                   }
                }

@@ -119,9 +119,12 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
+import java.util.UUID;
 
 import javax.annotation.Nullable;
 
@@ -774,6 +777,10 @@ public class Utils {
          }
       }
       return null;
+   }
+
+   public static Collection<WalletAccount> getUniqueAccounts(final Collection<WalletAccount> accounts) {
+      return new HashSet<>(accounts);
    }
 
    public static List<WalletAccount> sortAccounts(final Collection<WalletAccount> accounts, final MetadataStorage storage) {

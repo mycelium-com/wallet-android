@@ -494,16 +494,21 @@ public class WalletManager {
             }
             if (account instanceof SingleAddressAccount) {
                 SingleAddressAccount singleAddressAccount = (SingleAddressAccount) account;
-                singleAddressAccount.forgetPrivateKey(cipher);
-                PublicKey publicKey= singleAddressAccount.getPublicKey();
-                _backing.deleteSingleAddressAccountContext(id);
-                if (publicKey != null) {
-                    List<UUID> uuidList = getAccountVirtualIds(publicKey);
-                    for (UUID uuid : uuidList) {
-                        _walletAccounts.remove(uuid);
+                if (singleAddressAccount.canSpend()) {
+                    singleAddressAccount.forgetPrivateKey(cipher);
+                    PublicKey publicKey = singleAddressAccount.getPublicKey();
+                    _backing.deleteSingleAddressAccountContext(id);
+                    if (publicKey != null) {
+                        List<UUID> uuidList = getAccountVirtualIds(publicKey);
+                        for (UUID uuid : uuidList) {
+                            _walletAccounts.remove(uuid);
+                        }
                     }
-                }
 
+                } else {
+                    _backing.deleteSingleAddressAccountContext(id);
+                    _walletAccounts.remove(id);
+                }
                 if (_spvBalanceFetcher != null) {
                     _spvBalanceFetcher.requestUnrelatedAccountRemoval(id.toString());
                 }
@@ -549,6 +554,19 @@ public class WalletManager {
             list.add(account.getId());
         }
         return list;
+    }
+
+    /**
+     * Get the IDs of the accounts managed by the wallet manager. Would return non-virtual IDs only
+     *
+     * @return the IDs of the accounts managed by the wallet manager
+     */
+    public Collection<UUID> getUniqueIds() {
+        Set<UUID> idSet = new HashSet<>();
+        for (WalletAccount account : getAllAccounts()) {
+            idSet.add(account.getId());
+        }
+        return idSet;
     }
 
     /**
@@ -749,7 +767,7 @@ public class WalletManager {
         StringBuilder sb = new StringBuilder();
         int Bip44Accounts = 0;
         int simpleAccounts = 0;
-        for (UUID id : getAccountIds()) {
+        for (UUID id : getUniqueIds()) {
             if (_walletAccounts.get(id) instanceof HDAccount) {
                 Bip44Accounts++;
             } else if (_walletAccounts.get(id) instanceof SingleAddressAccount) {
@@ -1275,13 +1293,13 @@ public class WalletManager {
             // No master seed
             return false;
         }
-        if (getNextBip44Index() == 0) {
-            // First account not created
-            return true;
+
+        for (HDAccount account : hdAccounts) {
+            if (!account.hasHadActivity()) {
+                return false;
+            }
         }
-        // We can add an additional account if the last account had activity
-        HDAccount last = hdAccounts.get(hdAccounts.size() - 1);
-        return last.hasHadActivity();
+        return true;
     }
 
     public void removeUnusedBip44Account(HDAccount account) {
@@ -1528,7 +1546,7 @@ public class WalletManager {
      * This method is intended to get all possible ids for mixed HD account.
      */
     @Nonnull
-    private List<UUID> getAccountVirtualIds(Map<BipDerivationType, HDAccountKeyManager> keyManagerMap, HDAccount account) {
+    public List<UUID> getAccountVirtualIds(Map<BipDerivationType, HDAccountKeyManager> keyManagerMap, HDAccount account) {
         final List<UUID> uuidList = new ArrayList<>();
         for (AddressType addressType : account.getAvailableAddressTypes()) {
             uuidList.add(keyManagerMap.get(BipDerivationType.Companion.getDerivationTypeByAddressType(addressType)).getAccountId());
@@ -1540,7 +1558,7 @@ public class WalletManager {
      * This method is intended to get all possible ids for mixed HD account.
      */
     @Nonnull
-    private List<UUID> getAccountVirtualIds(Map<BipDerivationType, HDAccountKeyManager> keyManagerMap, List<BipDerivationType> derivationTypes) {
+    public List<UUID> getAccountVirtualIds(Map<BipDerivationType, HDAccountKeyManager> keyManagerMap, List<BipDerivationType> derivationTypes) {
         final List<UUID> uuidList = new ArrayList<>();
         for (BipDerivationType derivationType : derivationTypes) {
             uuidList.add(keyManagerMap.get(derivationType).getAccountId());
@@ -1552,7 +1570,7 @@ public class WalletManager {
      * This method is intended to get all possible ids for mixed SA account.
      */
     @Nonnull
-    private List<UUID> getAccountVirtualIds(SingleAddressAccount account) {
+    public List<UUID> getAccountVirtualIds(SingleAddressAccount account) {
         final List<UUID> uuidList = new ArrayList<>();
         for (AddressType addressType: account.getAvailableAddressTypes()) {
             PublicKey publicKey = account.getPublicKey();
@@ -1569,7 +1587,7 @@ public class WalletManager {
      * This method is intended to get all possible ids for mixed SA account.
      */
     @Nonnull
-    private List<UUID> getAccountVirtualIds(PublicKey publicKey) {
+    public List<UUID> getAccountVirtualIds(PublicKey publicKey) {
         final List<UUID> uuidList = new ArrayList<>();
         for (AddressType addressType: AddressType.values()) {
             uuidList.add(SingleAddressAccount.calculateId(publicKey.toAddress(_network, addressType)));

@@ -46,6 +46,10 @@
     <string name="queue_transaction_message">Не удалось передать транзакцию. \nвы  бы хотели  поставить транзакцию в очередь, чтобы она была  отправлена автоматически, как только вы будете онлайн?</string>
     <string name="transaction_sent">Транзакция отправлена</string>
     <string name="export">Экспортировать ключи аккаунта</string>
+    <string name="export_toggle_legacy">Legacy (P2PKH)</string>
+    <string name="export_toggle_p2wpkh">P2WPKH</string>
+    <string name="export_toggle_yprv">yprv</string>
+    <string name="export_toggle_zprv">zprv</string>
     <string name="backup_private_key">Резервное копирование</string>
     <string name="copy_to_clipboard">Копировать в буфер обмена</string>
     <string name="copy_address_to_clipboard">Скопировать адрес в буфер обмена</string>
@@ -79,6 +83,8 @@
     <string name="no">Нет</string>
     <string name="yes">Да</string>
     <string name="pref_category_pin">Установки ПИН-кода</string>
+    <string name="randomize_pin">Сделать клавиатуру ввода ПИН-кода случайной</string>
+    <string name="randomize_pin_text">Вывод элементов клавиатуру ввода ПИН-кода в случайном порядке существенно улучшает безопасность</string>
     <string name="pref_clear_pin">Отменить PIN-код</string>
     <string name="pref_clear_pin_summary">Удалить текущий PIN-код</string>
     <string name="pref_set_pin">Установить ПИН-код</string>
@@ -99,13 +105,13 @@
     <string name="pref_pin_require_on_startup">Запрашивать PIN на запуске</string>
     <string name="settings">Настройки</string>
     <string name="pin_backup_first">Нельзя задать ПИН-код до того, как вы сделали резервную копию вашего Master Seed.</string>
-    <string name="pin_invalid_pin">Неверный PIN-код</string>
-    <string name="pin_enter_pin">Введите PIN-код</string>
-    <string name="pin_cleared">PIN-код удален</string>
-    <string name="pin_enter_new_pin">Введите новый PIN-код</string>
-    <string name="pin_codes_dont_match"> PIN-коды не совпадают</string>
-    <string name="pin_set">PIN-код установлен</string>
-    <string name="pin_confirm_pin">Подтвердите PIN-код</string>
+    <string name="pin_invalid_pin">Неверный ПИН-код</string>
+    <string name="pin_enter_pin">Введите ПИН-код</string>
+    <string name="pin_cleared">ПИН-код удален</string>
+    <string name="pin_enter_new_pin">Введите новый ПИН-код</string>
+    <string name="pin_codes_dont_match">ПИН-коды не совпадают</string>
+    <string name="pin_set">ПИН-код установлен</string>
+    <string name="pin_confirm_pin">Подтвердите ПИН-код</string>
     <string name="delete_address_confirmation">Вы уверены, что вы хотите удалить этот адрес из вашей адресной книги?</string>
     <string name="add_to_addressbook">Добавить адрес</string>
     <string name="edit">Редактировать</string>
@@ -115,7 +121,9 @@
     <string name="backup_all_warning">Вам необходимо сделать резервную копию мастер-ключа вашего кошелька.\nОна позволяет вам восстановить все ваши средства на ваших HD аккаунтах, если ваше устройство потеряется или выйдет из строя.\n\nВы хотите это сделать сейчас?</string>
     <string name="export_to_clipboard_warning">Предупреждение: Экспорт закрытого ключа аккаунта в буфер обмена делает его доступным для других приложений на вашем устройстве.\n\nДержать ваш закрытый ключ в буфере обмена рискованно, необходимо скопировать его куда либо в безопасное место.\n\nХотите продолжить?</string>
     <string name="found_clipboard_private_key_title">В буфере обмена обнаружен приватный ключ</string>
+    <string name="found_clipboard_public_key_title">В буфере обмена обнаружен публичный ключ</string>
     <string name="found_clipboard_private_keys_message">Буфер обмена содержит приватный ключ.\r\nВы хотите удалить его?</string>
+    <string name="found_clipboard_public_keys_message">Буфер обмена содержит публичный ключ.\r\nВы хотите удалить его?</string>
     <string name="exchange_source_not_available">Обменный курс %1$s недоступен</string>
     <string name="my_own_address_warning">Примечание: Вы отправляете на один из ваших собственных адресов.</string>
     <string name="read_only_warning">Предупреждение: Ваш кошелек не имеет приватного ключа для этого адреса. \nВы не  сможете потратить  полученные на него биткойны, если у вас нет где-либо приватного ключа к  этому  адресу.</string>
@@ -197,7 +205,7 @@
     <string name="import_decrypt_stretching">Подготовка ключа дешифрования...</string>
     <string name="out_of_memory_error">Ошибка: Устройство не имеет достаточно памяти для выполнения этой задачи</string>
     <string name="share_payment_request">Передать запрос  на оплату</string>
-    <string name="share_bitcoin_address">Отправить биткойн адрес</string>
+    <string name="share_bitcoin_address">Поделиться Bitcoin адресом</string>
     <string name="optional_amount">Сумма (по желанию)</string>
     <string name="show_qr_code_menu">Показать QR-код</string>
     <string name="tab_accounts">Аккаунты</string>
@@ -404,6 +412,10 @@
     <string name="lt_set_email_error">Не могу получить информацию о трейдере от сервера</string>
     <string name="lt_email_please_verify_message">Мы отправили вам контрольное письмо - кликните по адресу, указанному в письме, для активации вашего email ареса.</string>
     <string name="lt_set_email_title">Введите ваш email адрес</string>
+    <string name="lt_change_payout_address">Изменить адрес выплат</string>
+    <string name="lt_price_source_not_available">недоступно!</string>
+    <string name="lt_cash_only_hint_be_your_own_bank">Будь своим собственным банком:</string>
+    <string name="lt_cash_only_hint_cash_only">Торгуй с глазу на глаз, только наличные.</string>
     <!-- LT end -->
     <string name="cs_private_key_description">Вы используете приватный ключ со следующим  Bitcoin адресом:</string>
     <string name="cs_address_description">Вы отсканировали биткой адрес. Вы можете видеть баланс адреса, но не можете тратить с него.</string>
@@ -416,6 +428,7 @@
     <string name="update_check">Проверка обновлений</string>
     <string name="ignore_update">Я обновлю позже</string>
     <string name="get_from">Получить из</string>
+    <string name="google_play">Google Play</string>
     <string name="sign_message">Подписать сообщение</string>
     <string name="cant_sign_message">Вы не можете подписать сообщение посредством HD аккаунта</string>
     <string name="enter_message_hint">Введите сообщение, которое хотите подписать</string>
@@ -550,6 +563,7 @@
     <string name="lt_confirm_delete_trader_message">Вы хотите удалить  вашу информацию? Вся торговая информация и рейтинги будут окончательно удалены и не могут быть восстановлены.</string>
     <string name="rescan_account_menu_item">Обновить аккаунт</string>
     <string name="add_advanced_account_warning">Предупреждение: \n, эти ключи не будут включены в Резервную Копию на основе  Master Seed. Вы должны убедиться, что у вас есть  для  них отдельная Резервная Копия, с  совершенно другим порядком создания.</string>
+    <string name="new_bitcoin_address_created">Был создан новый случайный приватный ключ со следующим биткоин-адресом:</string>
     <string name="shuffle">Еще раз</string>
     <string name="toast_warning_low_fee">может занять больше времени для  подтверждения</string>
     <string name="account_number">Аккаунт %d</string>
@@ -561,11 +575,24 @@
     <string name="select_ext_sig_account_to_spend_from">Выберете аккаунт, с которого будете тратить</string>
     <string name="ext_sig_passphrase_description">Введите опциональную фразу-пароль</string>
     <string name="ext_sig_show_passphrase">Показать пароль</string>
+    <string name="trezor">Trezor</string>
     <string name="trezor_import_account">Импортировать Trezor-HD-аккаунт</string>
-    <string name="new_bitcoin_address_created">Был создан новый случайный приватный ключ со следующими биткойн адресами:</string>
+    <string name="trezor_name">Trezor:</string>
     <string name="ext_sig_import_account_caption">Импортировать аккаунт</string>
     <string name="ext_sig_select_account_to_import">Выберете аккаунт для импорта</string>
+    <string name="ext_sig_verify_transaction_on_device">Проверьте и подтвердите транзакцию на вашем устройстве.</string>
+    <string name="ext_sig_amount">Сумма:</string>
+    <string name="ext_sig_to">Кому:</string>
+    <string name="ext_sig_fee">Комиссия:</string>
+    <string name="ext_sig_sending">Вы отправляете:</string>
+    <string name="ext_sig_total">Итого:</string>
+    <string name="ext_sig_please_plug_in">Пожалуйста подсоедините ваше устройство</string>
+    <string name="ext_sig_next_unused_account_button">Импортировать следующий неиспользованный аккаунт…</string>
+    <string name="ext_sig_new_firmware">Доступна новая прошивка…</string>
     <string name="trezor_new_firmware_description">Доступна новая прошивка для Trezor.\nПожалуйста, используйте сайт MyTrezor.com через компьютер для обновления прошивки.</string>
+    <string name="keepkey_cold_storage_header">Холодное хранилище KeepKey</string>
+    <string name="keepkey">KeepKey</string>
+    <string name="keepkey_name">KeepKey:</string>
     <string name="keepkey_import_account">Импортировать KeepKey-HD-аккаунт</string>
     <string name="ledger_initial_status">Пожалуйста, подсоедините или нажмите и удерживайте кнопку на вашем Ledger Wallet</string>
     <string name="ledger_scanning_status">Ledger Wallet работает - идёт сканирование аккаунтов</string>
@@ -585,6 +612,7 @@
     <string name="ledger_enter_pin">Укажите Ledger Wallet PIN</string>
     <string name="ledger_enter_transaction_pin">Введите Ledger Wallet 2FA</string>
     <string name="ledger_enter_2fa_pin">Подтвердите адрес назначения вашей картой \"Security Card\"</string>
+    <string name="ledger_please_wait">Пожалуйста, подождите ...</string>
     <string name="ledger_set_unplugged_aid_title">Установка Ledger Unplugged AID</string>
     <string name="ledger_check_unplugged_aid">Неправильный AID, пожалуйста, проверьте</string>
     <string name="pref_ledger_title">Ledger Аппаратный Кошелёк</string>
@@ -600,6 +628,8 @@
     <string name="wrong_pin_message">Вы ввели неправильный PIN-код. \n\n, если вы забыли свой PIN-код, вы можете переустановить его.</string>
     <string name="pref_no_fiat_selected">Не выбрана  фиатная валюта</string>
     <string name="useTor">Сеть Tor</string>
+    <string name="useTorOnlyExternalTor">Сеть tor (внешней тор)</string>
+    <string name="useTorOnlyHttps">Сеть tor (только https)</string>
     <string name="last_log_entries">Последние записи журнала</string>
     <string name="use_https">Использование https</string>
     <string name="use_external_tor">Использовать внешний tor (Orbot)</string>
@@ -626,6 +656,7 @@
     <string name="dontagree">Я не согласен</string>
     <string name="agree">Принимаю</string>
     <string name="lt_warning_watch_only_account">Текущий аккаунт только для просмотра (не для трат) - выберете другой аккаунт.</string>
+    <string name="refresh">обновить</string>
     <string name="xpriv_title">Расширенный закрытый ключ</string>
     <string name="share_xpriv">Поделиться расширенным закрытым ключом</string>
     <string name="export_share_warning">Предупреждение: Вы собираетесь поделиться приватным ключом вашего аккаунта. Кто либо, имеющий его, сможет иметь доступ ко всем вашим текущим и будущим средствам вашего аккаунта. Вы хотите продолжить?</string>
@@ -652,8 +683,10 @@
     <string name="payment_request_created">Создано</string>
     <string name="payment_request_expires">Истекает</string>
     <string name="payment_request_message_to_merchant">Ваше сообщение продавцу (опционально)</string>
+    <string name="payment_request_error_while_getting_ack">Не удается отправить платеж на сервер продавца.\n%s\n\nПлатёж не будет транслироваться в сеть.</string>
     <string name="payment_request_warning_no_sig">Происхождение этого запроса на оплату не может быть проверено, потому что не содержит цифровой подписи.\n\nПожалуйста, будьте осторожны - это может произойти в случае, если кто-то перехватил и изменил запрос на оплату, сделав подмену адреса для получения средств от вас на подложный адрес.</string>
     <string name="label_cold_storage_external_signing">Подписать:</string>
+    <string name="spending_unconfirmed_warning">Предупреждение: расходование неподтверждённых средств</string>
     <string name="spending_unconfirmed_title">Расходование неподтверждённых средств</string>
     <string name="spending_unconfirmed_description">Ваша транзакция (А) расходует средства из другой транзакции (Б), которая ещё не получила подтверждений. Если по какой либо причине транзакция Б не будет подтверждена, то транзакция А также не получит подтверждения, так как зависит от неё.</string>
     <string name="label_unverified_recipient">непроверенный получатель</string>
@@ -708,6 +741,7 @@
     <string name="coinapult_create_account">Создание учётной записи Coinapult&#8230;</string>
     <string name="coinapult_backup_info">Ключ доступа к учетной записи Coinapult формируется из вашего мастер-ключа seed. Если у вас есть резервная копия вашего мастер-ключа seed, доступ к вашей учетной записи Coinapult также будет работать.</string>
     <string name="coinapult_currency_account">%1$s Аккаунт</string>
+    <string name="colu_add_cc_account">Добавить аккаунт Digital Asset</string>
     <string name="colu_create_account">Создать %s аккаунт</string>
     <!--<string name="colu_tos_link">Open Colu Terms and Conditions</string>-->
     <!-- <string name="colu_tos_link_url">https://www.colu.com/TOS</string>-->
@@ -748,31 +782,65 @@
     <string name="import_xpub_wrong_depth">Вы можете импортировать аккаунт уровня (3) xpub адресов.\nЭто уровень %1$s.</string>
     <string name="buy_one">Покупка&#8230;</string>
     <!-- Credit Card -->
+    <string name="credit_card_buy">Кредитная Карта</string>
+    <string name="credit_card_buy_description">Купить Bitcoin кредитной картой</string>
+    <string name="credit_card_buy_setting_description">Купить Bitcoin кредитной картой</string>
     <!-- Credit Card End-->
     <!-- GlideraService Start -->
     <string name="gd_buy_sell_button">Купить / Продать Bitcoin</string>
+    <string name="gd_buy_sell">Glidera</string>
     <string name="gd_buy_tab">Купить</string>
     <string name="gd_sell_tab">Продать</string>
+    <string name="gd_transaction_history_tab">История</string>
+    <string name="gd_glidera">Glidera</string>
+    <string name="gd_date">Дата:</string>
+    <string name="gd_fee">Комиссия:</string>
+    <string name="gd_total">Всего:</string>
     <string name="gd_cancel">Отмена</string>
     <string name="gd_sell_bitcoin">Продать Bitcoin</string>
     <string name="gd_buy_bitcoin">Купить Bitcoin</string>
+    <string name="gd_btc">BTC</string>
+    <string name="gd_dollar_symbol">$</string>
+    <string name="gd_btc_symbol">฿</string>
+    <string name="gd_loading">Загрузка…</string>
+    <string name="error_details">Сведения об ошибке</string>
     <!-- GlideraService End -->
     <!-- Simplex start -->
+    <string name="si_loading">загрузка…</string>
     <!-- Simplex end -->
     <string name="gd_buy_sell_rmc_button">Купить RMC</string>
+    <string name="rmc_generate_new_account">Создать новый RMC аккаунт</string>
+    <string name="rmc_you_buying">Вы покупаете</string>
     <string name="rmc_yes">Да</string>
     <string name="rmc_no">Нет</string>
+    <string name="address_title">%s Адрес</string>
+    <string name="rmc_remind_by_email">Напомнить по email</string>
     <string name="rmc_add_to_google_calendar">Добавить в календарь Google</string>
     <string name="create_backup">Создать резервную копию</string>
+    <string name="rmc_account">Аккаунт:</string>
+    <string name="share_x_address">Поделиться %s адресом</string>
     <string name="save">Сохранить</string>
     <string name="partner_header_title">Вы новичок в криптовалютах?</string>
+    <string name="partner_trezor">Trezor</string>
+    <string name="partner_purse_short">Получите скидку 15% на Amazon.com платя биткоинами через Purse.io</string>
+    <string name="partner_purse_url">https://purse.io/?_a=MYCELIUM</string>
+    <string name="partner_safervpn">SaferVPN</string>
+    <string name="your_privacy_out_priority">Ваша конфиденциальность является нашим главным приоритетом</string>
+    <string name="colu_before_sending_make_sure">Перед отправкой ваших цифровых активов убедитесь, что отправляете их на адрес для работы с цифровыми активами, а не на случайный биткоин-адрес. Нажмите <font color="#4583de">сюда</font> чтобы ознакомиться с процедурой восстановления ваших цифровых активов.</string>
     <string name="what_is_it">Что это?</string>
     <string name="error_start_google_calendar">Что-то не так с Google календарем</string>
     <string name="both_rmc_will_deleted" formatted="false">Оба аккаунта: %s and %s будут удалены.</string>
+    <string name="total_rmc_issued_value">25000</string>
     <string name="restore_address_as">Восстановить адрес как</string>
     <string name="restore_addres_as">Восстановить адрес как</string>
     <string name="verify_message">Проверить сообщение</string>
+    <string name="changelly">Changelly</string>
     <string name="changelly_choose_your_currency">Выберите параметры обмена</string>
+    <string name="changelly_bch">BCH</string>
+    <string name="changelly_btc">BTC</string>
+    <string name="changelly_amount">Сумма</string>
+    <string name="changelly_min_amount">Минимальная сумма:</string>
+    <string name="changelly_loading">Загрузка</string>
     <string name="changelly_take_offer">Продолжить</string>
     <string name="changelly_unavailable">Сервис недоступен</string>
     <string name="changelly_offer_title">Завершите операцию обмена</string>
@@ -792,6 +860,8 @@
     <string name="uninstall">Удалить</string>
     <string name="you_exchange_order_placed">Ваш запрос на обмен обрабатывается. BTC будут отправлены вам после того, как эта транзакция получит 12 подтверждений.</string>
     <string name="aproximate_volatile">Из-за высокой волатильности на криптовалютном рынке указан приблизительный обменный курс.</string>
+    <string name="success">Успешно!</string>
+    <string name="error">Ошибка!</string>
     <string name="save_receipt">Сохранить подтверждение</string>
     <string name="balance_error">Недостаточно средств</string>
     <string name="both_bch_will_deleted">Оба аккаунта: %1$s и Bitcoin Cash - %2$s будут удалены.</string>
@@ -804,6 +874,7 @@
     <string name="pref_language">Язык</string>
     <string name="updates">Обновления</string>
     <string name="external_service">Внешние сервисы</string>
+    <string name="pin_code">ПИН-код</string>
     <string name="personalization">Персонализация</string>
     <string name="security_and_privacy">Безопасность и конфиденциальность</string>
     <string name="modules">Модули</string>
@@ -817,4 +888,16 @@
     <string name="public_key">Публичный ключ</string>
     <string name="private_key_s">Приватный ключ</string>
     <string name="warning">Внимание</string>
+    <string name="address_type">Тип адреса</string>
+    <string name="receive_option_p2sh">SegWit compatible (P2SH)</string>
+    <string name="receive_option_bech">SegWit native (Bech32)</string>
+    <string name="change_address_type">Тип адреса для сдачи</string>
+    <string name="segwit_change_mode_title">Сдача от транзакции</string>
+    <string name="segwit_change_mode_description">Выберите способ получения сдачи от транзакции</string>
+    <string name="bech32_receive_mode">SegWit native (Bech32)</string>
+    <string name="bech_next">Тап для Bech32</string>
+    <string name="p2sh_next">Тап для P2SH</string>
+    <string name="p2sh">SegWit compatible (P2SH)</string>
+    <string name="bech">SegWit native (Bech32)</string>
+    <string name="account_upgraded">Аккаунт %d только что стал SegWit-совместимым</string>
 </resources>

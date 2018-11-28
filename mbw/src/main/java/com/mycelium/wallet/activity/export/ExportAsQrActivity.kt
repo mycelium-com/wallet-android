@@ -41,7 +41,7 @@ class ExportAsQrActivity : AppCompatActivity() {
 
         val viewModelProvider = ViewModelProviders.of(this)
         viewModel = when {
-            account is HDAccount && accountData.publicDataMap != null ->
+            account is HDAccount && (accountData.publicDataMap?.size ?: 0 > 1) ->
                 viewModelProvider.get(ExportAsQrBtcHDViewModel::class.java)
             account is SingleAddressAccount && account.availableAddressTypes.size > 1 ->
                 viewModelProvider.get(ExportAsQrBtcSAViewModel::class.java)
@@ -61,7 +61,7 @@ class ExportAsQrActivity : AppCompatActivity() {
                 binding.activity = this
                 binding
             }
-            account is SingleAddressAccount && accountData.privateData.isPresent -> {
+            account is SingleAddressAccount && accountData.privateData.isPresent && account.availableAddressTypes.size > 1 -> {
                 val binding = DataBindingUtil.setContentView<ExportAsQrBtcSaActivityBinding>(this, R.layout.export_as_qr_btc_sa_activity)
                 binding.viewModel = viewModel as ExportAsQrMultiKeysViewModel
                 binding.activity = this

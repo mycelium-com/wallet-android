@@ -563,7 +563,7 @@ public class ColuManager implements AccountProvider {
             PublicPrivateKeyStore store = new PublicPrivateKeyStore(_secureKeyValueStore);
             SingleAddressAccountBacking accountBacking = checkNotNull(_backing.getSingleAddressAccountBacking(context.getId()));
             SingleAddressAccount account = new SingleAddressAccount(context, store, _network, accountBacking, getWapi(),
-                    new Reference<>(ChangeAddressMode.NONE));
+                    new Reference<>(ChangeAddressMode.PRIVACY), false);
             addAccount(account);
 
             for(ColuAccount coluAccount : coluAccounts.values()) {
