@@ -52,7 +52,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -66,6 +65,7 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.StringHandlerActivity;
 import com.mycelium.wallet.activity.modern.adapter.AddressBookAdapter;
+import com.mycelium.wallet.activity.modern.adapter.SelectAssetDialog;
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil.AddressLabelChangedHandler;
@@ -73,12 +73,10 @@ import com.mycelium.wallet.content.HandleConfigFactory;
 import com.mycelium.wallet.content.ResultType;
 import com.mycelium.wallet.content.StringHandleConfig;
 import com.mycelium.wallet.event.AddressBookChanged;
-import com.mycelium.wapi.wallet.AddressUtils;
+import com.mycelium.wallet.event.AssetSelected;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
-import com.mycelium.wapi.wallet.coins.CryptoCurrency;
-import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
@@ -343,49 +341,20 @@ public class AddressBookFragment extends Fragment {
             @Override
             public void onClick(View v) {
                StringHandleConfig request = HandleConfigFactory.getAddressBookScanRequest();
-               ScanActivity.callMe(AddressBookFragment.this, SCAN_RESULT_CODE, request);
+               ScanActivity.callMe(AddressBookFragment.super.getActivity(), SCAN_RESULT_CODE, request);
                AddDialog.this.dismiss();
             }
-
          });
 
          findViewById(R.id.btClipboard).setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
-               String mm = Utils.getClipboardString(activity);
-               List<GenericAssetInfo> assets = _mbwManager.getWalletManager(false).
-                       getAcceptableAssetTypes(Utils.getClipboardString(activity));
-
-               if(!assets.isEmpty()) {
-
-                  AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-
-                  builder.setIcon(R.drawable.ic_launcher);
-                  builder.setTitle(String.format("The address %s may belong to different crypto currency types.\n\nPlease choose which one it belongs to:", Utils.getClipboardString(activity)));
-
-
-                  final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(getContext(), android.R.layout.select_dialog_singlechoice);
-                  for(GenericAssetInfo asset : assets){
-                     arrayAdapter.add(asset.getName());
-                  }
-
-                  builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
-                     @Override
-                     public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                     }
-                  });
-
-                  builder.setAdapter(arrayAdapter, new DialogInterface.OnClickListener() {
-                     @Override
-                     public void onClick(DialogInterface dialog, int which) {
-                        String name = arrayAdapter.getItem(which);
-                        CryptoCurrency asset = _mbwManager.getMetadataStorage().coinTypeFromString(name);
-                        addFromAddress(AddressUtils.from(asset, Utils.getClipboardString(activity)));
-                     }
-                  });
-                  builder.show();
+               String address = Utils.getClipboardString(activity);
+               List<GenericAddress> addresses = _mbwManager.getWalletManager(false).parseAddress(address);
+               if (!addresses.isEmpty()) {
+                  SelectAssetDialog dialog = SelectAssetDialog.getInstance(addresses);
+                  dialog.show(getFragmentManager(), "dialog");
                } else {
                   Toast.makeText(AddDialog.super.getContext(), R.string.unrecognized_format, Toast.LENGTH_SHORT).show();
                }
@@ -429,7 +398,7 @@ public class AddressBookFragment extends Fragment {
             addFromAddress(StringHandlerActivity.getAssetUri(intent).getAddress());
             break;
          case ADDRESS:
-            addFromAddress(StringHandlerActivity.getAddress(intent));
+            StringHandlerActivity.getAddress(intent, _mbwManager.getWalletManager(false), getFragmentManager());
             break;
       }
    }
@@ -450,6 +419,11 @@ public class AddressBookFragment extends Fragment {
    @Subscribe
    public void onAddressBookChanged(AddressBookChanged event) {
       updateUi();
+   }
+
+   @Subscribe
+   public void newAddressCreating(AssetSelected event) {
+      addFromAddress(event.address);
    }
 
    private class SelectItemListener implements OnItemClickListener {

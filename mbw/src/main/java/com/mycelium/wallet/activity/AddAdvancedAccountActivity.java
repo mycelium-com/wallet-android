@@ -46,6 +46,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
@@ -111,7 +113,7 @@ import butterknife.OnClick;
 import static com.mycelium.wallet.AccountManagerKt.getBTCSingleAddressAccounts;
 import static com.mycelium.wallet.AccountManagerKt.getColuAccounts;
 
-public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHDAccount.FinishListener {
+public class AddAdvancedAccountActivity extends FragmentActivity implements ImportCoCoHDAccount.FinishListener {
    public static final String BUY_TREZOR_LINK = "https://buytrezor.com?a=mycelium.com";
    public static final String BUY_KEEPKEY_LINK = "https://keepkey.go2cloud.org/SH1M";
    public static final String BUY_LEDGER_LINK = "https://www.ledgerwallet.com/r/494d?path=/products";

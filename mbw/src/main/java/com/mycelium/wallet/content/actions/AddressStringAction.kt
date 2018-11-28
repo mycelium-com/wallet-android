@@ -5,11 +5,9 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.activity.StringHandlerActivity
 import com.mycelium.wallet.content.Action
 
-
-class AddressAction : Action {
+class AddressStringAction : Action {
     override fun handle(handlerActivity: StringHandlerActivity, content: String): Boolean {
-        val address = MbwManager.getInstance(handlerActivity).contentResolver.resovleAddress(content)
-        handlerActivity.finishOk(address)
+        handlerActivity.finishOk(content)
         return true
     }
 

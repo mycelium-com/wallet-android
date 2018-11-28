@@ -40,6 +40,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 
+import android.support.v4.app.FragmentManager;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.crypto.Bip38;
@@ -58,14 +59,18 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Record;
 import com.mycelium.wallet.activity.export.DecryptBip38PrivateKeyActivity;
 import com.mycelium.wallet.activity.export.MrdDecryptDataActivity;
+import com.mycelium.wallet.activity.modern.adapter.SelectAssetDialog;
 import com.mycelium.wallet.bitid.BitIDSignRequest;
 import com.mycelium.wallet.content.Action;
 import com.mycelium.wallet.content.ResultType;
 import com.mycelium.wallet.content.StringHandleConfig;
 import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.content.GenericAssetUri;
+import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.WalletManager;
 
+import java.util.List;
 import java.util.UUID;
 
 public class StringHandlerActivity extends Activity {
@@ -78,6 +83,7 @@ public class StringHandlerActivity extends Activity {
    public static final String RESULT_URI_KEY = "uri";
    public static final String RESULT_SHARE_KEY = "share";
    public static final String RESULT_ADDRESS_KEY = "address";
+   public static final String RESULT_ADDRESS_STRING_KEY = "address_string";
    public static final String RESULT_TYPE_KEY = "type";
    public static final String RESULT_ACCOUNT_KEY = "account";
    public static final String RESULT_MASTER_SEED_KEY = "master_seed";
@@ -316,6 +322,14 @@ public class StringHandlerActivity extends Activity {
       finish();
    }
 
+   public void finishOk(String address) {
+      Intent result = new Intent();
+      result.putExtra(RESULT_ADDRESS_KEY, address);
+      result.putExtra(RESULT_TYPE_KEY, ResultType.ADDRESS_STRING);
+      setResult(RESULT_OK, result);
+      finish();
+   }
+
    public void finishOk(GenericAddress address) {
       Intent result = new Intent();
       result.putExtra(RESULT_ADDRESS_KEY, address);
@@ -383,6 +397,15 @@ public class StringHandlerActivity extends Activity {
       HdKeyNode hdKeyNode = (HdKeyNode) intent.getSerializableExtra(RESULT_HD_NODE);
       Preconditions.checkNotNull(hdKeyNode);
       return hdKeyNode;
+   }
+
+   public static void getAddress(Intent intent, WalletManager walletManager, FragmentManager fragmentManager) {
+      StringHandlerActivity.checkType(intent, ResultType.ADDRESS_STRING);
+      String address = intent.getStringExtra(RESULT_ADDRESS_STRING_KEY);
+      Preconditions.checkNotNull(address);
+      List<GenericAddress> addresses = walletManager.parseAddress(address);
+      SelectAssetDialog dialog = SelectAssetDialog.getInstance(addresses);
+      dialog.show(fragmentManager, "dialog");
    }
 
    public static GenericAddress getAddress(Intent intent) {
