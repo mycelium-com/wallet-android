@@ -54,7 +54,7 @@ class FeeEstimatorBuilder {
             setArrayOfInputs(inputsList.toList().toTypedArray())
 
     fun setArrayOfInputs(inputsArray: Array<UnspentTransactionOutput>): FeeEstimatorBuilder {
-        legacyInputs = inputsArray.filter { it.script is ScriptOutputStandard }.count()
+        legacyInputs = inputsArray.filter { it.script is ScriptOutputP2PKH }.count()
         p2shSegwitInputs = inputsArray.filter { it.script is ScriptOutputP2SH }.count()
         bechInputs = inputsArray.filter { it.script is ScriptOutputP2WPKH }.count()
         return this
@@ -65,7 +65,7 @@ class FeeEstimatorBuilder {
 
     fun setArrayOfOutputs(outputsArray: Array<TransactionOutput>?): FeeEstimatorBuilder {
         if (outputsArray != null) {
-            legacyOutputs = outputsArray.filter { it.script is ScriptOutputStandard }.count()
+            legacyOutputs = outputsArray.filter { it.script is ScriptOutputP2PKH }.count()
             p2shOutputs = outputsArray.filter { it.script is ScriptOutputP2SH }.count()
             bechOutputs = outputsArray.filter { it.script is ScriptOutputP2WPKH }.count()
         } else {

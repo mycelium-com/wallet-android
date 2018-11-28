@@ -112,7 +112,7 @@ public class StandardTransactionBuilder {
             script = new ScriptOutputP2SH(sendTo.getTypeSpecificBytes());
             break;
          case P2PKH:
-            script = new ScriptOutputStandard(sendTo.getTypeSpecificBytes());
+            script = new ScriptOutputP2PKH(sendTo.getTypeSpecificBytes());
             break;
          case P2WPKH:
             script = new ScriptOutputP2WPKH(sendTo.getTypeSpecificBytes());
@@ -436,7 +436,7 @@ public class StandardTransactionBuilder {
          int minHeight = Integer.MAX_VALUE;
          UnspentTransactionOutput oldest = null;
          for (UnspentTransactionOutput output : unspent) {
-            if (!(output.script instanceof ScriptOutputStandard) && !(output.script instanceof ScriptOutputP2SH)
+            if (!(output.script instanceof ScriptOutputP2PKH) && !(output.script instanceof ScriptOutputP2SH)
                     && !(output.script instanceof ScriptOutputP2WPKH)) {
                // only look for certain scripts
                continue;

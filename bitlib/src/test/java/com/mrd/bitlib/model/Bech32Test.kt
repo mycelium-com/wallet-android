@@ -24,6 +24,9 @@ import org.junit.Assert.*
 import org.junit.Test
 import java.util.*
 
+/**
+ * Test from this PR https://github.com/sipa/bech32/pull/40
+ */
 class Bech32Test {
     @Test
     @Throws(Bech32.Bech32Exception::class)

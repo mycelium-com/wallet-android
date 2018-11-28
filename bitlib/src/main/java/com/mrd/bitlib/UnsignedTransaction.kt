@@ -144,7 +144,7 @@ open class UnsignedTransaction constructor(
         private const val serialVersionUID = 1L
         const val NO_SEQUENCE = -1
         private val SUPPORTED_SCRIPTS = listOf(
-                ScriptOutputStandard::class.java,
+                ScriptOutputP2PKH::class.java,
                 ScriptOutputP2SH::class.java,
                 ScriptOutputP2WPKH::class.java
         )

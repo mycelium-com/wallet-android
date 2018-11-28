@@ -27,7 +27,7 @@ import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
 import com.mrd.bitlib.util.ByteWriter;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 
 import java.io.Serializable;
 import java.util.Arrays;

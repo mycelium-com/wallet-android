@@ -57,7 +57,6 @@ import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.ByteWriter;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.util.AbstractAccountScanManager;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -65,7 +64,6 @@ import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bip44.HDAccount;
 import com.mycelium.wapi.wallet.bip44.HDAccountExternalSignature;
 import com.mycelium.wapi.wallet.bip44.ExternalSignatureProvider;
-import com.mycelium.wapi.wallet.bip44.HDAccountExternalSignature;
 import com.satoshilabs.trezor.lib.ExtSigDeviceConnectionException;
 import com.satoshilabs.trezor.lib.ExternalSignatureDevice;
 import com.satoshilabs.trezor.lib.protobuf.TrezorMessage;
@@ -404,7 +402,7 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
                   } else if (fundingUtxoScript instanceof ScriptOutputP2WPKH) {
                      derivationType = BipDerivationType.BIP84;
                      txInputBuilder.setScriptType(TrezorType.InputScriptType.SPENDWITNESS);
-                  } else if (fundingUtxoScript instanceof ScriptOutputStandard) {
+                  } else if (fundingUtxoScript instanceof ScriptOutputP2PKH) {
                      derivationType = BipDerivationType.BIP44;
                      txInputBuilder.setScriptType(TrezorType.InputScriptType.SPENDADDRESS);
                   } else {
