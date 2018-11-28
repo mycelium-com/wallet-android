@@ -60,22 +60,23 @@ public class Transaction implements Serializable {
     private transient int _txSize = -1;
 
     public static Transaction fromUnsignedTransaction(UnsignedTransaction unsignedTransaction) {
-        TransactionInput[] inputs = new TransactionInput[unsignedTransaction.getFundingOutputs().length];
-        int idx = 0;
-        for (UnspentTransactionOutput u : unsignedTransaction.getFundingOutputs()) {
+        UnspentTransactionOutput[] fundingOutputs = unsignedTransaction.getFundingOutputs();
+        TransactionInput[] inputs = new TransactionInput[fundingOutputs.length];
+        for (int idx = 0; idx < fundingOutputs.length; idx++) {
+            UnspentTransactionOutput u = fundingOutputs[idx];
+            ScriptInput script;
             if (unsignedTransaction.isSegWitOutput(idx)) {
                 byte[] segWitScriptBytes = unsignedTransaction.getInputs()[idx].script.getScriptBytes();
                 try {
-                    inputs[idx] = new TransactionInput(u.outPoint, ScriptInput.fromScriptBytes(segWitScriptBytes),
-                            unsignedTransaction.getDefaultSequenceNumber(), u.value);
+                    script = ScriptInput.fromScriptBytes(segWitScriptBytes);
                 } catch (Script.ScriptParsingException e) {
                     //Should never happen
+                    throw new Error("Parsing segWitScriptBytes failed");
                 }
             } else {
-                inputs[idx] = new TransactionInput(u.outPoint, new ScriptInput(u.script.getScriptBytes()),
-                        unsignedTransaction.getDefaultSequenceNumber(), u.value);
+                script = new ScriptInput(u.script.getScriptBytes());
             }
-            idx++;
+            inputs[idx] = new TransactionInput(u.outPoint, script, unsignedTransaction.getDefaultSequenceNumber(), u.value);
         }
         return new Transaction(1, inputs, unsignedTransaction.getOutputs(), unsignedTransaction.getLockTime());
     }
@@ -309,17 +310,15 @@ public class Transaction implements Serializable {
             writer.putIntLE(inputs[i].sequence);
             writer.putSha256Hash(getOutputsHash());
             writer.putIntLE(lockTime);
-            int hashType = 1;
-            writer.putIntLE(hashType);
         } else {
             toByteWriter(writer, false);
-            // We also have to write a hash type.
-            int hashType = 1;
-            writer.putIntLE(hashType);
-            // Note that this is NOT reversed to ensure it will be signed
-            // correctly. If it were to be printed out
-            // however then we would expect that it is IS reversed.
         }
+        // We also have to write a hash type.
+        int hashType = 1;
+        writer.putIntLE(hashType);
+        // Note that this is NOT reversed to ensure it will be signed
+        // correctly. If it were to be printed out
+        // however then we would expect that it is IS reversed.
         return HashUtils.doubleSha256(writer.toBytes());
     }
 

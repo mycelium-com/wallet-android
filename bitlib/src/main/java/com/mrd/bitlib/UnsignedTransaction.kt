@@ -1,6 +1,7 @@
 package com.mrd.bitlib
 
 import com.mrd.bitlib.crypto.IPublicKeyRing
+import com.mrd.bitlib.crypto.PublicKey
 import com.mrd.bitlib.model.*
 import com.mrd.bitlib.util.BitUtils
 import com.mrd.bitlib.util.CoinUtil
@@ -32,8 +33,8 @@ open class UnsignedTransaction constructor(
             val utxo = fundingOutputs[i]
 
             // Make sure that we only work on supported scripts
-            when (utxo.script.javaClass) {
-                !in SUPPORTED_SCRIPTS -> throw RuntimeException("Unsupported script")
+            if (utxo.script.javaClass !in SUPPORTED_SCRIPTS) {
+                throw RuntimeException("Unsupported script")
             }
 
             // Find the address of the funding
@@ -47,18 +48,10 @@ open class UnsignedTransaction constructor(
 
             when (utxo.script) {
                 is ScriptOutputP2SH  -> {
-                    val inpScriptBytes = BitUtils.concatenate(byteArrayOf(Script.OP_0.toByte(), publicKey.pubKeyHashCompressed.size.toByte()), publicKey.pubKeyHashCompressed)
-                    val inputScript = ScriptInput.fromScriptBytes(BitUtils.concatenate(byteArrayOf((inpScriptBytes.size and 0xFF).toByte()), inpScriptBytes))
-                    (inputScript as ScriptInputP2WPKH).isNested = true
-                    transaction.inputs[i].script = inputScript
-                    inputs[i].script = inputScript
+                    getInputScript(publicKey, transaction, i, true)
                 }
                 is ScriptOutputP2WPKH -> {
-                    val inpScriptBytes = BitUtils.concatenate(byteArrayOf(Script.OP_0.toByte(), publicKey.pubKeyHashCompressed.size.toByte()), publicKey.pubKeyHashCompressed)
-                    val inputScript = ScriptInput.fromScriptBytes(BitUtils.concatenate(byteArrayOf((inpScriptBytes.size and 0xFF).toByte()), inpScriptBytes))
-                    (inputScript as ScriptInputP2WPKH).isNested = false
-                    transaction.inputs[i].script = inputScript
-                    inputs[i].script = inputScript
+                    getInputScript(publicKey, transaction, i, false)
                 }
             }
 
@@ -83,6 +76,14 @@ open class UnsignedTransaction constructor(
 
             signingRequests[i] = SigningRequest(publicKey, hash)
         }
+    }
+
+    private fun getInputScript(publicKey: PublicKey, transaction: Transaction, i: Int, isNested: Boolean) {
+        val inpScriptBytes = BitUtils.concatenate(byteArrayOf(Script.OP_0.toByte(), publicKey.pubKeyHashCompressed.size.toByte()), publicKey.pubKeyHashCompressed)
+        val inputScript = ScriptInput.fromScriptBytes(BitUtils.concatenate(byteArrayOf((inpScriptBytes.size and 0xFF).toByte()), inpScriptBytes))
+        (inputScript as ScriptInputP2WPKH).isNested = isNested
+        transaction.inputs[i].script = inputScript
+        inputs[i].script = inputScript
     }
 
     fun isSegwit() = fundingOutputs.asSequence()

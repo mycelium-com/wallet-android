@@ -63,6 +63,11 @@ class FeeEstimatorBuilder {
     fun setArrayOfOutputs(inputsList: Iterable<TransactionOutput>) =
             setArrayOfOutputs(inputsList.toList().toTypedArray())
 
+    /**
+     * This method is used to set outputs for fee calculation.
+     * @param outputsArray is nullable. If it's null 2 legacy outputs used as this is biggest possible fee, which
+     * should be calculated by default for our wallet.
+     */
     fun setArrayOfOutputs(outputsArray: Array<TransactionOutput>?): FeeEstimatorBuilder {
         if (outputsArray != null) {
             legacyOutputs = outputsArray.filter { it.script is ScriptOutputP2PKH }.count()
