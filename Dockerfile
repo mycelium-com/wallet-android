@@ -5,7 +5,7 @@ RUN dpkg --add-architecture i386 && \
     apt-get install -y software-properties-common && \
     add-apt-repository -y ppa:openjdk-r/ppa && \
     apt-get update -y && \
-    apt-get install -y wget openjdk-8-jdk=8u171-b11-0ubuntu0.18.04.1 git unzip && \
+    apt-get install -y wget openjdk-8-jdk=8u181-b13-1ubuntu0.18.04.1 git unzip && \
     rm -rf /var/lib/apt/lists/* && \
     apt-get autoremove -y && \
     apt-get clean
