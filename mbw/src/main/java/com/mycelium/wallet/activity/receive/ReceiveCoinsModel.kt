@@ -10,17 +10,14 @@ import android.nfc.NfcAdapter
 import android.os.Bundle
 import android.support.v4.app.NotificationCompat
 import android.widget.Toast
-import com.mrd.bitlib.model.Address
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.util.AccountDisplayType
 import com.mycelium.wallet.event.SyncFailed
 import com.mycelium.wallet.event.SyncStopped
-import com.mycelium.wapi.model.TransactionSummary
-import com.mycelium.wapi.wallet.AddressUtils
 import com.mycelium.wapi.wallet.GenericAddress
+import com.mycelium.wapi.wallet.GenericTransaction
 import com.mycelium.wapi.wallet.WalletAccount
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount
 import com.mycelium.wapi.wallet.coins.Value
 import com.squareup.otto.Subscribe
 
@@ -120,15 +117,15 @@ class ReceiveCoinsModel(
 
     @Subscribe
     fun syncStopped(event: SyncStopped) {
-        val transactionsSince = (account as WalletBtcAccount).getTransactionsSince(receivingSince)
+        val transactionsSince = account.getTransactionsSince(receivingSince)
         val interesting = getTransactionsToCurrentAddress(transactionsSince)
         var sum = if (interesting.isEmpty()) {
             null
         } else {
-            interesting.first().value
+            if (interesting.first().isIncoming) interesting.first().received else interesting.first().sent
         }
-        interesting.drop(1).forEach { sum = sum!!.add(it.value, mbwManager.exchangeRateManager) }
-        receivingAmount.value = if (sum != null) Value.valueOf(account.coinType, sum!!.longValue)
+        interesting.drop(1).forEach { sum = sum!!.add(if (it.isIncoming) it.received else it.sent) }
+        receivingAmount.value = if (sum != null) Value.valueOf(account.coinType, sum!!.value)
         else Value.zeroValue(account.coinType)
 
         if (!Value.isNullOrZero(amountData.value) && sum != null) {
@@ -150,8 +147,9 @@ class ReceiveCoinsModel(
         lastAddressBalance = sum
     }
 
-    private fun getTransactionsToCurrentAddress(transactionsSince: MutableList<TransactionSummary>) =
-            transactionsSince.filter { it.toAddresses.contains(Address.fromString(receivingAddress.value.toString())) }
+    private fun getTransactionsToCurrentAddress(transactionsSince: MutableList<out GenericTransaction>) =
+            transactionsSince.filter { tx -> tx.outputs.contains(GenericTransaction.GenericOutput(receivingAddress.value,
+                    if (tx.isIncoming) tx.received else tx.sent)) }
 
     companion object {
         private const val MAX_SYNC_ERRORS = 8

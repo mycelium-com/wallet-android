@@ -100,12 +100,6 @@ public interface WalletBtcAccount extends WalletAccount<BtcTransaction, BtcLegac
 
 
    /**
-    * Get the transaction history of this account since the stated timestamp
-    * @param receivingSince only include tx older than this
-    */
-   List<TransactionSummary> getTransactionsSince(Long receivingSince);
-
-   /**
     * Get the details of a transaction that originated from this account
     *
     * @param txid the ID of the transaction

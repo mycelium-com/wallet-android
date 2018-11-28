@@ -21,6 +21,18 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
                        , val listener: AccountListener?)
     : WalletAccount<CoinapultTransaction, BtcAddress> {
 
+
+    override fun getTransactionsSince(receivingSince: Long): MutableList<CoinapultTransaction> {
+        val history = ArrayList<CoinapultTransaction>()
+        checkNotArchived()
+        val list = backing.getTransactionsSince(receivingSince)
+        for (tex in list) {
+            val tx = getTx(tex.txid)
+            history.add(tx)
+        }
+        return history
+    }
+
     override fun getLabel(): String {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
@@ -62,6 +74,13 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
     }
 
     override fun isArchived() = context.isArchived()
+
+    protected fun checkNotArchived() {
+        val usingArchivedAccount = "Using archived account"
+        if (isArchived) {
+            throw RuntimeException(usingArchivedAccount)
+        }
+    }
 
     override fun activateAccount() {
         context.setArchived(false)

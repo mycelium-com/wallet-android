@@ -33,6 +33,8 @@ class SingleAddressBCHAccount(context: SingleAddressAccountContext,
                               backing: SingleAddressAccountBacking, wapi: Wapi,
                               private val spvBalanceFetcher: SpvBalanceFetcher)
     : SingleAddressAccount(context, keyStore, network, backing, wapi, Reference(ChangeAddressMode.NONE)) {
+
+
     private var visible: Boolean = false
 
     override fun getCurrencyBasedBalance(): CurrencyBasedBalance {
@@ -59,8 +61,8 @@ class SingleAddressBCHAccount(context: SingleAddressAccountContext,
                 .filter { it.height >= forkBlock }
     }
 
-    override fun getTransactionsSince(receivingSince: Long?): List<TransactionSummary> {
-        return spvBalanceFetcher.retrieveTransactionsSummaryByUnrelatedAccountId(id.toString(), receivingSince!!)
+    override fun getTransactionsSince(receivingSince: Long): MutableList<BtcTransaction> {
+        TODO("not implemented") //spvBalanceFetcher.retrieveTransactionsSummaryByUnrelatedAccountId(id.toString(), receivingSince!!)
     }
 
     override fun getTransactionSummary(txid: Sha256Hash): TransactionSummary? {
