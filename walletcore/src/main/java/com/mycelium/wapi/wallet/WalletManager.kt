@@ -230,7 +230,10 @@ class WalletManager(val backing: WalletManagerBacking<*,*>,
         val addressesList = ArrayList<GenericAddress>()
         for(asset in coinTypes) {
             try {
-                addressesList.add(asset.parseAddress(address)!!)
+                val addr = asset.parseAddress(address)
+                if (addr != null) {
+                    addressesList.add(addr)
+                }
             } catch (ex : AddressMalformedException) {
             }
         }
