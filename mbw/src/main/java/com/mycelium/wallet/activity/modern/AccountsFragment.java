@@ -47,6 +47,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.util.ArraySet;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
 import android.support.v7.view.ActionMode.Callback;
@@ -128,6 +129,7 @@ import com.squareup.otto.Subscribe;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import static com.mycelium.wallet.AccountManagerKt.getActiveHDAccounts;
@@ -1158,9 +1160,9 @@ public class AccountsFragment extends Fragment {
       int count = 0;
       for (WalletAccount account : getActiveHDAccounts(_mbwManager.getWalletManager(false))) {
          if (((HDAccount) account).getAccountType() == HDAccountContext.ACCOUNT_TYPE_FROM_MASTERSEED) {
-            count++;
+            uniqueAccountsSet.add(account);
          }
-         if (count > 1) {
+         if (uniqueAccountsSet.size() > 1) {
             // after deleting one, more remain
             return false;
          }

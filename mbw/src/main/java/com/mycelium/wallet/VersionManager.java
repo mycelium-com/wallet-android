@@ -85,7 +85,7 @@ public class VersionManager {
    private WalletVersionExEvent lastVersionResult;
    private Dialog lastDialog;
 
-   public VersionManager(Context context, String language, AsynchronousApi asyncApi, Bus eventBus) {
+   public VersionManager(Context context, String language, AsynchronousApi asyncApi, final Bus eventBus) {
       this.context = context;
       this.language = language;
       this.asyncApi = asyncApi;
@@ -94,14 +94,24 @@ public class VersionManager {
       ignoredVersions = Sets.newHashSet(Splitter.on("\n").omitEmptyStrings().split(ignored));
 
       this.eventBus = eventBus;
-      eventBus.register(this);
+      new Handler(context.getMainLooper()).post(new Runnable() {
+         @Override
+         public void run() {
+            eventBus.register(VersionManager.this);
+         }
+      });
 
-      backgroundHandler = new Handler();
+      backgroundHandler = new Handler(context.getMainLooper());
    }
 
    @Override
    protected void finalize() throws Throwable {
-      eventBus.unregister(this);
+      new Handler(context.getMainLooper()).post(new Runnable() {
+         @Override
+         public void run() {
+            eventBus.unregister(VersionManager.this);
+         }
+      });
       super.finalize();
    }
 

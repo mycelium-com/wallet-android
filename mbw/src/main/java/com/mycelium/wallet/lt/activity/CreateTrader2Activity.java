@@ -62,6 +62,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * CreateTrader{1|2|3}Activity are a sort of Trader Account Creation Wizard.
+ * You start at 1, go to 2, finish at 3.
+ */
 public class CreateTrader2Activity extends Activity {
 
    public static void callMe(Activity currentActivity) {
@@ -86,8 +90,8 @@ public class CreateTrader2Activity extends Activity {
       _mbwManager = MbwManager.getInstance(this);
       _ltManager = _mbwManager.getLocalTraderManager();
 
-      _spAddress = (Spinner) findViewById(R.id.spAddress);
-      _btUse = (Button) findViewById(R.id.btUse);
+      _spAddress = findViewById(R.id.spAddress);
+      _btUse = findViewById(R.id.btUse);
 
       _btUse.setOnClickListener(new OnClickListener() {
 
@@ -107,10 +111,10 @@ public class CreateTrader2Activity extends Activity {
       });
 
       // Populate account chooser, you can also choose archived accounts
-      _accounts = new LinkedList<UUID>();
-      List<String> choices = new LinkedList<String>();
+      _accounts = new LinkedList<>();
+      List<String> choices = new LinkedList<>();
       WalletManager walletManager = _mbwManager.getWalletManager(false);
-      for (UUID accountId : walletManager.getAccountIds()) {
+      for (UUID accountId : walletManager.getUniqueIds()) {
          WalletAccount account = walletManager.getAccount(accountId);
          if (!account.canSpend()) {
             continue;
@@ -130,7 +134,7 @@ public class CreateTrader2Activity extends Activity {
          _accounts.add(accountId);
       }
 
-      ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, choices);
+      ArrayAdapter<String> dataAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, choices);
       dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
       _spAddress.setAdapter(dataAdapter);
 
@@ -148,11 +152,9 @@ public class CreateTrader2Activity extends Activity {
       if (account instanceof SingleAddressAccount) {
          Address address = ((SingleAddressAccount) account).getAddress();
          String addressString = address.toString();
-         StringBuilder sb = new StringBuilder();
-         sb.append(addressString.substring(0, 6));
-         sb.append("...");
-         sb.append(addressString.substring(addressString.length() - 6));
-         return sb.toString();
+         return addressString.substring(0, 6) +
+                 "..." +
+                 addressString.substring(addressString.length() - 6);
       } else {
          // We only get here if the user actively chose to have an empty account name
          // We default to the string representation of the account it

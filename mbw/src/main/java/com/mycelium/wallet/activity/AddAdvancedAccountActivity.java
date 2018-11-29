@@ -527,7 +527,8 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
                           public void onClick(DialogInterface dialogInterface, int i) {
                              try {
                                 if(existingAccount instanceof SingleAddressAccount) {
-                                   ((SingleAddressAccount) existingAccount).setPrivateKey(key, AesKeyCipher.defaultKeyCipher());
+                                   _mbwManager.getWalletManager(false).createSingleAddressAccount(key,
+                                           AesKeyCipher.defaultKeyCipher());
                                 } else {
                                    WalletManager walletManager = _mbwManager.getWalletManager(false);
                                    walletManager.deleteAccount(existingAccount.getId(), AesKeyCipher.defaultKeyCipher());

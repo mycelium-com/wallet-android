@@ -40,16 +40,16 @@ import com.squareup.otto.Bus;
 
 public class AndroidAsyncApi extends AsynchronousApi {
 
-   public AndroidAsyncApi(Wapi api, Bus bus) {
-      super(api, bus);
+   public AndroidAsyncApi(Wapi api, Bus bus, Handler eventHandler) {
+      super(api, bus, eventHandler);
    }
 
    public static class HandlerRunnerPoster implements CallbackRunnerInvoker {
 
       Handler _handler;
 
-      private HandlerRunnerPoster() {
-         _handler = new Handler();
+      private HandlerRunnerPoster(Handler eventHandler) {
+         _handler = eventHandler;
       }
 
       @Override
@@ -60,8 +60,8 @@ public class AndroidAsyncApi extends AsynchronousApi {
    }
 
    @Override
-   protected CallbackRunnerInvoker createCallbackRunnerInvoker() {
-      return new HandlerRunnerPoster();
+   protected CallbackRunnerInvoker createCallbackRunnerInvoker(Handler eventHandler) {
+      return new HandlerRunnerPoster(eventHandler);
    }
 
 }

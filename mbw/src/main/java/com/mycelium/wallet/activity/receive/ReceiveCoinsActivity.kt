@@ -60,6 +60,41 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         initDatabinding(account)
     }
 
+    private fun createAddressDropdown() {
+        val btcViewModel = (viewModel as ReceiveBtcViewModel)
+
+        val p2pkh = resources.getString(R.string.receive_option_p2pkh)
+        val p2sh = resources.getString(R.string.receive_option_p2sh)
+        val bech = resources.getString(R.string.receive_option_bech)
+
+        val addressTypesMenu = PopupMenu(this, addressDropdownLayout)
+        addressTypesMenu.menu.add(p2pkh)
+        addressTypesMenu.menu.add(p2sh)
+        addressTypesMenu.menu.add(bech)
+
+        addressDropdownLayout.setOnClickListener {
+            addressTypesMenu.show()
+        }
+
+        // setting initial text based on current address type
+        when (btcViewModel.getAccountDefaultAddressType()) {
+            AddressType.P2PKH -> selectedAddressText.text = p2pkh
+            AddressType.P2SH_P2WPKH -> selectedAddressText.text = p2sh
+            AddressType.P2WPKH -> selectedAddressText.text = bech
+        }
+
+        addressTypesMenu.setOnMenuItemClickListener { item ->
+            when (item.title){
+                p2pkh -> btcViewModel.setAddressType(AddressType.P2PKH)
+                p2sh -> btcViewModel.setAddressType(AddressType.P2SH_P2WPKH)
+                bech -> btcViewModel.setAddressType(AddressType.P2WPKH)
+            }
+
+            selectedAddressText.text = item.title
+            false
+        }
+    }
+
     override fun onStart() {
         super.onStart()
 

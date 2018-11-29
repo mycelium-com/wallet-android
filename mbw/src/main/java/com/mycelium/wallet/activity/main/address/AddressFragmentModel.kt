@@ -2,6 +2,8 @@ package com.mycelium.wallet.activity.main.address
 
 import android.app.Application
 import android.arch.lifecycle.MutableLiveData
+import android.text.Html
+import android.text.Spanned
 import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.model.AddressType
 import com.mrd.bitlib.model.hdpath.HdKeyPath
@@ -47,11 +49,11 @@ class AddressFragmentModel(
     private fun updateLabel() {
         val label = mbwManager.metadataStorage.getLabelByAccount(account.id)
         accountLabel.value =
-                when (account) {
+                Html.fromHtml(when (account) {
                     is Bip44BCHAccount, is SingleAddressBCHAccount ->
                         context.getString(R.string.bitcoin_cash) + " - " + label
                     else -> label
-                }
+                })
     }
 
     private fun updateAddress(account: WalletAccount<*,*>) {
@@ -62,14 +64,14 @@ class AddressFragmentModel(
         accountAddress.value = account.receiveAddress
     }
 
-    fun onCleared() = mbwManager.eventBus.unregister(this)
+    fun onCleared() = MbwManager.getEventBus().unregister(this)
 
     /**
      * We got a new Receiving Address, either because the selected Account changed,
      * or because our HD Account received Coins and changed the Address
      */
     @Subscribe
-    fun receivingAddressChanged(event: ReceivingAddressChanged) = onAddressChange()
+    fun receivingAddressChanged(event: ReceivingAddressChanged) = ::onAddressChange
 
     @Subscribe
     fun accountChanged(event: AccountChanged) {

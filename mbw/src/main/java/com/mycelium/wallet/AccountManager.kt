@@ -32,7 +32,7 @@ object AccountManager : AccountProvider {
 
     init {
         Handler(Looper.getMainLooper()).post {
-            MbwManager.getInstance(WalletApplication.getInstance()).eventBus.register(this)
+            MbwManager.getEventBus().register(this)
         }
         FillAccountsTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
     }

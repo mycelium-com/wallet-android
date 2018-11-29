@@ -80,7 +80,7 @@ public class ColdStorageSummaryActivity extends Activity {
 
       // Get intent parameters
       UUID accountId = Preconditions.checkNotNull((UUID) getIntent().getSerializableExtra("account"));
-      if (_mbwManager.getWalletManager(true).getAccountIds().contains(accountId)) {
+      if (_mbwManager.getWalletManager(true).getUniqueIds().contains(accountId)) {
          _account = _mbwManager.getWalletManager(true).getAccount(accountId);
       } else {
          //this can happen if we were in background for long time and then came back
@@ -111,6 +111,7 @@ public class ColdStorageSummaryActivity extends Activity {
          ((TextView) findViewById(R.id.tvAddress)).setText(receivingAddress.isPresent() ? receivingAddress.get().toMultiLineString() : "");
       } else {
          findViewById(R.id.tvAddress).setVisibility(View.GONE);
+
          final TextView P2PKH = findViewById(R.id.tvAddressP2PKH);
          P2PKH.setVisibility(View.VISIBLE);
          final TextView P2SH = findViewById(R.id.tvAddressP2SH);

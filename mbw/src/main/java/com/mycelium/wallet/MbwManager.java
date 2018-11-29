@@ -45,6 +45,7 @@ import android.os.Looper;
 import android.os.StrictMode;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -165,6 +166,7 @@ import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 import com.mycelium.wapi.wallet.manager.WalletListener;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
+import kotlin.jvm.Synchronized;
 
 import org.bitcoinj.params.MainNetParams;
 import org.bitcoinj.params.RegTestParams;
@@ -236,6 +238,7 @@ public class MbwManager {
     private final KeepKeyManager _keepkeyManager;
     private final LedgerManager _ledgerManager;
     private final WapiClientElectrumX _wapi;
+    private volatile LoadingProgressTracker migrationProgressTracker;
 
     private final LtApiClient _ltApi;
     private Handler _torHandler;
@@ -298,6 +301,8 @@ public class MbwManager {
         } catch (IllegalArgumentException ex) {
             setTorMode(ServerEndpointType.Types.ONLY_HTTPS);
         }
+
+        migrationProgressTracker = getMigrationProgressTracker();
 
         _wapi = initWapi();
         configuration.setServerListChangedListener(_wapi);

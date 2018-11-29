@@ -42,7 +42,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.TextView;
-import com.google.common.base.Optional;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.util.Pin;

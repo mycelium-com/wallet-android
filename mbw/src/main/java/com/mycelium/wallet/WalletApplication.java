@@ -65,8 +65,6 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
     }
 
-    private MbwManager mbwManager;
-
     public static WalletApplication getInstance() {
         if (INSTANCE == null) {
             throw new IllegalStateException();
@@ -95,16 +93,21 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         pairSpvModules(CommunicationManager.getInstance());
         cleanModulesIfFirstRun(this, getSharedPreferences(BCHHelper.BCH_PREFS, MODE_PRIVATE));
         moduleMessageReceiver = new MbwMessageReceiver(this);
-        mbwManager = MbwManager.getInstance(this);
-        applyLanguageChange(getBaseContext(), mbwManager.getLanguage());
+        applyLanguageChange(getBaseContext(), getLanguage());
         IntentFilter connectivityChangeFilter = new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE");
         initNetworkStateHandler(connectivityChangeFilter);
         registerActivityLifecycleCallbacks(new ApplicationLifecycleHandler());
+        PackageRemovedReceiver.register(getApplicationContext());
     }
 
     private void initNetworkStateHandler(IntentFilter connectivityChangeFilter) {
         networkChangedReceiver = new NetworkChangedReceiver();
         registerReceiver(networkChangedReceiver, connectivityChangeFilter);
+    }
+
+    private String getLanguage() {
+        SharedPreferences sharedPreferences = getSharedPreferences(Constants.SETTINGS_NAME, Activity.MODE_PRIVATE);
+        return sharedPreferences.getString(Constants.LANGUAGE_SETTING, Locale.getDefault().getLanguage());
     }
 
     public List<ModuleVersionError> moduleVersionErrors = new ArrayList<>();
@@ -171,6 +174,11 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
     }
 
     @Override
+    public int getIcon() {
+        return moduleMessageReceiver.getIcon();
+    }
+
+    @Override
     public void onTerminate() {
         super.onTerminate();
         unregisterReceiver(networkChangedReceiver);
@@ -208,7 +216,7 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         public void onActivityStarted(Activity activity) {
             if (numStarted == 0 && isBackground) {
                 // app returned from background
-                WalletApplication.this.mbwManager.getWapi().setAppInForeground(true);
+                MbwManager.getInstance(getApplicationContext()).getWapi().setAppInForeground(true);
                 isBackground = false;
             }
             numStarted++;
@@ -225,7 +233,7 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
             numStarted--;
             if (numStarted == 0) {
                 // app is going background
-                WalletApplication.this.mbwManager.getWapi().setAppInForeground(false);
+                MbwManager.getInstance(getApplicationContext()).getWapi().setAppInForeground(false);
                 isBackground = true;
             }
         }

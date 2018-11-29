@@ -130,6 +130,8 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
             GetAmountActivity.callMeToReceive(activity, amount.value,
                     GET_AMOUNT_RESULT_CODE, model.account.coinType)
         }
+        GetAmountActivity.callMeToReceive(activity, amountToReceive,
+                GET_AMOUNT_RESULT_CODE, AccountDisplayType.getAccountType(model.account))
     }
 
     companion object {

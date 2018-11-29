@@ -138,10 +138,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
 
     private fun createGroupViewHolder(parent: ViewGroup): GroupTitleViewHolder {
         val view = layoutInflater.inflate(R.layout.accounts_title_view, parent, false)
-        val res = GroupTitleViewHolder(view)
-        res.tvBalance.setEventBus(mbwManager.eventBus)
-        res.tvBalance.setCurrencySwitcher(mbwManager.currencySwitcher)
-        return res
+        return GroupTitleViewHolder(view)
     }
 
     private fun createArchivedTitleViewHolder(parent: ViewGroup): ArchivedGroupTitleViewHolder {
@@ -156,10 +153,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
 
     private fun createTotalBalanceViewHolder(parent: ViewGroup): TotalViewHolder {
         val view = layoutInflater.inflate(R.layout.record_row_total, parent, false)
-        val res = TotalViewHolder(view)
-        res.tcdBalance.setCurrencySwitcher(mbwManager.currencySwitcher)
-        res.tcdBalance.setEventBus(mbwManager.eventBus)
-        return res
+        return TotalViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {

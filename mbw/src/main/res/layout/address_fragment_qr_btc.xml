@@ -33,6 +33,7 @@
             android:textSize="14sp"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
+            android:layout_gravity="center"
             android:textAlignment="center"
             android:text="@{ viewModel.type == AddressType.P2SH_P2WPKH ? @string/bech_next : @string/p2sh_next}" />
     </LinearLayout>

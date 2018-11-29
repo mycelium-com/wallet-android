@@ -41,7 +41,7 @@ class ExportAsQrActivity : AppCompatActivity() {
 
         val viewModelProvider = ViewModelProviders.of(this)
         viewModel = when {
-            account is HDAccount && accountData.publicDataMap != null ->
+            account is HDAccount && (accountData.publicDataMap?.size ?: 0 > 1) ->
                 viewModelProvider.get(ExportAsQrBtcHDViewModel::class.java)
             account is SingleAddressAccount && account.availableAddressTypes.size > 1 ->
                 viewModelProvider.get(ExportAsQrBtcSAViewModel::class.java)
