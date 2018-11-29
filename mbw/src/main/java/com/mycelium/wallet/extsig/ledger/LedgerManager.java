@@ -72,9 +72,10 @@ import com.mycelium.wallet.activity.util.AbstractAccountScanManager;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.bip44.ExternalSignatureProvider;
-import com.mycelium.wapi.wallet.bip44.HDAccountContext;
-import com.mycelium.wapi.wallet.bip44.HDAccountExternalSignature;
+import com.mycelium.wapi.wallet.btc.bip44.ExternalSignatureProvider;
+import com.mycelium.wapi.wallet.btc.bip44.ExternalSignaturesAccountConfig;
+import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
+import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
 import com.squareup.otto.Bus;
 import nordpol.android.OnDiscoveredTagListener;
 
@@ -88,7 +89,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 public class LedgerManager extends AbstractAccountScanManager implements
-      ExternalSignatureProvider, OnDiscoveredTagListener {
+        ExternalSignatureProvider, OnDiscoveredTagListener {
 
    private BTChipTransportFactory transportFactory;
    private BTChipDongle dongle;
@@ -670,7 +671,10 @@ public class LedgerManager extends AbstractAccountScanManager implements
                                  @NonNull UUID uuid) {
       WalletAccount account = walletManager.getAccount(uuid);
       if (account instanceof HDAccountExternalSignature) {
+         /*
+          TODO - fix issue with updateExtSigAccount
          return walletManager.upgradeExtSigAccount(accountRoots, (HDAccountExternalSignature) account);
+         */
       }
       return false;
    }

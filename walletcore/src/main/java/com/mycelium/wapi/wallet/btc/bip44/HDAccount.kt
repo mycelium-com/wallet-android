@@ -21,6 +21,7 @@ import com.mycelium.wapi.wallet.WalletManager.Event
 import com.mycelium.wapi.wallet.bip44.ChangeAddressMode
 import com.mycelium.wapi.wallet.btc.*
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 open class HDAccount(
         protected var context: HDAccountContext,
@@ -166,7 +167,7 @@ open class HDAccount(
      * Ensure that all addresses in the look ahead window have been created
      */
     private fun ensureAddressIndexes() {
-        derivePaths.forEach { derivationType ->
+        derivePaths.forEachIndexed { index, derivationType ->
             ensureAddressIndexes(true, true, derivationType)
             ensureAddressIndexes(false, true, derivationType)
             // The current receiving address is the next external address just above

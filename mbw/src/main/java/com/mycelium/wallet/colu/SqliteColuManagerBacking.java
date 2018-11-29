@@ -50,6 +50,7 @@ import android.util.Log;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.mrd.bitlib.crypto.BipDerivationType;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.OutPoint;
@@ -68,6 +69,8 @@ import com.mycelium.wapi.wallet.AccountBacking;
 import com.mycelium.wapi.wallet.SecureKeyValueStoreBacking;
 import com.mycelium.wapi.wallet.WalletBacking;
 import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
+import com.mycelium.wapi.wallet.btc.bip44.AccountIndexesContext;
+import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext;
 import com.mycelium.wapi.wallet.colu.ColuAccountContext;
 import com.mycelium.wapi.wallet.colu.ColuTransaction;
@@ -81,6 +84,7 @@ import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -95,15 +99,20 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.mycelium.wallet.persistence.SQLiteQueryWithBlobs.uuidToBytes;
 
 public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContext, ColuTransaction>, SecureKeyValueStoreBacking {
+ /*  TODO - should be fixed according to latest develop changes
+
    private static final String LOG_TAG = "SqliteColuManagerBackin";
    private static final String TABLE_KV = "kv";
    private static final int DEFAULT_SUB_ID = 0;
    private SQLiteDatabase _database;
    private final Gson gson = new GsonBuilder().create();
    private Map<UUID, SqliteColuAccountBacking> _backings;
+   private final SQLiteStatement _insertOrReplaceBip44Account;
+   private final SQLiteStatement _updateBip44Account;
    private final SQLiteStatement _insertOrReplaceSingleAddressAccount;
    private final SQLiteStatement _updateSingleAddressAccount;
    private final SQLiteStatement _deleteSingleAddressAccount;
+   private final SQLiteStatement _deleteBip44Account;
    private final SQLiteStatement _insertOrReplaceKeyValue;
    private final SQLiteStatement _deleteKeyValue;
    private final SQLiteStatement _deleteSubId;
@@ -114,9 +123,12 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
       OpenHelper _openHelper = new OpenHelper(context);
       _database = _openHelper.getWritableDatabase();
 
-      _insertOrReplaceSingleAddressAccount = _database.compileStatement("INSERT OR REPLACE INTO single VALUES (?,?,?,?,?,?,?)");
+      _insertOrReplaceBip44Account = _database.compileStatement("INSERT OR REPLACE INTO bip44 VALUES (?,?,?,?,?,?,?,?,?)");
+      _insertOrReplaceSingleAddressAccount = _database.compileStatement("INSERT OR REPLACE INTO single VALUES (?,?,?,?,?)");
+      _updateBip44Account = _database.compileStatement("UPDATE bip44 SET archived=?,blockheight=?, indexContexts=?, lastDiscovery=?,accountType=?,accountSubId=?,addressType=? WHERE id=?");
       _updateSingleAddressAccount = _database.compileStatement("UPDATE single SET archived=?,blockheight=?,addresses=?,addressType=? WHERE id=?");
       _deleteSingleAddressAccount = _database.compileStatement("DELETE FROM single WHERE id = ?");
+      _deleteBip44Account = _database.compileStatement("DELETE FROM bip44 WHERE id = ?");
       _insertOrReplaceKeyValue = _database.compileStatement("INSERT OR REPLACE INTO kv VALUES (?,?,?,?)");
       _getMaxSubId = _database.compileStatement("SELECT max(subId) FROM kv");
       _deleteKeyValue = _database.compileStatement("DELETE FROM kv WHERE k = ?");
@@ -133,20 +145,15 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
       Cursor cursor = null;
       try {
          SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(_database);
-         cursor = blobQuery.query(false, "single", new String[]{"id", "addresses", "archived", "blockheight", "coinId", "publicKey"}, null, null,
-                 null, null, null, null);
+         cursor = blobQuery.query(
+                 false, "bip44",
+                 new String[]{"id", "accountIndex", "archived", "blockheight",
+                         "indexContexts", "lastDiscovery", "accountType", "accountSubId", "addressType"},
+                 null, null, null, null, "accountIndex", null);
+
          while (cursor.moveToNext()) {
             UUID id = SQLiteQueryWithBlobs.uuidFromBytes(cursor.getBlob(0));
-            byte[] addressBytes = cursor.getBlob(1);
-//            final ByteArrayInputStream byteStream = new ByteArrayInputStream(addressMapBytes);
-//            /*Map<AddressType, Address> */Address address  = null;
-//            try (ObjectInputStream objectInputStream = new ObjectInputStream(byteStream)) {
-//               address = /*(Map<AddressType, Address>)*/  (Address) objectInputStream.readObject();
-//            } catch (IOException ignore) {
-//               // should never happen
-//            } catch (ClassNotFoundException ignore) {
-//               // should never happen
-//            }
+            int accountIndex = cursor.getInt(1);
             boolean isArchived = cursor.getInt(2) == 1;
             int blockHeight = cursor.getInt(3);
             Type type = new TypeToken<Map<BipDerivationType, AccountIndexesContext>>() {}.getType();
@@ -159,13 +166,12 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
             list.add(new HDAccountContext(id, accountIndex, isArchived, blockHeight, lastDiscovery, indexesContextMap,
                     accountType, accountSubId, defaultAddressType));
          }
-         }
+         return list;
       } finally {
          if (cursor != null) {
             cursor.close();
          }
       }
-      return list;
    }
 
    @Override
@@ -280,6 +286,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
          _database.setTransactionSuccessful();
       } finally {
          _database.endTransaction();
+      }
    }
 
    @Override
@@ -301,6 +308,54 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
       } finally {
          _database.endTransaction();
       }
+   }
+
+   @Override
+   public void deleteSingleAddressAccountContext(UUID accountId) {
+      // "DELETE FROM single WHERE id = ?"
+      beginTransaction();
+      try {
+         SqliteColuAccountBacking backing = _backings.get(accountId);
+         if (backing == null) {
+            return;
+         }
+         _deleteSingleAddressAccount.bindBlob(1, uuidToBytes(accountId));
+         _deleteSingleAddressAccount.execute();
+         backing.dropTables();
+         _backings.remove(accountId);
+         setTransactionSuccessful();
+      } finally {
+         endTransaction();
+      }
+   }
+
+   @Override
+   public void deleteBip44AccountContext(UUID accountId) {
+      // "DELETE FROM bip44 WHERE id = ?"
+      beginTransaction();
+      try {
+         SqliteColuAccountBacking backing = _backings.get(accountId);
+         if (backing == null) {
+            return;
+         }
+         _deleteBip44Account.bindBlob(1, uuidToBytes(accountId));
+         _deleteBip44Account.execute();
+         backing.dropTables();
+         _backings.remove(accountId);
+         setTransactionSuccessful();
+      } finally {
+         endTransaction();
+      }
+   }
+
+   @Override
+   public Bip44AccountBacking getBip44AccountBacking(UUID accountId) {
+      return checkNotNull(_backings.get(accountId));
+   }
+
+   @Override
+   public SingleAddressAccountBacking getSingleAddressAccountBacking(UUID accountId) {
+      return checkNotNull(_backings.get(accountId));
    }
 
    @Override
@@ -988,6 +1043,16 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
             }
          }
       }
+
+      @Override
+      public void updateAccountContext(HDAccountContext context) {
+         updateBip44AccountContext(context);
+      }
+
+      @Override
+      public void updateAccountContext(SingleAddressAccountContext context) {
+         updateSingleAddressAccountContext(context);
+      }
    }
 
    private class OpenHelper extends SQLiteOpenHelper {
@@ -1029,6 +1094,10 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
             db.execSQL("ALTER TABLE kv RENAME TO kv_old");
             db.execSQL("ALTER TABLE kv_new RENAME TO kv");
             db.execSQL("DROP TABLE kv_old");
+
+            // add column to store what account type it is
+            db.execSQL("ALTER TABLE bip44 ADD COLUMN accountType INTEGER DEFAULT 0");
+            db.execSQL("ALTER TABLE bip44 ADD COLUMN accountSubId INTEGER DEFAULT 0");
          }
          if (oldVersion < 4) {
             try (Cursor cursor = db.rawQuery("SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'tx^_%' ESCAPE '^'", new String[]{})) {
@@ -1181,5 +1250,70 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
       public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
          //We don't really support downgrade but some android devices need this empty method
       }
+   }
+   */
+
+   public SqliteColuManagerBacking(Context context) {
+
+   }
+
+   @Override
+   public byte[] getValue(byte[] id) {
+      return new byte[0];
+   }
+
+   @Override
+   public byte[] getValue(byte[] id, int subId) {
+      return new byte[0];
+   }
+
+   @Override
+   public void setValue(byte[] id, byte[] plaintextValue) {
+
+   }
+
+   @Override
+   public int getMaxSubId() {
+      return 0;
+   }
+
+   @Override
+   public void setValue(byte[] key, int subId, byte[] value) {
+
+   }
+
+   @Override
+   public void deleteValue(byte[] id) {
+
+   }
+
+   @Override
+   public void deleteSubStorageId(int subId) {
+
+   }
+
+   @Override
+   public List<ColuAccountContext> loadAccountContexts() {
+      return null;
+   }
+
+   @Override
+   public AccountBacking<ColuTransaction> getAccountBacking(UUID accountId) {
+      return null;
+   }
+
+   @Override
+   public void createAccountContext(ColuAccountContext coluAccountContext) {
+
+   }
+
+   @Override
+   public void updateAccountContext(ColuAccountContext coluAccountContext) {
+
+   }
+
+   @Override
+   public void deleteAccountContext(UUID uuid) {
+
    }
 }

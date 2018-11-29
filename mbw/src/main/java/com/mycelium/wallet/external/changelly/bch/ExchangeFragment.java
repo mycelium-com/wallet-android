@@ -65,10 +65,11 @@ import static com.mycelium.wallet.AccountManagerKt.getBCHSingleAddressAccounts;
 import static com.mycelium.wallet.AccountManagerKt.getBTCBip44Accounts;
 import static com.mycelium.wallet.AccountManagerKt.getBTCSingleAddressAccounts;
 import static com.mycelium.wallet.AccountManagerKt.getCoinapultAccounts;
-import static com.mycelium.wallet.external.changelly.ChangellyService.INFO_ERROR;
 import static com.mycelium.wallet.external.changelly.Constants.ABOUT;
 import static com.mycelium.wallet.external.changelly.Constants.decimalFormat;
 import static com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.ACCOUNT_TYPE_FROM_MASTERSEED;
+import static com.mycelium.wapi.wallet.currency.CurrencyValue.BCH;
+import static com.mycelium.wapi.wallet.currency.CurrencyValue.BTC;
 
 public class ExchangeFragment extends Fragment {
     public static final BigDecimal MAX_BITCOIN_VALUE = BigDecimal.valueOf(20999999);

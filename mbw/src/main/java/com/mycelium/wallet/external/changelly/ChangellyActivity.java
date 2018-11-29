@@ -47,8 +47,8 @@ import static butterknife.OnTextChanged.Callback.AFTER_TEXT_CHANGED;
 import static com.mycelium.wallet.AccountManagerKt.getBTCBip44Accounts;
 import static com.mycelium.wallet.AccountManagerKt.getBTCSingleAddressAccounts;
 import static com.mycelium.wallet.AccountManagerKt.getCoinapultAccounts;
-import static com.mycelium.wallet.external.changelly.ChangellyService.INFO_ERROR;
 import static com.mycelium.wallet.external.changelly.Constants.decimalFormat;
+import static com.mycelium.wapi.wallet.currency.CurrencyValue.BTC;
 
 public class ChangellyActivity extends AppCompatActivity {
     public static final int REQUEST_OFFER = 100;
@@ -122,7 +122,9 @@ public class ChangellyActivity extends AppCompatActivity {
             Toast.makeText(ChangellyActivity.this, "Error parsing double values", Toast.LENGTH_SHORT).show();
             return;
         }
+        /* TODO - restore this piece of code
         changellyAPIService.getExchangeAmount(fromCurrency, toCurrency, dblAmount).enqueue(new GetOfferCallback(fromCurrency, toCurrency, dblAmount));
+        */
     }
 
     @Override
@@ -167,8 +169,10 @@ public class ChangellyActivity extends AppCompatActivity {
                     toValue.setText("");
 
                     // load min amount
+                    /* TODO - restore this piece of code
                     changellyAPIService.getMinAmount(item.currency, BTC)
                             .enqueue(new GetMinCallback(item.currency));
+                    */
                 }
             }
         });
@@ -317,6 +321,8 @@ public class ChangellyActivity extends AppCompatActivity {
             btTakeOffer.setEnabled(false);
             return;
         }
+
+        /* TODO - restore this piece of code
         CurrencyAdapter.Item item = currencyAdapter.getItem(currencySelector.getSelectedItem());
         WalletAccount walletAccount = accountAdapter.getItem(accountSelector.getSelectedItem()).account;
         String destination = walletAccount.getReceivingAddress().get().toString();
@@ -331,6 +337,8 @@ public class ChangellyActivity extends AppCompatActivity {
                 .putExtra(ChangellyAPIService.TO, BTC)
                 .putExtra(ChangellyAPIService.AMOUNT, dblAmount)
                 .putExtra(ChangellyAPIService.DESTADDRESS, destination), REQUEST_OFFER);
+
+         */
     }
 
     boolean isValueForOfferOk() {
@@ -381,7 +389,9 @@ public class ChangellyActivity extends AppCompatActivity {
         return false;
     }
 
-    class GetMinCallback implements Callback<ChangellyAnswerDouble> {
+    /* TODO - restore this piece of code
+
+    class GetMinCallback implements Callback<ChangellyAPIService.ChangellyAnswerDouble> {
         String from;
 
         GetMinCallback(String from) {
@@ -389,7 +399,7 @@ public class ChangellyActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onResponse(@NonNull Call<ChangellyAnswerDouble> call,
+        public void onResponse(@NonNull Call<ChangellyAPIService.ChangellyAnswerDouble> call,
                                @NonNull Response<ChangellyAnswerDouble> response) {
             ChangellyAnswerDouble result = response.body();
             if(result == null || result.result == -1) {
@@ -410,13 +420,13 @@ public class ChangellyActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onFailure(@NonNull Call<ChangellyAnswerDouble> call,
+        public void onFailure(@NonNull Call<ChangellyAPIService.ChangellyAnswerDouble> call,
                               @NonNull Throwable t) {
             toast("Service unavailable");
         }
     }
 
-    class GetOfferCallback implements Callback<ChangellyAnswerDouble> {
+    class GetOfferCallback implements Callback<ChangellyAPIService.ChangellyAnswerDouble> {
         final String from;
         final String to;
         final double fromAmount;
@@ -463,4 +473,7 @@ public class ChangellyActivity extends AppCompatActivity {
             toast("Service unavailable " + t);
         }
     }
+
+   */
+
 }

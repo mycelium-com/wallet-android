@@ -10,6 +10,8 @@ import android.nfc.NdefRecord
 import android.nfc.NfcAdapter
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.widget.PopupMenu
+import com.mrd.bitlib.model.AddressType
 import android.view.Window
 import android.view.WindowManager
 import com.mycelium.wallet.MbwManager
@@ -26,8 +28,8 @@ import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount
 import com.mycelium.wapi.wallet.coinapult.CoinapultAccount
 import com.mycelium.wapi.wallet.coins.Value
-import com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount
-import com.mycelium.wapi.wallet.eth.EthAccount
+
+import kotlinx.android.synthetic.main.receive_coins_activity_btc_addr_type.*
 import kotlinx.android.synthetic.main.receive_coins_activity_qr.*
 
 class ReceiveCoinsActivity : AppCompatActivity() {

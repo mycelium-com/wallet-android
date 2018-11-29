@@ -85,6 +85,10 @@ import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
+import com.mycelium.wallet.event.MigrationStatusChanged;
+import com.mycelium.wallet.event.MigrationPercentChanged;
+import com.squareup.otto.Bus;
+import com.squareup.otto.Subscribe;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -134,7 +138,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
    @Override
    protected void onStart() {
       super.onStart();
-      eventBus = MbwManager.getEventBus();
+      eventBus = _mbwManager.getEventBus();
       eventBus.register(this);
       new Thread(delayedInitialization).start();
    }
@@ -229,7 +233,6 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
          } catch (HdKeyNode.KeyGenerationException ex) {
             return false;
          }
-      }
       }
    };
 
@@ -400,7 +403,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
       private boolean hasPrivateKeyOnClipboard(NetworkParameters network) {
          // do we have a private key on the clipboard?
          try {
-            Optional<InMemoryPrivateKey> key = getPrivateKey(network, Utils.getClipboardString(StartupActivity.this));
+            Optional<InMemoryPrivateKey> key = PrivateKeyAction.Companion.getPrivateKey(network, Utils.getClipboardString(StartupActivity.this));
             if (key.isPresent()) {
                return true;
             }
@@ -414,7 +417,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
       private boolean hasPublicKeyOnClipboard(NetworkParameters network) {
          // do we have a public key on the clipboard?
          try {
-            if (isKeyNode(network, Utils.getClipboardString(StartupActivity.this))) {
+            if (HdNodeAction.Companion.isKeyNode(network, Utils.getClipboardString(StartupActivity.this))) {
                return true;
             }
             HdKeyNode.parse(Utils.getClipboardString(StartupActivity.this), network);
@@ -423,6 +426,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
             return false;
          }
       }
+
    };
 
    private void warnUserOnClipboardKeys(boolean isPrivate) {

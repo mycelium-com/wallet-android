@@ -248,7 +248,7 @@ public class MbwManager {
     private Pin _pin;
     private boolean _pinRequiredOnStartup;
 
-    private AddressType defaultAddressType;
+    private static final AddressType defaultAddressType = AddressType.P2SH_P2WPKH;
     private ChangeAddressMode changeAddressMode;
     private MinerFee _minerFee;
     private boolean _keyManagementLocked;
@@ -323,8 +323,6 @@ public class MbwManager {
         randomizePinPad = preferences.getBoolean(Constants.RANDOMIZE_PIN, false);
         _minerFee = MinerFee.fromString(preferences.getString(Constants.MINER_FEE_SETTING, MinerFee.NORMAL.toString()));
         _keyManagementLocked = preferences.getBoolean(Constants.KEY_MANAGEMENT_LOCKED_SETTING, false);
-        defaultAddressType = AddressType.valueOf(preferences.getString(Constants.DEFAULT_ADDRESS_MODE,
-                AddressType.P2SH_P2WPKH.name()));
         SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(_applicationContext);
         changeAddressMode = ChangeAddressMode.valueOf(defaultSharedPreferences.getString(Constants.CHANGE_ADDRESS_MODE,
                 ChangeAddressMode.PRIVACY.name()));
@@ -336,7 +334,7 @@ public class MbwManager {
 
         _storage = new MetadataStorage(_applicationContext);
         _language = preferences.getString(Constants.LANGUAGE_SETTING, Locale.getDefault().getLanguage());
-        _versionManager = new VersionManager(_applicationContext, _language, new AndroidAsyncApi(_wapi, _eventBus), _eventBus);
+        _versionManager = new VersionManager(_applicationContext, _language, new AndroidAsyncApi(_wapi, _eventBus, mainLoopHandler), _eventBus);
 
         Set<String> currencyList = getPreferences().getStringSet(Constants.SELECTED_CURRENCIES, null);
         //TODO: get it through coluManager instead ?
@@ -509,11 +507,6 @@ public class MbwManager {
         _environment.getLtEndpoints().setTorManager(this._torManager);
     }
 
-    public void setDefaultAddressType(AddressType addressType) {
-        defaultAddressType = addressType;
-        getEditor().putString(Constants.DEFAULT_ADDRESS_MODE, addressType.name()).apply();
-    }
-
     public AddressType getDefaultAddressType() {
         return defaultAddressType;
     }
@@ -635,11 +628,14 @@ public class MbwManager {
             }
         });
 
+        /* TODO - turn on externalSignatureProviderProxy. it is now not used
         ExternalSignatureProviderProxy externalSignatureProviderProxy = new ExternalSignatureProviderProxy(
             getTrezorManager(),
             getKeepKeyManager(),
             getLedgerManager()
         );
+
+        */
 
         SpvBalanceFetcher spvBchFetcher = getSpvBchFetcher();
         // Create and return wallet manager
@@ -781,6 +777,14 @@ public class MbwManager {
             result = new SpvBchFetcher(_applicationContext);
         }
         return result;
+    }
+
+    @Synchronized
+    private LoadingProgressTracker getMigrationProgressTracker() {
+        if (migrationProgressTracker == null) {
+            migrationProgressTracker =  new LoadingProgressTracker(_applicationContext);
+        }
+        return migrationProgressTracker;
     }
 
     public GenericAssetInfo getFiatCurrency() {

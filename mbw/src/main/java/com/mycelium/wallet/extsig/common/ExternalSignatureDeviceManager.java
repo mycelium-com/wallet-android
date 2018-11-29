@@ -62,10 +62,9 @@ import com.mycelium.wallet.activity.util.AbstractAccountScanManager;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.bip44.HDAccount;
-import com.mycelium.wapi.wallet.bip44.HDAccountExternalSignature;
-import com.mycelium.wapi.wallet.bip44.ExternalSignatureProvider;
-import com.mycelium.wapi.wallet.bip44.HDAccountExternalSignature;
+import com.mycelium.wapi.wallet.btc.bip44.ExternalSignatureProvider;
+import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
+import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
 import com.satoshilabs.trezor.lib.ExtSigDeviceConnectionException;
 import com.satoshilabs.trezor.lib.ExternalSignatureDevice;
 import com.satoshilabs.trezor.lib.protobuf.TrezorMessage;
@@ -562,7 +561,9 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
       WalletAccount account = walletManager.getAccount(uuid);
       if (account instanceof HDAccountExternalSignature) {
          HDAccountExternalSignature hdAccount = (HDAccountExternalSignature) account;
+         /* TODO - fix upgrading signature account creation.
          return walletManager.upgradeExtSigAccount(accountRoots, hdAccount);
+         */
       }
       return false;
    }
@@ -579,7 +580,9 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
          }
       }
       if (account == null) {
+         /* TODO - fix external signature account creation.
          account = walletManager.createExternalSignatureAccount(accountRoots, this, accountIndex);
+         */
       }
       return account;
    }

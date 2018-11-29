@@ -2,7 +2,7 @@ package com.mycelium.wallet.extsig.common
 
 import com.mrd.bitlib.UnsignedTransaction
 import com.mrd.bitlib.model.NetworkParameters
-import com.mycelium.wapi.wallet.bip44.HDAccount
+import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 
 
 /**
