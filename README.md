@@ -94,7 +94,7 @@ To validate the Mycelium image you obtain from Google Play Store, you can rebuil
   
   After this step succeeds, all apks are in `/tmp/release_mbw/`.
   
-  Note: for those who use Docker Toolbox (Windows below 10) $(pwd) should be under your home user folder.
+  Note: for those who use Docker Toolbox $(pwd) should be under your home user folder since this is the [only folder that is shared with VM](https://github.com/docker/kitematic/issues/2738).
 
 * Retrieve Google Play Mycelium APK from your phone
   Gets package path:
