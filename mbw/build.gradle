@@ -108,7 +108,6 @@ android {
     dataBinding {
         enabled = true
     }
-
     configurations {
         all*.exclude module: 'jcip-annotations'
         all*.exclude module: 'jsr305'
