@@ -86,12 +86,12 @@ abstract class ExtSigSignTransactionActivity : SignTransactionActivity(), Master
 
     override fun onStart() {
         super.onStart()
-        MbwManager.getInstance(this).eventBus.register(this)
+        MbwManager.getEventBus().register(this)
         updateUi()
     }
 
     override fun onStop() {
-        MbwManager.getInstance(this).eventBus.unregister(this)
+        MbwManager.getEventBus().unregister(this)
         super.onStop()
     }
 

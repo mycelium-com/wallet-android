@@ -35,7 +35,7 @@ class AddressFragmentModel(
         updateLabel()
         onAddressChange()
 
-        mbwManager.eventBus.register(this)
+        MbwManager.getEventBus().register(this)
     }
 
     private fun updateAddressPath(showBip44Path: Boolean) {
@@ -64,7 +64,7 @@ class AddressFragmentModel(
         accountAddress.value = account.receiveAddress
     }
 
-    fun onCleared() = MbwManager.getInstance(context).getEventBus().unregister(this)
+    fun onCleared() = MbwManager.getEventBus().unregister(this)
 
     /**
      * We got a new Receiving Address, either because the selected Account changed,

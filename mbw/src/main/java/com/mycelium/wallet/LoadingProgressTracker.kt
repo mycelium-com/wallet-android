@@ -9,7 +9,7 @@ import com.mycelium.wapi.wallet.LoadingProgressStatus
 import com.mycelium.wapi.wallet.LoadingProgressUpdater
 
 class LoadingProgressTracker(val context: Context) : LoadingProgressUpdater {
-    val eventBus = MbwManager.getInstance(context).eventBus!!
+    val eventBus = MbwManager.getEventBus()!!
 
     override var status: LoadingProgressStatus = LoadingProgressStatus.Starting()
         set(value) {

@@ -233,7 +233,7 @@ public class MbwManager {
         return _instance;
     }
 
-    private final Bus _eventBus;
+    private static final Bus _eventBus = new Bus();
     private final ExternalSignatureDeviceManager _trezorManager;
     private final KeepKeyManager _keepkeyManager;
     private final LedgerManager _ledgerManager;
@@ -292,8 +292,12 @@ public class MbwManager {
         configuration = new WalletConfiguration(preferences, getNetwork());
 
         mainLoopHandler = new Handler(Looper.getMainLooper());
-        _eventBus = new Bus();
-        _eventBus.register(this);
+        mainLoopHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                _eventBus.register(MbwManager.this);
+            }
+        });
 
         // init tor - if needed
         try {
@@ -680,12 +684,14 @@ public class MbwManager {
         }
         walletManager.add(new BitcoinHDModule(backing, secureKeyValueStore, networkParameters, _wapi, currenciesSettingsMap, getMetadataStorage()));
 
+        /* TODO - temporarily commented Colu support since SqliteColuManagerBacking should be fixed
+
         SqliteColuManagerBacking coluBacking = new SqliteColuManagerBacking(context);
         ColuClient coluClient = new ColuClient(networkParameters, BuildConfig.ColoredCoinsApiURLs, BuildConfig.ColuBlockExplorerApiURLs);
-
         walletManager.add(new ColuModule(networkParameters, publicPrivateKeyStore
                 , new ColuApiImpl(coluClient), coluBacking, accountListener, getMetadataStorage()));
 
+        */
         if (masterSeedManager.hasBip32MasterSeed()) {
             addCoinapultModule(context, environment,walletManager, accountListener);
         }
@@ -1145,7 +1151,7 @@ public class MbwManager {
         _cachedEncryptionParameters = null;
     }
 
-    public Bus getEventBus() {
+    public static Bus getEventBus() {
         return _eventBus;
     }
 

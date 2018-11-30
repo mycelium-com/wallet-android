@@ -44,7 +44,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    private val eventBus: Bus = MbwManager.getInstance(context).eventBus
+    private val eventBus: Bus = MbwManager.getEventBus()
 
     override fun onMessage(callingPackageName: String, intent: Intent) {
         when (callingPackageName) {
