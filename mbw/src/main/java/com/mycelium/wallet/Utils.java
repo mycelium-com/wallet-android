@@ -98,6 +98,7 @@ import com.mycelium.wapi.wallet.ExportableAccount;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
+import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
@@ -942,8 +943,8 @@ public class Utils {
       if (!((WalletBtcAccount)(account)).getReceivingAddress().isPresent()) {
          return false;  // the account has no valid receiving address (should not happen) - dont use it
       }
-      if (account instanceof AbstractAccount) {
-         if (!((AbstractAccount) account).getAvailableAddressTypes().contains(AddressType.P2PKH)) {
+      if (account instanceof AbstractBtcAccount) {
+         if (!((AbstractBtcAccount) account).getAvailableAddressTypes().contains(AddressType.P2PKH)) {
             return false;
          }
       }
@@ -995,6 +996,27 @@ public class Utils {
          return CoinUtil.valueString(val, denomination, false);
       } else {
          return FIAT_FORMAT.format(val);
+      }
+   }
+
+   public static String getFormattedValue(Value value, CoinUtil.Denomination denomination, int precision) {
+      if (value == null) {
+         return "";
+      }
+
+      long val = value.value;
+      if (value.getCurrencySymbol().equals("BTC") || value.getCurrencySymbol().equals("BCH")) {
+         return CoinUtil.valueString(
+                 ((BitcoinValue) value).getLongValue(),
+                 denomination, precision
+         );
+      } else {
+         if (formatCache.get(precision) == null) {
+            DecimalFormat fiatFormat = (DecimalFormat) FIAT_FORMAT.clone();
+            fiatFormat.setMaximumFractionDigits(precision);
+            formatCache.put(precision, fiatFormat);
+         }
+         return formatCache.get(precision).format(val);
       }
    }
 
@@ -1106,6 +1128,27 @@ public class Utils {
             formatCache.put(precision, fiatFormat);
          }
          return String.format("%s %s", formatCache.get(precision).format(val), value.getCurrency());
+      }
+   }
+
+   public static String getFormattedValueWithUnit(Value value, CoinUtil.Denomination denomination, int precision) {
+      if (value == null) {
+         return "";
+      }
+
+      long val = value.value;
+
+      if (value.getCurrencySymbol().equals("BTC") || value.getCurrencySymbol().equals("BCH")) {
+         return String.format("%s %s", CoinUtil.valueString(((BitcoinValue) value).getLongValue(),
+                 denomination, precision), denomination.getUnicodeName()
+         );
+      } else {
+         if (formatCache.get(precision) == null) {
+            DecimalFormat fiatFormat = (DecimalFormat) FIAT_FORMAT.clone();
+            fiatFormat.setMaximumFractionDigits(precision);
+            formatCache.put(precision, fiatFormat);
+         }
+         return String.format("%s %s", formatCache.get(precision).format(val), value.getCurrencySymbol());
       }
    }
 

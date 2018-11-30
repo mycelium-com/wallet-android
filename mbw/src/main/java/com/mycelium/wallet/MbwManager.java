@@ -103,7 +103,7 @@ import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wallet.event.SyncStarted;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.event.TorStateChanged;
-import com.mycelium.wallet.exchange.ExchangeRateManager;
+import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager;
 import com.mycelium.wallet.extsig.keepkey.KeepKeyManager;
 import com.mycelium.wallet.extsig.ledger.LedgerManager;
@@ -349,7 +349,7 @@ public class MbwManager {
             }
         }
 
-        _exchangeRateManager = new ExchangeRateManager(_applicationContext, _wapi, getNetwork(), getMetadataStorage());
+        _exchangeRateManager = new ExchangeRateManager(_applicationContext, _wapi, getMetadataStorage());
         _currencySwitcher = new CurrencySwitcher(
             _exchangeRateManager,
             fiatCurrencies,
@@ -819,7 +819,7 @@ public class MbwManager {
         for (GenericAssetInfo currency : currencies) {
             data.add(currency.getSymbol());
         }
-       getEditor().putStringSet(Constants.SELECTED_CURRENCIES, data).apply();
+        getEditor().putStringSet(Constants.SELECTED_CURRENCIES, data).apply();
    }
 
     public GenericAssetInfo getNextCurrency(boolean includeBitcoin) {

@@ -36,11 +36,11 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
     }
 
     override fun onActive() {
-        MbwManager.getEventBus().register(this)
+        mbwManager.eventBus.register(this)
     }
 
     override fun onInactive() {
-        MbwManager.getEventBus().unregister(this)
+        mbwManager.eventBus.unregister(this)
     }
 
     @Subscribe

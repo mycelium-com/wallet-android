@@ -138,12 +138,12 @@ public abstract class HdAccountSelectorActivity extends Activity implements Mast
    @Override
    protected void onResume() {
       super.onResume();
-      MbwManager.getEventBus().register(this);
+      MbwManager.getInstance(this).getEventBus().register(this);
    }
 
    @Override
    protected void onPause() {
-      MbwManager.getEventBus().unregister(this);
+      MbwManager.getInstance(this).getEventBus().unregister(this);
       super.onPause();
    }
 

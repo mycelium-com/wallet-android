@@ -36,7 +36,6 @@ package com.mycelium.wallet;
 
 import com.google.api.client.util.Lists;
 import com.mrd.bitlib.util.CoinUtil;
-import com.mycelium.wallet.exchange.ExchangeRateManager;
 import com.mycelium.wallet.exchange.ValueSum;
 import com.mycelium.wapi.model.ExchangeRate;
 import com.mycelium.wapi.wallet.bch.coins.BchCoin;
@@ -52,7 +51,6 @@ import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -272,7 +270,7 @@ public class CurrencySwitcher {
       }
 
       // check if there is a rate available
-      ExchangeRate rate = exchangeRateManager.getExchangeRate(getCurrentFiatCurrency());
+      ExchangeRate rate = exchangeRateManager.getExchangeRate(getCurrentFiatCurrency().getSymbol());
       return rate != null && rate.price != null;
    }
 
@@ -299,12 +297,23 @@ public class CurrencySwitcher {
       }
    }
 
-   public String getFormattedFiatValue(CurrencyValue value, boolean includeCurrencyCode, int precision) {
+    public String getFormattedFiatValue(Value value, boolean includeCurrencyCode) {
+        if (value == null){
+            return "";
+        }
+        if (includeCurrencyCode) {
+            return Utils.getFormattedValueWithUnit(value, getBitcoinDenomination());
+        } else {
+            return Utils.getFormattedValue(value, getBitcoinDenomination());
+        }
+    }
+
+   public String getFormattedFiatValue(Value value, boolean includeCurrencyCode, int precision) {
       if (currentFiatCurrency == null) {
          return "";
       }
 
-      CurrencyValue targetCurrency = getAsFiatValue(value);
+      Value targetCurrency = getAsFiatValue(value);
 
       if (targetCurrency == null) {
          return "";
@@ -329,6 +338,17 @@ public class CurrencySwitcher {
       }
    }
 
+    public String getFormattedValue(Value value, boolean includeCurrencyCode) {
+        if (value == null){
+            return "";
+        }
+        if (includeCurrencyCode) {
+            return Utils.getFormattedValueWithUnit(value, getBitcoinDenomination());
+        } else {
+            return Utils.getFormattedValue(value, getBitcoinDenomination());
+        }
+    }
+
    public String getFormattedValue(CurrencyValue currencyValue, boolean includeCurrencyCode, int precision) {
       if (currencyValue == null){
          return "";
@@ -341,17 +361,16 @@ public class CurrencySwitcher {
       }
    }
 
-//    public String getFormattedValue(Value currencyValue, boolean includeCurrencyCode, int precision) {
-//        if (currencyValue == null){
-//            return "";
-//        }
-//        CurrencyValue targetCurrency = getAsValue(currencyValue);
-//        if (includeCurrencyCode) {
-//            return Utils.getFormattedValueWithUnit(targetCurrency, getBitcoinDenomination(), precision);
-//        } else {
-//            return Utils.getFormattedValue(targetCurrency, getBitcoinDenomination(), precision);
-//        }
-//    }
+    public String getFormattedValue(Value value, boolean includeCurrencyCode, int precision) {
+        if (value == null){
+            return "";
+        }
+        if (includeCurrencyCode) {
+            return Utils.getFormattedValueWithUnit(value, getBitcoinDenomination(), precision);
+        } else {
+            return Utils.getFormattedValue(value, getBitcoinDenomination(), precision);
+        }
+    }
 
 
     public Value getAsFiatValue(Value value) {
@@ -388,7 +407,7 @@ public class CurrencySwitcher {
     * In that the case the caller could choose to call refreshRates() and supply a handler to get a callback.
     */
    public synchronized Double getExchangeRatePrice() {
-      ExchangeRate rate = exchangeRateManager.getExchangeRate(currentFiatCurrency);
+      ExchangeRate rate = exchangeRateManager.getExchangeRate(currentFiatCurrency.getSymbol());
       return rate == null ? null : rate.price;
    }
 

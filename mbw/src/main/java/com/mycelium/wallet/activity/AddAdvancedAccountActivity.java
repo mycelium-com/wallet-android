@@ -109,6 +109,7 @@ import java.util.UUID;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import com.mycelium.wapi.wallet.manager.Config;
 
 import static com.mycelium.wallet.AccountManagerKt.getBTCSingleAddressAccounts;
 import static com.mycelium.wallet.AccountManagerKt.getColuAccounts;
@@ -525,19 +526,16 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                           @Override
                           public void onClick(DialogInterface dialogInterface, int i) {
-                             try {
-                                if(existingAccount instanceof SingleAddressAccount) {
-                                   _mbwManager.getWalletManager(false).createSingleAddressAccount(key,
-                                           AesKeyCipher.defaultKeyCipher());
-                                } else {
-                                   WalletManager walletManager = _mbwManager.getWalletManager(false);
-                                   walletManager.deleteAccount(existingAccount.getId(), AesKeyCipher.defaultKeyCipher());
-                                   walletManager.deleteAccount(Utils.getLinkedAccount(existingAccount, walletManager.getAccounts()).getId(), AesKeyCipher.defaultKeyCipher());
-                                   walletManager.createAccounts(new PrivateColuConfig(key, (ColuMain) existingAccount.getCoinType(), AesKeyCipher.defaultKeyCipher()));
-                                }
-                             } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
-                                invalidKeyCipher.printStackTrace();
+                             if (existingAccount instanceof SingleAddressAccount) {
+                                _mbwManager.getWalletManager(false).createAccounts(new PrivateSingleConfig(key,
+                                        AesKeyCipher.defaultKeyCipher()));
+                             } else {
+                                WalletManager walletManager = _mbwManager.getWalletManager(false);
+                                walletManager.deleteAccount(existingAccount.getId(), AesKeyCipher.defaultKeyCipher());
+                                walletManager.deleteAccount(Utils.getLinkedAccount(existingAccount, walletManager.getAccounts()).getId(), AesKeyCipher.defaultKeyCipher());
+                                walletManager.createAccounts(new PrivateColuConfig(key, (ColuMain) existingAccount.getCoinType(), AesKeyCipher.defaultKeyCipher()));
                              }
+
                              finishOk(existingAccount.getId(), true);
                           }
                        })

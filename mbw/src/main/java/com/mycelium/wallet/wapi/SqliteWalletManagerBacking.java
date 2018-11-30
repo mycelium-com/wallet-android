@@ -60,7 +60,6 @@ import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wallet.MbwManager;
-import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.persistence.SQLiteQueryWithBlobs;
 import com.mycelium.wapi.api.exception.DbCorruptedException;
@@ -77,6 +76,7 @@ import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
 import com.mrd.bitlib.crypto.BipDerivationType;
 import com.mycelium.wapi.wallet.btc.bip44.AccountIndexesContext;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
+import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext;
 
 import java.io.ByteArrayInputStream;
