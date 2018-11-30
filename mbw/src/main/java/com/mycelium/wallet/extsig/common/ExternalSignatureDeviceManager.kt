@@ -185,7 +185,7 @@ abstract class ExternalSignatureDeviceManager(context: Context, network: Network
     }
 
     private fun getChangeAddress(unsigned: UnsignedTransaction, forAccount: HDAccountExternalSignature) =
-            unsigned.outputs.firstOrNull { forAccount.isOwnExternalAddress(it.script.getAddress(network)) }
+            unsigned.outputs.firstOrNull { forAccount.isOwnInternalAddress(it.script.getAddress(network)) }
                     ?.script
                     ?.getAddress(network)
 
