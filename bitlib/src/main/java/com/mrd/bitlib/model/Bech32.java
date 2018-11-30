@@ -24,6 +24,9 @@ package com.mrd.bitlib.model;
 import java.util.Arrays;
 import java.util.Locale;
 
+/**
+ * Class taken from: https://github.com/sipa/bech32/pull/40
+ */
 public class Bech32 {
     /**
      * The Bech32 character set for encoding.

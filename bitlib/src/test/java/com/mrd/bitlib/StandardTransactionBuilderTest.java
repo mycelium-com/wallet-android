@@ -43,7 +43,7 @@ import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.OutPoint;
-import com.mrd.bitlib.model.ScriptOutputStandard;
+import com.mrd.bitlib.model.ScriptOutputP2PKH;
 import com.mrd.bitlib.model.TransactionOutput;
 import com.mrd.bitlib.model.UnspentTransactionOutput;
 import com.mrd.bitlib.util.HashUtils;
@@ -223,7 +223,7 @@ public class StandardTransactionBuilderTest {
     }
 
     private static UnspentTransactionOutput getUtxo(Address address, long value) {
-        return new UnspentTransactionOutput(new OutPoint(Sha256Hash.ZERO_HASH, 0), 0, value, new ScriptOutputStandard(address.getTypeSpecificBytes()));
+        return new UnspentTransactionOutput(new OutPoint(Sha256Hash.ZERO_HASH, 0), 0, value, new ScriptOutputP2PKH(address.getTypeSpecificBytes()));
     }
 
     /**

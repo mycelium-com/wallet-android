@@ -167,7 +167,7 @@ abstract class ExtSigSignTransactionActivity : SignTransactionActivity(), Master
 
     private fun showChangeProperties(changeAddress: String, amountSending: Long, fee: Long) {
         // Address for change. Required as nor KeepKey, nor Trezor supports
-        val model = extSigManager.features.model
+        val model = extSigManager.features?.model
         when {
             listOf("K1-14AM", "1").contains(model) -> {
                 val accountIndex = (_account as HDAccount).accountIndex
