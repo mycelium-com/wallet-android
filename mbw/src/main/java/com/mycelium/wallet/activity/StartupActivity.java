@@ -188,7 +188,12 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
 
          //in case this is a fresh startup, import backup or create new seed
          if (!_mbwManager.getMasterSeedManager().hasBip32MasterSeed()) {
-            initMasterSeed();
+            new Handler(getMainLooper()).post(new Runnable() {
+               @Override
+               public void run() {
+                  initMasterSeed();
+               }
+            });
             return;
          }
 

@@ -378,7 +378,7 @@ public class MbwManager {
         contentResolver = createContentResolver(getNetwork());
         _gebHelper = new GEBHelper(_applicationContext);
 
-        _eventTranslator = new EventTranslator(new Handler(), _eventBus);
+        _eventTranslator = new EventTranslator(mainLoopHandler, _eventBus);
         _exchangeRateManager.subscribe(_eventTranslator);
 
         _walletManager.addObserver(_eventTranslator);
