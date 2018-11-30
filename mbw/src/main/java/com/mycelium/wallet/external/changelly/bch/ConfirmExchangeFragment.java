@@ -239,14 +239,8 @@ public class ConfirmExchangeFragment extends Fragment {
     }
 
     private void createOffer() {
-        Intent changellyServiceIntent = new Intent(getActivity(), ChangellyService.class)
-                .setAction(ChangellyService.ACTION_CREATE_TRANSACTION)
-                .putExtra(ChangellyService.FROM, ChangellyService.BCH)
-                .putExtra(ChangellyService.TO, ChangellyService.BTC)
-                .putExtra(ChangellyService.AMOUNT, sentAmount)
-                .putExtra(ChangellyService.DESTADDRESS, ((WalletBtcAccount)(toAccount)).getReceivingAddress().get().toString());
-        getActivity().startService(changellyServiceIntent);
-
+        changellyAPIService.createTransaction(BCH, BTC, sentAmount, toAccount.getReceiveAddress().toString())
+                .enqueue(new GetOfferCallback());
     }
 
     private void getRate() {

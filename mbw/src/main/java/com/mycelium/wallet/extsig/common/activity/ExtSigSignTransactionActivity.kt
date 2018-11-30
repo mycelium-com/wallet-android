@@ -51,7 +51,7 @@ import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager
 import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager.OnStatusUpdate.CurrentStatus.*
 import com.mycelium.wallet.extsig.common.showChange
 import com.mycelium.wapi.wallet.AccountScanManager
-import com.mycelium.wapi.wallet.bip44.HDAccount
+import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.squareup.otto.Subscribe
 import kotlinx.android.synthetic.main.sign_ext_sig_transaction_activity.*
 import java.lang.IllegalStateException
@@ -86,12 +86,12 @@ abstract class ExtSigSignTransactionActivity : SignTransactionActivity(), Master
 
     override fun onStart() {
         super.onStart()
-        MbwManager.getEventBus().register(this)
+        MbwManager.getInstance(this).eventBus.register(this)
         updateUi()
     }
 
     override fun onStop() {
-        MbwManager.getEventBus().unregister(this)
+        MbwManager.getInstance(this).eventBus.unregister(this)
         super.onStop()
     }
 

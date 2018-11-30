@@ -57,6 +57,7 @@ import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.BipSsImportActivity;
 import com.mycelium.wallet.activity.HandleUrlActivity;
 import com.mycelium.wallet.activity.ScanActivity;
@@ -81,7 +82,7 @@ import com.mycelium.wallet.event.RefreshingExchangeRatesFailed;
 import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wallet.event.SyncStopped;
-import com.mycelium.wallet.exchange.ExchangeRateManager;
+import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wallet.modularisation.BCHHelper;
 import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.content.GenericAssetUri;
@@ -163,7 +164,7 @@ public class BalanceFragment extends Fragment {
 
       for (int i = 0; i < sources.size(); i++) {
          String source = sources.get(i);
-         ExchangeRate exchangeRate = exchangeRateManager.getExchangeRate(_mbwManager.getFiatCurrency(), source);
+         ExchangeRate exchangeRate = exchangeRateManager.getExchangeRate(_mbwManager.getFiatCurrency().getSymbol(), source);
          String price = exchangeRate == null || exchangeRate.price == null ? "not available"
                  : new BigDecimal(exchangeRate.price).setScale(2, BigDecimal.ROUND_DOWN).toPlainString() + " " + _mbwManager.getFiatCurrency();
          String item;
@@ -201,17 +202,14 @@ public class BalanceFragment extends Fragment {
 
    @Override
    public void onStart() {
-      _mbwManager.getEventBus().register(this);
-      _exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
-      if (_exchangeRatePrice == null) {
-         _mbwManager.getExchangeRateManager().requestRefresh();
-      }
+       _mbwManager.getEventBus().register(this);
+       _exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
+       if (_exchangeRatePrice == null) {
+           _mbwManager.getExchangeRateManager().requestRefresh();
+       }
 
-      _tcdFiatDisplay.setCurrencySwitcher(_mbwManager.getCurrencySwitcher());
-      _tcdFiatDisplay.setEventBus(_mbwManager.getEventBus());
-
-      updateUi();
-      super.onStart();
+       updateUi();
+       super.onStart();
    }
 
    @Override
@@ -335,15 +333,16 @@ public class BalanceFragment extends Fragment {
             ) {
          tv.setVisibility(View.GONE);
       } else {
-         try {
-            tv.setVisibility(View.VISIBLE);
-
-            Value converted = _mbwManager.getExchangeRateManager().get(value, _mbwManager.getFiatCurrency());
-            tv.setText(converted != null ? ValueExtentionsKt.toStringWithUnit(converted, _mbwManager.getBitcoinDenomination()) : null);
-         } catch (Exception ex) {
-            // something failed while calculating the bitcoin amount
-            tv.setVisibility(View.GONE);
-         }
+          try {
+              long satoshis = value.value;
+              tv.setVisibility(View.VISIBLE);
+              String converted = Utils.getFiatValueAsString(satoshis, _exchangeRatePrice);
+              String currency = _mbwManager.getFiatCurrency().getSymbol();
+              tv.setText(getResources().getString(R.string.approximate_fiat_value, currency, converted));
+          } catch (IllegalArgumentException ex) {
+              // something failed while calculating the bitcoin amount
+              tv.setVisibility(View.GONE);
+          }
       }
    }
 

@@ -66,7 +66,7 @@ public abstract class ExtSigAccountImportActivity extends ExtSigAccountSelectorA
 
             UUID acc = mbwManager.getWalletManager(false)
                   .createAccounts(new ExternalSignaturesAccountConfig(
-                        item.xPub,
+                        item.publicKeyNodes,
                         (ExternalSignatureDeviceManager) masterseedScanManager,
                         item.accountHdKeysPaths.iterator().next().getLastIndex()
                   )).get(0);

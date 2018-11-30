@@ -49,11 +49,11 @@ class AddressFragmentModel(
     private fun updateLabel() {
         val label = mbwManager.metadataStorage.getLabelByAccount(account.id)
         accountLabel.value =
-                Html.fromHtml(when (account) {
+                when (account) {
                     is Bip44BCHAccount, is SingleAddressBCHAccount ->
                         context.getString(R.string.bitcoin_cash) + " - " + label
                     else -> label
-                })
+                }
     }
 
     private fun updateAddress(account: WalletAccount<*,*>) {
@@ -64,7 +64,7 @@ class AddressFragmentModel(
         accountAddress.value = account.receiveAddress
     }
 
-    fun onCleared() = MbwManager.getEventBus().unregister(this)
+    fun onCleared() = MbwManager.getInstance(context).getEventBus().unregister(this)
 
     /**
      * We got a new Receiving Address, either because the selected Account changed,

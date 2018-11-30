@@ -1157,7 +1157,8 @@ public class AccountsFragment extends Fragment {
          // unprotected account type
          return false;
       }
-      int count = 0;
+
+      Set<WalletAccount> uniqueAccountsSet = new ArraySet<>();
       for (WalletAccount account : getActiveHDAccounts(_mbwManager.getWalletManager(false))) {
          if (((HDAccount) account).getAccountType() == HDAccountContext.ACCOUNT_TYPE_FROM_MASTERSEED) {
             uniqueAccountsSet.add(account);
