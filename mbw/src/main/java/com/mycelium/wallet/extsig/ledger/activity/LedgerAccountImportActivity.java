@@ -37,6 +37,7 @@ package com.mycelium.wallet.extsig.ledger.activity;
 
 import android.app.Activity;
 import android.app.LoaderManager;
+import android.app.ProgressDialog;
 import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.content.Intent;
@@ -108,6 +109,16 @@ public class LedgerAccountImportActivity extends LedgerAccountSelectorActivity i
       return new AdapterView.OnItemClickListener() {
          @Override
          public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+            Bundle bundle = new Bundle();
+            bundle.putSerializable(ITEM_WRAPPER,(HdAccountWrapper) adapterView.getItemAtPosition(i));
+            getLoaderManager().initLoader(1, bundle, LedgerAccountImportActivity.this).forceLoad();
+
+            ProgressDialog dialog = new ProgressDialog(LedgerAccountImportActivity.this);
+            dialog.setCancelable(false);
+            dialog.setCanceledOnTouchOutside(false);
+            dialog.setTitle(getString(R.string.hardware_account_create));
+            dialog.setMessage(getString(R.string.please_wait_hardware));
+            dialog.show();
          }
       };
    }
