@@ -13,7 +13,7 @@ class GEBHelper(private val context: Context) {
     private val GEB_PACKAGE = BuildConfig.appIdGeb
 
     init {
-        CommunicationManager.getInstance().requestPair(GEB_PACKAGE)
+//        CommunicationManager.getInstance().requestPair(GEB_PACKAGE)
     }
 
     fun openModule(activity: Activity?) {

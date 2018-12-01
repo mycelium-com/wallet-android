@@ -138,7 +138,10 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
 
     private fun createGroupViewHolder(parent: ViewGroup): GroupTitleViewHolder {
         val view = layoutInflater.inflate(R.layout.accounts_title_view, parent, false)
-        return GroupTitleViewHolder(view)
+        val res = GroupTitleViewHolder(view)
+        res.tvBalance.setEventBus(MbwManager.getEventBus())
+        res.tvBalance.setCurrencySwitcher(mbwManager.currencySwitcher)
+        return res
     }
 
     private fun createArchivedTitleViewHolder(parent: ViewGroup): ArchivedGroupTitleViewHolder {
