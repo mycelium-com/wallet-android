@@ -210,7 +210,11 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
          if (remainingTime < 0) {
             remainingTime = 0;
          }
-         new Handler().postDelayed(delayedFinish, remainingTime);
+
+         new Handler(getMainLooper()).postDelayed(delayedFinish, remainingTime);
+         sharedPreferences.edit()
+                 .putLong(LAST_STARTUP_TIME, timeSpent)
+                 .apply();
       }
 
       private boolean hasPrivateKeyOnClipboard(NetworkParameters network) {

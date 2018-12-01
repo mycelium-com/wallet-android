@@ -156,7 +156,10 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
 
     private fun createTotalBalanceViewHolder(parent: ViewGroup): TotalViewHolder {
         val view = layoutInflater.inflate(R.layout.record_row_total, parent, false)
-        return TotalViewHolder(view)
+        val res = TotalViewHolder(view)
+        res.tcdBalance.setCurrencySwitcher(mbwManager.currencySwitcher)
+        res.tcdBalance.setEventBus(MbwManager.getEventBus())
+        return res
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
