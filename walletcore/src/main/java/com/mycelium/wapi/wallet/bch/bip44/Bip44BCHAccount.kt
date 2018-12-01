@@ -5,17 +5,22 @@ import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.model.NetworkParameters
+import com.mrd.bitlib.model.ScriptOutput
 import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.model.TransactionDetails
+import com.mycelium.wapi.model.TransactionEx
 import com.mycelium.wapi.model.TransactionSummary
+import com.mycelium.wapi.wallet.GenericTransaction
 import com.mycelium.wapi.wallet.btc.Bip44AccountBacking
 import com.mycelium.wapi.wallet.KeyCipher
 import com.mycelium.wapi.wallet.Reference
 import com.mycelium.wapi.wallet.SpvBalanceFetcher
 import com.mycelium.wapi.wallet.bch.coins.BchCoin
+import com.mycelium.wapi.wallet.bch.coins.BchMain
 import com.mycelium.wapi.wallet.bch.coins.BchTest
 import com.mycelium.wapi.wallet.bip44.ChangeAddressMode
+import com.mycelium.wapi.wallet.btc.BtcLegacyAddress
 import com.mycelium.wapi.wallet.btc.BtcTransaction
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext
@@ -101,8 +106,67 @@ open class Bip44BCHAccount(
         }
     }
 
+    private fun getBchTransaction(id : Sha256Hash): BchTransaction?{
+        checkNotArchived()
+        val tex = backing.getTransaction(id)
+        val tx = TransactionEx.toTransaction(tex) ?: return null
+
+        var satoshisReceived: Long = 0
+        var satoshisSent: Long = 0
+        val outputs = ArrayList<GenericTransaction.GenericOutput>()
+        for (output in tx.outputs) {
+            val address = output.script.getAddress(_network)
+            if (isMine(output.script)) {
+                satoshisReceived += output.value
+            }
+            if (address != null && address !== Address.getNullAddress(_network)) {
+                val currency = if (network.isProdnet) BchMain else BchTest
+                outputs.add(GenericTransaction.GenericOutput(BtcLegacyAddress(currency, address.allAddressBytes), Value.valueOf(coinType, output.value)))
+            }
+        }
+        val inputs = ArrayList<GenericTransaction.GenericInput>() //need to create list of outputs
+
+        if (!tx.isCoinbase) {
+            for (input in tx.inputs) {
+
+                val funding = backing.getParentTransactionOutput(input.outPoint)
+                if (funding == null) {
+                    _logger.logError("Unable to find parent output for: " + input.outPoint)
+                    continue
+                }
+                if (isMine(funding)) {
+                    satoshisSent += funding.value
+                }
+                val address = ScriptOutput.fromScriptBytes(funding.script)!!.getAddress(_network)
+                val currency = if (network.isProdnet) BchMain else BchTest
+                inputs.add(GenericTransaction.GenericInput(BtcLegacyAddress(currency, address.allAddressBytes),
+                        Value.valueOf(coinType, funding.value)))
+            }
+        }
+
+        val confirmations: Int
+        if (tex.height == -1) {
+            confirmations = 0
+        } else {
+            confirmations = Math.max(0, getBlockChainHeight() - tex.height + 1)
+        }
+        val isQueuedOutgoing = backing.isOutgoingTransaction(tx.id)
+        return BchTransaction(coinType, tx, satoshisSent, satoshisReceived, tex.time,
+                confirmations, isQueuedOutgoing, inputs, outputs, riskAssessmentForUnconfirmedTx[tx.id],
+                tex.binary.size, Value.valueOf(if (network.isProdnet) BchMain else BchTest,
+                Math.abs(satoshisReceived - satoshisSent)))
+    }
+
     override fun getTransactionsSince(receivingSince: Long): MutableList<BtcTransaction> {
-        TODO("not implemented") //spvBalanceFetcher.retrieveTransactionsSummaryByUnrelatedAccountId(id.toString(), receivingSince!!)
+        val result = mutableListOf<BtcTransaction>()
+        val transactions = spvBalanceFetcher.retrieveTransactionsSummaryByUnrelatedAccountId(id.toString(), receivingSince!!)
+        for (transaction in transactions) {
+            val tmp = getBchTransaction(transaction.txid)
+            if (tmp != null){
+                result.add(tmp)
+            }
+        }
+        return result
     }
 
     override fun isVisible(): Boolean {
