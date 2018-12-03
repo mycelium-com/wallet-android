@@ -190,7 +190,6 @@ public class VerifyBackupActivity extends Activity {
       UUID account = null;
       boolean success = false;
       Collection<Address> allAddresses = null;
-      WalletManager walletManager = _mbwManager.getWalletManager(false);
       for (Address currentAddress : pk.getPublicKey().getAllSupportedAddresses(_mbwManager.getNetwork()).values()) {
          // Figure out the account ID
          account = SingleAddressAccount.calculateId(currentAddress);
