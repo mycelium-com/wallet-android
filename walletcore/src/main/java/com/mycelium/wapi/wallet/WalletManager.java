@@ -670,10 +670,10 @@ public class WalletManager {
      */
     public HDAccount getBip44Account(int index) {
         HDAccount result = null;
-        for (HDAccount HDAccount :
+        for (HDAccount hdAccount :
                 hdAccounts) {
-            if(HDAccount.getAccountIndex() == index) {
-                result = HDAccount;
+            if(hdAccount.getAccountIndex() == index) {
+                result = hdAccount;
                 break;
             }
         }
@@ -700,9 +700,9 @@ public class WalletManager {
      * @return a wallet account
      */
     public boolean doesBip44AccountExists(int index) {
-        for (HDAccount HDAccount :
+        for (HDAccount hdAccount :
                 hdAccounts) {
-            if(HDAccount.getAccountIndex() == index) {
+            if(hdAccount.getAccountIndex() == index) {
                 return true;
             }
         }

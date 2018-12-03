@@ -34,19 +34,20 @@ class AddressFragmentModel(
 
     private fun updateAddressPath(showBip44Path: Boolean) {
         addressPath.value =
-                when (showBip44Path && accountAddress.value!!.bip32Path != null) {
-                    true -> accountAddress.value!!.bip32Path.toString()
-                    false -> ""
+                if (showBip44Path && accountAddress.value!!.bip32Path != null) {
+                    accountAddress.value!!.bip32Path.toString()
+                } else {
+                    ""
                 }
     }
 
     private fun updateLabel() {
         val label = mbwManager.metadataStorage.getLabelByAccount(account.id)
         accountLabel.value =
-                Html.fromHtml(when (account) {
-                    is Bip44BCHAccount, is SingleAddressBCHAccount ->
-                        context.getString(R.string.bitcoin_cash) + " - " + label
-                    else -> label
+                Html.fromHtml(if (account is Bip44BCHAccount || account is SingleAddressBCHAccount) {
+                    context.getString(R.string.bitcoin_cash) + " - " + label
+                } else {
+                    label
                 })
     }
 
