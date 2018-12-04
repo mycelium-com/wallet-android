@@ -89,6 +89,7 @@ import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.event.TransactionLabelChanged;
 import com.mycelium.wallet.persistence.MetadataStorage;
+import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
@@ -489,7 +490,11 @@ public class TransactionHistoryFragment extends Fragment {
                            if (_mbwManager.getSelectedAccount() instanceof ColuPubOnlyAccount) {
                               defaultName = _mbwManager.getSelectedAccount().getCoinType().getName();
                            }
-                           EnterAddressLabelUtil.enterAddressLabel(getActivity(), _mbwManager.getMetadataStorage(), _mbwManager.getSelectedAccount().getReceiveAddress(), defaultName, addressLabelChanged); //record.destinationAddress.get()
+                           GenericAddress address = _mbwManager.getSelectedAccount().getReceiveAddress();
+                           EnterAddressLabelUtil.enterAddressLabel(getActivity(), _mbwManager.getMetadataStorage(),
+                                   address, defaultName, addressLabelChanged);
+                           _mbwManager.getMetadataStorage().storeAddressCoinType(address.toString(),
+                                   address.getCoinType().getName());
                            break;
                         case R.id.miCancelTransaction:
                            new AlertDialog.Builder(getActivity())
