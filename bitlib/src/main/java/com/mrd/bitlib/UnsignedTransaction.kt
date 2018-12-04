@@ -1,5 +1,6 @@
 package com.mrd.bitlib
 
+import com.google.common.base.Strings
 import com.mrd.bitlib.crypto.IPublicKeyRing
 import com.mrd.bitlib.crypto.PublicKey
 import com.mrd.bitlib.model.*
@@ -28,7 +29,7 @@ open class UnsignedTransaction constructor(
 
         for (i in fundingOutputs.indices) {
             if (isSegWitOutput(i)) {
-                inputs[i].script = ScriptInput.fromOutputScript(funding[i].script)
+                inputs[i].script = ScriptInput.fromOutputScript(fundingOutputs[i].script)
             }
             val utxo = fundingOutputs[i]
 
@@ -61,7 +62,7 @@ open class UnsignedTransaction constructor(
                     scriptsList.add(it.script)
                     it.script = ScriptInput.EMPTY
                 }
-                inputs[i].script = ScriptInput.fromOutputScript(funding[i].script)
+                inputs[i].script = ScriptInput.fromOutputScript(fundingOutputs[i].script)
             }
 
             // Calculate the transaction hash that has to be signed
@@ -99,39 +100,21 @@ open class UnsignedTransaction constructor(
     /**
      * @return fee in satoshis
      */
-    fun calculateFee(): Long {
-        var `in`: Long = 0
-        var out: Long = 0
-        for (funding in fundingOutputs) {
-            `in` += funding.value
-        }
-        for (output in outputs) {
-            out += output.value
-        }
-        return `in` - out
-    }
+    fun calculateFee() = fundingOutputs.map { it.value }.sum() - outputs.map { it.value}.sum()
+
 
     override fun toString(): String {
-        val sb = StringBuilder()
+        val inStrings = fundingOutputs.map {
+            String.format("%36s %13s", it.script.getAddress(network), getValue(it.value))
+        }
+        val outStrings = outputs.map {
+            String.format("%36s %13s", it.script.getAddress(network), getValue(it.value))
+        }
         val fee = CoinUtil.valueString(calculateFee(), false)
-        sb.append(String.format("Fee: %s", fee)).append('\n')
-        val max = Math.max(fundingOutputs.size, outputs.size)
-        for (i in 0 until max) {
-            val `in` = if (i < fundingOutputs.size) fundingOutputs[i] else null
-            val out = if (i < outputs.size) outputs[i] else null
-            val line = if (`in` != null && out != null) {
-                String.format("%36s %13s -> %36s %13s", `in`.script.getAddress(network), getValue(`in`.value),
-                        out.script.getAddress(network), getValue(out.value))
-            } else if (`in` != null) {
-                String.format("%36s %13s    %36s %13s", `in`.script.getAddress(network), getValue(`in`.value), "",
-                        "")
-            } else if (out != null) {
-                String.format("%36s %13s    %36s %13s", "", "", out.script.getAddress(network),
-                        getValue(out.value))
-            } else {
-                ""
-            }
-            sb.append(line).append('\n')
+        val sb = StringBuilder(String.format("Fee: %s\n", fee))
+        val empty = Strings.repeat(" ", 50)
+        for (i in 0 until Math.max(fundingOutputs.size, outputs.size)) {
+            sb.append(inStrings.getOrNull(i) ?: empty).append(" -> ").append(outStrings.getOrNull(i) ?: empty).append('\n')
         }
         return sb.toString()
     }

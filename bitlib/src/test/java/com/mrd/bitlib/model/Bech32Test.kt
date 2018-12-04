@@ -29,7 +29,6 @@ import java.util.*
  */
 class Bech32Test {
     @Test
-    @Throws(Bech32.Bech32Exception::class)
     fun validChecksum() {
         for (valid in VALID_CHECKSUM) {
             val dec = Bech32.decode(valid)
