@@ -114,7 +114,7 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
             updateList()
         }
 
-        fun addGroup(titleId: Int, list: List<AccountViewModel>) {
+        private fun addGroup(titleId: Int, list: List<AccountViewModel>) {
             if (list.isNotEmpty()) {
                 accountsList.add(AccountsGroupModel(titleId, GROUP_TITLE_TYPE, list))
             }
