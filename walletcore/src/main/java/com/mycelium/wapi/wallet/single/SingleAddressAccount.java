@@ -314,6 +314,9 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
             break;
          case PRIVACY:
             result = getAddress(destinationAddress.getType());
+            if (result == null) {
+               return getAddress();
+            }
             break;
          default:
             throw new IllegalStateException();
