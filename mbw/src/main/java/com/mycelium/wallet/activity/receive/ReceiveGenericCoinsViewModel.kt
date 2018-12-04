@@ -5,7 +5,6 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.coins.Value
-import com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount
 
 class ReceiveGenericCoinsViewModel(application: Application) : ReceiveCoinsViewModel(application) {
     private lateinit var accountLabel: String
@@ -23,7 +22,7 @@ class ReceiveGenericCoinsViewModel(application: Application) : ReceiveCoinsViewM
     override fun getCurrencyName() = account.coinType.symbol
 
     override fun getTitle(): String {
-        return if (Value.isNullOrZero(model.amountData.value)) {
+        return if (Value.isNullOrZero(model.amount.value)) {
             context.getString(R.string.address_title, accountLabel)
         } else {
             context.getString(R.string.payment_request)

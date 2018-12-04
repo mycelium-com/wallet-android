@@ -28,7 +28,7 @@ class ReceiveCoinsModel(
         val havePrivateKey: Boolean,
         showIncomingUtxo: Boolean = false
 ) {
-    val amountData: MutableLiveData<Value?> = MutableLiveData()
+    val amount: MutableLiveData<Value?> = MutableLiveData()
     val alternativeAmountData: MutableLiveData<Value?> = MutableLiveData()
     val nfc: NfcAdapter? = NfcAdapter.getDefaultAdapter(context)
     val receivingAmount: MutableLiveData<Value?> = MutableLiveData()
@@ -64,9 +64,9 @@ class ReceiveCoinsModel(
     fun setAmount(newAmount: Value) {
         if (!Value.isNullOrZero(newAmount)) {
             alternativeAmountData.value = newAmount
-            amountData.value = newAmount
+            amount.value = newAmount
         } else {
-            amountData.value = null
+            amount.value = null
             alternativeAmountData.value = null
         }
     }
@@ -76,13 +76,13 @@ class ReceiveCoinsModel(
 
         val uri = StringBuilder(prefix).append(':')
         uri.append(receivingAddress.value)
-        if (!Value.isNullOrZero(amountData.value)) {
+        if (!Value.isNullOrZero(amount.value)) {
             if (accountDisplayType == AccountDisplayType.COLU_ACCOUNT) {
-                uri.append("?amountData=").append(amountData.value!!.valueAsBigDecimal.toPlainString())
+                uri.append("?amount=").append(amount.value!!.valueAsBigDecimal.toPlainString())
             } else {
-                val value = mbwManager.exchangeRateManager.get(amountData.value, account.coinType)
+                val value = mbwManager.exchangeRateManager.get(amount.value, account.coinType)
                 if (value != null) {
-                    uri.append("?amountData=").append(value.valueAsBigDecimal.toPlainString())
+                    uri.append("?amount=").append(value.valueAsBigDecimal.toPlainString())
                 } else {
                     Toast.makeText(context, R.string.value_conversion_error, Toast.LENGTH_LONG).show()
                 }
@@ -92,15 +92,15 @@ class ReceiveCoinsModel(
     }
 
     fun loadInstance(savedInstanceState: Bundle) {
-        amountData.value = savedInstanceState.getSerializable(AMOUNT) as Value?
+        amount.value = savedInstanceState.getSerializable(AMOUNT) as Value?
         receivingSince = savedInstanceState.getLong(RECEIVING_SINCE)
         syncErrors = savedInstanceState.getInt(SYNC_ERRORS)
         lastAddressBalance = savedInstanceState.getSerializable(LAST_ADDRESS_BALANCE) as Value?
     }
 
     fun saveInstance(outState: Bundle) {
-        if (!Value.isNullOrZero(amountData.value)) {
-            outState.putSerializable(AMOUNT, amountData.value)
+        if (!Value.isNullOrZero(amount.value)) {
+            outState.putSerializable(AMOUNT, amount.value)
         }
         outState.putLong(RECEIVING_SINCE, receivingSince)
         outState.putInt(SYNC_ERRORS, syncErrors)
@@ -109,7 +109,7 @@ class ReceiveCoinsModel(
 
     @Subscribe
     fun syncError(event: SyncFailed) {
-        // stop syncing after a certain amountData of errors (no network available)
+        // stop syncing after a certain amount of errors (no network available)
         if (++syncErrors > MAX_SYNC_ERRORS) {
             mbwManager.stopWatchingAddress()
         }
@@ -128,9 +128,9 @@ class ReceiveCoinsModel(
         receivingAmount.value = if (sum != null) Value.valueOf(account.coinType, sum!!.value)
         else Value.zeroValue(account.coinType)
 
-        if (!Value.isNullOrZero(amountData.value) && sum != null) {
-            // if the user specified an amountData, check it if it matches up...
-            receivingAmountWrong.value = sum!! != amountData.value
+        if (!Value.isNullOrZero(amount.value) && sum != null) {
+            // if the user specified an amount, check it if it matches up...
+            receivingAmountWrong.value = sum!! != amount.value
             if (sum != lastAddressBalance) {
                 //makeNotification(sum)
             }
