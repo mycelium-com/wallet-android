@@ -45,6 +45,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.ledger.tbase.comm.LedgerTransportTEEProxyFactory;
+import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.util.CoinUtil;
 import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.lt.api.model.TraderInfo;
@@ -103,6 +104,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private LocalTraderManager _ltManager;
     private ListPreference _minerFee;
     private ListPreference _blockExplorer;
+    private Preference changeAddressType;
     private Preference notificationPreference;
     private CheckBoxPreference useTor;
     private PreferenceCategory modulesPrefs;
@@ -138,7 +140,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private final Preference.OnPreferenceClickListener ltDisableLocalTraderClickListener = new Preference.OnPreferenceClickListener() {
         public boolean onPreferenceClick(Preference preference) {
             CheckBoxPreference p = (CheckBoxPreference) preference;
-            _ltManager.setLocalTraderDisabled(p.isChecked());
+            _ltManager.setLocalTraderEnabled(p.isChecked());
             applyLocalTraderEnablement();
             return true;
         }
@@ -171,6 +173,13 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         public boolean onPreferenceClick(Preference preference) {
             CheckBoxPreference p = (CheckBoxPreference) preference;
             _mbwManager.getLedgerManager().setDisableTEE(p.isChecked());
+            return true;
+        }
+    };
+
+    private final Preference.OnPreferenceClickListener segwitChangeAddressClickListener = new Preference.OnPreferenceClickListener() {
+        public boolean onPreferenceClick(Preference preference) {
+            SetSegwitChangeActivity.callMe(getActivity());
             return true;
         }
     };
@@ -222,6 +231,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         _minerFee = (ListPreference) findPreference(Constants.SETTING_MINER_FEE);
         //Block Explorer
         _blockExplorer = (ListPreference) findPreference("block_explorer");
+        // Transaction change address type
+        changeAddressType = findPreference("change_type");
         //localcurrency
         _localCurrency = findPreference("local_currency");
         // Exchange Source
@@ -448,6 +459,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 return true;
             }
         });
+
+        changeAddressType.setOnPreferenceClickListener(segwitChangeAddressClickListener);
+
         _minerFee.setSummary(getMinerFeeSummary());
         _minerFee.setValue(_mbwManager.getMinerFee().toString());
         CharSequence[] minerFees = new CharSequence[]{
@@ -474,7 +488,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         });
 
         // Local Trader
-        localTraderDisable.setChecked(_ltManager.isLocalTraderDisabled());
+        localTraderDisable.setChecked(_ltManager.isLocalTraderEnabled());
         localTraderDisable.setOnPreferenceClickListener(ltDisableLocalTraderClickListener);
 
 
@@ -850,6 +864,11 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         _localCurrency.setTitle(localCurrencyTitle());
         _localCurrency.setSummary(localCurrencySummary());
         _mbwManager.getEventBus().register(this);
+        modulesPrefs.removeAll();
+        if (!CommunicationManager.getInstance().getPairedModules().isEmpty()) {
+            processPairedModules(modulesPrefs);
+        }
+        processUnpairedModules(modulesPrefs);
         super.onResume();
     }
 
@@ -860,6 +879,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     public void onPause() {
         _mbwManager.getEventBus().unregister(this);
         refreshPreferences();
+        if (pleaseWait != null) pleaseWait.dismiss();
         super.onPause();
     }
 
@@ -930,9 +950,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     }
 
     private void applyLocalTraderEnablement() {
-        boolean ltDisabled = _ltManager.isLocalTraderDisabled();
-        _ltNotificationSound.setEnabled(!ltDisabled);
-        _ltMilesKilometers.setEnabled(!ltDisabled);
+        boolean ltEnabled = _ltManager.isLocalTraderEnabled();
+        _ltNotificationSound.setEnabled(ltEnabled);
+        _ltMilesKilometers.setEnabled(ltEnabled);
     }
 
     private String getUseTorTitle() {

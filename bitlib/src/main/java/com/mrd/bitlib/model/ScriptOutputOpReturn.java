@@ -39,11 +39,16 @@ public class ScriptOutputOpReturn extends ScriptOutput implements Serializable {
 
    /**
     * Get the data bytes contained in this output.
-    * 
+    *
     * @return The data bytes of this output.
     */
    public byte[] getDataBytes() {
       return dataBytes;
+   }
+
+   @Override
+   public byte[] getAddressBytes() {
+      return new byte[Address.NUM_ADDRESS_BYTES];
    }
 
    @Override

@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.mrd.bitlib.crypto;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,46 +28,47 @@ import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 
 public class PublicKeyRing implements IPublicKeyRing {
-   private List<Address> _addresses;
-   private Set<Address> _addressSet;
-   private Map<Address, PublicKey> _publicKeys;
+    private List<Address> _addresses;
+    private Set<Address> _addressSet;
+    private Map<Address, PublicKey> _publicKeys;
 
-   public PublicKeyRing() {
-      _addresses = new ArrayList<Address>();
-      _addressSet = new HashSet<Address>();
-      _publicKeys = new HashMap<Address, PublicKey>();
-   }
+    public PublicKeyRing() {
+        _addresses = new ArrayList<>();
+        _addressSet = new HashSet<>();
+        _publicKeys = new HashMap<>();
+    }
 
-   /**
-    * Add a public key to the key ring.
-    */
-   public void addPublicKey(PublicKey key, NetworkParameters network) {
-      Address address = key.toAddress(network);
-      _addresses.add(address);
-      _addressSet.add(address);
-      _publicKeys.put(address, key);
-   }
+    /**
+     * Add a public key to the key ring.
+     */
+    public void addPublicKey(PublicKey key, NetworkParameters network) {
+        Collection<Address> addresses = key.getAllSupportedAddresses(network).values();
+        _addresses.addAll(addresses);
+        _addressSet.addAll(addresses);
+        for (Address address : addresses) {
+            _publicKeys.put(address, key);
+        }
+    }
 
-   /**
-    * Add a public key and its corresponding Bitcoin address to the key ring.
-    */
-   public void addPublicKey(PublicKey key, Address address) {
-      _addresses.add(address);
-      _addressSet.add(address);
-      _publicKeys.put(address, key);
-   }
+    /**
+     * Add a public key and its corresponding Bitcoin address to the key ring.
+     */
+    public void addPublicKey(PublicKey key, Address address) {
+        _addresses.add(address);
+        _addressSet.add(address);
+        _publicKeys.put(address, key);
+    }
 
-   @Override
-   public PublicKey findPublicKeyByAddress(Address address) {
-      return _publicKeys.get(address);
-   }
+    @Override
+    public PublicKey findPublicKeyByAddress(Address address) {
+        return _publicKeys.get(address);
+    }
 
-   public List<Address> getAddresses() {
-      return Collections.unmodifiableList(_addresses);
-   }
+    public List<Address> getAddresses() {
+        return Collections.unmodifiableList(_addresses);
+    }
 
-   public Set<Address> getAddressSet() {
-      return Collections.unmodifiableSet(_addressSet);
-   }
-
+    public Set<Address> getAddressSet() {
+        return Collections.unmodifiableSet(_addressSet);
+    }
 }

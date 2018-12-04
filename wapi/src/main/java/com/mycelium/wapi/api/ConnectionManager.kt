@@ -1,15 +1,17 @@
 package com.mycelium.wapi.api
 
+import com.google.common.collect.Sets
 import com.mycelium.WapiLogger
 import com.mycelium.wapi.api.jsonrpc.*
-import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.*
 import java.util.*
 import java.util.concurrent.*
 import java.util.concurrent.CancellationException
 import java.util.concurrent.TimeoutException
+import kotlin.collections.ArrayList
 import kotlin.concurrent.timerTask
 
-class ConnectionManager(private val connectionsCount: Int, private val endpoints: Array<TcpEndpoint>,
+class ConnectionManager(private val connectionsCount: Int, internal var endpoints: Array<TcpEndpoint>,
                         val logger: WapiLogger) {
     @Volatile
     private var maintenanceTimer: Timer? = null
@@ -35,7 +37,7 @@ class ConnectionManager(private val connectionsCount: Int, private val endpoints
 
     init {
         createConnections(connectionsCount, endpoints, logger)
-        activateMaintenanceTimer(connectionsCount, endpoints, logger, MAINTENANCE_INTERVAL, MAINTENANCE_INTERVAL)
+        activateMaintenanceTimer(connectionsCount, logger, MAINTENANCE_INTERVAL, MAINTENANCE_INTERVAL)
     }
 
     /**
@@ -55,16 +57,16 @@ class ConnectionManager(private val connectionsCount: Int, private val endpoints
         maintenanceTimer?.cancel()
         maintenanceTimer = null
         currentMode = if (isActive) {
-            activateMaintenanceTimer(connectionsCount, endpoints, logger, 0L, MAINTENANCE_INTERVAL)
+            activateMaintenanceTimer(connectionsCount, logger, 0L, MAINTENANCE_INTERVAL)
             ConnectionManagerMode.ACTIVE
         } else {
-            activateMaintenanceTimer(connectionsCount, endpoints, logger, INACTIVE_MAINTENANCE_INTERVAL, INACTIVE_MAINTENANCE_INTERVAL)
+            activateMaintenanceTimer(connectionsCount, logger, INACTIVE_MAINTENANCE_INTERVAL, INACTIVE_MAINTENANCE_INTERVAL)
             ConnectionManagerMode.PASSIVE
         }
     }
 
     fun subscribe(subscription: Subscription) {
-        launch {
+        GlobalScope.launch(Dispatchers.Default, CoroutineStart.DEFAULT) {
             val client = getClient()
             client.subscribe(subscription)
             jsonRpcTcpClientsList.put(client)
@@ -91,6 +93,49 @@ class ConnectionManager(private val connectionsCount: Int, private val endpoints
                 response!!
             }
         }
+    }
+
+    /**
+     * This method broadcasts request to all available connections
+     */
+    @Throws(CancellationException::class)
+    fun broadcast(methodName: String, params: RpcParams): List<RpcResponse> {
+        if (!isNetworkConnected) {
+            throw CancellationException("No network connection")
+        }
+        return runBlocking {
+            withTimeout(MAX_WRITE_TIME) {
+                val responseList = ArrayList<RpcResponse>()
+                while (responseList.isEmpty()) {
+                    runBroadcast(responseList, methodName, params)
+                }
+                responseList
+            }
+        }
+    }
+
+    private fun runBroadcast(responseList: ArrayList<RpcResponse>, methodName: String, params: RpcParams) {
+        val clientsList = ArrayList<JsonRpcTcpClient>()
+        while (jsonRpcTcpClientsList.isNotEmpty()) {
+            clientsList.add(getClient())
+        }
+        val failedList = ArrayList<JsonRpcTcpClient>()
+        responseList.addAll(clientsList.pmap {
+            try {
+                it.write(methodName, params)
+            } catch (e: TimeoutException) {
+                synchronized(failedList) {
+                    failedList.add(it)
+                }
+                null
+            }
+        }.filterNotNull())
+        jsonRpcTcpClientsList.addAll(clientsList.minus(failedList))
+        maintenancedClientsList.addAll(failedList)
+    }
+
+    private fun <A, B>Iterable<A>.pmap(f: suspend (A) -> B): List<B> = runBlocking {
+        map { async { f(it) } }.map { it.await() }
     }
 
     @Throws(CancellationException::class)
@@ -123,8 +168,8 @@ class ConnectionManager(private val connectionsCount: Int, private val endpoints
         }
     }
 
-    private fun activateMaintenanceTimer(connectionsCount: Int, endpoints: Array<TcpEndpoint>,
-                                         logger: WapiLogger, initialInterval: Long, executionInterval: Long) {
+    private fun activateMaintenanceTimer(connectionsCount: Int, logger: WapiLogger,
+                                         initialInterval: Long, executionInterval: Long) {
         maintenanceTimer = Timer()
         maintenanceTimer?.scheduleAtFixedRate(timerTask {
             doMaintenance(connectionsCount, endpoints, logger)
@@ -157,8 +202,8 @@ class ConnectionManager(private val connectionsCount: Int, private val endpoints
                         val key = subscriptions.keys.first()
                         rpcClient.subscribe(subscriptions[key]!!)
                         subscriptions.remove(key)
+                        jsonRpcTcpClientsList.put(rpcClient)
                     }
-                    jsonRpcTcpClientsList.put(rpcClient)
                 }
             }
         }
@@ -169,17 +214,13 @@ class ConnectionManager(private val connectionsCount: Int, private val endpoints
         val currentTime = System.currentTimeMillis()
 
         // If app is inactive we should just stop all disconnected clients to not to drain battery.
-        val deadClients = (if (currentMode == ConnectionManagerMode.ACTIVE) {
-            maintenancedClientsList.filter { currentTime - it.lastSuccessTime > MAX_RECONNECT_INTERVAL }
-        } else {
-            maintenancedClientsList.filter { !it.isConnected.get() }
-        }).toMutableList()
-
-        deadClients.addAll(if (currentMode == ConnectionManagerMode.ACTIVE) {
-            jsonRpcTcpClientsList.filter { currentTime - it.lastSuccessTime > MAX_RECONNECT_INTERVAL }
-        } else {
-            jsonRpcTcpClientsList.filter { !it.isConnected.get() }
-        })
+        val deadClients = (maintenancedClientsList + jsonRpcTcpClientsList).filter {
+            if (currentMode == ConnectionManagerMode.ACTIVE) {
+                currentTime - it.lastSuccessTime > MAX_RECONNECT_INTERVAL
+            } else {
+                !it.isConnected.get()
+            }
+        }
 
         deadClients.forEach {
             it.stop()
@@ -199,6 +240,22 @@ class ConnectionManager(private val connectionsCount: Int, private val endpoints
             rpcClient = jsonRpcTcpClientsList.take()
         }
         return rpcClient
+    }
+
+    fun changeEndpoints(newEndpoints: Array<TcpEndpoint>) {
+        if(newEndpoints.isEmpty()) {
+            return
+        }
+        val newSet = newEndpoints.toSet()
+        val oldSet = endpoints.toSet()
+        if(Sets.symmetricDifference(oldSet, newSet).size != 0) {
+            endpoints = newEndpoints
+            if (maintenancedClientsList.isNotEmpty()) {
+                removeDeadClients()
+                createConnections(connectionsCount, endpoints, logger)
+                maintainSubscriptions()
+            }
+        }
     }
 
     @Volatile

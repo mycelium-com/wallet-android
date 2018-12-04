@@ -46,7 +46,6 @@ import android.support.annotation.NonNull;
 import android.support.multidex.MultiDexApplication;
 import android.support.v7.app.AppCompatDelegate;
 import android.util.Log;
-
 import com.mycelium.modularizationtools.CommunicationManager;
 import com.mycelium.modularizationtools.ModuleMessageReceiver;
 import com.mycelium.wallet.activity.settings.SettingsPreference;
@@ -54,12 +53,7 @@ import com.mycelium.wallet.modularisation.BCHHelper;
 import com.mycelium.wapi.wallet.WalletAccount;
 
 import java.security.Security;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 public class WalletApplication extends MultiDexApplication implements ModuleMessageReceiver {
     private ModuleMessageReceiver moduleMessageReceiver;
@@ -71,8 +65,6 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
     static {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
     }
-
-    private MbwManager mbwManager;
 
     public static WalletApplication getInstance() {
         if (INSTANCE == null) {
@@ -102,16 +94,21 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         pairSpvModules(CommunicationManager.getInstance());
         cleanModulesIfFirstRun(this, getSharedPreferences(BCHHelper.BCH_PREFS, MODE_PRIVATE));
         moduleMessageReceiver = new MbwMessageReceiver(this);
-        mbwManager = MbwManager.getInstance(this);
-        applyLanguageChange(getBaseContext(), mbwManager.getLanguage());
+        applyLanguageChange(getBaseContext(), getLanguage());
         IntentFilter connectivityChangeFilter = new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE");
         initNetworkStateHandler(connectivityChangeFilter);
         registerActivityLifecycleCallbacks(new ApplicationLifecycleHandler());
+        PackageRemovedReceiver.register(getApplicationContext());
     }
 
     private void initNetworkStateHandler(IntentFilter connectivityChangeFilter) {
         networkChangedReceiver = new NetworkChangedReceiver();
         registerReceiver(networkChangedReceiver, connectivityChangeFilter);
+    }
+
+    private String getLanguage() {
+        SharedPreferences sharedPreferences = getSharedPreferences(Constants.SETTINGS_NAME, Activity.MODE_PRIVATE);
+        return sharedPreferences.getString(Constants.LANGUAGE_SETTING, Locale.getDefault().getLanguage());
     }
 
     public List<ModuleVersionError> moduleVersionErrors = new ArrayList<>();
@@ -179,6 +176,11 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
     }
 
     @Override
+    public int getIcon() {
+        return moduleMessageReceiver.getIcon();
+    }
+
+    @Override
     public void onTerminate() {
         super.onTerminate();
         unregisterReceiver(networkChangedReceiver);
@@ -194,6 +196,10 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
 
     public static void sendToSpv(Intent intent, WalletAccount.Type accountType) {
         CommunicationManager.getInstance().send(getSpvModuleName(accountType), intent);
+    }
+
+    public static void sendToGeb(Intent intent) {
+        CommunicationManager.getInstance().send(BuildConfig.appIdGeb, intent);
     }
 
     private static Map<WalletAccount.Type, String> initTrustedSpvModulesMapping() {
@@ -218,7 +224,7 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         public void onActivityStarted(Activity activity) {
             if (numStarted == 0 && isBackground) {
                 // app returned from background
-                WalletApplication.this.mbwManager.getWapi().setAppInForeground(true);
+                MbwManager.getInstance(getApplicationContext()).getWapi().setAppInForeground(true);
                 isBackground = false;
             }
             numStarted++;
@@ -235,7 +241,7 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
             numStarted--;
             if (numStarted == 0) {
                 // app is going background
-                WalletApplication.this.mbwManager.getWapi().setAppInForeground(false);
+                MbwManager.getInstance(getApplicationContext()).getWapi().setAppInForeground(false);
                 isBackground = true;
             }
         }

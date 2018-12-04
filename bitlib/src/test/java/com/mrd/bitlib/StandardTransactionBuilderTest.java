@@ -35,16 +35,15 @@
 package com.mrd.bitlib;
 
 import com.google.common.collect.ImmutableList;
-import com.mrd.bitlib.StandardTransactionBuilder.SigningRequest;
-import com.mrd.bitlib.StandardTransactionBuilder.UnsignedTransaction;
 import com.mrd.bitlib.crypto.BitcoinSigner;
 import com.mrd.bitlib.crypto.IPrivateKeyRing;
 import com.mrd.bitlib.crypto.IPublicKeyRing;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.OutPoint;
-import com.mrd.bitlib.model.ScriptOutputStandard;
+import com.mrd.bitlib.model.ScriptOutputP2PKH;
 import com.mrd.bitlib.model.TransactionOutput;
 import com.mrd.bitlib.model.UnspentTransactionOutput;
 import com.mrd.bitlib.util.HashUtils;
@@ -84,7 +83,7 @@ public class StandardTransactionBuilderTest {
             PRIVATE_KEYS[i] = getPrivKey("1" + i);
             PUBLIC_KEYS[i] = PRIVATE_KEYS[i].getPublicKey();
             // their addresses and 2 UTXOs each,
-            ADDRS[i] = PUBLIC_KEYS[i].toAddress(testNetwork);
+            ADDRS[i] = PUBLIC_KEYS[i].toAddress(testNetwork, AddressType.P2PKH);
             // with values 1/3, 3/5, 7/9 and 15/17.
             UTXOS[i][0] = getUtxo(ADDRS[i], (long) Math.pow(2, 1 + i) - 1 + MINIMUM_OUTPUT_VALUE);
             UTXOS[i][1] = getUtxo(ADDRS[i], (long) Math.pow(2, 1 + i) + 1 + MINIMUM_OUTPUT_VALUE);
@@ -156,8 +155,18 @@ public class StandardTransactionBuilderTest {
     }
 
     @Test
+    public void testTransactionEstimation() throws Exception {
+        int txNonSegwitSize = StandardTransactionBuilder.estimateTransactionSize(1, 1, 0);
+        assertEquals(txNonSegwitSize, 192);
+
+        int txSegwitSize = StandardTransactionBuilder.estimateTransactionSize(1, 1, 1);
+        assertEquals(txSegwitSize, 111);
+    }
+
+    @Test
     public void testCreateUnsignedTransactionWithoutChange() throws Exception {
-        int feeExpected = StandardTransactionBuilder.estimateTransactionSize(1, 1) * 200; //68000
+        int txSize = StandardTransactionBuilder.estimateTransactionSize(1, 1, 0);
+        int feeExpected = txSize * 200; //68000
         long utxoAvailable = 2 * SATOSHIS_PER_BITCOIN + feeExpected + MINIMUM_OUTPUT_VALUE - 10;
         // UTXOs worth utxoAvailable satoshis, should result in 1 in 1 out.
         // MINIMUM_OUTPUT_VALUE - 10 satoshis will be
@@ -186,7 +195,7 @@ public class StandardTransactionBuilderTest {
                 getUtxo(ADDRS[0], 10 * SATOSHIS_PER_BITCOIN)
         );
         testme.addOutput(ADDRS[1], SATOSHIS_PER_BITCOIN);
-        int feeExpected = StandardTransactionBuilder.estimateTransactionSize(1, 2) * 200;
+        int feeExpected = StandardTransactionBuilder.estimateTransactionSize(1, 2, 0) * 200;
 
         UnsignedTransaction tx = testme.createUnsignedTransaction(inventory, ADDRS[2], KEY_RING,
             testNetwork, 200000); // miner fees to use = 200 satoshis per bytes.
@@ -214,7 +223,7 @@ public class StandardTransactionBuilderTest {
     }
 
     private static UnspentTransactionOutput getUtxo(Address address, long value) {
-        return new UnspentTransactionOutput(new OutPoint(Sha256Hash.ZERO_HASH, 0), 0, value, new ScriptOutputStandard(address.getTypeSpecificBytes()));
+        return new UnspentTransactionOutput(new OutPoint(Sha256Hash.ZERO_HASH, 0), 0, value, new ScriptOutputP2PKH(address.getTypeSpecificBytes()));
     }
 
     /**

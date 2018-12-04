@@ -35,6 +35,7 @@
 package com.mycelium.wallet.activity.modern;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.res.Resources;
 import android.support.v4.app.Fragment;
 import android.widget.Toast;
@@ -48,55 +49,54 @@ import com.mycelium.wallet.Utils;
  */
 public class Toaster {
 
-   private Activity _activity;
-   private Fragment _fragment;
-   private Toast _toast;
+    private final Context context;
+    private Activity _activity;
+    private Fragment _fragment;
+    private Toast _toast;
 
-   public Toaster(Activity activity) {
-      _activity = activity;
-   }
+    public Toaster(Activity activity) {
+        _activity = activity;
+        context = activity.getApplicationContext();
+    }
 
-   public Toaster(Fragment fragment) {
-      _fragment = fragment;
-   }
+    public Toaster(Fragment fragment) {
+        _fragment = fragment;
+        context = fragment.getContext();
+    }
 
-   public void toast(int resourceId, boolean shortDuration) {
-      // Resolve the message from the resource id
-      String message;
-      try {
-         if (_fragment != null) {
-            message = _fragment.getResources().getString(resourceId);
-         } else {
-            message = _activity.getResources().getString(resourceId);
-         }
-      } catch (Resources.NotFoundException e) {
-         return;
-         //todo insert uncaught error handler
-      }
-      toast(message, shortDuration);
-   }
+    public void toast(int resourceId, boolean shortDuration) {
+        // Resolve the message from the resource id
+        String message;
+        try {
+            message = context.getResources().getString(resourceId);
+        } catch (Resources.NotFoundException e) {
+            return;
+            //todo insert uncaught error handler
+        }
+        toast(message, shortDuration);
+    }
 
-   public void toast(String message, boolean shortDuration) {
-      if (_toast == null) {
-         if (_fragment != null) {
-            if (!_fragment.isAdded()) {
-               return;
+    public void toast(String message, boolean shortDuration) {
+        if (_toast == null) {
+            if (_fragment != null) {
+                if (!_fragment.isAdded()) {
+                    return;
+                }
+                _toast = Toast.makeText(_fragment.getActivity(), "", Toast.LENGTH_SHORT);
+            } else {
+                _toast = Toast.makeText(_activity, "", Toast.LENGTH_SHORT);
             }
-            _toast = Toast.makeText(_fragment.getActivity(), "", Toast.LENGTH_SHORT);
-         } else {
-            _toast = Toast.makeText(_activity, "", Toast.LENGTH_SHORT);
-         }
-      }
-      _toast.setDuration(shortDuration ? Toast.LENGTH_SHORT : Toast.LENGTH_LONG);
-      _toast.setText(message);
-      _toast.show();
-   }
+        }
+        _toast.setDuration(shortDuration ? Toast.LENGTH_SHORT : Toast.LENGTH_LONG);
+        _toast.setText(message);
+        _toast.show();
+    }
 
-   public void toastConnectionError() {
-   if (Utils.isConnected(_activity)) {
-      toast(R.string.no_server_connection, false);
-   } else {
-      toast( R.string.no_network_connection, true);
-   }
-   }
+    public void toastConnectionError() {
+        if (Utils.isConnected(context)) {
+            toast(R.string.no_server_connection, false);
+        } else {
+            toast( R.string.no_network_connection, true);
+        }
+    }
 }

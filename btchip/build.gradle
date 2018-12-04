@@ -17,8 +17,9 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.android.support:support-v4:19.1.0'
+    implementation "com.android.support:support-v4:$androidSupportVersion"
     implementation project(includePrefix + ':libs:nordpol')
+    implementation guavaArtifact
 }
 
 android {
@@ -39,7 +40,6 @@ android {
 
     defaultConfig {
         minSdkVersion 14
-        targetSdkVersion 19
     }
 
     lintOptions {

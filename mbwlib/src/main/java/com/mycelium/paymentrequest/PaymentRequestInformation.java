@@ -282,7 +282,7 @@ public class PaymentRequestInformation implements Serializable {
 
 
    public Payment buildPaymentResponse(Address refundAddress, String memo, Transaction signedTransaction) {
-      byte[] scriptBytes = new ScriptOutputStandard(refundAddress.getTypeSpecificBytes()).getScriptBytes();
+      byte[] scriptBytes = new ScriptOutputP2PKH(refundAddress.getTypeSpecificBytes()).getScriptBytes();
       Output refundOutput = new Output.Builder()
             .amount(getOutputs().getTotalAmount())
             .script(ByteString.of(scriptBytes))

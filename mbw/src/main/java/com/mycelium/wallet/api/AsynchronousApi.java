@@ -40,6 +40,7 @@ import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.api.request.VersionInfoExRequest;
 import com.mycelium.wapi.api.response.*;
 import com.squareup.otto.Bus;
+import android.os.Handler;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -59,19 +60,21 @@ public abstract class AsynchronousApi {
 
    private final Wapi _wapi;
    private final Bus eventBus;
+   private final Handler eventHandler;
 
    /**
     * Create a new asynchronous API instance.
     *
     * @param wapi The WAPI instance used for communicating with the WAPI server.
     */
-   public AsynchronousApi(Wapi wapi, Bus eventBus) {
+   public AsynchronousApi(Wapi wapi, Bus eventBus, Handler eventHandler) {
       _wapi = wapi;
       this.eventBus = eventBus;
+      this.eventHandler = eventHandler;
    }
 
 
-   abstract protected CallbackRunnerInvoker createCallbackRunnerInvoker();
+   abstract protected CallbackRunnerInvoker createCallbackRunnerInvoker(Handler eventHandler);
 
    // call this function to test various warnings
    public void getWalletVersionExTestHelper(final VersionInfoExRequest versionRequest) {
@@ -147,7 +150,7 @@ public abstract class AsynchronousApi {
 
       private AbstractCaller(AbstractCallbackHandler<T> callbackHandler) {
          _callbackHandler = callbackHandler;
-         _callbackInvoker = createCallbackRunnerInvoker();
+         _callbackInvoker = createCallbackRunnerInvoker(eventHandler);
       }
 
       @Override

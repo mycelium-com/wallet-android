@@ -1,6 +1,6 @@
 package com.satoshilabs.trezor;
 
-import com.satoshilabs.trezor.ExternalSignatureDevice.VersionNumber;
+import com.satoshilabs.trezor.lib.ExternalSignatureDevice.VersionNumber;
 
 import org.junit.Test;
 

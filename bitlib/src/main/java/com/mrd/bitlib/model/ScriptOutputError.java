@@ -24,8 +24,13 @@ import java.io.Serializable;
 public class ScriptOutputError extends ScriptOutput implements Serializable {
    private static final long serialVersionUID = 1L;
 
-   protected ScriptOutputError(byte[] scriptBytes) {
+   ScriptOutputError(byte[] scriptBytes) {
       super(scriptBytes);
+   }
+
+   @Override
+   public byte[] getAddressBytes() {
+      return new byte[Address.NUM_ADDRESS_BYTES];
    }
 
    @Override

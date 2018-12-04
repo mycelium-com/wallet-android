@@ -42,14 +42,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
-import android.util.Log;
 import android.widget.TextView;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
@@ -80,8 +77,6 @@ public class VersionManager {
 
    private final SharedPreferences preferences;
    private final Set<String> ignoredVersions;
-   private final String version;
-   private final int versionCode;
    private Context context;
    private final String language;
    private final AsynchronousApi asyncApi;
@@ -90,56 +85,34 @@ public class VersionManager {
    private WalletVersionExEvent lastVersionResult;
    private Dialog lastDialog;
 
-   public VersionManager(Context context, String language, AsynchronousApi asyncApi, String version, Bus eventBus) {
+   public VersionManager(Context context, String language, AsynchronousApi asyncApi, final Bus eventBus) {
       this.context = context;
       this.language = language;
       this.asyncApi = asyncApi;
       this.preferences = context.getSharedPreferences(Constants.SETTINGS_NAME, Activity.MODE_PRIVATE);
-      this.version = version;
-      this.versionCode = determineVersionCode(context);
       String ignored = preferences.getString(Constants.IGNORED_VERSIONS, "");
       ignoredVersions = Sets.newHashSet(Splitter.on("\n").omitEmptyStrings().split(ignored));
 
       this.eventBus = eventBus;
-      eventBus.register(this);
+      new Handler(context.getMainLooper()).post(new Runnable() {
+         @Override
+         public void run() {
+            eventBus.register(VersionManager.this);
+         }
+      });
 
-      backgroundHandler = new Handler();
+      backgroundHandler = new Handler(context.getMainLooper());
    }
 
    @Override
    protected void finalize() throws Throwable {
-      eventBus.unregister(this);
+      new Handler(context.getMainLooper()).post(new Runnable() {
+         @Override
+         public void run() {
+            eventBus.unregister(VersionManager.this);
+         }
+      });
       super.finalize();
-   }
-
-   public static String determineVersion(Context applicationContext) {
-      try {
-         PackageManager packageManager = applicationContext.getPackageManager();
-         if (packageManager != null) {
-            final PackageInfo pInfo;
-            pInfo = packageManager.getPackageInfo(applicationContext.getPackageName(), 0);
-            return pInfo.versionName;
-         } else {
-            Log.i(Constants.TAG, "unable to obtain packageManager");
-         }
-      } catch (PackageManager.NameNotFoundException ignored) {
-      }
-      return "unknown";
-   }
-
-   public static int determineVersionCode(Context applicationContext) {
-      try {
-         PackageManager packageManager = applicationContext.getPackageManager();
-         if (packageManager != null) {
-            final PackageInfo pInfo;
-            pInfo = packageManager.getPackageInfo(applicationContext.getPackageName(), 0);
-            return pInfo.versionCode;
-         } else {
-            Log.i(Constants.TAG, "unable to obtain packageManager");
-         }
-      } catch (PackageManager.NameNotFoundException ignored) {
-      }
-      return 0;
    }
 
    public void showVersionDialog(final VersionInfoExResponse response, final Context activity) {
@@ -182,22 +155,14 @@ public class VersionManager {
    };
 
    public void checkForUpdate() {
-      VersionInfoExRequest req = new VersionInfoExRequest(BRANCH, version, new Locale(language));
+      VersionInfoExRequest req = new VersionInfoExRequest(BRANCH, BuildConfig.VERSION_NAME, new Locale(language));
       //asyncApi.getWalletVersionExTestHelper(req);
       asyncApi.getWalletVersionEx(req);
    }
 
    public void checkForUpdateSync(AbstractCallbackHandler<VersionInfoExResponse> callback) {
-      VersionInfoExRequest req = new VersionInfoExRequest(BRANCH, version, new Locale(language));
+      VersionInfoExRequest req = new VersionInfoExRequest(BRANCH, BuildConfig.VERSION_NAME, new Locale(language));
       asyncApi.getWalletVersionEx(req, callback);
-   }
-
-   public String getVersion() {
-      return version;
-   }
-
-   public int getVersionCode() {
-      return versionCode;
    }
 
    private boolean isIgnored(String versionNumber) {
@@ -381,7 +346,7 @@ public class VersionManager {
    }
 
    public boolean isSameVersion(String versionNumber) {
-      return versionNumber.equals(version);
+      return versionNumber.equals(BuildConfig.VERSION_NAME);
    }
 
    public void ignoreVersion(String versionNumber) {

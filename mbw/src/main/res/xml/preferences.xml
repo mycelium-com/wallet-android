@@ -41,6 +41,14 @@
                     android:summary="@string/pref_pin_require_on_startup_summary"
                     android:title="@string/pref_pin_require_on_startup"
                     android:widgetLayout="@layout/preference_switch" />
+
+                <CheckBoxPreference
+                    android:dependency="setPin"
+                    android:key="pinPadIsRandomized"
+                    android:layout="@layout/preference_layout_no_icon"
+                    android:summary="@string/randomize_pin_text"
+                    android:title="@string/randomize_pin"
+                    android:widgetLayout="@layout/preference_switch" />
             </PreferenceCategory>
         </PreferenceScreen>
 
@@ -121,17 +129,39 @@
             android:widgetLayout="@layout/preference_arrow" />
     </PreferenceCategory>
 
+    <!-- Accounts -->
+    <PreferenceCategory
+        android:layout="@layout/preference_category_layout"
+        android:title="@string/tab_accounts">
+
+        <CheckBoxPreference
+            android:key="showBip44Path"
+            android:layout="@layout/preference_layout_no_icon"
+            android:summary="@string/show_bip_description"
+            android:title="@string/show_address_path"
+            android:widgetLayout="@layout/preference_switch" />
+
+    </PreferenceCategory>
+
     <PreferenceCategory
         android:layout="@layout/preference_category_layout"
         android:title="@string/transactions">
         <ListPreference
-            android:dialogTitle="Block explorer"
+            android:dialogTitle="@string/block_explorer"
             android:icon="@drawable/ic_exchange_coin"
             android:key="block_explorer"
             android:title="@string/block_explorer_title"
             android:summary="@string/block_explorer_summary_2"
             android:layout="@layout/preference_layout"
             android:widgetLayout="@layout/preference_arrow" />
+
+        <Preference
+            android:icon="@drawable/ic_bitcoin_tx_change"
+            android:key="change_type"
+            android:layout="@layout/preference_layout"
+            android:summary="@string/segwit_change_mode_description"
+            android:widgetLayout="@layout/preference_arrow"
+            android:title="@string/segwit_change_mode_title"/>
 
         <ListPreference
             android:icon="@drawable/ic_mining"
@@ -151,8 +181,8 @@
             android:icon="@drawable/ic_trading"
             android:key="ltDisable"
             android:layout="@layout/preference_layout"
-            android:summary="@string/lt_disable_preference_summary"
-            android:title="@string/lt_disable_preference"
+            android:summary="@string/lt_preference_summary"
+            android:title="@string/lt_preference_title"
             android:widgetLayout="@layout/preference_switch" />
         <CheckBoxPreference
             android:key="ltNotificationSound"
@@ -174,19 +204,6 @@
     </PreferenceCategory>
 
 
-    <!-- Advanced Settings -->
-    <PreferenceCategory
-        android:key="advancedSettings"
-        android:layout="@layout/preference_category_layout"
-        android:title="@string/pref_advanced_settings">
-
-        <CheckBoxPreference
-            android:key="showBip44Path"
-            android:layout="@layout/preference_layout_no_icon"
-            android:summary="@string/show_bip_description"
-            android:title="@string/show_address_path"
-            android:widgetLayout="@layout/preference_switch" />
-    </PreferenceCategory>
 
 
     <!-- Ledger -->

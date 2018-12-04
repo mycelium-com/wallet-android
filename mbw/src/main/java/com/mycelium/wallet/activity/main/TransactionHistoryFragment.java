@@ -68,7 +68,7 @@ import android.widget.Toast;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.UnableToBuildTransactionException;
-import com.mrd.bitlib.StandardTransactionBuilder.UnsignedTransaction;
+import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.HexUtils;
@@ -105,7 +105,9 @@ import com.squareup.otto.Subscribe;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import butterknife.BindView;
@@ -163,11 +165,17 @@ public class TransactionHistoryFragment extends Fragment {
       if (adapter == null) {
          adapter = new TransactionHistoryAdapter(getActivity(), history);
          updateWrapper(adapter);
-         model.getTransactionHistory().observe(this, new Observer<List<? extends TransactionSummary>>() {
+         model.getTransactionHistory().observe(this, new Observer<Set<? extends TransactionSummary>>() {
             @Override
-            public void onChanged(@Nullable List<? extends TransactionSummary> transactionSummaries) {
+            public void onChanged(@Nullable Set<? extends TransactionSummary> transactionSummaries) {
                history.clear();
                history.addAll(transactionSummaries);
+               adapter.sort(new Comparator<TransactionSummary>() {
+                  @Override
+                  public int compare(TransactionSummary ts1, TransactionSummary ts2) {
+                     return Long.compare(ts2.time, ts1.time);
+                  }
+               });
                adapter.notifyDataSetChanged();
                showHistory(!history.isEmpty());
                refreshList();
@@ -269,11 +277,12 @@ public class TransactionHistoryFragment extends Fragment {
       listView.setOnScrollListener(new AbsListView.OnScrollListener() {
          private static final int OFFSET = 20;
          private final List<TransactionSummary> toAdd = new ArrayList<>();
+         private WalletAccount forAccount = _mbwManager.getSelectedAccount();
          @Override
          public void onScrollStateChanged(AbsListView view, int scrollState) {
             synchronized (toAdd) {
                if (!toAdd.isEmpty() && view.getLastVisiblePosition() == history.size() - 1) {
-                  model.getTransactionHistory().appendList(toAdd);
+                  model.getTransactionHistory().appendList(toAdd, forAccount);
                   toAdd.clear();
                }
             }
@@ -289,12 +298,13 @@ public class TransactionHistoryFragment extends Fragment {
                   toAddEmpty = toAdd.isEmpty();
                }
                if (toAddEmpty && isLoadingPossible.compareAndSet(true, false)) {
-                  new Preloader(toAdd, _mbwManager.getSelectedAccount(), totalItemCount,
+                  forAccount = _mbwManager.getSelectedAccount();
+                  new Preloader(toAdd, forAccount, _mbwManager, totalItemCount,
                           OFFSET, isLoadingPossible).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                }
                if (firstVisibleItem + visibleItemCount == totalItemCount && !toAddEmpty) {
                   synchronized (toAdd) {
-                     model.getTransactionHistory().appendList(toAdd);
+                     model.getTransactionHistory().appendList(toAdd, forAccount);
                      toAdd.clear();
                   }
                }
@@ -309,21 +319,26 @@ public class TransactionHistoryFragment extends Fragment {
       private final int offset;
       private final int limit;
       private final AtomicBoolean success;
+      private final MbwManager _mbwManager;
 
-      Preloader(List<TransactionSummary> toAdd, WalletAccount account, int offset, int limit, AtomicBoolean success) {
+      Preloader(List<TransactionSummary> toAdd, WalletAccount account, MbwManager _mbwManager
+              , int offset, int limit, AtomicBoolean success) {
          this.toAdd = toAdd;
          this.account = account;
          this.offset = offset;
          this.limit = limit;
          this.success = success;
+         this._mbwManager = _mbwManager;
       }
 
       @Override
       protected Void doInBackground(Void... voids) {
          List<TransactionSummary> preloadedData = account.getTransactionHistory(offset, limit);
-         synchronized (toAdd) {
-            toAdd.addAll(preloadedData);
-            success.set(toAdd.size() == limit);
+         if(account.equals(_mbwManager.getSelectedAccount())) {
+            synchronized (toAdd) {
+               toAdd.addAll(preloadedData);
+               success.set(toAdd.size() == limit);
+            }
          }
          return null;
       }
@@ -416,7 +431,7 @@ public class TransactionHistoryFragment extends Fragment {
                        checkNotNull(menu.findItem(R.id.miRebroadcastTransaction))
                            .setVisible((record.confirmations == 0) && !record.canCoinapult());
                        checkNotNull(menu.findItem(R.id.miBumpFee))
-                           .setVisible((record.confirmations == 0) && !record.canCoinapult());
+                           .setVisible((record.confirmations == 0) && !record.canCoinapult() && (_mbwManager.getSelectedAccount().canSpend()));
                        checkNotNull(menu.findItem(R.id.miDeleteUnconfirmedTransaction))
                            .setVisible(record.confirmations == 0);
                        checkNotNull(menu.findItem(R.id.miShare)).setVisible(!record.canCoinapult());
@@ -556,8 +571,15 @@ public class TransactionHistoryFragment extends Fragment {
                                       .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                                          @Override
                                          public void onClick(DialogInterface dialog, int which) {
-                                            Intent intent = SignTransactionActivity.getIntent(getActivity(), _mbwManager.getSelectedAccount().getId(), false, unsigned);
-                                            startActivityForResult(intent, SIGN_TRANSACTION_REQUEST_CODE);
+                                            // 'unsigned' Object might become null when the dialog is displayed and not used for a long time
+                                            if(unsigned != null) {
+                                               Intent intent = SignTransactionActivity.getIntent(getActivity(), _mbwManager.getSelectedAccount().getId(), false, unsigned);
+                                               startActivityForResult(intent, SIGN_TRANSACTION_REQUEST_CODE);
+                                            }
+                                            else
+                                            {
+                                                new Toaster(getActivity()).toast("Bumping fee failed", false);
+                                            }
                                             dialog.dismiss();
                                          }
                                       })

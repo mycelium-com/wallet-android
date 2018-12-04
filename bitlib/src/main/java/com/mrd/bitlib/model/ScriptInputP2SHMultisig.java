@@ -54,11 +54,11 @@ public class ScriptInputP2SHMultisig extends ScriptInput {
    }
 
    public List<byte[]> getPubKeys() {
-      return new ArrayList<byte[]>(_pubKeys);
+      return new ArrayList<>(_pubKeys);
    }
 
    public List<byte[]> getSignatures() {
-      return new ArrayList<byte[]>(_signatures);
+      return new ArrayList<>(_signatures);
    }
 
    public byte[] getScriptHash() {

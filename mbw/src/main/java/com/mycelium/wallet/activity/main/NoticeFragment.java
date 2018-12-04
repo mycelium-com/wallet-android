@@ -36,7 +36,6 @@ package com.mycelium.wallet.activity.main;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -57,14 +56,13 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.export.VerifyBackupActivity;
-import com.mycelium.wallet.activity.modern.RecordRowBuilder;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.BalanceChanged;
 import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.bip44.Bip44Account;
+import com.mycelium.wapi.wallet.bip44.HDAccount;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.squareup.otto.Subscribe;
 
@@ -128,21 +126,20 @@ public class NoticeFragment extends Fragment {
    }
 
    @Override
-   public void onResume() {
+   public void onStart() {
       _mbwManager.getEventBus().register(this);
       _notice = determineNotice();
       _root.findViewById(R.id.btWarning).setOnClickListener(warningClickListener);
       _root.findViewById(R.id.btPinResetNotice).setOnClickListener(noticeClickListener);
       updateUi();
-      super.onResume();
+      super.onStart();
    }
 
    @Override
-   public void onPause() {
+   public void onStop() {
       _mbwManager.getEventBus().unregister(this);
-      super.onPause();
+      super.onStop();
    }
-
 
    private Notice determineNotice() {
       WalletAccount account = _mbwManager.getSelectedAccount();
@@ -161,7 +158,7 @@ public class NoticeFragment extends Fragment {
 
       // First check if we have HD accounts with funds, but have no master seed backup
       if (meta.getMasterSeedBackupState() != MetadataStorage.BackupState.VERIFIED) {
-         if (account instanceof Bip44Account) {
+         if (account instanceof HDAccount) {
             /*
               We have an HD account and no master seed backup, tell the user to act
               We shouldn't check balance, in security reason user should create backup

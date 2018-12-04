@@ -91,7 +91,6 @@ import com.mycelium.wapi.api.response.Feature;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SyncMode;
-import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.squareup.otto.Subscribe;
 
@@ -129,6 +128,7 @@ public class ModernMain extends AppCompatActivity {
    private Toaster _toaster;
    private volatile long _lastSync = 0;
    private boolean _isAppStart = true;
+   private int counter = 0;
 
    private Timer balanceRefreshTimer;
 
@@ -233,7 +233,8 @@ public class ModernMain extends AppCompatActivity {
       final WalletManager walletManager = _mbwManager.getWalletManager(false);
       for (Integer index: gapIndex) {
          try {
-            final UUID newAccount = walletManager.createArchivedGapFiller(AesKeyCipher.defaultKeyCipher(), index, true);
+            final UUID newAccount = walletManager.createArchivedGapFiller(AesKeyCipher.defaultKeyCipher(), index,
+                    true);
             _mbwManager.getMetadataStorage().storeAccountLabel(newAccount, "Gap Account " + (index+1));
          } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
             throw new RuntimeException(invalidKeyCipher);
@@ -267,7 +268,7 @@ public class ModernMain extends AppCompatActivity {
    }
 
    @Override
-   protected void onResume() {
+   protected void onStart() {
       _mbwManager.getEventBus().register(this);
 
       long curTime = new Date().getTime();
@@ -286,33 +287,35 @@ public class ModernMain extends AppCompatActivity {
       balanceRefreshTimer.scheduleAtFixedRate(new TimerTask() {
          @Override
          public void run() {
-            _mbwManager.getExchangeRateManager().requestRefresh();
+            if (Utils.isConnected(getApplicationContext())) {
+               _mbwManager.getExchangeRateManager().requestRefresh();
 
-            // if the last full sync is too old (or not known), start a full sync for _all_ accounts
-            // otherwise just run a normal sync for the current account
-            final Optional<Long> lastFullSync = _mbwManager.getMetadataStorage().getLastFullSync();
-            if (lastFullSync.isPresent()
-                    && (new Date().getTime() - lastFullSync.get()< MIN_FULLSYNC_INTERVAL) ) {
-               _mbwManager.getWalletManager(false).startSynchronization();
-            } else {
-               _mbwManager.getWalletManager(false).startSynchronization(SyncMode.FULL_SYNC_ALL_ACCOUNTS);
-               _mbwManager.getMetadataStorage().setLastFullSync(new Date().getTime());
+               // if the last full sync is too old (or not known), start a full sync for _all_ accounts
+               // otherwise just run a normal sync for the current account
+               final Optional<Long> lastFullSync = _mbwManager.getMetadataStorage().getLastFullSync();
+               if (lastFullSync.isPresent()
+                       && (new Date().getTime() - lastFullSync.get() < MIN_FULLSYNC_INTERVAL)) {
+                  _mbwManager.getWalletManager(false).startSynchronization();
+               } else {
+                  _mbwManager.getWalletManager(false).startSynchronization(SyncMode.FULL_SYNC_ALL_ACCOUNTS);
+                  _mbwManager.getMetadataStorage().setLastFullSync(new Date().getTime());
+               }
+
+               _lastSync = new Date().getTime();
             }
-
-            _lastSync = new Date().getTime();
          }
       }, 100, MIN_AUTOSYNC_INTERVAL);
 
       supportInvalidateOptionsMenu();
-      super.onResume();
+      super.onStart();
    }
 
    @Override
-   protected void onPause() {
+   protected void onStop() {
       stopBalanceRefreshTimer();
       _mbwManager.getEventBus().unregister(this);
       _mbwManager.getVersionManager().closeDialog();
-      super.onPause();
+      super.onStop();
    }
 
    @Override
@@ -424,13 +427,23 @@ public class ModernMain extends AppCompatActivity {
             // default only sync the current account
             SyncMode syncMode = SyncMode.NORMAL_FORCED;
             // every 5th manual refresh make a full scan
-            if (new Random().nextInt(5) == 0) {
+            if (counter == 4) {
                syncMode = SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED;
+               counter = 0;
             } else if (mViewPager.getCurrentItem() == TAB_ID_ACCOUNTS) {
                // if we are in the accounts tab, sync all accounts if the users forces a sync
                syncMode = SyncMode.NORMAL_ALL_ACCOUNTS_FORCED;
+               counter++;
             }
-            _mbwManager.getWalletManager(false).startSynchronization(syncMode);
+
+            final Optional<Long> lastFullSync = _mbwManager.getMetadataStorage().getLastFullSync();
+            if (lastFullSync.isPresent()
+                    && (new Date().getTime() - lastFullSync.get() < MIN_FULLSYNC_INTERVAL)) {
+               _mbwManager.getWalletManager(false).startSynchronization(syncMode);
+            } else  {
+               _mbwManager.getWalletManager(false).startSynchronization(SyncMode.FULL_SYNC_ALL_ACCOUNTS);
+               _mbwManager.getMetadataStorage().setLastFullSync(new Date().getTime());
+            }
             _mbwManager.getColuManager().startSynchronization(syncMode);
 
             // also fetch a new exchange rate, if necessary

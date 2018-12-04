@@ -22,3 +22,4 @@ nohup.out
 /keys.properties
 /keystore_mbwProd
 /keystore_mbwTest
+/crowdin.properties

@@ -38,6 +38,7 @@ import android.content.Context;
 import android.text.TextUtils;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
@@ -318,8 +319,8 @@ public class MetadataStorage extends GenericMetadataStorage {
       storeKeyCategoryValueEntry(COLU.of("assetIds"), assetIds);
    }
 
-   public String getColuAssetIds() {
-      return getKeyCategoryValueEntry(COLU.of("assetIds"), "");
+   public Iterable<String> getColuAssetIds() {
+      return Splitter.on(",").split(getKeyCategoryValueEntry(COLU.of("assetIds"), ""));
    }
 
    public void storeColuBalance(UUID coluAccountUuid, String balance) {
@@ -327,21 +328,7 @@ public class MetadataStorage extends GenericMetadataStorage {
    }
 
    public Optional<String> getColuBalance(UUID coluAccountUuid) {
-      Optional<String> key = getKeyCategoryValueEntry(COLU.of("balance" + coluAccountUuid.toString()));
-      return key;
-   }
-
-   public void storeColuKey(String assetId, String base58PrivateKey) {
-      storeKeyCategoryValueEntry(COLU.of("key" + assetId), base58PrivateKey);
-   }
-
-   public Optional<String> getColuKey(String assetId) {
-      Optional<String> key = getKeyCategoryValueEntry(COLU.of("key" + assetId));
-      return key;
-   }
-
-   public void deleteColuKey(String assetId) {
-      deleteByKeyCategory(COLU.of("key" + assetId));
+      return getKeyCategoryValueEntry(COLU.of("balance" + coluAccountUuid.toString()));
    }
 
 
@@ -355,8 +342,7 @@ public class MetadataStorage extends GenericMetadataStorage {
    }
 
    public Optional<String> getExchangeRate(String currency, String baseCurrency, String market) {
-      Optional<String> key = getKeyCategoryValueEntry(EXCHANGE_RATES_CATEGORY.of(market + "_" + currency + "_" + baseCurrency));
-      return key;
+      return getKeyCategoryValueEntry(EXCHANGE_RATES_CATEGORY.of(market + "_" + currency + "_" + baseCurrency));
    }
 
    public void addColuAssetUUIDs(String assetId, UUID uuid) {

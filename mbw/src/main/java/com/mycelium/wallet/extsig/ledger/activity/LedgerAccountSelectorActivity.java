@@ -42,10 +42,13 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.PinDialog;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.HdAccountSelectorActivity;
+import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.util.AbstractAccountScanManager;
 import com.mycelium.wallet.activity.util.Pin;
 import com.mycelium.wallet.extsig.ledger.LedgerManager;
 import com.mycelium.wapi.wallet.AccountScanManager;
+import com.mycelium.wapi.wallet.WalletManager;
+import com.mycelium.wapi.wallet.bip44.HDAccount;
 import com.squareup.otto.Subscribe;
 
 
@@ -74,8 +77,8 @@ public abstract class LedgerAccountSelectorActivity extends HdAccountSelectorAct
 
    @Override
    protected void updateUi() {
-      if ((masterseedScanManager.currentState != AccountScanManager.Status.initializing) &&
-            (masterseedScanManager.currentState != AccountScanManager.Status.unableToScan)) {
+      if ((masterseedScanManager.getCurrentState() != AccountScanManager.Status.initializing) &&
+            (masterseedScanManager.getCurrentState() != AccountScanManager.Status.unableToScan)) {
          findViewById(R.id.tvWaitForLedger).setVisibility(View.GONE);
          findViewById(R.id.ivConnectLedger).setVisibility(View.GONE);
          txtStatus.setText(getString(R.string.ledger_scanning_status));
@@ -83,7 +86,7 @@ public abstract class LedgerAccountSelectorActivity extends HdAccountSelectorAct
          super.updateUi();
       }
 
-      if (masterseedScanManager.currentAccountState == AccountScanManager.AccountStatus.scanning) {
+      if (masterseedScanManager.getCurrentAccountState() == AccountScanManager.AccountStatus.scanning) {
          findViewById(R.id.llStatus).setVisibility(View.VISIBLE);
          if (accounts.size() > 0) {
             super.updateUi();
@@ -91,7 +94,7 @@ public abstract class LedgerAccountSelectorActivity extends HdAccountSelectorAct
             txtStatus.setText(getString(R.string.ledger_scanning_status));
          }
 
-      } else if (masterseedScanManager.currentAccountState == AccountScanManager.AccountStatus.done) {
+      } else if (masterseedScanManager.getCurrentAccountState() == AccountScanManager.AccountStatus.done) {
          // DONE
          findViewById(R.id.llStatus).setVisibility(View.GONE);
          findViewById(R.id.llSelectAccount).setVisibility(View.VISIBLE);
@@ -136,6 +139,16 @@ public abstract class LedgerAccountSelectorActivity extends HdAccountSelectorAct
    @Subscribe
    public void onAccountFound(AccountScanManager.OnAccountFound event){
       super.onAccountFound(event);
+      WalletManager walletManager = MbwManager.getInstance(getApplicationContext()).getWalletManager(false);
+      if (walletManager.hasAccount(event.account.accountId)) {
+         boolean upgraded = masterseedScanManager.upgradeAccount(event.account.accountsRoots,
+                 walletManager, event.account.accountId);
+         if (upgraded) {
+            // If it's migrated it's 100% that it's HD
+            int accountIndex = ((HDAccount) walletManager.getAccount(event.account.accountId)).getAccountIndex();
+            new Toaster(this).toast(getString(R.string.account_upgraded, accountIndex + 1), false);
+         }
+      }
    }
 
    @Subscribe

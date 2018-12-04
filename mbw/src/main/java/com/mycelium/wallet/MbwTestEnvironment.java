@@ -87,13 +87,11 @@ public class MbwTestEnvironment extends MbwEnvironment {
     * The first is the default block explorer if the requested one is not available
     */
    private static final List<BlockExplorer> testnetExplorerClearEndpoints = new ArrayList<BlockExplorer>() {{
-      add(new BlockExplorer("SBT", "smartbit", "https://www.sandbox.smartbit.com.au/address/", "https://sandbox.smartbit.com.au/tx/", null, null));
+      add(new BlockExplorer("SBT", "smartbit", "https://testnet.sandbox.smartbit.com.au/address/", "https://testnet.smartbit.com.au/tx/", null, null));
       add(new BlockExplorer("BTL", "blockTrail", "https://www.blocktrail.com/tBTC/address/", "https://www.blocktrail.com/tBTC/tx/", null, null));
       add(new BlockExplorer("BPY", "BitPay", "https://test-insight.bitpay.com/address/", "https://test-insight.bitpay.com/tx/", null, null));
       add(new BlockExplorer("BEX", "blockExplorer", "http://blockexplorer.com/testnet/address/", "https://blockexplorer.com/testnet/tx/", null, null));
       add(new BlockExplorer("BCY", "blockCypher", "https://live.blockcypher.com/btc-testnet/address/", "https://live.blockcypher.com/btc-testnet/tx/", null, null));
-      add(new BlockExplorer("BES", "bitEasy", "https://www.biteasy.com/testnet/addresses/", "https://www.biteasy.com/testnet/transactions/", null, null));
-      add(new BlockExplorer("CPM", "coinprism", "https://testnet.coinprism.info/address/", "https://testnet.coinprism.info/tx/", null, null));
    }};
 
    public List<BlockExplorer> getBlockExplorerList() {

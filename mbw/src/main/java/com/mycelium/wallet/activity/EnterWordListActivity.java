@@ -38,6 +38,7 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
@@ -45,7 +46,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.*;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.TextView;
+
 import com.mrd.bitlib.crypto.Bip39;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -60,7 +66,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-public class EnterWordListActivity extends AppCompatActivity implements WordAutoCompleterFragment.WordAutoCompleterListener {
+public class EnterWordListActivity extends AppCompatActivity implements WordAutoCompleterFragment.WordAutoCompleterListener,
+        AccountCreatorHelper.AccountCreationObserver {
    private static final String ONLY_SEED = "onlySeed";
    public static final String MASTERSEED = "masterseed";
    public static final String PASSWORD = "password";
@@ -94,6 +101,7 @@ public class EnterWordListActivity extends AppCompatActivity implements WordAuto
       this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
       super.onCreate(savedInstanceState);
       setContentView(R.layout.enter_word_list_activity);
+      setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
       _mbwManager = MbwManager.getInstance(this);
       _progress = new ProgressDialog(this);
       enteredWords = new ArrayList<String>();
@@ -110,6 +118,11 @@ public class EnterWordListActivity extends AppCompatActivity implements WordAuto
       if (savedInstanceState == null) {
          //only ask if we are not recreating the activity, because of rotation for example
          askForWordNumber();
+      }
+
+      // we don't want to proceed to enter the wordlist, we already have the master seed.
+      if (!_seedOnly && _mbwManager.getWalletManager(false).hasBip32MasterSeed()) {
+         new AccountCreatorHelper.CreateAccountAsyncTask(EnterWordListActivity.this, EnterWordListActivity.this).execute();
       }
    }
 
@@ -249,7 +262,6 @@ public class EnterWordListActivity extends AppCompatActivity implements WordAuto
       }
    }
 
-
    @Override
    public void onWordSelected(String word) {
       addWordToList(word);
@@ -259,7 +271,6 @@ public class EnterWordListActivity extends AppCompatActivity implements WordAuto
    public void onCurrentWordChanged(String currentWord) {
       ((TextView)findViewById(R.id.tvWord)).setText(currentWord);
    }
-
 
    private class MasterSeedFromWordsAsyncTask extends AsyncTask<Void, Integer, UUID> {
       private Bus bus;
@@ -288,6 +299,12 @@ public class EnterWordListActivity extends AppCompatActivity implements WordAuto
       protected void onPostExecute(UUID account) {
          bus.post(new SeedFromWordsCreated(account));
       }
+   }
+
+   @Override
+   public void onAccountCreated(UUID accountid) {
+      _progress.dismiss();
+      finishOk(accountid);
    }
 
    @com.squareup.otto.Subscribe

@@ -44,7 +44,7 @@ public class LedgerPinDialog extends PinDialog {
    private TextView pinDisp;
 
    public LedgerPinDialog(Context context, boolean hidden) {
-      super(context, hidden, true);
+      super(context, hidden, true );
    }
 
    public void setDialogTitle(int titleRes) {

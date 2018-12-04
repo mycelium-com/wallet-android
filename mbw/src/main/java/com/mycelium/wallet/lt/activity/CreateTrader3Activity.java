@@ -48,6 +48,7 @@ import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
+import com.mrd.bitlib.model.AddressType;
 import com.mycelium.lt.InputValidator;
 import com.mycelium.lt.api.LtApi;
 import com.mycelium.wallet.MbwManager;
@@ -59,13 +60,16 @@ import com.mycelium.wallet.lt.api.CreateTrader;
 
 import java.util.UUID;
 
+/**
+ * CreateTrader{1|2|3}Activity are a sort of Trader Account Creation Wizard.
+ * You start at 1, go to 2, finish at 3.
+ */
 public class CreateTrader3Activity extends Activity {
-
    public static void callMe(Activity currentActivity, UUID accountId, InMemoryPrivateKey privateKey) {
-      Intent intent = new Intent(currentActivity, CreateTrader3Activity.class);
-      intent.putExtra("accountId", accountId);
-      intent.putExtra("privateKey", privateKey);
-      intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
+      Intent intent = new Intent(currentActivity, CreateTrader3Activity.class)
+              .putExtra("accountId", accountId)
+              .putExtra("privateKey", privateKey)
+              .addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
       currentActivity.startActivity(intent);
    }
 
@@ -84,8 +88,8 @@ public class CreateTrader3Activity extends Activity {
       _mbwManager = MbwManager.getInstance(this);
       _ltManager = _mbwManager.getLocalTraderManager();
 
-      _etName = ((EditText) findViewById(R.id.etName));
-      _btCreate = (Button) findViewById(R.id.btUse);
+      _etName = findViewById(R.id.etName);
+      _btCreate = findViewById(R.id.btUse);
 
       _btCreate.setOnClickListener(createClickListener);
 
@@ -130,7 +134,6 @@ public class CreateTrader3Activity extends Activity {
    }
 
    TextWatcher nameWatcher = new TextWatcher() {
-
       @Override
       public void onTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
       }
@@ -157,7 +160,6 @@ public class CreateTrader3Activity extends Activity {
    }
 
    private LocalTraderEventSubscriber ltSubscriber = new LocalTraderEventSubscriber(new Handler()) {
-
       @Override
       public void onLtError(int errorCode) {
          if (errorCode == LtApi.ERROR_CODE_TRADER_NICKNAME_NOT_UNIQUE) {
@@ -184,11 +186,9 @@ public class CreateTrader3Activity extends Activity {
          // Create Trader Success
          // Hide progress bar
          findViewById(R.id.pbWait).setVisibility(View.GONE);
-         _ltManager.setLocalTraderData(_accountId, _privateKey, _privateKey.getPublicKey().toAddress(_mbwManager.getNetwork()), getNickName());
+         _ltManager.setLocalTraderData(_accountId, _privateKey, _privateKey.getPublicKey().toAddress(_mbwManager.getNetwork(), AddressType.P2PKH), getNickName()); // TODO fix
          setResult(RESULT_OK);
          finish();
       }
-
    };
-
 }

@@ -35,20 +35,18 @@
 package com.mycelium.wallet;
 
 import android.app.Activity;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.support.v4.content.LocalBroadcastManager;
+import android.support.annotation.NonNull;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
-import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.exchange.CoinmarketcapApi;
 import com.mycelium.wallet.exchange.model.CoinmarketcapRate;
-import com.mycelium.wallet.external.changelly.ChangellyService;
+import com.mycelium.wallet.external.changelly.ChangellyAPIService;
+import com.mycelium.wallet.external.changelly.ChangellyAPIService.ChangellyAnswerDouble;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiException;
@@ -64,20 +62,28 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import retrofit.RetrofitError;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+import static com.mycelium.wallet.external.changelly.ChangellyAPIService.BCH;
+// import static com.mycelium.wallet.external.changelly.ChangellyAPIService.BTC; gets shadowed by the local definition of the same value.
 
 public class ExchangeRateManager implements ExchangeRateProvider {
-    private static final int MAX_RATE_AGE_MS = 5 * 1000 * 60; /// 5 minutes
-    private static final int MIN_RATE_AGE_MS = 5 * 1000; /// 5 seconds
+    private static final long MAX_RATE_AGE_MS = TimeUnit.MINUTES.toMillis(5);
+    private static final long MIN_RATE_AGE_MS = TimeUnit.SECONDS.toMillis(5);
     private static final String EXCHANGE_DATA = "wapi_exchange_rates";
     public static final String BTC = "BTC";
 
     private static final Pattern EXCHANGE_RATE_PATTERN;
-    public static final String CHANGELLY_MARKET = "Changelly";
-    public static final String RMC_MARKET = "Coinmarketcap";
+    private static final String CHANGELLY_MARKET = "Changelly";
+    private static final String RMC_MARKET = "Coinmarketcap";
+    private static final String DEFAULT_EXCHANGE = "Bitstamp";
 
     static {
         String regexKeyExchangeRate = "(.*)_(.*)_(.*)";
@@ -106,28 +112,21 @@ public class ExchangeRateManager implements ExchangeRateProvider {
     // value hardcoded for now, but in future we need get from somewhere
     private static final float MSS_RATE = 3125f;
 
-    private NetworkParameters networkParameters;
     private MetadataStorage storage;
-    private Receiver changellyReceiver;
 
-    ExchangeRateManager(Context applicationContext, Wapi api, NetworkParameters networkParameters, MetadataStorage storage) {
-        this.networkParameters = networkParameters;
+    ExchangeRateManager(Context applicationContext, Wapi api, MetadataStorage storage) {
         _applicationContext = applicationContext;
         _api = api;
         _latestRates = null;
         _latestRatesTime = 0;
-        _currentExchangeSourceName = getPreferences().getString("currentRateName", null);
+        _currentExchangeSourceName = getPreferences().getString("currentRateName", DEFAULT_EXCHANGE);
 
         _subscribers = new LinkedList<>();
         _latestRates = new HashMap<>();
         this.storage = storage;
-        applicationContext.startService(new Intent(applicationContext, ChangellyService.class)
-                                        .setAction(ChangellyService.ACTION_GET_EXCHANGE_AMOUNT)
-                                        .putExtra(ChangellyService.FROM, ChangellyService.BCH)
-                                        .putExtra(ChangellyService.TO, ChangellyService.BTC)
-                                        .putExtra(ChangellyService.AMOUNT, 1.0));
-        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(changellyReceiver = new Receiver()
-        , new IntentFilter(ChangellyService.INFO_EXCH_AMOUNT));
+        ChangellyAPIService.retrofit.create(ChangellyAPIService.class)
+                .getExchangeAmount(BCH, BTC, 1)
+                .enqueue(new GetOfferCallback());
     }
 
     public synchronized void subscribe(Observer subscriber) {
@@ -148,7 +147,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
             }
 
             try {
-                List<QueryExchangeRatesResponse> responses = new ArrayList<QueryExchangeRatesResponse>();
+                List<QueryExchangeRatesResponse> responses = new ArrayList<>();
 
                 for (String currency : selectedCurrencies) {
                     responses.add(_api.queryExchangeRates(new QueryExchangeRatesRequest(Wapi.VERSION, currency)).getResult());
@@ -162,32 +161,8 @@ public class ExchangeRateManager implements ExchangeRateProvider {
                 // we failed to get the exchange rate, try to restore saved values from the local database
                 Map<String, String> savedExchangeRates = storage.getAllExchangeRates();
                 if (savedExchangeRates.entrySet().size() > 0) {
-                    List<QueryExchangeRatesResponse> responses = new ArrayList<>();
-
-                    for (String currency : selectedCurrencies) {
-                        List<ExchangeRate> exchangeRates = new ArrayList<>();
-                        for (Map.Entry<String, String> entry : savedExchangeRates.entrySet()) {
-                            String key = entry.getKey();
-
-                            Matcher matcher = EXCHANGE_RATE_PATTERN.matcher(key);
-
-                            if (matcher.find()) {
-                                String market = matcher.group(1);
-                                String relatedCurrency = matcher.group(2); //BTC
-                                String baseCurrency = matcher.group(3); //fiat
-
-                                if (relatedCurrency.equals(BTC) && baseCurrency.equals(currency)) {
-                                    ExchangeRate exchangeRate = new ExchangeRate(market, new Date().getTime(), Double.parseDouble(entry.getValue()), currency);
-                                    exchangeRates.add(exchangeRate);
-                                }
-                            }
-                        }
-
-                        responses.add(new QueryExchangeRatesResponse(currency, exchangeRates.toArray(new ExchangeRate[exchangeRates.size()])));
-                    }
-
                     synchronized (_requestLock) {
-                        setLatestRates(responses);
+                        setLatestRates(localValues(selectedCurrencies, savedExchangeRates));
                         _fetcher = null;
                         notifyRefreshingExchangeRatesSucceeded();
                     }
@@ -219,6 +194,40 @@ public class ExchangeRateManager implements ExchangeRateProvider {
                 rateBchBtc = Float.parseFloat(rate.get());
             }
         }
+    }
+
+    private List<QueryExchangeRatesResponse> localValues(List<String> selectedCurrencies,
+                                                                Map<String, String> savedExchangeRates) {
+        List<QueryExchangeRatesResponse> responses = new ArrayList<>();
+
+        for (String currency : selectedCurrencies) {
+            List<ExchangeRate> exchangeRates = new ArrayList<>();
+            for (Map.Entry<String, String> entry : savedExchangeRates.entrySet()) {
+                String key = entry.getKey();
+                Matcher matcher = EXCHANGE_RATE_PATTERN.matcher(key);
+
+                if (matcher.find()) {
+                    String market = matcher.group(1);
+                    String relatedCurrency = matcher.group(2); //BTC
+                    String baseCurrency = matcher.group(3); //fiat
+
+                    if (relatedCurrency.equals(BTC) && baseCurrency.equals(currency)) {
+                        Double price;
+                        try {
+                            price = Double.parseDouble(entry.getValue());
+                        } catch (NumberFormatException nfe) {
+                            price = 0.0;
+                        }
+                        ExchangeRate exchangeRate = new ExchangeRate(market, new Date().getTime(), price, currency);
+                        exchangeRates.add(exchangeRate);
+                    }
+                }
+            }
+
+            responses.add(new QueryExchangeRatesResponse(currency, exchangeRates.toArray(new ExchangeRate[0])));
+        }
+
+        return responses;
     }
 
     private void notifyRefreshingExchangeRatesSucceeded() {
@@ -259,12 +268,12 @@ public class ExchangeRateManager implements ExchangeRateProvider {
     }
 
     private synchronized void setLatestRates(List<QueryExchangeRatesResponse> latestRates) {
-        _latestRates = new HashMap<String, QueryExchangeRatesResponse>();
+        _latestRates = new HashMap<>();
         for (QueryExchangeRatesResponse response : latestRates) {
             _latestRates.put(response.currency, response);
 
             for(ExchangeRate rate : response.exchangeRates) {
-                storage.storeExchangeRate(BTC, rate.currency, rate.name, rate.price.toString());
+                storage.storeExchangeRate(BTC, rate.currency, rate.name, String.valueOf(rate.price));
             }
         }
         _latestRatesTime = System.currentTimeMillis();
@@ -291,16 +300,15 @@ public class ExchangeRateManager implements ExchangeRateProvider {
      * first time the app is running
      */
     public synchronized List<String> getExchangeSourceNames() {
-        List<String> result = new LinkedList<String>();
+        List<String> result = new LinkedList<>();
         //check whether we have any rates
         if (_latestRates.isEmpty()) return result;
-        QueryExchangeRatesResponse latestRates =  _latestRates.values().iterator().next();
+        QueryExchangeRatesResponse latestRates = _latestRates.values().iterator().next();
         if (latestRates != null) {
             for (ExchangeRate r : latestRates.exchangeRates) {
                 result.add(r.name);
             }
         }
-
         return result;
     }
 
@@ -321,7 +329,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
     public ExchangeRate getExchangeRate(String currency, String source) {
         // TODO need some refactoring for this
         String injectCurrency = null;
-        if(currency.equals("RMC") || currency.equals("MSS") || currency.equals("BCH")) {
+        if (currency.equals("RMC") || currency.equals("MSS") || currency.equals("BCH")) {
             injectCurrency = currency;
             currency = "USD";
         }
@@ -331,14 +339,19 @@ public class ExchangeRateManager implements ExchangeRateProvider {
         if (_latestRatesTime + MAX_RATE_AGE_MS < System.currentTimeMillis() || _latestRates.get(currency) == null) {
             //rate is too old or does not exists, source seems to not be available
             //we return a rate with null price to indicate there is something wrong with the exchange rate source
-            return ExchangeRate.missingRate(source, System.currentTimeMillis(),  currency);
+            return ExchangeRate.missingRate(source, System.currentTimeMillis(), currency);
         }
-        for (ExchangeRate r : _latestRates.get(currency).exchangeRates) {
+
+        ExchangeRate[] exchangeRates = _latestRates.get(currency).exchangeRates;
+        if (exchangeRates == null) {
+            return ExchangeRate.missingRate(source, System.currentTimeMillis(), currency);
+        }
+        for (ExchangeRate r : exchangeRates) {
             if (r.name.equals(source)) {
                 //if the price is 0, obviously something went wrong
                 if (r.price.equals(0d)) {
                     //we return an exchange rate with null price -> indicating missing rate
-                    return ExchangeRate.missingRate(source, System.currentTimeMillis(),  currency);
+                    return ExchangeRate.missingRate(source, System.currentTimeMillis(), currency);
                 }
                 //everything is fine, return the rate
                 return getOtherExchangeRate(injectCurrency, r);
@@ -346,7 +359,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
         }
         if (source != null) {
             // We end up here if the exchange is no longer on the list
-            return ExchangeRate.missingRate(source, System.currentTimeMillis(),  currency);
+            return ExchangeRate.missingRate(source, System.currentTimeMillis(), currency);
         }
         return null;
     }
@@ -396,34 +409,21 @@ public class ExchangeRateManager implements ExchangeRateProvider {
 
         requestRefresh();
     }
-    class Receiver extends BroadcastReceiver {
-        private Receiver() {
-        }  // prevents instantiation
+
+    class GetOfferCallback implements Callback<ChangellyAnswerDouble> {
+        @Override
+        public void onResponse(@NonNull Call<ChangellyAnswerDouble> call,
+                               @NonNull Response<ChangellyAnswerDouble> response) {
+            ChangellyAnswerDouble result = response.body();
+            if(result != null) {
+                rateBchBtc = (float) result.result;
+                storage.storeExchangeRate("BCH", "BTC", CHANGELLY_MARKET, String.valueOf(rateBchBtc));
+            }
+        }
 
         @Override
-        public void onReceive(Context context, Intent intent) {
-            String from, to;
-            double amount;
-
-            switch (intent.getAction()) {
-            case ChangellyService.INFO_EXCH_AMOUNT:
-                from = intent.getStringExtra(ChangellyService.FROM);
-                to = intent.getStringExtra(ChangellyService.TO);
-                double fromAmount = intent.getDoubleExtra(ChangellyService.FROM_AMOUNT, 0);
-                amount = intent.getDoubleExtra(ChangellyService.AMOUNT, 0);
-                if (from != null && to != null) {
-                    try {
-                        if (to.equalsIgnoreCase(ChangellyService.BTC)
-                                && from.equalsIgnoreCase(ChangellyService.BCH)
-                                && fromAmount == 1) {
-                            rateBchBtc = (float) amount;
-                            storage.storeExchangeRate("BCH", "BTC", CHANGELLY_MARKET, String.valueOf(rateBchBtc));
-                        }
-                    } catch (NumberFormatException ignore) {
-                    }
-                }
-                break;
-            }
+        public void onFailure(@NonNull Call<ChangellyAnswerDouble> call, @NonNull Throwable t) {
+            Toast.makeText(_applicationContext, "Service unavailable", Toast.LENGTH_SHORT).show();
         }
     }
 }

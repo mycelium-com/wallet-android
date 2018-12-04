@@ -1,17 +1,17 @@
 // keep that file in sync with ext_settings.gradle in the internal big repository
 ext {
     guavaArtifact = 'com.google.guava:guava:23.0-android'
-    androidBuildArtifact = 'com.android.tools.build:gradle:3.1.2'
+    androidBuildArtifact = 'com.android.tools.build:gradle:3.2.1'
     slf4jVersion = '1.7.2'
-    androidCompileSdkVersion = 27
-    androidSdkBuildVersion = '27.0.3'
-    androidSupportVersion = '27.1.1'
+    androidCompileSdkVersion = 28
+    androidSdkBuildVersion = '28.0.3'
+    androidSupportVersion = '28.0.0'
     junitVersion = '4.12'
-    kotlin_version = '1.2.41'
+    kotlin_version = '1.3.10'
     lifecycle_version = "1.1.1"
 
     projectRootDir = project.rootDir.getPath()
-    commonDebugKeystore = rootProject.file('debug.keystore')
+    commonDebugKeystore = project.file('debug.keystore')
 
     // this is needed for the /public folder. It needs different paths depending if it gets compiled
     // on its own or is included as a submodule in the whole repository

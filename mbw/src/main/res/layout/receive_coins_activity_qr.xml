@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="0dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        tools:showIn="@layout/receive_coins_activity">
+
+        <FrameLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+
+            <com.mycelium.wallet.activity.util.QrImageView
+                android:id="@+id/ivQrCode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:background="@color/white"
+                android:contentDescription="@string/qr_code"
+                android:longClickable="false"
+                android:maxHeight="@dimen/large_qrcode"
+                android:maxWidth="@dimen/large_qrcode"
+                android:minHeight="@dimen/large_qrcode"
+                android:minWidth="@dimen/large_qrcode" />
+        </FrameLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/tap_qr_code_desc"
+            android:textColor="@color/grey"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="10dp" />
+</merge>

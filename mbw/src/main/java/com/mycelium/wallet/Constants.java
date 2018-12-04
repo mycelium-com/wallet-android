@@ -54,6 +54,7 @@ public interface Constants {
    String SETTINGS_NAME = "settings";
    String PIN_SETTING = "PIN";
    String PIN_SETTING_RESETTABLE = "PinResettable";
+   String RANDOMIZE_PIN = "randomizePin";
    String PIN_SETTING_REQUIRED_ON_STARTUP = "PinOnStartup";
    String PROXY_SETTING = "proxy";
    String FIAT_CURRENCY_SETTING = "FiatCurrency";
@@ -61,7 +62,6 @@ public interface Constants {
    String DEFAULT_CURRENCY = "USD";
    String BITCOIN_DENOMINATION_SETTING = "BitcoinDenomination";
    String MINER_FEE_SETTING = "MinerFeeEstimationSetting";
-   String ENABLE_CONTINUOUS_FOCUS_SETTING = "EnableContinuousFocusSetting";
    String KEY_MANAGEMENT_LOCKED_SETTING = "KeyManagementLocked";
    String MYCELIUM_WALLET_HELP_URL = "http://www.mycelium.com/wallet/help_20.html";
    String PLAYSTORE_BASE_URL = "https://play.google.com/store/apps/details?id=";
@@ -70,6 +70,8 @@ public interface Constants {
    String IGNORED_VERSIONS = "ignored_versions";
    String TOR_MODE = "tor_mode";
    String BLOCK_EXPLORER = "BlockExplorer";
+   String CHANGE_ADDRESS_MODE = "change_type";
+
    // Ledger preferences
    String LEDGER_SETTINGS_NAME = "ledger_settings";
    String LEDGER_DISABLE_TEE_SETTING = "ledger_disable_tee";
@@ -90,7 +92,8 @@ public interface Constants {
    String LOCAL_TRADER_LATITUDE_SETTING = "latitude";
    String LOCAL_TRADER_LONGITUDE_SETTING = "longitude";
    GpsLocationEx LOCAL_TRADER_DEFAULT_LOCATION = new GpsLocationEx(48.2162845, 16.2484715, "Penzing, Vienna", "AT");
-   String LOCAL_TRADER_DISABLED_SETTING = "isLocalTraderDisabled";
+   String LT_DISABLED = "isLocalTraderDisabled";
+   String LT_ENABLED = "isLocalTraderEnabled";
    String LOCAL_TRADER_PLAY_SOUND_ON_TRADE_NOTIFICATION_SETTING = "playSoundOnTradeNotification";
    String LOCAL_TRADER_USE_MILES_SETTING = "useMiles";
    String LOCAL_TRADER_GCM_SETTINGS_NAME = "localTrader.gcm.settings";

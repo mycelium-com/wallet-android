@@ -19,7 +19,7 @@ import kotlin.system.measureTimeMillis
 
 typealias Consumer<T> = (T) -> Unit
 
-class TcpEndpoint(val host: String, val port: Int)
+data class TcpEndpoint(val host: String, val port: Int)
 
 open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
                             val logger: WapiLogger) {
@@ -68,7 +68,7 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
                         callbacks.clear()
                         notify("server.version", RpcParams.mapParams(
                                 "client_name" to "wapi",
-                                "protocol_version" to "1.2"))
+                                "protocol_version" to "1.4"))
                         isConnected.set(true)
                         connectionAttempt = 0
 
@@ -131,7 +131,8 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
     fun renewSubscriptions() {
         logger.logInfo("Subscriptions been renewed")
         synchronized(subscriptions) {
-            subscriptions.forEach { subscribe(it.value) }
+            val toRenew = subscriptions.toMutableMap()
+            toRenew.forEach { subscribe(it.value) }
         }
     }
 
@@ -139,7 +140,7 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
         val request = RpcRequestOut(subscription.methodName, subscription.params).apply {
             id = nextRequestId.getAndIncrement().toString()
             callbacks[id.toString()] = subscription.callback
-            synchronized(subscription) {
+            synchronized(subscriptions) {
                 subscriptions[subscription.methodName] = subscription
             }
         }.toJson()
@@ -206,20 +207,16 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
         return response!!
     }
 
-    private fun calculateNewTimeout(executedIn: Long): Long {
-        return when {
-            executedIn <= SMALL_RESPONSE_TIMEOUT -> SMALL_RESPONSE_TIMEOUT
-            executedIn <= MEDIUM_RESPONSE_TIMEOUT -> MEDIUM_RESPONSE_TIMEOUT
-            else -> MAX_RESPONSE_TIMEOUT
-        }
+    private fun calculateNewTimeout(executedIn: Long) = when {
+        executedIn <= SMALL_RESPONSE_TIMEOUT -> SMALL_RESPONSE_TIMEOUT
+        executedIn <= MEDIUM_RESPONSE_TIMEOUT -> MEDIUM_RESPONSE_TIMEOUT
+        else -> MAX_RESPONSE_TIMEOUT
     }
 
-    private fun calculateNewTimeout(attempt: Int): Long {
-        return when (attempt) {
-            0 -> SMALL_RESPONSE_TIMEOUT
-            1 -> MEDIUM_RESPONSE_TIMEOUT
-            else -> MAX_RESPONSE_TIMEOUT
-        }
+    private fun calculateNewTimeout(attempt: Int) = when (attempt) {
+        0 -> SMALL_RESPONSE_TIMEOUT
+        1 -> MEDIUM_RESPONSE_TIMEOUT
+        else -> MAX_RESPONSE_TIMEOUT
     }
 
     private fun close() = socket?.close()
@@ -277,6 +274,7 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
             }
         }
     }
+
     companion object {
         private val INTERVAL_BETWEEN_SOCKET_RECONNECTS = TimeUnit.SECONDS.toMillis(5)
         private val INTERVAL_BETWEEN_PING_REQUESTS = TimeUnit.SECONDS.toMillis(10)
