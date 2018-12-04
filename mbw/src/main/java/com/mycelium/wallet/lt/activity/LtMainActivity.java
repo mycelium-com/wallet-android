@@ -71,8 +71,10 @@ import com.mycelium.wallet.lt.activity.buy.AdSearchFragment;
 import com.mycelium.wallet.lt.activity.sell.AdsFragment;
 import com.mycelium.wallet.lt.api.DeleteTrader;
 import com.mycelium.wallet.lt.api.GetTraderInfo;
-import com.mycelium.wapi.wallet.*;
-import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
+import com.mycelium.wapi.wallet.AesKeyCipher;
+import com.mycelium.wapi.wallet.ExportableAccount;
+import com.mycelium.wapi.wallet.KeyCipher;
+import com.mycelium.wapi.wallet.WalletAccount;
 
 public class LtMainActivity extends AppCompatActivity {
    public static final String TAB_TO_SELECT = "tabToSelect";
@@ -275,6 +277,12 @@ public class LtMainActivity extends AppCompatActivity {
 
    private void backupTraderAccount() throws KeyCipher.InvalidKeyCipher {
       WalletAccount account = _mbwManager.getWalletManager(false).getAccount(_ltManager.getLocalTraderAccountId());
+
+      // can happen if the account was deleted
+      if(account == null) {
+         Toast.makeText(getApplicationContext(), getResources().getString(R.string.lt_cant_backup), Toast.LENGTH_SHORT).show();
+         return;
+      }
       final InMemoryPrivateKey privateKey = _mbwManager.obtainPrivateKeyForAccount(account, LocalTraderManager.LT_DERIVATION_SEED, AesKeyCipher.defaultKeyCipher());
 
       ExportableAccount exportableAccount = new ExportableAccount() {
