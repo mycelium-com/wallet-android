@@ -5,18 +5,14 @@ import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.model.NetworkParameters
-import com.mrd.bitlib.model.ScriptOutput
 import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.wapi.api.Wapi
-import com.mycelium.wapi.model.TransactionDetails
-import com.mycelium.wapi.model.TransactionEx
 import com.mycelium.wapi.model.TransactionSummary
 import com.mycelium.wapi.wallet.GenericTransaction
 import com.mycelium.wapi.wallet.btc.Bip44AccountBacking
 import com.mycelium.wapi.wallet.KeyCipher
 import com.mycelium.wapi.wallet.Reference
 import com.mycelium.wapi.wallet.SpvBalanceFetcher
-import com.mycelium.wapi.wallet.bch.coins.BchCoin
 import com.mycelium.wapi.wallet.bch.coins.BchMain
 import com.mycelium.wapi.wallet.bch.coins.BchTest
 import com.mycelium.wapi.wallet.bip44.ChangeAddressMode
@@ -31,9 +27,6 @@ import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance
-import com.mycelium.wapi.wallet.currency.CurrencyValue
-import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue
-import com.mycelium.wapi.wallet.currency.ExactCurrencyValue
 
 import java.util.UUID
 
@@ -54,7 +47,7 @@ open class Bip44BCHAccount(
     }
 
     override fun getCoinType(): CryptoCurrency {
-        return BchTest
+        return if (network.isProdnet) BchMain else BchTest
     }
 
     override fun getTransactionSummary(txid: Sha256Hash): TransactionSummary? {
@@ -106,62 +99,39 @@ open class Bip44BCHAccount(
         }
     }
 
-    private fun getBchTransaction(id : Sha256Hash): BchTransaction?{
+    private fun getBchTransaction(ts :  TransactionSummary): BchTransaction?{
         checkNotArchived()
-        val tex = backing.getTransaction(id)
-        val tx = TransactionEx.toTransaction(tex) ?: return null
 
         var satoshisReceived: Long = 0
         var satoshisSent: Long = 0
-        val outputs = ArrayList<GenericTransaction.GenericOutput>()
-        for (output in tx.outputs) {
-            val address = output.script.getAddress(_network)
-            if (isMine(output.script)) {
-                satoshisReceived += output.value
-            }
-            if (address != null && address !== Address.getNullAddress(_network)) {
-                val currency = if (network.isProdnet) BchMain else BchTest
-                outputs.add(GenericTransaction.GenericOutput(BtcLegacyAddress(currency, address.allAddressBytes), Value.valueOf(coinType, output.value)))
-            }
-        }
-        val inputs = ArrayList<GenericTransaction.GenericInput>() //need to create list of outputs
 
-        if (!tx.isCoinbase) {
-            for (input in tx.inputs) {
-
-                val funding = backing.getParentTransactionOutput(input.outPoint)
-                if (funding == null) {
-                    _logger.logError("Unable to find parent output for: " + input.outPoint)
-                    continue
-                }
-                if (isMine(funding)) {
-                    satoshisSent += funding.value
-                }
-                val address = ScriptOutput.fromScriptBytes(funding.script)!!.getAddress(_network)
-                val currency = if (network.isProdnet) BchMain else BchTest
-                inputs.add(GenericTransaction.GenericInput(BtcLegacyAddress(currency, address.allAddressBytes),
-                        Value.valueOf(coinType, funding.value)))
-            }
-        }
-
-        val confirmations: Int
-        if (tex.height == -1) {
-            confirmations = 0
+        if (ts.isIncoming){
+            satoshisReceived = ts.value.longValue
         } else {
-            confirmations = Math.max(0, getBlockChainHeight() - tex.height + 1)
+            satoshisSent = ts.value.longValue
         }
-        val isQueuedOutgoing = backing.isOutgoingTransaction(tx.id)
-        return BchTransaction(coinType, tx, satoshisSent, satoshisReceived, tex.time,
-                confirmations, isQueuedOutgoing, inputs, outputs, riskAssessmentForUnconfirmedTx[tx.id],
-                tex.binary.size, Value.valueOf(if (network.isProdnet) BchMain else BchTest,
-                Math.abs(satoshisReceived - satoshisSent)))
+
+        val outputs = ArrayList<GenericTransaction.GenericOutput>()
+        outputs.add(GenericTransaction.GenericOutput(BtcLegacyAddress(coinType, ts.destinationAddress.get().allAddressBytes),
+                Value.valueOf(coinType, satoshisSent)))
+
+        val inputs = ArrayList<GenericTransaction.GenericInput>() //need to create list of outputs
+        for (input in ts.toAddresses) {
+            inputs.add(GenericTransaction.GenericInput(BtcLegacyAddress(coinType, input.allAddressBytes),
+                        Value.valueOf(coinType, satoshisReceived)))
+        }
+
+        val isQueuedOutgoing = ts.isQueuedOutgoing
+        return BchTransaction(coinType, ts.txid, satoshisSent, satoshisReceived, ts.time.toInt(),
+                ts.confirmations, isQueuedOutgoing, inputs, outputs, riskAssessmentForUnconfirmedTx[ts.txid], 0,
+                 Value.valueOf(if (network.isProdnet) BchMain else BchTest, Math.abs(satoshisReceived - satoshisSent)))
     }
 
     override fun getTransactionsSince(receivingSince: Long): MutableList<BtcTransaction> {
         val result = mutableListOf<BtcTransaction>()
         val transactions = spvBalanceFetcher.retrieveTransactionsSummaryByUnrelatedAccountId(id.toString(), receivingSince!!)
         for (transaction in transactions) {
-            val tmp = getBchTransaction(transaction.txid)
+            val tmp = getBchTransaction(transaction)
             if (tmp != null){
                 result.add(tmp)
             }
