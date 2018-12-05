@@ -60,6 +60,12 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         activateNfc()
 
         initDatabinding(account)
+
+        val addressDropdownRequired = viewModel is ReceiveBtcViewModel &&
+                (account as? AbstractBtcAccount)?.availableAddressTypes?.size ?: 0 > 1
+
+        if (addressDropdownRequired)
+            createAddressDropdown()
     }
 
     private fun createAddressDropdown() {
