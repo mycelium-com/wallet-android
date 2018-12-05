@@ -101,9 +101,10 @@ class ColuModule(val networkParameters: NetworkParameters,
                         , coluApi, backing.getAccountBacking(id), backing, listener)
             }
         }
-
-        val baseName = DateFormat.getDateInstance(java.text.DateFormat.MEDIUM, Locale.getDefault()).format(Date())
-        result!!.label = createLabel(baseName, result!!.id)
+        result?.let {
+            val baseName = DateFormat.getDateInstance(java.text.DateFormat.MEDIUM, Locale.getDefault()).format(Date())
+            it.label = createLabel(baseName, it.id)
+        }
         return result
     }
 

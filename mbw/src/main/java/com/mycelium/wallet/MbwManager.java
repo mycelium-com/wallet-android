@@ -684,14 +684,11 @@ public class MbwManager {
         }
         walletManager.add(new BitcoinHDModule(backing, secureKeyValueStore, networkParameters, _wapi, currenciesSettingsMap, getMetadataStorage()));
 
-        /* TODO - temporarily commented Colu support since SqliteColuManagerBacking should be fixed
-
         SqliteColuManagerBacking coluBacking = new SqliteColuManagerBacking(context);
         ColuClient coluClient = new ColuClient(networkParameters, BuildConfig.ColoredCoinsApiURLs, BuildConfig.ColuBlockExplorerApiURLs);
         walletManager.add(new ColuModule(networkParameters, publicPrivateKeyStore
                 , new ColuApiImpl(coluClient), coluBacking, accountListener, getMetadataStorage()));
 
-        */
         if (masterSeedManager.hasBip32MasterSeed()) {
             addCoinapultModule(context, environment,walletManager, accountListener);
         }
