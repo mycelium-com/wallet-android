@@ -60,12 +60,16 @@ class ColuModule(val networkParameters: NetworkParameters,
     }
 
     private fun getPrivateKey(addresses: Map<AddressType, BtcAddress>?): InMemoryPrivateKey? {
+        var result: InMemoryPrivateKey? = null
         addresses?.let {
             for (address in it.values) {
-                return publicPrivateKeyStore.getPrivateKey(address.address, AesKeyCipher.defaultKeyCipher())
+                val privateKey = publicPrivateKeyStore.getPrivateKey(address.address, AesKeyCipher.defaultKeyCipher())
+                if (privateKey != null) {
+                    result = privateKey
+                }
             }
         }
-        return null
+        return result
     }
 
     override fun createAccount(config: Config): WalletAccount<*, *>? {

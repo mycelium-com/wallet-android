@@ -1,5 +1,6 @@
 package com.mycelium;
 
+import com.google.common.base.Optional;
 import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.crypto.Bip39;
@@ -66,6 +67,8 @@ import com.mycelium.wapi.wallet.eth.EthTransaction;
 import com.mycelium.wapi.wallet.eth.coins.EthMain;
 import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
 import com.mycelium.wapi.wallet.manager.Synchronizer;
+import com.mycelium.wapi.wallet.metadata.IMetaDataStorage;
+import com.mycelium.wapi.wallet.metadata.MetadataKeyCategory;
 
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
@@ -178,6 +181,21 @@ class WalletConsole {
                 @Override
                 public void balanceUpdated(@NotNull WalletAccount<?, ?> walletAccount) {
 
+                }
+            }, new IMetaDataStorage() {
+                @Override
+                public void storeKeyCategoryValueEntry(MetadataKeyCategory keyCategory, String value) {
+
+                }
+
+                @Override
+                public String getKeyCategoryValueEntry(String key, String category, String defaultValue) {
+                    return null;
+                }
+
+                @Override
+                public Optional<String> getFirstKeyForCategoryValue(String category, String value) {
+                    return null;
                 }
             });
 

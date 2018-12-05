@@ -75,7 +75,6 @@ import com.mycelium.wapi.wallet.colu.ColuTransaction;
 import com.mycelium.wapi.wallet.colu.ColuUtils;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
 
-import java.lang.reflect.Type;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -83,6 +82,7 @@ import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -143,10 +143,10 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
             int blockHeight = cursor.getInt(3);
             String coinId = cursor.getString(4);
             ColuMain coinType = ColuUtils.getColuCoin(coinId);
-             PublicKey publicKey = null;
-             if (cursor.getBlob(5) != null) {
-                 publicKey = new PublicKey(cursor.getBlob(5));
-             }
+            PublicKey publicKey = null;
+            if (cursor.getBlob(5) != null) {
+               publicKey = new PublicKey(cursor.getBlob(5));
+            }
             Type type = new TypeToken<Collection<String>>(){}.getType();
             Collection<String> addressStringsList = gson.fromJson(cursor.getString(1), type);
             Map<AddressType, BtcAddress> addresses = new ArrayMap<>(3);
